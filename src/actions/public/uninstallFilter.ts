@@ -1,12 +1,16 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type UninstallFilterParameters = {
   filter: Filter<any>
 }
 export type UninstallFilterReturnType = boolean
+
+export type UninstallFilterErrorType = RequestErrorType | ErrorType
 
 /**
  * Destroys a [`Filter`](https://viem.sh/docs/glossary/types.html#filter).

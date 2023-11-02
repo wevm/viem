@@ -1,4 +1,7 @@
 import { ens_normalize } from '@adraffy/ens-normalize'
+import type { ErrorType } from '../../errors/utils.js'
+
+export type NormalizeErrorType = ErrorType
 
 /**
  * @description Normalizes ENS name according to ENSIP-15.

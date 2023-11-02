@@ -10,7 +10,9 @@ import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
 import { encodeDeployData } from '../../utils/abi/encodeDeployData.js'
 
+import type { ErrorType } from '../../errors/utils.js'
 import {
+  type SendTransactionErrorType,
   type SendTransactionParameters,
   type SendTransactionReturnType,
   sendTransaction,
@@ -31,6 +33,8 @@ export type DeployContractParameters<
   GetConstructorArgs<TAbi>
 
 export type DeployContractReturnType = SendTransactionReturnType
+
+export type DeployContractErrorType = SendTransactionErrorType | ErrorType
 
 /**
  * Deploys a contract to the network, given bytecode and constructor arguments.
@@ -63,7 +67,7 @@ export function deployContract<
   const TAbi extends Abi | readonly unknown[],
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   walletClient: Client<Transport, TChain, TAccount>,
   {

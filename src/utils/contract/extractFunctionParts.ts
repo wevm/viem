@@ -1,4 +1,8 @@
+import type { ErrorType } from '../../errors/utils.js'
+
 const paramsRegex = /((function|event)\s)?(.*)(\((.*)\))/
+
+export type ExtractFunctionPartsErrorType = ErrorType
 
 export function extractFunctionParts(def: string) {
   const parts = def.match(paramsRegex)
@@ -8,9 +12,13 @@ export function extractFunctionParts(def: string) {
   return { type, name, params }
 }
 
+export type ExtractFunctionNameErrorType = ErrorType
+
 export function extractFunctionName(def: string) {
   return extractFunctionParts(def).name
 }
+
+export type ExtractFunctionParamsErrorType = ErrorType
 
 export function extractFunctionParams(def: string) {
   const params = extractFunctionParts(def).params
@@ -21,6 +29,8 @@ export function extractFunctionParams(def: string) {
     ...(param[1] === 'indexed' ? { indexed: true } : {}),
   }))
 }
+
+export type ExtractFunctionTypeErrorType = ErrorType
 
 export function extractFunctionType(def: string) {
   return extractFunctionParts(def).type

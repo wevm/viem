@@ -1,11 +1,19 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { Quantity } from '../../types/rpc.js'
-import { hexToNumber } from '../../utils/encoding/fromHex.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type HexToNumberErrorType,
+  hexToNumber,
+} from '../../utils/encoding/fromHex.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
 
 export type GetBlockTransactionCountParameters =
   | {
@@ -28,6 +36,12 @@ export type GetBlockTransactionCountParameters =
     }
 
 export type GetBlockTransactionCountReturnType = number
+
+export type GetBlockTransactionCountErrorType =
+  | NumberToHexErrorType
+  | HexToNumberErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Returns the number of Transactions at a block number, hash, or tag.

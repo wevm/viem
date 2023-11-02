@@ -1,13 +1,20 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { isHex } from '../data/isHex.js'
-import { hexToNumber } from '../encoding/fromHex.js'
+import { type IsHexErrorType, isHex } from '../data/isHex.js'
+import { type HexToNumberErrorType, hexToNumber } from '../encoding/fromHex.js'
 import { toHex } from '../encoding/toHex.js'
 
 export type RecoverPublicKeyParameters = {
   hash: Hex | ByteArray
   signature: Hex | ByteArray
 }
+
 export type RecoverPublicKeyReturnType = Hex
+
+export type RecoverPublicKeyErrorType =
+  | HexToNumberErrorType
+  | IsHexErrorType
+  | ErrorType
 
 export async function recoverPublicKey({
   hash,

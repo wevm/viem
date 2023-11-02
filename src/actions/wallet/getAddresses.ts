@@ -3,10 +3,20 @@ import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import { checksumAddress } from '../../utils/address/getAddress.js'
+import {
+  type ChecksumAddressErrorType,
+  checksumAddress,
+} from '../../utils/address/getAddress.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type GetAddressesReturnType = Address[]
+
+export type GetAddressesErrorType =
+  | RequestErrorType
+  | ChecksumAddressErrorType
+  | ErrorType
 
 /**
  * Returns a list of account addresses owned by the wallet or client.
@@ -34,6 +44,7 @@ export async function getAddresses<
 >(
   client: Client<Transport, TChain, TAccount>,
 ): Promise<GetAddressesReturnType> {
+  if (client.account?.type === 'local') return [client.account.address]
   const addresses = await client.request({ method: 'eth_accounts' })
   return addresses.map((address) => checksumAddress(address))
 }

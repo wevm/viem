@@ -1,7 +1,10 @@
 import type { Address } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
@@ -11,26 +14,53 @@ import {
   ChainDoesNotSupportContract,
   ClientChainNotConfiguredError,
 } from '../../errors/chain.js'
-import { RawContractError } from '../../errors/contract.js'
+import {
+  RawContractError,
+  type RawContractErrorType,
+} from '../../errors/contract.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
-import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { getChainContractAddress } from '../../utils/chain.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
-import { getCallError } from '../../utils/errors/getCallError.js'
+import {
+  type DecodeFunctionResultErrorType,
+  decodeFunctionResult,
+} from '../../utils/abi/decodeFunctionResult.js'
+import {
+  type EncodeFunctionDataErrorType,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type GetChainContractAddressErrorType,
+  getChainContractAddress,
+} from '../../utils/chain/getChainContractAddress.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
+import {
+  type GetCallErrorReturnType,
+  getCallError,
+} from '../../utils/errors/getCallError.js'
 import { extract } from '../../utils/formatters/extract.js'
 import {
+  type FormatTransactionRequestErrorType,
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
-import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
+import {
+  type CreateBatchSchedulerErrorType,
+  createBatchScheduler,
+} from '../../utils/promise/createBatchScheduler.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
-import type { AssertRequestParameters } from '../../utils/transaction/assertRequest.js'
+import type {
+  AssertRequestErrorType,
+  AssertRequestParameters,
+} from '../../utils/transaction/assertRequest.js'
 
 export type FormattedCall<
   TChain extends Chain | undefined = Chain | undefined,
@@ -58,6 +88,15 @@ export type CallParameters<
   )
 
 export type CallReturnType = { data: Hex | undefined }
+
+export type CallErrorType = GetCallErrorReturnType<
+  | ParseAccountErrorType
+  | AssertRequestErrorType
+  | NumberToHexErrorType
+  | FormatTransactionRequestErrorType
+  | ScheduleMulticallErrorType
+  | RequestErrorType
+>
 
 /**
  * Executes a new message call immediately without submitting a transaction to the network.
@@ -112,12 +151,12 @@ export async function call<TChain extends Chain | undefined>(
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
-    const format =
-      client.chain?.formatters?.transactionRequest?.format ||
-      formatTransactionRequest
+    const chainFormat = client.chain?.formatters?.transactionRequest?.format
+    const format = chainFormat || formatTransactionRequest
+
     const request = format({
       // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format }),
+      ...extract(rest, { format: chainFormat }),
       from: account?.address,
       accessList,
       data,
@@ -162,7 +201,7 @@ export async function call<TChain extends Chain | undefined>(
     if (data?.slice(0, 10) === offchainLookupSignature && to) {
       return { data: await offchainLookup(client, { data, to }) }
     }
-    throw getCallError(err as BaseError, {
+    throw getCallError(err as ErrorType, {
       ...args,
       account,
       chain: client.chain,
@@ -195,6 +234,15 @@ type ScheduleMulticallParameters<TChain extends Chain | undefined> = Pick<
   multicallAddress?: Address
   to: Address
 }
+
+export type ScheduleMulticallErrorType =
+  | GetChainContractAddressErrorType
+  | NumberToHexErrorType
+  | CreateBatchSchedulerErrorType
+  | EncodeFunctionDataErrorType
+  | DecodeFunctionResultErrorType
+  | RawContractErrorType
+  | ErrorType
 
 async function scheduleMulticall<TChain extends Chain | undefined,>(
   client: Client<Transport>,
@@ -275,6 +323,8 @@ async function scheduleMulticall<TChain extends Chain | undefined,>(
   if (returnData === '0x') return { data: undefined }
   return { data: returnData }
 }
+
+export type GetRevertErrorDataErrorType = ErrorType
 
 export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined

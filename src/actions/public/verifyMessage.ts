@@ -2,10 +2,16 @@ import type { Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hex, SignableMessage } from '../../types/misc.js'
 import { hashMessage } from '../../utils/index.js'
-import { type VerifyHashParameters, verifyHash } from './verifyHash.js'
+import type { HashMessageErrorType } from '../../utils/signature/hashMessage.js'
+import {
+  type VerifyHashErrorType,
+  type VerifyHashParameters,
+  verifyHash,
+} from './verifyHash.js'
 
 export type VerifyMessageParameters = Omit<VerifyHashParameters, 'hash'> & {
   /** The address that signed the original message. */
@@ -17,6 +23,11 @@ export type VerifyMessageParameters = Omit<VerifyHashParameters, 'hash'> & {
 }
 
 export type VerifyMessageReturnType = boolean
+
+export type VerifyMessageErrorType =
+  | HashMessageErrorType
+  | VerifyHashErrorType
+  | ErrorType
 
 /**
  * Verify that a message was signed by the provided address.

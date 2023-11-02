@@ -200,9 +200,9 @@ const unwatch = publicClient.watchBlocks(
 
 ## Example
 
-Check out the usage of `watchBlocks` in the live [Watch Blocks Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/watching-blocks) below.
+Check out the usage of `watchBlocks` in the live [Watch Blocks Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks_watching-blocks) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/watching-blocks?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks_watching-blocks?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 ## JSON-RPC Methods
 

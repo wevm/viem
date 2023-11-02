@@ -1,11 +1,15 @@
 import type { Abi, AbiParameter, Address } from 'abitype'
 
+import type { ErrorType } from '../../errors/utils.js'
 import type { GetFunctionArgs, InferItemName } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import { isHex } from '../../utils/data/isHex.js'
+import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
 import { getEventSelector } from '../../utils/hash/getEventSelector.js'
-import { getFunctionSelector } from '../../utils/hash/getFunctionSelector.js'
-import { isAddress } from '../address/isAddress.js'
+import {
+  type GetFunctionSelectorErrorType,
+  getFunctionSelector,
+} from '../../utils/hash/getFunctionSelector.js'
+import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 
 export type GetAbiItemParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -24,6 +28,12 @@ export type GetAbiItemReturnType<
     name: TItemName
   }
 >
+
+export type GetAbiItemErrorType =
+  | IsArgOfTypeErrorType
+  | IsHexErrorType
+  | GetFunctionSelectorErrorType
+  | ErrorType
 
 export function getAbiItem<
   const TAbi extends Abi | readonly unknown[],
@@ -69,6 +79,8 @@ export function getAbiItem<
   }
   return abiItems[0] as any
 }
+
+export type IsArgOfTypeErrorType = IsAddressErrorType | ErrorType
 
 export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
   const argType = typeof arg

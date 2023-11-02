@@ -3,10 +3,12 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { extract } from '../../utils/formatters/extract.js'
 import {
   type FormattedTransactionRequest,
@@ -18,6 +20,8 @@ export type SendUnsignedTransactionParameters<
 > = FormattedTransactionRequest<TChain>
 
 export type SendUnsignedTransactionReturnType = Hash
+
+export type SendUnsignedTransactionErrorType = RequestErrorType | ErrorType
 
 /**
  * Returns the details of all transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
@@ -65,12 +69,12 @@ export async function sendUnsignedTransaction<
     ...rest
   } = args
 
-  const format =
-    client.chain?.formatters?.transactionRequest?.format ||
-    formatTransactionRequest
+  const chainFormat = client.chain?.formatters?.transactionRequest?.format
+  const format = chainFormat || formatTransactionRequest
+
   const request = format({
     // Pick out extra data that might exist on the chain's transaction request type.
-    ...extract(rest, { format }),
+    ...extract(rest, { format: chainFormat }),
     accessList,
     data,
     from,

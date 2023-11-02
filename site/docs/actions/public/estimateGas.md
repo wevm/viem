@@ -66,7 +66,7 @@ Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local A
 
 ```ts
 const gasEstimate = await publicClient.estimateGas({
-  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus)]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
 })

@@ -1,11 +1,17 @@
 import type { Address } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
+import type { ErrorType } from '../errors/utils.js'
 import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { WalletRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
-import { type Client, type ClientConfig, createClient } from './createClient.js'
+import {
+  type Client,
+  type ClientConfig,
+  type CreateClientErrorType,
+  createClient,
+} from './createClient.js'
 import { type WalletActions, walletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
 
@@ -42,6 +48,8 @@ export type WalletClient<
     WalletActions<chain, account>
   >
 >
+
+export type CreateWalletClientErrorType = CreateClientErrorType | ErrorType
 
 /**
  * Creates a Wallet Client with a given [Transport](https://viem.sh/docs/clients/intro.html) configured for a [Chain](https://viem.sh/docs/clients/chains.html).

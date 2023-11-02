@@ -24,6 +24,9 @@ export function prettyPrint(
     .join('\n')
 }
 
+export type FeeConflictErrorType = FeeConflictError & {
+  name: 'FeeConflictError'
+}
 export class FeeConflictError extends BaseError {
   override name = 'FeeConflictError'
   constructor() {
@@ -36,6 +39,9 @@ export class FeeConflictError extends BaseError {
   }
 }
 
+export type InvalidLegacyVErrorType = InvalidLegacyVError & {
+  name: 'InvalidLegacyVError'
+}
 export class InvalidLegacyVError extends BaseError {
   override name = 'InvalidLegacyVError'
 
@@ -44,6 +50,10 @@ export class InvalidLegacyVError extends BaseError {
   }
 }
 
+export type InvalidSerializableTransactionErrorType =
+  InvalidSerializableTransactionError & {
+    name: 'InvalidSerializableTransactionError'
+  }
 export class InvalidSerializableTransactionError extends BaseError {
   override name = 'InvalidSerializableTransactionError'
 
@@ -65,6 +75,10 @@ export class InvalidSerializableTransactionError extends BaseError {
   }
 }
 
+export type InvalidSerializedTransactionTypeErrorType =
+  InvalidSerializedTransactionTypeError & {
+    name: 'InvalidSerializedTransactionTypeError'
+  }
 export class InvalidSerializedTransactionTypeError extends BaseError {
   override name = 'InvalidSerializedTransactionType'
 
@@ -77,6 +91,10 @@ export class InvalidSerializedTransactionTypeError extends BaseError {
   }
 }
 
+export type InvalidSerializedTransactionErrorType =
+  InvalidSerializedTransactionError & {
+    name: 'InvalidSerializedTransactionError'
+  }
 export class InvalidSerializedTransactionError extends BaseError {
   override name = 'InvalidSerializedTransactionError'
 
@@ -107,6 +125,9 @@ export class InvalidSerializedTransactionError extends BaseError {
   }
 }
 
+export type InvalidStorageKeySizeErrorType = InvalidStorageKeySizeError & {
+  name: 'InvalidStorageKeySizeError'
+}
 export class InvalidStorageKeySizeError extends BaseError {
   override name = 'InvalidStorageKeySizeError'
 
@@ -119,6 +140,9 @@ export class InvalidStorageKeySizeError extends BaseError {
   }
 }
 
+export type TransactionExecutionErrorType = TransactionExecutionError & {
+  name: 'TransactionExecutionError'
+}
 export class TransactionExecutionError extends BaseError {
   override cause: BaseError
 
@@ -177,6 +201,9 @@ export class TransactionExecutionError extends BaseError {
   }
 }
 
+export type TransactionNotFoundErrorType = TransactionNotFoundError & {
+  name: 'TransactionNotFoundError'
+}
 export class TransactionNotFoundError extends BaseError {
   override name = 'TransactionNotFoundError'
   constructor({
@@ -204,6 +231,10 @@ export class TransactionNotFoundError extends BaseError {
   }
 }
 
+export type TransactionReceiptNotFoundErrorType =
+  TransactionReceiptNotFoundError & {
+    name: 'TransactionReceiptNotFoundError'
+  }
 export class TransactionReceiptNotFoundError extends BaseError {
   override name = 'TransactionReceiptNotFoundError'
   constructor({ hash }: { hash: Hash }) {
@@ -213,6 +244,10 @@ export class TransactionReceiptNotFoundError extends BaseError {
   }
 }
 
+export type WaitForTransactionReceiptTimeoutErrorType =
+  WaitForTransactionReceiptTimeoutError & {
+    name: 'WaitForTransactionReceiptTimeoutError'
+  }
 export class WaitForTransactionReceiptTimeoutError extends BaseError {
   override name = 'WaitForTransactionReceiptTimeoutError'
   constructor({ hash }: { hash: Hash }) {

@@ -1,15 +1,31 @@
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import { internal_estimateFeesPerGas } from '../../actions/public/estimateFeesPerGas.js'
 import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
+import {
+  type EstimateFeesPerGasErrorType,
+  internal_estimateFeesPerGas,
+} from '../../actions/public/estimateFeesPerGas.js'
+import {
+  type EstimateGasErrorType,
   type EstimateGasParameters,
   estimateGas,
 } from '../../actions/public/estimateGas.js'
-import { getBlock } from '../../actions/public/getBlock.js'
-import { getTransactionCount } from '../../actions/public/getTransactionCount.js'
+import {
+  type GetBlockErrorType,
+  getBlock,
+} from '../../actions/public/getBlock.js'
+import {
+  type GetTransactionCountErrorType,
+  getTransactionCount,
+} from '../../actions/public/getTransactionCount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
+import {
+  AccountNotFoundError,
+  type AccountNotFoundErrorType,
+} from '../../errors/account.js'
 import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
@@ -20,7 +36,11 @@ import type { GetChain } from '../../types/chain.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
-import type { AssertRequestParameters } from '../../utils/transaction/assertRequest.js'
+import { getAction } from '../../utils/getAction.js'
+import type {
+  AssertRequestErrorType,
+  AssertRequestParameters,
+} from '../../utils/transaction/assertRequest.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import { getTransactionType } from '../../utils/transaction/getTransactionType.js'
 
@@ -46,6 +66,15 @@ export type PrepareTransactionRequestReturnType<
 > &
   GetAccountParameter<TAccount> &
   GetChain<TChain, TChainOverride>
+
+export type PrepareTransactionRequestErrorType =
+  | AccountNotFoundErrorType
+  | AssertRequestErrorType
+  | ParseAccountErrorType
+  | GetBlockErrorType
+  | GetTransactionCountErrorType
+  | EstimateGasErrorType
+  | EstimateFeesPerGasErrorType
 
 /**
  * Prepares a transaction request for signing.
@@ -90,7 +119,7 @@ export type PrepareTransactionRequestReturnType<
 export async function prepareTransactionRequest<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
@@ -101,12 +130,15 @@ export async function prepareTransactionRequest<
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
-  const block = await getBlock(client, { blockTag: 'latest' })
+  const block = await getAction(client, getBlock)({ blockTag: 'latest' })
 
   const request = { ...args, from: account.address }
 
   if (typeof nonce === 'undefined')
-    request.nonce = await getTransactionCount(client, {
+    request.nonce = await getAction(
+      client,
+      getTransactionCount,
+    )({
       address: account.address,
       blockTag: 'pending',
     })
@@ -161,7 +193,10 @@ export async function prepareTransactionRequest<
   }
 
   if (typeof gas === 'undefined')
-    request.gas = await estimateGas(client, {
+    request.gas = await getAction(
+      client,
+      estimateGas,
+    )({
       ...request,
       account: { address: account.address, type: 'json-rpc' },
     } as EstimateGasParameters)

@@ -78,6 +78,12 @@ A type for a [Chain](/docs/glossary/terms#chain).
 
 [See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/chain.ts)
 
+## `CompactSignature`
+
+A type for [EIP-2098](https://eips.ethereum.org/EIPS/eip-2098) compact signatures.
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/misc.ts)
+
 ## `FeeHistory`
 
 A type for fee history.

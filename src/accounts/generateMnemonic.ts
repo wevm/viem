@@ -1,4 +1,7 @@
 import { generateMnemonic as generateMnemonic_ } from '@scure/bip39'
+import type { ErrorType } from '../errors/utils.js'
+
+export type GenerateMnemonicErrorType = ErrorType
 
 /**
  * @description Generates a random mnemonic phrase with a given wordlist.

@@ -27,6 +27,11 @@ const generateList = (length: number) => {
   return bytes
 }
 
+const randomBigInt = () => {
+  const length = Math.floor(Math.random() * 8) + 1
+  return BigInt(bytesToHex(generateBytes(length)))
+}
+
 export async function generateTransactionVectors() {
   const generatedPath = join(import.meta.dir, './transaction.json')
   Bun.write(generatedPath, '')
@@ -48,10 +53,8 @@ export async function generateTransactionVectors() {
         transaction.data = bytesToHex(
           generateBytes(Math.floor(Math.random() * 2048)),
         )
-      if (Math.random() > 0.5)
-        transaction.gas = BigInt(Math.floor(Math.random() * 2 ** 32))
-      if (Math.random() > 0.5)
-        transaction.maxFeePerGas = BigInt(Math.floor(Math.random() * 2 ** 32))
+      if (Math.random() > 0.5) transaction.gas = randomBigInt()
+      if (Math.random() > 0.5) transaction.maxFeePerGas = randomBigInt()
       if (Math.random() > 0.5 && transaction.maxFeePerGas)
         transaction.maxPriorityFeePerGas =
           transaction.maxFeePerGas -
@@ -61,8 +64,7 @@ export async function generateTransactionVectors() {
         transaction.nonce = Math.floor(Math.random() * 2 ** 16)
       if (Math.random() > 0.5)
         transaction.to = bytesToHex(generateBytes(20), { size: 20 })
-      if (Math.random() > 0.5)
-        transaction.value = BigInt(Math.floor(Math.random() * 2 ** 32))
+      if (Math.random() > 0.5) transaction.value = randomBigInt()
       if (Math.random() > 0.5) {
         const listLength = Math.floor(Math.random() * 16)
         transaction.accessList = []
@@ -109,16 +111,13 @@ export async function generateTransactionVectors() {
         transaction.data = bytesToHex(
           generateBytes(Math.floor(Math.random() * 2048)),
         )
-      if (Math.random() > 0.5)
-        transaction.gas = BigInt(Math.floor(Math.random() * 2 ** 32))
-      if (Math.random() > 0.5)
-        transaction.gasPrice = BigInt(Math.floor(Math.random() * 2 ** 32))
+      if (Math.random() > 0.5) transaction.gas = randomBigInt()
+      if (Math.random() > 0.5) transaction.gasPrice = randomBigInt()
       if (Math.random() > 0.5)
         transaction.nonce = Math.floor(Math.random() * 2 ** 16)
       if (Math.random() > 0.5)
         transaction.to = bytesToHex(generateBytes(20), { size: 20 })
-      if (Math.random() > 0.5)
-        transaction.value = BigInt(Math.floor(Math.random() * 2 ** 32))
+      if (Math.random() > 0.5) transaction.value = randomBigInt()
       if (Math.random() > 0.5) {
         const listLength = Math.floor(Math.random() * 16)
         transaction.accessList = []
@@ -164,16 +163,13 @@ export async function generateTransactionVectors() {
         transaction.data = bytesToHex(
           generateBytes(Math.floor(Math.random() * 2048)),
         )
-      if (Math.random() > 0.5)
-        transaction.gas = BigInt(Math.floor(Math.random() * 2 ** 32))
-      if (Math.random() > 0.5)
-        transaction.gasPrice = BigInt(Math.floor(Math.random() * 2 ** 32))
+      if (Math.random() > 0.5) transaction.gas = randomBigInt()
+      if (Math.random() > 0.5) transaction.gasPrice = randomBigInt()
       if (Math.random() > 0.5)
         transaction.nonce = Math.floor(Math.random() * 2 ** 16)
       if (Math.random() > 0.5)
         transaction.to = bytesToHex(generateBytes(20), { size: 20 })
-      if (Math.random() > 0.5)
-        transaction.value = BigInt(Math.floor(Math.random() * 2 ** 32))
+      if (Math.random() > 0.5) transaction.value = randomBigInt()
     }
     const serialized = serializeTransaction(transaction)
 

@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 import { formattersOptimism } from '../optimism/formatters.js'
 
 export const base = /*#__PURE__*/ defineChain(
@@ -11,6 +11,10 @@ export const base = /*#__PURE__*/ defineChain(
       alchemy: {
         http: ['https://base-mainnet.g.alchemy.com/v2'],
         webSocket: ['wss://base-mainnet.g.alchemy.com/v2'],
+      },
+      infura: {
+        http: ['https://base-mainnet.infura.io/v3'],
+        webSocket: ['wss://base-mainnet.infura.io/ws/v3'],
       },
       default: {
         http: ['https://mainnet.base.org'],

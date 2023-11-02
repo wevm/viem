@@ -1,9 +1,14 @@
 import { RpcRequestError } from '../../errors/request.js'
-import { UrlRequiredError } from '../../errors/transport.js'
+import {
+  UrlRequiredError,
+  type UrlRequiredErrorType,
+} from '../../errors/transport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import { type HttpOptions, type RpcRequest, rpc } from '../../utils/rpc.js'
 
 import {
+  type CreateTransportErrorType,
   type Transport,
   type TransportConfig,
   createTransport,
@@ -42,9 +47,15 @@ export type HttpTransportConfig = {
 export type HttpTransport = Transport<
   'http',
   {
+    fetchOptions?: HttpTransportConfig['fetchOptions']
     url?: string
   }
 >
+
+export type HttpTransportErrorType =
+  | CreateTransportErrorType
+  | UrlRequiredErrorType
+  | ErrorType
 
 /**
  * @description Creates a HTTP transport that connects to a JSON-RPC API.
@@ -87,6 +98,7 @@ export function http(
                 fetchOptions,
                 timeout,
               }),
+            sort: (a, b) => a.id - b.id,
           })
 
           const fn = async (body: RpcRequest) =>
@@ -109,6 +121,7 @@ export function http(
         type: 'http',
       },
       {
+        fetchOptions,
         url,
       },
     )

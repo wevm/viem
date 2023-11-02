@@ -1,17 +1,28 @@
 import type { TypedData } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
+import type { SignTypedDataErrorType as SignTypedDataErrorType_account } from '../../accounts/utils/signTypedData.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
+import {
+  AccountNotFoundError,
+  type AccountNotFoundErrorType,
+} from '../../errors/account.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
-import { isHex } from '../../utils/data/isHex.js'
-import { stringify } from '../../utils/stringify.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
+import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 import {
+  type GetTypesForEIP712DomainErrorType,
+  type ValidateTypedDataErrorType,
   getTypesForEIP712Domain,
   validateTypedData,
 } from '../../utils/typedData.js'
@@ -24,6 +35,17 @@ export type SignTypedDataParameters<
   TypedDataDefinition<TTypedData, TPrimaryType>
 
 export type SignTypedDataReturnType = Hex
+
+export type SignTypedDataErrorType =
+  | AccountNotFoundErrorType
+  | ParseAccountErrorType
+  | GetTypesForEIP712DomainErrorType
+  | ValidateTypedDataErrorType
+  | StringifyErrorType
+  | SignTypedDataErrorType_account
+  | IsHexErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Signs typed data and calculates an Ethereum-specific signature in [https://eips.ethereum.org/EIPS/eip-712](https://eips.ethereum.org/EIPS/eip-712): `sign(keccak256("\x19\x01" ‖ domainSeparator ‖ hashStruct(message)))`

@@ -2,12 +2,18 @@ import type { Abi } from 'abitype'
 
 import {
   AbiConstructorNotFoundError,
+  type AbiConstructorNotFoundErrorType,
   AbiConstructorParamsNotFoundError,
+  type AbiConstructorParamsNotFoundErrorType,
 } from '../../errors/abi.js'
 import type { GetConstructorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 
-import { decodeAbiParameters } from './decodeAbiParameters.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type DecodeAbiParametersErrorType,
+  decodeAbiParameters,
+} from './decodeAbiParameters.js'
 
 const docsPath = '/docs/contract/decodeDeployData'
 
@@ -18,11 +24,18 @@ export type DecodeDeployDataParameters<
   bytecode: Hex
   data: Hex
 }
+
 export type DecodeDeployDataReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
 > = {
   bytecode: Hex
 } & GetConstructorArgs<TAbi>
+
+export type DecodeDeployDataErrorType =
+  | AbiConstructorNotFoundErrorType
+  | AbiConstructorParamsNotFoundErrorType
+  | DecodeAbiParametersErrorType
+  | ErrorType
 
 export function decodeDeployData<const TAbi extends Abi | readonly unknown[]>({
   abi,

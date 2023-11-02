@@ -1,13 +1,34 @@
-import { InvalidAddressError } from '../../errors/address.js'
-import { BaseError } from '../../errors/base.js'
-import { InvalidChainIdError } from '../../errors/chain.js'
-import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../../errors/address.js'
+import { BaseError, type BaseErrorType } from '../../errors/base.js'
+import {
+  InvalidChainIdError,
+  type InvalidChainIdErrorType,
+} from '../../errors/chain.js'
+import {
+  FeeCapTooHighError,
+  type FeeCapTooHighErrorType,
+  TipAboveFeeCapError,
+  type TipAboveFeeCapErrorType,
+} from '../../errors/node.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
-import { isAddress } from '../address/isAddress.js'
+import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
+
+export type AssertTransactionEIP1559ErrorType =
+  | BaseErrorType
+  | IsAddressErrorType
+  | InvalidAddressErrorType
+  | InvalidChainIdErrorType
+  | FeeCapTooHighErrorType
+  | TipAboveFeeCapErrorType
+  | ErrorType
 
 export function assertTransactionEIP1559(
   transaction: TransactionSerializableEIP1559,
@@ -30,6 +51,14 @@ export function assertTransactionEIP1559(
     throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })
 }
 
+export type AssertTransactionEIP2930ErrorType =
+  | BaseErrorType
+  | IsAddressErrorType
+  | InvalidAddressErrorType
+  | InvalidChainIdErrorType
+  | FeeCapTooHighErrorType
+  | ErrorType
+
 export function assertTransactionEIP2930(
   transaction: TransactionSerializableEIP2930,
 ) {
@@ -44,6 +73,14 @@ export function assertTransactionEIP2930(
   if (gasPrice && gasPrice > 2n ** 256n - 1n)
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
 }
+
+export type AssertTransactionLegacyErrorType =
+  | BaseErrorType
+  | IsAddressErrorType
+  | InvalidAddressErrorType
+  | InvalidChainIdErrorType
+  | FeeCapTooHighErrorType
+  | ErrorType
 
 export function assertTransactionLegacy(
   transaction: TransactionSerializableLegacy,

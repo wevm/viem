@@ -1,3 +1,4 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 
 type TrimOptions = {
@@ -6,6 +7,8 @@ type TrimOptions = {
 export type TrimReturnType<TValue extends ByteArray | Hex> = TValue extends Hex
   ? Hex
   : ByteArray
+
+export type TrimErrorType = ErrorType
 
 export function trim<TValue extends ByteArray | Hex>(
   hexOrBytes: TValue,

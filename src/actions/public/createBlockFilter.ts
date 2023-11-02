@@ -1,10 +1,14 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreateBlockFilterReturnType = Filter<'block'>
+
+export type CreateBlockFilterErrorType = RequestErrorType | ErrorType
 
 /**
  * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new block hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).

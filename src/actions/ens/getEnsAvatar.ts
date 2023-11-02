@@ -1,11 +1,20 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { AssetGatewayUrls } from '../../types/ens.js'
 import type { Prettify } from '../../types/utils.js'
-import { parseAvatarRecord } from '../../utils/ens/avatar/parseAvatarRecord.js'
+import {
+  type ParseAvatarRecordErrorType,
+  parseAvatarRecord,
+} from '../../utils/ens/avatar/parseAvatarRecord.js'
+import { getAction } from '../../utils/getAction.js'
 
-import { type GetEnsTextParameters, getEnsText } from './getEnsText.js'
+import {
+  type GetEnsTextErrorType,
+  type GetEnsTextParameters,
+  getEnsText,
+} from './getEnsText.js'
 
 export type GetEnsAvatarParameters = Prettify<
   Omit<GetEnsTextParameters, 'key'> & {
@@ -15,6 +24,11 @@ export type GetEnsAvatarParameters = Prettify<
 >
 
 export type GetEnsAvatarReturnType = string | null
+
+export type GetEnsAvatarErrorType =
+  | GetEnsTextErrorType
+  | ParseAvatarRecordErrorType
+  | ErrorType
 
 /**
  * Gets the avatar of an ENS name.
@@ -54,7 +68,10 @@ export async function getEnsAvatar<TChain extends Chain | undefined>(
     universalResolverAddress,
   }: GetEnsAvatarParameters,
 ): Promise<GetEnsAvatarReturnType> {
-  const record = await getEnsText(client, {
+  const record = await getAction(
+    client,
+    getEnsText,
+  )({
     blockNumber,
     blockTag,
     key: 'avatar',

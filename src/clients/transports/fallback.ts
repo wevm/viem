@@ -1,8 +1,10 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import { isDeterministicError } from '../../utils/buildRequest.js'
 import { wait } from '../../utils/wait.js'
 
 import {
+  type CreateTransportErrorType,
   type Transport,
   type TransportConfig,
   createTransport,
@@ -80,6 +82,8 @@ export type FallbackTransport = Transport<
     transports: ReturnType<Transport>[]
   }
 >
+
+export type FallbackTransportErrorType = CreateTransportErrorType | ErrorType
 
 export function fallback(
   transports_: Transport[],

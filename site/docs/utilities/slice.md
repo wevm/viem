@@ -86,6 +86,8 @@ slice(
 #### options.strict (optional)
 
 - **Type:** `boolean`
+- **Default:** `false`
+
 
 Whether or not the end offset should be inclusive of the bounds of the data.
 
