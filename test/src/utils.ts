@@ -150,7 +150,7 @@ export const publicClient = (
 
 export const publicClientMainnet = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http(process.env.VITE_ANVIL_FORK_URL),
 })
 
 export const walletClient = createWalletClient({
