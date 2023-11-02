@@ -4,8 +4,6 @@ export const kava = /*#__PURE__*/ defineChain({
     id: 2222,
     name: "Kava EVM",
     network: "kava-mainnet",
-    iconUrl: "/chain-icons/kava.svg",
-    iconBackground: "#000000",
     nativeCurrency: {
       name: "Kava",
       symbol: "KAVA",

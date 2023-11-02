@@ -4,8 +4,6 @@ export const astar = /*#__PURE__*/ defineChain({
     id: 592,
     name: "Astar",
     network: "astar-mainnet",
-    iconUrl: "/chain-icons/astar.svg",
-    iconBackground: "#000000",
     nativeCurrency: {
       name: "Astar",
       symbol: "ASTR",

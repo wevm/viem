@@ -4,8 +4,6 @@ export const tenet = /*#__PURE__*/ defineChain({
     id: 1559,
     name: "Tenet",
     network: "tenet-mainnet",
-    iconUrl: "/chain-icons/tenet.svg",
-    iconBackground: "#000000",
     nativeCurrency: {
       name: "TENET",
       symbol: "TENET",
