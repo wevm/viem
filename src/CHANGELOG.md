@@ -1,5 +1,15 @@
 # viem
 
+## 1.18.3
+
+### Patch Changes
+
+- [#1424](https://github.com/wagmi-dev/viem/pull/1424) [`a0052303`](https://github.com/wagmi-dev/viem/commit/a0052303f4b6892fac55c2035fe5675890e4d5bf) Thanks [@filoozom](https://github.com/filoozom)! - Added WebSocket RPCs for Gnosis Chain and Chiado
+
+- [#1431](https://github.com/wagmi-dev/viem/pull/1431) [`2244017d`](https://github.com/wagmi-dev/viem/commit/2244017d7603f2253b4faaf6c543c8c7a04f7595) Thanks [@filoozom](https://github.com/filoozom)! - Added the multicall address for Chiado
+
+- [#1426](https://github.com/wagmi-dev/viem/pull/1426) [`c81141a5`](https://github.com/wagmi-dev/viem/commit/c81141a5402d9114856c6a706782085905dbfb13) Thanks [@mnedelchev-vn](https://github.com/mnedelchev-vn)! - Added Neon Mainnet chain.
+
 ## 1.18.2
 
 ### Patch Changes
