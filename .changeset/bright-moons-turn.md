@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed not working RPC URL for Klaytn
+Updated Klaytn RPC URL.
