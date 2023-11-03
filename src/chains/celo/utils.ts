@@ -1,6 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////
-// Utilities
-
 import type { Address } from 'abitype'
 import { trim } from '../../utils/data/trim.js'
 import type {
