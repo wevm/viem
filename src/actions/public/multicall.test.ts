@@ -282,6 +282,45 @@ test('args: multicallAddress', async () => {
   `)
 })
 
+test('args: deployless', async () => {
+  expect(
+    await multicall(publicClient, {
+      deployless: true,
+      blockNumber: 13069420n, // before multicall3 was deployed
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.usdcHolder],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 25847240701869550n,
+        "status": "success",
+      },
+      {
+        "result": 12157768130567n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
 describe('errors', async () => {
   describe('allowFailure is truthy', async () => {
     test('function not found', async () => {
@@ -1001,6 +1040,45 @@ describe('errors', async () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot('"err_1"')
+  })
+
+  test.skip('deployless before contract exists', async () => {
+    expect(
+      await multicall(publicClient, {
+        deployless: true,
+        blockNumber: 420n, // before multicall3 was deployed
+        contracts: [
+          {
+            ...usdcContractConfig,
+            functionName: 'totalSupply',
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.usdcHolder],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "result": 25847240701869550n,
+          "status": "success",
+        },
+        {
+          "result": 12157768130567n,
+          "status": "success",
+        },
+        {
+          "result": 10000n,
+          "status": "success",
+        },
+      ]
+    `)
   })
 })
 

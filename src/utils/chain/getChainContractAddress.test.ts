@@ -44,6 +44,30 @@ test('no contract', () => {
     `)
 })
 
+test('allow no contract', () => {
+  expect(
+    getChainContractAddress({
+      allowMissing: true,
+      chain: {
+        ...mainnet,
+        contracts: {},
+      },
+      contract: 'multicall3',
+    }),
+  ).toMatchInlineSnapshot('undefined')
+})
+
+test('allow missing on early blocks', () => {
+  expect(
+    getChainContractAddress({
+      allowMissing: true,
+      blockNumber: 69420n,
+      chain: mainnet,
+      contract: 'multicall3',
+    }),
+  ).toMatchInlineSnapshot('undefined')
+})
+
 test('block number is less than created block number', () => {
   expect(() =>
     getChainContractAddress({

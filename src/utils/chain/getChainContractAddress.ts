@@ -11,23 +11,26 @@ export function getChainContractAddress({
   blockNumber,
   chain,
   contract: name,
+  allowMissing,
 }: {
   blockNumber?: bigint
   chain: Chain
   contract: string
+  allowMissing?: boolean
 }) {
   const contract = (chain?.contracts as Record<string, ChainContract>)?.[name]
-  if (!contract)
+
+  if (!contract && !allowMissing)
     throw new ChainDoesNotSupportContract({
       chain,
       contract: { name },
     })
 
-  if (
-    blockNumber &&
-    contract.blockCreated &&
-    contract.blockCreated > blockNumber
-  )
+  const deployedContract = blockNumber
+    ? contract?.blockCreated && contract.blockCreated <= blockNumber
+    : !!contract
+
+  if (!allowMissing && !deployedContract)
     throw new ChainDoesNotSupportContract({
       blockNumber,
       chain,
@@ -37,5 +40,5 @@ export function getChainContractAddress({
       },
     })
 
-  return contract.address
+  return deployedContract ? contract.address : undefined
 }

@@ -45,6 +45,36 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
+      "deploylessMulticall3Abi": [
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "target",
+                  "type": "address",
+                },
+                {
+                  "internalType": "bool",
+                  "name": "allowFailure",
+                  "type": "bool",
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes",
+                },
+              ],
+              "internalType": "struct DeploylessMulticall3.Call[]",
+              "name": "calls",
+              "type": "tuple[]",
+            },
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor",
+        },
+      ],
       "multicall3Abi": [
         {
           "inputs": [
