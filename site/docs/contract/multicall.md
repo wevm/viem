@@ -291,6 +291,27 @@ const results = await publicClient.multicall({
 })
 ```
 
+### deployless (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether or not the `multicall` should attempt to proceed using a 'deployless' strategy in the event that no multicall contract is available at the requested block. Explained in more detail [here](https://destiner.io/blog/post/deployless-multicall/). This allows using multicall3 on historic blocks where traditionally it would not be possible.
+
+```ts
+const results = await publicClient.multicall({
+  contracts: [
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi: wagmiAbi,
+      functionName: 'totalSupply',
+    },
+    ...
+  ],
+  deployless: true // [!code focus]
+})
+```
+
 ## Live Example
 
 Check out the usage of `multicall` in the live [Multicall Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts_multicall) below.
