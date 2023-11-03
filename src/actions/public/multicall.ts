@@ -300,7 +300,6 @@ async function fetchRawMulticallResults<
   const multicallAddress = multicallAddress_ || chainMulticallAddress
 
   if (multicallAddress && !deployless) {
-    console.log('classic')
     return await Promise.allSettled(
       chunkedCalls.map((calls) =>
         getAction(
