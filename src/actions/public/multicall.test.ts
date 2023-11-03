@@ -1042,7 +1042,7 @@ describe('errors', async () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot('"err_1"')
   })
 
-  test.skip('deployless before contract exists', async () => {
+  test('deployless before contract exists', async () => {
     expect(
       await multicall(publicClient, {
         deployless: true,
