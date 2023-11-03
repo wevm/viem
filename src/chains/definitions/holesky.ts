@@ -10,7 +10,7 @@ export const holesky = /*#__PURE__*/ defineChain({
       http: ['https://ethereum-holesky.publicnode.com'],
     },
     public: {
-      http: ['wss://ethereum-holesky.publicnode.com'],
+      http: ['https://ethereum-holesky.publicnode.com'],
     },
   },
   contracts: {
