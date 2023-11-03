@@ -1,5 +1,11 @@
 # viem
 
+## 1.18.5
+
+### Patch Changes
+
+- [#1438](https://github.com/wagmi-dev/viem/pull/1438) [`8e52fcb8`](https://github.com/wagmi-dev/viem/commit/8e52fcb8565a9fadce4da31e924894881804f9d2) Thanks [@jxom](https://github.com/jxom)! - Fixed legacy EIP-155 transaction serializing.
+
 ## 1.18.4
 
 ### Patch Changes
