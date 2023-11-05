@@ -1,5 +1,13 @@
 # viem
 
+## 1.18.6
+
+### Patch Changes
+
+- [#1448](https://github.com/wagmi-dev/viem/pull/1448) [`c2fab4a7`](https://github.com/wagmi-dev/viem/commit/c2fab4a78878d46c6aad403f1ad54677632542eb) Thanks [@jxom](https://github.com/jxom)! - Fixed zkSync formatters.
+
+- [#1434](https://github.com/wagmi-dev/viem/pull/1434) [`c0da695a`](https://github.com/wagmi-dev/viem/commit/c0da695a76225c7f24ca263f9109e34d8cd93dba) Thanks [@nicolasbrugneaux](https://github.com/nicolasbrugneaux)! - Fixed an issue where Celo CIP64 transactions were being recognized as EIP1559 transactions.
+
 ## 1.18.5
 
 ### Patch Changes
