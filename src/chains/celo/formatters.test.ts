@@ -751,9 +751,9 @@ describe('transactionReceipt', () => {
 })
 
 describe('transactionRequest', () => {
-  test('formatter', () => {
-    const { transactionRequest } = celo.formatters!
+  const { transactionRequest } = celo.formatters!
 
+  test('formatter cip42', () => {
     expect(
       transactionRequest.format({
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
@@ -819,7 +819,6 @@ describe('transactionRequest', () => {
         maxFeePerGas: 2n,
         maxPriorityFeePerGas: 1n,
         nonce: 1,
-        type: 'cip42',
         value: 1n,
       }),
     ).toMatchInlineSnapshot(`
@@ -843,10 +842,66 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
+        gatewayFee: 4n,
+        gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
         maxPriorityFeePerGas: 1n,
         nonce: 1,
-        type: 'cip64',
+        value: 1n,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "feeCurrency": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": "0x1",
+        "gasPrice": undefined,
+        "gatewayFee": "0x4",
+        "gatewayFeeRecipient": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x1",
+        "nonce": "0x1",
+        "type": "0x7c",
+        "value": "0x1",
+      }
+    `)
+
+    expect(
+      transactionRequest.format({
+        feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
+        from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
+        gas: 1n,
+        gatewayFee: 4n,
+        gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
+        maxFeePerGas: 2n,
+        maxPriorityFeePerGas: 4n,
+        nonce: 1,
+        value: 1n,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "feeCurrency": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": "0x1",
+        "gasPrice": undefined,
+        "gatewayFee": "0x4",
+        "gatewayFeeRecipient": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x4",
+        "nonce": "0x1",
+        "type": "0x7c",
+        "value": "0x1",
+      }
+    `)
+  })
+  test('formatter cip64', () => {
+    expect(
+      transactionRequest.format({
+        feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
+        from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
+        gas: 1n,
+        maxFeePerGas: 2n,
+        maxPriorityFeePerGas: 1n,
+        nonce: 1,
         value: 1n,
       }),
     ).toMatchInlineSnapshot(`
@@ -858,6 +913,30 @@ describe('transactionRequest', () => {
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x1",
         "nonce": "0x1",
+        "type": "0x7b",
+        "value": "0x1",
+      }
+    `)
+
+    expect(
+      transactionRequest.format({
+        from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // Recipient (illustrative address)
+        value: 1n,
+        feeCurrency: '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1', // cUSD fee currency
+        maxFeePerGas: 2n, // Special field for dynamic fee transaction type (EIP-1559)
+        maxPriorityFeePerGas: 2n, // Special field for dynamic fee transaction type (EIP-1559)
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "feeCurrency": "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": undefined,
+        "gasPrice": undefined,
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x2",
+        "nonce": undefined,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "0x7b",
         "value": "0x1",
       }

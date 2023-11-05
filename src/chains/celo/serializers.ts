@@ -22,20 +22,15 @@ import type {
   TransactionSerializedCIP42,
   TransactionSerializedCIP64,
 } from './types.js'
+import { isCIP42, isCIP64, isEmpty, isPresent } from './utils.js'
 
 export const serializeTransactionCelo: SerializeTransactionFn<
-  CeloTransactionSerializable
+  CeloTransactionSerializable | TransactionSerializable
 > = (tx, signature) => {
   if (isCIP64(tx)) {
-    return serializeTransactionCIP64(
-      tx as TransactionSerializableCIP64,
-      signature,
-    )
+    return serializeTransactionCIP64(tx, signature)
   } else if (isCIP42(tx)) {
-    return serializeTransactionCIP42(
-      tx as TransactionSerializableCIP42,
-      signature,
-    )
+    return serializeTransactionCIP42(tx, signature)
   } else {
     return serializeTransaction(tx as TransactionSerializable, signature)
   }
@@ -148,43 +143,8 @@ function serializeTransactionCIP64(
   ]) as SerializeTransactionCIP64ReturnType
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Utilities
-
-// process as CIP42 if any of these fields are present. realistically gatewayfee is not used but is part of spec
-function isCIP42(transaction: CeloTransactionSerializable): boolean {
-  if (transaction.type === 'cip42') return true
-  // if the type is defined as anything else, assume it is *not* cip42
-  if (transaction.type) return false
-
-  // if the type is undefined, check if the fields match the expectations for cip42
-  return (
-    'maxFeePerGas' in transaction &&
-    'maxPriorityFeePerGas' in transaction &&
-    ('feeCurrency' in transaction ||
-      'gatewayFee' in transaction ||
-      'gatewayFeeRecipient' in transaction)
-  )
-}
-
-function isCIP64(transaction: CeloTransactionSerializable): boolean {
-  if (transaction.type === 'cip64') return true
-  // if the type is defined as anything else, assume it is *not* cip64
-  if (transaction.type) return false
-
-  // if the type is undefined, check if the fields match the expectations for cip64
-  return (
-    'maxFeePerGas' in transaction &&
-    'maxPriorityFeePerGas' in transaction &&
-    'feeCurrency' in transaction &&
-    !('gatewayFee' in transaction) &&
-    !('gatewayFeeRecipient' in transaction)
-  )
-}
-
-// maxFeePerGas must be less than 2^256 - 1: however writing like that caused exceptions to be raised
-const MAX_MAX_FEE_PER_GAS =
-  115792089237316195423570985008687907853269984665640564039457584007913129639935n
+// maxFeePerGas must be less than 2^256 - 1
+const MAX_MAX_FEE_PER_GAS = 2n ** 256n - 1n
 
 export function assertTransactionCIP42(
   transaction: TransactionSerializableCIP42,
@@ -206,32 +166,36 @@ export function assertTransactionCIP42(
       '`gasPrice` is not a valid CIP-42 Transaction attribute.',
     )
 
-  if (maxFeePerGas && maxFeePerGas > MAX_MAX_FEE_PER_GAS)
+  if (isPresent(maxFeePerGas) && maxFeePerGas > MAX_MAX_FEE_PER_GAS)
     throw new FeeCapTooHighError({ maxFeePerGas })
 
   if (
-    maxPriorityFeePerGas &&
-    maxFeePerGas &&
+    isPresent(maxPriorityFeePerGas) &&
+    isPresent(maxFeePerGas) &&
     maxPriorityFeePerGas > maxFeePerGas
   )
     throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })
 
   if (
-    (gatewayFee && !gatewayFeeRecipient) ||
-    (gatewayFeeRecipient && !gatewayFee)
+    (isPresent(gatewayFee) && isEmpty(gatewayFeeRecipient)) ||
+    (isPresent(gatewayFeeRecipient) && isEmpty(gatewayFee))
   ) {
     throw new BaseError(
       '`gatewayFee` and `gatewayFeeRecipient` must be provided together.',
     )
   }
 
-  if (feeCurrency && !feeCurrency?.startsWith('0x')) {
+  if (isPresent(feeCurrency) && !isAddress(feeCurrency)) {
     throw new BaseError(
       '`feeCurrency` MUST be a token address for CIP-42 transactions.',
     )
   }
 
-  if (!feeCurrency && !gatewayFeeRecipient) {
+  if (isPresent(gatewayFeeRecipient) && !isAddress(gatewayFeeRecipient)) {
+    throw new InvalidAddressError(gatewayFeeRecipient)
+  }
+
+  if (isEmpty(feeCurrency) && isEmpty(gatewayFeeRecipient)) {
     throw new BaseError(
       'Either `feeCurrency` or `gatewayFeeRecipient` must be provided for CIP-42 transactions.',
     )
@@ -258,22 +222,22 @@ export function assertTransactionCIP64(
       '`gasPrice` is not a valid CIP-64 Transaction attribute.',
     )
 
-  if (maxFeePerGas && maxFeePerGas > MAX_MAX_FEE_PER_GAS)
+  if (isPresent(maxFeePerGas) && maxFeePerGas > MAX_MAX_FEE_PER_GAS)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
-    maxPriorityFeePerGas &&
-    maxFeePerGas &&
+    isPresent(maxPriorityFeePerGas) &&
+    isPresent(maxFeePerGas) &&
     maxPriorityFeePerGas > maxFeePerGas
   )
     throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })
 
-  if (feeCurrency && !feeCurrency?.startsWith('0x')) {
+  if (isPresent(feeCurrency) && !feeCurrency?.startsWith('0x')) {
     throw new BaseError(
       '`feeCurrency` MUST be a token address for CIP-64 transactions.',
     )
   }
 
-  if (!feeCurrency) {
+  if (isEmpty(feeCurrency)) {
     throw new BaseError(
       '`feeCurrency` must be provided for CIP-64 transactions.',
     )

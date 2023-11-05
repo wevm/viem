@@ -19,22 +19,7 @@ import type {
   CeloTransactionReceiptOverrides,
   CeloTransactionRequest,
 } from './types.js'
-
-function isTransactionRequestCIP64(args: CeloTransactionRequest): boolean {
-  if (args.type === 'cip64') return true
-  if (args.type) return false
-  return (
-    'feeCurrency' in args &&
-    args.gatewayFee === undefined &&
-    args.gatewayFeeRecipient === undefined
-  )
-}
-
-function isTransactionRequestCIP42(args: CeloTransactionRequest): boolean {
-  if (args.type === 'cip42') return true
-  if (args.type) return false
-  return args.gatewayFee !== undefined || args.gatewayFeeRecipient !== undefined
-}
+import { isCIP42, isCIP64 } from './utils.js'
 
 export const formattersCelo = {
   block: /*#__PURE__*/ defineBlock({
@@ -95,7 +80,7 @@ export const formattersCelo = {
 
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
-      if (isTransactionRequestCIP64(args))
+      if (isCIP64(args))
         return {
           type: '0x7b',
           feeCurrency: args.feeCurrency,
@@ -110,7 +95,7 @@ export const formattersCelo = {
         gatewayFeeRecipient: args.gatewayFeeRecipient,
       } as CeloRpcTransactionRequest
 
-      if (isTransactionRequestCIP42(args)) request.type = '0x7c'
+      if (isCIP42(args)) request.type = '0x7c'
 
       return request
     },
