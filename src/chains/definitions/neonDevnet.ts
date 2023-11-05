@@ -12,7 +12,7 @@ export const neonDevnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Neonscan',
-      url: 'https://neonscan.org',
+      url: 'https://devnet.neonscan.org',
     },
   },
   contracts: {

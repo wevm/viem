@@ -90,6 +90,7 @@
     "ws": "8.13.0"
   },
   "license": "MIT",
+  "homepage": "https://viem.sh",
   "repository": "wagmi-dev/viem",
   "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [

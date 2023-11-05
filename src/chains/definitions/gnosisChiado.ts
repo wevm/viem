@@ -9,12 +9,21 @@ export const gnosisChiado = /*#__PURE__*/ defineChain({
     symbol: 'xDAI',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.chiadochain.net'] },
+    default: {
+      http: ['https://rpc.chiadochain.net'],
+      webSocket: ['wss://rpc.chiadochain.net/wss'],
+    },
   },
   blockExplorers: {
     default: {
       name: 'Blockscout',
       url: 'https://blockscout.chiadochain.net',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 4967313,
     },
   },
   testnet: true,

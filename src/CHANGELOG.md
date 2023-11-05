@@ -1,5 +1,47 @@
 # viem
 
+## 1.18.6
+
+### Patch Changes
+
+- [#1448](https://github.com/wagmi-dev/viem/pull/1448) [`c2fab4a7`](https://github.com/wagmi-dev/viem/commit/c2fab4a78878d46c6aad403f1ad54677632542eb) Thanks [@jxom](https://github.com/jxom)! - Fixed zkSync formatters.
+
+- [#1434](https://github.com/wagmi-dev/viem/pull/1434) [`c0da695a`](https://github.com/wagmi-dev/viem/commit/c0da695a76225c7f24ca263f9109e34d8cd93dba) Thanks [@nicolasbrugneaux](https://github.com/nicolasbrugneaux)! - Fixed an issue where Celo CIP64 transactions were being recognized as EIP1559 transactions.
+
+## 1.18.5
+
+### Patch Changes
+
+- [#1438](https://github.com/wagmi-dev/viem/pull/1438) [`8e52fcb8`](https://github.com/wagmi-dev/viem/commit/8e52fcb8565a9fadce4da31e924894881804f9d2) Thanks [@jxom](https://github.com/jxom)! - Fixed legacy EIP-155 transaction serializing.
+
+## 1.18.4
+
+### Patch Changes
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Updated Klaytn RPC URL.
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Added Astar chain
+
+- [#1435](https://github.com/wagmi-dev/viem/pull/1435) [`08e6a68f`](https://github.com/wagmi-dev/viem/commit/08e6a68f25736c6517b4f5d567a8ff9b3b59bc11) Thanks [@tmm](https://github.com/tmm)! - Fixed protected action types
+
+- [#1432](https://github.com/wagmi-dev/viem/pull/1432) [`33631fb2`](https://github.com/wagmi-dev/viem/commit/33631fb2ac281d5804a596c6390b10403cbcfa72) Thanks [@pcdotfan](https://github.com/pcdotfan)! - Removed Scroll Sepolia WebSocket URLs.
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Added Tenet chain
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Add Kava chain
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Added Core Dao chain
+
+## 1.18.3
+
+### Patch Changes
+
+- [#1424](https://github.com/wagmi-dev/viem/pull/1424) [`a0052303`](https://github.com/wagmi-dev/viem/commit/a0052303f4b6892fac55c2035fe5675890e4d5bf) Thanks [@filoozom](https://github.com/filoozom)! - Added WebSocket RPCs for Gnosis Chain and Chiado
+
+- [#1431](https://github.com/wagmi-dev/viem/pull/1431) [`2244017d`](https://github.com/wagmi-dev/viem/commit/2244017d7603f2253b4faaf6c543c8c7a04f7595) Thanks [@filoozom](https://github.com/filoozom)! - Added the multicall address for Chiado
+
+- [#1426](https://github.com/wagmi-dev/viem/pull/1426) [`c81141a5`](https://github.com/wagmi-dev/viem/commit/c81141a5402d9114856c6a706782085905dbfb13) Thanks [@mnedelchev-vn](https://github.com/mnedelchev-vn)! - Added Neon Mainnet chain.
+
 ## 1.18.2
 
 ### Patch Changes

@@ -3,7 +3,9 @@ import { describe, expectTypeOf, test } from 'vitest'
 
 import type { Account, JsonRpcAccount } from '../accounts/types.js'
 import { localhost } from '../chains/index.js'
+import { type Chain } from '../types/chain.js'
 import { type Client, createClient } from './createClient.js'
+import { walletActions } from './decorators/wallet.js'
 import { http } from './transports/http.js'
 
 test('with chain', () => {
@@ -99,5 +101,18 @@ describe('extend', () => {
         return '0x'
       },
     }))
+  })
+
+  test('protected action pass through generic', () => {
+    function getClient<chain extends Chain | undefined>(
+      chain?: chain | undefined,
+    ) {
+      const client = createClient({
+        chain,
+        transport: http(),
+      })
+      return client.extend(walletActions)
+    }
+    getClient(localhost)
   })
 })

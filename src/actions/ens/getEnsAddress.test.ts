@@ -103,7 +103,7 @@ test('offchain: aggregated', async () => {
   const client = createPublicClient({
     chain: mainnet,
     batch: { multicall: true },
-    transport: http(),
+    transport: http(process.env.VITE_ANVIL_FORK_URL),
   })
 
   const names = await Promise.all([

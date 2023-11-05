@@ -343,7 +343,7 @@ describe('legacy', () => {
   })
 })
 
-describe('custom (cip42)', () => {
+describe('custom (cip64)', () => {
   const walletClient = createWalletClient({
     chain: celo,
     transport: http(localHttpUrl),
@@ -358,10 +358,39 @@ describe('custom (cip42)', () => {
         feeCurrency: '0x765de816845861e75a25fca122bb6898b8b1282a',
         maxFeePerGas: parseGwei('20'),
         maxPriorityFeePerGas: parseGwei('2'),
-        type: 'cip42',
       }),
     ).toMatchInlineSnapshot(
-      '"0x7cf8700182031184773594008504a817c80082520894765de816845861e75a25fca122bb6898b8b1282a8080808080c080a05076fb030517e3243dd38850c21923f4343ed429db3ab032178f2d8702cad17fa07e860ca7bc7c2f34ece898c3e6912dcef4608ad3fc0b76bf0d760dcb608a71b2"',
+      '"0x7bf86e0182031184773594008504a817c800825208808080c094765de816845861e75a25fca122bb6898b8b1282a01a0ea3e86b0fd53ada619406822e96cf0dcec1e73b7a8bba60ad355fc8a8f4780e0a0399581f2dbfacab4d301a42e8773f6db217630e861b7d56ccbd333d553a6bb9c"',
+    )
+  })
+})
+
+describe('custom (cip42)', () => {
+  const walletClient = createWalletClient({
+    chain: celo,
+    transport: http(localHttpUrl),
+  })
+  const tx = {
+    account: privateKeyToAccount(sourceAccount.privateKey),
+    chain: null,
+    ...base,
+    feeCurrency: '0x765de816845861e75a25fca122bb6898b8b1282a',
+    maxFeePerGas: parseGwei('20'),
+    maxPriorityFeePerGas: parseGwei('2'),
+    gatewayFee: 4n,
+    gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
+  } as const
+
+  test('default', async () => {
+    expect(await signTransaction(walletClient, tx)).toMatchInlineSnapshot(
+      '"0x7cf8840182031184773594008504a817c80082520894765de816845861e75a25fca122bb6898b8b1282a940f16e9b0d03470827a95cdfd0cb8a8a3b46969b904808080c001a062bee7f81cccd1f430b4b66ec5a23737d6fbee9965e63ac582d09f63aef32bdca05e75bd3ef63f2c0f6fd0a87e3f8d4809a38ac955b7d97fd4af1bd2c882999d5c"',
+    )
+  })
+  test('sanity', async () => {
+    expect(
+      await signTransaction(walletClient, { ...tx, type: 'cip42' }),
+    ).toMatchInlineSnapshot(
+      '"0x7cf8840182031184773594008504a817c80082520894765de816845861e75a25fca122bb6898b8b1282a940f16e9b0d03470827a95cdfd0cb8a8a3b46969b904808080c001a062bee7f81cccd1f430b4b66ec5a23737d6fbee9965e63ac582d09f63aef32bdca05e75bd3ef63f2c0f6fd0a87e3f8d4809a38ac955b7d97fd4af1bd2c882999d5c"',
     )
   })
 })

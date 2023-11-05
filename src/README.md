@@ -79,6 +79,10 @@ const client = createPublicClient({
 const blockNumber = await client.getBlockNumber();
 ```
 
+## Documentation
+
+[Head to the documentation](https://viem.sh/docs) to read and learn more about viem.
+
 ## Community
 
 Check out the following places for more viem-related content:

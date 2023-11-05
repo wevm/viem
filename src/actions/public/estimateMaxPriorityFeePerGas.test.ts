@@ -199,7 +199,7 @@ describe('mainnet smoke', () => {
     expect(await estimateMaxPriorityFeePerGas(mainnetClient)).toBeDefined()
   })
 
-  test('fallback', async () => {
+  test.skip('fallback', async () => {
     const mainnetClient = createPublicClient({
       chain: mainnet,
       // cloudflare doesn't support eth_maxPriorityFeePerGas
