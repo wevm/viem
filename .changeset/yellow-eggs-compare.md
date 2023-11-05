@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-fix a regression introduced in #1379 that affected celo transactions only
+Fixed an issue where Celo CIP64 transactions were being recognized as EIP1559 transactions.
