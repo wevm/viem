@@ -55,15 +55,19 @@ export const formattersCelo = {
   }),
   transaction: /*#__PURE__*/ defineTransaction({
     format(args: CeloRpcTransaction): CeloTransaction {
-      if (args.type === '0x7b')
-        return {
-          feeCurrency: args.feeCurrency,
-        } as CeloTransaction
-      return {
-        feeCurrency: args.feeCurrency,
-        gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
-        gatewayFeeRecipient: args.gatewayFeeRecipient,
-      } as CeloTransaction
+      const transaction = { feeCurrency: args.feeCurrency } as CeloTransaction
+
+      if (args.type === '0x7b') transaction.type = 'cip64'
+      else {
+        if (args.type === '0x7c') transaction.type = 'cip42'
+
+        transaction.gatewayFee = args.gatewayFee
+          ? hexToBigInt(args.gatewayFee)
+          : null
+        transaction.gatewayFeeRecipient = args.gatewayFeeRecipient
+      }
+
+      return transaction
     },
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
@@ -80,22 +84,20 @@ export const formattersCelo = {
 
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
-      if (isCIP64(args))
-        return {
-          type: '0x7b',
-          feeCurrency: args.feeCurrency,
-        } as CeloRpcTransactionRequest
-
       const request = {
         feeCurrency: args.feeCurrency,
-        gatewayFee:
-          typeof args.gatewayFee !== 'undefined'
-            ? numberToHex(args.gatewayFee)
-            : undefined,
-        gatewayFeeRecipient: args.gatewayFeeRecipient,
       } as CeloRpcTransactionRequest
 
-      if (isCIP42(args)) request.type = '0x7c'
+      if (isCIP64(args)) request.type = '0x7b'
+      else {
+        if (isCIP42(args)) request.type = '0x7c'
+
+        request.gatewayFee =
+          typeof args.gatewayFee !== 'undefined'
+            ? numberToHex(args.gatewayFee)
+            : undefined
+        request.gatewayFeeRecipient = args.gatewayFeeRecipient
+      }
 
       return request
     },

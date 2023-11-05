@@ -130,11 +130,12 @@ describe('cip42', () => {
     )
   })
 
-  test('args: gatewayFee', () => {
+  test('args: gatewayFee (absent)', () => {
     const transaction: TransactionSerializableCIP42 = {
       ...baseCip42,
-      gatewayFeeRecipient: accounts[5].address,
-      gatewayFee: parseEther('0.1'),
+      gatewayFeeRecipient: undefined,
+      gatewayFee: undefined,
+      type: 'cip42',
     }
     expect(parseTransactionCelo(serializeTransactionCelo(transaction))).toEqual(
       {
@@ -172,10 +173,10 @@ describe('cip42', () => {
     )
   })
 
-  test('args: nonce', () => {
+  test('args: nonce (absent)', () => {
     const transaction: TransactionSerializableCIP42 = {
       ...baseCip42,
-      nonce: 20,
+      nonce: undefined,
     }
     expect(parseTransactionCelo(serializeTransactionCelo(transaction))).toEqual(
       {
@@ -376,10 +377,10 @@ describe('cip64', () => {
     )
   })
 
-  test('args: nonce', () => {
+  test('args: nonce (absent)', () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
-      nonce: 20,
+      nonce: undefined,
     }
     expect(parseTransactionCelo(serializeTransactionCelo(transaction))).toEqual(
       {
@@ -590,6 +591,17 @@ describe('Common invalid params (for CIP-42)', () => {
 
     expect(() => serializeTransactionCelo(transaction)).toThrowError(
       `Chain ID "${-1}" is invalid.`,
+    )
+  })
+
+  test('maxPriorityFeePerGas is higher than maxPriorityFee', () => {
+    const transaction: TransactionSerializableCIP42 = {
+      ...baseCip42,
+      maxPriorityFeePerGas: parseGwei('5000000000'),
+      maxFeePerGas: parseGwei('1'),
+    }
+    expect(() => serializeTransactionCelo(transaction)).toThrowError(
+      TipAboveFeeCapError,
     )
   })
 })

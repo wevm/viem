@@ -126,7 +126,7 @@ function serializeTransactionCIP64(
     value ? toHex(value) : '0x',
     data ?? '0x',
     serializeAccessList(accessList),
-    feeCurrency ?? '0x',
+    feeCurrency!,
   ]
 
   if (signature) {

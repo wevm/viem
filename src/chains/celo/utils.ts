@@ -43,9 +43,7 @@ export function isCIP42(
   transaction: CeloTransactionSerializable | CeloTransactionRequest,
 ): transaction is TransactionSerializableCIP42 {
   // Enable end-user to force the tx to be considered as a cip42
-  if (transaction.type === 'cip42') {
-    return true
-  }
+  if (transaction.type) return transaction.type === 'cip42'
 
   return (
     isEIP1559(transaction) &&
@@ -59,9 +57,7 @@ export function isCIP64(
   transaction: CeloTransactionSerializable | CeloTransactionRequest,
 ): transaction is TransactionSerializableCIP64 {
   // Enable end-user to force the tx to be considered as a cip64
-  if (transaction.type === 'cip64') {
-    return true
-  }
+  if (transaction.type) return transaction.type === 'cip64'
 
   return (
     isEIP1559(transaction) &&

@@ -135,21 +135,25 @@ type RpcTransactionRequest = RpcTransactionRequest_ & {
   gatewayFeeRecipient?: Address
 }
 
-export type RpcTransactionCIP42<TPending extends boolean = boolean> =
-  TransactionBase<Quantity, Index, TPending> &
-    FeeValuesEIP1559<Quantity> & {
-      feeCurrency: Address | null
-      gatewayFee: Hex | null
-      gatewayFeeRecipient: Address | null
-      type: '0x7c'
-    }
+export type RpcTransactionCIP42<TPending extends boolean = boolean> = Omit<
+  TransactionBase<Quantity, Index, TPending>,
+  'typeHex'
+> &
+  FeeValuesEIP1559<Quantity> & {
+    feeCurrency: Address | null
+    gatewayFee: Hex | null
+    gatewayFeeRecipient: Address | null
+    type: '0x7c'
+  }
 
-export type RpcTransactionCIP64<TPending extends boolean = boolean> =
-  TransactionBase<Quantity, Index, TPending> &
-    FeeValuesEIP1559<Quantity> & {
-      feeCurrency: Address | null
-      type: '0x7b'
-    }
+export type RpcTransactionCIP64<TPending extends boolean = boolean> = Omit<
+  TransactionBase<Quantity, Index, TPending>,
+  'typeHex'
+> &
+  FeeValuesEIP1559<Quantity> & {
+    feeCurrency: Address | null
+    type: '0x7b'
+  }
 
 export type RpcTransactionRequestCIP42 = TransactionRequestBase<
   Quantity,
