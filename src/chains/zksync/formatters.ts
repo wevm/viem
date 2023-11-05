@@ -40,8 +40,12 @@ export const formattersZkSync = {
         return formatted
       }) as Hash[] | ZkSyncTransaction[]
       return {
-        l1BatchNumber: hexToBigInt(args.l1BatchNumber),
-        l1BatchTimestamp: hexToBigInt(args.l1BatchTimestamp),
+        l1BatchNumber: args.l1BatchNumber
+          ? hexToBigInt(args.l1BatchNumber)
+          : null,
+        l1BatchTimestamp: args.l1BatchTimestamp
+          ? hexToBigInt(args.l1BatchTimestamp)
+          : null,
         transactions,
       }
     },

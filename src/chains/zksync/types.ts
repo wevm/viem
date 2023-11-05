@@ -45,7 +45,7 @@ export type ZkSyncLog<
     ? TAbiEvent['name']
     : undefined,
 > = Log_<TQuantity, TIndex, TPending, TAbiEvent, TStrict, TAbi, TEventName> & {
-  l1BatchNumber: TQuantity
+  l1BatchNumber: TQuantity | null
   transactionLogIndex: TIndex
   logType: Hex | null
 }
@@ -125,8 +125,8 @@ export type ZkSyncBlock<
 // Block (RPC)
 
 export type ZkSyncRpcBlockOverrides = {
-  l1BatchNumber: Hex
-  l1BatchTimestamp: Hex
+  l1BatchNumber: Hex | null
+  l1BatchTimestamp: Hex | null
 }
 export type ZkSyncRpcBlock<
   TBlockTag extends BlockTag = BlockTag,
@@ -178,8 +178,8 @@ export type ZkSyncTransaction<TPending extends boolean = boolean> =
 // Transaction (RPC)
 
 type RpcTransactionOverrides = {
-  l1BatchNumber: Hex
-  l1BatchTxIndex: Hex
+  l1BatchNumber: Hex | null
+  l1BatchTxIndex: Hex | null
 }
 
 type RpcTransactionLegacy<TPending extends boolean = boolean> =
@@ -269,8 +269,8 @@ export type ZkSyncTransactionType = TransactionType | 'eip712' | 'priority'
 // https://era.zksync.io/docs/api/js/types.html#transactionreceipt
 
 export type ZkSyncRpcTransactionReceiptOverrides = {
-  l1BatchNumber: Hex
-  l1BatchTxIndex: Hex
+  l1BatchNumber: Hex | null
+  l1BatchTxIndex: Hex | null
   logs: ZkSyncRpcLog[]
   l2ToL1Logs: ZkSyncRpcL2ToL1Log[]
   root: Hex
