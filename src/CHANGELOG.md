@@ -1,5 +1,13 @@
 # viem
 
+## 1.18.7
+
+### Patch Changes
+
+- [`95991301`](https://github.com/wagmi-dev/viem/commit/95991301c9eb4a3f2a1bcff8ab36d95ff964e13c) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `watchContractEvent` fallback was not scoping events to the provided `eventName`.
+
+- [#1453](https://github.com/wagmi-dev/viem/pull/1453) [`e40006aa`](https://github.com/wagmi-dev/viem/commit/e40006aad1941d9c77dfd68b07f1acb99f7c8883) Thanks [@0xRaghu](https://github.com/0xRaghu)! - Added Kava Testnet chain.
+
 ## 1.18.6
 
 ### Patch Changes
