@@ -70,6 +70,7 @@ test('exports chains', () => {
       "haqqTestedge2",
       "holesky",
       "kava",
+      "kavaTestnet",
       "klaytn",
       "kroma",
       "kromaSepolia",
