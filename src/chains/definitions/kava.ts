@@ -10,8 +10,8 @@ export const kava = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    public: { http: ['https://kava-evm.publicnode.com'] },
-    default: { http: ['https://kava-evm.publicnode.com'] },
+    public: { http: ['https://evm.kava.io'] },
+    default: { http: ['https://evm.kava.io'] },
   },
   blockExplorers: {
     default: { name: 'Kava EVM Explorer', url: 'https://kavascan.com' },
