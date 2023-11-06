@@ -24,7 +24,6 @@ import type {
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { NeverBy } from '../../types/utils.js'
-import type { OptimismRpcTransaction } from '../optimism/types.js'
 
 type CeloBlockExclude =
   | 'difficulty'
@@ -66,7 +65,7 @@ export type CeloRpcBlock<
   RpcBlock<
     TBlockTag,
     TIncludeTransactions,
-    OptimismRpcTransaction<TBlockTag extends 'pending' ? true : false>
+    RpcTransaction<TBlockTag extends 'pending' ? true : false>
   >,
   CeloBlockExclude
 > &
