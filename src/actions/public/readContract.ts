@@ -100,6 +100,7 @@ export async function readContract<
       to: address,
       ...callRequest,
     } as unknown as CallParameters)
+
     return decodeFunctionResult({
       abi,
       args,

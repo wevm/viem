@@ -1041,45 +1041,6 @@ describe('errors', async () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot('"err_1"')
   })
-
-  test('deployless before contract exists', async () => {
-    expect(
-      await multicall(publicClient, {
-        deployless: true,
-        blockNumber: 420n, // before multicall3 was deployed
-        contracts: [
-          {
-            ...usdcContractConfig,
-            functionName: 'totalSupply',
-          },
-          {
-            ...usdcContractConfig,
-            functionName: 'balanceOf',
-            args: [address.usdcHolder],
-          },
-          {
-            ...baycContractConfig,
-            functionName: 'totalSupply',
-          },
-        ],
-      }),
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "result": 25847240701869550n,
-          "status": "success",
-        },
-        {
-          "result": 12157768130567n,
-          "status": "success",
-        },
-        {
-          "result": 10000n,
-          "status": "success",
-        },
-      ]
-    `)
-  })
 })
 
 test('chain not provided', async () => {
@@ -1203,6 +1164,55 @@ test('batchSize on client', async () => {
   await multicall(client, {
     contracts,
   })
+})
+
+test('deployless on client', async () => {
+  const client = createPublicClient({
+    batch: {
+      multicall: {
+        deployless: true,
+        batchSize: 1024,
+      },
+    },
+    chain: anvilChain,
+    transport: http(),
+  })
+
+  expect(
+    await multicall(client, {
+      blockNumber: 13069420n, // before multicall3 was deployed
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.usdcHolder],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+  [
+    {
+      "result": 25847240701869550n,
+      "status": "success",
+    },
+    {
+      "result": 12157768130567n,
+      "status": "success",
+    },
+    {
+      "result": 10000n,
+      "status": "success",
+    },
+  ]
+`)
 })
 
 describe('GitHub repros', () => {

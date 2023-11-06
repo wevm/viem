@@ -31,11 +31,7 @@ import {
   getContractError,
 } from '../../utils/errors/getContractError.js'
 
-import {
-  decodeAbiParameters,
-  encodeDeployData,
-  getAbiItem,
-} from '~viem/index.js'
+import { encodeDeployData } from '~viem/index.js'
 import type { ErrorType } from '../../errors/utils.js'
 import { getAction } from '../../utils/getAction.js'
 import { type CallParameters, call } from './call.js'
@@ -125,7 +121,7 @@ export async function multicall<
     blockNumber,
     blockTag,
     contracts,
-    deployless,
+    deployless: deployless_,
     multicallAddress,
   } = args
 
@@ -134,6 +130,12 @@ export async function multicall<
     ((typeof client.batch?.multicall === 'object' &&
       client.batch.multicall.batchSize) ||
       1_024)
+
+  const deployless =
+    deployless_ ??
+    ((typeof client.batch?.multicall === 'object' &&
+      client.batch.multicall.deployless) ||
+      false)
 
   const chunkedCalls: Aggregate3Calls[] = [[]]
   let currentChunk = 0
@@ -331,12 +333,12 @@ async function fetchRawMulticallResults<
 
       const callReturn = await getAction(client, call)(params)
 
-      const outputItem = getAbiItem({ abi: multicall3Abi, name: 'aggregate3' })
-
-      if (callReturn.data) {
-        const values = decodeAbiParameters(outputItem.outputs, callReturn.data)
-        return values[0] as any
-      }
+      return decodeFunctionResult({
+        abi: multicall3Abi,
+        functionName: 'aggregate3',
+        data: callReturn.data || '0x',
+        args: [calls],
+      })
     }),
   )
 }

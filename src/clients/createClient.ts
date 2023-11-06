@@ -157,6 +157,8 @@ export type MulticallBatchOptions = {
   batchSize?: number | undefined
   /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
   wait?: number | undefined
+  /** Fallback to using deployless multicall if deployed contract is not available. @default false */
+  deployless?: boolean | undefined
 }
 
 export type CreateClientErrorType = ParseAccountErrorType | ErrorType
