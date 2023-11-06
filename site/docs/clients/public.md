@@ -157,6 +157,25 @@ const client = createPublicClient({
 })
 ```
 
+### batch.multicall.deployless (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether or not the `multicall` should attempt to proceed using a 'deployless' strategy in the event that no multicall contract is available at the requested block. Explained in more detail [here](https://destiner.io/blog/post/deployless-multicall/). This allows using multicall3 on historic blocks where traditionally it would not be possible.
+
+```ts
+const client = createPublicClient({
+  batch: {
+    multicall: {
+      deployless: true, // [!code focus]
+    },
+  },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
 ### batch.multicall.wait (optional)
 
 - **Type:** `number`
