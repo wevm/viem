@@ -38,10 +38,25 @@
       "import": "./_esm/chains/index.js",
       "default": "./_cjs/chains/index.js"
     },
+    "./chains/celo": {
+      "types": "./_types/chains/celo/index.d.ts",
+      "import": "./_esm/chains/celo/index.js",
+      "default": "./_cjs/chains/celo/index.js"
+    },
+    "./chains/optimism": {
+      "types": "./_types/chains/optimism/index.d.ts",
+      "import": "./_esm/chains/optimism/index.js",
+      "default": "./_cjs/chains/optimism/index.js"
+    },
     "./chains/utils": {
       "types": "./_types/chains/utils.d.ts",
       "import": "./_esm/chains/utils.js",
       "default": "./_cjs/chains/utils.js"
+    },
+    "./chains/zksync": {
+      "types": "./_types/chains/zksync/index.d.ts",
+      "import": "./_esm/chains/zksync/index.js",
+      "default": "./_cjs/chains/zksync/index.js"
     },
     "./ens": {
       "types": "./_types/ens/index.d.ts",

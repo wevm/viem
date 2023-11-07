@@ -1,5 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formattersOptimism } from '../optimism/formatters.js'
+import { opStackL2Contracts } from '../opStack/contracts.js'
+import { formattersOpStack } from '../opStack/formatters.js'
 
 export const baseSepolia = /*#__PURE__*/ defineChain({
   id: 84532,
@@ -24,7 +25,8 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
       url: 'https://base-sepolia.blockscout.com',
     },
   },
+  contracts: { ...opStackL2Contracts },
   testnet: true,
   sourceId: 11155111, // sepolia
-  formatters: formattersOptimism,
+  formatters: formattersOpStack,
 })

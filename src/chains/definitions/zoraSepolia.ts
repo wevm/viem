@@ -1,5 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formattersOptimism } from '../optimism/formatters.js'
+import { opStackL2Contracts } from '../opStack/contracts.js'
+import { formattersOpStack } from '../opStack/formatters.js'
 
 export const zoraSepolia = /*#__PURE__*/ defineChain({
   id: 999999999,
@@ -31,7 +32,8 @@ export const zoraSepolia = /*#__PURE__*/ defineChain({
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 83160,
     },
+    ...opStackL2Contracts,
   },
   testnet: true,
-  formatters: formattersOptimism,
+  formatters: formattersOpStack,
 })

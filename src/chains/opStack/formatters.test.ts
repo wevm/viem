@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
+import { optimismClient } from '~test/src/optimism.js'
+
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
 import { getTransactionReceipt } from '../../actions/public/getTransactionReceipt.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
-import { http } from '../../clients/transports/http.js'
 import { optimism } from '../index.js'
 
 describe('block', () => {
@@ -221,11 +221,7 @@ describe('block', () => {
   })
 
   test('action', async () => {
-    const client = createPublicClient({
-      chain: optimism,
-      transport: http(),
-    })
-    const block = await getBlock(client, {
+    const block = await getBlock(optimismClient, {
       blockNumber: 105849734n,
       includeTransactions: true,
     })
@@ -336,39 +332,34 @@ describe('transaction', () => {
   })
 
   test('action', async () => {
-    const client = createPublicClient({
-      chain: optimism,
-      transport: http(),
-    })
-
-    const transaction = await getTransaction(client, {
+    const transaction = await getTransaction(optimismClient, {
       hash: '0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822',
     })
 
     expect(transaction).toMatchInlineSnapshot(`
-        {
-          "accessList": [],
-          "blockHash": "0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574",
-          "blockNumber": 105848892n,
-          "chainId": 10,
-          "from": "0xacd03d601e5bb1b275bb94076ff46ed9d753435a",
-          "gas": 21000n,
-          "gasPrice": 267n,
-          "hash": "0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822",
-          "input": "0x",
-          "maxFeePerGas": 191000n,
-          "maxPriorityFeePerGas": 191n,
-          "nonce": 775017,
-          "r": "0xf5272819865bb23110822bedd12b4f14a9b89ca113e280d40ec06c83d126090e",
-          "s": "0xaaa4249c6b174d714cd6d1eaf1a15a9549769addfcc6d846524f1f8ce38178a",
-          "to": "0xeb610a69341aace81ed810ed42428249512378cd",
-          "transactionIndex": 7,
-          "type": "eip1559",
-          "typeHex": "0x2",
-          "v": 1n,
-          "value": 650000000000000n,
-        }
-      `)
+      {
+        "accessList": [],
+        "blockHash": "0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574",
+        "blockNumber": 105848892n,
+        "chainId": 10,
+        "from": "0xacd03d601e5bb1b275bb94076ff46ed9d753435a",
+        "gas": 21000n,
+        "gasPrice": 267n,
+        "hash": "0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822",
+        "input": "0x",
+        "maxFeePerGas": 191000n,
+        "maxPriorityFeePerGas": 191n,
+        "nonce": 775017,
+        "r": "0xf5272819865bb23110822bedd12b4f14a9b89ca113e280d40ec06c83d126090e",
+        "s": "0xaaa4249c6b174d714cd6d1eaf1a15a9549769addfcc6d846524f1f8ce38178a",
+        "to": "0xeb610a69341aace81ed810ed42428249512378cd",
+        "transactionIndex": 7,
+        "type": "eip1559",
+        "typeHex": "0x2",
+        "v": 1n,
+        "value": 650000000000000n,
+      }
+    `)
   })
 })
 
@@ -429,12 +420,7 @@ describe('transaction (deposit)', () => {
   })
 
   test('action', async () => {
-    const client = createPublicClient({
-      chain: optimism,
-      transport: http(),
-    })
-
-    const transaction = await getTransaction(client, {
+    const transaction = await getTransaction(optimismClient, {
       hash: '0x97f8e79b683df44ae2cc2e9f6eeebd2febdd6f0aeda71f184e6b297cbe7f620b',
     })
 
@@ -567,12 +553,7 @@ describe('transaction receipt', async () => {
   })
 
   test('action', async () => {
-    const client = createPublicClient({
-      chain: optimism,
-      transport: http(),
-    })
-
-    const transaction = await getTransactionReceipt(client, {
+    const transaction = await getTransactionReceipt(optimismClient, {
       hash: '0x4d8f0ebd260ea5ac2e11886cdd0af8cba982b21d9f9c1efad808212c6d6a65d3',
     })
 

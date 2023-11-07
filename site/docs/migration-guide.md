@@ -44,6 +44,35 @@ import { // [!code ++]
 } from 'viem' // [!code ++]
 ```
 
+### Moved chain-specific exports in `viem/chains/utils`
+
+Chain-specific exports in `viem/chains/utils` have been moved to `viem/utils/{celo|opStack|zkSync}`:
+
+```diff
+import {
+  formattersCelo,
+  parseTransactionCelo,
+  serializeTransactionCelo,
+  ...
+-} from 'viem/chains/utils'
++} from 'viem/chains/celo'
+
+import {
+- formattersOptimism,
++ formattersOpStack,
+  ...
+-} from 'viem/chains/utils'
++} from 'viem/chains/opStack'
+
+import {
+  formattersZkSync,
+  parseTransactionZkSync,
+  serializeTransactionZkSync,
+  ...
+-} from 'viem/chains/utils'
++} from 'viem/chains/zkSync'
+```
+
 ### Actions: `getBlockNumber`
 
 The `maxAge` parameter has been removed in favor of `cacheTime`.

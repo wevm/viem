@@ -9,28 +9,28 @@ import {
 } from '../../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 import type {
-  OptimismBlockOverrides,
-  OptimismRpcBlockOverrides,
-  OptimismRpcTransaction,
-  OptimismRpcTransactionReceiptOverrides,
-  OptimismTransaction,
-  OptimismTransactionReceiptOverrides,
+  OpStackBlockOverrides,
+  OpStackRpcBlockOverrides,
+  OpStackRpcTransaction,
+  OpStackRpcTransactionReceiptOverrides,
+  OpStackTransaction,
+  OpStackTransactionReceiptOverrides,
 } from './types.js'
 
-export const formattersOptimism = {
+export const formattersOpStack = {
   block: /*#__PURE__*/ defineBlock({
     format(
-      args: OptimismRpcBlockOverrides & {
-        transactions: Hash[] | OptimismRpcTransaction[]
+      args: OpStackRpcBlockOverrides & {
+        transactions: Hash[] | OpStackRpcTransaction[]
       },
-    ): OptimismBlockOverrides & {
-      transactions: Hash[] | OptimismTransaction[]
+    ): OpStackBlockOverrides & {
+      transactions: Hash[] | OpStackTransaction[]
     } {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
         const formatted = formatTransaction(
           transaction as RpcTransaction,
-        ) as OptimismTransaction
+        ) as OpStackTransaction
         if (formatted.typeHex === '0x7e') {
           formatted.isSystemTx = transaction.isSystemTx
           formatted.mint = transaction.mint
@@ -40,7 +40,7 @@ export const formattersOptimism = {
           formatted.type = 'deposit'
         }
         return formatted
-      }) as Hash[] | OptimismTransaction[]
+      }) as Hash[] | OpStackTransaction[]
       return {
         transactions,
         stateRoot: args.stateRoot,
@@ -48,8 +48,8 @@ export const formattersOptimism = {
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
-    format(args: OptimismRpcTransaction): OptimismTransaction {
-      const transaction = {} as OptimismTransaction
+    format(args: OpStackRpcTransaction): OpStackTransaction {
+      const transaction = {} as OpStackTransaction
       if (args.type === '0x7e') {
         transaction.isSystemTx = args.isSystemTx
         transaction.mint = args.mint ? hexToBigInt(args.mint) : undefined
@@ -61,8 +61,8 @@ export const formattersOptimism = {
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
     format(
-      args: OptimismRpcTransactionReceiptOverrides,
-    ): OptimismTransactionReceiptOverrides {
+      args: OpStackRpcTransactionReceiptOverrides,
+    ): OpStackTransactionReceiptOverrides {
       return {
         l1GasPrice: args.l1GasPrice ? hexToBigInt(args.l1GasPrice) : null,
         l1GasUsed: args.l1GasUsed ? hexToBigInt(args.l1GasUsed) : null,

@@ -1,5 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formattersOptimism } from '../optimism/formatters.js'
+import { opStackL2Contracts } from '../opStack/contracts.js'
+import { formattersOpStack } from '../opStack/formatters.js'
 
 export const optimismGoerli = /*#__PURE__*/ defineChain({
   id: 420,
@@ -21,7 +22,8 @@ export const optimismGoerli = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 49461,
     },
+    ...opStackL2Contracts,
   },
   testnet: true,
-  formatters: formattersOptimism,
+  formatters: formattersOpStack,
 })
