@@ -1,5 +1,11 @@
 # viem
 
+## 1.18.9
+
+### Patch Changes
+
+- [#1464](https://github.com/wagmi-dev/viem/pull/1464) [`32098af0`](https://github.com/wagmi-dev/viem/commit/32098af0378c47a4032155f8947f88f9990cd25d) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `getFunctionSignature`/`getFunctionSelector` would not parse nested tuples in string-based signatures.
+
 ## 1.18.8
 
 ### Patch Changes
