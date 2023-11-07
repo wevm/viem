@@ -45,8 +45,8 @@ export type PublicOpStackActions<
    * Estimates the total amount of combined L1 + L2 gas required to execute an L2 transaction.
    *
    * @param client - Client to use
-   * @param parameters - {@link EstimateL1GasParameters}
-   * @returns The gas estimate. {@link EstimateL1GasReturnType}
+   * @param parameters - {@link EstimateTotalGasParameters}
+   * @returns The gas estimate. {@link EstimateTotalGasReturnType}
    *
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
