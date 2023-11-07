@@ -30,7 +30,6 @@ test('exports chains', () => {
       "canto",
       "celo",
       "celoAlfajores",
-      "celoCannoli",
       "classic",
       "confluxESpace",
       "coreDao",
