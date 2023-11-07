@@ -40,7 +40,7 @@ export class EstimateGasExecutionError extends BaseError {
       to,
       value:
         typeof value !== 'undefined' &&
-        `${formatEther(value)} ${chain?.nativeCurrency.symbol || 'ETH'}`,
+        `${formatEther(value)} ${chain?.nativeCurrency?.symbol || 'ETH'}`,
       data,
       gas,
       gasPrice:
