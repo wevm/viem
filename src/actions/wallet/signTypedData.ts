@@ -160,7 +160,6 @@ export async function signTypedData<
     types: types_,
   }: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
 ): Promise<SignTypedDataReturnType> {
-  console.log('signTypedData')
 
   if (!account_)
     throw new AccountNotFoundError({
@@ -168,15 +167,11 @@ export async function signTypedData<
     })
   const account = parseAccount(account_)
 
-  console.log('account')
-  console.log(account)
-
   const types = {
     EIP712Domain: getTypesForEIP712Domain({ domain }),
     ...(types_ as TTypedData),
   }
 
-  console.log('validateTypedData')
   // Need to do a runtime validation check on addresses, byte ranges, integer ranges, etc
   // as we can't statically check this with TypeScript.
   validateTypedData({

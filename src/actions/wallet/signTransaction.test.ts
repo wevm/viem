@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { accounts, localHttpUrl } from '~test/src/constants.js'
 import { testClient, walletClient } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { celo, mainnet } from '../../chains/index.js'
+import { celo, mainnet, zkSync } from '../../chains/index.js'
 import {
   http,
   type TransactionRequestBase,
@@ -386,7 +386,7 @@ describe('custom (eip712)', () => {
           '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
         type: 'eip712',
       }),
-    ).toMatchInlineSnapshot('"0x71..."')
+    ).toMatchInlineSnapshot('"0x71f8d382031184773594008504a817c800825208808080820144808082014494000000000000000000000000000000000000000080c0b841447a21752825b0bd428133ab71cad909bc665865c03fa2738634f41e4aea7c1b7d30326e6c66808ad7a479a76dc0a145c14a9d19985b515eeea8e7079695ede81cf85b94fd9ae5ebb0f6656f4b77a0e99dcbc5138d54b0bab8448c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000"')
   })
 })
 

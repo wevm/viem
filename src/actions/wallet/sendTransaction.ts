@@ -166,28 +166,17 @@ export async function sendTransaction<
     // We need a way to find the transaction type here if isn't defined.
     // This can be done with prepareTransactionRequest.
     // If we create the `eip712meta` abstraction, we just need to check for that field.
-    console.log(chainId)
-    console.log(chain)
-    console.log(chain?.eip712domain?.isEip712Domain)
-    console.log(chain?.eip712domain?.eip712domain)
-    console.log(
-      chain?.eip712domain?.isEip712Domain({ ...args, chainId: chainId }),
-    )
     if (
       chainId &&
       chain?.eip712domain?.isEip712Domain &&
       chain?.eip712domain?.eip712domain &&
       chain?.eip712domain?.isEip712Domain({ ...args, chainId: chainId })
     ) {
-      console.log('Detected EIP712 transaction')
-      // DAVID: This can be probably merged with the code bellow (account.type === local)
-
       const eip712signer = chain?.eip712domain?.eip712domain
 
       if (eip712signer === undefined)
         throw new BaseError('Chain doesnt define EIP712 signer.')
 
-      console.log('prepareTransactionRequest')
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await getAction(
         client,
@@ -206,19 +195,13 @@ export async function sendTransaction<
         ...rest,
       } as any)
 
-      console.log('getChainId')
       if (!chainId) chainId = await getAction(client, getChainId)({})
 
       // EIP712 sign will be done inside the sign transaction
-
-      console.log('Signing EIP712 transaction ...')
       const serializedTransaction = (await signTransaction(client, {
         ...request,
         chainId,
       } as TransactionSerializable)) as Hash
-
-      console.log('EIP712 - Send RAW Transaction')
-      console.log(serializedTransaction)
 
       return await getAction(
         client,
@@ -227,8 +210,6 @@ export async function sendTransaction<
         serializedTransaction,
       })
     }
-
-    console.log('NOT EIP712!')
 
     if (account.type === 'local') {
       // Prepare the request for signing (assign appropriate fees, etc.)

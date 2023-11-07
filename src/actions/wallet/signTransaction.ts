@@ -112,7 +112,6 @@ export async function signTransaction<
   client: Client<Transport, TChain, TAccount>,
   args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SignTransactionReturnType> {
-  console.log('signTransaction')
   const {
     account: account_ = client.account,
     chain = client.chain,
@@ -161,47 +160,24 @@ export async function signTransaction<
     client.chain?.serializers?.transaction &&
     client.chain?.eip712domain?.isEip712Domain({ ...args, chainId: chainId })
   ) {
-    console.log('Special EIP712 case')
     const eip712Domain = client.chain?.eip712domain?.eip712domain(transaction)
-    console.log('eip712domain')
-    console.log(eip712Domain)
 
-    // TODO: Check if is local, if is we can sign it here directly
-    // using the private key.
-
-    // if (account.type === 'local') {
-    //   const customSignature = await account.signTypedData(eip712Domain)
-    //   // You need to serializer next.
-    /*return account.signTransaction(
-      {
-        ...transaction,
-        chainId,
-      } as unknown as TransactionSerializable,
-      { serializer: client.chain?.serializers?.transaction },
-    ) as Promise<SignTransactionReturnType>*/
-
-    // If not local (json-rpc) it run the code bellow.
     const customSignature = await signTypedData(client, {
       ...eip712Domain,
       account: account,
     })
-    console.log(`CustomSignature: ${customSignature}`)
 
     transaction.customSignature = customSignature
 
     // If we have the customSignature we can sign the transaction, doesn't matter if account type
     // is `local` or `json-rpc`.
     return client.chain?.serializers?.transaction(
-      { chainId, ...transaction } as unknown as TransactionSerializable,
+      { chainId, ...transaction } as unknown as TransactionSerializableEIP712,
       // Use this blank private key, probably we should change the code to be optional,
       // or option if it is EIP712.
       { r: '0x0', s: '0x0', v: 0n },
     )
   }
-  // ---
-
-  console.log("OPS, it shouldn't reach here if it is a EIP712 transaction!")
-  console.log(transaction)
 
   if (account.type === 'local') {
     return account.signTransaction(
