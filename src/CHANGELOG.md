@@ -1,5 +1,11 @@
 # viem
 
+## 1.18.8
+
+### Patch Changes
+
+- [`46213902`](https://github.com/wagmi-dev/viem/commit/462139026e4e36dd98e4c1da5ff7669f7ffb98ee) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `chain.nativeCurrency` could be undefined.
+
 ## 1.18.7
 
 ### Patch Changes
