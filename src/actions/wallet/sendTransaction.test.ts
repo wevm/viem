@@ -9,7 +9,14 @@ import {
   walletClientWithAccount,
 } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
+import {
+  celo,
+  localhost,
+  mainnet,
+  optimism,
+  zkSync,
+  zkSyncTestnet,
+} from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { type Hex } from '../../types/misc.js'
@@ -1115,5 +1122,30 @@ describe('errors', () => {
       Version: viem@1.0.2"
     `,
     )
+  })
+})
+
+describe('custom (eip712)', () => {
+  const walletClient = createWalletClient({
+    chain: zkSync,
+    transport: http(localHttpUrl),
+  })
+
+  test('default', async () => {
+    const res = await sendTransaction(walletClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      maxFeePerGas: parseGwei('25'),
+      maxPriorityFeePerGas: parseGwei('2'),
+      gas: 158774n,
+      value: parseEther('1'),
+      // paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',
+      // paymasterInput:
+        // '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+      factoryDeps: [],
+      gasPerPubdata: 50000n,
+      type: 'eip712',
+    })
+    console.log(res)
   })
 })
