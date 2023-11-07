@@ -86,10 +86,6 @@ export function http(
         async request({ method, params }) {
           const body = { method, params }
 
-          console.log('http')
-          console.log(method)
-          console.log(params)
-
           const { schedule } = createBatchScheduler({
             id: `${url}`,
             wait,

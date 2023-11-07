@@ -163,9 +163,6 @@ export async function sendTransaction<
       })
     }
 
-    // We need a way to find the transaction type here if isn't defined.
-    // This can be done with prepareTransactionRequest.
-    // If we create the `eip712meta` abstraction, we just need to check for that field.
     if (
       chainId &&
       chain?.eip712domain?.isEip712Domain &&

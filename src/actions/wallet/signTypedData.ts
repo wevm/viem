@@ -160,7 +160,6 @@ export async function signTypedData<
     types: types_,
   }: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
 ): Promise<SignTypedDataReturnType> {
-
   if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/signTypedData',

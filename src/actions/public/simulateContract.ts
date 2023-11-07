@@ -137,15 +137,12 @@ export async function simulateContract<
   const account = callRequest.account
     ? parseAccount(callRequest.account)
     : undefined
-  console.log('callData')
   const calldata = encodeFunctionData({
     abi,
     args,
     functionName,
   } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
-  console.log(calldata)
   try {
-    console.log('getAction')
     const { data } = await getAction(
       client,
       call,
@@ -155,7 +152,6 @@ export async function simulateContract<
       to: address,
       ...callRequest,
     } as unknown as CallParameters<TChain>)
-    console.log('decodeFunctionResult')
     const result = decodeFunctionResult({
       abi,
       args,

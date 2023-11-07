@@ -154,13 +154,10 @@ export async function estimateGas<
       value,
     } as TransactionRequest)
 
-    console.log('eth_estimateGas')
-    console.log(request)
     const balance = await client.request({
       method: 'eth_estimateGas',
       params: block ? [request, block] : [request],
     })
-    console.log(BigInt(balance))
     return BigInt(balance)
   } catch (err) {
     throw getEstimateGasError(err as BaseError, {

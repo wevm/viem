@@ -131,10 +131,10 @@ export async function prepareTransactionRequest<
   const account = parseAccount(account_)
 
   const block = await getAction(client, getBlock)({ blockTag: 'latest' })
+
   const request = { ...args, from: account.address }
 
   if (typeof nonce === 'undefined') {
-    console.log('getTransactionCount')
     request.nonce = await getAction(
       client,
       getTransactionCount,
@@ -144,7 +144,6 @@ export async function prepareTransactionRequest<
     })
   }
 
-  console.log(`nonce: ${request.nonce}`)
   if (typeof type === 'undefined') {
     try {
       request.type = getTransactionType(
@@ -157,18 +156,14 @@ export async function prepareTransactionRequest<
     }
   }
 
-  console.log(request.type)
-  console.log(request)
   if (request.type === 'eip1559') {
     // EIP-1559 fees
-    console.log('internal_estimateFeesPerGas')
     const { maxFeePerGas, maxPriorityFeePerGas } =
       await internal_estimateFeesPerGas(client, {
         block,
         chain,
         request: request as PrepareTransactionRequestParameters,
       })
-    console.log(maxFeePerGas)
 
     if (
       typeof args.maxPriorityFeePerGas === 'undefined' &&
@@ -201,7 +196,6 @@ export async function prepareTransactionRequest<
   }
 
   if (typeof gas === 'undefined') {
-    console.log('estimateGas')
     request.gas = await getAction(
       client,
       estimateGas,

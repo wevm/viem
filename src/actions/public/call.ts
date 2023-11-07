@@ -146,7 +146,6 @@ export async function call<TChain extends Chain | undefined>(
   const account = account_ ? parseAccount(account_) : undefined
 
   try {
-    console.log('call.ts')
     assertRequest(args as AssertRequestParameters)
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
@@ -170,9 +169,6 @@ export async function call<TChain extends Chain | undefined>(
       value,
     } as TransactionRequest) as TransactionRequest
 
-    console.log('request')
-    console.log(request)
-
     if (batch && shouldPerformMulticall({ request })) {
       try {
         return await scheduleMulticall(client, {
@@ -189,7 +185,6 @@ export async function call<TChain extends Chain | undefined>(
       }
     }
 
-    console.log('response')
     const response = await client.request({
       method: 'eth_call',
       params: block
@@ -197,8 +192,6 @@ export async function call<TChain extends Chain | undefined>(
         : [request as Partial<RpcTransactionRequest>],
     })
     if (response === '0x') return { data: undefined }
-
-    console.log(response)
 
     return { data: response }
   } catch (err) {

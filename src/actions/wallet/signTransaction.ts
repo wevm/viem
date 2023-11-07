@@ -9,7 +9,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
+import { Chain, GetChain, isEip712Transaction } from '../../types/chain.js'
 import { type RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
@@ -140,25 +140,10 @@ export async function signTransaction<
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
 
-  // ---
-  // We need a way to fill the custom signature before signing the transaction.
-  // This need to be sloted between sendTransaction and signTransaction.
-
-  // We need a better way to check this, probably improve how EIP712 type are detected.
-  // One of the ways is to instead of have all fields in the "root" of the transaction,
-  // we can have the eip712Meta field, and every transaction with this is marked as
-  // type: 'eip712' and need to be signed with typed data previous to sign the
-  // transaction.
-
-  // Without eip712, we need a external function to indicate if it is EIP712 transaction or not,
-  // defined in the chain ts file.
-  // Eg. isEip712Transaction: (transaction) => zkSyncSerializers.isEIP712(transaction)
   if (
-    chainId &&
-    client.chain?.eip712domain?.isEip712Domain &&
     client.chain?.eip712domain?.eip712domain &&
     client.chain?.serializers?.transaction &&
-    client.chain?.eip712domain?.isEip712Domain({ ...args, chainId: chainId })
+    isEip712Transaction(transaction as unknown as TransactionSerializable)
   ) {
     const eip712Domain = client.chain?.eip712domain?.eip712domain(transaction)
 
@@ -172,7 +157,7 @@ export async function signTransaction<
     // If we have the customSignature we can sign the transaction, doesn't matter if account type
     // is `local` or `json-rpc`.
     return client.chain?.serializers?.transaction(
-      { chainId, ...transaction } as unknown as TransactionSerializableEIP712,
+      { chainId, ...transaction } as unknown as TransactionSerializable,
       // Use this blank private key, probably we should change the code to be optional,
       // or option if it is EIP712.
       { r: '0x0', s: '0x0', v: 0n },
