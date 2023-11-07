@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import { getChainId } from '../../../actions/public/getChainId.js'
 import {
   type ReadContractErrorType,
   readContract,
@@ -106,17 +107,23 @@ export async function estimateL1Gas<
   })()
 
   // Populate transaction with required fields to accurately estimate gas.
-  const request = await prepareTransactionRequest(
-    client,
-    args as PrepareTransactionRequestParameters,
-  )
+  const [request, chainId] = await Promise.all([
+    prepareTransactionRequest(
+      client,
+      args as PrepareTransactionRequestParameters,
+    ),
+    (async () => {
+      if (chain) return chain.id
+      return getChainId(client)
+    })(),
+  ])
 
   assertRequest(request)
 
   const transaction = serializeTransaction(
     {
       ...request,
-      chainId: chain?.id,
+      chainId,
       type: 'eip1559',
     },
     stubSignature,
