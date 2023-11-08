@@ -3,7 +3,7 @@ import type { ErrorType } from '../../errors/utils.js'
 export type FormatUnitsErrorType = ErrorType
 
 /**
- * Takes a bigint and converts it to a string with the correct number of decimal places
+ * Divides a number by a given exponent of base 10 (10exponent), and formats it into a string representation of the number.
  *
  * Example: formatUnits(420000000000n, 9) -> '420'
  */
