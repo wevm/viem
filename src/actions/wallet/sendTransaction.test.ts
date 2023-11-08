@@ -1133,15 +1133,15 @@ describe('custom (eip712)', () => {
 
   test('default', async () => {
     const res = await sendTransaction(walletClient, {
-      account: sourceAccount.address,
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
+      value: parseEther('1'),
       maxFeePerGas: parseGwei('25'),
       maxPriorityFeePerGas: parseGwei('2'),
       gas: 158774n,
-      value: parseEther('1'),
-      // paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',
-      // paymasterInput:
-        // '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+      paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
+      paymasterInput:
+        '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
       factoryDeps: [],
       gasPerPubdata: 50000n,
       type: 'eip712',

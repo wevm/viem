@@ -145,7 +145,7 @@ export async function signTransaction<
     client.chain?.serializers?.transaction &&
     isEip712Transaction(transaction as unknown as TransactionSerializable)
   ) {
-    const eip712Domain = client.chain?.eip712domain?.eip712domain(transaction)
+    const eip712Domain = client.chain?.eip712domain?.eip712domain(transaction as unknown as TransactionSerializable)
 
     const customSignature = await signTypedData(client, {
       ...eip712Domain,

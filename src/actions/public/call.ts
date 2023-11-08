@@ -192,7 +192,6 @@ export async function call<TChain extends Chain | undefined>(
         : [request as Partial<RpcTransactionRequest>],
     })
     if (response === '0x') return { data: undefined }
-
     return { data: response }
   } catch (err) {
     const data = getRevertErrorData(err)
