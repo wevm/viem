@@ -135,6 +135,23 @@ const fee = await publicClient.estimateL1Fee({
 })
 ```
 
+### nonce (optional)
+
+- **Type:** `number`
+
+Unique number identifying this transaction.
+
+```ts
+const fee = await publicClient.estimateL1Fee({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  maxFeePerGas: parseGwei('20'),
+  maxPriorityFeePerGas: parseGwei('2'),
+  nonce: 69, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: parseEther('1')
+})
+```
+
 ### to (optional)
 
 - **Type:** [`Address`](/docs/glossary/types#address)

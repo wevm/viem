@@ -1,9 +1,27 @@
 export {
+  estimateL1Fee,
+  type EstimateL1FeeErrorType,
+  type EstimateL1FeeParameters,
+  type EstimateL1FeeReturnType,
+} from './actions/estimateL1Fee.js'
+export {
   estimateL1Gas,
   type EstimateL1GasErrorType,
   type EstimateL1GasParameters,
   type EstimateL1GasReturnType,
 } from './actions/estimateL1Gas.js'
+export {
+  estimateTotalFee,
+  type EstimateTotalFeeErrorType,
+  type EstimateTotalFeeParameters,
+  type EstimateTotalFeeReturnType,
+} from './actions/estimateTotalFee.js'
+export {
+  estimateTotalGas,
+  type EstimateTotalGasErrorType,
+  type EstimateTotalGasParameters,
+  type EstimateTotalGasReturnType,
+} from './actions/estimateTotalGas.js'
 
 export { chainConfig } from './chainConfig.js'
 

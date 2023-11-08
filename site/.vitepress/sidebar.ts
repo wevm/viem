@@ -928,8 +928,32 @@ export const sidebar: DefaultTheme.Sidebar = {
       text: 'Public Actions',
       items: [
         {
+          text: 'estimateContractL1Fee',
+          link: '/docs/chains/op-stack/estimateContractL1Fee',
+        },
+        {
+          text: 'estimateContractL1Gas',
+          link: '/docs/chains/op-stack/estimateContractL1Gas',
+        },
+        {
+          text: 'estimateContractTotalFee',
+          link: '/docs/chains/op-stack/estimateContractTotalFee',
+        },
+        {
+          text: 'estimateContractTotalGas',
+          link: '/docs/chains/op-stack/estimateContractTotalGas',
+        },
+        {
+          text: 'estimateL1Fee',
+          link: '/docs/chains/op-stack/estimateL1Fee',
+        },
+        {
           text: 'estimateL1Gas',
           link: '/docs/chains/op-stack/estimateL1Gas',
+        },
+        {
+          text: 'estimateTotalFee',
+          link: '/docs/chains/op-stack/estimateTotalFee',
         },
         {
           text: 'estimateTotalGas',
