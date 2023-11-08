@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
-import { optimismClient } from '~test/src/optimism.js'
+import { optimismClient } from '~test/src/opStack.js'
 import { opStackPublicActions } from './public.js'
 
 const opStackClient = optimismClient.extend(opStackPublicActions)

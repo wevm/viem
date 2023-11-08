@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { usdcContractConfig } from '~test/src/abis.js'
-import { optimismClient } from '~test/src/optimism.js'
+import { optimismClient } from '~test/src/opStack.js'
 
 import { estimateContractL1Fee } from './estimateContractL1Fee.js'
 

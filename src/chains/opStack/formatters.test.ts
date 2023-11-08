@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { optimismClient } from '~test/src/optimism.js'
+import { optimismClient } from '~test/src/opStack.js'
 
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'

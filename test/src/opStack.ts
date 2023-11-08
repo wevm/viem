@@ -9,15 +9,15 @@ export const optimismAddress = {
 
 export const optimismClient = createClient({
   chain: optimism,
-  transport: http(process.env.VITE_ANVIL_FORK_URL_OPTIMISM),
+  transport: http(process.env.VITE_RPC_URL_OPTIMISM),
 })
 
 export const optimismClientWithAccount = createClient({
   account: optimismAddress.alice as `0x${string}`,
   chain: optimism,
-  transport: http(process.env.VITE_ANVIL_FORK_URL_OPTIMISM),
+  transport: http(process.env.VITE_RPC_URL_OPTIMISM),
 })
 
 export const optimismClientWithoutChain = createClient({
-  transport: http(process.env.VITE_ANVIL_FORK_URL_OPTIMISM),
+  transport: http(process.env.VITE_RPC_URL_OPTIMISM),
 })

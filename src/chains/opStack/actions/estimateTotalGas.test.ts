@@ -5,7 +5,7 @@ import {
   optimismClient,
   optimismClientWithAccount,
   optimismClientWithoutChain,
-} from '~test/src/optimism.js'
+} from '~test/src/opStack.js'
 
 import { type TransactionRequestEIP1559, parseGwei } from '../../../index.js'
 import { parseEther } from '../../../utils/unit/parseEther.js'
