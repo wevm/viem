@@ -33,10 +33,10 @@ import {
 import { gasPriceOracleAbi } from '../abis.js'
 import { contracts } from '../contracts.js'
 
-export type EstimateL1GasParameters<
+export type EstimateL1FeeParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 > = Omit<TransactionRequestEIP1559, 'from'> &
   GetAccountParameter<TAccount> &
   GetChain<TChain, TChainOverride> & {
@@ -44,9 +44,9 @@ export type EstimateL1GasParameters<
     gasPriceOracleAddress?: Address
   }
 
-export type EstimateL1GasReturnType = bigint
+export type EstimateL1FeeReturnType = bigint
 
-export type EstimateL1GasErrorType =
+export type EstimateL1FeeErrorType =
   | RequestErrorType
   | PrepareTransactionRequestErrorType
   | AssertRequestErrorType
@@ -62,35 +62,35 @@ const stubSignature = {
 } as const satisfies Signature
 
 /**
- * Estimates the amount of L1 gas required to execute an L2 transaction.
+ * Estimates the L1 fee required to execute an L2 transaction.
  *
  * @param client - Client to use
- * @param parameters - {@link EstimateL1GasParameters}
- * @returns The gas estimate. {@link EstimateL1GasReturnType}
+ * @param parameters - {@link EstimateL1FeeParameters}
+ * @returns The fee (in wei). {@link EstimateL1FeeReturnType}
  *
  * @example
  * import { createPublicClient, http, parseEther } from 'viem'
  * import { optimism } from 'viem/chains'
- * import { estimateL1Gas } from 'viem/chains/optimism'
+ * import { estimateL1Fee } from 'viem/chains/optimism'
  *
  * const client = createPublicClient({
  *   chain: optimism,
  *   transport: http(),
  * })
- * const l1Gas = await estimateL1Gas(client, {
+ * const l1Fee = await estimateL1Fee(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *   value: parseEther('1'),
  * })
  */
-export async function estimateL1Gas<
+export async function estimateL1Fee<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
-  args: EstimateL1GasParameters<TChain, TAccount, TChainOverride>,
-): Promise<EstimateL1GasReturnType> {
+  args: EstimateL1FeeParameters<TChain, TAccount, TChainOverride>,
+): Promise<EstimateL1FeeReturnType> {
   const {
     chain = client.chain,
     gasPriceOracleAddress: gasPriceOracleAddress_,
@@ -132,7 +132,7 @@ export async function estimateL1Gas<
   return readContract(client, {
     abi: gasPriceOracleAbi,
     address: gasPriceOracleAddress,
-    functionName: 'getL1GasUsed',
+    functionName: 'getL1Fee',
     args: [transaction],
   })
 }

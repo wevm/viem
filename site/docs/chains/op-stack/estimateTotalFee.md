@@ -2,20 +2,20 @@
 head:
   - - meta
     - property: og:title
-      content: estimateTotalGas
+      content: estimateTotalFee
   - - meta
     - name: description
-      content: Estimates the amount of L1 + L2 gas required to execute an L2 transaction
+      content: Estimates the L1 + L2 fee to execute an L2 transaction.
   - - meta
     - property: og:description
-      content: Estimates the amount of L1 + L2 gas required to execute an L2 transaction
+      content: Estimates the L1 + L2 fee to execute an L2 transaction.
 ---
 
-# estimateTotalGas
+# estimateTotalFee
 
-Estimates the amount of L1 + L2 gas required to execute an L2 transaction.
+Estimates the L1 + L2 fee to execute an L2 transaction.
 
-It is the sum of [`estimateL1Gas`](./estimateL1Gas.md) (L1 Gas) and [`estimateGas`](../../actions/public/estimateGas.md) (L2 Gas).
+It is the sum of [`estimateL1Fee`](./estimateL1Fee.md) (L1 Gas) and [`estimateGas`](../../actions/public/estimateGas.md) * [`getGasPrice`](../../actions/public/getGasPrice.md) (L2 Gas * L2 Gas Price).
 
 ## Usage
 
@@ -24,7 +24,7 @@ It is the sum of [`estimateL1Gas`](./estimateL1Gas.md) (L1 Gas) and [`estimateGa
 ```ts [example.ts]
 import { account, publicClient } from './config'
 
-const gas = await publicClient.estimateTotalGas({ // [!code focus:7]
+const fee = await publicClient.estimateTotalFee({ // [!code focus:7]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -67,7 +67,7 @@ The Account to estimate gas from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const gas = await publicClient.estimateTotalGas({
+const fee = await publicClient.estimateTotalFee({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -81,7 +81,7 @@ const gas = await publicClient.estimateTotalGas({
 Contract code or a hashed method call with encoded args.
 
 ```ts
-const gas = await publicClient.estimateTotalGas({
+const fee = await publicClient.estimateTotalFee({
   data: '0x...', // [!code focus]
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -96,7 +96,7 @@ const gas = await publicClient.estimateTotalGas({
 Address of the Gas Price Oracle predeploy contract.
 
 ```ts
-const gas = await publicClient.estimateTotalGas({
+const fee = await publicClient.estimateTotalFee({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   gasPriceOracleAddress: '0x420000000000000000000000000000000000000F', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -111,7 +111,7 @@ const gas = await publicClient.estimateTotalGas({
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. 
 
 ```ts
-const gas = await publicClient.estimateTotalGas({
+const fee = await publicClient.estimateTotalFee({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'),  // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -126,7 +126,7 @@ const gas = await publicClient.estimateTotalGas({
 Max priority fee per gas (in wei). 
 
 ```ts
-const gas = await publicClient.estimateTotalGas({
+const fee = await publicClient.estimateTotalFee({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
@@ -142,7 +142,7 @@ const gas = await publicClient.estimateTotalGas({
 Transaction recipient.
 
 ```ts
-const gas = await publicClient.estimateTotalGas({
+const fee = await publicClient.estimateTotalFee({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
   value: parseEther('1')
@@ -156,7 +156,7 @@ const gas = await publicClient.estimateTotalGas({
 Value (in wei) sent with this transaction.
 
 ```ts
-const gas = await publicClient.estimateTotalGas({
+const fee = await publicClient.estimateTotalFee({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1') // [!code focus]
