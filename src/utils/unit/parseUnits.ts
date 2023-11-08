@@ -2,6 +2,11 @@ import type { ErrorType } from '../../errors/utils.js'
 
 export type ParseUnitsErrorType = ErrorType
 
+/**
+ * Takes a string and number of decimals and returns a bigint with the decimal point moved to the left by the number of decimals
+ *
+ * Example: parseUnits('420', 9)  -> 420000000000n
+ */
 export function parseUnits(value: string, decimals: number) {
   let [integer, fraction = '0'] = value.split('.')
 
