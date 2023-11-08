@@ -1,3 +1,16 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Celo
+  - - meta
+    - name: description
+      content: Integrating with Celo in Viem
+  - - meta
+    - property: og:description
+      content: Integrating with Celo in Viem
+---
+
 # Celo
 
 Viem provides first-class support for chains implemented on [Celo](https://celo.org/).

@@ -7,7 +7,7 @@ export {
 
 export { chainConfig } from './chainConfig.js'
 
-export { publicOpStackActions } from './decorators/public.js'
+export { opStackPublicActions } from './decorators/public.js'
 
 export { base } from '../definitions/base.js'
 export { baseGoerli } from '../definitions/baseGoerli.js'

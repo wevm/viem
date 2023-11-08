@@ -472,7 +472,7 @@ export const sidebar: DefaultTheme.Sidebar = {
             },
             {
               text: 'OP Stack',
-              link: '/docs/chains/op-stack',
+              link: '/docs/chains/op-stack/getting-started',
             },
             {
               text: 'zkSync',
@@ -908,6 +908,33 @@ export const sidebar: DefaultTheme.Sidebar = {
         { text: 'Terms', link: '/docs/glossary/terms' },
         { text: 'Types', link: '/docs/glossary/types' },
         { text: 'Errors', link: '/docs/glossary/errors' },
+      ],
+    },
+  ],
+  '/docs/chains/op-stack/': [
+    { text: '← Go back', link: '/docs/getting-started' },
+    {
+      text: 'OP Stack',
+      items: [
+        {
+          text: 'Getting started',
+          link: '/docs/chains/op-stack/getting-started',
+        },
+        { text: 'Client', link: '/docs/chains/op-stack/client' },
+        { text: 'Chains', link: '/docs/chains/op-stack/chains' },
+      ],
+    },
+    {
+      text: 'Public Actions',
+      items: [
+        {
+          text: 'estimateL1Gas',
+          link: '/docs/chains/op-stack/estimateL1Gas',
+        },
+        {
+          text: 'estimateTotalGas',
+          link: '/docs/chains/op-stack/estimateTotalGas',
+        },
       ],
     },
   ],

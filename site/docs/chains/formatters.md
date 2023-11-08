@@ -1,3 +1,16 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Formatters
+  - - meta
+    - name: description
+      content: Configure chain-based formatters in Viem
+  - - meta
+    - property: og:description
+      content: Configure chain-based formatters in Viem
+---
+
 # Formatters
 
 You can modify how Blocks & Transactions are formatted by using the `formatters` property on the Chain.

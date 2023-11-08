@@ -13,7 +13,7 @@ import {
   estimateTotalGas,
 } from '../actions/estimateTotalGas.js'
 
-export type PublicOpStackActions<
+export type OpStackPublicActions<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
@@ -67,12 +67,12 @@ export type PublicOpStackActions<
   ) => Promise<EstimateTotalGasReturnType>
 }
 
-export function publicOpStackActions<
+export function opStackPublicActions<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
-): PublicOpStackActions<TChain, TAccount> {
+): OpStackPublicActions<TChain, TAccount> {
   return {
     estimateL1Gas: (args) => estimateL1Gas(client, args),
     estimateTotalGas: (args) => estimateTotalGas(client, args),

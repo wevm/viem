@@ -1,3 +1,16 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Serializers
+  - - meta
+    - name: description
+      content: Configure chain-based serializers in Viem
+  - - meta
+    - property: og:description
+      content: Configure chain-based serializers in Viem
+---
+
 # Serializers
 
 ## Usage
