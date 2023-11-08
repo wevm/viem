@@ -47,8 +47,6 @@ test('exports utils', () => {
       "extract": [Function],
       "extractChain": [Function],
       "extractFunctionName": [Function],
-      "extractFunctionParams": [Function],
-      "extractFunctionParts": [Function],
       "extractFunctionType": [Function],
       "formatAbiItem": [Function],
       "formatAbiItemWithArgs": [Function],

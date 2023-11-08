@@ -17,28 +17,6 @@ If you are coming from an earlier version of `viem`, you will need to make sure 
 
 ## 2.x.x Breaking changes
 
-### Modified `getContract` Client API
-
-The `publicClient` and `walletClient` parameters of the `getContract` API has been removed in favour of `client` to support Client's that [extend](/docs/clients/wallet.html#optional-extend-with-public-actions) (ie. [a Wallet Client extended with Public Actions](/docs/clients/wallet.html#optional-extend-with-public-actions)).
-
-[Read more.](/docs/contract/getContract)
-
-```tsx
-import { getContract } from 'viem'
-import { publicClient, walletClient } from './client'
-
-const contract = getContract({
-  abi,
-  address,
-  publicClient, // [!code --]
-  walletClient, // [!code --]
-  client: { // [!code ++]
-    publicClient, // [!code ++]
-    walletClient, // [!code ++]
-  } // [!code ++]
-})
-```
-
 ### Removed entrypoints
 
 The following entrypoints have been removed:
@@ -66,7 +44,43 @@ import { // [!code ++]
 } from 'viem' // [!code ++]
 ```
 
-### Type Change: `SimulateContractParameters` & `SimulateContractReturnType`
+### Actions: `getBlockNumber`
+
+The `maxAge` parameter has been removed in favor of `cacheTime`.
+
+```ts
+const blockNumber = await client.getBlockNumber({
+  maxAge: 84_600 // [!code --]
+  cacheTime: 84_600 // [!code ++]
+})
+```
+
+### Actions: `OnLogFn` & `OnLogParameter` types
+
+The `OnLogFn` & `OnLogParameter` types have been renamed.
+
+```ts
+import {
+  OnLogFn, // [!code --]
+  WatchEventOnLogsFn, // [!code ++]
+  OnLogParameter, // [!code --]
+  WatchEventOnLogsParameter, // [!code ++]
+} from 'viem' 
+```
+
+### Actions: `prepareRequest`
+
+The `prepareRequest` Action has been renamed to `prepareTransactionRequest` and moved to `viem/actions` entrypoint.
+
+```ts
+import {
+  prepareRequest, // [!code --]
+  prepareTransactionRequest, // [!code ++]
+} from 'viem' // [!code --]
+} from 'viem/actions' // [!code ++]
+```
+
+### Actions: `SimulateContractParameters` & `SimulateContractReturnType` types
 
 Note the following breaking generic slot changes:
 
@@ -89,6 +103,64 @@ type SimulateContractReturnType<
   TChainOverride,
   TAccountOverride,
 >
+```
+
+### Actions: Modified `getContract` Client API
+
+The `publicClient` and `walletClient` parameters of the `getContract` API has been removed in favour of `client` to support Client's that [extend](/docs/clients/wallet.html#optional-extend-with-public-actions) (ie. [a Wallet Client extended with Public Actions](/docs/clients/wallet.html#optional-extend-with-public-actions)).
+
+[Read more.](/docs/contract/getContract)
+
+```tsx
+import { getContract } from 'viem'
+import { publicClient, walletClient } from './client'
+
+const contract = getContract({
+  abi,
+  address,
+  publicClient, // [!code --]
+  walletClient, // [!code --]
+  client: { // [!code ++]
+    publicClient, // [!code ++]
+    walletClient, // [!code ++]
+  } // [!code ++]
+})
+```
+
+### Utilities: Removed `extractFunctionParts`, `extractFunctionName`, `extractFunctionParams`, `extractFunctionType`
+
+The `extractFunctionParts`, `extractFunctionName`, `extractFunctionParams`, `extractFunctionType` utility functions have been removed. You can use the [`parseAbiItem` utility function from abitype](https://abitype.dev/api/human#parseabiitem-1) instead.
+
+### Utilities: Renamed `bytesToBigint`
+
+The `bytesToBigint` utility function has been renamed to `bytesToBigInt`.
+
+```ts
+import {
+  bytesToBigint, // [!code --]
+  bytesToBigInt, // [!code ++]
+} from 'viem'
+```
+
+### Utilities: Renamed chain types
+
+The following chain types have been renamed:
+
+```ts
+import {
+  Formatter, // [!code --]
+  ChainFormatter, // [!code ++]
+  Formatters, // [!code --]
+  ChainFormatters, // [!code ++]
+  Serializers, // [!code --]
+  ChainSerializers, // [!code ++]
+  ExtractFormatterExclude, // [!code --]
+  ExtractChainFormatterExclude, // [!code ++]
+  ExtractFormatterParameters, // [!code --]
+  ExtractChainFormatterParameters, // [!code ++]
+  ExtractFormatterReturnType, // [!code --]
+  ExtractChainFormatterReturnType, // [!code ++]
+} from 'viem'
 ```
 
 ## 1.x.x Breaking changes

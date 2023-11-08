@@ -168,16 +168,6 @@ export {
   isAddressEqual,
 } from './address/isAddressEqual.js'
 export {
-  type ExtractFunctionNameErrorType,
-  type ExtractFunctionParamsErrorType,
-  type ExtractFunctionPartsErrorType,
-  type ExtractFunctionTypeErrorType,
-  extractFunctionName,
-  extractFunctionParams,
-  extractFunctionType,
-  extractFunctionParts,
-} from './contract/extractFunctionParts.js'
-export {
   type ConcatBytesErrorType,
   type ConcatErrorType,
   type ConcatHexErrorType,
@@ -291,7 +281,6 @@ export {
   type FromBytesParameters,
   type FromBytesReturnType,
   bytesToBigInt,
-  /** @deprecated – use `bytesToBigInt` */
   bytesToBigInt as bytesToBigint,
   bytesToBool,
   bytesToNumber,
@@ -431,10 +420,6 @@ export {
   type ParseTransactionErrorType,
   parseTransaction,
 } from './transaction/parseTransaction.js'
-export {
-  /** @deprecated import `prepareTransactionRequest` from `viem/actions` instead. */
-  prepareTransactionRequest,
-} from '../actions/wallet/prepareTransactionRequest.js'
 export {
   serializeTransaction,
   type SerializeTransactionErrorType,

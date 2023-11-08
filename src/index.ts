@@ -232,11 +232,7 @@ export type {
 } from './actions/public/watchBlockNumber.js'
 export type {
   WatchEventOnLogsFn,
-  /** @deprecated - use `WatchEventOnLogsFn` instead. */
-  WatchEventOnLogsFn as OnLogFn,
   WatchEventOnLogsParameter,
-  /** @deprecated - use `WatchEventOnLogsParameter` instead. */
-  WatchEventOnLogsParameter as OnLogParameter,
   WatchEventErrorType,
   WatchEventParameters,
   WatchEventReturnType,
@@ -295,8 +291,6 @@ export type {
   PrepareTransactionRequestErrorType,
   PrepareTransactionRequestParameters,
   PrepareTransactionRequestReturnType,
-  /** @deprecated import `prepareTransactionRequest` from `viem/actions` instead. */
-  prepareTransactionRequest as prepareRequest,
 } from './actions/wallet/prepareTransactionRequest.js'
 export type {
   SendUnsignedTransactionErrorType,
@@ -404,23 +398,11 @@ export type {
   ChainFormatter,
   ChainEstimateFeesPerGasFnParameters,
   GetChain,
-  /** @deprecated use `ChainFormatter` instead. */
-  ChainFormatter as Formatter,
   ChainFormatters,
-  /** @deprecated use `ChainFormatters` instead. */
-  ChainFormatters as Formatters,
   ChainSerializers,
-  /** @deprecated use `ChainSerializers` instead. */
-  ChainSerializers as Serializers,
   ExtractChainFormatterExclude,
-  /** @deprecated use `ExtractChainFormatterExclude` instead. */
-  ExtractChainFormatterExclude as ExtractFormatterExclude,
   ExtractChainFormatterParameters,
-  /** @deprecated use `ExtractChainFormatterParameters` instead. */
-  ExtractChainFormatterParameters as ExtractFormatterParameters,
   ExtractChainFormatterReturnType,
-  /** @deprecated use `ExtractChainFormatterReturnType` instead. */
-  ExtractChainFormatterReturnType as ExtractFormatterReturnType,
 } from './types/chain.js'
 export {
   type Client,
@@ -731,10 +713,6 @@ export {
   type InvalidChainIdErrorType,
 } from './errors/chain.js'
 export {
-  DataLengthTooLongError,
-  type DataLengthTooLongErrorType,
-  DataLengthTooShortError,
-  type DataLengthTooShortErrorType,
   InvalidBytesBooleanError,
   type InvalidBytesBooleanErrorType,
   IntegerOutOfRangeError,
@@ -743,8 +721,6 @@ export {
   type InvalidHexBooleanErrorType,
   InvalidHexValueError,
   type InvalidHexValueErrorType,
-  OffsetOutOfBoundsError,
-  type OffsetOutOfBoundsErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'
@@ -1211,8 +1187,6 @@ export {
   type BytesToBigIntErrorType,
   type BytesToBigIntOpts,
   bytesToBigInt,
-  /** @deprecated - use `bytesToBigInt` */
-  bytesToBigInt as bytesToBigint,
   type BytesToBoolErrorType,
   type BytesToBoolOpts,
   bytesToBool,
