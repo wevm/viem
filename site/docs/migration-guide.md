@@ -50,24 +50,24 @@ Chain-specific exports in `viem/chains/utils` have been moved to `viem/utils/{ce
 
 ```diff
 import {
-  formattersCelo,
-  parseTransactionCelo,
-  serializeTransactionCelo,
+- parseTransactionCelo,
++ parseTransaction
+- serializeTransactionCelo,
++ serializeTransaction
   ...
 -} from 'viem/chains/utils'
 +} from 'viem/chains/celo'
 
 import {
-- formattersOptimism,
-+ formattersOpStack,
   ...
 -} from 'viem/chains/utils'
 +} from 'viem/chains/opStack'
 
 import {
-  formattersZkSync,
-  parseTransactionZkSync,
-  serializeTransactionZkSync,
+- parseTransactionZkSync,
++ parseTransaction,
+- serializeTransactionZkSync,
++ serializeTransaction,
   ...
 -} from 'viem/chains/utils'
 +} from 'viem/chains/zkSync'
