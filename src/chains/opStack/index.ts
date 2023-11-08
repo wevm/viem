@@ -5,6 +5,8 @@ export {
   type EstimateL1GasReturnType,
 } from './actions/estimateL1Gas.js'
 
+export { chainConfig } from './chainConfig.js'
+
 export { publicOpStackActions } from './decorators/public.js'
 
 export { base } from '../definitions/base.js'
