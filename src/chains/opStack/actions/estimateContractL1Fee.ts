@@ -134,7 +134,7 @@ export async function estimateContractL1Fee<
       abi,
       address,
       args,
-      docsPath: '/docs/chains/op-stack/estimateL1Fee',
+      docsPath: '/docs/chains/op-stack/estimateContractL1Fee',
       functionName,
       sender: account?.address,
     })

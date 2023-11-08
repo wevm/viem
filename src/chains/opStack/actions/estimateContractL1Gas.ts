@@ -134,7 +134,7 @@ export async function estimateContractL1Gas<
       abi,
       address,
       args,
-      docsPath: '/docs/chains/op-stack/estimateL1Gas',
+      docsPath: '/docs/chains/op-stack/estimateContractL1Gas',
       functionName,
       sender: account?.address,
     })
