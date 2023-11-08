@@ -1,11 +1,6 @@
-export { formattersCelo } from './formatters.js'
+export { serializeTransaction } from './serializers.js'
 
-export {
-  serializeTransactionCelo,
-  serializersCelo,
-} from './serializers.js'
-
-export { parseTransactionCelo } from './parsers.js'
+export { parseTransaction } from './parsers.js'
 
 export type {
   CeloBlock,

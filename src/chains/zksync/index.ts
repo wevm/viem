@@ -1,6 +1,6 @@
-export { formattersZkSync } from './formatters.js'
+export { chainConfig } from './chainConfig.js'
 
-export { serializeTransactionZkSync, serializersZkSync } from './serializers.js'
+export { serializeTransaction } from './serializers.js'
 
 export type {
   ZkSyncBlock,

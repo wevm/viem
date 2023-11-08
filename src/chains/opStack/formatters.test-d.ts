@@ -9,14 +9,14 @@ import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
 import type { Assign } from '../../types/utils.js'
 import { optimism } from '../index.js'
-import { formattersOpStack } from './formatters.js'
+import { formatters } from './formatters.js'
 import type {
   OpStackRpcBlockOverrides,
   OpStackRpcTransaction,
 } from './types.js'
 
 describe('block', () => {
-  expectTypeOf(formattersOpStack.block.format).parameter(0).toEqualTypeOf<
+  expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
     Assign<
       Partial<RpcBlock>,
       OpStackRpcBlockOverrides & {
@@ -28,13 +28,13 @@ describe('block', () => {
 
 describe('transaction', () => {
   expectTypeOf<
-    ReturnType<typeof formattersOpStack.transaction.format>['sourceHash']
+    ReturnType<typeof formatters.transaction.format>['sourceHash']
   >().toEqualTypeOf<`0x${string}` | undefined>()
   expectTypeOf<
-    ReturnType<typeof formattersOpStack.transaction.format>['mint']
+    ReturnType<typeof formatters.transaction.format>['mint']
   >().toEqualTypeOf<bigint | undefined>()
   expectTypeOf<
-    ReturnType<typeof formattersOpStack.transaction.format>['isSystemTx']
+    ReturnType<typeof formatters.transaction.format>['isSystemTx']
   >().toEqualTypeOf<boolean | undefined>()
 })
 

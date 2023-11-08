@@ -31,7 +31,7 @@ import {
   serializeTransaction,
 } from '../../../utils/transaction/serializeTransaction.js'
 import { gasPriceOracleAbi } from '../abis.js'
-import { opStackL2Contracts } from '../contracts.js'
+import { contracts } from '../contracts.js'
 
 export type EstimateL1GasParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -103,7 +103,7 @@ export async function estimateL1Gas<
         chain,
         contract: 'gasPriceOracle',
       })
-    return opStackL2Contracts.gasPriceOracle.address
+    return contracts.gasPriceOracle.address
   })()
 
   // Populate transaction with required fields to accurately estimate gas.

@@ -5,6 +5,8 @@ export {
   type EstimateL1GasReturnType,
 } from './actions/estimateL1Gas.js'
 
+export { publicOpStackActions } from './decorators/public.js'
+
 export { base } from '../definitions/base.js'
 export { baseGoerli } from '../definitions/baseGoerli.js'
 export { baseSepolia } from '../definitions/baseSepolia.js'
@@ -15,9 +17,6 @@ export { zora } from '../definitions/zora.js'
 export { zoraSepolia } from '../definitions/zoraSepolia.js'
 export { zoraTestnet } from '../definitions/zoraTestnet.js'
 
-export { publicOpStackActions } from './decorators/public.js'
-
-export { formattersOpStack } from './formatters.js'
 export type {
   OpStackBlock,
   OpStackBlockOverrides,

@@ -1,6 +1,6 @@
 import type { Chain } from '../../types/chain.js'
 
-export const opStackL2Contracts = {
+export const contracts = {
   gasPriceOracle: { address: '0x420000000000000000000000000000000000000F' },
   l1Block: { address: '0x4200000000000000000000000000000000000015' },
   l2CrossDomainMessenger: {

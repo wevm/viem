@@ -1,8 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { opStackL2Contracts } from '../opStack/contracts.js'
-import { formattersOpStack } from '../opStack/formatters.js'
+import { chainConfig } from '../opStack/chainConfig.js'
 
 export const baseSepolia = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 84532,
   network: 'base-sepolia',
   name: 'Base Sepolia',
@@ -25,8 +25,7 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
       url: 'https://base-sepolia.blockscout.com',
     },
   },
-  contracts: { ...opStackL2Contracts },
+  contracts: { ...chainConfig.contracts },
   testnet: true,
   sourceId: 11155111, // sepolia
-  formatters: formattersOpStack,
 })

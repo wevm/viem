@@ -1,8 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formattersCelo } from '../celo/formatters.js'
-import { serializersCelo } from '../celo/serializers.js'
+import { chainConfig } from '../celo/chainConfig.js'
 
 export const celoCannoli = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 17_323,
   name: 'Cannoli',
   nativeCurrency: {
@@ -28,6 +28,4 @@ export const celoCannoli = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
-  formatters: formattersCelo,
-  serializers: serializersCelo,
 })

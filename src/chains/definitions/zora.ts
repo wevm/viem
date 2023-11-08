@@ -1,8 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { opStackL2Contracts } from '../opStack/contracts.js'
-import { formattersOpStack } from '../opStack/formatters.js'
+import { chainConfig } from '../opStack/chainConfig.js'
 
 export const zora = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 7777777,
   name: 'Zora',
   nativeCurrency: {
@@ -20,11 +20,10 @@ export const zora = /*#__PURE__*/ defineChain({
     default: { name: 'Explorer', url: 'https://explorer.zora.energy' },
   },
   contracts: {
+    ...chainConfig.contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 5882,
     },
-    ...opStackL2Contracts,
   },
-  formatters: formattersOpStack,
 })

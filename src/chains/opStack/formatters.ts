@@ -17,7 +17,7 @@ import type {
   OpStackTransactionReceiptOverrides,
 } from './types.js'
 
-export const formattersOpStack = {
+export const formatters = {
   block: /*#__PURE__*/ defineBlock({
     format(
       args: OpStackRpcBlockOverrides & {
