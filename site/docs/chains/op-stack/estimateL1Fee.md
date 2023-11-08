@@ -35,7 +35,7 @@ const fee = await publicClient.estimateL1Fee({ // [!code focus:7]
 import { createPublicClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { base } from 'viem/chains'
-import { opStackPublicActions } from 'viem/chains/opStack'
+import { opStackPublicActions } from 'viem/opStack'
 
 // JSON-RPC Account
 export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'

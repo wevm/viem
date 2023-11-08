@@ -32,7 +32,7 @@ Viem exports zkSync's chain [formatters](/docs/chains/formatters) & [serializers
 
 ```ts
 import { defineChain } from 'viem'
-import { chainConfig } from 'viem/chains/zkSync'
+import { chainConfig } from 'viem/zkSync'
 
 export const zkSyncExample = defineChain({
   ...chainConfig,
@@ -55,7 +55,7 @@ zkSync-flavored version of [Viem's `serializeTransaction`](/docs/utilities/seria
 - `signature` (`Signature`): Optional signature to include.
 
 ```ts
-import { serializeTransaction } from 'viem/chains/celo'
+import { serializeTransaction } from 'viem/celo'
 
 const serialized = serializeTransaction({
   chainId: 1,

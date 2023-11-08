@@ -56,12 +56,12 @@ import {
 + serializeTransaction
   ...
 -} from 'viem/chains/utils'
-+} from 'viem/chains/celo'
++} from 'viem/celo'
 
 import {
   ...
 -} from 'viem/chains/utils'
-+} from 'viem/chains/opStack'
++} from 'viem/opStack'
 
 import {
 - parseTransactionZkSync,
@@ -70,7 +70,7 @@ import {
 + serializeTransaction,
   ...
 -} from 'viem/chains/utils'
-+} from 'viem/chains/zkSync'
++} from 'viem/zkSync'
 ```
 
 ### Actions: `getBlockNumber`

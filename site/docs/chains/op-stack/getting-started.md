@@ -44,7 +44,7 @@ Now that you have a Client set up, you can extend it with OP Stack Actions! [Rea
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { opStackPublicActions } from 'viem/chains/opStack' // [!code hl]
+import { opStackPublicActions } from 'viem/opStack' // [!code hl]
 
 const client = createPublicClient({
   chain: base,

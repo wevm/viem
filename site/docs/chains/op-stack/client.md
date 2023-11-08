@@ -20,7 +20,7 @@ To use the OP Stack functionality of Viem, you must configure your Client accord
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { opStackPublicActions } from 'viem/chains/opStack' // [!code hl]
+import { opStackPublicActions } from 'viem/opStack' // [!code hl]
 
 const client = createPublicClient({
   chain: base,
@@ -37,5 +37,5 @@ const l1Gas = await client.estimateL1Gas({/* ... */})
 A suite of [Public Actions](./estimateL1Gas.md) for the OP Stack.
 
 ```ts
-import { opStackPublicActions } from 'viem/chains/opStack'
+import { opStackPublicActions } from 'viem/opStack'
 ```

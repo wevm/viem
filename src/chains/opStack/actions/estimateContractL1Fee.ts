@@ -83,7 +83,7 @@ export type EstimateContractL1FeeErrorType = GetContractErrorReturnType<
  * @example
  * import { createPublicClient, http, parseAbi } from 'viem'
  * import { optimism } from 'viem/chains'
- * import { estimateContractL1Fee } from 'viem/chains/opStack'
+ * import { estimateContractL1Fee } from 'viem/opStack'
  *
  * const client = createPublicClient({
  *   chain: optimism,

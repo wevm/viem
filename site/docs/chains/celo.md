@@ -33,7 +33,7 @@ Viem exports Celo's chain [formatters](/docs/chains/formatters) & [serializers](
 
 ```ts
 import { defineChain } from 'viem'
-import { chainConfig } from 'viem/chains/celo'
+import { chainConfig } from 'viem/celo'
 
 export const celoExample = defineChain({
   ...chainConfig,
@@ -55,7 +55,7 @@ Celo-flavored version of [Viem's `parseTransaction`](/docs/utilities/parseTransa
 - `serializedTransaction` (`Hex`): The serialized transaction.
 
 ```ts
-import { parseTransaction } from 'viem/chains/celo'
+import { parseTransaction } from 'viem/celo'
 
 const transaction = parseTransaction('0x7cf84682a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0')
 ```
@@ -72,7 +72,7 @@ Celo-flavored version of [Viem's `serializeTransaction`](/docs/utilities/seriali
 - `signature` (`Signature`): Optional signature to include.
 
 ```ts
-import { serializeTransaction } from 'viem/chains/celo'
+import { serializeTransaction } from 'viem/celo'
 
 const serialized = serializeTransaction({
   chainId: 1,
