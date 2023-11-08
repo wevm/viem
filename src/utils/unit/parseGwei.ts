@@ -6,7 +6,7 @@ import { type ParseUnitsErrorType, parseUnits } from './parseUnits.js'
 export type ParseGweiErrorType = ParseUnitsErrorType | ErrorType
 
 /**
- * Takes a string in gwei and returns a bigint in wei
+ * Converts a string representation of gwei to numerical wei.
  *
  * Example: parseGwei('420') -> 420000000000n
  */
