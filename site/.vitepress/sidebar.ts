@@ -442,6 +442,47 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
+      text: 'Chains',
+      collapsed: true,
+      items: [
+        { text: 'Introduction', link: '/docs/chains/introduction' },
+        {
+          text: 'Configuration',
+          items: [
+            {
+              text: 'Fees',
+              link: '/docs/chains/fees',
+            },
+            {
+              text: 'Formatters',
+              link: '/docs/chains/formatters',
+            },
+            {
+              text: 'Serializers',
+              link: '/docs/chains/serializers',
+            },
+          ],
+        },
+        {
+          text: 'Implementations',
+          items: [
+            {
+              text: 'Celo',
+              link: '/docs/chains/celo',
+            },
+            {
+              text: 'OP Stack',
+              link: '/docs/chains/op-stack',
+            },
+            {
+              text: 'zkSync',
+              link: '/docs/chains/zksync',
+            },
+          ],
+        },
+      ],
+    },
+    {
       text: 'Contract',
       collapsed: true,
       items: [
