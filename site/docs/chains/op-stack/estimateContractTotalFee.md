@@ -106,6 +106,21 @@ const fee = await publicClient.estimateContractTotalFee({
 })
 ```
 
+### address
+
+- **Type:** [`Address`](/docs/glossary/types#address)
+
+The contract address.
+
+```ts
+const fee = await publicClient.estimateContractTotalFee({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  abi: wagmiAbi,
+  functionName: 'mint',
+})
+```
+
 ### functionName
 
 - **Type:** `string`
