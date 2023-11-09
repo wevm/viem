@@ -153,6 +153,8 @@ export type Widen<type> =
         : never
       : never)
 
+export type UnionWiden<type> = type extends any ? Widen<type> : never
+
 export type ExtractAbiFunctionForArgs<
   abi extends Abi,
   mutability extends AbiStateMutability,
@@ -204,7 +206,7 @@ export type ContractFunctionParameters<
   functionName:
     | allFunctionNames // show all options
     | (functionName extends allFunctionNames ? functionName : never) // infer value
-  args?: (abi extends Abi ? Widen<args> : never) | allArgs | undefined
+  args?: (abi extends Abi ? UnionWiden<args> : never) | allArgs | undefined
 } & (readonly [] extends allArgs ? {} : { args: Widen<args> })
 
 export type ContractFunctionReturnType<
