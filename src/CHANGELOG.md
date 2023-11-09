@@ -1,5 +1,11 @@
 # viem
 
+## 1.18.10
+
+### Patch Changes
+
+- [#1471](https://github.com/wagmi-dev/viem/pull/1471) [`82f069b6`](https://github.com/wagmi-dev/viem/commit/82f069b65c7b4e6b4aa447e04e79a00642cd7de6) Thanks [@plusminushalf](https://github.com/plusminushalf)! - Fixed client decorators assignment.
+
 ## 1.18.9
 
 ### Patch Changes
