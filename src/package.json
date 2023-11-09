@@ -53,7 +53,7 @@
       "import": "./_esm/ens/index.js",
       "default": "./_cjs/ens/index.js"
     },
-    "./opStack": {
+    "./op-stack": {
       "types": "./_types/chains/opStack/index.d.ts",
       "import": "./_esm/chains/opStack/index.js",
       "default": "./_cjs/chains/opStack/index.js"

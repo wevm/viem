@@ -20,7 +20,7 @@ To use the OP Stack functionality of Viem, you must extend your existing (or new
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { opStackPublicActions } from 'viem/opStack' // [!code hl]
+import { opStackPublicActions } from 'viem/op-stack' // [!code hl]
 
 const client = createPublicClient({
   chain: base,
@@ -37,5 +37,5 @@ const l1Gas = await client.estimateL1Gas({/* ... */})
 A suite of [Public Actions](./estimateL1Gas.md) for the OP Stack.
 
 ```ts
-import { opStackPublicActions } from 'viem/opStack'
+import { opStackPublicActions } from 'viem/op-stack'
 ```

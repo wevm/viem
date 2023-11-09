@@ -22,7 +22,7 @@ Viem exports OP Stack's chain [formatters](/docs/chains/formatters) & [serialize
 
 ```ts
 import { defineChain } from 'viem'
-import { chainConfig } from 'viem/opStack'
+import { chainConfig } from 'viem/op-stack'
 
 export const opStackExample = defineChain({
   ...chainConfig,

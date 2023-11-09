@@ -61,7 +61,7 @@ import {
 import {
   ...
 -} from 'viem/chains/utils'
-+} from 'viem/opStack'
++} from 'viem/op-stack'
 
 import {
 - parseTransactionZkSync,

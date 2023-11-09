@@ -62,7 +62,7 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/opStack'
+   * import { opStackPublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -101,7 +101,7 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/opStack'
+   * import { opStackPublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -140,7 +140,7 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/opStack'
+   * import { opStackPublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -179,7 +179,7 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/opStack'
+   * import { opStackPublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -218,7 +218,7 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/opStack'
+   * import { opStackPublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -244,7 +244,7 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/opStack'
+   * import { opStackPublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -270,7 +270,7 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/opStack'
+   * import { opStackPublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -296,7 +296,7 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/opStack'
+   * import { opStackPublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
