@@ -102,4 +102,5 @@ export const zero = 0n
 export const negativeOne = -1n
 export const one = 1n
 export const two = 2n
-export const N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n
+export const N =
+  0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n
