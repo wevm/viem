@@ -445,6 +445,7 @@ test('extend', () => {
       "inspectTxpool": [Function],
       "key": "wallet",
       "mine": [Function],
+      "mode": "anvil",
       "multicall": [Function],
       "name": "Wallet Client",
       "pollingInterval": 4000,
