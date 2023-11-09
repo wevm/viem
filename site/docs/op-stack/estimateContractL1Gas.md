@@ -70,7 +70,7 @@ export const publicClient = createPublicClient({
 
 `bigint`
 
-The L1 gas estimate.
+The L1 data fee estimate.
 
 ## Parameters
 
