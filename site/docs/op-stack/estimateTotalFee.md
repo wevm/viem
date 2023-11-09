@@ -15,7 +15,7 @@ head:
 
 Estimates the L1 + L2 fee to execute an L2 transaction.
 
-It is the sum of [`estimateL1Fee`](./estimateL1Fee.md) (L1 Gas) and [`estimateGas`](../../actions/public/estimateGas.md) * [`getGasPrice`](../../actions/public/getGasPrice.md) (L2 Gas * L2 Gas Price).
+It is the sum of [`estimateL1Fee`](./estimateL1Fee.md) (L1 Gas) and [`estimateGas`](/docs/actions/public/estimateGas.md) * [`getGasPrice`](/docs/actions/public/getGasPrice.md) (L2 Gas * L2 Gas Price).
 
 ## Usage
 

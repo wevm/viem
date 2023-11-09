@@ -15,7 +15,7 @@ head:
 
 Estimates the amount of L1 + L2 gas required to execute an L2 transaction.
 
-It is the sum of [`estimateL1Gas`](./estimateL1Gas.md) (L1 Gas) and [`estimateGas`](../../actions/public/estimateGas.md) (L2 Gas).
+It is the sum of [`estimateL1Gas`](./estimateL1Gas.md) (L1 Gas) and [`estimateGas`](/docs/actions/public/estimateGas.md) (L2 Gas).
 
 ## Usage
 
