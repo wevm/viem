@@ -370,6 +370,7 @@ test('exports', () => {
       "N",
       "hashZero",
       "etherSymbol",
+      "messagePrefix",
     ]
   `)
 })

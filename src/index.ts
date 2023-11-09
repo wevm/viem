@@ -589,7 +589,7 @@ export {
   N,
 } from './constants/number.js'
 export { hashZero } from './constants/bytes.js'
-export { etherSymbol } from './constants/strings.js'
+export { etherSymbol, messagePrefix } from './constants/strings.js'
 export {
   AbiConstructorNotFoundError,
   type AbiConstructorNotFoundErrorType,
