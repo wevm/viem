@@ -54,9 +54,9 @@
       "default": "./_cjs/ens/index.js"
     },
     "./opStack": {
-      "types": "./_types/chains/optimism/index.d.ts",
-      "import": "./_esm/chains/optimism/index.js",
-      "default": "./_cjs/chains/optimism/index.js"
+      "types": "./_types/chains/opStack/index.d.ts",
+      "import": "./_esm/chains/opStack/index.js",
+      "default": "./_cjs/chains/opStack/index.js"
     },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
