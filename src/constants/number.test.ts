@@ -101,6 +101,12 @@ test('exports number', () => {
       "minInt80": -604462909807314587353088n,
       "minInt88": -154742504910672534362390528n,
       "minInt96": -39614081257132168796771975168n,
+      "N": 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n,
+      "negativeOne" : -1n,
+      "one": 1n,
+      "two": 2n,
+      "weiPerEther": 1000000000000000000n,
+      "zero": 0n,
     }
   `)
 })
