@@ -5,10 +5,10 @@ import { accounts } from '~test/src/constants.js'
 import { optimismClient } from '~test/src/opStack.js'
 import { opStackPublicActions } from './public.js'
 
-const opStackClient = optimismClient.extend(opStackPublicActions)
+const opStackClient = optimismClient.extend(opStackPublicActions())
 
 test('default', async () => {
-  expect(opStackPublicActions(optimismClient)).toMatchInlineSnapshot(`
+  expect(opStackPublicActions()(optimismClient)).toMatchInlineSnapshot(`
     {
       "estimateContractL1Fee": [Function],
       "estimateContractL1Gas": [Function],

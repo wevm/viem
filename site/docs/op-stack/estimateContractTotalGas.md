@@ -13,7 +13,7 @@ head:
 
 # estimateContractTotalGas
 
-Estimates the total (L1 + L2) gas to execute an L2 contract write.
+Estimates the total ([L1 data](https://community.optimism.io/docs/developers/build/transaction-fees/#the-l1-data-fee) + L2) gas to execute an L2 contract write.
 
 Invokes the `getL1GasUsed` method on the [Gas Price Oracle](https://github.com/ethereum-optimism/optimism/blob/233ede59d16cb01bdd8e7ff662a153a4c3178bdd/packages/contracts/contracts/L2/predeploys/OVM_GasPriceOracle.sol) predeploy contract.
 
@@ -61,7 +61,7 @@ export const account = privateKeyToAccount(...)
 export const publicClient = createPublicClient({
   chain: base,
   transport: http()
-}).extend(opStackPublicActions)
+}).extend(opStackPublicActions())
 ```
 
 :::
@@ -70,7 +70,7 @@ export const publicClient = createPublicClient({
 
 `bigint`
 
-The total (L1 + L2) gas estimate.
+The total (L1 data + L2) gas estimate.
 
 ## Parameters
 

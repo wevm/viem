@@ -25,7 +25,7 @@ import { opStackPublicActions } from 'viem/op-stack' // [!code hl]
 const client = createPublicClient({
   chain: base,
   transport: http(),
-}).extend(opStackPublicActions) // [!code hl]
+}).extend(opStackPublicActions()) // [!code hl]
 
 const l1Gas = await client.estimateL1Gas({/* ... */})
 ```

@@ -74,7 +74,7 @@ export type EstimateContractL1FeeErrorType = GetContractErrorReturnType<
 >
 
 /**
- * Estimates the L1 fee required to execute an L2 contract write.
+ * Estimates the L1 data fee required to execute an L2 contract write.
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateContractL1FeeParameters}

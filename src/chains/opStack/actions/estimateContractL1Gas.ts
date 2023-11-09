@@ -74,7 +74,7 @@ export type EstimateContractL1GasErrorType = GetContractErrorReturnType<
 >
 
 /**
- * Estimates the L1 gas required to successfully execute a contract write function call.
+ * Estimates the L1 data gas required to successfully execute a contract write function call.
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateContractL1GasParameters}

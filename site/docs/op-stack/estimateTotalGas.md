@@ -13,7 +13,7 @@ head:
 
 # estimateTotalGas
 
-Estimates the amount of L1 + L2 gas required to execute an L2 transaction.
+Estimates the amount of [L1 data gas](https://community.optimism.io/docs/developers/build/transaction-fees/#the-l1-data-fee) + L2 gas required to execute an L2 transaction.
 
 It is the sum of [`estimateL1Gas`](./estimateL1Gas.md) (L1 Gas) and [`estimateGas`](/docs/actions/public/estimateGas.md) (L2 Gas).
 
@@ -45,7 +45,7 @@ export const account = privateKeyToAccount(...)
 export const publicClient = createPublicClient({
   chain: base,
   transport: http()
-}).extend(opStackPublicActions)
+}).extend(opStackPublicActions())
 ```
 
 :::

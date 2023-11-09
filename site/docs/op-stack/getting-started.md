@@ -49,7 +49,7 @@ import { opStackPublicActions } from 'viem/op-stack' // [!code hl]
 const client = createPublicClient({
   chain: base,
   transport: http(),
-}).extend(opStackPublicActions) // [!code hl]
+}).extend(opStackPublicActions()) // [!code hl]
 ```
 
 ### 3. Consume OP Stack Actions

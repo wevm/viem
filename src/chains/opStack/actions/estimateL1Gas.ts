@@ -62,7 +62,7 @@ const stubSignature = {
 } as const satisfies Signature
 
 /**
- * Estimates the amount of L1 gas required to execute an L2 transaction.
+ * Estimates the L1 data gas required to execute an L2 transaction.
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateL1GasParameters}

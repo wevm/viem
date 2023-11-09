@@ -41,7 +41,7 @@ export type EstimateTotalFeeErrorType =
   | ErrorType
 
 /**
- * Estimates the L1 + L2 fee to execute an L2 transaction.
+ * Estimates the L1 data fee + L2 fee to execute an L2 transaction.
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateTotalFeeParameters}

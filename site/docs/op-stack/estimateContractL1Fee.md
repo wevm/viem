@@ -61,7 +61,7 @@ export const account = privateKeyToAccount(...)
 export const publicClient = createPublicClient({
   chain: base,
   transport: http()
-}).extend(opStackPublicActions)
+}).extend(opStackPublicActions())
 ```
 
 :::

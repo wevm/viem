@@ -36,7 +36,7 @@ export type EstimateTotalGasErrorType =
   | ErrorType
 
 /**
- * Estimates the amount of L1 + L2 gas required to execute an L2 transaction.
+ * Estimates the amount of L1 data gas + L2 gas required to execute an L2 transaction.
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateTotalGasParameters}

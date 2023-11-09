@@ -53,7 +53,7 @@ export type OpStackPublicActions<
   account extends Account | undefined = Account | undefined,
 > = {
   /**
-   * Estimates the L1 fee required to execute an L2 contract write.
+   * Estimates the L1 data fee required to execute an L2 contract write.
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateContractL1FeeParameters}
@@ -67,7 +67,7 @@ export type OpStackPublicActions<
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions)
+   * }).extend(opStackPublicActions())
    *
    * const l1Fee = await client.estimateContractL1Fee({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -92,7 +92,7 @@ export type OpStackPublicActions<
     >,
   ) => Promise<EstimateContractL1FeeReturnType>
   /**
-   * Estimates the L1 gas required to successfully execute a contract write function call.
+   * Estimates the L1 data gas required to successfully execute a contract write function call.
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateContractL1GasParameters}
@@ -106,7 +106,7 @@ export type OpStackPublicActions<
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions)
+   * }).extend(opStackPublicActions())
    *
    * const l1Gas = await client.estimateContractL1Gas({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -145,7 +145,7 @@ export type OpStackPublicActions<
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions)
+   * }).extend(opStackPublicActions())
    *
    * const totalFee = await client.estimateContractTotalFee({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -170,7 +170,7 @@ export type OpStackPublicActions<
     >,
   ) => Promise<EstimateContractTotalFeeReturnType>
   /**
-   * Estimates the L1 + L2 gas required to successfully execute a contract write function call.
+   * Estimates the L1 data gas + L2 gas required to successfully execute a contract write function call.
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateContractTotalGasParameters}
@@ -184,7 +184,7 @@ export type OpStackPublicActions<
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions)
+   * }).extend(opStackPublicActions())
    *
    * const totalGas = await client.estimateContractTotalGas({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -209,7 +209,7 @@ export type OpStackPublicActions<
     >,
   ) => Promise<EstimateContractTotalGasReturnType>
   /**
-   * Estimates the L1 fee required to execute an L2 transaction.
+   * Estimates the L1 data fee required to execute an L2 transaction.
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateL1FeeParameters}
@@ -223,7 +223,7 @@ export type OpStackPublicActions<
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions)
+   * }).extend(opStackPublicActions())
    *
    * const l1Fee = await client.estimateL1Fee({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -235,7 +235,7 @@ export type OpStackPublicActions<
     parameters: EstimateL1FeeParameters<chain, account, chainOverride>,
   ) => Promise<EstimateL1FeeReturnType>
   /**
-   * Estimates the amount of L1 gas required to execute an L2 transaction.
+   * Estimates the amount of L1 data gas required to execute an L2 transaction.
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateL1GasParameters}
@@ -249,7 +249,7 @@ export type OpStackPublicActions<
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions)
+   * }).extend(opStackPublicActions())
    *
    * const l1Gas = await client.estimateL1Gas({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -261,7 +261,7 @@ export type OpStackPublicActions<
     parameters: EstimateL1GasParameters<chain, account, chainOverride>,
   ) => Promise<EstimateL1GasReturnType>
   /**
-   * Estimates the L1 + L2 fee to execute an L2 transaction.
+   * Estimates the L1 data fee + L2 fee to execute an L2 transaction.
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateTotalFeeParameters}
@@ -275,7 +275,7 @@ export type OpStackPublicActions<
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions)
+   * }).extend(opStackPublicActions())
    *
    * const totalFee = await client.estimateTotalFee({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -287,7 +287,7 @@ export type OpStackPublicActions<
     parameters: EstimateTotalFeeParameters<chain, account, chainOverride>,
   ) => Promise<EstimateTotalFeeReturnType>
   /**
-   * Estimates the total amount of combined L1 + L2 gas required to execute an L2 transaction.
+   * Estimates the total amount of combined L1 data gas + L2 gas required to execute an L2 transaction.
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateTotalGasParameters}
@@ -301,7 +301,7 @@ export type OpStackPublicActions<
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions)
+   * }).extend(opStackPublicActions())
    *
    * const totalGas = await client.estimateTotalGas({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -314,20 +314,24 @@ export type OpStackPublicActions<
   ) => Promise<EstimateTotalGasReturnType>
 }
 
-export function opStackPublicActions<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
->(
-  client: Client<Transport, TChain, TAccount>,
-): OpStackPublicActions<TChain, TAccount> {
-  return {
-    estimateContractL1Fee: (args) => estimateContractL1Fee(client, args),
-    estimateContractL1Gas: (args) => estimateContractL1Gas(client, args),
-    estimateContractTotalFee: (args) => estimateContractTotalFee(client, args),
-    estimateContractTotalGas: (args) => estimateContractTotalGas(client, args),
-    estimateL1Fee: (args) => estimateL1Fee(client, args),
-    estimateL1Gas: (args) => estimateL1Gas(client, args),
-    estimateTotalFee: (args) => estimateTotalFee(client, args),
-    estimateTotalGas: (args) => estimateTotalGas(client, args),
+export function opStackPublicActions() {
+  return <
+    TChain extends Chain | undefined = Chain | undefined,
+    TAccount extends Account | undefined = Account | undefined,
+  >(
+    client: Client<Transport, TChain, TAccount>,
+  ): OpStackPublicActions<TChain, TAccount> => {
+    return {
+      estimateContractL1Fee: (args) => estimateContractL1Fee(client, args),
+      estimateContractL1Gas: (args) => estimateContractL1Gas(client, args),
+      estimateContractTotalFee: (args) =>
+        estimateContractTotalFee(client, args),
+      estimateContractTotalGas: (args) =>
+        estimateContractTotalGas(client, args),
+      estimateL1Fee: (args) => estimateL1Fee(client, args),
+      estimateL1Gas: (args) => estimateL1Gas(client, args),
+      estimateTotalFee: (args) => estimateTotalFee(client, args),
+      estimateTotalGas: (args) => estimateTotalGas(client, args),
+    }
   }
 }
