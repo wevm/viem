@@ -505,6 +505,7 @@ test('extend', () => {
       "inspectTxpool": [Function],
       "key": "public",
       "mine": [Function],
+      "mode": "anvil",
       "multicall": [Function],
       "name": "Public Client",
       "pollingInterval": 4000,
