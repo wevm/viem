@@ -25,7 +25,6 @@ import type {
   MaybeRequired,
   NoUndefined,
   Prettify,
-  UnionEvaluate,
   UnionToTuple,
 } from './utils.js'
 
@@ -205,25 +204,8 @@ export type ContractFunctionParameters<
   functionName:
     | allFunctionNames // show all options
     | (functionName extends allFunctionNames ? functionName : never) // infer value
-} & UnionEvaluate<
-  readonly [] extends allArgs
-    ? {
-        args?:
-          | allArgs // show all options
-          // infer value, widen inferred value of `args` conditionally to match `allArgs`
-          | (abi extends Abi
-              ? args extends allArgs
-                ? Widen<args>
-                : never
-              : never)
-          | undefined
-      }
-    : {
-        args:
-          | allArgs // show all options
-          | (Widen<args> & (args extends allArgs ? unknown : never)) // infer value, widen inferred value of `args` match `allArgs` (e.g. avoid union `args: readonly [123n] | readonly [bigint]`)
-      }
->
+  args?: (abi extends Abi ? Widen<args> : never) | allArgs | undefined
+} & (readonly [] extends allArgs ? {} : { args: Widen<args> })
 
 export type ContractFunctionReturnType<
   abi extends Abi | readonly unknown[] = Abi,
