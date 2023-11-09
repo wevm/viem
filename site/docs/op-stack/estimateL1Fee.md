@@ -54,7 +54,7 @@ export const publicClient = createPublicClient({
 
 `bigint`
 
-The L1 gas estimate (in wei).
+The L1 fee (in wei).
 
 ## Parameters
 
@@ -62,7 +62,7 @@ The L1 gas estimate (in wei).
 
 - **Type:** `Account | Address`
 
-The Account to estimate gas from.
+The Account to estimate fee from.
 
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
