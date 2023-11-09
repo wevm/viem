@@ -13,7 +13,7 @@ head:
 
 # Client
 
-To use the OP Stack functionality of Viem, you must configure your Client accordingly. This is just a matter of extending your existing (or new) Viem Client with OP Stack Actions.
+To use the OP Stack functionality of Viem, you must extend your existing (or new) Viem Client with OP Stack Actions.
 
 ## Usage
 
