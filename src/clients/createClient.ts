@@ -219,8 +219,8 @@ export function createClient(parameters: ClientConfig): Client {
     return (extendFn: ExtendFn) => {
       const extended = extendFn(base) as Extended
       for (const key in client) delete extended[key]
-      const combined = { ...base, ...extended }
-      return Object.assign(combined, { extend: extend(combined) })
+      Object.assign(base, extended)
+      return Object.assign(base, { extend: extend(base) })
     }
   }
 
