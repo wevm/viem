@@ -76,6 +76,17 @@ export default defineConfig({
     nav: [
       { text: 'Docs', link: '/docs/getting-started', activeMatch: '/docs' },
       {
+        activeMatch: '/op-stack',
+        text: 'Extensions',
+        items: [
+          {
+            activeMatch: '/op-stack',
+            text: 'OP Stack',
+            link: '/op-stack',
+          },
+        ],
+      },
+      {
         text: 'Examples',
         link: 'https://github.com/wagmi-dev/viem/tree/main/examples',
       },

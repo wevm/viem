@@ -472,7 +472,7 @@ export const sidebar: DefaultTheme.Sidebar = {
             },
             {
               text: 'OP Stack',
-              link: '/docs/op-stack/getting-started',
+              link: '/docs/op-stack',
             },
             {
               text: 'zkSync',
@@ -911,17 +911,17 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
   ],
-  '/docs/op-stack/': [
-    { text: '← Go back', link: '/docs/getting-started' },
+  '/op-stack': [
+    { text: '← Viem Docs', link: '/docs/getting-started' },
     {
       text: 'OP Stack',
       items: [
         {
           text: 'Getting started',
-          link: '/docs/op-stack/getting-started',
+          link: '/op-stack',
         },
-        { text: 'Client', link: '/docs/op-stack/client' },
-        { text: 'Chains', link: '/docs/op-stack/chains' },
+        { text: 'Client', link: '/op-stack/client' },
+        { text: 'Chains', link: '/op-stack/chains' },
       ],
     },
     {
@@ -929,35 +929,35 @@ export const sidebar: DefaultTheme.Sidebar = {
       items: [
         {
           text: 'estimateContractL1Fee',
-          link: '/docs/op-stack/estimateContractL1Fee',
+          link: '/op-stack/actions/estimateContractL1Fee',
         },
         {
           text: 'estimateContractL1Gas',
-          link: '/docs/op-stack/estimateContractL1Gas',
+          link: '/op-stack/actions/estimateContractL1Gas',
         },
         {
           text: 'estimateContractTotalFee',
-          link: '/docs/op-stack/estimateContractTotalFee',
+          link: '/op-stack/actions/estimateContractTotalFee',
         },
         {
           text: 'estimateContractTotalGas',
-          link: '/docs/op-stack/estimateContractTotalGas',
+          link: '/op-stack/actions/estimateContractTotalGas',
         },
         {
           text: 'estimateL1Fee',
-          link: '/docs/op-stack/estimateL1Fee',
+          link: '/op-stack/actions/estimateL1Fee',
         },
         {
           text: 'estimateL1Gas',
-          link: '/docs/op-stack/estimateL1Gas',
+          link: '/op-stack/actions/estimateL1Gas',
         },
         {
           text: 'estimateTotalFee',
-          link: '/docs/op-stack/estimateTotalFee',
+          link: '/op-stack/actions/estimateTotalFee',
         },
         {
           text: 'estimateTotalGas',
-          link: '/docs/op-stack/estimateTotalGas',
+          link: '/op-stack/actions/estimateTotalGas',
         },
       ],
     },
