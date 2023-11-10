@@ -90,7 +90,7 @@ export default defineConfig({
           },
           {
             text: 'Changelog',
-            link: 'https://github.com/wagmi-dev/viem/blob/main/CHANGELOG.md',
+            link: 'https://github.com/wagmi-dev/viem/blob/main/src/CHANGELOG.md',
           },
           {
             text: 'Contributing',
