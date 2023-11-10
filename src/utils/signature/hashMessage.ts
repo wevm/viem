@@ -8,6 +8,7 @@ import {
   toBytes,
 } from '../encoding/toBytes.js'
 import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
+import { presignMessagePrefix } from '../../constants/strings.js'
 
 type To = 'hex' | 'bytes'
 
@@ -32,7 +33,7 @@ export function hashMessage<TTo extends To = 'hex'>(
     return toBytes(message.raw)
   })()
   const prefixBytes = stringToBytes(
-    `\x19Ethereum Signed Message:\n${messageBytes.length}`,
+    `${presignMessagePrefix}${messageBytes.length}`,
   )
   return keccak256(concat([prefixBytes, messageBytes]), to_)
 }

@@ -96,11 +96,3 @@ export const maxUint232 = 2n ** 232n - 1n
 export const maxUint240 = 2n ** 240n - 1n
 export const maxUint248 = 2n ** 248n - 1n
 export const maxUint256 = 2n ** 256n - 1n
-
-export const weiPerEther = 1000000000000000000n
-export const zero = 0n
-export const negativeOne = -1n
-export const one = 1n
-export const two = 2n
-export const N =
-  0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n

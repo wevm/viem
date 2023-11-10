@@ -581,15 +581,9 @@ export {
   minInt240,
   minInt248,
   minInt256,
-  negativeOne,
-  zero,
-  one,
-  two,
-  weiPerEther,
-  N,
 } from './constants/number.js'
-export { hashZero } from './constants/bytes.js'
-export { etherSymbol, messagePrefix } from './constants/strings.js'
+export { zeroHash } from './constants/bytes.js'
+export { presignMessagePrefix } from './constants/strings.js'
 export {
   AbiConstructorNotFoundError,
   type AbiConstructorNotFoundErrorType,

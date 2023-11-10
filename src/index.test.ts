@@ -362,15 +362,8 @@ test('exports', () => {
       "validateTypedData",
       "domainSeparator",
       "getTypesForEIP712Domain",
-      "negativeOne",
-      "zero",
-      "one",
-      "two",
-      "weiPerEther",
-      "N",
-      "hashZero",
-      "etherSymbol",
-      "messagePrefix",
+      "zeroHash",
+      "presignMessagePrefix",
     ]
   `)
 })
