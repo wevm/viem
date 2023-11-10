@@ -13,9 +13,9 @@ head:
 
 # Getting started with OP Stack
 
-Viem provides first-class support for chains implemented on the [OP Stack](https://stack.optimism.io/).
+Viem provides first-class support for chains implemented on the [OP Stack](https://docs.optimism.io/getting-started-op-stack).
 
-The OP Stack is a set of modular open-source software that enable developers to build fast, secure, and scalable Layer 2 Ethereum protocols & applications. [Read more.](https://stack.optimism.io/)
+The OP Stack is a set of modular open-source software that enable developers to build fast, secure, and scalable Layer 2 Ethereum protocols & applications. [Read more.](https://docs.optimism.io/getting-started-op-stack)
 
 ## Quick Start
 
