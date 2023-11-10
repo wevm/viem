@@ -44,12 +44,12 @@ Now that you have a Client set up, you can extend it with OP Stack Actions! [Rea
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { opStackPublicActions } from 'viem/op-stack' // [!code hl]
+import { l2PublicActions } from 'viem/op-stack' // [!code hl]
 
 const client = createPublicClient({
   chain: base,
   transport: http(),
-}).extend(opStackPublicActions()) // [!code hl]
+}).extend(l2PublicActions()) // [!code hl]
 ```
 
 ### 3. Consume OP Stack Actions
@@ -63,7 +63,7 @@ import { mainnet } from 'viem/chains'
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
-})
+}).extend(l2PublicActions()) 
 
 const l1Gas = await client.estimateL1Gas({ // [!code hl]
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code hl]

@@ -49,7 +49,7 @@ export {
 
 export { chainConfig } from './chainConfig.js'
 
-export { opStackPublicActions } from './decorators/public.js'
+export { l2PublicActions } from './decorators/public.js'
 
 export { base } from '../definitions/base.js'
 export { baseGoerli } from '../definitions/baseGoerli.js'

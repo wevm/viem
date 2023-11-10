@@ -48,7 +48,7 @@ import {
   estimateTotalGas,
 } from '../actions/estimateTotalGas.js'
 
-export type OpStackPublicActions<
+export type l2PublicActions<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
@@ -62,12 +62,12 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/op-stack'
+   * import { l2PublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions())
+   * }).extend(l2PublicActions())
    *
    * const l1Fee = await client.estimateContractL1Fee({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -101,12 +101,12 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/op-stack'
+   * import { l2PublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions())
+   * }).extend(l2PublicActions())
    *
    * const l1Gas = await client.estimateContractL1Gas({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -140,12 +140,12 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/op-stack'
+   * import { l2PublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions())
+   * }).extend(l2PublicActions())
    *
    * const totalFee = await client.estimateContractTotalFee({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -179,12 +179,12 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/op-stack'
+   * import { l2PublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions())
+   * }).extend(l2PublicActions())
    *
    * const totalGas = await client.estimateContractTotalGas({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -218,12 +218,12 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/op-stack'
+   * import { l2PublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions())
+   * }).extend(l2PublicActions())
    *
    * const l1Fee = await client.estimateL1Fee({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -244,12 +244,12 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/op-stack'
+   * import { l2PublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions())
+   * }).extend(l2PublicActions())
    *
    * const l1Gas = await client.estimateL1Gas({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -270,12 +270,12 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/op-stack'
+   * import { l2PublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions())
+   * }).extend(l2PublicActions())
    *
    * const totalFee = await client.estimateTotalFee({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -296,12 +296,12 @@ export type OpStackPublicActions<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { opStackPublicActions } from 'viem/op-stack'
+   * import { l2PublicActions } from 'viem/op-stack'
    *
    * const client = createPublicClient({
    *   chain: optimism,
    *   transport: http(),
-   * }).extend(opStackPublicActions())
+   * }).extend(l2PublicActions())
    *
    * const totalGas = await client.estimateTotalGas({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -314,13 +314,13 @@ export type OpStackPublicActions<
   ) => Promise<EstimateTotalGasReturnType>
 }
 
-export function opStackPublicActions() {
+export function l2PublicActions() {
   return <
     TChain extends Chain | undefined = Chain | undefined,
     TAccount extends Account | undefined = Account | undefined,
   >(
     client: Client<Transport, TChain, TAccount>,
-  ): OpStackPublicActions<TChain, TAccount> => {
+  ): l2PublicActions<TChain, TAccount> => {
     return {
       estimateContractL1Fee: (args) => estimateContractL1Fee(client, args),
       estimateContractL1Gas: (args) => estimateContractL1Gas(client, args),
