@@ -34,7 +34,7 @@ const l1Gas = await client.estimateL1Gas({/* ... */})
 
 ### `opStackPublicActions`
 
-A suite of [Public Actions](./estimateL1Gas.md) for the OP Stack.
+A suite of [Public Actions](./actions/estimateL1Gas.md) for the OP Stack.
 
 ```ts
 import { opStackPublicActions } from 'viem/op-stack'
