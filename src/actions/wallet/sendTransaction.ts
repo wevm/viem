@@ -10,7 +10,7 @@ import { AccountNotFoundError } from '../../errors/account.js'
 import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
+import { Chain, isEip712Transaction } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type {
@@ -163,11 +163,23 @@ export async function sendTransaction<
       })
     }
 
+    const transaction = {
+      account,
+      accessList,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+      ...rest,
+    }
+
     if (
-      chainId &&
-      chain?.eip712domain?.isEip712Domain &&
       chain?.eip712domain?.eip712domain &&
-      chain?.eip712domain?.isEip712Domain({ ...args, chainId: chainId })
+      isEip712Transaction(transaction as unknown as TransactionSerializable)
     ) {
       const eip712signer = chain?.eip712domain?.eip712domain
 
@@ -178,19 +190,7 @@ export async function sendTransaction<
       const request = await getAction(
         client,
         prepareTransactionRequest,
-      )({
-        account,
-        accessList,
-        data,
-        gas,
-        gasPrice,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        to,
-        value,
-        ...rest,
-      } as any)
+      )(transaction as any)
 
       if (!chainId) chainId = await getAction(client, getChainId)({})
 
