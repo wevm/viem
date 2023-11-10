@@ -33,6 +33,11 @@
       "import": "./_esm/actions/index.js",
       "default": "./_cjs/actions/index.js"
     },
+    "./celo": {
+      "types": "./_types/chains/celo/index.d.ts",
+      "import": "./_esm/chains/celo/index.js",
+      "default": "./_cjs/chains/celo/index.js"
+    },
     "./chains": {
       "types": "./_types/chains/index.d.ts",
       "import": "./_esm/chains/index.js",
@@ -48,6 +53,11 @@
       "import": "./_esm/ens/index.js",
       "default": "./_cjs/ens/index.js"
     },
+    "./op-stack": {
+      "types": "./_types/chains/opStack/index.d.ts",
+      "import": "./_esm/chains/opStack/index.js",
+      "default": "./_cjs/chains/opStack/index.js"
+    },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
       "import": "./_esm/utils/index.js",
@@ -57,6 +67,11 @@
       "types": "./_types/window/index.d.ts",
       "import": "./_esm/window/index.js",
       "default": "./_cjs/window/index.js"
+    },
+    "./zksync": {
+      "types": "./_types/chains/zksync/index.d.ts",
+      "import": "./_esm/chains/zksync/index.js",
+      "default": "./_cjs/chains/zksync/index.js"
     },
     "./package.json": "./package.json"
   },

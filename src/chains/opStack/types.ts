@@ -14,32 +14,32 @@ import type {
   TransactionReceipt,
 } from '../../types/transaction.js'
 
-export type OptimismBlockOverrides = {
+export type OpStackBlockOverrides = {
   stateRoot: Hash
 }
-export type OptimismBlock<
+export type OpStackBlock<
   TIncludeTransactions extends boolean = boolean,
   TBlockTag extends BlockTag = BlockTag,
 > = Block<
   bigint,
   TIncludeTransactions,
   TBlockTag,
-  OptimismTransaction<TBlockTag extends 'pending' ? true : false>
+  OpStackTransaction<TBlockTag extends 'pending' ? true : false>
 > &
-  OptimismBlockOverrides
+  OpStackBlockOverrides
 
-export type OptimismRpcBlockOverrides = {
+export type OpStackRpcBlockOverrides = {
   stateRoot: Hash
 }
-export type OptimismRpcBlock<
+export type OpStackRpcBlock<
   TBlockTag extends BlockTag = BlockTag,
   TIncludeTransactions extends boolean = boolean,
 > = RpcBlock<
   TBlockTag,
   TIncludeTransactions,
-  OptimismRpcTransaction<TBlockTag extends 'pending' ? true : false>
+  OpStackRpcTransaction<TBlockTag extends 'pending' ? true : false>
 > &
-  OptimismRpcBlockOverrides
+  OpStackRpcBlockOverrides
 
 type RpcTransaction<TPending extends boolean = boolean> =
   RpcTransaction_<TPending> & {
@@ -48,7 +48,7 @@ type RpcTransaction<TPending extends boolean = boolean> =
     sourceHash?: undefined
   }
 
-export type OptimismRpcDepositTransaction<TPending extends boolean = boolean> =
+export type OpStackRpcDepositTransaction<TPending extends boolean = boolean> =
   Omit<TransactionBase<Quantity, Index, TPending>, 'typeHex'> &
     FeeValuesEIP1559<Quantity> & {
       isSystemTx?: boolean
@@ -56,18 +56,18 @@ export type OptimismRpcDepositTransaction<TPending extends boolean = boolean> =
       sourceHash: Hex
       type: '0x7e'
     }
-export type OptimismRpcTransaction<TPending extends boolean = boolean> =
+export type OpStackRpcTransaction<TPending extends boolean = boolean> =
   | RpcTransaction<TPending>
-  | OptimismRpcDepositTransaction<TPending>
+  | OpStackRpcDepositTransaction<TPending>
 
-export type OptimismRpcTransactionReceiptOverrides = {
+export type OpStackRpcTransactionReceiptOverrides = {
   l1GasPrice: Hex | null
   l1GasUsed: Hex | null
   l1Fee: Hex | null
   l1FeeScalar: `${number}` | null
 }
-export type OptimismRpcTransactionReceipt = RpcTransactionReceipt &
-  OptimismRpcTransactionReceiptOverrides
+export type OpStackRpcTransactionReceipt = RpcTransactionReceipt &
+  OpStackRpcTransactionReceiptOverrides
 
 type Transaction<TPending extends boolean = boolean> = Transaction_<
   bigint,
@@ -79,7 +79,7 @@ type Transaction<TPending extends boolean = boolean> = Transaction_<
   sourceHash?: undefined
 }
 
-export type OptimismDepositTransaction<TPending extends boolean = boolean> =
+export type OpStackDepositTransaction<TPending extends boolean = boolean> =
   TransactionBase<bigint, number, TPending> &
     FeeValuesEIP1559 & {
       isSystemTx?: boolean
@@ -88,15 +88,15 @@ export type OptimismDepositTransaction<TPending extends boolean = boolean> =
       type: 'deposit'
     }
 
-export type OptimismTransaction<TPending extends boolean = boolean> =
+export type OpStackTransaction<TPending extends boolean = boolean> =
   | Transaction<TPending>
-  | OptimismDepositTransaction<TPending>
+  | OpStackDepositTransaction<TPending>
 
-export type OptimismTransactionReceiptOverrides = {
+export type OpStackTransactionReceiptOverrides = {
   l1GasPrice: bigint | null
   l1GasUsed: bigint | null
   l1Fee: bigint | null
   l1FeeScalar: number | null
 }
-export type OptimismTransactionReceipt = TransactionReceipt &
-  OptimismTransactionReceiptOverrides
+export type OpStackTransactionReceipt = TransactionReceipt &
+  OpStackTransactionReceiptOverrides

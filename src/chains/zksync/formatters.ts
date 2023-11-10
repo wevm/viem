@@ -21,7 +21,7 @@ import type {
   ZkSyncTransactionRequest,
 } from './types.js'
 
-export const formattersZkSync = {
+export const formatters = {
   block: /*#__PURE__*/ defineBlock({
     format(
       args: ZkSyncRpcBlockOverrides & {
@@ -32,7 +32,7 @@ export const formattersZkSync = {
     } {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
-        const formatted = formattersZkSync.transaction.format(
+        const formatted = formatters.transaction.format(
           transaction as ZkSyncRpcTransaction,
         ) as ZkSyncTransaction
         if (formatted.typeHex === '0x71') formatted.type = 'eip712'

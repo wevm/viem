@@ -472,7 +472,7 @@ export const sidebar: DefaultTheme.Sidebar = {
             },
             {
               text: 'OP Stack',
-              link: '/docs/chains/op-stack',
+              link: '/docs/op-stack/getting-started',
             },
             {
               text: 'zkSync',
@@ -908,6 +908,57 @@ export const sidebar: DefaultTheme.Sidebar = {
         { text: 'Terms', link: '/docs/glossary/terms' },
         { text: 'Types', link: '/docs/glossary/types' },
         { text: 'Errors', link: '/docs/glossary/errors' },
+      ],
+    },
+  ],
+  '/docs/op-stack/': [
+    { text: '← Go back', link: '/docs/getting-started' },
+    {
+      text: 'OP Stack',
+      items: [
+        {
+          text: 'Getting started',
+          link: '/docs/op-stack/getting-started',
+        },
+        { text: 'Client', link: '/docs/op-stack/client' },
+        { text: 'Chains', link: '/docs/op-stack/chains' },
+      ],
+    },
+    {
+      text: 'Public Actions',
+      items: [
+        {
+          text: 'estimateContractL1Fee',
+          link: '/docs/op-stack/estimateContractL1Fee',
+        },
+        {
+          text: 'estimateContractL1Gas',
+          link: '/docs/op-stack/estimateContractL1Gas',
+        },
+        {
+          text: 'estimateContractTotalFee',
+          link: '/docs/op-stack/estimateContractTotalFee',
+        },
+        {
+          text: 'estimateContractTotalGas',
+          link: '/docs/op-stack/estimateContractTotalGas',
+        },
+        {
+          text: 'estimateL1Fee',
+          link: '/docs/op-stack/estimateL1Fee',
+        },
+        {
+          text: 'estimateL1Gas',
+          link: '/docs/op-stack/estimateL1Gas',
+        },
+        {
+          text: 'estimateTotalFee',
+          link: '/docs/op-stack/estimateTotalFee',
+        },
+        {
+          text: 'estimateTotalGas',
+          link: '/docs/op-stack/estimateTotalGas',
+        },
       ],
     },
   ],

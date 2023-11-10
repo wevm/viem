@@ -9,12 +9,6 @@ test('exports', () => {
       "defineChain",
       "extractChain",
       "getChainContractAddress",
-      "formattersCelo",
-      "serializeTransactionCelo",
-      "serializersCelo",
-      "parseTransactionCelo",
-      "formattersOptimism",
-      "formattersZkSync",
     ]
   `)
 })

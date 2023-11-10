@@ -1,7 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formattersOptimism } from '../optimism/formatters.js'
+import { chainConfig } from '../opStack/chainConfig.js'
 
 export const baseGoerli = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 84531,
   name: 'Base Goerli',
   nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
@@ -15,6 +16,7 @@ export const baseGoerli = /*#__PURE__*/ defineChain({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 1376988,
@@ -22,5 +24,4 @@ export const baseGoerli = /*#__PURE__*/ defineChain({
   },
   testnet: true,
   sourceId: 5, // goerli
-  formatters: formattersOptimism,
 })

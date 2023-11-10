@@ -100,3 +100,7 @@ h3.vp-sponsor-tier {
 .vp-doc a:hover {
   text-decoration: underline;
 }
+
+.VPSidebarItem.level-0 {
+  padding-bottom: 12px !important;
+}

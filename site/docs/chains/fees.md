@@ -1,3 +1,16 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Fees
+  - - meta
+    - name: description
+      content: Configure chain-based fee data in Viem
+  - - meta
+    - property: og:description
+      content: Configure chain-based fee data in Viem
+---
+
 # Fees
 
 You can modify how fees are derived by using the `fees` property on the Chain.

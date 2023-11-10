@@ -5,11 +5,11 @@ import {
   parseEther,
   parseGwei,
   parseTransaction as parseTransaction_,
-  serializeTransaction,
+  serializeTransaction as serializeTransaction_,
   toRlp,
 } from '../../index.js'
-import { parseTransactionCelo } from './parsers.js'
-import { serializeTransactionCelo } from './serializers.js'
+import { parseTransaction } from './parsers.js'
+import { serializeTransaction } from './serializers.js'
 import type {
   TransactionSerializableCIP42,
   TransactionSerializableCIP64,
@@ -19,7 +19,7 @@ test('should be able to parse a cip42 transaction', () => {
   const signedTransaction =
     '0x7cf84682a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0'
 
-  expect(parseTransactionCelo(signedTransaction)).toMatchInlineSnapshot(`
+  expect(parseTransaction(signedTransaction)).toMatchInlineSnapshot(`
       {
         "chainId": 42220,
         "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
@@ -43,11 +43,9 @@ const transaction = {
 }
 
 test('should return same result as standard parser when not CIP42 or CIP64', () => {
-  const serialized = serializeTransaction(transaction)
+  const serialized = serializeTransaction_(transaction)
 
-  expect(parseTransactionCelo(serialized)).toEqual(
-    parseTransaction_(serialized),
-  )
+  expect(parseTransaction(serialized)).toEqual(parseTransaction_(serialized))
 })
 
 describe('should parse a CIP42 transaction', () => {
@@ -59,9 +57,9 @@ describe('should parse a CIP42 transaction', () => {
   }
 
   test('with gatewayFee', () => {
-    const serialized = serializeTransactionCelo(transactionWithGatewayFee)
+    const serialized = serializeTransaction(transactionWithGatewayFee)
 
-    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
           "chainId": 42270,
           "gas": 21001n,
@@ -90,9 +88,9 @@ describe('should parse a CIP42 transaction', () => {
       ],
     }
 
-    const serialized = serializeTransactionCelo(transactionWithAccessList)
+    const serialized = serializeTransaction(transactionWithAccessList)
 
-    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
           "accessList": [
             {
@@ -122,9 +120,9 @@ describe('should parse a CIP42 transaction', () => {
       data: '0x',
     }
 
-    const serialized = serializeTransactionCelo(transactionWithData)
+    const serialized = serializeTransaction(transactionWithData)
 
-    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
           "chainId": 42270,
           "gas": 21001n,
@@ -145,9 +143,9 @@ describe('should parse a CIP42 transaction', () => {
       data: '0x1234',
     }
 
-    const serialized = serializeTransactionCelo(transactionWithData)
+    const serialized = serializeTransaction(transactionWithData)
 
-    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
           "chainId": 42270,
           "data": "0x1234",
@@ -168,7 +166,7 @@ describe('should parse a CIP42 transaction', () => {
 describe('should throw an error for invalid cip42 transactions', () => {
   test('when all fields are missing', () => {
     expect(() =>
-      parseTransactionCelo(`0x7c${toRlp([]).slice(2)}`),
+      parseTransaction(`0x7c${toRlp([]).slice(2)}`),
     ).toThrowErrorMatchingInlineSnapshot(`
           "Invalid serialized transaction of type \\"cip42\\" was provided.
 
@@ -181,7 +179,7 @@ describe('should throw an error for invalid cip42 transactions', () => {
 
   test('when some fields are missing', () => {
     expect(() =>
-      parseTransactionCelo(`0x7c${toRlp(['0x0', '0x1']).slice(2)}`),
+      parseTransaction(`0x7c${toRlp(['0x0', '0x1']).slice(2)}`),
     ).toThrowErrorMatchingInlineSnapshot(`
           "Invalid serialized transaction of type \\"cip42\\" was provided.
 
@@ -194,7 +192,7 @@ describe('should throw an error for invalid cip42 transactions', () => {
 
   test('when the signature is missing', () => {
     expect(() =>
-      parseTransactionCelo(
+      parseTransaction(
         `0x7c${toRlp([
           '0x',
           '0x',
@@ -238,9 +236,9 @@ describe('should parse a CIP64 transaction', () => {
       chainId: 42270,
     } as TransactionSerializableCIP64
 
-    const serialized = serializeTransactionCelo(transactionWithoutType)
+    const serialized = serializeTransaction(transactionWithoutType)
 
-    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
           "chainId": 42270,
           "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
@@ -269,9 +267,9 @@ describe('should parse a CIP64 transaction', () => {
       ],
     }
 
-    const serialized = serializeTransactionCelo(transactionWithAccessList)
+    const serialized = serializeTransaction(transactionWithAccessList)
 
-    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
           "accessList": [
             {
@@ -300,9 +298,9 @@ describe('should parse a CIP64 transaction', () => {
       data: '0x',
     }
 
-    const serialized = serializeTransactionCelo(transactionWithData)
+    const serialized = serializeTransaction(transactionWithData)
 
-    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
           "chainId": 42270,
           "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
@@ -322,9 +320,9 @@ describe('should parse a CIP64 transaction', () => {
       data: '0x1234',
     }
 
-    const serialized = serializeTransactionCelo(transactionWithData)
+    const serialized = serializeTransaction(transactionWithData)
 
-    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
           "chainId": 42270,
           "data": "0x1234",
@@ -344,7 +342,7 @@ describe('should parse a CIP64 transaction', () => {
 describe('should throw an error for invalid cip64 transactions', () => {
   test('when all fields are missing', () => {
     expect(() =>
-      parseTransactionCelo(`0x7b${toRlp([]).slice(2)}`),
+      parseTransaction(`0x7b${toRlp([]).slice(2)}`),
     ).toThrowErrorMatchingInlineSnapshot(`
           "Invalid serialized transaction of type \\"cip64\\" was provided.
 
@@ -357,7 +355,7 @@ describe('should throw an error for invalid cip64 transactions', () => {
 
   test('when some fields are missing', () => {
     expect(() =>
-      parseTransactionCelo(`0x7b${toRlp(['0x0', '0x1']).slice(2)}`),
+      parseTransaction(`0x7b${toRlp(['0x0', '0x1']).slice(2)}`),
     ).toThrowErrorMatchingInlineSnapshot(`
           "Invalid serialized transaction of type \\"cip64\\" was provided.
 
@@ -370,7 +368,7 @@ describe('should throw an error for invalid cip64 transactions', () => {
 
   test('when the signature is missing', () => {
     expect(() =>
-      parseTransactionCelo(
+      parseTransaction(
         `0x7b${toRlp([
           '0x',
           '0x',

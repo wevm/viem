@@ -1,8 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formattersZkSync } from '../zksync/formatters.js'
-import { serializersZkSync } from '../zksync/serializers.js'
+import { chainConfig } from '../zksync/chainConfig.js'
 
 export const zkSync = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 324,
   name: 'zkSync Era',
   network: 'zksync-era',
@@ -28,6 +28,4 @@ export const zkSync = /*#__PURE__*/ defineChain({
       address: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
     },
   },
-  serializers: serializersZkSync,
-  formatters: formattersZkSync,
 })

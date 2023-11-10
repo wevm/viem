@@ -6,9 +6,9 @@ import { hexToBigInt, hexToNumber } from '../../utils/encoding/fromHex.js'
 import type { RecursiveArray } from '../../utils/encoding/toRlp.js'
 import type { GetSerializedTransactionType } from '../../utils/transaction/getSerializedTransactionType.js'
 import {
-  type ParseTransactionReturnType,
+  type ParseTransactionReturnType as ParseTransactionReturnType_,
   parseAccessList,
-  parseTransaction,
+  parseTransaction as parseTransaction_,
   toTransactionArray,
 } from '../../utils/transaction/parseTransaction.js'
 import {
@@ -24,33 +24,31 @@ import type {
   TransactionSerializedCIP64,
 } from './types.js'
 
-export type ParseTransactionCeloReturnType<
+export type ParseTransactionReturnType<
   TSerialized extends CeloTransactionSerialized = CeloTransactionSerialized,
   TType extends CeloTransactionType = GetSerializedTransactionType<TSerialized>,
 > = TSerialized extends TransactionSerializedCIP42
   ? TransactionSerializableCIP42
-  : ParseTransactionReturnType<TSerialized, TType>
+  : ParseTransactionReturnType_<TSerialized, TType>
 
-export function parseTransactionCelo<
+export function parseTransaction<
   TSerialized extends CeloTransactionSerialized,
->(
-  serializedTransaction: TSerialized,
-): ParseTransactionCeloReturnType<TSerialized> {
+>(serializedTransaction: TSerialized): ParseTransactionReturnType<TSerialized> {
   const serializedType = sliceHex(serializedTransaction, 0, 1)
 
   if (serializedType === '0x7c')
     return parseTransactionCIP42(
       serializedTransaction as TransactionSerializedCIP42,
-    ) as ParseTransactionCeloReturnType<TSerialized>
+    ) as ParseTransactionReturnType<TSerialized>
 
   if (serializedType === '0x7b')
     return parseTransactionCIP64(
       serializedTransaction as TransactionSerializedCIP64,
-    ) as ParseTransactionCeloReturnType<TSerialized>
+    ) as ParseTransactionReturnType<TSerialized>
 
-  return parseTransaction(
+  return parseTransaction_(
     serializedTransaction,
-  ) as ParseTransactionCeloReturnType<TSerialized>
+  ) as ParseTransactionReturnType<TSerialized>
 }
 
 function parseTransactionCIP42(
