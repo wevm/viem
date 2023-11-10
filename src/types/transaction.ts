@@ -114,6 +114,19 @@ export type TransactionEIP1559<
     chainId: TIndex
     type: TType
   }
+export type TransactionEIP712<
+  TQuantity = bigint,
+  TIndex = number,
+  TPending extends boolean = boolean,
+  TType = 'eip712',
+> = TransactionBase<TQuantity, TIndex, TPending> &
+  FeeValuesEIP1559<TQuantity> & {
+    gasPerPubdata?: bigint
+    factoryDeps?: Hex[]
+    paymaster?: Address
+    paymasterInput?: Hex
+    type: TType
+  }
 export type Transaction<
   TQuantity = bigint,
   TIndex = number,
@@ -122,6 +135,7 @@ export type Transaction<
   | TransactionLegacy<TQuantity, TIndex, TPending>
   | TransactionEIP2930<TQuantity, TIndex, TPending>
   | TransactionEIP1559<TQuantity, TIndex, TPending>
+  | TransactionEIP712<TQuantity, TIndex, TPending>
 
 export type TransactionRequestBase<TQuantity = bigint, TIndex = number> = {
   /** Contract code or a hashed method call with encoded args */
@@ -164,10 +178,24 @@ export type TransactionRequestEIP1559<
     accessList?: AccessList
     type?: TTransactionType
   }
+export type TransactionRequestEIP712<
+  TQuantity = bigint,
+  TIndex = number,
+  TTransactionType = 'eip712',
+> = TransactionRequestBase<TQuantity, TIndex> &
+  Partial<FeeValuesEIP1559<TQuantity>> & {
+    accessList?: never
+    gasPerPubdata?: bigint
+    factoryDeps?: Hex[]
+    paymaster?: Address
+    paymasterInput?: Hex
+    type?: TTransactionType
+  }
 export type TransactionRequest<TQuantity = bigint, TIndex = number> =
   | TransactionRequestLegacy<TQuantity, TIndex>
   | TransactionRequestEIP2930<TQuantity, TIndex>
   | TransactionRequestEIP1559<TQuantity, TIndex>
+  | TransactionRequestEIP712<TQuantity, TIndex>
 
 export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
@@ -215,6 +243,19 @@ export type TransactionSerializableEIP1559<
     type?: 'eip1559'
     yParity?: number
   }
+export type TransactionSerializableEIP712<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionSerializableBase<TQuantity, TIndex> &
+  Partial<FeeValuesEIP1559<TQuantity>> & {
+    chainId: number
+    type?: 'eip712'
+    customSignature?: Hex
+    gasPerPubdata?: bigint
+    paymaster?: Address
+    factoryDeps?: Hex[]
+    paymasterInput?: Hex
+  }
 export type TransactionSerializableGeneric<
   TQuantity = bigint,
   TIndex = number,
@@ -231,6 +272,7 @@ export type TransactionSerializable<TQuantity = bigint, TIndex = number> =
   | TransactionSerializableLegacy<TQuantity, TIndex>
   | TransactionSerializableEIP2930<TQuantity, TIndex>
   | TransactionSerializableEIP1559<TQuantity, TIndex>
+  | TransactionSerializableEIP712<TQuantity, TIndex>
   | TransactionSerializableGeneric<TQuantity, TIndex>
 
 //export TransactionEIP712

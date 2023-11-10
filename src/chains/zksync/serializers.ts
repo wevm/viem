@@ -66,7 +66,7 @@ function serializeTransactionZkSyncEIP712(
     gas ? toHex(gas) : '0x',
     to ?? '0x',
     value ? toHex(value) : '0x',
-    data ?? '0x',
+    data ?? '0x01', //data must be even number of digits
     toHex(chainId),
     toHex(''),
     toHex(''),

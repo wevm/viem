@@ -442,6 +442,72 @@ await walletClient.writeContract({
 })
 ```
 
+## Additional parameters for EIP712 transactions (ZkSync)
+
+Contract related transactions in ZkSync network must be [EIP712 transactions](https://era.zksync.io/docs/api/js/features.html). At least one of the parameters below are required.
+
+### gasPerPubdata (optional)
+
+- **Type:** `bigint`
+
+The amount of gas for publishing one byte of data on Ethereum.
+
+```ts
+const hash = await walletClient.sendTransaction({
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  gasPerPubdata: 50000, // [!code focus]
+  nonce: 69
+})
+```
+
+### factoryDeps (optional)
+
+- **Type:** `[0x${string}]`
+
+Contains bytecode of the deployed contract.
+
+```ts
+const hash = await walletClient.sendTransaction({
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  factoryDeps: ['0xcde...'], // [!code focus]
+  nonce: 69
+})
+```
+
+### paymaster (optional)
+
+- **Type:** `Account | Address`
+
+Address of the paymaster account that will pay the fees. The `paymasterInput` field is required with this one.
+
+```ts
+const hash = await walletClient.sendTransaction({
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021', // [!code focus]
+  paymasterInput: '0x8c5a...' // [!code focus]
+  nonce: 69
+})
+```
+
+### paymasterInput (optional)
+
+- **Type:** `0x${string}`
+
+Input data to the paymaster. The `paymaster` field is required with this one.
+
+```ts
+const hash = await walletClient.sendTransaction({
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021', // [!code focus]
+  paymasterInput: '0x8c5a...' // [!code focus]
+  nonce: 69
+})
+```
+
 ## Live Example
 
 Check out the usage of `writeContract` in the live [Writing to Contracts Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts_writing-to-contracts) below.

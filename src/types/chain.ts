@@ -268,7 +268,8 @@ export type GetChain<
   ? { chain: chainOverride | null }
   : { chain?: chainOverride | null }
 
-
-export function isEip712Transaction(transaction: TransactionSerializable): boolean {
+export function isEip712Transaction(
+  transaction: TransactionSerializable,
+): boolean {
   return isEIP712(transaction)
 }

@@ -89,7 +89,7 @@ function transactionToMessage(
     paymaster: paymaster ? BigInt(paymaster) : 0n,
     nonce: nonce ? BigInt(nonce) : 0n,
     value: value ?? 0n,
-    data: data ? data : '0x0',
+    data: data ? data : '0x01',
     factoryDeps: factoryDeps ?? [],
     paymasterInput: paymasterInput ? paymasterInput : '0x0',
   }

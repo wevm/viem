@@ -14,6 +14,7 @@ import { type RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
   TransactionSerializable,
+  TransactionSerializableEIP712,
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -145,19 +146,23 @@ export async function signTransaction<
     client.chain?.serializers?.transaction &&
     isEip712Transaction(transaction as unknown as TransactionSerializable)
   ) {
-    const eip712Domain = client.chain?.eip712domain?.eip712domain(transaction as unknown as TransactionSerializable)
+    const eip712Domain = client.chain?.eip712domain?.eip712domain(
+      transaction as unknown as TransactionSerializable,
+    )
 
     const customSignature = await signTypedData(client, {
       ...eip712Domain,
       account: account,
     })
 
-    transaction.customSignature = customSignature
-
     // If we have the customSignature we can sign the transaction, doesn't matter if account type
     // is `local` or `json-rpc`.
     return client.chain?.serializers?.transaction(
-      { chainId, ...transaction } as unknown as TransactionSerializable,
+      {
+        chainId,
+        customSignature,
+        ...transaction,
+      } as unknown as TransactionSerializableEIP712,
       // Use this blank private key, probably we should change the code to be optional,
       // or option if it is EIP712.
       { r: '0x0', s: '0x0', v: 0n },
