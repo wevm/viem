@@ -1,3 +1,4 @@
+import { presignMessagePrefix } from '../../constants/strings.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex, SignableMessage } from '../../types/misc.js'
 import { type ConcatErrorType, concat } from '../data/concat.js'
@@ -8,7 +9,6 @@ import {
   toBytes,
 } from '../encoding/toBytes.js'
 import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
-import { presignMessagePrefix } from '../../constants/strings.js'
 
 type To = 'hex' | 'bytes'
 
