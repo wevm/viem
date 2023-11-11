@@ -24,7 +24,6 @@ import type {
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { NeverBy } from '../../types/utils.js'
-import type { OptimismRpcTransaction } from '../optimism/types.js'
 
 type CeloBlockExclude =
   | 'difficulty'
@@ -66,7 +65,7 @@ export type CeloRpcBlock<
   RpcBlock<
     TBlockTag,
     TIncludeTransactions,
-    OptimismRpcTransaction<TBlockTag extends 'pending' ? true : false>
+    RpcTransaction<TBlockTag extends 'pending' ? true : false>
   >,
   CeloBlockExclude
 > &
@@ -111,7 +110,7 @@ export type CeloTransactionRequest =
 export type CeloTransactionSerializable =
   | TransactionSerializableCIP42
   | TransactionSerializableCIP64
-  | TransactionSerializable
+  | CeloTransactionSerializableBase
 
 export type CeloTransactionSerialized<
   TType extends CeloTransactionType = 'legacy',
@@ -135,21 +134,25 @@ type RpcTransactionRequest = RpcTransactionRequest_ & {
   gatewayFeeRecipient?: Address
 }
 
-export type RpcTransactionCIP42<TPending extends boolean = boolean> =
-  TransactionBase<Quantity, Index, TPending> &
-    FeeValuesEIP1559<Quantity> & {
-      feeCurrency: Address | null
-      gatewayFee: Hex | null
-      gatewayFeeRecipient: Address | null
-      type: '0x7c'
-    }
+export type RpcTransactionCIP42<TPending extends boolean = boolean> = Omit<
+  TransactionBase<Quantity, Index, TPending>,
+  'typeHex'
+> &
+  FeeValuesEIP1559<Quantity> & {
+    feeCurrency: Address | null
+    gatewayFee: Hex | null
+    gatewayFeeRecipient: Address | null
+    type: '0x7c'
+  }
 
-export type RpcTransactionCIP64<TPending extends boolean = boolean> =
-  TransactionBase<Quantity, Index, TPending> &
-    FeeValuesEIP1559<Quantity> & {
-      feeCurrency: Address | null
-      type: '0x7b'
-    }
+export type RpcTransactionCIP64<TPending extends boolean = boolean> = Omit<
+  TransactionBase<Quantity, Index, TPending>,
+  'typeHex'
+> &
+  FeeValuesEIP1559<Quantity> & {
+    feeCurrency: Address | null
+    type: '0x7b'
+  }
 
 export type RpcTransactionRequestCIP42 = TransactionRequestBase<
   Quantity,
@@ -231,9 +234,8 @@ export type TransactionSerializableCIP42<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
-  FeeValuesEIP1559<TQuantity> & {
+  Partial<FeeValuesEIP1559<TQuantity>> & {
     accessList?: AccessList
-    gasPrice?: never
     feeCurrency?: Address
     gatewayFeeRecipient?: Address
     gatewayFee?: TQuantity
@@ -245,13 +247,20 @@ export type TransactionSerializableCIP64<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
-  FeeValuesEIP1559<TQuantity> & {
+  Partial<FeeValuesEIP1559<TQuantity>> & {
     accessList?: AccessList
-    gasPrice?: never
     feeCurrency?: Address
+    gatewayFee?: undefined
+    gatewayFeeRecipient?: undefined
     chainId: number
     type?: 'cip64'
   }
+
+export type CeloTransactionSerializableBase = TransactionSerializable & {
+  feeCurrency?: undefined
+  gatewayFee?: undefined
+  gatewayFeeRecipient?: undefined
+}
 
 export type TransactionSerializedCIP42 = `0x7c${string}`
 export type TransactionSerializedCIP64 = `0x7b${string}`

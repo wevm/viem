@@ -31,8 +31,8 @@ describe('block', () => {
     Assign<
       Partial<RpcBlock>,
       {
-        l1BatchNumber: `0x${string}`
-        l1BatchTimestamp: `0x${string}`
+        l1BatchNumber: `0x${string}` | null
+        l1BatchTimestamp: `0x${string}` | null
       } & {
         transactions: `0x${string}`[] | ZkSyncRpcTransaction[]
       }
@@ -96,7 +96,7 @@ describe('transactionReceipt', () => {
       undefined,
       undefined
     > & {
-      l1BatchNumber: bigint
+      l1BatchNumber: bigint | null
       transactionLogIndex: number
       logType: `0x${string}` | null
     })[]
@@ -106,7 +106,7 @@ describe('transactionReceipt', () => {
     ReturnType<
       typeof formattersZkSync.transactionReceipt.format
     >['logs'][0]['l1BatchNumber']
-  >().toEqualTypeOf<bigint>()
+  >().toEqualTypeOf<bigint | null>()
   expectTypeOf<
     ReturnType<
       typeof formattersZkSync.transactionReceipt.format

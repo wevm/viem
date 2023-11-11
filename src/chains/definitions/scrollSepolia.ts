@@ -8,11 +8,9 @@ export const scrollSepolia = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://sepolia-rpc.scroll.io'],
-      webSocket: ['wss://sepolia-rpc.scroll.io/ws'],
     },
     public: {
       http: ['https://sepolia-rpc.scroll.io'],
-      webSocket: ['wss://sepolia-rpc.scroll.io/ws'],
     },
   },
   blockExplorers: {

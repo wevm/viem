@@ -229,6 +229,7 @@ export function watchContractEvent<
                   abi,
                   address,
                   args,
+                  eventName,
                   fromBlock: previousBlockNumber + 1n,
                   toBlock: blockNumber,
                   strict,

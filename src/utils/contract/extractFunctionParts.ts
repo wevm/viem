@@ -4,6 +4,7 @@ const paramsRegex = /((function|event)\s)?(.*)(\((.*)\))/
 
 export type ExtractFunctionPartsErrorType = ErrorType
 
+/** @deprecated – use `parseAbiItem` from `abitype`. */
 export function extractFunctionParts(def: string) {
   const parts = def.match(paramsRegex)
   const type = parts?.[2] || undefined
@@ -14,12 +15,14 @@ export function extractFunctionParts(def: string) {
 
 export type ExtractFunctionNameErrorType = ErrorType
 
+/** @deprecated – use `parseAbiItem` from `abitype`. */
 export function extractFunctionName(def: string) {
   return extractFunctionParts(def).name
 }
 
 export type ExtractFunctionParamsErrorType = ErrorType
 
+/** @deprecated – use `parseAbiItem` from `abitype`. */
 export function extractFunctionParams(def: string) {
   const params = extractFunctionParts(def).params
   const splitParams = params?.split(',').map((x) => x.trim().split(' '))
@@ -32,6 +35,7 @@ export function extractFunctionParams(def: string) {
 
 export type ExtractFunctionTypeErrorType = ErrorType
 
+/** @deprecated – use `parseAbiItem` from `abitype`. */
 export function extractFunctionType(def: string) {
   return extractFunctionParts(def).type
 }

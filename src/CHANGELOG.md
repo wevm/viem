@@ -1,5 +1,93 @@
 # viem
 
+## 1.18.9
+
+### Patch Changes
+
+- [#1464](https://github.com/wagmi-dev/viem/pull/1464) [`32098af0`](https://github.com/wagmi-dev/viem/commit/32098af0378c47a4032155f8947f88f9990cd25d) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `getFunctionSignature`/`getFunctionSelector` would not parse nested tuples in string-based signatures.
+
+## 1.18.8
+
+### Patch Changes
+
+- [`46213902`](https://github.com/wagmi-dev/viem/commit/462139026e4e36dd98e4c1da5ff7669f7ffb98ee) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `chain.nativeCurrency` could be undefined.
+
+## 1.18.7
+
+### Patch Changes
+
+- [`95991301`](https://github.com/wagmi-dev/viem/commit/95991301c9eb4a3f2a1bcff8ab36d95ff964e13c) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `watchContractEvent` fallback was not scoping events to the provided `eventName`.
+
+- [#1453](https://github.com/wagmi-dev/viem/pull/1453) [`e40006aa`](https://github.com/wagmi-dev/viem/commit/e40006aad1941d9c77dfd68b07f1acb99f7c8883) Thanks [@0xRaghu](https://github.com/0xRaghu)! - Added Kava Testnet chain.
+
+## 1.18.6
+
+### Patch Changes
+
+- [#1448](https://github.com/wagmi-dev/viem/pull/1448) [`c2fab4a7`](https://github.com/wagmi-dev/viem/commit/c2fab4a78878d46c6aad403f1ad54677632542eb) Thanks [@jxom](https://github.com/jxom)! - Fixed zkSync formatters.
+
+- [#1434](https://github.com/wagmi-dev/viem/pull/1434) [`c0da695a`](https://github.com/wagmi-dev/viem/commit/c0da695a76225c7f24ca263f9109e34d8cd93dba) Thanks [@nicolasbrugneaux](https://github.com/nicolasbrugneaux)! - Fixed an issue where Celo CIP64 transactions were being recognized as EIP1559 transactions.
+
+## 1.18.5
+
+### Patch Changes
+
+- [#1438](https://github.com/wagmi-dev/viem/pull/1438) [`8e52fcb8`](https://github.com/wagmi-dev/viem/commit/8e52fcb8565a9fadce4da31e924894881804f9d2) Thanks [@jxom](https://github.com/jxom)! - Fixed legacy EIP-155 transaction serializing.
+
+## 1.18.4
+
+### Patch Changes
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Updated Klaytn RPC URL.
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Added Astar chain
+
+- [#1435](https://github.com/wagmi-dev/viem/pull/1435) [`08e6a68f`](https://github.com/wagmi-dev/viem/commit/08e6a68f25736c6517b4f5d567a8ff9b3b59bc11) Thanks [@tmm](https://github.com/tmm)! - Fixed protected action types
+
+- [#1432](https://github.com/wagmi-dev/viem/pull/1432) [`33631fb2`](https://github.com/wagmi-dev/viem/commit/33631fb2ac281d5804a596c6390b10403cbcfa72) Thanks [@pcdotfan](https://github.com/pcdotfan)! - Removed Scroll Sepolia WebSocket URLs.
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Added Tenet chain
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Add Kava chain
+
+- [#1423](https://github.com/wagmi-dev/viem/pull/1423) [`c164bfc6`](https://github.com/wagmi-dev/viem/commit/c164bfc6b8beb4243fbe9d222bd03de2814637b2) Thanks [@CJskii](https://github.com/CJskii)! - Added Core Dao chain
+
+## 1.18.3
+
+### Patch Changes
+
+- [#1424](https://github.com/wagmi-dev/viem/pull/1424) [`a0052303`](https://github.com/wagmi-dev/viem/commit/a0052303f4b6892fac55c2035fe5675890e4d5bf) Thanks [@filoozom](https://github.com/filoozom)! - Added WebSocket RPCs for Gnosis Chain and Chiado
+
+- [#1431](https://github.com/wagmi-dev/viem/pull/1431) [`2244017d`](https://github.com/wagmi-dev/viem/commit/2244017d7603f2253b4faaf6c543c8c7a04f7595) Thanks [@filoozom](https://github.com/filoozom)! - Added the multicall address for Chiado
+
+- [#1426](https://github.com/wagmi-dev/viem/pull/1426) [`c81141a5`](https://github.com/wagmi-dev/viem/commit/c81141a5402d9114856c6a706782085905dbfb13) Thanks [@mnedelchev-vn](https://github.com/mnedelchev-vn)! - Added Neon Mainnet chain.
+
+## 1.18.2
+
+### Patch Changes
+
+- [#1417](https://github.com/wagmi-dev/viem/pull/1417) [`ba17c65e`](https://github.com/wagmi-dev/viem/commit/ba17c65ee5d7ab4804472784acb545805507cdfe) Thanks [@holic](https://github.com/holic)! - Fixed `concat` parameter type.
+
+- [#1415](https://github.com/wagmi-dev/viem/pull/1415) [`5db156aa`](https://github.com/wagmi-dev/viem/commit/5db156aa8b95bc421c82e93b092b2a8bf9b62666) Thanks [@0xKheops](https://github.com/0xKheops)! - Added sorting mechanism to batch scheduler.
+
+## 1.18.1
+
+### Patch Changes
+
+- [#1409](https://github.com/wagmi-dev/viem/pull/1409) [`229e2d56`](https://github.com/wagmi-dev/viem/commit/229e2d565d9d07b9208753f46668378dccf3d399) Thanks [@qbzzt](https://github.com/qbzzt)! - Fixed Holesky public RPC URL.
+
+## 1.18.0
+
+### Minor Changes
+
+- [#1402](https://github.com/wagmi-dev/viem/pull/1402) [`09778291`](https://github.com/wagmi-dev/viem/commit/0977829160effbe7dac5a69f43d263605544fa19) Thanks [@jxom](https://github.com/jxom)! - Added `extractChain` utility.
+
+- [#1388](https://github.com/wagmi-dev/viem/pull/1388) [`d872061d`](https://github.com/wagmi-dev/viem/commit/d872061d1c6a791142027e59e39cfa44d9780631) Thanks [@speeddragon](https://github.com/speeddragon)! - Added ZkSync serializers
+
+- [#1379](https://github.com/wagmi-dev/viem/pull/1379) [`fb395900`](https://github.com/wagmi-dev/viem/commit/fb3959009ad79a258316389e29d917869d23ff5e) Thanks [@yerdua](https://github.com/yerdua)! - Added support for Celo CIP-64 transactions
+
+- [#1361](https://github.com/wagmi-dev/viem/pull/1361) [`70593019`](https://github.com/wagmi-dev/viem/commit/70593019d364a230a7cec87c2832e2135d8fedb8) Thanks [@speeddragon](https://github.com/speeddragon)! - Added ZkSync formatters.
+
 ## 1.17.2
 
 ### Patch Changes
