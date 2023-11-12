@@ -8,7 +8,7 @@ import { http } from '../../clients/transports/http.js'
 import { zkSync } from '../index.js'
 
 describe('block', () => {
-  test.only('formatter', async () => {
+  test('formatter', async () => {
     const { block } = zkSync.formatters!
 
     expect(
