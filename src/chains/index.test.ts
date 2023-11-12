@@ -77,6 +77,7 @@ test('exports chains', () => {
       "linea",
       "lineaTestnet",
       "localhost",
+      "lukso",
       "mainnet",
       "manta",
       "mantaTestnet",

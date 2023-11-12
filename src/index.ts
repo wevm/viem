@@ -578,6 +578,8 @@ export {
   minInt248,
   minInt256,
 } from './constants/number.js'
+export { zeroHash } from './constants/bytes.js'
+export { presignMessagePrefix } from './constants/strings.js'
 export {
   AbiConstructorNotFoundError,
   type AbiConstructorNotFoundErrorType,

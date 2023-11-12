@@ -141,6 +141,8 @@ test('exports', () => {
       "minInt240",
       "minInt248",
       "minInt256",
+      "zeroHash",
+      "presignMessagePrefix",
       "AbiConstructorNotFoundError",
       "AbiConstructorParamsNotFoundError",
       "AbiDecodingDataSizeInvalidError",
