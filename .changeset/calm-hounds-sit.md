@@ -1,5 +1,5 @@
 ---
-"viem": patch
+"viem": minor
 ---
 
 Added `yParity` to `Transaction` type.
