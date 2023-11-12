@@ -1,5 +1,21 @@
 # viem
 
+## 1.19.0
+
+### Minor Changes
+
+- [#1485](https://github.com/wagmi-dev/viem/pull/1485) [`490de5da`](https://github.com/wagmi-dev/viem/commit/490de5da023938252d526604763d19f8defe2e62) Thanks [@jxom](https://github.com/jxom)! - Added `yParity` to `Transaction` type.
+
+- [#1486](https://github.com/wagmi-dev/viem/pull/1486) [`5e40a875`](https://github.com/wagmi-dev/viem/commit/5e40a87502541ffcf1dae5364eef48a2c0085f82) Thanks [@jxom](https://github.com/jxom)! - Added `dumpState` & `loadState` Test Actions.
+
+- [`5bf3a3b2`](https://github.com/wagmi-dev/viem/commit/5bf3a3b2da2c2c223b913eae9aea50a0ba834efc) Thanks [@jxom](https://github.com/jxom)! - Added `presignMessagePrefix` and `zeroHash` constants.
+
+- [#1483](https://github.com/wagmi-dev/viem/pull/1483) [`5a4e907b`](https://github.com/wagmi-dev/viem/commit/5a4e907bd47c78827f28ae5cfb8e1f73067c5fc1) Thanks [@jxom](https://github.com/jxom)! - Support `v` values of 0 or 1 in `serializeTransaction`.
+
+### Patch Changes
+
+- [#1470](https://github.com/wagmi-dev/viem/pull/1470) [`a0512a5b`](https://github.com/wagmi-dev/viem/commit/a0512a5b107afaef201791647e43e8a9d881c621) Thanks [@marv1n-10xdev](https://github.com/marv1n-10xdev)! - Added LUSKO chain
+
 ## 1.18.9
 
 ### Patch Changes
