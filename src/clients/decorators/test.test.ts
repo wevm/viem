@@ -21,12 +21,14 @@ test('default', async () => {
   ).toMatchInlineSnapshot(`
     {
       "dropTransaction": [Function],
+      "dumpState": [Function],
       "getAutomine": [Function],
       "getTxpoolContent": [Function],
       "getTxpoolStatus": [Function],
       "impersonateAccount": [Function],
       "increaseTime": [Function],
       "inspectTxpool": [Function],
+      "loadState": [Function],
       "mine": [Function],
       "removeBlockTimestampInterval": [Function],
       "reset": [Function],
@@ -88,6 +90,11 @@ describe('smoke test', () => {
 
   test('inspectTxpool', async () => {
     expect(await testClient.inspectTxpool()).toBeDefined()
+  })
+
+  test('dumpState/loadState', async () => {
+    const state = await testClient.dumpState()
+    await testClient.loadState({ state })
   })
 
   test('mine', async () => {

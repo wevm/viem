@@ -3,6 +3,10 @@ import {
   dropTransaction,
 } from '../../actions/test/dropTransaction.js'
 import {
+  type DumpStateReturnType,
+  dumpState,
+} from '../../actions/test/dumpState.js'
+import {
   type GetAutomineReturnType,
   getAutomine,
 } from '../../actions/test/getAutomine.js'
@@ -26,6 +30,11 @@ import {
   type InspectTxpoolReturnType,
   inspectTxpool,
 } from '../../actions/test/inspectTxpool.js'
+import {
+  type LoadStateParameters,
+  type LoadStateReturnType,
+  loadState,
+} from '../../actions/test/loadState.js'
 import { type MineParameters, mine } from '../../actions/test/mine.js'
 import { removeBlockTimestampInterval } from '../../actions/test/removeBlockTimestampInterval.js'
 import { type ResetParameters, reset } from '../../actions/test/reset.js'
@@ -113,6 +122,26 @@ export type TestActions = {
    * })
    */
   dropTransaction: (args: DropTransactionParameters) => Promise<void>
+  /**
+   * Serializes the current state (including contracts code, contract's storage,
+   * accounts properties, etc.) into a savable data blob.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/dumpState.html
+   *
+   * @param client - Client to use
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.dumpState()
+   */
+  dumpState: () => Promise<DumpStateReturnType>
   /**
    * Returns the automatic mining status of the node.
    *
@@ -231,6 +260,25 @@ export type TestActions = {
    * const data = await client.inspectTxpool()
    */
   inspectTxpool: () => Promise<InspectTxpoolReturnType>
+  /**
+   * Adds state previously dumped with `dumpState` to the current chain.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/loadState.html
+   *
+   * @param client - Client to use
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.loadState({ state: '0x...' })
+   */
+  loadState: (args: LoadStateParameters) => Promise<LoadStateReturnType>
   /**
    * Mine a specified number of blocks.
    *
@@ -689,12 +737,14 @@ export function testActions<TMode extends TestClientMode>({
     }))
     return {
       dropTransaction: (args) => dropTransaction(client, args),
+      dumpState: () => dumpState(client),
       getAutomine: () => getAutomine(client),
       getTxpoolContent: () => getTxpoolContent(client),
       getTxpoolStatus: () => getTxpoolStatus(client),
       impersonateAccount: (args) => impersonateAccount(client, args),
       increaseTime: (args) => increaseTime(client, args),
       inspectTxpool: () => inspectTxpool(client),
+      loadState: (args) => loadState(client, args),
       mine: (args) => mine(client, args),
       removeBlockTimestampInterval: () => removeBlockTimestampInterval(client),
       reset: (args) => reset(client, args),
