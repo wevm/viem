@@ -22,7 +22,7 @@ export const lukso = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'LUKSO Mainnet Explorer',
-      url: 'https://explorer.execution.mainnet.lukso.network'.
+      url: 'https://explorer.execution.mainnet.lukso.network',
     },
   },
 })
