@@ -46,6 +46,7 @@ test('gets transaction', async () => {
       "typeHex": "0x2",
       "v": 1n,
       "value": 0n,
+      "yParity": 1,
     }
   `)
 })
@@ -117,6 +118,7 @@ test('gets transaction (eip2930)', async () => {
       "accessList",
       "chainId",
       "typeHex",
+      "yParity",
     ]
   `)
   expect(transaction.type).toMatchInlineSnapshot('"eip2930"')
@@ -195,6 +197,7 @@ describe('args: hash', () => {
         "typeHex": "0x2",
         "v": 1n,
         "value": 0n,
+        "yParity": 1,
       }
     `)
   })
