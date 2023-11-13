@@ -24,9 +24,9 @@ Internally performs a contract write to the [`depositTransaction` function](http
 
 ```ts [example.ts]
 import { base } from 'viem/chains'
-import { account, walletClient } from './config'
+import { account, client } from './config'
  
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account,
   args: {
     gas: 21_000n,
@@ -35,7 +35,6 @@ const hash = await walletClient.depositTransacton({
   },
   targetChain: base,
 })
-// '0x...'
 ```
 
 ```ts [config.ts]
@@ -44,13 +43,13 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 import { walletActionsL1 } from 'viem/op-stack'
 
-export const walletClient = createWalletClient({
+export const client = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
 // JSON-RPC Account
-export const [account] = await walletClient.getAddresses()
+export const [account] = await client.getAddresses()
 // Local Account
 export const account = privateKeyToAccount(...)
 ```
@@ -60,13 +59,56 @@ export const account = privateKeyToAccount(...)
 
 ::: warning
 
-It is highly recommended to [prepare & estimate the gas](#preparing--estimating-gas) on the L2 before calling this function. If the gas is too low, transaction execution will fail on the L2.
+You must [prepare the parameters](#preparing-parameters) on the L2 before calling this function. If the gas is too low, transaction execution will fail on the L2.
 
 :::
 
-### Preparing & Estimating Gas
+### Preparing Parameters
 
-TODO
+The `prepareDepositTransaction` Action prepares the deposit transaction parameters (ie. `gas`, `targetChain`, etc). 
+
+We can use the resulting `request` to initiate the deposit transaction on the L1.
+
+::: code-group
+
+```ts [example.ts]
+import { account, baseClient, mainnetClient } from './config'
+
+// Prepare the deposit transaction parameters (ie. estimate gas, etc).
+const request = await baseClient.prepareDepositTransaction({
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: parseEther('1')
+})
+ 
+// Initiate the deposit transaction on the L1.
+const hash = await mainnetClient.depositTransacton(request)
+```
+
+```ts [config.ts]
+import { createWalletClient, createPublicClient, custom, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet, base } from 'viem/chains'
+import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
+
+export const baseClient = createPublicClient({
+  chain: base,
+  transport: http()
+}).extend(publicActionsL2())
+
+export const mainnetClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum)
+}).extend(walletActionsL1())
+
+// JSON-RPC Account
+export const [account] = await mainnetClient.getAddresses()
+// Local Account
+export const account = privateKeyToAccount(...)
+```
+
+:::
+
 
 ### Account Hoisting
 
@@ -336,5 +378,26 @@ const hash = await walletClient.depositTransacton({
   },
   nonce: 69, // [!code focus]
   targetChain: base,
+})
+```
+
+### portalAddress (optional)
+
+- **Type:** `Address`
+- **Default:** `targetChain.contracts.portal[chainId].address`
+
+The address of the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol). Defaults to the Optimism Portal contract specified on the `targetChain`.
+
+If a `portalAddress` is provided, the `targetChain` parameter becomes optional.
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+    value: parseEther('1')
+  },
+  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })
 ```

@@ -498,6 +498,117 @@ describe('prepareTransactionRequest', () => {
     `)
   })
 
+  test('args: parameters', async () => {
+    await setup()
+
+    const result = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "account": {
+          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "source": "privateKey",
+          "type": "local",
+        },
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": 1000000000000000000n,
+      }
+    `)
+
+    const result2 = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'fees'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(result2).toMatchInlineSnapshot(`
+      {
+        "account": {
+          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "source": "privateKey",
+          "type": "local",
+        },
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 30500000000n,
+        "maxPriorityFeePerGas": 18500000000n,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+
+    const result3 = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'fees', 'nonce'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(result3).toMatchInlineSnapshot(`
+      {
+        "account": {
+          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "source": "privateKey",
+          "type": "local",
+        },
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 30500000000n,
+        "maxPriorityFeePerGas": 18500000000n,
+        "nonce": 375,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+
+    const result4 = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'fees', 'nonce', 'type'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(result4).toMatchInlineSnapshot(`
+      {
+        "account": {
+          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "source": "privateKey",
+          "type": "local",
+        },
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 30500000000n,
+        "maxPriorityFeePerGas": 18500000000n,
+        "nonce": 375,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+  })
+
   test('chain default priority fee', async () => {
     await setup()
 

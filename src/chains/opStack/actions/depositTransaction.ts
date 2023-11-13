@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import { writeContract } from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
+import { zeroAddress } from '../../../constants/address.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
 import type {
@@ -31,17 +32,28 @@ export type DepositTransactionParameters<
   GetContractAddressParameter<_derivedChain, 'portal'> & {
     /** Arguments supplied to the L2 transaction. */
     args: {
-      /** Contract deployment bytecode or encoded contract method & arguments. */
-      data?: Hex
-      /** Whether or not this is a contract deployment transaction. */
-      isCreation?: boolean
       /** Gas limit for transaction execution on the L2. */
       gas: bigint
-      /** L2 Transaction recipient. */
-      to?: Address
       /** Value in wei sent with this transaction on the L2. */
       value?: bigint
-    }
+    } & (
+      | {
+          /** Encoded contract method & arguments. */
+          data?: Hex
+          /** Whether or not this is a contract deployment transaction. */
+          isCreation?: false
+          /** L2 Transaction recipient. */
+          to?: Address
+        }
+      | {
+          /** Contract deployment bytecode. Required for contract deployment transactions. */
+          data: Hex
+          /** Whether or not this is a contract deployment transaction. */
+          isCreation: true
+          /** L2 Transaction recipient. Cannot exist for contract deployment transactions. */
+          to?: never
+        }
+    )
   }
 export type DepositTransactionReturnType = Hash
 export type DepositTransactionErrorType = ErrorType
@@ -130,7 +142,7 @@ export function depositTransaction<
     address: portalAddress,
     chain,
     functionName: 'depositTransaction',
-    args: [to, value, gas, isCreation, data],
+    args: [isCreation ? zeroAddress : to, value, gas, isCreation, data],
     nonce,
   } as any)
 }
