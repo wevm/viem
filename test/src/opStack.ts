@@ -1,6 +1,7 @@
 import { optimism } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { http } from '~viem/clients/transports/http.js'
+import { optimismForkUrl } from './constants.js'
 
 export const optimismAddress = {
   alice: '0xF977814e90dA44bFA03b6295A0616a897441aceC',
@@ -9,15 +10,15 @@ export const optimismAddress = {
 
 export const optimismClient = createClient({
   chain: optimism,
-  transport: http(process.env.VITE_RPC_URL_OPTIMISM),
+  transport: http(optimismForkUrl),
 })
 
 export const optimismClientWithAccount = createClient({
-  account: optimismAddress.alice as `0x${string}`,
+  account: optimismAddress.alice,
   chain: optimism,
-  transport: http(process.env.VITE_RPC_URL_OPTIMISM),
+  transport: http(optimismForkUrl),
 })
 
 export const optimismClientWithoutChain = createClient({
-  transport: http(process.env.VITE_RPC_URL_OPTIMISM),
+  transport: http(optimismForkUrl),
 })
