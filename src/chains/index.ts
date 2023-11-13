@@ -1,8 +1,5 @@
 export type { Chain } from '../types/chain.js'
 
-// required for type inference since in explicit return type
-export type { Assign, Omit, Prettify } from '../types/utils.js'
-
 export { arbitrum } from './definitions/arbitrum.js'
 export { arbitrumGoerli } from './definitions/arbitrumGoerli.js'
 export { arbitrumNova } from './definitions/arbitrumNova.js'
@@ -160,3 +157,21 @@ export { zetachainAthensTestnet } from './definitions/zetachainAthensTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
+
+// required for type inference since in explicit return type
+//////////////////////////////////////////////////////////////////////////////////////
+export type { Assign, Omit, Prettify } from '../types/utils.js'
+export type {
+  OpStackBlock,
+  OpStackBlockOverrides,
+  OpStackDepositTransaction,
+  OpStackRpcBlock,
+  OpStackRpcBlockOverrides,
+  OpStackRpcDepositTransaction,
+  OpStackRpcTransaction,
+  OpStackRpcTransactionReceipt,
+  OpStackRpcTransactionReceiptOverrides,
+  OpStackTransaction,
+  OpStackTransactionReceipt,
+  OpStackTransactionReceiptOverrides,
+} from './opStack/types.js'
