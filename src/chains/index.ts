@@ -162,7 +162,7 @@ export { zoraTestnet } from './definitions/zoraTestnet.js'
 
 // required for type inference since in explicit return type
 //////////////////////////////////////////////////////////////////////////////////////
-export type { Assign, Omit, Prettify } from '../types/utils.js'
+export type { Assign, Omit, PartialBy, Prettify } from '../types/utils.js'
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
