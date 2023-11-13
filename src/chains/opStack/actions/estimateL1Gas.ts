@@ -15,7 +15,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import { maxInt256 } from '../../../constants/number.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
-import { type Chain, type GetChain } from '../../../types/chain.js'
+import { type Chain, type GetChainParameter } from '../../../types/chain.js'
 import type { Signature } from '../../../types/misc.js'
 import type { TransactionRequestEIP1559 } from '../../../types/transaction.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
@@ -39,7 +39,7 @@ export type EstimateL1GasParameters<
   TChainOverride extends Chain | undefined = Chain | undefined,
 > = Omit<TransactionRequestEIP1559, 'from'> &
   GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride> & {
+  GetChainParameter<TChain, TChainOverride> & {
     /** Gas price oracle address. */
     gasPriceOracleAddress?: Address
   }

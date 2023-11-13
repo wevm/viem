@@ -4,7 +4,7 @@ import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
-import type { GetChain } from '../../types/chain.js'
+import type { GetChainParameter } from '../../types/chain.js'
 import type { ContractConstructorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
@@ -29,7 +29,7 @@ export type DeployContractParameters<
   SendTransactionParameters<chain, account, chainOverride>,
   'accessList' | 'chain' | 'to' | 'data'
 > &
-  GetChain<chain, chainOverride> &
+  GetChainParameter<chain, chainOverride> &
   UnionEvaluate<
     readonly [] extends allArgs
       ? { args?: allArgs | undefined }

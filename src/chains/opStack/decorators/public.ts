@@ -48,7 +48,7 @@ import {
   estimateTotalGas,
 } from '../actions/estimateTotalGas.js'
 
-export type publicActionsL2<
+export type PublicActionsL2<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
@@ -320,7 +320,7 @@ export function publicActionsL2() {
     TAccount extends Account | undefined = Account | undefined,
   >(
     client: Client<Transport, TChain, TAccount>,
-  ): publicActionsL2<TChain, TAccount> => {
+  ): PublicActionsL2<TChain, TAccount> => {
     return {
       estimateContractL1Fee: (args) => estimateContractL1Fee(client, args),
       estimateContractL1Gas: (args) => estimateContractL1Gas(client, args),

@@ -9,7 +9,11 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
+import type {
+  Chain,
+  DeriveChain,
+  GetChainParameter,
+} from '../../types/chain.js'
 import { type RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
@@ -39,14 +43,11 @@ export type SignTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain | undefined,
-> = UnionOmit<
-  FormattedTransactionRequest<
-    TChainOverride extends Chain ? TChainOverride : TChain
-  >,
-  'from'
-> &
+  ///
+  derivedChain extends Chain | undefined = DeriveChain<TChain, TChainOverride>,
+> = UnionOmit<FormattedTransactionRequest<derivedChain>, 'from'> &
   GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
+  GetChainParameter<TChain, TChainOverride>
 
 export type SignTransactionReturnType = TransactionSerialized
 

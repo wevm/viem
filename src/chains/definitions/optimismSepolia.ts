@@ -1,6 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../opStack/chainConfig.js'
 
+const sourceId = 11_155_111 // sepolia
+
 export const optimismSepolia = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 11155420,
@@ -23,6 +25,12 @@ export const optimismSepolia = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 1620204,
     },
+    portal: {
+      [sourceId]: {
+        address: '0x16Fc5058F25648194471939df75CF27A2fdC48BC',
+      },
+    },
   },
   testnet: true,
+  sourceId,
 })

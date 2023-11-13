@@ -1,45 +1,16 @@
-import type { Block, BlockTag } from '../../types/block.js'
-import type { FeeValuesEIP1559 } from '../../types/fee.js'
-import type { Hash, Hex } from '../../types/misc.js'
+import type { FeeValuesEIP1559 } from '../../../types/fee.js'
+import type { Hex } from '../../../types/misc.js'
 import type {
   Index,
   Quantity,
-  RpcBlock,
   RpcTransaction as RpcTransaction_,
   RpcTransactionReceipt,
-} from '../../types/rpc.js'
+} from '../../../types/rpc.js'
 import type {
   Transaction as Transaction_,
   TransactionBase,
   TransactionReceipt,
-} from '../../types/transaction.js'
-
-export type OpStackBlockOverrides = {
-  stateRoot: Hash
-}
-export type OpStackBlock<
-  TIncludeTransactions extends boolean = boolean,
-  TBlockTag extends BlockTag = BlockTag,
-> = Block<
-  bigint,
-  TIncludeTransactions,
-  TBlockTag,
-  OpStackTransaction<TBlockTag extends 'pending' ? true : false>
-> &
-  OpStackBlockOverrides
-
-export type OpStackRpcBlockOverrides = {
-  stateRoot: Hash
-}
-export type OpStackRpcBlock<
-  TBlockTag extends BlockTag = BlockTag,
-  TIncludeTransactions extends boolean = boolean,
-> = RpcBlock<
-  TBlockTag,
-  TIncludeTransactions,
-  OpStackRpcTransaction<TBlockTag extends 'pending' ? true : false>
-> &
-  OpStackRpcBlockOverrides
+} from '../../../types/transaction.js'
 
 type RpcTransaction<TPending extends boolean = boolean> =
   RpcTransaction_<TPending> & {

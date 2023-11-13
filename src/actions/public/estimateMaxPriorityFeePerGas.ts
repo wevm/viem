@@ -8,7 +8,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { Chain, ChainFeesFnParameters } from '../../types/chain.js'
-import type { GetChain } from '../../types/chain.js'
+import type { GetChainParameter } from '../../types/chain.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type HexToBigIntErrorType,
@@ -22,7 +22,7 @@ import { type GetGasPriceErrorType, getGasPrice } from './getGasPrice.js'
 export type EstimateMaxPriorityFeePerGasParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-> = GetChain<chain, chainOverride>
+> = GetChainParameter<chain, chainOverride>
 
 export type EstimateMaxPriorityFeePerGasReturnType = bigint
 

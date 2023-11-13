@@ -49,24 +49,28 @@ export {
 
 export { chainConfig } from './chainConfig.js'
 
-export { publicActionsL2 } from './decorators/public.js'
+export {
+  base,
+  baseGoerli,
+  baseSepolia,
+  optimism,
+  optimismGoerli,
+  optimismSepolia,
+  zora,
+  zoraSepolia,
+  zoraTestnet,
+} from './chains.js'
 
-export { base } from '../definitions/base.js'
-export { baseGoerli } from '../definitions/baseGoerli.js'
-export { baseSepolia } from '../definitions/baseSepolia.js'
-export { optimism } from '../definitions/optimism.js'
-export { optimismGoerli } from '../definitions/optimismGoerli.js'
-export { optimismSepolia } from '../definitions/optimismSepolia.js'
-export { zora } from '../definitions/zora.js'
-export { zoraSepolia } from '../definitions/zoraSepolia.js'
-export { zoraTestnet } from '../definitions/zoraTestnet.js'
+export { publicActionsL2, type PublicActionsL2 } from './decorators/public.js'
 
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
-  OpStackDepositTransaction,
   OpStackRpcBlock,
   OpStackRpcBlockOverrides,
+} from './types/block.js'
+export type {
+  OpStackDepositTransaction,
   OpStackRpcDepositTransaction,
   OpStackRpcTransaction,
   OpStackRpcTransactionReceipt,
@@ -74,4 +78,4 @@ export type {
   OpStackTransaction,
   OpStackTransactionReceipt,
   OpStackTransactionReceiptOverrides,
-} from './types.js'
+} from './types/transaction.js'

@@ -1,6 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../opStack/chainConfig.js'
 
+const sourceId = 5 // goerli
+
 export const baseGoerli = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 84531,
@@ -21,7 +23,12 @@ export const baseGoerli = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 1376988,
     },
+    portal: {
+      [sourceId]: {
+        address: '0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA',
+      },
+    },
   },
   testnet: true,
-  sourceId: 5, // goerli
+  sourceId,
 })

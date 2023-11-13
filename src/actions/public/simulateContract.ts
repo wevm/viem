@@ -9,7 +9,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, ParseAccount } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
+import type { Chain, DeriveChain } from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
@@ -51,6 +51,8 @@ export type SimulateContractParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   accountOverride extends Account | Address | undefined = undefined,
+  ///
+  derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
   account?: accountOverride
   chain?: chainOverride
@@ -63,14 +65,14 @@ export type SimulateContractParameters<
   args
 > &
   UnionOmit<
-    CallParameters<chainOverride extends Chain ? chainOverride : chain>,
+    CallParameters<derivedChain>,
     'account' | 'batch' | 'to' | 'data' | 'value'
   > &
   GetValue<
     abi,
     functionName,
-    CallParameters<chain> extends CallParameters
-      ? CallParameters<chain>['value']
+    CallParameters<derivedChain> extends CallParameters
+      ? CallParameters<derivedChain>['value']
       : CallParameters['value']
   >
 

@@ -30,7 +30,7 @@ export type Chain<
         {
           [key: string]:
             | ChainContract
-            | { [chainId: number]: ChainContract | undefined }
+            | { [sourceId: number]: ChainContract | undefined }
             | undefined
         } & {
           ensRegistry?: ChainContract | undefined
@@ -240,9 +240,14 @@ export type ExtractChainFormatterReturnType<
     : ReturnType<formatter['format']>
   : fallback
 
-export type GetChain<
+export type DeriveChain<
   chain extends Chain | undefined,
-  chainOverride extends Chain | undefined = undefined,
+  chainOverride extends Chain | undefined,
+> = chainOverride extends Chain ? chainOverride : chain
+
+export type GetChainParameter<
+  chain extends Chain | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
 > = IsUndefined<chain> extends true
   ? { chain: chainOverride | null }
   : { chain?: chainOverride | null | undefined }

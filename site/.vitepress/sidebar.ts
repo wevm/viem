@@ -927,7 +927,16 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
-      text: 'Public Actions',
+      text: 'L1 Wallet Actions',
+      items: [
+        {
+          text: 'depositTransaction',
+          link: '/op-stack/actions/depositTransaction',
+        },
+      ],
+    },
+    {
+      text: 'L2 Public Actions',
       items: [
         {
           text: 'estimateContractL1Fee',
