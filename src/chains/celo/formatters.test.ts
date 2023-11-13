@@ -119,6 +119,7 @@ describe('block', () => {
             type: '0x2',
             v: '0x0',
             value: '0x0',
+            yParity: '0x0',
           },
           {
             accessList: [],
@@ -143,6 +144,7 @@ describe('block', () => {
             type: '0x2',
             v: '0x0',
             value: '0x0',
+            yParity: '0x0',
           },
         ],
         transactionsRoot:
@@ -192,6 +194,7 @@ describe('block', () => {
             "typeHex": "0x2",
             "v": 0n,
             "value": 0n,
+            "yParity": 0,
           },
           {
             "accessList": [],
@@ -217,6 +220,7 @@ describe('block', () => {
             "typeHex": "0x2",
             "v": 0n,
             "value": 0n,
+            "yParity": 0,
           },
         ],
         "transactionsRoot": "0xb293e2c4ce20a9eac253241e750a5592c9d3c1b27bf090d0fc2fa4756a038866",
@@ -316,6 +320,7 @@ describe('transaction', () => {
         type: '0x2',
         v: '0x1',
         value: '0x0',
+        yParity: '0x1',
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -342,6 +347,7 @@ describe('transaction', () => {
         "typeHex": "0x2",
         "v": 1n,
         "value": 0n,
+        "yParity": 1,
       }
     `)
 
@@ -371,6 +377,7 @@ describe('transaction', () => {
         type: '0x2',
         v: '0x1',
         value: '0x0',
+        yParity: '0x1',
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -397,6 +404,7 @@ describe('transaction', () => {
         "typeHex": "0x2",
         "v": 1n,
         "value": 0n,
+        "yParity": 1,
       }
     `)
 
@@ -426,6 +434,7 @@ describe('transaction', () => {
         type: '0x7c',
         v: '0x1',
         value: '0x0',
+        yParity: '0x1',
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -452,6 +461,7 @@ describe('transaction', () => {
         "typeHex": "0x7c",
         "v": 1n,
         "value": 0n,
+        "yParity": 1,
       }
     `)
 
@@ -479,6 +489,7 @@ describe('transaction', () => {
         type: '0x7b',
         v: '0x1',
         value: '0x0',
+        yParity: '0x1',
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -503,6 +514,7 @@ describe('transaction', () => {
         "typeHex": "0x7b",
         "v": 1n,
         "value": 0n,
+        "yParity": 1,
       }
     `)
   })

@@ -61,6 +61,7 @@ describe('block', () => {
             type: '0x7e',
             v: '0x0',
             value: '0x0',
+            yParity: '0x0',
           },
           {
             blockHash:
@@ -84,6 +85,7 @@ describe('block', () => {
             type: '0x7e',
             v: '0x0',
             value: '0x0',
+            yParity: '0x0',
           },
         ],
         uncles: [],
@@ -131,6 +133,7 @@ describe('block', () => {
             "typeHex": "0x7e",
             "v": 0n,
             "value": 0n,
+            "yParity": 0,
           },
           {
             "blockHash": "0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846",
@@ -155,6 +158,7 @@ describe('block', () => {
             "typeHex": "0x7e",
             "v": 0n,
             "value": 0n,
+            "yParity": 0,
           },
         ],
         "transactionsRoot": "0xe41f41da49507646478023c060078f8afa962973ac38da1f7efd0355363b31d5",
@@ -251,6 +255,7 @@ describe('block', () => {
         "typeHex": "0x7e",
         "v": 0n,
         "value": 0n,
+        "yParity": 0,
       }
     `)
     expect(rest).toMatchInlineSnapshot(`
@@ -304,6 +309,7 @@ describe('transaction', () => {
         type: '0x2',
         v: '0x1',
         value: '0x69',
+        yParity: '0x1',
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -327,6 +333,7 @@ describe('transaction', () => {
         "typeHex": "0x2",
         "v": 1n,
         "value": 105n,
+        "yParity": 1,
       }
     `)
   })
@@ -358,6 +365,7 @@ describe('transaction', () => {
         "typeHex": "0x2",
         "v": 1n,
         "value": 650000000000000n,
+        "yParity": 1,
       }
     `)
   })
@@ -389,6 +397,7 @@ describe('transaction (deposit)', () => {
         type: '0x7e',
         v: '0x1',
         value: '0x69',
+        yParity: '0x1',
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -415,6 +424,7 @@ describe('transaction (deposit)', () => {
         "typeHex": "0x7e",
         "v": 1n,
         "value": 105n,
+        "yParity": 1,
       }
     `)
   })
@@ -448,6 +458,7 @@ describe('transaction (deposit)', () => {
         "typeHex": "0x7e",
         "v": 0n,
         "value": 0n,
+        "yParity": 0,
       }
     `)
   })

@@ -131,6 +131,17 @@ export type Omit<type, keys extends keyof type> = Pick<
 >
 
 /**
+ * @description Creates a type that is a partial of T, but with the required keys K.
+ *
+ * @example
+ * PartialBy<{ a: string, b: number } | { a: string, b: undefined, c: number }, 'a'>
+ * => { a?: string, b: number } | { a?: string, b: undefined, c: number }
+ */
+export type UnionPartialBy<T, K extends keyof T> = T extends any
+  ? PartialBy<T, K>
+  : never
+
+/**
  * @description Combines members of an intersection into a readable type.
  *
  * @see {@link https://twitter.com/mattpocockuk/status/1622730173446557697?s=20&t=NdpAcmEFXY01xkqU3KO0Mg}
