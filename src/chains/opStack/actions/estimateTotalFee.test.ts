@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
+import { accounts } from '~test/src/constants.js'
 import {
-  optimismAddress,
   optimismClient,
   optimismClientWithAccount,
   optimismClientWithoutChain,
@@ -14,7 +14,7 @@ import { estimateTotalFee } from './estimateTotalFee.js'
 const baseTransaction = {
   maxFeePerGas: parseGwei('100'),
   maxPriorityFeePerGas: parseGwei('1'),
-  to: optimismAddress.bob,
+  to: accounts[1].address,
   value: parseEther('0.1'),
 } as const satisfies Omit<TransactionRequestEIP1559, 'from'>
 
@@ -31,7 +31,7 @@ test('minimal', async () => {
 test('args: account', async () => {
   const fee = await estimateTotalFee(optimismClient, {
     ...baseTransaction,
-    account: optimismAddress.alice,
+    account: accounts[0].address,
   })
   expect(fee).toBeDefined()
 })
@@ -63,7 +63,7 @@ test('args: nonce', async () => {
 test('args: nullish chain', async () => {
   const fee = await estimateTotalFee(optimismClientWithoutChain, {
     ...baseTransaction,
-    account: optimismAddress.alice,
+    account: accounts[0].address,
     chain: null,
   })
   expect(fee).toBeDefined()
