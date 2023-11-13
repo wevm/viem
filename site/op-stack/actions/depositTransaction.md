@@ -1,0 +1,340 @@
+---
+outline: deep
+head:
+  - - meta
+    - property: og:title
+      content: depositTransaction
+  - - meta
+    - name: description
+      content: Initiates a deposit transaction on an L1, which executes a transaction on an L2.
+  - - meta
+    - property: og:description
+      content: Initiates a deposit transaction on an L1, which executes a transaction on an L2.
+---
+
+# depositTransaction
+
+Initiates a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on an L2. 
+
+Internally performs a contract write to the [`depositTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L378) on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol).
+
+## Usage
+
+::: code-group
+
+```ts [example.ts]
+import { base } from 'viem/chains'
+import { account, walletClient } from './config'
+ 
+const hash = await walletClient.depositTransacton({
+  account,
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('1')
+  },
+  targetChain: base,
+})
+// '0x...'
+```
+
+```ts [config.ts]
+import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+import { walletActionsL1 } from 'viem/op-stack'
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum)
+}).extend(walletActionsL1())
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account
+export const account = privateKeyToAccount(...)
+```
+
+:::
+
+
+::: warning
+
+It is highly recommended to [prepare & estimate the gas](#preparing--estimating-gas) on the L2 before calling this function. If the gas is too low, transaction execution will fail on the L2.
+
+:::
+
+### Preparing & Estimating Gas
+
+TODO
+
+### Account Hoisting
+
+If you do not wish to pass an `account` to every `depositTransaction`, you can also hoist the Account on the Wallet Client (see `config.ts`).
+
+[Learn more](/docs/clients/wallet.html#account).
+
+::: code-group
+
+```ts [example.ts]
+import { base } from 'viem/chains'
+import { account, walletClient } from './config'
+ 
+const hash = await walletClient.depositTransacton({
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('1')
+  },
+  targetChain: base,
+})
+// '0x...'
+```
+
+```ts {4-6,9} [config.ts (JSON-RPC Account)]
+import { createWalletClient, custom } from 'viem'
+import { walletActionsL1 } from 'viem/op-stack'
+
+// Retrieve Account from an EIP-1193 Provider.
+const [account] = await window.ethereum.request({ 
+  method: 'eth_requestAccounts' 
+})
+
+export const walletClient = createWalletClient({
+  account,
+  transport: custom(window.ethereum)
+}).extend(walletActionsL1())
+```
+
+```ts {5} [config.ts (Local Account)]
+import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { walletActionsL1 } from 'viem/op-stack'
+
+export const walletClient = createWalletClient({
+  account: privateKeyToAccount('0x...'),
+  transport: custom(window.ethereum)
+}).extend(walletActionsL1())
+```
+
+:::
+
+## Returns
+
+[`Hash`](/docs/glossary/types#hash)
+
+The [L1 Transaction](/docs/glossary/terms#transaction) hash.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+
+The Account to send the transaction from.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('1')
+  },
+  targetChain: base,
+})
+```
+
+### args.data
+
+- **Type:** `Hex`
+
+Contract deployment bytecode or encoded contract method & arguments.
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    data: '0x...', // [!code focus]
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+    value: parseEther('1')
+  },
+  targetChain: base,
+})
+```
+
+### args.gas
+
+- **Type:** `bigint`
+
+Gas limit for transaction execution on the L2.
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n, // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('1')
+  },
+  targetChain: base,
+})
+```
+
+### args.isCreation
+
+- **Type:** `Hex`
+
+Whether or not this is a contract deployment transaction.
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    data: '0x...',
+    gas: 69_420n,
+    isCreation: true // [!code focus]
+  },
+  targetChain: base,
+})
+```
+
+### args.to
+
+- **Type:** `Address`
+
+L2 Transaction recipient.
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',  // [!code focus]
+    value: parseEther('1')
+  },
+  targetChain: base,
+})
+```
+
+### args.value
+
+- **Type:** `bigint`
+
+Value in wei sent with this transaction on the L2.
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+    value: parseEther('1') // [!code focus]
+  },
+  targetChain: base,
+})
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain to execute the transaction on.
+
+```ts
+import { mainnet } from 'viem/chains'
+
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+    value: parseEther('1')
+  },
+  chain: mainnet,
+  targetChain: base, // [!code focus]
+})
+```
+
+### chain (optional)
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+- **Default:** `walletClient.chain`
+
+The L1 chain. If there is a mismatch between the wallet's current chain & this chain, an error will be thrown.
+
+```ts
+import { mainnet } from 'viem/chains'
+
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+    value: parseEther('1')
+  },
+  chain: mainnet, // [!code focus]
+  targetChain: base,
+})
+```
+
+### maxFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. 
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+    value: parseEther('1')
+  },
+  maxFeePerGas: parseGwei('20'),  // [!code focus]
+  targetChain: base,
+})
+```
+
+### maxPriorityFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+    value: parseEther('1')
+  },
+  maxFeePerGas: parseGwei('20'), 
+  maxPriorityFeePerGas: parseGwei('2'),  // [!code focus]
+  targetChain: base,
+})
+```
+
+### nonce (optional)
+
+- **Type:** `number`
+
+Unique number identifying this transaction.
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+    value: parseEther('1')
+  },
+  nonce: 69, // [!code focus]
+  targetChain: base,
+})
+```

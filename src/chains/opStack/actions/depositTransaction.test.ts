@@ -28,9 +28,8 @@ describe('json-rpc accounts (anvil mainnet)', () => {
   test('default', async () => {
     const hash = await depositTransaction(walletClient, {
       account: accounts[0].address,
-      gas: 21000n,
+      args: { gas: 21000n, to: accounts[0].address },
       targetChain: base,
-      to: accounts[0].address,
     })
     expect(hash).toBeDefined()
 
@@ -55,10 +54,8 @@ describe('json-rpc accounts (anvil mainnet)', () => {
   test('args: data', async () => {
     const hash = await depositTransaction(walletClient, {
       account: accounts[0].address,
-      data: '0xdeadbeef',
-      gas: 21100n,
+      args: { data: '0xdeadbeef', gas: 21100n, to: accounts[0].address },
       targetChain: base,
-      to: accounts[0].address,
     })
     expect(hash).toBeDefined()
 
@@ -80,41 +77,14 @@ describe('json-rpc accounts (anvil mainnet)', () => {
     )
   })
 
-  test('args: dataSuffix', async () => {
-    const hash = await depositTransaction(walletClient, {
-      account: accounts[0].address,
-      data: '0xdeadbeef',
-      dataSuffix: '0xdeadbeef',
-      gas: 21200n,
-      targetChain: base,
-      to: accounts[0].address,
-    })
-    expect(hash).toBeDefined()
-
-    await mine(testClient, { blocks: 1 })
-
-    const receipt = await getTransactionReceipt(walletClient, {
-      hash,
-    })
-    const log = decodeEventLog({
-      abi: portalAbi,
-      eventName: 'TransactionDeposited',
-      ...receipt.logs[0],
-    })
-    expect(log.args.opaqueData).toEqual(
-      encodePacked(
-        ['uint', 'uint', 'uint64', 'bool', 'bytes'],
-        [0n, 0n, 21200n, false, '0xdeadbeefdeadbeef'],
-      ),
-    )
-  })
-
   test('args: gas', async () => {
     const hash = await depositTransaction(walletClient, {
       account: accounts[0].address,
-      gas: 69420n,
+      args: {
+        gas: 69420n,
+        to: accounts[0].address,
+      },
       targetChain: base,
-      to: accounts[0].address,
     })
     expect(hash).toBeDefined()
 
@@ -139,9 +109,11 @@ describe('json-rpc accounts (anvil mainnet)', () => {
   test('args: portalAddress', async () => {
     const hash = await depositTransaction(walletClient, {
       account: accounts[0].address,
-      gas: 21000n,
+      args: {
+        gas: 21000n,
+        to: accounts[0].address,
+      },
       portalAddress: base.contracts.portal[1].address,
-      to: accounts[0].address,
     })
     expect(hash).toBeDefined()
   })
@@ -149,10 +121,12 @@ describe('json-rpc accounts (anvil mainnet)', () => {
   test('args: value', async () => {
     const hash = await depositTransaction(walletClient, {
       account: accounts[0].address,
-      gas: 21000n,
+      args: {
+        gas: 21000n,
+        to: accounts[0].address,
+        value: 1n,
+      },
       targetChain: base,
-      to: accounts[0].address,
-      value: 1n,
     })
     expect(hash).toBeDefined()
 
@@ -177,10 +151,9 @@ describe('json-rpc accounts (anvil mainnet)', () => {
   test('args: nullish chain', async () => {
     const hash = await depositTransaction(walletClientWithoutChain, {
       account: accounts[0].address,
-      gas: 21000n,
+      args: { gas: 21000n, to: accounts[0].address },
       chain: null,
       targetChain: base,
-      to: accounts[0].address,
     })
     expect(hash).toBeDefined()
   })

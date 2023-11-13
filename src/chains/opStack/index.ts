@@ -61,7 +61,8 @@ export {
   zoraTestnet,
 } from './chains.js'
 
-export { publicActionsL2, type PublicActionsL2 } from './decorators/public.js'
+export { publicActionsL2, type PublicActionsL2 } from './decorators/publicL2.js'
+export { walletActionsL1, type WalletActionsL1 } from './decorators/walletL1.js'
 
 export type {
   OpStackBlock,
