@@ -46,18 +46,14 @@ export type RpcTransactionRequest =
   | TransactionRequestLegacy<Quantity, Index, '0x0'>
   | TransactionRequestEIP2930<Quantity, Index, '0x1'>
   | TransactionRequestEIP1559<Quantity, Index, '0x2'>
-export type RpcTransaction<
-  TPending extends boolean = boolean,
-  // `yParity` is optional on the RPC type as some nodes do not return it
-  // for 1559 & 2930 transactions (they should!).
-  _optionalProperties extends 'yParity' = 'yParity',
-  _excludedProperties extends string = 'typeHex',
-> = UnionOmit<
+export type RpcTransaction<TPending extends boolean = boolean,> = UnionOmit<
   UnionPartialBy<
     | TransactionLegacy<Quantity, Index, TPending, '0x0'>
     | TransactionEIP2930<Quantity, Index, TPending, '0x1'>
     | TransactionEIP1559<Quantity, Index, TPending, '0x2'>,
-    _optionalProperties
+    // `yParity` is optional on the RPC type as some nodes do not return it
+    // for 1559 & 2930 transactions (they should!).
+    'yParity'
   >,
-  _excludedProperties
+  'typeHex'
 >
