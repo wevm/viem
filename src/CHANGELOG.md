@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.1
+
+### Patch Changes
+
+- [#1488](https://github.com/wagmi-dev/viem/pull/1488) [`f82bc658`](https://github.com/wagmi-dev/viem/commit/f82bc658f68baa51fe50ffafa32ea4d6e0af14b9) Thanks [@glitch-txs](https://github.com/glitch-txs)! - Added Chiliz and Spicy chains
+
 ## 1.19.0
 
 ### Minor Changes
