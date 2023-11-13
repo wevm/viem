@@ -272,6 +272,7 @@ describe('block', () => {
         "number": 105849734n,
         "parentHash": "0x15274362f5bf7aa966ec2eb95c972fd85f2917da803ab178bced6a53479752b6",
         "receiptsRoot": "0x4cfa86d92cf2d52d2bca8b901592a5a0444be409793f0a4c2af006c0c7aafbde",
+        "sealFields": [],
         "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
         "size": 4072n,
         "stateRoot": "0x95676f3a28d2c8a0bf64db60e910dc47275d37f5a3c3d7353b6f571c25fcd746",
