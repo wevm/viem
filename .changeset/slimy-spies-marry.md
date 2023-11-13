@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Reduced computation on load related to ens normalization
+Updated `@adraffy/ens-normalize` dependency.
