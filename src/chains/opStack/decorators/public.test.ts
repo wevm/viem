@@ -3,12 +3,12 @@ import { describe, expect, test } from 'vitest'
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { optimismClient } from '~test/src/opStack.js'
-import { l2PublicActions } from './public.js'
+import { publicActionsL2 } from './public.js'
 
-const opStackClient = optimismClient.extend(l2PublicActions())
+const opStackClient = optimismClient.extend(publicActionsL2())
 
 test('default', async () => {
-  expect(l2PublicActions()(optimismClient)).toMatchInlineSnapshot(`
+  expect(publicActionsL2()(optimismClient)).toMatchInlineSnapshot(`
     {
       "estimateContractL1Fee": [Function],
       "estimateContractL1Gas": [Function],

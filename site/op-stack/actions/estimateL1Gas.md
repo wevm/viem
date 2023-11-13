@@ -35,7 +35,7 @@ const gas = await publicClient.estimateL1Gas({ // [!code focus:7]
 import { createPublicClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { base } from 'viem/chains'
-import { l2PublicActions } from 'viem/op-stack'
+import { publicActionsL2 } from 'viem/op-stack'
 
 // JSON-RPC Account
 export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
@@ -45,7 +45,7 @@ export const account = privateKeyToAccount(...)
 export const publicClient = createPublicClient({
   chain: base,
   transport: http()
-}).extend(l2PublicActions())
+}).extend(publicActionsL2())
 ```
 
 :::
