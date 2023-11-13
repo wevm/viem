@@ -36,7 +36,6 @@ export const formatters = {
         return {
           ...formatTransaction(transaction as RpcTransaction),
           feeCurrency: transaction.feeCurrency,
-
           ...(transaction.type !== '0x7b'
             ? {
                 gatewayFee: transaction.gatewayFee
