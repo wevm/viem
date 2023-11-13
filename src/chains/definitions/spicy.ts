@@ -38,5 +38,6 @@ export const spicy = /*#__PURE__*/ defineChain(
         url: 'http://spicy-explorer.chiliz.com',
       },
     },
+    testnet: true,
   },
 )
