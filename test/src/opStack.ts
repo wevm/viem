@@ -1,4 +1,4 @@
-import { Chain, optimism } from '~viem/chains/index.js'
+import { type Chain, optimism } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { http } from '~viem/clients/transports/http.js'
 import { accounts, warn } from './constants.js'

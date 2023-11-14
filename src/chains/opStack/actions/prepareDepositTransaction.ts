@@ -1,8 +1,10 @@
 import type { Address } from 'abitype'
-import { writeContract } from '../../../actions/wallet/writeContract.js'
+import {
+  type PrepareTransactionRequestParameters,
+  prepareTransactionRequest,
+} from '../../../actions/index.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import { zeroAddress } from '../../../constants/address.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
 import type {
@@ -10,53 +12,57 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
-import type { Hash, Hex } from '../../../types/misc.js'
-import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
-import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
-import { portalAbi } from '../abis.js'
-import type { GetContractAddressParameter } from '../types/contract.js'
+import type { Hex } from '../../../types/misc.js'
+import type { UnionOmit } from '../../../types/utils.js'
+import type { Prettify } from '../../index.js'
+import type { DepositTransactionParameters } from './depositTransaction.js'
 
-export type DepositTransactionParameters<
+export type PrepareDepositTransactionParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
+  accountOverride extends Account | Address | undefined =
+    | Account
+    | Address
+    | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
-> = UnionEvaluate<
-  UnionOmit<
-    FormattedTransactionRequest<_derivedChain>,
-    'accessList' | 'data' | 'from' | 'gas' | 'gasPrice' | 'to' | 'value'
-  >
-> &
-  GetAccountParameter<account, Account | Address> &
-  GetChainParameter<chain, chainOverride> &
-  GetContractAddressParameter<_derivedChain, 'portal'> & {
-    /** Arguments supplied to the L2 transaction. */
-    args: {
-      /** Gas limit for transaction execution on the L2. */
-      gas: bigint
-      /** Value in wei sent with this transaction on the L2. */
-      value?: bigint
-    } & (
-      | {
-          /** Encoded contract method & arguments. */
-          data?: Hex
-          /** Whether or not this is a contract deployment transaction. */
-          isCreation?: false
-          /** L2 Transaction recipient. */
-          to?: Address
-        }
-      | {
-          /** Contract deployment bytecode. Required for contract deployment transactions. */
-          data: Hex
-          /** Whether or not this is a contract deployment transaction. */
-          isCreation: true
-          /** L2 Transaction recipient. Cannot exist for contract deployment transactions. */
-          to?: never
-        }
-    )
-  }
-export type DepositTransactionReturnType = Hash
-export type DepositTransactionErrorType = ErrorType
+> = GetAccountParameter<account, accountOverride, false> &
+  GetChainParameter<chain, chainOverride> & {
+    /** Gas limit for transaction execution on the L2. */
+    gas?: bigint
+    /** Value in wei sent with this transaction on the L2. */
+    value?: bigint
+  } & (
+    | {
+        /** Encoded contract method & arguments. */
+        data?: Hex
+        /** Whether or not this is a contract deployment transaction. */
+        isCreation?: false
+        /** L2 Transaction recipient. */
+        to?: Address
+      }
+    | {
+        /** Contract deployment bytecode. Required for contract deployment transactions. */
+        data: Hex
+        /** Whether or not this is a contract deployment transaction. */
+        isCreation: true
+        /** L2 Transaction recipient. Cannot exist for contract deployment transactions. */
+        to?: never
+      }
+  )
+
+export type PrepareDepositTransactionReturnType<
+  account extends Account | undefined = Account | undefined,
+  accountOverride extends Account | Address | undefined =
+    | Account
+    | Address
+    | undefined,
+> = Prettify<
+  UnionOmit<DepositTransactionParameters<Chain, account, Chain>, 'account'> &
+    GetAccountParameter<account, accountOverride>
+>
+
+export type PrepareDepositTransactionErrorType = ErrorType
 
 /**
  * Initiates a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
@@ -67,7 +73,7 @@ export type DepositTransactionErrorType = ErrorType
  * - Docs: https://viem.sh/op-stack/actions/depositTransaction.html
  *
  * @param client - Client to use
- * @param parameters - {@link DepositTransactionParameters}
+ * @param parameters - {@link PrepareDepositTransactionParameters}
  * @returns The L1 transaction hash. {@link DepositTransactionReturnType}
  *
  * @example
@@ -114,35 +120,49 @@ export type DepositTransactionErrorType = ErrorType
  *   targetChain: base,
  * })
  */
-export function depositTransaction<
+export async function prepareDepositTransaction<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
+  accountOverride extends Account | Address | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  args: DepositTransactionParameters<chain, account, chainOverride>,
-) {
+  args: PrepareDepositTransactionParameters<
+    chain,
+    account,
+    chainOverride,
+    accountOverride
+  >,
+): Promise<PrepareDepositTransactionReturnType<account, accountOverride>> {
   const {
     account,
-    args: { data = '0x', gas, isCreation = false, to = '0x', value = 0n },
     chain = client.chain,
-    nonce,
-    targetChain,
+    gas,
+    data,
+    isCreation,
+    to,
+    value,
   } = args
 
-  const portalAddress = (() => {
-    if (args.portalAddress) return args.portalAddress
-    if (chain) return targetChain!.contracts.portal[chain.id].address
-    return Object.values(targetChain!.contracts.portal)[0].address
-  })()
-
-  return writeContract(client, {
+  const request = await prepareTransactionRequest(client, {
     account,
-    abi: portalAbi,
-    address: portalAddress,
     chain,
-    functionName: 'depositTransaction',
-    args: [isCreation ? zeroAddress : to, value, gas, isCreation, data],
-    nonce,
-  } as any)
+    gas,
+    data,
+    parameters: ['gas'],
+    to,
+    value,
+  } as PrepareTransactionRequestParameters)
+
+  return {
+    account: request.account,
+    args: {
+      data: request.data,
+      gas: request.gas,
+      isCreation,
+      to: request.to,
+      value: request.value,
+    },
+    targetChain: chain,
+  } as PrepareDepositTransactionReturnType<account, accountOverride>
 }
