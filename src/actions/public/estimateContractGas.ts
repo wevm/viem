@@ -44,14 +44,13 @@ export type EstimateContractGasParameters<
     functionName
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
   chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = undefined,
 > = ContractFunctionParameters<
   abi,
   'nonpayable' | 'payable',
   functionName,
   args
 > &
-  UnionOmit<EstimateGasParameters<chain, account>, 'data' | 'to' | 'value'> &
+  UnionOmit<EstimateGasParameters<chain>, 'data' | 'to' | 'value'> &
   GetValue<
     abi,
     functionName,
@@ -101,13 +100,7 @@ export async function estimateContractGas<
   account extends Account | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: EstimateContractGasParameters<
-    abi,
-    functionName,
-    args,
-    chain,
-    account
-  >,
+  parameters: EstimateContractGasParameters<abi, functionName, args, chain>,
 ): Promise<EstimateContractGasReturnType> {
   const { abi, address, args, functionName, ...request } =
     parameters as EstimateContractGasParameters

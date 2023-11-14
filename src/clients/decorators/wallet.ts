@@ -1,4 +1,4 @@
-import type { Abi, TypedData } from 'abitype'
+import type { Abi, Address, TypedData } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import {
@@ -232,9 +232,24 @@ export type WalletActions<
    *   value: 1n,
    * })
    */
-  prepareTransactionRequest: <TChainOverride extends Chain | undefined>(
-    args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
-  ) => Promise<PrepareTransactionRequestReturnType>
+  prepareTransactionRequest: <
+    TChainOverride extends Chain | undefined = undefined,
+    TAccountOverride extends Account | Address | undefined = undefined,
+  >(
+    args: PrepareTransactionRequestParameters<
+      TChain,
+      TAccount,
+      TChainOverride,
+      TAccountOverride
+    >,
+  ) => Promise<
+    PrepareTransactionRequestReturnType<
+      Chain,
+      TAccount,
+      TChainOverride,
+      TAccountOverride
+    >
+  >
   /**
    * Requests a list of accounts managed by a wallet.
    *

@@ -47,7 +47,6 @@ describe('prepareTransactionRequest', () => {
       nonce: _nonce,
       ...rest
     } = await prepareTransactionRequest(walletClient, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -56,16 +55,6 @@ describe('prepareTransactionRequest', () => {
     )
     expect(rest).toMatchInlineSnapshot(`
       {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
@@ -105,6 +94,39 @@ describe('prepareTransactionRequest', () => {
         "gasPrice": 11700000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "legacy",
+        "value": 1000000000000000000n,
+      }
+    `)
+  })
+
+  test('args: account', async () => {
+    await setup()
+
+    const {
+      maxFeePerGas: _maxFeePerGas,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "account": {
+          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "source": "privateKey",
+          "type": "local",
+        },
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxPriorityFeePerGas": 18500000000n,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
         "value": 1000000000000000000n,
       }
     `)
@@ -613,22 +635,5 @@ describe('prepareTransactionRequest', () => {
       value: parseEther('1'),
     })
     expect(request_8.maxPriorityFeePerGas).toEqual(0n)
-  })
-
-  test('no account', async () => {
-    await setup()
-
-    await expect(() =>
-      // @ts-expect-error
-      prepareTransactionRequest(walletClient, {
-        to: targetAccount.address,
-        value: parseEther('1'),
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Could not find an Account to execute with this Action.
-      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
-
-      Version: viem@1.0.2"
-    `)
   })
 })

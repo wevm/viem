@@ -859,13 +859,7 @@ type GetEstimateFunction<
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   Options = Prettify<
     UnionOmit<
-      EstimateContractGasParameters<
-        TAbi,
-        TFunctionName,
-        TArgs,
-        TChain,
-        TAccount
-      >,
+      EstimateContractGasParameters<TAbi, TFunctionName, TArgs, TChain>,
       'abi' | 'address' | 'args' | 'functionName'
     >
   >,

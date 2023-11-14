@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -23,14 +24,10 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
-  AccountNotFoundError,
-  type AccountNotFoundErrorType,
-} from '../../errors/account.js'
-import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
-import type { GetAccountParameter } from '../../types/account.js'
+import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
@@ -48,27 +45,44 @@ export type PrepareTransactionRequestParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain | undefined,
+  TAccountOverride extends Account | Address | undefined =
+    | Account
+    | Address
+    | undefined,
 > = UnionOmit<
   FormattedTransactionRequest<
     TChainOverride extends Chain ? TChainOverride : TChain
   >,
   'from'
 > &
-  GetAccountParameter<TAccount> &
+  GetAccountParameter<TAccount, TAccountOverride, false> &
   GetChain<TChain, TChainOverride>
 
 export type PrepareTransactionRequestReturnType<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain | undefined,
-> = FormattedTransactionRequest<
-  TChainOverride extends Chain ? TChainOverride : TChain
+  TAccountOverride extends Account | Address | undefined =
+    | Account
+    | Address
+    | undefined,
+  ///
+  derivedAccount extends Account | undefined = DeriveAccount<
+    TAccount,
+    TAccountOverride
+  >,
+> = UnionOmit<
+  FormattedTransactionRequest<
+    TChainOverride extends Chain ? TChainOverride : TChain
+  >,
+  'from'
 > &
-  GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
+  GetChain<TChain, TChainOverride> &
+  (derivedAccount extends Account
+    ? { account: derivedAccount; from: Address }
+    : { account?: undefined; from?: undefined })
 
 export type PrepareTransactionRequestErrorType =
-  | AccountNotFoundErrorType
   | AssertRequestErrorType
   | ParseAccountErrorType
   | GetBlockErrorType
@@ -119,22 +133,33 @@ export type PrepareTransactionRequestErrorType =
 export async function prepareTransactionRequest<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
+  TAccountOverride extends Account | Address | undefined = undefined,
   TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
-  args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
+  args: PrepareTransactionRequestParameters<
+    TChain,
+    TAccount,
+    TChainOverride,
+    TAccountOverride
+  >,
 ): Promise<
-  PrepareTransactionRequestReturnType<TChain, TAccount, TChainOverride>
+  PrepareTransactionRequestReturnType<
+    TChain,
+    TAccount,
+    TChainOverride,
+    TAccountOverride
+  >
 > {
   const { account: account_ = client.account, chain, gas, nonce, type } = args
-  if (!account_) throw new AccountNotFoundError()
-  const account = parseAccount(account_)
+
+  const account = account_ ? parseAccount(account_) : undefined
 
   const block = await getAction(client, getBlock)({ blockTag: 'latest' })
 
-  const request = { ...args, from: account.address }
+  const request = { ...args, ...(account ? { from: account?.address } : {}) }
 
-  if (typeof nonce === 'undefined')
+  if (typeof nonce === 'undefined' && account)
     request.nonce = await getAction(
       client,
       getTransactionCount,
@@ -198,7 +223,9 @@ export async function prepareTransactionRequest<
       estimateGas,
     )({
       ...request,
-      account: { address: account.address, type: 'json-rpc' },
+      account: account
+        ? { address: account.address, type: 'json-rpc' }
+        : undefined,
     } as EstimateGasParameters)
 
   assertRequest(request as AssertRequestParameters)
@@ -206,6 +233,7 @@ export async function prepareTransactionRequest<
   return request as unknown as PrepareTransactionRequestReturnType<
     TChain,
     TAccount,
-    TChainOverride
+    TChainOverride,
+    TAccountOverride
   >
 }

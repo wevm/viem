@@ -447,13 +447,7 @@ export type PublicActions<
       functionName
     >,
   >(
-    args: EstimateContractGasParameters<
-      abi,
-      functionName,
-      args,
-      TChain,
-      TAccount
-    >,
+    args: EstimateContractGasParameters<abi, functionName, args, TChain>,
   ) => Promise<EstimateContractGasReturnType>
   /**
    * Estimates the gas necessary to complete a transaction without submitting it to the network.
@@ -479,7 +473,7 @@ export type PublicActions<
    * })
    */
   estimateGas: (
-    args: EstimateGasParameters<TChain, TAccount>,
+    args: EstimateGasParameters<TChain>,
   ) => Promise<EstimateGasReturnType>
   /**
    * Returns the balance of an address in wei.
@@ -1341,9 +1335,22 @@ export type PublicActions<
    */
   prepareTransactionRequest: <
     TChainOverride extends Chain | undefined = undefined,
+    TAccountOverride extends Account | Address | undefined = undefined,
   >(
-    args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
-  ) => Promise<PrepareTransactionRequestReturnType>
+    args: PrepareTransactionRequestParameters<
+      TChain,
+      TAccount,
+      TChainOverride,
+      TAccountOverride
+    >,
+  ) => Promise<
+    PrepareTransactionRequestReturnType<
+      Chain,
+      TAccount,
+      TChainOverride,
+      TAccountOverride
+    >
+  >
   /**
    * Calls a read-only function on a contract, and returns the response.
    *

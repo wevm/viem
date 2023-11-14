@@ -15,7 +15,6 @@ const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 test('estimates gas', async () => {
   expect(
     await estimateGas(publicClient, {
-      account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     }),
@@ -25,6 +24,16 @@ test('estimates gas', async () => {
 test('falls back to wallet client account', async () => {
   expect(
     await estimateGas(walletClient, {
+      account: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
+    }),
+  ).toMatchInlineSnapshot('21000n')
+})
+
+test('args: account', async () => {
+  expect(
+    await estimateGas(publicClient, {
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
@@ -208,23 +217,6 @@ describe('local account', () => {
 })
 
 describe('errors', () => {
-  test('no account', async () => {
-    await expect(() =>
-      // @ts-expect-error
-      estimateGas(publicClient, {
-        to: accounts[1].address,
-        value: parseEther('1'),
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Could not find an Account to execute with this Action.
-      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
-
-      Docs: https://viem.sh/docs/actions/public/estimateGas.html#account
-      Version: viem@1.0.2"
-    `)
-  })
-
   test('fee cap too high', async () => {
     await expect(() =>
       estimateGas(publicClient, {
