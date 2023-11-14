@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.2
+
+### Patch Changes
+
+- [#1491](https://github.com/wagmi-dev/viem/pull/1491) [`ec24d233`](https://github.com/wagmi-dev/viem/commit/ec24d2339e8c7b75b0f29dfe1763d2fceefef74e) Thanks [@KholdStare](https://github.com/KholdStare)! - Updated `@adraffy/ens-normalize` dependency.
+
 ## 1.19.1
 
 ### Patch Changes
