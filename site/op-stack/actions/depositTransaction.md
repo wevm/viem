@@ -30,8 +30,8 @@ const hash = await client.depositTransacton({
   account,
   args: {
     gas: 21_000n,
+    mint: parseEther('1')
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    value: parseEther('1')
   },
   targetChain: base,
 })
@@ -77,8 +77,8 @@ import { account, baseClient, mainnetClient } from './config'
 // Prepare parameters for the deposit transaction on the L2.
 const request = await baseClient.prepareDepositTransaction({
   account,
+  mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: parseEther('1')
 })
  
 // Initiate the deposit transaction on the L1.
@@ -123,8 +123,8 @@ import { baseClient, mainnetClient } from './config'
 
 // Prepare parameters for the deposit transaction on the L2.
 const request = await baseClient.prepareDepositTransaction({
+  mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: parseEther('1')
 })
  
 // Initiate the deposit transaction on the L1.
@@ -200,7 +200,7 @@ const hash = await walletClient.depositTransacton({
 })
 ```
 
-### args.data
+### args.data (optional)
 
 - **Type:** `Hex`
 
@@ -237,7 +237,7 @@ const hash = await walletClient.depositTransacton({
 })
 ```
 
-### args.isCreation
+### args.isCreation (optional)
 
 - **Type:** `Hex`
 
@@ -255,7 +255,25 @@ const hash = await walletClient.depositTransacton({
 })
 ```
 
-### args.to
+### args.mint (optional)
+
+- **Type:** `bigint`
+
+Value in wei to mint (deposit) on the L2. Debited from the caller's L1 balance.
+
+```ts
+const hash = await walletClient.depositTransacton({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  args: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+    mint: parseEther('1') // [!code focus]
+  },
+  targetChain: base,
+})
+```
+
+### args.to (optional)
 
 - **Type:** `Address`
 
@@ -273,11 +291,11 @@ const hash = await walletClient.depositTransacton({
 })
 ```
 
-### args.value
+### args.value (optional)
 
 - **Type:** `bigint`
 
-Value in wei sent with this transaction on the L2.
+Value in wei sent with this transaction on the L2. Debited from the caller's L2 balance.
 
 ```ts
 const hash = await walletClient.depositTransacton({

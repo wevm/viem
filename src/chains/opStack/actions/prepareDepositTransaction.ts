@@ -14,6 +14,7 @@ import type {
 } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { UnionOmit } from '../../../types/utils.js'
+import { parseAccount } from '../../../utils/accounts.js'
 import type { Prettify } from '../../index.js'
 import type { DepositTransactionParameters } from './depositTransaction.js'
 
@@ -30,7 +31,9 @@ export type PrepareDepositTransactionParameters<
   GetChainParameter<chain, chainOverride> & {
     /** Gas limit for transaction execution on the L2. */
     gas?: bigint
-    /** Value in wei sent with this transaction on the L2. */
+    /** Value in wei to mint (deposit) on the L2. Debited from the caller's L1 balance. */
+    mint?: bigint
+    /** Value in wei sent with this transaction on the L2. Debited from the caller's L2 balance. */
     value?: bigint
   } & (
     | {
@@ -105,17 +108,20 @@ export async function prepareDepositTransaction<
   >,
 ): Promise<PrepareDepositTransactionReturnType<account, accountOverride>> {
   const {
-    account,
+    account: account_,
     chain = client.chain,
     gas,
     data,
     isCreation,
+    mint,
     to,
     value,
   } = args
 
+  const account = account_ ? parseAccount(account_) : undefined
+
   const request = await prepareTransactionRequest(client, {
-    account,
+    account: mint ? undefined : account,
     chain,
     gas,
     data,
@@ -125,10 +131,11 @@ export async function prepareDepositTransaction<
   } as PrepareTransactionRequestParameters)
 
   return {
-    account: request.account,
+    account,
     args: {
       data: request.data,
       gas: request.gas,
+      mint,
       isCreation,
       to: request.to,
       value: request.value,

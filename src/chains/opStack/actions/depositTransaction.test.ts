@@ -21,7 +21,7 @@ import {
   encodePacked,
   parseEther,
 } from '../../../index.js'
-import { base, baseSepolia, sepolia } from '../../index.js'
+import { base, baseGoerli, goerli } from '../../index.js'
 import { portalAbi } from '../abis.js'
 import { depositTransaction } from './depositTransaction.js'
 import { prepareDepositTransaction } from './prepareDepositTransaction.js'
@@ -146,6 +146,36 @@ describe('json-rpc accounts', () => {
     )
   })
 
+  test('args: mint', async () => {
+    const hash = await depositTransaction(walletClient, {
+      account: accounts[0].address,
+      args: {
+        gas: 21000n,
+        mint: 1n,
+        to: accounts[0].address,
+      },
+      targetChain: base,
+    })
+    expect(hash).toBeDefined()
+
+    await mine(testClient, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(walletClient, {
+      hash,
+    })
+    const log = decodeEventLog({
+      abi: portalAbi,
+      eventName: 'TransactionDeposited',
+      ...receipt.logs[0],
+    })
+    expect(log.args.opaqueData).toEqual(
+      encodePacked(
+        ['uint', 'uint', 'uint64', 'bool', 'bytes'],
+        [1n, 1n, 21000n, false, '0x'],
+      ),
+    )
+  })
+
   test('args: portalAddress', async () => {
     const hash = await depositTransaction(walletClient, {
       account: accounts[0].address,
@@ -206,25 +236,25 @@ test.skip(
       process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
     )
 
-    const client_baseSepolia = createClient({
-      chain: baseSepolia,
+    const client_baseGoerli = createClient({
+      chain: baseGoerli,
       transport: http(),
     })
-    const client_sepolia = createClient({
+    const client_goerli = createClient({
       account,
-      chain: sepolia,
-      transport: http('https://ethereum-sepolia.publicnode.com'),
+      chain: goerli,
+      transport: http(),
     })
 
-    const request = await prepareDepositTransaction(client_baseSepolia, {
+    const request = await prepareDepositTransaction(client_baseGoerli, {
+      mint: 69n,
       to: account.address,
-      value: 1n,
     })
 
-    const hash = await depositTransaction(client_sepolia, request)
+    const hash = await depositTransaction(client_goerli, request)
     expect(hash).toBeDefined()
 
-    const receipt = await waitForTransactionReceipt(client_sepolia, {
+    const receipt = await waitForTransactionReceipt(client_goerli, {
       hash,
     })
     const log = decodeEventLog({
@@ -235,7 +265,7 @@ test.skip(
     expect(log.args.opaqueData).toEqual(
       encodePacked(
         ['uint', 'uint', 'uint64', 'bool', 'bytes'],
-        [0n, 1n, 21_000n, false, '0x'],
+        [69n, 69n, 21_000n, false, '0x'],
       ),
     )
   },

@@ -41,7 +41,9 @@ export type DepositTransactionParameters<
     args: {
       /** Gas limit for transaction execution on the L2. */
       gas: bigint
-      /** Value in wei sent with this transaction on the L2. */
+      /** Value in wei to mint (deposit) on the L2. Debited from the caller's L1 balance. */
+      mint?: bigint
+      /** Value in wei sent with this transaction on the L2. Debited from the caller's L2 balance. */
       value?: bigint
     } & (
       | {
@@ -131,7 +133,7 @@ export function depositTransaction<
 ) {
   const {
     account,
-    args: { data = '0x', gas, isCreation = false, to = '0x', value = 0n },
+    args: { data = '0x', gas, isCreation = false, mint, to = '0x', value },
     chain = client.chain,
     maxFeePerGas,
     maxPriorityFeePerGas,
@@ -151,9 +153,16 @@ export function depositTransaction<
     address: portalAddress,
     chain,
     functionName: 'depositTransaction',
-    args: [isCreation ? zeroAddress : to, value, gas, isCreation, data],
+    args: [
+      isCreation ? zeroAddress : to,
+      value ?? mint ?? 0n,
+      gas,
+      isCreation,
+      data,
+    ],
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    value: mint,
   } as any)
 }
