@@ -970,6 +970,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'estimateTotalGas',
           link: '/op-stack/actions/estimateTotalGas',
         },
+        {
+          text: 'prepareDepositTransaction',
+          link: '/op-stack/actions/prepareDepositTransaction',
+        },
       ],
     },
   ],

@@ -65,7 +65,7 @@ You must [prepare the parameters](#preparing-parameters) on the L2 before callin
 
 ### Preparing Parameters
 
-The `prepareDepositTransaction` Action prepares the deposit transaction parameters (ie. `gas`, `targetChain`, etc). 
+The [`prepareDepositTransaction` Action](/op-stack/actions/prepareDepositTransaction) prepares the deposit transaction parameters (ie. `gas`, `targetChain`, etc). 
 
 We can use the resulting `request` to initiate the deposit transaction on the L1.
 
@@ -109,12 +109,14 @@ export const account = privateKeyToAccount(...)
 
 :::
 
+[See more on the `prepareDepositTransaction` Action.](/op-stack/actions/prepareDepositTransaction)
+
 
 ### Account Hoisting
 
 If you do not wish to pass an `account` to every `depositTransaction`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
-[Learn more](/docs/clients/wallet.html#account).
+[Learn more.](/docs/clients/wallet.html#account)
 
 ::: code-group
 
@@ -239,7 +241,7 @@ const hash = await walletClient.depositTransacton({
 
 ### args.isCreation (optional)
 
-- **Type:** `Hex`
+- **Type:** `boolean`
 
 Whether or not this is a contract deployment transaction.
 
