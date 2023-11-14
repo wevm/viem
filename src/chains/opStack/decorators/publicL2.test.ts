@@ -18,6 +18,7 @@ test('default', async () => {
       "estimateL1Gas": [Function],
       "estimateTotalFee": [Function],
       "estimateTotalGas": [Function],
+      "prepareDepositTransaction": [Function],
     }
   `)
 })
@@ -93,5 +94,13 @@ describe('smoke test', () => {
       account: accounts[0].address,
     })
     expect(fee).toBeDefined()
+  })
+
+  test('prepareDepositTransaction', async () => {
+    const request = await opStackClient.prepareDepositTransaction({
+      account: accounts[0].address,
+      value: 1n,
+    })
+    expect(request).toBeDefined()
   })
 })

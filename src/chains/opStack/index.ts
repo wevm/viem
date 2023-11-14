@@ -1,4 +1,10 @@
 export {
+  depositTransaction,
+  type DepositTransactionErrorType,
+  type DepositTransactionParameters,
+  type DepositTransactionReturnType,
+} from './actions/depositTransaction.js'
+export {
   estimateContractL1Fee,
   type EstimateContractL1FeeErrorType,
   type EstimateContractL1FeeParameters,
@@ -46,6 +52,12 @@ export {
   type EstimateTotalGasParameters,
   type EstimateTotalGasReturnType,
 } from './actions/estimateTotalGas.js'
+export {
+  prepareDepositTransaction,
+  type PrepareDepositTransactionErrorType,
+  type PrepareDepositTransactionParameters,
+  type PrepareDepositTransactionReturnType,
+} from './actions/prepareDepositTransaction.js'
 
 export { chainConfig } from './chainConfig.js'
 

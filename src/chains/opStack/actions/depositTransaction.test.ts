@@ -16,7 +16,7 @@ import {
 } from '../../../actions/index.js'
 import {
   http,
-  createWalletClient,
+  createClient,
   decodeEventLog,
   encodePacked,
   parseEther,
@@ -24,6 +24,7 @@ import {
 import { base, baseSepolia, sepolia } from '../../index.js'
 import { portalAbi } from '../abis.js'
 import { depositTransaction } from './depositTransaction.js'
+import { prepareDepositTransaction } from './prepareDepositTransaction.js'
 
 beforeAll(async () => {
   await setBlockNumber(18136086n)
@@ -33,7 +34,7 @@ beforeAll(async () => {
   })
 })
 
-describe('json-rpc accounts (anvil mainnet)', () => {
+describe('json-rpc accounts', () => {
   test('default', async () => {
     const hash = await depositTransaction(walletClient, {
       account: accounts[0].address,
@@ -205,24 +206,25 @@ test.skip(
       process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
     )
 
-    const walletClient_sepolia = createWalletClient({
+    const client_baseSepolia = createClient({
+      chain: baseSepolia,
+      transport: http(),
+    })
+    const client_sepolia = createClient({
+      account,
       chain: sepolia,
       transport: http('https://ethereum-sepolia.publicnode.com'),
     })
 
-    const hash = await depositTransaction(walletClient_sepolia, {
-      account,
-      args: {
-        data: '0xdeadbeef',
-        gas: 69_420n,
-        isCreation: true,
-        value: 1n,
-      },
-      targetChain: baseSepolia,
+    const request = await prepareDepositTransaction(client_baseSepolia, {
+      to: account.address,
+      value: 1n,
     })
+
+    const hash = await depositTransaction(client_sepolia, request)
     expect(hash).toBeDefined()
 
-    const receipt = await waitForTransactionReceipt(walletClient_sepolia, {
+    const receipt = await waitForTransactionReceipt(client_sepolia, {
       hash,
     })
     const log = decodeEventLog({
@@ -233,7 +235,7 @@ test.skip(
     expect(log.args.opaqueData).toEqual(
       encodePacked(
         ['uint', 'uint', 'uint64', 'bool', 'bytes'],
-        [0n, 1n, 69_420n, true, '0xdeadbeef'],
+        [0n, 1n, 21_000n, false, '0x'],
       ),
     )
   },

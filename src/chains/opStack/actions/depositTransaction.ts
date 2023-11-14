@@ -24,7 +24,14 @@ export type DepositTransactionParameters<
 > = UnionEvaluate<
   UnionOmit<
     FormattedTransactionRequest<_derivedChain>,
-    'accessList' | 'data' | 'from' | 'gas' | 'gasPrice' | 'to' | 'value'
+    | 'accessList'
+    | 'data'
+    | 'from'
+    | 'gas'
+    | 'gasPrice'
+    | 'to'
+    | 'type'
+    | 'value'
   >
 > &
   GetAccountParameter<account, Account | Address> &
@@ -126,6 +133,8 @@ export function depositTransaction<
     account,
     args: { data = '0x', gas, isCreation = false, to = '0x', value = 0n },
     chain = client.chain,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
     nonce,
     targetChain,
   } = args
@@ -143,6 +152,8 @@ export function depositTransaction<
     chain,
     functionName: 'depositTransaction',
     args: [isCreation ? zeroAddress : to, value, gas, isCreation, data],
+    maxFeePerGas,
+    maxPriorityFeePerGas,
     nonce,
   } as any)
 }

@@ -65,59 +65,29 @@ export type PrepareDepositTransactionReturnType<
 export type PrepareDepositTransactionErrorType = ErrorType
 
 /**
- * Initiates a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
+ * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.
  *
- * Internally performs a contract write to the [`depositTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L378)
- * on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol).
- *
- * - Docs: https://viem.sh/op-stack/actions/depositTransaction.html
+ * - Docs: https://viem.sh/op-stack/actions/prepareDepositTransaction.html
  *
  * @param client - Client to use
  * @param parameters - {@link PrepareDepositTransactionParameters}
- * @returns The L1 transaction hash. {@link DepositTransactionReturnType}
+ * @returns Parameters for `depositTransaction`. {@link DepositTransactionReturnType}
  *
  * @example
- * import { createWalletClient, custom, parseEther } from 'viem'
- * import { base, mainnet } from 'viem/chains'
- * import { walletActionsL1 } from 'viem/op-stack'
- * import { depositTransaction } from 'viem/wallet'
+ * import { createWalletClient, http, parseEther } from 'viem'
+ * import { base } from 'viem/chains'
+ * import { publicActionsL2 } from 'viem/op-stack'
+ * import { prepareDepositTransaction } from 'viem/wallet'
  *
  * const client = createWalletClient({
- *   chain: mainnet,
- *   transport: custom(window.ethereum),
- * }).extend(walletActionsL1())
- *
- * const hash = await depositTransaction(client, {
- *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
- *   args: {
- *     gas: 21_000n,
- *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
- *     value: parseEther('1'),
- *   },
- *   targetChain: base,
- * })
- *
- * @example
- * // Account Hoisting
- * import { createWalletClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { base, mainnet } from 'viem/chains'
- * import { walletActionsL1 } from 'viem/op-stack'
- * import { depositTransaction } from 'viem/wallet'
- *
- * const client = createWalletClient({
- *   account: privateKeyToAccount('0x…'),
- *   chain: mainnet,
+ *   chain: base,
  *   transport: http(),
- * }).extend(walletActionsL1())
+ * }).extend(publicActionsL2())
  *
- * const hash = await depositTransaction(client, {
- *   args: {
- *     gas: 21_000n,
- *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
- *     value: parseEther('1'),
- *   },
- *   targetChain: base,
+ * const request = await prepareDepositTransaction(client, {
+ *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *   value: parseEther('1'),
  * })
  */
 export async function prepareDepositTransaction<
