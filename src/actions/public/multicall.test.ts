@@ -282,10 +282,10 @@ test('args: multicallAddress', async () => {
   `)
 })
 
-test('args: deployless', async () => {
+test('args: unstable_deployless', async () => {
   expect(
     await multicall(publicClient, {
-      deployless: true,
+      unstable_deployless: true,
       blockNumber: 13069420n, // before multicall3 was deployed
       contracts: [
         {
@@ -1170,7 +1170,7 @@ test('deployless on client', async () => {
   const client = createPublicClient({
     batch: {
       multicall: {
-        deployless: true,
+        unstable_deployless: true,
         batchSize: 1024,
       },
     },
