@@ -18,7 +18,7 @@ import { parseAccount } from '../../../utils/accounts.js'
 import type { Prettify } from '../../index.js'
 import type { DepositTransactionParameters } from './depositTransaction.js'
 
-export type PrepareDepositTransactionParameters<
+export type BuildDepositTransactionParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
@@ -54,7 +54,7 @@ export type PrepareDepositTransactionParameters<
       }
   )
 
-export type PrepareDepositTransactionReturnType<
+export type BuildDepositTransactionReturnType<
   account extends Account | undefined = Account | undefined,
   accountOverride extends Account | Address | undefined =
     | Account
@@ -65,48 +65,48 @@ export type PrepareDepositTransactionReturnType<
     GetAccountParameter<account, accountOverride>
 >
 
-export type PrepareDepositTransactionErrorType = ErrorType
+export type BuildDepositTransactionErrorType = ErrorType
 
 /**
  * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.
  *
- * - Docs: https://viem.sh/op-stack/actions/prepareDepositTransaction.html
+ * - Docs: https://viem.sh/op-stack/actions/buildDepositTransaction.html
  *
  * @param client - Client to use
- * @param parameters - {@link PrepareDepositTransactionParameters}
+ * @param parameters - {@link BuildDepositTransactionParameters}
  * @returns Parameters for `depositTransaction`. {@link DepositTransactionReturnType}
  *
  * @example
  * import { createWalletClient, http, parseEther } from 'viem'
  * import { base } from 'viem/chains'
  * import { publicActionsL2 } from 'viem/op-stack'
- * import { prepareDepositTransaction } from 'viem/wallet'
+ * import { buildDepositTransaction } from 'viem/wallet'
  *
  * const client = createWalletClient({
  *   chain: base,
  *   transport: http(),
  * }).extend(publicActionsL2())
  *
- * const request = await prepareDepositTransaction(client, {
+ * const request = await buildDepositTransaction(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *   value: parseEther('1'),
  * })
  */
-export async function prepareDepositTransaction<
+export async function buildDepositTransaction<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
   accountOverride extends Account | Address | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  args: PrepareDepositTransactionParameters<
+  args: BuildDepositTransactionParameters<
     chain,
     account,
     chainOverride,
     accountOverride
   >,
-): Promise<PrepareDepositTransactionReturnType<account, accountOverride>> {
+): Promise<BuildDepositTransactionReturnType<account, accountOverride>> {
   const {
     account: account_,
     chain = client.chain,
@@ -141,5 +141,5 @@ export async function prepareDepositTransaction<
       value: request.value,
     },
     targetChain: chain,
-  } as PrepareDepositTransactionReturnType<account, accountOverride>
+  } as BuildDepositTransactionReturnType<account, accountOverride>
 }

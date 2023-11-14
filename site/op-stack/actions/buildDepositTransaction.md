@@ -3,18 +3,18 @@ outline: deep
 head:
   - - meta
     - property: og:title
-      content: prepareDepositTransaction
+      content: buildDepositTransaction
   - - meta
     - name: description
-      content: Prepares parameters for a deposit transaction to be initiated on an L1 and executed on the L2.
+      content: Builds & prepares parameters for a deposit transaction to be initiated on an L1 and executed on the L2.
   - - meta
     - property: og:description
-      content: Prepares parameters for a deposit transaction to be initiated on an L1 and executed on the L2.
+      content: Builds & prepares parameters for a deposit transaction to be initiated on an L1 and executed on the L2.
 ---
 
-# prepareDepositTransaction
+# buildDepositTransaction
 
-Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1 and executed on the L2.
+Builds & prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1 and executed on the L2.
 
 ## Usage
 
@@ -23,7 +23,7 @@ Prepares parameters for a [deposit transaction](https://github.com/ethereum-opti
 ```ts [example.ts]
 import { account, baseClient, mainnetClient } from './config'
 
-const request = await baseClient.prepareDepositTransaction({ // [!code hl]
+const request = await baseClient.buildDepositTransaction({ // [!code hl]
   account, // [!code hl]
   mint: parseEther('1'), // [!code hl]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code hl]
@@ -59,7 +59,7 @@ export const account = privateKeyToAccount(...)
 
 ### Account Hoisting
 
-If you do not wish to pass an `account` to every `prepareDepositTransaction`, you can also hoist the Account on the Wallet Client (see `config.ts`).
+If you do not wish to pass an `account` to every `buildDepositTransaction`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
 [Learn more](/docs/clients/wallet.html#account).
 
@@ -68,7 +68,7 @@ If you do not wish to pass an `account` to every `prepareDepositTransaction`, yo
 ```ts [example.ts]
 import { baseClient, mainnetClient } from './config'
 
-const request = await baseClient.prepareDepositTransaction({
+const request = await baseClient.buildDepositTransaction({
   mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
@@ -134,7 +134,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const request = await client.prepareDepositTransaction({
+const request = await client.buildDepositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -148,7 +148,7 @@ const request = await client.prepareDepositTransaction({
 Contract deployment bytecode or encoded contract method & arguments.
 
 ```ts
-const request = await client.prepareDepositTransaction({
+const request = await client.buildDepositTransaction({
   data: '0x...', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
@@ -161,7 +161,7 @@ const request = await client.prepareDepositTransaction({
 Gas limit for transaction execution on the L2.
 
 ```ts
-const request = await client.prepareDepositTransaction({
+const request = await client.buildDepositTransaction({
   gas: 21_000n, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -175,7 +175,7 @@ const request = await client.prepareDepositTransaction({
 Whether or not this is a contract deployment transaction.
 
 ```ts
-const request = await client.prepareDepositTransaction({
+const request = await client.buildDepositTransaction({
   data: '0x...',
   isCreation: true // [!code focus]
 })
@@ -188,7 +188,7 @@ const request = await client.prepareDepositTransaction({
 Value in wei to mint (deposit) on the L2. Debited from the caller's L1 balance.
 
 ```ts
-const request = await client.prepareDepositTransaction({
+const request = await client.buildDepositTransaction({
   mint: parseEther('1') // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
 })
@@ -201,7 +201,7 @@ const request = await client.prepareDepositTransaction({
 L2 Transaction recipient.
 
 ```ts
-const request = await client.prepareDepositTransaction({
+const request = await client.buildDepositTransaction({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',  // [!code focus]
   value: parseEther('1')
 })
@@ -214,7 +214,7 @@ const request = await client.prepareDepositTransaction({
 Value in wei sent with this transaction on the L2. Debited from the caller's L2 balance.
 
 ```ts
-const request = await client.prepareDepositTransaction({
+const request = await client.buildDepositTransaction({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
   value: parseEther('1') // [!code focus]
 })

@@ -9,11 +9,11 @@ import { walletClient, walletClientWithAccount } from '~test/src/utils.js'
 import { baycContractConfig } from '../../../../test/src/abis.js'
 import { parseEther } from '../../../index.js'
 import { base } from '../chains.js'
+import { buildDepositTransaction } from './buildDepositTransaction.js'
 import { depositTransaction } from './depositTransaction.js'
-import { prepareDepositTransaction } from './prepareDepositTransaction.js'
 
 test('default', async () => {
-  const request = await prepareDepositTransaction(optimismClient, {
+  const request = await buildDepositTransaction(optimismClient, {
     to: accounts[1].address,
   })
   const { targetChain, ...rest } = request
@@ -37,7 +37,7 @@ test('default', async () => {
 })
 
 test('args: account', async () => {
-  const request = await prepareDepositTransaction(optimismClient, {
+  const request = await buildDepositTransaction(optimismClient, {
     account: accounts[0].address,
     to: accounts[1].address,
   })
@@ -65,7 +65,7 @@ test('args: account', async () => {
 })
 
 test('args: chain', async () => {
-  const request = await prepareDepositTransaction(optimismClientWithoutChain, {
+  const request = await buildDepositTransaction(optimismClientWithoutChain, {
     account: accounts[0].address,
     chain: base,
     to: accounts[1].address,
@@ -94,7 +94,7 @@ test('args: chain', async () => {
 })
 
 test('args: data', async () => {
-  const request = await prepareDepositTransaction(optimismClient, {
+  const request = await buildDepositTransaction(optimismClient, {
     account: accounts[0].address,
     data: '0xdeadbeef',
     to: accounts[1].address,
@@ -123,7 +123,7 @@ test('args: data', async () => {
 })
 
 test('args: isCreation', async () => {
-  const request = await prepareDepositTransaction(optimismClient, {
+  const request = await buildDepositTransaction(optimismClient, {
     account: accounts[0].address,
     data: baycContractConfig.bytecode,
     isCreation: true,
@@ -152,7 +152,7 @@ test('args: isCreation', async () => {
 })
 
 test('args: mint', async () => {
-  const request = await prepareDepositTransaction(optimismClient, {
+  const request = await buildDepositTransaction(optimismClient, {
     account: accounts[0].address,
     to: accounts[1].address,
     mint: parseEther('1'),
@@ -181,7 +181,7 @@ test('args: mint', async () => {
 })
 
 test('args: value', async () => {
-  const request = await prepareDepositTransaction(optimismClient, {
+  const request = await buildDepositTransaction(optimismClient, {
     account: accounts[0].address,
     to: accounts[1].address,
     value: parseEther('1'),

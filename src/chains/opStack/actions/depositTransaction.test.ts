@@ -23,8 +23,8 @@ import {
 } from '../../../index.js'
 import { base, baseGoerli, goerli } from '../../index.js'
 import { portalAbi } from '../abis.js'
+import { buildDepositTransaction } from './buildDepositTransaction.js'
 import { depositTransaction } from './depositTransaction.js'
-import { prepareDepositTransaction } from './prepareDepositTransaction.js'
 
 beforeAll(async () => {
   await setBlockNumber(18136086n)
@@ -246,7 +246,7 @@ test.skip(
       transport: http(),
     })
 
-    const request = await prepareDepositTransaction(client_baseGoerli, {
+    const request = await buildDepositTransaction(client_baseGoerli, {
       mint: 69n,
       to: account.address,
     })

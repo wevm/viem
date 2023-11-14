@@ -939,6 +939,10 @@ export const sidebar: DefaultTheme.Sidebar = {
       text: 'L2 Public Actions',
       items: [
         {
+          text: 'buildDepositTransaction',
+          link: '/op-stack/actions/buildDepositTransaction',
+        },
+        {
           text: 'estimateContractL1Fee',
           link: '/op-stack/actions/estimateContractL1Fee',
         },
@@ -969,10 +973,6 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'estimateTotalGas',
           link: '/op-stack/actions/estimateTotalGas',
-        },
-        {
-          text: 'prepareDepositTransaction',
-          link: '/op-stack/actions/prepareDepositTransaction',
         },
       ],
     },

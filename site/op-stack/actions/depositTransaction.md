@@ -59,13 +59,13 @@ export const account = privateKeyToAccount(...)
 
 ::: warning
 
-You must [prepare the parameters](#preparing-parameters) on the L2 before calling this function. If the gas is too low, transaction execution will fail on the L2.
+You must [build the parameters](#building-parameters) on the L2 before calling this function. If the gas is too low, transaction execution will fail on the L2.
 
 :::
 
-### Preparing Parameters
+### Building Parameters
 
-The [`prepareDepositTransaction` Action](/op-stack/actions/prepareDepositTransaction) prepares the deposit transaction parameters (ie. `gas`, `targetChain`, etc). 
+The [`buildDepositTransaction` Action](/op-stack/actions/buildDepositTransaction) builds & prepares the deposit transaction parameters (ie. `gas`, `targetChain`, etc). 
 
 We can use the resulting `request` to initiate the deposit transaction on the L1.
 
@@ -74,14 +74,14 @@ We can use the resulting `request` to initiate the deposit transaction on the L1
 ```ts [example.ts]
 import { account, baseClient, mainnetClient } from './config'
 
-// Prepare parameters for the deposit transaction on the L2.
-const request = await baseClient.prepareDepositTransaction({
+// Build parameters for the transaction on the L2.
+const request = await baseClient.buildDepositTransaction({
   account,
   mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
  
-// Initiate the deposit transaction on the L1.
+// Execute the deposit transaction on the L1.
 const hash = await mainnetClient.depositTransacton(request)
 ```
 
@@ -109,7 +109,7 @@ export const account = privateKeyToAccount(...)
 
 :::
 
-[See more on the `prepareDepositTransaction` Action.](/op-stack/actions/prepareDepositTransaction)
+[See more on the `buildDepositTransaction` Action.](/op-stack/actions/buildDepositTransaction)
 
 
 ### Account Hoisting
@@ -124,7 +124,7 @@ If you do not wish to pass an `account` to every `depositTransaction`, you can a
 import { baseClient, mainnetClient } from './config'
 
 // Prepare parameters for the deposit transaction on the L2.
-const request = await baseClient.prepareDepositTransaction({
+const request = await baseClient.buildDepositTransaction({
   mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })

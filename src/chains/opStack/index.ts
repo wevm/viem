@@ -53,11 +53,11 @@ export {
   type EstimateTotalGasReturnType,
 } from './actions/estimateTotalGas.js'
 export {
-  prepareDepositTransaction,
-  type PrepareDepositTransactionErrorType,
-  type PrepareDepositTransactionParameters,
-  type PrepareDepositTransactionReturnType,
-} from './actions/prepareDepositTransaction.js'
+  buildDepositTransaction,
+  type BuildDepositTransactionErrorType,
+  type BuildDepositTransactionParameters,
+  type BuildDepositTransactionReturnType,
+} from './actions/buildDepositTransaction.js'
 
 export { chainConfig } from './chainConfig.js'
 

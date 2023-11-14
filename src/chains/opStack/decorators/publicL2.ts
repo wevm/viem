@@ -8,6 +8,11 @@ import type {
   ContractFunctionName,
 } from '../../../types/contract.js'
 import {
+  type BuildDepositTransactionParameters,
+  type BuildDepositTransactionReturnType,
+  buildDepositTransaction,
+} from '../actions/buildDepositTransaction.js'
+import {
   type EstimateContractL1FeeParameters,
   type EstimateContractL1FeeReturnType,
   estimateContractL1Fee,
@@ -47,11 +52,6 @@ import {
   type EstimateTotalGasReturnType,
   estimateTotalGas,
 } from '../actions/estimateTotalGas.js'
-import {
-  type PrepareDepositTransactionParameters,
-  type PrepareDepositTransactionReturnType,
-  prepareDepositTransaction,
-} from '../actions/prepareDepositTransaction.js'
 
 export type PublicActionsL2<
   chain extends Chain | undefined = Chain | undefined,
@@ -320,10 +320,10 @@ export type PublicActionsL2<
   /**
    * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.
    *
-   * - Docs: https://viem.sh/op-stack/actions/prepareDepositTransaction.html
+   * - Docs: https://viem.sh/op-stack/actions/buildDepositTransaction.html
    *
    * @param client - Client to use
-   * @param parameters - {@link PrepareDepositTransactionParameters}
+   * @param parameters - {@link BuildDepositTransactionParameters}
    * @returns Parameters for `depositTransaction`. {@link DepositTransactionReturnType}
    *
    * @example
@@ -336,23 +336,23 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const request = await client.prepareDepositTransaction({
+   * const request = await client.buildDepositTransaction({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
    *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
    *   value: parseEther('1'),
    * })
    */
-  prepareDepositTransaction: <
+  buildDepositTransaction: <
     chainOverride extends Chain | undefined = undefined,
     accountOverride extends Account | Address | undefined = undefined,
   >(
-    parameters: PrepareDepositTransactionParameters<
+    parameters: BuildDepositTransactionParameters<
       chain,
       account,
       chainOverride,
       accountOverride
     >,
-  ) => Promise<PrepareDepositTransactionReturnType<account, accountOverride>>
+  ) => Promise<BuildDepositTransactionReturnType<account, accountOverride>>
 }
 
 export function publicActionsL2() {
@@ -373,8 +373,7 @@ export function publicActionsL2() {
       estimateL1Gas: (args) => estimateL1Gas(client, args),
       estimateTotalFee: (args) => estimateTotalFee(client, args),
       estimateTotalGas: (args) => estimateTotalGas(client, args),
-      prepareDepositTransaction: (args) =>
-        prepareDepositTransaction(client, args),
+      buildDepositTransaction: (args) => buildDepositTransaction(client, args),
     }
   }
 }
