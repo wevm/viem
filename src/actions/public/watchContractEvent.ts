@@ -224,7 +224,7 @@ export function watchContractEvent<
 
             if (logs.length === 0) return
             if (batch) emit.onLogs(logs as any)
-            else logs.forEach((log) => emit.onLogs([log] as any))
+            else for (const log of logs) emit.onLogs([log] as any)
           } catch (err) {
             // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
             // Reinitalize the filter when this occurs

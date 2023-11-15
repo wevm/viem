@@ -61,7 +61,7 @@ export function observe<TCallbacks extends Callbacks>(
     ) => {
       const listeners = getListeners()
       if (listeners.length === 0) return
-      listeners.forEach((listener) => listener.fns[key]?.(...args))
+      for (const listener of listeners) listener.fns[key]?.(...args)
     }) as TCallbacks[Extract<keyof TCallbacks, string>]
   }
 

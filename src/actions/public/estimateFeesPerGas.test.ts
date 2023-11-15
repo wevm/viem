@@ -15,9 +15,8 @@ import { getGasPrice } from './getGasPrice.js'
 
 test('default', async () => {
   const block = await getBlock.getBlock(publicClient)
-  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-    publicClient,
-  )
+  const { maxFeePerGas, maxPriorityFeePerGas } =
+    await estimateFeesPerGas(publicClient)
   expect(maxFeePerGas).toBe(
     (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas,
   )
@@ -181,9 +180,8 @@ test('client: chain `estimateFeesPerGas` override', async () => {
     },
     transport: http(),
   })
-  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-    client,
-  )
+  const { maxFeePerGas, maxPriorityFeePerGas } =
+    await estimateFeesPerGas(client)
   expect(maxFeePerGas).toBe(2n)
   expect(maxPriorityFeePerGas).toBe(1n)
 })
@@ -200,9 +198,8 @@ test('client: chain `baseFeeMultiplier` override', async () => {
     },
     transport: http(),
   })
-  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-    client,
-  )
+  const { maxFeePerGas, maxPriorityFeePerGas } =
+    await estimateFeesPerGas(client)
   expect(maxFeePerGas).toBe(
     (block.baseFeePerGas! * 150n) / 100n + maxPriorityFeePerGas,
   )
@@ -231,9 +228,8 @@ describe('mainnet smoke', () => {
 
   test('default', async () => {
     const block = await getBlock.getBlock(mainnetClient)
-    const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-      mainnetClient,
-    )
+    const { maxFeePerGas, maxPriorityFeePerGas } =
+      await estimateFeesPerGas(mainnetClient)
     expect(maxFeePerGas).toBe(
       (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas,
     )

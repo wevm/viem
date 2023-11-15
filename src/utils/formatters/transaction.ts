@@ -29,7 +29,7 @@ export type FormattedTransaction<
   _ExcludedPendingDependencies extends string = TransactionPendingDependencies &
     ExtractChainFormatterExclude<TChain, 'transaction'>,
 > = UnionLooseOmit<_FormatterReturnType, TransactionPendingDependencies> & {
-  [K in _ExcludedPendingDependencies]: never
+  [_K in _ExcludedPendingDependencies]: never
 } & Pick<
     Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>,
     TransactionPendingDependencies

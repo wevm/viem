@@ -107,7 +107,7 @@ export function watchPendingTransactions<
             const hashes = await getAction(client, getFilterChanges)({ filter })
             if (hashes.length === 0) return
             if (batch) emit.onTransactions(hashes)
-            else hashes.forEach((hash) => emit.onTransactions([hash]))
+            else for (const hash of hashes) emit.onTransactions([hash])
           } catch (err) {
             emit.onError?.(err as Error)
           }

@@ -198,7 +198,7 @@ export type OneOf<
   ///
   keys extends KeyofUnion<union> = KeyofUnion<union>,
 > = union extends infer Item
-  ? Prettify<Item & { [K in Exclude<keys, keyof Item>]?: undefined }>
+  ? Prettify<Item & { [_K in Exclude<keys, keyof Item>]?: undefined }>
   : never
 type KeyofUnion<type> = type extends type ? keyof type : never
 
