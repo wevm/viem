@@ -976,14 +976,5 @@ export const sidebar: DefaultTheme.Sidebar = {
         },
       ],
     },
-    {
-      text: 'Utilities',
-      items: [
-        {
-          text: 'extractTransactionDepositedLogs',
-          link: '/op-stack/utils/extractTransactionDepositedLogs',
-        },
-      ],
-    },
   ],
 }
