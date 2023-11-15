@@ -95,6 +95,7 @@ export async function getEnsName<TChain extends Chain | undefined>(
     const res = await getAction(
       client,
       readContract,
+      'readContract',
     )({
       address: universalResolverAddress,
       abi: universalResolverReverseAbi,

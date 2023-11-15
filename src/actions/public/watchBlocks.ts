@@ -144,6 +144,7 @@ export function watchBlocks<
             const block = await getAction(
               client,
               getBlock,
+              'getBlock',
             )({
               blockTag,
               includeTransactions,
@@ -160,6 +161,7 @@ export function watchBlocks<
                   const block = (await getAction(
                     client,
                     getBlock,
+                    'getBlock',
                   )({
                     blockNumber: i,
                     includeTransactions,

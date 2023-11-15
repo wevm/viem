@@ -489,6 +489,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 readContract,
+                'readContract',
               )({
                 abi,
                 address,
@@ -519,6 +520,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 simulateContract,
+                'simulateContract',
               )({
                 abi,
                 address,
@@ -555,6 +557,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 createContractEventFilter,
+                'createContractEventFilter',
               )({
                 abi,
                 address,
@@ -589,6 +592,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 getContractEvents,
+                'getContractEvents',
               )({
                 abi,
                 address,
@@ -623,6 +627,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 watchContractEvent,
+                'watchContractEvent',
               )({
                 abi,
                 address,
@@ -656,6 +661,7 @@ export function getContract<
               return getAction(
                 walletClient,
                 writeContract,
+                'writeContract',
               )({
                 abi,
                 address,
@@ -694,6 +700,7 @@ export function getContract<
               return getAction(
                 client,
                 estimateContractGas,
+                'estimateContractGas',
               )({
                 abi,
                 address,
