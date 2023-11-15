@@ -78,7 +78,6 @@ export { walletActionsL1, type WalletActionsL1 } from './decorators/walletL1.js'
 
 export {
   serializeTransaction,
-  serializeTransactionDeposit,
   serializers,
 } from './serializers.js'
 

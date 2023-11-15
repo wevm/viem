@@ -109,5 +109,11 @@ export async function getFilterLogs<
     abi: filter.abi,
     logs,
     strict,
-  }) as GetFilterLogsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
+  }) as unknown as GetFilterLogsReturnType<
+    TAbi,
+    TEventName,
+    TStrict,
+    TFromBlock,
+    TToBlock
+  >
 }

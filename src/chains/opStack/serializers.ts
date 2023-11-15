@@ -36,7 +36,7 @@ export const serializers = {
 
 export type SerializeTransactionDepositReturnType = TransactionSerializedDeposit
 
-export function serializeTransactionDeposit(
+function serializeTransactionDeposit(
   transaction: TransactionSerializableDeposit,
 ): SerializeTransactionDepositReturnType {
   assertTransactionDeposit(transaction)

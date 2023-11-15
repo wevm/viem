@@ -207,7 +207,7 @@ export async function getFilterChanges<
     abi: filter.abi,
     logs: logs as RpcLog[],
     strict,
-  }) as GetFilterChangesReturnType<
+  }) as unknown as GetFilterChangesReturnType<
     TFilterType,
     TAbi,
     TEventName,
