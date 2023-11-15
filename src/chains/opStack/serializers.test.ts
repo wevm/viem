@@ -7,9 +7,9 @@ import {
   keccak256,
   parseEther,
   parseGwei,
-  parseTransaction,
 } from '../../index.js'
 import { base } from '../index.js'
+import { parseTransaction } from './parsers.js'
 import { serializeTransaction } from './serializers.js'
 import type { TransactionSerializableDeposit } from './types/transaction.js'
 
@@ -23,9 +23,7 @@ describe('deposit', async () => {
 
   test('default', () => {
     const serialized = serializeTransaction(baseTransaction)
-    expect(serialized).toMatchInlineSnapshot(
-      '"0x7ef83ca018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808080808080"',
-    )
+    expect(parseTransaction(serialized)).toEqual(baseTransaction)
   })
 
   test('args: data', () => {
@@ -34,9 +32,7 @@ describe('deposit', async () => {
       data: '0xdeadbeef',
     } as const satisfies TransactionSerializableDeposit
     const serialized = serializeTransaction(tx)
-    expect(serialized).toMatchInlineSnapshot(
-      '"0x7ef840a018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808080808084deadbeef"',
-    )
+    expect(parseTransaction(serialized)).toEqual(tx)
   })
 
   test('args: gas', () => {
@@ -45,9 +41,7 @@ describe('deposit', async () => {
       gas: 69420n,
     } as const satisfies TransactionSerializableDeposit
     const serialized = serializeTransaction(tx)
-    expect(serialized).toMatchInlineSnapshot(
-      '"0x7ef83fa018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b80808083010f2c8080"',
-    )
+    expect(parseTransaction(serialized)).toEqual(tx)
   })
 
   test('args: isSystemTx', () => {
@@ -56,9 +50,7 @@ describe('deposit', async () => {
       isSystemTx: true,
     } as const satisfies TransactionSerializableDeposit
     const serialized = serializeTransaction(tx)
-    expect(serialized).toMatchInlineSnapshot(
-      '"0x7ef83ca018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808080800180"',
-    )
+    expect(parseTransaction(serialized)).toEqual(tx)
   })
 
   test('args: mint', () => {
@@ -67,9 +59,7 @@ describe('deposit', async () => {
       mint: 69420n,
     } as const satisfies TransactionSerializableDeposit
     const serialized = serializeTransaction(tx)
-    expect(serialized).toMatchInlineSnapshot(
-      '"0x7ef83fa018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b8083010f2c80808080"',
-    )
+    expect(parseTransaction(serialized)).toEqual(tx)
   })
 
   test('args: to', () => {
@@ -78,9 +68,7 @@ describe('deposit', async () => {
       to: '0xaabbccddeeff00112233445566778899aabbccdd',
     } as const satisfies TransactionSerializableDeposit
     const serialized = serializeTransaction(tx)
-    expect(serialized).toMatchInlineSnapshot(
-      '"0x7ef850a018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b94aabbccddeeff00112233445566778899aabbccdd8080808080"',
-    )
+    expect(parseTransaction(serialized)).toEqual(tx)
   })
 
   test('args: value', () => {
@@ -89,9 +77,7 @@ describe('deposit', async () => {
       value: 69420n,
     } as const satisfies TransactionSerializableDeposit
     const serialized = serializeTransaction(tx)
-    expect(serialized).toMatchInlineSnapshot(
-      '"0x7ef83fa018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808083010f2c808080"',
-    )
+    expect(parseTransaction(serialized)).toEqual(tx)
   })
 
   test('args: no type', () => {

@@ -1,4 +1,5 @@
 import { InvalidAddressError } from '../../errors/address.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { ChainSerializers } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
@@ -8,6 +9,7 @@ import { concatHex } from '../../utils/data/concat.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
+  type SerializeTransactionErrorType as SerializeTransactionErrorType_,
   type SerializeTransactionFn,
   serializeTransaction as serializeTransaction_,
 } from '../../utils/transaction/serializeTransaction.js'
@@ -16,6 +18,14 @@ import type {
   TransactionSerializableDeposit,
   TransactionSerializedDeposit,
 } from './types/transaction.js'
+
+export type SerializeTransactionReturnType = ReturnType<
+  typeof serializeTransaction
+>
+
+export type SerializeTransactionErrorType =
+  | SerializeTransactionErrorType_
+  | ErrorType
 
 export const serializeTransaction: SerializeTransactionFn<
   OpStackTransactionSerializable
@@ -69,7 +79,9 @@ function isDeposit(
   return false
 }
 
-function assertTransactionDeposit(transaction: TransactionSerializableDeposit) {
+export function assertTransactionDeposit(
+  transaction: TransactionSerializableDeposit,
+) {
   const { from, to } = transaction
   if (from && !isAddress(from)) throw new InvalidAddressError({ address: from })
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })

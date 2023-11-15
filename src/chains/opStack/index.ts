@@ -77,8 +77,16 @@ export { publicActionsL2, type PublicActionsL2 } from './decorators/publicL2.js'
 export { walletActionsL1, type WalletActionsL1 } from './decorators/walletL1.js'
 
 export {
+  parseTransaction,
+  type ParseTransactionErrorType,
+  type ParseTransactionReturnType,
+} from './parsers.js'
+
+export {
   serializeTransaction,
   serializers,
+  type SerializeTransactionErrorType,
+  type SerializeTransactionReturnType,
 } from './serializers.js'
 
 export type {

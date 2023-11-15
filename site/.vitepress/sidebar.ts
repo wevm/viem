@@ -980,5 +980,18 @@ export const sidebar: DefaultTheme.Sidebar = {
         },
       ],
     },
+    {
+      text: 'Utilities',
+      items: [
+        {
+          text: 'parseTransaction',
+          link: '/op-stack/utilities/parseTransaction',
+        },
+        {
+          text: 'serializeTransaction',
+          link: '/op-stack/utilities/serializeTransaction',
+        },
+      ],
+    },
   ],
 }

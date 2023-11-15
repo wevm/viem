@@ -12,6 +12,8 @@ import type {
   TransactionReceipt,
   TransactionSerializable,
   TransactionSerializableBase,
+  TransactionSerialized,
+  TransactionType,
 } from '../../../types/transaction.js'
 import type { RequiredBy } from '../../../types/utils.js'
 
@@ -75,6 +77,20 @@ export type OpStackTransactionReceiptOverrides = {
 export type OpStackTransactionReceipt = TransactionReceipt &
   OpStackTransactionReceiptOverrides
 
+export type OpStackTransactionSerializable =
+  | RequiredBy<TransactionSerializableDeposit, 'type'>
+  | (TransactionSerializable & {
+      isSystemTx?: undefined
+      mint?: undefined
+      sourceHash?: undefined
+    })
+
+export type OpStackTransactionSerialized<
+  TType extends OpStackTransactionType = 'legacy',
+> = TransactionSerialized<TType> | TransactionSerializedDeposit
+
+export type OpStackTransactionType = TransactionType | 'deposit'
+
 export type TransactionSerializableDeposit<
   TQuantity = bigint,
   TIndex = number,
@@ -88,13 +104,5 @@ export type TransactionSerializableDeposit<
   sourceHash: Hex
   type?: 'deposit'
 }
-
-export type OpStackTransactionSerializable =
-  | RequiredBy<TransactionSerializableDeposit, 'type'>
-  | (TransactionSerializable & {
-      isSystemTx?: undefined
-      mint?: undefined
-      sourceHash?: undefined
-    })
 
 export type TransactionSerializedDeposit = `0x7e${string}`
