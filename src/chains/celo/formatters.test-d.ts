@@ -75,9 +75,6 @@ describe('transactionReceipt', () => {
       }
     >()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.transactionReceipt.format>['feeCurrency']
-  >().toEqualTypeOf<`0x${string}` | null>()
-  expectTypeOf<
     ReturnType<typeof formattersCelo.transactionReceipt.format>['gatewayFee']
   >().toEqualTypeOf<bigint | null>()
   expectTypeOf<
@@ -190,7 +187,6 @@ describe('smoke', () => {
       hash: '0x',
     })
 
-    expectTypeOf(transaction.feeCurrency).toEqualTypeOf<`0x${string}` | null>()
     expectTypeOf(transaction.gatewayFee).toEqualTypeOf<bigint | null>()
     expectTypeOf(transaction.gatewayFeeRecipient).toEqualTypeOf<
       `0x${string}` | null

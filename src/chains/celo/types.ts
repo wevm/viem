@@ -77,7 +77,6 @@ export type CeloRpcTransaction<TPending extends boolean = boolean> =
   | RpcTransactionCIP64<TPending>
 
 export type CeloRpcTransactionReceiptOverrides = {
-  feeCurrency: Address | null
   gatewayFee: Hex | null
   gatewayFeeRecipient: Address | null
 }
@@ -95,7 +94,6 @@ export type CeloTransaction<TPending extends boolean = boolean> =
   | TransactionCIP64<TPending>
 
 export type CeloTransactionReceiptOverrides = {
-  feeCurrency: Address | null
   gatewayFee: bigint | null
   gatewayFeeRecipient: Address | null
 }

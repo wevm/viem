@@ -75,7 +75,6 @@ export const formattersCelo = {
       args: CeloRpcTransactionReceiptOverrides,
     ): CeloTransactionReceiptOverrides {
       return {
-        feeCurrency: args.feeCurrency,
         gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
         gatewayFeeRecipient: args.gatewayFeeRecipient,
       }
