@@ -147,6 +147,8 @@ jobs:
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
         uses: oven-sh/setup-bun@v1
+        with: 
+          bun-version: 1.0.7
 
       - name: Set up Node
         if: ${{ matrix.node-version }}
