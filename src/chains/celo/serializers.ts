@@ -231,7 +231,7 @@ export function assertTransactionCIP64(
   )
     throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })
 
-  if (isPresent(feeCurrency) && !feeCurrency?.startsWith('0x')) {
+  if (isPresent(feeCurrency) && !isAddress(feeCurrency)) {
     throw new BaseError(
       '`feeCurrency` MUST be a token address for CIP-64 transactions.',
     )

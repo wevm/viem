@@ -74,7 +74,7 @@ describe('isPresent', () => {
 })
 
 describe('isEIP1559', () => {
-  test('it checks if a transaction is EIP-1159', () => {
+  test('it checks if a transaction is EIP-1559', () => {
     expect(isEIP1559({})).toBe(false)
 
     expect(
@@ -118,7 +118,7 @@ describe('isEIP1559', () => {
 })
 
 describe('isCIP42', () => {
-  test('it allows forcing the type even if transaction is not EIP-1159', () => {
+  test('it allows forcing the type even if transaction is not EIP-1559', () => {
     expect(
       isCIP42({
         type: 'cip42',
@@ -203,7 +203,7 @@ describe('isCIP42', () => {
 })
 
 describe('isCIP64', () => {
-  test('it allows forcing the type even if transaction is not EIP-1159', () => {
+  test('it allows forcing the type even if transaction is not EIP-1559', () => {
     expect(
       isCIP64({
         type: 'cip64',
@@ -228,6 +228,30 @@ describe('isCIP64', () => {
 
     expect(
       isCIP64({
+        feeCurrency: mockAddress,
+        maxFeePerGas: 123n,
+        maxPriorityFeePerGas: 456n,
+        from: mockAddress,
+      }),
+    ).toBe(true)
+  })
+
+  test('it recognizes valid CIP-64 with "eip1559" type provided', () => {
+    expect(
+      isCIP64({
+        type: 'eip1559',
+        feeCurrency: mockAddress,
+        gatewayFeeRecipient: '0x',
+        gatewayFee: 0n,
+        maxFeePerGas: 123n,
+        maxPriorityFeePerGas: 456n,
+        from: mockAddress,
+      }),
+    ).toBe(true)
+
+    expect(
+      isCIP64({
+        type: 'eip1559',
         feeCurrency: mockAddress,
         maxFeePerGas: 123n,
         maxPriorityFeePerGas: 456n,
