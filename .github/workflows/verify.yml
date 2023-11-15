@@ -166,6 +166,9 @@ jobs:
       - name: Build
         run: bun run build
 
+      - name: Link
+        run: bun install
+
       - name: Run tests
         run: bun run test:env:${{ matrix.runtime }}
 
