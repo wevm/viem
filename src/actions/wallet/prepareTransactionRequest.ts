@@ -130,7 +130,11 @@ export async function prepareTransactionRequest<
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
-  const block = await getAction(client, getBlock)({ blockTag: 'latest' })
+  const block = await getAction(
+    client,
+    getBlock,
+    'getBlock',
+  )({ blockTag: 'latest' })
 
   const request = { ...args, from: account.address }
 
@@ -138,6 +142,7 @@ export async function prepareTransactionRequest<
     request.nonce = await getAction(
       client,
       getTransactionCount,
+      'getTransactionCount',
     )({
       address: account.address,
       blockTag: 'pending',
@@ -196,6 +201,7 @@ export async function prepareTransactionRequest<
     request.gas = await getAction(
       client,
       estimateGas,
+      'estimateGas',
     )({
       ...request,
       account: { address: account.address, type: 'json-rpc' },

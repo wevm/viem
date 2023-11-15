@@ -95,6 +95,7 @@ export async function readContract<
     const { data } = await getAction(
       client,
       call,
+      'call',
     )({
       data: calldata,
       to: address,

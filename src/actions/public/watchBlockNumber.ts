@@ -112,6 +112,7 @@ export function watchBlockNumber<
             const blockNumber = await getAction(
               client,
               getBlockNumber,
+              'getBlockNumber',
             )({ cacheTime: 0 })
 
             if (prevBlockNumber) {
