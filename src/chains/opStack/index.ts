@@ -76,6 +76,12 @@ export {
 export { publicActionsL2, type PublicActionsL2 } from './decorators/publicL2.js'
 export { walletActionsL1, type WalletActionsL1 } from './decorators/walletL1.js'
 
+export {
+  serializeTransaction,
+  serializeTransactionDeposit,
+  serializers,
+} from './serializers.js'
+
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
