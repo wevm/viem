@@ -4,7 +4,7 @@ import { forkBlockNumber } from '~test/src/constants.js'
 import { publicClient } from '~test/src/utils.js'
 
 import { getLogs } from '../../actions/public/getLogs.js'
-import { extractEventLogs } from './extractEventLogs.js'
+import { parseEventLogs } from './parseEventLogs.js'
 
 const abi = [
   {
@@ -57,12 +57,12 @@ test('default', async () => {
     toBlock: forkBlockNumber,
   })
 
-  const contractLogs = extractEventLogs({
+  const parsedLogs = parseEventLogs({
     abi,
     logs,
   })
-  expect(contractLogs.length).toBe(978)
-  expect(contractLogs[0]).toMatchInlineSnapshot(`
+  expect(parsedLogs.length).toBe(978)
+  expect(parsedLogs[0]).toMatchInlineSnapshot(`
     {
       "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "args": {
@@ -85,8 +85,15 @@ test('default', async () => {
       "transactionIndex": 1,
     }
   `)
+})
 
-  const transferLogs = extractEventLogs({
+test('args: eventName', async () => {
+  const logs = await getLogs(publicClient, {
+    fromBlock: forkBlockNumber - 5n,
+    toBlock: forkBlockNumber,
+  })
+
+  const transferLogs = parseEventLogs({
     abi,
     eventName: 'Transfer',
     logs,
@@ -116,7 +123,7 @@ test('default', async () => {
     }
   `)
 
-  const approvalLogs = extractEventLogs({
+  const approvalLogs = parseEventLogs({
     abi,
     eventName: 'Approval',
     logs,
@@ -143,6 +150,73 @@ test('default', async () => {
       ],
       "transactionHash": "0x11e0a2fd9eaed1bbceb832786ae0b0e17ca36b04cfb1f7ba9e9c7f0040e43464",
       "transactionIndex": 2,
+    }
+  `)
+
+  const contractLogs = parseEventLogs({
+    abi,
+    eventName: ['Approval', 'Transfer'],
+    logs,
+  })
+  expect(contractLogs.length).toBe(978)
+  expect(contractLogs[0]).toMatchInlineSnapshot(`
+    {
+      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "args": {
+        "from": "0x00000000003b3cc22aF3aE1EAc0440BcEe416B40",
+        "to": "0x393ADf60012809316659Af13A3117ec22D093a38",
+        "value": 1162592016924672n,
+      },
+      "blockHash": "0xc972251b03cbef4c2f8d63d5357fbae2a8502c7e4aabb18a6dea77be65a5cd34",
+      "blockNumber": 16280765n,
+      "data": "0x0000000000000000000000000000000000000000000000000004215f0c300000",
+      "eventName": "Transfer",
+      "logIndex": 0,
+      "removed": false,
+      "topics": [
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+        "0x00000000000000000000000000000000003b3cc22af3ae1eac0440bcee416b40",
+        "0x000000000000000000000000393adf60012809316659af13a3117ec22d093a38",
+      ],
+      "transactionHash": "0x46807ccb87375145fe102ee95b9a76c47ea8e2b36202b28639260a6055cabf95",
+      "transactionIndex": 1,
+    }
+  `)
+})
+
+test('args: strict', async () => {
+  const logs = await getLogs(publicClient, {
+    fromBlock: forkBlockNumber - 5n,
+    toBlock: forkBlockNumber,
+  })
+
+  const parsedLogs = parseEventLogs({
+    abi,
+    logs,
+    strict: false,
+  })
+  expect(parsedLogs.length).toBe(1292)
+  expect(parsedLogs[0]).toMatchInlineSnapshot(`
+    {
+      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "args": {
+        "from": "0x00000000003b3cc22aF3aE1EAc0440BcEe416B40",
+        "to": "0x393ADf60012809316659Af13A3117ec22D093a38",
+        "value": 1162592016924672n,
+      },
+      "blockHash": "0xc972251b03cbef4c2f8d63d5357fbae2a8502c7e4aabb18a6dea77be65a5cd34",
+      "blockNumber": 16280765n,
+      "data": "0x0000000000000000000000000000000000000000000000000004215f0c300000",
+      "eventName": "Transfer",
+      "logIndex": 0,
+      "removed": false,
+      "topics": [
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+        "0x00000000000000000000000000000000003b3cc22af3ae1eac0440bcee416b40",
+        "0x000000000000000000000000393adf60012809316659af13a3117ec22d093a38",
+      ],
+      "transactionHash": "0x46807ccb87375145fe102ee95b9a76c47ea8e2b36202b28639260a6055cabf95",
+      "transactionIndex": 1,
     }
   `)
 })

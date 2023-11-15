@@ -10,7 +10,7 @@ import type { Filter, FilterType } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
 import { type DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
-import { extractEventLogs } from '../../utils/abi/extractEventLogs.js'
+import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type FormatLogErrorType,
@@ -203,7 +203,7 @@ export async function getFilterChanges<
       TToBlock
     >
 
-  return extractEventLogs({
+  return parseEventLogs({
     abi: filter.abi,
     logs: logs as RpcLog[],
     strict,

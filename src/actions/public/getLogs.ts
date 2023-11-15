@@ -18,7 +18,7 @@ import {
   type EncodeEventTopicsParameters,
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
-import { extractEventLogs } from '../../utils/abi/extractEventLogs.js'
+import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
@@ -209,7 +209,7 @@ export async function getLogs<
       TToBlock
     >
 
-  return extractEventLogs({
+  return parseEventLogs({
     abi: events,
     logs,
     strict,

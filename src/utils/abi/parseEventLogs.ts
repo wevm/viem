@@ -13,39 +13,55 @@ import {
   decodeEventLog,
 } from './decodeEventLog.js'
 
-export type ExtractEventLogsParameters<
+export type ParseEventLogsParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  eventName extends string | undefined = ContractEventName<abi>,
+  eventName extends
+    | ContractEventName<abi>
+    | ContractEventName<abi>[]
+    | undefined = ContractEventName<abi>,
   strict extends boolean | undefined = boolean | undefined,
 > = {
   /** Contract ABI. */
   abi: abi
   /** Contract event. */
-  eventName?: eventName | ContractEventName<abi> | undefined
+  eventName?:
+    | eventName
+    | ContractEventName<abi>
+    | ContractEventName<abi>[]
+    | undefined
   /** List of logs. */
   logs: (Log | RpcLog)[]
   strict?: strict | boolean | undefined
 }
 
-export type ExtractEventLogsReturnType<
+export type ParseEventLogsReturnType<
   abi extends Abi | readonly unknown[] = Abi,
-  eventName extends string | undefined = ContractEventName<abi>,
+  eventName extends
+    | ContractEventName<abi>
+    | ContractEventName<abi>[]
+    | undefined = ContractEventName<abi>,
   strict extends boolean | undefined = boolean | undefined,
-> = Log<bigint, number, false, undefined, strict, abi, eventName>[]
+  ///
+  derivedEventName extends
+    | ContractEventName<abi>
+    | undefined = eventName extends ContractEventName<abi>[]
+    ? eventName[number]
+    : eventName,
+> = Log<bigint, number, false, undefined, strict, abi, derivedEventName>[]
 
-export type ExtractEventLogsErrorType = DecodeEventLogErrorType | ErrorType
+export type ParseEventLogsErrorType = DecodeEventLogErrorType | ErrorType
 
 /**
  * Extracts & decodes logs matching the provided signature(s) (`abi` + optional `eventName`)
  * from a set of opaque logs.
  *
- * @param parameters - {@link ExtractEventLogsParameters}
- * @returns The logs. {@link ExtractEventLogsReturnType}
+ * @param parameters - {@link ParseEventLogsParameters}
+ * @returns The logs. {@link ParseEventLogsReturnType}
  *
  * @example
  * import { createClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { extractEventLogs } from 'viem/op-stack'
+ * import { parseEventLogs } from 'viem/op-stack'
  *
  * const client = createClient({
  *   chain: mainnet,
@@ -56,23 +72,26 @@ export type ExtractEventLogsErrorType = DecodeEventLogErrorType | ErrorType
  *   hash: '0xec23b2ba4bc59ba61554507c1b1bc91649e6586eb2dd00c728e8ed0db8bb37ea',
  * })
  *
- * const logs = extractEventLogs({ logs: receipt.logs })
+ * const logs = parseEventLogs({ logs: receipt.logs })
  * // [{ args: { ... }, eventName: 'TransactionDeposited', ... }, ...]
  */
-export function extractEventLogs<
+export function parseEventLogs<
   abi extends Abi | readonly unknown[],
   strict extends boolean | undefined,
-  eventName extends ContractEventName<abi> | undefined = undefined,
+  eventName extends
+    | ContractEventName<abi>
+    | ContractEventName<abi>[]
+    | undefined = undefined,
 >({
   abi,
   eventName,
   logs,
   strict = true,
-}: ExtractEventLogsParameters<
+}: ParseEventLogsParameters<abi, eventName, strict>): ParseEventLogsReturnType<
   abi,
   eventName,
   strict
->): ExtractEventLogsReturnType<abi, eventName, strict> {
+> {
   return logs
     .map((log) => {
       try {
@@ -81,7 +100,7 @@ export function extractEventLogs<
           abi,
           strict,
         })
-        if (eventName && event.eventName !== eventName) return null
+        if (eventName && !eventName.includes(event.eventName!)) return null
         return { ...event, ...log }
       } catch (err) {
         let eventName
@@ -102,7 +121,7 @@ export function extractEventLogs<
         return { ...log, args: isUnnamed ? [] : {}, eventName }
       }
     })
-    .filter(Boolean) as unknown as ExtractEventLogsReturnType<
+    .filter(Boolean) as unknown as ParseEventLogsReturnType<
     abi,
     eventName,
     strict

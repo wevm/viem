@@ -9,9 +9,9 @@ export type GetContractAddressParameter<
 > =
   | (chain extends Chain
       ? {
-          [key in `${contractName}Address`]?: undefined
+          [_key in `${contractName}Address`]?: undefined
         } & { targetChain: TargetChain<chain, contractName> }
       : never)
   | ({
-      [key in `${contractName}Address`]: Address
+      [_key in `${contractName}Address`]: Address
     } & { targetChain?: undefined })

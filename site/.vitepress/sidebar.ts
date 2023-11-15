@@ -542,7 +542,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
-          text: 'Encoding',
+          text: 'Utilities',
           items: [
             {
               text: 'decodeDeployData',
@@ -583,6 +583,10 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'encodeFunctionResult',
               link: '/docs/contract/encodeFunctionResult',
+            },
+            {
+              text: 'parseEventLogs',
+              link: '/docs/contract/parseEventLogs',
             },
           ],
         },

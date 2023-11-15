@@ -9,7 +9,7 @@ import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import { type DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
-import { extractEventLogs } from '../../utils/abi/extractEventLogs.js'
+import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type FormatLogErrorType,
@@ -105,7 +105,7 @@ export async function getFilterLogs<
       TToBlock
     >
 
-  return extractEventLogs({
+  return parseEventLogs({
     abi: filter.abi,
     logs,
     strict,
