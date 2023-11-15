@@ -2,19 +2,14 @@ import type { Abi, AbiEvent, ExtractAbiEvent } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import {
-  DecodeLogDataMismatch,
-  DecodeLogTopicsMismatch,
-} from '../../errors/abi.js'
+
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
-import {
-  type DecodeEventLogErrorType,
-  decodeEventLog,
-} from '../../utils/abi/decodeEventLog.js'
+import { type DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
+import { extractEventLogs } from '../../utils/abi/extractEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type FormatLogErrorType,
@@ -100,41 +95,19 @@ export async function getFilterLogs<
     method: 'eth_getFilterLogs',
     params: [filter.id],
   })
-  return logs
-    .map((log) => {
-      try {
-        const { eventName, args } =
-          'abi' in filter && filter.abi
-            ? decodeEventLog({
-                abi: filter.abi,
-                data: log.data,
-                topics: log.topics as any,
-                strict,
-              })
-            : { eventName: undefined, args: undefined }
-        return formatLog(log, { args, eventName })
-      } catch (err) {
-        let eventName
-        let isUnnamed
-        if (
-          err instanceof DecodeLogDataMismatch ||
-          err instanceof DecodeLogTopicsMismatch
-        ) {
-          // If strict mode is on, and log data/topics do not match event definition, skip.
-          if ('strict' in filter && filter.strict) return
-          eventName = err.abiItem.name
-          isUnnamed = err.abiItem.inputs?.some((x) => !('name' in x && x.name))
-        }
 
-        // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
-        return formatLog(log, { args: isUnnamed ? [] : {}, eventName })
-      }
-    })
-    .filter(Boolean) as unknown as GetFilterLogsReturnType<
-    TAbi,
-    TEventName,
-    TStrict,
-    TFromBlock,
-    TToBlock
-  >
+  if (!filter.abi)
+    return logs.map((log) => formatLog(log)) as GetFilterLogsReturnType<
+      TAbi,
+      TEventName,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >
+
+  return extractEventLogs({
+    abi: filter.abi,
+    logs,
+    strict,
+  }) as GetFilterLogsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
 }

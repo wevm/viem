@@ -1,8 +1,13 @@
 import type { Address } from 'abitype'
 import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../../accounts/utils/parseAccount.js'
+import {
+  type PrepareTransactionRequestErrorType,
   type PrepareTransactionRequestParameters,
   prepareTransactionRequest,
-} from '../../../actions/index.js'
+} from '../../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
@@ -13,9 +18,7 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
-import type { UnionOmit } from '../../../types/utils.js'
-import { parseAccount } from '../../../utils/accounts.js'
-import type { Prettify } from '../../index.js'
+import type { Prettify, UnionOmit } from '../../../types/utils.js'
 import type { DepositTransactionParameters } from './depositTransaction.js'
 
 export type BuildDepositTransactionParameters<
@@ -65,7 +68,10 @@ export type BuildDepositTransactionReturnType<
     GetAccountParameter<account, accountOverride>
 >
 
-export type BuildDepositTransactionErrorType = ErrorType
+export type BuildDepositTransactionErrorType =
+  | ParseAccountErrorType
+  | PrepareTransactionRequestErrorType
+  | ErrorType
 
 /**
  * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.

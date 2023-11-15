@@ -10,6 +10,7 @@ const opStackClient = optimismClient.extend(publicActionsL2())
 test('default', async () => {
   expect(publicActionsL2()(optimismClient)).toMatchInlineSnapshot(`
     {
+      "buildDepositTransaction": [Function],
       "estimateContractL1Fee": [Function],
       "estimateContractL1Gas": [Function],
       "estimateContractTotalFee": [Function],
@@ -18,7 +19,6 @@ test('default', async () => {
       "estimateL1Gas": [Function],
       "estimateTotalFee": [Function],
       "estimateTotalGas": [Function],
-      "buildDepositTransaction": [Function],
     }
   `)
 })

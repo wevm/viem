@@ -2,10 +2,6 @@ import type { AbiEvent, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import {
-  DecodeLogDataMismatch,
-  DecodeLogTopicsMismatch,
-} from '../../errors/abi.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -16,15 +12,13 @@ import type {
 import type { Log } from '../../types/log.js'
 import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
-import {
-  type DecodeEventLogErrorType,
-  decodeEventLog,
-} from '../../utils/abi/decodeEventLog.js'
+import { type DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
 import {
   type EncodeEventTopicsErrorType,
   type EncodeEventTopicsParameters,
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
+import { extractEventLogs } from '../../utils/abi/extractEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
@@ -206,36 +200,20 @@ export async function getLogs<
     })
   }
 
-  return logs
-    .map((log) => {
-      try {
-        const { eventName, args } = events
-          ? decodeEventLog({
-              abi: events,
-              data: log.data,
-              topics: log.topics,
-              strict,
-            })
-          : { eventName: undefined, args: undefined }
-        return formatLog(log, { args, eventName: eventName as string })
-      } catch (err) {
-        let eventName
-        let isUnnamed
-        if (
-          err instanceof DecodeLogDataMismatch ||
-          err instanceof DecodeLogTopicsMismatch
-        ) {
-          // If strict mode is on, and log data/topics do not match event definition, skip.
-          if (strict) return
-          eventName = err.abiItem.name
-          isUnnamed = err.abiItem.inputs?.some((x) => !('name' in x && x.name))
-        }
+  if (!events)
+    return logs.map((log) => formatLog(log)) as GetLogsReturnType<
+      TAbiEvent,
+      TAbiEvents,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >
 
-        // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
-        return formatLog(log, { args: isUnnamed ? [] : {}, eventName })
-      }
-    })
-    .filter(Boolean) as unknown as GetLogsReturnType<
+  return extractEventLogs({
+    abi: events,
+    logs,
+    strict,
+  }) as unknown as GetLogsReturnType<
     TAbiEvent,
     TAbiEvents,
     TStrict,

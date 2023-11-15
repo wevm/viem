@@ -155,7 +155,7 @@ export async function createContractEventFilter<
     eventName,
     id,
     request: getRequest(id),
-    strict,
+    strict: Boolean(strict),
     type: 'event',
   } as unknown as CreateContractEventFilterReturnType<
     abi,

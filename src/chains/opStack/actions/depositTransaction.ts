@@ -1,5 +1,8 @@
 import type { Address } from 'abitype'
-import { writeContract } from '../../../actions/wallet/writeContract.js'
+import {
+  type WriteContractErrorType,
+  writeContract,
+} from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { zeroAddress } from '../../../constants/address.js'
@@ -65,7 +68,7 @@ export type DepositTransactionParameters<
     )
   }
 export type DepositTransactionReturnType = Hash
-export type DepositTransactionErrorType = ErrorType
+export type DepositTransactionErrorType = WriteContractErrorType | ErrorType
 
 /**
  * Initiates a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
