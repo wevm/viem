@@ -112,3 +112,10 @@ export {
   type ComputeSourceHashParameters,
   type ComputeSourceHashReturnType,
 } from './utils/computeSourceHash.js'
+
+export {
+  fromOpaqueData,
+  type FromOpaqueDataErrorType,
+  type FromOpaqueDataParameters,
+  type FromOpaqueDataReturnType,
+} from './utils/fromOpaqueData.js'

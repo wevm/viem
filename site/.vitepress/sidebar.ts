@@ -988,6 +988,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/utilities/computeSourceHash',
         },
         {
+          text: 'fromOpaqueData',
+          link: '/op-stack/utilities/fromOpaqueData',
+        },
+        {
           text: 'parseTransaction',
           link: '/op-stack/utilities/parseTransaction',
         },
