@@ -8,7 +8,7 @@ head:
       content: Converts a serialized transaction to a structured transaction, with support for OP Stack.
   - - meta
     - property: og:description
-      content: Converts a serialized transaction to a structured transaction , with support for OP Stack.
+      content: Converts a serialized transaction to a structured transaction, with support for OP Stack.
 
 ---
 

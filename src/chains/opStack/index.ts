@@ -105,3 +105,10 @@ export type {
   OpStackTransactionReceipt,
   OpStackTransactionReceiptOverrides,
 } from './types/transaction.js'
+
+export {
+  computeSourceHash,
+  type ComputeSourceHashErrorType,
+  type ComputeSourceHashParameters,
+  type ComputeSourceHashReturnType,
+} from './utils/computeSourceHash.js'

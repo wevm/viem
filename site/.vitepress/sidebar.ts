@@ -984,6 +984,10 @@ export const sidebar: DefaultTheme.Sidebar = {
       text: 'Utilities',
       items: [
         {
+          text: 'computeSourceHash',
+          link: '/op-stack/utilities/computeSourceHash',
+        },
+        {
           text: 'parseTransaction',
           link: '/op-stack/utilities/parseTransaction',
         },
