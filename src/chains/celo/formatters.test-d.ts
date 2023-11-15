@@ -70,7 +70,6 @@ describe('transactionReceipt', () => {
     .parameter(0)
     .toEqualTypeOf<
       Partial<RpcTransactionReceipt> & {
-        feeCurrency: `0x${string}` | null
         gatewayFee: `0x${string}` | null
         gatewayFeeRecipient: `0x${string}` | null
       }

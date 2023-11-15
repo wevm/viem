@@ -636,6 +636,28 @@ describe('transactionReceipt', () => {
         "type": "legacy",
       }
     `)
+
+    expect(
+      transactionReceipt.format({
+        blockHash:
+          '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+        blockNumber: '0x1',
+        contractAddress: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
+        cumulativeGasUsed: '0x2',
+        effectiveGasPrice: '0x3',
+        // The transaction receipt returned by an RPC node never returns a feeCurrency field
+        // It's always `undefined`
+        feeCurrency: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+        from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
+        gasUsed: '0x4',
+        gatewayFee: null,
+        gatewayFeeRecipient: null,
+        logs: [],
+        to: '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da',
+        status: '0x0',
+        type: '0x0',
+      }).feeCurrency,
+    ).toBeUndefined()
   })
 
   test('action', async () => {
