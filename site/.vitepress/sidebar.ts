@@ -931,6 +931,15 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
+      text: 'Guides',
+      items: [
+        {
+          text: 'Deposits',
+          link: '/op-stack/guides/deposits',
+        },
+      ],
+    },
+    {
       text: 'L1 Wallet Actions',
       items: [
         {
