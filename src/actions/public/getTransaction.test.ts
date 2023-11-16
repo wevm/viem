@@ -2,7 +2,7 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts, forkBlockNumber } from '~test/src/constants.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
-import { celo } from '../../chains/index.js'
+import { zkSync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Transaction } from '../../types/transaction.js'
@@ -134,7 +134,7 @@ test('gets transaction (eip2930)', async () => {
 
 test('chain w/ custom block type', async () => {
   const client = createPublicClient({
-    chain: celo,
+    chain: zkSync,
     transport: http(),
   })
 
@@ -145,27 +145,25 @@ test('chain w/ custom block type', async () => {
 
   expect(transaction).toMatchInlineSnapshot(`
     {
-      "blockHash": "0x740371d30b3cee9d687f72e3409ba6447eceda7de86bc38b0fa84493114b510b",
+      "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
       "blockNumber": 16628100n,
-      "chainId": undefined,
-      "ethCompatible": false,
-      "feeCurrency": null,
-      "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
-      "gas": 1527520n,
-      "gasPrice": 2999683966n,
-      "gatewayFee": 0n,
-      "gatewayFeeRecipient": null,
-      "hash": "0x55678b68cc086d5b9739bb28748b492db030d001d9eb59001cc2d1f7a3305d17",
-      "input": "0x389ec778",
-      "nonce": 697201,
-      "r": "0xf507fb8fa33ffd05a7f26c980bbb8271aa113affc8f192feba87abe26549bda1",
-      "s": "0x7971c7b15ab4475ce6256da0bdf62ca1d1e491be8a03fe7637289f98c166f521",
-      "to": "0xb86d682b1b6bf20d8d54f55c48f848b9487dec37",
+      "chainId": 324,
+      "from": "0xe665ced18b0998ede7236da308e311e9261dc984",
+      "gas": 1667790n,
+      "gasPrice": 250000000n,
+      "hash": "0x835ac2ecd4e2b6e3e8dae1804f8f33d3c307b657bc90563bd9f4b4b3e4d49a29",
+      "input": "0x51905636000000000000000000000000e665ced18b0998ede7236da308e311e9261dc984000000000000000000000000000000000000000000000000000000000000009e00000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000014e665ced18b0998ede7236da308e311e9261dc9840000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "l1BatchNumber": 273767n,
+      "l1BatchTxIndex": 177n,
+      "nonce": 137,
+      "r": "0x8d8062d399549d521fb32133efd8630c94a839f18eae2a3ce85aff40b3120c35",
+      "s": "0x3c923efa910fb0e92a74c1d08a931841ab3ff1745b338c38911b2f3d4610ad78",
+      "to": "0x54de43b6ba21a5553697a2b78338e046dd7e0278",
       "transactionIndex": 0,
       "type": "legacy",
       "typeHex": "0x0",
-      "v": 84475n,
-      "value": 0n,
+      "v": 683n,
+      "value": 344464906174152n,
     }
   `)
 })
