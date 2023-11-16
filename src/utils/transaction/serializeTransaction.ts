@@ -121,12 +121,15 @@ function serializeTransactionEIP1559(
     serializedAccessList,
   ]
 
-  if (signature)
-    serializedTransaction.push(
-      signature.v === 27n ? '0x' : toHex(1), // yParity
-      trim(signature.r),
-      trim(signature.s),
-    )
+  if (signature) {
+    const yParity = (() => {
+      if (signature.v === 0n) return '0x'
+      if (signature.v === 1n) return toHex(1)
+
+      return signature.v === 27n ? '0x' : toHex(1)
+    })()
+    serializedTransaction.push(yParity, trim(signature.r), trim(signature.s))
+  }
 
   return concatHex([
     '0x02',
@@ -165,12 +168,15 @@ function serializeTransactionEIP2930(
     serializedAccessList,
   ]
 
-  if (signature)
-    serializedTransaction.push(
-      signature.v === 27n ? '0x' : toHex(1), // yParity
-      signature.r,
-      signature.s,
-    )
+  if (signature) {
+    const yParity = (() => {
+      if (signature.v === 0n) return '0x'
+      if (signature.v === 1n) return toHex(1)
+
+      return signature.v === 27n ? '0x' : toHex(1)
+    })()
+    serializedTransaction.push(yParity, trim(signature.r), trim(signature.s))
+  }
 
   return concatHex([
     '0x01',

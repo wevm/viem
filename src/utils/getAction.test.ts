@@ -11,7 +11,7 @@ import { getAction } from './getAction.js'
 test('uses tree-shakable action', async () => {
   const client = createClient({ chain: anvilChain, transport: http() })
   const actionSpy = vi.spyOn(getChainId, 'getChainId')
-  await getAction(client, getChainId.getChainId)({})
+  await getAction(client, getChainId.getChainId, 'getChainId')({})
   expect(actionSpy).toBeCalledWith(client, {})
 })
 
@@ -24,7 +24,7 @@ test('uses client action', async () => {
     }),
   )
   const clientSpy = vi.spyOn(client, 'getChainId')
-  await getAction(client, getChainId.getChainId)({})
+  await getAction(client, getChainId.getChainId, 'getChainId')({})
   expect(clientSpy).toBeCalledWith({})
 })
 

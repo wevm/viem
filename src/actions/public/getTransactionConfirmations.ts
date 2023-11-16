@@ -67,8 +67,10 @@ export async function getTransactionConfirmations<
   { hash, transactionReceipt }: GetTransactionConfirmationsParameters<TChain>,
 ): Promise<GetTransactionConfirmationsReturnType> {
   const [blockNumber, transaction] = await Promise.all([
-    getAction(client, getBlockNumber)({}),
-    hash ? getAction(client, getTransaction)({ hash }) : undefined,
+    getAction(client, getBlockNumber, 'getBlockNumber')({}),
+    hash
+      ? getAction(client, getTransaction, 'getBlockNumber')({ hash })
+      : undefined,
   ])
   const transactionBlockNumber =
     transactionReceipt?.blockNumber || transaction?.blockNumber
