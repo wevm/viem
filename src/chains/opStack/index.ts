@@ -107,11 +107,11 @@ export type {
 } from './types/transaction.js'
 
 export {
-  computeSourceHash,
-  type ComputeSourceHashErrorType,
-  type ComputeSourceHashParameters,
-  type ComputeSourceHashReturnType,
-} from './utils/computeSourceHash.js'
+  extractTransactionDepositedLogs,
+  type ExtractTransactionDepositedLogsErrorType,
+  type ExtractTransactionDepositedLogsParameters,
+  type ExtractTransactionDepositedLogsReturnType,
+} from './utils/extractTransactionDepositedLogs.js'
 
 export {
   fromOpaqueData,
@@ -119,3 +119,24 @@ export {
   type FromOpaqueDataParameters,
   type FromOpaqueDataReturnType,
 } from './utils/fromOpaqueData.js'
+
+export {
+  getL2TransactionHash,
+  type GetL2TransactionHashErrorType,
+  type GetL2TransactionHashParameters,
+  type GetL2TransactionHashReturnType,
+} from './utils/getL2TransactionHash.js'
+
+export {
+  getL2TransactionHashes,
+  type GetL2TransactionHashesErrorType,
+  type GetL2TransactionHashesParameters,
+  type GetL2TransactionHashesReturnType,
+} from './utils/getL2TransactionHashes.js'
+
+export {
+  getSourceHash,
+  type GetSourceHashErrorType,
+  type GetSourceHashParameters,
+  type GetSourceHashReturnType,
+} from './utils/getSourceHash.js'

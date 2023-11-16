@@ -77,7 +77,7 @@ export type ParseEventLogsErrorType = DecodeEventLogErrorType | ErrorType
  */
 export function parseEventLogs<
   abi extends Abi | readonly unknown[],
-  strict extends boolean | undefined,
+  strict extends boolean | undefined = true,
   eventName extends
     | ContractEventName<abi>
     | ContractEventName<abi>[]

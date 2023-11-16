@@ -2,7 +2,7 @@
 head:
   - - meta
     - property: og:title
-      content: computeSourceHash
+      content: getSourceHash
   - - meta
     - name: description
       content: Computes source hash of a deposit transaction.
@@ -12,22 +12,22 @@ head:
 
 ---
 
-# computeSourceHash
+# getSourceHash
 
 Computes the [source hash](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md#source-hash-computation) of a deposit transaction.
 
 ## Import
 ```ts
-import { computeSourceHash } from 'viem'
+import { getSourceHash } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { computeSourceHash } from 'viem'
+import { getSourceHash } from 'viem'
 
 // User Deposit
-const sourceHash = computeSourceHash({
+const sourceHash = getSourceHash({
   domain: 'userDeposit',
   l1BlockHash:
     '0x9ba3933dc6ce43c145349770a39c30f9b647f17668f004bd2e05c80a2e7262f7',
@@ -35,7 +35,7 @@ const sourceHash = computeSourceHash({
 })
 
 // L1 attributes deposited
-const sourceHash = computeSourceHash({
+const sourceHash = getSourceHash({
   domain: 'l1InfoDeposit',
   l1BlockHash:
     '0x9ba3933dc6ce43c145349770a39c30f9b647f17668f004bd2e05c80a2e7262f7',
@@ -58,7 +58,7 @@ The source hash of the deposit transaction.
 The domain of the deposit transaction.
 
 ```ts
-const sourceHash = computeSourceHash({
+const sourceHash = getSourceHash({
   domain: 'userDeposit', // [!code focus]
   l1BlockHash:
     '0x9ba3933dc6ce43c145349770a39c30f9b647f17668f004bd2e05c80a2e7262f7',
@@ -73,7 +73,7 @@ const sourceHash = computeSourceHash({
 The hash of the L1 block the deposit transaction was included in.
 
 ```ts
-const sourceHash = computeSourceHash({
+const sourceHash = getSourceHash({
   domain: 'userDeposit',
   l1BlockHash:
     '0x9ba3933dc6ce43c145349770a39c30f9b647f17668f004bd2e05c80a2e7262f7', // [!code focus]
@@ -88,7 +88,7 @@ const sourceHash = computeSourceHash({
 The index of the L1 log. **Only required for `"userDeposit"` domain.**
 
 ```ts
-const sourceHash = computeSourceHash({
+const sourceHash = getSourceHash({
   domain: 'userDeposit',
   l1BlockHash:
     '0x9ba3933dc6ce43c145349770a39c30f9b647f17668f004bd2e05c80a2e7262f7',
@@ -103,7 +103,7 @@ const sourceHash = computeSourceHash({
 The sequence number (difference between L2 block number and first L2 epoch block number). **Only required for `"l1InfoDeposit"` domain.**
 
 ```ts
-const sourceHash = computeSourceHash({
+const sourceHash = getSourceHash({
   domain: 'l1InfoDeposit',
   l1BlockHash:
     '0x9ba3933dc6ce43c145349770a39c30f9b647f17668f004bd2e05c80a2e7262f7',

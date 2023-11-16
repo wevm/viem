@@ -984,12 +984,24 @@ export const sidebar: DefaultTheme.Sidebar = {
       text: 'Utilities',
       items: [
         {
-          text: 'computeSourceHash',
-          link: '/op-stack/utilities/computeSourceHash',
+          text: 'extractTransactionDepositedLogs',
+          link: '/op-stack/utilities/extractTransactionDepositedLogs',
         },
         {
           text: 'fromOpaqueData',
           link: '/op-stack/utilities/fromOpaqueData',
+        },
+        {
+          text: 'getL2TransactionHash',
+          link: '/op-stack/utilities/getL2TransactionHash',
+        },
+        {
+          text: 'getL2TransactionHashes',
+          link: '/op-stack/utilities/getL2TransactionHashes',
+        },
+        {
+          text: 'getSourceHash',
+          link: '/op-stack/utilities/getSourceHash',
         },
         {
           text: 'parseTransaction',

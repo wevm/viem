@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
-import { computeSourceHash } from './computeSourceHash.js'
+import { getSourceHash } from './getSourceHash.js'
 
 test('userDeposit', () => {
-  const sourceHash = computeSourceHash({
+  const sourceHash = getSourceHash({
     domain: 'userDeposit',
     l1LogIndex: 196,
     l1BlockHash:
@@ -14,7 +14,7 @@ test('userDeposit', () => {
 })
 
 test('l1InfoDeposit', () => {
-  const sourceHash = computeSourceHash({
+  const sourceHash = getSourceHash({
     domain: 'l1InfoDeposit',
     sequenceNumber: 1,
     l1BlockHash:

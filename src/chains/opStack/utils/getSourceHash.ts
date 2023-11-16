@@ -10,7 +10,7 @@ import {
   keccak256,
 } from '../../../utils/hash/keccak256.js'
 
-export type ComputeSourceHashParameters = {
+export type GetSourceHashParameters = {
   /** The L1 block hash. */
   l1BlockHash: Hex
 } & (
@@ -32,9 +32,9 @@ export type ComputeSourceHashParameters = {
     }
 )
 
-export type ComputeSourceHashReturnType = Hex
+export type GetSourceHashReturnType = Hex
 
-export type ComputeSourceHashErrorType =
+export type GetSourceHashErrorType =
   | ConcatErrorType
   | Keccak256ErrorType
   | PadErrorType
@@ -46,12 +46,12 @@ const sourceHashDomainMap = {
   l1InfoDeposit: 1,
 } as const
 
-export function computeSourceHash({
+export function getSourceHash({
   domain,
   l1LogIndex,
   l1BlockHash,
   sequenceNumber,
-}: ComputeSourceHashParameters) {
+}: GetSourceHashParameters) {
   const marker = toHex(l1LogIndex! || sequenceNumber!)
   const input = concat([l1BlockHash, pad(marker, { size: 32 })])
   const depositIdHash = keccak256(input)
