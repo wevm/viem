@@ -6,8 +6,14 @@ export type FormatGweiErrorType = FormatUnitsErrorType
 
 /**
  * Converts numerical wei to a string representation of gwei.
+ * 
+ * - Docs: https://viem.sh/docs/utilities/formatGwei.html
  *
- * Example: formatGwei(1000000000n)  -> '1'
+ * @example
+ * import { formatGwei } from 'viem'
+ *
+ * formatGwei(1000000000n) 
+ * // '1'
  */
 export function formatGwei(wei: bigint, unit: 'wei' = 'wei') {
   return formatUnits(wei, gweiUnits[unit])
