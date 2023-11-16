@@ -138,6 +138,7 @@ export async function writeContract<
   const hash = await getAction(
     client,
     sendTransaction,
+    'sendTransaction',
   )({
     data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,

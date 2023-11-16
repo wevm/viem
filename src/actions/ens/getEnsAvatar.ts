@@ -71,6 +71,7 @@ export async function getEnsAvatar<TChain extends Chain | undefined>(
   const record = await getAction(
     client,
     getEnsText,
+    'getEnsText',
   )({
     blockNumber,
     blockTag,

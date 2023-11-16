@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.3
+
+### Patch Changes
+
+- [#1504](https://github.com/wagmi-dev/viem/pull/1504) [`bfdaee74`](https://github.com/wagmi-dev/viem/commit/bfdaee744f79b84319fedcddd8934804ff4d782b) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where some consumer minifiers (ie. Terser, SWC) would drop `Function.prototype.name` causing client action overrides to be ignored.
+
 ## 1.19.2
 
 ### Patch Changes
