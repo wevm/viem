@@ -23,6 +23,7 @@ import {
 } from '../../../index.js'
 import { base, baseGoerli, goerli } from '../../index.js'
 import { portalAbi } from '../abis.js'
+import { getL2TransactionHashes } from '../index.js'
 import { buildDepositTransaction } from './buildDepositTransaction.js'
 import { depositTransaction } from './depositTransaction.js'
 
@@ -230,7 +231,7 @@ describe('json-rpc accounts', () => {
 })
 
 test.skip(
-  'e2e (sepolia)',
+  'e2e (goerli)',
   async () => {
     const account = privateKeyToAccount(
       process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
@@ -254,20 +255,19 @@ test.skip(
     const hash = await depositTransaction(client_goerli, request)
     expect(hash).toBeDefined()
 
+    console.log('l1 hash', hash)
+
     const receipt = await waitForTransactionReceipt(client_goerli, {
       hash,
     })
-    const log = decodeEventLog({
-      abi: portalAbi,
-      eventName: 'TransactionDeposited',
-      ...receipt.logs[0],
+
+    const [l2Hash] = getL2TransactionHashes(receipt)
+
+    console.log('l2 hash', l2Hash)
+
+    await waitForTransactionReceipt(client_baseGoerli, {
+      hash: l2Hash,
     })
-    expect(log.args.opaqueData).toEqual(
-      encodePacked(
-        ['uint', 'uint', 'uint64', 'bool', 'bytes'],
-        [69n, 69n, 21_000n, false, '0x'],
-      ),
-    )
   },
-  { timeout: 60000 },
+  { timeout: 1800000 },
 )

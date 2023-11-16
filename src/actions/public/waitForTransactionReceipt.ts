@@ -221,10 +221,14 @@ export async function waitForTransactionReceipt<
               // If the receipt is not found, the transaction will be pending.
               // We need to check if it has potentially been replaced.
               if (
-                transaction &&
-                (err instanceof TransactionNotFoundError ||
-                  err instanceof TransactionReceiptNotFoundError)
+                err instanceof TransactionNotFoundError ||
+                err instanceof TransactionReceiptNotFoundError
               ) {
+                if (!transaction) {
+                  retrying = false
+                  return
+                }
+
                 try {
                   replacedTransaction = transaction
 
