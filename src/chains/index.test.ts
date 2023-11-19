@@ -142,6 +142,7 @@ test('exports chains', () => {
       "songbirdTestnet",
       "spicy",
       "shardeumSphinx",
+      "shibarium",
       "syscoin",
       "syscoinTestnet",
       "taraxa",
