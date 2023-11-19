@@ -7,7 +7,7 @@ export type ParseEtherErrorType = ParseUnitsErrorType | ErrorType
 
 /**
  * Converts a string representation of ether to numerical wei.
- * 
+ *
  * - Docs: https://viem.sh/docs/utilities/parseEther.html
  *
  * @example
