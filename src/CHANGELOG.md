@@ -1,5 +1,17 @@
 # viem
 
+## 1.19.4
+
+### Patch Changes
+
+- [#1512](https://github.com/wagmi-dev/viem/pull/1512) [`2d581ac5`](https://github.com/wagmi-dev/viem/commit/2d581ac55d9753cd82baa6f8d3b6e5a7cc5b6721) Thanks [@mihoward21](https://github.com/mihoward21)! - Added the multicall address for Aurora
+
+- [#1518](https://github.com/wagmi-dev/viem/pull/1518) [`f69c58ab`](https://github.com/wagmi-dev/viem/commit/f69c58ab87af6215bf488b19af2be25eeb679b57) Thanks [@melnour](https://github.com/melnour)! - Added Shibarium chain
+
+- [#1493](https://github.com/wagmi-dev/viem/pull/1493) [`d554db2e`](https://github.com/wagmi-dev/viem/commit/d554db2ebf1da6dbbc67f775818d9d1bdaf1d9ce) Thanks [@linchengzzz](https://github.com/linchengzzz)! - Updated BSC Testnet RPC URL.
+
+- [#1468](https://github.com/wagmi-dev/viem/pull/1468) [`7d89f5bc`](https://github.com/wagmi-dev/viem/commit/7d89f5bc60092a3db69703839231d32281fdb65b) Thanks [@thevolcanomanishere](https://github.com/thevolcanomanishere)! - Added JSDoc to some utility functions.
+
 ## 1.19.3
 
 ### Patch Changes
