@@ -1330,6 +1330,13 @@ export type EIP1193Parameters<
       params?: unknown
     }
 
+export type EIP1193RequestOptions = {
+  // The base delay (in ms) between retries.
+  retryDelay?: number
+  // The max number of times to retry.
+  retryCount?: number
+}
+
 type DerivedRpcSchema<
   TRpcSchema extends RpcSchema | undefined,
   TRpcSchemaOverride extends RpcSchemaOverride | undefined,
@@ -1355,4 +1362,5 @@ export type EIP1193RequestFn<
     : unknown,
 >(
   args: TParameters,
+  options?: EIP1193RequestOptions,
 ) => Promise<_ReturnType>

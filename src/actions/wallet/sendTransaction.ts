@@ -217,10 +217,13 @@ export async function sendTransaction<
       to,
       value,
     } as TransactionRequest)
-    return await client.request({
-      method: 'eth_sendTransaction',
-      params: [request],
-    })
+    return await client.request(
+      {
+        method: 'eth_sendTransaction',
+        params: [request],
+      },
+      { retryCount: 0 },
+    )
   } catch (err) {
     throw getTransactionError(err as BaseError, {
       ...args,

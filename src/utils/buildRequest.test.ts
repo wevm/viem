@@ -86,6 +86,31 @@ describe('args', () => {
     expect(retryCount).toBe(1)
   })
 
+  test('retryCount (lazy)', async () => {
+    let retryCount = -1
+    const server = await createHttpServer((_req, res) => {
+      retryCount++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: { code: InternalRpcError.code, message: 'message' },
+        }),
+      )
+    })
+
+    await expect(() =>
+      buildRequest(request(server.url))(
+        {
+          method: 'eth_blockNumber',
+        },
+        { retryCount: 1 },
+      ),
+    ).rejects.toThrowError()
+    expect(retryCount).toBe(1)
+  })
+
   test('retryDelay', async () => {
     const start = Date.now()
     let end = 0
@@ -117,7 +142,7 @@ describe('behavior', () => {
       await expect(() =>
         buildRequest(() =>
           Promise.reject(new BaseError('foo', { details: 'bar' })),
-        )(),
+        )({ method: 'eth_test' }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "foo
 
@@ -649,7 +674,9 @@ describe('behavior', () => {
 
     test('UnknownRpcError', async () => {
       await expect(() =>
-        buildRequest(() => Promise.reject(new Error('wat')))(),
+        buildRequest(() => Promise.reject(new Error('wat')))({
+          method: 'eth_test',
+        }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "An unknown RPC error occurred.
 
@@ -667,7 +694,9 @@ describe('behavior', () => {
               url: 'http://localhost:8000',
             }),
           ),
-        )(),
+        )({
+          method: 'eth_test',
+        }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "The request took too long to respond.
 
@@ -727,7 +756,9 @@ describe('behavior', () => {
         buildRequest(() => {
           retryCount++
           return Promise.reject(new Error('wat'))
-        })(),
+        })({
+          method: 'eth_test',
+        }),
       ).rejects.toThrowError()
       expect(retryCount).toBe(3)
     })
@@ -941,7 +972,7 @@ describe('behavior', () => {
   })
 })
 
-describe.only('shouldRetry', () => {
+describe('shouldRetry', () => {
   test('Error', () => {
     expect(shouldRetry(new BaseError('wat'))).toBe(true)
   })

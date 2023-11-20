@@ -51,6 +51,10 @@ import {
   type UserRejectedRequestErrorType,
 } from '../errors/rpc.js'
 import type { ErrorType } from '../errors/utils.js'
+import type {
+  EIP1193RequestFn,
+  EIP1193RequestOptions,
+} from '../types/eip1193.js'
 import type { CreateBatchSchedulerErrorType } from './promise/createBatchScheduler.js'
 import { type WithRetryErrorType, withRetry } from './promise/withRetry.js'
 import type { GetSocketErrorType } from './rpc.js'
@@ -85,20 +89,16 @@ export type RequestErrorType =
   | WithRetryErrorType
   | ErrorType
 
-export function buildRequest<TRequest extends (args: any) => Promise<any>>(
-  request: TRequest,
-  {
-    retryDelay = 150,
-    retryCount = 3,
-  }: {
-    // The base delay (in ms) between retries.
-    retryDelay?: number
-    // The max number of times to retry.
-    retryCount?: number
-  } = {},
-) {
-  return (async (args: any) =>
-    withRetry(
+export function buildRequest<request extends (args: any) => Promise<any>>(
+  request: request,
+  options: EIP1193RequestOptions = {},
+): EIP1193RequestFn {
+  return async (args, overrideOptions = {}) => {
+    const { retryDelay = 150, retryCount = 3 } = {
+      ...options,
+      ...overrideOptions,
+    }
+    return withRetry(
       async () => {
         try {
           return await request(args)
@@ -185,7 +185,8 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
         retryCount,
         shouldRetry: ({ error }) => shouldRetry(error),
       },
-    )) as TRequest
+    )
+  }
 }
 
 export function shouldRetry(error: Error) {

@@ -148,14 +148,17 @@ export async function signTransaction<
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>
 
-  return await client.request({
-    method: 'eth_signTransaction',
-    params: [
-      {
-        ...format(transaction as unknown as TransactionRequest),
-        chainId: numberToHex(chainId),
-        from: account.address,
-      } as unknown as RpcTransactionRequest,
-    ],
-  })
+  return await client.request(
+    {
+      method: 'eth_signTransaction',
+      params: [
+        {
+          ...format(transaction as unknown as TransactionRequest),
+          chainId: numberToHex(chainId),
+          from: account.address,
+        } as unknown as RpcTransactionRequest,
+      ],
+    },
+    { retryCount: 0 },
+  )
 }
