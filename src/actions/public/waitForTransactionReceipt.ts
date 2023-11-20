@@ -273,7 +273,7 @@ export async function waitForTransactionReceipt<
                   done(() => {
                     emit.onReplaced?.({
                       reason,
-                      replacedTransaction: replacedTransaction!,
+                      replacedTransaction: replacedTransaction! as any,
                       transaction: replacementTransaction,
                       transactionReceipt: receipt,
                     })

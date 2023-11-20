@@ -146,7 +146,7 @@ export async function internal_estimateFeesPerGas<
       : await internal_estimateMaxPriorityFeePerGas(
           client as Client<Transport, Chain>,
           {
-            block,
+            block: block as Block,
             chain,
             request,
           },

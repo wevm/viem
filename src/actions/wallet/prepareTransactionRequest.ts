@@ -28,6 +28,7 @@ import {
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
+import type { Block } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
@@ -184,7 +185,7 @@ export async function prepareTransactionRequest<
     // EIP-1559 fees
     const { maxFeePerGas, maxPriorityFeePerGas } =
       await internal_estimateFeesPerGas(client, {
-        block,
+        block: block as Block,
         chain,
         request: request as PrepareTransactionRequestParameters,
       })
@@ -209,7 +210,7 @@ export async function prepareTransactionRequest<
       throw new Eip1559FeesNotSupportedError()
 
     const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(client, {
-      block,
+      block: block as Block,
       chain,
       request: request as PrepareTransactionRequestParameters,
       type: 'legacy',
