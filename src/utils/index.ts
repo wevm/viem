@@ -1,7 +1,5 @@
 export {
-  type IsDeterministicErrorType,
   type RequestErrorType,
-  isDeterministicError,
   buildRequest,
 } from './buildRequest.js'
 

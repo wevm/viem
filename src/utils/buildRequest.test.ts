@@ -29,7 +29,7 @@ import {
   UserRejectedRequestError,
 } from '../errors/rpc.js'
 
-import { buildRequest, isDeterministicError } from './buildRequest.js'
+import { buildRequest, shouldRetry } from './buildRequest.js'
 import { rpc } from './rpc.js'
 
 function request(url: string) {
@@ -363,6 +363,7 @@ describe('behavior', () => {
 
     test('MethodNotSupportedRpcError', async () => {
       const server = await createHttpServer((_req, res) => {
+        console.log('test')
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -917,99 +918,123 @@ describe('behavior', () => {
       ).rejects.toThrowError()
       expect(retryCount).toBe(0)
     })
+
+    test('deterministic UserRejectedRequestError', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((_req, res) => {
+        retryCount++
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: { code: UserRejectedRequestError.code, message: 'message' },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(0)
+    })
   })
 })
 
-describe('isDeterministicError', () => {
+describe.only('shouldRetry', () => {
   test('Error', () => {
-    expect(isDeterministicError(new BaseError('wat'))).toBe(false)
+    expect(shouldRetry(new BaseError('wat'))).toBe(true)
   })
 
-  test('Error', () => {
-    expect(isDeterministicError(new ParseRpcError({} as any))).toBe(true)
+  test('ParseRpcError', () => {
+    expect(shouldRetry(new ParseRpcError({} as any))).toBe(false)
   })
 
-  test('Error', () => {
-    expect(isDeterministicError(new TimeoutError({} as any))).toBe(false)
+  test('TimeoutError', () => {
+    expect(shouldRetry(new TimeoutError({} as any))).toBe(true)
   })
 
   test('UnknownRpcError', () => {
-    expect(isDeterministicError(new UnknownRpcError(new Error('wat')))).toBe(
-      false,
-    )
+    expect(shouldRetry(new UnknownRpcError(new Error('wat')))).toBe(true)
   })
 
   test('HttpRequestError (500)', () => {
     expect(
-      isDeterministicError(
+      shouldRetry(
         new HttpRequestError({ body: {}, details: '', status: 500, url: '' }),
       ),
-    ).toBe(false)
+    ).toBe(true)
   })
 
   test('HttpRequestError (502)', () => {
     expect(
-      isDeterministicError(
+      shouldRetry(
         new HttpRequestError({ body: {}, details: '', status: 502, url: '' }),
       ),
-    ).toBe(false)
+    ).toBe(true)
   })
 
   test('HttpRequestError (503)', () => {
     expect(
-      isDeterministicError(
+      shouldRetry(
         new HttpRequestError({ body: {}, details: '', status: 503, url: '' }),
       ),
-    ).toBe(false)
+    ).toBe(true)
   })
 
   test('HttpRequestError (504)', () => {
     expect(
-      isDeterministicError(
+      shouldRetry(
         new HttpRequestError({ body: {}, details: '', status: 504, url: '' }),
       ),
-    ).toBe(false)
+    ).toBe(true)
   })
 
   test('HttpRequestError (429)', () => {
     expect(
-      isDeterministicError(
+      shouldRetry(
         new HttpRequestError({ body: {}, details: '', status: 429, url: '' }),
+      ),
+    ).toBe(true)
+  })
+
+  test('HttpRequestError (401)', () => {
+    expect(
+      shouldRetry(
+        new HttpRequestError({ body: {}, details: '', status: 401, url: '' }),
       ),
     ).toBe(false)
   })
 
   test('HttpRequestError (403)', () => {
     expect(
-      isDeterministicError(
+      shouldRetry(
         new HttpRequestError({ body: {}, details: '', status: 403, url: '' }),
       ),
-    ).toBe(false)
+    ).toBe(true)
   })
 
   test('HttpRequestError (408)', () => {
     expect(
-      isDeterministicError(
+      shouldRetry(
         new HttpRequestError({ body: {}, details: '', status: 408, url: '' }),
       ),
-    ).toBe(false)
+    ).toBe(true)
   })
 
   test('HttpRequestError (413)', () => {
     expect(
-      isDeterministicError(
+      shouldRetry(
         new HttpRequestError({ body: {}, details: '', status: 413, url: '' }),
       ),
-    ).toBe(false)
+    ).toBe(true)
   })
 
   test('InternalRpcError', () => {
-    expect(isDeterministicError(new InternalRpcError({} as any))).toBe(false)
+    expect(shouldRetry(new InternalRpcError({} as any))).toBe(true)
   })
 
   test('LimitExceededRpcError', () => {
-    expect(isDeterministicError(new LimitExceededRpcError({} as any))).toBe(
-      false,
-    )
+    expect(shouldRetry(new LimitExceededRpcError({} as any))).toBe(true)
   })
 })
