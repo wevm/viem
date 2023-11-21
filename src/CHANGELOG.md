@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.6
+
+### Patch Changes
+
+- [#1523](https://github.com/wagmi-dev/viem/pull/1523) [`ad355a8d`](https://github.com/wagmi-dev/viem/commit/ad355a8d270e9e012d097ac80b9ad63f35682aaa) Thanks [@blukat29](https://github.com/blukat29)! - Added Klaytn Baobab chain.
+
 ## 1.19.5
 
 ### Patch Changes
