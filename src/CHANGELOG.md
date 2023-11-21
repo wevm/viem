@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.5
+
+### Patch Changes
+
+- [#1499](https://github.com/wagmi-dev/viem/pull/1499) [`115d579d`](https://github.com/wagmi-dev/viem/commit/115d579df58b3b7d2d25e1a53c053550ed59bc9a) Thanks [@shazarre](https://github.com/shazarre)! - Fixes an issue where CIP-64 are sent as EIP-1559 transactions
+
 ## 1.19.4
 
 ### Patch Changes
