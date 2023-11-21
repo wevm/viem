@@ -73,6 +73,7 @@ test('exports chains', () => {
       "kava",
       "kavaTestnet",
       "klaytn",
+      "klaytnBaobab",
       "kroma",
       "kromaSepolia",
       "linea",
