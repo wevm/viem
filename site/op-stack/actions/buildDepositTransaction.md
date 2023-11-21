@@ -21,35 +21,35 @@ Builds & prepares parameters for a [deposit transaction](https://github.com/ethe
 ::: code-group
 
 ```ts [example.ts]
-import { account, baseClient, mainnetClient } from './config'
+import { account, clientL2, clientL1 } from './config'
 
-const request = await baseClient.buildDepositTransaction({ // [!code hl]
+const request = await clientL2.buildDepositTransaction({ // [!code hl]
   account, // [!code hl]
   mint: parseEther('1'), // [!code hl]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code hl]
 }) // [!code hl]
  
-const hash = await mainnetClient.depositTransaction(request)
+const hash = await clientL1.depositTransaction(request)
 ```
 
 ```ts [config.ts]
-import { createWalletClient, createPublicClient, custom, http } from 'viem'
+import { createClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, base } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
-export const mainnetClient = createWalletClient({
+export const clientL1 = createClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
-export const baseClient = createPublicClient({
+export const clientL2 = createClient({
   chain: base,
   transport: http()
 }).extend(publicActionsL2())
 
 // JSON-RPC Account
-export const [account] = await mainnetClient.getAddresses()
+export const [account] = await clientL1.getAddresses()
 // Local Account
 export const account = privateKeyToAccount(...)
 ```
@@ -66,18 +66,18 @@ If you do not wish to pass an `account` to every `buildDepositTransaction`, you 
 ::: code-group
 
 ```ts [example.ts]
-import { baseClient, mainnetClient } from './config'
+import { clientL2, clientL1 } from './config'
 
-const request = await baseClient.buildDepositTransaction({
+const request = await clientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
  
-const hash = await mainnetClient.depositTransaction(request)
+const hash = await clientL1.depositTransaction(request)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
-import { createWalletClient, createPublicClient, custom, http } from 'viem'
+import { createClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, base } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
@@ -87,29 +87,29 @@ const [account] = await window.ethereum.request({ // [!code hl]
   method: 'eth_requestAccounts' // [!code hl]
 }) // [!code hl]
 
-export const mainnetClient = createWalletClient({
+export const clientL1 = createClient({
   account, // [!code hl]
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
-export const baseClient = createPublicClient({
+export const clientL2 = createClient({
   chain: base,
   transport: http()
 }).extend(publicActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
-import { createWalletClient, createPublicClient, custom, http } from 'viem'
+import { createClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, base } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
-export const mainnetClient = createWalletClient({
+export const clientL1 = createClient({
   account: privateKeyToAccount('0x...'), // [!code hl]
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
-export const baseClient = createPublicClient({
+export const clientL2 = createClient({
   chain: base,
   transport: http()
 }).extend(publicActionsL2())

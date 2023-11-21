@@ -357,10 +357,11 @@ export type PublicActionsL2<
 
 export function publicActionsL2() {
   return <
+    TTransport extends Transport,
     TChain extends Chain | undefined = Chain | undefined,
     TAccount extends Account | undefined = Account | undefined,
   >(
-    client: Client<Transport, TChain, TAccount>,
+    client: Client<TTransport, TChain, TAccount>,
   ): PublicActionsL2<TChain, TAccount> => {
     return {
       estimateContractL1Fee: (args) => estimateContractL1Fee(client, args),

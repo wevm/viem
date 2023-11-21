@@ -38,12 +38,12 @@ const hash = await client.depositTransacton({
 ```
 
 ```ts [config.ts]
-import { createWalletClient, custom } from 'viem'
+import { createClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 import { walletActionsL1 } from 'viem/op-stack'
 
-export const client = createWalletClient({
+export const client = createClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
@@ -72,37 +72,37 @@ We can use the resulting `request` to initiate the deposit transaction on the L1
 ::: code-group
 
 ```ts [example.ts]
-import { account, baseClient, mainnetClient } from './config'
+import { account, clientL2, clientL1 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await baseClient.buildDepositTransaction({
+const request = await clientL2.buildDepositTransaction({
   account,
   mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
  
 // Execute the deposit transaction on the L1.
-const hash = await mainnetClient.depositTransacton(request)
+const hash = await clientL1.depositTransacton(request)
 ```
 
 ```ts [config.ts]
-import { createWalletClient, createPublicClient, custom, http } from 'viem'
+import { createClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, base } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
-export const mainnetClient = createWalletClient({
+export const clientL1 = createClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
-export const baseClient = createPublicClient({
+export const clientL2 = createClient({
   chain: base,
   transport: http()
 }).extend(publicActionsL2())
 
 // JSON-RPC Account
-export const [account] = await mainnetClient.getAddresses()
+export const [account] = await clientL1.getAddresses()
 // Local Account
 export const account = privateKeyToAccount(...)
 ```
@@ -121,20 +121,20 @@ If you do not wish to pass an `account` to every `depositTransaction`, you can a
 ::: code-group
 
 ```ts [example.ts]
-import { baseClient, mainnetClient } from './config'
+import { clientL2, clientL1 } from './config'
 
 // Prepare parameters for the deposit transaction on the L2.
-const request = await baseClient.buildDepositTransaction({
+const request = await clientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
  
 // Initiate the deposit transaction on the L1.
-const hash = await mainnetClient.depositTransacton(request)
+const hash = await clientL1.depositTransacton(request)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
-import { createWalletClient, createPublicClient, custom, http } from 'viem'
+import { createClient, createPublicClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, base } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
@@ -144,29 +144,29 @@ const [account] = await window.ethereum.request({ // [!code hl]
   method: 'eth_requestAccounts' // [!code hl]
 }) // [!code hl]
 
-export const mainnetClient = createWalletClient({
+export const clientL1 = createClient({
   account, // [!code hl]
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
-export const baseClient = createPublicClient({
+export const clientL2 = createPublicClient({
   chain: base,
   transport: http()
 }).extend(publicActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
-import { createWalletClient, createPublicClient, custom, http } from 'viem'
+import { createClient, createPublicClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, base } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
-export const mainnetClient = createWalletClient({
+export const clientL1 = createClient({
   account: privateKeyToAccount('0x...'), // [!code hl]
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
-export const baseClient = createPublicClient({
+export const clientL2 = createPublicClient({
   chain: base,
   transport: http()
 }).extend(publicActionsL2())
@@ -191,7 +191,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   args: {
     gas: 21_000n,
@@ -209,7 +209,7 @@ const hash = await walletClient.depositTransacton({
 Contract deployment bytecode or encoded contract method & arguments.
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     data: '0x...', // [!code focus]
@@ -228,7 +228,7 @@ const hash = await walletClient.depositTransacton({
 Gas limit for transaction execution on the L2.
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n, // [!code focus]
@@ -246,7 +246,7 @@ const hash = await walletClient.depositTransacton({
 Whether or not this is a contract deployment transaction.
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     data: '0x...',
@@ -264,7 +264,7 @@ const hash = await walletClient.depositTransacton({
 Value in wei to mint (deposit) on the L2. Debited from the caller's L1 balance.
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n,
@@ -282,7 +282,7 @@ const hash = await walletClient.depositTransacton({
 L2 Transaction recipient.
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n,
@@ -300,7 +300,7 @@ const hash = await walletClient.depositTransacton({
 Value in wei sent with this transaction on the L2. Debited from the caller's L2 balance.
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n,
@@ -320,7 +320,7 @@ The L2 chain to execute the transaction on.
 ```ts
 import { mainnet } from 'viem/chains'
 
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n,
@@ -335,14 +335,14 @@ const hash = await walletClient.depositTransacton({
 ### chain (optional)
 
 - **Type:** [`Chain`](/docs/glossary/types#chain)
-- **Default:** `walletClient.chain`
+- **Default:** `client.chain`
 
 The L1 chain. If there is a mismatch between the wallet's current chain & this chain, an error will be thrown.
 
 ```ts
 import { mainnet } from 'viem/chains'
 
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n,
@@ -361,7 +361,7 @@ const hash = await walletClient.depositTransacton({
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. 
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n,
@@ -380,7 +380,7 @@ const hash = await walletClient.depositTransacton({
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n,
@@ -400,7 +400,7 @@ const hash = await walletClient.depositTransacton({
 Unique number identifying this transaction.
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n,
@@ -422,7 +422,7 @@ The address of the [Optimism Portal contract](https://github.com/ethereum-optimi
 If a `portalAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const hash = await walletClient.depositTransacton({
+const hash = await client.depositTransacton({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: {
     gas: 21_000n,

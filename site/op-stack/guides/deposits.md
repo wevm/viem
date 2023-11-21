@@ -24,37 +24,31 @@ Here is an end-to-end overview of how to execute a deposit transaction. We will 
 
 ```ts [deposit.ts]
 import { getL2TransactionHashes } from 'viem/op-stack'
-import { 
-  account, 
-  publicClientL1, 
-  publicClientL2, 
-  walletClientL1 
-} from './config'
+import { account, clientL1, clientL2 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const request = await clientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
  
 // Execute the deposit transaction on the L1.
-const hash = await walletClientL1.depositTransacton(request)
+const hash = await clientL1.depositTransacton(request)
 
 // Wait for the L1 transaction to be processed.
-const receipt = await publicClientL1.waitForTransactionReceipt({ hash })
+const receipt = await clientL1.waitForTransactionReceipt({ hash })
 
 // Get the L2 transaction hash from the L1 transaction receipt.
 const [l2Hash] = getL2TransactionHashes(receipt)
 
 // Wait for the L2 transaction to be processed.
-const l2Receipt = await publicClientL2.waitForTransactionReceipt({ 
+const l2Receipt = await clientL2.waitForTransactionReceipt({ 
   hash: l2Hash 
 })
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
-import { createWalletClient, createPublicClient, custom, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, custom, http, publicActions } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
@@ -63,46 +57,44 @@ export const [account] = await window.ethereum.request({
   method: 'eth_requestAccounts' 
 }) 
 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
   chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-
-export const publicClientL1 = createPublicClient({
-  chain: mainnet,
-  transport: http()
+  transport: fallback([custom(window.ethereum), http()])
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const account = privateKeyToAccount('0x...')
 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
-  chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-
-export const publicClientL1 = createPublicClient({
   chain: mainnet,
   transport: http()
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 :::
@@ -125,7 +117,7 @@ The example belows how to set up a Client for either a **JSON-RPC Account (Brows
 
 ```ts [config.ts (JSON-RPC Account)]
 // Import Viem modules.
-import { createPublicClient, createWalletClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
@@ -135,57 +127,47 @@ export const [account] = await window.ethereum.request({
   method: 'eth_requestAccounts' 
 }) 
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
   chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
-  chain: mainnet,
-  transport: http()
+  transport: fallback([custom(window.ethereum), http()])
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
+//        ^? Extend with OP Stack L1 Wallet Actions.
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
+//        ^? Extend with OP Stack L2 Public Actions.
 ```
 
 ```ts [config.ts (Local Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const account = privateKeyToAccount('0x...')
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
-  chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
   chain: mainnet,
   transport: http()
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 :::
@@ -208,10 +190,10 @@ You can also use someone else's address as the `to` value if you wanted to.
 
 ```ts [deposit.ts]
 // Import Viem Clients.
-import { publicClientL2 } from './config'
+import { clientL2 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const request = await clientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
@@ -219,7 +201,7 @@ const request = await publicClientL2.buildDepositTransaction({
 
 ```ts [config.ts (JSON-RPC Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
@@ -229,57 +211,45 @@ export const [account] = await window.ethereum.request({
   method: 'eth_requestAccounts' 
 }) 
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
-  chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
   chain: mainnet,
   transport: http()
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const account = privateKeyToAccount('0x...')
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
-  chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
   chain: mainnet,
   transport: http()
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 :::
@@ -292,25 +262,21 @@ After that, we will execute the deposit transaction on the Mainnet (L1) chain.
 
 ```ts [deposit.ts]
 // Import Viem Clients.
-import { 
-  account, // [!code focus] // [!code ++]
-  publicClientL2 
-  walletClientL1, // [!code focus] // [!code ++]
-} from './config'
+import { account, clientL1, clientL2 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const request = await clientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
 
 // Execute the deposit transaction on the L1. // [!code focus]
-const hash = await walletClientL1.depositTransacton(request) // [!code focus]
+const hash = await clientL1.depositTransacton(request) // [!code focus]
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
@@ -320,57 +286,45 @@ export const [account] = await window.ethereum.request({
   method: 'eth_requestAccounts' 
 }) 
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
   chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
-  chain: mainnet,
-  transport: http()
+  transport: fallback([custom(window.ethereum), http()])
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const account = privateKeyToAccount('0x...')
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
-  chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
   chain: mainnet,
   transport: http()
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 :::
@@ -389,29 +343,24 @@ When the transaction has been processed, the `mint` value (1 Ether) will be debi
 
 ```ts [deposit.ts]
 // Import Viem Clients.
-import { 
-  account, 
-  publicClientL1, // [!code focus] // [!code ++]
-  publicClientL2, 
-  walletClientL1 
-} from './config'
+import { account, clientL1, clientL2 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const request = await clientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
 
 // Execute the deposit transaction on the L1. 
-const hash = await walletClientL1.depositTransacton(request) 
+const hash = await clientL1.depositTransacton(request) 
 
 // Wait for the L1 transaction to be processed. // [!code focus]
-const receipt = await publicClientL1.waitForTransactionReceipt({ hash }) // [!code focus]
+const receipt = await clientL1.waitForTransactionReceipt({ hash }) // [!code focus]
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
@@ -421,57 +370,45 @@ export const [account] = await window.ethereum.request({
   method: 'eth_requestAccounts' 
 }) 
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
   chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
-  chain: mainnet,
-  transport: http()
+  transport: fallback([custom(window.ethereum), http()])
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const account = privateKeyToAccount('0x...')
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
-  chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
   chain: mainnet,
   transport: http()
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 :::
@@ -484,24 +421,19 @@ Once we have the transaction receipt from the Mainnet (L1) chain, we can extract
 
 ```ts [deposit.ts]
 // Import Viem Clients.
-import { 
-  account, 
-  publicClientL1,
-  publicClientL2, 
-  walletClientL1 
-} from './config'
+import { account, clientL1, clientL2 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const request = await clientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
 
 // Execute the deposit transaction on the L1. 
-const hash = await walletClientL1.depositTransacton(request) 
+const hash = await clientL1.depositTransacton(request) 
 
 // Wait for the L1 transaction to be processed. 
-const receipt = await publicClientL1.waitForTransactionReceipt({ hash }) 
+const receipt = await clientL1.waitForTransactionReceipt({ hash }) 
 
 // Get the L2 transaction hash from the L1 transaction receipt. // [!code focus]
 const [l2Hash] = getL2TransactionHashes(receipt) // [!code focus]
@@ -509,7 +441,7 @@ const [l2Hash] = getL2TransactionHashes(receipt) // [!code focus]
 
 ```ts [config.ts (JSON-RPC Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
@@ -519,57 +451,45 @@ export const [account] = await window.ethereum.request({
   method: 'eth_requestAccounts' 
 }) 
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
   chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
-  chain: mainnet,
-  transport: http()
+  transport: fallback([custom(window.ethereum), http()])
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const account = privateKeyToAccount('0x...')
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
-  chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
   chain: mainnet,
   transport: http()
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 :::
@@ -584,37 +504,32 @@ Once the `waitForTransactionReceipt` call resolves, the transaction has been pro
 
 ```ts [deposit.ts]
 // Import Viem Clients.
-import { 
-  account, 
-  publicClientL1,
-  publicClientL2, 
-  walletClientL1 
-} from './config'
+import { account, clientL1, clientL2 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const request = await clientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
 
 // Execute the deposit transaction on the L1. 
-const hash = await walletClientL1.depositTransacton(request) 
+const hash = await clientL1.depositTransacton(request) 
 
 // Wait for the L1 transaction to be processed. 
-const receipt = await publicClientL1.waitForTransactionReceipt({ hash }) 
+const receipt = await clientL1.waitForTransactionReceipt({ hash }) 
 
 // Get the L2 transaction hash from the L1 transaction receipt. 
 const [l2Hash] = getL2TransactionHashes(receipt) 
 
 // Wait for the L2 transaction to be processed. // [!code focus]
-const l2Receipt = await publicClientL2.waitForTransactionReceipt({  // [!code focus]
+const l2Receipt = await clientL2.waitForTransactionReceipt({  // [!code focus]
   hash: l2Hash  // [!code focus]
 }) // [!code focus]
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
@@ -624,57 +539,45 @@ export const [account] = await window.ethereum.request({
   method: 'eth_requestAccounts' 
 }) 
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
   chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
-  chain: mainnet,
-  transport: http()
+  transport: fallback([custom(window.ethereum), http()])
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
 // Import Viem modules.
-import { createClient, custom, http } from 'viem'
+import { createClient, custom, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const account = privateKeyToAccount('0x...')
 
-// Create the L1 Wallet Client. 
-export const walletClientL1 = createWalletClient({
+export const clientL1 = createClient({
   account, 
-  chain: mainnet,
-  transport: custom(window.ethereum)
-}).extend(walletActionsL1())
-//        ^? Extended with OP Stack L1 Wallet Actions.
-
-// Create the L1 Public Client. 
-export const publicClientL1 = createPublicClient({
   chain: mainnet,
   transport: http()
 })
+  .extend(publicActions)
+  .extend(walletActionsL1())
 
-// Create the L2 Public Client. 
-export const publicClientL2 = createPublicClient({
+export const clientL2 = createClient({
   chain: optimism,
   transport: http()
-}).extend(publicActionsL2())
-//        ^? Extended with OP Stack L2 Public Actions.
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 ```
 
 :::

@@ -5,11 +5,13 @@ import {
   Address,
   Hash,
   TransactionReceipt,
-  createPublicClient,
-  createWalletClient,
+  createClient,
   custom,
+  fallback,
   parseEther,
+  publicActions,
   stringify,
+  walletActions,
 } from 'viem'
 import { goerli, optimismGoerli } from 'viem/chains'
 import {
@@ -19,20 +21,20 @@ import {
 } from 'viem/op-stack'
 import 'viem/window'
 
-const walletClientL1 = createWalletClient({
+const clientL1 = createClient({
   chain: goerli,
-  transport: custom(window.ethereum!),
-}).extend(walletActionsL1())
-
-const publicClientL1 = createPublicClient({
-  chain: goerli,
-  transport: http(),
+  transport: fallback([custom(window.ethereum!), http()]),
 })
+  .extend(publicActions)
+  .extend(walletActions)
+  .extend(walletActionsL1())
 
-const publicClientL2 = createPublicClient({
+const clientL2 = createClient({
   chain: optimismGoerli,
   transport: http(),
-}).extend(publicActionsL2())
+})
+  .extend(publicActions)
+  .extend(publicActionsL2())
 
 function Example() {
   const [account, setAccount] = useState<Address>()
@@ -47,18 +49,18 @@ function Example() {
   const valueInput = React.createRef<HTMLInputElement>()
 
   const connect = async () => {
-    const [address] = await walletClientL1.requestAddresses()
+    const [address] = await clientL1.requestAddresses()
     setAccount(address)
   }
 
   const depositTransaction = async () => {
     setState('preparing')
-    const request = await publicClientL2.buildDepositTransaction({
+    const request = await clientL2.buildDepositTransaction({
       account,
       mint: parseEther(valueInput.current!.value as `${number}`),
       to: addressInput.current!.value as Address,
     })
-    const hash = await walletClientL1.depositTransaction(request)
+    const hash = await clientL1.depositTransaction(request)
     setL1Hash(hash)
   }
 
@@ -66,7 +68,7 @@ function Example() {
     ;(async () => {
       if (!l1Hash) return
       setState('processingL1')
-      const receipt = await publicClientL1.waitForTransactionReceipt({
+      const receipt = await clientL1.waitForTransactionReceipt({
         hash: l1Hash,
       })
       setL1Receipt(receipt)
@@ -78,13 +80,13 @@ function Example() {
       if (!l1Receipt) return
       setState('processingL2')
       const [l2Hash] = getL2TransactionHashes(l1Receipt)
-      const receipt = await publicClientL2.waitForTransactionReceipt({
+      const receipt = await clientL2.waitForTransactionReceipt({
         hash: l2Hash,
       })
       setL2Receipt(receipt)
       setState('success')
     })()
-  }, [l1Receipt, publicClientL2])
+  }, [l1Receipt, clientL2])
 
   if (account)
     return (

@@ -28,7 +28,7 @@ import { getL2TransactionHashes } from 'viem'
 ```ts
 import { extractTransactionDepositedLogs, getL2TransactionHashes } from 'viem'
 
-const receipt = await mainnetClient.getTransactionReceipt({
+const receipt = await client.getTransactionReceipt({
   hash: '0xa08acae48f12243bccd7153c88d892673d5578cce4ee9988c0332e8bba47436b',
 })
 
