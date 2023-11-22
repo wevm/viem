@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Patch ccipFetch method when URL includes {sender}
+Patched `ccipFetch` method to use POST by default when URL includes `{sender}`.
