@@ -116,8 +116,7 @@ export async function ccipFetch({
 
   for (let i = 0; i < urls.length; i++) {
     const url = urls[i]
-    const method =
-      url.includes('{sender}') || url.includes('{data}') ? 'GET' : 'POST'
+    const method = url.includes('{data}') ? 'GET' : 'POST'
     const body = method === 'POST' ? { data, sender } : undefined
 
     try {
