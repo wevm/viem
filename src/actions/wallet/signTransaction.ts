@@ -155,12 +155,12 @@ export async function signTransaction<
       account: account,
     })
 
+    transaction.customSignature = customSignature
     // If we have the customSignature we can sign the transaction, doesn't matter if account type
     // is `local` or `json-rpc`.
     return client.chain?.serializers?.transaction(
       {
         chainId,
-        customSignature,
         ...transaction,
       } as unknown as TransactionSerializableEIP712,
       // Use this blank private key, probably we should change the code to be optional,

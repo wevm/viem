@@ -121,6 +121,7 @@ export type TransactionEIP712<
   TType = 'eip712',
 > = TransactionBase<TQuantity, TIndex, TPending> &
   FeeValuesEIP1559<TQuantity> & {
+    customSignature?: Hex
     gasPerPubdata?: bigint
     factoryDeps?: Hex[]
     paymaster?: Address
@@ -159,6 +160,11 @@ export type TransactionRequestLegacy<
   Partial<FeeValuesLegacy<TQuantity>> & {
     accessList?: never
     type?: TTransactionType
+    gasPerPubdata?: never
+    factoryDeps?: never
+    paymaster?: never
+    paymasterInput?: never
+    customSignature?: never
   }
 export type TransactionRequestEIP2930<
   TQuantity = bigint,
@@ -168,6 +174,11 @@ export type TransactionRequestEIP2930<
   Partial<FeeValuesLegacy<TQuantity>> & {
     accessList?: AccessList
     type?: TTransactionType
+    gasPerPubdata?: never
+    factoryDeps?: never
+    paymaster?: never
+    paymasterInput?: never
+    customSignature?: never
   }
 export type TransactionRequestEIP1559<
   TQuantity = bigint,
@@ -177,6 +188,11 @@ export type TransactionRequestEIP1559<
   Partial<FeeValuesEIP1559<TQuantity>> & {
     accessList?: AccessList
     type?: TTransactionType
+    gasPerPubdata?: never
+    factoryDeps?: never
+    paymaster?: never
+    paymasterInput?: never
+    customSignature?: never
   }
 export type TransactionRequestEIP712<
   TQuantity = bigint,
@@ -189,6 +205,7 @@ export type TransactionRequestEIP712<
     factoryDeps?: Hex[]
     paymaster?: Address
     paymasterInput?: Hex
+    customSignature?: Hex
     type?: TTransactionType
   }
 export type TransactionRequest<TQuantity = bigint, TIndex = number> =
