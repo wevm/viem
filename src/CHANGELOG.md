@@ -1,5 +1,13 @@
 # viem
 
+## 1.19.7
+
+### Patch Changes
+
+- [#1520](https://github.com/wagmi-dev/viem/pull/1520) [`4374b7c3`](https://github.com/wagmi-dev/viem/commit/4374b7c3e2a9c8d456e04a3b130d89227005c668) Thanks [@lucemans](https://github.com/lucemans)! - Patched `ccipFetch` method to use POST by default when URL includes `{sender}`.
+
+- [#1519](https://github.com/wagmi-dev/viem/pull/1519) [`f51a3823`](https://github.com/wagmi-dev/viem/commit/f51a38230098755a7ece9e0b42aaabe5673b004e) Thanks [@marcosdellavecchia](https://github.com/marcosdellavecchia)! - Added Shimmer and Shimmer Testnet chains.
+
 ## 1.19.6
 
 ### Patch Changes
