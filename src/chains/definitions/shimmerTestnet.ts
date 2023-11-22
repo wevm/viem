@@ -11,16 +11,16 @@ export const shimmerTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     public: {
-      http: ['https://json-rpc.evm.testnet.shimmer.network/'],
+      http: ['https://json-rpc.evm.testnet.shimmer.network'],
     },
     default: {
-      http: ['https://json-rpc.evm.testnet.shimmer.network/'],
+      http: ['https://json-rpc.evm.testnet.shimmer.network'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Shimmer Network Explorer',
-      url: 'https://explorer.evm.testnet.shimmer.network/',
+      url: 'https://explorer.evm.testnet.shimmer.network',
     },
   },
   testnet: true,
