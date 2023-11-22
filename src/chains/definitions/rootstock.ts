@@ -1,0 +1,21 @@
+import { defineChain } from '../../utils/chain/defineChain.js'
+
+export const rootstock = /*#__PURE__*/ defineChain({
+  id: 30,
+  name: 'Rootstock Mainnet',
+  network: 'rootstock',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Rootstock Bitcoin',
+    symbol: 'RBTC',
+  },
+  rpcUrls: {
+    public: { http: ['https://public-node.rsk.co'] },
+    default: { http: ['https://public-node.rsk.co'] },
+  },
+  blockExplorers: {
+    blockscout: { name: 'Blockscout', url: 'https://rootstock.blockscout.com' },
+    rskExplorer: { name: 'RSK Explorer', url: 'https://explorer.rsk.co' },
+    default: { name: 'RSK Explorer', url: 'https://explorer.rsk.co' },
+  },
+})
