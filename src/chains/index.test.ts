@@ -124,6 +124,8 @@ test('exports chains', () => {
       "scrollSepolia",
       "scrollTestnet",
       "sepolia",
+      "shimmer",
+      "shimmerTestnet",
       "skaleBlockBrawlers",
       "skaleCalypso",
       "skaleCalypsoTestnet",
