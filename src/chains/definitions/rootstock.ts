@@ -16,7 +16,7 @@ export const rootstock = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     blockscout: { name: "Blockscout", url: "https://rootstock.blockscout.com" },
-    rskExplorer: { name: "RSK Explorer", url: "https://explorer.rsk.co" },
+    rskexplorer: { name: "RSK Explorer", url: "https://explorer.rsk.co" },
     default: { name: "RSK Explorer", url: "https://explorer.rsk.co" },
   },
   contracts: {
