@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.8
+
+### Patch Changes
+
+- [#1529](https://github.com/wagmi-dev/viem/pull/1529) [`726c3fd0`](https://github.com/wagmi-dev/viem/commit/726c3fd074dc5da1f96c52dcd9fdcc0af8c5a96a) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Rootstock Mainnet chain.
+
 ## 1.19.7
 
 ### Patch Changes
