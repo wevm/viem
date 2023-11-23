@@ -31,7 +31,7 @@ const request = await walletClient.prepareTransactionRequest({
 
 const signature = await walletClient.signTransaction(request)
 
-const hash = await walletClient.sendRawTransaction(signature) // [!code focus]
+const hash = await walletClient.sendRawTransaction({ serializedTransaction: signature }) // [!code focus]
 ```
 
 ```ts [config.ts]
