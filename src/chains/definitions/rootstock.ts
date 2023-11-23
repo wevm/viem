@@ -10,13 +10,11 @@ export const rootstock = /*#__PURE__*/ defineChain({
     symbol: "RBTC",
   },
   rpcUrls: {
-    mycrypto: { http: ["https://mycrypto.rsk.co"] },
     public: { http: ["https://public-node.rsk.co"] },
     default: { http: ["https://public-node.rsk.co"] },
   },
   blockExplorers: {
     blockscout: { name: "Blockscout", url: "https://rootstock.blockscout.com" },
-    rskexplorer: { name: "RSK Explorer", url: "https://explorer.rsk.co" },
     default: { name: "RSK Explorer", url: "https://explorer.rsk.co" },
   },
   contracts: {
