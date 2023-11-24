@@ -20,7 +20,7 @@
     "lint": "biome check .",
     "lint:fix": "bun run lint --apply",
     "postinstall": "bun run contracts:build",
-    "preinstall": "npx only-allow@1.2.1 bun",
+    "preinstall": "npx only-allow bun",
     "prepare": "bun x simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
@@ -59,7 +59,7 @@
     "rimraf": "^4.4.1",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^8.2.4",
-    "typescript": "5.1.6",
+    "typescript": "5.3.2",
     "vite": "^4.4.2",
     "vitest": "~0.34.3"
   },

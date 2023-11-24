@@ -913,7 +913,7 @@ type GetSimulateFunction<
     >(
       ...parameters: Args extends readonly []
         ? [
-            options?: UnionOmit<
+            options?: Omit<
               SimulateContractParameters<
                 TAbi,
                 TFunctionName,
@@ -927,7 +927,7 @@ type GetSimulateFunction<
           ]
         : [
             args: Args,
-            options?: UnionOmit<
+            options?: Omit<
               SimulateContractParameters<
                 TAbi,
                 TFunctionName,
@@ -956,7 +956,7 @@ type GetSimulateFunction<
     >(
       ...parameters:
         | [
-            options?: UnionOmit<
+            options?: Omit<
               SimulateContractParameters<
                 TAbi,
                 TFunctionName,
@@ -970,7 +970,7 @@ type GetSimulateFunction<
           ]
         | [
             args: readonly unknown[],
-            options?: UnionOmit<
+            options?: Omit<
               SimulateContractParameters<
                 TAbi,
                 TFunctionName,
