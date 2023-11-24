@@ -18,11 +18,11 @@ export const pgnTestnet = /*#__PURE__*/ defineChain(
     blockExplorers: {
       default: {
         name: 'PGN Testnet Explorer',
-        url: 'https://explorer.sepolia.publicgoods.network/',
+        url: 'https://explorer.sepolia.publicgoods.network',
       },
       blocksout: {
         name: 'PGN Testnet Explorer',
-        url: 'https://explorer.sepolia.publicgoods.network/',
+        url: 'https://explorer.sepolia.publicgoods.network',
       },
     },
     contracts: {
