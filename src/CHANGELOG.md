@@ -1,5 +1,13 @@
 # viem
 
+## 1.19.9
+
+### Patch Changes
+
+- [#1533](https://github.com/wagmi-dev/viem/pull/1533) [`5897b5b7`](https://github.com/wagmi-dev/viem/commit/5897b5b7d040735fa38e6282cec12f166de38618) Thanks [@laitsky](https://github.com/laitsky)! - Added PGN Mainnet & Testnet chain
+
+- [#1532](https://github.com/wagmi-dev/viem/pull/1532) [`bd5c6cbf`](https://github.com/wagmi-dev/viem/commit/bd5c6cbf8c08ade558109f9d48c503c2a8d9273d) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added multicall3 contract to filecoin
+
 ## 1.19.8
 
 ### Patch Changes
