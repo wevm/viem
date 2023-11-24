@@ -128,6 +128,7 @@ test('exports utils', () => {
       "parseAbiParameters": [Function],
       "parseAccount": [Function],
       "parseEther": [Function],
+      "parseEventLogs": [Function],
       "parseGwei": [Function],
       "parseTransaction": [Function],
       "parseUnits": [Function],

@@ -122,7 +122,9 @@ test('default', async () => {
           ],
         },
       },
-      "serializers": undefined,
+      "serializers": {
+        "transaction": [Function],
+      },
       "sourceId": 1,
     }
   `)
