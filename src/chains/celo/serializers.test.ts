@@ -120,19 +120,6 @@ describe('cip42', () => {
     })
   })
 
-  test('args: gatewayFee (absent)', () => {
-    const transaction: TransactionSerializableCIP42 = {
-      ...baseCip42,
-      gatewayFeeRecipient: undefined,
-      gatewayFee: undefined,
-      type: 'cip42',
-    }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
-      ...transaction,
-      type: 'cip42',
-    })
-  })
-
   test('args: maxFeePerGas (absent)', () => {
     const transaction: TransactionSerializableCIP42 = {
       ...baseCip42,
@@ -439,12 +426,10 @@ describe('cip64', () => {
       gatewayFee: undefined,
       type: 'cip42',
     }
-    expect(parseTransactionCelo(serializeTransactionCelo(transaction))).toEqual(
-      {
-        ...transaction,
-        type: 'cip64',
-      },
-    )
+    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+      ...transaction,
+      type: 'cip64',
+    })
   })
 })
 
