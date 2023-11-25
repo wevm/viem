@@ -144,6 +144,7 @@ export async function waitForTransactionReceipt<
         const _unwatch = getAction(
           client,
           watchBlockNumber,
+          'watchBlockNumber',
         )({
           emitMissed: true,
           emitOnBegin: true,
@@ -185,6 +186,7 @@ export async function waitForTransactionReceipt<
                     transaction = (await getAction(
                       client,
                       getTransaction,
+                      'getTransaction',
                     )({ hash })) as GetTransactionReturnType<TChain>
                     if (transaction.blockNumber)
                       blockNumber = transaction.blockNumber
@@ -199,7 +201,11 @@ export async function waitForTransactionReceipt<
               }
 
               // Get the receipt to check if it's been processed.
-              receipt = await getAction(client, getTransactionReceipt)({ hash })
+              receipt = await getAction(
+                client,
+                getTransactionReceipt,
+                'getTransactionReceipt',
+              )({ hash })
 
               // Check if we have enough confirmations. If not, continue polling.
               if (
@@ -225,6 +231,7 @@ export async function waitForTransactionReceipt<
                   const block = await getAction(
                     client,
                     getBlock,
+                    'getBlock',
                   )({
                     blockNumber,
                     includeTransactions: true,
@@ -245,6 +252,7 @@ export async function waitForTransactionReceipt<
                   receipt = await getAction(
                     client,
                     getTransactionReceipt,
+                    'getTransactionReceipt',
                   )({
                     hash: replacementTransaction.hash,
                   })

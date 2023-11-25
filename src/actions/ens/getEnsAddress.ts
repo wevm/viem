@@ -122,6 +122,7 @@ export async function getEnsAddress<TChain extends Chain | undefined>(
     const res = await getAction(
       client,
       readContract,
+      'readContract',
     )({
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,

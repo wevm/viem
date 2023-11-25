@@ -33,6 +33,7 @@ test('gets transaction receipt', async () => {
       "blockNumber": 16280769n,
       "contractAddress": null,
       "cumulativeGasUsed": 21000n,
+      "deposit_nonce": null,
       "effectiveGasPrice": 33427926161n,
       "from": "0x043022ef9fca1066024d19d681e2ccf44ff90de3",
       "gasUsed": 21000n,
@@ -131,6 +132,7 @@ describe('e2e', () => {
       {
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
+        "deposit_nonce": null,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gasUsed": 21000n,
         "logs": [],

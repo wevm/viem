@@ -155,7 +155,7 @@ export async function sendTransaction<
 
     let chainId
     if (chain !== null) {
-      chainId = await getAction(client, getChainId)({})
+      chainId = await getAction(client, getChainId, 'getChainId')({})
       assertCurrentChain({
         currentChainId: chainId,
         chain,
@@ -167,6 +167,7 @@ export async function sendTransaction<
       const request = await getAction(
         client,
         prepareTransactionRequest,
+        'prepareTransactionRequest',
       )({
         account,
         accessList,
@@ -182,7 +183,8 @@ export async function sendTransaction<
         ...rest,
       } as any)
 
-      if (!chainId) chainId = await getAction(client, getChainId)({})
+      if (!chainId)
+        chainId = await getAction(client, getChainId, 'getChainId')({})
 
       const serializer = chain?.serializers?.transaction
       const serializedTransaction = (await account.signTransaction(
@@ -195,6 +197,7 @@ export async function sendTransaction<
       return await getAction(
         client,
         sendRawTransaction,
+        'sendRawTransaction',
       )({
         serializedTransaction,
       })

@@ -96,6 +96,7 @@ export function watchPendingTransactions<
                 filter = await getAction(
                   client,
                   createPendingTransactionFilter,
+                  'createPendingTransactionFilter',
                 )({})
                 return
               } catch (err) {
@@ -104,7 +105,11 @@ export function watchPendingTransactions<
               }
             }
 
-            const hashes = await getAction(client, getFilterChanges)({ filter })
+            const hashes = await getAction(
+              client,
+              getFilterChanges,
+              'getFilterChanges',
+            )({ filter })
             if (hashes.length === 0) return
             if (batch) emit.onTransactions(hashes)
             else for (const hash of hashes) emit.onTransactions([hash])
@@ -119,7 +124,12 @@ export function watchPendingTransactions<
       )
 
       return async () => {
-        if (filter) await getAction(client, uninstallFilter)({ filter })
+        if (filter)
+          await getAction(
+            client,
+            uninstallFilter,
+            'uninstallFilter',
+          )({ filter })
         unwatch()
       }
     })

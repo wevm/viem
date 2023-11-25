@@ -126,7 +126,9 @@ export async function internal_estimateFeesPerGas<
     (base * BigInt(Math.ceil(baseFeeMultiplier * denominator))) /
     BigInt(denominator)
 
-  const block = block_ ? block_ : await getAction(client, getBlock)({})
+  const block = block_
+    ? block_
+    : await getAction(client, getBlock, 'getBlock')({})
 
   if (typeof chain?.fees?.estimateFeesPerGas === 'function')
     return chain.fees.estimateFeesPerGas({
@@ -163,7 +165,8 @@ export async function internal_estimateFeesPerGas<
   }
 
   const gasPrice =
-    request?.gasPrice ?? multiply(await getAction(client, getGasPrice)({}))
+    request?.gasPrice ??
+    multiply(await getAction(client, getGasPrice, 'getGasPrice')({}))
   return {
     gasPrice,
   } as EstimateFeesPerGasReturnType<type>

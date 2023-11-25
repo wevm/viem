@@ -128,7 +128,7 @@ export async function signTransaction<
     ...args,
   })
 
-  const chainId = await getAction(client, getChainId)({})
+  const chainId = await getAction(client, getChainId, 'getChainId')({})
   if (chain !== null)
     assertCurrentChain({
       currentChainId: chainId,

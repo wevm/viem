@@ -112,6 +112,7 @@ export async function readContract<
     const { data } = await getAction(
       client,
       call,
+      'call',
     )({
       ...(rest as CallParameters),
       data: calldata,

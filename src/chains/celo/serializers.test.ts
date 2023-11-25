@@ -431,6 +431,21 @@ describe('cip64', () => {
     expect(parseTransaction(tx1)).toEqual(parseTransaction(tx2))
     expect(parseTransaction(tx1)).toEqual({ ...baseCip64, type: 'cip64' })
   })
+
+  test('CIP-42 transaction that has all CIP-64 fields and CIP-64 takes precedence', () => {
+    const transaction: TransactionSerializableCIP42 = {
+      ...baseCip42,
+      gatewayFeeRecipient: undefined,
+      gatewayFee: undefined,
+      type: 'cip42',
+    }
+    expect(parseTransactionCelo(serializeTransactionCelo(transaction))).toEqual(
+      {
+        ...transaction,
+        type: 'cip64',
+      },
+    )
+  })
 })
 
 describe('invalid params specific to CIP-42', () => {

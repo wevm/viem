@@ -195,6 +195,7 @@ export function watchEvent<
               filter = (await getAction(
                 client,
                 createEventFilter as any,
+                'createEventFilter',
               )({
                 address,
                 args,
@@ -214,13 +215,21 @@ export function watchEvent<
           try {
             let logs: Log[]
             if (filter) {
-              logs = await getAction(client, getFilterChanges)({ filter })
+              logs = await getAction(
+                client,
+                getFilterChanges,
+                'getFilterChanges',
+              )({ filter })
             } else {
               // If the filter doesn't exist, we will fall back to use `getLogs`.
               // The fall back exists because some RPC Providers do not support filters.
 
               // Fetch the block number to use for `getLogs`.
-              const blockNumber = await getAction(client, getBlockNumber)({})
+              const blockNumber = await getAction(
+                client,
+                getBlockNumber,
+                'getBlockNumber',
+              )({})
 
               // If the block number has changed, we will need to fetch the logs.
               // If the block number doesn't exist, we are yet to reach the first poll interval,
@@ -229,6 +238,7 @@ export function watchEvent<
                 logs = await getAction(
                   client,
                   getLogs,
+                  'getLogs',
                 )({
                   address,
                   args,
@@ -261,7 +271,12 @@ export function watchEvent<
       )
 
       return async () => {
-        if (filter) await getAction(client, uninstallFilter)({ filter })
+        if (filter)
+          await getAction(
+            client,
+            uninstallFilter,
+            'uninstallFilter',
+          )({ filter })
         unwatch()
       }
     })

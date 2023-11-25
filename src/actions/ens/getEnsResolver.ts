@@ -91,6 +91,7 @@ export async function getEnsResolver<TChain extends Chain | undefined>(
   const [resolverAddress] = await getAction(
     client,
     readContract,
+    'readContract',
   )({
     address: universalResolverAddress,
     abi: [

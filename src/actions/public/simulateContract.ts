@@ -221,6 +221,7 @@ export async function simulateContract<
     const { data } = await getAction(
       client,
       call,
+      'call',
     )({
       batch: false,
       data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,

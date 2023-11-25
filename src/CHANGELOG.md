@@ -1,5 +1,57 @@
 # viem
 
+## 1.19.9
+
+### Patch Changes
+
+- [#1533](https://github.com/wagmi-dev/viem/pull/1533) [`5897b5b7`](https://github.com/wagmi-dev/viem/commit/5897b5b7d040735fa38e6282cec12f166de38618) Thanks [@laitsky](https://github.com/laitsky)! - Added PGN Mainnet & Testnet chain
+
+- [#1532](https://github.com/wagmi-dev/viem/pull/1532) [`bd5c6cbf`](https://github.com/wagmi-dev/viem/commit/bd5c6cbf8c08ade558109f9d48c503c2a8d9273d) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added multicall3 contract to filecoin
+
+## 1.19.8
+
+### Patch Changes
+
+- [#1529](https://github.com/wagmi-dev/viem/pull/1529) [`726c3fd0`](https://github.com/wagmi-dev/viem/commit/726c3fd074dc5da1f96c52dcd9fdcc0af8c5a96a) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Rootstock Mainnet chain.
+
+## 1.19.7
+
+### Patch Changes
+
+- [#1520](https://github.com/wagmi-dev/viem/pull/1520) [`4374b7c3`](https://github.com/wagmi-dev/viem/commit/4374b7c3e2a9c8d456e04a3b130d89227005c668) Thanks [@lucemans](https://github.com/lucemans)! - Patched `ccipFetch` method to use POST by default when URL includes `{sender}`.
+
+- [#1519](https://github.com/wagmi-dev/viem/pull/1519) [`f51a3823`](https://github.com/wagmi-dev/viem/commit/f51a38230098755a7ece9e0b42aaabe5673b004e) Thanks [@marcosdellavecchia](https://github.com/marcosdellavecchia)! - Added Shimmer and Shimmer Testnet chains.
+
+## 1.19.6
+
+### Patch Changes
+
+- [#1523](https://github.com/wagmi-dev/viem/pull/1523) [`ad355a8d`](https://github.com/wagmi-dev/viem/commit/ad355a8d270e9e012d097ac80b9ad63f35682aaa) Thanks [@blukat29](https://github.com/blukat29)! - Added Klaytn Baobab chain.
+
+## 1.19.5
+
+### Patch Changes
+
+- [#1499](https://github.com/wagmi-dev/viem/pull/1499) [`115d579d`](https://github.com/wagmi-dev/viem/commit/115d579df58b3b7d2d25e1a53c053550ed59bc9a) Thanks [@shazarre](https://github.com/shazarre)! - Fixes an issue where CIP-64 are sent as EIP-1559 transactions
+
+## 1.19.4
+
+### Patch Changes
+
+- [#1512](https://github.com/wagmi-dev/viem/pull/1512) [`2d581ac5`](https://github.com/wagmi-dev/viem/commit/2d581ac55d9753cd82baa6f8d3b6e5a7cc5b6721) Thanks [@mihoward21](https://github.com/mihoward21)! - Added the multicall address for Aurora
+
+- [#1518](https://github.com/wagmi-dev/viem/pull/1518) [`f69c58ab`](https://github.com/wagmi-dev/viem/commit/f69c58ab87af6215bf488b19af2be25eeb679b57) Thanks [@melnour](https://github.com/melnour)! - Added Shibarium chain
+
+- [#1493](https://github.com/wagmi-dev/viem/pull/1493) [`d554db2e`](https://github.com/wagmi-dev/viem/commit/d554db2ebf1da6dbbc67f775818d9d1bdaf1d9ce) Thanks [@linchengzzz](https://github.com/linchengzzz)! - Updated BSC Testnet RPC URL.
+
+- [#1468](https://github.com/wagmi-dev/viem/pull/1468) [`7d89f5bc`](https://github.com/wagmi-dev/viem/commit/7d89f5bc60092a3db69703839231d32281fdb65b) Thanks [@thevolcanomanishere](https://github.com/thevolcanomanishere)! - Added JSDoc to some utility functions.
+
+## 1.19.3
+
+### Patch Changes
+
+- [#1504](https://github.com/wagmi-dev/viem/pull/1504) [`bfdaee74`](https://github.com/wagmi-dev/viem/commit/bfdaee744f79b84319fedcddd8934804ff4d782b) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where some consumer minifiers (ie. Terser, SWC) would drop `Function.prototype.name` causing client action overrides to be ignored.
+
 ## 1.19.2
 
 ### Patch Changes

@@ -156,7 +156,11 @@ export async function prepareTransactionRequest<
 
   const account = account_ ? parseAccount(account_) : undefined
 
-  const block = await getAction(client, getBlock)({ blockTag: 'latest' })
+  const block = await getAction(
+    client,
+    getBlock,
+    'getBlock',
+  )({ blockTag: 'latest' })
 
   const request = { ...args, ...(account ? { from: account?.address } : {}) }
 
@@ -164,6 +168,7 @@ export async function prepareTransactionRequest<
     request.nonce = await getAction(
       client,
       getTransactionCount,
+      'getTransactionCount',
     )({
       address: account.address,
       blockTag: 'pending',
@@ -222,6 +227,7 @@ export async function prepareTransactionRequest<
     request.gas = await getAction(
       client,
       estimateGas,
+      'estimateGas',
     )({
       ...request,
       account: account
