@@ -47,7 +47,7 @@ import {
   type SendRawTransactionReturnType,
   sendRawTransaction,
 } from './sendRawTransaction.js'
-import { signTransaction } from './signTransaction.js'
+import { signTransaction, SignTransactionParameters } from './signTransaction.js'
 
 export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -178,10 +178,10 @@ export async function sendTransaction<
     }
 
     if (
-      chain?.eip712domain?.eip712domain &&
+      client.chain?.eip712domain?.eip712domain &&
       isEip712Transaction(transaction as unknown as TransactionSerializable)
     ) {
-      const eip712signer = chain?.eip712domain?.eip712domain
+      const eip712signer = client.chain?.eip712domain?.eip712domain
 
       if (eip712signer === undefined)
         throw new BaseError('Chain doesnt define EIP712 signer.')
@@ -198,7 +198,7 @@ export async function sendTransaction<
       const serializedTransaction = (await signTransaction(client, {
         ...request,
         chainId,
-      } as TransactionSerializable)) as Hash
+      } as unknown as SignTransactionParameters)) as Hash
 
       return await getAction(
         client,

@@ -89,11 +89,11 @@ function serializeTransactionZkSyncEIP712(
 
 export function isEIP712(transaction: ZkSyncTransactionSerializable) {
   if (
-    'customSignature' in transaction ||
-    'paymaster' in transaction ||
-    'paymasterInput' in transaction ||
-    'gasPerPubdata' in transaction ||
-    'factoryDeps' in transaction
+    ('customSignature' in transaction && transaction.customSignature) ||
+    ('paymaster' in transaction && transaction.paymaster) ||
+    ('paymasterInput' in transaction && transaction.paymasterInput) ||
+    ('gasPerPubdata' in transaction && transaction.gasPerPubdata) ||
+    ('factoryDeps' in transaction && transaction.factoryDeps)
   )
     return true
   return false

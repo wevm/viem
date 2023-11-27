@@ -1,5 +1,5 @@
-import type { ChainEIP712Domain } from '~viem/types/chain.js'
-import type { EIP712Domain, EIP712DomainFn } from '~viem/types/eip712signer.js'
+import type { ChainEIP712Domain } from '../../types/chain.js'
+import type { EIP712Domain, EIP712DomainFn } from '../../types/eip712signer.js'
 import { isEIP712 as isZkSyncEIP712 } from './serializers.js'
 import type {
   ZkSyncEIP712TransactionToSign,
