@@ -66,7 +66,7 @@ export type WalletActionsL1<
    *   targetChain: base,
    * })
    */
-  depositTransaction: <chainOverride extends Chain | undefined = undefined,>(
+  depositTransaction: <chainOverride extends Chain | undefined = undefined>(
     parameters: DepositTransactionParameters<chain, account, chainOverride>,
   ) => Promise<DepositTransactionReturnType>
 }
