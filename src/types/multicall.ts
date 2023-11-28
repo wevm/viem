@@ -20,21 +20,7 @@ export type MulticallContracts<
 > = contracts extends readonly [] // no contracts, return empty
   ? readonly []
   : contracts extends readonly [infer contract] // one contract left before returning `result`
-  ? readonly [
-      ...result,
-      MaybePartial<
-        Prettify<
-          GetMulticallContractParameters<contract, options['mutability']> &
-            options['properties']
-        >,
-        options['optional']
-      >,
-    ]
-  : contracts extends readonly [infer contract, ...infer rest] // grab first contract and recurse through `rest`
-  ? MulticallContracts<
-      [...rest],
-      options,
-      [
+    ? readonly [
         ...result,
         MaybePartial<
           Prettify<
@@ -44,21 +30,39 @@ export type MulticallContracts<
           options['optional']
         >,
       ]
-    >
-  : readonly unknown[] extends contracts
-  ? contracts
-  : // If `contracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
-  // use this to infer the param types in the case of Array.map() argument
-  contracts extends readonly (infer contract extends ContractFunctionParameters)[]
-  ? readonly MaybePartial<
-      Prettify<contract & options['properties']>,
-      options['optional']
-    >[]
-  : // Fallback
-    readonly MaybePartial<
-      Prettify<ContractFunctionParameters & options['properties']>,
-      options['optional']
-    >[]
+    : contracts extends readonly [infer contract, ...infer rest] // grab first contract and recurse through `rest`
+      ? MulticallContracts<
+          [...rest],
+          options,
+          [
+            ...result,
+            MaybePartial<
+              Prettify<
+                GetMulticallContractParameters<
+                  contract,
+                  options['mutability']
+                > &
+                  options['properties']
+              >,
+              options['optional']
+            >,
+          ]
+        >
+      : readonly unknown[] extends contracts
+        ? contracts
+        : // If `contracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
+          // use this to infer the param types in the case of Array.map() argument
+          contracts extends readonly (infer contract extends
+              ContractFunctionParameters)[]
+          ? readonly MaybePartial<
+              Prettify<contract & options['properties']>,
+              options['optional']
+            >[]
+          : // Fallback
+            readonly MaybePartial<
+              Prettify<ContractFunctionParameters & options['properties']>,
+              options['optional']
+            >[]
 
 export type MulticallResults<
   contracts extends readonly unknown[] = readonly ContractFunctionParameters[],
@@ -72,20 +76,7 @@ export type MulticallResults<
 > = contracts extends readonly [] // no contracts, return empty
   ? readonly []
   : contracts extends readonly [infer contract] // one contract left before returning `result`
-  ? [
-      ...result,
-      MulticallResponse<
-        GetMulticallContractReturnType<contract, options['mutability']>,
-        options['error'],
-        allowFailure
-      >,
-    ]
-  : contracts extends readonly [infer contract, ...infer rest] // grab first contract and recurse through `rest`
-  ? MulticallResults<
-      [...rest],
-      allowFailure,
-      options,
-      [
+    ? [
         ...result,
         MulticallResponse<
           GetMulticallContractReturnType<contract, options['mutability']>,
@@ -93,19 +84,33 @@ export type MulticallResults<
           allowFailure
         >,
       ]
-    >
-  : readonly unknown[] extends contracts
-  ? MulticallResponse<unknown, options['error'], allowFailure>[]
-  : // If `contracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
-  // use this to infer the param types in the case of Array.map() argument
-  contracts extends readonly (infer contract extends ContractFunctionParameters)[]
-  ? MulticallResponse<
-      GetMulticallContractReturnType<contract, options['mutability']>,
-      options['error'],
-      allowFailure
-    >[]
-  : // Fallback
-    MulticallResponse<unknown, options['error'], allowFailure>[]
+    : contracts extends readonly [infer contract, ...infer rest] // grab first contract and recurse through `rest`
+      ? MulticallResults<
+          [...rest],
+          allowFailure,
+          options,
+          [
+            ...result,
+            MulticallResponse<
+              GetMulticallContractReturnType<contract, options['mutability']>,
+              options['error'],
+              allowFailure
+            >,
+          ]
+        >
+      : readonly unknown[] extends contracts
+        ? MulticallResponse<unknown, options['error'], allowFailure>[]
+        : // If `contracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
+          // use this to infer the param types in the case of Array.map() argument
+          contracts extends readonly (infer contract extends
+              ContractFunctionParameters)[]
+          ? MulticallResponse<
+              GetMulticallContractReturnType<contract, options['mutability']>,
+              options['error'],
+              allowFailure
+            >[]
+          : // Fallback
+            MulticallResponse<unknown, options['error'], allowFailure>[]
 
 export type MulticallResponse<
   result = unknown,
@@ -144,10 +149,10 @@ type GetMulticallContractParameters<
       ? ContractFunctionParameters<abi, mutability, functionName, args> // `args` valid, pass through
       : ContractFunctionParameters<abi, mutability, functionName> // invalid `args`
     : // 1b. `functionName` is invalid, check if `abi` is declared as `Abi`
-    Abi extends abi
-    ? ContractFunctionParameters // `abi` declared as `Abi`, unable to infer types further
-    : // `abi` is const-asserted or defined inline, infer types for `functionName` and `args`
-      ContractFunctionParameters<abi, mutability>
+      Abi extends abi
+      ? ContractFunctionParameters // `abi` declared as `Abi`, unable to infer types further
+      : // `abi` is const-asserted or defined inline, infer types for `functionName` and `args`
+        ContractFunctionParameters<abi, mutability>
   : ContractFunctionParameters<readonly unknown[]> // invalid `contract['abi']`, set to `readonly unknown[]`
 
 type GetMulticallContractReturnType<

@@ -24,8 +24,8 @@ export type EncodeDeployDataParameters<
     ? Abi extends abi
       ? true
       : [Extract<abi[number], { type: 'constructor' }>] extends [never]
-      ? false
-      : true
+        ? false
+        : true
     : true,
   allArgs = ContractConstructorArgs<abi>,
 > = {

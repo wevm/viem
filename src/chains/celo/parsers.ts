@@ -31,9 +31,9 @@ export type ParseTransactionReturnType<
   ? TransactionSerializableCIP42
   : ParseTransactionReturnType_<TSerialized, TType>
 
-export function parseTransaction<
-  TSerialized extends CeloTransactionSerialized,
->(serializedTransaction: TSerialized): ParseTransactionReturnType<TSerialized> {
+export function parseTransaction<TSerialized extends CeloTransactionSerialized>(
+  serializedTransaction: TSerialized,
+): ParseTransactionReturnType<TSerialized> {
   const serializedType = sliceHex(serializedTransaction, 0, 1)
 
   if (serializedType === '0x7c')

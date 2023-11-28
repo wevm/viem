@@ -75,10 +75,10 @@ type GetTopics<
 > = true extends _FailedToParseArgs
   ? [Hex, ...Hex[]] | []
   : TAbiEvent extends AbiEvent
-  ? Topics<TAbiEvent['inputs']>
-  : _AbiEvent extends AbiEvent
-  ? Topics<_AbiEvent['inputs']>
-  : [Hex, ...Hex[]] | []
+    ? Topics<TAbiEvent['inputs']>
+    : _AbiEvent extends AbiEvent
+      ? Topics<_AbiEvent['inputs']>
+      : [Hex, ...Hex[]] | []
 
 type GetInferredLogValues<
   TAbiEvent extends AbiEvent | undefined = undefined,

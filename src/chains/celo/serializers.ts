@@ -27,13 +27,9 @@ import { isCIP42, isCIP64, isEmpty, isPresent } from './utils.js'
 export const serializeTransaction: SerializeTransactionFn<
   CeloTransactionSerializable | TransactionSerializable
 > = (tx, signature) => {
-  if (isCIP64(tx)) {
-    return serializeTransactionCIP64(tx, signature)
-  } else if (isCIP42(tx)) {
-    return serializeTransactionCIP42(tx, signature)
-  } else {
-    return serializeTransaction_(tx as TransactionSerializable, signature)
-  }
+  if (isCIP64(tx)) return serializeTransactionCIP64(tx, signature)
+  if (isCIP42(tx)) return serializeTransactionCIP42(tx, signature)
+  return serializeTransaction_(tx as TransactionSerializable, signature)
 }
 
 export const serializers = {

@@ -46,7 +46,7 @@ export type RpcTransactionRequest =
   | TransactionRequestLegacy<Quantity, Index, '0x0'>
   | TransactionRequestEIP2930<Quantity, Index, '0x1'>
   | TransactionRequestEIP1559<Quantity, Index, '0x2'>
-export type RpcTransaction<TPending extends boolean = boolean,> = UnionOmit<
+export type RpcTransaction<TPending extends boolean = boolean> = UnionOmit<
   UnionPartialBy<
     | TransactionLegacy<Quantity, Index, TPending, '0x0'>
     | TransactionEIP2930<Quantity, Index, TPending, '0x1'>

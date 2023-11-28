@@ -138,13 +138,13 @@ test('ExtractAbiFunctionForArgs', () => {
 
   expectTypeOf<
     ExtractAbiFunctionForArgs<typeof abi, 'pure' | 'view', 'foo', []>
-  >().toEqualTypeOf<typeof abi[0]>()
+  >().toEqualTypeOf<(typeof abi)[0]>()
   expectTypeOf<
     ExtractAbiFunctionForArgs<typeof abi, 'pure' | 'view', 'foo', ['0x']>
-  >().toEqualTypeOf<typeof abi[1]>()
+  >().toEqualTypeOf<(typeof abi)[1]>()
   expectTypeOf<
     ExtractAbiFunctionForArgs<typeof abi, 'pure' | 'view', 'foo', ['0x', '0x']>
-  >().toEqualTypeOf<typeof abi[2]>()
+  >().toEqualTypeOf<(typeof abi)[2]>()
 
   expectTypeOf<
     ExtractAbiFunctionForArgs<typeof abi, 'payable', never, never>

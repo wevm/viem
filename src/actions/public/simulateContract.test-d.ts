@@ -17,7 +17,7 @@ test('args: account - no client account, no account arg', async () => {
     ...args,
   })
 
-  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
     account?: undefined
   }>()
 })
@@ -27,8 +27,8 @@ test('args: account - with client account, no account arg', async () => {
     ...args,
   })
 
-  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
-    account: typeof walletClientWithAccount['account']
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
+    account: (typeof walletClientWithAccount)['account']
   }>()
 })
 
@@ -38,7 +38,7 @@ test('args: account - no client account, with account arg', async () => {
     account: '0x',
   })
 
-  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
     account: {
       address: '0x'
       type: 'json-rpc'
@@ -52,7 +52,7 @@ test('args: account - with client account, with account arg', async () => {
     account: '0x',
   })
 
-  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
     account: {
       address: '0x'
       type: 'json-rpc'

@@ -34,8 +34,8 @@ export type EncodeErrorResultParameters<
     ? Abi extends abi
       ? true
       : [ExtractAbiErrors<abi>] extends [never]
-      ? false
-      : true
+        ? false
+        : true
     : true,
   allArgs = ContractErrorArgs<
     abi,

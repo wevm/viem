@@ -30,8 +30,8 @@ export type EncodeFunctionResultParameters<
     ? Abi extends abi
       ? true
       : [ExtractAbiFunctions<abi>] extends [never]
-      ? false
-      : true
+        ? false
+        : true
     : true,
   allFunctionNames = ContractFunctionName<abi>,
 > = {

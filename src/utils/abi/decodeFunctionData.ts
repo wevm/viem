@@ -29,7 +29,8 @@ export type DecodeFunctionDataParameters<
 export type DecodeFunctionDataReturnType<
   abi extends Abi | readonly unknown[] = Abi,
   ///
-  allFunctionNames extends ContractFunctionName<abi> = ContractFunctionName<abi>,
+  allFunctionNames extends
+    ContractFunctionName<abi> = ContractFunctionName<abi>,
 > = IsNarrowable<abi, Abi> extends true
   ? UnionEvaluate<
       {

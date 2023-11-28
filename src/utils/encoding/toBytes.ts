@@ -114,9 +114,9 @@ const charCodeMap = {
 function charCodeToBase16(char: number) {
   if (char >= charCodeMap.zero && char <= charCodeMap.nine)
     return char - charCodeMap.zero
-  else if (char >= charCodeMap.A && char <= charCodeMap.F)
+  if (char >= charCodeMap.A && char <= charCodeMap.F)
     return char - (charCodeMap.A - 10)
-  else if (char >= charCodeMap.a && char <= charCodeMap.f)
+  if (char >= charCodeMap.a && char <= charCodeMap.f)
     return char - (charCodeMap.a - 10)
   return undefined
 }
