@@ -103,8 +103,8 @@ function Example() {
           {state === 'preparing'
             ? 'Preparing...'
             : state === 'processingL1' || state === 'processingL2'
-            ? 'Processing...'
-            : 'Deposit'}
+              ? 'Processing...'
+              : 'Deposit'}
         </button>
 
         {state === 'processingL1' && <div>Processing L1 transaction...</div>}
