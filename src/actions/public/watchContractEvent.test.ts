@@ -60,12 +60,12 @@ describe('poll', () => {
     const unwatch = watchContractEvent(publicClient, {
       abi: usdcContractConfig.abi,
       onLogs: (logs_) => {
-        assertType<typeof logs_[0]['args']>({
+        assertType<(typeof logs_)[0]['args']>({
           owner: '0x',
           spender: '0x',
           value: 0n,
         })
-        assertType<typeof logs_[0]['args']>({
+        assertType<(typeof logs_)[0]['args']>({
           from: '0x',
           to: '0x',
           value: 0n,
@@ -172,7 +172,7 @@ describe('poll', () => {
       ...usdcContractConfig,
       eventName: 'Transfer',
       onLogs: (logs_) => {
-        assertType<typeof logs_[0]['args']>({
+        assertType<(typeof logs_)[0]['args']>({
           from: '0x',
           to: '0x',
           value: 0n,
@@ -659,12 +659,12 @@ describe('subscribe', () => {
       const unwatch = watchContractEvent(webSocketClient, {
         ...usdcContractConfig,
         onLogs: (logs_) => {
-          assertType<typeof logs_[0]['args']>({
+          assertType<(typeof logs_)[0]['args']>({
             owner: '0x',
             spender: '0x',
             value: 0n,
           })
-          assertType<typeof logs_[0]['args']>({
+          assertType<(typeof logs_)[0]['args']>({
             from: '0x',
             to: '0x',
             value: 0n,
@@ -721,7 +721,7 @@ describe('subscribe', () => {
       ...usdcContractConfig,
       eventName: 'Transfer',
       onLogs: (logs_) => {
-        assertType<typeof logs_[0]['args']>({
+        assertType<(typeof logs_)[0]['args']>({
           from: '0x',
           to: '0x',
           value: 0n,

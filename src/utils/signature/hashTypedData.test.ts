@@ -61,7 +61,7 @@ test('domain: empty name', () => {
   )
 })
 
-test('minimal valid typed message', function () {
+test('minimal valid typed message', () => {
   const hash = hashTypedData({
     types: {
       EIP712Domain: [],
@@ -75,7 +75,7 @@ test('minimal valid typed message', function () {
   )
 })
 
-test('typed message with a domain separator that uses all fields.', function () {
+test('typed message with a domain separator that uses all fields.', () => {
   const hash = hashTypedData({
     types: {
       EIP712Domain: [
@@ -116,7 +116,7 @@ test('typed message with a domain separator that uses all fields.', function () 
   )
 })
 
-test('typed message with only custom domain seperator fields', function () {
+test('typed message with only custom domain seperator fields', () => {
   const hash = hashTypedData({
     types: {
       EIP712Domain: [
@@ -162,7 +162,7 @@ test('typed message with only custom domain seperator fields', function () {
   )
 })
 
-test('typed message with data', function () {
+test('typed message with data', () => {
   const hash = hashTypedData({
     types: {
       EIP712Domain: [

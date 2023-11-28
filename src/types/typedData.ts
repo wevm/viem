@@ -42,18 +42,18 @@ export type GetTypedDataMessage<
 > = TPrimaryType extends 'EIP712Domain'
   ? {}
   : { [key_3: string]: any } extends TMessage // Check if we were able to infer the shape of typed data
-  ? {
-      /**
-       * Data to sign
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link types} for type inference.
-       */
-      message: { [key_4: string]: unknown }
-    }
-  : {
-      /** Data to sign */
-      message: TMessage
-    }
+    ? {
+        /**
+         * Data to sign
+         *
+         * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link types} for type inference.
+         */
+        message: { [key_4: string]: unknown }
+      }
+    : {
+        /** Data to sign */
+        message: TMessage
+      }
 
 export type GetTypedDataPrimaryType<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

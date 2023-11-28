@@ -63,7 +63,7 @@ export type RpcResponse<TResult = any, TError = any> = {
 ///////////////////////////////////////////////////
 // HTTP
 
-export type HttpOptions<TBody extends RpcRequest | RpcRequest[] = RpcRequest,> =
+export type HttpOptions<TBody extends RpcRequest | RpcRequest[] = RpcRequest> =
   {
     // The RPC request body.
     body: TBody

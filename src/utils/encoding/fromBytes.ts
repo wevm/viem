@@ -27,14 +27,14 @@ export type FromBytesParameters<
 export type FromBytesReturnType<TTo> = TTo extends 'string'
   ? string
   : TTo extends 'hex'
-  ? Hex
-  : TTo extends 'bigint'
-  ? bigint
-  : TTo extends 'number'
-  ? number
-  : TTo extends 'boolean'
-  ? boolean
-  : never
+    ? Hex
+    : TTo extends 'bigint'
+      ? bigint
+      : TTo extends 'number'
+        ? number
+        : TTo extends 'boolean'
+          ? boolean
+          : never
 
 export type FromBytesErrorType =
   | BytesToHexErrorType
