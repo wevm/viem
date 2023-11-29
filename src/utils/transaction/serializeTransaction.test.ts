@@ -669,7 +669,7 @@ test('cannot infer type from transaction object', () => {
 })
 
 describe('github', () => {
-  test('https://github.com/wagmi-dev/viem/issues/1433', () => {
+  test('https://github.com/wevm/viem/issues/1433', () => {
     expect(
       serializeTransaction(
         {

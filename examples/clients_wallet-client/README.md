@@ -1,3 +1,3 @@
 # Wallet Client Example
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients_wallet-client)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/wevm/viem/tree/main/examples/clients_wallet-client)

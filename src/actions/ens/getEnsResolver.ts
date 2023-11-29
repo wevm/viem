@@ -41,7 +41,7 @@ export type GetEnsResolverErrorType =
  * Gets resolver for ENS name.
  *
  * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
  *
  * Calls `findResolver(bytes)` on ENS Universal Resolver Contract to retrieve the resolver of an ENS name.
  *
@@ -61,7 +61,7 @@ export type GetEnsResolverErrorType =
  *   transport: http(),
  * })
  * const resolverAddress = await getEnsResolver(client, {
- *   name: normalize('wagmi-dev.eth'),
+ *   name: normalize('wevm.eth'),
  * })
  * // '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'
  */

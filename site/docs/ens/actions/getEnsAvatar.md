@@ -27,7 +27,7 @@ import { normalize } from 'viem/ens'
 import { publicClient } from './client'
  
 const ensText = await publicClient.getEnsAvatar({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
 })
 // 'https://ipfs.io/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio'
 ```
@@ -67,7 +67,7 @@ ENS name to get Text for.
 
 ```ts
 const ensText = await publicClient.getEnsAvatar({
-  name: normalize('wagmi-dev.eth'), // [!code focus]
+  name: normalize('wevm.eth'), // [!code focus]
 })
 ```
 
@@ -79,7 +79,7 @@ The block number to perform the read against.
 
 ```ts
 const ensText = await publicClient.getEnsAvatar({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   blockNumber: 15121123n, // [!code focus]
 })
 ```
@@ -93,7 +93,7 @@ The block tag to perform the read against.
 
 ```ts
 const ensText = await publicClient.getEnsAvatar({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   blockTag: 'safe', // [!code focus]
 })
 ```
@@ -106,7 +106,7 @@ Gateway urls to resolve IPFS and/or Arweave assets.
 
 ```ts
 const ensText = await publicClient.getEnsAvatar({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   gatewayUrls: { // [!code focus:3]
     ipfs: 'https://cloudflare-ipfs.com'
   }
@@ -122,7 +122,7 @@ Address of ENS Universal Resolver Contract.
 
 ```ts
 const ensText = await publicClient.getEnsAvatar({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376', // [!code focus]
 })
 ```

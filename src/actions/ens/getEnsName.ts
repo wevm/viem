@@ -45,7 +45,7 @@ export type GetEnsNameErrorType =
  * Gets primary name for specified address.
  *
  * - Docs: https://viem.sh/docs/ens/actions/getEnsName.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
  *
  * Calls `reverse(bytes)` on ENS Universal Resolver Contract to "reverse resolve" the address to the primary ENS name.
  *
@@ -65,7 +65,7 @@ export type GetEnsNameErrorType =
  * const ensName = await getEnsName(client, {
  *   address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
  * })
- * // 'wagmi-dev.eth'
+ * // 'wevm.eth'
  */
 export async function getEnsName<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
