@@ -8,9 +8,11 @@ export const confluxESpace = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://evm.confluxrpc.org'],
+      webSocket: ['wss://evm.confluxrpc.org/ws'],
     },
     public: {
       http: ['https://evm.confluxrpc.org'],
+      webSocket: ['wss://evm.confluxrpc.org/ws'],
     },
   },
   blockExplorers: {
