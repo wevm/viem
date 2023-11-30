@@ -1,5 +1,6 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { BlockNotFoundError } from '../../errors/block.js'
 import {
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
@@ -228,14 +229,28 @@ export async function waitForTransactionReceipt<
                   replacedTransaction = transaction
 
                   // Let's retrieve the transactions from the current block.
-                  const block = await getAction(
-                    client,
-                    getBlock,
-                    'getBlock',
-                  )({
-                    blockNumber,
-                    includeTransactions: true,
-                  })
+                  // We need to retry as some RPC Providers may be slow to sync
+                  // up mined blocks.
+                  retrying = true
+                  const block = await withRetry(
+                    () =>
+                      getAction(
+                        client,
+                        getBlock,
+                        'getBlock',
+                      )({
+                        blockNumber,
+                        includeTransactions: true,
+                      }),
+                    {
+                      // exponential backoff
+                      delay: ({ count }) => ~~(1 << count) * 200,
+                      retryCount: 6,
+                      shouldRetry: ({ error }) =>
+                        error instanceof BlockNotFoundError,
+                    },
+                  )
+                  retrying = false
 
                   const replacementTransaction = (
                     block.transactions as {} as Transaction[]
