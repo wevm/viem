@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.11
+
+### Patch Changes
+
+- [`1218e977`](https://github.com/wevm/viem/commit/1218e977e7d9fa049f67186393b57417d7c8c6a2) Thanks [@jxom](https://github.com/jxom)! - Fixed `BlockNotFoundError` issue on `waitForTransactionReceipt`.
+
 ## 1.19.10
 
 ### Patch Changes
