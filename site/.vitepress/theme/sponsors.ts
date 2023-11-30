@@ -137,6 +137,11 @@ export const sponsors = [
         url: 'https://zora.co',
         img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg',
       },
+      {
+        name: 'Supa',
+        url: 'https://twitter.com/supafinance',
+        img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg',
+      }
     ],
   },
 ] satisfies Sponsors
