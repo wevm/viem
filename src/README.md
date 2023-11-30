@@ -204,6 +204,12 @@ Check out the following places for more viem-related content:
     <img alt="zora logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg" width="auto" height="50">
   </picture>
 </a>
+<a href="https://twitter.com/supafinance">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-dark.svg">
+    <img alt="supa logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg" width="auto" height="50">
+  </picture>
+</a>
 
 ## Contributing
 
