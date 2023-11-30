@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added web socket enpoints for Conflux eSpace chain.
+Added WebSocket endpoints for Conflux eSpace chain.
