@@ -1124,7 +1124,7 @@ test('batchSize on client', async () => {
 })
 
 describe('GitHub repros', () => {
-  test('https://github.com/wagmi-dev/viem/issues/434', async () => {
+  test('https://github.com/wevm/viem/issues/434', async () => {
     const { contractAddress } = await deploy({
       abi: GH434.abi,
       bytecode: GH434.bytecode.object,

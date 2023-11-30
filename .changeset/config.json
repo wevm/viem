@@ -3,7 +3,7 @@
   "changelog": [
     "@changesets/changelog-github",
     {
-      "repo": "wagmi-dev/viem"
+      "repo": "wevm/viem"
     }
   ],
   "commit": false,

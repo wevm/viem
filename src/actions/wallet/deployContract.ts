@@ -47,7 +47,7 @@ export type DeployContractErrorType = SendTransactionErrorType | ErrorType
  * Deploys a contract to the network, given bytecode and constructor arguments.
  *
  * - Docs: https://viem.sh/docs/contract/deployContract.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/deploying-contracts
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
  *
  * @param client - Client to use
  * @param parameters - {@link DeployContractParameters}

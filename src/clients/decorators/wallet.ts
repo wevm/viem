@@ -109,7 +109,7 @@ export type WalletActions<
    * Deploys a contract to the network, given bytecode and constructor arguments.
    *
    * - Docs: https://viem.sh/docs/contract/deployContract.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/deploying-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
    *
    * @param args - {@link DeployContractParameters}
    * @returns The [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash. {@link DeployContractReturnType}
@@ -328,7 +328,7 @@ export type WalletActions<
    * Creates, signs, and sends a new transaction to the network.
    *
    * - Docs: https://viem.sh/docs/actions/wallet/sendTransaction.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/sending-transactions
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/sending-transactions
    * - JSON-RPC Methods:
    *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
    *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
@@ -613,7 +613,7 @@ export type WalletActions<
    * Executes a write function on a contract.
    *
    * - Docs: https://viem.sh/docs/contract/writeContract.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
    *
    * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
    *

@@ -31,7 +31,7 @@ export type GetTransactionReceiptErrorType =
  * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms.html#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash.
  *
  * - Docs: https://viem.sh/docs/actions/public/getTransactionReceipt.html
- * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
+ * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
  * - JSON-RPC Methods: [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionreceipt)
  *
  * @param client - Client to use

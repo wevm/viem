@@ -615,7 +615,7 @@ test('strict', () => {
 })
 
 describe('GitHub repros', () => {
-  describe('https://github.com/wagmi-dev/viem/issues/168', () => {
+  describe('https://github.com/wevm/viem/issues/168', () => {
     test('zero data string', () => {
       const result = decodeEventLog({
         abi: [
@@ -677,7 +677,7 @@ describe('GitHub repros', () => {
     })
   })
 
-  describe('https://github.com/wagmi-dev/viem/issues/197', () => {
+  describe('https://github.com/wevm/viem/issues/197', () => {
     test('topics + event params mismatch', () => {
       expect(() =>
         decodeEventLog({
@@ -725,7 +725,7 @@ describe('GitHub repros', () => {
     })
   })
 
-  describe('https://github.com/wagmi-dev/viem/issues/323', () => {
+  describe('https://github.com/wevm/viem/issues/323', () => {
     test('data + params mismatch', () => {
       expect(() =>
         decodeEventLog({
@@ -774,7 +774,7 @@ describe('GitHub repros', () => {
     })
   })
 
-  describe('https://github.com/wagmi-dev/viem/issues/1336', () => {
+  describe('https://github.com/wevm/viem/issues/1336', () => {
     test('topics + event params mismatch', () => {
       expect(() =>
         decodeEventLog({
