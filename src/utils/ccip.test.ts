@@ -162,6 +162,31 @@ describe('ccipFetch', async () => {
     await server.close()
   })
 
+  test('result undefined', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.writeHead(500)
+      res.end()
+    })
+
+    await expect(() =>
+      ccipFetch({
+        data: '0xdeadbeef',
+        sender: accounts[0].address,
+        urls: [`${server.url}/{sender}/{data}`],
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [HttpRequestError: HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+
+      Details: Internal Server Error
+      Version: viem@1.0.2]
+    `)
+
+    await server.close()
+  })
+
   test('post method', async () => {
     let body = ''
     const server = await createHttpServer((req, res) => {

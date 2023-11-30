@@ -140,7 +140,9 @@ export async function ccipFetch({
       if (!response.ok) {
         error = new HttpRequestError({
           body,
-          details: stringify(result.error) || response.statusText,
+          details: result?.error
+            ? stringify(result.error)
+            : response.statusText,
           headers: response.headers,
           status: response.status,
           url,
