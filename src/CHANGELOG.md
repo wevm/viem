@@ -1,5 +1,17 @@
 # viem
 
+## 1.19.10
+
+### Patch Changes
+
+- [#1547](https://github.com/wevm/viem/pull/1547) [`571d9e5e`](https://github.com/wevm/viem/commit/571d9e5ef032f6d87b7a616e5dfb5f54833647d5) Thanks [@darwintree](https://github.com/darwintree)! - Added WebSocket endpoints for Conflux eSpace chain.
+
+- [#1546](https://github.com/wevm/viem/pull/1546) [`f5d1dbea`](https://github.com/wevm/viem/commit/f5d1dbea361b937b29a768b45f4b745b58cae480) Thanks [@TateB](https://github.com/TateB)! - Fixed an issue where if a CCIP-Read request returned with an undefined body, body.error would still attempt to be read causing an `Cannot read properties of undefined` error, instead of the status text.
+
+- [#1547](https://github.com/wevm/viem/pull/1547) [`571d9e5e`](https://github.com/wevm/viem/commit/571d9e5ef032f6d87b7a616e5dfb5f54833647d5) Thanks [@darwintree](https://github.com/darwintree)! - Added Conflux eSpace Testnet chain
+
+- [#1541](https://github.com/wevm/viem/pull/1541) [`b3f7c11d`](https://github.com/wevm/viem/commit/b3f7c11d698a7f8a8e048c7c57cd9be09f6e96e7) Thanks [@aefhm](https://github.com/aefhm)! - Added Oasis Sapphire Mainnet and Testnet chains
+
 ## 1.19.9
 
 ### Patch Changes
