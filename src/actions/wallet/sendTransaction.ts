@@ -10,7 +10,7 @@ import { AccountNotFoundError } from '../../errors/account.js'
 import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import { Chain, isEip712Transaction } from '../../types/chain.js'
+import { type Chain, isEip712Transaction } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type {
@@ -47,7 +47,10 @@ import {
   type SendRawTransactionReturnType,
   sendRawTransaction,
 } from './sendRawTransaction.js'
-import { signTransaction, SignTransactionParameters } from './signTransaction.js'
+import {
+  type SignTransactionParameters,
+  signTransaction,
+} from './signTransaction.js'
 
 export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,

@@ -9,7 +9,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import { Chain, GetChain, isEip712Transaction } from '../../types/chain.js'
+import { type Chain, type GetChain, isEip712Transaction } from '../../types/chain.js'
 import { type RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
@@ -155,13 +155,13 @@ export async function signTransaction<
       account: account,
     })
 
-    transaction.customSignature = customSignature
     // If we have the customSignature we can sign the transaction, doesn't matter if account type
     // is `local` or `json-rpc`.
     return client.chain?.serializers?.transaction(
       {
         chainId,
         ...transaction,
+        customSignature
       } as unknown as TransactionSerializableEIP712,
       // Use this blank private key, probably we should change the code to be optional,
       // or option if it is EIP712.
