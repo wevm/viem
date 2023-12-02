@@ -5,7 +5,11 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
+import type {
+  Chain,
+  DeriveChain,
+  GetChainParameter,
+} from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
@@ -43,6 +47,7 @@ export type WriteContractParameters<
   chainOverride extends Chain | undefined = Chain | undefined,
   ///
   allFunctionNames = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = ContractFunctionParameters<
   abi,
   'nonpayable' | 'payable',
@@ -50,15 +55,13 @@ export type WriteContractParameters<
   args,
   allFunctionNames
 > &
-  GetChain<chain, chainOverride> &
+  GetChainParameter<chain, chainOverride> &
   Prettify<
     GetAccountParameter<account> &
       GetValue<
         abi,
         functionName,
-        FormattedTransactionRequest<
-          chainOverride extends Chain ? chainOverride : chain
-        >['value']
+        FormattedTransactionRequest<derivedChain>['value']
       > & {
         /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
         dataSuffix?: Hex
@@ -66,9 +69,7 @@ export type WriteContractParameters<
   > &
   UnionEvaluate<
     UnionOmit<
-      FormattedTransactionRequest<
-        chainOverride extends Chain ? chainOverride : chain
-      >,
+      FormattedTransactionRequest<derivedChain>,
       'data' | 'from' | 'to' | 'value'
     >
   >

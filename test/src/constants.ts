@@ -52,7 +52,7 @@ export const address = {
 } as const
 
 const messages = new Map()
-function warn(message: string) {
+export function warn(message: string) {
   if (!messages.has(message)) {
     messages.set(message, true)
     console.warn(message)
@@ -96,16 +96,6 @@ if (process.env.VITE_ANVIL_PORT) {
 export const poolId = Number(process.env.VITEST_POOL_ID ?? 1)
 export const localHttpUrl = `http://127.0.0.1:${anvilPort}/${poolId}`
 export const localWsUrl = `ws://127.0.0.1:${anvilPort}/${poolId}`
-
-export let optimismForkUrl: string
-if (process.env.VITE_RPC_URL_OPTIMISM) {
-  optimismForkUrl = process.env.VITE_RPC_URL_OPTIMISM
-} else {
-  optimismForkUrl = 'https://mainnet.optimism.io'
-  warn(
-    `\`VITE_RPC_URL_OPTIMISM\` not found. Falling back to \`${optimismForkUrl}\`.`,
-  )
-}
 
 export const typedData = {
   basic: {

@@ -10,10 +10,8 @@ import type { RpcBlock } from '../../types/rpc.js'
 import type { Assign } from '../../types/utils.js'
 import { optimism } from '../index.js'
 import { formatters } from './formatters.js'
-import type {
-  OpStackRpcBlockOverrides,
-  OpStackRpcTransaction,
-} from './types.js'
+import type { OpStackRpcBlockOverrides } from './types/block.js'
+import type { OpStackRpcTransaction } from './types/transaction.js'
 
 describe('block', () => {
   expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<

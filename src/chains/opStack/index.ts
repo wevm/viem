@@ -1,4 +1,10 @@
 export {
+  depositTransaction,
+  type DepositTransactionErrorType,
+  type DepositTransactionParameters,
+  type DepositTransactionReturnType,
+} from './actions/depositTransaction.js'
+export {
   estimateContractL1Fee,
   type EstimateContractL1FeeErrorType,
   type EstimateContractL1FeeParameters,
@@ -46,27 +52,51 @@ export {
   type EstimateTotalGasParameters,
   type EstimateTotalGasReturnType,
 } from './actions/estimateTotalGas.js'
+export {
+  buildDepositTransaction,
+  type BuildDepositTransactionErrorType,
+  type BuildDepositTransactionParameters,
+  type BuildDepositTransactionReturnType,
+} from './actions/buildDepositTransaction.js'
 
 export { chainConfig } from './chainConfig.js'
 
-export { publicActionsL2 } from './decorators/public.js'
+export {
+  base,
+  baseGoerli,
+  baseSepolia,
+  optimism,
+  optimismGoerli,
+  optimismSepolia,
+  zora,
+  zoraSepolia,
+  zoraTestnet,
+} from './chains.js'
 
-export { base } from '../definitions/base.js'
-export { baseGoerli } from '../definitions/baseGoerli.js'
-export { baseSepolia } from '../definitions/baseSepolia.js'
-export { optimism } from '../definitions/optimism.js'
-export { optimismGoerli } from '../definitions/optimismGoerli.js'
-export { optimismSepolia } from '../definitions/optimismSepolia.js'
-export { zora } from '../definitions/zora.js'
-export { zoraSepolia } from '../definitions/zoraSepolia.js'
-export { zoraTestnet } from '../definitions/zoraTestnet.js'
+export { publicActionsL2, type PublicActionsL2 } from './decorators/publicL2.js'
+export { walletActionsL1, type WalletActionsL1 } from './decorators/walletL1.js'
+
+export {
+  parseTransaction,
+  type ParseTransactionErrorType,
+  type ParseTransactionReturnType,
+} from './parsers.js'
+
+export {
+  serializeTransaction,
+  serializers,
+  type SerializeTransactionErrorType,
+  type SerializeTransactionReturnType,
+} from './serializers.js'
 
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
-  OpStackDepositTransaction,
   OpStackRpcBlock,
   OpStackRpcBlockOverrides,
+} from './types/block.js'
+export type {
+  OpStackDepositTransaction,
   OpStackRpcDepositTransaction,
   OpStackRpcTransaction,
   OpStackRpcTransactionReceipt,
@@ -74,4 +104,39 @@ export type {
   OpStackTransaction,
   OpStackTransactionReceipt,
   OpStackTransactionReceiptOverrides,
-} from './types.js'
+} from './types/transaction.js'
+
+export {
+  extractTransactionDepositedLogs,
+  type ExtractTransactionDepositedLogsErrorType,
+  type ExtractTransactionDepositedLogsParameters,
+  type ExtractTransactionDepositedLogsReturnType,
+} from './utils/extractTransactionDepositedLogs.js'
+
+export {
+  fromOpaqueData,
+  type FromOpaqueDataErrorType,
+  type FromOpaqueDataParameters,
+  type FromOpaqueDataReturnType,
+} from './utils/fromOpaqueData.js'
+
+export {
+  getL2TransactionHash,
+  type GetL2TransactionHashErrorType,
+  type GetL2TransactionHashParameters,
+  type GetL2TransactionHashReturnType,
+} from './utils/getL2TransactionHash.js'
+
+export {
+  getL2TransactionHashes,
+  type GetL2TransactionHashesErrorType,
+  type GetL2TransactionHashesParameters,
+  type GetL2TransactionHashesReturnType,
+} from './utils/getL2TransactionHashes.js'
+
+export {
+  getSourceHash,
+  type GetSourceHashErrorType,
+  type GetSourceHashParameters,
+  type GetSourceHashReturnType,
+} from './utils/getSourceHash.js'

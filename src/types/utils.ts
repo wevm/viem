@@ -151,6 +151,15 @@ export type Prettify<T> = {
 } & {}
 
 /**
+ * @description Creates a type that is T with the required keys K.
+ *
+ * @example
+ * RequiredBy<{ a?: string, b: number }, 'a'>
+ * => { a: string, b: number }
+ */
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
+
+/**
  * @description Creates a type that extracts the values of T.
  *
  * @example
@@ -238,4 +247,15 @@ export type UnionOmit<type, keys extends keyof type> = type extends any
  */
 export type UnionPartialBy<T, K extends keyof T> = T extends any
   ? PartialBy<T, K>
+  : never
+
+/**
+ * @description Creates a type that is T with the required keys K.
+ *
+ * @example
+ * RequiredBy<{ a?: string, b: number } | { a?: string, c?: number }, 'a'>
+ * => { a: string, b: number } | { a: string, c?: number }
+ */
+export type UnionRequiredBy<T, K extends keyof T> = T extends any
+  ? RequiredBy<T, K>
   : never

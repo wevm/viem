@@ -176,9 +176,11 @@ export type { Assign, Omit, PartialBy, Prettify } from '../types/utils.js'
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
-  OpStackDepositTransaction,
   OpStackRpcBlock,
   OpStackRpcBlockOverrides,
+} from './opStack/types/block.js'
+export type {
+  OpStackDepositTransaction,
   OpStackRpcDepositTransaction,
   OpStackRpcTransaction,
   OpStackRpcTransactionReceipt,
@@ -186,4 +188,4 @@ export type {
   OpStackTransaction,
   OpStackTransactionReceipt,
   OpStackTransactionReceiptOverrides,
-} from './opStack/types.js'
+} from './opStack/types/transaction.js'

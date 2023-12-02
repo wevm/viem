@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
+import { accounts } from '~test/src/constants.js'
 import {
-  optimismAddress,
   optimismClient,
   optimismClientWithAccount,
   optimismClientWithoutChain,
@@ -14,7 +14,7 @@ import { estimateTotalGas } from './estimateTotalGas.js'
 const baseTransaction = {
   maxFeePerGas: parseGwei('100'),
   maxPriorityFeePerGas: parseGwei('1'),
-  to: optimismAddress.bob,
+  to: accounts[1].address,
   value: parseEther('0.1'),
 } as const satisfies Omit<TransactionRequestEIP1559, 'from'>
 
@@ -31,7 +31,7 @@ test('minimal', async () => {
 test('args: account', async () => {
   const gas = await estimateTotalGas(optimismClient, {
     ...baseTransaction,
-    account: optimismAddress.alice,
+    account: accounts[0].address,
   })
   expect(gas).toBe(24116n)
 })
@@ -63,7 +63,7 @@ test('args: nonce', async () => {
 test('args: nullish chain', async () => {
   const gas = await estimateTotalGas(optimismClientWithoutChain, {
     ...baseTransaction,
-    account: optimismAddress.alice,
+    account: accounts[0].address,
     chain: null,
   })
   expect(gas).toBe(24116n)

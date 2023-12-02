@@ -542,7 +542,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
-          text: 'Encoding',
+          text: 'Utilities',
           items: [
             {
               text: 'decodeDeployData',
@@ -583,6 +583,10 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'encodeFunctionResult',
               link: '/docs/contract/encodeFunctionResult',
+            },
+            {
+              text: 'parseEventLogs',
+              link: '/docs/contract/parseEventLogs',
             },
           ],
         },
@@ -927,8 +931,30 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
-      text: 'Public Actions',
+      text: 'Guides',
       items: [
+        {
+          text: 'Deposits',
+          link: '/op-stack/guides/deposits',
+        },
+      ],
+    },
+    {
+      text: 'L1 Wallet Actions',
+      items: [
+        {
+          text: 'depositTransaction',
+          link: '/op-stack/actions/depositTransaction',
+        },
+      ],
+    },
+    {
+      text: 'L2 Public Actions',
+      items: [
+        {
+          text: 'buildDepositTransaction',
+          link: '/op-stack/actions/buildDepositTransaction',
+        },
         {
           text: 'estimateContractL1Fee',
           link: '/op-stack/actions/estimateContractL1Fee',
@@ -960,6 +986,39 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'estimateTotalGas',
           link: '/op-stack/actions/estimateTotalGas',
+        },
+      ],
+    },
+    {
+      text: 'Utilities',
+      items: [
+        {
+          text: 'extractTransactionDepositedLogs',
+          link: '/op-stack/utilities/extractTransactionDepositedLogs',
+        },
+        {
+          text: 'fromOpaqueData',
+          link: '/op-stack/utilities/fromOpaqueData',
+        },
+        {
+          text: 'getL2TransactionHash',
+          link: '/op-stack/utilities/getL2TransactionHash',
+        },
+        {
+          text: 'getL2TransactionHashes',
+          link: '/op-stack/utilities/getL2TransactionHashes',
+        },
+        {
+          text: 'getSourceHash',
+          link: '/op-stack/utilities/getSourceHash',
+        },
+        {
+          text: 'parseTransaction',
+          link: '/op-stack/utilities/parseTransaction',
+        },
+        {
+          text: 'serializeTransaction',
+          link: '/op-stack/utilities/serializeTransaction',
         },
       ],
     },

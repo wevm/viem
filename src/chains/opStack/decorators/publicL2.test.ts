@@ -3,13 +3,14 @@ import { describe, expect, test } from 'vitest'
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { optimismClient } from '~test/src/opStack.js'
-import { publicActionsL2 } from './public.js'
+import { publicActionsL2 } from './publicL2.js'
 
 const opStackClient = optimismClient.extend(publicActionsL2())
 
 test('default', async () => {
   expect(publicActionsL2()(optimismClient)).toMatchInlineSnapshot(`
     {
+      "buildDepositTransaction": [Function],
       "estimateContractL1Fee": [Function],
       "estimateContractL1Gas": [Function],
       "estimateContractTotalFee": [Function],
@@ -93,5 +94,13 @@ describe('smoke test', () => {
       account: accounts[0].address,
     })
     expect(fee).toBeDefined()
+  })
+
+  test('buildDepositTransaction', async () => {
+    const request = await opStackClient.buildDepositTransaction({
+      account: accounts[0].address,
+      value: 1n,
+    })
+    expect(request).toBeDefined()
   })
 })

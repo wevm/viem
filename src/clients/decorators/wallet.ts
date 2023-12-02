@@ -23,6 +23,7 @@ import {
   getPermissions,
 } from '../../actions/wallet/getPermissions.js'
 import {
+  type ParameterType,
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestReturnType,
   prepareTransactionRequest,
@@ -233,6 +234,7 @@ export type WalletActions<
    * })
    */
   prepareTransactionRequest: <
+    TParameterType extends ParameterType,
     TChainOverride extends Chain | undefined = undefined,
     TAccountOverride extends Account | Address | undefined = undefined,
   >(
@@ -240,14 +242,16 @@ export type WalletActions<
       TChain,
       TAccount,
       TChainOverride,
-      TAccountOverride
+      TAccountOverride,
+      TParameterType
     >,
   ) => Promise<
     PrepareTransactionRequestReturnType<
       Chain,
       TAccount,
       TChainOverride,
-      TAccountOverride
+      TAccountOverride,
+      TParameterType
     >
   >
   /**
