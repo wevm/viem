@@ -43,11 +43,16 @@ import type {
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import { getTransactionType } from '../../utils/transaction/getTransactionType.js'
 
-export type ParameterType = 'fees' | 'gas' | 'nonce' | 'type'
-type ParameterTypeToParameters<TParameterType extends ParameterType> =
-  TParameterType extends 'fees'
-    ? 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPrice'
-    : TParameterType
+export type PrepareTransactionRequestParameterType =
+  | 'fees'
+  | 'gas'
+  | 'nonce'
+  | 'type'
+type ParameterTypeToParameters<
+  TParameterType extends PrepareTransactionRequestParameterType,
+> = TParameterType extends 'fees'
+  ? 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPrice'
+  : TParameterType
 
 export type PrepareTransactionRequestParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -57,7 +62,8 @@ export type PrepareTransactionRequestParameters<
     | Account
     | Address
     | undefined,
-  TParameterType extends ParameterType = ParameterType,
+  TParameterType extends
+    PrepareTransactionRequestParameterType = PrepareTransactionRequestParameterType,
   ///
   derivedChain extends Chain | undefined = DeriveChain<TChain, TChainOverride>,
 > = UnionOmit<FormattedTransactionRequest<derivedChain>, 'from'> &
@@ -74,7 +80,8 @@ export type PrepareTransactionRequestReturnType<
     | Account
     | Address
     | undefined,
-  TParameterType extends ParameterType = ParameterType,
+  TParameterType extends
+    PrepareTransactionRequestParameterType = PrepareTransactionRequestParameterType,
   ///
   derivedAccount extends Account | undefined = DeriveAccount<
     TAccount,
@@ -142,7 +149,7 @@ export type PrepareTransactionRequestErrorType =
 export async function prepareTransactionRequest<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TParameterType extends ParameterType,
+  TParameterType extends PrepareTransactionRequestParameterType,
   TAccountOverride extends Account | Address | undefined = undefined,
   TChainOverride extends Chain | undefined = undefined,
 >(

@@ -217,7 +217,7 @@ import {
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
 import {
-  type ParameterType,
+  type PrepareTransactionRequestParameterType,
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestReturnType,
   prepareTransactionRequest,
@@ -1335,7 +1335,7 @@ export type PublicActions<
    * })
    */
   prepareTransactionRequest: <
-    TParameterType extends ParameterType,
+    TParameterType extends PrepareTransactionRequestParameterType,
     TChainOverride extends Chain | undefined = undefined,
     TAccountOverride extends Account | Address | undefined = undefined,
   >(
