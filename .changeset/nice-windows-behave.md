@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added ziliqa chain.
+Added Zilliqa chain.

@@ -171,6 +171,8 @@ test('exports chains', () => {
       "zkSync",
       "zkSyncTestnet",
       "zetachainAthensTestnet",
+      "zilliqa",
+      "zilliqaTestnet",
       "zora",
       "zoraSepolia",
       "zoraTestnet",
