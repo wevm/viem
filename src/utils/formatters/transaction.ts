@@ -17,7 +17,7 @@ type TransactionPendingDependencies =
   | 'transactionIndex'
 
 export type FormattedTransaction<
-  TChain extends Chain | undefined = Chain | undefined,
+  TChain extends Chain | undefined = undefined,
   TBlockTag extends BlockTag = BlockTag,
   _FormatterReturnType = ExtractChainFormatterReturnType<
     TChain,

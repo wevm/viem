@@ -15,7 +15,7 @@ import { type FormattedTransaction, formatTransaction } from './transaction.js'
 type BlockPendingDependencies = 'hash' | 'logsBloom' | 'nonce' | 'number'
 
 export type FormattedBlock<
-  TChain extends Chain | undefined = Chain | undefined,
+  TChain extends Chain | undefined = undefined,
   TIncludeTransactions extends boolean = boolean,
   TBlockTag extends BlockTag = BlockTag,
   _FormatterReturnType = ExtractChainFormatterReturnType<
