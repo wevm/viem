@@ -188,4 +188,9 @@ export type {
   OpStackTransaction,
   OpStackTransactionReceipt,
   OpStackTransactionReceiptOverrides,
+  OpStackTransactionSerializable,
+  OpStackTransactionSerialized,
+  OpStackTransactionType,
+  TransactionSerializableDeposit,
+  TransactionSerializedDeposit,
 } from './opStack/types/transaction.js'
