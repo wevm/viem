@@ -41,4 +41,4 @@ formatGwei(1000000000n) // [!code focus:2]
 
 - **Type:** `bigint`
 
-The gwei value.
+The wei value.
