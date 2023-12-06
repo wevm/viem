@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.12
+
+### Patch Changes
+
+- [#1561](https://github.com/wevm/viem/pull/1561) [`ca3514e7`](https://github.com/wevm/viem/commit/ca3514e7784d2ee6849423b6c97cb235b4a97e16) Thanks [@harisaginting](https://github.com/harisaginting)! - Added Zilliqa chain.
+
 ## 1.19.11
 
 ### Patch Changes
