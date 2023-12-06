@@ -1,10 +1,10 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const ziliqa = /*#__PURE__*/ defineChain({
+export const zilliqa = /*#__PURE__*/ defineChain({
   id: 32769,
-  name: 'Ziliqa',
-  network: 'ziliqa',
-  nativeCurrency: { name: 'Ziliqa', symbol: 'ZIL', decimals: 18 },
+  name: 'Zilliqa',
+  network: 'zilliqa',
+  nativeCurrency: { name: 'Zilliqa', symbol: 'ZIL', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://api.zilliqa.com'],
