@@ -99,7 +99,7 @@ export function fallback(
     retryCount,
     retryDelay,
   } = config
-  return ({ chain, pollingInterval = 4_000, timeout }) => {
+  return ({ chain, pollingInterval = 4_000, timeout, ...rest }) => {
     let transports = transports_
 
     let onResponse: OnResponseFn = () => {}
@@ -110,7 +110,12 @@ export function fallback(
         name,
         async request({ method, params }) {
           const fetch = async (i = 0): Promise<any> => {
-            const transport = transports[i]({ chain, retryCount: 0, timeout })
+            const transport = transports[i]({
+              ...rest,
+              chain,
+              retryCount: 0,
+              timeout,
+            })
             try {
               const response = await transport.request({
                 method,
