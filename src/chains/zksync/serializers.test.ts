@@ -10,13 +10,13 @@ import {
   parseGwei,
   parseTransaction,
 } from '../../index.js'
-import { zkSyncTestnet } from '../index.js'
+import { zkSyncSepoliaTestnet } from '../index.js'
 import { serializeTransactionZkSync } from './serializers.js'
 import type { ZkSyncTransactionSerializableEIP712 } from './types.js'
 
 const baseTransaction: TransactionSerializableEIP1559 = {
   to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
-  chainId: zkSyncTestnet.id,
+  chainId: zkSyncSepoliaTestnet.id,
   nonce: 7,
   maxFeePerGas: 250000000n,
   maxPriorityFeePerGas: 2n,

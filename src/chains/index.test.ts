@@ -170,6 +170,7 @@ test('exports chains', () => {
       "zhejiang",
       "zkSync",
       "zkSyncTestnet",
+      "zkSyncSepoliaTestnet",
       "zetachainAthensTestnet",
       "zora",
       "zoraSepolia",
