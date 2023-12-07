@@ -132,7 +132,7 @@ export function depositTransaction<
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  args: DepositTransactionParameters<chain, account, chainOverride>,
+  parameters: DepositTransactionParameters<chain, account, chainOverride>,
 ) {
   const {
     account,
@@ -142,10 +142,10 @@ export function depositTransaction<
     maxPriorityFeePerGas,
     nonce,
     targetChain,
-  } = args
+  } = parameters
 
   const portalAddress = (() => {
-    if (args.portalAddress) return args.portalAddress
+    if (parameters.portalAddress) return parameters.portalAddress
     if (chain) return targetChain!.contracts.portal[chain.id].address
     return Object.values(targetChain!.contracts.portal)[0].address
   })()

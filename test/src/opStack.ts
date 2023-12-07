@@ -52,7 +52,7 @@ export const optimismAnvilChain = {
 export const optimismClient = createClient({
   chain: optimismAnvilChain,
   transport: http(),
-})
+}).extend(() => ({ mode: 'anvil' }))
 
 export const optimismClientWithAccount = createClient({
   account: accounts[0].address,

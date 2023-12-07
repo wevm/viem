@@ -58,6 +58,12 @@ export {
   type BuildDepositTransactionParameters,
   type BuildDepositTransactionReturnType,
 } from './actions/buildDepositTransaction.js'
+export {
+  initiateWithdrawal,
+  type InitiateWithdrawalErrorType,
+  type InitiateWithdrawalParameters,
+  type InitiateWithdrawalReturnType,
+} from './actions/initiateWithdrawal.js'
 
 export { chainConfig } from './chainConfig.js'
 
