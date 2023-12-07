@@ -323,6 +323,8 @@ test('exports', () => {
       "extractChain",
       "getChainContractAddress",
       "encodePacked",
+      "withRetry",
+      "withTimeout",
       "formatEther",
       "formatGwei",
       "formatUnits",

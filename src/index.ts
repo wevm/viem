@@ -1242,6 +1242,14 @@ export {
   encodePacked,
 } from './utils/abi/encodePacked.js'
 export {
+  type WithRetryErrorType,
+  withRetry,
+} from './utils/promise/withRetry.js'
+export {
+  type WithTimeoutErrorType,
+  withTimeout,
+} from './utils/promise/withTimeout.js'
+export {
   type FormatEtherErrorType,
   formatEther,
 } from './utils/unit/formatEther.js'
