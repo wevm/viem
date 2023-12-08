@@ -1,11 +1,11 @@
-import type { ChainEIP712Domain } from '../../types/chain.js'
-import type { EIP712Domain, EIP712DomainFn } from '../../types/eip712signer.js'
 import { isEIP712 as isZkSyncEIP712 } from './serializers.js'
 import type {
   ZkSyncEIP712TransactionToSign,
   ZkSyncTransactionSerializable,
   ZkSyncTransactionSerializableEIP712,
 } from './types.js'
+import type { ChainEIP712Domain } from './types/chain.js'
+import type { EIP712Domain, EIP712DomainFn } from './types/eip712signer.js'
 
 export const getZkSyncEIP712Domain: EIP712DomainFn<
   ZkSyncTransactionSerializable,

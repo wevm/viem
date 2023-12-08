@@ -12,13 +12,11 @@ export function defineChain<
     fees = chain.fees,
     formatters = chain.formatters,
     serializers = chain.serializers,
-    eip712domain = chain.eip712domain,
   } = config
   return {
     ...chain,
     fees,
     formatters,
     serializers,
-    eip712domain,
   } as unknown as Assign<chain, ChainConfig<formatters>>
 }

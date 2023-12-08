@@ -3,7 +3,7 @@
  * we can use them, but here is some types I've setup.
  */
 import type { TypedDataDomain } from 'abitype'
-import type { TransactionSerializable } from './transaction.js'
+import type { TransactionSerializable } from '../../../types/transaction.js'
 
 // There is already a function getTypesForEIP712Domain, but not sure how to set up in here.
 type EIP712FieldType = 'uint256' | 'bytes' | 'bytes32[]'

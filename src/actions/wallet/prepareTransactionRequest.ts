@@ -176,8 +176,6 @@ export async function prepareTransactionRequest<
 
     request.maxPriorityFeePerGas = maxPriorityFeePerGas
     request.maxFeePerGas = maxFeePerGas
-  } else if (request.type === 'eip712') {
-    // Do nothing? EIP1559 estimate doesn't seem to work.
   } else {
     // Legacy fees
     if (

@@ -14,7 +14,6 @@ import type {
 import type { IsUndefined, Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import type { EIP712DomainFn } from './eip712signer.js'
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
@@ -100,8 +99,6 @@ export type ChainConfig<
   serializers?: ChainSerializers<formatters> | undefined
   /** Modifies how fees are derived. */
   fees?: ChainFees<formatters> | undefined
-  /** Return EIP712 Domain for EIP712 transaction */
-  eip712domain?: ChainEIP712Domain<formatters> | undefined
 }
 
 export type ChainFees<
@@ -163,31 +160,6 @@ export type ChainSerializers<
         : TransactionSerializable
       : TransactionSerializable
   >
-}
-
-export type ChainEIP712Domain<
-  formatters extends ChainFormatters | undefined = undefined,
-  TransactionToSign = {},
-> = {
-  /** Retrieve EIP712 Domain to generate custom signature. */
-  eip712domain?: EIP712DomainFn<
-    formatters extends ChainFormatters
-      ? formatters['transactionRequest'] extends ChainFormatter
-        ? TransactionSerializableGeneric &
-            Parameters<formatters['transactionRequest']['format']>[0]
-        : TransactionSerializable
-      : TransactionSerializable,
-    TransactionToSign
-  >
-  /** Check if it is a EIP712 transaction */
-  isEip712Domain?: (
-    transaction: formatters extends ChainFormatters
-      ? formatters['transactionRequest'] extends ChainFormatter
-        ? TransactionSerializableGeneric &
-            Parameters<formatters['transactionRequest']['format']>[0]
-        : TransactionSerializable
-      : TransactionSerializable,
-  ) => boolean
 }
 
 /////////////////////////////////////////////////////////////////////

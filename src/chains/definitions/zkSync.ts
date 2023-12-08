@@ -1,7 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
 import { eip712domainZkSync } from '../zksync/eip712signers.js'
 import { formattersZkSync } from '../zksync/formatters.js'
 import { serializersZkSync } from '../zksync/serializers.js'
+import { defineChain } from '../zksync/utils/defineChain.js'
 
 export const zkSync = /*#__PURE__*/ defineChain(
   {

@@ -20,7 +20,7 @@ import type {
   TransactionRequest as TransactionRequest_,
   TransactionRequestBase,
   TransactionSerializable,
-  TransactionSerializableEIP712,
+  TransactionSerializableEIP1559,
   TransactionSerialized,
   TransactionType,
 } from '../../types/transaction.js'
@@ -306,8 +306,14 @@ export type ZkSyncTransactionSerializedEIP712 = `0x71${string}`
 export type ZkSyncTransactionSerializableEIP712<
   TQuantity = bigint,
   TIndex = number,
-> = TransactionSerializableEIP712<TQuantity, TIndex> & {
+> = Omit<TransactionSerializableEIP1559<TQuantity, TIndex>, 'type'> & {
   from: Hex
+  gasPerPubdata?: bigint
+  paymaster?: Address
+  factoryDeps?: Hex[]
+  paymasterInput?: Hex
+  customSignature?: Hex
+  type?: 'eip712'
 }
 
 // EIP712 Signer

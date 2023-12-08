@@ -9,12 +9,11 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import { type Chain, type GetChain, isEip712Transaction } from '../../types/chain.js'
+import type { Chain, GetChain } from '../../types/chain.js'
 import { type RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
   TransactionSerializable,
-  TransactionSerializableEIP712,
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -35,7 +34,6 @@ import {
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
-import { signTypedData } from './signTypedData.js'
 
 export type SignTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -141,35 +139,7 @@ export async function signTransaction<
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
 
-  if (
-    client.chain?.eip712domain?.eip712domain &&
-    client.chain?.serializers?.transaction &&
-    isEip712Transaction(transaction as unknown as TransactionSerializable)
-  ) {
-    const eip712Domain = client.chain?.eip712domain?.eip712domain(
-      transaction as unknown as TransactionSerializable,
-    )
-
-    const customSignature = await signTypedData(client, {
-      ...eip712Domain,
-      account: account,
-    })
-
-    // If we have the customSignature we can sign the transaction, doesn't matter if account type
-    // is `local` or `json-rpc`.
-    return client.chain?.serializers?.transaction(
-      {
-        chainId,
-        ...transaction,
-        customSignature
-      } as unknown as TransactionSerializableEIP712,
-      // Use this blank private key, probably we should change the code to be optional,
-      // or option if it is EIP712.
-      { r: '0x0', s: '0x0', v: 0n },
-    )
-  }
-
-  if (account.type === 'local') {
+  if (account.type === 'local')
     return account.signTransaction(
       {
         ...transaction,
@@ -177,9 +147,7 @@ export async function signTransaction<
       } as unknown as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>
-  }
 
-  // For EIP712 we don't need to ask MetaMask to sign it,
   return await client.request({
     method: 'eth_signTransaction',
     params: [
