@@ -19,10 +19,7 @@ import { getAction } from '../../utils/getAction.js'
 import { encodeDeployData, isHex, toHex } from '../../utils/index.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
-export type VerifyHashParameters = Pick<
-  CallParameters,
-  'blockNumber' | 'blockTag'
-> & {
+export type VerifyHashParameters = {
   /** The address that signed the original message. */
   address: Address
   /** The hash to be verified. */
