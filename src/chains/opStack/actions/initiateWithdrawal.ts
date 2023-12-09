@@ -63,7 +63,7 @@ export type InitiateWithdrawalErrorType = WriteContractErrorType | ErrorType
  *
  * @param client - Client to use
  * @param parameters - {@link InitiateWithdrawalParameters}
- * @returns The L1 transaction hash. {@link InitiateWithdrawalReturnType}
+ * @returns The L2 transaction hash. {@link InitiateWithdrawalReturnType}
  *
  * @example
  * import { createWalletClient, custom, parseEther } from 'viem'

@@ -998,6 +998,15 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
+      text: 'L2 Wallet Actions',
+      items: [
+        {
+          text: 'initiateWithdrawal',
+          link: '/op-stack/actions/initiateWithdrawal',
+        },
+      ],
+    },
+    {
       text: 'Utilities',
       items: [
         {
