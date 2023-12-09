@@ -243,6 +243,12 @@ export {
   getPermissions,
 } from './wallet/getPermissions.js'
 export {
+  type GetProofErrorType,
+  type GetProofParameters,
+  type GetProofReturnType,
+  getProof,
+} from './public/getProof.js'
+export {
   type ReplacementReason,
   type ReplacementReturnType,
   type WaitForTransactionReceiptErrorType,
