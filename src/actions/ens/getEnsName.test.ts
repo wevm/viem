@@ -132,3 +132,12 @@ test('invalid universal resolver address', async () => {
     Version: viem@1.0.2"
   `)
 })
+
+test('resolved address mismatch', async () => {
+  await setBlockNumber(18753647n)
+  expect(
+    await getEnsName(publicClient, {
+      address: '0xe756236ef7FD64Ebbb360465C621c7dB5a336F4d',
+    }),
+  ).toBeNull()
+})

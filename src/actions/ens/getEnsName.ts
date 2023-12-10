@@ -92,7 +92,7 @@ export async function getEnsName<TChain extends Chain | undefined>(
 
   const reverseNode = `${address.toLowerCase().substring(2)}.addr.reverse`
   try {
-    const res = await getAction(
+    const [name, resolvedAddress] = await getAction(
       client,
       readContract,
       'readContract',
@@ -104,7 +104,8 @@ export async function getEnsName<TChain extends Chain | undefined>(
       blockNumber,
       blockTag,
     })
-    return res[0]
+    if (address.toLowerCase() !== resolvedAddress.toLowerCase()) return null
+    return name
   } catch (err) {
     if (isNullUniversalResolverError(err, 'reverse')) return null
     throw err
