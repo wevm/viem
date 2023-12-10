@@ -178,6 +178,11 @@ export type {
   GetPermissionsReturnType,
 } from './actions/wallet/getPermissions.js'
 export type {
+  GetProofErrorType,
+  GetProofParameters,
+  GetProofReturnType,
+} from './actions/public/getProof.js'
+export type {
   GetStorageAtErrorType,
   GetStorageAtParameters,
   GetStorageAtReturnType,
