@@ -131,14 +131,14 @@ test('errors: rpc error', async () => {
   await expect(() =>
     transport.request({ method: 'eth_wagmi' }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Invalid parameters were provided to the RPC method.
+    [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
     Double check you have provided the correct parameters.
 
     URL: http://localhost
-    Request body: {\\"method\\":\\"eth_wagmi\\"}
+    Request body: {"method":"eth_wagmi"}
 
     Details: data did not match any variant of untagged enum EthRpcCall
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -193,9 +193,9 @@ test('throws on bogus subscription', async () => {
 
 test('no url', () => {
   expect(() => webSocket()({})).toThrowErrorMatchingInlineSnapshot(`
-    "No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
+    [ViemError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
     Docs: https://viem.sh/docs/clients/intro.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

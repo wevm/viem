@@ -346,9 +346,9 @@ describe('static', () => {
         ),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        "Size of bytes \\"0x0000000000000000000000000000000000000000000000000000000000000000000000000123456789abcdef\\" (bytes44) does not match expected size (bytes8).
+        [AbiEncodingBytesSizeMismatchError: Size of bytes "0x0000000000000000000000000000000000000000000000000000000000000000000000000123456789abcdef" (bytes44) does not match expected size (bytes8).
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `,
       )
     })
@@ -386,9 +386,9 @@ describe('static', () => {
         ),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        "Size of bytes \\"0x000000000000000000000000000000000000000000000000000000000000000420\\" (bytes33) does not match expected size (bytes16).
+        [AbiEncodingBytesSizeMismatchError: Size of bytes "0x000000000000000000000000000000000000000000000000000000000000000420" (bytes33) does not match expected size (bytes16).
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `,
       )
     })
@@ -1691,11 +1691,11 @@ test('invalid type', () => {
   expect(() =>
     encodeAbiParameters([{ name: 'x', type: 'lol' }], [69]),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Type \\"lol\\" is not a valid encoding type.
+    [InvalidAbiEncodingType: Type "lol" is not a valid encoding type.
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/encodeAbiParameters.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -1707,11 +1707,11 @@ test('invalid params/values lengths', () => {
       [69, 420],
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "ABI encoding params/values length mismatch.
+    [AbiEncodingLengthMismatchError: ABI encoding params/values length mismatch.
     Expected length (params): 1
     Given length (values): 2
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -1719,9 +1719,9 @@ test('invalid address', () => {
   expect(() =>
     encodeAbiParameters([{ name: 'x', type: 'address' }], ['0x111']),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Address \\"0x111\\" is invalid.
+    [InvalidAddressError: Address "0x111" is invalid.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -1733,9 +1733,9 @@ test('invalid array', () => {
       [69],
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Value \\"69\\" is not a valid array.
+    [InvalidArrayError: Value "69" is not a valid array.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -1747,11 +1747,11 @@ test('invalid array lengths', () => {
       [[69n, 420n]],
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "ABI encoding array length mismatch for type uint256[3].
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[3].
     Expected length: 3
     Given length: 2
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -1759,9 +1759,9 @@ test('invalid bytes', () => {
   expect(() =>
     encodeAbiParameters([{ name: 'x', type: 'bytes8' }], ['0x111']),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Size of bytes \\"0x111\\" (bytes2) does not match expected size (bytes8).
+    [AbiEncodingBytesSizeMismatchError: Size of bytes "0x111" (bytes2) does not match expected size (bytes8).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 

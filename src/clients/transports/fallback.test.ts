@@ -562,13 +562,13 @@ describe('client', () => {
     await expect(
       getBlockNumber(client),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "An internal error was received.
+      [InternalRpcError: An internal error was received.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_blockNumber\\"}
+      Request body: {"method":"eth_blockNumber"}
 
       Details: sad times
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
     expect(count).toBe(8)
   })

@@ -40,10 +40,10 @@ describe('block', () => {
   >()
   expectTypeOf<
     ReturnType<typeof formattersZkSync.block.format>['l1BatchNumber']
-  >().toEqualTypeOf<`0x${string}`>
+  >().toEqualTypeOf<bigint | null>
   expectTypeOf<
     ReturnType<typeof formattersZkSync.block.format>['l1BatchTimestamp']
-  >().toEqualTypeOf<`0x${string}` | null>
+  >().toEqualTypeOf<bigint | null>
 })
 
 describe('transactionReceipt', () => {

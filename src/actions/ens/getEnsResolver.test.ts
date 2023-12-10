@@ -45,7 +45,7 @@ test('chain not provided', async () => {
       { name: 'awkweb.eth' },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    '"client chain not configured. universalResolverAddress is required."',
+    '[Error: client chain not configured. universalResolverAddress is required.]',
   )
 })
 
@@ -61,12 +61,12 @@ test('universal resolver contract not configured for chain', async () => {
       },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Chain \\"OP Mainnet\\" does not support contract \\"ensUniversalResolver\\".
+    [ChainDoesNotSupportContract: Chain "OP Mainnet" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The chain does not have the contract \\"ensUniversalResolver\\" configured.
+    - The chain does not have the contract "ensUniversalResolver" configured.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -77,12 +77,12 @@ test('universal resolver contract deployed on later block', async () => {
       blockNumber: 14353601n,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Chain \\"Localhost\\" does not support contract \\"ensUniversalResolver\\".
+    [ChainDoesNotSupportContract: Chain "Localhost" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract \\"ensUniversalResolver\\" was not deployed until block 16966585 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 16966585 (current block 14353601).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -93,7 +93,7 @@ test('invalid universal resolver address', async () => {
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"findResolver\\" reverted.
+    [ContractFunctionExecutionError: The contract function "findResolver" reverted.
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
@@ -101,6 +101,6 @@ test('invalid universal resolver address', async () => {
       args:                  (0x046a786f6d0365746800)
 
     Docs: https://viem.sh/docs/contract/readContract.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
