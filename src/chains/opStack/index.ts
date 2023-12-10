@@ -1,4 +1,16 @@
 export {
+  buildDepositTransaction,
+  type BuildDepositTransactionErrorType,
+  type BuildDepositTransactionParameters,
+  type BuildDepositTransactionReturnType,
+} from './actions/buildDepositTransaction.js'
+export {
+  buildInitiateWithdrawal,
+  type BuildInitiateWithdrawalErrorType,
+  type BuildInitiateWithdrawalParameters,
+  type BuildInitiateWithdrawalReturnType,
+} from './actions/buildInitiateWithdrawal.js'
+export {
   depositTransaction,
   type DepositTransactionErrorType,
   type DepositTransactionParameters,
@@ -53,12 +65,6 @@ export {
   type EstimateTotalGasReturnType,
 } from './actions/estimateTotalGas.js'
 export {
-  buildDepositTransaction,
-  type BuildDepositTransactionErrorType,
-  type BuildDepositTransactionParameters,
-  type BuildDepositTransactionReturnType,
-} from './actions/buildDepositTransaction.js'
-export {
   initiateWithdrawal,
   type InitiateWithdrawalErrorType,
   type InitiateWithdrawalParameters,
@@ -67,20 +73,12 @@ export {
 
 export { chainConfig } from './chainConfig.js'
 
-export {
-  base,
-  baseGoerli,
-  baseSepolia,
-  optimism,
-  optimismGoerli,
-  optimismSepolia,
-  zora,
-  zoraSepolia,
-  zoraTestnet,
-} from './chains.js'
+export * from './chains.js'
 
+export { publicActionsL1, type PublicActionsL1 } from './decorators/publicL1.js'
 export { publicActionsL2, type PublicActionsL2 } from './decorators/publicL2.js'
 export { walletActionsL1, type WalletActionsL1 } from './decorators/walletL1.js'
+export { walletActionsL2, type WalletActionsL2 } from './decorators/walletL2.js'
 
 export {
   parseTransaction,

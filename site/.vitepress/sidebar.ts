@@ -948,15 +948,6 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
-      text: 'L1 Wallet Actions',
-      items: [
-        {
-          text: 'depositTransaction',
-          link: '/op-stack/actions/depositTransaction',
-        },
-      ],
-    },
-    {
       text: 'L2 Public Actions',
       items: [
         {
@@ -994,6 +985,24 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'estimateTotalGas',
           link: '/op-stack/actions/estimateTotalGas',
+        },
+      ],
+    },
+    {
+      text: 'L1 Wallet Actions',
+      items: [
+        {
+          text: 'depositTransaction',
+          link: '/op-stack/actions/depositTransaction',
+        },
+      ],
+    },
+    {
+      text: 'L1 Public Actions',
+      items: [
+        {
+          text: 'buildInitiateWithdrawal',
+          link: '/op-stack/actions/buildInitiateWithdrawal',
         },
       ],
     },
