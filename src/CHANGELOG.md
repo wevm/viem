@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.13
+
+### Patch Changes
+
+- [`007fe124`](https://github.com/wevm/viem/commit/007fe124d2c8a5f709a0d691ccbcaaf5f9a6d411) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `getEnsName` was returning stale results for updated eth records.
+
 ## 1.19.12
 
 ### Patch Changes
