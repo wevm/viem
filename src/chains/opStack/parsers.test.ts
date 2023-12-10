@@ -85,12 +85,12 @@ describe('deposit', () => {
         '0x7ef83aa018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b80808080',
       ),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Invalid serialized transaction of type \\"deposit\\" was provided.
+      [InvalidSerializedTransactionError: Invalid serialized transaction of type "deposit" was provided.
 
-      Serialized Transaction: \\"0x7ef83aa018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b80808080\\"
+      Serialized Transaction: "0x7ef83aa018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b80808080"
       Missing Attributes: isSystemTx, data
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
