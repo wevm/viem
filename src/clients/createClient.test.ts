@@ -497,7 +497,7 @@ describe('extends', () => {
     `)
   })
 
-  test('ignores protected properties', () => {
+  describe('ignores protected properties', () => {
     test('default', () => {
       const client = createClient({
         chain: localhost,

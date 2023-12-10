@@ -218,9 +218,9 @@ describe('eip1559', () => {
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Address \\"0x0000000000000000000000000000000000000000000000000000000000000001\\" is invalid.
+        [InvalidAddressError: Address "0x0000000000000000000000000000000000000000000000000000000000000001" is invalid.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -239,9 +239,9 @@ describe('eip1559', () => {
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Size for storage key \\"0x00000000000000000000000000000000000000000000000000000000000001\\" is invalid. Expected 32 bytes. Got 31 bytes.
+        [InvalidStorageKeySizeError: Size for storage key "0x00000000000000000000000000000000000000000000000000000000000001" is invalid. Expected 32 bytes. Got 31 bytes.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
@@ -438,9 +438,9 @@ describe('eip2930', () => {
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Address \\"0x0\\" is invalid.
+        [InvalidAddressError: Address "0x0" is invalid.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -458,9 +458,9 @@ describe('eip2930', () => {
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Size for storage key \\"0x0000000000000000000000000000000000000000000000000000000000001\\" is invalid. Expected 32 bytes. Got 30 bytes.
+        [InvalidStorageKeySizeError: Size for storage key "0x0000000000000000000000000000000000000000000000000000000000001" is invalid. Expected 32 bytes. Got 30 bytes.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
@@ -637,9 +637,9 @@ describe('legacy', () => {
           },
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid \`v\` value \\"29\\". Expected 27 or 28.
+        [InvalidLegacyVError: Invalid \`v\` value "29". Expected 27 or 28.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
@@ -649,7 +649,7 @@ test('cannot infer type from transaction object', () => {
   expect(() =>
     serializeTransaction({ chainId: 1, data: '0x1234', nonce: 69 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Cannot infer a transaction type from provided transaction.
+    [InvalidSerializableTransactionError: Cannot infer a transaction type from provided transaction.
 
     Provided Transaction:
     {
@@ -664,7 +664,7 @@ test('cannot infer type from transaction object', () => {
     - an EIP-2930 Transaction with \`gasPrice\` & \`accessList\`, or
     - a Legacy Transaction with \`gasPrice\`
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 

@@ -35,13 +35,13 @@ test('no contract', () => {
       contract: 'multicall3',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-      "Chain \\"Ethereum\\" does not support contract \\"multicall3\\".
+    [ChainDoesNotSupportContract: Chain "Ethereum" does not support contract "multicall3".
 
-      This could be due to any of the following:
-      - The chain does not have the contract \\"multicall3\\" configured.
+    This could be due to any of the following:
+    - The chain does not have the contract "multicall3" configured.
 
-      Version: viem@1.0.2"
-    `)
+    Version: viem@1.0.2]
+  `)
 })
 
 test('block number is less than created block number', () => {
@@ -60,11 +60,11 @@ test('block number is less than created block number', () => {
       contract: 'multicall3',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-      "Chain \\"Ethereum\\" does not support contract \\"multicall3\\".
+    [ChainDoesNotSupportContract: Chain "Ethereum" does not support contract "multicall3".
 
-      This could be due to any of the following:
-      - The contract \\"multicall3\\" was not deployed until block 123456789 (current block 69420).
+    This could be due to any of the following:
+    - The contract "multicall3" was not deployed until block 123456789 (current block 69420).
 
-      Version: viem@1.0.2"
-    `)
+    Version: viem@1.0.2]
+  `)
 })

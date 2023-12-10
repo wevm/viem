@@ -213,11 +213,11 @@ test("errors: function doesn't exist", () => {
       data: '0xa37414670000000000000000000000000000000000000000000000000000000000010f2c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000029',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Encoded function signature \\"0xa3741467\\" not found on ABI.
+    [AbiFunctionSignatureNotFoundError: Encoded function signature "0xa3741467" not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
     You can look up the signature here: https://openchain.xyz/signatures?query=0xa3741467.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionData.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

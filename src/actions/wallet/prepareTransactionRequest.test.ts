@@ -310,9 +310,9 @@ describe('prepareTransactionRequest', () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "\`maxFeePerGas\` cannot be less than the \`maxPriorityFeePerGas\` (18.5 gwei).
+      [MaxFeePerGasTooLowError: \`maxFeePerGas\` cannot be less than the \`maxPriorityFeePerGas\` (18.5 gwei).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -331,9 +331,9 @@ describe('prepareTransactionRequest', () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Chain does not support EIP-1559 fees.
+      [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -386,9 +386,9 @@ describe('prepareTransactionRequest', () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Chain does not support EIP-1559 fees.
+      [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -458,9 +458,9 @@ describe('prepareTransactionRequest', () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Chain does not support EIP-1559 fees.
+      [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 

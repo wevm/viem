@@ -243,6 +243,6 @@ describe('behavior', () => {
 
     await expect(() =>
       Promise.all([schedule(1), schedule(2), schedule(3), schedule(4)]),
-    ).rejects.toThrowErrorMatchingInlineSnapshot('"[1,2,3,4]"')
+    ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: [1,2,3,4]]')
   })
 })

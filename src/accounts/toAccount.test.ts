@@ -16,9 +16,9 @@ describe('toAccount', () => {
 
   test('json-rpc account (invalid address)', () => {
     expect(() => toAccount('0x1')).toThrowErrorMatchingInlineSnapshot(`
-      "Address \\"0x1\\" is invalid.
+      [InvalidAddressError: Address "0x1" is invalid.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -63,9 +63,9 @@ describe('toAccount', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Address \\"0x1\\" is invalid.
+      [InvalidAddressError: Address "0x1" is invalid.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })

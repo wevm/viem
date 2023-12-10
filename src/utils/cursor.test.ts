@@ -64,25 +64,25 @@ describe('setPosition', () => {
   test('overflow', () => {
     const cursor_1 = createCursor(new Uint8Array(generateBytes(420)))
     expect(() => cursor_1.setPosition(420)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     const cursor_2 = createCursor(new Uint8Array(generateBytes(421)))
     expect(() => cursor_2.setPosition(421)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`421\` is out of bounds (\`0 < position < 421\`).
+      [PositionOutOfBoundsError: Position \`421\` is out of bounds (\`0 < position < 421\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
   test('underflow', () => {
     const cursor_1 = createCursor(new Uint8Array(generateBytes(420)))
     expect(() => cursor_1.setPosition(-1)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`-1\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`-1\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -106,18 +106,18 @@ describe('incrementPosition', () => {
     expect(() =>
       cursor_1.incrementPosition(420),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     const cursor_2 = createCursor(new Uint8Array(generateBytes(421)))
     expect(() =>
       cursor_2.incrementPosition(421),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`421\` is out of bounds (\`0 < position < 421\`).
+      [PositionOutOfBoundsError: Position \`421\` is out of bounds (\`0 < position < 421\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -126,9 +126,9 @@ describe('incrementPosition', () => {
     expect(() =>
       cursor_1.incrementPosition(-1),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Offset \`-1\` cannot be negative.
+      [NegativeOffsetError: Offset \`-1\` cannot be negative.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -153,9 +153,9 @@ describe('decrementPosition', () => {
     expect(() =>
       cursor_1.decrementPosition(1),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`-1\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`-1\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -165,9 +165,9 @@ describe('decrementPosition', () => {
     expect(() =>
       cursor.decrementPosition(-1),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Offset \`-1\` cannot be negative.
+      [NegativeOffsetError: Offset \`-1\` cannot be negative.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -185,9 +185,9 @@ describe('inspectByte', () => {
   test('overflow', () => {
     const cursor = createCursor(new Uint8Array(generateBytes(420)))
     expect(() => cursor.inspectByte(420)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -219,18 +219,18 @@ describe('inspectBytes', () => {
     const cursor = createCursor(new Uint8Array(generateBytes(420)))
     cursor.setPosition(415)
     expect(() => cursor.inspectBytes(10)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`424\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`424\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     const cursor_2 = createCursor(new Uint8Array(generateBytes(20)))
     cursor_2.setPosition(10)
     expect(() => cursor_2.inspectBytes(11)).toThrowErrorMatchingInlineSnapshot(
       `
-      "Position \`20\` is out of bounds (\`0 < position < 20\`).
+      [PositionOutOfBoundsError: Position \`20\` is out of bounds (\`0 < position < 20\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
 
@@ -239,9 +239,9 @@ describe('inspectBytes', () => {
       cursor_3.inspectBytes(11, 10),
     ).toThrowErrorMatchingInlineSnapshot(
       `
-      "Position \`20\` is out of bounds (\`0 < position < 20\`).
+      [PositionOutOfBoundsError: Position \`20\` is out of bounds (\`0 < position < 20\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -260,9 +260,9 @@ describe('inspectUint8', () => {
   test('overflow', () => {
     const cursor = createCursor(new Uint8Array(generateBytes(420)))
     expect(() => cursor.inspectUint8(420)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -280,9 +280,9 @@ describe('inspectUint16', () => {
     expect(cursor.inspectUint16()).toBe(256)
     cursor.incrementPosition(3)
     expect(() => cursor.inspectUint16()).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`4\` is out of bounds (\`0 < position < 4\`).
+      [PositionOutOfBoundsError: Position \`4\` is out of bounds (\`0 < position < 4\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -290,9 +290,9 @@ describe('inspectUint16', () => {
     const cursor = createCursor(new Uint8Array([1, 0, 1, 164]))
     expect(cursor.inspectUint16()).toBe(256)
     expect(() => cursor.inspectUint16(3)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`4\` is out of bounds (\`0 < position < 4\`).
+      [PositionOutOfBoundsError: Position \`4\` is out of bounds (\`0 < position < 4\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -310,9 +310,9 @@ describe('inspectUint24', () => {
     expect(cursor.inspectUint24()).toBe(65537)
     cursor.incrementPosition(3)
     expect(() => cursor.inspectUint24()).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`5\` is out of bounds (\`0 < position < 5\`).
+      [PositionOutOfBoundsError: Position \`5\` is out of bounds (\`0 < position < 5\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -320,9 +320,9 @@ describe('inspectUint24', () => {
     const cursor = createCursor(new Uint8Array([1, 0, 1, 0xf2, 0xc0]))
     expect(cursor.inspectUint24()).toBe(65537)
     expect(() => cursor.inspectUint24(3)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`5\` is out of bounds (\`0 < position < 5\`).
+      [PositionOutOfBoundsError: Position \`5\` is out of bounds (\`0 < position < 5\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -344,9 +344,9 @@ describe('inspectUint32', () => {
     expect(cursor.inspectUint32()).toBe(16777257)
     cursor.incrementPosition(4)
     expect(() => cursor.inspectUint32()).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`7\` is out of bounds (\`0 < position < 7\`).
+      [PositionOutOfBoundsError: Position \`7\` is out of bounds (\`0 < position < 7\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -356,9 +356,9 @@ describe('inspectUint32', () => {
     )
     expect(cursor.inspectUint32()).toBe(16777257)
     expect(() => cursor.inspectUint32(4)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`7\` is out of bounds (\`0 < position < 7\`).
+      [PositionOutOfBoundsError: Position \`7\` is out of bounds (\`0 < position < 7\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -378,9 +378,9 @@ describe('pushByte', () => {
     cursor.setPosition(419)
     cursor.pushByte(1)
     expect(() => cursor.pushByte(2)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -405,9 +405,9 @@ describe('pushBytes', () => {
     expect(() =>
       cursor.pushBytes(Uint8Array.from([69, 420, 69, 420])),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -418,9 +418,9 @@ describe('pushBytes', () => {
     expect(() =>
       cursor.pushBytes(Uint8Array.from([69, 420, 69, 420])),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -440,9 +440,9 @@ describe('pushUint8', () => {
     cursor.setPosition(419)
     cursor.pushUint8(1)
     expect(() => cursor.pushUint8(2)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -468,9 +468,9 @@ describe('pushUint16', () => {
     cursor.setPosition(417)
     cursor.pushUint16(420)
     expect(() => cursor.pushUint16(420)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -496,9 +496,9 @@ describe('pushUint24', () => {
     cursor.setPosition(415)
     cursor.pushUint24(420)
     expect(() => cursor.pushUint24(420)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -524,9 +524,9 @@ describe('pushUint32', () => {
     cursor.setPosition(413)
     cursor.pushUint32(420)
     expect(() => cursor.pushUint32(420)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -548,9 +548,9 @@ describe('readByte', () => {
     cursor.setPosition(419)
     cursor.readByte()
     expect(() => cursor.readByte()).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -573,18 +573,18 @@ describe('readBytes', () => {
     const cursor = createCursor(new Uint8Array(generateBytes(420)))
     cursor.setPosition(415)
     expect(() => cursor.readBytes(10)).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`424\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`424\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     const cursor_2 = createCursor(new Uint8Array(generateBytes(20)))
     cursor_2.setPosition(10)
     expect(() => cursor_2.readBytes(11)).toThrowErrorMatchingInlineSnapshot(
       `
-      "Position \`20\` is out of bounds (\`0 < position < 20\`).
+      [PositionOutOfBoundsError: Position \`20\` is out of bounds (\`0 < position < 20\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -608,9 +608,9 @@ describe('readUint8', () => {
     cursor.setPosition(419)
     cursor.readUint8()
     expect(() => cursor.readUint8()).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`420\` is out of bounds (\`0 < position < 420\`).
+      [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -627,9 +627,9 @@ describe('readUint16', () => {
     expect(cursor.readUint16()).toBe(256)
     expect(cursor.readUint16()).toBe(420)
     expect(() => cursor.readUint16()).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`5\` is out of bounds (\`0 < position < 4\`).
+      [PositionOutOfBoundsError: Position \`5\` is out of bounds (\`0 < position < 4\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -645,9 +645,9 @@ describe('readUint24', () => {
     const cursor = createCursor(new Uint8Array([1, 0, 1, 0xf2, 0xc0]))
     expect(cursor.readUint24()).toBe(65537)
     expect(() => cursor.readUint24()).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`5\` is out of bounds (\`0 < position < 5\`).
+      [PositionOutOfBoundsError: Position \`5\` is out of bounds (\`0 < position < 5\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -665,9 +665,9 @@ describe('readUint32', () => {
     )
     expect(cursor.readUint32()).toBe(16777257)
     expect(() => cursor.readUint32()).toThrowErrorMatchingInlineSnapshot(`
-      "Position \`7\` is out of bounds (\`0 < position < 7\`).
+      [PositionOutOfBoundsError: Position \`7\` is out of bounds (\`0 < position < 7\`).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
