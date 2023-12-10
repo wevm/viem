@@ -29,6 +29,11 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    l2OutputOracle: {
+      [sourceId]: {
+        address: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
+      },
+    },
     portal: {
       [sourceId]: {
         address: '0x49f53e41452c74589e85ca1677426ba426459e85',

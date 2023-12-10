@@ -1004,6 +1004,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'buildInitiateWithdrawal',
           link: '/op-stack/actions/buildInitiateWithdrawal',
         },
+        {
+          text: 'getSecondsToNextL2Output',
+          link: '/op-stack/actions/getSecondsToNextL2Output',
+        },
       ],
     },
     {

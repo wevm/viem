@@ -35,7 +35,7 @@ const hash = await walletClientL2.initiateWithdrawal(request)
 ```ts [config.ts]
 import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet, base } from 'viem/chains'
+import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL1, walletActionsL2 } from 'viem/op-stack'
 
 export const publicClientL1 = createPublicClient({

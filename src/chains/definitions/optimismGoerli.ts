@@ -21,6 +21,11 @@ export const optimismGoerli = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    l2OutputOracle: {
+      [sourceId]: {
+        address: '0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0',
+      },
+    },
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 49461,

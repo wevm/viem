@@ -21,6 +21,11 @@ export const optimismSepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    l2OutputOracle: {
+      [sourceId]: {
+        address: '0x90E9c4f8a994a250F6aEfd61CAFb4F2e895D458F',
+      },
+    },
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 1620204,
