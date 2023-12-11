@@ -104,7 +104,8 @@ export type WriteEip712ContractErrorType =
  * // With Validation
  * import { createWalletClient, http, parseAbi } from 'viem'
  * import { zkSync } from 'viem/chains'
- * import { simulateContract, writeContract } from 'viem/contract'
+ * import { simulateContract } from 'viem/contract'
+ * import { writeEip712Contract } from 'viem/chains/zksync'
  *
  * const client = createWalletClient({
  *   chain: zkSync,

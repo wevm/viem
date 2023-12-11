@@ -26,6 +26,8 @@ export {
   type PrepareEip712TransactionRequestReturnType,
 } from './actions/prepareEip712TransactionRequest.js'
 
+export { defineChain } from './utils/defineChain.js'
+
 export {
   zkSync,
   zkSyncTestnet,

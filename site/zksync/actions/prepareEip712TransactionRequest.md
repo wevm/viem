@@ -2,19 +2,19 @@
 head:
   - - meta
     - property: og:title
-      content: prepareTransactionRequest
+      content: prepareEip712TransactionRequest
   - - meta
     - name: description
-      content: Prepares a transaction request for signing.
+      content: Prepares an EIP712 transaction request for signing.
   - - meta
     - property: og:description
-      content: Prepares a transaction request for signing.
+      content: Prepares an EIP712 transaction request for signing.
 
 ---
 
-# prepareTransactionRequest
+# prepareEip712TransactionRequest
 
-Prepares a transaction request for signing by populating a nonce, gas limit, fee values, and a transaction type.
+Prepares an EIP712 transaction request for signing by populating a nonce, gas limit, fee values, and a transaction type.
 
 ## Usage
 
@@ -22,8 +22,9 @@ Prepares a transaction request for signing by populating a nonce, gas limit, fee
 
 ```ts [example.ts]
 import { account, walletClient } from './config'
+import { prepareEip712TransactionRequest } from 'viem/chains/zksync'
  
-const request = await walletClient.prepareTransactionRequest({ // [!code focus:16]
+const request = await prepareEip712TransactionRequest(walletClient, { // [!code focus:16]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -35,22 +36,22 @@ const request = await walletClient.prepareTransactionRequest({ // [!code focus:1
  *   maxFeePerGas: 150000000000n,
  *   maxPriorityFeePerGas: 1000000000n,
  *   nonce: 69,
- *   type: 'eip1559',
+ *   type: 'eip712',
  *   value: 1000000000000000000n
  * }
  */
 
-const signature = await walletClient.signTransaction(request)
+const signature = await signEip712Transaction(client, request)
 const hash = await walletClient.sendRawTransaction(signature)
 ```
 
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet } from 'viem/chains'
+import { zkSync } from 'viem/chains'
 
 export const walletClient = createWalletClient({
-  chain: mainnet,
+  chain: zkSync,
   transport: custom(window.ethereum)
 })
 
@@ -64,7 +65,7 @@ export const account = privateKeyToAccount(...)
 
 ### Account Hoisting
 
-If you do not wish to pass an `account` to every `prepareTransactionRequest`, you can also hoist the Account on the Wallet Client (see `config.ts`).
+If you do not wish to pass an `account` to every `prepareEip712TransactionRequest`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
 [Learn more](/docs/clients/wallet.html#account).
 
@@ -72,8 +73,8 @@ If you do not wish to pass an `account` to every `prepareTransactionRequest`, yo
 
 ```ts [example.ts]
 import { walletClient } from './config'
- 
-const request = await walletClient.prepareTransactionRequest({ // [!code focus:16]
+
+const request = await prepareEip712TransactionRequest(walletClient, { // [!code focus:16]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
@@ -84,7 +85,7 @@ const request = await walletClient.prepareTransactionRequest({ // [!code focus:1
  *   maxFeePerGas: 150000000000n,
  *   maxPriorityFeePerGas: 1000000000n,
  *   nonce: 69,
- *   type: 'eip1559',
+ *   type: 'eip712',
  *   value: 1000000000000000000n
  * }
  */
@@ -96,7 +97,7 @@ const hash = await walletClient.sendRawTransaction(signature)
 ```ts {4-6,9} [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
 
-// Retrieve Account from an EIP-1193 Provider.
+// Retrieve Account from an EIP-712 Provider.
 const [account] = await window.ethereum.request({ 
   method: 'eth_requestAccounts' 
 })
@@ -136,7 +137,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await prepareEip712SendTransaction(walletClient, {
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -150,7 +151,7 @@ const request = await walletClient.prepareSendTransaction({
 The transaction recipient or contract address.
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await prepareEip712SendTransaction(walletClient, {
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
   value: 1000000000000000000n,
@@ -165,7 +166,7 @@ const request = await walletClient.prepareSendTransaction({
 The access list.
 
 ```ts
-const request = await publicClient.prepareSendTransaction({
+const request = await prepareEip712SendTransaction(walletClient, {
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
@@ -184,13 +185,13 @@ const request = await publicClient.prepareSendTransaction({
 
 The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
-The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `prepareSendTransaction`).
+The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `prepareEip712SendTransaction`).
 
 ```ts
-import { optimism } from 'viem/chains' // [!code focus]
+import { zkync } from 'viem/chains' // [!code focus]
 
-const request = await walletClient.prepareSendTransaction({
-  chain: optimism, // [!code focus]
+const request = await prepareEip712SendTransaction(walletClient, {
+  chain: zkync, // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -204,7 +205,7 @@ const request = await walletClient.prepareSendTransaction({
 A contract hashed method call with encoded args.
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await prepareEip712SendTransaction(walletClient, {
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -219,42 +220,11 @@ const request = await walletClient.prepareSendTransaction({
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await prepareEip712SendTransaction(walletClient, {
   account,
   gasPrice: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1') 
-})
-```
-
-### maxFeePerGas (optional)
-
-- **Type:** `bigint`
-
-Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
-
-```ts
-const request = await walletClient.prepareSendTransaction({
-  account,
-  maxFeePerGas: parseGwei('20'),  // [!code focus]
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: parseEther('1')
-})
-```
-
-### maxPriorityFeePerGas (optional)
-
-- **Type:** `bigint`
-
-Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
-
-```ts
-const request = await walletClient.prepareSendTransaction({
-  account,
-  maxFeePerGas: parseGwei('20'),
-  maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: parseEther('1')
 })
 ```
 
@@ -265,7 +235,7 @@ const request = await walletClient.prepareSendTransaction({
 Unique number identifying this transaction.
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await prepareEip712SendTransaction(walletClient, {
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -280,11 +250,77 @@ const request = await walletClient.prepareSendTransaction({
 Value in wei sent with this transaction.
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await prepareEip712SendTransaction(walletClient, {
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1'), // [!code focus]
   nonce: 69
+})
+```
+
+### gasPerPubdata (optional)
+
+- **Type:** `bigint`
+
+The amount of gas for publishing one byte of data on Ethereum.
+
+```ts
+const hash = await prepareEip712SendTransaction(walletClient, {
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  gasPerPubdata: 50000, // [!code focus]
+  nonce: 69,
+  value: 1000000000000000000n
+})
+```
+
+### factoryDeps (optional)
+
+- **Type:** `[0x${string}]`
+
+Contains bytecode of the deployed contract.
+
+```ts
+const hash = await prepareEip712SendTransaction(walletClient, {
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  factoryDeps: ['0xcde...'], // [!code focus]
+  nonce: 69,
+  value: 1000000000000000000n
+})
+```
+
+### paymaster (optional)
+
+- **Type:** `Account | Address`
+
+Address of the paymaster account that will pay the fees. The `paymasterInput` field is required with this one.
+
+```ts
+const hash = await prepareEip712SendTransaction(walletClient, {
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021', // [!code focus]
+  paymasterInput: '0x8c5a...' // [!code focus]
+  nonce: 69,
+  value: 1000000000000000000n
+})
+```
+
+### paymasterInput (optional)
+
+- **Type:** `0x${string}`
+
+Input data to the paymaster. The `paymaster` field is required with this one.
+
+```ts
+const hash = await prepareEip712SendTransaction(walletClient, {
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021', // [!code focus]
+  paymasterInput: '0x8c5a...' // [!code focus]
+  nonce: 69,
+  value: 1000000000000000000n
 })
 ```
 
