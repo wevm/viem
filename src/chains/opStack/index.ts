@@ -11,6 +11,12 @@ export {
   type BuildInitiateWithdrawalReturnType,
 } from './actions/buildInitiateWithdrawal.js'
 export {
+  buildProveWithdrawal,
+  type BuildProveWithdrawalErrorType,
+  type BuildProveWithdrawalParameters,
+  type BuildProveWithdrawalReturnType,
+} from './actions/buildProveWithdrawal.js'
+export {
   depositTransaction,
   type DepositTransactionErrorType,
   type DepositTransactionParameters,
@@ -71,11 +77,11 @@ export {
   type GetL2OutputReturnType,
 } from './actions/getL2Output.js'
 export {
-  getSecondsToNextL2Output,
-  type GetSecondsToNextL2OutputErrorType,
-  type GetSecondsToNextL2OutputParameters,
-  type GetSecondsToNextL2OutputReturnType,
-} from './actions/getSecondsToNextL2Output.js'
+  getTimeToNextL2Output,
+  type GetTimeToNextL2OutputErrorType,
+  type GetTimeToNextL2OutputParameters,
+  type GetTimeToNextL2OutputReturnType,
+} from './actions/getTimeToNextL2Output.js'
 export {
   initiateWithdrawal,
   type InitiateWithdrawalErrorType,

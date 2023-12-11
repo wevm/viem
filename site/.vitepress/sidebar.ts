@@ -959,6 +959,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/actions/buildDepositTransaction',
         },
         {
+          text: 'buildProveWithdrawal',
+          link: '/op-stack/actions/buildProveWithdrawal',
+        },
+        {
           text: 'estimateContractL1Fee',
           link: '/op-stack/actions/estimateContractL1Fee',
         },
@@ -993,11 +997,11 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
-      text: 'L1 Wallet Actions',
+      text: 'L2 Wallet Actions',
       items: [
         {
-          text: 'depositTransaction',
-          link: '/op-stack/actions/depositTransaction',
+          text: 'initiateWithdrawal',
+          link: '/op-stack/actions/initiateWithdrawal',
         },
       ],
     },
@@ -1013,17 +1017,17 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/actions/getL2Output',
         },
         {
-          text: 'getSecondsToNextL2Output',
-          link: '/op-stack/actions/getSecondsToNextL2Output',
+          text: 'getTimeToNextL2Output',
+          link: '/op-stack/actions/getTimeToNextL2Output',
         },
       ],
     },
     {
-      text: 'L2 Wallet Actions',
+      text: 'L1 Wallet Actions',
       items: [
         {
-          text: 'initiateWithdrawal',
-          link: '/op-stack/actions/initiateWithdrawal',
+          text: 'depositTransaction',
+          link: '/op-stack/actions/depositTransaction',
         },
       ],
     },

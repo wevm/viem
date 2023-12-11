@@ -4,11 +4,11 @@ import { base } from '../chains.js'
 import { getL2Output } from './getL2Output.js'
 
 test('default', async () => {
-  const result = await getL2Output(publicClientMainnet, {
+  const output = await getL2Output(publicClientMainnet, {
     l2BlockNumber: 2725977n,
     targetChain: base,
   })
-  expect(result).toMatchInlineSnapshot(`
+  expect(output).toMatchInlineSnapshot(`
     {
       "l2BlockNumber": 2727000n,
       "outputIndex": 1514n,

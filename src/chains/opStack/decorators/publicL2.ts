@@ -13,6 +13,11 @@ import {
   buildDepositTransaction,
 } from '../actions/buildDepositTransaction.js'
 import {
+  type BuildProveWithdrawalParameters,
+  type BuildProveWithdrawalReturnType,
+  buildProveWithdrawal,
+} from '../actions/buildProveWithdrawal.js'
+import {
   type EstimateContractL1FeeParameters,
   type EstimateContractL1FeeReturnType,
   estimateContractL1Fee,
@@ -57,6 +62,71 @@ export type PublicActionsL2<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
+  /**
+   * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/buildDepositTransaction.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link BuildDepositTransactionParameters}
+   * @returns Parameters for `depositTransaction`. {@link DepositTransactionReturnType}
+   *
+   * @example
+   * import { createWalletClient, http, parseEther } from 'viem'
+   * import { base } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/op-stack'
+   *
+   * const client = createWalletClient({
+   *   chain: base,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const request = await client.buildDepositTransaction({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *   value: parseEther('1'),
+   * })
+   */
+  buildDepositTransaction: <
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | Address | undefined = undefined,
+  >(
+    parameters: BuildDepositTransactionParameters<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >,
+  ) => Promise<BuildDepositTransactionReturnType<account, accountOverride>>
+  /**
+   * Builds the transaction that proves a withdrawal was initiated on an L2. Used in the Withdrawal flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/buildProveWithdrawal.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link BuildProveWithdrawalParameters}
+   * @returns The prove withdraw transaction request. {@link BuildProveWithdrawalReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { optimism } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/op-stack'
+   *
+   * const publicClientL2 = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const request = await publicClientL2.buildProveWithdrawal({
+   *   message: { ... },
+   *   output: { ... },
+   * })
+   */
+  buildProveWithdrawal: <
+    accountOverride extends Account | Address | undefined = undefined,
+  >(
+    parameters: BuildProveWithdrawalParameters<account, accountOverride>,
+  ) => Promise<BuildProveWithdrawalReturnType<account, accountOverride>>
   /**
    * Estimates the L1 data fee required to execute an L2 contract write.
    *
@@ -317,42 +387,6 @@ export type PublicActionsL2<
   estimateTotalGas: <chainOverride extends Chain | undefined = undefined>(
     parameters: EstimateTotalGasParameters<chain, account, chainOverride>,
   ) => Promise<EstimateTotalGasReturnType>
-  /**
-   * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.
-   *
-   * - Docs: https://viem.sh/op-stack/actions/buildDepositTransaction.html
-   *
-   * @param client - Client to use
-   * @param parameters - {@link BuildDepositTransactionParameters}
-   * @returns Parameters for `depositTransaction`. {@link DepositTransactionReturnType}
-   *
-   * @example
-   * import { createWalletClient, http, parseEther } from 'viem'
-   * import { base } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
-   *
-   * const client = createWalletClient({
-   *   chain: base,
-   *   transport: http(),
-   * }).extend(publicActionsL2())
-   *
-   * const request = await client.buildDepositTransaction({
-   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-   *   value: parseEther('1'),
-   * })
-   */
-  buildDepositTransaction: <
-    chainOverride extends Chain | undefined = undefined,
-    accountOverride extends Account | Address | undefined = undefined,
-  >(
-    parameters: BuildDepositTransactionParameters<
-      chain,
-      account,
-      chainOverride,
-      accountOverride
-    >,
-  ) => Promise<BuildDepositTransactionReturnType<account, accountOverride>>
 }
 
 export function publicActionsL2() {
@@ -364,6 +398,8 @@ export function publicActionsL2() {
     client: Client<TTransport, TChain, TAccount>,
   ): PublicActionsL2<TChain, TAccount> => {
     return {
+      buildDepositTransaction: (args) => buildDepositTransaction(client, args),
+      buildProveWithdrawal: (args) => buildProveWithdrawal(client, args),
       estimateContractL1Fee: (args) => estimateContractL1Fee(client, args),
       estimateContractL1Gas: (args) => estimateContractL1Gas(client, args),
       estimateContractTotalFee: (args) =>
@@ -374,7 +410,6 @@ export function publicActionsL2() {
       estimateL1Gas: (args) => estimateL1Gas(client, args),
       estimateTotalFee: (args) => estimateTotalFee(client, args),
       estimateTotalGas: (args) => estimateTotalGas(client, args),
-      buildDepositTransaction: (args) => buildDepositTransaction(client, args),
     }
   }
 }

@@ -14,10 +14,10 @@ import {
   getL2Output,
 } from '../actions/getL2Output.js'
 import {
-  type GetSecondsToNextL2OutputParameters,
-  type GetSecondsToNextL2OutputReturnType,
-  getSecondsToNextL2Output,
-} from '../actions/getSecondsToNextL2Output.js'
+  type GetTimeToNextL2OutputParameters,
+  type GetTimeToNextL2OutputReturnType,
+  getTimeToNextL2Output,
+} from '../actions/getTimeToNextL2Output.js'
 
 export type PublicActionsL1<
   chain extends Chain | undefined = Chain | undefined,
@@ -89,11 +89,11 @@ export type PublicActionsL1<
   /**
    * Returns the number of seconds until the next L2 Output is submitted. Used for the Withdrawal flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/getSecondsToNextL2Output.html
+   * - Docs: https://viem.sh/op-stack/actions/getTimeToNextL2Output.html
    *
    * @param client - Client to use
-   * @param parameters - {@link GetSecondsToNextL2OutputParameters}
-   * @returns The L2 transaction hash. {@link GetSecondsToNextL2OutputReturnType}
+   * @param parameters - {@link GetTimeToNextL2OutputParameters}
+   * @returns The L2 transaction hash. {@link GetTimeToNextL2OutputReturnType}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
@@ -111,16 +111,14 @@ export type PublicActionsL1<
    * })
    *
    * const l2BlockNumber = await publicClientL2.getBlockNumber()
-   * const seconds = await publicClientL1.getSecondsToNextL2Output({
+   * const { seconds } = await publicClientL1.getTimeToNextL2Output({
    *   l2BlockNumber,
    *   targetChain: optimism
    * })
    */
-  getSecondsToNextL2Output: <
-    chainOverride extends Chain | undefined = undefined,
-  >(
-    parameters: GetSecondsToNextL2OutputParameters<chain, chainOverride>,
-  ) => Promise<GetSecondsToNextL2OutputReturnType>
+  getTimeToNextL2Output: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetTimeToNextL2OutputParameters<chain, chainOverride>,
+  ) => Promise<GetTimeToNextL2OutputReturnType>
 }
 
 export function publicActionsL1() {
@@ -134,8 +132,7 @@ export function publicActionsL1() {
     return {
       buildInitiateWithdrawal: (args) => buildInitiateWithdrawal(client, args),
       getL2Output: (args) => getL2Output(client, args),
-      getSecondsToNextL2Output: (args) =>
-        getSecondsToNextL2Output(client, args),
+      getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),
     }
   }
 }

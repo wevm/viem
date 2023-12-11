@@ -388,7 +388,6 @@ describe('behavior', () => {
 
     test('MethodNotSupportedRpcError', async () => {
       const server = await createHttpServer((_req, res) => {
-        console.log('test')
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })

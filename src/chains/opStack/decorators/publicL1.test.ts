@@ -16,7 +16,8 @@ test('default', async () => {
   expect(publicActionsL1()(publicClientMainnet)).toMatchInlineSnapshot(`
     {
       "buildInitiateWithdrawal": [Function],
-      "getSecondsToNextL2Output": [Function],
+      "getL2Output": [Function],
+      "getTimeToNextL2Output": [Function],
     }
   `)
 })
@@ -31,9 +32,9 @@ describe('smoke test', () => {
     expect(request).toBeDefined()
   })
 
-  test('getSecondsToNextL2Output', async () => {
+  test('getTimeToNextL2Output', async () => {
     const l2BlockNumber = await l2Client.getBlockNumber()
-    const request = await client.getSecondsToNextL2Output({
+    const request = await client.getTimeToNextL2Output({
       l2BlockNumber,
       targetChain: optimism,
     })

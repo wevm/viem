@@ -3,7 +3,7 @@ outline: deep
 head:
   - - meta
     - property: og:title
-      content: getSecondsToNextL2Output
+      content: getTimeToNextL2Output
   - - meta
     - name: description
       content: Builds & prepares parameters for a withdrawal to be initiated on an L2.
@@ -12,7 +12,7 @@ head:
       content: Builds & prepares parameters for a withdrawal to be initiated on an L2.
 ---
 
-# getSecondsToNextL2Output
+# getTimeToNextL2Output
 
 Returns the number of seconds until the next L2 Output is submitted. Used for the Withdrawal flow.
 
@@ -25,7 +25,7 @@ import { optimism } from 'viem/chains'
 import { account, publicClientL1, publicClientL2 } from './config'
 
 const l2BlockNumber = publicClientL2.getBlockNumber()
-const seconds = await publicClientL1.getSecondsToNextL2Output({ // [!code hl]
+const { seconds } = await publicClientL1.getTimeToNextL2Output({ // [!code hl]
   l2BlockNumber, // [!code hl]
   targetChain: optimism, // [!code hl]
 }) // [!code hl]
@@ -51,9 +51,10 @@ export const publicClientL2 = createPublicClient({
 
 ## Returns
 
-`GetSecondsToNextL2OutputReturnType`
+`{ seconds: number, timestamp: number }`
 
-Seconds until next L2 Output.
+- `seconds` until the next L2 Output is submitted.
+- Estimated `timestamp` of the next L2 Output.
 
 ## Parameters
 
@@ -65,7 +66,7 @@ The latest L2 block number.
 
 ```ts
 const l2BlockNumber = publicClientL2.getBlockNumber() // [!code focus]
-const seconds = await publicClientL1.getSecondsToNextL2Output({ 
+const { seconds } = await publicClientL1.getTimeToNextL2Output({ 
   l2BlockNumber, // [!code focus]
   targetChain: optimism, 
 }) 
@@ -78,7 +79,7 @@ const seconds = await publicClientL1.getSecondsToNextL2Output({
 The L2 chain.
 
 ```ts
-const seconds = await publicClientL1.getSecondsToNextL2Output({
+const { seconds } = await publicClientL1.getTimeToNextL2Output({
   l2BlockNumber,
   targetChain: optimism, // [!code focus]
 })
@@ -94,7 +95,7 @@ The address of the [L2 Output Oracle contract](https://github.com/ethereum-optim
 If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const seconds = await publicClientL1.getSecondsToNextL2Output({
+const { seconds } = await publicClientL1.getTimeToNextL2Output({
   l2BlockNumber,
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })
