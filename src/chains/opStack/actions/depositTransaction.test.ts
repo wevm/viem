@@ -21,7 +21,7 @@ import {
   encodePacked,
   parseEther,
 } from '../../../index.js'
-import { base, baseGoerli, goerli } from '../../index.js'
+import { base, optimismSepolia, sepolia } from '../../index.js'
 import { portalAbi } from '../abis.js'
 import { getL2TransactionHashes } from '../index.js'
 import { buildDepositTransaction } from './buildDepositTransaction.js'
@@ -231,33 +231,33 @@ describe('json-rpc accounts', () => {
 })
 
 test.skip(
-  'e2e (goerli)',
+  'e2e (sepolia)',
   async () => {
     const account = privateKeyToAccount(
       process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
     )
 
-    const client_baseGoerli = createClient({
-      chain: baseGoerli,
+    const client_opSepolia = createClient({
+      chain: optimismSepolia,
       transport: http(),
     })
-    const client_goerli = createClient({
+    const client_sepolia = createClient({
       account,
-      chain: goerli,
+      chain: sepolia,
       transport: http(),
     })
 
-    const request = await buildDepositTransaction(client_baseGoerli, {
+    const request = await buildDepositTransaction(client_opSepolia, {
       mint: 69n,
       to: account.address,
     })
 
-    const hash = await depositTransaction(client_goerli, request)
+    const hash = await depositTransaction(client_sepolia, request)
     expect(hash).toBeDefined()
 
     console.log('l1 hash', hash)
 
-    const receipt = await waitForTransactionReceipt(client_goerli, {
+    const receipt = await waitForTransactionReceipt(client_sepolia, {
       hash,
     })
 
@@ -265,7 +265,7 @@ test.skip(
 
     console.log('l2 hash', l2Hash)
 
-    await waitForTransactionReceipt(client_baseGoerli, {
+    await waitForTransactionReceipt(client_opSepolia, {
       hash: l2Hash,
     })
   },

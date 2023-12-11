@@ -9,9 +9,9 @@ import {
   decodeEventLog,
   parseEther,
 } from '../../../index.js'
-import { goerli } from '../../index.js'
+import { sepolia } from '../../index.js'
 import { l2ToL1MessagePasserAbi } from '../abis.js'
-import { baseGoerli } from '../chains.js'
+import { optimismSepolia } from '../chains.js'
 import { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 import { initiateWithdrawal } from './initiateWithdrawal.js'
 
@@ -53,28 +53,28 @@ test('default', async () => {
   `)
 })
 
-test.only('e2e (goerli)', async () => {
+test.only('e2e (sepolia)', async () => {
   const account = privateKeyToAccount(
     process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
   )
 
-  const client_baseGoerli = createClient({
+  const client_opSepolia = createClient({
     account,
-    chain: baseGoerli,
+    chain: optimismSepolia,
     transport: http(),
   })
-  const client_goerli = createClient({
+  const client_sepolia = createClient({
     account,
-    chain: goerli,
+    chain: sepolia,
     transport: http(),
   })
 
-  const request = await buildInitiateWithdrawal(client_goerli, {
+  const request = await buildInitiateWithdrawal(client_sepolia, {
     to: account.address,
     value: 69n,
   })
 
-  const hash = await initiateWithdrawal(client_baseGoerli, request)
+  const hash = await initiateWithdrawal(client_opSepolia, request)
   expect(hash).toBeDefined()
 
   console.log('l2 hash', hash)
