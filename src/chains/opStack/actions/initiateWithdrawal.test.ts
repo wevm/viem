@@ -1,9 +1,18 @@
 import { expect, test } from 'vitest'
 import { accounts } from '../../../../test/src/constants.js'
 import { optimismClient } from '../../../../test/src/opStack.js'
+import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { getTransactionReceipt, mine } from '../../../actions/index.js'
-import { decodeEventLog, parseEther } from '../../../index.js'
+import {
+  http,
+  createClient,
+  decodeEventLog,
+  parseEther,
+} from '../../../index.js'
+import { goerli } from '../../index.js'
 import { l2ToL1MessagePasserAbi } from '../abis.js'
+import { baseGoerli } from '../chains.js'
+import { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 import { initiateWithdrawal } from './initiateWithdrawal.js'
 
 test('default', async () => {
@@ -42,4 +51,31 @@ test('default', async () => {
       "value": 1000000000000000000n,
     }
   `)
+})
+
+test.only('e2e (goerli)', async () => {
+  const account = privateKeyToAccount(
+    process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
+  )
+
+  const client_baseGoerli = createClient({
+    account,
+    chain: baseGoerli,
+    transport: http(),
+  })
+  const client_goerli = createClient({
+    account,
+    chain: goerli,
+    transport: http(),
+  })
+
+  const request = await buildInitiateWithdrawal(client_goerli, {
+    to: account.address,
+    value: 69n,
+  })
+
+  const hash = await initiateWithdrawal(client_baseGoerli, request)
+  expect(hash).toBeDefined()
+
+  console.log('l2 hash', hash)
 })

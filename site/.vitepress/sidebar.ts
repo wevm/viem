@@ -945,6 +945,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Deposits',
           link: '/op-stack/guides/deposits',
         },
+        {
+          text: 'Withdrawals',
+          link: '/op-stack/guides/withdrawals',
+        },
       ],
     },
     {
