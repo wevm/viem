@@ -52,6 +52,7 @@ export type GetSecondsToNextL2OutputErrorType = MulticallErrorType | ErrorType
  * const l2BlockNumber = await getBlockNumber(publicClientL2)
  * const seconds = await getSecondsToNextL2Output(publicClientL1, {
  *   l2BlockNumber,
+ *   targetChain: optimism
  * })
  */
 export async function getSecondsToNextL2Output<

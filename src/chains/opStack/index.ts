@@ -65,6 +65,12 @@ export {
   type EstimateTotalGasReturnType,
 } from './actions/estimateTotalGas.js'
 export {
+  getL2Output,
+  type GetL2OutputErrorType,
+  type GetL2OutputParameters,
+  type GetL2OutputReturnType,
+} from './actions/getL2Output.js'
+export {
   getSecondsToNextL2Output,
   type GetSecondsToNextL2OutputErrorType,
   type GetSecondsToNextL2OutputParameters,
