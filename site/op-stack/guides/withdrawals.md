@@ -56,6 +56,12 @@ const withdrawalReceipt =
 
 // Extract withdrawal message from the receipt.
 const [message] = getWithdrawalMessages(withdrawalReceipt)
+
+// Retrieve the L2 output proposal that occurred after the receipt block.
+const output = await publicClientL1.getL2Output({
+  l2BlockNumber: withdrawalReceipt.blockNumber,
+  targetChain: walletClientL2.chain
+})
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
