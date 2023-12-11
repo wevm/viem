@@ -3,9 +3,9 @@ import { describe, expect, test } from 'vitest'
 import { accounts, localHttpUrl } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { zkSyncTestnet } from '../../../chains/index.js'
-import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import { createWalletClient } from '../../../clients/createWalletClient.js'
 import { http } from '../../../clients/transports/http.js'
+import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import { signEip712Transaction } from './signEip712Transaction.js'
 
 const sourceAccount = accounts[0]

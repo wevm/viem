@@ -8,6 +8,7 @@ import type {
   TransactionSerializable,
   TransactionSerializableGeneric,
 } from '../../../types/transaction.js'
+import { isEIP712 } from '../serializers.js'
 import type { EIP712DomainFn } from './eip712signer.js'
 
 export type ChainEIP712<
@@ -44,4 +45,10 @@ export type ChainEIP712Domain<
         : TransactionSerializable
       : TransactionSerializable,
   ) => boolean
+}
+
+export function isEip712Transaction(
+  transaction: TransactionSerializable,
+): boolean {
+  return isEIP712(transaction)
 }

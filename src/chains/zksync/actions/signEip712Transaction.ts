@@ -14,7 +14,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { GetAccountParameter } from '../../../types/account.js'
-import { type GetChain, isEip712Transaction } from '../../../types/chain.js'
+import { type GetChain } from '../../../types/chain.js'
 import { type RpcTransactionRequest } from '../../../types/rpc.js'
 import type {
   TransactionRequest,
@@ -38,7 +38,7 @@ import {
   type AssertRequestErrorType,
   assertRequest,
 } from '../../../utils/transaction/assertRequest.js'
-import { type ChainEIP712 } from '../types/chain.js'
+import { type ChainEIP712, isEip712Transaction } from '../types/chain.js'
 
 export type SignEip712TransactionParameters<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,

@@ -22,7 +22,7 @@ import {
   type AccountNotFoundErrorType,
 } from '../../../errors/account.js'
 import type { GetAccountParameter } from '../../../types/account.js'
-import { type Chain, isEip712Transaction } from '../../../types/chain.js'
+import { type Chain } from '../../../types/chain.js'
 import type { GetChain } from '../../../types/chain.js'
 import { type TransactionSerializable } from '../../../types/transaction.js'
 import type { UnionOmit } from '../../../types/utils.js'
@@ -34,7 +34,7 @@ import type {
 } from '../../../utils/transaction/assertRequest.js'
 import { assertRequest } from '../../../utils/transaction/assertRequest.js'
 import { type GetTransactionType } from '../../../utils/transaction/getTransactionType.js'
-import { type ChainEIP712 } from '../types/chain.js'
+import { type ChainEIP712, isEip712Transaction } from '../types/chain.js'
 
 export type PrepareEip712TransactionRequestParameters<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,

@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-import { isEIP712 } from '../chains/zksync/serializers.js'
 
 import type { EstimateFeesPerGasReturnType } from '../actions/public/estimateFeesPerGas.js'
 import type { PrepareTransactionRequestParameters } from '../actions/wallet/prepareTransactionRequest.js'
@@ -239,9 +238,3 @@ export type GetChain<
 > = IsUndefined<chain> extends true
   ? { chain: chainOverride | null }
   : { chain?: chainOverride | null }
-
-export function isEip712Transaction(
-  transaction: TransactionSerializable,
-): boolean {
-  return isEIP712(transaction)
-}

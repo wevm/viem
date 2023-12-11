@@ -287,4 +287,3 @@ const request = await walletClient.prepareSendTransaction({
   nonce: 69
 })
 ```
-

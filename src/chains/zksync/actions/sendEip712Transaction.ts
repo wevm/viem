@@ -21,7 +21,6 @@ import type { GetAccountParameter } from '../../../types/account.js'
 import {
   type Chain,
   type ExtractChainFormatterParameters,
-  isEip712Transaction,
 } from '../../../types/chain.js'
 import type { GetChain } from '../../../types/chain.js'
 import type { Hash } from '../../../types/misc.js'
@@ -48,7 +47,7 @@ import {
   type AssertRequestParameters,
   assertRequest,
 } from '../../../utils/transaction/assertRequest.js'
-import { type ChainEIP712 } from '../types/chain.js'
+import { type ChainEIP712, isEip712Transaction } from '../types/chain.js'
 import { type TransactionRequestEIP712 } from '../types/transaction.js'
 import {
   type PrepareEip712TransactionRequestErrorType,
