@@ -1031,12 +1031,20 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/utilities/extractTransactionDepositedLogs',
         },
         {
+          text: 'extractWithdrawalMessageLogs',
+          link: '/op-stack/utilities/extractWithdrawalMessageLogs',
+        },
+        {
           text: 'getL2TransactionHash',
           link: '/op-stack/utilities/getL2TransactionHash',
         },
         {
           text: 'getL2TransactionHashes',
           link: '/op-stack/utilities/getL2TransactionHashes',
+        },
+        {
+          text: 'getWithdrawalMessages',
+          link: '/op-stack/utilities/getWithdrawalMessages',
         },
         {
           text: 'getSourceHash',
