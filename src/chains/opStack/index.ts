@@ -117,6 +117,13 @@ export type {
 } from './types/transaction.js'
 
 export {
+  extractWithdrawalMessageLogs,
+  type ExtractWithdrawalMessageLogsErrorType,
+  type ExtractWithdrawalMessageLogsParameters,
+  type ExtractWithdrawalMessageLogsReturnType,
+} from './utils/extractWithdrawalMessageLogs.js'
+
+export {
   extractTransactionDepositedLogs,
   type ExtractTransactionDepositedLogsErrorType,
   type ExtractTransactionDepositedLogsParameters,
@@ -150,3 +157,17 @@ export {
   type GetSourceHashParameters,
   type GetSourceHashReturnType,
 } from './utils/getSourceHash.js'
+
+export {
+  getWithdrawalHashStorageSlot,
+  type GetWithdrawalHashStorageSlotErrorType,
+  type GetWithdrawalHashStorageSlotParameters,
+  type GetWithdrawalHashStorageSlotReturnType,
+} from './utils/getWithdrawalHashStorageSlot.js'
+
+export {
+  getWithdrawalMessages,
+  type GetWithdrawalMessagesErrorType,
+  type GetWithdrawalMessagesParameters,
+  type GetWithdrawalMessagesReturnType,
+} from './utils/getWithdrawalMessages.js'

@@ -1055,6 +1055,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/utilities/opaqueDataToDepositData',
         },
         {
+          text: 'getWithdrawalHashStorageSlot',
+          link: '/op-stack/utilities/getWithdrawalHashStorageSlot',
+        },
+        {
           text: 'parseTransaction',
           link: '/op-stack/utilities/parseTransaction',
         },
