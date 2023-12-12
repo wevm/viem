@@ -18,6 +18,11 @@ import {
   type GetTimeToNextL2OutputReturnType,
   getTimeToNextL2Output,
 } from '../actions/getTimeToNextL2Output.js'
+import {
+  type WaitForL2OutputParameters,
+  type WaitForL2OutputReturnType,
+  waitForL2Output,
+} from '../actions/waitForL2Output.js'
 
 export type PublicActionsL1<
   chain extends Chain | undefined = Chain | undefined,
@@ -60,7 +65,7 @@ export type PublicActionsL1<
     >,
   ) => Promise<BuildInitiateWithdrawalReturnType<account, accountOverride>>
   /**
-   * Retrieves the first L2 output proposal that occurred after a provided block number. Used for the Withdrawal flow.
+   * Retrieves the first L2 output proposal that occurred after a provided block number. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
    *
    * - Docs: https://viem.sh/op-stack/actions/getL2Output.html
    *
@@ -87,7 +92,7 @@ export type PublicActionsL1<
     parameters: GetL2OutputParameters<chain, chainOverride>,
   ) => Promise<GetL2OutputReturnType>
   /**
-   * Returns the number of seconds until the next L2 Output is submitted. Used for the Withdrawal flow.
+   * Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
    *
    * - Docs: https://viem.sh/op-stack/actions/getTimeToNextL2Output.html
    *
@@ -97,7 +102,6 @@ export type PublicActionsL1<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { getBlockNumber } from 'viem/actions'
    * import { mainnet, optimism } from 'viem/chains'
    * import { publicActionsL1 } from 'viem/op-stack'
    *
@@ -119,6 +123,38 @@ export type PublicActionsL1<
   getTimeToNextL2Output: <chainOverride extends Chain | undefined = undefined>(
     parameters: GetTimeToNextL2OutputParameters<chain, chainOverride>,
   ) => Promise<GetTimeToNextL2OutputReturnType>
+  /**
+   * Waits for the next L2 output (after the provided block number) to be submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/waitForL2Output.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link WaitForL2OutputParameters}
+   * @returns The L2 transaction hash. {@link WaitForL2OutputReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet, optimism } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/op-stack'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   * const publicClientL2 = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * })
+   *
+   * const l2BlockNumber = await getBlockNumber(publicClientL2)
+   * await waitForL2Output(publicClientL1, {
+   *   l2BlockNumber,
+   *   targetChain: optimism
+   * })
+   */
+  waitForL2Output: <chainOverride extends Chain | undefined = undefined>(
+    parameters: WaitForL2OutputParameters<chain, chainOverride>,
+  ) => Promise<WaitForL2OutputReturnType>
 }
 
 export function publicActionsL1() {
@@ -133,6 +169,7 @@ export function publicActionsL1() {
       buildInitiateWithdrawal: (args) => buildInitiateWithdrawal(client, args),
       getL2Output: (args) => getL2Output(client, args),
       getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),
+      waitForL2Output: (args) => waitForL2Output(client, args),
     }
   }
 }

@@ -1020,6 +1020,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'getTimeToNextL2Output',
           link: '/op-stack/actions/getTimeToNextL2Output',
         },
+        {
+          text: 'waitForL2Output',
+          link: '/op-stack/actions/waitForL2Output',
+        },
       ],
     },
     {

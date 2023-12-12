@@ -31,7 +31,7 @@ export type GetTimeToNextL2OutputReturnType = {
 export type GetTimeToNextL2OutputErrorType = MulticallErrorType | ErrorType
 
 /**
- * Returns the number of seconds until the next L2 Output is submitted. Used for the Withdrawal flow.
+ * Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
  *
  * - Docs: https://viem.sh/op-stack/actions/getTimeToNextL2Output.html
  *
@@ -77,8 +77,9 @@ export async function getTimeToNextL2Output<
     return Object.values(targetChain!.contracts.l2OutputOracle)[0].address
   })()
 
-  const [nextBlockNumber, latestBlockNumber, blockTime, interval] =
-    await multicall(client, {
+  const [nextBlockNumber, latestBlockNumber, blockTime] = await multicall(
+    client,
+    {
       allowFailure: false,
       contracts: [
         {
@@ -96,13 +97,9 @@ export async function getTimeToNextL2Output<
           address: l2OutputOracleAddress,
           functionName: 'L2_BLOCK_TIME',
         },
-        {
-          abi: l2OutputOracleAbi,
-          address: l2OutputOracleAddress,
-          functionName: 'SUBMISSION_INTERVAL',
-        },
       ],
-    })
+    },
+  )
 
   const seconds = (() => {
     // If the latest block number is greater than the provided block number,
@@ -110,17 +107,8 @@ export async function getTimeToNextL2Output<
     if (latestBlockNumber > l2BlockNumber) return 0
 
     // If the next block number is lesser than the provided block number, we will
-    // assume the next submission interval is the next period after the provided
-    // block number.
-    if (nextBlockNumber < l2BlockNumber)
-      return (
-        (Number(nextBlockNumber) +
-          Number(interval) *
-            (Math.floor(Number((l2BlockNumber - nextBlockNumber) / interval)) +
-              1) -
-          Number(l2BlockNumber)) *
-        Number(blockTime)
-      )
+    // assume the block has already been submitted
+    if (nextBlockNumber < l2BlockNumber) return 0
 
     return Number((nextBlockNumber - l2BlockNumber) * blockTime)
   })()

@@ -18,6 +18,7 @@ test('default', async () => {
       "buildInitiateWithdrawal": [Function],
       "getL2Output": [Function],
       "getTimeToNextL2Output": [Function],
+      "waitForL2Output": [Function],
     }
   `)
 })
@@ -32,10 +33,26 @@ describe('smoke test', () => {
     expect(request).toBeDefined()
   })
 
+  test('getL2Output', async () => {
+    const request = await client.getL2Output({
+      l2BlockNumber: 113365018n,
+      targetChain: optimism,
+    })
+    expect(request).toBeDefined()
+  })
+
   test('getTimeToNextL2Output', async () => {
     const l2BlockNumber = await l2Client.getBlockNumber()
     const request = await client.getTimeToNextL2Output({
       l2BlockNumber,
+      targetChain: optimism,
+    })
+    expect(request).toBeDefined()
+  })
+
+  test('waitForL2Output', async () => {
+    const request = await client.waitForL2Output({
+      l2BlockNumber: 113365018n,
       targetChain: optimism,
     })
     expect(request).toBeDefined()

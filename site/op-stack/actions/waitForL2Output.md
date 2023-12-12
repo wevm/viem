@@ -3,30 +3,30 @@ outline: deep
 head:
   - - meta
     - property: og:title
-      content: getL2Output
+      content: waitForL2Output
   - - meta
     - name: description
-      content: Retrieves the first L2 output proposal that occurred after a provided block number.
+      content: Waits for the next L2 output (after the provided block number) to be submitted. 
   - - meta
     - property: og:description
-      content: Retrieves the first L2 output proposal that occurred after a provided block number.
+      content: Waits for the next L2 output (after the provided block number) to be submitted. 
 ---
 
-# getL2Output
+# waitForL2Output
 
-Retrieves the first L2 output proposal that occurred after a provided block number. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+Waits for the next L2 output (after the provided block number) to be submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
 
 ## Usage
 
 ::: code-group
 
 ```ts [example.ts]
-import { optimism } from 'viem/chains'
-import { account, publicClientL1 } from './config'
+import { account, publicClientL1, publicClientL2 } from './config'
 
-const output = await publicClientL1.getL2Output({ // [!code hl]
-  l2BlockNumber: 69420n, // [!code hl]
-  targetChain: optimism, // [!code hl]
+const l2BlockNumber = await publicClientL2.getBlockNumber()
+const output = await publicClientL1.waitForL2Output({ // [!code hl]
+  l2BlockNumber, // [!code hl]
+  targetChain: publicClientL2.chain, // [!code hl]
 }) // [!code hl]
 ```
 
@@ -39,13 +39,17 @@ export const publicClientL1 = createPublicClient({
   chain: mainnet,
   transport: http()
 }).extend(publicActionsL1())
+export const publicClientL2 = createPublicClient({
+  chain: optimism,
+  transport: http()
+})
 ```
 
 :::
 
 ## Returns
 
-`GetL2OutputReturnType`
+`WaitForL2OutputReturnType`
 
 The L2 output proposal.
 
@@ -58,7 +62,7 @@ The L2 output proposal.
 The L2 block number.
 
 ```ts
-const output = await publicClientL1.getL2Output({ 
+const output = await publicClientL1.waitForL2Output({ 
   l2BlockNumber: 69420n, // [!code focus]
   targetChain: optimism, 
 }) 
@@ -71,7 +75,7 @@ const output = await publicClientL1.getL2Output({
 The L2 chain.
 
 ```ts
-const output = await publicClientL1.getL2Output({
+const output = await publicClientL1.waitForL2Output({
   l2BlockNumber,
   targetChain: optimism, // [!code focus]
 })
@@ -87,7 +91,7 @@ The address of the [L2 Output Oracle contract](https://github.com/ethereum-optim
 If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const output = await publicClientL1.getL2Output({
+const output = await publicClientL1.waitForL2Output({
   l2BlockNumber,
   l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })

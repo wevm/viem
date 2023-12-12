@@ -88,6 +88,12 @@ export {
   type InitiateWithdrawalParameters,
   type InitiateWithdrawalReturnType,
 } from './actions/initiateWithdrawal.js'
+export {
+  waitForL2Output,
+  type WaitForL2OutputErrorType,
+  type WaitForL2OutputParameters,
+  type WaitForL2OutputReturnType,
+} from './actions/waitForL2Output.js'
 
 export { chainConfig } from './chainConfig.js'
 

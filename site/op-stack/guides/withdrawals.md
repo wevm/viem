@@ -40,23 +40,14 @@ const request = await publicClientL1.buildInitiateWithdrawal({
 // Execute the initiate withdrawal transaction on the L2.
 const hash = await walletClientL2.initiateWithdrawal(request)
 
-// Get the L2 initiate withdrawal transaction receipt.
+// Wait for the initiate withdrawal transaction receipt.
 const receipt = await publicClientL2.waitForTransactionReceipt({ hash })
-
-// Wait for the next L2 output to be submitted.
-const { seconds } = await publicClientL1.getTimeToNextL2Output({
-  l2BlockNumber: receipt.blockNumber,
-  targetChain: walletClientL2.chain
-})
-
-// Wait `seconds`...
-await new Promise<void>(resolve => setTimeout(resolve, seconds * 1000))
 
 // Extract withdrawal message from the receipt.
 const [message] = getWithdrawalMessages(receipt)
 
 // Retrieve the L2 output proposal that occurred after the receipt block.
-const output = await publicClientL1.getL2Output({
+const output = await publicClientL1.waitForL2Output({
   l2BlockNumber: receipt.blockNumber,
   targetChain: walletClientL2.chain
 })

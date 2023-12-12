@@ -3,9 +3,9 @@ import { accounts } from '../../../../test/src/constants.js'
 import { optimismClient } from '../../../../test/src/opStack.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
-  getBlockNumber,
   getTransactionReceipt,
   mine,
+  waitForTransactionReceipt,
 } from '../../../actions/index.js'
 import {
   http,
@@ -19,8 +19,8 @@ import { optimismSepolia } from '../chains.js'
 import { getL2Output, getWithdrawalMessages } from '../index.js'
 import { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 import { buildProveWithdrawal } from './buildProveWithdrawal.js'
-import { getTimeToNextL2Output } from './getTimeToNextL2Output.js'
 import { initiateWithdrawal } from './initiateWithdrawal.js'
+import { waitForL2Output } from './waitForL2Output.js'
 
 test('default', async () => {
   const hash = await initiateWithdrawal(optimismClient, {
@@ -87,16 +87,13 @@ test.skip('e2e (sepolia)', async () => {
   )
   expect(withdrawalHash).toBeDefined()
 
-  const l2BlockNumber = await getBlockNumber(client_opSepolia)
-  const { seconds } = await getTimeToNextL2Output(client_sepolia, {
-    l2BlockNumber,
-    targetChain: client_opSepolia.chain,
+  const withdrawalReceipt = await waitForTransactionReceipt(client_opSepolia, {
+    hash: withdrawalHash,
   })
 
-  await new Promise<void>((resolve) => setTimeout(resolve, seconds * 1000))
-
-  const withdrawalReceipt = await getTransactionReceipt(client_opSepolia, {
-    hash: withdrawalHash,
+  await waitForL2Output(client_sepolia, {
+    l2BlockNumber: withdrawalReceipt.blockNumber,
+    targetChain: client_opSepolia.chain,
   })
 
   // Extract withdrawal message from the receipt.
@@ -114,4 +111,4 @@ test.skip('e2e (sepolia)', async () => {
   })
 
   console.log(proveWithdrawalRequest)
-}, 180000)
+}, 600000)
