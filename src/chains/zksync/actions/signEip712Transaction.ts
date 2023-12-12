@@ -68,13 +68,13 @@ export type SignEip712TransactionErrorType =
 /**
  * Signs a transaction.
  *
- * - Docs: https://viem.sh/docs/actions/wallet/signTransaction.html
+ * - Docs: https://viem.sh/docs/zksync/actions/signEip712Transaction.html
  * - JSON-RPC Methods:
  *   - JSON-RPC Accounts: [`eth_signTransaction`](https://ethereum.github.io/execution-apis/api-documentation/)
  *   - Local Accounts: Signs locally. No JSON-RPC request.
  *
- * @param args - {@link SignTransactionParameters}
- * @returns The signed serialized tranasction. {@link SignTransactionReturnType}
+ * @param args - {@link SignEip712TransactionParameters}
+ * @returns The signed serialized tranasction. {@link SignEip712TransactionReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'

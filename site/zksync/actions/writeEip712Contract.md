@@ -37,7 +37,6 @@ While you can use `writeEip712Contract` [by itself](#standalone), it is highly r
 ```ts [example.ts]
 import { account, publicClient, walletClient } from './config'
 import { wagmiAbi } from './abi'
-import { writeEip712Contract } from 'viem/chains/zksync'
 
 const { request } = await publicClient.simulateContract({
   account,
@@ -45,7 +44,7 @@ const { request } = await publicClient.simulateContract({
   abi: wagmiAbi,
   functionName: 'mint',
 })
-await writeEip712Contract(walletClient, request)
+await walletClient.writeEip712Contract(request)
 ```
 
 ```ts [abi.ts]
@@ -66,6 +65,7 @@ export const wagmiAbi = [
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { zksync } from 'viem/chains'
+import { eip712Actions } from 'viem/chains/zksync'
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -75,7 +75,7 @@ export const publicClient = createPublicClient({
 export const walletClient = createWalletClient({
   chain: zksync,
   transport: custom(window.ethereum)
-})
+}).extend(eip712Actions())
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
@@ -98,7 +98,6 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 ```ts {8} [example.ts]
 import { account, publicClient, walletClient } from './client'
 import { wagmiAbi } from './abi'
-import { writeEip712Contract } from 'viem/chains/zksync'
 
 const { request } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -107,7 +106,7 @@ const { request } = await publicClient.simulateContract({
   args: [69420],
   account
 })
-await writeEip712Contract(walletClient, request)
+await walletClient.writeEip712Contract(request)
 ```
 
 ```ts [abi.ts]
@@ -128,11 +127,12 @@ export const wagmiAbi = [
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { zkSync } from 'viem/chains'
+import { eip712Actions } from 'viem/chains/zksync'
  
 export const walletClient = createWalletClient({
   chain: zkSync,
   transport: custom(window.ethereum),
-})
+}).extend(eip712Actions())
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -159,7 +159,7 @@ import { wagmiAbi } from './abi'
 import { writeEip712Contract } from 'viem/chains/zksync'
  
 
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -222,7 +222,7 @@ Unlike [`readContract`](/docs/contract/readContract), `writeEip712Contract` only
 The contract address.
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
   functionName: 'mint',
@@ -237,7 +237,7 @@ await writeEip712Contract(walletClient, {
 The contract's ABI.
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
   functionName: 'mint',
@@ -252,7 +252,7 @@ await writeEip712Contract(walletClient, {
 A function to extract from the ABI.
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint', // [!code focus]
@@ -269,7 +269,7 @@ The Account to write to the contract from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -285,7 +285,7 @@ await writeEip712Contract(walletClient, {
 The access list.
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -304,7 +304,7 @@ await writeEip712Contract(walletClient, {
 Arguments to pass to function call.
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -324,7 +324,7 @@ The chain is also used to infer its request type (e.g. the Celo chain has a `gat
 ```ts
 import { zksync } from 'viem/chains' // [!code focus]
 
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -340,7 +340,7 @@ await writeEip712Contract(walletClient, {
 Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f).
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -356,7 +356,7 @@ await writeEip712Contract(walletClient, {
 The gas limit for the transaction. Note that passing a gas limit also skips the gas estimation step.
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -372,7 +372,7 @@ await writeEip712Contract(walletClient, {
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -388,7 +388,7 @@ await writeEip712Contract(walletClient, {
 Unique number identifying this transaction.
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -404,7 +404,7 @@ await writeEip712Contract(walletClient, {
 Value in wei sent with this transaction.
 
 ```ts
-await writeEip712Contract(walletClient, {
+await walletClient.writeEip712Contract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -420,7 +420,7 @@ await writeEip712Contract(walletClient, {
 The amount of gas for publishing one byte of data on Ethereum.
 
 ```ts
-const hash = await writeEip712Contract(walletClient, {
+const hash = await walletClient.writeEip712Contract({
   account,
   abi: wagmiAbi,
   functionName: 'mint',
@@ -436,7 +436,7 @@ const hash = await writeEip712Contract(walletClient, {
 Contains bytecode of the deployed contract.
 
 ```ts
-const hash = await writeEip712Contract(walletClient, {
+const hash = await walletClient.writeEip712Contract({
   account,
   abi: wagmiAbi,
   functionName: 'mint',
@@ -452,7 +452,7 @@ const hash = await writeEip712Contract(walletClient, {
 Address of the paymaster account that will pay the fees. The `paymasterInput` field is required with this one.
 
 ```ts
-const hash = await writeEip712Contract(walletClient, {
+const hash = await walletClient.writeEip712Contract({
   account,
   abi: wagmiAbi,
   functionName: 'mint',
@@ -469,7 +469,7 @@ const hash = await writeEip712Contract(walletClient, {
 Input data to the paymaster. The `paymaster` field is required with this one.
 
 ```ts
-const hash = await writeEip712Contract(walletClient, {
+const hash = await walletClient.writeEip712Contract({
   account,
   abi: wagmiAbi,
   functionName: 'mint',

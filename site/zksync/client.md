@@ -20,12 +20,18 @@ To be able to send transactions and use contracts on the zkSync blockchain you m
 ### Client set up
 
 ```ts
-import { createWalletClient, custom } from 'viem'
+import { createPublicClient, createWalletClient, custom } from 'viem'
 import { zkSync } from 'viem/chains'
+import { eip712Actions } from 'viem/chains/zksync'
  
 const walletClient = createWalletClient({
   chain: zkSync,
   transport: custom(window.ethereum),
+}).extend(eip712Actions())
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
 })
 ```
 
@@ -34,9 +40,7 @@ const walletClient = createWalletClient({
 [Read more](./actions/sendEip712Transaction.md)
 
 ```ts
-import { sendEip712Transaction } from 'viem/chains/zksync'
-
-const hash = await sendEip712Transaction(walletClient, {
+const hash = await walletClient.sendEip712Transaction({
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -51,13 +55,12 @@ const hash = await sendEip712Transaction(walletClient, {
 
 ```ts
 import { simulateContract } from 'viem/contract'
-import { writeEip712Contract } from 'viem/chains/zksync'
 
-const { request } = await simulateContract(walletClient, {
+const { request } = await publicClient.simulateContract(walletClient, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
   functionName: 'mint',
   args: [69420],
 }
-const hash = await writeEip712Contract(walletClient, request)
+const hash = await walletClient.writeEip712Contract(request)
 ```

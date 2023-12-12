@@ -34,3 +34,5 @@ export {
   zkSync,
   zkSyncTestnet,
 } from './chains.js'
+
+export { eip712Actions, type Eip712Actions } from './decorators/eip712.js'

@@ -97,15 +97,14 @@ export type SendEip712TransactionErrorType =
 /**
  * Creates, signs, and sends a new transaction to the network.
  *
- * - Docs: https://viem.sh/docs/actions/wallet/sendTransaction.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/sending-transactions
+ * - Docs: https://viem.sh/docs/zksync/actions/sendEip712Transaction.html
  * - JSON-RPC Methods:
  *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
  *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
  *
  * @param client - Client to use
- * @param parameters - {@link SendTransactionParameters}
- * @returns The [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash. {@link SendTransactionReturnType}
+ * @param parameters - {@link SendEip712TransactionParameters}
+ * @returns The [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash. {@link SendEip712TransactionReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'

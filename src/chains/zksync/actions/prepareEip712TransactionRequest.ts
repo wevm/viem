@@ -22,7 +22,6 @@ import {
   type AccountNotFoundErrorType,
 } from '../../../errors/account.js'
 import type { GetAccountParameter } from '../../../types/account.js'
-import { type Chain } from '../../../types/chain.js'
 import type { GetChain } from '../../../types/chain.js'
 import { type TransactionSerializable } from '../../../types/transaction.js'
 import type { UnionOmit } from '../../../types/utils.js'
@@ -71,10 +70,10 @@ export type PrepareEip712TransactionRequestErrorType =
 /**
  * Prepares a transaction request for signing.
  *
- * - Docs: https://viem.sh/docs/actions/wallet/prepareTransactionRequest.html
+ * - Docs: https://viem.sh/docs/zksync/actions/prepareEip712TransactionRequest.html
  *
- * @param args - {@link PrepareTransactionRequestParameters}
- * @returns The transaction request. {@link PrepareTransactionRequestReturnType}
+ * @param args - {@link PrepareEip712TransactionRequestParameters}
+ * @returns The transaction request. {@link PrepareEip712TransactionRequestReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
@@ -109,9 +108,9 @@ export type PrepareEip712TransactionRequestErrorType =
  * })
  */
 export async function prepareEip712TransactionRequest<
-  TChain extends Chain | undefined,
+  TChain extends ChainEIP712 | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  TChainOverride extends ChainEIP712 | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   args: PrepareEip712TransactionRequestParameters<
