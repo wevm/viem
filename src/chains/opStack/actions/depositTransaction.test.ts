@@ -147,6 +147,34 @@ describe('json-rpc accounts', () => {
     )
   })
 
+  test('args: gas', async () => {
+    const hash = await depositTransaction(walletClient, {
+      account: accounts[0].address,
+      args: {
+        gas: 21000n,
+        to: accounts[0].address,
+        value: 1n,
+      },
+      gas: 420_000n,
+      targetChain: base,
+    })
+    expect(hash).toBeDefined()
+  })
+
+  test('args: gas (nullish)', async () => {
+    const hash = await depositTransaction(walletClient, {
+      account: accounts[0].address,
+      args: {
+        gas: 21000n,
+        to: accounts[0].address,
+        value: 1n,
+      },
+      gas: null,
+      targetChain: base,
+    })
+    expect(hash).toBeDefined()
+  })
+
   test('args: mint', async () => {
     const hash = await depositTransaction(walletClient, {
       account: accounts[0].address,
@@ -227,6 +255,41 @@ describe('json-rpc accounts', () => {
       targetChain: base,
     })
     expect(hash).toBeDefined()
+  })
+
+  test('error: small gas', async () => {
+    await expect(() =>
+      depositTransaction(walletClient, {
+        account: accounts[0].address,
+        args: {
+          gas: 21000n,
+          to: accounts[0].address,
+        },
+        targetChain: base,
+        gas: 69n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: Transaction creation failed.
+
+      URL: http://localhost
+      Request body: {"method":"eth_estimateGas","params":[{"from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","data":"0xe9e05c42000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005208000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000","gas":"0x45","to":"0x49048044D57e1C92A77f79988d21Fa8fAF74E97e"}]}
+       
+      Estimate Gas Arguments:
+        from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:    0x49048044D57e1C92A77f79988d21Fa8fAF74E97e
+        data:  0xe9e05c42000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005208000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000
+        gas:   69
+       
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  depositTransaction(address _to, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes _data)
+        args:                        (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 0, 21000, false, 0x)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Docs: https://viem.sh/docs/contract/estimateContractGas.html
+      Details: Out of gas: gas required exceeds allowance: 69
+      Version: viem@1.0.2]
+    `)
   })
 })
 

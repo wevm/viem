@@ -89,6 +89,12 @@ export {
   type InitiateWithdrawalReturnType,
 } from './actions/initiateWithdrawal.js'
 export {
+  proveWithdrawal,
+  type ProveWithdrawalErrorType,
+  type ProveWithdrawalParameters,
+  type ProveWithdrawalReturnType,
+} from './actions/proveWithdrawal.js'
+export {
   waitForL2Output,
   type WaitForL2OutputErrorType,
   type WaitForL2OutputParameters,

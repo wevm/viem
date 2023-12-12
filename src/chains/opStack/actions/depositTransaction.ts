@@ -1,5 +1,9 @@
 import type { Address } from 'abitype'
 import {
+  type EstimateContractGasErrorType,
+  estimateContractGas,
+} from '../../../actions/index.js'
+import {
   type WriteContractErrorType,
   writeContract,
 } from '../../../actions/wallet/writeContract.js'
@@ -66,9 +70,17 @@ export type DepositTransactionParameters<
           to?: never
         }
     )
+    /**
+     * Gas limit for transaction execution on the L1.
+     * `null` to skip gas estimation & defer calculation to signer.
+     */
+    gas?: bigint | null
   }
 export type DepositTransactionReturnType = Hash
-export type DepositTransactionErrorType = WriteContractErrorType | ErrorType
+export type DepositTransactionErrorType =
+  | EstimateContractGasErrorType
+  | WriteContractErrorType
+  | ErrorType
 
 /**
  * Initiates a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
@@ -126,7 +138,7 @@ export type DepositTransactionErrorType = WriteContractErrorType | ErrorType
  *   targetChain: base,
  * })
  */
-export function depositTransaction<
+export async function depositTransaction<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
@@ -136,8 +148,16 @@ export function depositTransaction<
 ) {
   const {
     account,
-    args: { data = '0x', gas, isCreation = false, mint, to = '0x', value },
+    args: {
+      data = '0x',
+      gas: l2Gas,
+      isCreation = false,
+      mint,
+      to = '0x',
+      value,
+    },
     chain = client.chain,
+    gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
@@ -150,7 +170,7 @@ export function depositTransaction<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  return writeContract(client, {
+  const args = {
     account,
     abi: portalAbi,
     address: portalAddress,
@@ -159,13 +179,20 @@ export function depositTransaction<
     args: [
       isCreation ? zeroAddress : to,
       value ?? mint ?? 0n,
-      gas,
+      l2Gas,
       isCreation,
       data,
     ],
+    gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
     value: mint,
-  } as any)
+  } as any
+
+  const gas_ =
+    typeof gas !== 'number' && gas !== null
+      ? await estimateContractGas(client, args)
+      : undefined
+  return writeContract(client, { ...args, gas: gas_ })
 }

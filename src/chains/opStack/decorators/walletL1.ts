@@ -7,6 +7,11 @@ import {
   type DepositTransactionReturnType,
   depositTransaction,
 } from '../actions/depositTransaction.js'
+import {
+  type ProveWithdrawalParameters,
+  type ProveWithdrawalReturnType,
+  proveWithdrawal,
+} from '../index.js'
 
 export type WalletActionsL1<
   chain extends Chain | undefined = Chain | undefined,
@@ -69,6 +74,35 @@ export type WalletActionsL1<
   depositTransaction: <chainOverride extends Chain | undefined = undefined>(
     parameters: DepositTransactionParameters<chain, account, chainOverride>,
   ) => Promise<DepositTransactionReturnType>
+  /**
+   * Proves a withdrawal that occurred on an L2. Used in the Withdrawal flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/proveWithdrawal.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link ProveWithdrawalParameters}
+   * @returns The prove transaction hash. {@link ProveWithdrawalReturnType}
+   *
+   * @example
+   * import { createWalletClient, http } from 'viem'
+   * import { optimism } from 'viem/chains'
+   * import { walletActionsL1 } from 'viem/op-stack'
+   *
+   * const walletClientL1 = createWalletClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * }).extend(walletActionsL1())
+   *
+   * const request = await walletClientL1.proveWithdrawal({
+   *   l2OutputIndex: 4529n,
+   *   outputRootProof: { ... },
+   *   withdrawalProof: [ ... ],
+   *   withdrawalTransaction: { ... },
+   * })
+   */
+  proveWithdrawal: <chainOverride extends Chain | undefined = undefined>(
+    parameters: ProveWithdrawalParameters<chain, account, chainOverride>,
+  ) => Promise<ProveWithdrawalReturnType>
 }
 
 export function walletActionsL1() {
@@ -81,6 +115,7 @@ export function walletActionsL1() {
   ): WalletActionsL1<TChain, TAccount> => {
     return {
       depositTransaction: (args) => depositTransaction(client, args),
+      proveWithdrawal: (args) => proveWithdrawal(client, args),
     }
   }
 }

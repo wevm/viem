@@ -60,6 +60,71 @@ test('default', async () => {
   `)
 })
 
+test('args: gas', async () => {
+  const hash = await initiateWithdrawal(optimismClient, {
+    account: accounts[0].address,
+    args: {
+      data: '0xdeadbeef',
+      gas: 21000n,
+      to: accounts[0].address,
+      value: parseEther('1'),
+    },
+    gas: 420_000n,
+  })
+  expect(hash).toBeDefined()
+})
+
+test('args: gas (nullish)', async () => {
+  const hash = await initiateWithdrawal(optimismClient, {
+    account: accounts[0].address,
+    args: {
+      data: '0xdeadbeef',
+      gas: 21000n,
+      to: accounts[0].address,
+      value: parseEther('1'),
+    },
+    gas: null,
+  })
+  expect(hash).toBeDefined()
+})
+
+test('error: small gas', async () => {
+  await expect(() =>
+    initiateWithdrawal(optimismClient, {
+      account: accounts[0].address,
+      args: {
+        data: '0xdeadbeef',
+        gas: 21000n,
+        to: accounts[0].address,
+        value: parseEther('1'),
+      },
+      gas: 69n,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [ContractFunctionExecutionError: Transaction creation failed.
+
+    URL: http://localhost
+    Request body: {"method":"eth_estimateGas","params":[{"from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","data":"0xc2b3e5ac000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000520800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004deadbeef00000000000000000000000000000000000000000000000000000000","gas":"0x45","to":"0x4200000000000000000000000000000000000016","value":"0xde0b6b3a7640000"}]}
+     
+    Estimate Gas Arguments:
+      from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:     0x4200000000000000000000000000000000000016
+      value:  1 ETH
+      data:   0xc2b3e5ac000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000520800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004deadbeef00000000000000000000000000000000000000000000000000000000
+      gas:    69
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  initiateWithdrawal(address _target, uint256 _gasLimit, bytes _data)
+      args:                        (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 21000, 0xdeadbeef)
+      sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+    Docs: https://viem.sh/docs/contract/estimateContractGas.html
+    Details: Out of gas: gas required exceeds allowance: 69
+    Version: viem@1.0.2]
+  `)
+})
+
 test.skip('e2e (sepolia)', async () => {
   const account = privateKeyToAccount(
     process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,

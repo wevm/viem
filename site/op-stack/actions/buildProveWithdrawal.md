@@ -28,7 +28,7 @@ const receipt = await getTransactionReceipt(publicClientL2, {
 })
 
 const [message] = getWithdrawalMessages(receipt)
-const output = await getL2Output(walletClientL1, {
+const output = await walletClientL1.getL2Output({
   l2BlockNumber: receipt.blockNumber,
   targetChain: publicClientL2.chain,
 })
@@ -39,7 +39,7 @@ const request = await publicClientL2.buildProveWithdrawal({ // [!code hl]
   output, // [!code hl]
 }) // [!code hl]
  
-const hash = await walletClientL1.proveWithdrawalTransaction(request)
+const hash = await walletClientL1.proveWithdrawal(request)
 ```
 
 ```ts [config.ts]

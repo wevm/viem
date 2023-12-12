@@ -27,6 +27,7 @@ import { getWithdrawalMessages } from 'viem/op-stack'
 import { 
   account, 
   publicClientL1, 
+  walletClientL1,
   publicClientL2, 
   walletClientL2 
 } from './config'
@@ -57,12 +58,15 @@ const proveRequest = await publicClientL2.buildProveWithdrawal({
   message,
   output,
 })
+
+// Prove the withdrawal on the L1
+const proveHash = await walletClientL1.buildProveWithdrawal(proveRequest)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
 import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
-import { publicActionsL1, walletActionsL2 } from 'viem/op-stack'
+import { publicActionsL1, walletActionsL1, walletActionsL2 } from 'viem/op-stack'
 
 // Retrieve Account from an EIP-1193 Provider. 
 export const [account] = await window.ethereum.request({ 
@@ -74,22 +78,28 @@ export const publicClientL1 = createPublicClient({
   transport: http()
 }).extend(publicActionsL1())
 
-export const walletClientL2 = createWalletClient({
+export const walletClientL1 = createWalletClient({
   account,
-  chain: optimism,
+  chain: mainnet,
   transport: custom(window.ethereum)
-}).extend(walletActionsL2())
+}).extend(walletActionsL1())
 
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
 })
+
+export const walletClientL2 = createWalletClient({
+  account,
+  chain: optimism,
+  transport: custom(window.ethereum)
+}).extend(walletActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
 import { createPublicClient, createWalletClient, http } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
-import { publicActionsL1, walletActionsL2 } from 'viem/op-stack'
+import { publicActionsL1, walletActionsL1, walletActionsL2 } from 'viem/op-stack'
 
 export const account = privateKeyToAccount('0x...')
 
@@ -98,16 +108,22 @@ export const publicClientL1 = createPublicClient({
   transport: http()
 }).extend(publicActionsL1())
 
-export const walletClientL2 = createWalletClient({
+export const walletClientL1 = createWalletClient({
   account,
-  chain: optimism,
-  transport: http()
-}).extend(walletActionsL2())
+  chain: mainnet,
+  transport: custom(window.ethereum)
+}).extend(walletActionsL1())
 
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
 })
+
+export const walletClientL2 = createWalletClient({
+  account,
+  chain: optimism,
+  transport: http()
+}).extend(walletActionsL2())
 ```
 
 :::

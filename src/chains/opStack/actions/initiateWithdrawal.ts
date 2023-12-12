@@ -1,5 +1,9 @@
 import type { Address } from 'abitype'
 import {
+  type EstimateContractGasErrorType,
+  estimateContractGas,
+} from '../../../actions/public/estimateContractGas.js'
+import {
   type WriteContractErrorType,
   writeContract,
 } from '../../../actions/wallet/writeContract.js'
@@ -49,9 +53,17 @@ export type InitiateWithdrawalParameters<
       /** Value in wei to withdrawal to the L1. Debited from the caller's L2 balance. */
       value?: bigint
     }
+    /**
+     * Gas limit for transaction execution on the L2.
+     * `null` to skip gas estimation & defer calculation to signer.
+     */
+    gas?: bigint | null
   }
 export type InitiateWithdrawalReturnType = Hash
-export type InitiateWithdrawalErrorType = WriteContractErrorType | ErrorType
+export type InitiateWithdrawalErrorType =
+  | EstimateContractGasErrorType
+  | WriteContractErrorType
+  | ErrorType
 
 /**
  * Initiates a [withdrawal](https://community.optimism.io/docs/protocol/withdrawal-flow/#withdrawal-initiating-transaction) on an L2 to the L1.
@@ -105,7 +117,7 @@ export type InitiateWithdrawalErrorType = WriteContractErrorType | ErrorType
  *   },
  * })
  */
-export function initiateWithdrawal<
+export async function initiateWithdrawal<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
@@ -115,23 +127,34 @@ export function initiateWithdrawal<
 ) {
   const {
     account,
-    args: { data = '0x', gas, to, value },
+    args: { data = '0x', gas: l1Gas, to, value },
     chain = client.chain,
+    gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
   } = parameters
 
-  return writeContract(client, {
+  const args = {
     account,
     abi: l2ToL1MessagePasserAbi,
     address: contracts.l2ToL1MessagePasser.address,
     chain,
     functionName: 'initiateWithdrawal',
-    args: [to, gas, data],
+    args: [to, l1Gas, data],
+    gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
     value,
+  } as any
+
+  const gas_ =
+    typeof gas !== 'number' && gas !== null
+      ? await estimateContractGas(client, args)
+      : undefined
+  return writeContract(client, {
+    ...args,
+    gas: gas_,
   } as any)
 }

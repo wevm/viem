@@ -1033,6 +1033,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'depositTransaction',
           link: '/op-stack/actions/depositTransaction',
         },
+        {
+          text: 'proveWithdrawal',
+          link: '/op-stack/actions/proveWithdrawal',
+        },
       ],
     },
     {

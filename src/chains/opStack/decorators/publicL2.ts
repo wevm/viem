@@ -123,10 +123,23 @@ export type PublicActionsL2<
    * })
    */
   buildProveWithdrawal: <
+    chainOverride extends Chain | undefined = undefined,
     accountOverride extends Account | Address | undefined = undefined,
   >(
-    parameters: BuildProveWithdrawalParameters<account, accountOverride>,
-  ) => Promise<BuildProveWithdrawalReturnType<account, accountOverride>>
+    parameters: BuildProveWithdrawalParameters<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >,
+  ) => Promise<
+    BuildProveWithdrawalReturnType<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >
+  >
   /**
    * Estimates the L1 data fee required to execute an L2 contract write.
    *

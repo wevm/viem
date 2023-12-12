@@ -11,7 +11,11 @@ import {
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Account, GetAccountParameter } from '../../../types/account.js'
+import type {
+  Account,
+  DeriveAccount,
+  GetAccountParameter,
+} from '../../../types/account.js'
 import type {
   Chain,
   DeriveChain,
@@ -64,8 +68,9 @@ export type BuildDepositTransactionReturnType<
     | Address
     | undefined,
 > = Prettify<
-  UnionOmit<DepositTransactionParameters<Chain, account, Chain>, 'account'> &
-    GetAccountParameter<account, accountOverride>
+  UnionOmit<DepositTransactionParameters<Chain, account, Chain>, 'account'> & {
+    account: DeriveAccount<account, accountOverride>
+  }
 >
 
 export type BuildDepositTransactionErrorType =
@@ -147,5 +152,5 @@ export async function buildDepositTransaction<
       value: request.value,
     },
     targetChain: chain,
-  } as BuildDepositTransactionReturnType<account, accountOverride>
+  } as unknown as BuildDepositTransactionReturnType<account, accountOverride>
 }
