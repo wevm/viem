@@ -28,6 +28,8 @@ export {
 
 export { defineChain } from './utils/defineChain.js'
 
+export { type TransactionRequestEIP712 } from './types/transaction.js'
+
 export {
   zkSync,
   zkSyncTestnet,
