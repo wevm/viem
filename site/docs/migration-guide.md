@@ -46,7 +46,7 @@ import { // [!code ++]
 
 ### Moved chain-specific exports in `viem/chains/utils`
 
-Chain-specific exports in `viem/chains/utils` have been moved to `viem/utils/{celo|opStack|zkSync}`:
+Chain-specific exports in `viem/chains/utils` have been moved to `viem/{celo|op-stack|zksync}`:
 
 ```diff
 import {
@@ -70,7 +70,7 @@ import {
 + serializeTransaction,
   ...
 -} from 'viem/chains/utils'
-+} from 'viem/zkSync'
++} from 'viem/zksync'
 ```
 
 ### Actions: `getBlockNumber`
