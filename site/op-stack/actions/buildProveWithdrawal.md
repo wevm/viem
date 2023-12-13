@@ -131,7 +131,7 @@ export const publicClientL2 = createPublicClient({
 
 `BuildProveWithdrawalReturnType`
 
-The parameters required to execute a [prove withdrawal transaction](/op-stack/actions/proveWithdrawalTransaction).
+The parameters required to execute a [prove withdrawal transaction](/op-stack/actions/proveWithdrawal).
 
 ## Parameters
 
@@ -169,7 +169,7 @@ const request = await client.buildProveWithdrawal({
 
 - **Type:** `GetWithdrawalMessagesReturnType[number]`
 
-The withdrawal message. Typically provided by [`getWithdrawalMessages` Action](/op-stack/actions/getWithdrawalMessages).
+The withdrawal message. Typically provided by [`getWithdrawalMessages` Action](/op-stack/utilities/getWithdrawalMessages).
 
 
 ```ts
