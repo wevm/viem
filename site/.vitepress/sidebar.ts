@@ -1017,6 +1017,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/actions/getL2Output',
         },
         {
+          text: 'getTimeToFinalize',
+          link: '/op-stack/actions/getTimeToFinalize',
+        },
+        {
           text: 'getTimeToNextL2Output',
           link: '/op-stack/actions/getTimeToNextL2Output',
         },

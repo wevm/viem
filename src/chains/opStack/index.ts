@@ -77,6 +77,12 @@ export {
   type GetL2OutputReturnType,
 } from './actions/getL2Output.js'
 export {
+  getTimeToFinalize,
+  type GetTimeToFinalizeErrorType,
+  type GetTimeToFinalizeParameters,
+  type GetTimeToFinalizeReturnType,
+} from './actions/getTimeToFinalize.js'
+export {
   getTimeToNextL2Output,
   type GetTimeToNextL2OutputErrorType,
   type GetTimeToNextL2OutputParameters,

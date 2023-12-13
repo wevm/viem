@@ -97,6 +97,6 @@ If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes op
 ```ts
 const { seconds } = await publicClientL1.getTimeToNextL2Output({
   l2BlockNumber,
-  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
+  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })
 ```

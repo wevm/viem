@@ -14,6 +14,11 @@ import {
   getL2Output,
 } from '../actions/getL2Output.js'
 import {
+  type GetTimeToFinalizeParameters,
+  type GetTimeToFinalizeReturnType,
+  getTimeToFinalize,
+} from '../actions/getTimeToFinalize.js'
+import {
   type GetTimeToNextL2OutputParameters,
   type GetTimeToNextL2OutputReturnType,
   getTimeToNextL2Output,
@@ -96,6 +101,44 @@ export type PublicActionsL1<
   getL2Output: <chainOverride extends Chain | undefined = undefined>(
     parameters: GetL2OutputParameters<chain, chainOverride>,
   ) => Promise<GetL2OutputReturnType>
+  /**
+   * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/getTimeToFinalize.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetTimeToFinalizeParameters}
+   * @returns Time until finalize. {@link GetTimeToFinalizeReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { getBlockNumber } from 'viem/actions'
+   * import { mainnet, optimism } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/op-stack'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   * const publicClientL2 = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * })
+   *
+   * const receipt = await publicClientL2.getTransactionReceipt({
+   *   hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
+   * })
+   *
+   * const [message] = getWithdrawalMessages(receipt)
+   *
+   * const { seconds } = await publicClientL1.getTimeToFinalize({
+   *   withdrawalHash: message.withdrawalHash,
+   *   targetChain: optimism
+   * })
+   */
+  getTimeToFinalize: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetTimeToFinalizeParameters<chain, chainOverride>,
+  ) => Promise<GetTimeToFinalizeReturnType>
   /**
    * Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
    *
@@ -206,6 +249,7 @@ export function publicActionsL1() {
     return {
       buildInitiateWithdrawal: (args) => buildInitiateWithdrawal(client, args),
       getL2Output: (args) => getL2Output(client, args),
+      getTimeToFinalize: (args) => getTimeToFinalize(client, args),
       getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),
       waitForL2Output: (args) => waitForL2Output(client, args),
       waitToProve: (args) => waitToProve(client, args),

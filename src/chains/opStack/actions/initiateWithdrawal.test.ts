@@ -19,6 +19,7 @@ import { optimismSepolia } from '../chains.js'
 import { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 import { buildProveWithdrawal } from './buildProveWithdrawal.js'
 import { initiateWithdrawal } from './initiateWithdrawal.js'
+import { proveWithdrawal } from './proveWithdrawal.js'
 import { waitToProve } from './waitToProve.js'
 
 test('default', async () => {
@@ -151,6 +152,8 @@ test.only('e2e (sepolia)', async () => {
   )
   expect(withdrawalHash).toBeDefined()
 
+  console.log('l2 hash', withdrawalHash)
+
   const withdrawalReceipt = await waitForTransactionReceipt(client_opSepolia, {
     hash: withdrawalHash,
   })
@@ -165,5 +168,7 @@ test.only('e2e (sepolia)', async () => {
     output,
   })
 
-  console.log(proveWithdrawalRequest)
+  const hash = await proveWithdrawal(client_sepolia, proveWithdrawalRequest)
+
+  console.log('provehash', hash)
 }, 600000)
