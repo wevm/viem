@@ -19,6 +19,7 @@ test('default', async () => {
       "getL2Output": [Function],
       "getTimeToNextL2Output": [Function],
       "waitForL2Output": [Function],
+      "waitToProve": [Function],
     }
   `)
 })
@@ -53,6 +54,17 @@ describe('smoke test', () => {
   test('waitForL2Output', async () => {
     const request = await client.waitForL2Output({
       l2BlockNumber: 113365018n,
+      targetChain: optimism,
+    })
+    expect(request).toBeDefined()
+  })
+
+  test('waitToProve', async () => {
+    const receipt = await l2Client.getTransactionReceipt({
+      hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
+    })
+    const request = await client.waitToProve({
+      receipt,
       targetChain: optimism,
     })
     expect(request).toBeDefined()

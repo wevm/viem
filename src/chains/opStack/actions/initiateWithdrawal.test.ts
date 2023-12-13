@@ -16,11 +16,10 @@ import {
 import { sepolia } from '../../index.js'
 import { l2ToL1MessagePasserAbi } from '../abis.js'
 import { optimismSepolia } from '../chains.js'
-import { getL2Output, getWithdrawalMessages } from '../index.js'
 import { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 import { buildProveWithdrawal } from './buildProveWithdrawal.js'
 import { initiateWithdrawal } from './initiateWithdrawal.js'
-import { waitForL2Output } from './waitForL2Output.js'
+import { waitToProve } from './waitToProve.js'
 
 test('default', async () => {
   const hash = await initiateWithdrawal(optimismClient, {
@@ -125,7 +124,7 @@ test('error: small gas', async () => {
   `)
 })
 
-test.skip('e2e (sepolia)', async () => {
+test.only('e2e (sepolia)', async () => {
   const account = privateKeyToAccount(
     process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
   )
@@ -156,17 +155,8 @@ test.skip('e2e (sepolia)', async () => {
     hash: withdrawalHash,
   })
 
-  await waitForL2Output(client_sepolia, {
-    l2BlockNumber: withdrawalReceipt.blockNumber,
-    targetChain: client_opSepolia.chain,
-  })
-
-  // Extract withdrawal message from the receipt.
-  const [message] = getWithdrawalMessages(withdrawalReceipt)
-
-  // Retrieve the L2 output proposal that occurred after the receipt block.
-  const output = await getL2Output(client_sepolia, {
-    l2BlockNumber: withdrawalReceipt.blockNumber,
+  const { output, message } = await waitToProve(client_sepolia, {
+    receipt: withdrawalReceipt,
     targetChain: client_opSepolia.chain,
   })
 

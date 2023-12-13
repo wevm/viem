@@ -3,18 +3,18 @@ outline: deep
 head:
   - - meta
     - property: og:title
-      content: waitForL2Output
+      content: waitToProve
   - - meta
     - name: description
-      content: Waits for the next L2 output (after the provided block number) to be submitted. 
+      content: Waits until the L2 withdrawal transaction is provable.
   - - meta
     - property: og:description
-      content: Waits for the next L2 output (after the provided block number) to be submitted. 
+      content: Waits until the L2 withdrawal transaction is provable.
 ---
 
-# waitForL2Output
+# waitToProve
 
-Waits for the next L2 output (after the provided block number) to be submitted. Used within the [waitToProve](/op-stack/actions/waitToProve) Action.
+Waits until the L2 withdrawal transaction is provable. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
 
 ## Usage
 
@@ -23,9 +23,11 @@ Waits for the next L2 output (after the provided block number) to be submitted. 
 ```ts [example.ts]
 import { account, publicClientL1, publicClientL2 } from './config'
 
-const l2BlockNumber = await publicClientL2.getBlockNumber()
-const output = await publicClientL1.waitForL2Output({ // [!code hl]
-  l2BlockNumber, // [!code hl]
+const receipt = await publicClientL2.getTransactionReceipt({
+  hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147'
+})
+const output = await publicClientL1.waitToProve({ // [!code hl]
+  receipt, // [!code hl]
   targetChain: publicClientL2.chain, // [!code hl]
 }) // [!code hl]
 ```
@@ -49,21 +51,21 @@ export const publicClientL2 = createPublicClient({
 
 ## Returns
 
-`WaitForL2OutputReturnType`
+`WaitToProveReturnType`
 
-The L2 output proposal.
+The L2 output and the withdrawal message.
 
 ## Parameters
 
-### l2BlockNumber
+### receipt
 
-- **Type:** `bigint`
+- **Type:** `TransactionReceipt`
 
-The L2 block number.
+The transaction receipt.
 
 ```ts
-const output = await publicClientL1.waitForL2Output({ 
-  l2BlockNumber: 69420n, // [!code focus]
+const output = await publicClientL1.waitToProve({ 
+  receipt, // [!code focus]
   targetChain: optimism, 
 }) 
 ```
@@ -75,7 +77,7 @@ const output = await publicClientL1.waitForL2Output({
 The L2 chain.
 
 ```ts
-const output = await publicClientL1.waitForL2Output({
+const output = await publicClientL1.waitToProve({
   l2BlockNumber,
   targetChain: optimism, // [!code focus]
 })
@@ -91,7 +93,7 @@ The address of the [L2 Output Oracle contract](https://github.com/ethereum-optim
 If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const output = await publicClientL1.waitForL2Output({
+const output = await publicClientL1.waitToProve({
   l2BlockNumber,
   l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })

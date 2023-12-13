@@ -23,6 +23,11 @@ import {
   type WaitForL2OutputReturnType,
   waitForL2Output,
 } from '../actions/waitForL2Output.js'
+import {
+  type WaitToProveParameters,
+  type WaitToProveReturnType,
+  waitToProve,
+} from '../actions/waitToProve.js'
 
 export type PublicActionsL1<
   chain extends Chain | undefined = Chain | undefined,
@@ -124,7 +129,7 @@ export type PublicActionsL1<
     parameters: GetTimeToNextL2OutputParameters<chain, chainOverride>,
   ) => Promise<GetTimeToNextL2OutputReturnType>
   /**
-   * Waits for the next L2 output (after the provided block number) to be submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   * Waits for the next L2 output (after the provided block number) to be submitted.
    *
    * - Docs: https://viem.sh/op-stack/actions/waitForL2Output.html
    *
@@ -155,6 +160,39 @@ export type PublicActionsL1<
   waitForL2Output: <chainOverride extends Chain | undefined = undefined>(
     parameters: WaitForL2OutputParameters<chain, chainOverride>,
   ) => Promise<WaitForL2OutputReturnType>
+  /**
+   * Waits until the L2 withdrawal transaction is provable. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/waitToProve.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link WaitToProveParameters}
+   * @returns The L2 output and withdrawal message. {@link WaitToProveReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { getBlockNumber } from 'viem/actions'
+   * import { mainnet, optimism } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/op-stack'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1)
+   * const publicClientL2 = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * })
+   *
+   * const receipt = await publicClientL2.getTransactionReceipt({ hash: '0x...' })
+   * await publicClientL1.waitToProve({
+   *   receipt,
+   *   targetChain: optimism
+   * })
+   */
+  waitToProve: <chainOverride extends Chain | undefined = undefined>(
+    parameters: WaitToProveParameters<chain, chainOverride>,
+  ) => Promise<WaitToProveReturnType>
 }
 
 export function publicActionsL1() {
@@ -170,6 +208,7 @@ export function publicActionsL1() {
       getL2Output: (args) => getL2Output(client, args),
       getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),
       waitForL2Output: (args) => waitForL2Output(client, args),
+      waitToProve: (args) => waitToProve(client, args),
     }
   }
 }

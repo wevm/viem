@@ -40,7 +40,7 @@ export type WaitForL2OutputErrorType =
   | ErrorType
 
 /**
- * Waits for the next L2 output (after the provided block number) to be submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+ * Waits for the next L2 output (after the provided block number) to be submitted.
  *
  * - Docs: https://viem.sh/op-stack/actions/waitForL2Output.html
  *

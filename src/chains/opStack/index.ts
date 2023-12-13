@@ -100,6 +100,12 @@ export {
   type WaitForL2OutputParameters,
   type WaitForL2OutputReturnType,
 } from './actions/waitForL2Output.js'
+export {
+  waitToProve,
+  type WaitToProveErrorType,
+  type WaitToProveParameters,
+  type WaitToProveReturnType,
+} from './actions/waitToProve.js'
 
 export { chainConfig } from './chainConfig.js'
 

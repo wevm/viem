@@ -44,12 +44,9 @@ const hash = await walletClientL2.initiateWithdrawal(request)
 // Wait for the initiate withdrawal transaction receipt.
 const receipt = await publicClientL2.waitForTransactionReceipt({ hash })
 
-// Extract withdrawal message from the receipt.
-const [message] = getWithdrawalMessages(receipt)
-
-// Retrieve the L2 output proposal that occurred after the receipt block.
-const output = await publicClientL1.waitForL2Output({
-  l2BlockNumber: receipt.blockNumber,
+// Wait until the withdrawal is ready to prove
+const { message, output } = await publicClientL1.waitToProve({
+  receipt,
   targetChain: walletClientL2.chain
 })
 
@@ -60,7 +57,7 @@ const proveRequest = await publicClientL2.buildProveWithdrawal({
 })
 
 // Prove the withdrawal on the L1
-const proveHash = await walletClientL1.buildProveWithdrawal(proveRequest)
+const proveHash = await walletClientL1.proveWithdrawal(proveRequest)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
