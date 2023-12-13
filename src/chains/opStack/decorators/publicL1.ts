@@ -129,10 +129,10 @@ export type PublicActionsL1<
    *   hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
    * })
    *
-   * const [message] = getWithdrawalMessages(receipt)
+   * const [withdrawal] = getWithdrawals(receipt)
    *
    * const { seconds } = await publicClientL1.getTimeToFinalize({
-   *   withdrawalHash: message.withdrawalHash,
+   *   withdrawalHash: withdrawal.withdrawalHash,
    *   targetChain: optimism
    * })
    */

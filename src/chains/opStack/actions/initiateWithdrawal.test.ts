@@ -125,7 +125,7 @@ test('error: small gas', async () => {
   `)
 })
 
-test.only('e2e (sepolia)', async () => {
+test.skip('e2e (sepolia)', async () => {
   const account = privateKeyToAccount(
     process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
   )
@@ -158,14 +158,14 @@ test.only('e2e (sepolia)', async () => {
     hash: withdrawalHash,
   })
 
-  const { output, message } = await waitToProve(client_sepolia, {
+  const { output, withdrawal } = await waitToProve(client_sepolia, {
     receipt: withdrawalReceipt,
     targetChain: client_opSepolia.chain,
   })
 
   const proveWithdrawalRequest = await buildProveWithdrawal(client_opSepolia, {
-    message,
     output,
+    withdrawal,
   })
 
   const hash = await proveWithdrawal(client_sepolia, proveWithdrawalRequest)

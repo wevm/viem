@@ -1067,8 +1067,8 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/utilities/getL2TransactionHashes',
         },
         {
-          text: 'getWithdrawalMessages',
-          link: '/op-stack/utilities/getWithdrawalMessages',
+          text: 'getWithdrawals',
+          link: '/op-stack/utilities/getWithdrawals',
         },
         {
           text: 'getSourceHash',

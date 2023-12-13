@@ -118,8 +118,8 @@ export type PublicActionsL2<
    * }).extend(publicActionsL2())
    *
    * const request = await publicClientL2.buildProveWithdrawal({
-   *   message: { ... },
    *   output: { ... },
+   *   withdrawal: { ... },
    * })
    */
   buildProveWithdrawal: <

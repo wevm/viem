@@ -17,6 +17,7 @@ test('default', async () => {
     {
       "buildInitiateWithdrawal": [Function],
       "getL2Output": [Function],
+      "getTimeToFinalize": [Function],
       "getTimeToNextL2Output": [Function],
       "waitForL2Output": [Function],
       "waitToProve": [Function],

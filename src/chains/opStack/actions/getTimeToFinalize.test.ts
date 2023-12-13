@@ -2,7 +2,7 @@ import { beforeAll, expect, test, vi } from 'vitest'
 import { optimismClient } from '../../../../test/src/opStack.js'
 import { publicClient, setBlockNumber } from '../../../../test/src/utils.js'
 import { getTransactionReceipt } from '../../../actions/index.js'
-import { getWithdrawalMessages, optimism } from '../index.js'
+import { getWithdrawals, optimism } from '../index.js'
 import { getTimeToFinalize } from './getTimeToFinalize.js'
 
 beforeAll(async () => {
@@ -14,12 +14,12 @@ test('default', async () => {
     hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
   })
 
-  const [message] = getWithdrawalMessages(receipt)
+  const [withdrawal] = getWithdrawals(receipt)
 
   vi.setSystemTime(new Date(1702399191000))
 
   const time = await getTimeToFinalize(publicClient, {
-    withdrawalHash: message.withdrawalHash,
+    ...withdrawal,
     targetChain: optimism,
   })
 
@@ -38,12 +38,12 @@ test('ready to finalize', async () => {
     hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
   })
 
-  const [message] = getWithdrawalMessages(receipt)
+  const [withdrawal] = getWithdrawals(receipt)
 
   vi.setSystemTime(new Date(1702994990587))
 
   const time = await getTimeToFinalize(publicClient, {
-    withdrawalHash: message.withdrawalHash,
+    ...withdrawal,
     targetChain: optimism,
   })
 

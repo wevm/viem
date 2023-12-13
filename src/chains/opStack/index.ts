@@ -202,8 +202,8 @@ export {
 } from './utils/getWithdrawalHashStorageSlot.js'
 
 export {
-  getWithdrawalMessages,
-  type GetWithdrawalMessagesErrorType,
-  type GetWithdrawalMessagesParameters,
-  type GetWithdrawalMessagesReturnType,
-} from './utils/getWithdrawalMessages.js'
+  getWithdrawals,
+  type GetWithdrawalsErrorType,
+  type GetWithdrawalsParameters,
+  type GetWithdrawalsReturnType,
+} from './utils/getWithdrawals.js'

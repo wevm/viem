@@ -27,7 +27,7 @@ const receipt = await getTransactionReceipt(publicClientL2, {
   hash: '0xbbdd0957a82a057a76b5f093de251635ac4ddc6e2d0c4aa7fbf82d73e4e11039',
 })
 
-const [message] = getWithdrawalMessages(receipt)
+const [withdrawal] = getWithdrawals(receipt)
 const output = await walletClientL1.getL2Output({
   l2BlockNumber: receipt.blockNumber,
   targetChain: publicClientL2.chain,
@@ -35,8 +35,8 @@ const output = await walletClientL1.getL2Output({
 
 const request = await publicClientL2.buildProveWithdrawal({ // [!code hl]
   account, // [!code hl]
-  message, // [!code hl]
   output, // [!code hl]
+  withdrawal, // [!code hl]
 }) // [!code hl]
  
 const hash = await walletClientL1.proveWithdrawal(request)
@@ -79,8 +79,8 @@ If you do not wish to pass an `account` to every `buildProveWithdrawal`, you can
 import { publicClientL2, walletClientL1 } from './config'
 
 const request = await publicClientL2.buildProveWithdrawal({
-  message,
   output,
+  withdrawal,
 })
  
 const hash = await walletClientL1.proveWithdrawalTransaction(request)
@@ -146,8 +146,8 @@ Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local A
 ```ts
 const request = await client.buildProveWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
-  message,
   output,
+  withdrawal,
 })
 ```
 
@@ -160,22 +160,22 @@ The L2 output. Typically provided by [`getL2Output` Action](/op-stack/actions/ge
 ```ts
 const request = await client.buildProveWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  message: { /* ... */ }, // [!code focus]
-  output,
+  output: { /* ... */ }, // [!code focus]
+  withdrawal, 
 })
 ```
 
-### message
+### withdrawal
 
-- **Type:** `GetWithdrawalMessagesReturnType[number]`
+- **Type:** `Withdrawal`
 
-The withdrawal message. Typically provided by [`getWithdrawalMessages` Action](/op-stack/utilities/getWithdrawalMessages).
+The withdrawal message. Typically provided by [`getWithdrawals` Action](/op-stack/utilities/getWithdrawals).
 
 
 ```ts
 const request = await client.buildProveWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  message,
-  output: { /* ... */ }, // [!code focus]
+  output,
+  withdrawal: { /* ... */ }, // [!code focus]
 })
 ```

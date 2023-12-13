@@ -23,7 +23,7 @@ Here is an end-to-end overview of how to execute a withdrawal. We will break it 
 ::: code-group
 
 ```ts [deposit.ts]
-import { getWithdrawalMessages } from 'viem/op-stack'
+import { getWithdrawals } from 'viem/op-stack'
 import { 
   account, 
   publicClientL1, 
@@ -44,20 +44,31 @@ const hash = await walletClientL2.initiateWithdrawal(request)
 // Wait for the initiate withdrawal transaction receipt.
 const receipt = await publicClientL2.waitForTransactionReceipt({ hash })
 
-// Wait until the withdrawal is ready to prove
-const { message, output } = await publicClientL1.waitToProve({
+// Wait until the withdrawal is ready to prove.
+const { output, withdrawal } = await publicClientL1.waitToProve({
   receipt,
   targetChain: walletClientL2.chain
 })
 
 // Build parameters to prove the withdrawal on the L2.
 const proveRequest = await publicClientL2.buildProveWithdrawal({
-  message,
   output,
+  withdrawal,
 })
 
-// Prove the withdrawal on the L1
+// Prove the withdrawal on the L1.
 const proveHash = await walletClientL1.proveWithdrawal(proveRequest)
+
+// Wait until the prove withdrawal is processed.
+const proveReceipt = await publicClientL1.waitForTransactionReceipt({
+  hash: proveHash
+})
+
+// Wait until the withdrawal is ready to finalize.
+await publicClientL1.waitToFinalize({
+  receipt,
+  targetChain: walletClientL2.chain
+})
 ```
 
 ```ts [config.ts (JSON-RPC Account)]

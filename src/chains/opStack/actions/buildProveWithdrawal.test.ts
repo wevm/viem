@@ -7,11 +7,7 @@ import {
   walletClient,
 } from '../../../../test/src/utils.js'
 import { getTransactionReceipt } from '../../../actions/index.js'
-import {
-  getL2Output,
-  getWithdrawalMessages,
-  proveWithdrawal,
-} from '../index.js'
+import { getL2Output, getWithdrawals, proveWithdrawal } from '../index.js'
 import { buildProveWithdrawal } from './buildProveWithdrawal.js'
 
 beforeAll(async () => {
@@ -24,7 +20,7 @@ test('default', async () => {
     hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
   })
 
-  const [message] = getWithdrawalMessages(receipt)
+  const [withdrawal] = getWithdrawals(receipt)
   const output = await getL2Output(publicClient, {
     l2BlockNumber: receipt.blockNumber,
     targetChain: optimismClient.chain,
@@ -32,8 +28,8 @@ test('default', async () => {
 
   const request = await buildProveWithdrawal(optimismClient, {
     account: accounts[0].address,
-    message,
     output,
+    withdrawal,
   })
   const { targetChain, ...rest } = request
   expect(targetChain).toEqual(optimismClient.chain)

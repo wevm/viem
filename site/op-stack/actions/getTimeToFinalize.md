@@ -28,7 +28,7 @@ const receipt = await getTransactionReceipt(publicClientL2, {
   hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
 })
 
-const [message] = getWithdrawalMessages(receipt)
+const [message] = getWithdrawals(receipt)
 
 const { seconds, timestamp } = await getTimeToFinalize(publicClientL1, { // [!code hl]
   withdrawalHash: message.withdrawalHash, // [!code hl]

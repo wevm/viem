@@ -9,11 +9,11 @@ import type {
 } from '../../../types/chain.js'
 import type { Log } from '../../../types/log.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
+import type { Withdrawal } from '../types/withdrawals.js'
 import {
-  type GetWithdrawalMessagesErrorType,
-  type GetWithdrawalMessagesReturnType,
-  getWithdrawalMessages,
-} from '../utils/getWithdrawalMessages.js'
+  type GetWithdrawalsErrorType,
+  getWithdrawals,
+} from '../utils/getWithdrawals.js'
 import {
   type WaitForL2OutputErrorType,
   type WaitForL2OutputReturnType,
@@ -37,11 +37,11 @@ export type WaitToProveParameters<
     pollingInterval?: number
   }
 export type WaitToProveReturnType = {
-  message: GetWithdrawalMessagesReturnType[0]
+  withdrawal: Withdrawal
   output: WaitForL2OutputReturnType
 }
 export type WaitToProveErrorType =
-  | GetWithdrawalMessagesErrorType
+  | GetWithdrawalsErrorType
   | WaitForL2OutputErrorType
   | ErrorType
 
@@ -85,12 +85,12 @@ export async function waitToProve<
 ): Promise<WaitToProveReturnType> {
   const { receipt } = parameters
 
-  const [message] = getWithdrawalMessages(receipt)
+  const [withdrawal] = getWithdrawals(receipt)
 
   const output = await waitForL2Output(client, {
     ...parameters,
     l2BlockNumber: receipt.blockNumber,
   })
 
-  return { message, output }
+  return { output, withdrawal }
 }

@@ -107,7 +107,7 @@ describe('smoke test', () => {
 
   test('buildProveWithdrawal', async () => {
     const request = await opStackClient.buildProveWithdrawal({
-      message: {
+      withdrawal: {
         nonce:
           1766847064778384329583297500742918515827483896875618958121606201292619876n,
         sender: '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',

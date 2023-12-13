@@ -22,11 +22,11 @@ import type {
 } from '../../../types/chain.js'
 import type { Prettify } from '../../../types/utils.js'
 import { contracts } from '../contracts.js'
+import type { Withdrawal } from '../types/withdrawals.js'
 import {
   type GetWithdrawalHashStorageSlotErrorType,
   getWithdrawalHashStorageSlot,
 } from '../utils/getWithdrawalHashStorageSlot.js'
-import type { GetWithdrawalMessagesReturnType } from '../utils/getWithdrawalMessages.js'
 import type { GetL2OutputReturnType } from './getL2Output.js'
 import type { ProveWithdrawalParameters } from './proveWithdrawal.js'
 
@@ -44,7 +44,7 @@ export type BuildProveWithdrawalParameters<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetAccountParameter<account, accountOverride, false> &
   GetChainParameter<chain, chainOverride> & {
-    message: GetWithdrawalMessagesReturnType[number]
+    withdrawal: Withdrawal
     output: GetL2OutputReturnType
   }
 
@@ -95,8 +95,8 @@ export type BuildProveWithdrawalErrorType =
  * })
  *
  * const request = await buildProveWithdrawal(publicClientL2, {
- *   message: { ... },
  *   output: { ... },
+ *   withdrawal: { ... },
  * })
  */
 export async function buildProveWithdrawal<
@@ -115,8 +115,8 @@ export async function buildProveWithdrawal<
 ): Promise<
   BuildProveWithdrawalReturnType<chain, account, chainOverride, accountOverride>
 > {
-  const { account, chain = client.chain, message, output } = args
-  const { withdrawalHash, ...withdrawalTransaction } = message
+  const { account, chain = client.chain, output, withdrawal } = args
+  const { withdrawalHash, ...withdrawalTransaction } = withdrawal
   const { l2BlockNumber } = output
 
   const slot = getWithdrawalHashStorageSlot({ withdrawalHash })
