@@ -50,6 +50,7 @@ test('exports chains', () => {
       "ekta",
       "ektaTestnet",
       "fantom",
+      "fantomSonicTestnet",
       "fantomTestnet",
       "fibo",
       "filecoin",
