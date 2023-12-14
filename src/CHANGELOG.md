@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.14
+
+### Patch Changes
+
+- [#1585](https://github.com/wevm/viem/pull/1585) [`5f54c878`](https://github.com/wevm/viem/commit/5f54c8780be1895d7f22f5d2b90878a81c67ac1f) Thanks [@zapnap](https://github.com/zapnap)! - Added Fantom Sonic Open Testnet
+
 ## 1.19.13
 
 ### Patch Changes
