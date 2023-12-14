@@ -195,29 +195,18 @@ export function getAmbiguousTypes(
         (args as any)[parameterIndex],
       )
 
+    const types = [sourceParameter.type, targetParameter.type]
+
     const ambiguous = (() => {
-      if (
-        [sourceParameter.type, targetParameter.type].includes('address') &&
-        [sourceParameter.type, targetParameter.type].includes('bytes20')
-      )
-        return true
-
-      if (
-        [sourceParameter.type, targetParameter.type].includes('address') &&
-        [sourceParameter.type, targetParameter.type].includes('string')
-      )
+      if (types.includes('address') && types.includes('bytes20')) return true
+      if (types.includes('address') && types.includes('string'))
         return isAddress(args[parameterIndex] as Address)
-
-      if (
-        [sourceParameter.type, targetParameter.type].includes('address') &&
-        [sourceParameter.type, targetParameter.type].includes('bytes')
-      )
+      if (types.includes('address') && types.includes('bytes'))
         return isAddress(args[parameterIndex] as Address)
-
       return false
     })()
 
-    if (ambiguous) return [sourceParameter.type, targetParameter.type]
+    if (ambiguous) return types
   }
 
   return
