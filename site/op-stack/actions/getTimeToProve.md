@@ -3,20 +3,20 @@ outline: deep
 head:
   - - meta
     - property: og:title
-      content: waitToProve
+      content: getTimeToProve
   - - meta
     - name: description
-      content: Waits until the L2 withdrawal transaction is ready to be proved.
+      content: Gets time until the L2 withdrawal transaction is ready to be proved.
   - - meta
     - property: og:description
-      content: Waits until the L2 withdrawal transaction is ready to be proved.
+      content: Gets time until the L2 withdrawal transaction is ready to be proved.
 ---
 
-# waitToProve
+# getTimeToProve
 
-Waits until the L2 withdrawal transaction is ready to be proved. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+Gets time until the L2 withdrawal transaction is ready to be proved. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
 
-Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Output.html) and waits the returned `seconds`.
+Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Output.html).
 
 ## Usage
 
@@ -28,7 +28,12 @@ import { account, publicClientL1, publicClientL2 } from './config'
 const receipt = await publicClientL2.getTransactionReceipt({
   hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147'
 })
-const output = await publicClientL1.waitToProve({ // [!code hl]
+
+const { // [!code hl]
+  interval, // [!code hl]
+  seconds, // [!code hl]
+  timestamp // [!code hl]
+} = await publicClientL1.getTimeToProve({ // [!code hl]
   receipt, // [!code hl]
   targetChain: publicClientL2.chain, // [!code hl]
 }) // [!code hl]
@@ -53,9 +58,11 @@ export const publicClientL2 = createPublicClient({
 
 ## Returns
 
-`WaitToProveReturnType`
+`{ interval: number, seconds: number, timestamp: number }`
 
-The L2 output and the withdrawal message.
+- `interval` between L2 outputs – the max time to wait for transaction to be proved.
+- Estimated `seconds` until the transaction can be proved.
+- Estimated `timestamp` of when the transaction can be proved.
 
 ## Parameters
 
@@ -66,7 +73,7 @@ The L2 output and the withdrawal message.
 The transaction receipt.
 
 ```ts
-const output = await publicClientL1.waitToProve({ 
+const time = await publicClientL1.getTimeToProve({ 
   receipt, // [!code focus]
   targetChain: optimism, 
 }) 
@@ -79,7 +86,7 @@ const output = await publicClientL1.waitToProve({
 The L2 chain.
 
 ```ts
-const output = await publicClientL1.waitToProve({
+const time = await publicClientL1.getTimeToProve({
   l2BlockNumber,
   targetChain: optimism, // [!code focus]
 })
@@ -95,7 +102,7 @@ The address of the [L2 Output Oracle contract](https://github.com/ethereum-optim
 If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const output = await publicClientL1.waitToProve({
+const time = await publicClientL1.getTimeToProve({
   l2BlockNumber,
   l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })

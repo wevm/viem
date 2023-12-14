@@ -95,6 +95,12 @@ export {
   type GetTimeToNextL2OutputReturnType,
 } from './actions/getTimeToNextL2Output.js'
 export {
+  getTimeToProve,
+  type GetTimeToProveErrorType,
+  type GetTimeToProveParameters,
+  type GetTimeToProveReturnType,
+} from './actions/getTimeToProve.js'
+export {
   initiateWithdrawal,
   type InitiateWithdrawalErrorType,
   type InitiateWithdrawalParameters,

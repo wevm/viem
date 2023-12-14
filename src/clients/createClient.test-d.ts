@@ -9,6 +9,11 @@ import { type Client, createClient } from './createClient.js'
 import { walletActions } from './decorators/wallet.js'
 import { http } from './transports/http.js'
 
+export const publicClientL1 = createPublicClient({
+  chain: goerli,
+  transport: http(),
+}).extend(publicActionsL1())
+
 test('with chain', () => {
   const client = createClient({
     chain: localhost,

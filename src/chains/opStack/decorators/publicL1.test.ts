@@ -20,6 +20,7 @@ test('default', async () => {
       "getL2Output": [Function],
       "getTimeToFinalize": [Function],
       "getTimeToNextL2Output": [Function],
+      "getTimeToProve": [Function],
       "waitForL2Output": [Function],
       "waitToFinalize": [Function],
       "waitToProve": [Function],

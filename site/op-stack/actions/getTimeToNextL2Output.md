@@ -25,9 +25,14 @@ import { optimism } from 'viem/chains'
 import { account, publicClientL1, publicClientL2 } from './config'
 
 const l2BlockNumber = publicClientL2.getBlockNumber()
-const { seconds } = await publicClientL1.getTimeToNextL2Output({ // [!code hl]
+
+const { // [!code hl]
+  interval, // [!code hl]
+  seconds, // [!code hl]
+  timestamp // [!code hl]
+} = await publicClientL1.getTimeToNextL2Output({ // [!code hl]
   l2BlockNumber, // [!code hl]
-  targetChain: optimism, // [!code hl]
+  targetChain: publicClientL2.chain, // [!code hl]
 }) // [!code hl]
 ```
 
@@ -51,9 +56,10 @@ export const publicClientL2 = createPublicClient({
 
 ## Returns
 
-`{ seconds: number, timestamp: number }`
+`{ interval: number, seconds: number, timestamp: number }`
 
-- `seconds` until the next L2 Output is submitted.
+- `interval` between L2 outputs – the max time to wait for transaction to be proved.
+- Estimated `seconds` until the next L2 Output is submitted.
 - Estimated `timestamp` of the next L2 Output.
 
 ## Parameters

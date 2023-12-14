@@ -9,18 +9,13 @@ import type {
 } from '../../../types/chain.js'
 import type { Log } from '../../../types/log.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
-import type { Withdrawal } from '../types/withdrawal.js'
 import {
-  type GetWithdrawalsErrorType,
-  getWithdrawals,
-} from '../utils/getWithdrawals.js'
-import {
-  type WaitForL2OutputErrorType,
-  type WaitForL2OutputReturnType,
-  waitForL2Output,
-} from './waitForL2Output.js'
+  type GetTimeToNextL2OutputErrorType,
+  type GetTimeToNextL2OutputReturnType,
+  getTimeToNextL2Output,
+} from './getTimeToNextL2Output.js'
 
-export type WaitToProveParameters<
+export type GetTimeToProveParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
@@ -30,35 +25,24 @@ export type WaitToProveParameters<
       blockNumber: bigint
       logs: Log[]
     }
-    /**
-     * Polling frequency (in ms). Defaults to Client's pollingInterval config.
-     * @default client.pollingInterval
-     */
-    pollingInterval?: number
   }
-export type WaitToProveReturnType = {
-  withdrawal: Withdrawal
-  output: WaitForL2OutputReturnType
-}
-export type WaitToProveErrorType =
-  | GetWithdrawalsErrorType
-  | WaitForL2OutputErrorType
-  | ErrorType
+export type GetTimeToProveReturnType = GetTimeToNextL2OutputReturnType
+export type GetTimeToProveErrorType = GetTimeToNextL2OutputErrorType | ErrorType
 
 /**
- * Waits until the L2 withdrawal transaction is ready to be proved. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+ * Returns the time until the withdrawal transaction is ready to prove. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/waitToProve.html
+ * - Docs: https://viem.sh/op-stack/actions/getTimeToProve.html
  *
  * @param client - Client to use
- * @param parameters - {@link WaitToProveParameters}
- * @returns The L2 output and withdrawal message. {@link WaitToProveReturnType}
+ * @param parameters - {@link GetTimeToNextL2OutputParameters}
+ * @returns Time until prove step is ready. {@link GetTimeToNextL2OutputReturnType}
  *
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { getBlockNumber } from 'viem/actions'
  * import { mainnet, optimism } from 'viem/chains'
- * import { waitToProve } from 'viem/op-stack'
+ * import { getTimeToProve } from 'viem/op-stack'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,
@@ -70,27 +54,23 @@ export type WaitToProveErrorType =
  * })
  *
  * const receipt = await getTransactionReceipt(publicClientL2, { hash: '0x...' })
- * await waitToProve(publicClientL1, {
+ * const { period, seconds, timestamp } = await getTimeToProve(publicClientL1, {
  *   receipt,
  *   targetChain: optimism
  * })
  */
-export async function waitToProve<
+export async function getTimeToProve<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: WaitToProveParameters<chain, chainOverride>,
-): Promise<WaitToProveReturnType> {
+  parameters: GetTimeToProveParameters<chain, chainOverride>,
+): Promise<GetTimeToProveReturnType> {
   const { receipt } = parameters
 
-  const [withdrawal] = getWithdrawals(receipt)
-
-  const output = await waitForL2Output(client, {
+  return getTimeToNextL2Output(client, {
     ...parameters,
     l2BlockNumber: receipt.blockNumber,
   })
-
-  return { output, withdrawal }
 }

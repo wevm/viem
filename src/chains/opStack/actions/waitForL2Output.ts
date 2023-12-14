@@ -83,12 +83,17 @@ export async function waitForL2Output<
 
   return new Promise((resolve, reject) => {
     poll(
-      async () => {
+      async ({ unpoll }) => {
         try {
-          resolve(await getL2Output(client, parameters))
+          const output = await getL2Output(client, parameters)
+          unpoll()
+          resolve(output)
         } catch (e) {
           const error = e as GetL2OutputErrorType
-          if (!(error.cause instanceof ContractFunctionRevertedError)) reject(e)
+          if (!(error.cause instanceof ContractFunctionRevertedError)) {
+            unpoll()
+            reject(e)
+          }
         }
       },
       {

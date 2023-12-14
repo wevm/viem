@@ -23,6 +23,8 @@ export type GetTimeToNextL2OutputParameters<
     l2BlockNumber: bigint
   }
 export type GetTimeToNextL2OutputReturnType = {
+  /** The interval (in seconds) between L2 outputs. */
+  interval: number
   /** Seconds until the next L2 output. */
   seconds: number
   /** Estimated timestamp of the next L2 output. */
@@ -77,9 +79,8 @@ export async function getTimeToNextL2Output<
     return Object.values(targetChain!.contracts.l2OutputOracle)[0].address
   })()
 
-  const [nextBlockNumber, latestBlockNumber, blockTime] = await multicall(
-    client,
-    {
+  const [nextBlockNumber, latestBlockNumber, blockTime, interval] =
+    await multicall(client, {
       allowFailure: false,
       contracts: [
         {
@@ -97,9 +98,13 @@ export async function getTimeToNextL2Output<
           address: l2OutputOracleAddress,
           functionName: 'L2_BLOCK_TIME',
         },
+        {
+          abi: l2OutputOracleAbi,
+          address: l2OutputOracleAddress,
+          functionName: 'SUBMISSION_INTERVAL',
+        },
       ],
-    },
-  )
+    })
 
   const seconds = (() => {
     // If the latest block number is greater than the provided block number,
@@ -115,5 +120,5 @@ export async function getTimeToNextL2Output<
 
   const timestamp = Date.now() + seconds * 1000
 
-  return { seconds, timestamp }
+  return { interval: Number(interval * blockTime), seconds, timestamp }
 }

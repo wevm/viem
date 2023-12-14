@@ -11,6 +11,7 @@ test('default', async () => {
   expect(walletActionsL1()(walletClient)).toMatchInlineSnapshot(`
     {
       "depositTransaction": [Function],
+      "finalizeWithdrawal": [Function],
       "proveWithdrawal": [Function],
     }
   `)

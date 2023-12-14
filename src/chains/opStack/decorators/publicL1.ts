@@ -24,6 +24,11 @@ import {
   getTimeToNextL2Output,
 } from '../actions/getTimeToNextL2Output.js'
 import {
+  type GetTimeToProveParameters,
+  type GetTimeToProveReturnType,
+  getTimeToProve,
+} from '../actions/getTimeToProve.js'
+import {
   type WaitForL2OutputParameters,
   type WaitForL2OutputReturnType,
   waitForL2Output,
@@ -177,6 +182,44 @@ export type PublicActionsL1<
     parameters: GetTimeToNextL2OutputParameters<chain, chainOverride>,
   ) => Promise<GetTimeToNextL2OutputReturnType>
   /**
+   * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/getTimeToFinalize.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetTimeToFinalizeParameters}
+   * @returns Time until finalize. {@link GetTimeToFinalizeReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { getBlockNumber } from 'viem/actions'
+   * import { mainnet, optimism } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/op-stack'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   * const publicClientL2 = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * })
+   *
+   * const receipt = await publicClientL2.getTransactionReceipt({
+   *   hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
+   * })
+   *
+   * const [withdrawal] = getWithdrawals(receipt)
+   *
+   * const { seconds } = await publicClientL1.getTimeToFinalize({
+   *   withdrawalHash: withdrawal.withdrawalHash,
+   *   targetChain: optimism
+   * })
+   */
+  getTimeToProve: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetTimeToProveParameters<chain, chainOverride>,
+  ) => Promise<GetTimeToProveReturnType>
+  /**
    * Waits for the next L2 output (after the provided block number) to be submitted.
    *
    * - Docs: https://viem.sh/op-stack/actions/waitForL2Output.html
@@ -293,6 +336,7 @@ export function publicActionsL1() {
       getL2Output: (args) => getL2Output(client, args),
       getTimeToFinalize: (args) => getTimeToFinalize(client, args),
       getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),
+      getTimeToProve: (args) => getTimeToProve(client, args),
       waitForL2Output: (args) => waitForL2Output(client, args),
       waitToFinalize: (args) => waitToFinalize(client, args),
       waitToProve: (args) => waitToProve(client, args),

@@ -11,13 +11,14 @@ const l2Client = createPublicClient({
 
 test('default', async () => {
   const l2BlockNumber = await l2Client.getBlockNumber()
-  const { seconds, timestamp } = await getTimeToNextL2Output(
+  const { interval, seconds, timestamp } = await getTimeToNextL2Output(
     publicClientMainnet,
     {
       l2BlockNumber,
       targetChain: optimism,
     },
   )
+  expect(interval).toBe(3600)
   expect(seconds).toBeDefined()
   expect(timestamp).toBeDefined()
 })
