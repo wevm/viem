@@ -29,6 +29,11 @@ import {
   waitForL2Output,
 } from '../actions/waitForL2Output.js'
 import {
+  type WaitToFinalizeParameters,
+  type WaitToFinalizeReturnType,
+  waitToFinalize,
+} from '../actions/waitToFinalize.js'
+import {
   type WaitToProveParameters,
   type WaitToProveReturnType,
   waitToProve,
@@ -204,6 +209,43 @@ export type PublicActionsL1<
     parameters: WaitForL2OutputParameters<chain, chainOverride>,
   ) => Promise<WaitForL2OutputReturnType>
   /**
+   * Waits until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/waitToFinalize.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link WaitToFinalizeParameters}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { getBlockNumber } from 'viem/actions'
+   * import { mainnet, optimism } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/op-stack'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1)
+   * const publicClientL2 = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * })
+   *
+   * const receipt = await getTransactionReceipt(publicClientL2, {
+   *   hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
+   * })
+   *
+   * const [withdrawal] = getWithdrawals(receipt)
+   *
+   * await publicClientL1.waitToFinalize({
+   *   withdrawalHash: withdrawal.withdrawalHash,
+   *   targetChain: optimism
+   * })
+   */
+  waitToFinalize: <chainOverride extends Chain | undefined = undefined>(
+    parameters: WaitToFinalizeParameters<chain, chainOverride>,
+  ) => Promise<WaitToFinalizeReturnType>
+  /**
    * Waits until the L2 withdrawal transaction is provable. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
    *
    * - Docs: https://viem.sh/op-stack/actions/waitToProve.html
@@ -252,6 +294,7 @@ export function publicActionsL1() {
       getTimeToFinalize: (args) => getTimeToFinalize(client, args),
       getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),
       waitForL2Output: (args) => waitForL2Output(client, args),
+      waitToFinalize: (args) => waitToFinalize(client, args),
       waitToProve: (args) => waitToProve(client, args),
     }
   }

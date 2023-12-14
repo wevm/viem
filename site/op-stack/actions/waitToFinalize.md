@@ -3,18 +3,20 @@ outline: deep
 head:
   - - meta
     - property: og:title
-      content: getTimeToFinalize
+      content: waitToFinalize
   - - meta
     - name: description
-      content: Returns the time until the withdrawal transaction can be finalized.
+      content: Waits until the withdrawal transaction can be finalized.
   - - meta
     - property: og:description
-      content: Returns the time until the withdrawal transaction can be finalized.
+      content: Waits until the withdrawal transaction can be finalized.
 ---
 
-# getTimeToFinalize
+# waitToFinalize
 
-Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+Waits until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+
+Internally calls [`getTimeToFinalize`](/op-stack/actions/getTimeToFinalize.html) and waits the returned `seconds`.
 
 ## Usage
 
@@ -30,7 +32,7 @@ const receipt = await publicClientL2.getTransactionReceipt({
 
 const [message] = getWithdrawals(receipt)
 
-const { seconds, timestamp } = await publicClientL1.getTimeToFinalize({ // [!code hl]
+await publicClientL1.waitToFinalize({ // [!code hl]
   withdrawalHash: message.withdrawalHash, // [!code hl]
   targetChain: optimism // [!code hl]
 }) // [!code hl]
@@ -54,13 +56,6 @@ export const publicClientL2 = createPublicClient({
 
 :::
 
-## Returns
-
-`{ seconds: number, timestamp: number }`
-
-- `seconds` until the transaction can be finalized.
-- `timestamp` of when the transaction can be finalized.
-
 ## Parameters
 
 ### targetChain
@@ -70,7 +65,7 @@ export const publicClientL2 = createPublicClient({
 The L2 chain.
 
 ```ts
-const { seconds } = await publicClientL1.getTimeToFinalize({
+const { seconds } = await publicClientL1.waitToFinalize({
   withdrawalHash: '0x...', // [!code focus]
   targetChain: optimism, // [!code focus]
 })
@@ -83,7 +78,7 @@ const { seconds } = await publicClientL1.getTimeToFinalize({
 The withdrawal hash.
 
 ```ts
-const { seconds, timestamp } = await publicClientL1.getTimeToFinalize({ 
+const { seconds, timestamp } = await publicClientL1.waitToFinalize({ 
   withdrawalHash: '0x...', // [!code focus]
   targetChain: optimism, 
 }) 
@@ -99,7 +94,7 @@ The address of the [L2 Output Oracle contract](https://github.com/ethereum-optim
 If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const { seconds } = await publicClientL1.getTimeToFinalize({
+const { seconds } = await publicClientL1.waitToFinalize({
   withdrawalHash: '0x...',
   l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed'
@@ -116,7 +111,7 @@ The address of the [Portal contract](https://github.com/ethereum-optimism/optimi
 If a `portalAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const { seconds } = await publicClientL1.getTimeToFinalize({
+const { seconds } = await publicClientL1.waitToFinalize({
   withdrawalHash: '0x...',
   l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]

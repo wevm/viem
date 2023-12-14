@@ -4,6 +4,7 @@ import { accounts } from '~test/src/constants.js'
 import { publicClientMainnet } from '~test/src/utils.js'
 import { http, createPublicClient } from '../../../index.js'
 import { optimism } from '../chains.js'
+import { getWithdrawals } from '../index.js'
 import { publicActionsL1 } from './publicL1.js'
 
 const client = publicClientMainnet.extend(publicActionsL1())
@@ -20,6 +21,7 @@ test('default', async () => {
       "getTimeToFinalize": [Function],
       "getTimeToNextL2Output": [Function],
       "waitForL2Output": [Function],
+      "waitToFinalize": [Function],
       "waitToProve": [Function],
     }
   `)
@@ -58,6 +60,17 @@ describe('smoke test', () => {
       targetChain: optimism,
     })
     expect(request).toBeDefined()
+  })
+
+  test('waitToFinalize', async () => {
+    const receipt = await l2Client.getTransactionReceipt({
+      hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
+    })
+    const [withdrawal] = getWithdrawals(receipt)
+    await client.waitToFinalize({
+      withdrawalHash: withdrawal.withdrawalHash,
+      targetChain: optimism,
+    })
   })
 
   test('waitToProve', async () => {

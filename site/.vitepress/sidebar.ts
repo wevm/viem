@@ -1029,6 +1029,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/actions/waitForL2Output',
         },
         {
+          text: 'waitToFinalize',
+          link: '/op-stack/actions/waitToFinalize',
+        },
+        {
           text: 'waitToProve',
           link: '/op-stack/actions/waitToProve',
         },

@@ -107,6 +107,12 @@ export {
   type WaitForL2OutputReturnType,
 } from './actions/waitForL2Output.js'
 export {
+  waitToFinalize,
+  type WaitToFinalizeErrorType,
+  type WaitToFinalizeParameters,
+  type WaitToFinalizeReturnType,
+} from './actions/waitToFinalize.js'
+export {
   waitToProve,
   type WaitToProveErrorType,
   type WaitToProveParameters,

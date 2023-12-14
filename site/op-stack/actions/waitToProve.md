@@ -16,6 +16,8 @@ head:
 
 Waits until the L2 withdrawal transaction is provable. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
 
+Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Output.html) and waits the returned `seconds`.
+
 ## Usage
 
 ::: code-group
