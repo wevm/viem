@@ -24,6 +24,8 @@ export type GetTimeToFinalizeParameters<
     withdrawalHash: Hash
   }
 export type GetTimeToFinalizeReturnType = {
+  /** The finalization period (in seconds). */
+  period: number
   /** Seconds until the withdrawal can be finalized. */
   seconds: number
   /** Timestamp of when the withdrawal can be finalized. */
@@ -88,7 +90,7 @@ export async function getTimeToFinalize<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const [[_outputRoot, proveTimestamp, _l2OutputIndex], finalizationPeriod] =
+  const [[_outputRoot, proveTimestamp, _l2OutputIndex], period] =
     await multicall(client, {
       allowFailure: false,
       contracts: [
@@ -107,10 +109,10 @@ export async function getTimeToFinalize<
     })
 
   const secondsSinceProven = Date.now() / 1000 - Number(proveTimestamp)
-  const secondsToFinalize = Number(finalizationPeriod) - secondsSinceProven
+  const secondsToFinalize = Number(period) - secondsSinceProven
 
   const seconds = Math.floor(secondsToFinalize < 0 ? 0 : secondsToFinalize)
   const timestamp = Date.now() + seconds * 1000
 
-  return { seconds, timestamp }
+  return { period: Number(period), seconds, timestamp }
 }

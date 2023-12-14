@@ -27,6 +27,7 @@ test('default', async () => {
 
   expect(time).toMatchInlineSnapshot(`
     {
+      "period": 604800,
       "seconds": 594800,
       "timestamp": 1702993991000,
     }
@@ -51,6 +52,7 @@ test('ready to finalize', async () => {
 
   expect(time).toMatchInlineSnapshot(`
     {
+      "period": 604800,
       "seconds": 0,
       "timestamp": 1702994990587,
     }

@@ -30,7 +30,11 @@ const receipt = await publicClientL2.getTransactionReceipt({
 
 const [message] = getWithdrawals(receipt)
 
-const { seconds, timestamp } = await publicClientL1.getTimeToFinalize({ // [!code hl]
+const { // [!code hl]
+  period, // [!code hl]
+  seconds, // [!code hl]
+  timestamp, // [!code hl]
+} = await publicClientL1.getTimeToFinalize({ // [!code hl]
   withdrawalHash: message.withdrawalHash, // [!code hl]
   targetChain: optimism // [!code hl]
 }) // [!code hl]
@@ -56,8 +60,9 @@ export const publicClientL2 = createPublicClient({
 
 ## Returns
 
-`{ seconds: number, timestamp: number }`
+`{ period: number, seconds: number, timestamp: number }`
 
+- `period` in seconds of the finalization stage (max wait time).
 - `seconds` until the transaction can be finalized.
 - `timestamp` of when the transaction can be finalized.
 
