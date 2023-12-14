@@ -1,5 +1,11 @@
 # viem
 
+## 1.19.15
+
+### Patch Changes
+
+- [#1586](https://github.com/wevm/viem/pull/1586) [`f9bfa727`](https://github.com/wevm/viem/commit/f9bfa727671452c46df7db4837457d1d9296b8c8) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where Viem could extract the wrong ABI item if ambiguity is detected within overload ABI items. Now, if ambiguity is detected, an error will be thrown.
+
 ## 1.19.14
 
 ### Patch Changes
