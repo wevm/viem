@@ -1,7 +1,12 @@
 import type { Abi, AbiParameter, Address } from 'abitype'
 
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { GetFunctionArgs, InferItemName } from '../../types/contract.js'
+import type {
+  AbiItem,
+  GetFunctionArgs,
+  InferItemName,
+} from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
 import { getEventSelector } from '../../utils/hash/getEventSelector.js'
@@ -61,6 +66,7 @@ export function getAbiItem<
   if (abiItems.length === 0) return undefined as any
   if (abiItems.length === 1) return abiItems[0] as any
 
+  let matchedOverload: AbiItem | undefined = undefined
   for (const abiItem of abiItems) {
     if (!('inputs' in abiItem)) continue
     if (!args || args.length === 0) {
@@ -75,9 +81,26 @@ export function getAbiItem<
       if (!abiParameter) return false
       return isArgOfType(arg, abiParameter as AbiParameter)
     })
-    if (matched) return abiItem as any
+    if (matched) {
+      // Check for ambiguity against already matched parameters (e.g. `address` vs `bytes20`).
+      if (
+        matchedOverload &&
+        'inputs' in matchedOverload &&
+        matchedOverload.inputs
+      )
+        checkAmbiguity(
+          abiItem.inputs,
+          matchedOverload.inputs,
+          args as readonly unknown[],
+        )
+
+      matchedOverload = abiItem
+    }
   }
-  return abiItems[0] as any
+
+  if (matchedOverload)
+    return matchedOverload as GetAbiItemReturnType<TAbi, TItemName>
+  return abiItems[0] as GetAbiItemReturnType<TAbi, TItemName>
 }
 
 export type IsArgOfTypeErrorType = IsAddressErrorType | ErrorType
@@ -136,5 +159,57 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
 
       return false
     }
+  }
+}
+
+export function checkAmbiguity(
+  sourceParameters: readonly AbiParameter[],
+  targetParameters: readonly AbiParameter[],
+  args: readonly unknown[],
+): void {
+  for (const parameterIndex in sourceParameters) {
+    const sourceParameter = sourceParameters[parameterIndex]
+    const targetParameter = targetParameters[parameterIndex]
+
+    if (
+      sourceParameter.type === 'tuple' &&
+      targetParameter.type === 'tuple' &&
+      'components' in sourceParameter &&
+      'components' in targetParameter
+    ) {
+      checkAmbiguity(
+        sourceParameter.components,
+        targetParameter.components,
+        (args as any)[parameterIndex],
+      )
+      return
+    }
+
+    const ambiguous = (() => {
+      if (
+        [sourceParameter.type, targetParameter.type].includes('address') &&
+        [sourceParameter.type, targetParameter.type].includes('bytes20')
+      )
+        return true
+
+      if (
+        [sourceParameter.type, targetParameter.type].includes('address') &&
+        [sourceParameter.type, targetParameter.type].includes('string')
+      )
+        return isAddress(args[parameterIndex] as Address)
+
+      if (
+        [sourceParameter.type, targetParameter.type].includes('address') &&
+        [sourceParameter.type, targetParameter.type].includes('bytes')
+      )
+        return isAddress(args[parameterIndex] as Address)
+
+      return false
+    })()
+
+    if (ambiguous)
+      throw new BaseError(
+        `ambiguous overload abi parameter detected: \`${sourceParameter.type}\` vs \`${targetParameter.type}\`.`,
+      )
   }
 }
