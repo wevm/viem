@@ -1,11 +1,11 @@
-import type { AbiParameter } from 'abitype'
+import { type AbiParameter, parseAbi, parseAbiParameters } from 'abitype'
 
 import { describe, expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { toBytes } from '../encoding/toBytes.js'
 
-import { getAbiItem, isArgOfType } from './getAbiItem.js'
+import { toBytes } from '../index.js'
+import { getAbiItem, getAmbiguousTypes, isArgOfType } from './getAbiItem.js'
 
 test('default', () => {
   expect(
@@ -502,6 +502,346 @@ test('overloads: tuple', () => {
       "type": "function",
     }
   `)
+})
+
+test('overloads: ambiguious types', () => {
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi(['function foo(address)', 'function foo(bytes20)']),
+      name: 'foo',
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes20\` in \`foo(bytes20)\`, and
+    \`address\` in \`foo(address)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@1.0.2]
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi([
+        'function foo(string)',
+        'function foo(uint)',
+        'function foo(address)',
+      ]),
+      name: 'foo',
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`address\` in \`foo(address)\`, and
+    \`string\` in \`foo(string)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@1.0.2]
+  `)
+
+  expect(
+    getAbiItem({
+      abi: parseAbi([
+        'function foo(string)',
+        'function foo(uint)',
+        'function foo(address)',
+      ]),
+      name: 'foo',
+      // 21 bytes (invalid address)
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251eee'],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "type": "string",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+
+  expect(
+    getAbiItem({
+      abi: parseAbi([
+        'function foo(string)',
+        'function foo(uint)',
+        'function foo(address)',
+      ]),
+      name: 'foo',
+      // non-hex (invalid address)
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251z'],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "type": "string",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi([
+        'function foo(address)',
+        'function foo(uint)',
+        'function foo(string)',
+      ]),
+      name: 'foo',
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`string\` in \`foo(string)\`, and
+    \`address\` in \`foo(address)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@1.0.2]
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi(['function foo((address))', 'function foo((bytes20))']),
+      name: 'foo',
+      args: [['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes20\` in \`foo((bytes20))\`, and
+    \`address\` in \`foo((address))\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@1.0.2]
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi([
+        'function foo(string, (address))',
+        'function foo(string, (bytes))',
+      ]),
+      name: 'foo',
+      args: ['foo', ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes\` in \`foo(string,(bytes))\`, and
+    \`address\` in \`foo(string,(address))\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@1.0.2]
+  `)
+})
+
+describe('getAmbiguousTypes', () => {
+  test('string/address', () => {
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('string'),
+        parseAbiParameters('address'),
+        ['0xA0Cf798816D4b9b9866b5330EEa46a18382f2522'],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "string",
+        "address",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('string'),
+        parseAbiParameters('address'),
+        // 21 bytes (invalid address)
+        ['0xA0Cf798816D4b9b9866b5330EEa46a18382f252223'],
+      ),
+    ).toBeUndefined()
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('(string)'),
+        parseAbiParameters('(address)'),
+        [['0xA0Cf798816D4b9b9866b5330EEa46a18382f2522']],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "string",
+        "address",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('(address)'),
+        parseAbiParameters('(string)'),
+        [['0xA0Cf798816D4b9b9866b5330EEa46a18382f2522']],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "string",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('uint, (string, (string))'),
+        parseAbiParameters('uint, (string, (address))'),
+        [69420n, ['lol', ['0xA0Cf798816D4b9b9866b5330EEa46a18382f2522']]],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "string",
+        "address",
+      ]
+    `)
+  })
+
+  test('bytes/address', () => {
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('address'),
+        parseAbiParameters('bytes20'),
+        ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('bytes20'),
+        parseAbiParameters('address'),
+        ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "bytes20",
+        "address",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('address'),
+        parseAbiParameters('bytes'),
+        ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('bytes'),
+        parseAbiParameters('address'),
+        // 21 bytes (invalid address)
+        ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251eee'],
+      ),
+    ).toBeUndefined()
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('bytes'),
+        parseAbiParameters('address'),
+        ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "bytes",
+        "address",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('(address)'),
+        parseAbiParameters('(bytes20)'),
+        [['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('uint256, (address)'),
+        parseAbiParameters('uint128, (bytes20)'),
+        [69420n, ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
+    `)
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('uint256, (string, (address))'),
+        parseAbiParameters('uint128, (string, (bytes20))'),
+        [69420n, ['foo', ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']]],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
+    `)
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('uint256, (string, (address, bytes))'),
+        parseAbiParameters('uint128, (string, (bytes20, address))'),
+        [
+          123n,
+          [
+            'foo',
+            [
+              '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+              '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+            ],
+          ],
+        ],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
+    `)
+  })
 })
 
 describe.each([
