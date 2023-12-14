@@ -1,5 +1,11 @@
 # viem
 
+## 1.20.0
+
+### Minor Changes
+
+- [#1589](https://github.com/wevm/viem/pull/1589) [`69cf2d05`](https://github.com/wevm/viem/commit/69cf2d05100a211e737ba81718c11b864785d5f3) Thanks [@jxom](https://github.com/jxom)! - Added `ripemd160` and `sha256` hashing functions (re-exported from `@noble/hashes`).
+
 ## 1.19.15
 
 ### Patch Changes
