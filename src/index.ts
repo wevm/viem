@@ -78,6 +78,10 @@ export type {
   DropTransactionParameters,
 } from './actions/test/dropTransaction.js'
 export type {
+  DumpStateErrorType,
+  DumpStateReturnType,
+} from './actions/test/dumpState.js'
+export type {
   GetAutomineErrorType,
   GetAutomineReturnType,
 } from './actions/test/getAutomine.js'
@@ -215,12 +219,18 @@ export type {
   IncreaseTimeErrorType,
   IncreaseTimeParameters,
 } from './actions/test/increaseTime.js'
+export type {
+  LoadStateErrorType,
+  LoadStateParameters,
+  LoadStateReturnType,
+} from './actions/test/loadState.js'
 export type { MineErrorType, MineParameters } from './actions/test/mine.js'
 export type {
   MulticallErrorType,
   MulticallParameters,
   MulticallReturnType,
 } from './actions/public/multicall.js'
+export type { SnapshotErrorType } from './actions/test/snapshot.js'
 export type {
   OnBlock,
   OnBlockParameter,
@@ -282,16 +292,27 @@ export type {
   InspectTxpoolErrorType,
   InspectTxpoolReturnType,
 } from './actions/test/inspectTxpool.js'
+export type { RemoveBlockTimestampIntervalErrorType } from './actions/test/removeBlockTimestampInterval.js'
 export type { ResetErrorType, ResetParameters } from './actions/test/reset.js'
 export type {
   RevertErrorType,
   RevertParameters,
 } from './actions/test/revert.js'
 export type {
+  SendRawTransactionErrorType,
+  SendRawTransactionParameters,
+  SendRawTransactionReturnType,
+} from './actions/wallet/sendRawTransaction.js'
+export type {
   SendTransactionErrorType,
   SendTransactionParameters,
   SendTransactionReturnType,
 } from './actions/wallet/sendTransaction.js'
+export type {
+  SignTransactionErrorType,
+  SignTransactionParameters,
+  SignTransactionReturnType,
+} from './actions/wallet/signTransaction.js'
 export type {
   PrepareTransactionRequestErrorType,
   PrepareTransactionRequestParameters,
@@ -303,6 +324,7 @@ export type {
   SendUnsignedTransactionParameters,
   SendUnsignedTransactionReturnType,
 } from './actions/test/sendUnsignedTransaction.js'
+export type { SetAutomineErrorType } from './actions/test/setAutomine.js'
 export type {
   SetBalanceErrorType,
   SetBalanceParameters,
@@ -327,6 +349,7 @@ export type {
   SetIntervalMiningErrorType,
   SetIntervalMiningParameters,
 } from './actions/test/setIntervalMining.js'
+export type { SetLoggingEnabledErrorType } from './actions/test/setLoggingEnabled.js'
 export type {
   SetMinGasPriceErrorType,
   SetMinGasPriceParameters,
@@ -343,6 +366,7 @@ export type {
   SetNonceErrorType,
   SetNonceParameters,
 } from './actions/test/setNonce.js'
+export type { SetRpcUrlErrorType } from './actions/test/setRpcUrl.js'
 export type {
   SetStorageAtErrorType,
   SetStorageAtParameters,
