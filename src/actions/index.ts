@@ -1,4 +1,9 @@
 export {
+  type AddChainErrorType,
+  type AddChainParameters,
+  addChain,
+} from './wallet/addChain.js'
+export {
   type GetEnsAddressErrorType,
   type GetEnsAddressParameters,
   type GetEnsAddressReturnType,
@@ -56,6 +61,11 @@ export {
   type CreatePendingTransactionFilterReturnType,
   createPendingTransactionFilter,
 } from './public/createPendingTransactionFilter.js'
+export {
+  type DumpStateErrorType,
+  type DumpStateReturnType,
+  dumpState,
+} from './test/dumpState.js'
 export {
   type EstimateContractGasErrorType,
   type EstimateContractGasParameters,
@@ -185,6 +195,12 @@ export {
   increaseTime,
 } from './test/increaseTime.js'
 export {
+  type LoadStateErrorType,
+  type LoadStateParameters,
+  type LoadStateReturnType,
+  loadState,
+} from './test/loadState.js'
+export {
   type MineErrorType,
   type MineParameters,
   mine,
@@ -292,6 +308,10 @@ export {
   inspectTxpool,
 } from './test/inspectTxpool.js'
 export {
+  type RemoveBlockTimestampIntervalErrorType,
+  removeBlockTimestampInterval,
+} from './test/removeBlockTimestampInterval.js'
+export {
   type ResetErrorType,
   type ResetParameters,
   reset,
@@ -363,6 +383,10 @@ export {
   setIntervalMining,
 } from './test/setIntervalMining.js'
 export {
+  type SetLoggingEnabledErrorType,
+  setLoggingEnabled,
+} from './test/setLoggingEnabled.js'
+export {
   type SetMinGasPriceErrorType,
   type SetMinGasPriceParameters,
   setMinGasPrice,
@@ -382,6 +406,7 @@ export {
   type SetNonceParameters,
   setNonce,
 } from './test/setNonce.js'
+export { type SetRpcUrlErrorType, setRpcUrl } from './test/setRpcUrl.js'
 export {
   type SetStorageAtErrorType,
   type SetStorageAtParameters,
