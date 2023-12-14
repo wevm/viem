@@ -66,7 +66,7 @@ export function getAbiItem<
   if (abiItems.length === 0) return undefined as any
   if (abiItems.length === 1) return abiItems[0] as any
 
-  let matchedOverload: AbiItem | undefined = undefined
+  let matchedAbiItem: AbiItem | undefined = undefined
   for (const abiItem of abiItems) {
     if (!('inputs' in abiItem)) continue
     if (!args || args.length === 0) {
@@ -84,13 +84,13 @@ export function getAbiItem<
     if (matched) {
       // Check for ambiguity against already matched parameters (e.g. `address` vs `bytes20`).
       if (
-        matchedOverload &&
-        'inputs' in matchedOverload &&
-        matchedOverload.inputs
+        matchedAbiItem &&
+        'inputs' in matchedAbiItem &&
+        matchedAbiItem.inputs
       ) {
         const ambiguousTypes = getAmbiguousTypes(
           abiItem.inputs,
-          matchedOverload.inputs,
+          matchedAbiItem.inputs,
           args as readonly unknown[],
         )
         if (ambiguousTypes)
@@ -100,18 +100,18 @@ export function getAbiItem<
               type: ambiguousTypes[0],
             },
             {
-              abiItem: matchedOverload,
+              abiItem: matchedAbiItem,
               type: ambiguousTypes[1],
             },
           )
       }
 
-      matchedOverload = abiItem
+      matchedAbiItem = abiItem
     }
   }
 
-  if (matchedOverload)
-    return matchedOverload as GetAbiItemReturnType<TAbi, TItemName>
+  if (matchedAbiItem)
+    return matchedAbiItem as GetAbiItemReturnType<TAbi, TItemName>
   return abiItems[0] as GetAbiItemReturnType<TAbi, TItemName>
 }
 
