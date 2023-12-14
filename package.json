@@ -20,7 +20,6 @@
     "lint": "biome check .",
     "lint:fix": "bun run lint --apply",
     "postinstall": "bun run contracts:build",
-    "preinstall": "npx only-allow bun",
     "prepare": "bun x simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",

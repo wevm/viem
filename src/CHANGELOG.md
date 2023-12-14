@@ -1,5 +1,29 @@
 # viem
 
+## 1.20.0
+
+### Minor Changes
+
+- [#1589](https://github.com/wevm/viem/pull/1589) [`69cf2d05`](https://github.com/wevm/viem/commit/69cf2d05100a211e737ba81718c11b864785d5f3) Thanks [@jxom](https://github.com/jxom)! - Added `ripemd160` and `sha256` hashing functions (re-exported from `@noble/hashes`).
+
+## 1.19.15
+
+### Patch Changes
+
+- [#1586](https://github.com/wevm/viem/pull/1586) [`f9bfa727`](https://github.com/wevm/viem/commit/f9bfa727671452c46df7db4837457d1d9296b8c8) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where Viem could extract the wrong ABI item if ambiguity is detected within overload ABI items. Now, if ambiguity is detected, an error will be thrown.
+
+## 1.19.14
+
+### Patch Changes
+
+- [#1585](https://github.com/wevm/viem/pull/1585) [`5f54c878`](https://github.com/wevm/viem/commit/5f54c8780be1895d7f22f5d2b90878a81c67ac1f) Thanks [@zapnap](https://github.com/zapnap)! - Added Fantom Sonic Open Testnet
+
+## 1.19.13
+
+### Patch Changes
+
+- [`007fe124`](https://github.com/wevm/viem/commit/007fe124d2c8a5f709a0d691ccbcaaf5f9a6d411) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `getEnsName` was returning stale results for updated eth records.
+
 ## 1.19.12
 
 ### Patch Changes
