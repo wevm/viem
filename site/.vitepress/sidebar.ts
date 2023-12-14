@@ -741,6 +741,14 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
             },
+            {
+              text: 'ripemd160',
+              link: '/docs/utilities/ripemd160',
+            },
+            {
+              text: 'sha256',
+              link: '/docs/utilities/sha256',
+            },
           ],
         },
         {

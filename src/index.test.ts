@@ -346,6 +346,8 @@ test('exports', () => {
       "isHash",
       "isHex",
       "keccak256",
+      "sha256",
+      "ripemd160",
       "pad",
       "padBytes",
       "padHex",
