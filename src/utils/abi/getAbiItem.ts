@@ -1,6 +1,6 @@
-import type { Abi, AbiParameter, Address } from 'abitype'
+import { type Abi, type AbiParameter, type Address } from 'abitype'
 
-import { BaseError } from '../../errors/base.js'
+import { AbiItemAmbiguityError } from '../../errors/abi.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   AbiItem,
@@ -87,12 +87,24 @@ export function getAbiItem<
         matchedOverload &&
         'inputs' in matchedOverload &&
         matchedOverload.inputs
-      )
-        checkAmbiguity(
+      ) {
+        const ambiguousTypes = getAmbiguousTypes(
           abiItem.inputs,
           matchedOverload.inputs,
           args as readonly unknown[],
         )
+        if (ambiguousTypes)
+          throw new AbiItemAmbiguityError(
+            {
+              abiItem,
+              type: ambiguousTypes[0],
+            },
+            {
+              abiItem: matchedOverload,
+              type: ambiguousTypes[1],
+            },
+          )
+      }
 
       matchedOverload = abiItem
     }
@@ -162,11 +174,11 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
   }
 }
 
-export function checkAmbiguity(
+export function getAmbiguousTypes(
   sourceParameters: readonly AbiParameter[],
   targetParameters: readonly AbiParameter[],
   args: readonly unknown[],
-): void {
+): AbiParameter['type'][] | undefined {
   for (const parameterIndex in sourceParameters) {
     const sourceParameter = sourceParameters[parameterIndex]
     const targetParameter = targetParameters[parameterIndex]
@@ -176,14 +188,12 @@ export function checkAmbiguity(
       targetParameter.type === 'tuple' &&
       'components' in sourceParameter &&
       'components' in targetParameter
-    ) {
-      checkAmbiguity(
+    )
+      return getAmbiguousTypes(
         sourceParameter.components,
         targetParameter.components,
         (args as any)[parameterIndex],
       )
-      return
-    }
 
     const ambiguous = (() => {
       if (
@@ -207,9 +217,8 @@ export function checkAmbiguity(
       return false
     })()
 
-    if (ambiguous)
-      throw new BaseError(
-        `ambiguous overload abi parameter detected: \`${sourceParameter.type}\` vs \`${targetParameter.type}\`.`,
-      )
+    if (ambiguous) return [sourceParameter.type, targetParameter.type]
   }
+
+  return
 }

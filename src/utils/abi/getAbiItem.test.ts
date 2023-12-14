@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 
 import { toBytes } from '../index.js'
-import { checkAmbiguity, getAbiItem, isArgOfType } from './getAbiItem.js'
+import { getAbiItem, getAmbiguousTypes, isArgOfType } from './getAbiItem.js'
 
 test('default', () => {
   expect(
@@ -512,7 +512,13 @@ test('overloads: ambiguious types', () => {
       args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: ambiguous overload abi parameter detected: \`bytes20\` vs \`address\`.
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes20\` in \`foo(bytes20)\`, and
+    \`address\` in \`foo(address)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@1.0.2]
   `)
@@ -528,7 +534,13 @@ test('overloads: ambiguious types', () => {
       args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: ambiguous overload abi parameter detected: \`address\` vs \`string\`.
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`address\` in \`foo(address)\`, and
+    \`string\` in \`foo(string)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@1.0.2]
   `)
@@ -594,7 +606,13 @@ test('overloads: ambiguious types', () => {
       args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: ambiguous overload abi parameter detected: \`string\` vs \`address\`.
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`string\` in \`foo(string)\`, and
+    \`address\` in \`foo(address)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@1.0.2]
   `)
@@ -606,7 +624,13 @@ test('overloads: ambiguious types', () => {
       args: [['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: ambiguous overload abi parameter detected: \`bytes20\` vs \`address\`.
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes20\` in \`foo((bytes20))\`, and
+    \`address\` in \`foo((address))\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@1.0.2]
   `)
@@ -621,28 +645,35 @@ test('overloads: ambiguious types', () => {
       args: ['foo', ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: ambiguous overload abi parameter detected: \`bytes\` vs \`address\`.
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes\` in \`foo(string,(bytes))\`, and
+    \`address\` in \`foo(string,(address))\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@1.0.2]
   `)
 })
 
-describe('checkAmbiguity', () => {
+describe('getAmbiguousTypes', () => {
   test('string/address', () => {
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('string'),
         parseAbiParameters('address'),
         ['0xA0Cf798816D4b9b9866b5330EEa46a18382f2522'],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`string\` vs \`address\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "string",
+        "address",
+      ]
     `)
 
     expect(
-      checkAmbiguity(
+      getAmbiguousTypes(
         parseAbiParameters('string'),
         parseAbiParameters('address'),
         // 21 bytes (invalid address)
@@ -650,82 +681,88 @@ describe('checkAmbiguity', () => {
       ),
     ).toBeUndefined()
 
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('(string)'),
         parseAbiParameters('(address)'),
         [['0xA0Cf798816D4b9b9866b5330EEa46a18382f2522']],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`string\` vs \`address\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "string",
+        "address",
+      ]
     `)
 
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('(address)'),
         parseAbiParameters('(string)'),
         [['0xA0Cf798816D4b9b9866b5330EEa46a18382f2522']],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`address\` vs \`string\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "string",
+      ]
     `)
 
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('uint, (string, (string))'),
         parseAbiParameters('uint, (string, (address))'),
         [69420n, ['lol', ['0xA0Cf798816D4b9b9866b5330EEa46a18382f2522']]],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`string\` vs \`address\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "string",
+        "address",
+      ]
     `)
   })
 
   test('bytes/address', () => {
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('address'),
         parseAbiParameters('bytes20'),
         ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`address\` vs \`bytes20\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
     `)
 
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('bytes20'),
         parseAbiParameters('address'),
         ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`bytes20\` vs \`address\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "bytes20",
+        "address",
+      ]
     `)
 
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('address'),
         parseAbiParameters('bytes'),
         ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`address\` vs \`bytes\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes",
+      ]
     `)
 
     expect(
-      checkAmbiguity(
+      getAmbiguousTypes(
         parseAbiParameters('bytes'),
         parseAbiParameters('address'),
         // 21 bytes (invalid address)
@@ -733,54 +770,58 @@ describe('checkAmbiguity', () => {
       ),
     ).toBeUndefined()
 
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('bytes'),
         parseAbiParameters('address'),
         ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`bytes\` vs \`address\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "bytes",
+        "address",
+      ]
     `)
 
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('(address)'),
         parseAbiParameters('(bytes20)'),
         [['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`address\` vs \`bytes20\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
     `)
 
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('uint256, (address)'),
         parseAbiParameters('uint128, (bytes20)'),
         [69420n, ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`address\` vs \`bytes20\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
     `)
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('uint256, (string, (address))'),
         parseAbiParameters('uint128, (string, (bytes20))'),
         [69420n, ['foo', ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']]],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`address\` vs \`bytes20\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
     `)
-    expect(() =>
-      checkAmbiguity(
+    expect(
+      getAmbiguousTypes(
         parseAbiParameters('uint256, (string, (address, bytes))'),
         parseAbiParameters('uint128, (string, (bytes20, address))'),
         [
@@ -794,10 +835,11 @@ describe('checkAmbiguity', () => {
           ],
         ],
       ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: ambiguous overload abi parameter detected: \`address\` vs \`bytes20\`.
-
-      Version: viem@1.0.2]
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
     `)
   })
 })
