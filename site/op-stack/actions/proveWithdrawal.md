@@ -6,10 +6,10 @@ head:
       content: proveWithdrawal
   - - meta
     - name: description
-      content: Initiates a deposit transaction on an L1, which executes a transaction on an L2.
+      content: Proves a withdrawal that occurred on an L2.
   - - meta
     - property: og:description
-      content: Initiates a deposit transaction on an L1, which executes a transaction on an L2.
+      content: Proves a withdrawal that occurred on an L2.
 ---
 
 # proveWithdrawal
@@ -47,7 +47,7 @@ const hash = await walletClientL1.proveWithdrawal(request) // [!code hl]
 ```ts [config.ts]
 import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet, base } from 'viem/chains'
+import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const walletClientL1 = createWalletClient({
@@ -56,7 +56,7 @@ export const walletClientL1 = createWalletClient({
 }).extend(walletActionsL1())
 
 export const publicClientL2 = createPublicClient({
-  chain: base,
+  chain: optimism,
   transport: http()
 }).extend(publicActionsL2())
 
@@ -108,7 +108,7 @@ const hash = await walletClientL1.proveWithdrawal(request)
 ```ts [config.ts]
 import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet, base } from 'viem/chains'
+import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const walletClientL1 = createWalletClient({
@@ -117,7 +117,7 @@ export const walletClientL1 = createWalletClient({
 }).extend(walletActionsL1())
 
 export const publicClientL2 = createPublicClient({
-  chain: base,
+  chain: optimism,
   transport: http()
 }).extend(publicActionsL2())
 
@@ -164,7 +164,7 @@ const hash = await walletClientL1.proveWithdrawal(request)
 ```ts [config.ts (JSON-RPC Account)]
 import { createWalletClient, createPublicClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet, base } from 'viem/chains'
+import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 // Retrieve Account from an EIP-1193 Provider. // [!code hl]
@@ -178,7 +178,7 @@ export const walletClientL1 = createWalletClient({
 }).extend(walletActionsL1())
 
 export const publicClientL2 = createPublicClient({
-  chain: base,
+  chain: optimism,
   transport: http()
 }).extend(publicActionsL2())
 ```
@@ -186,7 +186,7 @@ export const publicClientL2 = createPublicClient({
 ```ts [config.ts (Local Account)]
 import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet, base } from 'viem/chains'
+import { mainnet, optimism } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
 export const walletClientL1 = createWalletClient({
@@ -195,7 +195,7 @@ export const walletClientL1 = createWalletClient({
 }).extend(walletActionsL1())
 
 export const publicClientL2 = createPublicClient({
-  chain: base,
+  chain: optimism,
   transport: http()
 }).extend(publicActionsL2())
 ```
@@ -224,8 +224,8 @@ const hash = await client.proveWithdrawal({
   l2OutputIndex: 4529n,
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
-  targetChain: base,
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
 })
 ```
 
@@ -245,8 +245,8 @@ const hash = await client.proveWithdrawal({
   l2OutputIndex: 4529n,
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
-  targetChain: base,
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
 })
 ```
 
@@ -265,8 +265,8 @@ const hash = await client.proveWithdrawal({
   gas: 420_000n,  // [!code focus]
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
-  targetChain: base,
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
 })
 ```
 
@@ -283,8 +283,8 @@ const hash = await client.proveWithdrawal({
   gas: 420_000n, 
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
-  targetChain: base,
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
 })
 ```
 
@@ -301,8 +301,8 @@ const hash = await client.proveWithdrawal({
   maxFeePerGas: parseGwei('20'),  // [!code focus]
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
-  targetChain: base,
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
 })
 ```
 
@@ -320,8 +320,8 @@ const hash = await client.proveWithdrawal({
   maxPriorityFeePerGas: parseGwei('2'),  // [!code focus]
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
-  targetChain: base,
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
 })
 ```
 
@@ -337,9 +337,9 @@ const hash = await client.proveWithdrawal({
   l2OutputIndex: 4529n,
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
+  withdrawal: { /* ... */ },
   nonce: 69, // [!code focus]
-  targetChain: base,
+  targetChain: optimism,
 })
 ```
 
@@ -356,8 +356,8 @@ const hash = await client.proveWithdrawal({
   gas: 420_000n, 
   outputRootProof: { /* ... */ }, // [!code focus]
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
-  targetChain: base,
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
 })
 ```
 
@@ -376,9 +376,9 @@ const hash = await client.proveWithdrawal({
   l2OutputIndex: 4529n,
   outputRootProof: { /* ... */ },
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
-  targetChain: base,
+  targetChain: optimism,
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
+  withdrawal: { /* ... */ },
 })
 ```
 
@@ -396,8 +396,8 @@ const hash = await client.proveWithdrawal({
   l2OutputIndex: 4529n,
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ },
-  targetChain: base, // [!code focus]
+  withdrawal: { /* ... */ },
+  targetChain: optimism, // [!code focus]
 })
 ```
 
@@ -414,16 +414,16 @@ const hash = await client.proveWithdrawal({
   gas: 420_000n, 
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ], // [!code focus]
-  withdrawalTransaction: { /* ... */ },
-  targetChain: base,
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
 })
 ```
 
-### withdrawalTransaction
+### withdrawal
 
 - **Type:** `bigint`
 
-The withdrawal transaction. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
+The withdrawal. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
 
 ```ts
 const hash = await client.proveWithdrawal({
@@ -432,7 +432,7 @@ const hash = await client.proveWithdrawal({
   gas: 420_000n, 
   outputRootProof: { /* ... */ },
   withdrawalProof: [ /* ... */ ],
-  withdrawalTransaction: { /* ... */ }, // [!code focus]
-  targetChain: base,
+  withdrawal: { /* ... */ }, // [!code focus]
+  targetChain: optimism,
 })
 ```

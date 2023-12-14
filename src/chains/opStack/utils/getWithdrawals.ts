@@ -1,6 +1,6 @@
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Log } from '../../../types/log.js'
-import type { Withdrawal } from '../types/withdrawals.js'
+import type { Withdrawal } from '../types/withdrawal.js'
 import { extractWithdrawalMessageLogs } from './extractWithdrawalMessageLogs.js'
 
 export type GetWithdrawalsParameters = {

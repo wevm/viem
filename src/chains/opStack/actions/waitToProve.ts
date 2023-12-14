@@ -9,7 +9,7 @@ import type {
 } from '../../../types/chain.js'
 import type { Log } from '../../../types/log.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
-import type { Withdrawal } from '../types/withdrawals.js'
+import type { Withdrawal } from '../types/withdrawal.js'
 import {
   type GetWithdrawalsErrorType,
   getWithdrawals,

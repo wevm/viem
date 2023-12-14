@@ -71,6 +71,12 @@ export {
   type EstimateTotalGasReturnType,
 } from './actions/estimateTotalGas.js'
 export {
+  finalizeWithdrawal,
+  type FinalizeWithdrawalErrorType,
+  type FinalizeWithdrawalParameters,
+  type FinalizeWithdrawalReturnType,
+} from './actions/finalizeWithdrawal.js'
+export {
   getL2Output,
   type GetL2OutputErrorType,
   type GetL2OutputParameters,

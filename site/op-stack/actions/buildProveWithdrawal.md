@@ -83,7 +83,7 @@ const request = await publicClientL2.buildProveWithdrawal({
   withdrawal,
 })
  
-const hash = await walletClientL1.proveWithdrawalTransaction(request)
+const hash = await walletClientL1.proveWithdrawal(request)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]

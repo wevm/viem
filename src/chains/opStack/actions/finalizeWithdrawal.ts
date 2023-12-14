@@ -16,13 +16,14 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
-import type { Hash, Hex } from '../../../types/misc.js'
+import type { Hash } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
+import type { Withdrawal } from '../types/withdrawal.js'
 
-export type ProveWithdrawalParameters<
+export type FinalizeWithdrawalParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
@@ -48,75 +49,54 @@ export type ProveWithdrawalParameters<
      * `null` to skip gas estimation & defer calculation to signer.
      */
     gas?: bigint | null
-    l2OutputIndex: bigint
-    outputRootProof: {
-      version: Hex
-      stateRoot: Hex
-      messagePasserStorageRoot: Hex
-      latestBlockhash: Hex
-    }
-    withdrawalProof: readonly Hex[]
-    withdrawal: {
-      data: Hex
-      gasLimit: bigint
-      nonce: bigint
-      sender: Address
-      target: Address
-      value: bigint
-    }
+    withdrawal: Withdrawal
   }
-export type ProveWithdrawalReturnType = Hash
-export type ProveWithdrawalErrorType =
+export type FinalizeWithdrawalReturnType = Hash
+export type FinalizeWithdrawalErrorType =
   | EstimateContractGasErrorType
   | WriteContractErrorType
   | ErrorType
 
 /**
- * Proves a withdrawal that occurred on an L2. Used in the Withdrawal flow.
+ * Finalizes a withdrawal that occurred on an L2. Used in the Withdrawal flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/proveWithdrawal.html
+ * - Docs: https://viem.sh/op-stack/actions/finalizeWithdrawal.html
  *
  * @param client - Client to use
- * @param parameters - {@link ProveWithdrawalParameters}
- * @returns The prove transaction hash. {@link ProveWithdrawalReturnType}
+ * @param parameters - {@link FinalizeWithdrawalParameters}
+ * @returns The finalize transaction hash. {@link FinalizeWithdrawalReturnType}
  *
  * @example
  * import { createWalletClient, http } from 'viem'
  * import { mainnet, optimism } from 'viem/chains'
- * import { proveWithdrawal } from 'viem/op-stack'
+ * import { finalizeWithdrawal } from 'viem/op-stack'
  *
  * const walletClientL1 = createWalletClient({
  *   chain: mainnet,
  *   transport: http(),
  * })
  *
- * const request = await proveWithdrawal(walletClientL1, {
- *   l2OutputIndex: 4529n,
- *   outputRootProof: { ... },
+ * const request = await finalizeWithdrawal(walletClientL1, {
  *   targetChain: optimism,
- *   withdrawalProof: [ ... ],
  *   withdrawal: { ... },
  * })
  */
-export async function proveWithdrawal<
+export async function finalizeWithdrawal<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: ProveWithdrawalParameters<chain, account, chainOverride>,
-): Promise<ProveWithdrawalReturnType> {
+  parameters: FinalizeWithdrawalParameters<chain, account, chainOverride>,
+): Promise<FinalizeWithdrawalReturnType> {
   const {
     account,
     chain = client.chain,
     gas,
-    l2OutputIndex,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-    outputRootProof,
     targetChain,
-    withdrawalProof,
     withdrawal,
   } = parameters
 
@@ -131,8 +111,8 @@ export async function proveWithdrawal<
     abi: portalAbi,
     address: portalAddress,
     chain,
-    functionName: 'proveWithdrawalTransaction',
-    args: [withdrawal, l2OutputIndex, outputRootProof, withdrawalProof],
+    functionName: 'finalizeWithdrawalTransaction',
+    args: [withdrawal],
     gas,
     maxFeePerGas,
     maxPriorityFeePerGas,

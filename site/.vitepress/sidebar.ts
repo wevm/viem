@@ -1046,6 +1046,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/actions/depositTransaction',
         },
         {
+          text: 'finalizeWithdrawal',
+          link: '/op-stack/actions/finalizeWithdrawal',
+        },
+        {
           text: 'proveWithdrawal',
           link: '/op-stack/actions/proveWithdrawal',
         },

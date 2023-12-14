@@ -18,8 +18,10 @@ import { l2ToL1MessagePasserAbi } from '../abis.js'
 import { optimismSepolia } from '../chains.js'
 import { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 import { buildProveWithdrawal } from './buildProveWithdrawal.js'
+import { finalizeWithdrawal } from './finalizeWithdrawal.js'
 import { initiateWithdrawal } from './initiateWithdrawal.js'
 import { proveWithdrawal } from './proveWithdrawal.js'
+import { waitToFinalize } from './waitToFinalize.js'
 import { waitToProve } from './waitToProve.js'
 
 test('default', async () => {
@@ -150,9 +152,6 @@ test.skip('e2e (sepolia)', async () => {
     client_opSepolia,
     withdrawalRequest,
   )
-  expect(withdrawalHash).toBeDefined()
-
-  console.log('l2 hash', withdrawalHash)
 
   const withdrawalReceipt = await waitForTransactionReceipt(client_opSepolia, {
     hash: withdrawalHash,
@@ -168,7 +167,26 @@ test.skip('e2e (sepolia)', async () => {
     withdrawal,
   })
 
-  const hash = await proveWithdrawal(client_sepolia, proveWithdrawalRequest)
+  const proveHash = await proveWithdrawal(
+    client_sepolia,
+    proveWithdrawalRequest,
+  )
 
-  console.log('provehash', hash)
+  await waitForTransactionReceipt(client_sepolia, {
+    hash: proveHash,
+  })
+
+  await waitToFinalize(client_sepolia, {
+    targetChain: client_opSepolia.chain,
+    withdrawalHash: withdrawal.withdrawalHash,
+  })
+
+  const finalizeHash = await finalizeWithdrawal(client_sepolia, {
+    targetChain: client_opSepolia.chain,
+    withdrawal,
+  })
+
+  await waitForTransactionReceipt(client_sepolia, {
+    hash: finalizeHash,
+  })
 }, 600000)

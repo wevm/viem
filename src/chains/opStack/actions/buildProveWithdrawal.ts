@@ -22,7 +22,7 @@ import type {
 } from '../../../types/chain.js'
 import type { Prettify } from '../../../types/utils.js'
 import { contracts } from '../contracts.js'
-import type { Withdrawal } from '../types/withdrawals.js'
+import type { Withdrawal } from '../types/withdrawal.js'
 import {
   type GetWithdrawalHashStorageSlotErrorType,
   getWithdrawalHashStorageSlot,
@@ -59,10 +59,7 @@ export type BuildProveWithdrawalReturnType<
 > = Prettify<
   Pick<
     ProveWithdrawalParameters,
-    | 'l2OutputIndex'
-    | 'outputRootProof'
-    | 'withdrawalProof'
-    | 'withdrawalTransaction'
+    'l2OutputIndex' | 'outputRootProof' | 'withdrawalProof' | 'withdrawal'
   > & {
     account: DeriveAccount<account, accountOverride>
     targetChain: DeriveChain<chain, chainOverride>
@@ -116,7 +113,7 @@ export async function buildProveWithdrawal<
   BuildProveWithdrawalReturnType<chain, account, chainOverride, accountOverride>
 > {
   const { account, chain = client.chain, output, withdrawal } = args
-  const { withdrawalHash, ...withdrawalTransaction } = withdrawal
+  const { withdrawalHash } = withdrawal
   const { l2BlockNumber } = output
 
   const slot = getWithdrawalHashStorageSlot({ withdrawalHash })
@@ -142,7 +139,7 @@ export async function buildProveWithdrawal<
     },
     targetChain: chain,
     withdrawalProof: proof.storageProof[0].proof,
-    withdrawalTransaction,
+    withdrawal,
   } as unknown as BuildProveWithdrawalReturnType<
     chain,
     account,

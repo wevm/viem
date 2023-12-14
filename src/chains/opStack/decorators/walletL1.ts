@@ -8,10 +8,15 @@ import {
   depositTransaction,
 } from '../actions/depositTransaction.js'
 import {
+  type FinalizeWithdrawalParameters,
+  type FinalizeWithdrawalReturnType,
+  finalizeWithdrawal,
+} from '../actions/finalizeWithdrawal.js'
+import {
   type ProveWithdrawalParameters,
   type ProveWithdrawalReturnType,
   proveWithdrawal,
-} from '../index.js'
+} from '../actions/proveWithdrawal.js'
 
 export type WalletActionsL1<
   chain extends Chain | undefined = Chain | undefined,
@@ -75,6 +80,33 @@ export type WalletActionsL1<
     parameters: DepositTransactionParameters<chain, account, chainOverride>,
   ) => Promise<DepositTransactionReturnType>
   /**
+   * Finalizes a withdrawal that occurred on an L2. Used in the Withdrawal flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/finalizeWithdrawal.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link FinalizeWithdrawalParameters}
+   * @returns The finalize transaction hash. {@link FinalizeWithdrawalReturnType}
+   *
+   * @example
+   * import { createWalletClient, http } from 'viem'
+   * import { mainnet, optimism } from 'viem/chains'
+   * import { walletActionsL1 } from 'viem/op-stack'
+   *
+   * const walletClientL1 = createWalletClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(walletActionsL1)
+   *
+   * const request = await walletClientL1.finalizeWithdrawal({
+   *   targetChain: optimism,
+   *   withdrawal: { ... },
+   * })
+   */
+  finalizeWithdrawal: <chainOverride extends Chain | undefined = undefined>(
+    parameters: FinalizeWithdrawalParameters<chain, account, chainOverride>,
+  ) => Promise<FinalizeWithdrawalReturnType>
+  /**
    * Proves a withdrawal that occurred on an L2. Used in the Withdrawal flow.
    *
    * - Docs: https://viem.sh/op-stack/actions/proveWithdrawal.html
@@ -85,17 +117,18 @@ export type WalletActionsL1<
    *
    * @example
    * import { createWalletClient, http } from 'viem'
-   * import { optimism } from 'viem/chains'
+   * import { mainnet, optimism } from 'viem/chains'
    * import { walletActionsL1 } from 'viem/op-stack'
    *
    * const walletClientL1 = createWalletClient({
-   *   chain: optimism,
+   *   chain: mainnet,
    *   transport: http(),
    * }).extend(walletActionsL1())
    *
    * const request = await walletClientL1.proveWithdrawal({
    *   l2OutputIndex: 4529n,
    *   outputRootProof: { ... },
+   *   targetChain: optimism,
    *   withdrawalProof: [ ... ],
    *   withdrawalTransaction: { ... },
    * })
@@ -115,6 +148,7 @@ export function walletActionsL1() {
   ): WalletActionsL1<TChain, TAccount> => {
     return {
       depositTransaction: (args) => depositTransaction(client, args),
+      finalizeWithdrawal: (args) => finalizeWithdrawal(client, args),
       proveWithdrawal: (args) => proveWithdrawal(client, args),
     }
   }
