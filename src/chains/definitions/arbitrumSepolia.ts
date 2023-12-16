@@ -11,8 +11,8 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     alchemy: {
-      http: ["https://arb-sepolia.g.alchemy.com/v2"],
-      webSocket: ["wss://arb-sepolia.g.alchemy.com/v2"],
+      http: ['https://arb-sepolia.g.alchemy.com/v2'],
+      webSocket: ['wss://arb-sepolia.g.alchemy.com/v2'],
     },
     default: {
       http: ['https://sepolia-rollup.arbitrum.io/rpc'],
