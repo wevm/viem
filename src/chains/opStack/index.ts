@@ -113,11 +113,11 @@ export {
   type ProveWithdrawalReturnType,
 } from './actions/proveWithdrawal.js'
 export {
-  waitForL2Output,
-  type WaitForL2OutputErrorType,
-  type WaitForL2OutputParameters,
-  type WaitForL2OutputReturnType,
-} from './actions/waitForL2Output.js'
+  waitForNextL2Output,
+  type WaitForNextL2OutputErrorType,
+  type WaitForNextL2OutputParameters,
+  type WaitForNextL2OutputReturnType,
+} from './actions/waitForNextL2Output.js'
 export {
   waitToFinalize,
   type WaitToFinalizeErrorType,

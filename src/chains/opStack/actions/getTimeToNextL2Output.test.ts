@@ -1,20 +1,16 @@
-import { expect, test } from 'vitest'
-import { publicClientMainnet } from '../../../../test/src/utils.js'
-import { http, createPublicClient } from '../../../index.js'
+import { beforeAll, expect, test, vi } from 'vitest'
+import { publicClient, setBlockNumber } from '../../../../test/src/utils.js'
 import { optimism } from '../chains.js'
 import { getTimeToNextL2Output } from './getTimeToNextL2Output.js'
 
-const l2Client = createPublicClient({
-  chain: optimism,
-  transport: http(),
+beforeAll(async () => {
+  await setBlockNumber(18772363n)
 })
 
 test('default', async () => {
-  const l2BlockNumber = await l2Client.getBlockNumber()
   const { interval, seconds, timestamp } = await getTimeToNextL2Output(
-    publicClientMainnet,
+    publicClient,
     {
-      l2BlockNumber,
       targetChain: optimism,
     },
   )
@@ -23,54 +19,72 @@ test('default', async () => {
   expect(timestamp).toBeDefined()
 })
 
-test('nextBlockNumber < l2BlockNumber', async () => {
-  const l2BlockNumber = await l2Client.getBlockNumber()
-  const { seconds, timestamp } = await getTimeToNextL2Output(
-    publicClientMainnet,
-    {
-      l2BlockNumber: l2BlockNumber + 9999n,
-      targetChain: optimism,
-    },
-  )
-  expect(seconds).toBeDefined()
-  expect(timestamp).toBeDefined()
+test('Date.now < latestOutputTimestamp', async () => {
+  vi.setSystemTime(new Date(1702399191000))
+  const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    targetChain: optimism,
+  })
+  vi.useRealTimers()
+  expect(seconds).toBe(0)
+  expect(timestamp).toBe(undefined)
 })
 
-test('l2BlockNumber < latestBlockNumber', async () => {
-  const { seconds, timestamp } = await getTimeToNextL2Output(
-    publicClientMainnet,
-    {
-      l2BlockNumber: 69420n,
-      targetChain: optimism,
-    },
-  )
-  expect(seconds).toBeDefined()
-  expect(timestamp).toBeDefined()
+test('elapsedBlocks < blockInterval (no l2BlockNumber)', async () => {
+  vi.setSystemTime(new Date(1702412427000))
+  const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    targetChain: optimism,
+  })
+  vi.useRealTimers()
+  expect(seconds).toBe(1700)
+  expect(timestamp).toBe(1702414127000)
+})
+
+test('elapsedBlocks < blockInterval (w/ l2BlockNumber)', async () => {
+  vi.setSystemTime(new Date(1702412427000))
+  const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    l2BlockNumber: 113405763n,
+    targetChain: optimism,
+  })
+  vi.useRealTimers()
+  expect(seconds).toBe(1700)
+  expect(timestamp).toBe(1702414127000)
+})
+
+test('elapsedBlocks > blockInterval (w/ l2BlockNumber)', async () => {
+  vi.setSystemTime(new Date(1702412427000))
+  const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    l2BlockNumber: 113409263n,
+    targetChain: optimism,
+  })
+  vi.useRealTimers()
+  expect(seconds).toBe(8900)
+  expect(timestamp).toBe(1702421327000)
+})
+
+test('l2BlockNumber < latestOutput.blockNumber (no l2BlockNumber)', async () => {
+  vi.setSystemTime(new Date(1702412427000))
+  const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    l2BlockNumber: 113400763n,
+    targetChain: optimism,
+  })
+  vi.useRealTimers()
+  expect(seconds).toBe(0)
+  expect(timestamp).toBe(undefined)
 })
 
 test('args: chain', async () => {
-  const l2BlockNumber = await l2Client.getBlockNumber()
-  const { seconds, timestamp } = await getTimeToNextL2Output(
-    publicClientMainnet,
-    {
-      chain: null,
-      l2BlockNumber,
-      targetChain: optimism,
-    },
-  )
+  const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    chain: null,
+    targetChain: optimism,
+  })
   expect(seconds).toBeDefined()
   expect(timestamp).toBeDefined()
 })
 
 test('args: l2OutputOracleAddress', async () => {
-  const l2BlockNumber = await l2Client.getBlockNumber()
-  const { seconds, timestamp } = await getTimeToNextL2Output(
-    publicClientMainnet,
-    {
-      l2BlockNumber,
-      l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27',
-    },
-  )
+  const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27',
+  })
   expect(seconds).toBeDefined()
   expect(timestamp).toBeDefined()
 })

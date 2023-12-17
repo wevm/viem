@@ -20,7 +20,7 @@ import {
   getTimeToNextL2Output,
 } from './getTimeToNextL2Output.js'
 
-export type WaitForL2OutputParameters<
+export type WaitForNextL2OutputParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
@@ -33,8 +33,8 @@ export type WaitForL2OutputParameters<
      */
     pollingInterval?: number
   }
-export type WaitForL2OutputReturnType = GetL2OutputReturnType
-export type WaitForL2OutputErrorType =
+export type WaitForNextL2OutputReturnType = GetL2OutputReturnType
+export type WaitForNextL2OutputErrorType =
   | GetL2OutputErrorType
   | GetTimeToNextL2OutputErrorType
   | ErrorType
@@ -42,17 +42,17 @@ export type WaitForL2OutputErrorType =
 /**
  * Waits for the next L2 output (after the provided block number) to be submitted.
  *
- * - Docs: https://viem.sh/op-stack/actions/waitForL2Output.html
+ * - Docs: https://viem.sh/op-stack/actions/waitForNextL2Output.html
  *
  * @param client - Client to use
- * @param parameters - {@link WaitForL2OutputParameters}
- * @returns The L2 transaction hash. {@link WaitForL2OutputReturnType}
+ * @param parameters - {@link WaitForNextL2OutputParameters}
+ * @returns The L2 transaction hash. {@link WaitForNextL2OutputReturnType}
  *
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { getBlockNumber } from 'viem/actions'
  * import { mainnet, optimism } from 'viem/chains'
- * import { waitForL2Output } from 'viem/op-stack'
+ * import { waitForNextL2Output } from 'viem/op-stack'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,
@@ -64,19 +64,19 @@ export type WaitForL2OutputErrorType =
  * })
  *
  * const l2BlockNumber = await getBlockNumber(publicClientL2)
- * await waitForL2Output(publicClientL1, {
+ * await waitForNextL2Output(publicClientL1, {
  *   l2BlockNumber,
  *   targetChain: optimism
  * })
  */
-export async function waitForL2Output<
+export async function waitForNextL2Output<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: WaitForL2OutputParameters<chain, chainOverride>,
-): Promise<WaitForL2OutputReturnType> {
+  parameters: WaitForNextL2OutputParameters<chain, chainOverride>,
+): Promise<WaitForNextL2OutputReturnType> {
   const { pollingInterval = client.pollingInterval } = parameters
 
   const { seconds } = await getTimeToNextL2Output(client, parameters)

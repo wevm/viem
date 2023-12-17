@@ -3,7 +3,7 @@ outline: deep
 head:
   - - meta
     - property: og:title
-      content: waitForL2Output
+      content: waitForNextL2Output
   - - meta
     - name: description
       content: Waits for the next L2 output (after the provided block number) to be submitted. 
@@ -12,7 +12,7 @@ head:
       content: Waits for the next L2 output (after the provided block number) to be submitted. 
 ---
 
-# waitForL2Output
+# waitForNextL2Output
 
 Waits for the next L2 output (after the provided block number) to be submitted. Used within the [waitToProve](/op-stack/actions/waitToProve) Action.
 
@@ -26,7 +26,7 @@ Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Outp
 import { account, publicClientL1, publicClientL2 } from './config'
 
 const l2BlockNumber = await publicClientL2.getBlockNumber()
-const output = await publicClientL1.waitForL2Output({ // [!code hl]
+const output = await publicClientL1.waitForNextL2Output({ // [!code hl]
   l2BlockNumber, // [!code hl]
   targetChain: publicClientL2.chain, // [!code hl]
 }) // [!code hl]
@@ -51,7 +51,7 @@ export const publicClientL2 = createPublicClient({
 
 ## Returns
 
-`WaitForL2OutputReturnType`
+`WaitForNextL2OutputReturnType`
 
 The L2 output proposal.
 
@@ -64,7 +64,7 @@ The L2 output proposal.
 The L2 block number.
 
 ```ts
-const output = await publicClientL1.waitForL2Output({ 
+const output = await publicClientL1.waitForNextL2Output({ 
   l2BlockNumber: 69420n, // [!code focus]
   targetChain: optimism, 
 }) 
@@ -77,7 +77,7 @@ const output = await publicClientL1.waitForL2Output({
 The L2 chain.
 
 ```ts
-const output = await publicClientL1.waitForL2Output({
+const output = await publicClientL1.waitForNextL2Output({
   l2BlockNumber,
   targetChain: optimism, // [!code focus]
 })
@@ -93,7 +93,7 @@ The address of the [L2 Output Oracle contract](https://github.com/ethereum-optim
 If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const output = await publicClientL1.waitForL2Output({
+const output = await publicClientL1.waitForNextL2Output({
   l2BlockNumber,
   l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })

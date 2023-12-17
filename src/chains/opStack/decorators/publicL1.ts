@@ -29,10 +29,10 @@ import {
   getTimeToProve,
 } from '../actions/getTimeToProve.js'
 import {
-  type WaitForL2OutputParameters,
-  type WaitForL2OutputReturnType,
-  waitForL2Output,
-} from '../actions/waitForL2Output.js'
+  type WaitForNextL2OutputParameters,
+  type WaitForNextL2OutputReturnType,
+  waitForNextL2Output,
+} from '../actions/waitForNextL2Output.js'
 import {
   type WaitToFinalizeParameters,
   type WaitToFinalizeReturnType,
@@ -222,11 +222,11 @@ export type PublicActionsL1<
   /**
    * Waits for the next L2 output (after the provided block number) to be submitted.
    *
-   * - Docs: https://viem.sh/op-stack/actions/waitForL2Output.html
+   * - Docs: https://viem.sh/op-stack/actions/waitForNextL2Output.html
    *
    * @param client - Client to use
-   * @param parameters - {@link WaitForL2OutputParameters}
-   * @returns The L2 transaction hash. {@link WaitForL2OutputReturnType}
+   * @param parameters - {@link WaitForNextL2OutputParameters}
+   * @returns The L2 transaction hash. {@link WaitForNextL2OutputReturnType}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
@@ -243,14 +243,14 @@ export type PublicActionsL1<
    * })
    *
    * const l2BlockNumber = await getBlockNumber(publicClientL2)
-   * await waitForL2Output(publicClientL1, {
+   * await waitForNextL2Output(publicClientL1, {
    *   l2BlockNumber,
    *   targetChain: optimism
    * })
    */
-  waitForL2Output: <chainOverride extends Chain | undefined = undefined>(
-    parameters: WaitForL2OutputParameters<chain, chainOverride>,
-  ) => Promise<WaitForL2OutputReturnType>
+  waitForNextL2Output: <chainOverride extends Chain | undefined = undefined>(
+    parameters: WaitForNextL2OutputParameters<chain, chainOverride>,
+  ) => Promise<WaitForNextL2OutputReturnType>
   /**
    * Waits until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
    *
@@ -337,7 +337,7 @@ export function publicActionsL1() {
       getTimeToFinalize: (args) => getTimeToFinalize(client, args),
       getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),
       getTimeToProve: (args) => getTimeToProve(client, args),
-      waitForL2Output: (args) => waitForL2Output(client, args),
+      waitForNextL2Output: (args) => waitForNextL2Output(client, args),
       waitToFinalize: (args) => waitToFinalize(client, args),
       waitToProve: (args) => waitToProve(client, args),
     }

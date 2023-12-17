@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { http, createPublicClient } from '../../../index.js'
 import { sepolia } from '../../index.js'
 import { optimismSepolia } from '../chains.js'
-import { waitForL2Output } from './waitForL2Output.js'
+import { waitForNextL2Output } from './waitForNextL2Output.js'
 
 const client_sepolia = createPublicClient({
   chain: sepolia,
@@ -14,7 +14,7 @@ const client_opSepolia = createPublicClient({
 })
 
 test('default', async () => {
-  const output = await waitForL2Output(client_sepolia, {
+  const output = await waitForNextL2Output(client_sepolia, {
     l2BlockNumber: 5270108n,
     targetChain: client_opSepolia.chain,
   })
@@ -30,7 +30,7 @@ test('default', async () => {
 
 test('error: other', async () => {
   await expect(() =>
-    waitForL2Output(client_sepolia, {
+    waitForNextL2Output(client_sepolia, {
       l2BlockNumber: -1n,
       targetChain: client_opSepolia.chain,
     }),

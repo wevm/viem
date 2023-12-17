@@ -1,3 +1,4 @@
+import { readContract } from '../../../actions/index.js'
 import {
   type MulticallErrorType,
   multicall,
@@ -25,15 +26,21 @@ export type GetTimeToNextL2OutputParameters<
 export type GetTimeToNextL2OutputReturnType = {
   /** The interval (in seconds) between L2 outputs. */
   interval: number
-  /** Seconds until the next L2 output. */
+  /**
+   * Seconds until the next L2 output.
+   * `0` if the next L2 output has already been submitted.
+   */
   seconds: number
-  /** Estimated timestamp of the next L2 output. */
-  timestamp: number
+  /**
+   * Estimated timestamp of the next L2 output.
+   * `undefined` if the next L2 output has already been submitted.
+   */
+  timestamp?: number
 }
 export type GetTimeToNextL2OutputErrorType = MulticallErrorType | ErrorType
 
 /**
- * Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+ * Returns the time until the next L2 output (after the provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
  *
  * - Docs: https://viem.sh/op-stack/actions/getTimeToNextL2Output.html
  *
@@ -56,9 +63,7 @@ export type GetTimeToNextL2OutputErrorType = MulticallErrorType | ErrorType
  *   transport: http(),
  * })
  *
- * const l2BlockNumber = await getBlockNumber(publicClientL2)
  * const { seconds } = await getTimeToNextL2Output(publicClientL1, {
- *   l2BlockNumber,
  *   targetChain: optimism
  * })
  */
@@ -79,19 +84,15 @@ export async function getTimeToNextL2Output<
     return Object.values(targetChain!.contracts.l2OutputOracle)[0].address
   })()
 
-  const [nextBlockNumber, latestBlockNumber, blockTime, interval] =
-    await multicall(client, {
+  const [latestOutputIndex, blockTime, blockInterval] = await multicall(
+    client,
+    {
       allowFailure: false,
       contracts: [
         {
           abi: l2OutputOracleAbi,
           address: l2OutputOracleAddress,
-          functionName: 'nextBlockNumber',
-        },
-        {
-          abi: l2OutputOracleAbi,
-          address: l2OutputOracleAddress,
-          functionName: 'latestBlockNumber',
+          functionName: 'latestOutputIndex',
         },
         {
           abi: l2OutputOracleAbi,
@@ -104,21 +105,40 @@ export async function getTimeToNextL2Output<
           functionName: 'SUBMISSION_INTERVAL',
         },
       ],
-    })
+    },
+  )
+  const latestOutput = await readContract(client, {
+    abi: l2OutputOracleAbi,
+    address: l2OutputOracleAddress,
+    functionName: 'getL2Output',
+    args: [latestOutputIndex],
+  })
+  const latestOutputTimestamp = Number(latestOutput.timestamp) * 1000
+
+  const interval = Number(blockInterval * blockTime)
+
+  const now = Date.now()
 
   const seconds = (() => {
-    // If the latest block number is greater than the provided block number,
-    // we assume that the output for that block has already been submitted.
-    if (latestBlockNumber > l2BlockNumber) return 0
+    // If the current timestamp is lesser than the latest L2 output timestamp,
+    // then we assume that the L2 output has already been submitted.
+    if (now < latestOutputTimestamp) return 0
 
-    // If the next block number is lesser than the provided block number, we will
-    // assume the block has already been submitted
-    if (nextBlockNumber < l2BlockNumber) return 0
+    // If the latest L2 output block is newer than the provided L2 block number,
+    // then we assume that the L2 output has already been submitted.
+    if (latestOutput.l2BlockNumber > l2BlockNumber) return 0
 
-    return Number((nextBlockNumber - l2BlockNumber) * blockTime)
+    const elapsedBlocks = Number(l2BlockNumber - latestOutput.l2BlockNumber)
+
+    const elapsed = Math.ceil((now - latestOutputTimestamp) / 1000)
+    const secondsToNextOutput = interval - (elapsed % interval)
+    return elapsedBlocks < blockInterval
+      ? secondsToNextOutput
+      : Math.floor(elapsedBlocks / Number(blockInterval)) * interval +
+          secondsToNextOutput
   })()
 
-  const timestamp = Date.now() + seconds * 1000
+  const timestamp = seconds > 0 ? now + seconds * 1000 : undefined
 
-  return { interval: Number(interval * blockTime), seconds, timestamp }
+  return { interval, seconds, timestamp }
 }

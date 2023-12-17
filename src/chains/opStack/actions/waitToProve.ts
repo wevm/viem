@@ -15,10 +15,10 @@ import {
   getWithdrawals,
 } from '../utils/getWithdrawals.js'
 import {
-  type WaitForL2OutputErrorType,
-  type WaitForL2OutputReturnType,
-  waitForL2Output,
-} from './waitForL2Output.js'
+  type WaitForNextL2OutputErrorType,
+  type WaitForNextL2OutputReturnType,
+  waitForNextL2Output,
+} from './waitForNextL2Output.js'
 
 export type WaitToProveParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -38,11 +38,11 @@ export type WaitToProveParameters<
   }
 export type WaitToProveReturnType = {
   withdrawal: Withdrawal
-  output: WaitForL2OutputReturnType
+  output: WaitForNextL2OutputReturnType
 }
 export type WaitToProveErrorType =
   | GetWithdrawalsErrorType
-  | WaitForL2OutputErrorType
+  | WaitForNextL2OutputErrorType
   | ErrorType
 
 /**
@@ -87,7 +87,7 @@ export async function waitToProve<
 
   const [withdrawal] = getWithdrawals(receipt)
 
-  const output = await waitForL2Output(client, {
+  const output = await waitForNextL2Output(client, {
     ...parameters,
     l2BlockNumber: receipt.blockNumber,
   })

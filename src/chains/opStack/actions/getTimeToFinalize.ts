@@ -33,6 +33,8 @@ export type GetTimeToFinalizeReturnType = {
 }
 export type GetTimeToFinalizeErrorType = MulticallErrorType | ErrorType
 
+const buffer = 10
+
 /**
  * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
  *
@@ -111,7 +113,9 @@ export async function getTimeToFinalize<
   const secondsSinceProven = Date.now() / 1000 - Number(proveTimestamp)
   const secondsToFinalize = Number(period) - secondsSinceProven
 
-  const seconds = Math.floor(secondsToFinalize < 0 ? 0 : secondsToFinalize)
+  const seconds = Math.floor(
+    secondsToFinalize < 0 ? 0 : secondsToFinalize + buffer,
+  )
   const timestamp = Date.now() + seconds * 1000
 
   return { period: Number(period), seconds, timestamp }

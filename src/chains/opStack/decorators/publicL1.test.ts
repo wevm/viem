@@ -21,7 +21,7 @@ test('default', async () => {
       "getTimeToFinalize": [Function],
       "getTimeToNextL2Output": [Function],
       "getTimeToProve": [Function],
-      "waitForL2Output": [Function],
+      "waitForNextL2Output": [Function],
       "waitToFinalize": [Function],
       "waitToProve": [Function],
     }
@@ -55,8 +55,8 @@ describe('smoke test', () => {
     expect(request).toBeDefined()
   })
 
-  test('waitForL2Output', async () => {
-    const request = await client.waitForL2Output({
+  test('waitForNextL2Output', async () => {
+    const request = await client.waitForNextL2Output({
       l2BlockNumber: 113365018n,
       targetChain: optimism,
     })
