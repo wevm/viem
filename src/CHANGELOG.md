@@ -1,5 +1,13 @@
 # viem
 
+## 1.20.1
+
+### Patch Changes
+
+- [#1570](https://github.com/wevm/viem/pull/1570) [`cbd24e84`](https://github.com/wevm/viem/commit/cbd24e8436da4eb0a0526657ebb9f3175d0c10bd) Thanks [@crackcodesprogramloads](https://github.com/crackcodesprogramloads)! - Added optional alchemy rpcUrls for arbitrumSepolia
+
+- [#1592](https://github.com/wevm/viem/pull/1592) [`482ca63e`](https://github.com/wevm/viem/commit/482ca63eb2c56705ca6c96b766fa98286339091c) Thanks [@roninjin10](https://github.com/roninjin10)! - Added `eth_blobGasFee` type.
+
 ## 1.20.0
 
 ### Minor Changes
