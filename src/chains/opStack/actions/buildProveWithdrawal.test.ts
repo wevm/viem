@@ -29,7 +29,7 @@ test('default', async () => {
   const request = await buildProveWithdrawal(optimismClient, {
     account: accounts[0].address,
     output,
-    withdrawal,
+    withdrawal: withdrawal!,
   })
   const { targetChain, ...rest } = request
   expect(targetChain).toEqual(optimismClient.chain)

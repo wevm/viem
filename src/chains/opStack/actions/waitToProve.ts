@@ -7,7 +7,8 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
-import type { Log } from '../../../types/log.js'
+import type { TransactionReceipt } from '../../../types/transaction.js'
+import { ReceiptContainsNoWithdrawalsError } from '../errors/withdrawal.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
@@ -26,10 +27,7 @@ export type WaitToProveParameters<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
   GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
-    receipt: {
-      blockNumber: bigint
-      logs: Log[]
-    }
+    receipt: TransactionReceipt
     /**
      * Polling frequency (in ms). Defaults to Client's pollingInterval config.
      * @default client.pollingInterval
@@ -86,6 +84,11 @@ export async function waitToProve<
   const { receipt } = parameters
 
   const [withdrawal] = getWithdrawals(receipt)
+
+  if (!withdrawal)
+    throw new ReceiptContainsNoWithdrawalsError({
+      hash: receipt.transactionHash,
+    })
 
   const output = await waitForNextL2Output(client, {
     ...parameters,

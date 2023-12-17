@@ -38,8 +38,8 @@ test('elapsedBlocks > blockInterval (w/ l2BlockNumber)', async () => {
     targetChain: optimism,
   })
   vi.useRealTimers()
-  expect(seconds).toBe(8900)
-  expect(timestamp).toBe(1702421327000)
+  expect(seconds).toBe(9983)
+  expect(timestamp).toBe(1702422410000)
 })
 
 test('l2BlockNumber < latestOutput.blockNumber (no l2BlockNumber)', async () => {

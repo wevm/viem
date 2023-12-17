@@ -91,6 +91,21 @@ const { seconds } = await publicClientL1.getTimeToNextL2Output({
 })
 ```
 
+### intervalBuffer (optional)
+
+- **Type:** `number`
+- **Default:** `1.1`
+
+The buffer to account for discrepencies between non-deterministic time intervals.
+
+```ts
+const { seconds } = await publicClientL1.getTimeToNextL2Output({ 
+  intervalBuffer: 1.2, // [!code focus]
+  l2BlockNumber,
+  targetChain: optimism, 
+}) 
+```
+
 ### l2OutputOracleAddress (optional)
 
 - **Type:** `Address`

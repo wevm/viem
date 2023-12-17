@@ -101,6 +101,12 @@ export {
   type GetTimeToProveReturnType,
 } from './actions/getTimeToProve.js'
 export {
+  getWithdrawalStatus,
+  type GetWithdrawalStatusErrorType,
+  type GetWithdrawalStatusParameters,
+  type GetWithdrawalStatusReturnType,
+} from './actions/getWithdrawalStatus.js'
+export {
   initiateWithdrawal,
   type InitiateWithdrawalErrorType,
   type InitiateWithdrawalParameters,

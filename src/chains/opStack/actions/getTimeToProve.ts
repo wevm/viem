@@ -7,10 +7,11 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
-import type { Log } from '../../../types/log.js'
+import type { TransactionReceipt } from '../../../types/transaction.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
   type GetTimeToNextL2OutputErrorType,
+  type GetTimeToNextL2OutputParameters,
   type GetTimeToNextL2OutputReturnType,
   getTimeToNextL2Output,
 } from './getTimeToNextL2Output.js'
@@ -21,10 +22,12 @@ export type GetTimeToProveParameters<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
   GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
-    receipt: {
-      blockNumber: bigint
-      logs: Log[]
-    }
+    /**
+     * The buffer to account for discrepencies between non-deterministic time intervals.
+     * @default 1.1
+     */
+    intervalBuffer?: GetTimeToNextL2OutputParameters['intervalBuffer']
+    receipt: TransactionReceipt
   }
 export type GetTimeToProveReturnType = GetTimeToNextL2OutputReturnType
 export type GetTimeToProveErrorType = GetTimeToNextL2OutputErrorType | ErrorType

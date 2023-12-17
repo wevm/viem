@@ -21,6 +21,7 @@ test('default', async () => {
       "getTimeToFinalize": [Function],
       "getTimeToNextL2Output": [Function],
       "getTimeToProve": [Function],
+      "getWithdrawalStatus": [Function],
       "waitForNextL2Output": [Function],
       "waitToFinalize": [Function],
       "waitToProve": [Function],
@@ -55,6 +56,16 @@ describe('smoke test', () => {
     expect(request).toBeDefined()
   })
 
+  test('getWithdrawalStatus', async () => {
+    const receipt = await l2Client.getTransactionReceipt({
+      hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
+    })
+    await client.getWithdrawalStatus({
+      receipt,
+      targetChain: optimism,
+    })
+  })
+
   test('waitForNextL2Output', async () => {
     const request = await client.waitForNextL2Output({
       l2BlockNumber: 113365018n,
@@ -69,7 +80,7 @@ describe('smoke test', () => {
     })
     const [withdrawal] = getWithdrawals(receipt)
     await client.waitToFinalize({
-      withdrawalHash: withdrawal.withdrawalHash,
+      withdrawalHash: withdrawal!.withdrawalHash,
       targetChain: optimism,
     })
   })

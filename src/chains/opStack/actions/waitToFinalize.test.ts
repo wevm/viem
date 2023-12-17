@@ -19,12 +19,12 @@ test('default', async () => {
   vi.setSystemTime(new Date(1702993989000))
 
   await waitToFinalize(publicClient, {
-    ...withdrawal,
+    ...withdrawal!,
     targetChain: optimism,
   })
 
   vi.useRealTimers()
-})
+}, 20000)
 
 test('ready to finalize', async () => {
   const receipt = await getTransactionReceipt(optimismClient, {
@@ -36,9 +36,9 @@ test('ready to finalize', async () => {
   vi.setSystemTime(new Date(1702993991000))
 
   await waitToFinalize(publicClient, {
-    ...withdrawal,
+    ...withdrawal!,
     targetChain: optimism,
   })
 
   vi.useRealTimers()
-})
+}, 20000)

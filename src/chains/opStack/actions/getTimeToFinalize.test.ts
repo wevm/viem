@@ -19,7 +19,7 @@ test('default', async () => {
   vi.setSystemTime(new Date(1702399191000))
 
   const time = await getTimeToFinalize(publicClient, {
-    ...withdrawal,
+    ...withdrawal!,
     targetChain: optimism,
   })
 
@@ -28,8 +28,8 @@ test('default', async () => {
   expect(time).toMatchInlineSnapshot(`
     {
       "period": 604800,
-      "seconds": 594800,
-      "timestamp": 1702993991000,
+      "seconds": 594810,
+      "timestamp": 1702994001000,
     }
   `)
 })
@@ -44,7 +44,7 @@ test('ready to finalize', async () => {
   vi.setSystemTime(new Date(1702994990587))
 
   const time = await getTimeToFinalize(publicClient, {
-    ...withdrawal,
+    ...withdrawal!,
     targetChain: optimism,
   })
 

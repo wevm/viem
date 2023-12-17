@@ -17,6 +17,7 @@ import {
 } from './getL2Output.js'
 import {
   type GetTimeToNextL2OutputErrorType,
+  type GetTimeToNextL2OutputParameters,
   getTimeToNextL2Output,
 } from './getTimeToNextL2Output.js'
 
@@ -26,6 +27,11 @@ export type WaitForNextL2OutputParameters<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
   GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
+    /**
+     * The buffer to account for discrepencies between non-deterministic time intervals.
+     * @default 1.1
+     */
+    intervalBuffer?: GetTimeToNextL2OutputParameters['intervalBuffer']
     l2BlockNumber: bigint
     /**
      * Polling frequency (in ms). Defaults to Client's pollingInterval config.

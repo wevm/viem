@@ -21,6 +21,11 @@ export type GetTimeToNextL2OutputParameters<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
   GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
+    /**
+     * The buffer to account for discrepencies between non-deterministic time intervals.
+     * @default 1.1
+     */
+    intervalBuffer?: number
     l2BlockNumber: bigint
   }
 export type GetTimeToNextL2OutputReturnType = {
@@ -75,7 +80,12 @@ export async function getTimeToNextL2Output<
   client: Client<Transport, chain, account>,
   parameters: GetTimeToNextL2OutputParameters<chain, chainOverride>,
 ): Promise<GetTimeToNextL2OutputReturnType> {
-  const { chain = client.chain, l2BlockNumber, targetChain } = parameters
+  const {
+    intervalBuffer = 1.1,
+    chain = client.chain,
+    l2BlockNumber,
+    targetChain,
+  } = parameters
 
   const l2OutputOracleAddress = (() => {
     if (parameters.l2OutputOracleAddress)
@@ -116,6 +126,7 @@ export async function getTimeToNextL2Output<
   const latestOutputTimestamp = Number(latestOutput.timestamp) * 1000
 
   const interval = Number(blockInterval * blockTime)
+  const intervalWithBuffer = Math.ceil(interval * intervalBuffer)
 
   const now = Date.now()
 
@@ -131,10 +142,11 @@ export async function getTimeToNextL2Output<
     const elapsedBlocks = Number(l2BlockNumber - latestOutput.l2BlockNumber)
 
     const elapsed = Math.ceil((now - latestOutputTimestamp) / 1000)
-    const secondsToNextOutput = interval - (elapsed % interval)
+    const secondsToNextOutput =
+      intervalWithBuffer - (elapsed % intervalWithBuffer)
     return elapsedBlocks < blockInterval
       ? secondsToNextOutput
-      : Math.floor(elapsedBlocks / Number(blockInterval)) * interval +
+      : Math.floor(elapsedBlocks / Number(blockInterval)) * intervalWithBuffer +
           secondsToNextOutput
   })()
 

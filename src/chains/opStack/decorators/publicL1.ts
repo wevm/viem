@@ -29,6 +29,11 @@ import {
   getTimeToProve,
 } from '../actions/getTimeToProve.js'
 import {
+  type GetWithdrawalStatusParameters,
+  type GetWithdrawalStatusReturnType,
+  getWithdrawalStatus,
+} from '../actions/getWithdrawalStatus.js'
+import {
   type WaitForNextL2OutputParameters,
   type WaitForNextL2OutputReturnType,
   waitForNextL2Output,
@@ -220,6 +225,39 @@ export type PublicActionsL1<
     parameters: GetTimeToProveParameters<chain, chainOverride>,
   ) => Promise<GetTimeToProveReturnType>
   /**
+   * Returns the current status of a withdrawal. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/getWithdrawalStatus.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetWithdrawalStatusParameters}
+   * @returns Status of the withdrawal. {@link GetWithdrawalStatusReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { getBlockNumber } from 'viem/actions'
+   * import { mainnet, optimism } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/op-stack'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   * const publicClientL2 = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * })
+   *
+   * const receipt = await publicClientL2.getTransactionReceipt({ hash: '0x...' })
+   * const status = await publicClientL1.getWithdrawalStatus({
+   *   receipt,
+   *   targetChain: optimism
+   * })
+   */
+  getWithdrawalStatus: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetWithdrawalStatusParameters<chain, chainOverride>,
+  ) => Promise<GetWithdrawalStatusReturnType>
+  /**
    * Waits for the next L2 output (after the provided block number) to be submitted.
    *
    * - Docs: https://viem.sh/op-stack/actions/waitForNextL2Output.html
@@ -337,6 +375,7 @@ export function publicActionsL1() {
       getTimeToFinalize: (args) => getTimeToFinalize(client, args),
       getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),
       getTimeToProve: (args) => getTimeToProve(client, args),
+      getWithdrawalStatus: (args) => getWithdrawalStatus(client, args),
       waitForNextL2Output: (args) => waitForNextL2Output(client, args),
       waitToFinalize: (args) => waitToFinalize(client, args),
       waitToProve: (args) => waitToProve(client, args),

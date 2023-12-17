@@ -1029,6 +1029,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/actions/getTimeToProve',
         },
         {
+          text: 'getWithdrawalStatus',
+          link: '/op-stack/actions/getWithdrawalStatus',
+        },
+        {
           text: 'waitForNextL2Output',
           link: '/op-stack/actions/waitForNextL2Output',
         },
