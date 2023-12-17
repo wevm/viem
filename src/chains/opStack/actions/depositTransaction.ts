@@ -2,7 +2,7 @@ import type { Address } from 'abitype'
 import {
   type EstimateContractGasErrorType,
   estimateContractGas,
-} from '../../../actions/index.js'
+} from '../../../actions/public/estimateContractGas.js'
 import {
   type WriteContractErrorType,
   writeContract,

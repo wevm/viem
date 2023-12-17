@@ -1,8 +1,11 @@
-import { readContract } from '../../../actions/index.js'
 import {
   type MulticallErrorType,
   multicall,
 } from '../../../actions/public/multicall.js'
+import {
+  type ReadContractErrorType,
+  readContract,
+} from '../../../actions/public/readContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
@@ -42,7 +45,10 @@ export type GetTimeToNextL2OutputReturnType = {
    */
   timestamp?: number
 }
-export type GetTimeToNextL2OutputErrorType = MulticallErrorType | ErrorType
+export type GetTimeToNextL2OutputErrorType =
+  | MulticallErrorType
+  | ReadContractErrorType
+  | ErrorType
 
 /**
  * Returns the time until the next L2 output (after the provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
