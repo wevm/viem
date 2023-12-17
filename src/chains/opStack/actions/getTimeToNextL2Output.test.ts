@@ -11,6 +11,7 @@ test('default', async () => {
   const { interval, seconds, timestamp } = await getTimeToNextL2Output(
     publicClient,
     {
+      l2BlockNumber: 113405763n,
       targetChain: optimism,
     },
   )
@@ -22,32 +23,12 @@ test('default', async () => {
 test('Date.now < latestOutputTimestamp', async () => {
   vi.setSystemTime(new Date(1702399191000))
   const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    l2BlockNumber: 113405763n,
     targetChain: optimism,
   })
   vi.useRealTimers()
   expect(seconds).toBe(0)
   expect(timestamp).toBe(undefined)
-})
-
-test('elapsedBlocks < blockInterval (no l2BlockNumber)', async () => {
-  vi.setSystemTime(new Date(1702412427000))
-  const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
-    targetChain: optimism,
-  })
-  vi.useRealTimers()
-  expect(seconds).toBe(1700)
-  expect(timestamp).toBe(1702414127000)
-})
-
-test('elapsedBlocks < blockInterval (w/ l2BlockNumber)', async () => {
-  vi.setSystemTime(new Date(1702412427000))
-  const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
-    l2BlockNumber: 113405763n,
-    targetChain: optimism,
-  })
-  vi.useRealTimers()
-  expect(seconds).toBe(1700)
-  expect(timestamp).toBe(1702414127000)
 })
 
 test('elapsedBlocks > blockInterval (w/ l2BlockNumber)', async () => {
@@ -74,6 +55,7 @@ test('l2BlockNumber < latestOutput.blockNumber (no l2BlockNumber)', async () => 
 
 test('args: chain', async () => {
   const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    l2BlockNumber: 113405763n,
     chain: null,
     targetChain: optimism,
   })
@@ -83,6 +65,7 @@ test('args: chain', async () => {
 
 test('args: l2OutputOracleAddress', async () => {
   const { seconds, timestamp } = await getTimeToNextL2Output(publicClient, {
+    l2BlockNumber: 113405763n,
     l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27',
   })
   expect(seconds).toBeDefined()
