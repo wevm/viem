@@ -138,9 +138,24 @@ export const sponsors = [
         img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg',
       },
       {
+        name: 'Lattice',
+        url: 'https://lattice.xyz',
+        img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/lattice-light.svg',
+      }
+    ],
+  },
+  {
+    size: 'medium',
+    items: [
+      {
         name: 'Supa',
         url: 'https://twitter.com/supafinance',
         img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg',
+      },
+      {
+        name: 'zkSync',
+        url: 'https://zksync.io',
+        img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
       }
     ],
   },
