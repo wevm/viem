@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 import { formattersZkSync } from '../zksync/formatters.js'
 import { serializersZkSync } from '../zksync/serializers.js'
 
-/** @deprecated – Jan 2024 use `zkSyncSepoliaTestnet` */
+/** @deprecated Use `zkSyncSepoliaTestnet` */
 export const zkSyncTestnet = /*#__PURE__*/ defineChain(
   {
     id: 280,
