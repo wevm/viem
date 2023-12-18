@@ -4,9 +4,9 @@ import { type SizeErrorType, size } from '../../../utils/data/size.js'
 import { type SliceErrorType, slice } from '../../../utils/data/slice.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 
-export type FromOpaqueDataParameters = Hex
+export type OpaqueDataToDepositDataParameters = Hex
 
-export type FromOpaqueDataReturnType = {
+export type OpaqueDataToDepositDataReturnType = {
   mint: bigint
   value: bigint
   gas: bigint
@@ -14,9 +14,14 @@ export type FromOpaqueDataReturnType = {
   data: Hex
 }
 
-export type FromOpaqueDataErrorType = SliceErrorType | SizeErrorType | ErrorType
+export type OpaqueDataToDepositDataErrorType =
+  | SliceErrorType
+  | SizeErrorType
+  | ErrorType
 
-export function fromOpaqueData(opaqueData: Hex): FromOpaqueDataReturnType {
+export function opaqueDataToDepositData(
+  opaqueData: Hex,
+): OpaqueDataToDepositDataReturnType {
   let offset = 0
   const mint = slice(opaqueData, offset, offset + 32)
   offset += 32

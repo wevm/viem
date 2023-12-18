@@ -114,11 +114,11 @@ export {
 } from './utils/extractTransactionDepositedLogs.js'
 
 export {
-  fromOpaqueData,
-  type FromOpaqueDataErrorType,
-  type FromOpaqueDataParameters,
-  type FromOpaqueDataReturnType,
-} from './utils/fromOpaqueData.js'
+  opaqueDataToDepositData,
+  type OpaqueDataToDepositDataErrorType,
+  type OpaqueDataToDepositDataParameters,
+  type OpaqueDataToDepositDataReturnType,
+} from './utils/opaqueDataToDepositData.js'
 
 export {
   getL2TransactionHash,

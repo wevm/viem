@@ -6,8 +6,8 @@ import type { Hex } from '../../../types/misc.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
 import type { portalAbi } from '../abis.js'
 import { serializeTransaction } from '../serializers.js'
-import { fromOpaqueData } from './fromOpaqueData.js'
 import { getSourceHash } from './getSourceHash.js'
+import { opaqueDataToDepositData } from './opaqueDataToDepositData.js'
 
 export type GetL2TransactionHashParameters = {
   /** The "TransactionDeposited" log to compute the L2 hash from. */
@@ -32,7 +32,7 @@ export function getL2TransactionHash({ log }: GetL2TransactionHashParameters) {
     l1BlockHash: log.blockHash,
     l1LogIndex: log.logIndex,
   })
-  const { data, gas, isCreation, mint, value } = fromOpaqueData(
+  const { data, gas, isCreation, mint, value } = opaqueDataToDepositData(
     log.args.opaqueData,
   )
 

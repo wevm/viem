@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { encodePacked } from '../../../index.js'
-import { fromOpaqueData } from './fromOpaqueData.js'
+import { opaqueDataToDepositData } from './opaqueDataToDepositData.js'
 
 test('default', () => {
   const data_1 = {
@@ -14,7 +14,7 @@ test('default', () => {
     ['uint', 'uint', 'uint64', 'bool', 'bytes'],
     [data_1.mint, data_1.value, data_1.gas, data_1.isCreation, data_1.data],
   )
-  expect(fromOpaqueData(opaqueData_1)).toEqual(data_1)
+  expect(opaqueDataToDepositData(opaqueData_1)).toEqual(data_1)
 
   const data_2 = {
     mint: 0n,
@@ -27,7 +27,7 @@ test('default', () => {
     ['uint', 'uint', 'uint64', 'bool', 'bytes'],
     [data_2.mint, data_2.value, data_2.gas, data_2.isCreation, data_2.data],
   )
-  expect(fromOpaqueData(opaqueData_2)).toEqual(data_2)
+  expect(opaqueDataToDepositData(opaqueData_2)).toEqual(data_2)
 
   const data_3 = {
     mint: 0n,
@@ -40,7 +40,7 @@ test('default', () => {
     ['uint', 'uint', 'uint64', 'bool', 'bytes'],
     [data_3.mint, data_3.value, data_3.gas, data_3.isCreation, data_3.data],
   )
-  expect(fromOpaqueData(opaqueData_3)).toEqual(data_3)
+  expect(opaqueDataToDepositData(opaqueData_3)).toEqual(data_3)
 
   const data_4 = {
     mint: 0n,
@@ -53,7 +53,7 @@ test('default', () => {
     ['uint', 'uint', 'uint64', 'bool', 'bytes'],
     [data_4.mint, data_4.value, data_4.gas, data_4.isCreation, data_4.data],
   )
-  expect(fromOpaqueData(opaqueData_4)).toEqual(data_4)
+  expect(opaqueDataToDepositData(opaqueData_4)).toEqual(data_4)
 
   const data_5 = {
     mint: 0n,
@@ -66,7 +66,7 @@ test('default', () => {
     ['uint', 'uint', 'uint64', 'bool', 'bytes'],
     [data_5.mint, data_5.value, data_5.gas, data_5.isCreation, data_5.data],
   )
-  expect(fromOpaqueData(opaqueData_5)).toEqual(data_5)
+  expect(opaqueDataToDepositData(opaqueData_5)).toEqual(data_5)
 
   const data_6 = {
     mint: 0n,
@@ -79,5 +79,5 @@ test('default', () => {
     ['uint', 'uint', 'uint64', 'bool', 'bytes'],
     [data_6.mint, data_6.value, data_6.gas, data_6.isCreation, data_6.data],
   )
-  expect(fromOpaqueData(opaqueData_6)).toEqual(data_6)
+  expect(opaqueDataToDepositData(opaqueData_6)).toEqual(data_6)
 })

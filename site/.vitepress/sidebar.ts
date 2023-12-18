@@ -1005,10 +1005,6 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/utilities/extractTransactionDepositedLogs',
         },
         {
-          text: 'fromOpaqueData',
-          link: '/op-stack/utilities/fromOpaqueData',
-        },
-        {
           text: 'getL2TransactionHash',
           link: '/op-stack/utilities/getL2TransactionHash',
         },
@@ -1019,6 +1015,10 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'getSourceHash',
           link: '/op-stack/utilities/getSourceHash',
+        },
+        {
+          text: 'opaqueDataToDepositData',
+          link: '/op-stack/utilities/opaqueDataToDepositData',
         },
         {
           text: 'parseTransaction',
