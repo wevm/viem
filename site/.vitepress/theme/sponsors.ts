@@ -36,6 +36,16 @@ export const sponsors = [
         url: 'https://www.stripe.com',
         img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg',
       },
+    ],
+  },
+  {
+    size: 'medium',
+    items: [
+      {
+        name: 'PancakeSwap',
+        url: 'https://pancakeswap.finance',
+        img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pancake-light.svg',
+      },
       {
         name: 'zkSync',
         url: 'https://zksync.io',
