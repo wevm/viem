@@ -7,10 +7,10 @@ export const taikoJolnir = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://jolnir.taiko.xyz'],
+      http: ['https://jolnir.rpc.taiko.xyz'],
     },
     public: {
-      http: ['https://jolnir.taiko.xyz'],
+      http: ['https://jolnir.rpc.taiko.xyz'],
     },
   },
   blockExplorers: {
