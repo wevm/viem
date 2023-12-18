@@ -1,5 +1,11 @@
 # viem
 
+## 1.20.2
+
+### Patch Changes
+
+- [#1560](https://github.com/wevm/viem/pull/1560) [`664778d0`](https://github.com/wevm/viem/commit/664778d0858ebc7c6bfc24a9be096c04d4e604e0) Thanks [@dutterbutter](https://github.com/dutterbutter)! - Added zkSync Sepolia Testnet.
+
 ## 1.20.1
 
 ### Patch Changes
