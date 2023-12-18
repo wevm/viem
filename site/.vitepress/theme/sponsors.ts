@@ -27,11 +27,6 @@ export const sponsors = [
     tier: 'Large Enterprises',
     items: [
       {
-        name: 'LooksRare',
-        url: 'https://looksrare.org',
-        img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/looksrare-light.svg',
-      },
-      {
         name: 'WalletConnect',
         url: 'https://walletconnect.com',
         img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg',
@@ -41,6 +36,11 @@ export const sponsors = [
         url: 'https://www.stripe.com',
         img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg',
       },
+      {
+        name: 'zkSync',
+        url: 'https://zksync.io',
+        img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
+      }
     ],
   },
   {
@@ -138,10 +138,20 @@ export const sponsors = [
         img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg',
       },
       {
+        name: 'Lattice',
+        url: 'https://lattice.xyz',
+        img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/lattice-light.svg',
+      }
+    ],
+  },
+  {
+    size: 'medium',
+    items: [
+      {
         name: 'Supa',
         url: 'https://twitter.com/supafinance',
         img: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg',
-      }
+      },
     ],
   },
 ] satisfies Sponsors

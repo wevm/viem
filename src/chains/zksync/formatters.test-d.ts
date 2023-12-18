@@ -16,7 +16,7 @@ import type { Hash } from '../../types/misc.js'
 import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
-import { zkSync, zkSyncTestnet } from '../index.js'
+import { zkSync, zkSyncSepoliaTestnet } from '../index.js'
 import { formatters } from './formatters.js'
 import type {
   ZkSyncEip712Meta,
@@ -173,7 +173,7 @@ describe('smoke', () => {
   test('transactionRequest (prepareTransactionRequest)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncTestnet,
+      chain: zkSyncSepoliaTestnet,
       transport: http(),
     })
 
@@ -191,7 +191,7 @@ describe('smoke', () => {
   test('transactionRequest (sendTransaction)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncTestnet,
+      chain: zkSyncSepoliaTestnet,
       transport: http(),
     })
 
