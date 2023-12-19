@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "1.19.3",
+  "version": "1.20.2",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -145,7 +145,7 @@
   },
   "license": "MIT",
   "homepage": "https://viem.sh",
-  "repository": "wagmi-dev/viem",
+  "repository": "wevm/viem",
   "authors": [
     "awkweb.eth",
     "jxom.eth"
@@ -153,7 +153,7 @@
   "funding": [
     {
       "type": "github",
-      "url": "https://github.com/sponsors/wagmi-dev"
+      "url": "https://github.com/sponsors/wevm"
     }
   ],
   "keywords": [

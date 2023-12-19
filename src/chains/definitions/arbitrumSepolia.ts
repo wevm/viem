@@ -10,6 +10,10 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
+    alchemy: {
+      http: ['https://arb-sepolia.g.alchemy.com/v2'],
+      webSocket: ['wss://arb-sepolia.g.alchemy.com/v2'],
+    },
     default: {
       http: ['https://sepolia-rollup.arbitrum.io/rpc'],
     },

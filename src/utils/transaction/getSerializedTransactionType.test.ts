@@ -24,8 +24,8 @@ test('invalid', () => {
   expect(() =>
     getSerializedTransactionType('0x03abc'),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Serialized transaction type \\"0x03\\" is invalid.
+    [InvalidSerializedTransactionType: Serialized transaction type "0x03" is invalid.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

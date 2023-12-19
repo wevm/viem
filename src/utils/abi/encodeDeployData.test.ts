@@ -67,11 +67,11 @@ test('error: constructor not found', () => {
       args: [69420n],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "A constructor was not found on the ABI.
+    [AbiConstructorNotFoundError: A constructor was not found on the ABI.
     Make sure you are using the correct ABI and that the constructor exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeDeployData.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -90,11 +90,11 @@ test('error: no inputs', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Constructor arguments were provided (\`args\`), but a constructor parameters (\`inputs\`) were not found on the ABI.
+    [AbiConstructorParamsNotFoundError: Constructor arguments were provided (\`args\`), but a constructor parameters (\`inputs\`) were not found on the ABI.
     Make sure you are using the correct ABI, and that the \`inputs\` attribute on the constructor exists.
 
     Docs: https://viem.sh/docs/contract/encodeDeployData.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 
@@ -113,11 +113,11 @@ test('error: no inputs', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Constructor arguments were provided (\`args\`), but a constructor parameters (\`inputs\`) were not found on the ABI.
+    [AbiConstructorParamsNotFoundError: Constructor arguments were provided (\`args\`), but a constructor parameters (\`inputs\`) were not found on the ABI.
     Make sure you are using the correct ABI, and that the \`inputs\` attribute on the constructor exists.
 
     Docs: https://viem.sh/docs/contract/encodeDeployData.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })

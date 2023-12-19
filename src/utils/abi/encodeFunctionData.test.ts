@@ -147,11 +147,11 @@ test("errors: function doesn't exist", () => {
       functionName: 'bar',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Function \\"bar\\" not found on ABI.
+    [AbiFunctionNotFoundError: Function "bar" not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeFunctionData.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -169,10 +169,10 @@ test('errors: abi item not a function', () => {
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Function not found on ABI.
+    [AbiFunctionNotFoundError: Function not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeFunctionData.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

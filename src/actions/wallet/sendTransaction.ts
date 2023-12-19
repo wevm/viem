@@ -80,7 +80,7 @@ export type SendTransactionErrorType =
  * Creates, signs, and sends a new transaction to the network.
  *
  * - Docs: https://viem.sh/docs/actions/wallet/sendTransaction.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/sending-transactions
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/sending-transactions
  * - JSON-RPC Methods:
  *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
  *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)

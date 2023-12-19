@@ -1323,6 +1323,8 @@ export { type IsBytesErrorType, isBytes } from './utils/data/isBytes.js'
 export { type IsHashErrorType, isHash } from './utils/hash/isHash.js'
 export { type IsHexErrorType, isHex } from './utils/data/isHex.js'
 export { type Keccak256ErrorType, keccak256 } from './utils/hash/keccak256.js'
+export { type Sha256ErrorType, sha256 } from './utils/hash/sha256.js'
+export { type Ripemd160ErrorType, ripemd160 } from './utils/hash/ripemd160.js'
 export {
   type PadBytesErrorType,
   type PadErrorType,

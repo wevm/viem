@@ -2,7 +2,7 @@
 
 Thanks for your interest in contributing to viem! Please take a moment to review this document **before submitting a pull request.**
 
-If you want to contribute, but aren't sure where to start, you can create a [new discussion](https://github.com/wagmi-dev/viem/discussions).
+If you want to contribute, but aren't sure where to start, you can create a [new discussion](https://github.com/wevm/viem/discussions).
 
 If you are contributing to add a new chain to `viem/chains`, please read the [Chains section](#chains).
 
@@ -10,7 +10,7 @@ If you are contributing to add a new chain to `viem/chains`, please read the [Ch
 >
 > **Please ask first before starting work on any significant new features.**
 >
-> It's never a fun experience to have your pull request declined after investing time and effort into a new feature. To avoid this from happening, we request that contributors create a [feature request](https://github.com/wagmi-dev/viem/discussions/new?category=ideas) to first discuss any API changes or significant new ideas.
+> It's never a fun experience to have your pull request declined after investing time and effort into a new feature. To avoid this from happening, we request that contributors create a [feature request](https://github.com/wevm/viem/discussions/new?category=ideas) to first discuss any API changes or significant new ideas.
 
 <br>
 
@@ -34,13 +34,13 @@ This guide is intended to help you get started with contributing. By following t
 To start contributing to the project, clone it to your local machine using git:
 
 ```bash
-git clone https://github.com/wagmi-dev/viem.git --recurse-submodules
+git clone https://github.com/wevm/viem.git --recurse-submodules
 ```
 
 Or the [GitHub CLI](https://cli.github.com):
 
 ```bash
-gh repo clone wagmi-dev/viem -- --recurse-submodules
+gh repo clone wevm/viem -- --recurse-submodules
 ```
 
 <div align="right">

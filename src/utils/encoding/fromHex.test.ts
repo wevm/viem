@@ -61,9 +61,9 @@ describe('converts hex to number', () => {
     expect(() =>
       hexToNumber(numberToHex(69420, { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -127,9 +127,9 @@ describe('converts hex to bigint', () => {
     expect(() =>
       hexToBigInt(numberToHex(69420, { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -154,18 +154,18 @@ describe('converts hex to boolean', () => {
     expect(() =>
       hexToBool(boolToHex(true, { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
   test('error: invalid boolean', () => {
     expect(() => hexToBool('0xa')).toThrowErrorMatchingInlineSnapshot(
       `
-      "Hex value \\"0xa\\" is not a valid boolean. The hex value must be \\"0x0\\" (false) or \\"0x1\\" (true).
+      [InvalidHexBooleanError: Hex value "0xa" is not a valid boolean. The hex value must be "0x0" (false) or "0x1" (true).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -204,9 +204,9 @@ describe('converts hex to string', () => {
     expect(() =>
       hexToString(stringToHex('wagmi', { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -338,9 +338,9 @@ describe('converts hex to bytes', () => {
         size: 32,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -348,9 +348,9 @@ describe('converts hex to bytes', () => {
     expect(() =>
       fromHex('0x420fggf11a', 'bytes'),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Invalid byte sequence (\\"gg\\" in \\"420fggf11a\\").
+      [ViemError: Invalid byte sequence ("gg" in "420fggf11a").
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })

@@ -1000,7 +1000,7 @@ describe('errors', async () => {
           },
         ],
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot('"err_1"')
+    ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: err_1]')
   })
 })
 
@@ -1030,7 +1030,7 @@ test('chain not provided', async () => {
       },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    '"client chain not configured. multicallAddress is required."',
+    '[Error: client chain not configured. multicallAddress is required.]',
   )
 })
 
@@ -1064,12 +1064,12 @@ test('multicall contract not configured for chain', async () => {
       },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Chain \\"Ethereum\\" does not support contract \\"multicall3\\".
+    [ChainDoesNotSupportContract: Chain "Ethereum" does not support contract "multicall3".
 
     This could be due to any of the following:
-    - The chain does not have the contract \\"multicall3\\" configured.
+    - The chain does not have the contract "multicall3" configured.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -1094,12 +1094,12 @@ test('multicall contract deployed on later block', async () => {
       ],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Chain \\"Localhost\\" does not support contract \\"multicall3\\".
+    [ChainDoesNotSupportContract: Chain "Localhost" does not support contract "multicall3".
 
     This could be due to any of the following:
-    - The contract \\"multicall3\\" was not deployed until block 14353601 (current block 69420).
+    - The contract "multicall3" was not deployed until block 14353601 (current block 69420).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -1128,7 +1128,7 @@ test('batchSize on client', async () => {
 })
 
 describe('GitHub repros', () => {
-  test('https://github.com/wagmi-dev/viem/issues/434', async () => {
+  test('https://github.com/wevm/viem/issues/434', async () => {
     const { contractAddress } = await deploy({
       abi: GH434.abi,
       bytecode: GH434.bytecode.object,

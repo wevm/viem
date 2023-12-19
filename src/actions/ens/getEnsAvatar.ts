@@ -34,7 +34,7 @@ export type GetEnsAvatarErrorType =
  * Gets the avatar of an ENS name.
  *
  * - Docs: https://viem.sh/docs/ens/actions/getEnsAvatar.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
  *
  * Calls [`getEnsText`](https://viem.sh/docs/ens/actions/getEnsText.html) with `key` set to `'avatar'`.
  *
@@ -54,7 +54,7 @@ export type GetEnsAvatarErrorType =
  *   transport: http(),
  * })
  * const ensAvatar = await getEnsAvatar(client, {
- *   name: normalize('wagmi-dev.eth'),
+ *   name: normalize('wevm.eth'),
  * })
  * // 'https://ipfs.io/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio'
  */

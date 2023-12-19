@@ -32,6 +32,7 @@ test('gets transaction receipt', async () => {
       "blockNumber": 16280769n,
       "contractAddress": null,
       "cumulativeGasUsed": 21000n,
+      "deposit_nonce": null,
       "effectiveGasPrice": 33427926161n,
       "from": "0x043022ef9fca1066024d19d681e2ccf44ff90de3",
       "gasUsed": 21000n,
@@ -316,6 +317,7 @@ describe('e2e', () => {
       {
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
+        "deposit_nonce": null,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gasUsed": 21000n,
         "logs": [],
@@ -335,8 +337,8 @@ test('throws if transaction not found', async () => {
       hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Transaction receipt with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found. The Transaction may not be processed on a block yet.
+    [TransactionReceiptNotFoundError: Transaction receipt with hash "0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a" could not be found. The Transaction may not be processed on a block yet.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

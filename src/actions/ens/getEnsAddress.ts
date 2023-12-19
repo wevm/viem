@@ -62,7 +62,7 @@ export type GetEnsAddressErrorType =
  * Gets address for ENS name.
  *
  * - Docs: https://viem.sh/docs/ens/actions/getEnsAddress.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
  *
  * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
  *
@@ -82,11 +82,11 @@ export type GetEnsAddressErrorType =
  *   transport: http(),
  * })
  * const ensAddress = await getEnsAddress(client, {
- *   name: normalize('wagmi-dev.eth'),
+ *   name: normalize('wevm.eth'),
  * })
  * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */
-export async function getEnsAddress<TChain extends Chain | undefined,>(
+export async function getEnsAddress<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
   {
     blockNumber,

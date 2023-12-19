@@ -48,7 +48,7 @@ export type VerifyHashErrorType =
  * @param parameters - {@link VerifyHashParameters}
  * @returns Whether or not the signature is valid. {@link VerifyHashReturnType}
  */
-export async function verifyHash<TChain extends Chain | undefined,>(
+export async function verifyHash<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
   { address, hash, signature, ...callRequest }: VerifyHashParameters,
 ): Promise<VerifyHashReturnType> {

@@ -162,9 +162,9 @@ test('args: chain `baseFeeMultiplier` override < 1', async () => {
       },
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "\`baseFeeMultiplier\` must be greater than 1.
+    [BaseFeeScalarError: \`baseFeeMultiplier\` must be greater than 1.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -214,10 +214,10 @@ test('chain does not support eip1559', async () => {
   await expect(() =>
     estimateFeesPerGas(publicClient),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Chain does not support EIP-1559 fees.
+    [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
-      Version: viem@1.0.2"
-    `)
+    Version: viem@1.0.2]
+  `)
 })
 
 describe('mainnet smoke', () => {

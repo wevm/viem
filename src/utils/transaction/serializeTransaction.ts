@@ -39,12 +39,15 @@ import {
 } from './serializeAccessList.js'
 
 export type SerializedTransactionReturnType<
-  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
-  TTransactionType extends TransactionType = GetTransactionType<TTransactionSerializable>,
+  TTransactionSerializable extends
+    TransactionSerializable = TransactionSerializable,
+  TTransactionType extends
+    TransactionType = GetTransactionType<TTransactionSerializable>,
 > = TransactionSerialized<TTransactionType>
 
 export type SerializeTransactionFn<
-  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
+  TTransactionSerializable extends
+    TransactionSerializable = TransactionSerializable,
 > = typeof serializeTransaction<TTransactionSerializable>
 
 export type SerializeTransactionErrorType =

@@ -221,7 +221,7 @@ If `false`, `decodeEventLog` will try and [partially decode](#partial-decode).
 ```ts
 const topics = decodeEventLog({
   abi: wagmiAbi,
-  eventName: 'Transfer', // [!code focus]
+  strict: false, // [!code focus]
   topics: [
     '0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0', 
     '0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266', 

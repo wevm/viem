@@ -19,4 +19,10 @@ export const filecoin = /*#__PURE__*/ defineChain({
     filscout: { name: 'Filscout', url: 'https://filscout.io/en' },
     glif: { name: 'Glif', url: 'https://explorer.glif.io' },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 3328594,
+    },
+  },
 })

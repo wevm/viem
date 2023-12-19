@@ -43,7 +43,7 @@ export type VerifyTypedDataErrorType =
  * @param parameters - {@link VerifyTypedDataParameters}
  * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
  */
-export async function verifyTypedData<TChain extends Chain | undefined,>(
+export async function verifyTypedData<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
   {
     address,

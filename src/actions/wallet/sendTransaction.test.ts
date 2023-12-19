@@ -218,7 +218,7 @@ test('client chain mismatch', async () => {
       value: parseEther('1'),
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 42220 – Celo).
+    [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 42220 – Celo).
 
     Current Chain ID:  1
     Expected Chain ID: 42220 – Celo
@@ -228,7 +228,7 @@ test('client chain mismatch', async () => {
       to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
       value:  1 ETH
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -256,7 +256,7 @@ test('no chain', async () => {
       value: parseEther('1'),
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "No chain was provided to the request.
+    [TransactionExecutionError: No chain was provided to the request.
     Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
 
     Request Arguments:
@@ -264,7 +264,7 @@ test('no chain', async () => {
       to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
       value:  1 ETH
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -345,7 +345,7 @@ describe('args: gasPrice', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+      [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
@@ -363,7 +363,7 @@ describe('args: gasPrice', () => {
         gasPrice:  10000000000010 gwei
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -419,7 +419,7 @@ describe('args: maxFeePerGas', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+      [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
@@ -437,7 +437,7 @@ describe('args: maxFeePerGas', () => {
         maxFeePerGas:  10000000000010 gwei
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -574,7 +574,7 @@ describe('args: chain', async () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+      [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
       Current Chain ID:  1
       Expected Chain ID: 10 – OP Mainnet
@@ -585,7 +585,7 @@ describe('args: chain', async () => {
         to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
         value:  1 ETH
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -790,7 +790,7 @@ describe('local account', () => {
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         `
-        "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+        [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 
         This error could arise when the account does not have enough funds to:
          - pay for the total gas fee,
@@ -808,7 +808,7 @@ describe('local account', () => {
           maxFeePerGas:  10000000000010 gwei
 
         Details: Insufficient funds for gas * price + value
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `,
       )
     })
@@ -933,11 +933,11 @@ describe('errors', () => {
         maxFeePerGas: 2n ** 256n - 1n + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Could not find an Account to execute with this Action.
+      [AccountNotFoundError: Could not find an Account to execute with this Action.
       Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
 
       Docs: https://viem.sh/docs/actions/wallet/sendTransaction.html#account
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -952,7 +952,7 @@ describe('errors', () => {
         maxFeePerGas: 2n ** 256n - 1n + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [TransactionExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Request Arguments:
         from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -960,7 +960,7 @@ describe('errors', () => {
         value:         1 ETH
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -975,7 +975,7 @@ describe('errors', () => {
         gas: 100n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The amount of gas (100) provided for the transaction is too low.
+      [TransactionExecutionError: The amount of gas (100) provided for the transaction is too low.
 
       Request Arguments:
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -984,7 +984,7 @@ describe('errors', () => {
         gas:    100
 
       Details: intrinsic gas too low
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -999,7 +999,7 @@ describe('errors', () => {
         gas: 100_000_000n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The amount of gas (100000000) provided for the transaction exceeds the limit allowed for the block.
+      [TransactionExecutionError: The amount of gas (100000000) provided for the transaction exceeds the limit allowed for the block.
 
       Request Arguments:
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -1008,7 +1008,7 @@ describe('errors', () => {
         gas:    100000000
 
       Details: intrinsic gas too high -- tx.gas_limit > env.block.gas_limit
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -1024,7 +1024,7 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "The fee cap (\`maxFeePerGas\` = 0.000000001 gwei) cannot be lower than the block base fee.
+      [TransactionExecutionError: The fee cap (\`maxFeePerGas\` = 0.000000001 gwei) cannot be lower than the block base fee.
 
       Request Arguments:
         from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -1033,7 +1033,7 @@ describe('errors', () => {
         maxFeePerGas:  0.000000001 gwei
 
       Details: max fee per gas less than block base fee
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -1047,7 +1047,7 @@ describe('errors', () => {
         nonce: 1,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Nonce provided for the transaction (1) is lower than the current nonce of the account.
+      [TransactionExecutionError: Nonce provided for the transaction (1) is lower than the current nonce of the account.
       Try increasing the nonce or find the latest nonce with \`getTransactionCount\`.
 
       Request Arguments:
@@ -1057,7 +1057,7 @@ describe('errors', () => {
         nonce:  1
 
       Details: nonce too low
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -1071,7 +1071,7 @@ describe('errors', () => {
         value: parseEther('100000'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+      [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
@@ -1088,7 +1088,7 @@ describe('errors', () => {
         value:  100000 ETH
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -1103,7 +1103,7 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
+      [TransactionExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
 
       Request Arguments:
         from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -1112,7 +1112,7 @@ describe('errors', () => {
         maxFeePerGas:          10 gwei
         maxPriorityFeePerGas:  11 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })

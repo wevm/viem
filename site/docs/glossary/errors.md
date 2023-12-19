@@ -14,7 +14,7 @@ head:
 
 # Errors
 
-All errors in viem extend the [`BaseError`](https://github.com/wagmi-dev/viem/blob/main/src/errors/base.ts).
+All errors in viem extend the [`BaseError`](https://github.com/wevm/viem/blob/main/src/errors/base.ts).
 
 ## ABI
 

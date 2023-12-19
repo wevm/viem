@@ -192,6 +192,18 @@ export type PublicRpcSchema = [
     ReturnType: Quantity
   },
   /**
+   * @description Returns the current blob price of gas expressed in wei
+   *
+   * @example
+   * provider.request({ method: 'eth_blobGasPrice' })
+   * // => '0x09184e72a000'
+   */
+  {
+    Method: 'eth_blobGasPrice'
+    Parameters?: undefined
+    ReturnType: Quantity
+  },
+  /**
    * @description Returns the number of the most recent block seen by this client
    *
    * @example

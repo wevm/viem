@@ -293,14 +293,14 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_blockNumber\\"}
+      Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
     expect(retryCount).toBe(1)
   })
@@ -326,14 +326,14 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_blockNumber\\"}
+      Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
     expect(end > 500 && end < 520).toBeTruthy()
   })
@@ -356,13 +356,13 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The request took too long to respond.
+      [TimeoutError: The request took too long to respond.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_blockNumber\\"}
+      Request body: {"method":"eth_blockNumber"}
 
       Details: The request timed out.
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -377,13 +377,13 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_wagmi' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The method does not exist / is not available.
+      [MethodNotFoundRpcError: The method does not exist / is not available.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_wagmi\\"}
+      Request body: {"method":"eth_wagmi"}
 
       Details: Method not found
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -391,10 +391,10 @@ describe('request', () => {
 test('no url', () => {
   expect(() => http()({})).toThrowErrorMatchingInlineSnapshot(
     `
-    "No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
+    [ViemError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
     Docs: https://viem.sh/docs/clients/intro.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })

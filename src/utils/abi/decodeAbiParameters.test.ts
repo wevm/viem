@@ -1981,12 +1981,12 @@ test('data size too small', () => {
       '0x0000000000000000000000000000000000000000000000000000000000010f',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Data size of 31 bytes is too small for given parameters.
+    [AbiDecodingDataSizeTooSmallError: Data size of 31 bytes is too small for given parameters.
 
     Params: (uint256)
     Data:   0x0000000000000000000000000000000000000000000000000000000000010f (31 bytes)
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
@@ -1995,12 +1995,12 @@ test('data size too small', () => {
       '0x0000000000000000000000000000000000000000000000000000000000010f2c',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Data size of 32 bytes is too small for given parameters.
+    [AbiDecodingDataSizeTooSmallError: Data size of 32 bytes is too small for given parameters.
 
     Params: (uint256, uint256)
     Data:   0x0000000000000000000000000000000000000000000000000000000000010f2c (32 bytes)
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -2011,11 +2011,11 @@ test('invalid type', () => {
       '0x0000000000000000000000000000000000000000000000000000000000000000',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Type \\"lol\\" is not a valid decoding type.
+    [InvalidAbiDecodingType: Type "lol" is not a valid decoding type.
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/decodeAbiParameters.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -2039,8 +2039,8 @@ test('error: zero data', () => {
       '0x',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Cannot decode zero data (\\"0x\\") with ABI parameters.
+    [AbiDecodingZeroDataError: Cannot decode zero data ("0x") with ABI parameters.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

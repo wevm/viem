@@ -15,9 +15,9 @@ test('fee cap too high', () => {
       chainId: 1,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+    [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
@@ -26,9 +26,9 @@ test('fee cap too high', () => {
       chainId: 1,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+    [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
@@ -37,9 +37,9 @@ test('fee cap too high', () => {
       chainId: 1,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+    [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -51,9 +51,9 @@ test('tip higher than fee cap', () => {
       chainId: 1,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
+    [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -61,25 +61,25 @@ test('invalid chainId', () => {
   expect(() =>
     assertTransactionEIP1559({ chainId: 0 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Chain ID \\"0\\" is invalid.
+    [InvalidChainIdError: Chain ID "0" is invalid.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
     assertTransactionEIP2930({ chainId: 0 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Chain ID \\"0\\" is invalid.
+    [InvalidChainIdError: Chain ID "0" is invalid.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
     assertTransactionLegacy({ chainId: 0 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Chain ID \\"0\\" is invalid.
+    [InvalidChainIdError: Chain ID "0" is invalid.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -87,25 +87,25 @@ test('invalid address', () => {
   expect(() =>
     assertTransactionEIP1559({ to: '0x123', chainId: 1 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Address \\"0x123\\" is invalid.
+    [InvalidAddressError: Address "0x123" is invalid.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
     assertTransactionEIP2930({ to: '0x123', chainId: 1 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Address \\"0x123\\" is invalid.
+    [InvalidAddressError: Address "0x123" is invalid.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
     assertTransactionLegacy({ to: '0x123', chainId: 1 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Address \\"0x123\\" is invalid.
+    [InvalidAddressError: Address "0x123" is invalid.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -116,9 +116,9 @@ test('invalid transaction type', () => {
       chainId: 1,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "\`gasPrice\` is not a valid EIP-1559 Transaction attribute.
+    [ViemError: \`gasPrice\` is not a valid EIP-1559 Transaction attribute.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
@@ -127,9 +127,9 @@ test('invalid transaction type', () => {
       maxPriorityFeePerGas: parseGwei('1') as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "\`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
+    [ViemError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
@@ -137,9 +137,9 @@ test('invalid transaction type', () => {
       maxFeePerGas: parseGwei('1') as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "\`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid Legacy Transaction attribute.
+    [ViemError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid Legacy Transaction attribute.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 
   expect(() =>
@@ -147,8 +147,8 @@ test('invalid transaction type', () => {
       accessList: [] as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "\`accessList\` is not a valid Legacy Transaction attribute.
+    [ViemError: \`accessList\` is not a valid Legacy Transaction attribute.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

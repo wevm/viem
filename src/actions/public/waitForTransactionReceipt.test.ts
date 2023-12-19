@@ -382,10 +382,10 @@ describe('errors', () => {
           hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98f',
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Transaction with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98f\\" could not be found.
+        [TransactionNotFoundError: Transaction with hash "0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98f" could not be found.
 
-      Version: viem@1.0.2"
-    `)
+        Version: viem@1.0.2]
+      `)
     },
     { timeout: 20_000 },
   )
@@ -430,6 +430,6 @@ describe('errors', () => {
           })
         })(),
       ]),
-    ).rejects.toThrowErrorMatchingInlineSnapshot('"foo"')
+    ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: foo]')
   })
 })
