@@ -250,6 +250,11 @@ export {
   waitForTransactionReceipt,
 } from './public/waitForTransactionReceipt.js'
 export {
+  type GetAddressesErrorType,
+  type GetAddressesReturnType,
+  getAddresses,
+} from './wallet/getAddresses.js'
+export {
   type RequestAddressesErrorType,
   type RequestAddressesReturnType,
   requestAddresses,
