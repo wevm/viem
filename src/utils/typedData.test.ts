@@ -71,9 +71,9 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Number \\"-1\\" is not in safe 8-bit unsigned integer range (0 to 255)
+      [IntegerOutOfRangeError: Number "-1" is not in safe 8-bit unsigned integer range (0 to 255)
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -104,9 +104,9 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Number \\"256\\" is not in safe 8-bit unsigned integer range (0 to 255)
+      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -137,9 +137,9 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Number \\"-129\\" is not in safe 8-bit signed integer range (-128 to 127)
+      [IntegerOutOfRangeError: Number "-129" is not in safe 8-bit signed integer range (-128 to 127)
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -170,9 +170,9 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Address \\"0x000000000000000000000000000000000000z\\" is invalid.
+      [InvalidAddressError: Address "0x000000000000000000000000000000000000z" is invalid.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -203,9 +203,9 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Expected bytes32, got bytes20.
+      [BytesSizeMismatchError: Expected bytes32, got bytes20.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -249,9 +249,9 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Number \\"-1n\\" is not in safe 256-bit unsigned integer range (0n to 115792089237316195423570985008687907853269984665640564039457584007913129639935n)
+      [IntegerOutOfRangeError: Number "-1n" is not in safe 256-bit unsigned integer range (0n to 115792089237316195423570985008687907853269984665640564039457584007913129639935n)
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -295,9 +295,9 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Address \\"0xCczCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC\\" is invalid.
+      [InvalidAddressError: Address "0xCczCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC" is invalid.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 

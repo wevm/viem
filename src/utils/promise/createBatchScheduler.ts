@@ -66,12 +66,16 @@ export function createBatchScheduler<
     fn(args as TParameters[])
       .then((data) => {
         if (sort && Array.isArray(data)) data.sort(sort)
-        scheduler.forEach(({ pendingPromise }, i) =>
-          pendingPromise.resolve?.([data[i], data]),
-        )
+        for (let i = 0; i < scheduler.length; i++) {
+          const { pendingPromise } = scheduler[i]
+          pendingPromise.resolve?.([data[i], data])
+        }
       })
       .catch((err) => {
-        scheduler.forEach(({ pendingPromise }) => pendingPromise.reject?.(err))
+        for (let i = 0; i < scheduler.length; i++) {
+          const { pendingPromise } = scheduler[i]
+          pendingPromise.reject?.(err)
+        }
       })
   }
 

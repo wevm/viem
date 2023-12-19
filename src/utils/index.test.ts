@@ -142,6 +142,7 @@ test('exports utils', () => {
       "recoverMessageAddress": [Function],
       "recoverPublicKey": [Function],
       "recoverTypedDataAddress": [Function],
+      "ripemd160": [Function],
       "rpc": {
         "http": [Function],
         "webSocket": [Function],
@@ -149,6 +150,7 @@ test('exports utils', () => {
       },
       "serializeAccessList": [Function],
       "serializeTransaction": [Function],
+      "sha256": [Function],
       "size": [Function],
       "slice": [Function],
       "sliceBytes": [Function],

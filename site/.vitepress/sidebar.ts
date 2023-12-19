@@ -387,6 +387,8 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'State',
           items: [
+            { text: 'dumpState', link: '/docs/actions/test/dumpState' },
+            { text: 'loadState', link: '/docs/actions/test/loadState' },
             { text: 'revert', link: '/docs/actions/test/revert' },
             { text: 'snapshot', link: '/docs/actions/test/snapshot' },
           ],
@@ -738,6 +740,14 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
+            },
+            {
+              text: 'ripemd160',
+              link: '/docs/utilities/ripemd160',
+            },
+            {
+              text: 'sha256',
+              link: '/docs/utilities/sha256',
             },
           ],
         },

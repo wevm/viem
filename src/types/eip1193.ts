@@ -192,6 +192,18 @@ export type PublicRpcSchema = [
     ReturnType: Quantity
   },
   /**
+   * @description Returns the current blob price of gas expressed in wei
+   *
+   * @example
+   * provider.request({ method: 'eth_blobGasPrice' })
+   * // => '0x09184e72a000'
+   */
+  {
+    Method: 'eth_blobGasPrice'
+    Parameters?: undefined
+    ReturnType: Quantity
+  },
+  /**
    * @description Returns the number of the most recent block seen by this client
    *
    * @example
@@ -708,6 +720,14 @@ export type TestRpcSchema<TMode extends string> = [
     ReturnType: void
   },
   /**
+   * @description Serializes the current state (including contracts code, contract's storage, accounts properties, etc.) into a savable data blob.
+   */
+  {
+    Method: `${TMode}_dumpState`
+    Parameters?: undefined
+    ReturnType: Hex
+  },
+  /**
    * @description Turn on call traces for transactions that are returned to the user when they execute a transaction (instead of just txhash/receipt).
    */
   {
@@ -732,6 +752,14 @@ export type TestRpcSchema<TMode extends string> = [
     Method: `${TMode}_getAutomine`
     Parameters?: undefined
     ReturnType: boolean
+  },
+  /**
+   * @description Adds state previously dumped with `dumpState` to the current chain.
+   */
+  {
+    Method: `${TMode}_loadState`
+    Parameters?: [Hex]
+    ReturnType: void
   },
   /**
    * @description Advance the block number of the network by a certain number of blocks

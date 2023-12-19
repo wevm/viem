@@ -54,7 +54,7 @@ export type IsNever<T> = [T] extends [never] ? true : false
  * type Result = Or<[false, false, false]>
  * //   ^? type Result = false
  */
-export type Or<T extends readonly unknown[],> = T extends readonly [
+export type Or<T extends readonly unknown[]> = T extends readonly [
   infer Head,
   ...infer Tail,
 ]
@@ -125,12 +125,11 @@ export type MaybeUndefined<
  * @private Helper for `Assign`. This is a workaround for tsc generating errorneous type definitions.
  */
 export type Assign_<T, U> = {
-  [K in
-    keyof T as K extends keyof U
-      ? U[K] extends void
-        ? never
-        : K
-      : K]: K extends keyof U ? U[K] : T[K]
+  [K in keyof T as K extends keyof U
+    ? U[K] extends void
+      ? never
+      : K
+    : K]: K extends keyof U ? U[K] : T[K]
 }
 
 /**
@@ -193,6 +192,17 @@ export type UnionOmit<T, K extends keyof any> = T extends any
  * => { a?: string, b: number }
  */
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+/**
+ * @description Creates a type that is a partial of T, but with the required keys K.
+ *
+ * @example
+ * PartialBy<{ a: string, b: number } | { a: string, b: undefined, c: number }, 'a'>
+ * => { a?: string, b: number } | { a?: string, b: undefined, c: number }
+ */
+export type UnionPartialBy<T, K extends keyof T> = T extends any
+  ? PartialBy<T, K>
+  : never
 
 /**
  * @description Combines members of an intersection into a readable type.

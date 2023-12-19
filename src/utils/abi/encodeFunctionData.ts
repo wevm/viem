@@ -36,8 +36,8 @@ export type EncodeFunctionDataParameters<
 } & (TFunctionName extends string
   ? { abi: TAbi } & GetFunctionArgs<TAbi, TFunctionName>
   : _FunctionName extends string
-  ? { abi: [TAbi[number]] } & GetFunctionArgs<TAbi, _FunctionName>
-  : never)
+    ? { abi: [TAbi[number]] } & GetFunctionArgs<TAbi, _FunctionName>
+    : never)
 
 export type EncodeFunctionDataErrorType =
   | AbiFunctionNotFoundErrorType

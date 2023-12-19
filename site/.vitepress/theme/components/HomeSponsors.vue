@@ -14,7 +14,7 @@ import { sponsors } from '../sponsors'
         <VPButton
           theme="sponsor"
           text="Become a sponsor"
-          href="https://github.com/sponsors/wagmi-dev"
+          href="https://github.com/sponsors/wevm"
         />
       </div>
     </div>

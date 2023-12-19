@@ -88,7 +88,9 @@ function getEncodableList(list: Encodable[]): Encodable {
         else if (sizeOfBodyLength === 3) cursor.pushUint24(bodyLength)
         else cursor.pushUint32(bodyLength)
       }
-      list.forEach((x) => x.encode(cursor))
+      for (const { encode } of list) {
+        encode(cursor)
+      }
     },
   }
 }

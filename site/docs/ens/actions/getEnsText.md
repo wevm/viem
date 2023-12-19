@@ -27,7 +27,7 @@ import { normalize } from 'viem/ens'
 import { publicClient } from './client'
  
 const ensText = await publicClient.getEnsText({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   key: 'com.twitter',
 })
 // 'wagmi_sh'
@@ -68,7 +68,7 @@ ENS name to get Text for.
 
 ```ts
 const ensText = await publicClient.getEnsText({
-  name: normalize('wagmi-dev.eth'), // [!code focus]
+  name: normalize('wevm.eth'), // [!code focus]
   key: 'com.twitter',
 })
 ```
@@ -81,7 +81,7 @@ ENS key to get Text for.
 
 ```ts
 const ensText = await publicClient.getEnsText({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   key: 'com.twitter', // [!code focus]
 })
 ```
@@ -94,7 +94,7 @@ The block number to perform the read against.
 
 ```ts
 const ensText = await publicClient.getEnsText({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   key: 'com.twitter',
   blockNumber: 15121123n, // [!code focus]
 })
@@ -109,7 +109,7 @@ The block tag to perform the read against.
 
 ```ts
 const ensText = await publicClient.getEnsText({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   key: 'com.twitter',
   blockTag: 'safe', // [!code focus]
 })
@@ -124,7 +124,7 @@ Address of ENS Universal Resolver Contract.
 
 ```ts
 const ensText = await publicClient.getEnsText({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   key: 'com.twitter',
   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376', // [!code focus]
 })

@@ -23,7 +23,7 @@ import HomeSponsors from './.vitepress/theme/components/HomeSponsors.vue'
       <div class="flex justify-center space-x-2">
         <VPButton tag="a" size="medium" theme="brand" href="/docs/getting-started" text="Get Started" />
         <VPButton class="max-sm:hidden" tag="a" size="medium" theme="alt" href="/docs/introduction" text="Why viem?" />
-        <VPButton tag="a" size="medium" theme="alt" href="https://github.com/wagmi-dev/viem" text="View on GitHub" />
+        <VPButton tag="a" size="medium" theme="alt" href="https://github.com/wevm/viem" text="View on GitHub" />
       </div>
     </div>
     <div class="flex flex-col justify-between w-[440px] space-y-10 max-lg:w-[300px] max-md:hidden">
@@ -48,7 +48,7 @@ bun i viem
   </div>
   <!-- TODO: Extract Bundle Size, Coverage badge data from respective APIs. -->
   <div class="flex justify-between space-x-2">
-  <a href="https://github.com/wagmi-dev/viem/stargazers" class="cursor-pointer h-10 max-w-[120px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20" style="color: inherit;" rel="noreferrer noopener" target="_blank">
+  <a href="https://github.com/wevm/viem/stargazers" class="cursor-pointer h-10 max-w-[120px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20" style="color: inherit;" rel="noreferrer noopener" target="_blank">
     <div class="absolute flex z-0 p-[6px] h-full w-full">
       <div class="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
         <span class="font-medium text-[15px] opacity-80 w-full text-center">stars</span>
@@ -60,7 +60,7 @@ bun i viem
     <div class="absolute left-0 right-0 top-0 bottom-0 bg-black/5 dark:bg-white/10 z-[-1]" />
     <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-[-1]" />
   </a>
-  <a href="https://app.codecov.io/gh/wagmi-dev/viem" class="cursor-pointer h-10 max-w-[160px] flex-1 relative rounded-lg overflow-hidden border border-green-400/50" style="color: inherit;" rel="noreferrer noopener" target="_blank">
+  <a href="https://app.codecov.io/gh/wevm/viem" class="cursor-pointer h-10 max-w-[160px] flex-1 relative rounded-lg overflow-hidden border border-green-400/50" style="color: inherit;" rel="noreferrer noopener" target="_blank">
     <div class="absolute flex z-0 p-[6px] h-full w-full">
       <div class="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
         <span class="font-medium text-[15px] opacity-80 w-full text-center">coverage</span>
@@ -72,7 +72,7 @@ bun i viem
     <div class="absolute left-0 right-0 top-0 bottom-0 bg-green-400 opacity-10 z-[-1]" />
     <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-[-1]" />
   </a>
-  <a href="https://github.com/wagmi-dev/viem/blob/main/LICENSE" class="cursor-pointer h-10 max-w-[130px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20 max-lg:hidden" style="color: inherit;" rel="noreferrer noopener" target="_blank">
+  <a href="https://github.com/wevm/viem/blob/main/LICENSE" class="cursor-pointer h-10 max-w-[130px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20 max-lg:hidden" style="color: inherit;" rel="noreferrer noopener" target="_blank">
     <div class="absolute flex z-0 p-[6px] h-full w-full">
       <div class="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
         <span class="font-medium text-[15px] opacity-80 w-full text-center">license</span>
@@ -176,8 +176,8 @@ viem supports all these features out-of-the-box:
 Check out the following places for more wagmi-related content:
 
 - Follow [@wagmi_sh](https://twitter.com/wagmi_sh), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
-- Join the [discussions on GitHub](https://github.com/wagmi-dev/viem/discussions)
-- [Share your project/organization](https://github.com/wagmi-dev/viem/discussions/104) that uses viem
+- Join the [discussions on GitHub](https://github.com/wevm/viem/discussions)
+- [Share your project/organization](https://github.com/wevm/viem/discussions/104) that uses viem
 
 <div class="h-8" />
 <h1>Support</h1>
@@ -185,9 +185,9 @@ Check out the following places for more wagmi-related content:
 
 Help support future development and make wagmi a sustainable open-source project:
 
-- [GitHub Sponsors](https://github.com/sponsors/wagmi-dev?metadata_campaign=docs_support)
+- [GitHub Sponsors](https://github.com/sponsors/wevm?metadata_campaign=docs_support)
 - [Gitcoin Grant](https://wagmi.sh/gitcoin)
-- [wagmi-dev.eth](https://etherscan.io/enslookup-search?search=wagmi-dev.eth)
+- [wevm.eth](https://etherscan.io/enslookup-search?search=wevm.eth)
 
 <div class="h-8" />
 <h1>Sponsors</h1>

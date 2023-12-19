@@ -15,7 +15,7 @@ import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
 import { sendTransaction } from '../../wallet/index.js'
-import { zkSync, zkSyncTestnet } from '../index.js'
+import { zkSync, zkSyncSepoliaTestnet } from '../index.js'
 import { formattersZkSync } from './formatters.js'
 import type {
   ZkSyncEip712Meta,
@@ -40,10 +40,10 @@ describe('block', () => {
   >()
   expectTypeOf<
     ReturnType<typeof formattersZkSync.block.format>['l1BatchNumber']
-  >().toEqualTypeOf<`0x${string}`>
+  >().toEqualTypeOf<bigint | null>
   expectTypeOf<
     ReturnType<typeof formattersZkSync.block.format>['l1BatchTimestamp']
-  >().toEqualTypeOf<`0x${string}` | null>
+  >().toEqualTypeOf<bigint | null>
 })
 
 describe('transactionReceipt', () => {
@@ -178,7 +178,7 @@ describe('smoke', () => {
   test('transactionRequest (prepareTransactionRequest)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncTestnet,
+      chain: zkSyncSepoliaTestnet,
       transport: http(),
     })
 
@@ -196,7 +196,7 @@ describe('smoke', () => {
   test('transactionRequest (sendTransaction)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncTestnet,
+      chain: zkSyncSepoliaTestnet,
       transport: http(),
     })
 

@@ -204,6 +204,7 @@ export async function multicall<
       getAction(
         client,
         readContract,
+        'readContract',
       )({
         abi: multicall3Abi,
         address: multicallAddress!,

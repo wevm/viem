@@ -1,5 +1,5 @@
 export type AssetGateway = 'ipfs' | 'arweave'
 
 export type AssetGatewayUrls = {
-  [key in AssetGateway]?: string
+  [_key in AssetGateway]?: string
 }

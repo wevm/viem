@@ -39,8 +39,8 @@ export type EncodeErrorResultParameters<
 } & (TErrorName extends string
   ? { abi: TAbi } & GetErrorArgs<TAbi, TErrorName>
   : _ErrorName extends string
-  ? { abi: [TAbi[number]] } & GetErrorArgs<TAbi, _ErrorName>
-  : never)
+    ? { abi: [TAbi[number]] } & GetErrorArgs<TAbi, _ErrorName>
+    : never)
 
 export type EncodeErrorResultErrorType =
   | GetAbiItemErrorType

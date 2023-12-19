@@ -52,7 +52,7 @@ export const offchainLookupAbiItem = {
 
 export type OffchainLookupErrorType = ErrorType
 
-export async function offchainLookup<TChain extends Chain | undefined,>(
+export async function offchainLookup<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
   {
     blockNumber,
@@ -116,8 +116,7 @@ export async function ccipFetch({
 
   for (let i = 0; i < urls.length; i++) {
     const url = urls[i]
-    const method =
-      url.includes('{sender}') || url.includes('{data}') ? 'GET' : 'POST'
+    const method = url.includes('{data}') ? 'GET' : 'POST'
     const body = method === 'POST' ? { data, sender } : undefined
 
     try {
@@ -141,7 +140,9 @@ export async function ccipFetch({
       if (!response.ok) {
         error = new HttpRequestError({
           body,
-          details: stringify(result.error) || response.statusText,
+          details: result?.error
+            ? stringify(result.error)
+            : response.statusText,
           headers: response.headers,
           status: response.status,
           url,

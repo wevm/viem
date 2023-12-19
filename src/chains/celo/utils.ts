@@ -43,7 +43,9 @@ export function isCIP42(
   transaction: CeloTransactionSerializable | CeloTransactionRequest,
 ): transaction is TransactionSerializableCIP42 {
   // Enable end-user to force the tx to be considered as a cip42
-  if (transaction.type) return transaction.type === 'cip42'
+  if (transaction.type === 'cip42') {
+    return true
+  }
 
   return (
     isEIP1559(transaction) &&
@@ -56,8 +58,19 @@ export function isCIP42(
 export function isCIP64(
   transaction: CeloTransactionSerializable | CeloTransactionRequest,
 ): transaction is TransactionSerializableCIP64 {
-  // Enable end-user to force the tx to be considered as a cip64
-  if (transaction.type) return transaction.type === 'cip64'
+  /*
+   * Enable end user to force the tx to be considered as a CIP-64.
+   *
+   * The preliminary type will be determined as "eip1559" by src/utils/transaction/getTransactionType.ts
+   * and so we need the logic below to check for the specific value instead of checking if just any
+   * transaction type is provided. If that's anything else than "cip64" then we need to reevaluate the
+   * type based on the transaction fields.
+   *
+   * Modify with caution and according to https://github.com/celo-org/celo-proposals/blob/master/CIPs/cip-0064.md
+   */
+  if (transaction.type === 'cip64') {
+    return true
+  }
 
   return (
     isEIP1559(transaction) &&

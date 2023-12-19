@@ -61,6 +61,7 @@ describe('block', () => {
             type: '0x7e',
             v: '0x0',
             value: '0x0',
+            yParity: '0x0',
           },
           {
             blockHash:
@@ -84,6 +85,7 @@ describe('block', () => {
             type: '0x7e',
             v: '0x0',
             value: '0x0',
+            yParity: '0x0',
           },
         ],
         uncles: [],
@@ -131,6 +133,7 @@ describe('block', () => {
             "typeHex": "0x7e",
             "v": 0n,
             "value": 0n,
+            "yParity": 0,
           },
           {
             "blockHash": "0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846",
@@ -155,6 +158,7 @@ describe('block', () => {
             "typeHex": "0x7e",
             "v": 0n,
             "value": 0n,
+            "yParity": 0,
           },
         ],
         "transactionsRoot": "0xe41f41da49507646478023c060078f8afa962973ac38da1f7efd0355363b31d5",
@@ -255,6 +259,7 @@ describe('block', () => {
         "typeHex": "0x7e",
         "v": 0n,
         "value": 0n,
+        "yParity": 0,
       }
     `)
     expect(rest).toMatchInlineSnapshot(`
@@ -308,6 +313,7 @@ describe('transaction', () => {
         type: '0x2',
         v: '0x1',
         value: '0x69',
+        yParity: '0x1',
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -331,6 +337,7 @@ describe('transaction', () => {
         "typeHex": "0x2",
         "v": 1n,
         "value": 105n,
+        "yParity": 1,
       }
     `)
   })
@@ -346,29 +353,30 @@ describe('transaction', () => {
     })
 
     expect(transaction).toMatchInlineSnapshot(`
-        {
-          "accessList": [],
-          "blockHash": "0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574",
-          "blockNumber": 105848892n,
-          "chainId": 10,
-          "from": "0xacd03d601e5bb1b275bb94076ff46ed9d753435a",
-          "gas": 21000n,
-          "gasPrice": 267n,
-          "hash": "0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822",
-          "input": "0x",
-          "maxFeePerGas": 191000n,
-          "maxPriorityFeePerGas": 191n,
-          "nonce": 775017,
-          "r": "0xf5272819865bb23110822bedd12b4f14a9b89ca113e280d40ec06c83d126090e",
-          "s": "0xaaa4249c6b174d714cd6d1eaf1a15a9549769addfcc6d846524f1f8ce38178a",
-          "to": "0xeb610a69341aace81ed810ed42428249512378cd",
-          "transactionIndex": 7,
-          "type": "eip1559",
-          "typeHex": "0x2",
-          "v": 1n,
-          "value": 650000000000000n,
-        }
-      `)
+      {
+        "accessList": [],
+        "blockHash": "0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574",
+        "blockNumber": 105848892n,
+        "chainId": 10,
+        "from": "0xacd03d601e5bb1b275bb94076ff46ed9d753435a",
+        "gas": 21000n,
+        "gasPrice": 267n,
+        "hash": "0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822",
+        "input": "0x",
+        "maxFeePerGas": 191000n,
+        "maxPriorityFeePerGas": 191n,
+        "nonce": 775017,
+        "r": "0xf5272819865bb23110822bedd12b4f14a9b89ca113e280d40ec06c83d126090e",
+        "s": "0xaaa4249c6b174d714cd6d1eaf1a15a9549769addfcc6d846524f1f8ce38178a",
+        "to": "0xeb610a69341aace81ed810ed42428249512378cd",
+        "transactionIndex": 7,
+        "type": "eip1559",
+        "typeHex": "0x2",
+        "v": 1n,
+        "value": 650000000000000n,
+        "yParity": 1,
+      }
+    `)
   })
 })
 
@@ -398,6 +406,7 @@ describe('transaction (deposit)', () => {
         type: '0x7e',
         v: '0x1',
         value: '0x69',
+        yParity: '0x1',
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -424,6 +433,7 @@ describe('transaction (deposit)', () => {
         "typeHex": "0x7e",
         "v": 1n,
         "value": 105n,
+        "yParity": 1,
       }
     `)
   })
@@ -462,6 +472,7 @@ describe('transaction (deposit)', () => {
         "typeHex": "0x7e",
         "v": 0n,
         "value": 0n,
+        "yParity": 0,
       }
     `)
   })

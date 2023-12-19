@@ -91,7 +91,7 @@ test('invalid', () => {
   expect(() =>
     getTransactionType({ chainId: 1 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Cannot infer a transaction type from provided transaction.
+    [InvalidSerializableTransactionError: Cannot infer a transaction type from provided transaction.
 
     Provided Transaction:
     {
@@ -104,6 +104,6 @@ test('invalid', () => {
     - an EIP-2930 Transaction with \`gasPrice\` & \`accessList\`, or
     - a Legacy Transaction with \`gasPrice\`
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

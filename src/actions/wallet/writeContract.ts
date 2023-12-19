@@ -61,7 +61,7 @@ export type WriteContractErrorType =
  * Executes a write function on a contract.
  *
  * - Docs: https://viem.sh/docs/contract/writeContract.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
  *
  * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
  *
@@ -138,6 +138,7 @@ export async function writeContract<
   const hash = await getAction(
     client,
     sendTransaction,
+    'sendTransaction',
   )({
     data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,

@@ -134,6 +134,7 @@ export async function getContractEvents<
   return getAction(
     client,
     getLogs,
+    'getLogs',
   )({
     address,
     args,

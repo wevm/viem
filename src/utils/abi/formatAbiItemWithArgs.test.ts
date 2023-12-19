@@ -128,7 +128,7 @@ test('default', () => {
       ],
     }),
   ).toMatchInlineSnapshot(
-    '"foo({\\"x\\":[\\"1\\",\\"2\\",\\"3\\",\\"4\\"],\\"y\\":true,\\"z\\":[\\"hello\\",\\"world\\"]}, 420, [\\"wagmi\\",\\"viem\\"])"',
+    `"foo({"x":["1","2","3","4"],"y":true,"z":["hello","world"]}, 420, ["wagmi","viem"])"`,
   )
 
   expect(
@@ -179,7 +179,7 @@ test('default', () => {
       includeFunctionName: false,
     }),
   ).toMatchInlineSnapshot(
-    '"({\\"x\\":[\\"1\\",\\"2\\",\\"3\\",\\"4\\"],\\"y\\":true,\\"z\\":[\\"hello\\",\\"world\\"]}, 420, [\\"wagmi\\",\\"viem\\"])"',
+    `"({"x":["1","2","3","4"],"y":true,"z":["hello","world"]}, 420, ["wagmi","viem"])"`,
   )
 
   expect(
@@ -230,7 +230,7 @@ test('default', () => {
       includeName: true,
     }),
   ).toMatchInlineSnapshot(
-    '"foo(bar: {\\"x\\":[\\"1\\",\\"2\\",\\"3\\",\\"4\\"],\\"y\\":true,\\"z\\":[\\"hello\\",\\"world\\"]}, a: 420, b: [\\"wagmi\\",\\"viem\\"])"',
+    `"foo(bar: {"x":["1","2","3","4"],"y":true,"z":["hello","world"]}, a: 420, b: ["wagmi","viem"])"`,
   )
 
   expect(

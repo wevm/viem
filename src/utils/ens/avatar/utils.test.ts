@@ -321,9 +321,9 @@ describe('resolveAvatarUri()', () => {
     expect(() =>
       resolveAvatarUri({ uri: 'invalid' }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Unable to resolve ENS avatar URI \\"invalid\\". The URI may be malformed, invalid, or does not respond with a valid image.
+      [EnsAvatarUriResolutionError: Unable to resolve ENS avatar URI "invalid". The URI may be malformed, invalid, or does not respond with a valid image.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -331,9 +331,9 @@ describe('resolveAvatarUri()', () => {
     expect(() =>
       resolveAvatarUri({ uri: '' }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Unable to resolve ENS avatar URI \\"\\". The URI may be malformed, invalid, or does not respond with a valid image.
+      [EnsAvatarUriResolutionError: Unable to resolve ENS avatar URI "". The URI may be malformed, invalid, or does not respond with a valid image.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -355,26 +355,26 @@ describe('getJsonImage', () => {
     expect(() =>
       getJsonImage({ other: 'test' }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Unable to extract image from metadata. The metadata may be malformed or invalid.
+      [EnsAvatarInvalidMetadataError: Unable to extract image from metadata. The metadata may be malformed or invalid.
 
       - Metadata must be a JSON object with at least an \`image\`, \`image_url\` or \`image_data\` property.
 
-      Provided data: {\\"other\\":\\"test\\"}
+      Provided data: {"other":"test"}
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
   test('not an object', () => {
     expect(() => getJsonImage('test')).toThrowErrorMatchingInlineSnapshot(
       `
-      "Unable to extract image from metadata. The metadata may be malformed or invalid.
+      [EnsAvatarInvalidMetadataError: Unable to extract image from metadata. The metadata may be malformed or invalid.
 
       - Metadata must be a JSON object with at least an \`image\`, \`image_url\` or \`image_data\` property.
 
-      Provided data: \\"test\\"
+      Provided data: "test"
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -564,9 +564,9 @@ describe('getNftTokenUri', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "ENS NFT avatar namespace \\"erc1\\" is not supported. Must be \\"erc721\\" or \\"erc1155\\".
+      [EnsAvatarUnsupportedNamespaceError: ENS NFT avatar namespace "erc1" is not supported. Must be "erc721" or "erc1155".
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })

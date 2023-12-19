@@ -27,13 +27,9 @@ import { isCIP42, isCIP64, isEmpty, isPresent } from './utils.js'
 export const serializeTransactionCelo: SerializeTransactionFn<
   CeloTransactionSerializable | TransactionSerializable
 > = (tx, signature) => {
-  if (isCIP64(tx)) {
-    return serializeTransactionCIP64(tx, signature)
-  } else if (isCIP42(tx)) {
-    return serializeTransactionCIP42(tx, signature)
-  } else {
-    return serializeTransaction(tx as TransactionSerializable, signature)
-  }
+  if (isCIP64(tx)) return serializeTransactionCIP64(tx, signature)
+  if (isCIP42(tx)) return serializeTransactionCIP42(tx, signature)
+  return serializeTransaction(tx as TransactionSerializable, signature)
 }
 
 export const serializersCelo = {
@@ -231,7 +227,7 @@ export function assertTransactionCIP64(
   )
     throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })
 
-  if (isPresent(feeCurrency) && !feeCurrency?.startsWith('0x')) {
+  if (isPresent(feeCurrency) && !isAddress(feeCurrency)) {
     throw new BaseError(
       '`feeCurrency` MUST be a token address for CIP-64 transactions.',
     )

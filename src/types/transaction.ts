@@ -80,16 +80,21 @@ export type TransactionBase<
   v: TQuantity
   /** Value in wei sent with this transaction */
   value: TQuantity
+  /** The parity of the y-value of the secp256k1 signature. */
+  yParity: TIndex
 }
 export type TransactionLegacy<
   TQuantity = bigint,
   TIndex = number,
   TPending extends boolean = boolean,
   TType = 'legacy',
-> = TransactionBase<TQuantity, TIndex, TPending> &
+> = Omit<TransactionBase<TQuantity, TIndex, TPending>, 'yParity'> &
   FeeValuesLegacy<TQuantity> & {
+    /** EIP-2930 Access List. */
     accessList?: never
+    /** Chain ID that this transaction is valid on. */
     chainId?: TIndex
+    yParity?: never
     type: TType
   }
 export type TransactionEIP2930<
@@ -99,7 +104,9 @@ export type TransactionEIP2930<
   TType = 'eip2930',
 > = TransactionBase<TQuantity, TIndex, TPending> &
   FeeValuesLegacy<TQuantity> & {
+    /** EIP-2930 Access List. */
     accessList: AccessList
+    /** Chain ID that this transaction is valid on. */
     chainId: TIndex
     type: TType
   }
@@ -110,7 +117,9 @@ export type TransactionEIP1559<
   TType = 'eip1559',
 > = TransactionBase<TQuantity, TIndex, TPending> &
   FeeValuesEIP1559<TQuantity> & {
+    /** EIP-2930 Access List. */
     accessList: AccessList
+    /** Chain ID that this transaction is valid on. */
     chainId: TIndex
     type: TType
   }
@@ -177,10 +186,10 @@ export type TransactionSerialized<TType extends TransactionType = 'legacy'> =
   TType extends 'eip1559'
     ? TransactionSerializedEIP1559
     : TType extends 'eip2930'
-    ? TransactionSerializedEIP2930
-    : TType extends 'legacy'
-    ? TransactionSerializedLegacy
-    : TransactionSerializedGeneric
+      ? TransactionSerializedEIP2930
+      : TType extends 'legacy'
+        ? TransactionSerializedLegacy
+        : TransactionSerializedGeneric
 
 export type TransactionSerializableBase<
   TQuantity = bigint,

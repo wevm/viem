@@ -284,10 +284,10 @@ describe('formatAbiItem', () => {
         type: 'constructor',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "\\"constructor\\" is not a valid definition type.
-      Valid types: \\"function\\", \\"event\\", \\"error\\"
+      [InvalidDefinitionTypeError: "constructor" is not a valid definition type.
+      Valid types: "function", "event", "error"
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })

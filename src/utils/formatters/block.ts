@@ -28,7 +28,7 @@ export type FormattedBlock<
   _ExcludedPendingDependencies extends string = BlockPendingDependencies &
     ExtractChainFormatterExclude<TChain, 'block'>,
   _Formatted = Omit<_FormatterReturnType, BlockPendingDependencies> & {
-    [K in _ExcludedPendingDependencies]: never
+    [_key in _ExcludedPendingDependencies]: never
   } & Pick<
       Block<bigint, TIncludeTransactions, TBlockTag>,
       BlockPendingDependencies
