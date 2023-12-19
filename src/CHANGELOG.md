@@ -1,5 +1,15 @@
 # viem
 
+## 1.20.3
+
+### Patch Changes
+
+- [`fa2f7352`](https://github.com/wevm/viem/commit/fa2f735232d088c84566a4be4af6be2689bae02d) Thanks [@jxom](https://github.com/jxom)! - Exported `getAddresses` in `viem/actions`
+
+- [#1500](https://github.com/wevm/viem/pull/1500) [`95a5eee1`](https://github.com/wevm/viem/commit/95a5eee10ac76d3379dbf45f7e3803425492fdc2) Thanks [@0xarthurxyz](https://github.com/0xarthurxyz)! - Removed `feeCurrency`, `gatewayFee`, and `gatewayFeeRecipient` properties from Celo transaction receipts.
+
+- [#1597](https://github.com/wevm/viem/pull/1597) [`e318cb37`](https://github.com/wevm/viem/commit/e318cb375c22df6139c4e34bde35abf30dff9cc7) Thanks [@2manslkh](https://github.com/2manslkh)! - Updated Taiko Jolnir RPC URL.
+
 ## 1.20.2
 
 ### Patch Changes
