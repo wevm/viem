@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Removed `feeCurrency` property from transaction receipt
+Removed `feeCurrency`, `gatewayFee`, and `gatewayFeeRecipient` properties from Celo transaction receipts.
