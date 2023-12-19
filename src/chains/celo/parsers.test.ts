@@ -170,12 +170,12 @@ describe('should throw an error for invalid cip42 transactions', () => {
     expect(() =>
       parseTransactionCelo(`0x7c${toRlp([]).slice(2)}`),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Invalid serialized transaction of type \\"cip42\\" was provided.
+      [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip42" was provided.
 
-      Serialized Transaction: \\"0x7cc0\\"
+      Serialized Transaction: "0x7cc0"
       Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, gatewayFeeRecipient, gatewayFee, value, data, accessList
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -183,12 +183,12 @@ describe('should throw an error for invalid cip42 transactions', () => {
     expect(() =>
       parseTransactionCelo(`0x7c${toRlp(['0x0', '0x1']).slice(2)}`),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Invalid serialized transaction of type \\"cip42\\" was provided.
+      [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip42" was provided.
 
-      Serialized Transaction: \\"0x7cc20001\\"
+      Serialized Transaction: "0x7cc20001"
       Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, gatewayFeeRecipient, gatewayFee, value, data, accessList
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -212,12 +212,12 @@ describe('should throw an error for invalid cip42 transactions', () => {
         ]).slice(2)}`,
       ),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Invalid serialized transaction of type \\"cip42\\" was provided.
+      [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip42" was provided.
 
-      Serialized Transaction: \\"0x7ccd80808080808080808080808080\\"
+      Serialized Transaction: "0x7ccd80808080808080808080808080"
       Missing Attributes: r, s
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -346,12 +346,12 @@ describe('should throw an error for invalid cip64 transactions', () => {
     expect(() =>
       parseTransactionCelo(`0x7b${toRlp([]).slice(2)}`),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Invalid serialized transaction of type \\"cip64\\" was provided.
+      [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip64" was provided.
 
-      Serialized Transaction: \\"0x7bc0\\"
+      Serialized Transaction: "0x7bc0"
       Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, feeCurrency
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -359,12 +359,12 @@ describe('should throw an error for invalid cip64 transactions', () => {
     expect(() =>
       parseTransactionCelo(`0x7b${toRlp(['0x0', '0x1']).slice(2)}`),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Invalid serialized transaction of type \\"cip64\\" was provided.
+      [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip64" was provided.
 
-      Serialized Transaction: \\"0x7bc20001\\"
+      Serialized Transaction: "0x7bc20001"
       Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, feeCurrency
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -386,12 +386,12 @@ describe('should throw an error for invalid cip64 transactions', () => {
         ]).slice(2)}`,
       ),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Invalid serialized transaction of type \\"cip64\\" was provided.
+      [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip64" was provided.
 
-      Serialized Transaction: \\"0x7bcb8080808080808080808080\\"
+      Serialized Transaction: "0x7bcb8080808080808080808080"
       Missing Attributes: r, s
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
