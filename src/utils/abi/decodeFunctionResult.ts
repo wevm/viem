@@ -37,8 +37,8 @@ export type DecodeFunctionResultParameters<
 } & (TFunctionName extends string
   ? { abi: TAbi } & Partial<GetFunctionArgs<TAbi, TFunctionName>>
   : _FunctionName extends string
-    ? { abi: [TAbi[number]] } & Partial<GetFunctionArgs<TAbi, _FunctionName>>
-    : never)
+  ? { abi: [TAbi[number]] } & Partial<GetFunctionArgs<TAbi, _FunctionName>>
+  : never)
 
 export type DecodeFunctionResultReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,

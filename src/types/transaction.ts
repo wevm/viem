@@ -186,10 +186,10 @@ export type TransactionSerialized<TType extends TransactionType = 'legacy'> =
   TType extends 'eip1559'
     ? TransactionSerializedEIP1559
     : TType extends 'eip2930'
-      ? TransactionSerializedEIP2930
-      : TType extends 'legacy'
-        ? TransactionSerializedLegacy
-        : TransactionSerializedGeneric
+    ? TransactionSerializedEIP2930
+    : TType extends 'legacy'
+    ? TransactionSerializedLegacy
+    : TransactionSerializedGeneric
 
 export type TransactionSerializableBase<
   TQuantity = bigint,

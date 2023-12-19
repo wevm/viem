@@ -48,17 +48,15 @@ export type CreateContractEventFilterParameters<
       args?: never
     }
   : MaybeExtractEventArgsFromAbi<
-        TAbi,
-        TEventName
-      > extends infer TEventFilterArgs
-    ? {
-        args?:
-          | TEventFilterArgs
-          | (TArgs extends TEventFilterArgs ? TArgs : never)
-      }
-    : {
-        args?: never
-      })
+      TAbi,
+      TEventName
+    > extends infer TEventFilterArgs
+  ? {
+      args?: TEventFilterArgs | (TArgs extends TEventFilterArgs ? TArgs : never)
+    }
+  : {
+      args?: never
+    })
 
 export type CreateContractEventFilterReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,

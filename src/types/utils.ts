@@ -125,11 +125,12 @@ export type MaybeUndefined<
  * @private Helper for `Assign`. This is a workaround for tsc generating errorneous type definitions.
  */
 export type Assign_<T, U> = {
-  [K in keyof T as K extends keyof U
-    ? U[K] extends void
-      ? never
-      : K
-    : K]: K extends keyof U ? U[K] : T[K]
+  [K in
+    keyof T as K extends keyof U
+      ? U[K] extends void
+        ? never
+        : K
+      : K]: K extends keyof U ? U[K] : T[K]
 }
 
 /**

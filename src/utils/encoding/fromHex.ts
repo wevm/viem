@@ -41,14 +41,14 @@ export type FromHexParameters<
 export type FromHexReturnType<TTo> = TTo extends 'string'
   ? string
   : TTo extends 'bigint'
-    ? bigint
-    : TTo extends 'number'
-      ? number
-      : TTo extends 'bytes'
-        ? ByteArray
-        : TTo extends 'boolean'
-          ? boolean
-          : never
+  ? bigint
+  : TTo extends 'number'
+  ? number
+  : TTo extends 'bytes'
+  ? ByteArray
+  : TTo extends 'boolean'
+  ? boolean
+  : never
 
 export type FromHexErrorType =
   | HexToNumberErrorType

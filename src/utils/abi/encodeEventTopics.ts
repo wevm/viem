@@ -39,8 +39,8 @@ export type EncodeEventTopicsParameters<
 } & (TEventName extends string
   ? { abi: TAbi; args?: GetEventArgs<TAbi, TEventName> }
   : _EventName extends string
-    ? { abi: [TAbi[number]]; args?: GetEventArgs<TAbi, _EventName> }
-    : never)
+  ? { abi: [TAbi[number]]; args?: GetEventArgs<TAbi, _EventName> }
+  : never)
 
 export type EncodeEventTopicsErrorType =
   | AbiEventNotFoundErrorType
@@ -82,8 +82,8 @@ export function encodeEventTopics<
     const args_ = Array.isArray(args)
       ? args
       : Object.values(args).length > 0
-        ? indexedInputs?.map((x: any) => (args as any)[x.name]) ?? []
-        : []
+      ? indexedInputs?.map((x: any) => (args as any)[x.name]) ?? []
+      : []
 
     if (args_.length > 0) {
       topics =
@@ -93,8 +93,8 @@ export function encodeEventTopics<
                 encodeArg({ param, value: args_[i][j] }),
               )
             : args_[i]
-              ? encodeArg({ param, value: args_[i] })
-              : null,
+            ? encodeArg({ param, value: args_[i] })
+            : null,
         ) ?? []
     }
   }

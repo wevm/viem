@@ -17,8 +17,7 @@ import {
 import { type SignErrorType, sign } from './sign.js'
 
 export type SignTransactionParameters<
-  TTransactionSerializable extends
-    TransactionSerializable = TransactionSerializable,
+  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
 > = {
   privateKey: Hex
   transaction: TTransactionSerializable
@@ -28,8 +27,7 @@ export type SignTransactionParameters<
 }
 
 export type SignTransactionReturnType<
-  TTransactionSerializable extends
-    TransactionSerializable = TransactionSerializable,
+  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
 > = TransactionSerialized<GetTransactionType<TTransactionSerializable>>
 
 export type SignTransactionErrorType =

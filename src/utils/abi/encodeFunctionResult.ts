@@ -32,11 +32,11 @@ export type EncodeFunctionResultParameters<
 } & (TFunctionName extends string
   ? { abi: TAbi; result?: ContractFunctionResult<TAbi, TFunctionName> }
   : _FunctionName extends string
-    ? {
-        abi: [TAbi[number]]
-        result?: ContractFunctionResult<TAbi, _FunctionName>
-      }
-    : never)
+  ? {
+      abi: [TAbi[number]]
+      result?: ContractFunctionResult<TAbi, _FunctionName>
+    }
+  : never)
 
 export type EncodeFunctionResultErrorType =
   | AbiFunctionOutputsNotFoundError

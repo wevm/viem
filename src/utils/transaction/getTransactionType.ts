@@ -12,8 +12,7 @@ import type {
 } from '../../types/transaction.js'
 
 export type GetTransactionType<
-  TTransactionSerializable extends
-    TransactionSerializable = TransactionSerializable,
+  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
 > =
   | (TTransactionSerializable extends TransactionSerializableLegacy
       ? 'legacy'
