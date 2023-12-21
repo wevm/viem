@@ -55,10 +55,6 @@ export const zora = defineChain({
       http: ['https://rpc.zora.energy'],
       webSocket: ['wss://rpc.zora.energy'],
     },
-    public: {
-      http: ['https://rpc.zora.energy'],
-      webSocket: ['wss://rpc.zora.energy'],
-    },
   },
   blockExplorers: {
     default: { name: 'Explorer', url: 'https://explorer.zora.energy' },

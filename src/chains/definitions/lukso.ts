@@ -14,10 +14,6 @@ export const lukso = /*#__PURE__*/ defineChain({
       http: ['https://rpc.mainnet.lukso.network'],
       webSocket: ['wss://ws-rpc.mainnet.lukso.network'],
     },
-    public: {
-      http: ['https://rpc.mainnet.lukso.network'],
-      webSocket: ['wss://ws-rpc.mainnet.lukso.network'],
-    },
   },
   blockExplorers: {
     default: {

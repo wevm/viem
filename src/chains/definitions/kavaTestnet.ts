@@ -10,7 +10,6 @@ export const kavaTestnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    public: { http: ['https://evm.testnet.kava.io'] },
     default: { http: ['https://evm.testnet.kava.io'] },
   },
   blockExplorers: {

@@ -18,10 +18,6 @@ export const zoraSepolia = /*#__PURE__*/ defineChain({
       http: ['https://sepolia.rpc.zora.energy'],
       webSocket: ['wss://sepolia.rpc.zora.energy'],
     },
-    public: {
-      http: ['https://sepolia.rpc.zora.energy'],
-      webSocket: ['wss://sepolia.rpc.zora.energy'],
-    },
   },
   blockExplorers: {
     default: {

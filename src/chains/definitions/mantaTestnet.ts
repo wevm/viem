@@ -11,7 +11,6 @@ export const mantaTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://manta-testnet.calderachain.xyz/http'] },
-    public: { http: ['https://manta-testnet.calderachain.xyz/http'] },
   },
   blockExplorers: {
     etherscan: {

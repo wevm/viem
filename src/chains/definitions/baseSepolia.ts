@@ -13,9 +13,6 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://sepolia.base.org'],
     },
-    public: {
-      http: ['https://sepolia.base.org'],
-    },
   },
   blockExplorers: {
     blockscout: {

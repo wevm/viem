@@ -9,9 +9,6 @@ export const zilliqa = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://api.zilliqa.com'],
     },
-    public: {
-      http: ['https://api.zilliqa.com'],
-    },
   },
   blockExplorers: {
     default: {

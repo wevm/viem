@@ -12,10 +12,6 @@ export const zkSyncSepoliaTestnet = /*#__PURE__*/ defineChain({
       http: ['https://sepolia.era.zksync.dev'],
       webSocket: ['wss://sepolia.era.zksync.dev/ws'],
     },
-    public: {
-      http: ['https://sepolia.era.zksync.dev'],
-      webSocket: ['wss://sepolia.era.zksync.dev/ws'],
-    },
   },
   blockExplorers: {
     default: {

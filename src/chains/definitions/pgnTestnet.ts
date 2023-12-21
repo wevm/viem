@@ -12,9 +12,6 @@ export const pgnTestnet = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://sepolia.publicgoods.network'],
     },
-    public: {
-      http: ['https://sepolia.publicgoods.network'],
-    },
   },
   blockExplorers: {
     default: {

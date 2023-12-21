@@ -13,10 +13,6 @@ export const zkSyncTestnet = /*#__PURE__*/ defineChain({
       http: ['https://testnet.era.zksync.dev'],
       webSocket: ['wss://testnet.era.zksync.dev/ws'],
     },
-    public: {
-      http: ['https://testnet.era.zksync.dev'],
-      webSocket: ['wss://testnet.era.zksync.dev/ws'],
-    },
   },
   blockExplorers: {
     default: {

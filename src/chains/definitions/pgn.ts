@@ -12,9 +12,6 @@ export const pgn = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://rpc.publicgoods.network'],
     },
-    public: {
-      http: ['https://rpc.publicgoods.network'],
-    },
   },
   blockExplorers: {
     default: {

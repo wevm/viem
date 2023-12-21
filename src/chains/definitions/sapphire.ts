@@ -10,10 +10,6 @@ export const sapphire = /*#__PURE__*/ defineChain({
       http: ['https://sapphire.oasis.io'],
       webSocket: ['wss://sapphire.oasis.io/ws'],
     },
-    public: {
-      http: ['https://sapphire.oasis.io'],
-      webSocket: ['wss://sapphire.oasis.io/ws'],
-    },
   },
   blockExplorers: {
     default: {
