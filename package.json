@@ -1,5 +1,5 @@
 {
-  "workspaces": ["examples/*", "environments/*", "site", "src", "test"],
+  "workspaces": ["examples/*", "environments/*", "src", "test"],
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,7 +15,9 @@
     "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/updateVersion.ts",
     "clean": "rimraf src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
-    "dev:docs": "cd site && bun run dev",
+    "docs:dev": "vocs dev",
+    "docs:build": "vocs build",
+    "docs:preview": "vocs preview",
     "format": "biome format . --write",
     "lint": "biome check .",
     "lint:fix": "bun run lint --apply",
@@ -61,7 +63,8 @@
     "size-limit": "^8.2.4",
     "typescript": "5.1.6",
     "vite": "^4.4.2",
-    "vitest": "~0.34.3"
+    "vitest": "~0.34.3",
+    "vocs": "0.0.1-alpha.0-main.20231221T043916"
   },
   "simple-git-hooks": {
     "pre-commit": "bun run format && bun run lint:fix"

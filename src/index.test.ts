@@ -2,6 +2,23 @@ import { expect, test } from 'vitest'
 
 import * as exports from './index.js'
 
+import { http, createPublicClient, erc20Abi, parseAbi } from 'viem'
+
+const abi = parseAbi([
+  'function transferFrom(address, address, uint256) returns (bool)',
+])
+
+const client = createPublicClient({
+  transport: http(),
+})
+// ---cut---
+const result = client.readContract({
+  address: '0xaaa',
+  abi,
+  account: '0x',
+  functionName: '',
+})
+
 test('exports', () => {
   expect(Object.keys(exports)).toMatchInlineSnapshot(`
     [
