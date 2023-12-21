@@ -256,7 +256,7 @@ test('args: nullish chain', async () => {
   expect(hash).toBeDefined()
 })
 
-test.only('error: insufficient funds', async () => {
+test('error: insufficient funds', async () => {
   await expect(() =>
     depositTransaction(walletClient, {
       account: accounts[0].address,
