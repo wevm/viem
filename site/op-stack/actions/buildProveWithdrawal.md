@@ -33,13 +33,13 @@ const output = await walletClientL1.getL2Output({
   targetChain: publicClientL2.chain,
 })
 
-const request = await publicClientL2.buildProveWithdrawal({ // [!code hl]
+const args = await publicClientL2.buildProveWithdrawal({ // [!code hl]
   account, // [!code hl]
   output, // [!code hl]
   withdrawal, // [!code hl]
 }) // [!code hl]
  
-const hash = await walletClientL1.proveWithdrawal(request)
+const hash = await walletClientL1.proveWithdrawal(args)
 ```
 
 ```ts [config.ts]
@@ -78,12 +78,12 @@ If you do not wish to pass an `account` to every `buildProveWithdrawal`, you can
 ```ts [example.ts]
 import { publicClientL2, walletClientL1 } from './config'
 
-const request = await publicClientL2.buildProveWithdrawal({
+const args = await publicClientL2.buildProveWithdrawal({
   output,
   withdrawal,
 })
  
-const hash = await walletClientL1.proveWithdrawal(request)
+const hash = await walletClientL1.proveWithdrawal(args)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
@@ -144,7 +144,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const request = await client.buildProveWithdrawal({
+const args = await client.buildProveWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   output,
   withdrawal,
@@ -158,7 +158,7 @@ const request = await client.buildProveWithdrawal({
 The L2 output. Typically provided by [`getL2Output` Action](/op-stack/actions/getL2Output).
 
 ```ts
-const request = await client.buildProveWithdrawal({
+const args = await client.buildProveWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   output: { /* ... */ }, // [!code focus]
   withdrawal, 
@@ -173,7 +173,7 @@ The withdrawal message. Typically provided by [`getWithdrawals` Action](/op-stac
 
 
 ```ts
-const request = await client.buildProveWithdrawal({
+const args = await client.buildProveWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   output,
   withdrawal: { /* ... */ }, // [!code focus]

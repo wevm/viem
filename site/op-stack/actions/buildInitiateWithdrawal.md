@@ -23,13 +23,13 @@ Builds & prepares parameters for a [withdrawal](https://community.optimism.io/do
 ```ts [example.ts]
 import { account, publicClientL1, walletClientL2 } from './config'
 
-const request = await publicClientL1.buildInitiateWithdrawal({ // [!code hl]
+const args = await publicClientL1.buildInitiateWithdrawal({ // [!code hl]
   account, // [!code hl]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code hl]
   value: parseEther('1'), // [!code hl]
 }) // [!code hl]
  
-const hash = await walletClientL2.initiateWithdrawal(request)
+const hash = await walletClientL2.initiateWithdrawal(args)
 ```
 
 ```ts [config.ts]
@@ -68,12 +68,12 @@ If you do not wish to pass an `account` to every `buildInitiateWithdrawal`, you 
 ```ts [example.ts]
 import { publicClientL1, walletClientL2 } from './config'
 
-const request = await publicClientL1.buildInitiateWithdrawal({
+const args = await publicClientL1.buildInitiateWithdrawal({
   mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
  
-const hash = await walletClientL2.initiateWithdrawal(request)
+const hash = await walletClientL2.initiateWithdrawal(args)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
@@ -136,7 +136,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const request = await client.buildInitiateWithdrawal({
+const args = await client.buildInitiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -150,7 +150,7 @@ const request = await client.buildInitiateWithdrawal({
 Encoded contract method & arguments.
 
 ```ts
-const request = await client.buildInitiateWithdrawal({
+const args = await client.buildInitiateWithdrawal({
   data: '0x...', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
@@ -163,7 +163,7 @@ const request = await client.buildInitiateWithdrawal({
 Gas limit for transaction execution on the L1.
 
 ```ts
-const request = await client.buildInitiateWithdrawal({
+const args = await client.buildInitiateWithdrawal({
   gas: 21_000n, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -177,7 +177,7 @@ const request = await client.buildInitiateWithdrawal({
 L1 recipient.
 
 ```ts
-const request = await client.buildInitiateWithdrawal({
+const args = await client.buildInitiateWithdrawal({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',  // [!code focus]
   value: parseEther('1')
 })
@@ -190,7 +190,7 @@ const request = await client.buildInitiateWithdrawal({
 Value in wei to withdrawal from the L2 to the L1. Debited from the caller's L2 balance.
 
 ```ts
-const request = await client.buildInitiateWithdrawal({
+const args = await client.buildInitiateWithdrawal({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
   value: parseEther('1') // [!code focus]
 })

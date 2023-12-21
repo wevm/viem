@@ -1,9 +1,5 @@
 import type { Address } from 'abitype'
 import {
-  type EstimateContractGasErrorType,
-  estimateContractGas,
-} from '../../../actions/public/estimateContractGas.js'
-import {
   type WriteContractErrorType,
   writeContract,
 } from '../../../actions/wallet/writeContract.js'
@@ -21,6 +17,10 @@ import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
+import {
+  type EstimateProveWithdrawalGasErrorType,
+  estimateProveWithdrawalGas,
+} from './estimateProveWithdrawalGas.js'
 
 export type ProveWithdrawalParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -67,7 +67,7 @@ export type ProveWithdrawalParameters<
   }
 export type ProveWithdrawalReturnType = Hash
 export type ProveWithdrawalErrorType =
-  | EstimateContractGasErrorType
+  | EstimateProveWithdrawalGasErrorType
   | WriteContractErrorType
   | ErrorType
 
@@ -91,6 +91,7 @@ export type ProveWithdrawalErrorType =
  * })
  *
  * const request = await proveWithdrawal(walletClientL1, {
+ *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   l2OutputIndex: 4529n,
  *   outputRootProof: { ... },
  *   targetChain: optimism,
@@ -126,22 +127,21 @@ export async function proveWithdrawal<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const args = {
+  const gas_ =
+    typeof gas !== 'number' && gas !== null
+      ? await estimateProveWithdrawalGas(client, parameters)
+      : undefined
+
+  return writeContract(client, {
     account,
     abi: portalAbi,
     address: portalAddress,
     chain,
     functionName: 'proveWithdrawalTransaction',
     args: [withdrawal, l2OutputIndex, outputRootProof, withdrawalProof],
-    gas,
+    gas: gas_,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-  } as any
-
-  const gas_ =
-    typeof gas !== 'number' && gas !== null
-      ? await estimateContractGas(client, args)
-      : undefined
-  return writeContract(client, { ...args, gas: gas_ })
+  })
 }

@@ -38,6 +38,11 @@ import {
   estimateContractTotalGas,
 } from '../actions/estimateContractTotalGas.js'
 import {
+  type EstimateInitiateWithdrawalGasParameters,
+  type EstimateInitiateWithdrawalGasReturnType,
+  estimateInitiateWithdrawalGas,
+} from '../actions/estimateInitiateWithdrawalGas.js'
+import {
   type EstimateL1FeeParameters,
   type EstimateL1FeeReturnType,
   estimateL1Fee,
@@ -81,7 +86,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const request = await client.buildDepositTransaction({
+   * const args = await client.buildDepositTransaction({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
    *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
    *   value: parseEther('1'),
@@ -117,7 +122,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const request = await publicClientL2.buildProveWithdrawal({
+   * const args = await publicClientL2.buildProveWithdrawal({
    *   output: { ... },
    *   withdrawal: { ... },
    * })
@@ -297,6 +302,43 @@ export type PublicActionsL2<
     >,
   ) => Promise<EstimateContractTotalGasReturnType>
   /**
+   * Estimates gas required to initiate a [withdrawal](https://community.optimism.io/docs/protocol/withdrawal-flow/#withdrawal-initiating-transaction) on an L2 to the L1.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/estimateInitiateWithdrawalGas.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link EstimateInitiateWithdrawalGasParameters}
+   * @returns The gas required. {@link EstimateInitiateWithdrawalGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseEther } from 'viem'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/op-stack'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const hash = await client.estimateInitiateWithdrawalGas({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   request: {
+   *     gas: 21_000n,
+   *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *     value: parseEther('1'),
+   *   },
+   * })
+   */
+  estimateInitiateWithdrawalGas: <
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: EstimateInitiateWithdrawalGasParameters<
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<EstimateInitiateWithdrawalGasReturnType>
+  /**
    * Estimates the L1 data fee required to execute an L2 transaction.
    *
    * @param client - Client to use
@@ -419,6 +461,8 @@ export function publicActionsL2() {
         estimateContractTotalFee(client, args),
       estimateContractTotalGas: (args) =>
         estimateContractTotalGas(client, args),
+      estimateInitiateWithdrawalGas: (args) =>
+        estimateInitiateWithdrawalGas(client, args),
       estimateL1Fee: (args) => estimateL1Fee(client, args),
       estimateL1Gas: (args) => estimateL1Gas(client, args),
       estimateTotalFee: (args) => estimateTotalFee(client, args),

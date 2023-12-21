@@ -18,7 +18,7 @@ describe('smoke test', () => {
   test('initiateWithdrawal', async () => {
     const hash = await opStackClient.initiateWithdrawal({
       account: accounts[0].address,
-      args: {
+      request: {
         gas: 21_000n,
         to: accounts[1].address,
         value: 1n,

@@ -47,13 +47,13 @@ import {
 } from './config'
 
 // Build parameters to initiate the withdrawal transaction on the L1.
-const request = await publicClientL1.buildInitiateWithdrawal({
+const args = await publicClientL1.buildInitiateWithdrawal({
   to: account.address,
   value: parseEther('1')
 })
  
 // Execute the initiate withdrawal transaction on the L2.
-const hash = await walletClientL2.initiateWithdrawal(request)
+const hash = await walletClientL2.initiateWithdrawal(args)
 
 // Wait for the initiate withdrawal transaction receipt.
 const receipt = await publicClientL2.waitForTransactionReceipt({ hash })
@@ -65,13 +65,13 @@ const { output, withdrawal } = await publicClientL1.waitToProve({
 })
 
 // Build parameters to prove the withdrawal on the L2.
-const proveRequest = await publicClientL2.buildProveWithdrawal({
+const proveArgs = await publicClientL2.buildProveWithdrawal({
   output,
   withdrawal,
 })
 
 // Prove the withdrawal on the L1.
-const proveHash = await walletClientL1.proveWithdrawal(proveRequest)
+const proveHash = await walletClientL1.proveWithdrawal(proveArgs)
 
 // Wait until the prove withdrawal is processed.
 const proveReceipt = await publicClientL1.waitForTransactionReceipt({
@@ -266,13 +266,13 @@ import {
 } from './config'
 
 // 1. Build parameters to initiate the withdrawal transaction on the L1.
-const request = await publicClientL1.buildInitiateWithdrawal({
+const args = await publicClientL1.buildInitiateWithdrawal({
   to: account.address,
   value: parseEther('1')
 })
  
 // 2. Execute the initiate withdrawal transaction on the L2.
-const hash = await walletClientL2.initiateWithdrawal(request)
+const hash = await walletClientL2.initiateWithdrawal(args)
 
 // 3. Wait for the initiate withdrawal transaction receipt.
 const receipt = await publicClientL2.waitForTransactionReceipt({ hash })
@@ -373,17 +373,17 @@ const { output, withdrawal } = await publicClientL1.waitToProve({ // [!code hl]
 }) // [!code hl]
 
 // 2. Build parameters to prove the withdrawal on the L2. // [!code hl]
-const proveRequest = await publicClientL2.buildProveWithdrawal({ // [!code hl]
+const args = await publicClientL2.buildProveWithdrawal({ // [!code hl]
   output, // [!code hl]
   withdrawal, // [!code hl]
 }) // [!code hl]
 
 // 3. Prove the withdrawal on the L1. // [!code hl]
-const proveHash = await walletClientL1.proveWithdrawal(proveRequest) // [!code hl]
+const hash = await walletClientL1.proveWithdrawal(args) // [!code hl]
 
 // 4. Wait until the prove withdrawal is processed. // [!code hl]
-const proveReceipt = await publicClientL1.waitForTransactionReceipt({ // [!code hl]
-  hash: proveHash // [!code hl]
+const receipt = await publicClientL1.waitForTransactionReceipt({ // [!code hl]
+  hash // [!code hl]
 }) // [!code hl]
 ```
 
@@ -514,14 +514,14 @@ await publicClientL1.waitToFinalize({ // [!code hl]
 }) // [!code hl]
 
 // 2. Finalize the withdrawal. // [!code hl]
-const finalizeHash = await walletClientL1.finalizeWithdrawal({ // [!code hl]
+const hash = await walletClientL1.finalizeWithdrawal({ // [!code hl]
   targetChain: walletClientL2.chain, // [!code hl]
   withdrawal, // [!code hl]
 }) // [!code hl]
 
 // 3. Wait until the withdrawal is finalized. // [!code hl]
-const finalizeReceipt = await publicClientL1.waitForTransactionReceipt({ // [!code hl]
-  hash: finalizeHash // [!code hl]
+const receipt = await publicClientL1.waitForTransactionReceipt({ // [!code hl]
+  hash // [!code hl]
 }) // [!code hl]
 ```
 

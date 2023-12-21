@@ -9,6 +9,21 @@ import {
   buildInitiateWithdrawal,
 } from '../actions/buildInitiateWithdrawal.js'
 import {
+  type EstimateDepositTransactionGasParameters,
+  type EstimateDepositTransactionGasReturnType,
+  estimateDepositTransactionGas,
+} from '../actions/estimateDepositTransactionGas.js'
+import {
+  type EstimateFinalizeWithdrawalGasParameters,
+  type EstimateFinalizeWithdrawalGasReturnType,
+  estimateFinalizeWithdrawalGas,
+} from '../actions/estimateFinalizeWithdrawalGas.js'
+import {
+  type EstimateProveWithdrawalGasParameters,
+  type EstimateProveWithdrawalGasReturnType,
+  estimateProveWithdrawalGas,
+} from '../actions/estimateProveWithdrawalGas.js'
+import {
   type GetL2OutputParameters,
   type GetL2OutputReturnType,
   getL2Output,
@@ -72,7 +87,7 @@ export type PublicActionsL1<
    *   transport: http(),
    * }).extend(publicActionsL1())
    *
-   * const request = await client.buildInitiateWithdrawal({
+   * const args = await client.buildInitiateWithdrawal({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
    *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
    *   value: parseEther('1'),
@@ -89,6 +104,115 @@ export type PublicActionsL1<
       accountOverride
     >,
   ) => Promise<BuildInitiateWithdrawalReturnType<account, accountOverride>>
+  /**
+   * Estimates gas required to initiate a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/estimateDepositTransactionGas.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link EstimateDepositTransactionGasParameters}
+   * @returns The L1 transaction hash. {@link EstimateDepositTransactionGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, custom, parseEther } from 'viem'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/op-stack'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * }).extend(publicActionsL1())
+   *
+   * const gas = await client.estimateDepositTransactionGas({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   args: {
+   *     gas: 21_000n,
+   *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *     value: parseEther('1'),
+   *   },
+   *   targetChain: base,
+   * })
+   */
+  estimateDepositTransactionGas: <
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: EstimateDepositTransactionGasParameters<
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<EstimateDepositTransactionGasReturnType>
+  /**
+   * Estimates gas required to prove a withdrawal that occurred on an L2.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/estimateProveWithdrawalGas.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link EstimateProveWithdrawalGasParameters}
+   * @returns Estimated gas. {@link EstimateProveWithdrawalGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseEther } from 'viem'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/op-stack'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   *
+   * const gas = await client.estimateProveWithdrawalGas({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   l2OutputIndex: 4529n,
+   *   outputRootProof: { ... },
+   *   targetChain: optimism,
+   *   withdrawalProof: [ ... ],
+   *   withdrawal: { ... },
+   * })
+   */
+  estimateProveWithdrawalGas: <
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: EstimateProveWithdrawalGasParameters<
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<EstimateProveWithdrawalGasReturnType>
+  /**
+   * Estimates gas required to finalize a withdrawal that occurred on an L2.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/estimateFinalizeWithdrawalGas.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link EstimateFinalizeWithdrawalGasParameters}
+   * @returns Estimated gas. {@link EstimateFinalizeWithdrawalGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseEther } from 'viem'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/op-stack'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   *
+   * const gas = await client.estimateFinalizeWithdrawalGas({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   targetChain: optimism,
+   *   withdrawal: { ... },
+   * })
+   */
+  estimateFinalizeWithdrawalGas: <
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: EstimateFinalizeWithdrawalGasParameters<
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<EstimateFinalizeWithdrawalGasReturnType>
   /**
    * Retrieves the first L2 output proposal that occurred after a provided block number. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
    *
@@ -371,6 +495,12 @@ export function publicActionsL1() {
   ): PublicActionsL1<TChain, TAccount> => {
     return {
       buildInitiateWithdrawal: (args) => buildInitiateWithdrawal(client, args),
+      estimateDepositTransactionGas: (args) =>
+        estimateDepositTransactionGas(client, args),
+      estimateFinalizeWithdrawalGas: (args) =>
+        estimateFinalizeWithdrawalGas(client, args),
+      estimateProveWithdrawalGas: (args) =>
+        estimateProveWithdrawalGas(client, args),
       getL2Output: (args) => getL2Output(client, args),
       getTimeToFinalize: (args) => getTimeToFinalize(client, args),
       getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),

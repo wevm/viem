@@ -28,7 +28,7 @@ import { account, walletClientL2 } from './config'
  
 const hash = await walletClientL2.initiateWithdrawal({
   account,
-  args: {
+  request: {
     gas: 21_000n,
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
     value: parseEther('1')
@@ -64,12 +64,113 @@ You must [build the parameters](#building-parameters) on the L1 before calling t
 
 ### Building Parameters
 
-TODO
+The [`buildInitiateWithdrawal` Action](/op-stack/actions/buildInitiateWithdrawal) builds & prepares the initiate withdrawal transaction parameters. 
+
+We can use the resulting `args` to initiate the withdrawal transaction on the L2.
+
+::: code-group
+
+```ts [example.ts]
+import { account, publicClientL1, walletClientL2 } from './config'
+
+const args = await publicClientL1.buildInitiateWithdrawal({ // [!code hl]
+  account, // [!code hl]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code hl]
+  value: parseEther('1'), // [!code hl]
+}) // [!code hl]
+ 
+const hash = await walletClientL2.initiateWithdrawal(args)
+```
+
+```ts [config.ts]
+import { createPublicClient, createWalletClient, custom, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet, optimism } from 'viem/chains'
+import { publicActionsL1, walletActionsL2 } from 'viem/op-stack'
+
+export const publicClientL1 = createPublicClient({
+  chain: mainnet,
+  transport: http()
+}).extend(publicActionsL1())
+
+export const walletClientL2 = createWalletClient({
+  chain: optimism,
+  transport: custom(window.ethereum)
+}).extend(walletActionsL2())
+
+// JSON-RPC Account
+export const [account] = await walletClientL1.getAddresses()
+// Local Account
+export const account = privateKeyToAccount(...)
+```
+
+:::
+
+[See more on the `buildInitiateWithdrawal` Action.](/op-stack/actions/buildInitiateWithdrawal)
 
 
 ### Account Hoisting
 
-TODO
+If you do not wish to pass an `account` to every `proveWithdrawal`, you can also hoist the Account on the Wallet Client (see `config.ts`).
+
+[Learn more.](/docs/clients/wallet.html#account)
+
+::: code-group
+
+```ts [example.ts]
+import { account, publicClientL1, walletClientL2 } from './config'
+
+const args = await publicClientL1.buildInitiateWithdrawal({ 
+  account, // [!code --]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+  value: parseEther('1'), 
+}) 
+ 
+const hash = await walletClientL2.initiateWithdrawal(args)
+```
+
+```ts [config.ts (JSON-RPC Account)]
+import { createWalletClient, createPublicClient, custom, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet, optimism } from 'viem/chains'
+import { publicActionsL1, walletActionsL2 } from 'viem/op-stack'
+
+// Retrieve Account from an EIP-1193 Provider. // [!code hl]
+const [account] = await window.ethereum.request({ // [!code hl]
+  method: 'eth_requestAccounts' // [!code hl]
+}) // [!code hl]
+
+export const publicClientL1 = createPublicClient({
+  chain: mainnet,
+  transport: http()
+}).extend(publicActionsL1())
+
+export const walletClientL2 = createWalletClient({
+  account, // [!code hl]
+  chain: optimism,
+  transport: custom(window.ethereum)
+}).extend(walletActionsL2())
+```
+
+```ts [config.ts (Local Account)]
+import { createPublicClient, createWalletClient, custom, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet, optimism } from 'viem/chains'
+import { publicActionsL1, walletActionsL2 } from 'viem/op-stack'
+
+export const publicClientL1 = createPublicClient({
+  chain: mainnet,
+  transport: http()
+}).extend(publicActionsL1())
+
+export const walletClientL2 = createWalletClient({
+  account: privateKeyToAccount('0x...'), // [!code hl]
+  chain: optimism,
+  transport: custom(window.ethereum)
+}).extend(walletActionsL2())
+```
+
+:::
 
 ## Returns
 
@@ -90,7 +191,7 @@ Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local A
 ```ts
 const hash = await client.initiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
-  args: {
+  request: {
     gas: 21_000n,
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
     value: parseEther('1')
@@ -108,7 +209,7 @@ Encoded contract method & arguments.
 ```ts
 const hash = await client.initiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  args: {
+  request: {
     data: '0x...', // [!code focus]
     gas: 21_000n,
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
@@ -126,7 +227,7 @@ Gas limit for transaction execution on the L1.
 ```ts
 const hash = await client.initiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  args: {
+  request: {
     gas: 21_000n, // [!code focus]
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
     value: parseEther('1')
@@ -143,7 +244,7 @@ L1 Transaction recipient.
 ```ts
 const hash = await client.initiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  args: {
+  request: {
     gas: 21_000n,
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',  // [!code focus]
     value: parseEther('1')
@@ -160,7 +261,7 @@ Value in wei to withdrawal from the L2 to the L1. Debited from the caller's L2 b
 ```ts
 const hash = await client.initiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  args: {
+  request: {
     gas: 21_000n,
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
     value: parseEther('1') // [!code focus]
@@ -180,7 +281,7 @@ import { optimism } from 'viem/chains'
 
 const hash = await client.initiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  args: {
+  request: {
     gas: 21_000n,
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
     value: parseEther('1')
@@ -198,7 +299,7 @@ Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`.
 ```ts
 const hash = await client.initiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  args: {
+  request: {
     gas: 21_000n,
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
     value: parseEther('1')
@@ -216,7 +317,7 @@ Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs
 ```ts
 const hash = await client.initiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  args: {
+  request: {
     gas: 21_000n,
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
     value: parseEther('1')
@@ -235,7 +336,7 @@ Unique number identifying this transaction.
 ```ts
 const hash = await client.initiateWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  args: {
+  request: {
     gas: 21_000n,
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
     value: parseEther('1')

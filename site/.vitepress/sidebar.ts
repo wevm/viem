@@ -979,6 +979,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/actions/estimateContractTotalGas',
         },
         {
+          text: 'estimateInitiateWithdrawalGas',
+          link: '/op-stack/actions/estimateInitiateWithdrawalGas',
+        },
+        {
           text: 'estimateL1Fee',
           link: '/op-stack/actions/estimateL1Fee',
         },
@@ -1011,6 +1015,18 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'buildInitiateWithdrawal',
           link: '/op-stack/actions/buildInitiateWithdrawal',
+        },
+        {
+          text: 'estimateDepositTransactionGas',
+          link: '/op-stack/actions/estimateDepositTransactionGas',
+        },
+        {
+          text: 'estimateFinalizeWithdrawalGas',
+          link: '/op-stack/actions/estimateFinalizeWithdrawalGas',
+        },
+        {
+          text: 'estimateProveWithdrawalGas',
+          link: '/op-stack/actions/estimateProveWithdrawalGas',
         },
         {
           text: 'getL2Output',

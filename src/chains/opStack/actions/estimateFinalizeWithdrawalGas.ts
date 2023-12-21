@@ -1,8 +1,9 @@
 import type { Address } from 'abitype'
 import {
-  type WriteContractErrorType,
-  writeContract,
-} from '../../../actions/wallet/writeContract.js'
+  type EstimateContractGasErrorType,
+  type EstimateContractGasParameters,
+  estimateContractGas,
+} from '../../../actions/public/estimateContractGas.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
@@ -12,18 +13,13 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
-import type { Hash } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
-import {
-  type EstimateFinalizeWithdrawalGasErrorType,
-  estimateFinalizeWithdrawalGas,
-} from './estimateFinalizeWithdrawalGas.js'
 
-export type FinalizeWithdrawalParameters<
+export type EstimateFinalizeWithdrawalGasParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
@@ -44,51 +40,52 @@ export type FinalizeWithdrawalParameters<
   GetAccountParameter<account, Account | Address> &
   GetChainParameter<chain, chainOverride> &
   GetContractAddressParameter<_derivedChain, 'portal'> & {
-    /**
-     * Gas limit for transaction execution on the L1.
-     * `null` to skip gas estimation & defer calculation to signer.
-     */
+    /** Gas limit for transaction execution on the L2. */
     gas?: bigint | null
     withdrawal: Withdrawal
   }
-export type FinalizeWithdrawalReturnType = Hash
-export type FinalizeWithdrawalErrorType =
-  | EstimateFinalizeWithdrawalGasErrorType
-  | WriteContractErrorType
+export type EstimateFinalizeWithdrawalGasReturnType = bigint
+export type EstimateFinalizeWithdrawalGasErrorType =
+  | EstimateContractGasErrorType
   | ErrorType
 
 /**
- * Finalizes a withdrawal that occurred on an L2. Used in the Withdrawal flow.
+ * Estimates gas required to finalize a withdrawal that occurred on an L2.
  *
- * - Docs: https://viem.sh/op-stack/actions/finalizeWithdrawal.html
+ * - Docs: https://viem.sh/op-stack/actions/estimateFinalizeWithdrawalGas.html
  *
  * @param client - Client to use
- * @param parameters - {@link FinalizeWithdrawalParameters}
- * @returns The finalize transaction hash. {@link FinalizeWithdrawalReturnType}
+ * @param parameters - {@link EstimateFinalizeWithdrawalGasParameters}
+ * @returns Estimated gas. {@link EstimateFinalizeWithdrawalGasReturnType}
  *
  * @example
- * import { createWalletClient, http } from 'viem'
- * import { mainnet, optimism } from 'viem/chains'
- * import { finalizeWithdrawal } from 'viem/op-stack'
+ * import { createPublicClient, http, parseEther } from 'viem'
+ * import { base, mainnet } from 'viem/chains'
+ * import { estimateFinalizeWithdrawalGas } from 'viem/op-stack'
  *
- * const walletClientL1 = createWalletClient({
+ * const client = createPublicClient({
  *   chain: mainnet,
  *   transport: http(),
  * })
  *
- * const request = await finalizeWithdrawal(walletClientL1, {
+ * const gas = await estimateFinalizeWithdrawalGas(client, {
+ *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   targetChain: optimism,
  *   withdrawal: { ... },
  * })
  */
-export async function finalizeWithdrawal<
+export async function estimateFinalizeWithdrawalGas<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: FinalizeWithdrawalParameters<chain, account, chainOverride>,
-): Promise<FinalizeWithdrawalReturnType> {
+  parameters: EstimateFinalizeWithdrawalGasParameters<
+    chain,
+    account,
+    chainOverride
+  >,
+) {
   const {
     account,
     chain = client.chain,
@@ -106,21 +103,16 @@ export async function finalizeWithdrawal<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const gas_ =
-    typeof gas !== 'number' && gas !== null
-      ? await estimateFinalizeWithdrawalGas(client, parameters)
-      : undefined
-
-  return writeContract(client, {
+  return estimateContractGas(client, {
     account,
     abi: portalAbi,
     address: portalAddress,
     chain,
     functionName: 'finalizeWithdrawalTransaction',
     args: [withdrawal],
-    gas: gas_,
+    gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-  })
+  } as EstimateContractGasParameters)
 }

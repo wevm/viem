@@ -16,6 +16,7 @@ test('default', async () => {
       "estimateContractL1Gas": [Function],
       "estimateContractTotalFee": [Function],
       "estimateContractTotalGas": [Function],
+      "estimateInitiateWithdrawalGas": [Function],
       "estimateL1Fee": [Function],
       "estimateL1Gas": [Function],
       "estimateTotalFee": [Function],
@@ -67,6 +68,17 @@ describe('smoke test', () => {
       args: ['0xc8373edfad6d5c5f600b6b2507f78431c5271ff5', 1n],
     })
     expect(fee).toBeDefined()
+  })
+
+  test('estimateInitiateWithdrawalGas', async () => {
+    const gas = await opStackClient.estimateInitiateWithdrawalGas({
+      account: accounts[0].address,
+      request: {
+        gas: 21000n,
+        to: accounts[1].address,
+      },
+    })
+    expect(gas).toBeDefined()
   })
 
   test('estimateL1Gas', async () => {

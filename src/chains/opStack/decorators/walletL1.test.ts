@@ -21,7 +21,7 @@ describe('smoke test', () => {
   test('depositTransaction', async () => {
     const hash = await opStackClient.depositTransaction({
       account: accounts[0].address,
-      args: {
+      request: {
         gas: 21_000n,
         to: accounts[1].address,
       },

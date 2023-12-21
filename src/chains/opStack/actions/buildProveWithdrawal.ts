@@ -91,7 +91,7 @@ export type BuildProveWithdrawalErrorType =
  *   transport: http(),
  * })
  *
- * const request = await buildProveWithdrawal(publicClientL2, {
+ * const args = await buildProveWithdrawal(publicClientL2, {
  *   output: { ... },
  *   withdrawal: { ... },
  * })

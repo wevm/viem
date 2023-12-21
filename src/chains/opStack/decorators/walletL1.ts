@@ -46,7 +46,7 @@ export type WalletActionsL1<
    *
    * const hash = await client.depositTransaction({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-   *   args: {
+   *   request: {
    *     gas: 21_000n,
    *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
    *     value: parseEther('1'),
@@ -68,7 +68,7 @@ export type WalletActionsL1<
    * }).extend(walletActionsL1())
    *
    * const hash = await client.depositTransaction({
-   *   args: {
+   *   request: {
    *     gas: 21_000n,
    *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
    *     value: parseEther('1'),
@@ -98,7 +98,7 @@ export type WalletActionsL1<
    *   transport: http(),
    * }).extend(walletActionsL1)
    *
-   * const request = await walletClientL1.finalizeWithdrawal({
+   * const hash = await walletClientL1.finalizeWithdrawal({
    *   targetChain: optimism,
    *   withdrawal: { ... },
    * })
@@ -125,7 +125,7 @@ export type WalletActionsL1<
    *   transport: http(),
    * }).extend(walletActionsL1())
    *
-   * const request = await walletClientL1.proveWithdrawal({
+   * const hash = await walletClientL1.proveWithdrawal({
    *   l2OutputIndex: 4529n,
    *   outputRootProof: { ... },
    *   targetChain: optimism,

@@ -19,6 +19,8 @@ import { optimismSepolia } from '../chains.js'
 import { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 import { buildProveWithdrawal } from './buildProveWithdrawal.js'
 import { finalizeWithdrawal } from './finalizeWithdrawal.js'
+import { getTimeToFinalize } from './getTimeToFinalize.js'
+import { getTimeToProve } from './getTimeToProve.js'
 import { initiateWithdrawal } from './initiateWithdrawal.js'
 import { proveWithdrawal } from './proveWithdrawal.js'
 import { waitToFinalize } from './waitToFinalize.js'
@@ -27,7 +29,7 @@ import { waitToProve } from './waitToProve.js'
 test('default', async () => {
   const hash = await initiateWithdrawal(optimismClient, {
     account: accounts[0].address,
-    args: {
+    request: {
       data: '0xdeadbeef',
       gas: 21000n,
       to: accounts[0].address,
@@ -65,7 +67,7 @@ test('default', async () => {
 test('args: gas', async () => {
   const hash = await initiateWithdrawal(optimismClient, {
     account: accounts[0].address,
-    args: {
+    request: {
       data: '0xdeadbeef',
       gas: 21000n,
       to: accounts[0].address,
@@ -79,7 +81,7 @@ test('args: gas', async () => {
 test('args: gas (nullish)', async () => {
   const hash = await initiateWithdrawal(optimismClient, {
     account: accounts[0].address,
-    args: {
+    request: {
       data: '0xdeadbeef',
       gas: 21000n,
       to: accounts[0].address,
@@ -90,11 +92,54 @@ test('args: gas (nullish)', async () => {
   expect(hash).toBeDefined()
 })
 
+test('error: insufficient funds', async () => {
+  await expect(() =>
+    initiateWithdrawal(optimismClient, {
+      account: accounts[0].address,
+      request: {
+        data: '0xdeadbeef',
+        gas: 21000n,
+        to: accounts[0].address,
+        value: parseEther('20000'),
+      },
+      gas: 69n,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [ContractFunctionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+
+    This error could arise when the account does not have enough funds to:
+     - pay for the total gas fee,
+     - pay for the value to send.
+     
+    The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+     - \`gas\` is the amount of gas needed for transaction to execute,
+     - \`gas fee\` is the gas fee,
+     - \`value\` is the amount of ether to send to the recipient.
+     
+    Estimate Gas Arguments:
+      from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:     0x4200000000000000000000000000000000000016
+      value:  20000 ETH
+      data:   0xc2b3e5ac000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000520800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004deadbeef00000000000000000000000000000000000000000000000000000000
+      gas:    69
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  initiateWithdrawal(address _target, uint256 _gasLimit, bytes _data)
+      args:                        (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 21000, 0xdeadbeef)
+      sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+    Docs: https://viem.sh/docs/contract/estimateContractGas.html
+    Details: Insufficient funds for gas * price + value
+    Version: viem@1.0.2]
+  `)
+})
+
 test('error: small gas', async () => {
   await expect(() =>
     initiateWithdrawal(optimismClient, {
       account: accounts[0].address,
-      args: {
+      request: {
         data: '0xdeadbeef',
         gas: 21000n,
         to: accounts[0].address,
@@ -143,38 +188,46 @@ test.skip('e2e (sepolia)', async () => {
     transport: http(),
   })
 
-  const withdrawalRequest = await buildInitiateWithdrawal(client_sepolia, {
+  const args = await buildInitiateWithdrawal(client_sepolia, {
     to: account.address,
     value: 69n,
   })
 
-  const withdrawalHash = await initiateWithdrawal(
-    client_opSepolia,
-    withdrawalRequest,
-  )
+  const hash = await initiateWithdrawal(client_opSepolia, args)
 
-  const withdrawalReceipt = await waitForTransactionReceipt(client_opSepolia, {
-    hash: withdrawalHash,
+  const receipt = await waitForTransactionReceipt(client_opSepolia, {
+    hash: hash,
   })
 
-  const { output, withdrawal } = await waitToProve(client_sepolia, {
-    receipt: withdrawalReceipt,
+  const proveTime = await getTimeToProve(client_sepolia, {
+    receipt: receipt,
     targetChain: client_opSepolia.chain,
   })
 
-  const proveWithdrawalRequest = await buildProveWithdrawal(client_opSepolia, {
+  console.log('seconds to prove:', proveTime.seconds)
+
+  const { output, withdrawal } = await waitToProve(client_sepolia, {
+    receipt: receipt,
+    targetChain: client_opSepolia.chain,
+  })
+
+  const proveArgs = await buildProveWithdrawal(client_opSepolia, {
     output,
     withdrawal,
   })
 
-  const proveHash = await proveWithdrawal(
-    client_sepolia,
-    proveWithdrawalRequest,
-  )
+  const proveHash = await proveWithdrawal(client_sepolia, proveArgs)
 
   await waitForTransactionReceipt(client_sepolia, {
     hash: proveHash,
   })
+
+  const finalizeTime = await getTimeToFinalize(client_sepolia, {
+    targetChain: client_opSepolia.chain,
+    withdrawalHash: withdrawal.withdrawalHash,
+  })
+
+  console.log('seconds to finalize:', finalizeTime.seconds)
 
   await waitToFinalize(client_sepolia, {
     targetChain: client_opSepolia.chain,

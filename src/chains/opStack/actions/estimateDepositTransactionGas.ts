@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
 import {
-  type WriteContractErrorType,
-  type WriteContractParameters,
-  writeContract,
-} from '../../../actions/wallet/writeContract.js'
+  type EstimateContractGasErrorType,
+  type EstimateContractGasParameters,
+  estimateContractGas,
+} from '../../../actions/public/estimateContractGas.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { zeroAddress } from '../../../constants/address.js'
@@ -14,18 +14,13 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
-import type { Hash } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { DepositRequest } from '../types/deposit.js'
-import {
-  type EstimateDepositTransactionGasErrorType,
-  estimateDepositTransactionGas,
-} from './estimateDepositTransactionGas.js'
 
-export type DepositTransactionParameters<
+export type EstimateDepositTransactionGasParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
@@ -48,65 +43,36 @@ export type DepositTransactionParameters<
   GetContractAddressParameter<_derivedChain, 'portal'> & {
     /** L2 transaction request. */
     request: DepositRequest
-    /**
-     * Gas limit for transaction execution on the L1.
-     * `null` to skip gas estimation & defer calculation to signer.
-     */
+    /** Gas limit for transaction execution on the L1. */
     gas?: bigint | null
   }
-export type DepositTransactionReturnType = Hash
-export type DepositTransactionErrorType =
-  | EstimateDepositTransactionGasErrorType
-  | WriteContractErrorType
+export type EstimateDepositTransactionGasReturnType = bigint
+export type EstimateDepositTransactionGasErrorType =
+  | EstimateContractGasErrorType
   | ErrorType
 
 /**
- * Initiates a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
+ * Estimates gas required to initiate a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
  *
- * Internally performs a contract write to the [`depositTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L378)
- * on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol).
- *
- * - Docs: https://viem.sh/op-stack/actions/depositTransaction.html
+ * - Docs: https://viem.sh/op-stack/actions/estimateDepositTransactionGas.html
  *
  * @param client - Client to use
- * @param parameters - {@link DepositTransactionParameters}
- * @returns The L1 transaction hash. {@link DepositTransactionReturnType}
+ * @param parameters - {@link EstimateDepositTransactionGasParameters}
+ * @returns The L1 transaction hash. {@link EstimateDepositTransactionGasReturnType}
  *
  * @example
- * import { createWalletClient, custom, parseEther } from 'viem'
+ * import { createPublicClient, custom, parseEther } from 'viem'
  * import { base, mainnet } from 'viem/chains'
- * import { depositTransaction } from 'viem/op-stack'
+ * import { estimateDepositTransactionGas } from 'viem/op-stack'
  *
- * const client = createWalletClient({
+ * const client = createPublicClient({
  *   chain: mainnet,
  *   transport: custom(window.ethereum),
  * })
  *
- * const hash = await depositTransaction(client, {
+ * const gas = await estimateDepositTransactionGas(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
- *   request: {
- *     gas: 21_000n,
- *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
- *     value: parseEther('1'),
- *   },
- *   targetChain: base,
- * })
- *
- * @example
- * // Account Hoisting
- * import { createWalletClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { base, mainnet } from 'viem/chains'
- * import { depositTransaction } from 'viem/op-stack'
- *
- * const client = createWalletClient({
- *   account: privateKeyToAccount('0x…'),
- *   chain: mainnet,
- *   transport: http(),
- * })
- *
- * const hash = await depositTransaction(client, {
- *   request: {
+ *   args: {
  *     gas: 21_000n,
  *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *     value: parseEther('1'),
@@ -114,13 +80,17 @@ export type DepositTransactionErrorType =
  *   targetChain: base,
  * })
  */
-export async function depositTransaction<
+export async function estimateDepositTransactionGas<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: DepositTransactionParameters<chain, account, chainOverride>,
+  parameters: EstimateDepositTransactionGasParameters<
+    chain,
+    account,
+    chainOverride
+  >,
 ) {
   const {
     account,
@@ -146,13 +116,8 @@ export async function depositTransaction<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const gas_ =
-    typeof gas !== 'number' && gas !== null
-      ? await estimateDepositTransactionGas(client, parameters)
-      : undefined
-
-  return writeContract(client, {
-    account: account!,
+  return estimateContractGas(client, {
+    account,
     abi: portalAbi,
     address: portalAddress,
     chain,
@@ -164,10 +129,10 @@ export async function depositTransaction<
       isCreation,
       data,
     ],
+    gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
     value: mint,
-    gas: gas_,
-  } satisfies WriteContractParameters as any)
+  } as EstimateContractGasParameters)
 }

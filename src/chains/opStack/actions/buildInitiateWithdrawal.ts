@@ -72,7 +72,7 @@ export type BuildInitiateWithdrawalErrorType =
  *   transport: http(),
  * })
  *
- * const request = await buildInitiateWithdrawal(client, {
+ * const args = await buildInitiateWithdrawal(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *   value: parseEther('1'),
@@ -108,7 +108,7 @@ export async function buildInitiateWithdrawal<
 
   return {
     account,
-    args: {
+    request: {
       data: request.data,
       gas: request.gas,
       to: request.to,

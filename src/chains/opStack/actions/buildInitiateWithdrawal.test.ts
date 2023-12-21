@@ -13,7 +13,7 @@ test('default', async () => {
   expect(request).toMatchInlineSnapshot(`
     {
       "account": undefined,
-      "args": {
+      "request": {
         "data": undefined,
         "gas": 21000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -37,7 +37,7 @@ test('args: account', async () => {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "type": "json-rpc",
       },
-      "args": {
+      "request": {
         "data": undefined,
         "gas": 21000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -62,7 +62,7 @@ test('args: chain', async () => {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "type": "json-rpc",
       },
-      "args": {
+      "request": {
         "data": undefined,
         "gas": 21000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -87,7 +87,7 @@ test('args: data', async () => {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "type": "json-rpc",
       },
-      "args": {
+      "request": {
         "data": "0xdeadbeef",
         "gas": 21064n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -112,7 +112,7 @@ test('args: gas', async () => {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "type": "json-rpc",
       },
-      "args": {
+      "request": {
         "data": undefined,
         "gas": 100000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -137,7 +137,7 @@ test('args: value', async () => {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "type": "json-rpc",
       },
-      "args": {
+      "request": {
         "data": undefined,
         "gas": 21000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",

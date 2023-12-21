@@ -1,10 +1,7 @@
 import type { Address } from 'abitype'
 import {
-  type EstimateContractGasErrorType,
-  estimateContractGas,
-} from '../../../actions/public/estimateContractGas.js'
-import {
   type WriteContractErrorType,
+  type WriteContractParameters,
   writeContract,
 } from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
@@ -16,11 +13,16 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
-import type { Hash, Hex } from '../../../types/misc.js'
+import type { Hash } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { l2ToL1MessagePasserAbi } from '../abis.js'
 import { contracts } from '../contracts.js'
+import type { WithdrawalRequest } from '../types/withdrawal.js'
+import {
+  type EstimateInitiateWithdrawalGasErrorType,
+  estimateInitiateWithdrawalGas,
+} from './estimateInitiateWithdrawalGas.js'
 
 export type InitiateWithdrawalParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -42,26 +44,17 @@ export type InitiateWithdrawalParameters<
 > &
   GetAccountParameter<account, Account | Address> &
   GetChainParameter<chain, chainOverride> & {
-    /** Arguments supplied to the L2ToL1MessagePasser `initiateWithdrawal` method. */
-    args: {
-      /** Encoded contract method & arguments. */
-      data?: Hex
-      /** Gas limit for transaction execution on the L1. */
-      gas: bigint
-      /** L1 Transaction recipient. */
-      to: Address
-      /** Value in wei to withdrawal to the L1. Debited from the caller's L2 balance. */
-      value?: bigint
-    }
     /**
      * Gas limit for transaction execution on the L2.
      * `null` to skip gas estimation & defer calculation to signer.
      */
     gas?: bigint | null
+    /** Withdrawal request. Supplied to the L2ToL1MessagePasser `initiateWithdrawal` method. */
+    request: WithdrawalRequest
   }
 export type InitiateWithdrawalReturnType = Hash
 export type InitiateWithdrawalErrorType =
-  | EstimateContractGasErrorType
+  | EstimateInitiateWithdrawalGasErrorType
   | WriteContractErrorType
   | ErrorType
 
@@ -110,7 +103,7 @@ export type InitiateWithdrawalErrorType =
  * })
  *
  * const hash = await initiateWithdrawal(client, {
- *   args: {
+ *   request: {
  *     gas: 21_000n,
  *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *     value: parseEther('1'),
@@ -127,34 +120,30 @@ export async function initiateWithdrawal<
 ) {
   const {
     account,
-    args: { data = '0x', gas: l1Gas, to, value },
     chain = client.chain,
     gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    request: { data = '0x', gas: l1Gas, to, value },
   } = parameters
 
-  const args = {
-    account,
+  const gas_ =
+    typeof gas !== 'number' && gas !== null
+      ? await estimateInitiateWithdrawalGas(client, parameters)
+      : undefined
+
+  return writeContract(client, {
+    account: account!,
     abi: l2ToL1MessagePasserAbi,
     address: contracts.l2ToL1MessagePasser.address,
     chain,
     functionName: 'initiateWithdrawal',
     args: [to, l1Gas, data],
-    gas,
+    gas: gas_,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
     value,
-  } as any
-
-  const gas_ =
-    typeof gas !== 'number' && gas !== null
-      ? await estimateContractGas(client, args)
-      : undefined
-  return writeContract(client, {
-    ...args,
-    gas: gas_,
-  } as any)
+  } satisfies WriteContractParameters as any)
 }

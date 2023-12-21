@@ -35,13 +35,13 @@ const output = await walletClientL1.getL2Output({
   targetChain: publicClientL2.chain,
 })
 
-const request = await publicClientL2.buildProveWithdrawal({
+const args = await publicClientL2.buildProveWithdrawal({
   account,
   output,
   withdrawal,
 })
  
-const hash = await walletClientL1.proveWithdrawal(request) // [!code hl]
+const hash = await walletClientL1.proveWithdrawal(args) // [!code hl]
 ```
 
 ```ts [config.ts]
@@ -79,7 +79,7 @@ You must [build the parameters](#building-parameters) on the L2 before calling t
 
 The [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal) builds & prepares the prove withdrawal transaction parameters. 
 
-We can use the resulting `request` to prove the withdrawal transaction on the L1.
+We can use the resulting `args` to prove the withdrawal transaction on the L1.
 
 ::: code-group
 
@@ -96,13 +96,13 @@ const output = await walletClientL1.getL2Output({
   targetChain: publicClientL2.chain,
 })
 
-const request = await publicClientL2.buildProveWithdrawal({ // [!code hl]
+const args = await publicClientL2.buildProveWithdrawal({ // [!code hl]
   account, // [!code hl]
   output, // [!code hl]
   withdrawal, // [!code hl]
 }) // [!code hl]
  
-const hash = await walletClientL1.proveWithdrawal(request)
+const hash = await walletClientL1.proveWithdrawal(args)
 ```
 
 ```ts [config.ts]
@@ -129,7 +129,7 @@ export const account = privateKeyToAccount(...)
 
 :::
 
-[See more on the `buildDepositTransaction` Action.](/op-stack/actions/buildDepositTransaction)
+[See more on the `buildProveWithdrawal` Action.](/op-stack/actions/buildProveWithdrawal)
 
 
 ### Account Hoisting
@@ -153,12 +153,12 @@ const output = await walletClientL1.getL2Output({
   targetChain: publicClientL2.chain,
 })
 
-const request = await publicClientL2.buildProveWithdrawal({
+const args = await publicClientL2.buildProveWithdrawal({
   output,
   withdrawal,
 })
  
-const hash = await walletClientL1.proveWithdrawal(request)
+const hash = await walletClientL1.proveWithdrawal(args)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
