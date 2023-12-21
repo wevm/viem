@@ -96,18 +96,18 @@ export async function getFilterLogs<
     params: [filter.id],
   })
 
+  const formattedLogs = logs.map((log) => formatLog(log))
   if (!filter.abi)
-    return logs.map((log) => formatLog(log)) as GetFilterLogsReturnType<
+    return formattedLogs as GetFilterLogsReturnType<
       TAbi,
       TEventName,
       TStrict,
       TFromBlock,
       TToBlock
     >
-
   return parseEventLogs({
     abi: filter.abi,
-    logs,
+    logs: formattedLogs,
     strict,
   }) as unknown as GetFilterLogsReturnType<
     TAbi,

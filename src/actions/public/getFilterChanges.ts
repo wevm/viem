@@ -191,10 +191,9 @@ export async function getFilterChanges<
       TToBlock
     >
 
+  const formattedLogs = logs.map((log) => formatLog(log as RpcLog))
   if (!('abi' in filter) || !filter.abi)
-    return logs.map((log) =>
-      formatLog(log as RpcLog),
-    ) as GetFilterChangesReturnType<
+    return formattedLogs as GetFilterChangesReturnType<
       TFilterType,
       TAbi,
       TEventName,
@@ -202,10 +201,9 @@ export async function getFilterChanges<
       TFromBlock,
       TToBlock
     >
-
   return parseEventLogs({
     abi: filter.abi,
-    logs: logs as RpcLog[],
+    logs: formattedLogs,
     strict,
   }) as unknown as GetFilterChangesReturnType<
     TFilterType,

@@ -200,18 +200,18 @@ export async function getLogs<
     })
   }
 
+  const formattedLogs = logs.map((log) => formatLog(log))
   if (!events)
-    return logs.map((log) => formatLog(log)) as GetLogsReturnType<
+    return formattedLogs as GetLogsReturnType<
       TAbiEvent,
       TAbiEvents,
       TStrict,
       TFromBlock,
       TToBlock
     >
-
   return parseEventLogs({
     abi: events,
-    logs,
+    logs: formattedLogs,
     strict,
   }) as unknown as GetLogsReturnType<
     TAbiEvent,
