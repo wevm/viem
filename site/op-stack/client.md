@@ -83,4 +83,3 @@ import { publicActionsL2 } from 'viem/op-stack'
 
 ---
 
-For each of these new sections, you'll want to provide detailed descriptions of each action, their purposes, and examples of how to use them, much like you did for the existing sections. If you have any code examples or use cases for these actions, including them would greatly enhance the utility of the documentation.
