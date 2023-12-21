@@ -203,7 +203,7 @@ const hash = await client.estimateFinalizeWithdrawalGas({
 
 - **Type:** `bigint`
 
-The withdrawal. Typically derived from the [`buildFinalizeWithdrawal` Action](/op-stack/actions/buildFinalizeWithdrawal.html).
+The withdrawal.
 
 ```ts
 const hash = await client.estimateFinalizeWithdrawalGas({
