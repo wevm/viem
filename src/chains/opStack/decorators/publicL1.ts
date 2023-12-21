@@ -485,6 +485,20 @@ export type PublicActionsL1<
   ) => Promise<WaitToProveReturnType>
 }
 
+/**
+ * A suite of Public Actions for suited for development with Layer 2 (OP Stack) chains. *
+ * - Docs: https://rc.viem.sh/op-stack/client.html
+ *
+ * @example
+ * import { publicActionsL1 } from 'viem/op-stack'
+ * import { mainnet } from 'viem/chains'
+ * import { buildDepositTransaction } from 'viem/wallet'
+ *
+ * export const opStackPublicClientL1 = createWalletClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * }).extend(publicActionsL1())
+ */
 export function publicActionsL1() {
   return <
     TTransport extends Transport,

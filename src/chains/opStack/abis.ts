@@ -1,3 +1,7 @@
+/**
+ * ABI For the OP Stack gas price oracle
+ * @see https://optimistic.etherscan.io/address/0x420000000000000000000000000000000000000f
+ */
 export const gasPriceOracleAbi = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
   {
