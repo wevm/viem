@@ -22,6 +22,7 @@ import type { GetContractAddressParameter } from '../types/contract.js'
 import type { DepositRequest } from '../types/deposit.js'
 import {
   type EstimateDepositTransactionGasErrorType,
+  type EstimateDepositTransactionGasParameters,
   estimateDepositTransactionGas,
 } from './estimateDepositTransactionGas.js'
 
@@ -148,7 +149,10 @@ export async function depositTransaction<
 
   const gas_ =
     typeof gas !== 'number' && gas !== null
-      ? await estimateDepositTransactionGas(client, parameters)
+      ? await estimateDepositTransactionGas(
+          client,
+          parameters as EstimateDepositTransactionGasParameters,
+        )
       : undefined
 
   return writeContract(client, {

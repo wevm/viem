@@ -21,6 +21,7 @@ import { contracts } from '../contracts.js'
 import type { WithdrawalRequest } from '../types/withdrawal.js'
 import {
   type EstimateInitiateWithdrawalGasErrorType,
+  type EstimateInitiateWithdrawalGasParameters,
   estimateInitiateWithdrawalGas,
 } from './estimateInitiateWithdrawalGas.js'
 
@@ -130,7 +131,10 @@ export async function initiateWithdrawal<
 
   const gas_ =
     typeof gas !== 'number' && gas !== null
-      ? await estimateInitiateWithdrawalGas(client, parameters)
+      ? await estimateInitiateWithdrawalGas(
+          client,
+          parameters as EstimateInitiateWithdrawalGasParameters,
+        )
       : undefined
 
   return writeContract(client, {

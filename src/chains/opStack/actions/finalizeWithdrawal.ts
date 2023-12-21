@@ -20,6 +20,7 @@ import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
   type EstimateFinalizeWithdrawalGasErrorType,
+  type EstimateFinalizeWithdrawalGasParameters,
   estimateFinalizeWithdrawalGas,
 } from './estimateFinalizeWithdrawalGas.js'
 
@@ -108,7 +109,10 @@ export async function finalizeWithdrawal<
 
   const gas_ =
     typeof gas !== 'number' && gas !== null
-      ? await estimateFinalizeWithdrawalGas(client, parameters)
+      ? await estimateFinalizeWithdrawalGas(
+          client,
+          parameters as EstimateFinalizeWithdrawalGasParameters,
+        )
       : undefined
 
   return writeContract(client, {

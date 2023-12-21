@@ -19,6 +19,7 @@ import { portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
   type EstimateProveWithdrawalGasErrorType,
+  type EstimateProveWithdrawalGasParameters,
   estimateProveWithdrawalGas,
 } from './estimateProveWithdrawalGas.js'
 
@@ -129,7 +130,10 @@ export async function proveWithdrawal<
 
   const gas_ =
     typeof gas !== 'number' && gas !== null
-      ? await estimateProveWithdrawalGas(client, parameters)
+      ? await estimateProveWithdrawalGas(
+          client,
+          parameters as EstimateProveWithdrawalGasParameters,
+        )
       : undefined
 
   return writeContract(client, {
