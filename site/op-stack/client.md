@@ -80,6 +80,3 @@ A suite of [Public Actions](./actions/estimateL1Gas.md) for suited for developme
 ```ts
 import { publicActionsL2 } from 'viem/op-stack'
 ```
-
----
-
