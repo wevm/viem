@@ -945,14 +945,9 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Deposits',
           link: '/op-stack/guides/deposits',
         },
-      ],
-    },
-    {
-      text: 'L1 Wallet Actions',
-      items: [
         {
-          text: 'depositTransaction',
-          link: '/op-stack/actions/depositTransaction',
+          text: 'Withdrawals',
+          link: '/op-stack/guides/withdrawals',
         },
       ],
     },
@@ -962,6 +957,10 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'buildDepositTransaction',
           link: '/op-stack/actions/buildDepositTransaction',
+        },
+        {
+          text: 'buildProveWithdrawal',
+          link: '/op-stack/actions/buildProveWithdrawal',
         },
         {
           text: 'estimateContractL1Fee',
@@ -978,6 +977,10 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'estimateContractTotalGas',
           link: '/op-stack/actions/estimateContractTotalGas',
+        },
+        {
+          text: 'estimateInitiateWithdrawalGas',
+          link: '/op-stack/actions/estimateInitiateWithdrawalGas',
         },
         {
           text: 'estimateL1Fee',
@@ -998,11 +1001,94 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
+      text: 'L2 Wallet Actions',
+      items: [
+        {
+          text: 'initiateWithdrawal',
+          link: '/op-stack/actions/initiateWithdrawal',
+        },
+      ],
+    },
+    {
+      text: 'L1 Public Actions',
+      items: [
+        {
+          text: 'buildInitiateWithdrawal',
+          link: '/op-stack/actions/buildInitiateWithdrawal',
+        },
+        {
+          text: 'estimateDepositTransactionGas',
+          link: '/op-stack/actions/estimateDepositTransactionGas',
+        },
+        {
+          text: 'estimateFinalizeWithdrawalGas',
+          link: '/op-stack/actions/estimateFinalizeWithdrawalGas',
+        },
+        {
+          text: 'estimateProveWithdrawalGas',
+          link: '/op-stack/actions/estimateProveWithdrawalGas',
+        },
+        {
+          text: 'getL2Output',
+          link: '/op-stack/actions/getL2Output',
+        },
+        {
+          text: 'getTimeToFinalize',
+          link: '/op-stack/actions/getTimeToFinalize',
+        },
+        {
+          text: 'getTimeToNextL2Output',
+          link: '/op-stack/actions/getTimeToNextL2Output',
+        },
+        {
+          text: 'getTimeToProve',
+          link: '/op-stack/actions/getTimeToProve',
+        },
+        {
+          text: 'getWithdrawalStatus',
+          link: '/op-stack/actions/getWithdrawalStatus',
+        },
+        {
+          text: 'waitForNextL2Output',
+          link: '/op-stack/actions/waitForNextL2Output',
+        },
+        {
+          text: 'waitToFinalize',
+          link: '/op-stack/actions/waitToFinalize',
+        },
+        {
+          text: 'waitToProve',
+          link: '/op-stack/actions/waitToProve',
+        },
+      ],
+    },
+    {
+      text: 'L1 Wallet Actions',
+      items: [
+        {
+          text: 'depositTransaction',
+          link: '/op-stack/actions/depositTransaction',
+        },
+        {
+          text: 'finalizeWithdrawal',
+          link: '/op-stack/actions/finalizeWithdrawal',
+        },
+        {
+          text: 'proveWithdrawal',
+          link: '/op-stack/actions/proveWithdrawal',
+        },
+      ],
+    },
+    {
       text: 'Utilities',
       items: [
         {
           text: 'extractTransactionDepositedLogs',
           link: '/op-stack/utilities/extractTransactionDepositedLogs',
+        },
+        {
+          text: 'extractWithdrawalMessageLogs',
+          link: '/op-stack/utilities/extractWithdrawalMessageLogs',
         },
         {
           text: 'getL2TransactionHash',
@@ -1013,12 +1099,20 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/op-stack/utilities/getL2TransactionHashes',
         },
         {
+          text: 'getWithdrawals',
+          link: '/op-stack/utilities/getWithdrawals',
+        },
+        {
           text: 'getSourceHash',
           link: '/op-stack/utilities/getSourceHash',
         },
         {
           text: 'opaqueDataToDepositData',
           link: '/op-stack/utilities/opaqueDataToDepositData',
+        },
+        {
+          text: 'getWithdrawalHashStorageSlot',
+          link: '/op-stack/utilities/getWithdrawalHashStorageSlot',
         },
         {
           text: 'parseTransaction',

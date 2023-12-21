@@ -21,35 +21,35 @@ Builds & prepares parameters for a [deposit transaction](https://github.com/ethe
 ::: code-group
 
 ```ts [example.ts]
-import { account, clientL2, clientL1 } from './config'
+import { account, publicClientL2, walletClientL1 } from './config'
 
-const request = await clientL2.buildDepositTransaction({ // [!code hl]
+const args = await publicClientL2.buildDepositTransaction({ // [!code hl]
   account, // [!code hl]
   mint: parseEther('1'), // [!code hl]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code hl]
 }) // [!code hl]
  
-const hash = await clientL1.depositTransaction(request)
+const hash = await walletClientL1.depositTransaction(args)
 ```
 
 ```ts [config.ts]
-import { createClient, custom, http } from 'viem'
+import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, base } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
-export const clientL1 = createClient({
+export const walletClientL1 = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
-export const clientL2 = createClient({
+export const publicClientL2 = createPublicClient({
   chain: base,
   transport: http()
 }).extend(publicActionsL2())
 
 // JSON-RPC Account
-export const [account] = await clientL1.getAddresses()
+export const [account] = await walletClientL1.getAddresses()
 // Local Account
 export const account = privateKeyToAccount(...)
 ```
@@ -66,18 +66,18 @@ If you do not wish to pass an `account` to every `buildDepositTransaction`, you 
 ::: code-group
 
 ```ts [example.ts]
-import { clientL2, clientL1 } from './config'
+import { publicClientL2, walletClientL1 } from './config'
 
-const request = await clientL2.buildDepositTransaction({
+const args = await publicClientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
  
-const hash = await clientL1.depositTransaction(request)
+const hash = await walletClientL1.depositTransaction(args)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
-import { createClient, custom, http } from 'viem'
+import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, base } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
@@ -87,29 +87,29 @@ const [account] = await window.ethereum.request({ // [!code hl]
   method: 'eth_requestAccounts' // [!code hl]
 }) // [!code hl]
 
-export const clientL1 = createClient({
+export const walletClientL1 = createWalletClient({
   account, // [!code hl]
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
-export const clientL2 = createClient({
+export const publicClientL2 = createPublicClient({
   chain: base,
   transport: http()
 }).extend(publicActionsL2())
 ```
 
 ```ts [config.ts (Local Account)]
-import { createClient, custom, http } from 'viem'
+import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, base } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
 
-export const clientL1 = createClient({
+export const walletClientL1 = createWalletClient({
   account: privateKeyToAccount('0x...'), // [!code hl]
   transport: custom(window.ethereum)
 }).extend(walletActionsL1())
 
-export const clientL2 = createClient({
+export const publicClientL2 = createPublicClient({
   chain: base,
   transport: http()
 }).extend(publicActionsL2())
@@ -134,7 +134,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const request = await client.buildDepositTransaction({
+const args = await client.buildDepositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -148,7 +148,7 @@ const request = await client.buildDepositTransaction({
 Contract deployment bytecode or encoded contract method & arguments.
 
 ```ts
-const request = await client.buildDepositTransaction({
+const args = await client.buildDepositTransaction({
   data: '0x...', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
@@ -161,7 +161,7 @@ const request = await client.buildDepositTransaction({
 Gas limit for transaction execution on the L2.
 
 ```ts
-const request = await client.buildDepositTransaction({
+const args = await client.buildDepositTransaction({
   gas: 21_000n, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -175,7 +175,7 @@ const request = await client.buildDepositTransaction({
 Whether or not this is a contract deployment transaction.
 
 ```ts
-const request = await client.buildDepositTransaction({
+const args = await client.buildDepositTransaction({
   data: '0x...',
   isCreation: true // [!code focus]
 })
@@ -188,7 +188,7 @@ const request = await client.buildDepositTransaction({
 Value in wei to mint (deposit) on the L2. Debited from the caller's L1 balance.
 
 ```ts
-const request = await client.buildDepositTransaction({
+const args = await client.buildDepositTransaction({
   mint: parseEther('1') // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
 })
@@ -201,7 +201,7 @@ const request = await client.buildDepositTransaction({
 L2 Transaction recipient.
 
 ```ts
-const request = await client.buildDepositTransaction({
+const args = await client.buildDepositTransaction({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',  // [!code focus]
   value: parseEther('1')
 })
@@ -214,7 +214,7 @@ const request = await client.buildDepositTransaction({
 Value in wei sent with this transaction on the L2. Debited from the caller's L2 balance.
 
 ```ts
-const request = await client.buildDepositTransaction({
+const args = await client.buildDepositTransaction({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
   value: parseEther('1') // [!code focus]
 })

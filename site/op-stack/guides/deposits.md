@@ -27,13 +27,13 @@ import { getL2TransactionHashes } from 'viem/op-stack'
 import { account, publicClientL1, publicClientL2, walletClientL1 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const args = await publicClientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
  
 // Execute the deposit transaction on the L1.
-const hash = await walletClientL1.depositTransacton(request)
+const hash = await walletClientL1.depositTransacton(args)
 
 // Wait for the L1 transaction to be processed.
 const receipt = await publicClientL1.waitForTransactionReceipt({ hash })
@@ -192,7 +192,7 @@ You can also use someone else's address as the `to` value if you wanted to.
 import { publicClientL2 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const args = await publicClientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
@@ -264,13 +264,13 @@ After that, we will execute the deposit transaction on the Mainnet (L1) chain.
 import { account, publicClientL2, walletClientL1 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const args = await publicClientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
 
 // Execute the deposit transaction on the L1. // [!code focus]
-const hash = await walletClientL1.depositTransacton(request) // [!code focus]
+const hash = await walletClientL1.depositTransacton(args) // [!code focus]
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
@@ -349,13 +349,13 @@ import {
 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const args = await publicClientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
 
 // Execute the deposit transaction on the L1. 
-const hash = await walletClientL1.depositTransacton(request) 
+const hash = await walletClientL1.depositTransacton(args) 
 
 // Wait for the L1 transaction to be processed. // [!code focus]
 const receipt = await publicClientL1.waitForTransactionReceipt({ hash }) // [!code focus]
@@ -431,13 +431,13 @@ import {
 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const args = await publicClientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
 
 // Execute the deposit transaction on the L1. 
-const hash = await walletClientL1.depositTransacton(request) 
+const hash = await walletClientL1.depositTransacton(args) 
 
 // Wait for the L1 transaction to be processed. 
 const receipt = await publicClientL1.waitForTransactionReceipt({ hash }) 
@@ -518,13 +518,13 @@ import {
 } from './config'
 
 // Build parameters for the transaction on the L2.
-const request = await publicClientL2.buildDepositTransaction({
+const args = await publicClientL2.buildDepositTransaction({
   mint: parseEther('1')
   to: account.address,
 })
 
 // Execute the deposit transaction on the L1. 
-const hash = await walletClientL1.depositTransacton(request) 
+const hash = await walletClientL1.depositTransacton(args) 
 
 // Wait for the L1 transaction to be processed. 
 const receipt = await publicClientL1.waitForTransactionReceipt({ hash }) 

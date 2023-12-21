@@ -19,7 +19,7 @@ if (process.env.VITE_ANVIL_BLOCK_NUMBER_OPTIMISM) {
     Number(process.env.VITE_ANVIL_BLOCK_NUMBER_OPTIMISM),
   )
 } else {
-  forkBlockNumberOptimism = 112157877n
+  forkBlockNumberOptimism = 113624777n
   warn(
     `\`VITE_ANVIL_BLOCK_NUMBER_OPTIMISM\` not found. Falling back to \`${forkBlockNumberOptimism}\`.`,
   )
@@ -52,7 +52,7 @@ export const optimismAnvilChain = {
 export const optimismClient = createClient({
   chain: optimismAnvilChain,
   transport: http(),
-})
+}).extend(() => ({ mode: 'anvil' }))
 
 export const optimismClientWithAccount = createClient({
   account: accounts[0].address,

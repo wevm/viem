@@ -83,7 +83,7 @@ export type PrepareTransactionRequestReturnType<
   TParameterType extends
     PrepareTransactionRequestParameterType = PrepareTransactionRequestParameterType,
   ///
-  derivedAccount extends Account | undefined = DeriveAccount<
+  derivedAccount extends Account | Address | undefined = DeriveAccount<
     TAccount,
     TAccountOverride
   >,

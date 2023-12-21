@@ -21,6 +21,11 @@ export const optimism = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    l2OutputOracle: {
+      [sourceId]: {
+        address: '0xdfe97868233d1aa22e815a266982f2cf17685a27',
+      },
+    },
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 4286263,

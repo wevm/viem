@@ -11,10 +11,12 @@ test('default', async () => {
   expect(publicActionsL2()(optimismClient)).toMatchInlineSnapshot(`
     {
       "buildDepositTransaction": [Function],
+      "buildProveWithdrawal": [Function],
       "estimateContractL1Fee": [Function],
       "estimateContractL1Gas": [Function],
       "estimateContractTotalFee": [Function],
       "estimateContractTotalGas": [Function],
+      "estimateInitiateWithdrawalGas": [Function],
       "estimateL1Fee": [Function],
       "estimateL1Gas": [Function],
       "estimateTotalFee": [Function],
@@ -68,6 +70,17 @@ describe('smoke test', () => {
     expect(fee).toBeDefined()
   })
 
+  test('estimateInitiateWithdrawalGas', async () => {
+    const gas = await opStackClient.estimateInitiateWithdrawalGas({
+      account: accounts[0].address,
+      request: {
+        gas: 21000n,
+        to: accounts[1].address,
+      },
+    })
+    expect(gas).toBeDefined()
+  })
+
   test('estimateL1Gas', async () => {
     const gas = await opStackClient.estimateL1Gas({
       account: accounts[0].address,
@@ -100,6 +113,30 @@ describe('smoke test', () => {
     const request = await opStackClient.buildDepositTransaction({
       account: accounts[0].address,
       value: 1n,
+    })
+    expect(request).toBeDefined()
+  })
+
+  test('buildProveWithdrawal', async () => {
+    const request = await opStackClient.buildProveWithdrawal({
+      withdrawal: {
+        nonce:
+          1766847064778384329583297500742918515827483896875618958121606201292619876n,
+        sender: '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
+        target: '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
+        value: 69n,
+        gasLimit: 21000n,
+        data: '0x',
+        withdrawalHash:
+          '0xcc0105f5c469886957738418857b6d7ce6fec398c8a7c40045e20a0e02a1a7e7',
+      },
+      output: {
+        outputIndex: 43877n,
+        outputRoot:
+          '0xe07becc7d8d944602a4f12d7f47c12754e33527076a3f7d18c316c3fc0d85b21',
+        timestamp: 1702333368n,
+        l2BlockNumber: 5265360n,
+      },
     })
     expect(request).toBeDefined()
   })

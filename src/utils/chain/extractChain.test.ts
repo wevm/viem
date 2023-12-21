@@ -74,6 +74,11 @@ test('default', async () => {
         "l2Erc721Bridge": {
           "address": "0x4200000000000000000000000000000000000014",
         },
+        "l2OutputOracle": {
+          "1": {
+            "address": "0xdfe97868233d1aa22e815a266982f2cf17685a27",
+          },
+        },
         "l2StandardBridge": {
           "address": "0x4200000000000000000000000000000000000010",
         },

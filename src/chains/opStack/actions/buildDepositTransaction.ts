@@ -11,7 +11,11 @@ import {
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Account, GetAccountParameter } from '../../../types/account.js'
+import type {
+  Account,
+  DeriveAccount,
+  GetAccountParameter,
+} from '../../../types/account.js'
 import type {
   Chain,
   DeriveChain,
@@ -64,8 +68,9 @@ export type BuildDepositTransactionReturnType<
     | Address
     | undefined,
 > = Prettify<
-  UnionOmit<DepositTransactionParameters<Chain, account, Chain>, 'account'> &
-    GetAccountParameter<account, accountOverride>
+  UnionOmit<DepositTransactionParameters<Chain, account, Chain>, 'account'> & {
+    account: DeriveAccount<account, accountOverride>
+  }
 >
 
 export type BuildDepositTransactionErrorType =
@@ -93,7 +98,7 @@ export type BuildDepositTransactionErrorType =
  *   transport: http(),
  * }).extend(publicActionsL2())
  *
- * const request = await buildDepositTransaction(client, {
+ * const args = await buildDepositTransaction(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *   value: parseEther('1'),
@@ -138,7 +143,7 @@ export async function buildDepositTransaction<
 
   return {
     account,
-    args: {
+    request: {
       data: request.data,
       gas: request.gas,
       mint,
@@ -147,5 +152,5 @@ export async function buildDepositTransaction<
       value: request.value,
     },
     targetChain: chain,
-  } as BuildDepositTransactionReturnType<account, accountOverride>
+  } as unknown as BuildDepositTransactionReturnType<account, accountOverride>
 }

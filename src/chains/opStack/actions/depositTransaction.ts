@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 import {
   type WriteContractErrorType,
+  type WriteContractParameters,
   writeContract,
 } from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
@@ -13,11 +14,16 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
-import type { Hash, Hex } from '../../../types/misc.js'
+import type { Hash } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
+import type { DepositRequest } from '../types/deposit.js'
+import {
+  type EstimateDepositTransactionGasErrorType,
+  estimateDepositTransactionGas,
+} from './estimateDepositTransactionGas.js'
 
 export type DepositTransactionParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -40,35 +46,19 @@ export type DepositTransactionParameters<
   GetAccountParameter<account, Account | Address> &
   GetChainParameter<chain, chainOverride> &
   GetContractAddressParameter<_derivedChain, 'portal'> & {
-    /** Arguments supplied to the L2 transaction. */
-    args: {
-      /** Gas limit for transaction execution on the L2. */
-      gas: bigint
-      /** Value in wei to mint (deposit) on the L2. Debited from the caller's L1 balance. */
-      mint?: bigint
-      /** Value in wei sent with this transaction on the L2. Debited from the caller's L2 balance. */
-      value?: bigint
-    } & (
-      | {
-          /** Encoded contract method & arguments. */
-          data?: Hex
-          /** Whether or not this is a contract deployment transaction. */
-          isCreation?: false
-          /** L2 Transaction recipient. */
-          to?: Address
-        }
-      | {
-          /** Contract deployment bytecode. Required for contract deployment transactions. */
-          data: Hex
-          /** Whether or not this is a contract deployment transaction. */
-          isCreation: true
-          /** L2 Transaction recipient. Cannot exist for contract deployment transactions. */
-          to?: never
-        }
-    )
+    /** L2 transaction request. */
+    request: DepositRequest
+    /**
+     * Gas limit for transaction execution on the L1.
+     * `null` to skip gas estimation & defer calculation to signer.
+     */
+    gas?: bigint | null
   }
 export type DepositTransactionReturnType = Hash
-export type DepositTransactionErrorType = WriteContractErrorType | ErrorType
+export type DepositTransactionErrorType =
+  | EstimateDepositTransactionGasErrorType
+  | WriteContractErrorType
+  | ErrorType
 
 /**
  * Initiates a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
@@ -85,17 +75,16 @@ export type DepositTransactionErrorType = WriteContractErrorType | ErrorType
  * @example
  * import { createWalletClient, custom, parseEther } from 'viem'
  * import { base, mainnet } from 'viem/chains'
- * import { walletActionsL1 } from 'viem/op-stack'
- * import { depositTransaction } from 'viem/wallet'
+ * import { depositTransaction } from 'viem/op-stack'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
  *   transport: custom(window.ethereum),
- * }).extend(walletActionsL1())
+ * })
  *
  * const hash = await depositTransaction(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
- *   args: {
+ *   request: {
  *     gas: 21_000n,
  *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *     value: parseEther('1'),
@@ -108,17 +97,16 @@ export type DepositTransactionErrorType = WriteContractErrorType | ErrorType
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { base, mainnet } from 'viem/chains'
- * import { walletActionsL1 } from 'viem/op-stack'
- * import { depositTransaction } from 'viem/wallet'
+ * import { depositTransaction } from 'viem/op-stack'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),
  *   chain: mainnet,
  *   transport: http(),
- * }).extend(walletActionsL1())
+ * })
  *
  * const hash = await depositTransaction(client, {
- *   args: {
+ *   request: {
  *     gas: 21_000n,
  *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *     value: parseEther('1'),
@@ -126,32 +114,45 @@ export type DepositTransactionErrorType = WriteContractErrorType | ErrorType
  *   targetChain: base,
  * })
  */
-export function depositTransaction<
+export async function depositTransaction<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  args: DepositTransactionParameters<chain, account, chainOverride>,
+  parameters: DepositTransactionParameters<chain, account, chainOverride>,
 ) {
   const {
     account,
-    args: { data = '0x', gas, isCreation = false, mint, to = '0x', value },
     chain = client.chain,
+    gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    request: {
+      data = '0x',
+      gas: l2Gas,
+      isCreation = false,
+      mint,
+      to = '0x',
+      value,
+    },
     targetChain,
-  } = args
+  } = parameters
 
   const portalAddress = (() => {
-    if (args.portalAddress) return args.portalAddress
+    if (parameters.portalAddress) return parameters.portalAddress
     if (chain) return targetChain!.contracts.portal[chain.id].address
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
+  const gas_ =
+    typeof gas !== 'number' && gas !== null
+      ? await estimateDepositTransactionGas(client, parameters)
+      : undefined
+
   return writeContract(client, {
-    account,
+    account: account!,
     abi: portalAbi,
     address: portalAddress,
     chain,
@@ -159,7 +160,7 @@ export function depositTransaction<
     args: [
       isCreation ? zeroAddress : to,
       value ?? mint ?? 0n,
-      gas,
+      l2Gas,
       isCreation,
       data,
     ],
@@ -167,5 +168,6 @@ export function depositTransaction<
     maxPriorityFeePerGas,
     nonce,
     value: mint,
-  } as any)
+    gas: gas_,
+  } satisfies WriteContractParameters as any)
 }
