@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add wemix, bittorrent, and the corresponding test chain.
+Added BitTorrent & Wemix chains.
