@@ -58,6 +58,10 @@ import { english, generateMnemonic } from 'viem/accounts'
 const mnemonic = generateMnemonic(english)
 ```
 
+::: tip
+You can customize the strength of the generated mnemonic by passing a value between 128 and 256 as the second argument to the `generateMnemonic` function. This value must be a multiple of 32.
+:::
+
 Available wordlists:
 
 - `czech`

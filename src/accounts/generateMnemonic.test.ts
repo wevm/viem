@@ -51,3 +51,8 @@ test('traditionalChinese', () => {
   const phrase = generateMnemonic(traditionalChinese)
   expect(phrase.split(' ').length).toBe(12)
 })
+
+test('english 256 bits strength', () => {
+  const phrase = generateMnemonic(english, 256)
+  expect(phrase.split(' ').length).toBe(24)
+})
