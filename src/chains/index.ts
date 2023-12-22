@@ -174,9 +174,16 @@ export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
 
+//////////////////////////////////////////////////////////////////////////////////////
 // required for type inference since in explicit return type
 //////////////////////////////////////////////////////////////////////////////////////
-export type { Assign, Omit, PartialBy, Prettify } from '../types/utils.js'
+export type {
+  Assign,
+  Omit,
+  PartialBy,
+  Prettify,
+  UnionLooseOmit,
+} from '../types/utils.js'
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
