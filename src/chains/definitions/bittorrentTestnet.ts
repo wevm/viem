@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const bittorrentTestnet = /*#__PURE__*/ defineChain({
+export const bitTorrentTestnet = /*#__PURE__*/ defineChain({
   id: 1028,
   name: 'BitTorrent Chain Testnet',
   network: 'bittorrent-chain-testnet',
@@ -10,8 +10,8 @@ export const bittorrentTestnet = /*#__PURE__*/ defineChain({
     public: { http: ['https://testrpc.bittorrentchain.io'] },
   },
   blockExplorers: {
-    etherscan: { name: 'Bttcscan', url: 'https://testnet.bttcscan.com/' },
-    default: { name: 'Bttcscan', url: 'https://testnet.bttcscan.com/' },
+    etherscan: { name: 'Bttcscan', url: 'https://testnet.bttcscan.com' },
+    default: { name: 'Bttcscan', url: 'https://testnet.bttcscan.com' },
   },
   testnet: true,
 })
