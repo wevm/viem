@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const bittorrent = /*#__PURE__*/ defineChain({
+export const bitTorrent = /*#__PURE__*/ defineChain({
   id: 199,
   name: 'BitTorrent',
   network: 'bittorrent-chain-mainnet',
