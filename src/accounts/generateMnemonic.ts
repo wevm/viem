@@ -11,6 +11,9 @@ export type GenerateMnemonicErrorType = ErrorType
  *
  * @returns A randomly generated mnemonic phrase.
  */
-export function generateMnemonic(wordlist: string[], strength?: number): string {
+export function generateMnemonic(
+  wordlist: string[],
+  strength?: number,
+): string {
   return generateMnemonic_(wordlist, strength)
 }
