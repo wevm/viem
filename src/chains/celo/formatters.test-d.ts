@@ -2,14 +2,13 @@ import { describe, expectTypeOf, test } from 'vitest'
 
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
-import { getTransactionReceipt } from '../../actions/public/getTransactionReceipt.js'
 import { prepareTransactionRequest } from '../../actions/wallet/prepareTransactionRequest.js'
 import { signTransaction } from '../../actions/wallet/signTransaction.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hash } from '../../types/misc.js'
-import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
+import type { RpcBlock } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
 import { sendTransaction } from '../../wallet/index.js'
@@ -63,29 +62,6 @@ describe('transaction', () => {
   expectTypeOf<
     ReturnType<typeof formattersCelo.transaction.format>['gatewayFeeRecipient']
   >().toEqualTypeOf<`0x${string}` | null | undefined>()
-})
-
-describe('transactionReceipt', () => {
-  expectTypeOf(formattersCelo.transactionReceipt.format)
-    .parameter(0)
-    .toEqualTypeOf<
-      Partial<RpcTransactionReceipt> & {
-        feeCurrency: `0x${string}` | null
-        gatewayFee: `0x${string}` | null
-        gatewayFeeRecipient: `0x${string}` | null
-      }
-    >()
-  expectTypeOf<
-    ReturnType<typeof formattersCelo.transactionReceipt.format>['feeCurrency']
-  >().toEqualTypeOf<`0x${string}` | null>()
-  expectTypeOf<
-    ReturnType<typeof formattersCelo.transactionReceipt.format>['gatewayFee']
-  >().toEqualTypeOf<bigint | null>()
-  expectTypeOf<
-    ReturnType<
-      typeof formattersCelo.transactionReceipt.format
-    >['gatewayFeeRecipient']
-  >().toEqualTypeOf<`0x${string}` | null>()
 })
 
 describe('transactionRequest', () => {
@@ -178,23 +154,6 @@ describe('smoke', () => {
     >()
     expectTypeOf(transaction.type).toEqualTypeOf<
       'legacy' | 'eip2930' | 'eip1559' | 'cip42' | 'cip64'
-    >()
-  })
-
-  test('transactionReceipt', async () => {
-    const client = createPublicClient({
-      chain: celo,
-      transport: http(),
-    })
-
-    const transaction = await getTransactionReceipt(client, {
-      hash: '0x',
-    })
-
-    expectTypeOf(transaction.feeCurrency).toEqualTypeOf<`0x${string}` | null>()
-    expectTypeOf(transaction.gatewayFee).toEqualTypeOf<bigint | null>()
-    expectTypeOf(transaction.gatewayFeeRecipient).toEqualTypeOf<
-      `0x${string}` | null
     >()
   })
 
