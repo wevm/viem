@@ -1,10 +1,6 @@
 import type { Abi, AbiEvent, Address, TypedDataDomain } from 'abitype'
 import type { ChainFormatters } from '~viem/index.js'
-import type {
-  ChainConfig,
-  ChainConstants,
-  ChainFormatter,
-} from '~viem/types/chain.js'
+import type { Chain, ChainFormatter } from '~viem/types/chain.js'
 import type { Block, BlockTag } from '../../types/block.js'
 import type { FeeValuesEIP1559 } from '../../types/fee.js'
 import type { Log as Log_ } from '../../types/log.js'
@@ -32,6 +28,7 @@ import type {
   TransactionType,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
+import type { formatters } from './formatters.js'
 import { isEIP712 } from './serializers.js'
 
 type EIP712Type = '0x71'
@@ -355,7 +352,8 @@ export type EIP712Domain<TransactionToSign> = {
 
 // Used to define the EIP712signer field in the chain.
 export type EIP712DomainFn<
-  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
+  TTransactionSerializable extends
+    TransactionSerializable = TransactionSerializable,
   TransactionToSign = {},
 > = (transaction: TTransactionSerializable) => EIP712Domain<TransactionToSign>
 
@@ -375,14 +373,12 @@ export type TransactionRequestEIP712<
   }
 
 export type ChainEIP712<
-  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-> = ChainConstants & ChainConfigEIP712<formatters>
-
-export type ChainConfigEIP712<
-  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-> = ChainConfig & {
-  /** Return EIP712 Domain for EIP712 transaction */
-  eip712domain?: ChainEIP712Domain<formatters> | undefined
+  formatters extends ChainFormatters | undefined = typeof formatters,
+> = Chain<formatters> & {
+  custom: {
+    /** Return EIP712 Domain for EIP712 transaction */
+    eip712domain?: ChainEIP712Domain<formatters> | undefined
+  }
 }
 
 export type ChainEIP712Domain<

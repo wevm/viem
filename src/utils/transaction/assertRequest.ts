@@ -1,3 +1,4 @@
+import type { Account } from '~viem/index.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
@@ -21,7 +22,11 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import { isAddress } from '../address/isAddress.js'
 
-export type AssertRequestParameters = Partial<SendTransactionParameters<Chain>>
+export type AssertRequestParameters<
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends Chain | undefined = Chain | undefined,
+> = Partial<SendTransactionParameters<TChain, TAccount, TChainOverride>>
 
 export type AssertRequestErrorType =
   | InvalidAddressErrorType
@@ -31,7 +36,11 @@ export type AssertRequestErrorType =
   | TipAboveFeeCapErrorType
   | ErrorType
 
-export function assertRequest(args: AssertRequestParameters) {
+export function assertRequest<
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends Chain | undefined = Chain | undefined,
+>(args: AssertRequestParameters<TChain, TAccount, TChainOverride>) {
   const {
     account: account_,
     gasPrice,

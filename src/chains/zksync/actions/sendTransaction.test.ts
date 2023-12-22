@@ -5,22 +5,21 @@ import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { createWalletClient } from '../../../clients/createWalletClient.js'
 import { http } from '../../../clients/transports/http.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
-import { zkSyncTestnet } from '../index.js'
-import { sendTransaction } from './sendTransaction.js'
+import { zkSyncSepoliaTestnet } from '../chains.js'
+import { sendTransactionZ } from './sendTransaction.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 describe('zksync on anvil', () => {
   const walletClient = createWalletClient({
-    chain: zkSyncTestnet,
+    chain: zkSyncSepoliaTestnet,
     transport: http(localHttpUrl),
   })
 
   test('non-eip712', async () => {
     expect(
-      await sendTransaction(walletClient, {
-        chain: zkSyncTestnet,
+      await sendTransactionZ(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('25'),
@@ -36,13 +35,12 @@ describe('zksync on anvil', () => {
 
 describe('zksync on zkSyncTestnet', () => {
   const walletClient = createWalletClient({
-    chain: zkSyncTestnet,
-    transport: http(zkSyncTestnet.rpcUrls.default.http[0]),
+    chain: zkSyncSepoliaTestnet,
+    transport: http(zkSyncSepoliaTestnet.rpcUrls.default.http[0]),
   })
   test('eip712', async () => {
     expect(
-      await sendTransaction(walletClient, {
-        chain: zkSyncTestnet,
+      await sendTransactionZ(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('25'),

@@ -14,9 +14,12 @@ import type { IsUndefined, Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
+type Custom = { [key: string]: unknown }
+
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
+  custom?: Custom | undefined
   /** Collection of block explorers */
   blockExplorers?:
     | {

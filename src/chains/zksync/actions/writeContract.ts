@@ -5,11 +5,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { GetAccountParameter } from '../../../types/account.js'
-import type { GetChain } from '../../../types/chain.js'
-import type {
-  ContractFunctionConfig,
-  GetValue,
-} from '../../../types/contract.js'
+import type { GetValue } from '../../../types/contract.js'
 import type { Hex } from '../../../types/misc.js'
 import type { UnionOmit } from '../../../types/utils.js'
 import {
@@ -20,12 +16,7 @@ import {
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../../utils/getAction.js'
 import type { ChainEIP712 } from '../types.js'
-import {
-  type SendTransactionErrorType,
-  type SendTransactionParameters,
-  type SendTransactionReturnType,
-  sendTransaction,
-} from './sendTransaction.js'
+import { sendTransaction } from './sendTransaction.js'
 
 export type WriteContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -34,9 +25,7 @@ export type WriteContractParameters<
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
 > = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
-  GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride> &
-  UnionOmit<
+  GetAccountParameter<TAccount> & { chain: TChainOverride | null } & UnionOmit<
     FormattedTransactionRequest<
       TChainOverride extends ChainEIP712 ? TChainOverride : TChain
     >,

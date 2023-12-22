@@ -1,22 +1,18 @@
 import type { Abi } from 'abitype'
+import { sendTransaction } from '~viem/actions/wallet/sendTransaction.js'
+import type {
+  PrepareTransactionRequestParameters,
+  PrepareTransactionRequestReturnType,
+  SendTransactionParameters,
+  SendTransactionReturnType,
+  SignTransactionParameters,
+  SignTransactionReturnType,
+} from '~viem/index.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
-import {
-  type PrepareTransactionRequestParameters,
-  type PrepareTransactionRequestReturnType,
-  prepareTransactionRequest,
-} from '../actions/prepareTransactionRequest.js'
-import {
-  type SendTransactionParameters,
-  type SendTransactionReturnType,
-  sendTransaction,
-} from '../actions/sendTransaction.js'
-import {
-  type SignEip712TransactionParameters,
-  type SignEip712TransactionReturnType,
-  signEip712Transaction,
-} from '../actions/signTransaction.js'
+import { prepareTransactionRequest } from '../actions/prepareTransactionRequest.js'
+import { signEip712Transaction } from '../actions/signTransaction.js'
 import {
   type WriteContractParameters,
   type WriteContractReturnType,
@@ -25,7 +21,7 @@ import {
 import type { ChainEIP712 } from '../types.js'
 
 export type Eip712Actions<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  TChain extends ChainEIP712 | undefined = ChainEIP712,
   TAccount extends Account | undefined = Account | undefined,
 > = {
   /**
@@ -172,8 +168,8 @@ export type Eip712Actions<
   signEip712Transaction: <
     TChainOverride extends ChainEIP712 | undefined = undefined,
   >(
-    args: SignEip712TransactionParameters<TChain, TAccount, TChainOverride>,
-  ) => Promise<SignEip712TransactionReturnType>
+    args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
+  ) => Promise<SignTransactionReturnType>
 
   /**
    * Executes a write function on a contract.

@@ -1,71 +1,19 @@
+import { getChainId } from '~viem/actions/index.js'
+import type { Chain } from '~viem/index.js'
 import type { Account } from '../../../accounts/types.js'
+import { parseAccount } from '../../../accounts/utils/parseAccount.js'
+import { estimateGas } from '../../../actions/public/estimateGas.js'
+import { getTransactionCount } from '../../../actions/public/getTransactionCount.js'
 import {
-  type ParseAccountErrorType,
-  parseAccount,
-} from '../../../accounts/utils/parseAccount.js'
-import { type EstimateFeesPerGasErrorType } from '../../../actions/public/estimateFeesPerGas.js'
-import {
-  type EstimateGasErrorType,
-  type EstimateGasParameters,
-  estimateGas,
-} from '../../../actions/public/estimateGas.js'
-import { type GetBlockErrorType } from '../../../actions/public/getBlock.js'
-import {
-  type GetTransactionCountErrorType,
-  getTransactionCount,
-} from '../../../actions/public/getTransactionCount.js'
-import { prepareTransactionRequest as originalPrepareTransactionRequest } from '../../../actions/wallet/prepareTransactionRequest.js'
+  type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest as originalPrepareTransactionRequest,
+} from '../../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import {
-  AccountNotFoundError,
-  type AccountNotFoundErrorType,
-} from '../../../errors/account.js'
-import type { GetAccountParameter } from '../../../types/account.js'
-import type { GetChain } from '../../../types/chain.js'
-import { type TransactionSerializable } from '../../../types/transaction.js'
-import type { UnionOmit } from '../../../types/utils.js'
-import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
+import { AccountNotFoundError } from '../../../errors/account.js'
 import { getAction } from '../../../utils/getAction.js'
-import type {
-  AssertRequestErrorType,
-  AssertRequestParameters,
-} from '../../../utils/transaction/assertRequest.js'
-import { assertRequest } from '../../../utils/transaction/assertRequest.js'
-import { type GetTransactionType } from '../../../utils/transaction/getTransactionType.js'
 import { type ChainEIP712, isEip712Transaction } from '../types.js'
-
-export type PrepareTransactionRequestParameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-> = UnionOmit<
-  FormattedTransactionRequest<
-    TChainOverride extends ChainEIP712 ? TChainOverride : TChain
-  >,
-  'from'
-> &
-  GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
-
-export type PrepareTransactionRequestReturnType<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-> = FormattedTransactionRequest<
-  TChainOverride extends ChainEIP712 ? TChainOverride : TChain
-> &
-  GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
-
-export type PrepareTransactionRequestErrorType =
-  | AccountNotFoundErrorType
-  | AssertRequestErrorType
-  | ParseAccountErrorType
-  | GetBlockErrorType
-  | GetTransactionCountErrorType
-  | EstimateGasErrorType
-  | EstimateFeesPerGasErrorType
 
 /**
  * Prepares a transaction request for signing.
@@ -110,59 +58,56 @@ export type PrepareTransactionRequestErrorType =
 export async function prepareTransactionRequest<
   TChain extends ChainEIP712 | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
-  args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
+  argsIncoming: PrepareTransactionRequestParameters<
+    TChain,
+    TAccount,
+    TChainOverride
+  >,
 ): Promise<
   PrepareTransactionRequestReturnType<TChain, TAccount, TChainOverride>
 > {
-  const { account: account_ = client.account, nonce, gas } = args
-  if (!account_) throw new AccountNotFoundError()
-  const account = parseAccount(account_)
+  const args = {
+    ...argsIncoming,
+    account: argsIncoming.account || client.account,
+    chain: argsIncoming.chain || client.chain,
+  }
 
-  const request = { ...args, from: account.address }
+  if (!args.account) throw new AccountNotFoundError()
+  const account = parseAccount(args.account)
 
-  if (typeof nonce === 'undefined') {
+  const chainId = await getAction(client, getChainId, 'getChainId')({})
+  const request = { ...args, from: account.address, chainId }
+
+  if (args.nonce === undefined) {
     request.nonce = await getAction(
       client,
       getTransactionCount,
+      'getTransactionCount',
     )({
       address: account.address,
       blockTag: 'pending',
     })
   }
 
-  if (isEip712Transaction(request as TransactionSerializable)) {
-    request.type =
-      'eip712' as GetTransactionType<TransactionSerializable> as any
-    // Do nothing...
+  if (isEip712Transaction({ ...request })) {
+    request.type = 'eip712'
 
-    assertRequest(request as AssertRequestParameters)
-
-    if (typeof gas === 'undefined') {
+    if (request.gas === undefined) {
       request.gas = await getAction(
         client,
-        estimateGas,
+        estimateGas<TChain, TAccount>,
+        'estimateGas',
       )({
         ...request,
-        account: { address: account.address, type: 'json-rpc' },
-      } as EstimateGasParameters)
+        type: 'eip712',
+      })
     }
 
-    return request as unknown as PrepareTransactionRequestReturnType<
-      TChain,
-      TAccount,
-      TChainOverride
-    >
+    return request
   }
 
-  return originalPrepareTransactionRequest(
-    client,
-    args as unknown as PrepareTransactionRequestParameters,
-  ) as unknown as PrepareTransactionRequestReturnType<
-    TChain,
-    TAccount,
-    TChainOverride
-  >
+  return originalPrepareTransactionRequest(client, args)
 }

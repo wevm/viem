@@ -1,69 +1,21 @@
+import type {
+  Chain,
+  SignTransactionParameters,
+  SignTransactionReturnType,
+} from '~viem/index.js'
 import type { Account } from '../../../accounts/types.js'
-import {
-  type ParseAccountErrorType,
-  parseAccount,
-} from '../../../accounts/utils/parseAccount.js'
-import type { SignTransactionErrorType as SignTransactionErrorType_account } from '../../../accounts/utils/signTransaction.js'
-import {
-  type GetChainIdErrorType,
-  getChainId,
-} from '../../../actions/public/getChainId.js'
+import { parseAccount } from '../../../accounts/utils/parseAccount.js'
+import { getChainId } from '../../../actions/public/getChainId.js'
 import { signTypedData } from '../../../actions/wallet/signTypedData.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
-import type { ErrorType } from '../../../errors/utils.js'
-import type { GetAccountParameter } from '../../../types/account.js'
-import { type GetChain } from '../../../types/chain.js'
-import { type RpcTransactionRequest } from '../../../types/rpc.js'
-import type {
-  TransactionRequest,
-  TransactionSerializable,
-  TransactionSerialized,
-} from '../../../types/transaction.js'
-import type { UnionOmit } from '../../../types/utils.js'
-import type { RequestErrorType } from '../../../utils/buildRequest.js'
-import {
-  type AssertCurrentChainErrorType,
-  assertCurrentChain,
-} from '../../../utils/chain/assertCurrentChain.js'
-import type { NumberToHexErrorType } from '../../../utils/encoding/toHex.js'
-import {
-  type FormattedTransactionRequest,
-  formatTransactionRequest,
-} from '../../../utils/formatters/transactionRequest.js'
+import { assertCurrentChain } from '../../../utils/chain/assertCurrentChain.js'
+import { formatTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../../utils/getAction.js'
 import { numberToHex } from '../../../utils/index.js'
-import {
-  type AssertRequestErrorType,
-  assertRequest,
-} from '../../../utils/transaction/assertRequest.js'
+import { assertRequest } from '../../../utils/transaction/assertRequest.js'
 import { type ChainEIP712, isEip712Transaction } from '../types.js'
-
-export type SignEip712TransactionParameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-> = UnionOmit<
-  FormattedTransactionRequest<
-    TChainOverride extends ChainEIP712 ? TChainOverride : TChain
-  >,
-  'from'
-> &
-  GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
-
-export type SignEip712TransactionReturnType = TransactionSerialized
-
-export type SignEip712TransactionErrorType =
-  | ParseAccountErrorType
-  | AssertRequestErrorType
-  | GetChainIdErrorType
-  | AssertCurrentChainErrorType
-  | SignTransactionErrorType_account
-  | NumberToHexErrorType
-  | RequestErrorType
-  | ErrorType
 
 /**
  * Signs a transaction.
@@ -111,47 +63,47 @@ export type SignEip712TransactionErrorType =
 export async function signEip712Transaction<
   TChain extends ChainEIP712 | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
-  args: SignEip712TransactionParameters<TChain, TAccount, TChainOverride>,
-): Promise<SignEip712TransactionReturnType> {
-  const {
-    account: account_ = client.account,
-    chain = client.chain,
-    ...transaction
-  } = args
+  argsIncoming: SignTransactionParameters<TChain, TAccount, TChainOverride>,
+): Promise<SignTransactionReturnType> {
+  const args = {
+    ...argsIncoming,
+    account: argsIncoming.account || client.account,
+    chain: argsIncoming.chain || client.chain,
+  }
 
-  if (!account_)
+  if (!args.account)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/signTransaction',
     })
-  const account = parseAccount(account_)
+  const account = parseAccount(args.account)
 
-  assertRequest({
-    account,
-    ...args,
-  })
+  assertRequest<TChain, TAccount, TChainOverride>(args)
 
-  const chainId = await getAction(client, getChainId)({})
-  if (chain !== null)
+  const chainId = await getAction(client, getChainId, 'getChainId')({})
+  if (args.chain !== null)
     assertCurrentChain({
       currentChainId: chainId,
-      chain,
+      chain: args.chain,
     })
 
-  const formatters = chain?.formatters || client.chain?.formatters
+  const formatters = args.chain?.formatters || client.chain?.formatters
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
 
   if (
-    client.chain?.eip712domain?.eip712domain &&
+    client.chain?.custom.eip712domain?.eip712domain &&
     client.chain?.serializers?.transaction &&
-    isEip712Transaction(transaction as unknown as TransactionSerializable)
+    isEip712Transaction({ ...args, chainId })
   ) {
-    const eip712Domain = client.chain?.eip712domain?.eip712domain(
-      transaction as unknown as TransactionSerializable,
-    )
+    const eip712Domain = client.chain?.custom.eip712domain?.eip712domain({
+      ...args,
+      type: 'eip712',
+      from: account.address,
+      gasPrice: undefined,
+    })
 
     const customSignature = await signTypedData(client, {
       ...eip712Domain,
@@ -162,10 +114,13 @@ export async function signEip712Transaction<
     // is `local` or `json-rpc`.
     return client.chain?.serializers?.transaction(
       {
+        ...args,
         chainId,
-        ...transaction,
+        type: 'eip712',
+        from: account.address,
         customSignature,
-      } as unknown as TransactionSerializable,
+        gasPrice: undefined,
+      },
       // Use this blank private key, probably we should change the code to be optional,
       // or option if it is EIP712.
       { r: '0x0', s: '0x0', v: 0n },
@@ -175,11 +130,15 @@ export async function signEip712Transaction<
   if (account.type === 'local') {
     return account.signTransaction(
       {
-        ...transaction,
+        ...args,
         chainId,
-      } as unknown as TransactionSerializable,
+        // TODO: I am suspicious that we actually don't want to override the type here.
+        type: 'eip712',
+        from: account.address,
+        gasPrice: undefined,
+      },
       { serializer: client.chain?.serializers?.transaction },
-    ) as Promise<SignEip712TransactionReturnType>
+    )
   }
 
   // For EIP712 we don't need to ask MetaMask to sign it,
@@ -187,10 +146,10 @@ export async function signEip712Transaction<
     method: 'eth_signTransaction',
     params: [
       {
-        ...format(transaction as unknown as TransactionRequest),
+        ...format(args),
         chainId: numberToHex(chainId),
         from: account.address,
-      } as unknown as RpcTransactionRequest,
+      },
     ],
   })
 }

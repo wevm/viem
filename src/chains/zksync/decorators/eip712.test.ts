@@ -6,12 +6,12 @@ import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { simulateContract } from '~viem/actions/index.js'
 import { createWalletClient } from '~viem/index.js'
 import { http } from '../../../clients/transports/http.js'
-import { zkSyncTestnet } from '../chains.js'
+import { zkSyncSepoliaTestnet } from '../chains.js'
 import { eip712Actions } from './eip712.js'
 
 const zkSyncClient = createWalletClient({
-  chain: zkSyncTestnet,
-  transport: http(zkSyncTestnet.rpcUrls.default.http[0]),
+  chain: zkSyncSepoliaTestnet,
+  transport: http(zkSyncSepoliaTestnet.rpcUrls.default.http[0]),
 }).extend(eip712Actions())
 
 test('default', async () => {
@@ -25,7 +25,7 @@ test('default', async () => {
   `)
 })
 
-type Args = Parameters<typeof zkSyncClient['prepareEip712TransactionRequest']>
+type Args = Parameters<(typeof zkSyncClient)['prepareEip712TransactionRequest']>
 const root: Args[0] = {
   account: privateKeyToAccount(accounts[0].privateKey),
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -48,7 +48,7 @@ describe('smoke test', () => {
   })
 
   test('sendEip712Transaction', async () => {
-    const base: Parameters<typeof zkSyncClient['sendEip712Transaction']> = [
+    const base: Parameters<(typeof zkSyncClient)['sendEip712Transaction']> = [
       root,
     ]
     const request = await zkSyncClient.sendEip712Transaction(base[0])
@@ -56,7 +56,7 @@ describe('smoke test', () => {
   })
 
   test('signEip712Transaction', async () => {
-    const base: Parameters<typeof zkSyncClient['signEip712Transaction']> = [
+    const base: Parameters<(typeof zkSyncClient)['signEip712Transaction']> = [
       root,
     ]
     const signature = await zkSyncClient.signEip712Transaction(base[0])
