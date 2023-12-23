@@ -446,7 +446,8 @@ export type PublicActionsL2<
 
 /**
  * A suite of Public Actions for suited for development with Layer 2 (OP Stack) chains. 
- * - Docs: https://rc.viem.sh/op-stack/client.html
+ *
+ * - Docs: https://viem.sh/op-stack/client.html
  *
  * @example
  * import { publicActionsL2 } from 'viem/op-stack'

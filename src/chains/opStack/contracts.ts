@@ -1,7 +1,7 @@
 import type { Chain } from '../../types/chain.js'
 
 /**
- * Predeploy contracts for op stack
+ * Predeploy contracts for OP Stack.
  * @see https://github.com/ethereum-optimism/optimism/blob/develop/specs/predeploys.md
  */
 export const contracts = {

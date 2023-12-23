@@ -139,8 +139,9 @@ export type WalletActionsL1<
 }
 
 /**
- * A suite of Wallet Actions for suited for development with Layer 2 (OP Stack) chains. 
- * - Docs: https://rc.viem.sh/op-stack/client.html
+ * A suite of Wallet Actions for suited for development with Layer 2 (OP Stack) chains.
+ *  
+ * - Docs: https://viem.sh/op-stack/client.html
  *
  * @example
  * import { createPublicClient, createWalletClient, http } from 'viem'
