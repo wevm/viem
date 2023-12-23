@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Add mnemonic strength
+Added `strength` parameter to `generateMnemonic`.
