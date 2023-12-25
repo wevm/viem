@@ -65,6 +65,7 @@ test('exports chains', () => {
       "fuseSparknet",
       "iotex",
       "iotexTestnet",
+      "jbc",
       "gobi",
       "goerli",
       "gnosis",
