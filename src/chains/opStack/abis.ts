@@ -1,3 +1,7 @@
+/**
+ * ABI for the OP Stack [`GasPriceOracle` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L2/GasPriceOracle.sol).
+ * @see https://optimistic.etherscan.io/address/0x420000000000000000000000000000000000000f
+ */
 export const gasPriceOracleAbi = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
   {

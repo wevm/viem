@@ -57,6 +57,22 @@ A suite of [Wallet Actions](./actions/estimateL1Gas.md) for suited for developme
 import { walletActionsL1 } from 'viem/op-stack'
 ```
 
+### `publicActionsL1`
+
+A suite of [Public Actions](./actions/getTimeToProve.md) suited for development with **Layer 1** chains. These actions provide functionalities specific to public clients operating at the Layer 1 level, enabling them to interact seamlessly with Layer 2 protocols.
+
+```ts
+import { publicActionsL1 } from 'viem/op-stack'
+```
+
+### `walletActionsL2`
+
+A suite of [Wallet Actions](./actions/estimateL1Fee.md) suited for development with **Layer 2 (OP Stack)** chains. These actions are tailored for wallets operating on Layer 2, providing advanced features and integrations necessary for Layer 2 financial operations.
+
+```ts
+import { walletActionsL2 } from 'viem/op-stack'
+```
+
 ### `publicActionsL2`
 
 A suite of [Public Actions](./actions/estimateL1Gas.md) for suited for development with **Layer 2 (OP Stack)** chains.
