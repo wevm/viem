@@ -22,7 +22,7 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
-import type { Prettify, UnionOmit } from '../../../types/utils.js'
+import type { Prettify, UnionPick } from '../../../types/utils.js'
 import type { DepositTransactionParameters } from './depositTransaction.js'
 
 export type BuildDepositTransactionParameters<
@@ -62,14 +62,20 @@ export type BuildDepositTransactionParameters<
   )
 
 export type BuildDepositTransactionReturnType<
+  chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
   accountOverride extends Account | Address | undefined =
     | Account
     | Address
     | undefined,
 > = Prettify<
-  UnionOmit<DepositTransactionParameters<Chain, account, Chain>, 'account'> & {
+  UnionPick<
+    DepositTransactionParameters<chain, account, chainOverride>,
+    'request'
+  > & {
     account: DeriveAccount<account, accountOverride>
+    targetChain: DeriveChain<chain, chainOverride>
   }
 >
 
@@ -117,7 +123,14 @@ export async function buildDepositTransaction<
     chainOverride,
     accountOverride
   >,
-): Promise<BuildDepositTransactionReturnType<account, accountOverride>> {
+): Promise<
+  BuildDepositTransactionReturnType<
+    chain,
+    account,
+    chainOverride,
+    accountOverride
+  >
+> {
   const {
     account: account_,
     chain = client.chain,
@@ -152,5 +165,10 @@ export async function buildDepositTransaction<
       value: request.value,
     },
     targetChain: chain,
-  } as unknown as BuildDepositTransactionReturnType<account, accountOverride>
+  } as unknown as BuildDepositTransactionReturnType<
+    chain,
+    account,
+    chainOverride,
+    accountOverride
+  >
 }

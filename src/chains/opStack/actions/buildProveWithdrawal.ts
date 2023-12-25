@@ -20,7 +20,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
-import type { Prettify } from '../../../types/utils.js'
+import type { Prettify, UnionPick } from '../../../types/utils.js'
 import { contracts } from '../contracts.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
@@ -57,7 +57,7 @@ export type BuildProveWithdrawalReturnType<
     | Address
     | undefined,
 > = Prettify<
-  Pick<
+  UnionPick<
     ProveWithdrawalParameters,
     'l2OutputIndex' | 'outputRootProof' | 'withdrawalProof' | 'withdrawal'
   > & {

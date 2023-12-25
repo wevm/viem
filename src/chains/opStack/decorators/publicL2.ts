@@ -102,7 +102,14 @@ export type PublicActionsL2<
       chainOverride,
       accountOverride
     >,
-  ) => Promise<BuildDepositTransactionReturnType<account, accountOverride>>
+  ) => Promise<
+    BuildDepositTransactionReturnType<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >
+  >
   /**
    * Builds the transaction that proves a withdrawal was initiated on an L2. Used in the Withdrawal flow.
    *

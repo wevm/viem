@@ -240,6 +240,21 @@ export type ExtractChainFormatterReturnType<
     : ReturnType<formatter['format']>
   : fallback
 
+export type IsUnknown<type> = unknown extends type ? true : false
+
+export type IsNever<type> = [type] extends [never] ? true : false
+
+export type IsNarrowable<type, type2> = IsUnknown<type> extends true
+  ? false
+  : undefined extends type
+    ? false
+    : IsNever<
+          (type extends type2 ? true : false) &
+            (type2 extends type ? false : true)
+        > extends true
+      ? false
+      : true
+
 export type DeriveChain<
   chain extends Chain | undefined,
   chainOverride extends Chain | undefined,

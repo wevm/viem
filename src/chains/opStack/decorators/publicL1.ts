@@ -103,7 +103,14 @@ export type PublicActionsL1<
       chainOverride,
       accountOverride
     >,
-  ) => Promise<BuildInitiateWithdrawalReturnType<account, accountOverride>>
+  ) => Promise<
+    BuildInitiateWithdrawalReturnType<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >
+  >
   /**
    * Estimates gas required to initiate a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
    *

@@ -239,6 +239,16 @@ export type UnionOmit<type, keys extends keyof type> = type extends any
   : never
 
 /**
+ * @description Construct a type with the properties of union type T with those in type K.
+ * @example
+ * type Result = UnionPick<{ a: string, b: number } | { a: string, b: undefined, c: number }, 'a'>
+ * => { a: string }
+ */
+export type UnionPick<type, keys extends keyof type> = type extends any
+  ? Pick<type, keys>
+  : never
+
+/**
  * @description Creates a type that is a partial of T, but with the required keys K.
  *
  * @example

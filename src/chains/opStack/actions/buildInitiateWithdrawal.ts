@@ -14,7 +14,7 @@ import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
 import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
-import type { Prettify, UnionOmit } from '../../../types/utils.js'
+import type { Prettify, UnionPick } from '../../../types/utils.js'
 import type { InitiateWithdrawalParameters } from './initiateWithdrawal.js'
 
 export type BuildInitiateWithdrawalParameters<
@@ -38,13 +38,18 @@ export type BuildInitiateWithdrawalParameters<
   }
 
 export type BuildInitiateWithdrawalReturnType<
+  chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
   accountOverride extends Account | Address | undefined =
     | Account
     | Address
     | undefined,
 > = Prettify<
-  UnionOmit<InitiateWithdrawalParameters<Chain, account, Chain>, 'account'> &
+  UnionPick<
+    InitiateWithdrawalParameters<chain, account, chainOverride>,
+    'request'
+  > &
     GetAccountParameter<account, accountOverride>
 >
 
@@ -91,7 +96,14 @@ export async function buildInitiateWithdrawal<
     chainOverride,
     accountOverride
   >,
-): Promise<BuildInitiateWithdrawalReturnType<account, accountOverride>> {
+): Promise<
+  BuildInitiateWithdrawalReturnType<
+    chain,
+    account,
+    chainOverride,
+    accountOverride
+  >
+> {
   const { account: account_, chain = client.chain, gas, data, to, value } = args
 
   const account = account_ ? parseAccount(account_) : undefined
@@ -114,5 +126,10 @@ export async function buildInitiateWithdrawal<
       to: request.to,
       value: request.value,
     },
-  } as BuildInitiateWithdrawalReturnType<account, accountOverride>
+  } as BuildInitiateWithdrawalReturnType<
+    chain,
+    account,
+    chainOverride,
+    accountOverride
+  >
 }
