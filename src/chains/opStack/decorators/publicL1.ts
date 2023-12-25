@@ -487,7 +487,7 @@ export type PublicActionsL1<
 
 /**
  * A suite of Public Actions for suited for development with Layer 2 (OP Stack) chains.
- * 
+ *
  * - Docs: https://viem.sh/op-stack/client.html
  *
  * @example
