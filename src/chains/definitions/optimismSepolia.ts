@@ -14,6 +14,10 @@ export const optimismSepolia = /*#__PURE__*/ defineChain(
       public: {
         http: ['https://sepolia.optimism.io'],
       },
+      alchemy: {  
+        http: ["https://opt-sepolia.g.alchemy.com/v2"],
+        webSocket: ["wss://opt-sepolia.g.alchemy.com/v2"],
+      }
     },
     blockExplorers: {
       blockscout: {
