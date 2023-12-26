@@ -135,7 +135,7 @@ export type SimulateContractReturnType<
         functionName,
         args
       > & {
-        chain: chainOverride
+        chain: DeriveChain<chain, chainOverride>
       } & (resolvedAccount extends Account
         ? { account: resolvedAccount }
         : { account?: undefined })
@@ -189,7 +189,7 @@ export async function simulateContract<
     'nonpayable' | 'payable',
     functionName
   >,
-  chainOverride extends Chain | undefined,
+  chainOverride extends Chain | undefined = undefined,
   accountOverride extends Account | Address | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,

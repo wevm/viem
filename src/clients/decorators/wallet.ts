@@ -370,7 +370,7 @@ export type WalletActions<
    *   value: 1000000000000000000n,
    * })
    */
-  sendTransaction: <TChainOverride extends Chain | undefined>(
+  sendTransaction: <TChainOverride extends Chain | undefined = undefined>(
     args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
   ) => Promise<SendTransactionReturnType>
   /**
@@ -664,7 +664,7 @@ export type WalletActions<
     const abi extends Abi | readonly unknown[],
     functionName extends ContractFunctionName<abi, 'payable' | 'nonpayable'>,
     args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
-    TChainOverride extends Chain | undefined,
+    TChainOverride extends Chain | undefined = undefined,
   >(
     args: WriteContractParameters<
       abi,
