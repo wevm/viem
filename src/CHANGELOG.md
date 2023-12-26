@@ -1,5 +1,11 @@
 # viem
 
+## 1.21.1
+
+### Patch Changes
+
+- [#1621](https://github.com/wevm/viem/pull/1621) [`28054fb9`](https://github.com/wevm/viem/commit/28054fb90cfd64bfaba43cdc13466f1ac23ba44d) Thanks [@nanthanwa](https://github.com/nanthanwa)! - Added Jibchain.
+
 ## 1.21.0
 
 ### Minor Changes
