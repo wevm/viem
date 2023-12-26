@@ -1,4 +1,4 @@
-import { beforeAll, expect, test } from 'vitest'
+import { beforeAll, expect, test, vi } from 'vitest'
 import { optimismClient } from '../../../../test/src/opStack.js'
 import { publicClient, setBlockNumber } from '../../../../test/src/utils.js'
 import { getTransactionReceipt } from '../../../actions/index.js'
@@ -38,6 +38,8 @@ test('waiting-to-prove', async () => {
 
 test('waiting-to-finalize', async () => {
   await setBlockNumber(18804700n)
+  vi.setSystemTime(new Date(1702805347000))
+
   // https://etherscan.io/tx/0x281675c625ee73af6f83ae0c760c87efd312a71f406922ac9e4e467b1bf5a8bb
   // https://optimistic.etherscan.io/tx/0x8f6cb1878adad369d6fc8f6cd4f8cd0ea17d3a76e58947b93bc41ab65717da18
   const receipt = await getTransactionReceipt(optimismClient, {
@@ -49,6 +51,8 @@ test('waiting-to-finalize', async () => {
     targetChain: optimismClient.chain,
   })
   expect(status).toBe('waiting-to-finalize')
+
+  vi.useRealTimers()
 }, 20_000)
 
 test('ready-to-finalize', async () => {
