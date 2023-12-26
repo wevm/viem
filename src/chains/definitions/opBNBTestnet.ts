@@ -14,7 +14,7 @@ export const opBNBTestnet = /*#__PURE__*/ defineChain({
     default: { http: ['https://opbnb-testnet-rpc.bnbchain.org'] },
   },
   blockExplorers: {
-    default: { name: 'opbnbscan', url: 'https://opbnbscan.com' },
+    default: { name: 'opbnbscan', url: 'https://testnet.opbnbscan.com' },
   },
   contracts: {
     multicall3: {
