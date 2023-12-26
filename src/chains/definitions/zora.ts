@@ -1,6 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../opStack/chainConfig.js'
 
+const sourceId = 1 // mainnet
+
 export const zora = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 7777777,
@@ -21,9 +23,20 @@ export const zora = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    l2OutputOracle: {
+      [sourceId]: {
+        address: '0x9E6204F750cD866b299594e2aC9eA824E2e5f95c',
+      },
+    },
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 5882,
     },
+    portal: {
+      [sourceId]: {
+        address: '0x1a0ad011913A150f69f6A19DF447A0CfD9551054',
+      },
+    },
   },
+  sourceId,
 })

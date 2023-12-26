@@ -555,6 +555,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 readContract,
+                'readContract',
               )({
                 abi,
                 address,
@@ -585,6 +586,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 simulateContract,
+                'simulateContract',
               )({
                 abi,
                 address,
@@ -621,6 +623,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 createContractEventFilter,
+                'createContractEventFilter',
               )({
                 abi,
                 address,
@@ -655,6 +658,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 getContractEvents,
+                'getContractEvents',
               )({
                 abi,
                 address,
@@ -689,6 +693,7 @@ export function getContract<
               return getAction(
                 publicClient,
                 watchContractEvent,
+                'watchContractEvent',
               )({
                 abi,
                 address,
@@ -722,6 +727,7 @@ export function getContract<
               return getAction(
                 walletClient,
                 writeContract,
+                'writeContract',
               )({
                 abi,
                 address,
@@ -755,6 +761,7 @@ export function getContract<
               return getAction(
                 client,
                 estimateContractGas,
+                'estimateContractGas',
               )({
                 abi,
                 address,
@@ -913,7 +920,7 @@ type GetSimulateFunction<
     >(
       ...parameters: Args extends readonly []
         ? [
-            options?: UnionOmit<
+            options?: Omit<
               SimulateContractParameters<
                 TAbi,
                 TFunctionName,
@@ -927,7 +934,7 @@ type GetSimulateFunction<
           ]
         : [
             args: Args,
-            options?: UnionOmit<
+            options?: Omit<
               SimulateContractParameters<
                 TAbi,
                 TFunctionName,
@@ -956,7 +963,7 @@ type GetSimulateFunction<
     >(
       ...parameters:
         | [
-            options?: UnionOmit<
+            options?: Omit<
               SimulateContractParameters<
                 TAbi,
                 TFunctionName,
@@ -970,7 +977,7 @@ type GetSimulateFunction<
           ]
         | [
             args: readonly unknown[],
-            options?: UnionOmit<
+            options?: Omit<
               SimulateContractParameters<
                 TAbi,
                 TFunctionName,

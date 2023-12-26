@@ -5,7 +5,11 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
+import type {
+  Chain,
+  DeriveChain,
+  GetChainParameter,
+} from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
@@ -16,6 +20,7 @@ import type { Hex } from '../../types/misc.js'
 import type { Prettify, UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
   type EncodeFunctionDataErrorType,
+  type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
@@ -42,6 +47,7 @@ export type WriteContractParameters<
   chainOverride extends Chain | undefined = Chain | undefined,
   ///
   allFunctionNames = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = ContractFunctionParameters<
   abi,
   'nonpayable' | 'payable',
@@ -49,15 +55,13 @@ export type WriteContractParameters<
   args,
   allFunctionNames
 > &
-  GetChain<chain, chainOverride> &
+  GetChainParameter<chain, chainOverride> &
   Prettify<
     GetAccountParameter<account> &
       GetValue<
         abi,
         functionName,
-        FormattedTransactionRequest<
-          chainOverride extends Chain ? chainOverride : chain
-        >['value']
+        FormattedTransactionRequest<derivedChain>['value']
       > & {
         /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
         dataSuffix?: Hex
@@ -65,9 +69,7 @@ export type WriteContractParameters<
   > &
   UnionEvaluate<
     UnionOmit<
-      FormattedTransactionRequest<
-        chainOverride extends Chain ? chainOverride : chain
-      >,
+      FormattedTransactionRequest<derivedChain>,
       'data' | 'from' | 'to' | 'value'
     >
   >
@@ -83,7 +85,7 @@ export type WriteContractErrorType =
  * Executes a write function on a contract.
  *
  * - Docs: https://viem.sh/docs/contract/writeContract.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
  *
  * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
  *
@@ -149,9 +151,16 @@ export async function writeContract<
 ): Promise<WriteContractReturnType> {
   const { abi, address, args, dataSuffix, functionName, ...request } =
     parameters as WriteContractParameters
-  const data = encodeFunctionData({ abi, args, functionName })
-  const action = getAction(client, sendTransaction)
-  return action({
+  const data = encodeFunctionData({
+    abi,
+    args,
+    functionName,
+  } as EncodeFunctionDataParameters)
+  return getAction(
+    client,
+    sendTransaction,
+    'sendTransaction',
+  )({
     data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,
     ...request,

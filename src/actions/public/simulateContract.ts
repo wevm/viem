@@ -9,7 +9,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, ParseAccount } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
+import type { Chain, DeriveChain } from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
@@ -51,6 +51,8 @@ export type SimulateContractParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   accountOverride extends Account | Address | undefined = undefined,
+  ///
+  derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
   account?: accountOverride
   chain?: chainOverride
@@ -63,14 +65,14 @@ export type SimulateContractParameters<
   args
 > &
   UnionOmit<
-    CallParameters<chainOverride extends Chain ? chainOverride : chain>,
+    CallParameters<derivedChain>,
     'account' | 'batch' | 'to' | 'data' | 'value'
   > &
   GetValue<
     abi,
     functionName,
-    CallParameters<chain> extends CallParameters
-      ? CallParameters<chain>['value']
+    CallParameters<derivedChain> extends CallParameters
+      ? CallParameters<derivedChain>['value']
       : CallParameters['value']
   >
 
@@ -133,7 +135,7 @@ export type SimulateContractReturnType<
         functionName,
         args
       > & {
-        chain: chainOverride
+        chain: DeriveChain<chain, chainOverride>
       } & (resolvedAccount extends Account
         ? { account: resolvedAccount }
         : { account?: undefined })
@@ -150,7 +152,7 @@ export type SimulateContractErrorType =
  * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
  *
  * - Docs: https://viem.sh/docs/contract/simulateContract.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
  *
  * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract.html), but also supports contract write functions.
  *
@@ -187,7 +189,7 @@ export async function simulateContract<
     'nonpayable' | 'payable',
     functionName
   >,
-  chainOverride extends Chain | undefined,
+  chainOverride extends Chain | undefined = undefined,
   accountOverride extends Account | Address | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
@@ -221,6 +223,7 @@ export async function simulateContract<
     const { data } = await getAction(
       client,
       call,
+      'call',
     )({
       batch: false,
       data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,

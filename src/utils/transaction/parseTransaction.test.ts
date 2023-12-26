@@ -218,9 +218,9 @@ describe('eip1559', () => {
           ]).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Address \\"0x\\" is invalid.
+        [InvalidAddressError: Address "0x" is invalid.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
 
       expect(() =>
@@ -238,9 +238,9 @@ describe('eip1559', () => {
           ]).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Address \\"0x123456\\" is invalid.
+        [InvalidAddressError: Address "0x123456" is invalid.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -248,12 +248,12 @@ describe('eip1559', () => {
       expect(() =>
         parseTransaction(`0x02${toRlp([]).slice(2)}`),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"eip1559\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip1559" was provided.
 
-        Serialized Transaction: \\"0x02c0\\"
+        Serialized Transaction: "0x02c0"
         Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -261,12 +261,12 @@ describe('eip1559', () => {
       expect(() =>
         parseTransaction(`0x02${toRlp(['0x0', '0x1']).slice(2)}`),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"eip1559\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip1559" was provided.
 
-        Serialized Transaction: \\"0x02c20001\\"
+        Serialized Transaction: "0x02c20001"
         Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -287,12 +287,12 @@ describe('eip1559', () => {
           ]).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"eip1559\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip1559" was provided.
 
-        Serialized Transaction: \\"0x02ca80808080808080808080\\"
+        Serialized Transaction: "0x02ca80808080808080808080"
         Missing Attributes: r, s
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
@@ -383,12 +383,12 @@ describe('eip2930', () => {
       expect(() =>
         parseTransaction(`0x01${toRlp([]).slice(2)}`),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"eip2930\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip2930" was provided.
 
-        Serialized Transaction: \\"0x01c0\\"
+        Serialized Transaction: "0x01c0"
         Missing Attributes: chainId, nonce, gasPrice, gas, to, value, data, accessList
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -396,12 +396,12 @@ describe('eip2930', () => {
       expect(() =>
         parseTransaction(`0x01${toRlp(['0x0', '0x1']).slice(2)}`),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"eip2930\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip2930" was provided.
 
-        Serialized Transaction: \\"0x01c20001\\"
+        Serialized Transaction: "0x01c20001"
         Missing Attributes: gasPrice, gas, to, value, data, accessList
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -421,12 +421,12 @@ describe('eip2930', () => {
           ]).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"eip2930\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip2930" was provided.
 
-        Serialized Transaction: \\"0x01c9808080808080808080\\"
+        Serialized Transaction: "0x01c9808080808080808080"
         Missing Attributes: r, s
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
@@ -582,12 +582,12 @@ describe('legacy', () => {
       expect(() =>
         parseTransaction(toRlp([])),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"legacy\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "legacy" was provided.
 
-        Serialized Transaction: \\"0xc0\\"
+        Serialized Transaction: "0xc0"
         Missing Attributes: nonce, gasPrice, gas, to, value, data
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -595,12 +595,12 @@ describe('legacy', () => {
       expect(() =>
         parseTransaction(toRlp(['0x0', '0x1'])),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"legacy\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "legacy" was provided.
 
-        Serialized Transaction: \\"0xc20001\\"
+        Serialized Transaction: "0xc20001"
         Missing Attributes: gas, to, value, data
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -608,12 +608,12 @@ describe('legacy', () => {
       expect(() =>
         parseTransaction(toRlp(['0x', '0x', '0x', '0x', '0x', '0x', '0x'])),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"legacy\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "legacy" was provided.
 
-        Serialized Transaction: \\"0xc780808080808080\\"
+        Serialized Transaction: "0xc780808080808080"
         Missing Attributes: r, s
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -623,11 +623,11 @@ describe('legacy', () => {
           toRlp(['0x', '0x', '0x', '0x', '0x', '0x', '0x', '0x', '0x', '0x']),
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"legacy\\" was provided.
+        [InvalidSerializedTransactionError: Invalid serialized transaction of type "legacy" was provided.
 
-        Serialized Transaction: \\"0xca80808080808080808080\\"
+        Serialized Transaction: "0xca80808080808080808080"
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -647,9 +647,9 @@ describe('legacy', () => {
           ]),
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid \`v\` value \\"0\\". Expected 27 or 28.
+        [InvalidLegacyVError: Invalid \`v\` value "0". Expected 27 or 28.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
 
       expect(() =>
@@ -667,9 +667,9 @@ describe('legacy', () => {
           ]),
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid \`v\` value \\"35\\". Expected 27 or 28.
+        [InvalidLegacyVError: Invalid \`v\` value "35". Expected 27 or 28.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
@@ -679,9 +679,9 @@ describe('errors', () => {
   test('invalid transaction', () => {
     expect(() => parseTransaction('0x')).toThrowErrorMatchingInlineSnapshot(
       `
-      "Serialized transaction type \\"0x\\" is invalid.
+      [InvalidSerializedTransactionType: Serialized transaction type "0x" is invalid.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -689,9 +689,9 @@ describe('errors', () => {
   test('invalid transaction', () => {
     expect(() => parseTransaction('0x03')).toThrowErrorMatchingInlineSnapshot(
       `
-      "Serialized transaction type \\"0x03\\" is invalid.
+      [InvalidSerializedTransactionType: Serialized transaction type "0x03" is invalid.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })

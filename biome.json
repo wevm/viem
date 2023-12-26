@@ -8,22 +8,25 @@
       ".next",
       ".svelte-kit",
       ".vercel",
+      ".vitepress",
       "**/node_modules",
       "CHANGELOG.md",
       "cache",
       "test/contracts",
+      "test/chains",
       "coverage",
       "tsconfig.json",
       "tsconfig.*.json",
       "generated.ts",
-      "vectors/*.json"
+      "vectors/*.json",
+      "vectors/**/*.test.ts"
     ]
   },
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
     "indentStyle": "space",
-    "indentSize": 2,
+    "indentWidth": 2,
     "lineWidth": 80
   },
   "linter": {
@@ -49,7 +52,9 @@
       "suspicious": {
         "noArrayIndexKey": "off",
         "noAssignInExpressions": "off",
-        "noExplicitAny": "off"
+        "noConfusingVoidType": "off",
+        "noExplicitAny": "off",
+        "noRedeclare": "off"
       }
     }
   },

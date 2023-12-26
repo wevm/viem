@@ -169,14 +169,14 @@ describe('http', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
-      Details: \\"ngmi\\"
-      Version: viem@1.0.2"
+      Details: "ngmi"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -195,14 +195,14 @@ describe('http', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
       Details: Internal Server Error
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -244,13 +244,13 @@ describe('http', () => {
         timeout: 10000,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
       Details: foo
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     mock.mockRestore()
@@ -352,14 +352,14 @@ describe('http (batch)', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: [{\\"method\\":\\"web3_clientVersion\\"},{\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
 
-      Details: \\"ngmi\\"
-      Version: viem@1.0.2"
+      Details: "ngmi"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -381,14 +381,14 @@ describe('http (batch)', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: [{\\"method\\":\\"web3_clientVersion\\"},{\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
 
       Details: Internal Server Error
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -410,13 +410,13 @@ describe('http (batch)', () => {
         timeout: 10000,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: [{\\"method\\":\\"web3_clientVersion\\"},{\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
 
       Details: foo
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     mock.mockRestore()
@@ -682,13 +682,13 @@ describe('webSocket', () => {
         ),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "WebSocket request failed.
+      [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"wagmi_lol\\"}
+      Request body: {"method":"wagmi_lol"}
 
       Details: Socket is closed.
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
     await wait(100)
@@ -710,13 +710,13 @@ describe('webSocket', () => {
         ),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "WebSocket request failed.
+      [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"wagmi_lol\\"}
+      Request body: {"method":"wagmi_lol"}
 
       Details: Socket is closed.
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })

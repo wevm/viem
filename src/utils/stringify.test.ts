@@ -46,9 +46,9 @@ test('args: space', () => {
     ),
   ).toMatchInlineSnapshot(`
     "{
-      \\"foo\\": \\"bar\\",
-      \\"baz\\": {
-        \\"value\\": \\"69\\"
+      "foo": "bar",
+      "baz": {
+        "value": "69"
       }
     }"
   `)

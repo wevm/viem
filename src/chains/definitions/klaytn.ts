@@ -14,4 +14,10 @@ export const klaytn = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: { name: 'KlaytnScope', url: 'https://scope.klaytn.com' },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 96002415,
+    },
+  },
 })

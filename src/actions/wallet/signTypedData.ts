@@ -185,8 +185,11 @@ export async function signTypedData<
     { domain: domain ?? {}, message, primaryType, types },
     (_, value) => (isHex(value) ? value.toLowerCase() : value),
   )
-  return client.request({
-    method: 'eth_signTypedData_v4',
-    params: [account.address, typedData],
-  })
+  return client.request(
+    {
+      method: 'eth_signTypedData_v4',
+      params: [account.address, typedData],
+    },
+    { retryCount: 0 },
+  )
 }

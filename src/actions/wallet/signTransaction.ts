@@ -9,7 +9,11 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
+import type {
+  Chain,
+  DeriveChain,
+  GetChainParameter,
+} from '../../types/chain.js'
 import { type RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
@@ -39,14 +43,11 @@ export type SignTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain | undefined,
-> = UnionOmit<
-  FormattedTransactionRequest<
-    TChainOverride extends Chain ? TChainOverride : TChain
-  >,
-  'from'
-> &
+  ///
+  derivedChain extends Chain | undefined = DeriveChain<TChain, TChainOverride>,
+> = UnionOmit<FormattedTransactionRequest<derivedChain>, 'from'> &
   GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
+  GetChainParameter<TChain, TChainOverride>
 
 export type SignTransactionReturnType = TransactionSerialized
 
@@ -128,7 +129,7 @@ export async function signTransaction<
     ...args,
   })
 
-  const chainId = await getAction(client, getChainId)({})
+  const chainId = await getAction(client, getChainId, 'getChainId')({})
   if (chain !== null)
     assertCurrentChain({
       currentChainId: chainId,
@@ -148,14 +149,17 @@ export async function signTransaction<
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>
 
-  return await client.request({
-    method: 'eth_signTransaction',
-    params: [
-      {
-        ...format(transaction as unknown as TransactionRequest),
-        chainId: numberToHex(chainId),
-        from: account.address,
-      } as unknown as RpcTransactionRequest,
-    ],
-  })
+  return await client.request(
+    {
+      method: 'eth_signTransaction',
+      params: [
+        {
+          ...format(transaction as unknown as TransactionRequest),
+          chainId: numberToHex(chainId),
+          from: account.address,
+        } as unknown as RpcTransactionRequest,
+      ],
+    },
+    { retryCount: 0 },
+  )
 }

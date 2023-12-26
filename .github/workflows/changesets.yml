@@ -1,7 +1,7 @@
 name: Changesets
 on:
   push:
-    branches: [main, beta]
+    branches: [main, rc]
   workflow_dispatch:
 
 concurrency:

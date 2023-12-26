@@ -147,7 +147,7 @@ type Client_Base<
 
 type Extended = Prettify<
   // disallow redefining base properties
-  { [K in keyof Client_Base]?: undefined } & {
+  { [_ in keyof Client_Base]?: undefined } & {
     [key: string]: unknown
   }
 >

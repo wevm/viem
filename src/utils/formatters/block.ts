@@ -15,9 +15,7 @@ import { type FormattedTransaction, formatTransaction } from './transaction.js'
 type BlockPendingDependencies = 'hash' | 'logsBloom' | 'nonce' | 'number'
 
 export type FormattedBlock<
-  TChain extends { formatters?: Chain['formatters'] } | undefined =
-    | { formatters?: Chain['formatters'] }
-    | undefined,
+  TChain extends Chain | undefined = undefined,
   TIncludeTransactions extends boolean = boolean,
   TBlockTag extends BlockTag = BlockTag,
   _FormatterReturnType = ExtractChainFormatterReturnType<
@@ -28,7 +26,7 @@ export type FormattedBlock<
   _ExcludedPendingDependencies extends string = BlockPendingDependencies &
     ExtractChainFormatterExclude<TChain, 'block'>,
   _Formatted = Omit<_FormatterReturnType, BlockPendingDependencies> & {
-    [K in _ExcludedPendingDependencies]: never
+    [_key in _ExcludedPendingDependencies]: never
   } & Pick<
       Block<bigint, TIncludeTransactions, TBlockTag>,
       BlockPendingDependencies

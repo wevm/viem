@@ -53,7 +53,6 @@ function Example() {
       to: addressInput.current!.value as Address,
       value: parseEther(valueInput.current!.value as `${number}`),
     })
-    console.log('test', hash)
     setHash(hash)
   }
 

@@ -74,6 +74,11 @@ test('default', async () => {
         "l2Erc721Bridge": {
           "address": "0x4200000000000000000000000000000000000014",
         },
+        "l2OutputOracle": {
+          "1": {
+            "address": "0xdfe97868233d1aa22e815a266982f2cf17685a27",
+          },
+        },
         "l2StandardBridge": {
           "address": "0x4200000000000000000000000000000000000010",
         },
@@ -83,6 +88,11 @@ test('default', async () => {
         "multicall3": {
           "address": "0xca11bde05977b3631167028862be2a173976ca11",
           "blockCreated": 4286263,
+        },
+        "portal": {
+          "1": {
+            "address": "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed",
+          },
         },
       },
       "fees": undefined,
@@ -117,7 +127,10 @@ test('default', async () => {
           ],
         },
       },
-      "serializers": undefined,
+      "serializers": {
+        "transaction": [Function],
+      },
+      "sourceId": 1,
     }
   `)
 })

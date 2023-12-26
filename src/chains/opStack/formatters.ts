@@ -11,11 +11,13 @@ import { defineTransactionReceipt } from '../../utils/formatters/transactionRece
 import type {
   OpStackBlockOverrides,
   OpStackRpcBlockOverrides,
+} from './types/block.js'
+import type {
   OpStackRpcTransaction,
   OpStackRpcTransactionReceiptOverrides,
   OpStackTransaction,
   OpStackTransactionReceiptOverrides,
-} from './types.js'
+} from './types/transaction.js'
 
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({

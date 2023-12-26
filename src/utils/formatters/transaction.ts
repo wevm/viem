@@ -17,9 +17,7 @@ type TransactionPendingDependencies =
   | 'transactionIndex'
 
 export type FormattedTransaction<
-  TChain extends { formatters?: Chain['formatters'] } | undefined =
-    | { formatters?: Chain['formatters'] }
-    | undefined,
+  TChain extends Chain | undefined = undefined,
   TBlockTag extends BlockTag = BlockTag,
   _FormatterReturnType = ExtractChainFormatterReturnType<
     TChain,
@@ -29,7 +27,7 @@ export type FormattedTransaction<
   _ExcludedPendingDependencies extends string = TransactionPendingDependencies &
     ExtractChainFormatterExclude<TChain, 'transaction'>,
 > = UnionLooseOmit<_FormatterReturnType, TransactionPendingDependencies> & {
-  [K in _ExcludedPendingDependencies]: never
+  [_K in _ExcludedPendingDependencies]: never
 } & Pick<
     Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>,
     TransactionPendingDependencies

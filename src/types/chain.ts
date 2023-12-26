@@ -30,7 +30,7 @@ export type Chain<
         {
           [key: string]:
             | ChainContract
-            | { [chainId: number]: ChainContract | undefined }
+            | { [sourceId: number]: ChainContract | undefined }
             | undefined
         } & {
           ensRegistry?: ChainContract | undefined
@@ -63,7 +63,7 @@ export type Chain<
   /** Modifies how data (ie. Transactions) is serialized. */
   serializers?: ChainSerializers<formatters> | undefined
   /** Modifies how fees are derived. */
-  fees?: ChainFees<formatters> | undefined
+  fees?: ChainFees<formatters | undefined> | undefined
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -168,7 +168,9 @@ export type ChainFeesFnParameters<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
   /** The latest block. */
-  block: Prettify<FormattedBlock<{ formatters: formatters }>>
+  block: Prettify<
+    FormattedBlock<Omit<Chain, 'formatters'> & { formatters: formatters }>
+  >
   client: Client<Transport, Chain>
   /**
    * A transaction request. This value will be undefined if the caller
@@ -206,7 +208,7 @@ export type ExtractChain<
 > = Extract<chains[number], { id: chainId }>
 
 export type ExtractChainFormatterExclude<
-  chain extends { formatters?: Chain['formatters'] } | undefined,
+  chain extends Chain | undefined,
   type extends keyof ChainFormatters,
 > = chain extends { formatters?: infer _Formatters extends ChainFormatters }
   ? _Formatters[type] extends { exclude: infer Exclude }
@@ -215,7 +217,7 @@ export type ExtractChainFormatterExclude<
   : ''
 
 export type ExtractChainFormatterParameters<
-  chain extends { formatters?: Chain['formatters'] } | undefined,
+  chain extends Chain | undefined,
   type extends keyof ChainFormatters,
   fallback,
 > = chain extends { formatters?: infer _Formatters extends ChainFormatters }
@@ -225,18 +227,27 @@ export type ExtractChainFormatterParameters<
   : fallback
 
 export type ExtractChainFormatterReturnType<
-  chain extends { formatters?: Chain['formatters'] } | undefined,
+  chain extends Chain | undefined,
   type extends keyof ChainFormatters,
   fallback,
-> = chain extends { formatters?: infer _Formatters extends ChainFormatters }
-  ? _Formatters[type] extends ChainFormatter
-    ? ReturnType<_Formatters[type]['format']>
-    : fallback
+> = chain extends {
+  formatters?:
+    | { [_ in type]?: infer formatter extends ChainFormatter }
+    | undefined
+}
+  ? chain['formatters'] extends undefined
+    ? fallback
+    : ReturnType<formatter['format']>
   : fallback
 
-export type GetChain<
+export type DeriveChain<
   chain extends Chain | undefined,
-  chainOverride extends Chain | undefined = undefined,
+  chainOverride extends Chain | undefined,
+> = chainOverride extends Chain ? chainOverride : chain
+
+export type GetChainParameter<
+  chain extends Chain | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
 > = IsUndefined<chain> extends true
   ? { chain: chainOverride | null }
   : { chain?: chainOverride | null | undefined }

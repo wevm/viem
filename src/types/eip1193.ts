@@ -194,6 +194,18 @@ export type PublicRpcSchema = [
     ReturnType: Quantity
   },
   /**
+   * @description Returns the current blob price of gas expressed in wei
+   *
+   * @example
+   * provider.request({ method: 'eth_blobGasPrice' })
+   * // => '0x09184e72a000'
+   */
+  {
+    Method: 'eth_blobGasPrice'
+    Parameters?: undefined
+    ReturnType: Quantity
+  },
+  /**
    * @description Returns the number of the most recent block seen by this client
    *
    * @example
@@ -1330,6 +1342,13 @@ export type EIP1193Parameters<
       params?: unknown
     }
 
+export type EIP1193RequestOptions = {
+  // The base delay (in ms) between retries.
+  retryDelay?: number
+  // The max number of times to retry.
+  retryCount?: number
+}
+
 type DerivedRpcSchema<
   TRpcSchema extends RpcSchema | undefined,
   TRpcSchemaOverride extends RpcSchemaOverride | undefined,
@@ -1355,4 +1374,5 @@ export type EIP1193RequestFn<
     : unknown,
 >(
   args: TParameters,
+  options?: EIP1193RequestOptions,
 ) => Promise<_ReturnType>

@@ -78,6 +78,10 @@ export type {
   DropTransactionParameters,
 } from './actions/test/dropTransaction.js'
 export type {
+  DumpStateErrorType,
+  DumpStateReturnType,
+} from './actions/test/dumpState.js'
+export type {
   GetAutomineErrorType,
   GetAutomineReturnType,
 } from './actions/test/getAutomine.js'
@@ -178,6 +182,11 @@ export type {
   GetPermissionsReturnType,
 } from './actions/wallet/getPermissions.js'
 export type {
+  GetProofErrorType,
+  GetProofParameters,
+  GetProofReturnType,
+} from './actions/public/getProof.js'
+export type {
   GetStorageAtErrorType,
   GetStorageAtParameters,
   GetStorageAtReturnType,
@@ -210,12 +219,18 @@ export type {
   IncreaseTimeErrorType,
   IncreaseTimeParameters,
 } from './actions/test/increaseTime.js'
+export type {
+  LoadStateErrorType,
+  LoadStateParameters,
+  LoadStateReturnType,
+} from './actions/test/loadState.js'
 export type { MineErrorType, MineParameters } from './actions/test/mine.js'
 export type {
   MulticallErrorType,
   MulticallParameters,
   MulticallReturnType,
 } from './actions/public/multicall.js'
+export type { SnapshotErrorType } from './actions/test/snapshot.js'
 export type {
   OnBlock,
   OnBlockParameter,
@@ -277,19 +292,31 @@ export type {
   InspectTxpoolErrorType,
   InspectTxpoolReturnType,
 } from './actions/test/inspectTxpool.js'
+export type { RemoveBlockTimestampIntervalErrorType } from './actions/test/removeBlockTimestampInterval.js'
 export type { ResetErrorType, ResetParameters } from './actions/test/reset.js'
 export type {
   RevertErrorType,
   RevertParameters,
 } from './actions/test/revert.js'
 export type {
+  SendRawTransactionErrorType,
+  SendRawTransactionParameters,
+  SendRawTransactionReturnType,
+} from './actions/wallet/sendRawTransaction.js'
+export type {
   SendTransactionErrorType,
   SendTransactionParameters,
   SendTransactionReturnType,
 } from './actions/wallet/sendTransaction.js'
 export type {
+  SignTransactionErrorType,
+  SignTransactionParameters,
+  SignTransactionReturnType,
+} from './actions/wallet/signTransaction.js'
+export type {
   PrepareTransactionRequestErrorType,
   PrepareTransactionRequestParameters,
+  PrepareTransactionRequestParameterType,
   PrepareTransactionRequestReturnType,
 } from './actions/wallet/prepareTransactionRequest.js'
 export type {
@@ -297,6 +324,7 @@ export type {
   SendUnsignedTransactionParameters,
   SendUnsignedTransactionReturnType,
 } from './actions/test/sendUnsignedTransaction.js'
+export type { SetAutomineErrorType } from './actions/test/setAutomine.js'
 export type {
   SetBalanceErrorType,
   SetBalanceParameters,
@@ -321,6 +349,7 @@ export type {
   SetIntervalMiningErrorType,
   SetIntervalMiningParameters,
 } from './actions/test/setIntervalMining.js'
+export type { SetLoggingEnabledErrorType } from './actions/test/setLoggingEnabled.js'
 export type {
   SetMinGasPriceErrorType,
   SetMinGasPriceParameters,
@@ -337,6 +366,7 @@ export type {
   SetNonceErrorType,
   SetNonceParameters,
 } from './actions/test/setNonce.js'
+export type { SetRpcUrlErrorType } from './actions/test/setRpcUrl.js'
 export type {
   SetStorageAtErrorType,
   SetStorageAtParameters,
@@ -397,7 +427,8 @@ export type {
   ChainFeesFnParameters,
   ChainFormatter,
   ChainEstimateFeesPerGasFnParameters,
-  GetChain,
+  DeriveChain,
+  GetChainParameter,
   ChainFormatters,
   ChainSerializers,
   ExtractChainFormatterExclude,
@@ -1240,6 +1271,14 @@ export {
   encodePacked,
 } from './utils/abi/encodePacked.js'
 export {
+  type WithRetryErrorType,
+  withRetry,
+} from './utils/promise/withRetry.js'
+export {
+  type WithTimeoutErrorType,
+  withTimeout,
+} from './utils/promise/withTimeout.js'
+export {
   type FormatEtherErrorType,
   formatEther,
 } from './utils/unit/formatEther.js'
@@ -1310,6 +1349,8 @@ export { type IsBytesErrorType, isBytes } from './utils/data/isBytes.js'
 export { type IsHashErrorType, isHash } from './utils/hash/isHash.js'
 export { type IsHexErrorType, isHex } from './utils/data/isHex.js'
 export { type Keccak256ErrorType, keccak256 } from './utils/hash/keccak256.js'
+export { type Sha256ErrorType, sha256 } from './utils/hash/sha256.js'
+export { type Ripemd160ErrorType, ripemd160 } from './utils/hash/ripemd160.js'
 export {
   type PadBytesErrorType,
   type PadErrorType,

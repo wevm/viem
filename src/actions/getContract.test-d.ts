@@ -844,7 +844,7 @@ test('simulate', async () => {
     client: publicClient,
   })
   const result1 = await contract1.simulate.mint()
-  expectTypeOf<Pick<typeof result1['request'], 'account'>>().toEqualTypeOf<{
+  expectTypeOf<Pick<(typeof result1)['request'], 'account'>>().toEqualTypeOf<{
     account?: undefined
   }>()
 
@@ -853,7 +853,7 @@ test('simulate', async () => {
     client: walletClient,
   })
   const result2 = await contract2.simulate.mint()
-  expectTypeOf<Pick<typeof result2['request'], 'account'>>().toEqualTypeOf<{
+  expectTypeOf<Pick<(typeof result2)['request'], 'account'>>().toEqualTypeOf<{
     account: {
       address: '0x'
       type: 'json-rpc'
@@ -865,7 +865,7 @@ test('simulate', async () => {
     client: publicClient,
   })
   const result3 = await contract3.simulate.mint({ account: '0x' })
-  expectTypeOf<Pick<typeof result3['request'], 'account'>>().toEqualTypeOf<{
+  expectTypeOf<Pick<(typeof result3)['request'], 'account'>>().toEqualTypeOf<{
     account: {
       address: '0x'
       type: 'json-rpc'

@@ -7,7 +7,7 @@ import type { IsUndefined, Prettify } from './utils.js'
 export type DeriveAccount<
   account extends Account | undefined,
   accountOverride extends Account | Address | undefined,
-> = accountOverride extends Account ? accountOverride : account
+> = accountOverride extends Account | Address ? accountOverride : account
 
 export type GetAccountParameter<
   TAccount extends Account | undefined = Account | undefined,

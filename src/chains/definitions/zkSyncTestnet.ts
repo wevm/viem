@@ -1,6 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../zksync/chainConfig.js'
 
+/** @deprecated Use `zkSyncSepoliaTestnet` */
 export const zkSyncTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 280,

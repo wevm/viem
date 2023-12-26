@@ -1,4 +1,4 @@
-import type { Abi } from 'abitype'
+import type { Abi, Address } from 'abitype'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
@@ -7,6 +7,16 @@ import type {
   ContractFunctionArgs,
   ContractFunctionName,
 } from '../../../types/contract.js'
+import {
+  type BuildDepositTransactionParameters,
+  type BuildDepositTransactionReturnType,
+  buildDepositTransaction,
+} from '../actions/buildDepositTransaction.js'
+import {
+  type BuildProveWithdrawalParameters,
+  type BuildProveWithdrawalReturnType,
+  buildProveWithdrawal,
+} from '../actions/buildProveWithdrawal.js'
 import {
   type EstimateContractL1FeeParameters,
   type EstimateContractL1FeeReturnType,
@@ -28,6 +38,11 @@ import {
   estimateContractTotalGas,
 } from '../actions/estimateContractTotalGas.js'
 import {
+  type EstimateInitiateWithdrawalGasParameters,
+  type EstimateInitiateWithdrawalGasReturnType,
+  estimateInitiateWithdrawalGas,
+} from '../actions/estimateInitiateWithdrawalGas.js'
+import {
   type EstimateL1FeeParameters,
   type EstimateL1FeeReturnType,
   estimateL1Fee,
@@ -48,10 +63,88 @@ import {
   estimateTotalGas,
 } from '../actions/estimateTotalGas.js'
 
-export type publicActionsL2<
+export type PublicActionsL2<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
+  /**
+   * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/buildDepositTransaction.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link BuildDepositTransactionParameters}
+   * @returns Parameters for `depositTransaction`. {@link DepositTransactionReturnType}
+   *
+   * @example
+   * import { createWalletClient, http, parseEther } from 'viem'
+   * import { base } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/op-stack'
+   *
+   * const client = createWalletClient({
+   *   chain: base,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const args = await client.buildDepositTransaction({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *   value: parseEther('1'),
+   * })
+   */
+  buildDepositTransaction: <
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | Address | undefined = undefined,
+  >(
+    parameters: BuildDepositTransactionParameters<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >,
+  ) => Promise<BuildDepositTransactionReturnType<account, accountOverride>>
+  /**
+   * Builds the transaction that proves a withdrawal was initiated on an L2. Used in the Withdrawal flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/buildProveWithdrawal.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link BuildProveWithdrawalParameters}
+   * @returns The prove withdraw transaction request. {@link BuildProveWithdrawalReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { optimism } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/op-stack'
+   *
+   * const publicClientL2 = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const args = await publicClientL2.buildProveWithdrawal({
+   *   output: { ... },
+   *   withdrawal: { ... },
+   * })
+   */
+  buildProveWithdrawal: <
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | Address | undefined = undefined,
+  >(
+    parameters: BuildProveWithdrawalParameters<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >,
+  ) => Promise<
+    BuildProveWithdrawalReturnType<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >
+  >
   /**
    * Estimates the L1 data fee required to execute an L2 contract write.
    *
@@ -209,6 +302,43 @@ export type publicActionsL2<
     >,
   ) => Promise<EstimateContractTotalGasReturnType>
   /**
+   * Estimates gas required to initiate a [withdrawal](https://community.optimism.io/docs/protocol/withdrawal-flow/#withdrawal-initiating-transaction) on an L2 to the L1.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/estimateInitiateWithdrawalGas.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link EstimateInitiateWithdrawalGasParameters}
+   * @returns The gas required. {@link EstimateInitiateWithdrawalGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseEther } from 'viem'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/op-stack'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const hash = await client.estimateInitiateWithdrawalGas({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   request: {
+   *     gas: 21_000n,
+   *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *     value: parseEther('1'),
+   *   },
+   * })
+   */
+  estimateInitiateWithdrawalGas: <
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: EstimateInitiateWithdrawalGasParameters<
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<EstimateInitiateWithdrawalGasReturnType>
+  /**
    * Estimates the L1 data fee required to execute an L2 transaction.
    *
    * @param client - Client to use
@@ -314,20 +444,40 @@ export type publicActionsL2<
   ) => Promise<EstimateTotalGasReturnType>
 }
 
+/**
+ * A suite of Public Actions for suited for development with Layer 2 (OP Stack) chains.
+ *
+ * - Docs: https://viem.sh/op-stack/client.html
+ *
+ * @example
+ * import { publicActionsL2 } from 'viem/op-stack'
+ * import { optimism } from 'viem/chains'
+ * import { buildDepositTransaction } from 'viem/wallet'
+ *
+ * export const opStackPublicClientL1 = createWalletClient({
+ *   chain: optimism,
+ *   transport: http(),
+ * }).extend(publicActionsL1())
+ */
 export function publicActionsL2() {
   return <
+    TTransport extends Transport,
     TChain extends Chain | undefined = Chain | undefined,
     TAccount extends Account | undefined = Account | undefined,
   >(
-    client: Client<Transport, TChain, TAccount>,
-  ): publicActionsL2<TChain, TAccount> => {
+    client: Client<TTransport, TChain, TAccount>,
+  ): PublicActionsL2<TChain, TAccount> => {
     return {
+      buildDepositTransaction: (args) => buildDepositTransaction(client, args),
+      buildProveWithdrawal: (args) => buildProveWithdrawal(client, args),
       estimateContractL1Fee: (args) => estimateContractL1Fee(client, args),
       estimateContractL1Gas: (args) => estimateContractL1Gas(client, args),
       estimateContractTotalFee: (args) =>
         estimateContractTotalFee(client, args),
       estimateContractTotalGas: (args) =>
         estimateContractTotalGas(client, args),
+      estimateInitiateWithdrawalGas: (args) =>
+        estimateInitiateWithdrawalGas(client, args),
       estimateL1Fee: (args) => estimateL1Fee(client, args),
       estimateL1Gas: (args) => estimateL1Gas(client, args),
       estimateTotalFee: (args) => estimateTotalFee(client, args),

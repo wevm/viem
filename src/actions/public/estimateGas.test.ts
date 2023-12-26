@@ -192,7 +192,7 @@ describe('local account', () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Chain does not support EIP-1559 fees.
+      [EstimateGasExecutionError: Chain does not support EIP-1559 fees.
 
       Estimate Gas Arguments:
         from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
@@ -200,7 +200,7 @@ describe('local account', () => {
         value:         1 ETH
         maxFeePerGas:  33 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -226,7 +226,7 @@ describe('errors', () => {
         maxFeePerGas: 2n ** 256n - 1n + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [EstimateGasExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Estimate Gas Arguments:
         from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -234,7 +234,7 @@ describe('errors', () => {
         value:         1 ETH
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -249,7 +249,7 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
+      [EstimateGasExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
 
       Estimate Gas Arguments:
         from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -258,7 +258,7 @@ describe('errors', () => {
         maxFeePerGas:          10 gwei
         maxPriorityFeePerGas:  11 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })

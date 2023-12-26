@@ -346,9 +346,9 @@ test('named: topics + event params mismatch', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Expected a topic for indexed event parameter \\"id\\" on event \\"Transfer(address from, address to, uint256 id)\\".
+    [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter "id" on event "Transfer(address from, address to, uint256 id)".
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })
@@ -383,9 +383,9 @@ test('unnamed: topics + event params mismatch', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Expected a topic for indexed event parameter on event \\"Transfer(address, address, uint256)\\".
+    [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter on event "Transfer(address, address, uint256)".
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })
@@ -428,13 +428,13 @@ test('data + event params mismatch', () => {
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-        "Data size of 32 bytes is too small for non-indexed event parameters.
+    [DecodeLogDataMismatch: Data size of 32 bytes is too small for non-indexed event parameters.
 
-        Params: (address to, uint256 id)
-        Data:   0x0000000000000000000000000000000000000000000000000000000023c34600 (32 bytes)
+    Params: (address to, uint256 id)
+    Data:   0x0000000000000000000000000000000000000000000000000000000023c34600 (32 bytes)
 
-        Version: viem@1.0.2"
-      `)
+    Version: viem@1.0.2]
+  `)
 
   expect(() =>
     decodeEventLog({
@@ -469,12 +469,12 @@ test('data + event params mismatch', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Data size of 0 bytes is too small for non-indexed event parameters.
+    [DecodeLogDataMismatch: Data size of 0 bytes is too small for non-indexed event parameters.
 
     Params: (address to)
     Data:   0x (0 bytes)
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 
@@ -512,12 +512,12 @@ test('data + event params mismatch', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Data size of 0 bytes is too small for non-indexed event parameters.
+    [DecodeLogDataMismatch: Data size of 0 bytes is too small for non-indexed event parameters.
 
     Params: (address to)
     Data:   0x (0 bytes)
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })
@@ -615,7 +615,7 @@ test('strict', () => {
 })
 
 describe('GitHub repros', () => {
-  describe('https://github.com/wagmi-dev/viem/issues/168', () => {
+  describe('https://github.com/wevm/viem/issues/168', () => {
     test('zero data string', () => {
       const result = decodeEventLog({
         abi: [
@@ -677,7 +677,7 @@ describe('GitHub repros', () => {
     })
   })
 
-  describe('https://github.com/wagmi-dev/viem/issues/197', () => {
+  describe('https://github.com/wevm/viem/issues/197', () => {
     test('topics + event params mismatch', () => {
       expect(() =>
         decodeEventLog({
@@ -717,15 +717,15 @@ describe('GitHub repros', () => {
         }),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        "Expected a topic for indexed event parameter \\"id\\" on event \\"Transfer(address from, address to, uint256 id)\\".
+        [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter "id" on event "Transfer(address from, address to, uint256 id)".
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `,
       )
     })
   })
 
-  describe('https://github.com/wagmi-dev/viem/issues/323', () => {
+  describe('https://github.com/wevm/viem/issues/323', () => {
     test('data + params mismatch', () => {
       expect(() =>
         decodeEventLog({
@@ -764,17 +764,17 @@ describe('GitHub repros', () => {
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Data size of 32 bytes is too small for non-indexed event parameters.
+        [DecodeLogDataMismatch: Data size of 32 bytes is too small for non-indexed event parameters.
 
         Params: (address to, uint256 id)
         Data:   0x0000000000000000000000000000000000000000000000000000000023c34600 (32 bytes)
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
 
-  describe('https://github.com/wagmi-dev/viem/issues/1336', () => {
+  describe('https://github.com/wevm/viem/issues/1336', () => {
     test('topics + event params mismatch', () => {
       expect(() =>
         decodeEventLog({
@@ -812,9 +812,9 @@ describe('GitHub repros', () => {
         }),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        "Expected a topic for indexed event parameter \\"nounId\\" on event \\"AuctionCreated(uint256 nounId, uint256 startTime, uint256 endTime)\\".
+        [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter "nounId" on event "AuctionCreated(uint256 nounId, uint256 startTime, uint256 endTime)".
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `,
       )
     })
@@ -843,12 +843,12 @@ test("errors: event doesn't exist", () => {
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Encoded event signature \\"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef\\" not found on ABI.
+    [AbiEventSignatureNotFoundError: Encoded event signature "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" not found on ABI.
     Make sure you are using the correct ABI and that the event exists on it.
     You can look up the signature here: https://openchain.xyz/signatures?query=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 
     Docs: https://viem.sh/docs/contract/decodeEventLog.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -871,10 +871,10 @@ test('errors: no topics', () => {
       topics: [],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Cannot extract event signature from empty topics.
+    [AbiEventSignatureEmptyTopicsError: Cannot extract event signature from empty topics.
 
     Docs: https://viem.sh/docs/contract/decodeEventLog.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -913,12 +913,12 @@ test('errors: invalid data size', () => {
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Data size of 1 bytes is too small for non-indexed event parameters.
+    [DecodeLogDataMismatch: Data size of 1 bytes is too small for non-indexed event parameters.
 
     Params: (uint256 tokenId)
     Data:   0x1 (1 bytes)
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -957,8 +957,8 @@ test('errors: invalid bool', () => {
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Hex value \\"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef\\" is not a valid boolean. The hex value must be \\"0x0\\" (false) or \\"0x1\\" (true).
+    [InvalidHexBooleanError: Hex value "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" is not a valid boolean. The hex value must be "0x0" (false) or "0x1" (true).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

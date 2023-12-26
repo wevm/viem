@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
 
 import {
-  optimismAddress,
   optimismClient,
   optimismClientWithAccount,
   optimismClientWithoutChain,
 } from '~test/src/opStack.js'
 
+import { accounts } from '~test/src/constants.js'
 import { type TransactionRequestEIP1559, parseGwei } from '../../../index.js'
 import { parseEther } from '../../../utils/unit/parseEther.js'
 import { estimateL1Gas } from './estimateL1Gas.js'
@@ -14,7 +14,7 @@ import { estimateL1Gas } from './estimateL1Gas.js'
 const baseTransaction = {
   maxFeePerGas: parseGwei('100'),
   maxPriorityFeePerGas: parseGwei('1'),
-  to: optimismAddress.bob,
+  to: accounts[1].address,
   value: parseEther('0.1'),
 } as const satisfies Omit<TransactionRequestEIP1559, 'from'>
 
@@ -31,7 +31,7 @@ test('minimal', async () => {
 test('args: account', async () => {
   const gas = await estimateL1Gas(optimismClient, {
     ...baseTransaction,
-    account: optimismAddress.alice,
+    account: accounts[0].address,
   })
   expect(gas).toBe(3116n)
 })
@@ -63,7 +63,7 @@ test('args: nonce', async () => {
 test('args: nullish chain', async () => {
   const gas = await estimateL1Gas(optimismClientWithoutChain, {
     ...baseTransaction,
-    account: optimismAddress.alice,
+    account: accounts[0].address,
     chain: null,
   })
   expect(gas).toBe(3116n)

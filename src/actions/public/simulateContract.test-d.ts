@@ -4,6 +4,9 @@ import { assertType, expectTypeOf, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { publicClient, walletClientWithAccount } from '~test/src/utils.js'
 
+import { celo } from '../../chains/definitions/celo.js'
+import { createClient } from '../../clients/createClient.js'
+import { http } from '../../clients/transports/http.js'
 import { simulateContract } from './simulateContract.js'
 
 const args = {
@@ -17,7 +20,7 @@ test('args: account - no client account, no account arg', async () => {
     ...args,
   })
 
-  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
     account?: undefined
   }>()
 })
@@ -27,8 +30,8 @@ test('args: account - with client account, no account arg', async () => {
     ...args,
   })
 
-  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
-    account: typeof walletClientWithAccount['account']
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
+    account: (typeof walletClientWithAccount)['account']
   }>()
 })
 
@@ -38,7 +41,7 @@ test('args: account - no client account, with account arg', async () => {
     account: '0x',
   })
 
-  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
     account: {
       address: '0x'
       type: 'json-rpc'
@@ -52,7 +55,7 @@ test('args: account - with client account, with account arg', async () => {
     account: '0x',
   })
 
-  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
     account: {
       address: '0x'
       type: 'json-rpc'
@@ -201,4 +204,33 @@ test('overloads', async () => {
       'function foo(address, address) returns ((address foo, address bar))',
     ]),
   )
+})
+
+test('chain formatters', async () => {
+  const client = createClient({
+    transport: http(),
+    chain: celo,
+  })
+  const result = await simulateContract(client, {
+    ...wagmiContractConfig,
+    functionName: 'mint',
+    args: [69420n],
+    feeCurrency: '0x',
+  })
+
+  expectTypeOf(result.request.feeCurrency).toEqualTypeOf<
+    `0x${string}` | undefined
+  >()
+
+  const result2 = await simulateContract(client, {
+    ...wagmiContractConfig,
+    functionName: 'mint',
+    args: [69420n],
+    feeCurrency: '0x',
+    chain: celo,
+  })
+
+  expectTypeOf(result2.request.feeCurrency).toEqualTypeOf<
+    `0x${string}` | undefined
+  >()
 })

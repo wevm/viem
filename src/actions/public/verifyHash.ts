@@ -58,6 +58,7 @@ export async function verifyHash<TChain extends Chain | undefined>(
     const { data } = await getAction(
       client,
       call,
+      'call',
     )({
       data: encodeDeployData({
         abi: universalSignatureValidatorAbi,

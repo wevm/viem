@@ -8,7 +8,6 @@ import type {
   Quantity,
   RpcBlock,
   RpcTransaction as RpcTransaction_,
-  RpcTransactionReceipt,
   RpcTransactionRequest as RpcTransactionRequest_,
   TransactionType,
 } from '../../types/rpc.js'
@@ -16,7 +15,6 @@ import type {
   AccessList,
   Transaction as Transaction_,
   TransactionBase,
-  TransactionReceipt,
   TransactionRequest as TransactionRequest_,
   TransactionRequestBase,
   TransactionSerializable,
@@ -76,14 +74,6 @@ export type CeloRpcTransaction<TPending extends boolean = boolean> =
   | RpcTransactionCIP42<TPending>
   | RpcTransactionCIP64<TPending>
 
-export type CeloRpcTransactionReceiptOverrides = {
-  feeCurrency: Address | null
-  gatewayFee: Hex | null
-  gatewayFeeRecipient: Address | null
-}
-export type CeloRpcTransactionReceipt = RpcTransactionReceipt &
-  CeloRpcTransactionReceiptOverrides
-
 export type CeloRpcTransactionRequest =
   | RpcTransactionRequest
   | RpcTransactionRequestCIP42
@@ -93,14 +83,6 @@ export type CeloTransaction<TPending extends boolean = boolean> =
   | Transaction<TPending>
   | TransactionCIP42<TPending>
   | TransactionCIP64<TPending>
-
-export type CeloTransactionReceiptOverrides = {
-  feeCurrency: Address | null
-  gatewayFee: bigint | null
-  gatewayFeeRecipient: Address | null
-}
-export type CeloTransactionReceipt = TransactionReceipt &
-  CeloTransactionReceiptOverrides
 
 export type CeloTransactionRequest =
   | TransactionRequest

@@ -27,7 +27,7 @@ import { normalize } from 'viem/ens'
 import { publicClient } from './client'
  
 const ensAddress = await publicClient.getEnsAddress({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
 })
 // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
 ```
@@ -66,7 +66,7 @@ Name to get the address for.
 
 ```ts
 const ensName = await publicClient.getEnsAddress({
-  name: normalize('wagmi-dev.eth'), // [!code focus]
+  name: normalize('wevm.eth'), // [!code focus]
 })
 ```
 
@@ -78,7 +78,7 @@ The block number to perform the read against.
 
 ```ts
 const ensName = await publicClient.getEnsAddress({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   blockNumber: 15121123n, // [!code focus]
 })
 ```
@@ -92,7 +92,7 @@ The block tag to perform the read against.
 
 ```ts
 const ensName = await publicClient.getEnsAddress({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   blockTag: 'safe', // [!code focus]
 })
 ```
@@ -105,7 +105,7 @@ The [ENSIP-9](https://docs.ens.domains/ens-improvement-proposals/ensip-9-multich
 
 ```ts
 const ensName = await publicClient.getEnsAddress({
-  name: normalize('wagmi-dev.eth'), 
+  name: normalize('wevm.eth'), 
   coinType: 60, // [!code focus]
 })
 ```
@@ -119,13 +119,13 @@ Address of ENS Universal Resolver Contract.
 
 ```ts
 const ensName = await publicClient.getEnsAddress({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376', // [!code focus]
 })
 ```
 
 ## Live Example
 
-Check out the usage of `getEnsAddress` in the live [ENS Examples](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens) below.
+Check out the usage of `getEnsAddress` in the live [ENS Examples](https://stackblitz.com/github/wevm/viem/tree/main/examples/ens) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wevm/viem/tree/main/examples/ens?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

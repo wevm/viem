@@ -97,12 +97,11 @@ export type MaybeRequired<T, TRequired extends boolean> = TRequired extends true
  */
 export type Assign<T, U> = Assign_<T, U> & U
 type Assign_<T, U> = {
-  [K in
-    keyof T as K extends keyof U
-      ? U[K] extends void
-        ? never
-        : K
-      : K]: K extends keyof U ? U[K] : T[K]
+  [K in keyof T as K extends keyof U
+    ? U[K] extends void
+      ? never
+      : K
+    : K]: K extends keyof U ? U[K] : T[K]
 }
 
 /**
@@ -152,6 +151,15 @@ export type Prettify<T> = {
 } & {}
 
 /**
+ * @description Creates a type that is T with the required keys K.
+ *
+ * @example
+ * RequiredBy<{ a?: string, b: number }, 'a'>
+ * => { a: string, b: number }
+ */
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
+
+/**
  * @description Creates a type that extracts the values of T.
  *
  * @example
@@ -198,7 +206,7 @@ export type OneOf<
   ///
   keys extends KeyofUnion<union> = KeyofUnion<union>,
 > = union extends infer Item
-  ? Prettify<Item & { [K in Exclude<keys, keyof Item>]?: undefined }>
+  ? Prettify<Item & { [_K in Exclude<keys, keyof Item>]?: undefined }>
   : never
 type KeyofUnion<type> = type extends type ? keyof type : never
 
@@ -239,4 +247,15 @@ export type UnionOmit<type, keys extends keyof type> = type extends any
  */
 export type UnionPartialBy<T, K extends keyof T> = T extends any
   ? PartialBy<T, K>
+  : never
+
+/**
+ * @description Creates a type that is T with the required keys K.
+ *
+ * @example
+ * RequiredBy<{ a?: string, b: number } | { a?: string, c?: number }, 'a'>
+ * => { a: string, b: number } | { a: string, c?: number }
+ */
+export type UnionRequiredBy<T, K extends keyof T> = T extends any
+  ? RequiredBy<T, K>
   : never

@@ -1,5 +1,9 @@
 import type { Chain } from '../../types/chain.js'
 
+/**
+ * Predeploy contracts for OP Stack.
+ * @see https://github.com/ethereum-optimism/optimism/blob/develop/specs/predeploys.md
+ */
 export const contracts = {
   gasPriceOracle: { address: '0x420000000000000000000000000000000000000F' },
   l1Block: { address: '0x4200000000000000000000000000000000000015' },

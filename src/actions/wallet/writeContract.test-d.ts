@@ -91,12 +91,12 @@ test('infers args', () => {
   type Result1 = WriteContractParameters<typeof abi, 'foo'>
   type Result2 = Parameters<
     typeof writeContract<
-      typeof client['chain'],
-      typeof client['account'],
+      (typeof client)['chain'],
+      (typeof client)['account'],
       typeof abi,
       'foo',
       readonly [Address],
-      typeof client['chain']
+      (typeof client)['chain']
     >
   >[1]
   expectTypeOf<Result1['functionName']>().toEqualTypeOf<'foo' | 'bar'>()

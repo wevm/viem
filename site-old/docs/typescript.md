@@ -191,7 +191,7 @@ For advanced use-cases, you may want to configure viem's internal types. Most of
 
 ## `window` Polyfill
 
-By importing the `viem/window` Polyfill, the global `window.ethereum` will typed as an [`EIP1193Provider`](https://github.com/wagmi-dev/viem/blob/4bdbf15be0d61b52a195e11c97201e707fb616cc/src/types/eip1193.ts#L24-L26) (including a fully-typed `request` function & typed events). It may be `undefined` in cases where no browser extension Wallet is detected, or if rendered on the server.
+By importing the `viem/window` Polyfill, the global `window.ethereum` will typed as an [`EIP1193Provider`](https://github.com/wevm/viem/blob/4bdbf15be0d61b52a195e11c97201e707fb616cc/src/types/eip1193.ts#L24-L26) (including a fully-typed `request` function & typed events). It may be `undefined` in cases where no browser extension Wallet is detected, or if rendered on the server.
 
 ```ts
 import 'viem/window';

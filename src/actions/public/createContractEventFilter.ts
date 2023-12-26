@@ -48,12 +48,12 @@ export type CreateContractEventFilterParameters<
       args?: never
     }
   : MaybeExtractEventArgsFromAbi<abi, eventName> extends infer TEventFilterArgs
-  ? {
-      args?: TEventFilterArgs | (args extends TEventFilterArgs ? args : never)
-    }
-  : {
-      args?: never
-    })
+    ? {
+        args?: TEventFilterArgs | (args extends TEventFilterArgs ? args : never)
+      }
+    : {
+        args?: never
+      })
 
 export type CreateContractEventFilterReturnType<
   abi extends Abi | readonly unknown[] = Abi,
@@ -155,7 +155,7 @@ export async function createContractEventFilter<
     eventName,
     id,
     request: getRequest(id),
-    strict,
+    strict: Boolean(strict),
     type: 'event',
   } as unknown as CreateContractEventFilterReturnType<
     abi,

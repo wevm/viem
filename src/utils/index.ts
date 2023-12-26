@@ -1,7 +1,5 @@
 export {
-  type IsDeterministicErrorType,
   type RequestErrorType,
-  isDeterministicError,
   buildRequest,
 } from './buildRequest.js'
 
@@ -113,6 +111,12 @@ export {
   type EncodeFunctionResultParameters,
   encodeFunctionResult,
 } from './abi/encodeFunctionResult.js'
+export {
+  type ParseEventLogsErrorType,
+  type ParseEventLogsParameters,
+  type ParseEventLogsReturnType,
+  parseEventLogs,
+} from './abi/parseEventLogs.js'
 export {
   type GetAbiItemErrorType,
   type GetAbiItemParameters,
@@ -347,6 +351,8 @@ export {
 } from './hash/getFunctionSelector.js'
 export { type IsHashErrorType, isHash } from './hash/isHash.js'
 export { type Keccak256ErrorType, keccak256 } from './hash/keccak256.js'
+export { type Sha256ErrorType, sha256 } from './hash/sha256.js'
+export { type Ripemd160ErrorType, ripemd160 } from './hash/ripemd160.js'
 export {
   type HashDomainErrorType,
   type HashTypedDataParameters,

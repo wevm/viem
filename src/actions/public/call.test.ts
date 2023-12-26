@@ -147,7 +147,7 @@ describe('errors', () => {
         maxFeePerGas: 2n ** 256n - 1n + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [CallExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Raw Call Arguments:
         from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -155,7 +155,7 @@ describe('errors', () => {
         data:          0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -170,7 +170,7 @@ describe('errors', () => {
         gas: 100n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The amount of gas (100) provided for the transaction exceeds the limit allowed for the block.
+      [CallExecutionError: The amount of gas (100) provided for the transaction exceeds the limit allowed for the block.
 
       Raw Call Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -179,7 +179,7 @@ describe('errors', () => {
         gas:   100
 
       Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     await expect(() =>
@@ -236,7 +236,7 @@ describe('errors', () => {
         nonce: 0,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Nonce provided for the transaction is lower than the current nonce of the account.
+      [CallExecutionError: Nonce provided for the transaction is lower than the current nonce of the account.
       Try increasing the nonce or find the latest nonce with \`getTransactionCount\`.
 
       Raw Call Arguments:
@@ -246,7 +246,7 @@ describe('errors', () => {
         nonce:  0
 
       Details: nonce too low
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -258,7 +258,7 @@ describe('errors', () => {
         value: parseEther('100000'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+      [CallExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
@@ -275,7 +275,7 @@ describe('errors', () => {
         value:  100000 ETH
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     await expect(() =>
@@ -297,7 +297,7 @@ describe('errors', () => {
         maxPriorityFeePerGas: parseGwei('22'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The provided tip (\`maxPriorityFeePerGas\` = 22 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 20 gwei).
+      [CallExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 22 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 20 gwei).
 
       Raw Call Arguments:
         from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -306,7 +306,7 @@ describe('errors', () => {
         maxFeePerGas:          20 gwei
         maxPriorityFeePerGas:  22 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -319,7 +319,7 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "Execution reverted with reason: Token ID is taken.
+      [CallExecutionError: Execution reverted with reason: Token ID is taken.
 
       Raw Call Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -327,7 +327,7 @@ describe('errors', () => {
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
       Details: execution reverted: Token ID is taken
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -340,7 +340,7 @@ describe('errors', () => {
         to: wagmiContractAddress,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Execution reverted for an unknown reason.
+      [CallExecutionError: Execution reverted for an unknown reason.
 
       Raw Call Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -348,7 +348,7 @@ describe('errors', () => {
         data:  0xa0712d68
 
       Details: execution reverted
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })

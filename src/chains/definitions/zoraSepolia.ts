@@ -1,6 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../opStack/chainConfig.js'
 
+const sourceId = 11_155_111 // sepolia
+
 export const zoraSepolia = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 999999999,
@@ -16,10 +18,6 @@ export const zoraSepolia = /*#__PURE__*/ defineChain({
       http: ['https://sepolia.rpc.zora.energy'],
       webSocket: ['wss://sepolia.rpc.zora.energy'],
     },
-    public: {
-      http: ['https://sepolia.rpc.zora.energy'],
-      webSocket: ['wss://sepolia.rpc.zora.energy'],
-    },
   },
   blockExplorers: {
     default: {
@@ -29,10 +27,21 @@ export const zoraSepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    l2OutputOracle: {
+      [sourceId]: {
+        address: '0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9',
+      },
+    },
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 83160,
     },
+    portal: {
+      [sourceId]: {
+        address: '0xeffE2C6cA9Ab797D418f0D91eA60807713f3536f',
+      },
+    },
   },
+  sourceId,
   testnet: true,
 })

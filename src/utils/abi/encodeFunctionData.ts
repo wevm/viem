@@ -36,8 +36,8 @@ export type EncodeFunctionDataParameters<
     ? Abi extends abi
       ? true
       : [ExtractAbiFunctions<abi>] extends [never]
-      ? false
-      : true
+        ? false
+        : true
     : true,
   allArgs = ContractFunctionArgs<
     abi,

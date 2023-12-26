@@ -45,8 +45,11 @@ export async function sendRawTransaction<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
   { serializedTransaction }: SendRawTransactionParameters,
 ): Promise<SendRawTransactionReturnType> {
-  return client.request({
-    method: 'eth_sendRawTransaction',
-    params: [serializedTransaction],
-  })
+  return client.request(
+    {
+      method: 'eth_sendRawTransaction',
+      params: [serializedTransaction],
+    },
+    { retryCount: 0 },
+  )
 }

@@ -3,10 +3,13 @@ import { assertType, describe, expect, test } from 'vitest'
 import { createHttpServer } from '~test/src/utils.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { localhost } from '../../chains/index.js'
+import {
+  MethodNotSupportedRpcError,
+  UserRejectedRequestError,
+} from '../../errors/rpc.js'
 import { wait } from '../../utils/wait.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
-
 import type { Transport } from './createTransport.js'
 import {
   type FallbackTransport,
@@ -220,7 +223,11 @@ describe('request', () => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ error: 'ngmi' }))
+      res.end(
+        JSON.stringify({
+          error: { code: UserRejectedRequestError.code, message: 'sad times' },
+        }),
+      )
     })
     const server2 = await createHttpServer((_req, res) => {
       count++
@@ -249,7 +256,52 @@ describe('request', () => {
     expect(count).toBe(1)
   })
 
-  test('error (rpc - non deterministic)', async () => {
+  test('error (rpc - fallthrough)', async () => {
+    let count = 0
+    const server1 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: 'ngmi' }))
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: MethodNotSupportedRpcError.code,
+            message: 'sad times',
+          },
+        }),
+      )
+    })
+    const server3 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = fallback([
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
+    ])({
+      chain: localhost,
+    })
+    expect(
+      await transport.request({ method: 'eth_blockNumber' }),
+    ).toMatchInlineSnapshot('"0x1"')
+
+    expect(count).toBe(3)
+  })
+
+  test('error (rpc - fallthrough)', async () => {
     let count = 0
     const server1 = await createHttpServer((_req, res) => {
       count++
@@ -257,6 +309,31 @@ describe('request', () => {
         'Content-Type': 'application/json',
       })
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = fallback([http(server1.url), http(server2.url)])({
+      chain: localhost,
+    })
+    expect(
+      await transport.request({ method: 'eth_blockNumber' }),
+    ).toMatchInlineSnapshot('"0x1"')
+
+    expect(count).toBe(2)
+  })
+
+  test('error (rpc - fallthrough)', async () => {
+    let count = 0
+    const server1 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(404)
+      res.end()
     })
     const server2 = await createHttpServer((_req, res) => {
       count++
@@ -300,7 +377,7 @@ describe('request', () => {
     expect(count).toBe(8)
   })
 
-  test('all error (rpc - non deterministic)', async () => {
+  test('all error (rpc - fallthrough)', async () => {
     let count = 0
     const server1 = await createHttpServer((_req, res) => {
       count++
@@ -562,13 +639,13 @@ describe('client', () => {
     await expect(
       getBlockNumber(client),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "An internal error was received.
+      [InternalRpcError: An internal error was received.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_blockNumber\\"}
+      Request body: {"method":"eth_blockNumber"}
 
       Details: sad times
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
     expect(count).toBe(8)
   })

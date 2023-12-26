@@ -1,5 +1,6 @@
-import type { Abi, AbiParameter, Address } from 'abitype'
+import { type Abi, type AbiParameter, type Address } from 'abitype'
 
+import { AbiItemAmbiguityError } from '../../errors/abi.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   AbiItem,
@@ -97,6 +98,7 @@ export function getAbiItem<
   if (abiItems.length === 1)
     return abiItems[0] as GetAbiItemReturnType<abi, name, args>
 
+  let matchedAbiItem: AbiItem | undefined = undefined
   for (const abiItem of abiItems) {
     if (!('inputs' in abiItem)) continue
     if (!args || args.length === 0) {
@@ -112,8 +114,37 @@ export function getAbiItem<
       if (!abiParameter) return false
       return isArgOfType(arg, abiParameter)
     })
-    if (matched) return abiItem as GetAbiItemReturnType<abi, name, args>
+    if (matched) {
+      // Check for ambiguity against already matched parameters (e.g. `address` vs `bytes20`).
+      if (
+        matchedAbiItem &&
+        'inputs' in matchedAbiItem &&
+        matchedAbiItem.inputs
+      ) {
+        const ambiguousTypes = getAmbiguousTypes(
+          abiItem.inputs,
+          matchedAbiItem.inputs,
+          args as readonly unknown[],
+        )
+        if (ambiguousTypes)
+          throw new AbiItemAmbiguityError(
+            {
+              abiItem,
+              type: ambiguousTypes[0],
+            },
+            {
+              abiItem: matchedAbiItem,
+              type: ambiguousTypes[1],
+            },
+          )
+      }
+
+      matchedAbiItem = abiItem
+    }
   }
+
+  if (matchedAbiItem)
+    return matchedAbiItem as GetAbiItemReturnType<abi, name, args>
   return abiItems[0] as GetAbiItemReturnType<abi, name, args>
 }
 
@@ -174,4 +205,42 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
       return false
     }
   }
+}
+
+export function getAmbiguousTypes(
+  sourceParameters: readonly AbiParameter[],
+  targetParameters: readonly AbiParameter[],
+  args: AbiItemArgs,
+): AbiParameter['type'][] | undefined {
+  for (const parameterIndex in sourceParameters) {
+    const sourceParameter = sourceParameters[parameterIndex]
+    const targetParameter = targetParameters[parameterIndex]
+
+    if (
+      sourceParameter.type === 'tuple' &&
+      targetParameter.type === 'tuple' &&
+      'components' in sourceParameter &&
+      'components' in targetParameter
+    )
+      return getAmbiguousTypes(
+        sourceParameter.components,
+        targetParameter.components,
+        (args as any)[parameterIndex],
+      )
+
+    const types = [sourceParameter.type, targetParameter.type]
+
+    const ambiguous = (() => {
+      if (types.includes('address') && types.includes('bytes20')) return true
+      if (types.includes('address') && types.includes('string'))
+        return isAddress(args[parameterIndex] as Address)
+      if (types.includes('address') && types.includes('bytes'))
+        return isAddress(args[parameterIndex] as Address)
+      return false
+    })()
+
+    if (ambiguous) return types
+  }
+
+  return
 }

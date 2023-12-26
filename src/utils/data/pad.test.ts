@@ -67,9 +67,9 @@ describe('hex', () => {
       ),
     ).toThrowErrorMatchingInlineSnapshot(
       `
-      "Hex size (43) exceeds padding size (32).
+      [SizeExceedsPaddingSizeError: Hex size (43) exceeds padding size (32).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -89,9 +89,9 @@ describe('hex', () => {
       padHex('0x1a4e12a45', { size: 4 }),
     ).toThrowErrorMatchingInlineSnapshot(
       `
-      "Hex size (5) exceeds padding size (4).
+      [SizeExceedsPaddingSizeError: Hex size (5) exceeds padding size (4).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -201,9 +201,9 @@ describe('bytes', () => {
       ),
     ).toThrowErrorMatchingInlineSnapshot(
       `
-      "Bytes size (44) exceeds padding size (32).
+      [SizeExceedsPaddingSizeError: Bytes size (44) exceeds padding size (32).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -252,9 +252,9 @@ describe('bytes', () => {
       padBytes(new Uint8Array([1, 122, 51, 123, 11]), { size: 4 }),
     ).toThrowErrorMatchingInlineSnapshot(
       `
-      "Bytes size (5) exceeds padding size (4).
+      [SizeExceedsPaddingSizeError: Bytes size (5) exceeds padding size (4).
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })

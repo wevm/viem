@@ -113,6 +113,7 @@ export async function estimateContractGas<
     const gas = await getAction(
       client,
       estimateGas,
+      'estimateGas',
     )({
       data,
       to: address,

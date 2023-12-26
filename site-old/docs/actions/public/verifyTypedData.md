@@ -317,6 +317,73 @@ const valid = await verifyTypedData({
 })
 ```
 
+### blockNumber (optional)
+
+- **Type:** `bigint`
+
+Only used when verifying a typed data that was signed by a Smart Contract Account. The block number to check if the contract was already deployed.
+
+```ts
+const valid = await verifyTypedData({
+  blockNumber: 42069n, // [!code focus]
+  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
+  types,
+  primaryType: 'Mail',
+  message: {
+    from: {
+      name: 'Cow',
+      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+    },
+    to: {
+      name: 'Bob',
+      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+    },
+    contents: 'Hello, Bob!',
+  },
+  signature: '0x...',
+})
+```
+
+### blockTag (optional)
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Only used when verifying a typed data that was signed by a Smart Contract Account. The block tag to check if the contract was already deployed.
+
+```ts
+const valid = await verifyTypedData({
+  blockNumber: 42069n, // [!code focus]
+  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
+  types,
+  primaryType: 'Mail',
+  message: {
+    from: {
+      name: 'Cow',
+      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+    },
+    to: {
+      name: 'Bob',
+      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+    },
+    contents: 'Hello, Bob!',
+  },
+  signature: '0x...',
+})
+```
+
 ## JSON-RPC Method
 
 [`eth_call`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call) to a deployless [universal signature validator contract](https://eips.ethereum.org/EIPS/eip-6492).

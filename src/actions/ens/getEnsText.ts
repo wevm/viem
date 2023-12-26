@@ -60,7 +60,7 @@ export type GetEnsTextErrorType =
  * Gets a text record for specified ENS name.
  *
  * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
  *
  * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
  *
@@ -80,7 +80,7 @@ export type GetEnsTextErrorType =
  *   transport: http(),
  * })
  * const twitterRecord = await getEnsText(client, {
- *   name: normalize('wagmi-dev.eth'),
+ *   name: normalize('wevm.eth'),
  *   key: 'com.twitter',
  * })
  * // 'wagmi_sh'
@@ -113,6 +113,7 @@ export async function getEnsText<TChain extends Chain | undefined>(
     const res = await getAction(
       client,
       readContract,
+      'readContract',
     )({
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,

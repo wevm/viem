@@ -138,8 +138,8 @@ export type Widen<type> =
       ? type extends ResolvedRegister['AddressType']
         ? ResolvedRegister['AddressType']
         : type extends ResolvedRegister['BytesType']['inputs']
-        ? ResolvedRegister['BytesType']
-        : string
+          ? ResolvedRegister['BytesType']
+          : string
       : never)
   | (type extends readonly [] ? readonly [] : never)
   | (type extends Record<string, unknown>
@@ -166,7 +166,8 @@ export type ExtractAbiFunctionForArgs<
   mutability
 > extends infer abiFunction extends AbiFunction
   ? IsUnion<abiFunction> extends true // narrow overloads using `args` by converting to tuple and filtering out overloads that don't match
-    ? UnionToTuple<abiFunction> extends infer abiFunctions extends readonly AbiFunction[]
+    ? UnionToTuple<abiFunction> extends infer abiFunctions extends
+        readonly AbiFunction[]
       ? {
           [k in keyof abiFunctions]: (
             readonly [] extends args
@@ -225,19 +226,19 @@ export type ContractFunctionReturnType<
   ? Abi extends abi
     ? unknown
     : AbiParametersToPrimitiveTypes<
-        ExtractAbiFunctionForArgs<
-          abi,
-          mutability,
-          functionName,
-          args
-        >['outputs']
-      > extends infer types
-    ? types extends readonly []
-      ? void
-      : types extends readonly [infer type]
-      ? type
-      : types
-    : never
+          ExtractAbiFunctionForArgs<
+            abi,
+            mutability,
+            functionName,
+            args
+          >['outputs']
+        > extends infer types
+      ? types extends readonly []
+        ? void
+        : types extends readonly [infer type]
+          ? type
+          : types
+      : never
   : unknown
 
 export type AbiItem = Abi[number]
@@ -308,8 +309,8 @@ export type GetValue<
   ? TAbiFunction['stateMutability'] extends 'payable'
     ? { value?: NoUndefined<TValueType> }
     : TAbiFunction['payable'] extends true
-    ? { value?: NoUndefined<TValueType> }
-    : { value?: never }
+      ? { value?: NoUndefined<TValueType> }
+      : { value?: never }
   : { value?: TValueType }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -365,49 +366,48 @@ export type AbiEventParametersToPrimitiveTypes<
 > = TAbiParameters extends readonly []
   ? readonly []
   : Filter<
-      TAbiParameters,
-      Options['IndexedOnly'] extends true ? { indexed: true } : object
-    > extends infer Filtered extends readonly AbiParameter[]
-  ? _HasUnnamedAbiParameter<Filtered> extends true
-    ? // Has unnamed tuple parameters so return as array
-        | readonly [
-            ...{
-              [K in keyof Filtered]: AbiEventParameterToPrimitiveType<
-                Filtered[K],
-                Options
-              >
-            },
-          ]
-        // Distribute over tuple to represent optional parameters
-        | (Options['Required'] extends true
-            ? never
-            : // Distribute over tuple to represent optional parameters
-            Filtered extends readonly [
-                ...infer Head extends readonly AbiParameter[],
-                infer _,
-              ]
-            ? AbiEventParametersToPrimitiveTypes<
-                readonly [...{ [K in keyof Head]: Omit<Head[K], 'name'> }],
-                Options
-              >
-            : never)
-    : // All tuple parameters are named so return as object
-    {
-        [Parameter in
-          Filtered[number] as Parameter extends {
-            name: infer Name extends string
-          }
-            ? Name
-            : never]?: AbiEventParameterToPrimitiveType<Parameter, Options>
-      } extends infer Mapped
-    ? Prettify<
-        MaybeRequired<
-          Mapped,
-          Options['Required'] extends boolean ? Options['Required'] : false
-        >
-      >
+        TAbiParameters,
+        Options['IndexedOnly'] extends true ? { indexed: true } : object
+      > extends infer Filtered extends readonly AbiParameter[]
+    ? _HasUnnamedAbiParameter<Filtered> extends true
+      ? // Has unnamed tuple parameters so return as array
+          | readonly [
+              ...{
+                [K in keyof Filtered]: AbiEventParameterToPrimitiveType<
+                  Filtered[K],
+                  Options
+                >
+              },
+            ]
+          // Distribute over tuple to represent optional parameters
+          | (Options['Required'] extends true
+              ? never
+              : // Distribute over tuple to represent optional parameters
+                Filtered extends readonly [
+                    ...infer Head extends readonly AbiParameter[],
+                    infer _,
+                  ]
+                ? AbiEventParametersToPrimitiveTypes<
+                    readonly [...{ [K in keyof Head]: Omit<Head[K], 'name'> }],
+                    Options
+                  >
+                : never)
+      : // All tuple parameters are named so return as object
+        {
+            [Parameter in Filtered[number] as Parameter extends {
+              name: infer Name extends string
+            }
+              ? Name
+              : never]?: AbiEventParameterToPrimitiveType<Parameter, Options>
+          } extends infer Mapped
+        ? Prettify<
+            MaybeRequired<
+              Mapped,
+              Options['Required'] extends boolean ? Options['Required'] : false
+            >
+          >
+        : never
     : never
-  : never
 
 // TODO: Speed up by returning immediately as soon as named parameter is found.
 type _HasUnnamedAbiParameter<TAbiParameters extends readonly AbiParameter[]> =
@@ -431,10 +431,10 @@ export type LogTopicType<
 > = TTopic extends Hex
   ? TPrimitiveType
   : TTopic extends Hex[]
-  ? TPrimitiveType[]
-  : TTopic extends null
-  ? null
-  : never
+    ? TPrimitiveType[]
+    : TTopic extends null
+      ? null
+      : never
 
 /**
  * @internal
