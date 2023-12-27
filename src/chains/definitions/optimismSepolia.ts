@@ -8,6 +8,10 @@ export const optimismSepolia = /*#__PURE__*/ defineChain(
     network: 'optimism-sepolia',
     nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
+      alchemy: {
+        http: ['https://opt-sepolia.g.alchemy.com/v2'],
+        webSocket: ['wss://opt-sepolia.g.alchemy.com/v2'],
+      },
       default: {
         http: ['https://sepolia.optimism.io'],
       },
