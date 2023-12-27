@@ -1,5 +1,4 @@
 import type {
-  Chain,
   SignTransactionParameters,
   SignTransactionReturnType,
 } from '~viem/index.js'
@@ -60,10 +59,10 @@ import { type ChainEIP712, isEip712Transaction } from '../types.js'
  *   value: 1n,
  * })
  */
-export async function signEip712Transaction<
+export async function signTransaction<
   TChain extends ChainEIP712 | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  TChainOverride extends ChainEIP712 | undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   argsIncoming: SignTransactionParameters<TChain, TAccount, TChainOverride>,
@@ -89,10 +88,7 @@ export async function signEip712Transaction<
       chain: args.chain,
     })
 
-  const formatters = args.chain?.formatters || client.chain?.formatters
-  const format =
-    formatters?.transactionRequest?.format || formatTransactionRequest
-
+  // For EIP712 we don't need to ask MetaMask to sign it,
   if (
     client.chain?.custom.eip712domain?.eip712domain &&
     client.chain?.serializers?.transaction &&
@@ -132,8 +128,8 @@ export async function signEip712Transaction<
       {
         ...args,
         chainId,
-        // TODO: I am suspicious that we actually don't want to override the type here.
-        type: 'eip712',
+        // TODO: Get rid of this `as any` when we fix the `type` issue.
+        type: args.type as any,
         from: account.address,
         gasPrice: undefined,
       },
@@ -141,15 +137,17 @@ export async function signEip712Transaction<
     )
   }
 
-  // For EIP712 we don't need to ask MetaMask to sign it,
+  const formatters = args.chain?.formatters || client.chain?.formatters
+  const format =
+    formatters?.transactionRequest?.format || formatTransactionRequest
   return await client.request({
     method: 'eth_signTransaction',
     params: [
       {
-        ...format(args),
+        ...format(args as any),
         chainId: numberToHex(chainId),
         from: account.address,
-      },
+      } as any,
     ],
   })
 }

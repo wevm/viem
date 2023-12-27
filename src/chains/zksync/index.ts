@@ -31,12 +31,6 @@ export type {
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
 } from './types.js'
-export {
-  writeContract as writeEip712Contract,
-  type WriteContractParameters as WriteEip712ContractParameters,
-  type WriteContractErrorType as WriteEip712ContractErrorType,
-  type WriteContractReturnType as WriteEip712ContractReturnType,
-} from './actions/writeContract.js'
 
 export { prepareTransactionRequest as prepareEip712TransactionRequest } from './actions/prepareTransactionRequest.js'
 

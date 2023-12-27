@@ -6,7 +6,7 @@ import { createWalletClient } from '../../../clients/createWalletClient.js'
 import { http } from '../../../clients/transports/http.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import { zkSyncSepoliaTestnet } from '../chains.js'
-import { sendTransactionZ } from './sendTransaction.js'
+import { sendTransaction } from './sendTransaction.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -19,7 +19,7 @@ describe('zksync on anvil', () => {
 
   test('non-eip712', async () => {
     expect(
-      await sendTransactionZ(walletClient, {
+      await sendTransaction(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('25'),
@@ -40,7 +40,7 @@ describe('zksync on zkSyncTestnet', () => {
   })
   test('eip712', async () => {
     expect(
-      await sendTransactionZ(walletClient, {
+      await sendTransaction(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('25'),

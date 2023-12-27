@@ -373,7 +373,9 @@ export type TransactionRequestEIP712<
   }
 
 export type ChainEIP712<
-  formatters extends ChainFormatters | undefined = typeof formatters,
+  formatters extends ChainFormatters | undefined =
+    | typeof formatters
+    | undefined,
 > = Chain<formatters> & {
   custom: {
     /** Return EIP712 Domain for EIP712 transaction */

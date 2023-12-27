@@ -7,7 +7,7 @@ import { createWalletClient } from '../../../clients/createWalletClient.js'
 import { http } from '../../../clients/transports/http.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import { zkSyncSepoliaTestnet } from '../../index.js'
-import { signEip712Transaction as signTransaction } from './signTransaction.js'
+import { signTransaction } from './signTransaction.js'
 
 const sourceAccount = accounts[0]
 

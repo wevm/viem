@@ -23,7 +23,7 @@ import { getAction } from '../../../utils/getAction.js'
 import { assertRequest } from '../../../utils/transaction/assertRequest.js'
 import { type ChainEIP712, isEip712Transaction } from '../types.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
-import { signEip712Transaction } from './signTransaction.js'
+import { signTransaction } from './signTransaction.js'
 
 /**
  * Creates, signs, and sends a new transaction to the network.
@@ -72,7 +72,7 @@ import { signEip712Transaction } from './signTransaction.js'
 export async function sendTransaction<
   TChain extends ChainEIP712 | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  TChainOverride extends Chain | undefined = ChainEIP712 | undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   argsIncoming: SendTransactionParameters<TChain, TAccount, TChainOverride>,
@@ -114,16 +114,16 @@ export async function sendTransaction<
         client,
         prepareTransactionRequest,
         'prepareTransactionRequest',
-      )({ ...args })
+      )({ ...args } as any)
 
       if (!chainId)
         chainId = await getAction(client, getChainId, 'getChainId')({})
 
       // EIP712 sign will be done inside the sign transaction
-      const serializedTransaction = (await signEip712Transaction(client, {
+      const serializedTransaction = (await signTransaction(client, {
         ...request,
         chainId,
-      })) as Hash
+      } as any)) as Hash
 
       return await getAction(
         client,
@@ -140,7 +140,7 @@ export async function sendTransaction<
         client,
         prepareTransactionRequest,
         'prepareTransactionRequest',
-      )({ ...argsIncoming, chainId })
+      )({ ...argsIncoming, chainId } as any)
 
       if (!chainId)
         chainId = await getAction(client, getChainId, 'getChainId')({})
