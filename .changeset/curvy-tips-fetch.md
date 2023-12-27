@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-feat: add alchemy as rpc url for base sepolia
+Added RPC URLs to Base Sepolia
