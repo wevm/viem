@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-feat: add alchemy as rpc url for opt sepolia
+Added RPC URLs to Optimism Sepolia
