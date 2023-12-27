@@ -1,5 +1,13 @@
 # viem
 
+## 1.21.2
+
+### Patch Changes
+
+- [#1602](https://github.com/wevm/viem/pull/1602) [`020ab406`](https://github.com/wevm/viem/commit/020ab4068027f3cbb2ae53d3e8606d104a46251d) Thanks [@avasisht23](https://github.com/avasisht23)! - Added RPC URLs to Base Sepolia
+
+- [#1603](https://github.com/wevm/viem/pull/1603) [`7cc17673`](https://github.com/wevm/viem/commit/7cc1767353f30bf7103600d7c912ce442c2fc3ea) Thanks [@avasisht23](https://github.com/avasisht23)! - Added RPC URLs to Optimism Sepolia
+
 ## 1.21.1
 
 ### Patch Changes
