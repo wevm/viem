@@ -6,7 +6,7 @@ import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { createWalletClient } from '../../../clients/createWalletClient.js'
 import { http } from '../../../clients/transports/http.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
-import { zkSyncSepoliaTestnet } from '../../index.js'
+import { zkSyncTestnet } from '../../index.js'
 import { signTransaction } from './signTransaction.js'
 
 const sourceAccount = accounts[0]
@@ -19,7 +19,7 @@ const base: TransactionRequestBase = {
 
 describe('custom (eip712)', () => {
   const walletClient = createWalletClient({
-    chain: zkSyncSepoliaTestnet,
+    chain: zkSyncTestnet,
     transport: http(localHttpUrl),
   })
 
@@ -27,7 +27,7 @@ describe('custom (eip712)', () => {
     expect(
       await signTransaction(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
-        chain: zkSyncSepoliaTestnet,
+        chain: zkSyncTestnet,
         ...base,
         maxFeePerGas: parseGwei('20'),
         maxPriorityFeePerGas: parseGwei('2'),

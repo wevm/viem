@@ -65,40 +65,42 @@ export async function signTransaction<
   TChainOverride extends ChainEIP712 | undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
-  argsIncoming: SignTransactionParameters<TChain, TAccount, TChainOverride>,
+  args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SignTransactionReturnType> {
-  const args = {
-    ...argsIncoming,
-    account: argsIncoming.account || client.account,
-    chain: argsIncoming.chain || client.chain,
-  }
+  const {
+    account: account_ = client.account,
+    chain = client.chain,
+    ...transaction
+  } = args
 
-  if (!args.account)
+  if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/signTransaction',
     })
-  const account = parseAccount(args.account)
+  const account = parseAccount(account_)
 
-  assertRequest<TChain, TAccount, TChainOverride>(args)
+  assertRequest<TChain, TAccount, TChainOverride>({
+    account,
+    ...args,
+  })
 
   const chainId = await getAction(client, getChainId, 'getChainId')({})
-  if (args.chain !== null)
+  if (chain !== null)
     assertCurrentChain({
       currentChainId: chainId,
-      chain: args.chain,
+      chain: chain,
     })
 
+  // Handle EIP712 transactions
   // For EIP712 we don't need to ask MetaMask to sign it,
   if (
     client.chain?.custom.eip712domain?.eip712domain &&
     client.chain?.serializers?.transaction &&
-    isEip712Transaction({ ...args, chainId })
+    isEip712Transaction({ ...transaction, type: args.type ?? '' })
   ) {
     const eip712Domain = client.chain?.custom.eip712domain?.eip712domain({
-      ...args,
+      ...transaction,
       type: 'eip712',
-      from: account.address,
-      gasPrice: undefined,
     })
 
     const customSignature = await signTypedData(client, {
@@ -110,12 +112,10 @@ export async function signTransaction<
     // is `local` or `json-rpc`.
     return client.chain?.serializers?.transaction(
       {
-        ...args,
         chainId,
-        type: 'eip712',
-        from: account.address,
+        ...transaction,
         customSignature,
-        gasPrice: undefined,
+        type: 'eip712',
       },
       // Use this blank private key, probably we should change the code to be optional,
       // or option if it is EIP712.
@@ -126,25 +126,26 @@ export async function signTransaction<
   if (account.type === 'local') {
     return account.signTransaction(
       {
-        ...args,
+        ...transaction,
         chainId,
-        // TODO: Get rid of this `as any` when we fix the `type` issue.
-        type: args.type as any,
-        from: account.address,
-        gasPrice: undefined,
+        type: args.type ?? '',
       },
       { serializer: client.chain?.serializers?.transaction },
     )
   }
 
-  const formatters = args.chain?.formatters || client.chain?.formatters
+  const formatters = chain?.formatters || client.chain?.formatters
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
+
   return await client.request({
     method: 'eth_signTransaction',
     params: [
       {
-        ...format(args as any),
+        ...format({
+          ...transaction,
+          chainId,
+        } as any),
         chainId: numberToHex(chainId),
         from: account.address,
       } as any,

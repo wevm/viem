@@ -22,6 +22,7 @@ const zkSyncClient = createWalletClient({
 })
   .extend(publicActions)
   .extend(walletActions)
+  // TODO fix `eip712Actions()` so we could use it here
   .extend((c) => ({
     async prepareTransactionRequest(args) {
       return prepareTransactionRequest(c, args)

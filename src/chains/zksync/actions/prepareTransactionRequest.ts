@@ -19,15 +19,16 @@ import { getAction } from '../../../utils/getAction.js'
 import { type ChainEIP712, isEip712Transaction } from '../types.js'
 
 import { getChainId } from '~viem/actions/index.js'
+import { AccountNotFoundError } from '~viem/errors/account.js'
 import { prepareTransactionRequest as originalPrepareTransactionRequest } from '../../../actions/wallet/prepareTransactionRequest.js'
 
 type Eip712PrepareTransactionRequestParameterType =
-  | PrepareTransactionRequestParameterType
   | 'customSignature'
   | 'paymaster'
   | 'paymasterInput'
   | 'gasPerPubdata'
   | 'factoryDeps'
+  | PrepareTransactionRequestParameterType
 
 export type PrepareTransactionRequestParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -71,22 +72,9 @@ export async function prepareTransactionRequest<
     TParameterType
   >
 > {
-  const {
-    account: account_ = client.account,
-    nonce,
-    parameters = [
-      'fees',
-      'gas',
-      'nonce',
-      'type',
-      'customSignature',
-      'paymaster',
-      'paymasterInput',
-      'gasPerPubdata',
-      'factoryDeps',
-    ],
-  } = args
-  const account = account_ ? parseAccount(account_) : undefined
+  const { account: account_ = client.account, nonce, gas } = args
+  if (!account_) throw new AccountNotFoundError()
+  const account = parseAccount(account_)
 
   let chainId = 0
   if (args.chain?.id) {
@@ -94,14 +82,13 @@ export async function prepareTransactionRequest<
   } else {
     chainId = await getAction(client, getChainId, 'getChainId')({})
   }
+  const request = { ...args, from: account.address, chainId }
 
-  const request = {
-    ...args,
-    chainId,
-    ...(account ? { from: account?.address } : {}),
-  }
-
-  if (parameters.includes('nonce') && nonce === undefined && account)
+  if (
+    args.parameters?.includes('nonce' as any) &&
+    nonce === undefined &&
+    account
+  )
     request.nonce = await getAction(
       client,
       getTransactionCount,
@@ -114,16 +101,14 @@ export async function prepareTransactionRequest<
   if (isEip712Transaction({ ...request })) {
     request.type = 'eip712'
 
-    if (request.gas === undefined) {
+    if (gas === undefined) {
       request.gas = await getAction(
         client,
-        estimateGas<TChain, TAccount>,
+        estimateGas,
         'estimateGas',
       )({
         ...request,
-        account: account
-          ? { address: account.address, type: 'json-rpc' }
-          : undefined,
+        account: { address: account.address, type: 'json-rpc' },
       } as any)
     }
 
@@ -136,10 +121,10 @@ export async function prepareTransactionRequest<
     >
   }
 
-  return (await originalPrepareTransactionRequest(
+  return originalPrepareTransactionRequest(
     client,
     args,
-  )) as unknown as PrepareTransactionRequestReturnType<
+  ) as unknown as PrepareTransactionRequestReturnType<
     TChain,
     TAccount,
     TChainOverride,
