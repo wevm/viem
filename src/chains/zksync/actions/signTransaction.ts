@@ -1,3 +1,4 @@
+import { signTransaction as signTransactionOriginal } from '~viem/actions/index.js'
 import type {
   SignTransactionParameters,
   SignTransactionReturnType,
@@ -10,9 +11,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import { assertCurrentChain } from '../../../utils/chain/assertCurrentChain.js'
-import { formatTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../../utils/getAction.js'
-import { numberToHex } from '../../../utils/index.js'
 import { assertRequest } from '../../../utils/transaction/assertRequest.js'
 import { type ChainEIP712, isEip712Transaction } from '../types.js'
 
@@ -84,20 +83,19 @@ export async function signTransaction<
     ...args,
   })
 
-  const chainId = await getAction(client, getChainId, 'getChainId')({})
-  if (chain !== null)
-    assertCurrentChain({
-      currentChainId: chainId,
-      chain: chain,
-    })
-
   // Handle EIP712 transactions
-  // For EIP712 we don't need to ask MetaMask to sign it,
   if (
     client.chain?.custom.eip712domain?.eip712domain &&
     client.chain?.serializers?.transaction &&
     isEip712Transaction({ ...transaction, type: args.type ?? '' })
   ) {
+    const chainId = await getAction(client, getChainId, 'getChainId')({})
+    if (chain !== null)
+      assertCurrentChain({
+        currentChainId: chainId,
+        chain: chain,
+      })
+
     const eip712Domain = client.chain?.custom.eip712domain?.eip712domain({
       ...transaction,
       from: account.address,
@@ -124,32 +122,5 @@ export async function signTransaction<
     )
   }
 
-  if (account.type === 'local') {
-    return account.signTransaction(
-      {
-        ...transaction,
-        chainId,
-        type: args.type ?? '',
-      },
-      { serializer: client.chain?.serializers?.transaction },
-    )
-  }
-
-  const formatters = chain?.formatters || client.chain?.formatters
-  const format =
-    formatters?.transactionRequest?.format || formatTransactionRequest
-
-  return await client.request({
-    method: 'eth_signTransaction',
-    params: [
-      {
-        ...format({
-          ...transaction,
-          chainId,
-        } as any),
-        chainId: numberToHex(chainId),
-        from: account.address,
-      } as any,
-    ],
-  })
+  return await signTransactionOriginal(client, args)
 }
