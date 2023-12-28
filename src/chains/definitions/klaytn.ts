@@ -10,8 +10,8 @@ export const klaytn = /*#__PURE__*/ defineChain({
     symbol: 'KLAY',
   },
   rpcUrls: {
-    default: { http: ['https://klaytn.drpc.org'] },
-    public: { http: ['https://klaytn.drpc.org'] },
+    default: { http: ['https://public-en-cypress.klaytn.net'] },
+    public: { http: ['https://public-en-cypress.klaytn.net'] },
   },
   blockExplorers: {
     etherscan: { name: 'KlaytnScope', url: 'https://scope.klaytn.com' },
