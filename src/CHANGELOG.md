@@ -1,5 +1,31 @@
 # viem
 
+## 1.21.2
+
+### Patch Changes
+
+- [#1602](https://github.com/wevm/viem/pull/1602) [`020ab406`](https://github.com/wevm/viem/commit/020ab4068027f3cbb2ae53d3e8606d104a46251d) Thanks [@avasisht23](https://github.com/avasisht23)! - Added RPC URLs to Base Sepolia
+
+- [#1603](https://github.com/wevm/viem/pull/1603) [`7cc17673`](https://github.com/wevm/viem/commit/7cc1767353f30bf7103600d7c912ce442c2fc3ea) Thanks [@avasisht23](https://github.com/avasisht23)! - Added RPC URLs to Optimism Sepolia
+
+## 1.21.1
+
+### Patch Changes
+
+- [#1621](https://github.com/wevm/viem/pull/1621) [`28054fb9`](https://github.com/wevm/viem/commit/28054fb90cfd64bfaba43cdc13466f1ac23ba44d) Thanks [@nanthanwa](https://github.com/nanthanwa)! - Added Jibchain.
+
+## 1.21.0
+
+### Minor Changes
+
+- [#1618](https://github.com/wevm/viem/pull/1618) [`ad01462d`](https://github.com/wevm/viem/commit/ad01462daa68f4dbd671a003f956c3a6b4d95106) Thanks [@0xArdy](https://github.com/0xArdy)! - Added `strength` parameter to `generateMnemonic`.
+
+### Patch Changes
+
+- [#1617](https://github.com/wevm/viem/pull/1617) [`f0c9c38b`](https://github.com/wevm/viem/commit/f0c9c38bb049817e77d061a25a93ed0ba1159469) Thanks [@TucksonDev](https://github.com/TucksonDev)! - Modified explorer link of Arbitrum Sepolia.
+
+- [#1608](https://github.com/wevm/viem/pull/1608) [`2b84d795`](https://github.com/wevm/viem/commit/2b84d7956e4061ff7ea7ac915f953a4d064f7575) Thanks [@cong1223](https://github.com/cong1223)! - Added BitTorrent & Wemix chains.
+
 ## 1.20.3
 
 ### Patch Changes

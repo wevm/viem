@@ -22,10 +22,8 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia-explorer.arbitrum.io',
-    },
+    etherscan: { name: 'Arbiscan', url: 'https://sepolia.arbiscan.io' },
+    default: { name: 'Arbiscan', url: 'https://sepolia.arbiscan.io' },
   },
   contracts: {
     multicall3: {
