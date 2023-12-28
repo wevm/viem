@@ -10,9 +10,6 @@ import {
   walletActions,
 } from '~viem/index.js'
 import { http } from '../../../clients/transports/http.js'
-import { prepareTransactionRequest } from '../actions/prepareTransactionRequest.js'
-import { sendTransaction } from '../actions/sendTransaction.js'
-import { signTransaction } from '../actions/signTransaction.js'
 import { zkSyncTestnet } from '../chains.js'
 import { eip712Actions } from './eip712.js'
 
@@ -22,33 +19,23 @@ const zkSyncClient = createWalletClient({
 })
   .extend(publicActions)
   .extend(walletActions)
-  // TODO fix `eip712Actions()` so we could use it here
-  .extend((c) => {
-    return {
-      async prepareTransactionRequest(args) {
-        return prepareTransactionRequest(c, args)
-      },
-      async sendTransaction(args) {
-        return sendTransaction(c, args)
-      },
-      async signTransaction(args: any) {
-        return signTransaction(c, args)
-      },
-    }
-  })
+  .extend(eip712Actions)
 
 test('default', async () => {
   expect(
-    createWalletClient({
-      chain: zkSyncTestnet,
-      transport: http(zkSyncTestnet.rpcUrls.default.http[0]),
-    }).extend(eip712Actions),
+    eip712Actions(
+      createWalletClient({
+        chain: zkSyncTestnet,
+        transport: http(zkSyncTestnet.rpcUrls.default.http[0]),
+      }),
+    ),
   ).toMatchInlineSnapshot(`
-  {
-    "prepareTransactionRequest": [Function],
-    "sendTransaction": [Function],
-    "signTransaction": [Function],
-  }
+    {
+      "prepareTransactionRequest": [Function],
+      "sendTransaction": [Function],
+      "signTransaction": [Function],
+      "writeContract": [Function],
+    }
   `)
 })
 
@@ -121,7 +108,7 @@ describe('smoke test', () => {
       type: 'eip712',
       gasPerPubdata: 50000n,
     })
-    const tx = await zkSyncClient.writeContract(request as any)
+    const tx = await zkSyncClient.writeContract(request)
     expect(tx).toBeDefined()
   })
 })

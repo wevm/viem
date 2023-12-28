@@ -1,65 +1,69 @@
 import type { Address } from 'abitype'
-import { sendTransaction } from '~viem/actions/wallet/sendTransaction.js'
 import type {
-  Chain,
   PrepareTransactionRequestParameterType,
-  PrepareTransactionRequestParameters,
   PrepareTransactionRequestReturnType,
+} from '../../../actions/wallet/prepareTransactionRequest.js'
+import type {
   SendTransactionParameters,
   SendTransactionReturnType,
+} from '../../../actions/wallet/sendTransaction.js'
+import type {
   SignTransactionParameters,
   SignTransactionReturnType,
-} from '~viem/index.js'
+} from '../../../actions/wallet/signTransaction.js'
+import { writeContract } from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
+import type { WalletActions } from '../../../clients/decorators/wallet.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
-import { prepareTransactionRequest } from '../actions/prepareTransactionRequest.js'
+import type { Chain } from '../../../types/chain.js'
+import {
+  type PrepareTransactionRequestParameters,
+  prepareTransactionRequest,
+} from '../actions/prepareTransactionRequest.js'
+import { sendTransaction } from '../actions/sendTransaction.js'
 import { signTransaction } from '../actions/signTransaction.js'
 import type { ChainEIP712 } from '../types.js'
 
 export type Eip712Actions<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
 > = {
   prepareTransactionRequest<
-    TParameterType extends PrepareTransactionRequestParameterType,
-    TAccountOverride extends Account | Address | undefined = undefined,
-    TChainOverride extends Chain | undefined = undefined,
+    parameterType extends PrepareTransactionRequestParameterType,
+    accountOverride extends Account | Address | undefined = undefined,
+    chainOverride extends Chain | undefined = undefined,
   >(
-    client: Client<Transport, TChain, TAccount>,
-    argsIncoming: PrepareTransactionRequestParameters<
-      TChain,
-      TAccount,
-      TChainOverride,
-      TAccountOverride,
-      TParameterType
+    args: PrepareTransactionRequestParameters<
+      chain,
+      account,
+      chainOverride,
+      accountOverride,
+      parameterType
     >,
   ): Promise<
     PrepareTransactionRequestReturnType<
-      TChain,
-      TAccount,
-      TChainOverride,
-      TAccountOverride,
-      TParameterType
+      chain,
+      account,
+      chainOverride,
+      accountOverride,
+      parameterType
     >
   >
-
-  sendTransaction: <TChainOverride extends Chain | undefined>(
-    args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
+  sendTransaction: <chainOverride extends Chain | undefined = undefined>(
+    args: SendTransactionParameters<chain, account, chainOverride>,
   ) => Promise<SendTransactionReturnType>
-
-  signTransaction: <TChainOverride extends Chain | undefined>(
-    args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
+  signTransaction: <chainOverride extends Chain | undefined = undefined>(
+    args: SignTransactionParameters<chain, account, chainOverride>,
   ) => Promise<SignTransactionReturnType>
+  writeContract: WalletActions<chain, account>['writeContract']
 }
 
 export function eip712Actions<
-  TTransport extends Transport,
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
->(
-  client: Client<TTransport, TChain, TAccount>,
-): Eip712Actions<TChain, TAccount> {
+  transport extends Transport,
+  chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  account extends Account | undefined = Account | undefined,
+>(client: Client<transport, chain, account>): Eip712Actions<chain, account> {
   return {
     async prepareTransactionRequest(args) {
       return prepareTransactionRequest(client, args as any)
@@ -69,6 +73,9 @@ export function eip712Actions<
     },
     async signTransaction(args) {
       return signTransaction(client, args as any)
+    },
+    async writeContract(args) {
+      return writeContract(Object.assign(client, this), args)
     },
   }
 }
