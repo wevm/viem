@@ -13,7 +13,6 @@ import { AccountNotFoundError } from '../../../errors/account.js'
 import { BaseError } from '../../../errors/base.js'
 import { type Chain } from '../../../types/chain.js'
 import type { Hash } from '../../../types/misc.js'
-import type { TransactionSerializable } from '../../../types/transaction.js'
 import { assertCurrentChain } from '../../../utils/chain/assertCurrentChain.js'
 import {
   type GetTransactionErrorParameters,
@@ -117,7 +116,7 @@ export async function sendTransaction<
       if (!chainId)
         chainId = await getAction(client, getChainId, 'getChainId')({})
 
-      // EIP712 sign will be done inside the sign transaction
+      // EIP712 sign will be done inside the signTransaction
       const serializedTransaction = (await signTransaction(client, {
         ...request,
         chainId,
@@ -132,33 +131,6 @@ export async function sendTransaction<
       })
     }
 
-    if (account.type === 'local') {
-      // Prepare the request for signing (assign appropriate fees, etc.)
-      const request = await getAction(
-        client,
-        prepareTransactionRequest,
-        'prepareTransactionRequest',
-      )({ ...argsIncoming, chainId } as any)
-
-      if (!chainId)
-        chainId = await getAction(client, getChainId, 'getChainId')({})
-
-      const serializer = args.chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(
-        {
-          ...request,
-          chainId,
-        } as TransactionSerializable,
-        { serializer },
-      )) as Hash
-      return await getAction(
-        client,
-        sendRawTransaction,
-        'sendRawTransaction',
-      )({
-        serializedTransaction,
-      })
-    }
     return sendTransactionOriginal(client, argsIncoming)
   } catch (err) {
     throw getTransactionError(err as BaseError, {
