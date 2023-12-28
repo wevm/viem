@@ -100,6 +100,7 @@ export async function signTransaction<
   ) {
     const eip712Domain = client.chain?.custom.eip712domain?.eip712domain({
       ...transaction,
+      from: account.address,
       type: 'eip712',
     })
 

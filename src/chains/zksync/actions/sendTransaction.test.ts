@@ -5,7 +5,7 @@ import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { createWalletClient } from '../../../clients/createWalletClient.js'
 import { http } from '../../../clients/transports/http.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
-import { zkSyncSepoliaTestnet } from '../chains.js'
+import { zkSyncSepoliaTestnet, zkSyncTestnet } from '../chains.js'
 import { sendTransaction } from './sendTransaction.js'
 
 const sourceAccount = accounts[0]
@@ -35,8 +35,8 @@ describe('zksync on anvil', () => {
 
 describe('zksync on zkSyncTestnet', () => {
   const walletClient = createWalletClient({
-    chain: zkSyncSepoliaTestnet,
-    transport: http(zkSyncSepoliaTestnet.rpcUrls.default.http[0]),
+    chain: zkSyncTestnet,
+    transport: http(zkSyncTestnet.rpcUrls.default.http[0]),
   })
   test('eip712', async () => {
     expect(

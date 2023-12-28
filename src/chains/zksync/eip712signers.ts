@@ -19,7 +19,7 @@ export const getZkSyncEIP712Domain: EIP712DomainFn<
 
 export const eip712domainZkSync: ChainEIP712Domain = {
   eip712domain: getZkSyncEIP712Domain,
-  isEip712Domain: isZkSyncEIP712,
+  isEip712domain: isZkSyncEIP712,
 }
 
 //////////////////////////////////////////////////////////////////////////////

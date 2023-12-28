@@ -161,11 +161,7 @@ export async function sendTransaction<
 
     if (account.type === 'local') {
       // Prepare the request for signing (assign appropriate fees, etc.)
-      const request = await getAction(
-        client,
-        prepareTransactionRequest,
-        'prepareTransactionRequest',
-      )({
+      const request = prepareTransactionRequest(client, {
         account,
         accessList,
         chain,

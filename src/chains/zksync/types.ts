@@ -398,7 +398,7 @@ export type ChainEIP712Domain<
     TransactionToSign
   >
   /** Check if it is a EIP712 transaction */
-  isEip712Domain?: (
+  isEip712domain?: (
     transaction: formatters extends ChainFormatters
       ? formatters['transactionRequest'] extends ChainFormatter
         ? TransactionSerializableGeneric &

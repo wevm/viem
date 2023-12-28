@@ -104,17 +104,15 @@ export async function sendTransaction<
       client.chain?.custom.eip712domain?.eip712domain &&
       isEip712Transaction({ ...args, chainId })
     ) {
-      const eip712signer = client.chain?.custom.eip712domain?.eip712domain
+      const eip712domain = client.chain?.custom.eip712domain?.eip712domain
 
-      if (eip712signer === undefined)
-        throw new BaseError('Chain doesnt define EIP712 signer.')
+      if (eip712domain === undefined)
+        throw new BaseError("Chain doesn't define EIP712 domain.")
 
       // Prepare the request for signing (assign appropriate fees, etc.)
-      const request = await getAction(
-        client,
-        prepareTransactionRequest,
-        'prepareTransactionRequest',
-      )({ ...args } as any)
+      const request = await prepareTransactionRequest(client, {
+        ...args,
+      } as any)
 
       if (!chainId)
         chainId = await getAction(client, getChainId, 'getChainId')({})

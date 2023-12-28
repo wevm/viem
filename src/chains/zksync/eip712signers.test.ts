@@ -3,14 +3,14 @@ import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 import { signTransaction } from '../../accounts/utils/signTransaction.js'
 import { type TransactionSerializableEIP1559, parseEther } from '../../index.js'
-import { zkSyncSepoliaTestnet } from '../index.js'
+import { zkSyncTestnet } from '../index.js'
 import { getZkSyncEIP712Domain } from './eip712signers.js'
 import { serializeTransaction } from './serializers.js'
 import type { ZkSyncTransactionSerializableEIP712 } from './types.js'
 
 const baseTransaction: TransactionSerializableEIP1559 = {
   to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
-  chainId: zkSyncSepoliaTestnet.id,
+  chainId: zkSyncTestnet.id,
   nonce: 7,
   maxFeePerGas: 250000000n,
   maxPriorityFeePerGas: 2n,

@@ -6,6 +6,6 @@ export const chainConfig = {
   formatters,
   serializers,
   custom: {
-    eip712Domain: eip712domainZkSync,
+    eip712domain: eip712domainZkSync,
   },
 } as const

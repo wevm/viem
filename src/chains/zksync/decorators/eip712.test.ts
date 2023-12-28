@@ -13,33 +13,35 @@ import { http } from '../../../clients/transports/http.js'
 import { prepareTransactionRequest } from '../actions/prepareTransactionRequest.js'
 import { sendTransaction } from '../actions/sendTransaction.js'
 import { signTransaction } from '../actions/signTransaction.js'
-import { zkSyncSepoliaTestnet } from '../chains.js'
+import { zkSyncTestnet } from '../chains.js'
 import { eip712Actions } from './eip712.js'
 
 const zkSyncClient = createWalletClient({
-  chain: zkSyncSepoliaTestnet,
-  transport: http(zkSyncSepoliaTestnet.rpcUrls.default.http[0]),
+  chain: zkSyncTestnet,
+  transport: http(zkSyncTestnet.rpcUrls.default.http[0]),
 })
   .extend(publicActions)
   .extend(walletActions)
   // TODO fix `eip712Actions()` so we could use it here
-  .extend((c) => ({
-    async prepareTransactionRequest(args) {
-      return prepareTransactionRequest(c, args)
-    },
-    async sendTransaction(args) {
-      return sendTransaction(c, args)
-    },
-    async signTransaction(args: Parameters<typeof signTransaction>[1]) {
-      return signTransaction(c, args)
-    },
-  }))
+  .extend((c) => {
+    return {
+      async prepareTransactionRequest(args) {
+        return prepareTransactionRequest(c, args)
+      },
+      async sendTransaction(args) {
+        return sendTransaction(c, args)
+      },
+      async signTransaction(args: any) {
+        return signTransaction(c, args)
+      },
+    }
+  })
 
 test('default', async () => {
   expect(
     createWalletClient({
-      chain: zkSyncSepoliaTestnet,
-      transport: http(zkSyncSepoliaTestnet.rpcUrls.default.http[0]),
+      chain: zkSyncTestnet,
+      transport: http(zkSyncTestnet.rpcUrls.default.http[0]),
     }).extend(eip712Actions),
   ).toMatchInlineSnapshot(`
   {
@@ -119,6 +121,7 @@ describe('smoke test', () => {
       type: 'eip712',
       gasPerPubdata: 50000n,
     })
-    expect(await zkSyncClient.writeContract(request as any)).toBeDefined()
+    const tx = await zkSyncClient.writeContract(request as any)
+    expect(tx).toBeDefined()
   })
 })

@@ -84,11 +84,7 @@ export async function prepareTransactionRequest<
   }
   const request = { ...args, from: account.address, chainId }
 
-  if (
-    args.parameters?.includes('nonce' as any) &&
-    nonce === undefined &&
-    account
-  )
+  if (nonce === undefined && account)
     request.nonce = await getAction(
       client,
       getTransactionCount,
