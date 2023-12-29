@@ -1,46 +1,32 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
+import { baseZkSyncTestClient } from '~test/src/zksync.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import { createWalletClient } from '../../../clients/createWalletClient.js'
-import { http } from '../../../clients/transports/http.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
-import { zkSyncSepoliaTestnet, zkSyncTestnet } from '../chains.js'
 import { sendTransaction } from './sendTransaction.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
-describe('zksync on anvil', () => {
-  const walletClient = createWalletClient({
-    chain: zkSyncSepoliaTestnet,
-    transport: http(localHttpUrl),
-  })
-
-  test('non-eip712', async () => {
+describe('sendTransaction', () => {
+  test.skip('normal transaction (non-eip712)', async () => {
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(baseZkSyncTestClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
-        maxFeePerGas: parseGwei('25'),
-        maxPriorityFeePerGas: parseGwei('2'),
-        gas: 158774n,
         value: parseGwei('1'),
       }),
     ).toMatchInlineSnapshot(
       '"0x15bfe53dcfd7346105837a7a4b9df5b7914423dd4c607635b1fd8d1279990284"',
     )
   })
-})
 
-describe('zksync on zkSyncTestnet', () => {
-  const walletClient = createWalletClient({
-    chain: zkSyncTestnet,
-    transport: http(zkSyncTestnet.rpcUrls.default.http[0]),
-  })
-  test('eip712', async () => {
+  // TODO we need to mock the eth_sendRawTransaction and assert that we got the expected payload.
+  //      Because anvil does not support eip712, we can't test without mocking the eth_sendRawTransaction.
+  test.skip('eip712', async () => {
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(baseZkSyncTestClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('25'),

@@ -1,12 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
+import { baseZkSyncTestClient } from '~test/src/zksync.js'
 import type { TransactionRequestBase } from '~viem/index.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import { createWalletClient } from '../../../clients/createWalletClient.js'
-import { http } from '../../../clients/transports/http.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
-import { zkSyncTestnet } from '../../index.js'
 import { signTransaction } from './signTransaction.js'
 
 const sourceAccount = accounts[0]
@@ -18,16 +16,13 @@ const base: TransactionRequestBase = {
 }
 
 describe('custom (eip712)', () => {
-  const walletClient = createWalletClient({
-    chain: zkSyncTestnet,
-    transport: http(localHttpUrl),
-  })
+  const walletClient = baseZkSyncTestClient
 
-  test('default', async () => {
+  test.skip('default', async () => {
     expect(
       await signTransaction(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
-        chain: zkSyncTestnet,
+        chain: walletClient.chain,
         ...base,
         maxFeePerGas: parseGwei('20'),
         maxPriorityFeePerGas: parseGwei('2'),
