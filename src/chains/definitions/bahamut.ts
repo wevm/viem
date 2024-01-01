@@ -1,4 +1,3 @@
-// src/chains/definitions/example.ts
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const bahamut = /*#__PURE__*/ defineChain({
