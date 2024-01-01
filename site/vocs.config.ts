@@ -1,13 +1,13 @@
 import { createRequire } from 'module'
 import { defineConfig } from 'vocs'
-import { sidebar } from './site/sidebar'
+import { sidebar } from './sidebar'
 
 const require = createRequire(import.meta.url)
-const pkg = require('./src/package.json')
+const pkg = require('../src/package.json')
 
 export default defineConfig({
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
-  rootDir: 'site',
+  rootDir: 'src',
   sidebar,
   socials: [
     {
