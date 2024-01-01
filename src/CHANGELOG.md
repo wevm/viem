@@ -1,5 +1,11 @@
 # viem
 
+## 1.21.4
+
+### Patch Changes
+
+- [#1638](https://github.com/wevm/viem/pull/1638) [`7b7a2907`](https://github.com/wevm/viem/commit/7b7a2907462fdff181246944e5dcb3540c43ffe8) Thanks [@ArmmGh](https://github.com/ArmmGh)! - Added Bahamut Chain and Oasis Testnet.
+
 ## 1.21.3
 
 ### Patch Changes
