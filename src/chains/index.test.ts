@@ -5,6 +5,7 @@ import * as chains from './index.js'
 test('exports chains', () => {
   expect(Object.keys(chains)).toMatchInlineSnapshot(`
     [
+      "acala",
       "arbitrum",
       "arbitrumGoerli",
       "arbitrumNova",
@@ -15,6 +16,7 @@ test('exports chains', () => {
       "auroraTestnet",
       "avalanche",
       "avalancheFuji",
+      "bahamut",
       "base",
       "baseGoerli",
       "baseSepolia",
@@ -66,6 +68,7 @@ test('exports chains', () => {
       "iotex",
       "iotexTestnet",
       "jbc",
+      "karura",
       "gobi",
       "goerli",
       "gnosis",
@@ -86,6 +89,7 @@ test('exports chains', () => {
       "localhost",
       "lukso",
       "mainnet",
+      "mandala",
       "manta",
       "mantaTestnet",
       "mantle",
@@ -106,6 +110,7 @@ test('exports chains', () => {
       "nexi",
       "nexilix",
       "oasys",
+      "oasisTestnet",
       "okc",
       "optimism",
       "optimismGoerli",
@@ -174,6 +179,8 @@ test('exports chains', () => {
       "xdc",
       "xdcTestnet",
       "zhejiang",
+      "zkFair",
+      "zkFairTestnet",
       "zkSync",
       "zkSyncTestnet",
       "zkSyncSepoliaTestnet",

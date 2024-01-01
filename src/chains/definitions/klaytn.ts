@@ -9,7 +9,7 @@ export const klaytn = /*#__PURE__*/ defineChain({
     symbol: 'KLAY',
   },
   rpcUrls: {
-    default: { http: ['https://cypress.fautor.app/archive'] },
+    default: { http: ['https://public-en-cypress.klaytn.net'] },
   },
   blockExplorers: {
     default: { name: 'KlaytnScope', url: 'https://scope.klaytn.com' },

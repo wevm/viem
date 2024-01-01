@@ -1,5 +1,31 @@
 # viem
 
+## 1.21.4
+
+### Patch Changes
+
+- [#1638](https://github.com/wevm/viem/pull/1638) [`7b7a2907`](https://github.com/wevm/viem/commit/7b7a2907462fdff181246944e5dcb3540c43ffe8) Thanks [@ArmmGh](https://github.com/ArmmGh)! - Added Bahamut Chain and Oasis Testnet.
+
+## 1.21.3
+
+### Patch Changes
+
+- [#1628](https://github.com/wevm/viem/pull/1628) [`489b1096`](https://github.com/wevm/viem/commit/489b109627b2fac4ea27435933fd49626d577388) Thanks [@mr-kenikh](https://github.com/mr-kenikh)! - Added zkFair Mainnet and zkFair Testnet chains.
+
+- [#1629](https://github.com/wevm/viem/pull/1629) [`e6855a9b`](https://github.com/wevm/viem/commit/e6855a9b650ecfda3de3ed395fe8a38906709f5e) Thanks [@shunjizhan](https://github.com/shunjizhan)! - Added Acala chain family
+
+- [#1634](https://github.com/wevm/viem/pull/1634) [`e0594e93`](https://github.com/wevm/viem/commit/e0594e93af384b63052a553f27bffb0606931162) Thanks [@j1h00](https://github.com/j1h00)! - Fixed Klaytn RPC URLs.
+
+- [#1627](https://github.com/wevm/viem/pull/1627) [`a48b2cf7`](https://github.com/wevm/viem/commit/a48b2cf702820f87ce4ad2f1da61c3b42bb0a918) Thanks [@zkgggggame](https://github.com/zkgggggame)! - Updated opBNBTestnet blockExplorer URL
+
+## 1.21.2
+
+### Patch Changes
+
+- [#1602](https://github.com/wevm/viem/pull/1602) [`020ab406`](https://github.com/wevm/viem/commit/020ab4068027f3cbb2ae53d3e8606d104a46251d) Thanks [@avasisht23](https://github.com/avasisht23)! - Added RPC URLs to Base Sepolia
+
+- [#1603](https://github.com/wevm/viem/pull/1603) [`7cc17673`](https://github.com/wevm/viem/commit/7cc1767353f30bf7103600d7c912ce442c2fc3ea) Thanks [@avasisht23](https://github.com/avasisht23)! - Added RPC URLs to Optimism Sepolia
+
 ## 1.21.1
 
 ### Patch Changes
