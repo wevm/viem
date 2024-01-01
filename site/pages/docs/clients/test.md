@@ -12,7 +12,7 @@ import { createTestClient } from 'viem'
 
 ## Usage
 
-Initialize a Client with your desired [Chain](/docs/clients/chains), [Transport](/docs/clients/intro) (e.g. `http`) and [mode](#mode) (e.g. `"anvil"`).
+Initialize a Client with your desired [Chain](/docs/chains/introduction), [Transport](/docs/clients/intro) (e.g. `http`) and [mode](#mode) (e.g. `"anvil"`).
 
 ```ts
 import { createTestClient, http } from 'viem'
@@ -105,7 +105,7 @@ const client = createTestClient({
 
 - **Type:** [Chain](/docs/glossary/types#chain)
 
-[Chain](/docs/clients/chains) of the Test Client.
+[Chain](/docs/chains/introduction) of the Test Client.
 
 ```ts
 const client = createTestClient({

@@ -241,7 +241,7 @@ const hash = await client.sendTransaction({
 
 - **Type:** [Chain](/docs/glossary/types#chain)
 
-The [Chain](/docs/clients/chains) of the Wallet Client.
+The [Chain](/docs/chains/introduction) of the Wallet Client.
 
 Used in the [`sendTransaction`](/docs/actions/wallet/sendTransaction) & [`writeContract`](/docs/contract/writeContract) Actions to assert that the chain matches the wallet's active chain.
 

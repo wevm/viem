@@ -4,7 +4,7 @@ You can build your own viem Client by using the `createClient` function and opti
 
 Building your own Client is useful if you have specific requirements for how the Client should behave, and if you want to extend that Client with custom functionality (ie. create an [EIP-4337 Bundler](/docs/third-party/account-abstraction) Client, or [geth Debug](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-debug) Client).
 
-The `createClient` function sets up a base viem Client with a given [Transport](/docs/clients/intro) configured with a [Chain](/docs/clients/chains). After that, you can extend the Client with custom properties (that could be Actions or other configuration).
+The `createClient` function sets up a base viem Client with a given [Transport](/docs/clients/intro) configured with a [Chain](/docs/chains/introduction). After that, you can extend the Client with custom properties (that could be Actions or other configuration).
 
 ## Import
 
@@ -14,7 +14,7 @@ import { createClient } from 'viem'
 
 ## Usage
 
-Initialize a Client with your desired [Chain](/docs/clients/chains) (e.g. `mainnet`) and [Transport](/docs/clients/intro) (e.g. `http`).
+Initialize a Client with your desired [Chain](/docs/chains/introduction) (e.g. `mainnet`) and [Transport](/docs/clients/intro) (e.g. `http`).
 
 ```ts
 import { createClient, http } from 'viem'
@@ -125,7 +125,7 @@ const client = createClient({
 
 - **Type:** [Chain](/docs/glossary/types#chain)
 
-The [Chain](/docs/clients/chains) of the Public Client.
+The [Chain](/docs/chains/introduction) of the Public Client.
 
 ```ts
 const client = createClient({

@@ -2,7 +2,7 @@
 
 A Public Client is an interface to "public" [JSON-RPC API](https://ethereum.org/en/developers/docs/apis/json-rpc/) methods such as retrieving block numbers, transactions, reading from smart contracts, etc through [Public Actions](/docs/actions/public/introduction).
 
-The `createPublicClient` function sets up a Public Client with a given [Transport](/docs/clients/intro) configured for a [Chain](/docs/clients/chains).
+The `createPublicClient` function sets up a Public Client with a given [Transport](/docs/clients/intro) configured for a [Chain](/docs/chains/introduction).
 
 ## Import
 
@@ -12,7 +12,7 @@ import { createPublicClient } from 'viem'
 
 ## Usage
 
-Initialize a Client with your desired [Chain](/docs/clients/chains) (e.g. `mainnet`) and [Transport](/docs/clients/intro) (e.g. `http`).
+Initialize a Client with your desired [Chain](/docs/chains/introduction) (e.g. `mainnet`) and [Transport](/docs/clients/intro) (e.g. `http`).
 
 ```ts
 import { createPublicClient, http } from 'viem'
@@ -92,7 +92,7 @@ const client = createPublicClient({
 
 - **Type:** [Chain](/docs/glossary/types#chain)
 
-The [Chain](/docs/clients/chains) of the Public Client.
+The [Chain](/docs/chains/introduction) of the Public Client.
 
 ```ts
 const client = createPublicClient({
@@ -226,4 +226,4 @@ const client = createPublicClient({
 
 Check out the usage of `createPublicClient` in the live [Public Client Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients_public-client) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients_public-client?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
+<iframe frameBorder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients_public-client?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
