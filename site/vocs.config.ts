@@ -7,7 +7,7 @@ const pkg = require('../src/package.json')
 
 export default defineConfig({
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
-  rootDir: 'src',
+  rootDir: '.',
   sidebar,
   socials: [
     {
