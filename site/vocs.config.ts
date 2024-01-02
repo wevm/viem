@@ -6,6 +6,13 @@ const require = createRequire(import.meta.url)
 const pkg = require('../src/package.json')
 
 export default defineConfig({
+  ogImageUrl: {
+    '/': '/og-image.png',
+    '/docs':
+      'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
+    '/op-stack':
+      'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
+  },
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
   rootDir: '.',
   sidebar,
@@ -172,6 +179,8 @@ export default defineConfig({
     },
     colorScheme: 'system',
   },
+  title: 'Viem',
+  titleTemplate: '%s · Viem',
   topNav: [
     { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
     {
@@ -207,7 +216,6 @@ export default defineConfig({
       ],
     },
   ],
-  title: 'Viem',
 })
 
 function toPatchVersionRange(version: string) {
