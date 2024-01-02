@@ -150,8 +150,8 @@ const contract = getContract({
   publicClient, // [!code --]
   walletClient, // [!code --]
   client: { // [!code ++]
-    publicClient, // [!code ++]
-    walletClient, // [!code ++]
+    public: publicClient, // [!code ++]
+    wallet: walletClient, // [!code ++]
   } // [!code ++]
 })
 ```

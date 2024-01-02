@@ -39,8 +39,8 @@ const contract = getContract({
   abi: wagmiAbi,
   // 1a. Insert a single client
   client: publicClient,
-  // 1b. Or multiple clients
-  client: { publicClient, walletClient }
+  // 1b. Or public and/or wallet clients
+  client: { public: publicClient, wallet: walletClient }
 })
 
 // 2. Call contract methods, fetch events, listen to events, etc.
@@ -113,8 +113,8 @@ const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   client: {
-    publicClient,
-    walletClient,
+    public: publicClient,
+    wallet: walletClient,
   }
 })
 
@@ -218,10 +218,7 @@ The contract address.
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
-  client: {
-    publicClient,
-    walletClient,
-  }
+  client: publicClient
 })
 ```
 
@@ -235,16 +232,13 @@ The contract's ABI.
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
-  client: {
-    publicClient,
-    walletClient,
-  }
+  client: publicClient
 })
 ```
 
 ### client
 
-- **Type:** [`Client | { publicClient: Client; walletClient: Client }`](/docs/clients/public.html)
+- **Type:** [`Client | { public: Client; wallet: Client }`](/docs/clients/public.html)
 
 The Client used for performing [contract actions](/docs/contract/getContract.html#return-value).
 
@@ -263,8 +257,8 @@ const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   client: { // [!code focus]
-    publicClient, // [!code focus]
-    walletClient // [!code focus]
+    public: publicClient, // [!code focus]
+    wallet: walletClient // [!code focus]
   }, // [!code focus]
 })
 ```
