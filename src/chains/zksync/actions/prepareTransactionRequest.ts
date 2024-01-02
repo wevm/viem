@@ -18,9 +18,9 @@ import type { FormattedTransactionRequest } from '../../../utils/formatters/tran
 import { getAction } from '../../../utils/getAction.js'
 import { type ChainEIP712, isEip712Transaction } from '../types.js'
 
-import { getChainId } from '~viem/actions/index.js'
-import { AccountNotFoundError } from '~viem/errors/account.js'
+import { getChainId } from '../../../actions/index.js'
 import { prepareTransactionRequest as originalPrepareTransactionRequest } from '../../../actions/wallet/prepareTransactionRequest.js'
+import { AccountNotFoundError } from '../../../errors/account.js'
 
 type Eip712PrepareTransactionRequestParameterType =
   | 'customSignature'

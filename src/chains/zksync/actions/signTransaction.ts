@@ -1,15 +1,15 @@
-import { signTransaction as signTransactionOriginal } from '~viem/actions/index.js'
-import type {
-  SignTransactionParameters,
-  SignTransactionReturnType,
-} from '~viem/index.js'
 import type { Account } from '../../../accounts/types.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
+import { signTransaction as signTransactionOriginal } from '../../../actions/index.js'
 import { getChainId } from '../../../actions/public/getChainId.js'
 import { signTypedData } from '../../../actions/wallet/signTypedData.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
+import type {
+  SignTransactionParameters,
+  SignTransactionReturnType,
+} from '../../../index.js'
 import { assertCurrentChain } from '../../../utils/chain/assertCurrentChain.js'
 import { getAction } from '../../../utils/getAction.js'
 import { assertRequest } from '../../../utils/transaction/assertRequest.js'

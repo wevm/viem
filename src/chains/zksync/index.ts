@@ -33,6 +33,8 @@ export type {
 } from './types.js'
 
 export { prepareTransactionRequest as prepareEip712TransactionRequest } from './actions/prepareTransactionRequest.js'
+export { sendTransaction as sendEip712Transaction } from './actions/sendTransaction.js'
+export { writeContract as writeEip712Contract } from './actions/writeContract.js'
 
 export {
   zkSync,

@@ -1,16 +1,16 @@
-import { sendTransaction as sendTransactionOriginal } from '~viem/actions/index.js'
-import type {
-  SendTransactionParameters,
-  SendTransactionReturnType,
-} from '~viem/index.js'
 import type { Account } from '../../../accounts/types.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
+import { sendTransaction as sendTransactionOriginal } from '../../../actions/index.js'
 import { getChainId } from '../../../actions/public/getChainId.js'
 import { sendRawTransaction } from '../../../actions/wallet/sendRawTransaction.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import { BaseError } from '../../../errors/base.js'
+import type {
+  SendTransactionParameters,
+  SendTransactionReturnType,
+} from '../../../index.js'
 import { type Chain } from '../../../types/chain.js'
 import type { Hash } from '../../../types/misc.js'
 import { assertCurrentChain } from '../../../utils/chain/assertCurrentChain.js'

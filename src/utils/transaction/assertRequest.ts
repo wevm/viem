@@ -1,4 +1,4 @@
-import type { Account } from '~viem/index.js'
+import type { Account } from '../../index.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
