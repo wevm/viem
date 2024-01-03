@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent, Address } from 'abitype'
+import type { AbiEvent, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -10,7 +10,7 @@ import type {
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
-import type { GetTransportConfig } from '../../types/transport.js'
+import type { GetPollOptions } from '../../types/transport.js'
 import type { EncodeEventTopicsParameters } from '../../utils/index.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
@@ -36,19 +36,6 @@ import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { type GetLogsParameters, getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
-
-type PollOptions = {
-  /**
-   * Whether or not the transaction hashes should be batched on each invocation.
-   * @default true
-   */
-  batch?: boolean
-  /**
-   * Polling frequency (in ms). Defaults to Client's pollingInterval config.
-   * @default client.pollingInterval
-   */
-  pollingInterval?: number
-}
 
 export type WatchEventOnLogsParameter<
   TAbiEvent extends AbiEvent | undefined = undefined,
@@ -78,6 +65,7 @@ export type WatchEventParameters<
     | readonly unknown[]
     | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
   TStrict extends boolean | undefined = undefined,
+  TTransport extends Transport = Transport,
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** The address of the contract. */
@@ -86,27 +74,7 @@ export type WatchEventParameters<
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
   onLogs: WatchEventOnLogsFn<TAbiEvent, TAbiEvents, TStrict, _EventName>
-} & (GetTransportConfig<Transport>['type'] extends 'webSocket'
-  ?
-      | {
-          batch?: never
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default false
-           */
-          poll?: false
-          pollingInterval?: never
-        }
-      | (PollOptions & {
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default true
-           */
-          poll?: true
-        })
-  : PollOptions & {
-      poll?: true
-    }) &
+} & GetPollOptions<TTransport> &
   (
     | {
         event: TAbiEvent
@@ -183,9 +151,10 @@ export function watchEvent<
     | readonly unknown[]
     | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
   TStrict extends boolean | undefined = undefined,
+  TTransport extends Transport = Transport,
   _EventName extends string | undefined = undefined,
 >(
-  client: Client<Transport, TChain>,
+  client: Client<TTransport, TChain>,
   {
     address,
     args,
@@ -197,7 +166,7 @@ export function watchEvent<
     poll: poll_,
     pollingInterval = client.pollingInterval,
     strict: strict_,
-  }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict>,
+  }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
 ): WatchEventReturnType {
   const enablePolling =
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
@@ -340,15 +309,12 @@ export function watchEvent<
             const log = data.result
             try {
               const { eventName, args } = decodeEventLog({
-                abi: events_ as Abi,
+                abi: events_ ?? [],
                 data: log.data,
-                topics: log.topics as any,
+                topics: log.topics,
                 strict,
               })
-              const formatted = formatLog(log, {
-                args,
-                eventName: eventName as string,
-              })
+              const formatted = formatLog(log, { args, eventName })
               onLogs([formatted] as any)
             } catch (err) {
               let eventName

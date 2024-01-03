@@ -19,7 +19,7 @@ export type GetTransactionReceiptParameters = {
 }
 
 export type GetTransactionReceiptReturnType<
-  TChain extends Chain | undefined = Chain | undefined,
+  TChain extends Chain | undefined = undefined,
 > = FormattedTransactionReceipt<TChain>
 
 export type GetTransactionReceiptErrorType =

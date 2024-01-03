@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const hardhat = /*#__PURE__*/ defineChain({
   id: 31_337,
   name: 'Hardhat',
-  network: 'hardhat',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -11,6 +10,5 @@ export const hardhat = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['http://127.0.0.1:8545'] },
-    public: { http: ['http://127.0.0.1:8545'] },
   },
 })

@@ -3,18 +3,9 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const lineaTestnet = /*#__PURE__*/ defineChain({
   id: 59_140,
   name: 'Linea Goerli Testnet',
-  network: 'linea-testnet',
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    infura: {
-      http: ['https://linea-goerli.infura.io/v3'],
-      webSocket: ['wss://linea-goerli.infura.io/ws/v3'],
-    },
     default: {
-      http: ['https://rpc.goerli.linea.build'],
-      webSocket: ['wss://rpc.goerli.linea.build'],
-    },
-    public: {
       http: ['https://rpc.goerli.linea.build'],
       webSocket: ['wss://rpc.goerli.linea.build'],
     },
@@ -23,14 +14,6 @@ export const lineaTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://goerli.lineascan.build',
-    },
-    etherscan: {
-      name: 'Etherscan',
-      url: 'https://goerli.lineascan.build',
-    },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://explorer.goerli.linea.build',
     },
   },
   contracts: {

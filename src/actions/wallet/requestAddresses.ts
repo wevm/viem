@@ -42,6 +42,9 @@ export async function requestAddresses<
 >(
   client: Client<Transport, TChain, TAccount>,
 ): Promise<RequestAddressesReturnType> {
-  const addresses = await client.request({ method: 'eth_requestAccounts' })
+  const addresses = await client.request(
+    { method: 'eth_requestAccounts' },
+    { retryCount: 0 },
+  )
   return addresses.map((address) => getAddress(address))
 }

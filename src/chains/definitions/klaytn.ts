@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const klaytn = /*#__PURE__*/ defineChain({
   id: 8_217,
   name: 'Klaytn',
-  network: 'klaytn',
   nativeCurrency: {
     decimals: 18,
     name: 'Klaytn',
@@ -11,10 +10,8 @@ export const klaytn = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://public-en-cypress.klaytn.net'] },
-    public: { http: ['https://public-en-cypress.klaytn.net'] },
   },
   blockExplorers: {
-    etherscan: { name: 'KlaytnScope', url: 'https://scope.klaytn.com' },
     default: { name: 'KlaytnScope', url: 'https://scope.klaytn.com' },
   },
   contracts: {

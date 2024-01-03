@@ -4,7 +4,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Hash } from '../../types/misc.js'
-import type { GetTransportConfig } from '../../types/transport.js'
+import type { GetPollOptions } from '../../types/transport.js'
 import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
@@ -17,19 +17,6 @@ import { uninstallFilter } from './uninstallFilter.js'
 export type OnTransactionsParameter = Hash[]
 export type OnTransactionsFn = (transactions: OnTransactionsParameter) => void
 
-type PollOptions = {
-  /**
-   * Whether or not the transaction hashes should be batched on each invocation.
-   * @default true
-   */
-  batch?: boolean
-  /**
-   * Polling frequency (in ms). Defaults to Client's pollingInterval config.
-   * @default client.pollingInterval
-   */
-  pollingInterval?: number
-}
-
 export type WatchPendingTransactionsParameters<
   TTransport extends Transport = Transport,
 > = {
@@ -37,27 +24,7 @@ export type WatchPendingTransactionsParameters<
   onError?: (error: Error) => void
   /** The callback to call when new transactions are received. */
   onTransactions: OnTransactionsFn
-} & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
-  ?
-      | {
-          batch?: never
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default false
-           */
-          poll?: false
-          pollingInterval?: never
-        }
-      | (PollOptions & {
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default true
-           */
-          poll?: true
-        })
-  : PollOptions & {
-      poll?: true
-    })
+} & GetPollOptions<TTransport>
 
 export type WatchPendingTransactionsReturnType = () => void
 

@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const syscoinTestnet = /*#__PURE__*/ defineChain({
   id: 5700,
   name: 'Syscoin Tanenbaum Testnet',
-  network: 'syscoin-testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'Syscoin',
@@ -11,10 +10,6 @@ export const syscoinTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.tanenbaum.io'],
-      webSocket: ['wss://rpc.tanenbaum.io/wss'],
-    },
-    public: {
       http: ['https://rpc.tanenbaum.io'],
       webSocket: ['wss://rpc.tanenbaum.io/wss'],
     },

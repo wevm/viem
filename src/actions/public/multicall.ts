@@ -7,7 +7,7 @@ import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
-import type { ContractFunctionConfig } from '../../types/contract.js'
+import type { ContractFunctionParameters } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type {
   MulticallContracts,
@@ -19,7 +19,6 @@ import {
 } from '../../utils/abi/decodeFunctionResult.js'
 import {
   type EncodeFunctionDataErrorType,
-  type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import {
@@ -37,20 +36,33 @@ import type { CallParameters } from './call.js'
 import { type ReadContractErrorType, readContract } from './readContract.js'
 
 export type MulticallParameters<
-  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
-  TAllowFailure extends boolean = true,
+  contracts extends readonly unknown[] = readonly ContractFunctionParameters[],
+  allowFailure extends boolean = true,
+  options extends {
+    optional?: boolean
+    properties?: Record<string, any>
+  } = {},
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
-  allowFailure?: TAllowFailure
-  /** The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit. @default 1_024 */
-  batchSize?: number
-  contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
-  multicallAddress?: Address
+  allowFailure?: allowFailure | boolean | undefined
+  batchSize?: number | undefined
+  contracts: MulticallContracts<
+    Narrow<contracts>,
+    { mutability: 'pure' | 'view' } & options
+  >
+  multicallAddress?: Address | undefined
 }
 
 export type MulticallReturnType<
-  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
-  TAllowFailure extends boolean = true,
-> = MulticallResults<TContracts, TAllowFailure>
+  contracts extends readonly unknown[] = readonly ContractFunctionParameters[],
+  allowFailure extends boolean = true,
+  options extends {
+    error?: Error
+  } = { error: Error },
+> = MulticallResults<
+  Narrow<contracts>,
+  allowFailure,
+  { mutability: 'pure' | 'view' } & options
+>
 
 export type MulticallErrorType =
   | GetChainContractAddressErrorType
@@ -100,21 +112,21 @@ export type MulticallErrorType =
  * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
  */
 export async function multicall<
-  TContracts extends ContractFunctionConfig[],
-  TChain extends Chain | undefined,
-  TAllowFailure extends boolean = true,
+  const contracts extends readonly unknown[],
+  chain extends Chain | undefined,
+  allowFailure extends boolean = true,
 >(
-  client: Client<Transport, TChain>,
-  args: MulticallParameters<TContracts, TAllowFailure>,
-): Promise<MulticallReturnType<TContracts, TAllowFailure>> {
+  client: Client<Transport, chain>,
+  parameters: MulticallParameters<contracts, allowFailure>,
+): Promise<MulticallReturnType<contracts, allowFailure>> {
   const {
     allowFailure = true,
     batchSize: batchSize_,
     blockNumber,
     blockTag,
-    contracts,
     multicallAddress: multicallAddress_,
-  } = args
+  } = parameters
+  const contracts = parameters.contracts as ContractFunctionParameters[]
 
   const batchSize =
     batchSize_ ??
@@ -146,15 +158,9 @@ export async function multicall<
   let currentChunk = 0
   let currentChunkSize = 0
   for (let i = 0; i < contracts.length; i++) {
-    const { abi, address, args, functionName } = contracts[
-      i
-    ] as ContractFunctionConfig
+    const { abi, address, args, functionName } = contracts[i]
     try {
-      const callData = encodeFunctionData({
-        abi,
-        args,
-        functionName,
-      } as unknown as EncodeFunctionDataParameters)
+      const callData = encodeFunctionData({ abi, args, functionName })
 
       currentChunkSize += (callData.length - 2) / 2
       // Check to see if we need to create a new chunk.
@@ -247,7 +253,7 @@ export async function multicall<
       // for decoding.
       const { abi, address, functionName, args } = contracts[
         results.length
-      ] as ContractFunctionConfig
+      ] as ContractFunctionParameters
 
       try {
         if (callData === '0x') throw new AbiDecodingZeroDataError()
@@ -275,5 +281,5 @@ export async function multicall<
 
   if (results.length !== contracts.length)
     throw new BaseError('multicall results mismatch')
-  return results as MulticallResults<TContracts, TAllowFailure>
+  return results as MulticallReturnType<contracts, allowFailure>
 }

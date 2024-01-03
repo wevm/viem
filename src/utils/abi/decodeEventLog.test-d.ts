@@ -1,4 +1,4 @@
-import type { Address } from 'abitype'
+import type { Abi, Address } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import { decodeEventLog } from './decodeEventLog.js'
@@ -252,7 +252,7 @@ test('unknown eventName', async () => {
           {
             indexed: false,
             name: 'value',
-            type: 'uint256',
+            type: 'uint8',
           },
         ],
         name: 'Foo',
@@ -269,20 +269,20 @@ test('unknown eventName', async () => {
 
   expectTypeOf(event).toEqualTypeOf<
     | {
+        eventName: 'Transfer'
         args: {
           from: Address
           to: Address
           tokenId: bigint
         }
-        eventName: 'Transfer'
       }
     | {
+        eventName: 'Foo'
         args: {
           from: Address
           to: Address
-          value: bigint
+          value: number
         }
-        eventName: 'Foo'
       }
   >()
 })
@@ -373,5 +373,93 @@ test('no abi', async () => {
     ],
   })
 
-  expectTypeOf(event).toEqualTypeOf<never>()
+  expectTypeOf(event).toEqualTypeOf<{
+    eventName: string
+    args: readonly unknown[] | Record<string, unknown>
+  }>()
+})
+
+test('defined inline', () => {
+  const res = decodeEventLog({
+    abi: [
+      {
+        inputs: [
+          {
+            indexed: true,
+            name: 'from',
+            type: 'address',
+          },
+          {
+            indexed: true,
+            name: 'to',
+            type: 'address',
+          },
+          {
+            indexed: false,
+            name: 'tokenId',
+            type: 'uint256',
+          },
+        ],
+        name: 'Transfer',
+        type: 'event',
+      },
+    ],
+    eventName: 'Transfer',
+    topics: [],
+  })
+  expectTypeOf(res).toEqualTypeOf<{
+    eventName: 'Transfer'
+    args: {
+      from: `0x${string}`
+      to: `0x${string}`
+      tokenId: bigint
+    }
+  }>()
+})
+
+test('declared as Abi', () => {
+  const res = decodeEventLog({
+    abi: [] as Abi,
+    eventName: 'Transfer',
+    topics: [],
+  })
+  expectTypeOf(res).toEqualTypeOf<{
+    args: readonly unknown[] | undefined
+    eventName: 'Transfer'
+  }>()
+})
+
+test('no const assertion', () => {
+  const abi = [
+    {
+      inputs: [
+        {
+          indexed: true,
+          name: 'from',
+          type: 'address',
+        },
+        {
+          indexed: true,
+          name: 'to',
+          type: 'address',
+        },
+        {
+          indexed: false,
+          name: 'tokenId',
+          type: 'uint256',
+        },
+      ],
+      name: 'Transfer',
+      type: 'event',
+    },
+  ]
+  const res = decodeEventLog({
+    abi,
+    eventName: 'Transfer',
+    topics: [],
+  })
+  expectTypeOf(res).toEqualTypeOf<{
+    args: readonly unknown[] | undefined
+    eventName: 'Transfer'
+  }>()
 })

@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const boba = /*#__PURE__*/ defineChain({
   id: 288,
   name: 'Boba Network',
-  network: 'boba',
   nativeCurrency: {
     decimals: 18,
     name: 'Boba',
@@ -11,10 +10,8 @@ export const boba = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://mainnet.boba.network'] },
-    public: { http: ['https://mainnet.boba.network'] },
   },
   blockExplorers: {
-    etherscan: { name: 'BOBAScan', url: 'https://bobascan.com' },
     default: { name: 'BOBAScan', url: 'https://bobascan.com' },
   },
   contracts: {

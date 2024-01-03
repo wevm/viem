@@ -10,7 +10,6 @@ export const astar = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    public: { http: ['https://astar.api.onfinality.io/public'] },
     default: { http: ['https://astar.api.onfinality.io/public'] },
   },
   blockExplorers: {

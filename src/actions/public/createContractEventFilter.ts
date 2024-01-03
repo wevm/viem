@@ -6,7 +6,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  InferEventName,
+  ContractEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
@@ -24,52 +24,47 @@ import {
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreateContractEventFilterParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = undefined,
-  TArgs extends
-    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> | undefined = undefined,
+  args extends
+    | MaybeExtractEventArgsFromAbi<abi, eventName>
     | undefined = undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
   address?: Address | Address[]
-  abi: TAbi
-  eventName?: InferEventName<TAbi, TEventName>
-  fromBlock?: TFromBlock | BlockNumber | BlockTag
+  abi: abi
+  eventName?: eventName | ContractEventName<abi> | undefined
+  fromBlock?: fromBlock | BlockNumber | BlockTag
   /**
    * Whether or not the logs must match the indexed/non-indexed arguments in the event ABI item.
    * @default false
    */
-  strict?: TStrict
-  toBlock?: TToBlock | BlockNumber | BlockTag
-} & (undefined extends TEventName
+  strict?: strict | boolean | undefined
+  toBlock?: toBlock | BlockNumber | BlockTag
+} & (undefined extends eventName
   ? {
       args?: never
     }
-  : MaybeExtractEventArgsFromAbi<
-        TAbi,
-        TEventName
-      > extends infer TEventFilterArgs
+  : MaybeExtractEventArgsFromAbi<abi, eventName> extends infer TEventFilterArgs
     ? {
-        args?:
-          | TEventFilterArgs
-          | (TArgs extends TEventFilterArgs ? TArgs : never)
+        args?: TEventFilterArgs | (args extends TEventFilterArgs ? args : never)
       }
     : {
         args?: never
       })
 
 export type CreateContractEventFilterReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = undefined,
-  TArgs extends
-    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> | undefined = undefined,
+  args extends
+    | MaybeExtractEventArgsFromAbi<abi, eventName>
     | undefined = undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-> = Filter<'event', TAbi, TEventName, TArgs, TStrict, TFromBlock, TToBlock>
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
+> = Filter<'event', abi, eventName, args, strict, fromBlock, toBlock>
 
 export type CreateContractEventFilterErrorType =
   | EncodeEventTopicsErrorType
@@ -100,41 +95,36 @@ export type CreateContractEventFilterErrorType =
  * })
  */
 export async function createContractEventFilter<
-  TChain extends Chain | undefined,
-  const TAbi extends Abi | readonly unknown[],
-  TEventName extends string | undefined,
-  TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  chain extends Chain | undefined,
+  const abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi> | undefined,
+  args extends MaybeExtractEventArgsFromAbi<abi, eventName> | undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
-  client: Client<Transport, TChain>,
-  {
-    address,
+  client: Client<Transport, chain>,
+  parameters: CreateContractEventFilterParameters<
     abi,
-    args,
     eventName,
-    fromBlock,
+    args,
     strict,
-    toBlock,
-  }: CreateContractEventFilterParameters<
-    TAbi,
-    TEventName,
-    TArgs,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    fromBlock,
+    toBlock
   >,
 ): Promise<
   CreateContractEventFilterReturnType<
-    TAbi,
-    TEventName,
-    TArgs,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    abi,
+    eventName,
+    args,
+    strict,
+    fromBlock,
+    toBlock
   >
 > {
+  const { address, abi, args, eventName, fromBlock, strict, toBlock } =
+    parameters as CreateContractEventFilterParameters
+
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newFilter',
   })
@@ -165,14 +155,14 @@ export async function createContractEventFilter<
     eventName,
     id,
     request: getRequest(id),
-    strict,
+    strict: Boolean(strict),
     type: 'event',
   } as unknown as CreateContractEventFilterReturnType<
-    TAbi,
-    TEventName,
-    TArgs,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    abi,
+    eventName,
+    args,
+    strict,
+    fromBlock,
+    toBlock
   >
 }

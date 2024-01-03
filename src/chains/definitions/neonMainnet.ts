@@ -9,9 +9,6 @@ export const neonMainnet = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://neon-proxy-mainnet.solana.p2p.org'],
     },
-    public: {
-      http: ['https://neon-proxy-mainnet.solana.p2p.org'],
-    },
   },
   blockExplorers: {
     default: {

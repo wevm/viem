@@ -51,34 +51,13 @@ import {
   type UserRejectedRequestErrorType,
 } from '../errors/rpc.js'
 import type { ErrorType } from '../errors/utils.js'
+import type {
+  EIP1193RequestFn,
+  EIP1193RequestOptions,
+} from '../types/eip1193.js'
 import type { CreateBatchSchedulerErrorType } from './promise/createBatchScheduler.js'
 import { type WithRetryErrorType, withRetry } from './promise/withRetry.js'
 import type { GetSocketErrorType } from './rpc.js'
-
-export type IsDeterministicErrorType = ErrorType
-
-export const isDeterministicError = (error: Error) => {
-  if ('code' in error)
-    return (
-      error.code !== -1 &&
-      error.code !== -32004 &&
-      error.code !== -32005 &&
-      error.code !== -32042 &&
-      error.code !== -32603
-    )
-  if (error instanceof HttpRequestError && error.status)
-    return (
-      error.status !== 403 &&
-      error.status !== 408 &&
-      error.status !== 413 &&
-      error.status !== 429 &&
-      error.status !== 500 &&
-      error.status !== 502 &&
-      error.status !== 503 &&
-      error.status !== 504
-    )
-  return false
-}
 
 export type RequestErrorType =
   | ChainDisconnectedErrorType
@@ -110,20 +89,16 @@ export type RequestErrorType =
   | WithRetryErrorType
   | ErrorType
 
-export function buildRequest<TRequest extends (args: any) => Promise<any>>(
-  request: TRequest,
-  {
-    retryDelay = 150,
-    retryCount = 3,
-  }: {
-    // The base delay (in ms) between retries.
-    retryDelay?: number
-    // The max number of times to retry.
-    retryCount?: number
-  } = {},
-) {
-  return (async (args: any) =>
-    withRetry(
+export function buildRequest<request extends (args: any) => Promise<any>>(
+  request: request,
+  options: EIP1193RequestOptions = {},
+): EIP1193RequestFn {
+  return async (args, overrideOptions = {}) => {
+    const { retryDelay = 150, retryCount = 3 } = {
+      ...options,
+      ...overrideOptions,
+    }
+    return withRetry(
       async () => {
         try {
           return await request(args)
@@ -208,7 +183,37 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
           return ~~(1 << count) * retryDelay
         },
         retryCount,
-        shouldRetry: ({ error }) => !isDeterministicError(error),
+        shouldRetry: ({ error }) => shouldRetry(error),
       },
-    )) as TRequest
+    )
+  }
+}
+
+export function shouldRetry(error: Error) {
+  if ('code' in error && typeof error.code === 'number') {
+    if (error.code === -1) return true // Unknown error
+    if (error.code === LimitExceededRpcError.code) return true
+    if (error.code === InternalRpcError.code) return true
+    return false
+  }
+  if (error instanceof HttpRequestError && error.status) {
+    // Forbidden
+    if (error.status === 403) return true
+    // Request Timeout
+    if (error.status === 408) return true
+    // Request Entity Too Large
+    if (error.status === 413) return true
+    // Too Many Requests
+    if (error.status === 429) return true
+    // Internal Server Error
+    if (error.status === 500) return true
+    // Bad Gateway
+    if (error.status === 502) return true
+    // Service Unavailable
+    if (error.status === 503) return true
+    // Gateway Timeout
+    if (error.status === 504) return true
+    return false
+  }
+  return true
 }

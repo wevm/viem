@@ -705,7 +705,7 @@ const client = createPublicClient({
 
 const contract = getContract({
   ...wagmiContractConfig,
-  publicClient: client,
+  client,
 })
 
 const supply = await contract.read.totalSupply()

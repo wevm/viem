@@ -11,7 +11,6 @@ export const manta = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://pacific-rpc.manta.network/http'] },
-    public: { http: ['https://pacific-rpc.manta.network/http'] },
   },
   blockExplorers: {
     etherscan: {

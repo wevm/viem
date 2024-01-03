@@ -1,9 +1,4 @@
-import type {
-  TypedData,
-  TypedDataDomain,
-  TypedDataParameter,
-  TypedDataType,
-} from 'abitype'
+import type { TypedData, TypedDataDomain, TypedDataParameter } from 'abitype'
 
 import { BytesSizeMismatchError } from '../errors/abi.js'
 import { InvalidAddressError } from '../errors/address.js'
@@ -28,24 +23,19 @@ export type ValidateTypedDataErrorType =
   | ErrorType
 
 export function validateTypedData<
-  const TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
->({
-  domain,
-  message,
-  primaryType,
-  types: types_,
-}: TypedDataDefinition<TTypedData, TPrimaryType>) {
-  const types = types_ as TypedData
+  const typedData extends TypedData | Record<string, unknown>,
+  primaryType extends keyof typedData | 'EIP712Domain',
+>(parameters: TypedDataDefinition<typedData, primaryType>) {
+  const { domain, message, primaryType, types } =
+    parameters as unknown as TypedDataDefinition
 
   const validateData = (
     struct: readonly TypedDataParameter[],
-    value_: Record<string, unknown>,
+    data: Record<string, unknown>,
   ) => {
     for (const param of struct) {
-      const { name, type: type_ } = param
-      const type = type_ as TypedDataType
-      const value = value_[name]
+      const { name, type } = param
+      const value = data[name]
 
       const integerMatch = type.match(integerRegex)
       if (
@@ -85,7 +75,7 @@ export function validateTypedData<
   if (primaryType !== 'EIP712Domain') {
     // Validate message types.
     const type = types[primaryType]
-    validateData(type, message as Record<string, unknown>)
+    validateData(type, message)
   }
 }
 

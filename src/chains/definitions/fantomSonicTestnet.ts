@@ -11,7 +11,6 @@ export const fantomSonicTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://rpcapi.sonic.fantom.network'] },
-    public: { http: ['https://rpcapi.sonic.fantom.network'] },
   },
   blockExplorers: {
     default: {

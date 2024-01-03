@@ -15,9 +15,9 @@ import {
 } from './recoverTypedDataAddress.js'
 
 export type VerifyTypedDataParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = TypedDataDefinition<TTypedData, TPrimaryType> & {
+  typedData extends TypedData | Record<string, unknown> = TypedData,
+  primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
+> = TypedDataDefinition<typedData, primaryType> & {
   /** The address to verify the typed data for. */
   address: Address
   /** The signature to verify */
@@ -45,19 +45,13 @@ export type VerifyTypedDataErrorType =
  * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
  */
 export async function verifyTypedData<
-  const TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
->({
-  address,
-  domain,
-  message,
-  primaryType,
-  signature,
-  types,
-}: VerifyTypedDataParameters<
-  TTypedData,
-  TPrimaryType
->): Promise<VerifyTypedDataReturnType> {
+  const typedData extends TypedData | Record<string, unknown>,
+  primaryType extends keyof typedData | 'EIP712Domain',
+>(
+  parameters: VerifyTypedDataParameters<typedData, primaryType>,
+): Promise<VerifyTypedDataReturnType> {
+  const { address, domain, message, primaryType, signature, types } =
+    parameters as unknown as VerifyTypedDataParameters
   return isAddressEqual(
     getAddress(address),
     await recoverTypedDataAddress({

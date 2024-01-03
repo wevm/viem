@@ -18,7 +18,7 @@ import type {
 } from './types.js'
 import { isCIP42, isCIP64 } from './utils.js'
 
-export const formattersCelo = {
+export const formatters = {
   block: /*#__PURE__*/ defineBlock({
     exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
     format(
@@ -33,7 +33,6 @@ export const formattersCelo = {
         return {
           ...formatTransaction(transaction as RpcTransaction),
           feeCurrency: transaction.feeCurrency,
-
           ...(transaction.type !== '0x7b'
             ? {
                 gatewayFee: transaction.gatewayFee

@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const wanchain = /*#__PURE__*/ defineChain({
   id: 888,
   name: 'Wanchain',
-  network: 'wanchain',
   nativeCurrency: { name: 'WANCHAIN', symbol: 'WAN', decimals: 18 },
   rpcUrls: {
     default: {
@@ -12,18 +11,8 @@ export const wanchain = /*#__PURE__*/ defineChain({
         'https://gwan2-ssl.wandevs.org',
       ],
     },
-    public: {
-      http: [
-        'https://gwan-ssl.wandevs.org:56891',
-        'https://gwan2-ssl.wandevs.org',
-      ],
-    },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'WanScan',
-      url: 'https://wanscan.org',
-    },
     default: {
       name: 'WanScan',
       url: 'https://wanscan.org',

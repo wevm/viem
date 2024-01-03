@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const telos = /*#__PURE__*/ defineChain({
   id: 40,
   name: 'Telos',
-  network: 'telos',
   nativeCurrency: {
     decimals: 18,
     name: 'Telos',
@@ -11,7 +10,6 @@ export const telos = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://mainnet.telos.net/evm'] },
-    public: { http: ['https://mainnet.telos.net/evm'] },
   },
   blockExplorers: {
     default: {

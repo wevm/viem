@@ -1,6 +1,9 @@
+import {
+  TransactionRejectedRpcError,
+  UserRejectedRequestError,
+} from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import { isDeterministicError } from '../../utils/buildRequest.js'
 import { wait } from '../../utils/wait.js'
 
 import {
@@ -96,7 +99,7 @@ export function fallback(
     retryCount,
     retryDelay,
   } = config
-  return ({ chain, pollingInterval = 4_000, timeout }) => {
+  return ({ chain, pollingInterval = 4_000, timeout, ...rest }) => {
     let transports = transports_
 
     let onResponse: OnResponseFn = () => {}
@@ -107,7 +110,12 @@ export function fallback(
         name,
         async request({ method, params }) {
           const fetch = async (i = 0): Promise<any> => {
-            const transport = transports[i]({ chain, retryCount: 0, timeout })
+            const transport = transports[i]({
+              ...rest,
+              chain,
+              retryCount: 0,
+              timeout,
+            })
             try {
               const response = await transport.request({
                 method,
@@ -132,9 +140,7 @@ export function fallback(
                 status: 'error',
               })
 
-              // If the error is deterministic, we don't need to fall back.
-              // So throw the error.
-              if (isDeterministicError(err as Error)) throw err
+              if (shouldThrow(err as Error)) throw err
 
               // If we've reached the end of the fallbacks, throw the error.
               if (i === transports.length - 1) throw err
@@ -169,6 +175,18 @@ export function fallback(
     }
     return transport
   }
+}
+
+function shouldThrow(error: Error) {
+  if ('code' in error && typeof error.code === 'number') {
+    if (
+      error.code === TransactionRejectedRpcError.code ||
+      error.code === UserRejectedRequestError.code ||
+      error.code === 5000 // CAIP UserRejectedRequestError
+    )
+      return true
+  }
+  return false
 }
 
 export function rankTransports({

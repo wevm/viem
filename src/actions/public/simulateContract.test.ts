@@ -67,6 +67,18 @@ describe('wagmi', () => {
     ).toEqual(undefined)
   })
 
+  test('client account', async () => {
+    const { request, result } = await simulateContract(
+      walletClientWithAccount,
+      {
+        ...wagmiContractConfig,
+        functionName: 'mint',
+      },
+    )
+    expect(result).toEqual(undefined)
+    expect(request.account).toEqual(walletClientWithAccount.account)
+  })
+
   test('no account', async () => {
     await expect(() =>
       simulateContract(publicClient, {
@@ -165,7 +177,7 @@ test('args: dataSuffix', async () => {
     dataSuffix: '0x12345678',
   })
   expect(spy).toHaveBeenCalledWith({
-    account: accounts[0].address,
+    account: request.account,
     batch: false,
     data: '0x1249c58b12345678',
     to: wagmiContractConfig.address,

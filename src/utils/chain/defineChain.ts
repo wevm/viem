@@ -1,22 +1,14 @@
-import type { Chain, ChainConfig, ChainFormatters } from '../../types/chain.js'
-import type { Assign } from '../../types/utils.js'
+import type { Chain, ChainFormatters } from '../../types/chain.js'
+import type { Assign, Prettify } from '../../types/utils.js'
 
 export function defineChain<
-  const chain extends Chain,
-  formatters extends ChainFormatters | undefined = undefined,
->(
-  chain: chain,
-  config: ChainConfig<formatters> = {},
-): Assign<chain, ChainConfig<formatters>> {
-  const {
-    fees = chain.fees,
-    formatters = chain.formatters,
-    serializers = chain.serializers,
-  } = config
+  formatters extends ChainFormatters,
+  const chain extends Chain<formatters>,
+>(chain: chain): Prettify<Assign<Chain<undefined>, chain>> {
   return {
+    formatters: undefined,
+    fees: undefined,
+    serializers: undefined,
     ...chain,
-    fees,
-    formatters,
-    serializers,
-  } as unknown as Assign<chain, ChainConfig<formatters>>
+  } as Assign<Chain<undefined>, chain>
 }

@@ -13,9 +13,6 @@ export const chiliz = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://rpc.ankr.com/chiliz', 'https://chiliz.publicnode.com'],
     },
-    public: {
-      http: ['https://rpc.ankr.com/chiliz', 'https://chiliz.publicnode.com'],
-    },
   },
   blockExplorers: {
     default: {

@@ -15,6 +15,185 @@ head:
 
 If you are coming from an earlier version of `viem`, you will need to make sure to update the following APIs listed below.
 
+## 2.x.x Breaking changes
+
+The 2.x.x release includes very minor breaking changes to the Contract Instances API, entrypoints, chain modules, and miscellaneous actions + utilities listed below.
+
+### Actions: Modified `getContract` Client API
+
+The `publicClient` and `walletClient` parameters of the `getContract` API has been removed in favour of `client` to support Client's that [extend](/docs/clients/wallet.html#optional-extend-with-public-actions) (ie. [a Wallet Client extended with Public Actions](/docs/clients/wallet.html#optional-extend-with-public-actions)).
+
+[Read more.](/docs/contract/getContract)
+
+```tsx
+import { getContract } from 'viem'
+import { publicClient, walletClient } from './client'
+
+const contract = getContract({
+  abi,
+  address,
+  publicClient, // [!code --]
+  walletClient, // [!code --]
+  client: { // [!code ++]
+    public: publicClient, // [!code ++]
+    wallet: walletClient, // [!code ++]
+  } // [!code ++]
+})
+```
+
+### Removed entrypoints
+
+The following entrypoints have been removed:
+
+- `viem/abi`
+- `viem/contract`
+- `viem/public`
+- `viem/test`
+- `viem/wallet`
+
+You can import the entrypoints directly from `viem`:
+
+```ts
+import { encodeAbiParameters } from 'viem/abi' // [!code --]
+import { getContract } from 'viem/contract' // [!code --]
+import { getBlock } from 'viem/public' // [!code --]
+import { mine } from 'viem/test' // [!code --]
+import { sendTransaction } from 'viem/wallet' // [!code --]
+import { // [!code ++]
+  encodeAbiParameters, // [!code ++] 
+  getContract, // [!code ++]
+  getBlock, // [!code ++]
+  mine, // [!code ++]
+  sendTransaction, // [!code ++]
+} from 'viem' // [!code ++]
+```
+
+### Moved chain-specific exports in `viem/chains/utils`
+
+Chain-specific exports in `viem/chains/utils` have been moved to `viem/{celo|op-stack|zksync}`:
+
+```ts
+import {
+  parseTransactionCelo,
+  parseTransaction // [!code ++]
+  serializeTransactionCelo, // [!code --]
+  serializeTransaction // [!code ++]
+  // ...
+} from 'viem/chains/utils' // [!code --]
+} from 'viem/celo' // [!code ++]
+
+import {
+  // ...
+} from 'viem/chains/utils'  // [!code --]
+} from 'viem/op-stack' // [!code ++]
+
+import {
+  parseTransactionZkSync, // [!code --]
+  parseTransaction, // [!code ++]
+  serializeTransactionZkSync, // [!code --]
+  serializeTransaction, // [!code ++]
+  // ...
+} from 'viem/chains/utils'  // [!code --]
+} from 'viem/zksync' // [!code ++]
+```
+
+### Actions: `getBlockNumber`
+
+The `maxAge` parameter has been removed in favor of `cacheTime`.
+
+```ts
+const blockNumber = await client.getBlockNumber({
+  maxAge: 84_600 // [!code --]
+  cacheTime: 84_600 // [!code ++]
+})
+```
+
+### Actions: `OnLogFn` & `OnLogParameter` types
+
+The `OnLogFn` & `OnLogParameter` types have been renamed.
+
+```ts
+import {
+  OnLogFn, // [!code --]
+  WatchEventOnLogsFn, // [!code ++]
+  OnLogParameter, // [!code --]
+  WatchEventOnLogsParameter, // [!code ++]
+} from 'viem' 
+```
+
+### Actions: `prepareRequest`
+
+The `prepareRequest` Action has been renamed to `prepareTransactionRequest` and moved to `viem/actions` entrypoint.
+
+```ts
+import {
+  prepareRequest, // [!code --]
+  prepareTransactionRequest, // [!code ++]
+} from 'viem' // [!code --]
+} from 'viem/actions' // [!code ++]
+```
+
+### Actions: `SimulateContractParameters` & `SimulateContractReturnType` types
+
+Note the following breaking generic slot changes:
+
+```ts
+type SimulateContractParameters<
+  TAbi,
+  TFunctionName,
+  TArgs, // Args added to Slot 2 // [!code ++]
+  TChain,
+  TChainOverride,
+  TAccountOverride,
+>
+
+type SimulateContractReturnType<
+  TAbi,
+  TFunctionName,
+  TArgs, // Args added to Slot 2 // [!code ++]
+  TChain,
+  TAccount, // Account added to Slot 4 // [!code ++]
+  TChainOverride,
+  TAccountOverride,
+>
+```
+
+### Utilities: Removed `extractFunctionParts`, `extractFunctionName`, `extractFunctionParams`, `extractFunctionType`
+
+The `extractFunctionParts`, `extractFunctionName`, `extractFunctionParams`, `extractFunctionType` utility functions have been removed. You can use the [`parseAbiItem` utility function from abitype](https://abitype.dev/api/human#parseabiitem-1) instead.
+
+### Utilities: Renamed `bytesToBigint`
+
+The `bytesToBigint` utility function has been renamed to `bytesToBigInt`.
+
+```ts
+import {
+  bytesToBigint, // [!code --]
+  bytesToBigInt, // [!code ++]
+} from 'viem'
+```
+
+### Utilities: Renamed chain types
+
+The following chain types have been renamed:
+
+```ts
+import {
+  Formatter, // [!code --]
+  ChainFormatter, // [!code ++]
+  Formatters, // [!code --]
+  ChainFormatters, // [!code ++]
+  Serializers, // [!code --]
+  ChainSerializers, // [!code ++]
+  ExtractFormatterExclude, // [!code --]
+  ExtractChainFormatterExclude, // [!code ++]
+  ExtractFormatterParameters, // [!code --]
+  ExtractChainFormatterParameters, // [!code ++]
+  ExtractFormatterReturnType, // [!code --]
+  ExtractChainFormatterReturnType, // [!code ++]
+} from 'viem'
+```
+
 ## 1.x.x Breaking changes
 
 The 1.x.x release only includes very minor changes to the behavior in event log decoding, and removes the redundant ethers.js Wallet Adapter. If you do not directly use these APIs, you do not need to update any of your code for this version.

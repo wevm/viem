@@ -54,7 +54,7 @@ export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
     }
 
 export type GetTransactionReturnType<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = undefined,
   TBlockTag extends BlockTag = 'latest',
 > = FormattedTransaction<TChain, TBlockTag>
 

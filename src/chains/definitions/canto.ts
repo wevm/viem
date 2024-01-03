@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const canto = /*#__PURE__*/ defineChain({
   id: 7_700,
   name: 'Canto',
-  network: 'canto',
   nativeCurrency: {
     decimals: 18,
     name: 'Canto',
@@ -11,7 +10,6 @@ export const canto = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://canto.gravitychain.io'] },
-    public: { http: ['https://canto.gravitychain.io'] },
   },
   blockExplorers: {
     default: {

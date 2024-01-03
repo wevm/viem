@@ -1,4 +1,4 @@
-import type { Abi, AbiParameter, ExtractAbiEventNames } from 'abitype'
+import type { Abi, AbiParameter } from 'abitype'
 
 import {
   AbiDecodingDataSizeTooSmallError,
@@ -12,19 +12,23 @@ import {
   DecodeLogTopicsMismatch,
   type DecodeLogTopicsMismatchErrorType,
 } from '../../errors/abi.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
+  ContractEventArgsFromTopics,
+  ContractEventName,
   EventDefinition,
-  GetEventArgsFromTopics,
-  InferEventName,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import type { Prettify } from '../../types/utils.js'
+import type {
+  IsNarrowable,
+  Prettify,
+  UnionEvaluate,
+} from '../../types/utils.js'
 import {
   type GetEventSelectorErrorType,
   getEventSelector,
 } from '../hash/getEventSelector.js'
 
-import type { ErrorType } from '../../errors/utils.js'
 import {
   type DecodeAbiParametersErrorType,
   decodeAbiParameters,
@@ -32,43 +36,50 @@ import {
 import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeEventLogParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
-  TTopics extends Hex[] = Hex[],
-  TData extends Hex | undefined = undefined,
-  TStrict extends boolean = true,
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> | undefined = ContractEventName<abi>,
+  topics extends Hex[] = Hex[],
+  data extends Hex | undefined = undefined,
+  strict extends boolean = true,
 > = {
-  abi: TAbi
-  data?: TData
-  eventName?: InferEventName<TAbi, TEventName>
-  strict?: TStrict
-  topics: [signature: Hex, ...args: TTopics] | []
+  abi: abi
+  data?: data | undefined
+  eventName?: eventName | ContractEventName<abi>
+  strict?: strict | boolean | undefined
+  topics: [signature: Hex, ...args: topics] | []
 }
 
 export type DecodeEventLogReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
-  TTopics extends Hex[] = Hex[],
-  TData extends Hex | undefined = undefined,
-  TStrict extends boolean = true,
-  _EventNames extends string = TAbi extends Abi
-    ? Abi extends TAbi
-      ? string
-      : ExtractAbiEventNames<TAbi>
-    : string,
-> = TEventName extends _EventNames[number]
-  ? Prettify<
-      {
-        eventName: TEventName
-      } & GetEventArgsFromTopics<TAbi, TEventName, TTopics, TData, TStrict>
-    >
-  : {
-      [TName in _EventNames]: Prettify<
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> | undefined = ContractEventName<abi>,
+  topics extends Hex[] = Hex[],
+  data extends Hex | undefined = undefined,
+  strict extends boolean = true,
+  ///
+  allEventNames extends
+    ContractEventName<abi> = eventName extends ContractEventName<abi>
+    ? eventName
+    : ContractEventName<abi>,
+> = IsNarrowable<abi, Abi> extends true
+  ? {
+      [name in allEventNames]: Prettify<
         {
-          eventName: TName
-        } & GetEventArgsFromTopics<TAbi, TName, TTopics, TData, TStrict>
+          eventName: name
+        } & UnionEvaluate<
+          ContractEventArgsFromTopics<abi, name, strict> extends infer allArgs
+            ? topics extends readonly []
+              ? data extends undefined
+                ? { args?: undefined }
+                : { args?: allArgs | undefined }
+              : { args: allArgs }
+            : never
+        >
       >
-    }[_EventNames]
+    }[allEventNames]
+  : {
+      eventName: eventName
+      args: readonly unknown[] | undefined
+    }
 
 export type DecodeEventLogErrorType =
   | AbiDecodingDataSizeTooSmallErrorType
@@ -84,38 +95,32 @@ export type DecodeEventLogErrorType =
 const docsPath = '/docs/contract/decodeEventLog'
 
 export function decodeEventLog<
-  const TAbi extends Abi | readonly unknown[],
-  TEventName extends string | undefined = undefined,
-  TTopics extends Hex[] = Hex[],
-  TData extends Hex | undefined = undefined,
-  TStrict extends boolean = true,
->({
-  abi,
-  data,
-  strict: strict_,
-  topics,
-}: DecodeEventLogParameters<
-  TAbi,
-  TEventName,
-  TTopics,
-  TData,
-  TStrict
->): DecodeEventLogReturnType<TAbi, TEventName, TTopics, TData, TStrict> {
+  const abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi> | undefined = undefined,
+  topics extends Hex[] = Hex[],
+  data extends Hex | undefined = undefined,
+  strict extends boolean = true,
+>(
+  parameters: DecodeEventLogParameters<abi, eventName, topics, data, strict>,
+): DecodeEventLogReturnType<abi, eventName, topics, data, strict> {
+  const {
+    abi,
+    data,
+    strict: strict_,
+    topics,
+  } = parameters as DecodeEventLogParameters
+
   const strict = strict_ ?? true
   const [signature, ...argTopics] = topics
-  if (!signature)
-    throw new AbiEventSignatureEmptyTopicsError({
-      docsPath,
-    })
-  const abiItem = (abi as Abi).find(
+  if (!signature) throw new AbiEventSignatureEmptyTopicsError({ docsPath })
+
+  const abiItem = abi.find(
     (x) =>
       x.type === 'event' &&
       signature === getEventSelector(formatAbiItem(x) as EventDefinition),
   )
   if (!(abiItem && 'name' in abiItem) || abiItem.type !== 'event')
-    throw new AbiEventSignatureNotFoundError(signature, {
-      docsPath,
-    })
+    throw new AbiEventSignatureNotFoundError(signature, { docsPath })
 
   const { name, inputs } = abiItem
   const isUnnamed = inputs?.some((x) => !('name' in x && x.name))
@@ -174,13 +179,7 @@ export function decodeEventLog<
   return {
     eventName: name,
     args: Object.values(args).length > 0 ? args : undefined,
-  } as unknown as DecodeEventLogReturnType<
-    TAbi,
-    TEventName,
-    TTopics,
-    TData,
-    TStrict
-  >
+  } as unknown as DecodeEventLogReturnType<abi, eventName, topics, data, strict>
 }
 
 function decodeTopic({ param, value }: { param: AbiParameter; value: Hex }) {

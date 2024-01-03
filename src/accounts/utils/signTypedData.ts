@@ -4,7 +4,6 @@ import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import {
   type HashTypedDataErrorType,
-  type HashTypedDataParameters,
   hashTypedData,
 } from '../../utils/signature/hashTypedData.js'
 import {
@@ -16,9 +15,9 @@ import type { ErrorType } from '../../errors/utils.js'
 import { type SignErrorType, sign } from './sign.js'
 
 export type SignTypedDataParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = TypedDataDefinition<TTypedData, TPrimaryType> & {
+  typedData extends TypedData | Record<string, unknown> = TypedData,
+  primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
+> = TypedDataDefinition<typedData, primaryType> & {
   /** The private key to sign with. */
   privateKey: Hex
 }
@@ -38,17 +37,15 @@ export type SignTypedDataErrorType =
  * @returns The signature.
  */
 export async function signTypedData<
-  const TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
->({
-  privateKey,
-  ...typedData
-}: SignTypedDataParameters<
-  TTypedData,
-  TPrimaryType
->): Promise<SignTypedDataReturnType> {
+  const typedData extends TypedData | Record<string, unknown>,
+  primaryType extends keyof typedData | 'EIP712Domain',
+>(
+  parameters: SignTypedDataParameters<typedData, primaryType>,
+): Promise<SignTypedDataReturnType> {
+  const { privateKey, ...typedData } =
+    parameters as unknown as SignTypedDataParameters
   const signature = await sign({
-    hash: hashTypedData(typedData as HashTypedDataParameters),
+    hash: hashTypedData(typedData),
     privateKey,
   })
   return signatureToHex(signature)
