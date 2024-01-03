@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const defichainEvm = /*#__PURE__*/ defineChain({
-  id: 1160,
+  id: 1130,
   network: 'defichain-evm',
   name: 'DeFiChain EVM Mainnet',
   nativeCurrency: {

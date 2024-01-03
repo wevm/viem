@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const defichainEvmTestnet = /*#__PURE__*/ defineChain({
-  id: 1161,
+  id: 1131,
   network: 'defichain-evm-testnet',
   name: 'DeFiChain EVM Testnet',
   nativeCurrency: {
