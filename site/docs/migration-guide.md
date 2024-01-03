@@ -19,6 +19,8 @@ If you are coming from an earlier version of `viem`, you will need to make sure 
 
 The 2.x.x release includes very minor breaking changes to the Contract Instances API, entrypoints, chain modules, and miscellaneous actions + utilities listed below.
 
+Not ready to migrate? [Head to the 1.x.x docs.](https://v1.viem.sh)
+
 ### Actions: Modified `getContract` Client API
 
 The `publicClient` and `walletClient` parameters of the `getContract` API has been removed in favour of `client` to support Client's that [extend](/docs/clients/wallet.html#optional-extend-with-public-actions) (ie. [a Wallet Client extended with Public Actions](/docs/clients/wallet.html#optional-extend-with-public-actions)).

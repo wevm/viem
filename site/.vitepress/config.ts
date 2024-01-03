@@ -100,6 +100,10 @@ export default defineConfig({
             ).replace(/\./g, '-')}-breaking-changes`,
           },
           {
+            text: '1.x.x Docs',
+            link: 'https://v1.viem.sh',
+          },
+          {
             text: 'Changelog',
             link: 'https://github.com/wevm/viem/blob/main/src/CHANGELOG.md',
           },
