@@ -20,7 +20,7 @@ export const defichainEvmTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'DeFiScan',
-      url: 'https://meta.defiscan.live/?network=TestNet'
+      url: 'https://meta.defiscan.live/?network=TestNet',
     },
     blockscout: {
       name: 'Blockscout',

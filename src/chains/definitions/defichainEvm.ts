@@ -20,7 +20,7 @@ export const defichainEvm = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'DeFiScan',
-      url: 'https://meta.defiscan.live'
+      url: 'https://meta.defiscan.live',
     },
     blockscout: {
       name: 'Blockscout',
