@@ -28,14 +28,14 @@ const receipt = await publicClientL2.getTransactionReceipt({
   hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
 })
 
-const [message] = getWithdrawals(receipt)
+const [withdrawal] = getWithdrawals(receipt)
 
 const { // [!code hl]
   period, // [!code hl]
   seconds, // [!code hl]
   timestamp, // [!code hl]
 } = await publicClientL1.getTimeToFinalize({ // [!code hl]
-  withdrawalHash: message.withdrawalHash, // [!code hl]
+  withdrawalHash: withdrawal.withdrawalHash, // [!code hl]
   targetChain: optimism // [!code hl]
 }) // [!code hl]
 ```

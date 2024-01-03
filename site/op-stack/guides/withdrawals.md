@@ -595,7 +595,7 @@ You can utilize the [`getTimeToFinalize`](/op-stack/actions/getTimeToFinalize) A
 
 ```ts
 const { seconds, timestamp } = await publicClientL1.getTimeToFinalize({
-  receipt,
+  withdrawalHash: withdrawal.withdrawalHash,
   targetChain: walletClientL2.chain
 })
 ```
