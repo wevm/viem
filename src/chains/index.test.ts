@@ -43,6 +43,8 @@ test('exports chains', () => {
       "cronos",
       "cronosTestnet",
       "crossbell",
+      "defichainEvm",
+      "defichainEvmTestnet",
       "dfk",
       "dogechain",
       "edgeware",
