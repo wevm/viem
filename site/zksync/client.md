@@ -27,7 +27,7 @@ import { eip712Actions } from 'viem/chains/zksync'
 const walletClient = createWalletClient({
   chain: zkSync,
   transport: custom(window.ethereum),
-}).extend(eip712Actions())
+}).extend(eip712Actions)
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -37,10 +37,10 @@ export const publicClient = createPublicClient({
 
 ### Sending transactions using paymaster
 
-[Read more](./actions/sendEip712Transaction.md)
+[Read more](./actions/sendTransaction.md)
 
 ```ts
-const hash = await walletClient.sendEip712Transaction({
+const hash = await walletClient.sendTransaction({
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -51,7 +51,7 @@ const hash = await walletClient.sendEip712Transaction({
 
 ### Calling contracts
 
-[Read more](./actions/writeEip712Contract.md)
+[Read more](./actions/writeContract.md)
 
 ```ts
 import { simulateContract } from 'viem/contract'
@@ -62,5 +62,5 @@ const { request } = await publicClient.simulateContract(walletClient, {
   functionName: 'mint',
   args: [69420],
 }
-const hash = await walletClient.writeEip712Contract(request)
+const hash = await walletClient.writeContract(request)
 ```

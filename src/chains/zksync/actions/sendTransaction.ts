@@ -27,7 +27,7 @@ import { signTransaction } from './signTransaction.js'
 /**
  * Creates, signs, and sends a new transaction to the network.
  *
- * - Docs: https://viem.sh/docs/zksync/actions/sendEip712Transaction.html
+ * - Docs: https://viem.sh/docs/zksync/actions/sendTransaction.html
  * - JSON-RPC Methods:
  *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
  *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
@@ -39,13 +39,13 @@ import { signTransaction } from './signTransaction.js'
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { zkSync } from 'viem/chains'
- * import { sendEip712Transaction } from 'viem/chains/zksync'
+ * import { sendTransaction } from 'viem/chains/zksync'
  *
  * const client = createWalletClient({
  *   chain: zkSync,
  *   transport: custom(window.ethereum),
  * })
- * const hash = await sendEip712Transaction(client, {
+ * const hash = await sendTransaction(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *   value: 1000000000000000000n,
@@ -56,14 +56,14 @@ import { signTransaction } from './signTransaction.js'
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { zkSync } from 'viem/chains'
- * import { sendEip712Transaction } from 'viem/chains/zksync'
+ * import { sendTransaction } from 'viem/chains/zksync'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),
  *   chain: zkSync,
  *   transport: http(),
  * })
- * const hash = await sendEip712Transaction(client, {
+ * const hash = await sendTransaction(client, {
  *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *   value: 1000000000000000000n,
  * })
@@ -111,6 +111,7 @@ export async function sendTransaction<
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await prepareTransactionRequest(client, {
         ...args,
+        chain: undefined
       } as any)
 
       if (!chainId)

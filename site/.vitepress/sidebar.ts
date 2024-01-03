@@ -942,20 +942,20 @@ export const sidebar: DefaultTheme.Sidebar = {
       text: 'Actions',
       items: [
         {
-          text: 'prepareEip712TransactionRequest',
-          link: '/zksync/actions/prepareEip712TransactionRequest',
+          text: 'prepareTransactionRequest',
+          link: '/zksync/actions/prepareTransactionRequest',
         },
         {
-          text: 'sendEip712Transaction',
-          link: '/zksync/actions/sendEip712Transaction',
+          text: 'sendTransaction',
+          link: '/zksync/actions/sendTransaction',
         },
         {
-          text: 'signEip712Transaction',
-          link: '/zksync/actions/signEip712Transaction',
+          text: 'signTransaction',
+          link: '/zksync/actions/signTransaction',
         },
         {
-          text: 'writeEip712Contract',
-          link: '/zksync/actions/writeEip712Contract',
+          text: 'writeContract',
+          link: '/zksync/actions/writeContract',
         },
       ],
     },

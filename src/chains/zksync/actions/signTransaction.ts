@@ -18,24 +18,24 @@ import { type ChainEIP712, isEip712Transaction } from '../types.js'
 /**
  * Signs a transaction.
  *
- * - Docs: https://viem.sh/docs/zksync/actions/signEip712Transaction.html
+ * - Docs: https://viem.sh/docs/zksync/actions/signTransaction.html
  * - JSON-RPC Methods:
  *   - JSON-RPC Accounts: [`eth_signTransaction`](https://ethereum.github.io/execution-apis/api-documentation/)
  *   - Local Accounts: Signs locally. No JSON-RPC request.
  *
- * @param args - {@link SignEip712TransactionParameters}
- * @returns The signed serialized tranasction. {@link SignEip712TransactionReturnType}
+ * @param args - {@link SignTransactionParameters}
+ * @returns The signed serialized tranasction. {@link SignTransactionReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { zkSync } from 'viem/chains'
- * import { sign712Transaction } from 'viem/chains/zksync'
+ * import { signTransaction } from 'viem/chains/zksync'
  *
  * const client = createWalletClient({
  *   chain: zkSync,
  *   transport: custom(window.ethereum),
  * })
- * const signature = await signEip712Transaction(client, {
+ * const signature = await signTransaction(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   to: '0x0000000000000000000000000000000000000000',
  *   value: 1n,
@@ -46,14 +46,14 @@ import { type ChainEIP712, isEip712Transaction } from '../types.js'
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { zkSync } from 'viem/chains'
- * import { sign712Transaction } from 'viem/chains/zksync'
+ * import { signTransaction } from 'viem/chains/zksync'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),
  *   chain: zkSync,
  *   transport: custom(window.ethereum),
  * })
- * const signature = await signEip712Transaction(client, {
+ * const signature = await signTransaction(client, {
  *   to: '0x0000000000000000000000000000000000000000',
  *   value: 1n,
  * })

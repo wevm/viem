@@ -22,17 +22,17 @@ import { sendTransaction } from './sendTransaction.js'
 /**
  * Executes a write function on a contract.
  *
- * - Docs: https://viem.sh/docs/zksync/actions/writeEip712Contract.html
+ * - Docs: https://viem.sh/docs/zksync/actions/writeContract.html
  *
  * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
  *
- * Internally, uses a [Wallet Client](https://viem.sh/docs/clients/wallet.html) to call the [`sendEip712Transaction` action](https://viem.sh/docs/zksync/actions/sendEip712Transaction.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+ * Internally, uses a [Wallet Client](https://viem.sh/docs/clients/wallet.html) to call the [`sendTransaction` action](https://viem.sh/docs/zksync/actions/sendTransaction.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
  *
  * __Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.__
  *
  * @param client - Client to use
- * @param parameters - {@link WriteEip712ContractParameters}
- * @returns A [Transaction Hash](https://viem.sh/docs/glossary/terms.html#hash). {@link WriteEip712ContractReturnType}
+ * @param parameters - {@link WriteContractParameters}
+ * @returns A [Transaction Hash](https://viem.sh/docs/glossary/terms.html#hash). {@link WriteContractReturnType}
  *
  * @example
  * import { createWalletClient, custom, parseAbi } from 'viem'
@@ -43,7 +43,7 @@ import { sendTransaction } from './sendTransaction.js'
  *   chain: zkSync,
  *   transport: custom(window.ethereum),
  * })
- * const hash = await writeEip712Contract(client, {
+ * const hash = await writeContract(client, {
  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
  *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
  *   functionName: 'mint',
@@ -55,7 +55,7 @@ import { sendTransaction } from './sendTransaction.js'
  * import { createWalletClient, http, parseAbi } from 'viem'
  * import { zkSync } from 'viem/chains'
  * import { simulateContract } from 'viem/contract'
- * import { writeEip712Contract } from 'viem/chains/zksync'
+ * import { writeContract } from 'viem/chains/zksync'
  *
  * const client = createWalletClient({
  *   chain: zkSync,
@@ -67,7 +67,7 @@ import { sendTransaction } from './sendTransaction.js'
  *   functionName: 'mint',
  *   args: [69420],
  * }
- * const hash = await writeEip712Contract(client, request)
+ * const hash = await writeContract(client, request)
  */
 export async function writeContract<
   TChain extends ChainEIP712 | undefined,
