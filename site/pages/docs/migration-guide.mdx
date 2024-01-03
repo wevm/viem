@@ -17,6 +17,32 @@ If you are coming from an earlier version of `viem`, you will need to make sure 
 
 ## 2.x.x Breaking changes
 
+The 2.x.x release includes very minor breaking changes to the Contract Instances API, entrypoints, chain modules, and miscellaneous actions + utilities listed below.
+
+Not ready to migrate? [Head to the 1.x.x docs.](https://v1.viem.sh)
+
+### Actions: Modified `getContract` Client API
+
+The `publicClient` and `walletClient` parameters of the `getContract` API has been removed in favour of `client` to support Client's that [extend](/docs/clients/wallet.html#optional-extend-with-public-actions) (ie. [a Wallet Client extended with Public Actions](/docs/clients/wallet.html#optional-extend-with-public-actions)).
+
+[Read more.](/docs/contract/getContract)
+
+```tsx
+import { getContract } from 'viem'
+import { publicClient, walletClient } from './client'
+
+const contract = getContract({
+  abi,
+  address,
+  publicClient, // [!code --]
+  walletClient, // [!code --]
+  client: { // [!code ++]
+    public: publicClient, // [!code ++]
+    wallet: walletClient, // [!code ++]
+  } // [!code ++]
+})
+```
+
 ### Removed entrypoints
 
 The following entrypoints have been removed:
@@ -48,29 +74,29 @@ import { // [!code ++]
 
 Chain-specific exports in `viem/chains/utils` have been moved to `viem/{celo|op-stack|zksync}`:
 
-```diff
+```ts
 import {
-- parseTransactionCelo,
-+ parseTransaction
-- serializeTransactionCelo,
-+ serializeTransaction
-  ...
--} from 'viem/chains/utils'
-+} from 'viem/celo'
+  parseTransactionCelo,
+  parseTransaction // [!code ++]
+  serializeTransactionCelo, // [!code --]
+  serializeTransaction // [!code ++]
+  // ...
+} from 'viem/chains/utils' // [!code --]
+} from 'viem/celo' // [!code ++]
 
 import {
-  ...
--} from 'viem/chains/utils'
-+} from 'viem/op-stack'
+  // ...
+} from 'viem/chains/utils'  // [!code --]
+} from 'viem/op-stack' // [!code ++]
 
 import {
-- parseTransactionZkSync,
-+ parseTransaction,
-- serializeTransactionZkSync,
-+ serializeTransaction,
-  ...
--} from 'viem/chains/utils'
-+} from 'viem/zksync'
+  parseTransactionZkSync, // [!code --]
+  parseTransaction, // [!code ++]
+  serializeTransactionZkSync, // [!code --]
+  serializeTransaction, // [!code ++]
+  // ...
+} from 'viem/chains/utils'  // [!code --]
+} from 'viem/zksync' // [!code ++]
 ```
 
 ### Actions: `getBlockNumber`
@@ -132,28 +158,6 @@ type SimulateContractReturnType<
   TChainOverride,
   TAccountOverride,
 >
-```
-
-### Actions: Modified `getContract` Client API
-
-The `publicClient` and `walletClient` parameters of the `getContract` API has been removed in favour of `client` to support Client's that [extend](/docs/clients/wallet.html#optional-extend-with-public-actions) (ie. [a Wallet Client extended with Public Actions](/docs/clients/wallet.html#optional-extend-with-public-actions)).
-
-[Read more.](/docs/contract/getContract)
-
-```tsx
-import { getContract } from 'viem'
-import { publicClient, walletClient } from './client'
-
-const contract = getContract({
-  abi,
-  address,
-  publicClient, // [!code --]
-  walletClient, // [!code --]
-  client: { // [!code ++]
-    publicClient, // [!code ++]
-    walletClient, // [!code ++]
-  } // [!code ++]
-})
 ```
 
 ### Utilities: Removed `extractFunctionParts`, `extractFunctionName`, `extractFunctionParams`, `extractFunctionType`

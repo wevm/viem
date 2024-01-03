@@ -1,4 +1,8 @@
-# parseEventLogs [Extracts & decodes logs from a set of opaque logs.]
+---
+description: 'Extracts & decodes logs from a set of opaque logs.'
+---
+
+# parseEventLogs
 
 Extracts & decodes logs matching the provided `abi` (and optional `eventName`) from a set of opaque logs.
 

@@ -29,8 +29,8 @@ const contract = getContract({
   abi: wagmiAbi,
   // 1a. Insert a single client
   client: publicClient,
-  // 1b. Or multiple clients
-  client: { publicClient, walletClient }
+  // 1b. Or public and/or wallet clients
+  client: { public: publicClient, wallet: walletClient }
 })
 
 // 2. Call contract methods, fetch events, listen to events, etc.
@@ -105,6 +105,34 @@ const contract = getContract({
   client: {
     publicClient,
     walletClient,
+  }
+})
+
+const balance = await contract.read.balanceOf([
+  '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+])
+const hash = await contract.write.mint([69420])
+const logs = await contract.getEvents.Transfer()
+const unwatch = contract.watchEvent.Transfer(
+  {
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+    to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+  },
+  { onLogs: logs => console.log(logs) }
+)
+```
+
+```ts [contract-instance.ts]
+import { getContract } from 'viem'
+import { wagmiAbi } from './abi'
+import { publicClient, walletClient } from './client'
+
+const contract = getContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  client: {
+    public: publicClient,
+    wallet: walletClient,
   }
 })
 
@@ -208,10 +236,7 @@ The contract address.
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
-  client: {
-    publicClient,
-    walletClient,
-  }
+  client: publicClient
 })
 ```
 
@@ -225,16 +250,13 @@ The contract's ABI.
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
-  client: {
-    publicClient,
-    walletClient,
-  }
+  client: publicClient
 })
 ```
 
 ### client
 
-- **Type:** [`Client | { publicClient: Client; walletClient: Client }`](/docs/clients/public.html)
+- **Type:** [`Client | { public: Client; wallet: Client }`](/docs/clients/public.html)
 
 The Client used for performing [contract actions](/docs/contract/getContract.html#return-value).
 
@@ -253,8 +275,8 @@ const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   client: { // [!code focus]
-    publicClient, // [!code focus]
-    walletClient // [!code focus]
+    public: publicClient, // [!code focus]
+    wallet: walletClient // [!code focus]
   }, // [!code focus]
 })
 ```

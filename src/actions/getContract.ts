@@ -72,10 +72,15 @@ type KeyedClient<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-> = {
-  publicClient: Client<TTransport, TChain>
-  walletClient: Client<TTransport, TChain, TAccount>
-}
+> =
+  | {
+      public?: Client<TTransport, TChain>
+      wallet: Client<TTransport, TChain, TAccount>
+    }
+  | {
+      public: Client<TTransport, TChain>
+      wallet?: Client<TTransport, TChain, TAccount>
+    }
 
 export type GetContractParameters<
   TTransport extends Transport = Transport,
@@ -84,8 +89,9 @@ export type GetContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TClient extends
     | Client<TTransport, TChain, TAccount>
-    | KeyedClient<TTransport, TChain, TAccount>
-    | unknown = unknown,
+    | KeyedClient<TTransport, TChain, TAccount> =
+    | Client<TTransport, TChain, TAccount>
+    | KeyedClient<TTransport, TChain, TAccount>,
   TAddress extends Address = Address,
 > = {
   /** Contract ABI */
@@ -113,7 +119,7 @@ export type GetContractParameters<
 
 export type GetContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TClient extends Client | KeyedClient | unknown = unknown,
+  TClient extends Client | KeyedClient = Client | KeyedClient,
   TAddress extends Address = Address,
   _EventNames extends string = TAbi extends Abi
     ? Abi extends TAbi
@@ -132,14 +138,14 @@ export type GetContractReturnType<
     : string,
   _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
   _PublicClient extends Client | unknown = TClient extends {
-    publicClient: Client
+    public: Client
   }
-    ? TClient['publicClient']
+    ? TClient['public']
     : TClient,
   _WalletClient extends Client | unknown = TClient extends {
-    walletClient: Client
+    wallet: Client
   }
-    ? TClient['walletClient']
+    ? TClient['wallet']
     : TClient,
 > = Prettify<
   Prettify<
@@ -471,15 +477,11 @@ export function getContract<
   TTransport extends Transport,
   TAddress extends Address,
   const TAbi extends Abi | readonly unknown[],
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
   const TClient extends
     | Client<TTransport, TChain, TAccount>
-    | KeyedClient<TTransport, TChain, TAccount>
-    | unknown =
-    | Client<TTransport, TChain, TAccount>
-    | KeyedClient<TTransport, TChain, TAccount>
-    | unknown,
+    | KeyedClient<TTransport, TChain, TAccount>,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
 >({
   abi,
   address,
@@ -498,12 +500,10 @@ export function getContract<
 
   const [publicClient, walletClient] = (() => {
     if (!client) return [undefined, undefined]
-    if ('publicClient' in client && 'walletClient' in client)
-      return [client.publicClient as Client, client.walletClient as Client]
-    if ('publicClient' in client)
-      return [client.publicClient as Client, undefined]
-    if ('walletClient' in client)
-      return [undefined, client.walletClient as Client]
+    if ('public' in client && 'wallet' in client)
+      return [client.public as Client, client.wallet as Client]
+    if ('public' in client) return [client.public as Client, undefined]
+    if ('wallet' in client) return [undefined, client.wallet as Client]
     return [client, client]
   })()
 
