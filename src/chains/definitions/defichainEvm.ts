@@ -11,20 +11,20 @@ export const defichainEvm = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://eth.mainnet.ocean.jellyfishsdk.com/'],
+      http: ['https://eth.mainnet.ocean.jellyfishsdk.com'],
     },
     public: {
-      http: ['https://eth.mainnet.ocean.jellyfishsdk.com/'],
+      http: ['https://eth.mainnet.ocean.jellyfishsdk.com'],
     },
   },
   blockExplorers: {
     default: {
       name: 'DeFiScan',
-      url: 'https://meta.defiscan.live/'
+      url: 'https://meta.defiscan.live'
     },
     blockscout: {
       name: 'Blockscout',
-      url: 'https://blockscout.mainnet.ocean.jellyfishsdk.com/',
+      url: 'https://blockscout.mainnet.ocean.jellyfishsdk.com',
     },
   },
   contracts: {
