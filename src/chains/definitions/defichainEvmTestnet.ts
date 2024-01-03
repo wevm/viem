@@ -11,10 +11,10 @@ export const defichainEvmTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://eth.testnet.ocean.jellyfishsdk.com/'],
+      http: ['https://eth.testnet.ocean.jellyfishsdk.com'],
     },
     public: {
-      http: ['https://eth.testnet.ocean.jellyfishsdk.com/'],
+      http: ['https://eth.testnet.ocean.jellyfishsdk.com'],
     },
   },
   blockExplorers: {
@@ -24,7 +24,7 @@ export const defichainEvmTestnet = /*#__PURE__*/ defineChain({
     },
     blockscout: {
       name: 'Blockscout',
-      url: 'https://blockscout.testnet.ocean.jellyfishsdk.com/',
+      url: 'https://blockscout.testnet.ocean.jellyfishsdk.com',
     },
   },
   contracts: {
