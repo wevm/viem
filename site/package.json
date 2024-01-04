@@ -10,6 +10,6 @@
   "devDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "vocs": "0.0.0-main.20240103T055633"
+    "vocs": "0.0.0-main.20240104T222000"
   }
 }
