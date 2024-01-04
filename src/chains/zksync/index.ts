@@ -34,7 +34,6 @@ export type {
 
 export { prepareTransactionRequest } from './actions/prepareTransactionRequest.js'
 export { sendTransaction } from './actions/sendTransaction.js'
-export { writeContract } from './actions/writeContract.js'
 
 export {
   zkSync,

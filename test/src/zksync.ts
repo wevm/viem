@@ -53,3 +53,32 @@ export const baseZkSyncTestClient = createClient({
   chain: zksyncAnvilChain,
   transport: http(),
 }).extend(() => ({ mode: 'anvil' }))
+
+export function mockRequest(request) {
+  if (request.method === 'eth_chainId') {
+    return zksyncAnvilChain.id
+  }
+
+  if (request.method === 'eth_getBlockByNumber') {
+    return {
+      baseFeePerGas: '0x12a05f200',
+    }
+  }
+
+  if (request.method === 'eth_maxPriorityFeePerGas') {
+    return 1n
+  }
+
+  if (request.method === 'eth_estimateGas') {
+    return 1n
+  }
+
+  if (request.method === 'eth_getTransactionCount') {
+    return 600
+  }
+
+  if (request.method === 'eth_sendRawTransaction') {
+    return '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
+  }
+  return null
+}

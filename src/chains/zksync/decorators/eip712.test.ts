@@ -1,16 +1,13 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 
 import { greeterContract } from '~test/src/abis.js'
-import { baseZkSyncTestClient } from '~test/src/zksync.js'
+import { baseZkSyncTestClient, mockRequest } from '~test/src/zksync.js'
 import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { simulateContract } from '~viem/actions/index.js'
-import { publicActions, walletActions } from '~viem/index.js'
 import { eip712Actions } from './eip712.js'
 
 const zkSyncClient = baseZkSyncTestClient
-  .extend(publicActions)
-  .extend(walletActions)
   .extend(eip712Actions)
 
 test('default', async () => {
@@ -25,10 +22,6 @@ test('default', async () => {
 })
 
 describe('Action tests', () => {
-  // TODO:
-  // 1. Deploy the paymaster contracts on this local chain.
-  // 2. we need to mock the eth_sendRawTransaction and assert that we got the expected payload.
-
   test('prepareTransactionRequest', async () => {
     const request = await zkSyncClient.prepareTransactionRequest({
       account: privateKeyToAccount(accounts[0].privateKey),
@@ -47,7 +40,9 @@ describe('Action tests', () => {
     expect(request).toBeDefined()
   })
 
-  test.skip('sendTransaction', async () => {
+  test('sendTransaction', async () => {
+    const spy = vi.spyOn(baseZkSyncTestClient, 'request')
+    spy.mockImplementation((request, opts) => mockRequest(request, opts))
     const request = await zkSyncClient.sendTransaction({
       account: privateKeyToAccount(accounts[0].privateKey),
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -63,6 +58,7 @@ describe('Action tests', () => {
       gasPerPubdata: 50000n,
     })
     expect(request).toBeDefined()
+    spy.mockRestore()
   })
 
   test('signTransaction', async () => {
@@ -83,7 +79,9 @@ describe('Action tests', () => {
     expect(signature).toBeDefined()
   })
 
-  test.skip('writeContract', async () => {
+  test('writeContract', async () => {
+    const spy = vi.spyOn(zkSyncClient, 'request')
+    spy.mockImplementation((request, opts) => mockRequest(request, opts))
     const { request } = await simulateContract(zkSyncClient, {
       ...greeterContract,
       account: privateKeyToAccount(accounts[0].privateKey),
@@ -99,5 +97,6 @@ describe('Action tests', () => {
     })
     const tx = await zkSyncClient.writeContract(request)
     expect(tx).toBeDefined()
+    spy.mockRestore()
   })
 })

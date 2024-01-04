@@ -953,10 +953,6 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'signTransaction',
           link: '/zksync/actions/signTransaction',
         },
-        {
-          text: 'writeContract',
-          link: '/zksync/actions/writeContract',
-        },
       ],
     },
   ],
