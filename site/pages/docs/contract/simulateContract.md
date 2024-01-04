@@ -68,7 +68,7 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 
 :::code-group
 
-```ts {9} [example.ts]
+```ts [example.ts]
 import { account, publicClient } from './config'
 import { wagmiAbi } from './abi'
 
@@ -76,7 +76,7 @@ const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
-  args: [69420],
+  args: [69420], // [!code focus]
   account,
 })
 ```
@@ -179,7 +179,7 @@ You can access the custom error through the `data` attribute of the error:
 
 :::code-group
 
-```ts {13-27} [example.ts]
+```ts [example.ts] {13-27}
 import { BaseError, ContractFunctionRevertedError } from 'viem';
 import { account, walletClient, publicClient } from './config'
 import { wagmiAbi } from './abi'

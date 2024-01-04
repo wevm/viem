@@ -64,7 +64,7 @@ For example, the `balanceOf` function name below requires an **address** argumen
 
 :::code-group
 
-```ts {8} [example.ts]
+```ts [example.ts] {8}
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 

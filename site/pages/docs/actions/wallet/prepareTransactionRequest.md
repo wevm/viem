@@ -83,7 +83,7 @@ const signature = await walletClient.signTransaction(request)
 const hash = await walletClient.sendRawTransaction(signature)
 ```
 
-```ts {4-6,9} [config.ts (JSON-RPC Account)]
+```ts [config.ts (JSON-RPC Account)] {4-6,9}
 import { createWalletClient, custom } from 'viem'
 
 // Retrieve Account from an EIP-1193 Provider.
@@ -97,7 +97,7 @@ export const walletClient = createWalletClient({
 })
 ```
 
-```ts {5} [config.ts (Local Account)]
+```ts [config.ts (Local Account)] {5}
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 

@@ -55,7 +55,7 @@ export const account = privateKeyToAccount(...)
 
 :::code-group
 
-```ts {8} [example.ts]
+```ts [example.ts] {8}
 import { deployContract } from 'viem'
 import { wagmiAbi } from './abi'
 import { account, walletClient } from './config'
@@ -68,7 +68,7 @@ const hash = await walletClient.deployContract({
 })
 ```
 
-```ts {4} [abi.ts]
+```ts [abi.ts] {4}
 export const wagmiAbi = [
   ...
   {

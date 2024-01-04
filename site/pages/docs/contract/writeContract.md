@@ -84,7 +84,7 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 
 :::code-group
 
-```ts {8} [example.ts]
+```ts [example.ts] {8}
 import { account, walletClient } from './client'
 import { wagmiAbi } from './abi'
 

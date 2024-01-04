@@ -62,7 +62,7 @@ For example, the `constructor` below requires an **address** argument, and it is
 
 :::code-group
 
-```ts {8} [example.ts]
+```ts [example.ts] {8}
 import { encodeDeployData } from 'viem'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'

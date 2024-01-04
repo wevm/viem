@@ -46,7 +46,7 @@ You can scope to an event on the given ABI.
 
 :::code-group
 
-```ts {8} [example.ts]
+```ts [example.ts] {8}
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -107,7 +107,7 @@ In the example below, we want to filter out `Transfer`s that were sent by the ad
 
 :::code-group
 
-```ts {8-9} [example.ts]
+```ts [example.ts] {8-9}
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -123,7 +123,7 @@ const unwatch = publicClient.watchContractEvent({
 // > [{ ... }, { ... }, { ... }, { ... }]
 ```
 
-```ts {6-8} [abi.ts]
+```ts [abi.ts] {6-8}
 export const wagmiAbi = [
   ...
   {
