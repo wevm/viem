@@ -474,7 +474,7 @@ export const sidebar: DefaultTheme.Sidebar = {
             },
             {
               text: 'OP Stack',
-              link: '/docs/op-stack',
+              link: '/op-stack',
             },
             {
               text: 'zkSync',
