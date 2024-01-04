@@ -1479,7 +1479,10 @@ describe('transactionRequest', () => {
     ).toMatchInlineSnapshot(`
       {
         "eip712Meta": {
-          "customSignature": "0x1234",
+          "customSignature": [
+            18,
+            52,
+          ],
         },
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x32c8",
