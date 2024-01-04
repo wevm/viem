@@ -135,7 +135,9 @@ export const formatters = {
               : {}),
             ...(args.factoryDeps ? { factoryDeps: args.factoryDeps } : {}),
             ...(args.customSignature
-              ? { customSignature: args.customSignature }
+              ? {
+                  customSignature: Array.from(hexToBytes(args.customSignature)),
+                }
               : {}),
           },
           type: args.type === 'eip712' ? '0x71' : '0xff',
