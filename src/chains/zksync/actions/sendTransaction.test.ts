@@ -1,7 +1,7 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { baseZkSyncTestClient, mockRequest } from '~test/src/zksync.js'
+import { zkSyncMockClient } from '~test/src/zksync.js'
 import { zkSyncSepoliaTestnet } from '../index.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
@@ -12,11 +12,9 @@ const targetAccount = accounts[1]
 
 describe('sendTransaction', () => {
   test('eip712', async () => {
-    const spy = vi.spyOn(baseZkSyncTestClient, 'request')
-    spy.mockImplementation((request) => mockRequest(request))
 
     expect(
-      await sendTransaction(baseZkSyncTestClient, {
+      await sendTransaction(zkSyncMockClient, {
         chain: zkSyncSepoliaTestnet,
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
@@ -32,6 +30,5 @@ describe('sendTransaction', () => {
         gasPerPubdata: 50000n,
       }),
     ).toBeDefined()
-    spy.mockRestore()
   })
 })

@@ -2,7 +2,6 @@ import { startProxy } from '@viem/anvil'
 
 import { forkBlockNumber, forkUrl } from './src/constants.js'
 import { forkBlockNumberOptimism, forkUrlOptimism } from './src/opStack.js'
-import { forkBlockNumberZkSync, forkUrlZkSync } from './src/zksync.js'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) return
@@ -40,16 +39,8 @@ export default async function () {
       noMining: true,
     },
   })
-  const shutdown_3 = await startProxy({
-    port: Number(process.env.VITE_ANVIL_PORT_ZKSYNC || '8745'),
-    options: {
-      forkUrl: forkUrlZkSync,
-      forkBlockNumber: forkBlockNumberZkSync,
-    },
-  })
   return () => {
     shutdown_1()
     shutdown_2()
-    shutdown_3()
   }
 }
