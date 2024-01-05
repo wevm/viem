@@ -20,16 +20,6 @@ export const spicy = /*#__PURE__*/ defineChain({
         'wss://chiliz-spicy.publicnode.com',
       ],
     },
-    public: {
-      http: [
-        'https://spicy-rpc.chiliz.com',
-        'https://chiliz-spicy.publicnode.com',
-      ],
-      webSocket: [
-        'wss://spicy-rpc-ws.chiliz.com',
-        'wss://chiliz-spicy.publicnode.com',
-      ],
-    },
   },
   blockExplorers: {
     default: {

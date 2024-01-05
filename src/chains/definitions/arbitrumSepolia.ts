@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   id: 421_614,
   name: 'Arbitrum Sepolia',
-  network: 'arbitrum-sepolia',
   nativeCurrency: {
     name: 'Arbitrum Sepolia Ether',
     symbol: 'ETH',
@@ -15,9 +14,6 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
       webSocket: ['wss://arb-sepolia.g.alchemy.com/v2'],
     },
     default: {
-      http: ['https://sepolia-rollup.arbitrum.io/rpc'],
-    },
-    public: {
       http: ['https://sepolia-rollup.arbitrum.io/rpc'],
     },
   },

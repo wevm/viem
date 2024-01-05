@@ -1,5 +1,6 @@
 export type { Chain } from '../types/chain.js'
 
+export { acala } from './definitions/acala.js'
 export { arbitrum } from './definitions/arbitrum.js'
 export { arbitrumGoerli } from './definitions/arbitrumGoerli.js'
 export { arbitrumNova } from './definitions/arbitrumNova.js'
@@ -10,6 +11,7 @@ export { aurora } from './definitions/aurora.js'
 export { auroraTestnet } from './definitions/auroraTestnet.js'
 export { avalanche } from './definitions/avalanche.js'
 export { avalancheFuji } from './definitions/avalancheFuji.js'
+export { bahamut } from './definitions/bahamut.js'
 export { base } from './definitions/base.js'
 export { baseGoerli } from './definitions/baseGoerli.js'
 export { baseSepolia } from './definitions/baseSepolia.js'
@@ -36,6 +38,8 @@ export { coreDao } from './definitions/coreDao.js'
 export { cronos } from './definitions/cronos.js'
 export { cronosTestnet } from './definitions/cronosTestnet.js'
 export { crossbell } from './definitions/crossbell.js'
+export { defichainEvm } from './definitions/defichainEvm.js'
+export { defichainEvmTestnet } from './definitions/defichainEvmTestnet.js'
 export { dfk } from './definitions/dfk.js'
 export { dogechain } from './definitions/dogechain.js'
 export { edgeware } from './definitions/edgeware.js'
@@ -61,6 +65,7 @@ export { fuseSparknet } from './definitions/fuseSparknet.js'
 export { iotex } from './definitions/iotex.js'
 export { iotexTestnet } from './definitions/iotexTestnet.js'
 export { jbc } from './definitions/jbc.js'
+export { karura } from './definitions/karura.js'
 export { gobi } from './definitions/gobi.js'
 export { goerli } from './definitions/goerli.js'
 export { gnosis } from './definitions/gnosis.js'
@@ -81,6 +86,7 @@ export { lineaTestnet } from './definitions/lineaTestnet.js'
 export { localhost } from './definitions/localhost.js'
 export { lukso } from './definitions/lukso.js'
 export { mainnet } from './definitions/mainnet.js'
+export { mandala } from './definitions/mandala.js'
 export { manta } from './definitions/manta.js'
 export { mantaTestnet } from './definitions/mantaTestnet.js'
 export { mantle } from './definitions/mantle.js'
@@ -101,6 +107,7 @@ export { neonMainnet } from './definitions/neonMainnet.js'
 export { nexi } from './definitions/nexi.js'
 export { nexilix } from './definitions/nexilix.js'
 export { oasys } from './definitions/oasys.js'
+export { oasisTestnet } from './definitions/oasisTestnet.js'
 export { okc } from './definitions/okc.js'
 export { optimism } from './definitions/optimism.js'
 export { optimismGoerli } from './definitions/optimismGoerli.js'
@@ -169,6 +176,8 @@ export { wemixTestnet } from './definitions/wemixTestnet.js'
 export { xdc } from './definitions/xdc.js'
 export { xdcTestnet } from './definitions/xdcTestnet.js'
 export { zhejiang } from './definitions/zhejiang.js'
+export { zkFair } from './definitions/zkFair.js'
+export { zkFairTestnet } from './definitions/zkFairTestnet.js'
 export { zkSync } from './definitions/zkSync.js'
 export { zkSyncTestnet } from './definitions/zkSyncTestnet.js'
 export { zkSyncSepoliaTestnet } from './definitions/zkSyncSepoliaTestnet.js'
@@ -178,3 +187,35 @@ export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
+
+//////////////////////////////////////////////////////////////////////////////////////
+// required for type inference since in explicit return type
+//////////////////////////////////////////////////////////////////////////////////////
+export type {
+  Assign,
+  Omit,
+  PartialBy,
+  Prettify,
+  UnionLooseOmit,
+} from '../types/utils.js'
+export type {
+  OpStackBlock,
+  OpStackBlockOverrides,
+  OpStackRpcBlock,
+  OpStackRpcBlockOverrides,
+} from './opStack/types/block.js'
+export type {
+  OpStackDepositTransaction,
+  OpStackRpcDepositTransaction,
+  OpStackRpcTransaction,
+  OpStackRpcTransactionReceipt,
+  OpStackRpcTransactionReceiptOverrides,
+  OpStackTransaction,
+  OpStackTransactionReceipt,
+  OpStackTransactionReceiptOverrides,
+  OpStackTransactionSerializable,
+  OpStackTransactionSerialized,
+  OpStackTransactionType,
+  TransactionSerializableDeposit,
+  TransactionSerializedDeposit,
+} from './opStack/types/transaction.js'

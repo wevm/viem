@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const bscTestnet = /*#__PURE__*/ defineChain({
   id: 97,
   name: 'Binance Smart Chain Testnet',
-  network: 'bsc-testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'BNB',
@@ -11,10 +10,8 @@ export const bscTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://data-seed-prebsc-1-s1.bnbchain.org:8545'] },
-    public: { http: ['https://data-seed-prebsc-1-s1.bnbchain.org:8545'] },
   },
   blockExplorers: {
-    etherscan: { name: 'BscScan', url: 'https://testnet.bscscan.com' },
     default: { name: 'BscScan', url: 'https://testnet.bscscan.com' },
   },
   contracts: {

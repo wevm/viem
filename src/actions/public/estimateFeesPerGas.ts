@@ -13,7 +13,7 @@ import type {
   ChainEstimateFeesPerGasFnParameters,
   ChainFeesFnParameters,
 } from '../../types/chain.js'
-import type { GetChain } from '../../types/chain.js'
+import type { GetChainParameter } from '../../types/chain.js'
 import type {
   FeeValuesEIP1559,
   FeeValuesLegacy,
@@ -42,7 +42,7 @@ export type EstimateFeesPerGasParameters<
    * @default 'eip1559'
    */
   type?: type | FeeValuesType
-} & GetChain<chain, chainOverride>
+} & GetChainParameter<chain, chainOverride>
 
 export type EstimateFeesPerGasReturnType<
   type extends FeeValuesType = FeeValuesType,
@@ -148,7 +148,7 @@ export async function internal_estimateFeesPerGas<
       : await internal_estimateMaxPriorityFeePerGas(
           client as Client<Transport, Chain>,
           {
-            block,
+            block: block as Block,
             chain,
             request,
           },

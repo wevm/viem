@@ -73,7 +73,7 @@ const client = createPublicClient({
 Now, when you start to utilize `readContract` Actions, the Public Client will batch and send over those requests at the end of the message queue (or custom time period) in a single `eth_call` multicall request:
 
 ```ts
-const contract = getContract({ address, abi })
+const contract = getContract({ address, abi, client })
 
 // The below will send a single request to the RPC Provider.
 const [name, totalSupply, symbol, tokenUri, balance] = await Promise.all([

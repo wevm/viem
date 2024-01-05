@@ -11,8 +11,8 @@
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
     "chaincheck": "bun test test/chains/check.test.ts",
     "changeset": "changeset",
-    "changeset:release": "bun run build && bun run prepublishOnly && changeset publish",
-    "changeset:version": "changeset version && bun scripts/updateVersion.ts && bun install --lockfile-only",
+    "changeset:publish": "bun scripts/updateVersion.ts && bun run prepublishOnly && bun run build && changeset publish",
+    "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/updateVersion.ts",
     "clean": "rimraf src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
     "dev:docs": "cd site && bun run dev",
@@ -20,7 +20,6 @@
     "lint": "biome check .",
     "lint:fix": "bun run lint --apply",
     "postinstall": "bun run contracts:build",
-    "preinstall": "bun ./scripts/preinstall.ts",
     "prepare": "bun x simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
@@ -49,7 +48,6 @@
     "@ethereumjs/rlp": "^5.0.0",
     "@size-limit/preset-big-lib": "^8.2.4",
     "@types/fs-extra": "^9.0.13",
-    "@types/which-pm-runs": "^1.0.0",
     "@viem/anvil": "0.0.5",
     "@vitest/coverage-v8": "^1.0.4",
     "@vitest/ui": "^1.0.4",
@@ -60,10 +58,9 @@
     "rimraf": "^4.4.1",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^8.2.4",
-    "typescript": "5.0.4",
+    "typescript": "5.3.2",
     "vite": "^5.0.7",
-    "vitest": "^1.0.4",
-    "which-pm-runs": "^1.1.0"
+    "vitest": "^1.0.4"
   },
   "simple-git-hooks": {
     "pre-commit": "bun run format && bun run lint:fix"

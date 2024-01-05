@@ -5,12 +5,14 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  ContractFunctionConfig,
-  ContractFunctionResult,
+  ContractFunctionArgs,
+  ContractFunctionName,
+  ContractFunctionParameters,
+  ContractFunctionReturnType,
 } from '../../types/contract.js'
+import type { UnionEvaluate } from '../../types/utils.js'
 import {
   type DecodeFunctionResultErrorType,
-  type DecodeFunctionResultParameters,
   decodeFunctionResult,
 } from '../../utils/abi/decodeFunctionResult.js'
 import {
@@ -27,15 +29,33 @@ import { getAction } from '../../utils/getAction.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type ReadContractParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
-> = Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag'> &
-  ContractFunctionConfig<TAbi, TFunctionName, 'view' | 'pure'>
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends ContractFunctionName<
+    abi,
+    'pure' | 'view'
+  > = ContractFunctionName<abi, 'pure' | 'view'>,
+  args extends ContractFunctionArgs<
+    abi,
+    'pure' | 'view',
+    functionName
+  > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+> = UnionEvaluate<
+  Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag'>
+> &
+  ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>
 
 export type ReadContractReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
-> = ContractFunctionResult<TAbi, TFunctionName>
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends ContractFunctionName<
+    abi,
+    'pure' | 'view'
+  > = ContractFunctionName<abi, 'pure' | 'view'>,
+  args extends ContractFunctionArgs<
+    abi,
+    'pure' | 'view',
+    functionName
+  > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+> = ContractFunctionReturnType<abi, 'pure' | 'view', functionName, args>
 
 export type ReadContractErrorType = GetContractErrorReturnType<
   CallErrorType | EncodeFunctionDataErrorType | DecodeFunctionResultErrorType
@@ -73,46 +93,40 @@ export type ReadContractErrorType = GetContractErrorReturnType<
  * // 424122n
  */
 export async function readContract<
-  TChain extends Chain | undefined,
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  chain extends Chain | undefined,
+  const abi extends Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+  args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
 >(
-  client: Client<Transport, TChain>,
-  {
-    abi,
-    address,
-    args,
-    functionName,
-    ...callRequest
-  }: ReadContractParameters<TAbi, TFunctionName>,
-): Promise<ReadContractReturnType<TAbi, TFunctionName>> {
+  client: Client<Transport, chain>,
+  parameters: ReadContractParameters<abi, functionName, args>,
+): Promise<ReadContractReturnType<abi, functionName, args>> {
+  const { abi, address, args, functionName, ...rest } =
+    parameters as ReadContractParameters
   const calldata = encodeFunctionData({
     abi,
     args,
     functionName,
-  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
+  } as EncodeFunctionDataParameters)
   try {
     const { data } = await getAction(
       client,
       call,
       'call',
     )({
+      ...(rest as CallParameters),
       data: calldata,
       to: address,
-      ...callRequest,
-    } as unknown as CallParameters)
+    })
     return decodeFunctionResult({
       abi,
       args,
       functionName,
       data: data || '0x',
-    } as DecodeFunctionResultParameters<
-      TAbi,
-      TFunctionName
-    >) as ReadContractReturnType<TAbi, TFunctionName>
-  } catch (err) {
-    throw getContractError(err as BaseError, {
-      abi: abi as Abi,
+    }) as ReadContractReturnType<abi, functionName>
+  } catch (error) {
+    throw getContractError(error as BaseError, {
+      abi,
       address,
       args,
       docsPath: '/docs/contract/readContract',

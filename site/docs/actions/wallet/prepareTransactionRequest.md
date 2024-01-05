@@ -273,6 +273,24 @@ const request = await walletClient.prepareSendTransaction({
 })
 ```
 
+### parameters (optional)
+
+- **Type:** `("fees" | "gas" | "nonce" | "type")[]`
+- **Default:** `["fees", "gas", "nonce", "type"]`
+
+Parameters to prepare. 
+
+For instance, if `["gas", "nonce"]` is provided, then only the `gas` and `nonce` parameters will be prepared.
+
+```ts
+const request = await walletClient.prepareSendTransaction({
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1000000000000000000n,
+  nonce: 69 // [!code focus]
+})
+```
+
 ### value (optional)
 
 - **Type:** `bigint`

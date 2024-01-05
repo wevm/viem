@@ -10,7 +10,6 @@ export const tenet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    public: { http: ['https://rpc.tenet.org'] },
     default: { http: ['https://rpc.tenet.org'] },
   },
   blockExplorers: {

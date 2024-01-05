@@ -133,6 +133,8 @@ export type RpcTransactionCIP64<TPending extends boolean = boolean> = Omit<
 > &
   FeeValuesEIP1559<Quantity> & {
     feeCurrency: Address | null
+    gatewayFee?: undefined
+    gatewayFeeRecipient?: undefined
     type: '0x7b'
   }
 

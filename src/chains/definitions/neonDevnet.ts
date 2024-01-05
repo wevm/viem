@@ -2,14 +2,10 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const neonDevnet = /*#__PURE__*/ defineChain({
   id: 245_022_926,
-  network: 'neonDevnet',
   name: 'Neon EVM DevNet',
   nativeCurrency: { name: 'NEON', symbol: 'NEON', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://devnet.neonevm.org'],
-    },
-    public: {
       http: ['https://devnet.neonevm.org'],
     },
   },

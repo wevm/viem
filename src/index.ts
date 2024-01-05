@@ -1,12 +1,17 @@
 export {
   type Abi,
+  type AbiFunction,
+  type AbiParameter,
+  type AbiStateMutability,
+  type AbiParameterKind,
+  type AbiParameterToPrimitiveType,
   type Address,
   type Narrow,
   type ParseAbi,
   type ParseAbiItem,
   type ParseAbiParameter,
   type ParseAbiParameters,
-  type ResolvedConfig,
+  type ResolvedRegister,
   type TypedData,
   type TypedDataDomain,
   type TypedDataParameter,
@@ -72,6 +77,10 @@ export type {
   DropTransactionErrorType,
   DropTransactionParameters,
 } from './actions/test/dropTransaction.js'
+export type {
+  DumpStateErrorType,
+  DumpStateReturnType,
+} from './actions/test/dumpState.js'
 export type {
   GetAutomineErrorType,
   GetAutomineReturnType,
@@ -173,6 +182,11 @@ export type {
   GetPermissionsReturnType,
 } from './actions/wallet/getPermissions.js'
 export type {
+  GetProofErrorType,
+  GetProofParameters,
+  GetProofReturnType,
+} from './actions/public/getProof.js'
+export type {
   GetStorageAtErrorType,
   GetStorageAtParameters,
   GetStorageAtReturnType,
@@ -205,12 +219,18 @@ export type {
   IncreaseTimeErrorType,
   IncreaseTimeParameters,
 } from './actions/test/increaseTime.js'
+export type {
+  LoadStateErrorType,
+  LoadStateParameters,
+  LoadStateReturnType,
+} from './actions/test/loadState.js'
 export type { MineErrorType, MineParameters } from './actions/test/mine.js'
 export type {
   MulticallErrorType,
   MulticallParameters,
   MulticallReturnType,
 } from './actions/public/multicall.js'
+export type { SnapshotErrorType } from './actions/test/snapshot.js'
 export type {
   OnBlock,
   OnBlockParameter,
@@ -227,11 +247,7 @@ export type {
 } from './actions/public/watchBlockNumber.js'
 export type {
   WatchEventOnLogsFn,
-  /** @deprecated - use `WatchEventOnLogsFn` instead. */
-  WatchEventOnLogsFn as OnLogFn,
   WatchEventOnLogsParameter,
-  /** @deprecated - use `WatchEventOnLogsParameter` instead. */
-  WatchEventOnLogsParameter as OnLogParameter,
   WatchEventErrorType,
   WatchEventParameters,
   WatchEventReturnType,
@@ -276,28 +292,39 @@ export type {
   InspectTxpoolErrorType,
   InspectTxpoolReturnType,
 } from './actions/test/inspectTxpool.js'
+export type { RemoveBlockTimestampIntervalErrorType } from './actions/test/removeBlockTimestampInterval.js'
 export type { ResetErrorType, ResetParameters } from './actions/test/reset.js'
 export type {
   RevertErrorType,
   RevertParameters,
 } from './actions/test/revert.js'
 export type {
+  SendRawTransactionErrorType,
+  SendRawTransactionParameters,
+  SendRawTransactionReturnType,
+} from './actions/wallet/sendRawTransaction.js'
+export type {
   SendTransactionErrorType,
   SendTransactionParameters,
   SendTransactionReturnType,
 } from './actions/wallet/sendTransaction.js'
 export type {
+  SignTransactionErrorType,
+  SignTransactionParameters,
+  SignTransactionReturnType,
+} from './actions/wallet/signTransaction.js'
+export type {
   PrepareTransactionRequestErrorType,
   PrepareTransactionRequestParameters,
+  PrepareTransactionRequestParameterType,
   PrepareTransactionRequestReturnType,
-  /** @deprecated import `prepareTransactionRequest` from `viem/actions` instead. */
-  prepareTransactionRequest as prepareRequest,
 } from './actions/wallet/prepareTransactionRequest.js'
 export type {
   SendUnsignedTransactionErrorType,
   SendUnsignedTransactionParameters,
   SendUnsignedTransactionReturnType,
 } from './actions/test/sendUnsignedTransaction.js'
+export type { SetAutomineErrorType } from './actions/test/setAutomine.js'
 export type {
   SetBalanceErrorType,
   SetBalanceParameters,
@@ -322,6 +349,7 @@ export type {
   SetIntervalMiningErrorType,
   SetIntervalMiningParameters,
 } from './actions/test/setIntervalMining.js'
+export type { SetLoggingEnabledErrorType } from './actions/test/setLoggingEnabled.js'
 export type {
   SetMinGasPriceErrorType,
   SetMinGasPriceParameters,
@@ -338,6 +366,7 @@ export type {
   SetNonceErrorType,
   SetNonceParameters,
 } from './actions/test/setNonce.js'
+export type { SetRpcUrlErrorType } from './actions/test/setRpcUrl.js'
 export type {
   SetStorageAtErrorType,
   SetStorageAtParameters,
@@ -395,24 +424,16 @@ export type {
   Chain,
   ChainContract,
   ChainFees,
+  ChainFeesFnParameters,
   ChainFormatter,
-  /** @deprecated use `ChainFormatter` instead. */
-  ChainFormatter as Formatter,
+  ChainEstimateFeesPerGasFnParameters,
+  DeriveChain,
+  GetChainParameter,
   ChainFormatters,
-  /** @deprecated use `ChainFormatters` instead. */
-  ChainFormatters as Formatters,
   ChainSerializers,
-  /** @deprecated use `ChainSerializers` instead. */
-  ChainSerializers as Serializers,
   ExtractChainFormatterExclude,
-  /** @deprecated use `ExtractChainFormatterExclude` instead. */
-  ExtractChainFormatterExclude as ExtractFormatterExclude,
   ExtractChainFormatterParameters,
-  /** @deprecated use `ExtractChainFormatterParameters` instead. */
-  ExtractChainFormatterParameters as ExtractFormatterParameters,
   ExtractChainFormatterReturnType,
-  /** @deprecated use `ExtractChainFormatterReturnType` instead. */
-  ExtractChainFormatterReturnType as ExtractFormatterReturnType,
 } from './types/chain.js'
 export {
   type Client,
@@ -481,7 +502,13 @@ export {
   type WebSocketTransportErrorType,
   webSocket,
 } from './clients/transports/webSocket.js'
-export { multicall3Abi } from './constants/abis.js'
+export {
+  multicall3Abi,
+  erc20Abi,
+  erc20Abi_bytes32,
+  erc721Abi,
+  erc4626Abi,
+} from './constants/abis.js'
 export { zeroAddress } from './constants/address.js'
 export { etherUnits, gweiUnits, weiUnits } from './constants/unit.js'
 export {
@@ -719,10 +746,6 @@ export {
   type InvalidChainIdErrorType,
 } from './errors/chain.js'
 export {
-  DataLengthTooLongError,
-  type DataLengthTooLongErrorType,
-  DataLengthTooShortError,
-  type DataLengthTooShortErrorType,
   InvalidBytesBooleanError,
   type InvalidBytesBooleanErrorType,
   IntegerOutOfRangeError,
@@ -731,8 +754,6 @@ export {
   type InvalidHexBooleanErrorType,
   InvalidHexValueError,
   type InvalidHexValueErrorType,
-  OffsetOutOfBoundsError,
-  type OffsetOutOfBoundsErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'
@@ -828,18 +849,17 @@ export {
 } from './errors/transport.js'
 export type {
   AbiItem,
-  ContractFunctionConfig,
-  ContractFunctionResult,
-  GetConstructorArgs,
-  GetErrorArgs,
+  ExtractAbiFunctionForArgs,
+  ContractErrorArgs,
+  ContractErrorName,
+  ContractEventArgs,
+  ContractEventName,
+  ContractFunctionParameters,
+  ContractFunctionReturnType,
+  ContractFunctionArgs,
+  ContractFunctionName,
   GetEventArgs,
-  GetEventArgsFromTopics,
-  GetFunctionArgs,
   GetValue,
-  InferErrorName,
-  InferEventName,
-  InferFunctionName,
-  InferItemName,
 } from './types/contract.js'
 export type {
   AccessList,
@@ -892,7 +912,6 @@ export type {
   CompactSignature,
   SignableMessage,
 } from './types/misc.js'
-export type { GetChain } from './types/chain.js'
 export type {
   AddEthereumChainParameter,
   EIP1193EventMap,
@@ -922,24 +941,19 @@ export type {
   FeeValuesType,
 } from './types/fee.js'
 export type { Filter } from './types/filter.js'
-export type {
-  GetTypedDataDomain,
-  GetTypedDataMessage,
-  GetTypedDataPrimaryType,
-  GetTypedDataTypes,
-  TypedDataDefinition,
-} from './types/typedData.js'
-export type { GetTransportConfig } from './types/transport.js'
+export type { TypedDataDefinition } from './types/typedData.js'
+export type { GetTransportConfig, GetPollOptions } from './types/transport.js'
 export type { HDKey } from '@scure/bip32'
 export type { Log } from './types/log.js'
 export type {
-  MulticallContract,
   MulticallContracts,
-  MulticallResult,
+  MulticallResponse,
   MulticallResults,
 } from './types/multicall.js'
 export type { ParseAccount } from './types/account.js'
 export type {
+  Index,
+  Quantity,
   RpcBlock,
   RpcBlockIdentifier,
   RpcBlockNumber,
@@ -950,6 +964,8 @@ export type {
   RpcTransactionReceipt,
   RpcTransactionRequest,
   RpcUncle,
+  Status,
+  RpcProof,
 } from './types/rpc.js'
 export type { Withdrawal } from './types/withdrawal.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
@@ -1004,11 +1020,13 @@ export {
 export {
   type EncodeDeployDataErrorType,
   type EncodeDeployDataParameters,
+  type EncodeDeployDataReturnType,
   encodeDeployData,
 } from './utils/abi/encodeDeployData.js'
 export {
   type EncodeErrorResultErrorType,
   type EncodeErrorResultParameters,
+  type EncodeErrorResultReturnType,
   encodeErrorResult,
 } from './utils/abi/encodeErrorResult.js'
 export {
@@ -1019,11 +1037,13 @@ export {
 export {
   type EncodeFunctionDataErrorType,
   type EncodeFunctionDataParameters,
+  type EncodeFunctionDataReturnType,
   encodeFunctionData,
 } from './utils/abi/encodeFunctionData.js'
 export {
   type EncodeFunctionResultErrorType,
   type EncodeFunctionResultParameters,
+  type EncodeFunctionResultReturnType,
   encodeFunctionResult,
 } from './utils/abi/encodeFunctionResult.js'
 export {
@@ -1200,8 +1220,6 @@ export {
   type BytesToBigIntErrorType,
   type BytesToBigIntOpts,
   bytesToBigInt,
-  /** @deprecated - use `bytesToBigInt` */
-  bytesToBigInt as bytesToBigint,
   type BytesToBoolErrorType,
   type BytesToBoolOpts,
   bytesToBool,
@@ -1252,6 +1270,14 @@ export {
   type EncodePackedErrorType,
   encodePacked,
 } from './utils/abi/encodePacked.js'
+export {
+  type WithRetryErrorType,
+  withRetry,
+} from './utils/promise/withRetry.js'
+export {
+  type WithTimeoutErrorType,
+  withTimeout,
+} from './utils/promise/withTimeout.js'
 export {
   type FormatEtherErrorType,
   formatEther,

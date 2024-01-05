@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const cronosTestnet = /*#__PURE__*/ defineChain({
   id: 338,
   name: 'Cronos Testnet',
-  network: 'cronos-testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'CRO',
@@ -11,7 +10,6 @@ export const cronosTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://evm-t3.cronos.org'] },
-    public: { http: ['https://evm-t3.cronos.org'] },
   },
   blockExplorers: {
     default: {

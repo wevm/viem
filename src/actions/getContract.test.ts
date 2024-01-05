@@ -26,8 +26,7 @@ import {
 
 const contract = getContract({
   ...wagmiContractConfig,
-  publicClient,
-  walletClient,
+  client: { public: publicClient, wallet: walletClient },
 })
 
 test('address', () => {
@@ -76,7 +75,7 @@ test('createEventFilter', async () => {
         type: 'event',
       },
     ],
-    publicClient,
+    client: { public: publicClient },
   })
   await expect(
     contractNoIndexedEventArgs.createEventFilter.Transfer([
@@ -97,14 +96,18 @@ describe('estimateGas', async () => {
   test('account inherited from wallet client', async () => {
     const contract1 = getContract({
       ...wagmiContractConfig,
-      publicClient,
-      walletClient: walletClientWithAccount,
+      client: {
+        public: publicClient,
+        wallet: walletClientWithAccount,
+      },
     })
     await expect(contract1.estimateGas.mint()).resolves.toBeDefined()
 
     const contract2 = getContract({
       ...wagmiContractConfig,
-      walletClient: walletClientWithAccount,
+      client: {
+        wallet: walletClientWithAccount,
+      },
     })
     await expect(contract2.estimateGas.mint()).resolves.toBeDefined()
   })
@@ -122,8 +125,10 @@ test('simulate', async () => {
     abi: wagmiContractConfig.abi.filter(
       (x) => (x as { name: string }).name === 'mint',
     ),
-    publicClient,
-    walletClient,
+    client: {
+      public: publicClient,
+      wallet: walletClient,
+    },
   })
   await expect(
     contract.simulate.mint({
@@ -154,7 +159,10 @@ test('simulate', async () => {
             "type": "function",
           },
         ],
-        "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "account": {
+          "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "type": "json-rpc",
+        },
         "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
         "args": [],
         "dataSuffix": undefined,
@@ -190,7 +198,9 @@ test('getEvents', async () => {
 
   const contract = getContract({
     ...usdcContractConfig,
-    publicClient,
+    client: {
+      public: publicClient,
+    },
   })
   const logs = await contract.getEvents.Transfer()
 
@@ -238,7 +248,9 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
         outputs: [{ type: 'address' }],
       },
     ],
-    publicClient,
+    client: {
+      public: publicClient,
+    },
   })
   await expect(
     contractNoIndexedEventArgs.read.constructor(),

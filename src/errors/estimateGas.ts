@@ -29,7 +29,7 @@ export class EstimateGasExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: Omit<EstimateGasParameters<any, any>, 'account'> & {
+    }: Omit<EstimateGasParameters<any>, 'account'> & {
       account?: Account
       chain?: Chain
       docsPath?: string

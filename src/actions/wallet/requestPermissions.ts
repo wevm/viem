@@ -48,8 +48,11 @@ export async function requestPermissions<
   client: Client<Transport, TChain, TAccount>,
   permissions: RequestPermissionsParameters,
 ) {
-  return client.request({
-    method: 'wallet_requestPermissions',
-    params: [permissions],
-  })
+  return client.request(
+    {
+      method: 'wallet_requestPermissions',
+      params: [permissions],
+    },
+    { retryCount: 0 },
+  )
 }

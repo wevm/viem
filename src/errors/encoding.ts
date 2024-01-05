@@ -2,36 +2,6 @@ import type { ByteArray, Hex } from '../types/misc.js'
 
 import { BaseError } from './base.js'
 
-export type DataLengthTooLongErrorType = DataLengthTooLongError & {
-  name: 'DataLengthTooLongError'
-}
-/** @deprecated */
-export class DataLengthTooLongError extends BaseError {
-  override name = 'DataLengthTooLongError'
-  constructor({ consumed, length }: { consumed: number; length: number }) {
-    super(
-      `Consumed bytes (${consumed}) is shorter than data length (${
-        length - 1
-      }).`,
-    )
-  }
-}
-
-export type DataLengthTooShortErrorType = DataLengthTooShortError & {
-  name: 'DataLengthTooShortError'
-}
-/** @deprecated */
-export class DataLengthTooShortError extends BaseError {
-  override name = 'DataLengthTooShortError'
-  constructor({ length, dataLength }: { length: number; dataLength: number }) {
-    super(
-      `Data length (${dataLength - 1}) is shorter than consumed bytes length (${
-        length - 1
-      }).`,
-    )
-  }
-}
-
 export type IntegerOutOfRangeErrorType = IntegerOutOfRangeError & {
   name: 'IntegerOutOfRangeError'
 }
@@ -90,19 +60,6 @@ export class InvalidHexValueError extends BaseError {
   constructor(value: Hex) {
     super(
       `Hex value "${value}" is an odd length (${value.length}). It must be an even length.`,
-    )
-  }
-}
-
-export type OffsetOutOfBoundsErrorType = OffsetOutOfBoundsError & {
-  name: 'OffsetOutOfBoundsError'
-}
-/** @deprecated */
-export class OffsetOutOfBoundsError extends BaseError {
-  override name = 'OffsetOutOfBoundsError' as const
-  constructor({ nextOffset, offset }: { nextOffset: number; offset: number }) {
-    super(
-      `Next offset (${nextOffset}) is greater than previous offset + consumed bytes (${offset})`,
     )
   }
 }

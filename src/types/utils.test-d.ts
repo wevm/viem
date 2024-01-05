@@ -1,13 +1,15 @@
 import { expectTypeOf, test } from 'vitest'
 
 import type {
+  ExactPartial,
   Filter,
   IsNarrowable,
   IsNever,
   IsUndefined,
+  IsUnion,
+  MaybePartial,
   Or,
-  Prettify,
-  RequiredBy,
+  UnionToTuple,
 } from './utils.js'
 
 test('Filter', () => {
@@ -52,8 +54,29 @@ test('Or', () => {
   expectTypeOf<Or<[false, false, false]>>().toEqualTypeOf<false>()
 })
 
-test('RequiredBy', () => {
-  expectTypeOf<
-    Prettify<RequiredBy<{ a?: number; b?: string; c: boolean }, 'a' | 'c'>>
-  >().toEqualTypeOf<{ a: number; b?: string; c: boolean }>()
+test('UnionToTuple', () => {
+  expectTypeOf<UnionToTuple<'foo' | 'bar'>>().toEqualTypeOf<['foo', 'bar']>()
+})
+
+test('IsUnion', () => {
+  expectTypeOf<IsUnion<'foo' | 'bar'>>().toEqualTypeOf<true>()
+  expectTypeOf<IsUnion<'foo'>>().toEqualTypeOf<false>()
+})
+
+test('MaybePartial', () => {
+  expectTypeOf<MaybePartial<{ a: string; b: number }, true>>().toEqualTypeOf<{
+    a?: string | undefined
+    b?: number | undefined
+  }>()
+  expectTypeOf<MaybePartial<{ a: string; b: number }, false>>().toEqualTypeOf<{
+    a: string
+    b: number
+  }>()
+})
+
+test('ExactPartial', () => {
+  expectTypeOf<ExactPartial<{ a: string; b: number }>>().toEqualTypeOf<{
+    a?: string | undefined
+    b?: number | undefined
+  }>()
 })

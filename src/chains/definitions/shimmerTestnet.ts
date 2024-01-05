@@ -10,9 +10,6 @@ export const shimmerTestnet = /*#__PURE__*/ defineChain({
     symbol: 'SMR',
   },
   rpcUrls: {
-    public: {
-      http: ['https://json-rpc.evm.testnet.shimmer.network'],
-    },
     default: {
       http: ['https://json-rpc.evm.testnet.shimmer.network'],
     },

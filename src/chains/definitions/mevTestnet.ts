@@ -2,7 +2,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const mevTestnet = /*#__PURE__*/ defineChain({
   id: 4759,
-  network: 'MEVerse Testnet',
   name: 'MEVerse Chain Testnet',
   nativeCurrency: {
     decimals: 18,
@@ -11,9 +10,6 @@ export const mevTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.meversetestnet.io'],
-    },
-    public: {
       http: ['https://rpc.meversetestnet.io'],
     },
   },

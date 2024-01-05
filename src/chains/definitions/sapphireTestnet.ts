@@ -10,10 +10,6 @@ export const sapphireTestnet = /*#__PURE__*/ defineChain({
       http: ['https://testnet.sapphire.oasis.dev'],
       webSocket: ['wss://testnet.sapphire.oasis.dev/ws'],
     },
-    public: {
-      http: ['https://testnet.sapphire.oasis.dev'],
-      webSocket: ['wss://testnet.sapphire.oasis.dev/ws'],
-    },
   },
   blockExplorers: {
     default: {

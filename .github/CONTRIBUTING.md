@@ -219,7 +219,6 @@ The [`Chain` type](../src/types/chain.ts) has a number of important attributes, 
 
 - `id`: The Chain ID for the network. This can be found by typing the network name into [ChainList](https://chainlist.org/). Example: "Ethereum Mainnet" has a Chain ID of `1`.
 - `name`: A human readable name for the network. Example: "Binance Smart Chain Mainnet"
-- `network`: An internal network label. Example: "bsc"
 - `nativeCurrency`: The native currently of the network. Found from [`ethereum-lists/chains`](https://github.com/ethereum-lists/chains/blob/3fbd4eeac7ce116579634bd042b84e2b1d89886a/_data/chains/eip155-56.json#L20-L24).
 - `rpcUrls`: A set of RPC URLs for the chain. Found from [`ethereum-lists/chains`](https://github.com/ethereum-lists/chains/blob/3fbd4eeac7ce116579634bd042b84e2b1d89886a/_data/chains/eip155-56.json#L4-L18).
 - `blockExplorers`: A set of block explorers for the chain. Found from [`ethereum-lists/chains`](https://github.com/ethereum-lists/chains/blob/3fbd4eeac7ce116579634bd042b84e2b1d89886a/_data/chains/eip155-56.json#L30-L36).
@@ -266,22 +265,14 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const mainnet = /*#__PURE__*/ defineChain({
   id: 1,
-  network: 'example',
   name: 'Example Chain',
   nativeCurrency: { name: 'Example', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://example.com'],
     },
-    public: {
-      http: ['https://example.com'],
-    },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Etherscan',
-      url: 'https://etherscan.io',
-    },
     default: {
       name: 'Etherscan',
       url: 'https://etherscan.io',

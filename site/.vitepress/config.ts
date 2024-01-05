@@ -76,6 +76,17 @@ export default defineConfig({
     nav: [
       { text: 'Docs', link: '/docs/getting-started', activeMatch: '/docs' },
       {
+        activeMatch: '/op-stack',
+        text: 'Extensions',
+        items: [
+          {
+            activeMatch: '/op-stack',
+            text: 'OP Stack',
+            link: '/op-stack',
+          },
+        ],
+      },
+      {
         text: 'Examples',
         link: 'https://github.com/wevm/viem/tree/main/examples',
       },
@@ -87,6 +98,10 @@ export default defineConfig({
             link: `/docs/migration-guide.html#_${toPatchVersionRange(
               pkg.version,
             ).replace(/\./g, '-')}-breaking-changes`,
+          },
+          {
+            text: '1.x.x Docs',
+            link: 'https://v1.viem.sh',
           },
           {
             text: 'Changelog',

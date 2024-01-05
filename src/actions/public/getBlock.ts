@@ -51,7 +51,7 @@ export type GetBlockParameters<
 )
 
 export type GetBlockReturnType<
-  TChain extends Chain | undefined = Chain | undefined,
+  TChain extends Chain | undefined = undefined,
   TIncludeTransactions extends boolean = false,
   TBlockTag extends BlockTag = 'latest',
 > = FormattedBlock<TChain, TIncludeTransactions, TBlockTag>

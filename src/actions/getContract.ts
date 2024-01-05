@@ -16,6 +16,9 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import type {
   AbiEventParametersToPrimitiveTypes,
+  ContractEventName,
+  ContractFunctionArgs,
+  ContractFunctionName,
   MaybeExtractEventArgsFromAbi,
 } from '../types/contract.js'
 import type {
@@ -65,23 +68,37 @@ import {
   writeContract,
 } from './wallet/writeContract.js'
 
+type KeyedClient<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+> =
+  | {
+      public?: Client<TTransport, TChain>
+      wallet: Client<TTransport, TChain, TAccount>
+    }
+  | {
+      public: Client<TTransport, TChain>
+      wallet?: Client<TTransport, TChain, TAccount>
+    }
+
 export type GetContractParameters<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TPublicClient extends Client<TTransport, TChain> | unknown = unknown,
-  TWalletClient extends
+  TClient extends
     | Client<TTransport, TChain, TAccount>
-    | unknown = unknown,
+    | KeyedClient<TTransport, TChain, TAccount> =
+    | Client<TTransport, TChain, TAccount>
+    | KeyedClient<TTransport, TChain, TAccount>,
   TAddress extends Address = Address,
 > = {
   /** Contract ABI */
   abi: TAbi
   /** Contract address */
   address: TAddress
-  /**
-   * Public client
+  /** The Client.
    *
    * If you pass in a [`publicClient`](https://viem.sh/docs/clients/public.html), the following methods are available:
    *
@@ -91,23 +108,18 @@ export type GetContractParameters<
    * - [`read`](https://viem.sh/docs/contract/readContract.html)
    * - [`simulate`](https://viem.sh/docs/contract/simulateContract.html)
    * - [`watchEvent`](https://viem.sh/docs/contract/watchContractEvent.html)
-   */
-  publicClient?: TPublicClient
-  /**
-   * Wallet client
    *
    * If you pass in a [`walletClient`](https://viem.sh/docs/clients/wallet.html), the following methods are available:
    *
    * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas.html)
    * - [`write`](https://viem.sh/docs/contract/writeContract.html)
    */
-  walletClient?: TWalletClient
+  client: TClient
 }
 
 export type GetContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TPublicClient extends Client | unknown = unknown,
-  TWalletClient extends Client | unknown = unknown,
+  TClient extends Client | KeyedClient = Client | KeyedClient,
   TAddress extends Address = Address,
   _EventNames extends string = TAbi extends Abi
     ? Abi extends TAbi
@@ -125,268 +137,314 @@ export type GetContractReturnType<
       : ExtractAbiFunctionNames<TAbi, 'nonpayable' | 'payable'>
     : string,
   _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
+  _PublicClient extends Client | unknown = TClient extends {
+    public: Client
+  }
+    ? TClient['public']
+    : TClient,
+  _WalletClient extends Client | unknown = TClient extends {
+    wallet: Client
+  }
+    ? TClient['wallet']
+    : TClient,
 > = Prettify<
-  (TPublicClient extends Client
-    ? (IsNever<_ReadFunctionNames> extends true
-        ? unknown
-        : {
-            /**
-             * Calls a read-only function on a contract, and returns the response.
-             *
-             * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
-             *
-             * Internally, `read` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
-             *
-             * @example
-             * import { createPublicClient, getContract, http, parseAbi } from 'viem'
-             * import { mainnet } from 'viem/chains'
-             *
-             * const publicClient = createPublicClient({
-             *   chain: mainnet,
-             *   transport: http(),
-             * })
-             * const contract = getContract({
-             *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-             *   abi: parseAbi([
-             *     'function balanceOf(address owner) view returns (uint256)',
-             *   ]),
-             *   publicClient,
-             * })
-             * const result = await contract.read.balanceOf(['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'])
-             * // 424122n
-             */
-            read: {
-              [_FunctionName in _ReadFunctionNames]: GetReadFunction<
-                _Narrowable,
-                TAbi,
-                _FunctionName
-              >
-            }
-          }) &
-        (IsNever<_WriteFunctionNames> extends true
+  Prettify<
+    (_PublicClient extends Client
+      ? (IsNever<_ReadFunctionNames> extends true
+          ? unknown
+          : {
+              /**
+               * Calls a read-only function on a contract, and returns the response.
+               *
+               * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
+               *
+               * Internally, `read` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+               *
+               * @example
+               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+               * import { mainnet } from 'viem/chains'
+               *
+               * const publicClient = createPublicClient({
+               *   chain: mainnet,
+               *   transport: http(),
+               * })
+               * const contract = getContract({
+               *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+               *   abi: parseAbi([
+               *     'function balanceOf(address owner) view returns (uint256)',
+               *   ]),
+               *   client: publicClient,
+               * })
+               * const result = await contract.read.balanceOf(['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'])
+               * // 424122n
+               */
+              read: {
+                [functionName in _ReadFunctionNames]: GetReadFunction<
+                  _Narrowable,
+                  TAbi,
+                  functionName extends ContractFunctionName<
+                    TAbi,
+                    'pure' | 'view'
+                  >
+                    ? functionName
+                    : never
+                >
+              }
+            }) &
+          (IsNever<_WriteFunctionNames> extends true
+            ? unknown
+            : {
+                /**
+                 * Estimates the gas necessary to complete a transaction without submitting it to the network.
+                 *
+                 * @example
+                 * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+                 * import { mainnet } from 'viem/chains'
+                 *
+                 * const publicClient = createPublicClient({
+                 *   chain: mainnet,
+                 *   transport: http(),
+                 * })
+                 * const contract = getContract({
+                 *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+                 *   abi: parseAbi(['function mint() public']),
+                 *   client: publicClient,
+                 * })
+                 * const gas = await contract.estimateGas.mint({
+                 *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+                 * })
+                 */
+                estimateGas: {
+                  [functionName in _WriteFunctionNames]: GetEstimateFunction<
+                    _Narrowable,
+                    _PublicClient['chain'],
+                    undefined,
+                    TAbi,
+                    functionName extends ContractFunctionName<
+                      TAbi,
+                      'nonpayable' | 'payable'
+                    >
+                      ? functionName
+                      : never
+                  >
+                }
+                /**
+                 * Simulates/validates a contract interaction. This is useful for retrieving return data and revert reasons of contract write functions.
+                 *
+                 * This function does not require gas to execute and does not change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract.html), but also supports contract write functions.
+                 *
+                 * Internally, `simulate` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+                 *
+                 * @example
+                 * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+                 * import { mainnet } from 'viem/chains'
+                 *
+                 * const publicClient = createPublicClient({
+                 *   chain: mainnet,
+                 *   transport: http(),
+                 * })
+                 * const contract = getContract({
+                 *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+                 *   abi: parseAbi(['function mint() public']),
+                 *   client: publicClient,
+                 * })
+                 * const result = await contract.simulate.mint({
+                 *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+                 * })
+                 */
+                simulate: {
+                  [functionName in _WriteFunctionNames]: GetSimulateFunction<
+                    _Narrowable,
+                    _PublicClient['chain'],
+                    _WalletClient extends Client
+                      ? _WalletClient['account']
+                      : _PublicClient['account'],
+                    TAbi,
+                    functionName extends ContractFunctionName<
+                      TAbi,
+                      'nonpayable' | 'payable'
+                    >
+                      ? functionName
+                      : never
+                  >
+                }
+              }) &
+          (IsNever<_EventNames> extends true
+            ? unknown
+            : {
+                /**
+                 * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
+                 *
+                 * @example
+                 * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+                 * import { mainnet } from 'viem/chains'
+                 *
+                 * const publicClient = createPublicClient({
+                 *   chain: mainnet,
+                 *   transport: http(),
+                 * })
+                 * const contract = getContract({
+                 *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+                 *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
+                 *   client: publicClient,
+                 * })
+                 * const filter = await contract.createEventFilter.Transfer()
+                 */
+                createEventFilter: {
+                  [EventName in _EventNames]: GetEventFilter<
+                    _Narrowable,
+                    TAbi,
+                    EventName extends ContractEventName<TAbi>
+                      ? EventName
+                      : never
+                  >
+                }
+                /**
+                 * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
+                 *
+                 * @example
+                 * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+                 * import { mainnet } from 'viem/chains'
+                 *
+                 * const publicClient = createPublicClient({
+                 *   chain: mainnet,
+                 *   transport: http(),
+                 * })
+                 * const contract = getContract({
+                 *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+                 *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
+                 *   client: publicClient,
+                 * })
+                 * const filter = await contract.createEventFilter.Transfer()
+                 */
+                getEvents: {
+                  [EventName in _EventNames]: GetEventsFunction<
+                    _Narrowable,
+                    TAbi,
+                    EventName extends ContractEventName<TAbi>
+                      ? EventName
+                      : never
+                  >
+                }
+                /**
+                 * Watches and returns emitted contract event logs.
+                 *
+                 * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
+                 *
+                 * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs.html) instead.
+                 *
+                 * @example
+                 * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+                 * import { mainnet } from 'viem/chains'
+                 *
+                 * const publicClient = createPublicClient({
+                 *   chain: mainnet,
+                 *   transport: http(),
+                 * })
+                 * const contract = getContract({
+                 *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+                 *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
+                 *   client: publicClient,
+                 * })
+                 * const filter = await contract.createEventFilter.Transfer()
+                 * const unwatch = contract.watchEvent.Transfer(
+                 *   { from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b' },
+                 *   { onLogs: (logs) => console.log(logs) },
+                 * )
+                 */
+                watchEvent: {
+                  [EventName in _EventNames]: GetWatchEvent<
+                    _Narrowable,
+                    TAbi,
+                    EventName extends ContractEventName<TAbi>
+                      ? EventName
+                      : never
+                  >
+                }
+              })
+      : unknown) &
+      (_WalletClient extends Client
+        ? IsNever<_WriteFunctionNames> extends true
           ? unknown
           : {
               /**
                * Estimates the gas necessary to complete a transaction without submitting it to the network.
                *
                * @example
-               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+               * import { createWalletClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const publicClient = createPublicClient({
+               * const walletClient = createWalletClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
                * const contract = getContract({
                *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                *   abi: parseAbi(['function mint() public']),
-               *   publicClient,
+               *   client: walletClient,
                * })
                * const gas = await contract.estimateGas.mint({
                *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
                * })
                */
               estimateGas: {
-                [_FunctionName in _WriteFunctionNames]: GetEstimateFunction<
+                [functionName in _WriteFunctionNames]: GetEstimateFunction<
                   _Narrowable,
-                  TPublicClient['chain'],
-                  undefined,
+                  _WalletClient['chain'],
+                  _WalletClient['account'],
                   TAbi,
-                  _FunctionName
+                  functionName extends ContractFunctionName<
+                    TAbi,
+                    'nonpayable' | 'payable'
+                  >
+                    ? functionName
+                    : never
                 >
               }
               /**
-               * Simulates/validates a contract interaction. This is useful for retrieving return data and revert reasons of contract write functions.
+               * Executes a write function on a contract.
                *
-               * This function does not require gas to execute and does not change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract.html), but also supports contract write functions.
+               * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
                *
-               * Internally, `simulate` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+               * Internally, `write` uses a [Wallet Client](https://viem.sh/docs/clients/wallet.html) to call the [`sendTransaction` action](https://viem.sh/docs/actions/wallet/sendTransaction.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+               *
+               * __Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.__
                *
                * @example
-               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+               * import { createWalletClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const publicClient = createPublicClient({
+               * const walletClient = createWalletClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
                * const contract = getContract({
                *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-               *   abi: parseAbi(['function mint() public']),
-               *   publicClient,
+               *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
+               *   client: walletClient,
                * })
-               * const result = await contract.simulate.mint({
-               *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-               * })
-               */
-              simulate: {
-                [_FunctionName in _WriteFunctionNames]: GetSimulateFunction<
-                  _Narrowable,
-                  TPublicClient['chain'],
-                  TAbi,
-                  _FunctionName
-                >
-              }
-            }) &
-        (IsNever<_EventNames> extends true
-          ? unknown
-          : {
-              /**
-               * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
-               *
-               * @example
-               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
-               * import { mainnet } from 'viem/chains'
-               *
-               * const publicClient = createPublicClient({
-               *   chain: mainnet,
-               *   transport: http(),
-               * })
-               * const contract = getContract({
+               * const hash = await contract.write.min([69420], {
                *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-               *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
-               *   publicClient,
                * })
-               * const filter = await contract.createEventFilter.Transfer()
                */
-              createEventFilter: {
-                [_EventName in _EventNames]: GetEventFilter<
+              write: {
+                [functionName in _WriteFunctionNames]: GetWriteFunction<
                   _Narrowable,
+                  _WalletClient['chain'],
+                  _WalletClient['account'],
                   TAbi,
-                  _EventName
+                  functionName extends ContractFunctionName<
+                    TAbi,
+                    'nonpayable' | 'payable'
+                  >
+                    ? functionName
+                    : never
                 >
               }
-              /**
-               * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
-               *
-               * @example
-               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
-               * import { mainnet } from 'viem/chains'
-               *
-               * const publicClient = createPublicClient({
-               *   chain: mainnet,
-               *   transport: http(),
-               * })
-               * const contract = getContract({
-               *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-               *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
-               *   publicClient,
-               * })
-               * const filter = await contract.createEventFilter.Transfer()
-               */
-              getEvents: {
-                [_EventName in _EventNames]: GetEventsFunction<
-                  _Narrowable,
-                  TAbi,
-                  _EventName
-                >
-              }
-              /**
-               * Watches and returns emitted contract event logs.
-               *
-               * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
-               *
-               * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getEvents`](https://viem.sh/docs/actions/public/getEvents.html) instead.
-               *
-               * @example
-               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
-               * import { mainnet } from 'viem/chains'
-               *
-               * const publicClient = createPublicClient({
-               *   chain: mainnet,
-               *   transport: http(),
-               * })
-               * const contract = getContract({
-               *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-               *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
-               *   publicClient,
-               * })
-               * const filter = await contract.createEventFilter.Transfer()
-               * const unwatch = contract.watchEvent.Transfer(
-               *   { from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b' },
-               *   { onLogs: (logs) => console.log(logs) },
-               * )
-               */
-              watchEvent: {
-                [_EventName in _EventNames]: GetWatchEvent<
-                  _Narrowable,
-                  TAbi,
-                  _EventName
-                >
-              }
-            })
-    : unknown) &
-    (TWalletClient extends Client
-      ? IsNever<_WriteFunctionNames> extends true
-        ? unknown
-        : {
-            /**
-             * Estimates the gas necessary to complete a transaction without submitting it to the network.
-             *
-             * @example
-             * import { createWalletClient, getContract, http, parseAbi } from 'viem'
-             * import { mainnet } from 'viem/chains'
-             *
-             * const walletClient = createWalletClient({
-             *   chain: mainnet,
-             *   transport: http(),
-             * })
-             * const contract = getContract({
-             *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-             *   abi: parseAbi(['function mint() public']),
-             *   walletClient,
-             * })
-             * const gas = await contract.estimateGas.mint({
-             *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-             * })
-             */
-            estimateGas: {
-              [_FunctionName in _WriteFunctionNames]: GetEstimateFunction<
-                _Narrowable,
-                TWalletClient['chain'],
-                TWalletClient['account'],
-                TAbi,
-                _FunctionName
-              >
             }
-            /**
-             * Executes a write function on a contract.
-             *
-             * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
-             *
-             * Internally, `write` uses a [Wallet Client](https://viem.sh/docs/clients/wallet.html) to call the [`sendTransaction` action](https://viem.sh/docs/actions/wallet/sendTransaction.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
-             *
-             * __Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.__
-             *
-             * @example
-             * import { createWalletClient, getContract, http, parseAbi } from 'viem'
-             * import { mainnet } from 'viem/chains'
-             *
-             * const walletClient = createWalletClient({
-             *   chain: mainnet,
-             *   transport: http(),
-             * })
-             * const contract = getContract({
-             *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-             *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
-             *   walletClient,
-             * })
-             * const hash = await contract.write.min([69420], {
-             *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-             * })
-             */
-            write: {
-              [_FunctionName in _WriteFunctionNames]: GetWriteFunction<
-                _Narrowable,
-                TWalletClient['chain'],
-                TWalletClient['account'],
-                TAbi,
-                _FunctionName
-              >
-            }
-          }
-      : unknown)
-> & { address: TAddress; abi: TAbi }
+        : unknown)
+  > & { address: TAddress; abi: TAbi }
+>
 
 export type GetContractErrorType = ErrorType
 
@@ -412,35 +470,43 @@ export type GetContractErrorType = ErrorType
  *     'function ownerOf(uint256 tokenId) view returns (address)',
  *     'function totalSupply() view returns (uint256)',
  *   ]),
- *   publicClient,
+ *   client: publicClient,
  * })
  */
 export function getContract<
   TTransport extends Transport,
   TAddress extends Address,
   const TAbi extends Abi | readonly unknown[],
+  const TClient extends
+    | Client<TTransport, TChain, TAccount>
+    | KeyedClient<TTransport, TChain, TAccount>,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-  TPublicClient extends Client<TTransport, TChain> | undefined =
-    | Client<TTransport, TChain>
-    | undefined,
-  TWalletClient extends Client<TTransport, TChain, TAccount> | undefined =
-    | Client<TTransport, TChain, TAccount>
-    | undefined,
 >({
   abi,
   address,
-  publicClient,
-  walletClient,
+  client: client_,
 }: GetContractParameters<
   TTransport,
   TChain,
   TAccount,
   TAbi,
-  TPublicClient,
-  TWalletClient,
+  TClient,
   TAddress
->): GetContractReturnType<TAbi, TPublicClient, TWalletClient, TAddress> {
+>): GetContractReturnType<TAbi, TClient, TAddress> {
+  const client = client_ as
+    | Client<TTransport, TChain, TAccount>
+    | KeyedClient<TTransport, TChain, TAccount>
+
+  const [publicClient, walletClient] = (() => {
+    if (!client) return [undefined, undefined]
+    if ('public' in client && 'wallet' in client)
+      return [client.public as Client, client.wallet as Client]
+    if ('public' in client) return [client.public as Client, undefined]
+    if ('wallet' in client) return [undefined, client.wallet as Client]
+    return [client, client]
+  })()
+
   const hasPublicClient = publicClient !== undefined && publicClient !== null
   const hasWalletClient = walletClient !== undefined && walletClient !== null
 
@@ -478,7 +544,7 @@ export function getContract<
           get(_, functionName: string) {
             return (
               ...parameters: [
-                args?: readonly unknown[],
+                args?: readonly unknown[] | undefined,
                 options?: UnionOmit<
                   ReadContractParameters,
                   'abi' | 'address' | 'functionName' | 'args'
@@ -667,13 +733,8 @@ export function getContract<
                 address,
                 functionName,
                 args,
-                ...options,
-              } as unknown as WriteContractParameters<
-                TAbi,
-                typeof functionName,
-                TChain,
-                TAccount
-              >)
+                ...(options as any),
+              })
             }
           },
         },
@@ -718,12 +779,7 @@ export function getContract<
   contract.address = address
   contract.abi = abi
 
-  return contract as unknown as GetContractReturnType<
-    TAbi,
-    TPublicClient,
-    TWalletClient,
-    TAddress
-  >
+  return contract as unknown as GetContractReturnType<TAbi, TClient, TAddress>
 }
 
 /**
@@ -765,14 +821,19 @@ export function getEventParameters(
 type GetReadFunction<
   Narrowable extends boolean,
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  TFunctionName extends ContractFunctionName<TAbi, 'pure' | 'view'>,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    'pure' | 'view',
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, 'pure' | 'view', TFunctionName>,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   Options = Prettify<
     UnionOmit<
-      ReadContractParameters<TAbi, TFunctionName>,
+      ReadContractParameters<TAbi, TFunctionName, TArgs>,
       'abi' | 'address' | 'args' | 'functionName'
     >
   >,
@@ -781,7 +842,7 @@ type GetReadFunction<
       ...parameters: Args extends readonly []
         ? [options?: Options]
         : [args: Args, options?: Options]
-    ) => Promise<ReadContractReturnType<TAbi, TFunctionName>>
+    ) => Promise<ReadContractReturnType<TAbi, TFunctionName, TArgs>>
   : (
       ...parameters:
         | [options?: Options]
@@ -793,14 +854,19 @@ type GetEstimateFunction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    'nonpayable' | 'payable',
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, 'nonpayable' | 'payable', TFunctionName>,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   Options = Prettify<
     UnionOmit<
-      EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
+      EstimateContractGasParameters<TAbi, TFunctionName, TArgs, TChain>,
       'abi' | 'address' | 'args' | 'functionName'
     >
   >,
@@ -835,8 +901,14 @@ type GetEstimateFunction<
 type GetSimulateFunction<
   Narrowable extends boolean,
   TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    'nonpayable' | 'payable',
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, 'nonpayable' | 'payable', TFunctionName>,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
@@ -844,41 +916,79 @@ type GetSimulateFunction<
 > = Narrowable extends true
   ? <
       TChainOverride extends Chain | undefined,
-      Options extends Prettify<
-        UnionOmit<
-          SimulateContractParameters<
-            TAbi,
-            TFunctionName,
-            TChain,
-            TChainOverride
-          >,
-          'abi' | 'address' | 'args' | 'functionName'
-        >
-      >,
+      TAccountOverride extends Account | Address | undefined = undefined,
     >(
       ...parameters: Args extends readonly []
-        ? [options?: Options]
-        : [args: Args, options?: Options]
+        ? [
+            options?: Omit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
+        : [
+            args: Args,
+            options?: Omit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
     ) => Promise<
-      SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
+      SimulateContractReturnType<
+        TAbi,
+        TFunctionName,
+        TArgs,
+        TChain,
+        TAccount,
+        TChainOverride,
+        TAccountOverride
+      >
     >
   : <
       TChainOverride extends Chain | undefined,
-      Options extends Prettify<
-        UnionOmit<
-          SimulateContractParameters<
-            TAbi,
-            TFunctionName,
-            TChain,
-            TChainOverride
-          >,
-          'abi' | 'address' | 'args' | 'functionName'
-        >
-      >,
+      TAccountOverride extends Account | Address | undefined = undefined,
     >(
       ...parameters:
-        | [options?: Options]
-        | [args: readonly unknown[], options?: Options]
+        | [
+            options?: Omit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
+        | [
+            args: readonly unknown[],
+            options?: Omit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
     ) => Promise<SimulateContractReturnType>
 
 type GetWriteFunction<
@@ -886,7 +996,12 @@ type GetWriteFunction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    'nonpayable' | 'payable',
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, 'nonpayable' | 'payable', TFunctionName>,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
@@ -901,6 +1016,7 @@ type GetWriteFunction<
           WriteContractParameters<
             TAbi,
             TFunctionName,
+            TArgs,
             TChain,
             TAccount,
             TChainOverride
@@ -927,6 +1043,7 @@ type GetWriteFunction<
           WriteContractParameters<
             TAbi,
             TFunctionName,
+            TArgs,
             TChain,
             TAccount,
             TChainOverride
@@ -944,7 +1061,7 @@ type GetWriteFunction<
 type GetEventFilter<
   Narrowable extends boolean,
   TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
+  TEventName extends ContractEventName<TAbi>,
   TAbiEvent extends AbiEvent = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent,
@@ -984,7 +1101,7 @@ type GetEventFilter<
 type GetEventsFunction<
   Narrowable extends boolean,
   TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
+  TEventName extends ContractEventName<TAbi>,
   TAbiEvent extends AbiEvent = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent,
@@ -1014,7 +1131,7 @@ type GetEventsFunction<
 type GetWatchEvent<
   Narrowable extends boolean,
   TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
+  TEventName extends ContractEventName<TAbi>,
   TAbiEvent extends AbiEvent = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent,

@@ -221,7 +221,7 @@ export async function createEventFilter<
     fromBlock,
     id,
     request: getRequest(id),
-    strict,
+    strict: Boolean(strict),
     toBlock,
     type: 'event',
   } as unknown as CreateEventFilterReturnType<

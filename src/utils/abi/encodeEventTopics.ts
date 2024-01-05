@@ -1,4 +1,9 @@
-import type { Abi, AbiParameter, AbiParameterToPrimitiveType } from 'abitype'
+import type {
+  Abi,
+  AbiParameter,
+  AbiParameterToPrimitiveType,
+  ExtractAbiEvents,
+} from 'abitype'
 
 import {
   AbiEventNotFoundError,
@@ -8,68 +13,82 @@ import {
   FilterTypeNotSupportedError,
   type FilterTypeNotSupportedErrorType,
 } from '../../errors/log.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
-  AbiItem,
+  ContractEventArgs,
+  ContractEventName,
   EventDefinition,
-  GetEventArgs,
-  InferEventName,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
+import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
 import { type ToBytesErrorType, toBytes } from '../encoding/toBytes.js'
 import {
   type GetEventSelectorErrorType,
   getEventSelector,
 } from '../hash/getEventSelector.js'
 import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
-
-import type { ErrorType } from '../../errors/utils.js'
 import {
   type EncodeAbiParametersErrorType,
   encodeAbiParameters,
 } from './encodeAbiParameters.js'
 import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
-import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
+import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
+
+const docsPath = '/docs/contract/encodeEventTopics'
 
 export type EncodeEventTopicsParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
-  _EventName = InferEventName<TAbi, TEventName>,
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> | undefined = ContractEventName<abi>,
+  ///
+  hasEvents = abi extends Abi
+    ? Abi extends abi
+      ? true
+      : [ExtractAbiEvents<abi>] extends [never]
+        ? false
+        : true
+    : true,
+  allArgs = ContractEventArgs<
+    abi,
+    eventName extends ContractEventName<abi>
+      ? eventName
+      : ContractEventName<abi>
+  >,
+  allErrorNames = ContractEventName<abi>,
 > = {
-  eventName?: _EventName
-} & (TEventName extends string
-  ? { abi: TAbi; args?: GetEventArgs<TAbi, TEventName> }
-  : _EventName extends string
-    ? { abi: [TAbi[number]]; args?: GetEventArgs<TAbi, _EventName> }
-    : never)
+  abi: abi
+  args?: allArgs | undefined
+} & UnionEvaluate<
+  IsNarrowable<abi, Abi> extends true
+    ? abi['length'] extends 1
+      ? { eventName?: eventName | allErrorNames }
+      : { eventName: eventName | allErrorNames }
+    : { eventName?: eventName | allErrorNames }
+> &
+  (hasEvents extends true ? unknown : never)
 
 export type EncodeEventTopicsErrorType =
   | AbiEventNotFoundErrorType
   | EncodeArgErrorType
   | FormatAbiItemErrorType
+  | GetAbiItemErrorType
   | GetEventSelectorErrorType
   | ErrorType
 
 export function encodeEventTopics<
-  const TAbi extends Abi | readonly unknown[],
-  TEventName extends string | undefined = undefined,
->({ abi, eventName, args }: EncodeEventTopicsParameters<TAbi, TEventName>) {
-  let abiItem = abi[0] as AbiItem
+  const abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi> | undefined = undefined,
+>(parameters: EncodeEventTopicsParameters<abi, eventName>) {
+  const { abi, eventName, args } = parameters as EncodeEventTopicsParameters
+
+  let abiItem = abi[0]
   if (eventName) {
-    abiItem = getAbiItem({
-      abi,
-      args,
-      name: eventName,
-    } as GetAbiItemParameters)
-    if (!abiItem)
-      throw new AbiEventNotFoundError(eventName, {
-        docsPath: '/docs/contract/encodeEventTopics',
-      })
+    const item = getAbiItem({ abi, name: eventName })
+    if (!item) throw new AbiEventNotFoundError(eventName, { docsPath })
+    abiItem = item
   }
 
   if (abiItem.type !== 'event')
-    throw new AbiEventNotFoundError(undefined, {
-      docsPath: '/docs/contract/encodeEventTopics',
-    })
+    throw new AbiEventNotFoundError(undefined, { docsPath })
 
   const definition = formatAbiItem(abiItem)
   const signature = getEventSelector(definition as EventDefinition)

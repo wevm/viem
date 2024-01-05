@@ -43,12 +43,15 @@ export async function switchChain<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(client: Client<Transport, TChain, TAccount>, { id }: SwitchChainParameters) {
-  await client.request({
-    method: 'wallet_switchEthereumChain',
-    params: [
-      {
-        chainId: numberToHex(id),
-      },
-    ],
-  })
+  await client.request(
+    {
+      method: 'wallet_switchEthereumChain',
+      params: [
+        {
+          chainId: numberToHex(id),
+        },
+      ],
+    },
+    { retryCount: 0 },
+  )
 }

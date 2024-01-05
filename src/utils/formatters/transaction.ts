@@ -7,7 +7,7 @@ import type {
 } from '../../types/chain.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { Transaction } from '../../types/transaction.js'
-import type { UnionOmit } from '../../types/utils.js'
+import type { UnionLooseOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
@@ -17,9 +17,7 @@ type TransactionPendingDependencies =
   | 'transactionIndex'
 
 export type FormattedTransaction<
-  TChain extends { formatters?: Chain['formatters'] } | undefined =
-    | { formatters?: Chain['formatters'] }
-    | undefined,
+  TChain extends Chain | undefined = undefined,
   TBlockTag extends BlockTag = BlockTag,
   _FormatterReturnType = ExtractChainFormatterReturnType<
     TChain,
@@ -28,8 +26,8 @@ export type FormattedTransaction<
   >,
   _ExcludedPendingDependencies extends string = TransactionPendingDependencies &
     ExtractChainFormatterExclude<TChain, 'transaction'>,
-> = UnionOmit<_FormatterReturnType, TransactionPendingDependencies> & {
-  [_key in _ExcludedPendingDependencies]: never
+> = UnionLooseOmit<_FormatterReturnType, TransactionPendingDependencies> & {
+  [_K in _ExcludedPendingDependencies]: never
 } & Pick<
     Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>,
     TransactionPendingDependencies
@@ -64,7 +62,9 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
     transactionIndex: transaction.transactionIndex
       ? Number(transaction.transactionIndex)
       : null,
-    type: transaction.type ? transactionType[transaction.type] : undefined,
+    type: transaction.type
+      ? (transactionType as any)[transaction.type]
+      : undefined,
     typeHex: transaction.type ? transaction.type : undefined,
     value: transaction.value ? BigInt(transaction.value) : undefined,
     v: transaction.v ? BigInt(transaction.v) : undefined,

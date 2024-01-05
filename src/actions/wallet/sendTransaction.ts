@@ -10,8 +10,8 @@ import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
-import type { GetChain } from '../../types/chain.js'
+import type { Chain, DeriveChain } from '../../types/chain.js'
+import type { GetChainParameter } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type {
   TransactionRequest,
@@ -52,14 +52,11 @@ export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain | undefined,
-> = UnionOmit<
-  FormattedTransactionRequest<
-    TChainOverride extends Chain ? TChainOverride : TChain
-  >,
-  'from'
-> &
+  ///
+  derivedChain extends Chain | undefined = DeriveChain<TChain, TChainOverride>,
+> = UnionOmit<FormattedTransactionRequest<derivedChain>, 'from'> &
   GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
+  GetChainParameter<TChain, TChainOverride>
 
 export type SendTransactionReturnType = Hash
 
@@ -220,10 +217,13 @@ export async function sendTransaction<
       to,
       value,
     } as TransactionRequest)
-    return await client.request({
-      method: 'eth_sendTransaction',
-      params: [request],
-    })
+    return await client.request(
+      {
+        method: 'eth_sendTransaction',
+        params: [request],
+      },
+      { retryCount: 0 },
+    )
   } catch (err) {
     throw getTransactionError(err as BaseError, {
       ...args,

@@ -71,7 +71,6 @@ const abi = [
 test('args: abi', async () => {
   const logs = await getContractEvents(publicClient, {
     abi: abi,
-    // @ts-expect-error
     args: {},
     strict: true,
   })

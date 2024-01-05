@@ -466,6 +466,8 @@ test('errors: abi item not an event', () => {
           ],
           name: 'Foo',
           type: 'function',
+          outputs: [],
+          stateMutability: 'pure',
         },
       ],
     }),
@@ -489,7 +491,7 @@ test("errors: event doesn't exist", () => {
         },
       ],
       eventName: 'Foo',
-      args: {},
+      args: [],
     }),
   ).toMatchInlineSnapshot(`
     [

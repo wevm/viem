@@ -11,10 +11,6 @@ export const confluxESpaceTestnet = /*#__PURE__*/ defineChain({
       http: ['https://evmtestnet.confluxrpc.org'],
       webSocket: ['wss://evmtestnet.confluxrpc.org/ws'],
     },
-    public: {
-      http: ['https://evmtestnet.confluxrpc.org'],
-      webSocket: ['wss://evmtestnet.confluxrpc.org/ws'],
-    },
   },
   blockExplorers: {
     default: {

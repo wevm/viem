@@ -3,13 +3,9 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const plinga = /*#__PURE__*/ defineChain({
   id: 242,
   name: 'Plinga',
-  network: 'plinga',
   nativeCurrency: { name: 'Plinga', symbol: 'PLINGA', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpcurl.mainnet.plgchain.com'],
-    },
-    public: {
       http: ['https://rpcurl.mainnet.plgchain.com'],
     },
   },

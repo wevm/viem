@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const fantom = /*#__PURE__*/ defineChain({
   id: 250,
   name: 'Fantom',
-  network: 'fantom',
   nativeCurrency: {
     decimals: 18,
     name: 'Fantom',
@@ -11,10 +10,8 @@ export const fantom = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://rpc.ankr.com/fantom'] },
-    public: { http: ['https://rpc.ankr.com/fantom'] },
   },
   blockExplorers: {
-    etherscan: { name: 'FTMScan', url: 'https://ftmscan.com' },
     default: { name: 'FTMScan', url: 'https://ftmscan.com' },
   },
   contracts: {

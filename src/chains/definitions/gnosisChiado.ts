@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const gnosisChiado = /*#__PURE__*/ defineChain({
   id: 10_200,
   name: 'Gnosis Chiado',
-  network: 'chiado',
   nativeCurrency: {
     decimals: 18,
     name: 'Gnosis',
@@ -11,10 +10,6 @@ export const gnosisChiado = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.chiadochain.net'],
-      webSocket: ['wss://rpc.chiadochain.net/wss'],
-    },
-    public: {
       http: ['https://rpc.chiadochain.net'],
       webSocket: ['wss://rpc.chiadochain.net/wss'],
     },

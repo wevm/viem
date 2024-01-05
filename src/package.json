@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "1.21.2",
+  "version": "2.0.0",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -23,11 +23,6 @@
       "import": "./_esm/index.js",
       "default": "./_cjs/index.js"
     },
-    "./abi": {
-      "types": "./_types/abi/index.d.ts",
-      "import": "./_esm/abi/index.js",
-      "default": "./_cjs/abi/index.js"
-    },
     "./accounts": {
       "types": "./_types/accounts/index.d.ts",
       "import": "./_esm/accounts/index.js",
@@ -38,58 +33,50 @@
       "import": "./_esm/actions/index.js",
       "default": "./_cjs/actions/index.js"
     },
+    "./celo": {
+      "types": "./_types/chains/celo/index.d.ts",
+      "import": "./_esm/chains/celo/index.js",
+      "default": "./_cjs/chains/celo/index.js"
+    },
     "./chains": {
       "types": "./_types/chains/index.d.ts",
       "import": "./_esm/chains/index.js",
       "default": "./_cjs/chains/index.js"
     },
     "./chains/utils": {
-      "types": "./_types/chains/utils/index.d.ts",
-      "import": "./_esm/chains/utils/index.js",
-      "default": "./_cjs/chains/utils/index.js"
-    },
-    "./contract": {
-      "types": "./_types/contract/index.d.ts",
-      "import": "./_esm/contract/index.js",
-      "default": "./_cjs/contract/index.js"
+      "types": "./_types/chains/utils.d.ts",
+      "import": "./_esm/chains/utils.js",
+      "default": "./_cjs/chains/utils.js"
     },
     "./ens": {
       "types": "./_types/ens/index.d.ts",
       "import": "./_esm/ens/index.js",
       "default": "./_cjs/ens/index.js"
     },
-    "./public": {
-      "types": "./_types/public/index.d.ts",
-      "import": "./_esm/public/index.js",
-      "default": "./_cjs/public/index.js"
-    },
-    "./test": {
-      "types": "./_types/test/index.d.ts",
-      "import": "./_esm/test/index.js",
-      "default": "./_cjs/test/index.js"
+    "./op-stack": {
+      "types": "./_types/chains/opStack/index.d.ts",
+      "import": "./_esm/chains/opStack/index.js",
+      "default": "./_cjs/chains/opStack/index.js"
     },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
       "import": "./_esm/utils/index.js",
       "default": "./_cjs/utils/index.js"
     },
-    "./wallet": {
-      "types": "./_types/wallet/index.d.ts",
-      "import": "./_esm/wallet/index.js",
-      "default": "./_cjs/wallet/index.js"
-    },
     "./window": {
       "types": "./_types/window/index.d.ts",
       "import": "./_esm/window/index.js",
       "default": "./_cjs/window/index.js"
     },
+    "./zksync": {
+      "types": "./_types/chains/zksync/index.d.ts",
+      "import": "./_esm/chains/zksync/index.js",
+      "default": "./_cjs/chains/zksync/index.js"
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
-      "abi": [
-        "./_types/abi/index.d.ts"
-      ],
       "accounts": [
         "./_types/accounts/index.d.ts"
       ],
@@ -100,25 +87,13 @@
         "./_types/chains/index.d.ts"
       ],
       "chains/utils": [
-        "./_types/chains/utils/index.d.ts"
-      ],
-      "contract": [
-        "./_types/contract/index.d.ts"
+        "./_types/chains/utils.d.ts"
       ],
       "ens": [
         "./_types/ens/index.d.ts"
       ],
-      "public": [
-        "./_types/public/index.d.ts"
-      ],
-      "test": [
-        "./_types/test/index.d.ts"
-      ],
       "utils": [
         "./_types/utils/index.d.ts"
-      ],
-      "wallet": [
-        "./_types/wallet/index.d.ts"
       ],
       "window": [
         "./_types/window/index.d.ts"
@@ -139,7 +114,7 @@
     "@noble/hashes": "1.3.2",
     "@scure/bip32": "1.3.2",
     "@scure/bip39": "1.2.1",
-    "abitype": "0.9.8",
+    "abitype": "0.10.0",
     "isows": "1.0.3",
     "ws": "8.13.0"
   },

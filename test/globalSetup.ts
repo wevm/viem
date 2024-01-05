@@ -1,11 +1,10 @@
 import { startProxy } from '@viem/anvil'
 
 import { forkBlockNumber, forkUrl } from './src/constants.js'
+import { forkBlockNumberOptimism, forkUrlOptimism } from './src/opStack.js'
 
 export default async function () {
-  if (process.env.SKIP_GLOBAL_SETUP) {
-    return
-  }
+  if (process.env.SKIP_GLOBAL_SETUP) return
 
   // Using this proxy, we can parallelize our test suite by spawning multiple "on demand" anvil
   // instances and proxying requests to them. Especially for local development, this is much faster
@@ -25,7 +24,14 @@ export default async function () {
   // We still need to remember to reset the anvil instance between test files. This is generally
   // handled in `setup.ts` but may require additional resetting (e.g. via `afterAll`), in case of
   // any custom per-test adjustments that persist beyond `anvil_reset`.
-  return await startProxy({
+  const shutdown_1 = await startProxy({
+    port: Number(process.env.VITE_ANVIL_PORT_OPTIMISM || '8645'),
+    options: {
+      forkUrl: forkUrlOptimism,
+      forkBlockNumber: forkBlockNumberOptimism,
+    },
+  })
+  const shutdown_2 = await startProxy({
     port: Number(process.env.VITE_ANVIL_PORT || '8545'),
     options: {
       forkUrl,
@@ -33,4 +39,8 @@ export default async function () {
       noMining: true,
     },
   })
+  return () => {
+    shutdown_1()
+    shutdown_2()
+  }
 }

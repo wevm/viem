@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent } from 'abitype'
+import type { Abi, AbiEvent, Address } from 'abitype'
 
 import {
   type GetEnsAddressParameters,
@@ -217,6 +217,7 @@ import {
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
 import {
+  type PrepareTransactionRequestParameterType,
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestReturnType,
   prepareTransactionRequest,
@@ -230,7 +231,9 @@ import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  ContractFunctionConfig,
+  ContractEventName,
+  ContractFunctionArgs,
+  ContractFunctionName,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
@@ -310,7 +313,7 @@ export type PublicActions<
    */
   createContractEventFilter: <
     const TAbi extends Abi | readonly unknown[],
-    TEventName extends string | undefined,
+    TEventName extends ContractEventName<TAbi> | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
     TStrict extends boolean | undefined = undefined,
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -437,10 +440,15 @@ export type PublicActions<
    */
   estimateContractGas: <
     TChain extends Chain | undefined,
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+    args extends ContractFunctionArgs<
+      abi,
+      'nonpayable' | 'payable',
+      functionName
+    >,
   >(
-    args: EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
+    args: EstimateContractGasParameters<abi, functionName, args, TChain>,
   ) => Promise<EstimateContractGasReturnType>
   /**
    * Estimates the gas necessary to complete a transaction without submitting it to the network.
@@ -466,7 +474,7 @@ export type PublicActions<
    * })
    */
   estimateGas: (
-    args: EstimateGasParameters<TChain, TAccount>,
+    args: EstimateGasParameters<TChain>,
   ) => Promise<EstimateGasReturnType>
   /**
    * Returns the balance of an address in wei.
@@ -647,21 +655,21 @@ export type PublicActions<
    * })
    */
   getContractEvents: <
-    const TAbi extends Abi | readonly unknown[],
-    TEventName extends string | undefined = undefined,
-    TStrict extends boolean | undefined = undefined,
-    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+    const abi extends Abi | readonly unknown[],
+    eventName extends ContractEventName<abi> | undefined = undefined,
+    strict extends boolean | undefined = undefined,
+    fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    toBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
     args: GetContractEventsParameters<
-      TAbi,
-      TEventName,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      abi,
+      eventName,
+      strict,
+      fromBlock,
+      toBlock
     >,
   ) => Promise<
-    GetContractEventsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
+    GetContractEventsReturnType<abi, eventName, strict, fromBlock, toBlock>
   >
   /**
    * Gets address for ENS name.
@@ -1283,11 +1291,11 @@ export type PublicActions<
    * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
    */
   multicall: <
-    TContracts extends ContractFunctionConfig[],
-    TAllowFailure extends boolean = true,
+    const contracts extends readonly unknown[],
+    allowFailure extends boolean = true,
   >(
-    args: MulticallParameters<TContracts, TAllowFailure>,
-  ) => Promise<MulticallReturnType<TContracts, TAllowFailure>>
+    args: MulticallParameters<contracts, allowFailure>,
+  ) => Promise<MulticallReturnType<contracts, allowFailure>>
   /**
    * Prepares a transaction request for signing.
    *
@@ -1327,10 +1335,26 @@ export type PublicActions<
    * })
    */
   prepareTransactionRequest: <
+    TParameterType extends PrepareTransactionRequestParameterType,
     TChainOverride extends Chain | undefined = undefined,
+    TAccountOverride extends Account | Address | undefined = undefined,
   >(
-    args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
-  ) => Promise<PrepareTransactionRequestReturnType>
+    args: PrepareTransactionRequestParameters<
+      TChain,
+      TAccount,
+      TChainOverride,
+      TAccountOverride,
+      TParameterType
+    >,
+  ) => Promise<
+    PrepareTransactionRequestReturnType<
+      Chain,
+      TAccount,
+      TChainOverride,
+      TAccountOverride,
+      TParameterType
+    >
+  >
   /**
    * Calls a read-only function on a contract, and returns the response.
    *
@@ -1363,11 +1387,12 @@ export type PublicActions<
    * // 424122n
    */
   readContract: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
   >(
-    args: ReadContractParameters<TAbi, TFunctionName>,
-  ) => Promise<ReadContractReturnType<TAbi, TFunctionName>>
+    args: ReadContractParameters<abi, functionName, args>,
+  ) => Promise<ReadContractReturnType<abi, functionName, args>>
   /**
    * Sends a **signed** transaction to the network
    *
@@ -1426,18 +1451,34 @@ export type PublicActions<
    * })
    */
   simulateContract: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
-    TChainOverride extends Chain | undefined = undefined,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+    args extends ContractFunctionArgs<
+      abi,
+      'nonpayable' | 'payable',
+      functionName
+    >,
+    chainOverride extends Chain | undefined,
+    accountOverride extends Account | Address | undefined = undefined,
   >(
     args: SimulateContractParameters<
-      TAbi,
-      TFunctionName,
+      abi,
+      functionName,
+      args,
       TChain,
-      TChainOverride
+      chainOverride,
+      accountOverride
     >,
   ) => Promise<
-    SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
+    SimulateContractReturnType<
+      abi,
+      functionName,
+      args,
+      TChain,
+      TAccount,
+      chainOverride,
+      accountOverride
+    >
   >
   verifyMessage: (
     args: VerifyMessageParameters,
@@ -1604,10 +1645,10 @@ export type PublicActions<
    */
   watchContractEvent: <
     const TAbi extends Abi | readonly unknown[],
-    TEventName extends string,
+    TEventName extends ContractEventName<TAbi>,
     TStrict extends boolean | undefined = undefined,
   >(
-    args: WatchContractEventParameters<TAbi, TEventName, TStrict>,
+    args: WatchContractEventParameters<TAbi, TEventName, TStrict, TTransport>,
   ) => WatchContractEventReturnType
   /**
    * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms.html#event-log).
@@ -1648,7 +1689,7 @@ export type PublicActions<
       | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
     TStrict extends boolean | undefined = undefined,
   >(
-    args: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict>,
+    args: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
   ) => WatchEventReturnType
   /**
    * Watches and returns pending transaction hashes.
@@ -1727,7 +1768,7 @@ export function publicActions<
       getTransactionConfirmations(client, args),
     getTransactionCount: (args) => getTransactionCount(client, args),
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
-    multicall: (args) => multicall(client, args as any) as any,
+    multicall: (args) => multicall(client, args),
     prepareTransactionRequest: (args) =>
       prepareTransactionRequest(client as any, args as any),
     readContract: (args) => readContract(client, args),

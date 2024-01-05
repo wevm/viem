@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const metisGoerli = /*#__PURE__*/ defineChain({
   id: 599,
   name: 'Metis Goerli',
-  network: 'metis-goerli',
   nativeCurrency: {
     decimals: 18,
     name: 'Metis Goerli',
@@ -11,7 +10,6 @@ export const metisGoerli = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://goerli.gateway.metisdevops.link'] },
-    public: { http: ['https://goerli.gateway.metisdevops.link'] },
   },
   blockExplorers: {
     default: {
