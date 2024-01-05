@@ -48,7 +48,7 @@ export type PrepareTransactionRequestParameters<
     parameters?: TParameterType[]
   }
 
-  /**
+/**
  * Prepares a transaction request for signing.
  *
  * - Docs: https://viem.sh/docs/zksync/actions/prepareEip712TransactionRequest.html

@@ -2,9 +2,9 @@ import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { zkSyncMockClient } from '~test/src/zksync.js'
-import { zkSyncSepoliaTestnet } from '../index.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
+import { zkSyncSepoliaTestnet } from '../index.js'
 import { sendTransaction } from './sendTransaction.js'
 
 const sourceAccount = accounts[0]
@@ -12,7 +12,6 @@ const targetAccount = accounts[1]
 
 describe('sendTransaction', () => {
   test('eip712', async () => {
-
     expect(
       await sendTransaction(zkSyncMockClient, {
         chain: zkSyncSepoliaTestnet,

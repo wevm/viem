@@ -111,7 +111,7 @@ export async function sendTransaction<
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await prepareTransactionRequest(client, {
         ...args,
-        chain: undefined
+        chain: undefined,
       } as any)
 
       if (!chainId)

@@ -2,11 +2,10 @@ import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 
 import { greeterContract } from '~test/src/abis.js'
+import { zkSyncMockClient } from '~test/src/zksync.js'
 import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { simulateContract } from '~viem/actions/index.js'
 import { eip712Actions } from './eip712.js'
-import { zkSyncMockClient } from '~test/src/zksync.js'
-
 
 test('default', async () => {
   expect(eip712Actions(zkSyncMockClient)).toMatchInlineSnapshot(`

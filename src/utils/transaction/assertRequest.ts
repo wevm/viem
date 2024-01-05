@@ -1,4 +1,3 @@
-import type { Account } from '../../index.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
@@ -19,6 +18,7 @@ import {
   type FeeConflictErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { Account } from '../../index.js'
 import type { Chain } from '../../types/chain.js'
 import { isAddress } from '../address/isAddress.js'
 

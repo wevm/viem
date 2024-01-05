@@ -1,8 +1,13 @@
 import { vi } from 'vitest'
 import { zkSyncSepoliaTestnet } from '~viem/chains/index.js'
-import { createClient } from '~viem/clients/createClient.js'
-import { createTransport, type EIP1193RequestFn, type PublicRpcSchema, type WalletRpcSchema } from '~viem/index.js'
 import { eip712Actions } from '~viem/chains/zksync/index.js'
+import { createClient } from '~viem/clients/createClient.js'
+import {
+  type EIP1193RequestFn,
+  type PublicRpcSchema,
+  type WalletRpcSchema,
+  createTransport,
+} from '~viem/index.js'
 
 export const transportRequestMock = vi.fn(async (request) => {
   if (request.method === 'eth_chainId') {
@@ -43,5 +48,5 @@ const mockTransport = () =>
 
 export const zkSyncMockClient = createClient({
   chain: zkSyncSepoliaTestnet,
-  transport: mockTransport
+  transport: mockTransport,
 }).extend(eip712Actions)
