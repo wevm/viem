@@ -184,3 +184,49 @@ jobs:
       - name: Run test vectors
         shell: bash
         run: bun run vectors
+
+  wagmi:
+    name: Wagmi Types
+    needs: [build, types]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        typescript-version: ['5.0.4', '5.1.6', '5.2.2', 'latest']
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - run: gh repo clone wevm/wagmi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@v2
+        with:
+          package_json_file: ./wagmi/package.json
+      - uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          cache-dependency-path: ./wagmi
+          node-version: 20
+      - run: bun run build && pnpm link --global
+
+      - name: Set up wagmi
+        run: |
+          pnpm install
+          pnpm link --global viem
+          pnpm add -D -w typescript@${{ matrix.typescript-version }}
+          # pnpm preconstruct
+        working-directory: ./wagmi
+
+      - name: Check types
+        run: pnpm typecheck
+        working-directory: ./wagmi
+
+      - name: Check build
+        run: pnpm build
+        working-directory: ./wagmi
+
