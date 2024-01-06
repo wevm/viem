@@ -1,5 +1,11 @@
 # viem
 
+## 2.0.2
+
+### Patch Changes
+
+- [`f7a56b31`](https://github.com/wevm/viem/commit/f7a56b3108511f40a435e3132229027c23f15169) Thanks [@jxom](https://github.com/jxom)! - Fixed proxy packages types.
+
 ## 2.0.1
 
 ### Patch Changes
