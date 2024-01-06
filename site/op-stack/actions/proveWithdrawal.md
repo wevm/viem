@@ -25,7 +25,7 @@ Internally performs a contract write to the [`proveWithdrawalTransaction` functi
 ```ts [example.ts]
 import { account, publicClientL2, walletClientL1 } from './config'
 
-const receipt = await getTransactionReceipt(publicClientL2, {
+const receipt = await publicClientL2.getTransactionReceipt({
   hash: '0xbbdd0957a82a057a76b5f093de251635ac4ddc6e2d0c4aa7fbf82d73e4e11039',
 })
 
@@ -86,7 +86,7 @@ We can use the resulting `args` to prove the withdrawal transaction on the L1.
 ```ts [example.ts]
 import { account, publicClientL2, walletClientL1 } from './config'
 
-const receipt = await getTransactionReceipt(publicClientL2, {
+const receipt = await publicClientL2.getTransactionReceipt({
   hash: '0xbbdd0957a82a057a76b5f093de251635ac4ddc6e2d0c4aa7fbf82d73e4e11039',
 })
 
@@ -143,7 +143,7 @@ If you do not wish to pass an `account` to every `proveWithdrawal`, you can also
 ```ts [example.ts]
 import { account, publicClientL2, walletClientL1 } from './config'
 
-const receipt = await getTransactionReceipt(publicClientL2, {
+const receipt = await publicClientL2.getTransactionReceipt({
   hash: '0xbbdd0957a82a057a76b5f093de251635ac4ddc6e2d0c4aa7fbf82d73e4e11039',
 })
 

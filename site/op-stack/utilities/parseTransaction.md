@@ -18,13 +18,13 @@ Parses a serialized RLP-encoded transaction. Supports signed & unsigned Deposit,
 
 ## Import
 ```ts
-import { parseTransaction } from 'viem'
+import { parseTransaction } from 'viem/op-stack'
 ```
 
 ## Usage
 
 ```ts
-import { parseTransaction } from 'viem'
+import { parseTransaction } from 'viem/op-stack'
 
 const transaction = parseTransaction('0x02ef0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0')
 ```
@@ -34,7 +34,7 @@ const transaction = parseTransaction('0x02ef018203118477359400847735940080947099
 The `parseTransaction` module from `viem/op-stack` also supports parsing deposit transactions (`0x7e`-prefixed):
 
 ```ts
-import { parseTransaction } from 'viem'
+import { parseTransaction } from 'viem/op-stack'
 
 const transaction = parseTransaction('0x7ef83ca018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808080808080')
 ```
