@@ -19,13 +19,13 @@ Computes the withdrawal hash storage slot to be used when proving a withdrawal.
 ## Import
 
 ```ts
-import { getWithdrawalHashStorageSlot } from 'viem'
+import { getWithdrawalHashStorageSlot } from 'viem/op-stack'
 ```
 
 ## Usage
 
 ```ts
-import { getWithdrawalHashStorageSlot } from 'viem'
+import { getWithdrawalHashStorageSlot } from 'viem/op-stack'
 
 const slot = getWithdrawalHashStorageSlot({ // [!code hl]
   withdrawalHash: '0xB1C3824DEF40047847145E069BF467AA67E906611B9F5EF31515338DB0AABFA2' // [!code hl]

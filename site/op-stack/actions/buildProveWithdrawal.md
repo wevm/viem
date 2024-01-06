@@ -23,7 +23,7 @@ Builds the transaction that proves a withdrawal was initiated on an L2. Used in 
 ```ts [example.ts]
 import { account, publicClientL2, walletClientL1 } from './config'
 
-const receipt = await getTransactionReceipt(publicClientL2, {
+const receipt = await publicClientL2.getTransactionReceipt({
   hash: '0xbbdd0957a82a057a76b5f093de251635ac4ddc6e2d0c4aa7fbf82d73e4e11039',
 })
 

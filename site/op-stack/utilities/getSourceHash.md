@@ -18,13 +18,13 @@ Computes the [source hash](https://github.com/ethereum-optimism/optimism/blob/de
 
 ## Import
 ```ts
-import { getSourceHash } from 'viem'
+import { getSourceHash } from 'viem/op-stack'
 ```
 
 ## Usage
 
 ```ts
-import { getSourceHash } from 'viem'
+import { getSourceHash } from 'viem/op-stack'
 
 // User Deposit
 const sourceHash = getSourceHash({

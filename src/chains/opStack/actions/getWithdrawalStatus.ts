@@ -71,7 +71,7 @@ export type GetWithdrawalStatusErrorType =
  *   transport: http(),
  * })
  *
- * const receipt = await getTransactionReceipt(publicClientL2, { hash: '0x...' })
+ * const receipt = await publicClientL2.getTransactionReceipt({ hash: '0x...' })
  * const status = await getWithdrawalStatus(publicClientL1, {
  *   receipt,
  *   targetChain: optimism
