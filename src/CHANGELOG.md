@@ -1,5 +1,13 @@
 # viem
 
+## 2.0.1
+
+### Patch Changes
+
+- [`61460900`](https://github.com/wevm/viem/commit/61460900276f36937c91d844fb0751c94654c84b) Thanks [@jxom](https://github.com/jxom)! - Added proxy packages for `viem/op-stack`, `viem/celo`, `viem/zksync`.
+
+- [#1644](https://github.com/wevm/viem/pull/1644) [`95f0c596`](https://github.com/wevm/viem/commit/95f0c596144d2868e972d671f7cad617d7fd3b0e) Thanks [@hbriese](https://github.com/hbriese)! - Fixed formatting of zkSync transaction request with `customSignature`
+
 ## 2.0.0
 
 ### Major Changes
