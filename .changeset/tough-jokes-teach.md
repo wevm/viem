@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added proxy package for `viem/op-stack`.
+Added proxy packages for `viem/op-stack`, `viem/celo`, `viem/zksync`.
