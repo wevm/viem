@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../_types/chains/opStack/index.d.ts",
+  "module": "../_esm/chains/opStack/index.js",
+  "main": "../_cjs/chains/opStack/index.js"
+}
