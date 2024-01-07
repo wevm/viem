@@ -8,7 +8,6 @@
       ".next",
       ".svelte-kit",
       ".vercel",
-      ".vitepress",
       "**/node_modules",
       "CHANGELOG.md",
       "cache",
