@@ -30,7 +30,7 @@ runs:
       working-directory: ./wagmi
 
     - shell: bash
-      run: pnpm link --dir ../wagmi
+      run: pnpm link --dir ../wagmi && pnpm link --dir ../wagmi/register-tests/react
       working-directory: ./src
 
     - name: Link packages
