@@ -1,5 +1,11 @@
 # viem
 
+## 2.0.3
+
+### Patch Changes
+
+- [`fdd2435c`](https://github.com/wevm/viem/commit/fdd2435cadb971a2b34b9d6b7066c7b1cf776116) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where Viem would throw in environments that don't support the `WebSocket` API.
+
 ## 2.0.2
 
 ### Patch Changes
