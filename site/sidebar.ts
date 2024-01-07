@@ -473,7 +473,7 @@ export const sidebar = {
             },
             {
               text: 'OP Stack',
-              link: '/docs/op-stack',
+              link: '/op-stack',
             },
             {
               text: 'zkSync',

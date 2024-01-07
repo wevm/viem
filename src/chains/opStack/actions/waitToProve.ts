@@ -67,7 +67,7 @@ export type WaitToProveErrorType =
  *   transport: http(),
  * })
  *
- * const receipt = await getTransactionReceipt(publicClientL2, { hash: '0x...' })
+ * const receipt = await publicClientL2.getTransactionReceipt({ hash: '0x...' })
  * await waitToProve(publicClientL1, {
  *   receipt,
  *   targetChain: optimism

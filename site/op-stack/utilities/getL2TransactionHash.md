@@ -24,13 +24,13 @@ For the general case of retrieving an L2 transaction hash from an L1 transaction
 
 ## Import
 ```ts
-import { getL2TransactionHash } from 'viem'
+import { getL2TransactionHash } from 'viem/op-stack'
 ```
 
 ## Usage
 
 ```ts
-import { extractTransactionDepositedLogs, getL2TransactionHash } from 'viem'
+import { extractTransactionDepositedLogs, getL2TransactionHash } from 'viem/op-stack'
 
 const receipt = await client.getTransactionReceipt({
   hash: '0xa08acae48f12243bccd7153c88d892673d5578cce4ee9988c0332e8bba47436b',

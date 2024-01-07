@@ -1,5 +1,25 @@
 # viem
 
+## 2.0.3
+
+### Patch Changes
+
+- [`fdd2435c`](https://github.com/wevm/viem/commit/fdd2435cadb971a2b34b9d6b7066c7b1cf776116) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where Viem would throw in environments that don't support the `WebSocket` API.
+
+## 2.0.2
+
+### Patch Changes
+
+- [`f7a56b31`](https://github.com/wevm/viem/commit/f7a56b3108511f40a435e3132229027c23f15169) Thanks [@jxom](https://github.com/jxom)! - Fixed proxy packages types.
+
+## 2.0.1
+
+### Patch Changes
+
+- [`61460900`](https://github.com/wevm/viem/commit/61460900276f36937c91d844fb0751c94654c84b) Thanks [@jxom](https://github.com/jxom)! - Added proxy packages for `viem/op-stack`, `viem/celo`, `viem/zksync`.
+
+- [#1644](https://github.com/wevm/viem/pull/1644) [`95f0c596`](https://github.com/wevm/viem/commit/95f0c596144d2868e972d671f7cad617d7fd3b0e) Thanks [@hbriese](https://github.com/hbriese)! - Fixed formatting of zkSync transaction request with `customSignature`
+
 ## 2.0.0
 
 ### Major Changes

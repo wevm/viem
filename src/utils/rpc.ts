@@ -1,4 +1,3 @@
-import { WebSocket } from 'isows'
 import type { MessageEvent } from 'isows'
 
 import {
@@ -172,6 +171,7 @@ export async function getSocket(url: string) {
   const { schedule } = createBatchScheduler<undefined, [Socket]>({
     id: url,
     fn: async () => {
+      const WebSocket = await import('isows').then((module) => module.WebSocket)
       const webSocket = new WebSocket(url)
 
       // Set up a cache for incoming "synchronous" requests.
