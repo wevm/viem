@@ -168,20 +168,21 @@ export type ExtractAbiFunctionForArgs<
   ? IsUnion<abiFunction> extends true // narrow overloads using `args` by converting to tuple and filtering out overloads that don't match
     ? UnionToTuple<abiFunction> extends infer abiFunctions extends
         readonly AbiFunction[]
-      ? {
-          [k in keyof abiFunctions]: (
-            readonly [] extends args
-              ? readonly [] // fallback to `readonly []` if `args` has no value (e.g. `args` property not provided)
-              : args
-          ) extends AbiParametersToPrimitiveTypes<
-            abiFunctions[k]['inputs'],
-            'inputs'
-          >
-            ? abiFunctions[k]
-            : never
-        }[number] // convert back to union (removes `never` tuple entries: `['foo', never, 'bar'][number]` => `'foo' | 'bar'`)
+      ? // convert back to union (removes `never` tuple entries)
+        { [k in keyof abiFunctions]: CheckArgs<abiFunctions[k], args> }[number]
       : never
     : abiFunction
+  : never
+type CheckArgs<
+  abiFunction extends AbiFunction,
+  args,
+  ///
+  targetArgs extends AbiParametersToPrimitiveTypes<
+    abiFunction['inputs'],
+    'inputs'
+  > = AbiParametersToPrimitiveTypes<abiFunction['inputs'], 'inputs'>,
+> = (readonly [] extends args ? readonly [] : args) extends targetArgs // fallback to `readonly []` if `args` has no value (e.g. `args` property not provided)
+  ? abiFunction
   : never
 
 export type ContractFunctionParameters<
