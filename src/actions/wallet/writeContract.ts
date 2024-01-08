@@ -136,7 +136,11 @@ export async function writeContract<
   account extends Account | undefined,
   const abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
-  args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  args extends ContractFunctionArgs<
+    abi,
+    'nonpayable' | 'payable',
+    functionName
+  >,
   chainOverride extends Chain | undefined,
 >(
   client: Client<Transport, chain, account>,
