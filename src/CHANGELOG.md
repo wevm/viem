@@ -1,5 +1,13 @@
 # viem
 
+## 2.0.4
+
+### Patch Changes
+
+- [`991b2936`](https://github.com/wevm/viem/commit/991b29367ea2ef594d1daa1c3f82fb5f1dffc046) Thanks [@jxom](https://github.com/jxom)! - Return derived URL in HTTP transport.
+
+- [#1657](https://github.com/wevm/viem/pull/1657) [`7ddff316`](https://github.com/wevm/viem/commit/7ddff31654f214c9edf2be77afc0ac8d58ac297c) Thanks [@tmm](https://github.com/tmm)! - Fixed `writeContract` `args` type inference.
+
 ## 2.0.3
 
 ### Patch Changes
