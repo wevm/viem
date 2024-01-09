@@ -18,13 +18,13 @@ Extracts [`MessagePassed` logs](https://github.com/ethereum-optimism/optimism/bl
 
 ## Import
 ```ts
-import { extractWithdrawalMessageLogs } from 'viem'
+import { extractWithdrawalMessageLogs } from 'viem/op-stack'
 ```
 
 ## Usage
 
 ```ts
-import { extractWithdrawalMessageLogs } from 'viem'
+import { extractWithdrawalMessageLogs } from 'viem/op-stack'
 
 const receipt = await client.getTransactionReceipt({
   hash: '0xc9c0361bc3da9cd3560e48b469d0d6aac0e633e4897895edfd26a287f7c578ec',

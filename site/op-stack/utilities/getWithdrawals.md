@@ -19,13 +19,13 @@ Gets withdrawal messages emitted from the [`MessagePassed` log](https://github.c
 ## Import
 
 ```ts
-import { getWithdrawals } from 'viem'
+import { getWithdrawals } from 'viem/op-stack'
 ```
 
 ## Usage
 
 ```ts
-import { extractTransactionDepositedLogs, getWithdrawals } from 'viem'
+import { extractTransactionDepositedLogs, getWithdrawals } from 'viem/op-stack'
 
 const receipt = await client.getTransactionReceipt({
   hash: '0xa08acae48f12243bccd7153c88d892673d5578cce4ee9988c0332e8bba47436b',

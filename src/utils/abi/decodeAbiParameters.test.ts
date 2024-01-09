@@ -2044,3 +2044,19 @@ test('error: zero data', () => {
     Version: viem@1.0.2]
   `)
 })
+
+test('error: recursive decode array', () => {
+  const payload = `0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a${'0000000000000000000000000000000000000000000000000000000000000020'.repeat(
+    64,
+  )}`
+  expect(() =>
+    decodeAbiParameters(
+      [{ type: 'uint256[][][][][][][][][][]' }],
+      `0x${payload}`,
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiDecodingOffsetOutOfBoundsError: Offset at "32" is out-of-bounds (current position: "64").
+
+    Version: viem@1.0.2]
+  `)
+})

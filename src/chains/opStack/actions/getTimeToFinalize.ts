@@ -59,7 +59,7 @@ const buffer = 10
  *   transport: http(),
  * })
  *
- * const receipt = await getTransactionReceipt(publicClientL2, {
+ * const receipt = await publicClientL2.getTransactionReceipt({
  *   hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
  * })
  *

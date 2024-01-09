@@ -65,7 +65,7 @@ describe('http', () => {
       {
         "error": {
           "code": -32602,
-          "message": "invalid length 1, expected a (both 0x-prefixed or not) hex string or byte array containing 32 bytes",
+          "message": "Odd number of digits",
         },
         "id": 2,
         "jsonrpc": "2.0",
@@ -300,7 +300,7 @@ describe('http (batch)', () => {
         {
           "error": {
             "code": -32602,
-            "message": "invalid length 1, expected a (both 0x-prefixed or not) hex string or byte array containing 32 bytes",
+            "message": "Odd number of digits",
           },
           "id": 70,
           "jsonrpc": "2.0",
@@ -492,7 +492,6 @@ describe('webSocket', () => {
           "number": "0xf86cc2",
           "parentHash": "0xb932f77cf770d1d1c8f861153eec1e990f5d56b6ffdb4ac06aef3cca51ef37d4",
           "receiptsRoot": "0x7c577c7a2c1649735565691411b9236e1946dc74f3f474d15c014bece0104de8",
-          "sealFields": [],
           "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
           "size": "0x18011",
           "stateRoot": "0x651162a87a2905c6f37ab5f0a2676f9cd8fc5ff618cb5c1a89bf25ddea7f391c",
@@ -909,7 +908,6 @@ describe('webSocketAsync', () => {
           "number": "0xf86cc2",
           "parentHash": "0xb932f77cf770d1d1c8f861153eec1e990f5d56b6ffdb4ac06aef3cca51ef37d4",
           "receiptsRoot": "0x7c577c7a2c1649735565691411b9236e1946dc74f3f474d15c014bece0104de8",
-          "sealFields": [],
           "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
           "size": "0x18011",
           "stateRoot": "0x651162a87a2905c6f37ab5f0a2676f9cd8fc5ff618cb5c1a89bf25ddea7f391c",

@@ -56,7 +56,7 @@ export type GetTimeToProveErrorType = GetTimeToNextL2OutputErrorType | ErrorType
  *   transport: http(),
  * })
  *
- * const receipt = await getTransactionReceipt(publicClientL2, { hash: '0x...' })
+ * const receipt = await publicClientL2.getTransactionReceipt({ hash: '0x...' })
  * const { period, seconds, timestamp } = await getTimeToProve(publicClientL1, {
  *   receipt,
  *   targetChain: optimism
