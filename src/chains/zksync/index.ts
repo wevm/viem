@@ -31,3 +31,14 @@ export type {
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
 } from './types.js'
+
+export { prepareTransactionRequest } from './actions/prepareTransactionRequest.js'
+export { sendTransaction } from './actions/sendTransaction.js'
+
+export {
+  zkSync,
+  zkSyncTestnet,
+  zkSyncSepoliaTestnet,
+} from './chains.js'
+
+export { eip712Actions, type Eip712Actions } from './decorators/eip712.js'

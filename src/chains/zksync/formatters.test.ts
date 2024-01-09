@@ -438,6 +438,59 @@ describe('transaction', () => {
         "yParity": 1,
       }
     `)
+
+    expect(
+      transaction.format({
+        accessList: [],
+        blockHash:
+          '0xf24f67fb9f8fb300164045fe6ba409acb03904e680ec7df41ed2d331dc38f545',
+        blockNumber: '0x1',
+        chainId: '0x104',
+        from: '0x36615cf349d7f6344891b1e7ca7c72883f5dc049',
+        gas: '0x0',
+        gasPrice: undefined,
+        hash: '0xf24f67fb9f8fb300164045fe6ba409acb03904e680ec7df41ed2d331dc38f545',
+        input:
+          '0x02f87582010480840ee6b280840ee6b2808312b84b94a61464658afeaf65cccaafd3a512b69a83b77618880de0b6b3a764000080c080a08ab03d8a1aa4ab231867d9b12a1d7ebacaec3395cf9c4940674f83d79e342e4ca0475dda75d501e72fd816a9699f02af05ef7305668ee4acd0e25561d4628758a3',
+        l1BatchNumber: null,
+        maxFeePerGas: '0xee6b280',
+        maxPriorityFeePerGas: '0xee6b280',
+        nonce: '0x0',
+        r: '0x0',
+        s: '0x0',
+        to: '0xa61464658afeaf65cccaafd3a512b69a83b77618',
+        transactionIndex: '0x1',
+        type: '0x2',
+        v: '0x104',
+        value: '0xde0b6b3a7640000',
+        l1BatchTxIndex: null,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "blockHash": "0xf24f67fb9f8fb300164045fe6ba409acb03904e680ec7df41ed2d331dc38f545",
+        "blockNumber": 1n,
+        "chainId": 260,
+        "from": "0x36615cf349d7f6344891b1e7ca7c72883f5dc049",
+        "gas": 0n,
+        "gasPrice": undefined,
+        "hash": "0xf24f67fb9f8fb300164045fe6ba409acb03904e680ec7df41ed2d331dc38f545",
+        "input": "0x02f87582010480840ee6b280840ee6b2808312b84b94a61464658afeaf65cccaafd3a512b69a83b77618880de0b6b3a764000080c080a08ab03d8a1aa4ab231867d9b12a1d7ebacaec3395cf9c4940674f83d79e342e4ca0475dda75d501e72fd816a9699f02af05ef7305668ee4acd0e25561d4628758a3",
+        "l1BatchNumber": null,
+        "l1BatchTxIndex": null,
+        "maxFeePerGas": 250000000n,
+        "maxPriorityFeePerGas": 250000000n,
+        "nonce": 0,
+        "r": "0x0",
+        "s": "0x0",
+        "to": "0xa61464658afeaf65cccaafd3a512b69a83b77618",
+        "transactionIndex": 1,
+        "type": "eip1559",
+        "typeHex": "0x2",
+        "v": 260n,
+        "value": 1000000000000000000n,
+      }
+    `)
   })
 
   test('action - Priority', async () => {
@@ -1633,7 +1686,7 @@ describe('transactionRequest', () => {
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x1",
         "nonce": "0x4",
-        "type": "0xff",
+        "type": "0x71",
         "value": "0x0",
       }
     `)

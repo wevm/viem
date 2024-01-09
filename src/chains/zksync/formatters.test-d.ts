@@ -178,6 +178,7 @@ describe('smoke', () => {
     })
 
     prepareTransactionRequest(client, {
+      chain: zkSync,
       to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
       data: '0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869204461766964340000000000000000000000000000000000000000000000',
       gasPerPubdata: 50000n,
@@ -196,6 +197,7 @@ describe('smoke', () => {
     })
 
     sendTransaction(client, {
+      chain: zkSync,
       to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
       maxFeePerGas: 0n,
       gasPerPubdata: 50000n,
@@ -214,6 +216,7 @@ describe('smoke', () => {
     })
 
     signTransaction(client, {
+      chain: zkSync,
       gasPerPubdata: 50000n,
       maxFeePerGas: 250000000n,
       maxPriorityFeePerGas: 0n,

@@ -32,7 +32,7 @@ export const formatters = {
     } {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
-        const formatted = formatters.transaction.format(
+        const formatted = formatters.transaction?.format(
           transaction as ZkSyncRpcTransaction,
         ) as ZkSyncTransaction
         if (formatted.typeHex === '0x71') formatted.type = 'eip712'
@@ -140,9 +140,11 @@ export const formatters = {
                 }
               : {}),
           },
-          type: args.type === 'eip712' ? '0x71' : '0xff',
+          type: '0x71',
         } as ZkSyncRpcTransactionRequest
       return {} as ZkSyncRpcTransactionRequest
     },
   }),
 } as const satisfies ChainFormatters
+
+// eth_call needs customSignature to use 'Array.from(hexToBytes()'
