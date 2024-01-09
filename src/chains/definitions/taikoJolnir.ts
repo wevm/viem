@@ -15,4 +15,11 @@ export const taikoJolnir = /*#__PURE__*/ defineChain({
       url: 'https://explorer.jolnir.taiko.xyz',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 732706
+    },
+  },
+  testnet: true,
 })
