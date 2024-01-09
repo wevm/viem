@@ -261,6 +261,7 @@ test('exports', () => {
       "encodeEventTopics",
       "encodeFunctionData",
       "encodeFunctionResult",
+      "parseEventLogs",
       "defineTransaction",
       "formatTransaction",
       "transactionType",
