@@ -1,5 +1,17 @@
 # viem
 
+## 2.0.5
+
+### Patch Changes
+
+- [#1659](https://github.com/wevm/viem/pull/1659) [`d8740646`](https://github.com/wevm/viem/commit/d8740646c83d3064ea103928a00928a3c260ed65) Thanks [@d1onys1us](https://github.com/d1onys1us)! - Added Taiko Katla chain.
+
+- [#1663](https://github.com/wevm/viem/pull/1663) [`e22c85e8`](https://github.com/wevm/viem/commit/e22c85e8149f8ec7b255655ced70dc3dbc3e1383) Thanks [@saqlain1020](https://github.com/saqlain1020)! - Exported `parseEventLogs` (and types).
+
+- [#1662](https://github.com/wevm/viem/pull/1662) [`71d14759`](https://github.com/wevm/viem/commit/71d14759acfaef4d0589e98b3c97b11f2a91e561) Thanks [@zkgggggame](https://github.com/zkgggggame)! - Added multicall3 to Taiko Jolnir.
+
+- [`14ad813f`](https://github.com/wevm/viem/commit/14ad813fed2d9ee97e053e8b7d701faf9e68f0cf) Thanks [@jxom](https://github.com/jxom)! - Fixed extreme edge-case where decoding a **malformed** payload against a nested array type could cause \`decodeAbiParameters\` to enter an infinite loop.
+
 ## 2.0.4
 
 ### Patch Changes
