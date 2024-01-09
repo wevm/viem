@@ -174,6 +174,32 @@ describe('eip1559', () => {
     ).toEqual(
       '0x02f8720182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
+    expect(
+      serializeTransaction(
+        baseEip1559,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          v: 0n,
+        },
+      ),
+    ).toEqual(
+      '0x02f8720182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
+    expect(
+      serializeTransaction(
+        baseEip1559,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          v: 1n,
+        },
+      ),
+    ).toEqual(
+      '0x02f8720182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c001a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
   })
 
   describe('errors', () => {
@@ -192,9 +218,9 @@ describe('eip1559', () => {
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Address \\"0x0000000000000000000000000000000000000000000000000000000000000001\\" is invalid.
+        [InvalidAddressError: Address "0x0000000000000000000000000000000000000000000000000000000000000001" is invalid.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -213,9 +239,9 @@ describe('eip1559', () => {
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Size for storage key \\"0x00000000000000000000000000000000000000000000000000000000000001\\" is invalid. Expected 32 bytes. Got 31 bytes.
+        [InvalidStorageKeySizeError: Size for storage key "0x00000000000000000000000000000000000000000000000000000000000001" is invalid. Expected 32 bytes. Got 31 bytes.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
@@ -369,6 +395,32 @@ describe('eip2930', () => {
     ).toEqual(
       '0x01f8a6018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
+    expect(
+      serializeTransaction(
+        baseEip2930,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          v: 0n,
+        },
+      ),
+    ).toEqual(
+      '0x01f8a6018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
+    expect(
+      serializeTransaction(
+        baseEip2930,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          v: 1n,
+        },
+      ),
+    ).toEqual(
+      '0x01f8a6018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe01a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
   })
 
   describe('errors', () => {
@@ -386,9 +438,9 @@ describe('eip2930', () => {
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Address \\"0x0\\" is invalid.
+        [InvalidAddressError: Address "0x0" is invalid.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
 
@@ -406,9 +458,9 @@ describe('eip2930', () => {
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Size for storage key \\"0x0000000000000000000000000000000000000000000000000000000000001\\" is invalid. Expected 32 bytes. Got 30 bytes.
+        [InvalidStorageKeySizeError: Size for storage key "0x0000000000000000000000000000000000000000000000000000000000001" is invalid. Expected 32 bytes. Got 30 bytes.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
@@ -585,9 +637,9 @@ describe('legacy', () => {
           },
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid \`v\` value \\"29\\". Expected 27 or 28.
+        [InvalidLegacyVError: Invalid \`v\` value "29". Expected 27 or 28.
 
-        Version: viem@1.0.2"
+        Version: viem@1.0.2]
       `)
     })
   })
@@ -597,7 +649,7 @@ test('cannot infer type from transaction object', () => {
   expect(() =>
     serializeTransaction({ chainId: 1, data: '0x1234', nonce: 69 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Cannot infer a transaction type from provided transaction.
+    [InvalidSerializableTransactionError: Cannot infer a transaction type from provided transaction.
 
     Provided Transaction:
     {
@@ -612,6 +664,138 @@ test('cannot infer type from transaction object', () => {
     - an EIP-2930 Transaction with \`gasPrice\` & \`accessList\`, or
     - a Legacy Transaction with \`gasPrice\`
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
+})
+
+describe('github', () => {
+  test('https://github.com/wevm/viem/issues/1433', () => {
+    expect(
+      serializeTransaction(
+        {
+          blockHash: null,
+          blockNumber: null,
+          from: '0xc702b9950e44f7d321fa16ee88bf8e1a561249ba',
+          gas: 51627n,
+          gasPrice: 3000000000n,
+          hash: '0x3eaa88a766e82cbe53c95218ab4c3cf316325802b5f75d086b5121007b918e92',
+          input:
+            '0xa9059cbb00000000000000000000000082fc882199816bcec06baf848eaec51c2f96c85b000000000000000000000000000000000000000000000000eccae3078bacd15d',
+          nonce: 117,
+          to: '0x55d398326f99059ff775485246999027b3197955',
+          transactionIndex: null,
+          value: 0n,
+          type: 'legacy',
+          v: 84475n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+          chainId: undefined,
+          typeHex: '0x0',
+        },
+        {
+          v: 84475n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0xf8667584b2d05e0082c9ab9455d398326f99059ff775485246999027b31979558080830149fba073b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bfa0354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23"',
+    )
+
+    expect(
+      serializeTransaction(
+        {
+          blockHash: null,
+          blockNumber: null,
+          from: '0xc702b9950e44f7d321fa16ee88bf8e1a561249ba',
+          gas: 51627n,
+          gasPrice: 3000000000n,
+          hash: '0x3eaa88a766e82cbe53c95218ab4c3cf316325802b5f75d086b5121007b918e92',
+          input:
+            '0xa9059cbb00000000000000000000000082fc882199816bcec06baf848eaec51c2f96c85b000000000000000000000000000000000000000000000000eccae3078bacd15d',
+          nonce: 117,
+          to: '0x55d398326f99059ff775485246999027b3197955',
+          transactionIndex: null,
+          value: 0n,
+          type: 'legacy',
+          v: 84476n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+          chainId: undefined,
+          typeHex: '0x0',
+        },
+        {
+          v: 84476n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0xf8667584b2d05e0082c9ab9455d398326f99059ff775485246999027b31979558080830149fca073b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bfa0354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23"',
+    )
+
+    expect(
+      serializeTransaction(
+        {
+          blockHash: null,
+          blockNumber: null,
+          from: '0xc702b9950e44f7d321fa16ee88bf8e1a561249ba',
+          gas: 51627n,
+          gasPrice: 3000000000n,
+          hash: '0x3eaa88a766e82cbe53c95218ab4c3cf316325802b5f75d086b5121007b918e92',
+          input:
+            '0xa9059cbb00000000000000000000000082fc882199816bcec06baf848eaec51c2f96c85b000000000000000000000000000000000000000000000000eccae3078bacd15d',
+          nonce: 117,
+          to: '0x55d398326f99059ff775485246999027b3197955',
+          transactionIndex: null,
+          value: 0n,
+          type: 'legacy',
+          v: 35n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+          chainId: undefined,
+          typeHex: '0x0',
+        },
+        {
+          v: 35n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0xf8637584b2d05e0082c9ab9455d398326f99059ff775485246999027b319795580801ba073b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bfa0354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23"',
+    )
+
+    expect(
+      serializeTransaction(
+        {
+          blockHash: null,
+          blockNumber: null,
+          from: '0xc702b9950e44f7d321fa16ee88bf8e1a561249ba',
+          gas: 51627n,
+          gasPrice: 3000000000n,
+          hash: '0x3eaa88a766e82cbe53c95218ab4c3cf316325802b5f75d086b5121007b918e92',
+          input:
+            '0xa9059cbb00000000000000000000000082fc882199816bcec06baf848eaec51c2f96c85b000000000000000000000000000000000000000000000000eccae3078bacd15d',
+          nonce: 117,
+          to: '0x55d398326f99059ff775485246999027b3197955',
+          transactionIndex: null,
+          value: 0n,
+          type: 'legacy',
+          v: 36n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+          chainId: undefined,
+          typeHex: '0x0',
+        },
+        {
+          v: 36n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0xf8637584b2d05e0082c9ab9455d398326f99059ff775485246999027b319795580801ca073b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bfa0354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23"',
+    )
+  })
 })

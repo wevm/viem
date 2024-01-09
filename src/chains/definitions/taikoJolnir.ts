@@ -2,15 +2,11 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const taikoJolnir = /*#__PURE__*/ defineChain({
   id: 167007,
-  name: 'Taiko Jolnir L2',
-  network: 'tko-jolnir',
+  name: 'Taiko Jolnir (Alpha-5 Testnet)',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://jolnir.taiko.xyz'],
-    },
-    public: {
-      http: ['https://jolnir.taiko.xyz'],
+      http: ['https://rpc.jolnir.taiko.xyz'],
     },
   },
   blockExplorers: {

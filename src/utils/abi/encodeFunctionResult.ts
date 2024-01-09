@@ -1,42 +1,61 @@
-import type { Abi } from 'abitype'
+import type { Abi, AbiStateMutability, ExtractAbiFunctions } from 'abitype'
 
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
 } from '../../errors/abi.js'
 import type {
-  AbiItem,
-  ContractFunctionResult,
-  InferFunctionName,
+  ContractFunctionName,
+  ContractFunctionReturnType,
 } from '../../types/contract.js'
 
 import type { ErrorType } from '../../errors/utils.js'
+import type { Hex } from '../../types/misc.js'
+import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
 import {
   type EncodeAbiParametersErrorType,
   encodeAbiParameters,
 } from './encodeAbiParameters.js'
-import {
-  type GetAbiItemErrorType,
-  type GetAbiItemParameters,
-  getAbiItem,
-} from './getAbiItem.js'
+import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeFunctionResult'
 
 export type EncodeFunctionResultParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string | undefined = string,
-  _FunctionName = InferFunctionName<TAbi, TFunctionName>,
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends
+    | ContractFunctionName<abi>
+    | undefined = ContractFunctionName<abi>,
+  ///
+  hasFunctions = abi extends Abi
+    ? Abi extends abi
+      ? true
+      : [ExtractAbiFunctions<abi>] extends [never]
+        ? false
+        : true
+    : true,
+  allFunctionNames = ContractFunctionName<abi>,
 > = {
-  functionName?: _FunctionName
-} & (TFunctionName extends string
-  ? { abi: TAbi; result?: ContractFunctionResult<TAbi, TFunctionName> }
-  : _FunctionName extends string
-  ? {
-      abi: [TAbi[number]]
-      result?: ContractFunctionResult<TAbi, _FunctionName>
-    }
-  : never)
+  abi: abi
+  result?:
+    | ContractFunctionReturnType<
+        abi,
+        AbiStateMutability,
+        functionName extends ContractFunctionName<abi>
+          ? functionName
+          : ContractFunctionName<abi>,
+        never // allow all args. required for overloads to work.
+      >
+    | undefined
+} & UnionEvaluate<
+  IsNarrowable<abi, Abi> extends true
+    ? abi['length'] extends 1
+      ? { functionName?: functionName | allFunctionNames }
+      : { functionName: functionName | allFunctionNames }
+    : { functionName?: functionName | allFunctionNames }
+> &
+  (hasFunctions extends true ? unknown : never)
+
+export type EncodeFunctionResultReturnType = Hex
 
 export type EncodeFunctionResultErrorType =
   | AbiFunctionOutputsNotFoundError
@@ -46,29 +65,23 @@ export type EncodeFunctionResultErrorType =
   | ErrorType
 
 export function encodeFunctionResult<
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string | undefined = undefined,
->({
-  abi,
-  functionName,
-  result,
-}: EncodeFunctionResultParameters<TAbi, TFunctionName>) {
-  let abiItem = abi[0] as AbiItem
+  const abi extends Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi> | undefined = undefined,
+>(
+  parameters: EncodeFunctionResultParameters<abi, functionName>,
+): EncodeFunctionResultReturnType {
+  const { abi, functionName, result } =
+    parameters as EncodeFunctionResultParameters
+
+  let abiItem = abi[0]
   if (functionName) {
-    abiItem = getAbiItem({
-      abi,
-      name: functionName,
-    } as GetAbiItemParameters)
-    if (!abiItem)
-      throw new AbiFunctionNotFoundError(functionName, {
-        docsPath: '/docs/contract/encodeFunctionResult',
-      })
+    const item = getAbiItem({ abi, name: functionName })
+    if (!item) throw new AbiFunctionNotFoundError(functionName, { docsPath })
+    abiItem = item
   }
 
   if (abiItem.type !== 'function')
-    throw new AbiFunctionNotFoundError(undefined, {
-      docsPath: '/docs/contract/encodeFunctionResult',
-    })
+    throw new AbiFunctionNotFoundError(undefined, { docsPath })
 
   if (!abiItem.outputs)
     throw new AbiFunctionOutputsNotFoundError(abiItem.name, { docsPath })

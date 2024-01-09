@@ -100,5 +100,9 @@ test('no abi', async () => {
     data: '0x83aa206e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001a796f7520646f206e6f7420686176652061636365737320736572000000000000',
   })
 
-  expectTypeOf(result).toEqualTypeOf<never>()
+  expectTypeOf(result).toEqualTypeOf<{
+    abiItem: never
+    args: readonly unknown[]
+    errorName: string
+  }>()
 })

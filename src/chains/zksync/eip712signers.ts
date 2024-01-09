@@ -1,11 +1,12 @@
 import { isEIP712 as isZkSyncEIP712 } from './serializers.js'
 import type {
+  ChainEIP712Domain,
+  EIP712Domain,
+  EIP712DomainFn,
   ZkSyncEIP712TransactionToSign,
   ZkSyncTransactionSerializable,
   ZkSyncTransactionSerializableEIP712,
 } from './types.js'
-import type { ChainEIP712Domain } from './types/chain.js'
-import type { EIP712Domain, EIP712DomainFn } from './types/eip712signer.js'
 
 export const getZkSyncEIP712Domain: EIP712DomainFn<
   ZkSyncTransactionSerializable,
@@ -16,10 +17,10 @@ export const getZkSyncEIP712Domain: EIP712DomainFn<
   throw new Error('Cannot sign ZkSync EIP712 transaction, missing fields!')
 }
 
-export const eip712domainZkSync = {
+export const eip712domainZkSync: ChainEIP712Domain = {
   eip712domain: getZkSyncEIP712Domain,
-  isEip712Domain: isZkSyncEIP712,
-} as const satisfies ChainEIP712Domain
+  isEip712domain: isZkSyncEIP712,
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // EIP712 Signers

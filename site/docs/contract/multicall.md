@@ -293,6 +293,6 @@ const results = await publicClient.multicall({
 
 ## Live Example
 
-Check out the usage of `multicall` in the live [Multicall Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts_multicall) below.
+Check out the usage of `multicall` in the live [Multicall Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_multicall) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts_multicall?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_multicall?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

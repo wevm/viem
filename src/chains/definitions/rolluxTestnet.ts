@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const rolluxTestnet = /*#__PURE__*/ defineChain({
   id: 57000,
   name: 'Rollux Testnet',
-  network: 'rollux-testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'Syscoin',
@@ -14,7 +13,6 @@ export const rolluxTestnet = /*#__PURE__*/ defineChain({
       http: ['https://rpc-tanenbaum.rollux.com/'],
       webSocket: ['wss://rpc-tanenbaum.rollux.com/wss'],
     },
-    public: { http: ['https://rpc-tanenbaum.rollux.com/'] },
   },
   blockExplorers: {
     default: {

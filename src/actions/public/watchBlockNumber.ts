@@ -20,15 +20,6 @@ export type OnBlockNumberFn = (
   prevBlockNumber: OnBlockNumberParameter | undefined,
 ) => void
 
-export type PollOptions = {
-  /** Whether or not to emit the missed block numbers to the callback. */
-  emitMissed?: boolean
-  /** Whether or not to emit the latest block number to the callback when the subscription opens. */
-  emitOnBegin?: boolean
-  /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
-  pollingInterval?: number
-}
-
 export type WatchBlockNumberParameters<
   TTransport extends Transport = Transport,
 > = {
@@ -36,17 +27,26 @@ export type WatchBlockNumberParameters<
   onBlockNumber: OnBlockNumberFn
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
-} & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
-  ?
-      | {
-          emitMissed?: never
-          emitOnBegin?: never
+} & (
+  | (GetTransportConfig<TTransport>['type'] extends 'webSocket'
+      ? {
+          emitMissed?: undefined
+          emitOnBegin?: undefined
           /** Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`. */
-          poll?: false
-          pollingInterval?: never
+          poll?: false | undefined
+          pollingInterval?: undefined
         }
-      | (PollOptions & { poll: true })
-  : PollOptions & { poll?: true })
+      : never)
+  | {
+      /** Whether or not to emit the missed block numbers to the callback. */
+      emitMissed?: boolean | undefined
+      /** Whether or not to emit the latest block number to the callback when the subscription opens. */
+      emitOnBegin?: boolean | undefined
+      poll?: true | undefined
+      /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
+      pollingInterval?: number | undefined
+    }
+)
 
 export type WatchBlockNumberReturnType = () => void
 
@@ -56,7 +56,7 @@ export type WatchBlockNumberErrorType = PollErrorType | ErrorType
  * Watches and returns incoming block numbers.
  *
  * - Docs: https://viem.sh/docs/actions/public/watchBlockNumber.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/watching-blocks
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/watching-blocks
  * - JSON-RPC Methods:
  *   - When `poll: true`, calls [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber) on a polling interval.
  *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
@@ -112,6 +112,7 @@ export function watchBlockNumber<
             const blockNumber = await getAction(
               client,
               getBlockNumber,
+              'getBlockNumber',
             )({ cacheTime: 0 })
 
             if (prevBlockNumber) {

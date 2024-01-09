@@ -1,9 +1,14 @@
-import { type Abi, type ResolvedConfig, parseAbi } from 'abitype'
+import {
+  type Abi,
+  type Address,
+  type ResolvedRegister,
+  parseAbi,
+} from 'abitype'
 import {
   wagmiMintExampleAbi,
   wagmiMintExampleHumanReadableAbi,
   writingEditionsFactoryAbi,
-} from 'abitype/test'
+} from 'abitype/abis'
 import { assertType, expectTypeOf, test } from 'vitest'
 
 import { publicClient } from '~test/src/utils.js'
@@ -53,7 +58,7 @@ test('args', () => {
       functionName: 'predictDeterministicAddress',
       args: ['0x', '0xfoo'],
     })
-    assertType<ResolvedConfig['AddressType']>(result)
+    assertType<ResolvedRegister['AddressType']>(result)
   })
 })
 
@@ -74,7 +79,7 @@ test('return types', () => {
       functionName: 'ownerOf',
       args: [123n],
     })
-    assertType<ResolvedConfig['AddressType']>(result)
+    assertType<ResolvedRegister['AddressType']>(result)
   })
 
   test('number', async () => {
@@ -84,7 +89,7 @@ test('return types', () => {
       functionName: 'balanceOf',
       args: ['0x'],
     })
-    assertType<ResolvedConfig['BigIntType']>(result)
+    assertType<ResolvedRegister['BigIntType']>(result)
   })
 })
 
@@ -96,7 +101,7 @@ test('behavior', () => {
       // @ts-expect-error Trying to use non-read function
       functionName: 'approve',
     })
-    assertType<void>(result)
+    assertType<bigint | string>(result)
   })
 
   test('without const assertion', async () => {
@@ -161,10 +166,8 @@ test('behavior', () => {
       functionName: 'bar',
       args: ['0x'],
     })
-    type Result1 = typeof result1
-    type Result2 = typeof result2
-    assertType<Result1>('hello')
-    assertType<Result2>('0x123')
+    expectTypeOf(result1).toEqualTypeOf<unknown>()
+    expectTypeOf(result2).toEqualTypeOf<unknown>()
   })
 
   test('defined inline', async () => {
@@ -209,10 +212,8 @@ test('behavior', () => {
       functionName: 'bar',
       args: ['0x'],
     })
-    type Result1 = typeof result1
-    type Result2 = typeof result2
-    assertType<Result1>('hello')
-    assertType<Result2>('0x123')
+    expectTypeOf(result1).toEqualTypeOf<string>()
+    expectTypeOf(result2).toEqualTypeOf<Address>()
   })
 
   test('human readable', async () => {
@@ -223,5 +224,48 @@ test('behavior', () => {
       args: ['0x'],
     })
     assertType<bigint>(result)
+  })
+
+  test('overloads', async () => {
+    const abi = parseAbi([
+      'function foo() view returns (int8)',
+      'function foo(address) view returns (string)',
+      'function foo(address, address) view returns ((address foo, address bar))',
+      'function bar() view returns (int8)',
+    ])
+
+    const result1 = await readContract(publicClient, {
+      address: '0x',
+      abi,
+      functionName: 'foo',
+    })
+    assertType<number>(result1)
+
+    const result2 = await readContract(publicClient, {
+      address: '0x',
+      abi,
+      functionName: 'foo',
+      args: [],
+    })
+    assertType<number>(result2)
+
+    const result3 = await readContract(publicClient, {
+      address: '0x',
+      abi,
+      functionName: 'foo',
+      args: ['0x'],
+    })
+    assertType<string>(result3)
+
+    const result4 = await readContract(publicClient, {
+      address: '0x',
+      abi,
+      functionName: 'foo',
+      args: ['0x', '0x'],
+    })
+    assertType<{
+      foo: `0x${string}`
+      bar: `0x${string}`
+    }>(result4)
   })
 })

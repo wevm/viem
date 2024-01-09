@@ -12,12 +12,6 @@ export const astarZkatana = /*#__PURE__*/ defineChain({
         'https://rpc.startale.com/zkatana',
       ],
     },
-    public: {
-      http: [
-        'https://rpc.zkatana.gelato.digital',
-        'https://rpc.startale.com/zkatana',
-      ],
-    },
   },
   blockExplorers: {
     blockscout: {

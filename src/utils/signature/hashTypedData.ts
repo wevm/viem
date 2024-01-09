@@ -25,9 +25,9 @@ type MessageTypeProperty = {
 }
 
 export type HashTypedDataParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = TypedDataDefinition<TTypedData, TPrimaryType>
+  typedData extends TypedData | Record<string, unknown> = TypedData,
+  primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
+> = TypedDataDefinition<typedData, primaryType>
 
 export type HashTypedDataReturnType = Hex
 
@@ -39,18 +39,19 @@ export type HashTypedDataErrorType =
   | ErrorType
 
 export function hashTypedData<
-  const TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
->({
-  domain: domain_,
-  message,
-  primaryType,
-  types: types_,
-}: HashTypedDataParameters<TTypedData, TPrimaryType>): HashTypedDataReturnType {
-  const domain: TypedDataDomain = typeof domain_ === 'undefined' ? {} : domain_
+  const typedData extends TypedData | Record<string, unknown>,
+  primaryType extends keyof typedData | 'EIP712Domain',
+>(
+  parameters: HashTypedDataParameters<typedData, primaryType>,
+): HashTypedDataReturnType {
+  const {
+    domain = {},
+    message,
+    primaryType,
+  } = parameters as HashTypedDataParameters
   const types = {
     EIP712Domain: getTypesForEIP712Domain({ domain }),
-    ...(types_ as TTypedData),
+    ...parameters.types,
   }
 
   // Need to do a runtime validation check on addresses, byte ranges, integer ranges, etc
@@ -60,7 +61,7 @@ export function hashTypedData<
     message,
     primaryType,
     types,
-  } as TypedDataDefinition)
+  })
 
   const parts: Hex[] = ['0x1901']
   if (domain)
@@ -71,15 +72,14 @@ export function hashTypedData<
       }),
     )
 
-  if (primaryType !== 'EIP712Domain') {
+  if (primaryType !== 'EIP712Domain')
     parts.push(
       hashStruct({
         data: message,
-        primaryType: primaryType as string,
+        primaryType,
         types: types as Record<string, MessageTypeProperty[]>,
       }),
     )
-  }
 
   return keccak256(concat(parts))
 }

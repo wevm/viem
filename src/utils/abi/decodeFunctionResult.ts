@@ -1,4 +1,4 @@
-import type { Abi, ExtractAbiFunctionNames } from 'abitype'
+import type { Abi, AbiStateMutability, ExtractAbiFunctions } from 'abitype'
 
 import {
   AbiFunctionNotFoundError,
@@ -7,50 +7,115 @@ import {
   type AbiFunctionOutputsNotFoundErrorType,
 } from '../../errors/abi.js'
 import type {
-  AbiItem,
-  ContractFunctionResult,
-  GetFunctionArgs,
-  InferFunctionName,
+  ContractFunctionArgs,
+  ContractFunctionName,
+  ContractFunctionReturnType,
+  Widen,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 
 import type { ErrorType } from '../../errors/utils.js'
+import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
 import {
   type DecodeAbiParametersErrorType,
   decodeAbiParameters,
 } from './decodeAbiParameters.js'
-import {
-  type GetAbiItemErrorType,
-  type GetAbiItemParameters,
-  getAbiItem,
-} from './getAbiItem.js'
+import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/decodeFunctionResult'
 
 export type DecodeFunctionResultParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string | undefined = string,
-  _FunctionName = InferFunctionName<TAbi, TFunctionName>,
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends
+    | ContractFunctionName<abi>
+    | undefined = ContractFunctionName<abi>,
+  args extends ContractFunctionArgs<
+    abi,
+    AbiStateMutability,
+    functionName extends ContractFunctionName<abi>
+      ? functionName
+      : ContractFunctionName<abi>
+  > = ContractFunctionArgs<
+    abi,
+    AbiStateMutability,
+    functionName extends ContractFunctionName<abi>
+      ? functionName
+      : ContractFunctionName<abi>
+  >,
+  ///
+  hasFunctions = abi extends Abi
+    ? Abi extends abi
+      ? true
+      : [ExtractAbiFunctions<abi>] extends [never]
+        ? false
+        : true
+    : true,
+  allArgs = ContractFunctionArgs<
+    abi,
+    AbiStateMutability,
+    functionName extends ContractFunctionName<abi>
+      ? functionName
+      : ContractFunctionName<abi>
+  >,
+  allFunctionNames = ContractFunctionName<abi>,
 > = {
-  functionName?: _FunctionName
+  abi: abi
   data: Hex
-} & (TFunctionName extends string
-  ? { abi: TAbi } & Partial<GetFunctionArgs<TAbi, TFunctionName>>
-  : _FunctionName extends string
-  ? { abi: [TAbi[number]] } & Partial<GetFunctionArgs<TAbi, _FunctionName>>
-  : never)
+} & UnionEvaluate<
+  IsNarrowable<abi, Abi> extends true
+    ? abi['length'] extends 1
+      ? { functionName?: functionName | allFunctionNames }
+      : { functionName: functionName | allFunctionNames }
+    : { functionName?: functionName | allFunctionNames }
+> &
+  UnionEvaluate<
+    readonly [] extends allArgs
+      ? {
+          args?:
+            | allArgs // show all options
+            // infer value, widen inferred value of `args` conditionally to match `allArgs`
+            | (abi extends Abi
+                ? args extends allArgs
+                  ? Widen<args>
+                  : never
+                : never)
+            | undefined
+        }
+      : {
+          args?:
+            | allArgs // show all options
+            | (Widen<args> & (args extends allArgs ? unknown : never)) // infer value, widen inferred value of `args` match `allArgs` (e.g. avoid union `args: readonly [123n] | readonly [bigint]`)
+            | undefined
+        }
+  > &
+  (hasFunctions extends true ? unknown : never)
 
 export type DecodeFunctionResultReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string | undefined = string,
-  _FunctionName extends string = TAbi extends Abi
-    ? Abi extends TAbi
-      ? string
-      : ExtractAbiFunctionNames<TAbi>[number]
-    : string,
-> = TFunctionName extends string
-  ? ContractFunctionResult<TAbi, TFunctionName>
-  : ContractFunctionResult<TAbi, _FunctionName>
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends
+    | ContractFunctionName<abi>
+    | undefined = ContractFunctionName<abi>,
+  args extends ContractFunctionArgs<
+    abi,
+    AbiStateMutability,
+    functionName extends ContractFunctionName<abi>
+      ? functionName
+      : ContractFunctionName<abi>
+  > = ContractFunctionArgs<
+    abi,
+    AbiStateMutability,
+    functionName extends ContractFunctionName<abi>
+      ? functionName
+      : ContractFunctionName<abi>
+  >,
+> = ContractFunctionReturnType<
+  abi,
+  AbiStateMutability,
+  functionName extends ContractFunctionName<abi>
+    ? functionName
+    : ContractFunctionName<abi>,
+  args
+>
 
 export type DecodeFunctionResultErrorType =
   | AbiFunctionNotFoundErrorType
@@ -60,25 +125,32 @@ export type DecodeFunctionResultErrorType =
   | ErrorType
 
 export function decodeFunctionResult<
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string | undefined = undefined,
->({
-  abi,
-  args,
-  functionName,
-  data,
-}: DecodeFunctionResultParameters<
-  TAbi,
-  TFunctionName
->): DecodeFunctionResultReturnType<TAbi, TFunctionName> {
-  let abiItem = abi[0] as AbiItem
+  const abi extends Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi> | undefined = undefined,
+  args extends ContractFunctionArgs<
+    abi,
+    AbiStateMutability,
+    functionName extends ContractFunctionName<abi>
+      ? functionName
+      : ContractFunctionName<abi>
+  > = ContractFunctionArgs<
+    abi,
+    AbiStateMutability,
+    functionName extends ContractFunctionName<abi>
+      ? functionName
+      : ContractFunctionName<abi>
+  >,
+>(
+  parameters: DecodeFunctionResultParameters<abi, functionName, args>,
+): DecodeFunctionResultReturnType<abi, functionName, args> {
+  const { abi, args, functionName, data } =
+    parameters as DecodeFunctionResultParameters
+
+  let abiItem = abi[0]
   if (functionName) {
-    abiItem = getAbiItem({
-      abi,
-      args,
-      name: functionName,
-    } as GetAbiItemParameters)
-    if (!abiItem) throw new AbiFunctionNotFoundError(functionName, { docsPath })
+    const item = getAbiItem({ abi, args, name: functionName })
+    if (!item) throw new AbiFunctionNotFoundError(functionName, { docsPath })
+    abiItem = item
   }
 
   if (abiItem.type !== 'function')
@@ -87,7 +159,9 @@ export function decodeFunctionResult<
     throw new AbiFunctionOutputsNotFoundError(abiItem.name, { docsPath })
 
   const values = decodeAbiParameters(abiItem.outputs, data)
-  if (values && values.length > 1) return values as any
-  if (values && values.length === 1) return values[0] as any
-  return undefined as any
+  if (values && values.length > 1)
+    return values as DecodeFunctionResultReturnType<abi, functionName, args>
+  if (values && values.length === 1)
+    return values[0] as DecodeFunctionResultReturnType<abi, functionName, args>
+  return undefined as DecodeFunctionResultReturnType<abi, functionName, args>
 }

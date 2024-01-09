@@ -1,5 +1,7 @@
-import type { Abi, AbiEvent, Address } from 'abitype'
+import type { Abi, AbiEvent, Address, TypedDataDomain } from 'abitype'
+import type { ChainFormatters } from '../../index.js'
 import type { Block, BlockTag } from '../../types/block.js'
+import type { Chain, ChainFormatter } from '../../types/chain.js'
 import type { FeeValuesEIP1559 } from '../../types/fee.js'
 import type { Log as Log_ } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
@@ -21,10 +23,13 @@ import type {
   TransactionRequestBase,
   TransactionSerializable,
   TransactionSerializableEIP1559,
+  TransactionSerializableGeneric,
   TransactionSerialized,
   TransactionType,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
+import type { formatters } from './formatters.js'
+import { isEIP712 } from './serializers.js'
 
 type EIP712Type = '0x71'
 type PriorityType = '0xff'
@@ -45,7 +50,7 @@ export type ZkSyncLog<
     ? TAbiEvent['name']
     : undefined,
 > = Log_<TQuantity, TIndex, TPending, TAbiEvent, TStrict, TAbi, TEventName> & {
-  l1BatchNumber: TQuantity
+  l1BatchNumber: TQuantity | null
   transactionLogIndex: TIndex
   logType: Hex | null
 }
@@ -125,8 +130,8 @@ export type ZkSyncBlock<
 // Block (RPC)
 
 export type ZkSyncRpcBlockOverrides = {
-  l1BatchNumber: Hex
-  l1BatchTimestamp: Hex
+  l1BatchNumber: Hex | null
+  l1BatchTimestamp: Hex | null
 }
 export type ZkSyncRpcBlock<
   TBlockTag extends BlockTag = BlockTag,
@@ -178,8 +183,8 @@ export type ZkSyncTransaction<TPending extends boolean = boolean> =
 // Transaction (RPC)
 
 type RpcTransactionOverrides = {
-  l1BatchNumber: Hex
-  l1BatchTxIndex: Hex
+  l1BatchNumber: Hex | null
+  l1BatchTxIndex: Hex | null
 }
 
 type RpcTransactionLegacy<TPending extends boolean = boolean> =
@@ -269,8 +274,8 @@ export type ZkSyncTransactionType = TransactionType | 'eip712' | 'priority'
 // https://era.zksync.io/docs/api/js/types.html#transactionreceipt
 
 export type ZkSyncRpcTransactionReceiptOverrides = {
-  l1BatchNumber: Hex
-  l1BatchTxIndex: Hex
+  l1BatchNumber: Hex | null
+  l1BatchTxIndex: Hex | null
   logs: ZkSyncRpcLog[]
   l2ToL1Logs: ZkSyncRpcL2ToL1Log[]
   root: Hex
@@ -332,4 +337,79 @@ export type ZkSyncEIP712TransactionToSign = {
   data: Hex
   factoryDeps: Hex[]
   paymasterInput: Hex
+}
+
+type EIP712FieldType = 'uint256' | 'bytes' | 'bytes32[]'
+type EIP712Field = { name: string; type: EIP712FieldType }
+
+// Maybe it is the same as SignTypedDataParameters?
+export type EIP712Domain<TransactionToSign> = {
+  domain: TypedDataDomain
+  types: Record<string, EIP712Field[]>
+  primaryType: string
+  message: TransactionToSign
+}
+
+// Used to define the EIP712signer field in the chain.
+export type EIP712DomainFn<
+  TTransactionSerializable extends
+    TransactionSerializable = TransactionSerializable,
+  TransactionToSign = {},
+> = (transaction: TTransactionSerializable) => EIP712Domain<TransactionToSign>
+
+export type TransactionRequestEIP712<
+  TQuantity = bigint,
+  TIndex = number,
+  TTransactionType = 'eip712',
+> = TransactionRequestBase<TQuantity, TIndex> &
+  Partial<FeeValuesEIP1559<TQuantity>> & {
+    accessList?: never
+    gasPerPubdata?: bigint
+    factoryDeps?: Hex[]
+    paymaster?: Address
+    paymasterInput?: Hex
+    customSignature?: Hex
+    type?: TTransactionType
+  }
+
+export type ChainEIP712<
+  formatters extends ChainFormatters | undefined =
+    | typeof formatters
+    | undefined,
+> = Chain<formatters> & {
+  custom: {
+    /** Return EIP712 Domain for EIP712 transaction */
+    eip712domain?: ChainEIP712Domain<formatters> | undefined
+  }
+}
+
+export type ChainEIP712Domain<
+  formatters extends ChainFormatters | undefined = undefined,
+  TransactionToSign = {},
+> = {
+  /** Retrieve EIP712 Domain to generate custom signature. */
+  eip712domain?: EIP712DomainFn<
+    formatters extends ChainFormatters
+      ? formatters['transactionRequest'] extends ChainFormatter
+        ? TransactionSerializableGeneric &
+            Parameters<formatters['transactionRequest']['format']>[0]
+        : TransactionSerializable
+      : TransactionSerializable,
+    TransactionToSign
+  >
+  /** Check if it is a EIP712 transaction */
+  isEip712domain?: (
+    transaction: formatters extends ChainFormatters
+      ? formatters['transactionRequest'] extends ChainFormatter
+        ? TransactionSerializableGeneric &
+            Parameters<formatters['transactionRequest']['format']>[0]
+        : TransactionSerializable
+      : TransactionSerializable,
+  ) => boolean
+}
+
+export function isEip712Transaction(
+  transaction: TransactionSerializable,
+): boolean {
+  return isEIP712(transaction)
 }

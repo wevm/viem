@@ -45,9 +45,12 @@ export async function watchAsset<
   client: Client<Transport, TChain, TAccount>,
   params: WatchAssetParameters,
 ): Promise<WatchAssetReturnType> {
-  const added = await client.request({
-    method: 'wallet_watchAsset',
-    params,
-  })
+  const added = await client.request(
+    {
+      method: 'wallet_watchAsset',
+      params,
+    },
+    { retryCount: 0 },
+  )
   return added
 }

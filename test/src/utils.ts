@@ -51,10 +51,6 @@ export const anvilChain = {
       http: [localHttpUrl],
       webSocket: [localWsUrl],
     },
-    public: {
-      http: [localHttpUrl],
-      webSocket: [localWsUrl],
-    },
   },
 } as const satisfies Chain
 
@@ -150,7 +146,7 @@ export const publicClient = (
 
 export const publicClientMainnet = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http(process.env.VITE_ANVIL_FORK_URL),
 })
 
 export const walletClient = createWalletClient({
@@ -195,8 +191,8 @@ export function createHttpServer(
 export async function deploy<const TAbi extends Abi | readonly unknown[]>(
   args: DeployContractParameters<
     TAbi,
-    typeof walletClientWithAccount['chain'],
-    typeof walletClientWithAccount['account']
+    (typeof walletClientWithAccount)['chain'],
+    (typeof walletClientWithAccount)['account']
   >,
 ) {
   const hash = await deployContract(walletClientWithAccount, args)

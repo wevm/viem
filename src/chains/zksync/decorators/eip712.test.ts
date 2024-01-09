@@ -1,65 +1,80 @@
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 
-import { http } from '../../../clients/transports/http.js'
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import { createWalletClient } from '~viem/index.js'
-import { zkSyncTestnet } from '../chains.js'
-import { eip712Actions } from './eip712.js'
 import { greeterContract } from '~test/src/abis.js'
+import { zkSyncMockClient } from '~test/src/zksync.js'
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { simulateContract } from '~viem/actions/index.js'
-import { publicClient } from '~test/src/utils.js'
-
-const zkSyncClient = createWalletClient({
-  chain: zkSyncTestnet,
-  transport: http(zkSyncTestnet.rpcUrls.default.http), //does not work on anvil
-}).extend(eip712Actions())
+import { eip712Actions } from './eip712.js'
 
 test('default', async () => {
-  expect(eip712Actions()(zkSyncClient)).toMatchInlineSnapshot(`
-  {
-    "prepareEip712TransactionRequest": [Function],
-    "sendEip712Transaction": [Function],
-    "signEip712Transaction": [Function],
-    "writeEip712Contract": [Function],
-  }
+  expect(eip712Actions(zkSyncMockClient)).toMatchInlineSnapshot(`
+    {
+      "prepareTransactionRequest": [Function],
+      "sendTransaction": [Function],
+      "signTransaction": [Function],
+      "writeContract": [Function],
+    }
   `)
 })
 
-const base = {
-  chain: zkSyncTestnet,
-  account: privateKeyToAccount(accounts[0].privateKey),
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  maxFeePerGas: 10000000000n,
-  maxPriorityFeePerGas: 10000000000n,
-  gas: 158774n,
-  value: 10000000000n,
-  data: '0x01',
-  paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
-  paymasterInput:
-    '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
-  type: 'eip712',
-  gasPerPubdata: 50000n,
-}
+describe('Action tests', () => {
+  test('prepareTransactionRequest', async () => {
+    const request = await zkSyncMockClient.prepareTransactionRequest({
+      account: privateKeyToAccount(accounts[0].privateKey),
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      maxFeePerGas: 10000000000n,
+      maxPriorityFeePerGas: 10000000000n,
+      gas: 158774n,
+      value: 10000000000n,
+      data: '0x01',
+      paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
+      paymasterInput:
+        '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+      type: 'eip712',
+      gasPerPubdata: 50000n,
+    })
+    expect(request).toBeDefined()
+  })
 
-describe('smoke test', () => {
-  test('prepareEip712TransactionRequest', async () => {
-    const request = await zkSyncClient.prepareEip712TransactionRequest(base)
+  test('sendTransaction', async () => {
+    const request = await zkSyncMockClient.sendTransaction({
+      account: privateKeyToAccount(accounts[0].privateKey),
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      maxFeePerGas: 10000000000n,
+      maxPriorityFeePerGas: 10000000000n,
+      gas: 158774n,
+      value: 10000000000n,
+      data: '0x01',
+      paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
+      paymasterInput:
+        '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+      type: 'eip712',
+      gasPerPubdata: 50000n,
+    })
     expect(request).toBeDefined()
-  }),
-  test('sendEip712Transaction', async () => {
-    const request = await zkSyncClient.sendEip712Transaction(base)
-    expect(request).toBeDefined()
-  }),
-  test('signEip712Transaction', async () => {
-    const signature = await zkSyncClient.signEip712Transaction({
-        from: accounts[0].address,
-        ...base
+  })
+
+  test('signTransaction', async () => {
+    const signature = await zkSyncMockClient.signTransaction({
+      account: privateKeyToAccount(accounts[0].privateKey),
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      maxFeePerGas: 10000000000n,
+      maxPriorityFeePerGas: 10000000000n,
+      gas: 158774n,
+      value: 10000000000n,
+      data: '0x01',
+      paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
+      paymasterInput:
+        '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+      type: 'eip712',
+      gasPerPubdata: 50000n,
     })
     expect(signature).toBeDefined()
-  }),
-  test('writeEip712Contract', async () => {
-    const { request } = await simulateContract(publicClient, {
+  })
+
+  test('writeContract', async () => {
+    const { request } = await simulateContract(zkSyncMockClient, {
       ...greeterContract,
       account: privateKeyToAccount(accounts[0].privateKey),
       functionName: 'setGreeting',
@@ -70,8 +85,9 @@ describe('smoke test', () => {
       paymasterInput:
         '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
       type: 'eip712',
-      gasPerPubdata: 50000,
+      gasPerPubdata: 50000n,
     })
-    expect(await zkSyncClient.writeEip712Contract(request)).toBeDefined()
+    const tx = await zkSyncMockClient.writeContract(request)
+    expect(tx).toBeDefined()
   })
 })

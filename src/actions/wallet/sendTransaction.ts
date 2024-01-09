@@ -10,8 +10,8 @@ import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
-import type { GetChain } from '../../types/chain.js'
+import type { Chain, DeriveChain } from '../../types/chain.js'
+import type { GetChainParameter } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type {
   TransactionRequest,
@@ -52,14 +52,11 @@ export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain | undefined,
-> = UnionOmit<
-  FormattedTransactionRequest<
-    TChainOverride extends Chain ? TChainOverride : TChain
-  >,
-  'from'
-> &
+  ///
+  derivedChain extends Chain | undefined = DeriveChain<TChain, TChainOverride>,
+> = UnionOmit<FormattedTransactionRequest<derivedChain>, 'from'> &
   GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
+  GetChainParameter<TChain, TChainOverride>
 
 export type SendTransactionReturnType = Hash
 
@@ -80,7 +77,7 @@ export type SendTransactionErrorType =
  * Creates, signs, and sends a new transaction to the network.
  *
  * - Docs: https://viem.sh/docs/actions/wallet/sendTransaction.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/sending-transactions
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/sending-transactions
  * - JSON-RPC Methods:
  *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
  *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
@@ -155,7 +152,7 @@ export async function sendTransaction<
 
     let chainId
     if (chain !== null) {
-      chainId = await getAction(client, getChainId)({})
+      chainId = await getAction(client, getChainId, 'getChainId')({})
       assertCurrentChain({
         currentChainId: chainId,
         chain,
@@ -164,10 +161,7 @@ export async function sendTransaction<
 
     if (account.type === 'local') {
       // Prepare the request for signing (assign appropriate fees, etc.)
-      const request = await getAction(
-        client,
-        prepareTransactionRequest,
-      )({
+      const request = prepareTransactionRequest(client, {
         account,
         accessList,
         chain,
@@ -182,7 +176,8 @@ export async function sendTransaction<
         ...rest,
       } as any)
 
-      if (!chainId) chainId = await getAction(client, getChainId)({})
+      if (!chainId)
+        chainId = await getAction(client, getChainId, 'getChainId')({})
 
       const serializer = chain?.serializers?.transaction
       const serializedTransaction = (await account.signTransaction(
@@ -195,6 +190,7 @@ export async function sendTransaction<
       return await getAction(
         client,
         sendRawTransaction,
+        'sendRawTransaction',
       )({
         serializedTransaction,
       })
@@ -217,10 +213,13 @@ export async function sendTransaction<
       to,
       value,
     } as TransactionRequest)
-    return await client.request({
-      method: 'eth_sendTransaction',
-      params: [request],
-    })
+    return await client.request(
+      {
+        method: 'eth_sendTransaction',
+        params: [request],
+      },
+      { retryCount: 0 },
+    )
   } catch (err) {
     throw getTransactionError(err as BaseError, {
       ...args,

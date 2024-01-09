@@ -16,8 +16,8 @@ export type GetSerializedTransactionType<
 > = TTransactionSerialized extends TransactionSerializedEIP1559
   ? 'eip1559'
   : TTransactionSerialized extends TransactionSerializedEIP2930
-  ? 'eip2930'
-  : 'legacy'
+    ? 'eip2930'
+    : 'legacy'
 
 export type GetSerializedTransactionTypeErrorType =
   | HexToNumberErrorType

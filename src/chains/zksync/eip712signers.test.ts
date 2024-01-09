@@ -5,7 +5,7 @@ import { signTransaction } from '../../accounts/utils/signTransaction.js'
 import { type TransactionSerializableEIP1559, parseEther } from '../../index.js'
 import { zkSyncTestnet } from '../index.js'
 import { getZkSyncEIP712Domain } from './eip712signers.js'
-import { serializeTransactionZkSync } from './serializers.js'
+import { serializeTransaction } from './serializers.js'
 import type { ZkSyncTransactionSerializableEIP712 } from './types.js'
 
 const baseTransaction: TransactionSerializableEIP1559 = {
@@ -18,7 +18,7 @@ const baseTransaction: TransactionSerializableEIP1559 = {
   data: '0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000017900000000000000000000000000000000000000000000000000000000000000',
 }
 
-const baseEip712 = {
+const baseEip712: ZkSyncTransactionSerializableEIP712 = {
   ...baseTransaction,
   from: '0xf760bdd822fccf93c44be68d94c45133002b3037',
   gasPerPubdata: 50000n,
@@ -31,7 +31,7 @@ const baseEip712 = {
 
 describe('ZkSync - EIP712 Signer', () => {
   test('should be able to generate customSigner', () => {
-    const transaction: ZkSyncTransactionSerializableEIP712 = {
+    const transaction = {
       ...baseEip712,
       gas: 158774n,
     }
@@ -119,12 +119,11 @@ describe('ZkSync - EIP712 Signer', () => {
   })
 })
 
-// TODO: Want to make sure it call signedType if it is an EIP712
 test('signed', async () => {
   const signed = await signTransaction({
     privateKey: accounts[0].privateKey,
     transaction: baseEip712,
-    serializer: serializeTransactionZkSync,
+    serializer: serializeTransaction,
   })
 
   expect(signed).toEqual(

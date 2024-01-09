@@ -1,13 +1,12 @@
-import type { Abi } from 'abitype'
+import type { Abi, AbiStateMutability, ExtractAbiFunctions } from 'abitype'
 
 import {
   AbiFunctionNotFoundError,
   type AbiFunctionNotFoundErrorType,
 } from '../../errors/abi.js'
 import type {
-  AbiItem,
-  GetFunctionArgs,
-  InferFunctionName,
+  ContractFunctionArgs,
+  ContractFunctionName,
 } from '../../types/contract.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import {
@@ -16,28 +15,55 @@ import {
 } from '../hash/getFunctionSelector.js'
 
 import type { ErrorType } from '../../errors/utils.js'
+import type { Hex } from '../../types/misc.js'
+import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
 import {
   type EncodeAbiParametersErrorType,
   encodeAbiParameters,
 } from './encodeAbiParameters.js'
 import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
-import {
-  type GetAbiItemErrorType,
-  type GetAbiItemParameters,
-  getAbiItem,
-} from './getAbiItem.js'
+import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
+
+const docsPath = '/docs/contract/encodeFunctionData'
 
 export type EncodeFunctionDataParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string | undefined = string,
-  _FunctionName = InferFunctionName<TAbi, TFunctionName>,
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends
+    | ContractFunctionName<abi>
+    | undefined = ContractFunctionName<abi>,
+  ///
+  hasFunctions = abi extends Abi
+    ? Abi extends abi
+      ? true
+      : [ExtractAbiFunctions<abi>] extends [never]
+        ? false
+        : true
+    : true,
+  allArgs = ContractFunctionArgs<
+    abi,
+    AbiStateMutability,
+    functionName extends ContractFunctionName<abi>
+      ? functionName
+      : ContractFunctionName<abi>
+  >,
+  allFunctionNames = ContractFunctionName<abi>,
 > = {
-  functionName?: _FunctionName
-} & (TFunctionName extends string
-  ? { abi: TAbi } & GetFunctionArgs<TAbi, TFunctionName>
-  : _FunctionName extends string
-  ? { abi: [TAbi[number]] } & GetFunctionArgs<TAbi, _FunctionName>
-  : never)
+  abi: abi
+} & UnionEvaluate<
+  IsNarrowable<abi, Abi> extends true
+    ? abi['length'] extends 1
+      ? { functionName?: functionName | allFunctionNames }
+      : { functionName: functionName | allFunctionNames }
+    : { functionName?: functionName | allFunctionNames }
+> &
+  UnionEvaluate<
+    readonly [] extends allArgs
+      ? { args?: allArgs | undefined }
+      : { args: allArgs }
+  > &
+  (hasFunctions extends true ? unknown : never)
+
+export type EncodeFunctionDataReturnType = Hex
 
 export type EncodeFunctionDataErrorType =
   | AbiFunctionNotFoundErrorType
@@ -49,36 +75,32 @@ export type EncodeFunctionDataErrorType =
   | ErrorType
 
 export function encodeFunctionData<
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string | undefined = undefined,
->({
-  abi,
-  args,
-  functionName,
-}: EncodeFunctionDataParameters<TAbi, TFunctionName>) {
-  let abiItem = abi[0] as AbiItem
+  const abi extends Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi> | undefined = undefined,
+>(
+  parameters: EncodeFunctionDataParameters<abi, functionName>,
+): EncodeFunctionDataReturnType {
+  const { abi, args, functionName } = parameters as EncodeFunctionDataParameters
+
+  let abiItem = abi[0]
   if (functionName) {
-    abiItem = getAbiItem({
+    const item = getAbiItem({
       abi,
       args,
       name: functionName,
-    } as GetAbiItemParameters)
-    if (!abiItem)
-      throw new AbiFunctionNotFoundError(functionName, {
-        docsPath: '/docs/contract/encodeFunctionData',
-      })
+    })
+    if (!item) throw new AbiFunctionNotFoundError(functionName, { docsPath })
+    abiItem = item
   }
 
   if (abiItem.type !== 'function')
-    throw new AbiFunctionNotFoundError(undefined, {
-      docsPath: '/docs/contract/encodeFunctionData',
-    })
+    throw new AbiFunctionNotFoundError(undefined, { docsPath })
 
   const definition = formatAbiItem(abiItem)
   const signature = getFunctionSelector(definition)
   const data =
     'inputs' in abiItem && abiItem.inputs
-      ? encodeAbiParameters(abiItem.inputs, (args ?? []) as readonly unknown[])
+      ? encodeAbiParameters(abiItem.inputs, args ?? [])
       : undefined
   return concatHex([signature, data ?? '0x'])
 }

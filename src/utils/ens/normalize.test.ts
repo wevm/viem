@@ -19,18 +19,18 @@ test.each([
 
 test('invalid label extension', () => {
   expect(() => normalize('34--A.eth')).toThrowErrorMatchingInlineSnapshot(
-    '"Invalid label \\"34--A\\"‎: invalid label extension: \\"34--\\""',
+    `[Error: Invalid label "34--A"‎: invalid label extension: "34--"]`,
   )
 })
 
 test('illegal placement: leading combining mark', () => {
   expect(() => normalize('\u{303}.eth')).toThrowErrorMatchingInlineSnapshot(
-    '"Invalid label \\"◌̃\\"‎: illegal placement: leading combining mark"',
+    `[Error: Invalid label "◌̃"‎: illegal placement: leading combining mark]`,
   )
 })
 
 test('underscore allowed only at start', () => {
   expect(() => normalize('a_b_c.eth')).toThrowErrorMatchingInlineSnapshot(
-    '"Invalid label \\"a_b_c\\"‎: underscore allowed only at start"',
+    `[Error: Invalid label "a_b_c"‎: underscore allowed only at start]`,
   )
 })

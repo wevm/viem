@@ -3,25 +3,23 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   id: 421_614,
   name: 'Arbitrum Sepolia',
-  network: 'arbitrum-sepolia',
   nativeCurrency: {
     name: 'Arbitrum Sepolia Ether',
     symbol: 'ETH',
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia-rollup.arbitrum.io/rpc'],
+    alchemy: {
+      http: ['https://arb-sepolia.g.alchemy.com/v2'],
+      webSocket: ['wss://arb-sepolia.g.alchemy.com/v2'],
     },
-    public: {
+    default: {
       http: ['https://sepolia-rollup.arbitrum.io/rpc'],
     },
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia-explorer.arbitrum.io',
-    },
+    etherscan: { name: 'Arbiscan', url: 'https://sepolia.arbiscan.io' },
+    default: { name: 'Arbiscan', url: 'https://sepolia.arbiscan.io' },
   },
   contracts: {
     multicall3: {

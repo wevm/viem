@@ -9,7 +9,7 @@ import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
   type SerializeTransactionFn,
-  serializeTransaction,
+  serializeTransaction as serializeTransaction_,
 } from '../../utils/transaction/serializeTransaction.js'
 import type {
   ZkSyncTransactionSerializable,
@@ -17,18 +17,16 @@ import type {
   ZkSyncTransactionSerializedEIP712,
 } from './types.js'
 
-export const serializeTransactionZkSync: SerializeTransactionFn<
+export const serializeTransaction: SerializeTransactionFn<
   ZkSyncTransactionSerializable
 > = (tx, signature) => {
   if (isEIP712(tx))
-    return serializeTransactionZkSyncEIP712(
-      tx as ZkSyncTransactionSerializableEIP712,
-    )
-  return serializeTransaction(tx as TransactionSerializable, signature)
+    return serializeTransactionEIP712(tx as ZkSyncTransactionSerializableEIP712)
+  return serializeTransaction_(tx as TransactionSerializable, signature)
 }
 
-export const serializersZkSync = {
-  transaction: serializeTransactionZkSync,
+export const serializers = {
+  transaction: serializeTransaction,
 } as const satisfies ChainSerializers
 
 //////////////////////////////////////////////////////////////////////////////
@@ -37,7 +35,7 @@ export const serializersZkSync = {
 export type SerializeTransactionEIP712ReturnType =
   ZkSyncTransactionSerializedEIP712
 
-function serializeTransactionZkSyncEIP712(
+function serializeTransactionEIP712(
   transaction: ZkSyncTransactionSerializableEIP712,
 ): SerializeTransactionEIP712ReturnType {
   const {

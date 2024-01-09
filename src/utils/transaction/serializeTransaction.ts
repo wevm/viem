@@ -39,12 +39,15 @@ import {
 } from './serializeAccessList.js'
 
 export type SerializedTransactionReturnType<
-  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
-  TTransactionType extends TransactionType = GetTransactionType<TTransactionSerializable>,
+  TTransactionSerializable extends
+    TransactionSerializable = TransactionSerializable,
+  TTransactionType extends
+    TransactionType = GetTransactionType<TTransactionSerializable>,
 > = TransactionSerialized<TTransactionType>
 
 export type SerializeTransactionFn<
-  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
+  TTransactionSerializable extends
+    TransactionSerializable = TransactionSerializable,
 > = typeof serializeTransaction<TTransactionSerializable>
 
 export type SerializeTransactionErrorType =
@@ -121,12 +124,15 @@ function serializeTransactionEIP1559(
     serializedAccessList,
   ]
 
-  if (signature)
-    serializedTransaction.push(
-      signature.v === 27n ? '0x' : toHex(1), // yParity
-      trim(signature.r),
-      trim(signature.s),
-    )
+  if (signature) {
+    const yParity = (() => {
+      if (signature.v === 0n) return '0x'
+      if (signature.v === 1n) return toHex(1)
+
+      return signature.v === 27n ? '0x' : toHex(1)
+    })()
+    serializedTransaction.push(yParity, trim(signature.r), trim(signature.s))
+  }
 
   return concatHex([
     '0x02',
@@ -165,12 +171,15 @@ function serializeTransactionEIP2930(
     serializedAccessList,
   ]
 
-  if (signature)
-    serializedTransaction.push(
-      signature.v === 27n ? '0x' : toHex(1), // yParity
-      signature.r,
-      signature.s,
-    )
+  if (signature) {
+    const yParity = (() => {
+      if (signature.v === 0n) return '0x'
+      if (signature.v === 1n) return toHex(1)
+
+      return signature.v === 27n ? '0x' : toHex(1)
+    })()
+    serializedTransaction.push(yParity, trim(signature.r), trim(signature.s))
+  }
 
   return concatHex([
     '0x01',
@@ -203,10 +212,23 @@ function serializeTransactionLegacy(
   ]
 
   if (signature) {
-    let v = 27n + (signature.v === 27n ? 0n : 1n)
-    if (chainId > 0) v = BigInt(chainId * 2) + BigInt(35n + signature.v - 27n)
-    else if (signature.v !== v)
-      throw new InvalidLegacyVError({ v: signature.v })
+    const v = (() => {
+      // EIP-155 (explicit chainId)
+      if (chainId > 0)
+        return BigInt(chainId * 2) + BigInt(35n + signature.v - 27n)
+
+      // EIP-155 (inferred chainId)
+      if (signature.v >= 35n) {
+        const inferredChainId = (signature.v - 35n) / 2n
+        if (inferredChainId > 0) return signature.v
+        return 27n + (signature.v === 35n ? 0n : 1n)
+      }
+
+      // Pre-EIP-155 (no chainId)
+      const v = 27n + (signature.v === 27n ? 0n : 1n)
+      if (signature.v !== v) throw new InvalidLegacyVError({ v: signature.v })
+      return v
+    })()
 
     serializedTransaction = [
       ...serializedTransaction,

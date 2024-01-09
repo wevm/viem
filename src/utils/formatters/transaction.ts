@@ -7,7 +7,7 @@ import type {
 } from '../../types/chain.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { Transaction } from '../../types/transaction.js'
-import type { UnionOmit } from '../../types/utils.js'
+import type { UnionLooseOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
@@ -17,9 +17,7 @@ type TransactionPendingDependencies =
   | 'transactionIndex'
 
 export type FormattedTransaction<
-  TChain extends { formatters?: Chain['formatters'] } | undefined =
-    | { formatters?: Chain['formatters'] }
-    | undefined,
+  TChain extends Chain | undefined = undefined,
   TBlockTag extends BlockTag = BlockTag,
   _FormatterReturnType = ExtractChainFormatterReturnType<
     TChain,
@@ -28,8 +26,8 @@ export type FormattedTransaction<
   >,
   _ExcludedPendingDependencies extends string = TransactionPendingDependencies &
     ExtractChainFormatterExclude<TChain, 'transaction'>,
-> = UnionOmit<_FormatterReturnType, TransactionPendingDependencies> & {
-  [K in _ExcludedPendingDependencies]: never
+> = UnionLooseOmit<_FormatterReturnType, TransactionPendingDependencies> & {
+  [_K in _ExcludedPendingDependencies]: never
 } & Pick<
     Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>,
     TransactionPendingDependencies
@@ -64,22 +62,39 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
     transactionIndex: transaction.transactionIndex
       ? Number(transaction.transactionIndex)
       : null,
-    type: transaction.type ? transactionType[transaction.type] : undefined,
+    type: transaction.type
+      ? (transactionType as any)[transaction.type]
+      : undefined,
     typeHex: transaction.type ? transaction.type : undefined,
     value: transaction.value ? BigInt(transaction.value) : undefined,
     v: transaction.v ? BigInt(transaction.v) : undefined,
-  }
+  } as Transaction
+
+  transaction_.yParity = (() => {
+    // If `yParity` is provided, we will use it.
+    if (transaction.yParity) return Number(transaction.yParity)
+
+    // If no `yParity` provided, try derive from `v`.
+    if (typeof transaction_.v === 'bigint') {
+      if (transaction_.v === 0n || transaction_.v === 27n) return 0
+      if (transaction_.v === 1n || transaction_.v === 28n) return 1
+      if (transaction_.v >= 35n) return transaction_.v % 2n === 0n ? 1 : 0
+    }
+
+    return undefined
+  })()
 
   if (transaction_.type === 'legacy') {
     delete transaction_.accessList
     delete transaction_.maxFeePerGas
     delete transaction_.maxPriorityFeePerGas
+    delete transaction_.yParity
   }
   if (transaction_.type === 'eip2930') {
     delete transaction_.maxFeePerGas
     delete transaction_.maxPriorityFeePerGas
   }
-  return transaction_ as Transaction
+  return transaction_
 }
 
 export type DefineTransactionErrorType = DefineFormatterErrorType | ErrorType

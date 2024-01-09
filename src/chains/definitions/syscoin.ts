@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const syscoin = /*#__PURE__*/ defineChain({
   id: 57,
   name: 'Syscoin Mainnet',
-  network: 'syscoin',
   nativeCurrency: {
     decimals: 18,
     name: 'Syscoin',
@@ -11,10 +10,6 @@ export const syscoin = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.syscoin.org'],
-      webSocket: ['wss://rpc.syscoin.org/wss'],
-    },
-    public: {
       http: ['https://rpc.syscoin.org'],
       webSocket: ['wss://rpc.syscoin.org/wss'],
     },

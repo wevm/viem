@@ -27,7 +27,7 @@ import { normalize } from 'viem/ens'
 import { publicClient } from './client'
  
 const resolverAddress = await publicClient.getEnsResolver({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
 })
 // '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'
 ```
@@ -64,7 +64,7 @@ Name to get the address for.
 
 ```ts
 const ensName = await publicClient.getEnsResolver({
-  name: normalize('wagmi-dev.eth'), // [!code focus]
+  name: normalize('wevm.eth'), // [!code focus]
 })
 ```
 
@@ -76,7 +76,7 @@ The block number to perform the read against.
 
 ```ts
 const ensName = await publicClient.getEnsResolver({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   blockNumber: 15121123n, // [!code focus]
 })
 ```
@@ -90,7 +90,7 @@ The block tag to perform the read against.
 
 ```ts
 const ensName = await publicClient.getEnsResolver({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   blockTag: 'safe', // [!code focus]
 })
 ```
@@ -104,7 +104,7 @@ Address of ENS Universal Resolver Contract.
 
 ```ts
 const ensName = await publicClient.getEnsResolver({
-  name: normalize('wagmi-dev.eth'),
+  name: normalize('wevm.eth'),
   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376', // [!code focus]
 })
 ```

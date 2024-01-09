@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const songbird = /*#__PURE__*/ defineChain({
   id: 19,
   name: 'Songbird Mainnet',
-  network: 'songbird-mainnet',
   nativeCurrency: {
     decimals: 18,
     name: 'songbird',
@@ -11,7 +10,6 @@ export const songbird = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://songbird-api.flare.network/ext/C/rpc'] },
-    public: { http: ['https://songbird-api.flare.network/ext/C/rpc'] },
   },
   blockExplorers: {
     default: {

@@ -2,7 +2,7 @@
 
 Thanks for your interest in contributing to viem! Please take a moment to review this document **before submitting a pull request.**
 
-If you want to contribute, but aren't sure where to start, you can create a [new discussion](https://github.com/wagmi-dev/viem/discussions).
+If you want to contribute, but aren't sure where to start, you can create a [new discussion](https://github.com/wevm/viem/discussions).
 
 If you are contributing to add a new chain to `viem/chains`, please read the [Chains section](#chains).
 
@@ -10,7 +10,7 @@ If you are contributing to add a new chain to `viem/chains`, please read the [Ch
 >
 > **Please ask first before starting work on any significant new features.**
 >
-> It's never a fun experience to have your pull request declined after investing time and effort into a new feature. To avoid this from happening, we request that contributors create a [feature request](https://github.com/wagmi-dev/viem/discussions/new?category=ideas) to first discuss any API changes or significant new ideas.
+> It's never a fun experience to have your pull request declined after investing time and effort into a new feature. To avoid this from happening, we request that contributors create a [feature request](https://github.com/wevm/viem/discussions/new?category=ideas) to first discuss any API changes or significant new ideas.
 
 <br>
 
@@ -34,13 +34,13 @@ This guide is intended to help you get started with contributing. By following t
 To start contributing to the project, clone it to your local machine using git:
 
 ```bash
-git clone https://github.com/wagmi-dev/viem.git --recurse-submodules
+git clone https://github.com/wevm/viem.git --recurse-submodules
 ```
 
 Or the [GitHub CLI](https://cli.github.com):
 
 ```bash
-gh repo clone wagmi-dev/viem -- --recurse-submodules
+gh repo clone wevm/viem -- --recurse-submodules
 ```
 
 <div align="right">
@@ -219,7 +219,6 @@ The [`Chain` type](../src/types/chain.ts) has a number of important attributes, 
 
 - `id`: The Chain ID for the network. This can be found by typing the network name into [ChainList](https://chainlist.org/). Example: "Ethereum Mainnet" has a Chain ID of `1`.
 - `name`: A human readable name for the network. Example: "Binance Smart Chain Mainnet"
-- `network`: An internal network label. Example: "bsc"
 - `nativeCurrency`: The native currently of the network. Found from [`ethereum-lists/chains`](https://github.com/ethereum-lists/chains/blob/3fbd4eeac7ce116579634bd042b84e2b1d89886a/_data/chains/eip155-56.json#L20-L24).
 - `rpcUrls`: A set of RPC URLs for the chain. Found from [`ethereum-lists/chains`](https://github.com/ethereum-lists/chains/blob/3fbd4eeac7ce116579634bd042b84e2b1d89886a/_data/chains/eip155-56.json#L4-L18).
 - `blockExplorers`: A set of block explorers for the chain. Found from [`ethereum-lists/chains`](https://github.com/ethereum-lists/chains/blob/3fbd4eeac7ce116579634bd042b84e2b1d89886a/_data/chains/eip155-56.json#L30-L36).
@@ -266,22 +265,14 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const mainnet = /*#__PURE__*/ defineChain({
   id: 1,
-  network: 'example',
   name: 'Example Chain',
   nativeCurrency: { name: 'Example', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://example.com'],
     },
-    public: {
-      http: ['https://example.com'],
-    },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Etherscan',
-      url: 'https://etherscan.io',
-    },
     default: {
       name: 'Etherscan',
       url: 'https://etherscan.io',

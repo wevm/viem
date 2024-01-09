@@ -2,15 +2,11 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const holesky = /*#__PURE__*/ defineChain({
   id: 17000,
-  network: 'holesky',
   name: 'Holesky',
   nativeCurrency: { name: 'Holesky Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://ethereum-holesky.publicnode.com'],
-    },
-    public: {
-      http: ['wss://ethereum-holesky.publicnode.com'],
     },
   },
   contracts: {

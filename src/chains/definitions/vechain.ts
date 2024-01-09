@@ -3,13 +3,9 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const vechain = /*#__PURE__*/ defineChain({
   id: 100009,
   name: 'Vechain',
-  network: 'vechain',
   nativeCurrency: { name: 'VeChain', symbol: 'VET', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://mainnet.vechain.org'],
-    },
-    public: {
       http: ['https://mainnet.vechain.org'],
     },
   },

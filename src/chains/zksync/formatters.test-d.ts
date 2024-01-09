@@ -1,10 +1,12 @@
 import { describe, expectTypeOf, test } from 'vitest'
+
 import { accounts } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
 import { getTransactionReceipt } from '../../actions/public/getTransactionReceipt.js'
 import { prepareTransactionRequest } from '../../actions/wallet/prepareTransactionRequest.js'
+import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import { signTransaction } from '../../actions/wallet/signTransaction.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
@@ -14,9 +16,8 @@ import type { Hash } from '../../types/misc.js'
 import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
-import { sendTransaction } from '../../wallet/index.js'
-import { zkSync, zkSyncTestnet } from '../index.js'
-import { formattersZkSync } from './formatters.js'
+import { zkSync, zkSyncSepoliaTestnet } from '../index.js'
+import { formatters } from './formatters.js'
 import type {
   ZkSyncEip712Meta,
   ZkSyncL2ToL1Log,
@@ -27,27 +28,25 @@ import type {
 } from './types.js'
 
 describe('block', () => {
-  expectTypeOf(formattersZkSync.block.format).parameter(0).toEqualTypeOf<
+  expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
     Assign<
       Partial<RpcBlock>,
       {
-        l1BatchNumber: `0x${string}`
-        l1BatchTimestamp: `0x${string}`
+        l1BatchNumber: `0x${string}` | null
+        l1BatchTimestamp: `0x${string}` | null
       } & {
         transactions: `0x${string}`[] | ZkSyncRpcTransaction[]
       }
     >
   >()
-  expectTypeOf<
-    ReturnType<typeof formattersZkSync.block.format>['l1BatchNumber']
-  >().toEqualTypeOf<`0x${string}`>
-  expectTypeOf<
-    ReturnType<typeof formattersZkSync.block.format>['l1BatchTimestamp']
-  >().toEqualTypeOf<`0x${string}` | null>
+  expectTypeOf<ReturnType<typeof formatters.block.format>['l1BatchNumber']>()
+    .toEqualTypeOf<bigint | null>
+  expectTypeOf<ReturnType<typeof formatters.block.format>['l1BatchTimestamp']>()
+    .toEqualTypeOf<bigint | null>
 })
 
 describe('transactionReceipt', () => {
-  expectTypeOf(formattersZkSync.transactionReceipt.format)
+  expectTypeOf(formatters.transactionReceipt.format)
     .parameter(0)
     .toEqualTypeOf<
       Assign<
@@ -57,17 +56,13 @@ describe('transactionReceipt', () => {
     >()
 
   expectTypeOf<
-    ReturnType<
-      typeof formattersZkSync.transactionReceipt.format
-    >['l1BatchNumber']
+    ReturnType<typeof formatters.transactionReceipt.format>['l1BatchNumber']
   >().toEqualTypeOf<bigint | null>()
   expectTypeOf<
-    ReturnType<
-      typeof formattersZkSync.transactionReceipt.format
-    >['l1BatchTxIndex']
+    ReturnType<typeof formatters.transactionReceipt.format>['l1BatchTxIndex']
   >().toEqualTypeOf<bigint | null>()
   expectTypeOf<
-    ReturnType<typeof formattersZkSync.transactionReceipt.format>['l2ToL1Logs']
+    ReturnType<typeof formatters.transactionReceipt.format>['l2ToL1Logs']
   >().toEqualTypeOf<
     {
       blockNumber: bigint
@@ -85,7 +80,7 @@ describe('transactionReceipt', () => {
   >()
 
   expectTypeOf<
-    ReturnType<typeof formattersZkSync.transactionReceipt.format>['logs']
+    ReturnType<typeof formatters.transactionReceipt.format>['logs']
   >().toEqualTypeOf<
     (Log<
       bigint,
@@ -96,7 +91,7 @@ describe('transactionReceipt', () => {
       undefined,
       undefined
     > & {
-      l1BatchNumber: bigint
+      l1BatchNumber: bigint | null
       transactionLogIndex: number
       logType: `0x${string}` | null
     })[]
@@ -104,29 +99,29 @@ describe('transactionReceipt', () => {
 
   expectTypeOf<
     ReturnType<
-      typeof formattersZkSync.transactionReceipt.format
+      typeof formatters.transactionReceipt.format
     >['logs'][0]['l1BatchNumber']
-  >().toEqualTypeOf<bigint>()
+  >().toEqualTypeOf<bigint | null>()
   expectTypeOf<
     ReturnType<
-      typeof formattersZkSync.transactionReceipt.format
+      typeof formatters.transactionReceipt.format
     >['logs'][0]['transactionLogIndex']
   >().toEqualTypeOf<number>()
   expectTypeOf<
     ReturnType<
-      typeof formattersZkSync.transactionReceipt.format
+      typeof formatters.transactionReceipt.format
     >['logs'][0]['logType']
   >().toEqualTypeOf<`0x${string}` | null>()
 })
 
 describe('transactionRequest', () => {
-  expectTypeOf(formattersZkSync.transactionRequest.format)
+  expectTypeOf(formatters.transactionRequest.format)
     .parameter(0)
     .toEqualTypeOf<
       Assign<Partial<TransactionRequest>, ZkSyncTransactionRequest>
     >()
   expectTypeOf<
-    ReturnType<typeof formattersZkSync.transactionRequest.format>['eip712Meta']
+    ReturnType<typeof formatters.transactionRequest.format>['eip712Meta']
   >().toEqualTypeOf<ZkSyncEip712Meta | undefined>()
 })
 
@@ -178,7 +173,7 @@ describe('smoke', () => {
   test('transactionRequest (prepareTransactionRequest)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncTestnet,
+      chain: zkSyncSepoliaTestnet,
       transport: http(),
     })
 
@@ -197,7 +192,7 @@ describe('smoke', () => {
   test('transactionRequest (sendTransaction)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncTestnet,
+      chain: zkSyncSepoliaTestnet,
       transport: http(),
     })
 

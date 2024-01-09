@@ -29,7 +29,7 @@ export class EstimateGasExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: Omit<EstimateGasParameters<any, any>, 'account'> & {
+    }: Omit<EstimateGasParameters<any>, 'account'> & {
       account?: Account
       chain?: Chain
       docsPath?: string
@@ -40,7 +40,7 @@ export class EstimateGasExecutionError extends BaseError {
       to,
       value:
         typeof value !== 'undefined' &&
-        `${formatEther(value)} ${chain?.nativeCurrency.symbol || 'ETH'}`,
+        `${formatEther(value)} ${chain?.nativeCurrency?.symbol || 'ETH'}`,
       data,
       gas,
       gasPrice:

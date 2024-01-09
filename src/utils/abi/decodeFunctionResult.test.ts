@@ -296,11 +296,11 @@ test("error: function doesn't exist", () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Function \\"baz\\" not found on ABI.
+    [AbiFunctionNotFoundError: Function "baz" not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionResult.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })
@@ -333,11 +333,11 @@ test('error: abi item not a function', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Function not found on ABI.
+    [AbiFunctionNotFoundError: Function not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionResult.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })
@@ -358,12 +358,12 @@ test('error: no outputs', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Function \\"foo\\" does not contain any \`outputs\` on ABI.
+    [AbiFunctionOutputsNotFoundError: Function "foo" does not contain any \`outputs\` on ABI.
     Cannot decode function result without knowing what the parameter types are.
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionResult.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })

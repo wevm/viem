@@ -60,7 +60,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/wagmi-dev/viem/edit/main/site/:path',
+      pattern: 'https://github.com/wevm/viem/edit/main/site/:path',
       text: 'Edit this page on GitHub',
     },
 
@@ -76,9 +76,14 @@ export default defineConfig({
     nav: [
       { text: 'Docs', link: '/docs/getting-started', activeMatch: '/docs' },
       {
-        activeMatch: '/zksync',
+        activeMatch: '/op-stack',
         text: 'Extensions',
         items: [
+          {
+            activeMatch: '/op-stack',
+            text: 'OP Stack',
+            link: '/op-stack',
+          },
           {
             activeMatch: '/zksync',
             text: 'zkSync',
@@ -88,7 +93,7 @@ export default defineConfig({
       },
       {
         text: 'Examples',
-        link: 'https://github.com/wagmi-dev/viem/tree/main/examples',
+        link: 'https://github.com/wevm/viem/tree/main/examples',
       },
       {
         text: pkg.version,
@@ -101,11 +106,11 @@ export default defineConfig({
           },
           {
             text: 'Changelog',
-            link: 'https://github.com/wagmi-dev/viem/blob/main/CHANGELOG.md',
+            link: 'https://github.com/wevm/viem/blob/main/src/CHANGELOG.md',
           },
           {
             text: 'Contributing',
-            link: 'https://github.com/wagmi-dev/viem/blob/main/.github/CONTRIBUTING.md',
+            link: 'https://github.com/wevm/viem/blob/main/.github/CONTRIBUTING.md',
           },
         ],
       },
@@ -118,7 +123,7 @@ export default defineConfig({
     siteTitle: false,
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/wagmi-dev/viem' },
+      { icon: 'github', link: 'https://github.com/wevm/viem' },
     ],
   },
 

@@ -1,0 +1,8 @@
+{
+  "mode": "pre",
+  "tag": "rc",
+  "initialVersions": {
+    "viem": "2.0.0-rc.0"
+  },
+  "changesets": []
+}

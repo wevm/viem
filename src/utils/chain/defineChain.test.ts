@@ -10,7 +10,6 @@ test('default', () => {
       network: 'celo',
       nativeCurrency: { name: 'Celo', symbol: 'CELO', decimals: 18 },
       rpcUrls: {
-        public: { http: ['https://rpc.ankr.com/celo'] },
         default: { http: ['https://rpc.ankr.com/celo'] },
       },
     }),
@@ -28,11 +27,6 @@ test('default', () => {
         "network": "celo",
         "rpcUrls": {
           "default": {
-            "http": [
-              "https://rpc.ankr.com/celo",
-            ],
-          },
-          "public": {
             "http": [
               "https://rpc.ankr.com/celo",
             ],

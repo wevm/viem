@@ -42,14 +42,8 @@ test('creates', () => {
           "name": "Ether",
           "symbol": "ETH",
         },
-        "network": "localhost",
         "rpcUrls": {
           "default": {
-            "http": [
-              "http://127.0.0.1:8545",
-            ],
-          },
-          "public": {
             "http": [
               "http://127.0.0.1:8545",
             ],
@@ -58,6 +52,7 @@ test('creates', () => {
         "serializers": undefined,
       },
       "dropTransaction": [Function],
+      "dumpState": [Function],
       "extend": [Function],
       "getAutomine": [Function],
       "getTxpoolContent": [Function],
@@ -66,6 +61,7 @@ test('creates', () => {
       "increaseTime": [Function],
       "inspectTxpool": [Function],
       "key": "test",
+      "loadState": [Function],
       "mine": [Function],
       "mode": "anvil",
       "name": "Test Client",
@@ -129,14 +125,8 @@ describe('transports', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
-              "http": [
-                "http://127.0.0.1:8545",
-              ],
-            },
-            "public": {
               "http": [
                 "http://127.0.0.1:8545",
               ],
@@ -145,6 +135,7 @@ describe('transports', () => {
           "serializers": undefined,
         },
         "dropTransaction": [Function],
+        "dumpState": [Function],
         "extend": [Function],
         "getAutomine": [Function],
         "getTxpoolContent": [Function],
@@ -153,6 +144,7 @@ describe('transports', () => {
         "increaseTime": [Function],
         "inspectTxpool": [Function],
         "key": "test",
+        "loadState": [Function],
         "mine": [Function],
         "mode": "anvil",
         "name": "Test Client",
@@ -217,14 +209,8 @@ describe('transports', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
-              "http": [
-                "http://127.0.0.1:8545",
-              ],
-            },
-            "public": {
               "http": [
                 "http://127.0.0.1:8545",
               ],
@@ -233,6 +219,7 @@ describe('transports', () => {
           "serializers": undefined,
         },
         "dropTransaction": [Function],
+        "dumpState": [Function],
         "extend": [Function],
         "getAutomine": [Function],
         "getTxpoolContent": [Function],
@@ -241,6 +228,7 @@ describe('transports', () => {
         "increaseTime": [Function],
         "inspectTxpool": [Function],
         "key": "test",
+        "loadState": [Function],
         "mine": [Function],
         "mode": "anvil",
         "name": "Test Client",
@@ -313,14 +301,8 @@ test('extend', () => {
           "name": "Ether",
           "symbol": "ETH",
         },
-        "network": "localhost",
         "rpcUrls": {
           "default": {
-            "http": [
-              "http://127.0.0.1:8545",
-            ],
-          },
-          "public": {
             "http": [
               "http://127.0.0.1:8545",
             ],
@@ -334,6 +316,7 @@ test('extend', () => {
       "createPendingTransactionFilter": [Function],
       "deployContract": [Function],
       "dropTransaction": [Function],
+      "dumpState": [Function],
       "estimateContractGas": [Function],
       "estimateFeesPerGas": [Function],
       "estimateGas": [Function],
@@ -371,6 +354,7 @@ test('extend', () => {
       "increaseTime": [Function],
       "inspectTxpool": [Function],
       "key": "test",
+      "loadState": [Function],
       "mine": [Function],
       "mode": "anvil",
       "multicall": [Function],

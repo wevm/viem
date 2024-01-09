@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const okc = /*#__PURE__*/ defineChain({
   id: 66,
   name: 'OKC',
-  network: 'okc',
   nativeCurrency: {
     decimals: 18,
     name: 'OKT',
@@ -11,7 +10,6 @@ export const okc = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://exchainrpc.okex.org'] },
-    public: { http: ['https://exchainrpc.okex.org'] },
   },
   blockExplorers: {
     default: { name: 'oklink', url: 'https://www.oklink.com/okc' },

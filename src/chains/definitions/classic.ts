@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const classic = /*#__PURE__*/ defineChain({
   id: 61,
   name: 'Ethereum Classic',
-  network: 'classic',
   nativeCurrency: {
     decimals: 18,
     name: 'ETC',
@@ -11,7 +10,6 @@ export const classic = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://etc.rivet.link'] },
-    public: { http: ['https://etc.rivet.link'] },
   },
   blockExplorers: {
     default: {

@@ -15,9 +15,8 @@ import { getGasPrice } from './getGasPrice.js'
 
 test('default', async () => {
   const block = await getBlock.getBlock(publicClient)
-  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-    publicClient,
-  )
+  const { maxFeePerGas, maxPriorityFeePerGas } =
+    await estimateFeesPerGas(publicClient)
   expect(maxFeePerGas).toBe(
     (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas,
   )
@@ -163,9 +162,9 @@ test('args: chain `baseFeeMultiplier` override < 1', async () => {
       },
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "\`baseFeeMultiplier\` must be greater than 1.
+    [BaseFeeScalarError: \`baseFeeMultiplier\` must be greater than 1.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -181,9 +180,8 @@ test('client: chain `estimateFeesPerGas` override', async () => {
     },
     transport: http(),
   })
-  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-    client,
-  )
+  const { maxFeePerGas, maxPriorityFeePerGas } =
+    await estimateFeesPerGas(client)
   expect(maxFeePerGas).toBe(2n)
   expect(maxPriorityFeePerGas).toBe(1n)
 })
@@ -200,9 +198,8 @@ test('client: chain `baseFeeMultiplier` override', async () => {
     },
     transport: http(),
   })
-  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-    client,
-  )
+  const { maxFeePerGas, maxPriorityFeePerGas } =
+    await estimateFeesPerGas(client)
   expect(maxFeePerGas).toBe(
     (block.baseFeePerGas! * 150n) / 100n + maxPriorityFeePerGas,
   )
@@ -217,10 +214,10 @@ test('chain does not support eip1559', async () => {
   await expect(() =>
     estimateFeesPerGas(publicClient),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Chain does not support EIP-1559 fees.
+    [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
-      Version: viem@1.0.2"
-    `)
+    Version: viem@1.0.2]
+  `)
 })
 
 describe('mainnet smoke', () => {
@@ -231,9 +228,8 @@ describe('mainnet smoke', () => {
 
   test('default', async () => {
     const block = await getBlock.getBlock(mainnetClient)
-    const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-      mainnetClient,
-    )
+    const { maxFeePerGas, maxPriorityFeePerGas } =
+      await estimateFeesPerGas(mainnetClient)
     expect(maxFeePerGas).toBe(
       (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas,
     )

@@ -102,8 +102,11 @@ export async function signMessage<
     return message.raw
   })()
 
-  return client.request({
-    method: 'personal_sign',
-    params: [message_, account.address],
-  })
+  return client.request(
+    {
+      method: 'personal_sign',
+      params: [message_, account.address],
+    },
+    { retryCount: 0 },
+  )
 }

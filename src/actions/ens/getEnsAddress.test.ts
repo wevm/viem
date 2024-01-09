@@ -103,7 +103,7 @@ test('offchain: aggregated', async () => {
   const client = createPublicClient({
     chain: mainnet,
     batch: { multicall: true },
-    transport: http(),
+    transport: http(process.env.VITE_ANVIL_FORK_URL),
   })
 
   const names = await Promise.all([
@@ -164,7 +164,7 @@ test('chain not provided', async () => {
       { name: 'awkweb.eth' },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    '"client chain not configured. universalResolverAddress is required."',
+    '[Error: client chain not configured. universalResolverAddress is required.]',
   )
 })
 
@@ -178,12 +178,12 @@ test('universal resolver contract not configured for chain', async () => {
       { name: 'awkweb.eth' },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Chain \\"OP Mainnet\\" does not support contract \\"ensUniversalResolver\\".
+    [ChainDoesNotSupportContract: Chain "OP Mainnet" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The chain does not have the contract \\"ensUniversalResolver\\" configured.
+    - The chain does not have the contract "ensUniversalResolver" configured.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -191,12 +191,12 @@ test('universal resolver contract deployed on later block', async () => {
   await expect(
     getEnsAddress(publicClient, { name: 'awkweb.eth', blockNumber: 14353601n }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Chain \\"Localhost\\" does not support contract \\"ensUniversalResolver\\".
+    [ChainDoesNotSupportContract: Chain "Localhost" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract \\"ensUniversalResolver\\" was not deployed until block 16966585 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 16966585 (current block 14353601).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -207,7 +207,7 @@ test('invalid universal resolver address', async () => {
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"resolve\\" reverted.
+    [ContractFunctionExecutionError: The contract function "resolve" reverted.
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
@@ -215,6 +215,6 @@ test('invalid universal resolver address', async () => {
       args:             (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c)
 
     Docs: https://viem.sh/docs/contract/readContract.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

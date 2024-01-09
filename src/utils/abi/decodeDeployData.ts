@@ -6,7 +6,7 @@ import {
   AbiConstructorParamsNotFoundError,
   type AbiConstructorParamsNotFoundErrorType,
 } from '../../errors/abi.js'
-import type { GetConstructorArgs } from '../../types/contract.js'
+import type { ContractConstructorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 
 import type { ErrorType } from '../../errors/utils.js'
@@ -18,18 +18,21 @@ import {
 const docsPath = '/docs/contract/decodeDeployData'
 
 export type DecodeDeployDataParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
+  abi extends Abi | readonly unknown[] = Abi,
 > = {
-  abi: TAbi
+  abi: abi
   bytecode: Hex
   data: Hex
 }
 
 export type DecodeDeployDataReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
+  abi extends Abi | readonly unknown[] = Abi,
+  ///
+  allArgs = ContractConstructorArgs<abi>,
 > = {
   bytecode: Hex
-} & GetConstructorArgs<TAbi>
+  args: allArgs
+}
 
 export type DecodeDeployDataErrorType =
   | AbiConstructorNotFoundErrorType
@@ -37,16 +40,13 @@ export type DecodeDeployDataErrorType =
   | DecodeAbiParametersErrorType
   | ErrorType
 
-export function decodeDeployData<const TAbi extends Abi | readonly unknown[]>({
-  abi,
-  bytecode,
-  data,
-}: DecodeDeployDataParameters<TAbi>): DecodeDeployDataReturnType<TAbi> {
-  if (data === bytecode) return { bytecode } as DecodeDeployDataReturnType<TAbi>
+export function decodeDeployData<const abi extends Abi | readonly unknown[]>(
+  parameters: DecodeDeployDataParameters<abi>,
+): DecodeDeployDataReturnType<abi> {
+  const { abi, bytecode, data } = parameters as DecodeDeployDataParameters
+  if (data === bytecode) return { bytecode } as DecodeDeployDataReturnType<abi>
 
-  const description = (abi as Abi).find(
-    (x) => 'type' in x && x.type === 'constructor',
-  )
+  const description = abi.find((x) => 'type' in x && x.type === 'constructor')
   if (!description) throw new AbiConstructorNotFoundError({ docsPath })
   if (!('inputs' in description))
     throw new AbiConstructorParamsNotFoundError({ docsPath })
@@ -57,5 +57,5 @@ export function decodeDeployData<const TAbi extends Abi | readonly unknown[]>({
     description.inputs,
     `0x${data.replace(bytecode, '')}`,
   )
-  return { args, bytecode } as unknown as DecodeDeployDataReturnType<TAbi>
+  return { args, bytecode } as unknown as DecodeDeployDataReturnType<abi>
 }

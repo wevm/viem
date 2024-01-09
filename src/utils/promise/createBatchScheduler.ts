@@ -12,6 +12,11 @@ type PendingPromise<TReturnType extends readonly unknown[] = any> = {
 
 type SchedulerItem = { args: unknown; pendingPromise: PendingPromise }
 
+type BatchResultsCompareFn<TResult = unknown> = (
+  a: TResult,
+  b: TResult,
+) => number
+
 export type CreateBatchSchedulerArguments<
   TParameters = unknown,
   TReturnType extends readonly unknown[] = readonly unknown[],
@@ -20,6 +25,7 @@ export type CreateBatchSchedulerArguments<
   id: number | string
   shouldSplitBatch?: (args: TParameters[]) => boolean
   wait?: number
+  sort?: BatchResultsCompareFn<TReturnType[number]>
 }
 
 export type CreateBatchSchedulerReturnType<
@@ -44,6 +50,7 @@ export function createBatchScheduler<
   id,
   shouldSplitBatch,
   wait = 0,
+  sort,
 }: CreateBatchSchedulerArguments<
   TParameters,
   TReturnType
@@ -58,12 +65,17 @@ export function createBatchScheduler<
 
     fn(args as TParameters[])
       .then((data) => {
-        scheduler.forEach(({ pendingPromise }, i) =>
-          pendingPromise.resolve?.([data[i], data]),
-        )
+        if (sort && Array.isArray(data)) data.sort(sort)
+        for (let i = 0; i < scheduler.length; i++) {
+          const { pendingPromise } = scheduler[i]
+          pendingPromise.resolve?.([data[i], data])
+        }
       })
       .catch((err) => {
-        scheduler.forEach(({ pendingPromise }) => pendingPromise.reject?.(err))
+        for (let i = 0; i < scheduler.length; i++) {
+          const { pendingPromise } = scheduler[i]
+          pendingPromise.reject?.(err)
+        }
       })
   }
 

@@ -19,7 +19,7 @@ jobs:
       - name: Lint code
         run: bun format && bun lint:fix
       
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -76,6 +76,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       max-parallel: 3
       matrix:
@@ -150,19 +151,22 @@ jobs:
 
       - name: Set up Node
         if: ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Playwright Browsers
         if: ${{ matrix.runtime == 'next' || matrix.runtime == 'sveltekit' || matrix.runtime == 'vite' }}
-        run: npx playwright@1.38.1 install --with-deps
+        run: npx playwright@1.40.1 install --with-deps
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Build
         run: bun run build
+
+      - name: Link
+        run: bun install
 
       - name: Run tests
         run: bun run test:env:${{ matrix.runtime }}
