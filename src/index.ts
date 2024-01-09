@@ -1047,6 +1047,12 @@ export {
   encodeFunctionResult,
 } from './utils/abi/encodeFunctionResult.js'
 export {
+  type ParseEventLogsErrorType,
+  type ParseEventLogsParameters,
+  type ParseEventLogsReturnType,
+  parseEventLogs,
+} from './utils/abi/parseEventLogs.js'
+export {
   type FormattedTransaction,
   defineTransaction,
   type DefineTransactionErrorType,
