@@ -32,7 +32,6 @@ test('gets transaction receipt', async () => {
       "blockNumber": 16280769n,
       "contractAddress": null,
       "cumulativeGasUsed": 21000n,
-      "deposit_nonce": null,
       "effectiveGasPrice": 33427926161n,
       "from": "0x043022ef9fca1066024d19d681e2ccf44ff90de3",
       "gasUsed": 21000n,
