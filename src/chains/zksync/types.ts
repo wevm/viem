@@ -352,7 +352,8 @@ export type EIP712Domain<TransactionToSign> = {
 
 // Used to define the EIP712signer field in the chain.
 export type EIP712DomainFn<
-  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
+  TTransactionSerializable extends
+    TransactionSerializable = TransactionSerializable,
   TransactionToSign = {},
 > = (transaction: TTransactionSerializable) => EIP712Domain<TransactionToSign>
 
