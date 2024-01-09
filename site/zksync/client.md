@@ -1,14 +1,5 @@
 ---
-head:
-  - - meta
-    - property: og:title
-      content: Client
-  - - meta
-    - name: description
-      content: Setting up your zkSync Viem Client
-  - - meta
-    - property: og:description
-      content: Setting up your zkSync Viem Client
+description: Setting up your zkSync Viem Client
 ---
 
 # Client

@@ -1,14 +1,5 @@
 ---
-head:
-  - - meta
-    - property: og:title
-      content: Getting started
-  - - meta
-    - name: description
-      content: Getting started with the zkSync in Viem
-  - - meta
-    - property: og:description
-      content: Getting started with the zkSync in Viem
+description:  Getting started with the zkSync in Viem
 ---
 
 # Getting started with zkSync

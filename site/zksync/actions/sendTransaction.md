@@ -1,15 +1,5 @@
 ---
-head:
-  - - meta
-    - property: og:title
-      content: sendTransaction
-  - - meta
-    - name: description
-      content: Creates, signs, and sends a new EIP712 transaction to the network.
-  - - meta
-    - property: og:description
-      content: Creates, signs, and sends a new EIP712 transaction to the network.
-
+description: Creates, signs, and sends a new EIP712 transaction to the network.
 ---
 
 # sendTransaction

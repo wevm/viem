@@ -1,15 +1,5 @@
 ---
-head:
-  - - meta
-    - property: og:title
-      content: signTransaction
-  - - meta
-    - name: description
-      content: Signs an EIP712 transaction.
-  - - meta
-    - property: og:description
-      content: Signs an EIP712 transaction.
-
+description: Signs an EIP712 transaction.
 ---
 
 # signTransaction

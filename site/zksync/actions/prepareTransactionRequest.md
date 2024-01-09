@@ -1,15 +1,5 @@
 ---
-head:
-  - - meta
-    - property: og:title
-      content: prepareTransactionRequest
-  - - meta
-    - name: description
-      content: Prepares an EIP712 transaction request for signing.
-  - - meta
-    - property: og:description
-      content: Prepares an EIP712 transaction request for signing.
-
+description: Prepares an EIP712 transaction request for signing.
 ---
 
 # prepareTransactionRequest
