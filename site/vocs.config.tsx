@@ -4,6 +4,7 @@ import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
 
 export default defineConfig({
+  baseUrl: 'https://viem.sh',
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:
