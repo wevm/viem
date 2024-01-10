@@ -1399,13 +1399,20 @@ utils.parseBytes32String('0x48656c6c6f20776f726c642e0000000000000000000000000000
 
 #### viem
 
-```ts {3-6}
-import { hexToString } from 'viem'
+```ts {3-11}
+import { hexToString, zeroHash, type Hex } from 'viem'
 
-hexToString(
-  '0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000', 
-  { size: 32 }
-)
+function parseBytes32String(hex: Hex) {
+  // When the hex is zero, `viem.hexToString` returns `\u0000`,
+  // which differs from `ethers.utils.parseBytes32String` that returns an empty string
+  if (zeroHash.toLowerCase() === hex.toLowerCase()) {
+    return ''
+  } else {
+    return hexToString(hex, { size: 32 })
+  }
+}
+
+parseBytes32String('0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000')
 // "Hello world"
 ```
 
