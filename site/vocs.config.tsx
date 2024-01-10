@@ -4,6 +4,10 @@ import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
 
 export default defineConfig({
+  title: 'Viem',
+  titleTemplate: '%s · Viem',
+  description:
+    'Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.',
   head: (
     <>
       <script
@@ -186,8 +190,6 @@ export default defineConfig({
     },
     colorScheme: 'system',
   },
-  title: 'Viem',
-  titleTemplate: '%s · Viem',
   topNav: [
     { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
     {
