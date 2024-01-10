@@ -17,10 +17,10 @@ export const getZkSyncEIP712Domain: EIP712DomainFn<
   throw new Error('Cannot sign ZkSync EIP712 transaction, missing fields!')
 }
 
-export const eip712domainZkSync: ChainEIP712Domain = {
+export const eip712domainZkSync = {
   eip712domain: getZkSyncEIP712Domain,
   isEip712domain: isZkSyncEIP712,
-}
+} as const satisfies ChainEIP712Domain
 
 //////////////////////////////////////////////////////////////////////////////
 // EIP712 Signers

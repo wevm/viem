@@ -462,6 +462,7 @@ describe('transaction', () => {
         transactionIndex: '0x1',
         type: '0x2',
         v: '0x104',
+        yParity: '0x1',
         value: '0xde0b6b3a7640000',
         l1BatchTxIndex: null,
       }),
@@ -489,6 +490,7 @@ describe('transaction', () => {
         "typeHex": "0x2",
         "v": 260n,
         "value": 1000000000000000000n,
+        "yParity": 1,
       }
     `)
   })

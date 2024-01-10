@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { baseZkSyncTestClient } from '~test/src/zksync.js'
+import { zkSyncClient } from '~test/src/zksync.js'
 import type { TransactionRequestBase } from '~viem/index.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
@@ -16,7 +16,7 @@ const base: TransactionRequestBase = {
 }
 
 describe('custom (eip712)', () => {
-  const walletClient = baseZkSyncTestClient
+  const walletClient = zkSyncClient
 
   test('default', async () => {
     expect(

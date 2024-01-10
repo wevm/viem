@@ -1,34 +1,27 @@
+import type { Address } from 'abitype'
 import type { Account } from '../../../accounts/types.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
+import { getChainId } from '../../../actions/index.js'
 import { estimateGas } from '../../../actions/public/estimateGas.js'
 import { getTransactionCount } from '../../../actions/public/getTransactionCount.js'
+import {
+  type PrepareTransactionRequestParameterType,
+  type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest as prepareTransactionRequest_,
+} from '../../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-
-import type { PrepareTransactionRequestReturnType } from '../../../index.js'
-import type { GetAccountParameter } from '../../../types/account.js'
-import type { GetChain } from '../../../types/chain.js'
-import type { UnionOmit } from '../../../types/utils.js'
-import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
+import { AccountNotFoundError } from '../../../errors/account.js'
 import { getAction } from '../../../utils/getAction.js'
 import { type ChainEIP712, isEip712Transaction } from '../types.js'
 
-import { getChainId } from '../../../actions/index.js'
-import { prepareTransactionRequest as originalPrepareTransactionRequest } from '../../../actions/wallet/prepareTransactionRequest.js'
-import { AccountNotFoundError } from '../../../errors/account.js'
-
-export type PrepareTransactionRequestParameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-> = UnionOmit<
-  FormattedTransactionRequest<
-    TChainOverride extends ChainEIP712 ? TChainOverride : TChain
-  >,
-  'from'
-> &
-  GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
+export type {
+  PrepareTransactionRequestParameterType,
+  PrepareTransactionRequestParameters,
+  PrepareTransactionRequestReturnType,
+  PrepareTransactionRequestErrorType,
+} from '../../../actions/wallet/prepareTransactionRequest.js'
 
 /**
  * Prepares a transaction request for signing.
@@ -73,14 +66,33 @@ export type PrepareTransactionRequestParameters<
 export async function prepareTransactionRequest<
   TChain extends ChainEIP712 | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  TParameterType extends PrepareTransactionRequestParameterType,
+  TAccountOverride extends Account | Address | undefined = undefined,
+  TChainOverride extends ChainEIP712 | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
-  args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
+  args: PrepareTransactionRequestParameters<
+    TChain,
+    TAccount,
+    TChainOverride,
+    TAccountOverride,
+    TParameterType
+  >,
 ): Promise<
-  PrepareTransactionRequestReturnType<TChain, TAccount, TChainOverride>
+  PrepareTransactionRequestReturnType<
+    TChain,
+    TAccount,
+    TChainOverride,
+    TAccountOverride,
+    TParameterType
+  >
 > {
-  const { account: account_ = client.account, nonce, gas } = args
+  const {
+    account: account_ = client.account,
+    nonce,
+    gas,
+    parameters = ['fees', 'gas', 'nonce', 'type'],
+  } = args
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
@@ -88,26 +100,28 @@ export async function prepareTransactionRequest<
   if (args.chain?.id) {
     chainId = args.chain.id
   } else {
-    chainId = await getAction(client, getChainId)({})
+    chainId = await getAction(client, getChainId, 'getChainId')({})
   }
   const request = { ...args, from: account.address, chainId }
 
-  if (nonce === undefined && account)
+  if (nonce === undefined && account && parameters.includes('nonce'))
     request.nonce = await getAction(
       client,
       getTransactionCount,
+      'getTransactionCount',
     )({
       address: account.address,
       blockTag: 'pending',
     })
 
   if (isEip712Transaction({ ...request })) {
-    request.type = 'eip712'
+    request.type = 'eip712' as any
 
-    if (gas === undefined) {
+    if (gas === undefined && parameters.includes('gas')) {
       request.gas = await getAction(
         client,
         estimateGas,
+        'estimateGas',
       )({
         ...request,
         account: { address: account.address, type: 'json-rpc' },
@@ -117,16 +131,20 @@ export async function prepareTransactionRequest<
     return request as unknown as PrepareTransactionRequestReturnType<
       TChain,
       TAccount,
-      TChainOverride
+      TChainOverride,
+      TAccountOverride,
+      TParameterType
     >
   }
 
-  return originalPrepareTransactionRequest(
+  return prepareTransactionRequest_(
     client,
     args as unknown as PrepareTransactionRequestParameters,
   ) as unknown as PrepareTransactionRequestReturnType<
     TChain,
     TAccount,
-    TChainOverride
+    TChainOverride,
+    TAccountOverride,
+    TParameterType
   >
 }

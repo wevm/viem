@@ -16,6 +16,9 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+  custom extends Record<string, unknown> | undefined =
+    | Record<string, unknown>
+    | undefined,
 > = {
   /** Collection of block explorers */
   blockExplorers?:
@@ -55,6 +58,7 @@ export type Chain<
   /** Flag for test networks */
   testnet?: boolean | undefined
 
+  custom?: custom
   /**
    * Modifies how chain data structures (ie. Blocks, Transactions, etc)
    * are formatted & typed.

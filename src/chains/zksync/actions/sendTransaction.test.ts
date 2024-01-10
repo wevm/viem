@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { baseZkSyncTestClient } from '~test/src/zksync.js'
+import { zkSyncClient } from '~test/src/zksync.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
+import type { EIP1193RequestFn } from '../../../index.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import { zkSyncSepoliaTestnet } from '../index.js'
 import { sendTransaction } from './sendTransaction.js'
@@ -12,11 +13,16 @@ const targetAccount = accounts[1]
 
 describe('sendTransaction', () => {
   test('eip712', async () => {
-    // const spy = vi.spyOn(baseZkSyncTestClient, 'request') as MockInstance
-    // spy.mockImplementation((request) => transportRequestMock(request))
+    const client = { ...zkSyncClient }
+
+    client.request = (async ({ method, params }) => {
+      if (method === 'eth_sendRawTransaction')
+        return '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
+      return zkSyncClient.request({ method, params } as any)
+    }) as EIP1193RequestFn
 
     expect(
-      await sendTransaction(baseZkSyncTestClient, {
+      await sendTransaction(client, {
         chain: zkSyncSepoliaTestnet,
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
@@ -32,6 +38,5 @@ describe('sendTransaction', () => {
         gasPerPubdata: 50000n,
       }),
     ).toBeDefined()
-    // spy.mockRestore()
   })
 })

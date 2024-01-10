@@ -28,7 +28,6 @@ import type {
   TransactionType,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
-import type { formatters } from './formatters.js'
 import { isEIP712 } from './serializers.js'
 
 type EIP712Type = '0x71'
@@ -373,15 +372,14 @@ export type TransactionRequestEIP712<
   }
 
 export type ChainEIP712<
-  formatters extends ChainFormatters | undefined =
-    | typeof formatters
-    | undefined,
-> = Chain<formatters> & {
-  custom: {
+  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+> = Chain<
+  formatters,
+  {
     /** Return EIP712 Domain for EIP712 transaction */
     eip712domain?: ChainEIP712Domain<formatters> | undefined
   }
-}
+>
 
 export type ChainEIP712Domain<
   formatters extends ChainFormatters | undefined = undefined,

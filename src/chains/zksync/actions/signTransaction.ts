@@ -13,7 +13,7 @@ import { AccountNotFoundError } from '../../../errors/account.js'
 import type { GetAccountParameter } from '../../../types/account.js'
 import type {
   ExtractChainFormatterParameters,
-  GetChain,
+  GetChainParameter,
 } from '../../../types/chain.js'
 import type { UnionOmit } from '../../../types/utils.js'
 import { assertCurrentChain } from '../../../utils/chain/assertCurrentChain.js'
@@ -47,7 +47,12 @@ export type SignTransactionParameters<
   'from'
 > &
   GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride>
+  GetChainParameter<TChain, TChainOverride>
+
+export type {
+  SignTransactionReturnType,
+  SignTransactionErrorType,
+} from '../../../actions/wallet/signTransaction.js'
 
 /**
  * Signs a transaction.
@@ -119,11 +124,11 @@ export async function signTransaction<
 
   // Handle EIP712 transactions
   if (
-    client.chain?.custom.eip712domain?.eip712domain &&
+    client.chain?.custom?.eip712domain?.eip712domain &&
     client.chain?.serializers?.transaction &&
     isEip712Transaction({ ...transaction, type: args.type ?? '' })
   ) {
-    const chainId = await getAction(client, getChainId)({})
+    const chainId = await getAction(client, getChainId, 'getChainId')({})
     if (chain !== null)
       assertCurrentChain({
         currentChainId: chainId,

@@ -1,16 +1,17 @@
 import { describe, expect, test } from 'vitest'
-import { accounts } from '~test/src/constants.js'
 
 import { greeterContract } from '~test/src/abis.js'
-import { baseZkSyncTestClient } from '~test/src/zksync.js'
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import { simulateContract } from '~viem/actions/index.js'
+import { accounts } from '~test/src/constants.js'
+import { zkSyncClient } from '~test/src/zksync.js'
+import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
+import { simulateContract } from '../../../actions/index.js'
+import type { EIP1193RequestFn } from '../../../types/eip1193.js'
 import { eip712Actions } from './eip712.js'
 
-const zkSyncClient = baseZkSyncTestClient.extend(eip712Actions)
+const zkSyncClient_ = zkSyncClient.extend(eip712Actions)
 
 test('default', async () => {
-  expect(eip712Actions(baseZkSyncTestClient)).toMatchInlineSnapshot(`
+  expect(eip712Actions(zkSyncClient)).toMatchInlineSnapshot(`
     {
       "prepareTransactionRequest": [Function],
       "sendTransaction": [Function],
@@ -22,7 +23,7 @@ test('default', async () => {
 
 describe('Action tests', () => {
   test('prepareTransactionRequest', async () => {
-    const request = await zkSyncClient.prepareTransactionRequest({
+    const request = await zkSyncClient_.prepareTransactionRequest({
       account: privateKeyToAccount(accounts[0].privateKey),
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       maxFeePerGas: 10000000000n,
@@ -40,7 +41,14 @@ describe('Action tests', () => {
   })
 
   test('sendTransaction', async () => {
-    const request = await zkSyncClient.sendTransaction({
+    zkSyncClient_.request = (async ({ method, params }) => {
+      if (method === 'eth_sendRawTransaction')
+        return '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
+      return zkSyncClient.request({ method, params } as any)
+    }) as EIP1193RequestFn
+    const client = zkSyncClient_.extend(eip712Actions)
+
+    const result = await client.sendTransaction({
       account: privateKeyToAccount(accounts[0].privateKey),
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       maxFeePerGas: 10000000000n,
@@ -54,12 +62,11 @@ describe('Action tests', () => {
       type: 'eip712',
       gasPerPubdata: 50000n,
     })
-    expect(request).toBeDefined()
-    // spy.mockRestore()
+    expect(result).toBeDefined()
   })
 
   test('signTransaction', async () => {
-    const signature = await zkSyncClient.signTransaction({
+    const signature = await zkSyncClient_.signTransaction({
       account: privateKeyToAccount(accounts[0].privateKey),
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       maxFeePerGas: 10000000000n,
@@ -77,7 +84,14 @@ describe('Action tests', () => {
   })
 
   test('writeContract', async () => {
-    const { request } = await simulateContract(zkSyncClient, {
+    zkSyncClient_.request = (async ({ method, params }) => {
+      if (method === 'eth_sendRawTransaction')
+        return '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
+      return zkSyncClient.request({ method, params } as any)
+    }) as EIP1193RequestFn
+    const client = zkSyncClient_.extend(eip712Actions)
+
+    const { request } = await simulateContract(client, {
       ...greeterContract,
       account: privateKeyToAccount(accounts[0].privateKey),
       functionName: 'setGreeting',
@@ -90,8 +104,7 @@ describe('Action tests', () => {
       type: 'eip712',
       gasPerPubdata: 50000n,
     })
-    const tx = await zkSyncClient.writeContract(request)
+    const tx = await client.writeContract(request)
     expect(tx).toBeDefined()
-    // spy.mockRestore()
   })
 })
