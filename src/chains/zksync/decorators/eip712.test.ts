@@ -7,6 +7,7 @@ import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { simulateContract } from '../../../actions/index.js'
 import type { EIP1193RequestFn } from '../../../types/eip1193.js'
 import { eip712Actions } from './eip712.js'
+import { publicClient } from '~test/src/utils.js'
 
 const zkSyncClient_ = zkSyncClient.extend(eip712Actions)
 
@@ -91,13 +92,14 @@ describe('Action tests', () => {
     }) as EIP1193RequestFn
     const client = zkSyncClient_.extend(eip712Actions)
 
-    const { request } = await simulateContract(client, {
+    const { request } = await simulateContract(publicClient, {
       ...greeterContract,
       account: privateKeyToAccount(accounts[0].privateKey),
       functionName: 'setGreeting',
       args: ['Viem ZkSync works!'],
       maxFeePerGas: 250000000n,
       maxPriorityFeePerGas: 0n,
+      gas: 158774n,
       paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
       paymasterInput:
         '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
