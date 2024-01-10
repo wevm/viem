@@ -10,29 +10,29 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import {
-  type DecodeFunctionResultErrorType,
   decodeFunctionResult,
+  type DecodeFunctionResultErrorType,
 } from '../../utils/abi/decodeFunctionResult.js'
 import {
-  type EncodeFunctionDataErrorType,
   encodeFunctionData,
+  type EncodeFunctionDataErrorType,
 } from '../../utils/abi/encodeFunctionData.js'
 import {
-  type GetChainContractAddressErrorType,
   getChainContractAddress,
+  type GetChainContractAddressErrorType,
 } from '../../utils/chain/getChainContractAddress.js'
-import { type TrimErrorType, trim } from '../../utils/data/trim.js'
-import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
+import { trim, type TrimErrorType } from '../../utils/data/trim.js'
+import { toHex, type ToHexErrorType } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
-import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
+import { namehash, type NamehashErrorType } from '../../utils/ens/namehash.js'
 import {
-  type PacketToBytesErrorType,
   packetToBytes,
+  type PacketToBytesErrorType,
 } from '../../utils/ens/packetToBytes.js'
 import { getAction } from '../../utils/getAction.js'
 import {
-  type ReadContractParameters,
   readContract,
+  type ReadContractParameters,
 } from '../public/readContract.js'
 
 export type GetEnsAddressParameters = Prettify<
@@ -144,8 +144,6 @@ export async function getEnsAddress<TChain extends Chain | undefined>(
       : await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
-
-    console.log(res[0])
 
     const address = decodeFunctionResult({
       abi: addressResolverAbi,
