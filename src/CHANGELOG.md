@@ -1,5 +1,11 @@
 # viem
 
+## 2.0.6
+
+### Patch Changes
+
+- [#1462](https://github.com/wevm/viem/pull/1462) [`f1aaca8f`](https://github.com/wevm/viem/commit/f1aaca8f104d3595fd86018d28f0bf97cdd8dcc8) Thanks [@0xarthurxyz](https://github.com/0xarthurxyz)! - Removed Celo Cannoli testnet which is [deprecated](https://forum.celo.org/t/cannoli-testnet-deprecation-announcement/6796).
+
 ## 2.0.5
 
 ### Patch Changes
