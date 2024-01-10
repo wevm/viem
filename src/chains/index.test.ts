@@ -35,7 +35,6 @@ test('exports chains', () => {
       "celo",
       "celoAlfajores",
       "chiliz",
-      "celoCannoli",
       "classic",
       "confluxESpace",
       "confluxESpaceTestnet",
