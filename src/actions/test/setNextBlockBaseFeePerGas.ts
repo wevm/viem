@@ -19,7 +19,7 @@ export type SetNextBlockBaseFeePerGasErrorType = RequestErrorType | ErrorType
 /**
  * Sets the next block's base fee per gas.
  *
- * - Docs: https://viem.sh/docs/actions/test/setNextBlockBaseFeePerGas.html
+ * - Docs: https://viem.sh/docs/actions/test/setNextBlockBaseFeePerGas
  *
  * @param client - Client to use
  * @param parameters – {@link SetNextBlockBaseFeePerGasParameters}

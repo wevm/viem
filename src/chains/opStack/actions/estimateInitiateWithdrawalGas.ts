@@ -55,7 +55,7 @@ export type EstimateInitiateWithdrawalGasErrorType =
 /**
  * Estimates gas required to initiate a [withdrawal](https://community.optimism.io/docs/protocol/withdrawal-flow/#withdrawal-initiating-transaction) on an L2 to the L1.
  *
- * - Docs: https://viem.sh/op-stack/actions/estimateInitiateWithdrawalGas.html
+ * - Docs: https://viem.sh/op-stack/actions/estimateInitiateWithdrawalGas
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateInitiateWithdrawalGasParameters}

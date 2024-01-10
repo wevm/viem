@@ -20,7 +20,7 @@ export type SendRawTransactionErrorType = RequestErrorType | ErrorType
 /**
  * Sends a **signed** transaction to the network
  *
- * - Docs: https://viem.sh/docs/actions/wallet/sendRawTransaction.html
+ * - Docs: https://viem.sh/docs/actions/wallet/sendRawTransaction
  * - JSON-RPC Method: [`eth_sendRawTransaction`](https://ethereum.github.io/execution-apis/api-documentation/)
  *
  * @param client - Client to use

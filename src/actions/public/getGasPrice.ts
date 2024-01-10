@@ -12,7 +12,7 @@ export type GetGasPriceErrorType = RequestErrorType | ErrorType
 /**
  * Returns the current price of gas (in wei).
  *
- * - Docs: https://viem.sh/docs/actions/public/getGasPrice.html
+ * - Docs: https://viem.sh/docs/actions/public/getGasPrice
  * - JSON-RPC Methods: [`eth_gasPrice`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gasprice)
  *
  * @param client - Client to use

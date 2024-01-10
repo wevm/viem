@@ -21,7 +21,7 @@ export type MineErrorType = RequestErrorType | ErrorType
 /**
  * Mine a specified number of blocks.
  *
- * - Docs: https://viem.sh/docs/actions/test/mine.html
+ * - Docs: https://viem.sh/docs/actions/test/mine
  *
  * @param client - Client to use
  * @param parameters – {@link MineParameters}

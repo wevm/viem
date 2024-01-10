@@ -19,7 +19,7 @@ export type SetNextBlockTimestampErrorType = RequestErrorType | ErrorType
 /**
  * Sets the next block's timestamp.
  *
- * - Docs: https://viem.sh/docs/actions/test/setNextBlockTimestamp.html
+ * - Docs: https://viem.sh/docs/actions/test/setNextBlockTimestamp
  *
  * @param client - Client to use
  * @param parameters – {@link SetNextBlockTimestampParameters}

@@ -20,7 +20,7 @@ export type ResetErrorType = RequestErrorType | ErrorType
 /**
  * Resets fork back to its original state.
  *
- * - Docs: https://viem.sh/docs/actions/test/reset.html
+ * - Docs: https://viem.sh/docs/actions/test/reset
  *
  * @param client - Client to use
  * @param parameters – {@link ResetParameters}

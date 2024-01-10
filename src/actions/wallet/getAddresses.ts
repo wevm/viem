@@ -21,7 +21,7 @@ export type GetAddressesErrorType =
 /**
  * Returns a list of account addresses owned by the wallet or client.
  *
- * - Docs: https://viem.sh/docs/actions/wallet/getAddresses.html
+ * - Docs: https://viem.sh/docs/actions/wallet/getAddresses
  * - JSON-RPC Methods: [`eth_accounts`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_accounts)
  *
  * @param client - Client to use

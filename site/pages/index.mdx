@@ -1,0 +1,186 @@
+---
+content:
+  width: 100%
+layout: landing
+logo: false
+---
+
+import { HomePage } from 'vocs/components'
+
+<div className="absolute max-w-[1120px] mx-auto w-full top-20 bottom-0 bg-[url('/colosseum-light.svg')] dark:bg-[url('/colosseum.svg')] bg-no-repeat max-sm:w-[200%] max-sm:-left-[200px] max-sm:hidden" />
+
+<div className="max-w-[1120px] mx-auto vp-doc relative px-[24px] mb-[96px] mt-[32px] md:px-0 md:mb-[64px]">
+  <div className="pt-[48px] max-sm:pt-0">
+    <div className="max-sm:px-0 flex justify-between z-0 max-md:justify-center">
+      <div className="space-y-8 max-w-[400px] flex flex-col items-start max-md:items-center">
+        <img className="h-[72px] dark:invert-[1] max-sm:h-[60px]" src="/logo-light-hug.svg" alt="viem logo" />
+        <div className="font-regular text-[21px] max-sm:text-[18px] text-[#919193] max-md:text-center">Build reliable apps & libraries with <span className="text-black dark:text-white">lightweight</span>, <span className="text-black dark:text-white">composable</span>, and <span className="text-black dark:text-white">type-safe</span> modules that interface with Ethereum</div>
+        <div className="flex justify-center space-x-2">
+          <HomePage.Button href="/docs/getting-started" variant="accent">Get started</HomePage.Button>
+          <HomePage.Button href="/docs/introduction">Why Viem?</HomePage.Button>
+          <HomePage.Button href="https://github.com/wevm/viem">GitHub</HomePage.Button>
+        </div>
+      </div>
+      <div className="flex flex-col justify-between w-[440px] space-y-10 max-lg:w-[300px] max-md:hidden">
+        <div id="home-install" className="h-full">
+
+  :::code-group
+
+  ```bash [npm]
+  npm i viem
+  ```
+
+  ```bash [pnpm]
+  pnpm i viem
+  ```
+
+  ```bash [bun]
+  bun i viem
+  ```
+
+  :::
+
+    </div>
+    <div className="flex justify-between space-x-2">
+    <a href="https://github.com/wevm/viem/stargazers" className="cursor-pointer h-[36px] max-w-[120px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20" style={{ color: 'inherit' }} rel="noreferrer noopener" target="_blank">
+      <div className="absolute flex z-[1] p-[6px] h-full w-full">
+        <div className="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
+          <span className="font-medium text-[15px] opacity-80 leading-none w-full text-center">stars</span>
+        </div>
+        <div className="flex items-center h-full px-2">
+          <span className="font-medium text-[15px] text-center leading-none w-full text-black dark:text-white">1.7k</span>
+        </div>
+      </div>
+      <div className="absolute left-0 right-0 top-0 bottom-0 bg-black/5 dark:bg-white/5 z-0" />
+      <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-0" />
+    </a>
+    <a href="https://app.codecov.io/gh/wevm/viem" className="cursor-pointer h-[36px] max-w-[160px] flex-1 relative rounded-lg overflow-hidden border border-green-400/50" style={{ color: 'inherit' }} rel="noreferrer noopener" target="_blank">
+      <div className="absolute flex z-[1] p-[6px] h-full w-full">
+        <div className="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
+          <span className="font-medium text-[15px] leading-none opacity-80 w-full text-center">coverage</span>
+        </div>
+        <div className="flex items-center h-full px-2">
+          <span className="font-medium text-[15px] leading-none text-center w-full text-green-400">100%</span>
+        </div>
+      </div>
+      <div className="absolute left-0 right-0 top-0 bottom-0 bg-green-400 opacity-10 z-[0]" />
+      <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-[0]" />
+    </a>
+    <a href="https://github.com/wevm/viem/blob/main/LICENSE" className="cursor-pointer h-[36px] max-w-[130px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20 max-lg:hidden" style={{ color: 'inherit' }} rel="noreferrer noopener" target="_blank">
+      <div className="absolute flex z-[1] p-[6px] h-full w-full">
+        <div className="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
+          <span className="font-medium text-[15px] leading-none opacity-80 w-full text-center">license</span>
+        </div>
+        <div className="flex items-center h-full px-2">
+          <span className="font-medium text-[15px] leading-none text-center w-full text-black dark:text-white">MIT</span>
+        </div>
+      </div>
+      <div className="absolute left-0 right-0 top-0 bottom-0 bg-black/5 dark:bg-white/5 z-[0]" />
+      <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-[0]" />
+    </a>
+    </div>
+    </div>
+    </div>
+    <div className="flex justify-between flex-wrap mt-16 max-sm:hidden">
+      <div className="pr-2 w-1/4 max-lg:pb-3 max-sm:px-0 max-lg:w-1/2 max-sm:w-full z-0">
+        <div className="relative w-full h-[168px] max-lg:h-[142px] overflow-hidden">
+          <div className="border-black dark:border-white border border-solid border-opacity-10 dark:border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+            <div className="text-xl font-medium text-black dark:text-white">Modular</div>
+            <div className="text-[17px] text-[#919193]">Composable modules to build applications & libraries with speed</div>
+          </div>
+          <div className="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+          <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+        </div>
+      </div>
+      <div className="pl-2 pr-2 max-sm:px-0 max-lg:pb-3 max-lg:pr-0 w-1/4 max-lg:w-1/2 max-sm:w-full z-0">
+        <div className="relative w-full h-[168px] max-lg:h-[142px]">
+          <div className="border-black dark:border-white border border-solid border-opacity-10 dark:border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+            <div className="text-xl font-medium text-black dark:text-white">Lightweight</div>
+            <div>
+            <div className="text-[17px] text-[#919193]">Tiny bundle size optimized for tree-shaking</div>
+            <a href="/docs/introduction#bundle-size" className="text-[17px]">See more</a>
+            </div>
+          </div>
+          <div className="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+          <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+        </div>
+      </div>
+      <div className="pl-2 pr-2 max-lg:pb-3 max-sm:px-0 max-lg:pl-0 w-1/4 max-lg:w-1/2 max-sm:w-full z-0">
+        <div className="relative w-full h-[168px] max-lg:h-[142px]">
+          <div className="border-black dark:border-white border border-solid border-opacity-10 dark:border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+            <div className="text-xl font-medium text-black dark:text-white">Performant</div>
+            <div className="text-[17px] text-[#919193]">Optimized architecture compared to alternative libraries</div>
+          </div>
+          <div className="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+          <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+        </div>
+      </div>
+      <div className="pl-2 w-1/4 max-sm:px-0 max-lg:w-1/2 max-sm:w-full z-0">
+        <div className="relative w-full h-[168px] max-lg:h-[142px]">
+          <div className="border-black dark:border-white border border-solid border-opacity-10 dark:border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+            <div className="text-xl font-medium text-black dark:text-white">Typed APIs</div>
+            <div className="text-[17px] text-[#919193]">Flexible programmatic APIs with extensive TypeScript typing</div>
+          </div>
+          <div className="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+          <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<article className="vocs_Content max-w-3xl mt-[-80px] mx-auto">
+
+#
+# Overview
+
+```ts
+// 1. Import modules.
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action!
+const blockNumber = await client.getBlockNumber()
+```
+
+# Features
+
+viem supports all these features out-of-the-box:
+
+- Abstractions over the [JSON-RPC API](https://ethereum.org/en/developers/docs/apis/json-rpc/) to make your life easier
+- First-class APIs for interacting with [Smart Contracts](https://ethereum.org/en/glossary/#smart-contract)
+- Language closely aligned to official [Ethereum terminology](https://ethereum.org/en/glossary/)
+- Import your Browser Extension, WalletConnect or Private Key Wallet
+- Browser native [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt), instead of large BigNumber libraries
+- Utilities for working with [ABIs](https://ethereum.org/en/glossary/#abi) (encoding/decoding/inspection)
+- TypeScript ready ([infer types](/docs/typescript) from ABIs and EIP-712 Typed Data)
+- First-class support for [Anvil](https://book.getfoundry.sh/), [Hardhat](https://hardhat.org/) & [Ganache](https://trufflesuite.com/ganache/)
+- Test suite running against [forked](https://ethereum.org/en/glossary/#fork) Ethereum network
+
+# Community
+
+Check out the following places for more wagmi-related content:
+
+- Follow [@wagmi_sh](https://twitter.com/wagmi_sh), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
+- Join the [discussions on GitHub](https://github.com/wevm/viem/discussions)
+- [Share your project/organization](https://github.com/wevm/viem/discussions/104) that uses viem
+
+# Support
+
+Help support future development and make wagmi a sustainable open-source project:
+
+- [GitHub Sponsors](https://github.com/sponsors/wevm?metadata_campaign=docs_support)
+- [Gitcoin Grant](https://wagmi.sh/gitcoin)
+- [wevm.eth](https://etherscan.io/enslookup-search?search=wevm.eth)
+
+# Sponsors
+
+::sponsors
+
+</article>

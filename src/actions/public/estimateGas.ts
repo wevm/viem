@@ -71,7 +71,7 @@ export type EstimateGasErrorType = GetEstimateGasErrorReturnType<
 /**
  * Estimates the gas necessary to complete a transaction without submitting it to the network.
  *
- * - Docs: https://viem.sh/docs/actions/public/estimateGas.html
+ * - Docs: https://viem.sh/docs/actions/public/estimateGas
  * - JSON-RPC Methods: [`eth_estimateGas`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_estimategas)
  *
  * @param client - Client to use

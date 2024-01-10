@@ -33,9 +33,9 @@ export type GetTimeToProveReturnType = GetTimeToNextL2OutputReturnType
 export type GetTimeToProveErrorType = GetTimeToNextL2OutputErrorType | ErrorType
 
 /**
- * Returns the time until the withdrawal transaction is ready to prove. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+ * Returns the time until the withdrawal transaction is ready to prove. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/getTimeToProve.html
+ * - Docs: https://viem.sh/op-stack/actions/getTimeToProve
  *
  * @param client - Client to use
  * @param parameters - {@link GetTimeToNextL2OutputParameters}

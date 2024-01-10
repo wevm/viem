@@ -253,7 +253,7 @@ test("error: function doesn't exist", () => {
     [AbiFunctionNotFoundError: Function "baz" not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeFunctionResult.html
+    Docs: https://viem.sh/docs/contract/encodeFunctionResult
     Version: viem@1.0.2]
   `,
   )
@@ -279,7 +279,7 @@ test("error: function doesn't exist", () => {
     Cannot decode function result without knowing what the parameter types are.
     Make sure you are using the correct ABI and that the function exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeFunctionResult.html
+    Docs: https://viem.sh/docs/contract/encodeFunctionResult
     Version: viem@1.0.2]
   `,
   )
@@ -302,7 +302,7 @@ test('errors: abi item not a function', () => {
     [AbiFunctionNotFoundError: Function not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeFunctionResult.html
+    Docs: https://viem.sh/docs/contract/encodeFunctionResult
     Version: viem@1.0.2]
   `)
 })

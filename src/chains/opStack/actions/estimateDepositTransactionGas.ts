@@ -54,7 +54,7 @@ export type EstimateDepositTransactionGasErrorType =
 /**
  * Estimates gas required to initiate a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
  *
- * - Docs: https://viem.sh/op-stack/actions/estimateDepositTransactionGas.html
+ * - Docs: https://viem.sh/op-stack/actions/estimateDepositTransactionGas
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateDepositTransactionGasParameters}

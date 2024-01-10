@@ -34,7 +34,7 @@ export type GetL2OutputErrorType = ReadContractErrorType | ErrorType
 /**
  * Retrieves the first L2 output proposal that occurred after a provided block number.
  *
- * - Docs: https://viem.sh/op-stack/actions/getL2Output.html
+ * - Docs: https://viem.sh/op-stack/actions/getL2Output
  *
  * @param client - Client to use
  * @param parameters - {@link GetL2OutputParameters}

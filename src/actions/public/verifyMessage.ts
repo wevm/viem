@@ -34,7 +34,7 @@ export type VerifyMessageErrorType =
  *
  * Compatible with Smart Contract Accounts & Externally Owned Accounts via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492).
  *
- * - Docs {@link https://viem.sh/docs/actions/public/verifyMessage.html}
+ * - Docs {@link https://viem.sh/docs/actions/public/verifyMessage}
  *
  * @param client - Client to use.
  * @param parameters - {@link VerifyMessageParameters}

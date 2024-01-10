@@ -19,7 +19,7 @@ export type IncreaseTimeErrorType = RequestErrorType | ErrorType
 /**
  * Jump forward in time by the given amount of time, in seconds.
  *
- * - Docs: https://viem.sh/docs/actions/test/increaseTime.html
+ * - Docs: https://viem.sh/docs/actions/test/increaseTime
  *
  * @param client - Client to use
  * @param parameters – {@link IncreaseTimeParameters}

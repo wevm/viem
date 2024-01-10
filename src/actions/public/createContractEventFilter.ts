@@ -73,13 +73,13 @@ export type CreateContractEventFilterErrorType =
   | ErrorType
 
 /**
- * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
+ * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs).
  *
- * - Docs: https://viem.sh/docs/contract/createContractEventFilter.html
+ * - Docs: https://viem.sh/docs/contract/createContractEventFilter
  *
  * @param client - Client to use
  * @param parameters - {@link CreateContractEventFilterParameters}
- * @returns [`Filter`](https://viem.sh/docs/glossary/types.html#filter). {@link CreateContractEventFilterReturnType}
+ * @returns [`Filter`](https://viem.sh/docs/glossary/types#filter). {@link CreateContractEventFilterReturnType}
  *
  * @example
  * import { createPublicClient, http, parseAbi } from 'viem'

@@ -75,9 +75,9 @@ export type WaitForTransactionReceiptErrorType =
   | ErrorType
 
 /**
- * Waits for the [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) to be included on a [Block](https://viem.sh/docs/glossary/terms.html#block) (one confirmation), and then returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms.html#transaction-receipt). If the Transaction reverts, then the action will throw an error.
+ * Waits for the [Transaction](https://viem.sh/docs/glossary/terms#transaction) to be included on a [Block](https://viem.sh/docs/glossary/terms#block) (one confirmation), and then returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms#transaction-receipt). If the Transaction reverts, then the action will throw an error.
  *
- * - Docs: https://viem.sh/docs/actions/public/waitForTransactionReceipt.html
+ * - Docs: https://viem.sh/docs/actions/public/waitForTransactionReceipt
  * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/sending-transactions
  * - JSON-RPC Methods:
  *   - Polls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt) on each block until it has been processed.

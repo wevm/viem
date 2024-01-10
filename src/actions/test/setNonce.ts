@@ -23,7 +23,7 @@ export type SetNonceErrorType = RequestErrorType | ErrorType
 /**
  * Modifies (overrides) the nonce of an account.
  *
- * - Docs: https://viem.sh/docs/actions/test/setNonce.html
+ * - Docs: https://viem.sh/docs/actions/test/setNonce
  *
  * @param client - Client to use
  * @param parameters – {@link SetNonceParameters}

@@ -50,7 +50,7 @@ export type GetFilterLogsErrorType =
 /**
  * Returns a list of event logs since the filter was created.
  *
- * - Docs: https://viem.sh/docs/actions/public/getFilterLogs.html
+ * - Docs: https://viem.sh/docs/actions/public/getFilterLogs
  * - JSON-RPC Methods: [`eth_getFilterLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterlogs)
  *
  * `getFilterLogs` is only compatible with **event filters**.

@@ -68,9 +68,9 @@ export type EstimateContractGasErrorType = GetContractErrorReturnType<
 /**
  * Estimates the gas required to successfully execute a contract write function call.
  *
- * - Docs: https://viem.sh/docs/contract/estimateContractGas.html
+ * - Docs: https://viem.sh/docs/contract/estimateContractGas
  *
- * Internally, uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`estimateGas` action](https://viem.sh/docs/actions/public/estimateGas.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+ * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`estimateGas` action](https://viem.sh/docs/actions/public/estimateGas) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateContractGasParameters}

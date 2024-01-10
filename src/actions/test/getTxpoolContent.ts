@@ -23,7 +23,7 @@ export type GetTxpoolContentErrorType = RequestErrorType | ErrorType
 /**
  * Returns the details of all transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
  *
- * - Docs: https://viem.sh/docs/actions/test/getTxpoolContent.html
+ * - Docs: https://viem.sh/docs/actions/test/getTxpoolContent
  *
  * @param client - Client to use
  * @returns Transaction pool content. {@link GetTxpoolContentReturnType}

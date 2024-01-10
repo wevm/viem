@@ -18,9 +18,9 @@ export type WaitToFinalizeReturnType = void
 export type WaitToFinalizeErrorType = GetTimeToFinalizeErrorType | ErrorType
 
 /**
- * Waits until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+ * Waits until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/waitToFinalize.html
+ * - Docs: https://viem.sh/op-stack/actions/waitToFinalize
  *
  * @param client - Client to use
  * @param parameters - {@link WaitToFinalizeParameters}

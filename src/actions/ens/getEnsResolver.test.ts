@@ -100,7 +100,7 @@ test('invalid universal resolver address', async () => {
       function:  findResolver(bytes)
       args:                  (0x046a786f6d0365746800)
 
-    Docs: https://viem.sh/docs/contract/readContract.html
+    Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2]
   `)
 })

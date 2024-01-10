@@ -71,7 +71,7 @@ export type PublicActionsL1<
   /**
    * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.
    *
-   * - Docs: https://viem.sh/op-stack/actions/buildInitiateWithdrawal.html
+   * - Docs: https://viem.sh/op-stack/actions/buildInitiateWithdrawal
    *
    * @param client - Client to use
    * @param parameters - {@link BuildInitiateWithdrawalParameters}
@@ -107,7 +107,7 @@ export type PublicActionsL1<
   /**
    * Estimates gas required to initiate a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on L2.
    *
-   * - Docs: https://viem.sh/op-stack/actions/estimateDepositTransactionGas.html
+   * - Docs: https://viem.sh/op-stack/actions/estimateDepositTransactionGas
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateDepositTransactionGasParameters}
@@ -145,7 +145,7 @@ export type PublicActionsL1<
   /**
    * Estimates gas required to prove a withdrawal that occurred on an L2.
    *
-   * - Docs: https://viem.sh/op-stack/actions/estimateProveWithdrawalGas.html
+   * - Docs: https://viem.sh/op-stack/actions/estimateProveWithdrawalGas
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateProveWithdrawalGasParameters}
@@ -182,7 +182,7 @@ export type PublicActionsL1<
   /**
    * Estimates gas required to finalize a withdrawal that occurred on an L2.
    *
-   * - Docs: https://viem.sh/op-stack/actions/estimateFinalizeWithdrawalGas.html
+   * - Docs: https://viem.sh/op-stack/actions/estimateFinalizeWithdrawalGas
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateFinalizeWithdrawalGasParameters}
@@ -214,9 +214,9 @@ export type PublicActionsL1<
     >,
   ) => Promise<EstimateFinalizeWithdrawalGasReturnType>
   /**
-   * Retrieves the first L2 output proposal that occurred after a provided block number. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   * Retrieves the first L2 output proposal that occurred after a provided block number. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/getL2Output.html
+   * - Docs: https://viem.sh/op-stack/actions/getL2Output
    *
    * @param client - Client to use
    * @param parameters - {@link GetL2OutputParameters}
@@ -241,9 +241,9 @@ export type PublicActionsL1<
     parameters: GetL2OutputParameters<chain, chainOverride>,
   ) => Promise<GetL2OutputReturnType>
   /**
-   * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/getTimeToFinalize.html
+   * - Docs: https://viem.sh/op-stack/actions/getTimeToFinalize
    *
    * @param client - Client to use
    * @param parameters - {@link GetTimeToFinalizeParameters}
@@ -279,9 +279,9 @@ export type PublicActionsL1<
     parameters: GetTimeToFinalizeParameters<chain, chainOverride>,
   ) => Promise<GetTimeToFinalizeReturnType>
   /**
-   * Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   * Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/getTimeToNextL2Output.html
+   * - Docs: https://viem.sh/op-stack/actions/getTimeToNextL2Output
    *
    * @param client - Client to use
    * @param parameters - {@link GetTimeToNextL2OutputParameters}
@@ -311,9 +311,9 @@ export type PublicActionsL1<
     parameters: GetTimeToNextL2OutputParameters<chain, chainOverride>,
   ) => Promise<GetTimeToNextL2OutputReturnType>
   /**
-   * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/getTimeToFinalize.html
+   * - Docs: https://viem.sh/op-stack/actions/getTimeToFinalize
    *
    * @param client - Client to use
    * @param parameters - {@link GetTimeToFinalizeParameters}
@@ -349,9 +349,9 @@ export type PublicActionsL1<
     parameters: GetTimeToProveParameters<chain, chainOverride>,
   ) => Promise<GetTimeToProveReturnType>
   /**
-   * Returns the current status of a withdrawal. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   * Returns the current status of a withdrawal. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/getWithdrawalStatus.html
+   * - Docs: https://viem.sh/op-stack/actions/getWithdrawalStatus
    *
    * @param client - Client to use
    * @param parameters - {@link GetWithdrawalStatusParameters}
@@ -384,7 +384,7 @@ export type PublicActionsL1<
   /**
    * Waits for the next L2 output (after the provided block number) to be submitted.
    *
-   * - Docs: https://viem.sh/op-stack/actions/waitForNextL2Output.html
+   * - Docs: https://viem.sh/op-stack/actions/waitForNextL2Output
    *
    * @param client - Client to use
    * @param parameters - {@link WaitForNextL2OutputParameters}
@@ -414,9 +414,9 @@ export type PublicActionsL1<
     parameters: WaitForNextL2OutputParameters<chain, chainOverride>,
   ) => Promise<WaitForNextL2OutputReturnType>
   /**
-   * Waits until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   * Waits until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/waitToFinalize.html
+   * - Docs: https://viem.sh/op-stack/actions/waitToFinalize
    *
    * @param client - Client to use
    * @param parameters - {@link WaitToFinalizeParameters}
@@ -451,9 +451,9 @@ export type PublicActionsL1<
     parameters: WaitToFinalizeParameters<chain, chainOverride>,
   ) => Promise<WaitToFinalizeReturnType>
   /**
-   * Waits until the L2 withdrawal transaction is provable. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+   * Waits until the L2 withdrawal transaction is provable. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/waitToProve.html
+   * - Docs: https://viem.sh/op-stack/actions/waitToProve
    *
    * @param client - Client to use
    * @param parameters - {@link WaitToProveParameters}
@@ -488,7 +488,7 @@ export type PublicActionsL1<
 /**
  * A suite of Public Actions for suited for development with Layer 2 (OP Stack) chains.
  *
- * - Docs: https://viem.sh/op-stack/client.html
+ * - Docs: https://viem.sh/op-stack/client
  *
  * @example
  * import { publicActionsL1 } from 'viem/op-stack'

@@ -52,7 +52,7 @@ export type EstimateFinalizeWithdrawalGasErrorType =
 /**
  * Estimates gas required to finalize a withdrawal that occurred on an L2.
  *
- * - Docs: https://viem.sh/op-stack/actions/estimateFinalizeWithdrawalGas.html
+ * - Docs: https://viem.sh/op-stack/actions/estimateFinalizeWithdrawalGas
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateFinalizeWithdrawalGasParameters}

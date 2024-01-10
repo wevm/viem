@@ -56,7 +56,7 @@ export type BuildInitiateWithdrawalErrorType =
 /**
  * Prepares parameters for a [withdrawal](https://community.optimism.io/docs/protocol/withdrawal-flow/#withdrawal-initiating-transaction) from an L2 to the L1.
  *
- * - Docs: https://viem.sh/op-stack/actions/buildInitiateWithdrawal.html
+ * - Docs: https://viem.sh/op-stack/actions/buildInitiateWithdrawal
  *
  * @param client - Client to use
  * @param parameters - {@link BuildInitiateWithdrawalParameters}

@@ -60,9 +60,9 @@ export type EstimateFeesPerGasErrorType =
 /**
  * Returns an estimate for the fees per gas (in wei) for a
  * transaction to be likely included in the next block.
- * Defaults to [`chain.fees.estimateFeesPerGas`](/docs/clients/chains.html#fees-estimatefeespergas) if set.
+ * Defaults to [`chain.fees.estimateFeesPerGas`](/docs/clients/chains#fees-estimatefeespergas) if set.
  *
- * - Docs: https://viem.sh/docs/actions/public/estimateFeesPerGas.html
+ * - Docs: https://viem.sh/docs/actions/public/estimateFeesPerGas
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateFeesPerGasParameters}

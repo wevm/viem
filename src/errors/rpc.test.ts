@@ -68,7 +68,7 @@ test('RpcError', () => {
     URL: http://localhost
     Request body: {"foo":"bar"}
 
-    Docs: https://viem.sh/lol.html
+    Docs: https://viem.sh/lol
     Details: error details
     Version: viem@1.0.2]
   `)

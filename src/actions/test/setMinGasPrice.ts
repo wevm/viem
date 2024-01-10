@@ -19,7 +19,7 @@ export type SetMinGasPriceErrorType = RequestErrorType | ErrorType
 /**
  * Change the minimum gas price accepted by the network (in wei).
  *
- * - Docs: https://viem.sh/docs/actions/test/setMinGasPrice.html
+ * - Docs: https://viem.sh/docs/actions/test/setMinGasPrice
  *
  * Note: `setMinGasPrice` can only be used on clients that do not have EIP-1559 enabled.
  *

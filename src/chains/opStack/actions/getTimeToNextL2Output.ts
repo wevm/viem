@@ -51,9 +51,9 @@ export type GetTimeToNextL2OutputErrorType =
   | ErrorType
 
 /**
- * Returns the time until the next L2 output (after the provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+ * Returns the time until the next L2 output (after the provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/getTimeToNextL2Output.html
+ * - Docs: https://viem.sh/op-stack/actions/getTimeToNextL2Output
  *
  * @param client - Client to use
  * @param parameters - {@link GetTimeToNextL2OutputParameters}

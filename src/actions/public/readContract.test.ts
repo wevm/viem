@@ -121,7 +121,7 @@ describe('bayc', () => {
         function:  tokenOfOwnerByIndex(address owner, uint256 index)
         args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 5)
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -142,7 +142,7 @@ describe('bayc', () => {
         function:  ownerOf(uint256 tokenId)
         args:             (420213123123)
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -166,7 +166,7 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  revertRead()
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -188,7 +188,7 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  assertRead()
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -210,7 +210,7 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  overflowRead()
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -232,7 +232,7 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  divideByZeroRead()
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -253,7 +253,7 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  requireRead()
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -277,7 +277,7 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomRead()
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -300,7 +300,7 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomReadNoArgs()
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -324,7 +324,7 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  complexCustomRead()
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -354,7 +354,7 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomRead()
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult.html
+      Docs: https://viem.sh/docs/contract/decodeErrorResult
       Version: viem@1.0.2]
     `)
   })
@@ -379,7 +379,7 @@ test('fake contract address', async () => {
       address:   0x0000000000000000000000000000000000000000
       function:  totalSupply()
 
-    Docs: https://viem.sh/docs/contract/readContract.html
+    Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2]
   `)
 })

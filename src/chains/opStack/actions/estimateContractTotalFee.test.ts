@@ -35,7 +35,7 @@ test('revert', async () => {
       args:              (0xc8373edfad6d5c5f600b6b2507f78431c5271ff5, 1)
       sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
-    Docs: https://viem.sh/docs/chains/op-stack/estimateTotalFee.html
+    Docs: https://viem.sh/docs/chains/op-stack/estimateTotalFee
     Version: viem@1.0.2]
   `)
 })

@@ -33,12 +33,12 @@ export type GetEnsAvatarErrorType =
 /**
  * Gets the avatar of an ENS name.
  *
- * - Docs: https://viem.sh/docs/ens/actions/getEnsAvatar.html
+ * - Docs: https://viem.sh/docs/ens/actions/getEnsAvatar
  * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
  *
- * Calls [`getEnsText`](https://viem.sh/docs/ens/actions/getEnsText.html) with `key` set to `'avatar'`.
+ * Calls [`getEnsText`](https://viem.sh/docs/ens/actions/getEnsText) with `key` set to `'avatar'`.
  *
- * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+ * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize) function for this.
  *
  * @param client - Client to use
  * @param parameters - {@link GetEnsAvatarParameters}

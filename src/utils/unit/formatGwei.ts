@@ -7,7 +7,7 @@ export type FormatGweiErrorType = FormatUnitsErrorType
 /**
  * Converts numerical wei to a string representation of gwei.
  *
- * - Docs: https://viem.sh/docs/utilities/formatGwei.html
+ * - Docs: https://viem.sh/docs/utilities/formatGwei
  *
  * @example
  * import { formatGwei } from 'viem'

@@ -59,12 +59,12 @@ export type GetEnsTextErrorType =
 /**
  * Gets a text record for specified ENS name.
  *
- * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
+ * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver
  * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
  *
  * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
  *
- * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+ * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize) function for this.
  *
  * @param client - Client to use
  * @param parameters - {@link GetEnsTextParameters}

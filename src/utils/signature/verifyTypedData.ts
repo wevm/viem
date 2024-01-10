@@ -39,7 +39,7 @@ export type VerifyTypedDataErrorType =
  *        It is highly recommended to use `publicClient.verifyTypedData` instead to ensure
  *        wallet interoperability.
  *
- * - Docs {@link https://viem.sh/docs/utilities/verifyTypedData.html}
+ * - Docs {@link https://viem.sh/docs/utilities/verifyTypedData}
  *
  * @param parameters - {@link VerifyTypedDataParameters}
  * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}

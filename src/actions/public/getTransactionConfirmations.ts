@@ -39,7 +39,7 @@ export type GetTransactionConfirmationsErrorType =
 /**
  * Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
  *
- * - Docs: https://viem.sh/docs/actions/public/getTransactionConfirmations.html
+ * - Docs: https://viem.sh/docs/actions/public/getTransactionConfirmations
  * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
  * - JSON-RPC Methods: [`eth_getTransactionConfirmations`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionConfirmations)
  *

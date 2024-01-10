@@ -70,7 +70,7 @@ export type PublicActionsL2<
   /**
    * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.
    *
-   * - Docs: https://viem.sh/op-stack/actions/buildDepositTransaction.html
+   * - Docs: https://viem.sh/op-stack/actions/buildDepositTransaction
    *
    * @param client - Client to use
    * @param parameters - {@link BuildDepositTransactionParameters}
@@ -106,7 +106,7 @@ export type PublicActionsL2<
   /**
    * Builds the transaction that proves a withdrawal was initiated on an L2. Used in the Withdrawal flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/buildProveWithdrawal.html
+   * - Docs: https://viem.sh/op-stack/actions/buildProveWithdrawal
    *
    * @param client - Client to use
    * @param parameters - {@link BuildProveWithdrawalParameters}
@@ -304,7 +304,7 @@ export type PublicActionsL2<
   /**
    * Estimates gas required to initiate a [withdrawal](https://community.optimism.io/docs/protocol/withdrawal-flow/#withdrawal-initiating-transaction) on an L2 to the L1.
    *
-   * - Docs: https://viem.sh/op-stack/actions/estimateInitiateWithdrawalGas.html
+   * - Docs: https://viem.sh/op-stack/actions/estimateInitiateWithdrawalGas
    *
    * @param client - Client to use
    * @param parameters - {@link EstimateInitiateWithdrawalGasParameters}
@@ -447,7 +447,7 @@ export type PublicActionsL2<
 /**
  * A suite of Public Actions for suited for development with Layer 2 (OP Stack) chains.
  *
- * - Docs: https://viem.sh/op-stack/client.html
+ * - Docs: https://viem.sh/op-stack/client
  *
  * @example
  * import { publicActionsL2 } from 'viem/op-stack'

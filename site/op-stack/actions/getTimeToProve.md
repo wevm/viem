@@ -14,9 +14,9 @@ head:
 
 # getTimeToProve
 
-Gets time until the L2 withdrawal transaction is ready to be proved. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+Gets time until the L2 withdrawal transaction is ready to be proved. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
 
-Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Output.html).
+Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Output).
 
 ## Usage
 

@@ -128,7 +128,7 @@ test('invalid universal resolver address', async () => {
       function:  reverse(bytes reverseName)
       args:             (0x28613063663739383831366434623962393836366235333330656561343661313833383266323531650461646472077265766572736500)
 
-    Docs: https://viem.sh/docs/contract/readContract.html
+    Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2]
   `)
 })

@@ -37,7 +37,7 @@ export type VerifyTypedDataErrorType =
 /**
  * Verify that typed data was signed by the provided address.
  *
- * - Docs {@link https://viem.sh/docs/actions/public/verifyTypedData.html}
+ * - Docs {@link https://viem.sh/docs/actions/public/verifyTypedData}
  *
  * @param client - Client to use.
  * @param parameters - {@link VerifyTypedDataParameters}

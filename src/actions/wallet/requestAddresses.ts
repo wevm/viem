@@ -15,7 +15,7 @@ export type RequestAddressesErrorType = RequestErrorType | ErrorType
 /**
  * Requests a list of accounts managed by a wallet.
  *
- * - Docs: https://viem.sh/docs/actions/wallet/requestAddresses.html
+ * - Docs: https://viem.sh/docs/actions/wallet/requestAddresses
  * - JSON-RPC Methods: [`eth_requestAccounts`](https://eips.ethereum.org/EIPS/eip-1102)
  *
  * Sends a request to the wallet, asking for permission to access the user's accounts. After the user accepts the request, it will return a list of accounts (addresses).

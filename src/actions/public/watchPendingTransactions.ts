@@ -36,14 +36,14 @@ export type WatchPendingTransactionsErrorType =
 /**
  * Watches and returns pending transaction hashes.
  *
- * - Docs: https://viem.sh/docs/actions/public/watchPendingTransactions.html
+ * - Docs: https://viem.sh/docs/actions/public/watchPendingTransactions
  * - JSON-RPC Methods:
  *   - When `poll: true`
  *     - Calls [`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter) to initialize the filter.
  *     - Calls [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getFilterChanges) on a polling interval.
  *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newPendingTransactions"` event.
  *
- * This Action will batch up all the pending transactions found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchPendingTransactions.html#pollinginterval-optional), and invoke them via [`onTransactions`](https://viem.sh/docs/actions/public/watchPendingTransactions.html#ontransactions).
+ * This Action will batch up all the pending transactions found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchPendingTransactions#pollinginterval-optional), and invoke them via [`onTransactions`](https://viem.sh/docs/actions/public/watchPendingTransactions#ontransactions).
  *
  * @param client - Client to use
  * @param parameters - {@link WatchPendingTransactionsParameters}

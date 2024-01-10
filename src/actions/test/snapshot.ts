@@ -13,7 +13,7 @@ export type SnapshotErrorType = RequestErrorType | ErrorType
 /**
  * Snapshot the state of the blockchain at the current block.
  *
- * - Docs: https://viem.sh/docs/actions/test/snapshot.html
+ * - Docs: https://viem.sh/docs/actions/test/snapshot
  *
  * @param client - Client to use
  *

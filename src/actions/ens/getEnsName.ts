@@ -44,7 +44,7 @@ export type GetEnsNameErrorType =
 /**
  * Gets primary name for specified address.
  *
- * - Docs: https://viem.sh/docs/ens/actions/getEnsName.html
+ * - Docs: https://viem.sh/docs/ens/actions/getEnsName
  * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
  *
  * Calls `reverse(bytes)` on ENS Universal Resolver Contract to "reverse resolve" the address to the primary ENS name.

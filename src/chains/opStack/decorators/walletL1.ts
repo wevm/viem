@@ -28,7 +28,7 @@ export type WalletActionsL1<
    * Internally performs a contract write to the [`depositTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L378)
    * on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol).
    *
-   * - Docs: https://viem.sh/op-stack/actions/depositTransaction.html
+   * - Docs: https://viem.sh/op-stack/actions/depositTransaction
    *
    * @param client - Client to use
    * @param parameters - {@link DepositTransactionParameters}
@@ -82,7 +82,7 @@ export type WalletActionsL1<
   /**
    * Finalizes a withdrawal that occurred on an L2. Used in the Withdrawal flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/finalizeWithdrawal.html
+   * - Docs: https://viem.sh/op-stack/actions/finalizeWithdrawal
    *
    * @param client - Client to use
    * @param parameters - {@link FinalizeWithdrawalParameters}
@@ -109,7 +109,7 @@ export type WalletActionsL1<
   /**
    * Proves a withdrawal that occurred on an L2. Used in the Withdrawal flow.
    *
-   * - Docs: https://viem.sh/op-stack/actions/proveWithdrawal.html
+   * - Docs: https://viem.sh/op-stack/actions/proveWithdrawal
    *
    * @param client - Client to use
    * @param parameters - {@link ProveWithdrawalParameters}
@@ -141,7 +141,7 @@ export type WalletActionsL1<
 /**
  * A suite of Wallet Actions for suited for development with Layer 2 (OP Stack) chains.
  *
- * - Docs: https://viem.sh/op-stack/client.html
+ * - Docs: https://viem.sh/op-stack/client
  *
  * @example
  * import { createPublicClient, createWalletClient, http } from 'viem'

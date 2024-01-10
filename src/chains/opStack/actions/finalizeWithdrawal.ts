@@ -61,7 +61,7 @@ export type FinalizeWithdrawalErrorType =
 /**
  * Finalizes a withdrawal that occurred on an L2. Used in the Withdrawal flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/finalizeWithdrawal.html
+ * - Docs: https://viem.sh/op-stack/actions/finalizeWithdrawal
  *
  * @param client - Client to use
  * @param parameters - {@link FinalizeWithdrawalParameters}

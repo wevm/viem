@@ -67,7 +67,7 @@ export type EstimateProveWithdrawalGasErrorType =
 /**
  * Estimates gas required to prove a withdrawal that occurred on an L2.
  *
- * - Docs: https://viem.sh/op-stack/actions/estimateProveWithdrawalGas.html
+ * - Docs: https://viem.sh/op-stack/actions/estimateProveWithdrawalGas
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateProveWithdrawalGasParameters}

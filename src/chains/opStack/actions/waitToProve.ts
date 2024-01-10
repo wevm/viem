@@ -44,9 +44,9 @@ export type WaitToProveErrorType =
   | ErrorType
 
 /**
- * Waits until the L2 withdrawal transaction is ready to be proved. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+ * Waits until the L2 withdrawal transaction is ready to be proved. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/waitToProve.html
+ * - Docs: https://viem.sh/op-stack/actions/waitToProve
  *
  * @param client - Client to use
  * @param parameters - {@link WaitToProveParameters}

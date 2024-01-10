@@ -13,7 +13,7 @@ export type SetAutomineErrorType = RequestErrorType | ErrorType
 /**
  * Enables or disables the automatic mining of new blocks with each new transaction submitted to the network.
  *
- * - Docs: https://viem.sh/docs/actions/test/setAutomine.html
+ * - Docs: https://viem.sh/docs/actions/test/setAutomine
  *
  * @param client - Client to use
  *
