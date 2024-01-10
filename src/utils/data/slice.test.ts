@@ -32,9 +32,9 @@ test('hex', () => {
 
   expect(() => sliceHex('0x0123456789', 5)).toThrowErrorMatchingInlineSnapshot(
     `
-    "Slice starting at offset \\"5\\" is out-of-bounds (size: 5).
+    [SliceOffsetOutOfBoundsError: Slice starting at offset "5" is out-of-bounds (size: 5).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 
@@ -42,18 +42,18 @@ test('hex', () => {
     sliceHex('0x0123456789', 0, 6, { strict: true }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Slice ending at offset \\"6\\" is out-of-bounds (size: 5).
+    [SliceOffsetOutOfBoundsError: Slice ending at offset "6" is out-of-bounds (size: 5).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
   expect(() =>
     sliceHex('0x0123456789', 0, 10, { strict: true }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Slice ending at offset \\"10\\" is out-of-bounds (size: 5).
+    [SliceOffsetOutOfBoundsError: Slice ending at offset "10" is out-of-bounds (size: 5).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })
@@ -222,9 +222,9 @@ test('bytes', () => {
     sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 10),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Slice starting at offset \\"10\\" is out-of-bounds (size: 10).
+    [SliceOffsetOutOfBoundsError: Slice starting at offset "10" is out-of-bounds (size: 10).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 
@@ -234,9 +234,9 @@ test('bytes', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Slice ending at offset \\"11\\" is out-of-bounds (size: 10).
+    [SliceOffsetOutOfBoundsError: Slice ending at offset "11" is out-of-bounds (size: 10).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
   expect(() =>
@@ -245,9 +245,9 @@ test('bytes', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Slice ending at offset \\"15\\" is out-of-bounds (size: 5).
+    [SliceOffsetOutOfBoundsError: Slice ending at offset "15" is out-of-bounds (size: 5).
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })

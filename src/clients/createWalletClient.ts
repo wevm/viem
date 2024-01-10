@@ -103,7 +103,7 @@ export function createWalletClient(
     ...parameters,
     key,
     name,
-    transport: (opts) => transport({ ...opts, retryCount: 0 }),
+    transport,
     type: 'walletClient',
   })
   return client.extend(walletActions)

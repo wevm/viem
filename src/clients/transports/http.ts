@@ -122,7 +122,7 @@ export function http(
       },
       {
         fetchOptions,
-        url,
+        url: url_,
       },
     )
   }

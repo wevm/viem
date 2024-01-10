@@ -113,7 +113,7 @@ describe('bayc', () => {
         args: [address.vitalik, 5n],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"tokenOfOwnerByIndex\\" reverted with the following reason:
+      [ContractFunctionExecutionError: The contract function "tokenOfOwnerByIndex" reverted with the following reason:
       EnumerableSet: index out of bounds
 
       Contract Call:
@@ -122,7 +122,7 @@ describe('bayc', () => {
         args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 5)
 
       Docs: https://viem.sh/docs/contract/readContract.html
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -134,7 +134,7 @@ describe('bayc', () => {
         args: [420213123123n],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"ownerOf\\" reverted with the following reason:
+      [ContractFunctionExecutionError: The contract function "ownerOf" reverted with the following reason:
       ERC721: owner query for nonexistent token
 
       Contract Call:
@@ -143,7 +143,7 @@ describe('bayc', () => {
         args:             (420213123123)
 
       Docs: https://viem.sh/docs/contract/readContract.html
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -368,10 +368,10 @@ test('fake contract address', async () => {
       functionName: 'totalSupply',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"totalSupply\\" returned no data (\\"0x\\").
+    [ContractFunctionExecutionError: The contract function "totalSupply" returned no data ("0x").
 
     This could be due to any of the following:
-      - The contract does not have the function \\"totalSupply\\",
+      - The contract does not have the function "totalSupply",
       - The parameters passed to the contract function may be invalid, or
       - The address is not a contract.
      
@@ -380,6 +380,6 @@ test('fake contract address', async () => {
       function:  totalSupply()
 
     Docs: https://viem.sh/docs/contract/readContract.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

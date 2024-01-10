@@ -1,8 +1,14 @@
-import { seaportAbi } from 'abitype/test'
+import { seaportAbi } from 'abitype/abis'
 import { assertType, expectTypeOf, test } from 'vitest'
 
+import { type Address, parseAbi } from 'abitype'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
+import { accounts } from '~test/src/constants.js'
 import { walletClientWithAccount } from '~test/src/utils.js'
+import { mainnet } from '../../chains/definitions/mainnet.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
+import { custom } from '../../clients/transports/custom.js'
+import { http } from '../../clients/transports/http.js'
 import { type WriteContractParameters, writeContract } from './writeContract.js'
 
 test('WriteContractParameters', async () => {
@@ -28,6 +34,7 @@ test('WriteContractParameters', async () => {
     address,
     functionName: 'cancel',
     // ^?
+    chain: null,
     args: [
       [
         {
@@ -71,7 +78,68 @@ const args = {
   args: [69420n],
 } as const
 
-test('legacy', () => {
+test('infers args', () => {
+  const client = createWalletClient({
+    account: accounts[0].address,
+    chain: mainnet,
+    transport: custom(window.ethereum!),
+  })
+  const abi = parseAbi([
+    'function foo(address) payable returns (int8)',
+    'function bar(address, uint256) returns (int8)',
+  ])
+
+  type Result1 = WriteContractParameters<typeof abi, 'foo'>
+  type Result2 = Parameters<
+    typeof writeContract<
+      (typeof client)['chain'],
+      (typeof client)['account'],
+      typeof abi,
+      'foo',
+      readonly [Address],
+      (typeof client)['chain']
+    >
+  >[1]
+  expectTypeOf<Result1['functionName']>().toEqualTypeOf<'foo' | 'bar'>()
+  expectTypeOf<Result1['args']>().toEqualTypeOf<readonly [Address]>()
+  expectTypeOf<Result2['functionName']>().toEqualTypeOf<'foo' | 'bar'>()
+
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    args: ['0x'],
+  })
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    // @ts-expect-error
+    args: [],
+  })
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    // @ts-expect-error
+    args: [123n],
+  })
+})
+
+test('with and without chain', () => {
+  const client = createWalletClient({
+    account: accounts[0].address,
+    transport: custom(window.ethereum!),
+  })
+  // @ts-expect-error `chain` is required
+  writeContract(client, { ...args })
+  writeContract(walletClientWithAccount, {
+    ...args,
+    chain: undefined,
+  })
+})
+
+test('type: legacy', () => {
   writeContract(walletClientWithAccount, {
     ...args,
     gasPrice: 0n,
@@ -102,7 +170,7 @@ test('legacy', () => {
   })
 })
 
-test('eip1559', () => {
+test('type: eip1559', () => {
   writeContract(walletClientWithAccount, {
     ...args,
     maxFeePerGas: 0n,
@@ -133,7 +201,7 @@ test('eip1559', () => {
   })
 })
 
-test('eip2930', () => {
+test('type: eip2930', () => {
   writeContract(walletClientWithAccount, {
     ...args,
     accessList: [],
@@ -193,5 +261,53 @@ test('args: value', () => {
     functionName: 'approve',
     // @ts-expect-error
     value: 5n,
+  })
+})
+
+test('overloads', async () => {
+  const client = createWalletClient({
+    account: '0x',
+    chain: mainnet,
+    transport: http(),
+  })
+  const abi = parseAbi([
+    'function foo() returns (int8)',
+    'function foo(address) returns (string)',
+    'function foo(address, address) returns ((address foo, address bar))',
+    'function bar() returns (int8)',
+  ])
+
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+  })
+
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    args: ['0x'],
+  })
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    // @ts-expect-error
+    args: [123n],
+  })
+
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    args: ['0x', '0x'],
+  })
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    // @ts-expect-error
+    args: ['0x', 123n],
   })
 })

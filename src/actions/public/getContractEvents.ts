@@ -5,7 +5,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { GetEventArgs, InferEventName } from '../../types/contract.js'
+import type {
+  ContractEventArgs,
+  ContractEventName,
+} from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
 import {
@@ -21,50 +24,62 @@ import {
 } from './getLogs.js'
 
 export type GetContractEventsParameters<
-  TAbi extends Abi | readonly unknown[] = readonly unknown[],
-  TEventName extends string | undefined = string | undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> | undefined =
+    | ContractEventName<abi>
+    | undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
   /** The address of the contract. */
   address?: Address | Address[]
   /** Contract ABI. */
-  abi: TAbi
-  args?: TEventName extends string ? GetEventArgs<TAbi, TEventName> : undefined
+  abi: abi
+  args?:
+    | ContractEventArgs<
+        abi,
+        eventName extends ContractEventName<abi>
+          ? eventName
+          : ContractEventName<abi>
+      >
+    | undefined
   /** Contract event. */
-  eventName?: InferEventName<TAbi, TEventName>
+  eventName?: eventName | ContractEventName<abi> | undefined
   /**
    * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
    * @default false
    */
-  strict?: TStrict
+  strict?: strict | boolean | undefined
 } & (
   | {
       /** Block number or tag after which to include logs */
-      fromBlock?: TFromBlock | BlockNumber | BlockTag
+      fromBlock?: fromBlock | BlockNumber | BlockTag
       /** Block number or tag before which to include logs */
-      toBlock?: TToBlock | BlockNumber | BlockTag
-      blockHash?: never
+      toBlock?: toBlock | BlockNumber | BlockTag
+      blockHash?: undefined
     }
   | {
-      fromBlock?: never
-      toBlock?: never
+      fromBlock?: undefined
+      toBlock?: undefined
       /** Hash of block to include logs from */
       blockHash?: Hash
     }
 )
 
 export type GetContractEventsReturnType<
-  TAbi extends Abi | readonly unknown[] = readonly unknown[],
-  TEventName extends string | undefined = string | undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-  _Pending extends boolean =
-    | (TFromBlock extends 'pending' ? true : false)
-    | (TToBlock extends 'pending' ? true : false),
-> = Log<bigint, number, _Pending, undefined, TStrict, TAbi, TEventName>[]
+  abi extends Abi | readonly unknown[] = readonly unknown[],
+  eventName extends ContractEventName<abi> | undefined =
+    | ContractEventName<abi>
+    | undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
+  ///
+  isPending extends boolean =
+    | (fromBlock extends 'pending' ? true : false)
+    | (toBlock extends 'pending' ? true : false),
+> = Log<bigint, number, isPending, undefined, strict, abi, eventName>[]
 
 export type GetContractEventsErrorType =
   | GetAbiItemErrorType
@@ -98,15 +113,25 @@ export type GetContractEventsErrorType =
  * })
  */
 export async function getContractEvents<
-  TChain extends Chain | undefined,
-  const TAbi extends Abi | readonly unknown[],
-  TEventName extends string | undefined = undefined,
+  chain extends Chain | undefined,
+  const abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi> | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
   TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
   TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
-  client: Client<Transport, TChain>,
-  {
+  client: Client<Transport, chain>,
+  parameters: GetContractEventsParameters<
+    abi,
+    eventName,
+    TStrict,
+    TFromBlock,
+    TToBlock
+  >,
+): Promise<
+  GetContractEventsReturnType<abi, eventName, TStrict, TFromBlock, TToBlock>
+> {
+  const {
     abi,
     address,
     args,
@@ -115,16 +140,7 @@ export async function getContractEvents<
     fromBlock,
     toBlock,
     strict,
-  }: GetContractEventsParameters<
-    TAbi,
-    TEventName,
-    TStrict,
-    TFromBlock,
-    TToBlock
-  >,
-): Promise<
-  GetContractEventsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
-> {
+  } = parameters
   const event = eventName
     ? getAbiItem({ abi, name: eventName } as GetAbiItemParameters)
     : undefined
@@ -134,6 +150,7 @@ export async function getContractEvents<
   return getAction(
     client,
     getLogs,
+    'getLogs',
   )({
     address,
     args,
@@ -144,8 +161,8 @@ export async function getContractEvents<
     toBlock,
     strict,
   } as {} as GetLogsParameters) as unknown as GetContractEventsReturnType<
-    TAbi,
-    TEventName,
+    abi,
+    eventName,
     TStrict,
     TFromBlock,
     TToBlock

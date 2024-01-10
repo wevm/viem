@@ -17,10 +17,10 @@ import {
 } from './verifyHash.js'
 
 export type VerifyTypedDataParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
+  typedData extends TypedData | Record<string, unknown> = TypedData,
+  primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
 > = Omit<VerifyHashParameters, 'hash'> &
-  TypedDataDefinition<TTypedData, TPrimaryType> & {
+  TypedDataDefinition<typedData, primaryType> & {
     /** The address to verify the typed data for. */
     address: Address
     /** The signature to verify */
@@ -43,9 +43,15 @@ export type VerifyTypedDataErrorType =
  * @param parameters - {@link VerifyTypedDataParameters}
  * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
  */
-export async function verifyTypedData<TChain extends Chain | undefined,>(
-  client: Client<Transport, TChain>,
-  {
+export async function verifyTypedData<
+  const typedData extends TypedData | Record<string, unknown>,
+  primaryType extends keyof typedData | 'EIP712Domain',
+  chain extends Chain | undefined,
+>(
+  client: Client<Transport, chain>,
+  parameters: VerifyTypedDataParameters<typedData, primaryType>,
+): Promise<VerifyTypedDataReturnType> {
+  const {
     address,
     signature,
     message,
@@ -53,8 +59,7 @@ export async function verifyTypedData<TChain extends Chain | undefined,>(
     types,
     domain,
     ...callRequest
-  }: VerifyTypedDataParameters,
-): Promise<VerifyTypedDataReturnType> {
+  } = parameters as VerifyTypedDataParameters
   const hash = hashTypedData({ message, primaryType, types, domain })
   return verifyHash(client, {
     address,

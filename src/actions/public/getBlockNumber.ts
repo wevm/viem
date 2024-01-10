@@ -8,8 +8,6 @@ import { getCache, withCache } from '../../utils/promise/withCache.js'
 export type GetBlockNumberParameters = {
   /** Time (in ms) that cached block number will remain in memory. */
   cacheTime?: number
-  /** @deprecated use `cacheTime` instead. */
-  maxAge?: number
 }
 
 export type GetBlockNumberReturnType = bigint
@@ -26,7 +24,7 @@ export function getBlockNumberCache(id: string) {
  * Returns the number of the most recent block seen.
  *
  * - Docs: https://viem.sh/docs/actions/public/getBlockNumber.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/fetching-blocks
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/fetching-blocks
  * - JSON-RPC Methods: [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber)
  *
  * @param client - Client to use
@@ -47,14 +45,14 @@ export function getBlockNumberCache(id: string) {
  */
 export async function getBlockNumber<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
-  { cacheTime = client.cacheTime, maxAge }: GetBlockNumberParameters = {},
+  { cacheTime = client.cacheTime }: GetBlockNumberParameters = {},
 ): Promise<GetBlockNumberReturnType> {
   const blockNumberHex = await withCache(
     () =>
       client.request({
         method: 'eth_blockNumber',
       }),
-    { cacheKey: cacheKey(client.uid), cacheTime: maxAge ?? cacheTime },
+    { cacheKey: cacheKey(client.uid), cacheTime },
   )
   return BigInt(blockNumberHex)
 }

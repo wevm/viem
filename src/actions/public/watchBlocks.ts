@@ -29,22 +29,6 @@ export type OnBlock<
     | undefined,
 ) => void
 
-type PollOptions<
-  TIncludeTransactions extends boolean = false,
-  TBlockTag extends BlockTag = 'latest',
-> = {
-  /** The block tag. Defaults to "latest". */
-  blockTag?: TBlockTag | BlockTag
-  /** Whether or not to emit the missed blocks to the callback. */
-  emitMissed?: boolean
-  /** Whether or not to emit the block to the callback when the subscription opens. */
-  emitOnBegin?: boolean
-  /** Whether or not to include transaction data in the response. */
-  includeTransactions?: TIncludeTransactions
-  /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
-  pollingInterval?: number
-}
-
 export type WatchBlocksParameters<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain,
@@ -54,20 +38,33 @@ export type WatchBlocksParameters<
   /** The callback to call when a new block is received. */
   onBlock: OnBlock<TChain, TIncludeTransactions, TBlockTag>
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
-} & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
-  ?
-      | {
-          blockTag?: never
-          emitMissed?: never
-          emitOnBegin?: never
-          includeTransactions?: never
+  onError?: ((error: Error) => void) | undefined
+} & (
+  | (GetTransportConfig<TTransport>['type'] extends 'webSocket'
+      ? {
+          blockTag?: undefined
+          emitMissed?: undefined
+          emitOnBegin?: undefined
+          includeTransactions?: undefined
           /** Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`. */
-          poll?: false
-          pollingInterval?: never
+          poll?: false | undefined
+          pollingInterval?: undefined
         }
-      | (PollOptions<TIncludeTransactions, TBlockTag> & { poll?: true })
-  : PollOptions<TIncludeTransactions, TBlockTag> & { poll?: true })
+      : never)
+  | {
+      /** The block tag. Defaults to "latest". */
+      blockTag?: TBlockTag | BlockTag | undefined
+      /** Whether or not to emit the missed blocks to the callback. */
+      emitMissed?: boolean | undefined
+      /** Whether or not to emit the block to the callback when the subscription opens. */
+      emitOnBegin?: boolean | undefined
+      /** Whether or not to include transaction data in the response. */
+      includeTransactions?: TIncludeTransactions | undefined
+      poll?: true | undefined
+      /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
+      pollingInterval?: number | undefined
+    }
+)
 
 export type WatchBlocksReturnType = () => void
 
@@ -80,7 +77,7 @@ export type WatchBlocksErrorType =
  * Watches and returns information for incoming blocks.
  *
  * - Docs: https://viem.sh/docs/actions/public/watchBlocks.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/watching-blocks
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/watching-blocks
  * - JSON-RPC Methods:
  *   - When `poll: true`, calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval.
  *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
@@ -144,6 +141,7 @@ export function watchBlocks<
             const block = await getAction(
               client,
               getBlock,
+              'getBlock',
             )({
               blockTag,
               includeTransactions,
@@ -160,6 +158,7 @@ export function watchBlocks<
                   const block = (await getAction(
                     client,
                     getBlock,
+                    'getBlock',
                   )({
                     blockNumber: i,
                     includeTransactions,

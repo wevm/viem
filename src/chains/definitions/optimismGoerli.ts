@@ -1,47 +1,41 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formattersOptimism } from '../optimism/formatters.js'
+import { chainConfig } from '../opStack/chainConfig.js'
 
-export const optimismGoerli = /*#__PURE__*/ defineChain(
-  {
-    id: 420,
-    name: 'Optimism Goerli',
-    network: 'optimism-goerli',
-    nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: {
-      alchemy: {
-        http: ['https://opt-goerli.g.alchemy.com/v2'],
-        webSocket: ['wss://opt-goerli.g.alchemy.com/v2'],
-      },
-      infura: {
-        http: ['https://optimism-goerli.infura.io/v3'],
-        webSocket: ['wss://optimism-goerli.infura.io/ws/v3'],
-      },
-      default: {
-        http: ['https://goerli.optimism.io'],
-      },
-      public: {
-        http: ['https://goerli.optimism.io'],
-      },
+const sourceId = 5 // goerli
+
+export const optimismGoerli = /*#__PURE__*/ defineChain({
+  ...chainConfig,
+  id: 420,
+  name: 'Optimism Goerli',
+  nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ['https://goerli.optimism.io'],
     },
-    blockExplorers: {
-      etherscan: {
-        name: 'Etherscan',
-        url: 'https://goerli-optimism.etherscan.io',
-      },
-      default: {
-        name: 'Etherscan',
-        url: 'https://goerli-optimism.etherscan.io',
-      },
-    },
-    contracts: {
-      multicall3: {
-        address: '0xca11bde05977b3631167028862be2a173976ca11',
-        blockCreated: 49461,
-      },
-    },
-    testnet: true,
   },
-  {
-    formatters: formattersOptimism,
+  blockExplorers: {
+    default: {
+      name: 'Etherscan',
+      url: 'https://goerli-optimism.etherscan.io',
+    },
   },
-)
+  contracts: {
+    ...chainConfig.contracts,
+    l2OutputOracle: {
+      [sourceId]: {
+        address: '0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0',
+      },
+    },
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 49461,
+    },
+    portal: {
+      [sourceId]: {
+        address: '0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383',
+      },
+    },
+  },
+  testnet: true,
+  sourceId,
+})

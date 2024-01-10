@@ -8,20 +8,17 @@ import {
   defineTransaction,
   formatTransaction,
 } from '../../utils/formatters/transaction.js'
-import { defineTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import type {
   CeloBlockOverrides,
   CeloRpcTransaction,
-  CeloRpcTransactionReceiptOverrides,
   CeloRpcTransactionRequest,
   CeloTransaction,
-  CeloTransactionReceiptOverrides,
   CeloTransactionRequest,
 } from './types.js'
 import { isCIP42, isCIP64 } from './utils.js'
 
-export const formattersCelo = {
+export const formatters = {
   block: /*#__PURE__*/ defineBlock({
     exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
     format(
@@ -36,7 +33,6 @@ export const formattersCelo = {
         return {
           ...formatTransaction(transaction as RpcTransaction),
           feeCurrency: transaction.feeCurrency,
-
           ...(transaction.type !== '0x7b'
             ? {
                 gatewayFee: transaction.gatewayFee
@@ -68,17 +64,6 @@ export const formattersCelo = {
       }
 
       return transaction
-    },
-  }),
-  transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
-    format(
-      args: CeloRpcTransactionReceiptOverrides,
-    ): CeloTransactionReceiptOverrides {
-      return {
-        feeCurrency: args.feeCurrency,
-        gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
-        gatewayFeeRecipient: args.gatewayFeeRecipient,
-      }
     },
   }),
 

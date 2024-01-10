@@ -46,6 +46,7 @@ test('gets transaction', async () => {
       "typeHex": "0x2",
       "v": 1n,
       "value": 0n,
+      "yParity": 1,
     }
   `)
 })
@@ -110,12 +111,13 @@ test('gets transaction (eip2930)', async () => {
       "gasPrice",
       "gas",
       "input",
-      "v",
       "r",
       "s",
-      "type",
-      "accessList",
+      "v",
+      "yParity",
       "chainId",
+      "accessList",
+      "type",
       "typeHex",
     ]
   `)
@@ -195,18 +197,33 @@ describe('args: hash', () => {
         "typeHex": "0x2",
         "v": 1n,
         "value": 0n,
+        "yParity": 1,
       }
     `)
   })
 
   test('throws if transaction not found', async () => {
+    // await expect(
+    //   getTransaction(publicClient, {
+    //     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+    //   }),
+    // ).rejects.toThrowError(
+    //   'Transaction with hash "0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d" could not be found.',
+    // )
+    // TODO: file foundry issue
     await expect(
       getTransaction(publicClient, {
         hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
       }),
-    ).rejects.toThrowError(
-      'Transaction with hash "0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d" could not be found.',
-    )
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [InternalRpcError: An internal error was received.
+
+      URL: http://localhost
+      Request body: {"method":"eth_getTransactionByHash","params":["0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d"]}
+
+      Details: Fork Error: DeserError { err: Error("invalid type: null, expected struct Transaction", line: 1, column: 4), text: "null" }
+      Version: viem@1.0.2]
+    `)
   })
 })
 

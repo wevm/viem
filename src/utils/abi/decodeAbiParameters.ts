@@ -7,6 +7,7 @@ import type {
 import {
   AbiDecodingDataSizeTooSmallError,
   type AbiDecodingDataSizeTooSmallErrorType,
+  AbiDecodingOffsetOutOfBoundsError,
   AbiDecodingZeroDataError,
   type AbiDecodingZeroDataErrorType,
   InvalidAbiDecodingTypeError,
@@ -185,6 +186,9 @@ function decodeArray<const TParam extends AbiParameter>(
     const offset = hexToNumber(
       slice(data, position, position + 32, { strict: true }),
     )
+    if (offset < position)
+      throw new AbiDecodingOffsetOutOfBoundsError({ offset, position })
+
     // Get the length of the array from the offset.
     const length = hexToNumber(
       slice(data, offset, offset + 32, { strict: true }),

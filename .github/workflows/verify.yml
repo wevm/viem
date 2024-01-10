@@ -76,6 +76,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       max-parallel: 3
       matrix:
@@ -103,6 +104,7 @@ jobs:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+          VITE_ANVIL_FORK_URL_OPTIMISM: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM }}
           VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
 
@@ -156,13 +158,16 @@ jobs:
 
       - name: Install Playwright Browsers
         if: ${{ matrix.runtime == 'next' || matrix.runtime == 'sveltekit' || matrix.runtime == 'vite' }}
-        run: npx playwright@1.38.1 install --with-deps
+        run: npx playwright@1.40.1 install --with-deps
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Build
         run: bun run build
+
+      - name: Link
+        run: bun install
 
       - name: Run tests
         run: bun run test:env:${{ matrix.runtime }}
@@ -180,3 +185,36 @@ jobs:
       - name: Run test vectors
         shell: bash
         run: bun run vectors
+
+  wagmi:
+    name: Wagmi
+    needs: [build, types]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        typescript-version: ['5.0.4', '5.1.6', '5.2.2', 'latest']
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Setup wagmi
+        uses: ./.github/actions/setup-wagmi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
+        working-directory: ./wagmi
+
+      - name: Check types
+        run: pnpm typecheck
+        working-directory: ./wagmi
+
+      - name: Check build
+        run: pnpm build
+        working-directory: ./wagmi
+

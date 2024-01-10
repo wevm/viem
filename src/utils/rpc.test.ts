@@ -10,7 +10,7 @@ import {
 } from '~test/src/constants.js'
 import { createHttpServer, testClient } from '~test/src/utils.js'
 
-import { mine } from '../test/index.js'
+import { mine } from '../actions/test/mine.js'
 import { numberToHex } from './encoding/toHex.js'
 import * as withTimeout from './promise/withTimeout.js'
 import { type RpcResponse, getSocket, rpc } from './rpc.js'
@@ -65,7 +65,7 @@ describe('http', () => {
       {
         "error": {
           "code": -32602,
-          "message": "invalid length 1, expected a (both 0x-prefixed or not) hex string or byte array containing 32 bytes",
+          "message": "Odd number of digits",
         },
         "id": 2,
         "jsonrpc": "2.0",
@@ -169,14 +169,14 @@ describe('http', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
-      Details: \\"ngmi\\"
-      Version: viem@1.0.2"
+      Details: "ngmi"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -195,14 +195,14 @@ describe('http', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
       Details: Internal Server Error
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -244,13 +244,13 @@ describe('http', () => {
         timeout: 10000,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
       Details: foo
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     mock.mockRestore()
@@ -300,7 +300,7 @@ describe('http (batch)', () => {
         {
           "error": {
             "code": -32602,
-            "message": "invalid length 1, expected a (both 0x-prefixed or not) hex string or byte array containing 32 bytes",
+            "message": "Odd number of digits",
           },
           "id": 70,
           "jsonrpc": "2.0",
@@ -352,14 +352,14 @@ describe('http (batch)', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: [{\\"method\\":\\"web3_clientVersion\\"},{\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
 
-      Details: \\"ngmi\\"
-      Version: viem@1.0.2"
+      Details: "ngmi"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -381,14 +381,14 @@ describe('http (batch)', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       Status: 500
       URL: http://localhost
-      Request body: [{\\"method\\":\\"web3_clientVersion\\"},{\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
 
       Details: Internal Server Error
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -410,13 +410,13 @@ describe('http (batch)', () => {
         timeout: 10000,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "HTTP request failed.
+      [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: [{\\"method\\":\\"web3_clientVersion\\"},{\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
 
       Details: foo
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
 
     mock.mockRestore()
@@ -492,7 +492,6 @@ describe('webSocket', () => {
           "number": "0xf86cc2",
           "parentHash": "0xb932f77cf770d1d1c8f861153eec1e990f5d56b6ffdb4ac06aef3cca51ef37d4",
           "receiptsRoot": "0x7c577c7a2c1649735565691411b9236e1946dc74f3f474d15c014bece0104de8",
-          "sealFields": [],
           "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
           "size": "0x18011",
           "stateRoot": "0x651162a87a2905c6f37ab5f0a2676f9cd8fc5ff618cb5c1a89bf25ddea7f391c",
@@ -682,13 +681,13 @@ describe('webSocket', () => {
         ),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "WebSocket request failed.
+      [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"wagmi_lol\\"}
+      Request body: {"method":"wagmi_lol"}
 
       Details: Socket is closed.
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
     await wait(100)
@@ -710,13 +709,13 @@ describe('webSocket', () => {
         ),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "WebSocket request failed.
+      [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {\\"method\\":\\"wagmi_lol\\"}
+      Request body: {"method":"wagmi_lol"}
 
       Details: Socket is closed.
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })
@@ -909,7 +908,6 @@ describe('webSocketAsync', () => {
           "number": "0xf86cc2",
           "parentHash": "0xb932f77cf770d1d1c8f861153eec1e990f5d56b6ffdb4ac06aef3cca51ef37d4",
           "receiptsRoot": "0x7c577c7a2c1649735565691411b9236e1946dc74f3f474d15c014bece0104de8",
-          "sealFields": [],
           "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
           "size": "0x18011",
           "stateRoot": "0x651162a87a2905c6f37ab5f0a2676f9cd8fc5ff618cb5c1a89bf25ddea7f391c",

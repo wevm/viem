@@ -301,7 +301,7 @@ Block to query/listen until.
 
 ```ts
 const filter = await publicClient.createEventFilter({
-  fromBlock: 70120n // [!code focus]
+  toBlock: 70120n // [!code focus]
 })
 ```
 

@@ -4,11 +4,20 @@ import type { Account, JsonRpcAccount } from '../accounts/types.js'
 
 import type { IsUndefined, Prettify } from './utils.js'
 
+export type DeriveAccount<
+  account extends Account | undefined,
+  accountOverride extends Account | Address | undefined,
+> = accountOverride extends Account | Address ? accountOverride : account
+
 export type GetAccountParameter<
   TAccount extends Account | undefined = Account | undefined,
+  TAccountOverride extends Account | Address | undefined = Account | Address,
+  TRequired extends boolean = true,
 > = IsUndefined<TAccount> extends true
-  ? { account: Account | Address }
-  : { account?: Account | Address }
+  ? TRequired extends true
+    ? { account: TAccountOverride }
+    : { account?: TAccountOverride }
+  : { account?: TAccountOverride }
 
 export type ParseAccount<
   TAccountOrAddress extends Account | Address | undefined =

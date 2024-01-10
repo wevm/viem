@@ -4,7 +4,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Hash } from '../../types/misc.js'
-import type { GetTransportConfig } from '../../types/transport.js'
+import type { GetPollOptions } from '../../types/transport.js'
 import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
@@ -17,19 +17,6 @@ import { uninstallFilter } from './uninstallFilter.js'
 export type OnTransactionsParameter = Hash[]
 export type OnTransactionsFn = (transactions: OnTransactionsParameter) => void
 
-type PollOptions = {
-  /**
-   * Whether or not the transaction hashes should be batched on each invocation.
-   * @default true
-   */
-  batch?: boolean
-  /**
-   * Polling frequency (in ms). Defaults to Client's pollingInterval config.
-   * @default client.pollingInterval
-   */
-  pollingInterval?: number
-}
-
 export type WatchPendingTransactionsParameters<
   TTransport extends Transport = Transport,
 > = {
@@ -37,27 +24,7 @@ export type WatchPendingTransactionsParameters<
   onError?: (error: Error) => void
   /** The callback to call when new transactions are received. */
   onTransactions: OnTransactionsFn
-} & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
-  ?
-      | {
-          batch?: never
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default false
-           */
-          poll?: false
-          pollingInterval?: never
-        }
-      | (PollOptions & {
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default true
-           */
-          poll?: true
-        })
-  : PollOptions & {
-      poll?: true
-    })
+} & GetPollOptions<TTransport>
 
 export type WatchPendingTransactionsReturnType = () => void
 
@@ -129,6 +96,7 @@ export function watchPendingTransactions<
                 filter = await getAction(
                   client,
                   createPendingTransactionFilter,
+                  'createPendingTransactionFilter',
                 )({})
                 return
               } catch (err) {
@@ -137,10 +105,14 @@ export function watchPendingTransactions<
               }
             }
 
-            const hashes = await getAction(client, getFilterChanges)({ filter })
+            const hashes = await getAction(
+              client,
+              getFilterChanges,
+              'getFilterChanges',
+            )({ filter })
             if (hashes.length === 0) return
             if (batch) emit.onTransactions(hashes)
-            else hashes.forEach((hash) => emit.onTransactions([hash]))
+            else for (const hash of hashes) emit.onTransactions([hash])
           } catch (err) {
             emit.onError?.(err as Error)
           }
@@ -152,7 +124,12 @@ export function watchPendingTransactions<
       )
 
       return async () => {
-        if (filter) await getAction(client, uninstallFilter)({ filter })
+        if (filter)
+          await getAction(
+            client,
+            uninstallFilter,
+            'uninstallFilter',
+          )({ filter })
         unwatch()
       }
     })

@@ -22,9 +22,11 @@ import type { Prettify } from './utils.js'
 
 export type EIP1474Methods = [...PublicRpcSchema, ...WalletRpcSchema]
 
-export type EIP1193Provider = EIP1193Events & {
-  request: EIP1193RequestFn<EIP1474Methods>
-}
+export type EIP1193Provider = Prettify<
+  EIP1193Events & {
+    request: EIP1193RequestFn<EIP1474Methods>
+  }
+>
 
 //////////////////////////////////////////////////
 // Errors
@@ -188,6 +190,18 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'net_version'
+    Parameters?: undefined
+    ReturnType: Quantity
+  },
+  /**
+   * @description Returns the current blob price of gas expressed in wei
+   *
+   * @example
+   * provider.request({ method: 'eth_blobGasPrice' })
+   * // => '0x09184e72a000'
+   */
+  {
+    Method: 'eth_blobGasPrice'
     Parameters?: undefined
     ReturnType: Quantity
   },
@@ -708,6 +722,14 @@ export type TestRpcSchema<TMode extends string> = [
     ReturnType: void
   },
   /**
+   * @description Serializes the current state (including contracts code, contract's storage, accounts properties, etc.) into a savable data blob.
+   */
+  {
+    Method: `${TMode}_dumpState`
+    Parameters?: undefined
+    ReturnType: Hex
+  },
+  /**
    * @description Turn on call traces for transactions that are returned to the user when they execute a transaction (instead of just txhash/receipt).
    */
   {
@@ -732,6 +754,14 @@ export type TestRpcSchema<TMode extends string> = [
     Method: `${TMode}_getAutomine`
     Parameters?: undefined
     ReturnType: boolean
+  },
+  /**
+   * @description Adds state previously dumped with `dumpState` to the current chain.
+   */
+  {
+    Method: `${TMode}_loadState`
+    Parameters?: [Hex]
+    ReturnType: void
   },
   /**
    * @description Advance the block number of the network by a certain number of blocks
@@ -1312,6 +1342,13 @@ export type EIP1193Parameters<
       params?: unknown
     }
 
+export type EIP1193RequestOptions = {
+  // The base delay (in ms) between retries.
+  retryDelay?: number
+  // The max number of times to retry.
+  retryCount?: number
+}
+
 type DerivedRpcSchema<
   TRpcSchema extends RpcSchema | undefined,
   TRpcSchemaOverride extends RpcSchemaOverride | undefined,
@@ -1337,4 +1374,5 @@ export type EIP1193RequestFn<
     : unknown,
 >(
   args: TParameters,
+  options?: EIP1193RequestOptions,
 ) => Promise<_ReturnType>

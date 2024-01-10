@@ -3,23 +3,14 @@ import { defineChain } from '../../../utils/chain/defineChain.js'
 export const skaleEuropa = /*#__PURE__*/ defineChain({
   id: 2_046_399_126,
   name: 'SKALE | Europa Liquidity Hub',
-  network: 'skale-europa',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://mainnet.skalenodes.com/v1/elated-tan-skat'],
       webSocket: ['wss://mainnet.skalenodes.com/v1/ws/elated-tan-skat'],
     },
-    public: {
-      http: ['https://mainnet.skalenodes.com/v1/elated-tan-skat'],
-      webSocket: ['wss://mainnet.skalenodes.com/v1/ws/elated-tan-skat'],
-    },
   },
   blockExplorers: {
-    blockscout: {
-      name: 'SKALE Explorer',
-      url: 'https://elated-tan-skat.explorer.mainnet.skalenodes.com',
-    },
     default: {
       name: 'SKALE Explorer',
       url: 'https://elated-tan-skat.explorer.mainnet.skalenodes.com',

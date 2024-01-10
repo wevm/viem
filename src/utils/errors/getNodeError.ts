@@ -62,44 +62,48 @@ export function getNodeError(
 ): GetNodeErrorReturnType {
   const message = (err.details || '').toLowerCase()
 
-  const executionRevertedError = err.walk(
-    (e) => (e as { code: number }).code === ExecutionRevertedError.code,
-  )
+  const executionRevertedError =
+    err instanceof BaseError
+      ? err.walk(
+          (e) => (e as { code: number }).code === ExecutionRevertedError.code,
+        )
+      : err
   if (executionRevertedError instanceof BaseError) {
     return new ExecutionRevertedError({
       cause: err,
       message: executionRevertedError.details,
     }) as any
-  } else if (ExecutionRevertedError.nodeMessage.test(message))
+  }
+  if (ExecutionRevertedError.nodeMessage.test(message))
     return new ExecutionRevertedError({
       cause: err,
       message: err.details,
     }) as any
-  else if (FeeCapTooHighError.nodeMessage.test(message))
+  if (FeeCapTooHighError.nodeMessage.test(message))
     return new FeeCapTooHighError({
       cause: err,
       maxFeePerGas: args?.maxFeePerGas,
     }) as any
-  else if (FeeCapTooLowError.nodeMessage.test(message))
+  if (FeeCapTooLowError.nodeMessage.test(message))
     return new FeeCapTooLowError({
       cause: err,
       maxFeePerGas: args?.maxFeePerGas,
     }) as any
-  else if (NonceTooHighError.nodeMessage.test(message))
+  if (NonceTooHighError.nodeMessage.test(message))
     return new NonceTooHighError({ cause: err, nonce: args?.nonce }) as any
-  else if (NonceTooLowError.nodeMessage.test(message))
+  if (NonceTooLowError.nodeMessage.test(message))
     return new NonceTooLowError({ cause: err, nonce: args?.nonce }) as any
-  else if (NonceMaxValueError.nodeMessage.test(message))
+  if (NonceMaxValueError.nodeMessage.test(message))
     return new NonceMaxValueError({ cause: err, nonce: args?.nonce }) as any
-  else if (InsufficientFundsError.nodeMessage.test(message))
+  if (InsufficientFundsError.nodeMessage.test(message))
     return new InsufficientFundsError({ cause: err }) as any
-  else if (IntrinsicGasTooHighError.nodeMessage.test(message))
+  if (IntrinsicGasTooHighError.nodeMessage.test(message))
     return new IntrinsicGasTooHighError({ cause: err, gas: args?.gas }) as any
-  else if (IntrinsicGasTooLowError.nodeMessage.test(message))
+  if (IntrinsicGasTooLowError.nodeMessage.test(message))
     return new IntrinsicGasTooLowError({ cause: err, gas: args?.gas }) as any
-  else if (TransactionTypeNotSupportedError.nodeMessage.test(message))
+  if (TransactionTypeNotSupportedError.nodeMessage.test(message))
     return new TransactionTypeNotSupportedError({ cause: err }) as any
-  else if (TipAboveFeeCapError.nodeMessage.test(message))
+  if (TipAboveFeeCapError.nodeMessage.test(message))
     return new TipAboveFeeCapError({
       cause: err,
       maxFeePerGas: args?.maxFeePerGas,

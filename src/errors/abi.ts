@@ -1,4 +1,4 @@
-import type { AbiEvent, AbiParameter } from 'abitype'
+import type { Abi, AbiEvent, AbiParameter } from 'abitype'
 
 import type { Hex } from '../types/misc.js'
 import { formatAbiItem, formatAbiParams } from '../utils/abi/formatAbiItem.js'
@@ -92,6 +92,19 @@ export class AbiDecodingDataSizeTooSmallError extends BaseError {
     this.data = data
     this.params = params
     this.size = size
+  }
+}
+
+export type AbiDecodingOffsetOutOfBoundsErrorType =
+  AbiDecodingOffsetOutOfBoundsError & {
+    name: 'AbiDecodingOffsetOutOfBoundsError'
+  }
+export class AbiDecodingOffsetOutOfBoundsError extends BaseError {
+  override name = 'AbiDecodingOffsetOutOfBoundsError'
+  constructor({ offset, position }: { offset: number; position: number }) {
+    super(
+      `Offset at "${offset}" is out-of-bounds (current position: "${position}").`,
+    )
   }
 }
 
@@ -328,6 +341,27 @@ export class AbiFunctionSignatureNotFoundError extends BaseError {
         docsPath,
       },
     )
+  }
+}
+
+export type AbiItemAmbiguityErrorType = AbiItemAmbiguityError & {
+  name: 'AbiItemAmbiguityError'
+}
+export class AbiItemAmbiguityError extends BaseError {
+  override name = 'AbiItemAmbiguityError'
+  constructor(
+    x: { abiItem: Abi[number]; type: string },
+    y: { abiItem: Abi[number]; type: string },
+  ) {
+    super('Found ambiguous types in overloaded ABI items.', {
+      metaMessages: [
+        `\`${x.type}\` in \`${formatAbiItem(x.abiItem)}\`, and`,
+        `\`${y.type}\` in \`${formatAbiItem(y.abiItem)}\``,
+        '',
+        'These types encode differently and cannot be distinguished at runtime.',
+        'Remove one of the ambiguous items in the ABI.',
+      ],
+    })
   }
 }
 

@@ -2,19 +2,18 @@ import { describe, expectTypeOf, test } from 'vitest'
 
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
-import { getTransactionReceipt } from '../../actions/public/getTransactionReceipt.js'
 import { prepareTransactionRequest } from '../../actions/wallet/prepareTransactionRequest.js'
+import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import { signTransaction } from '../../actions/wallet/signTransaction.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hash } from '../../types/misc.js'
-import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
+import type { RpcBlock } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
-import { sendTransaction } from '../../wallet/index.js'
 import { celo } from '../index.js'
-import { formattersCelo } from './formatters.js'
+import { formatters } from './formatters.js'
 import type {
   CeloBlockOverrides,
   CeloRpcTransaction,
@@ -22,7 +21,7 @@ import type {
 } from './types.js'
 
 describe('block', () => {
-  expectTypeOf(formattersCelo.block.format).parameter(0).toEqualTypeOf<
+  expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
     Assign<
       Partial<RpcBlock>,
       CeloBlockOverrides & {
@@ -31,22 +30,22 @@ describe('block', () => {
     >
   >()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.block.format>['difficulty']
+    ReturnType<typeof formatters.block.format>['difficulty']
   >().toEqualTypeOf<never>()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.block.format>['gasLimit']
+    ReturnType<typeof formatters.block.format>['gasLimit']
   >().toEqualTypeOf<never>()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.block.format>['mixHash']
+    ReturnType<typeof formatters.block.format>['mixHash']
   >().toEqualTypeOf<never>()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.block.format>['nonce']
+    ReturnType<typeof formatters.block.format>['nonce']
   >().toEqualTypeOf<never>()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.block.format>['uncles']
+    ReturnType<typeof formatters.block.format>['uncles']
   >().toEqualTypeOf<never>()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.block.format>['randomness']
+    ReturnType<typeof formatters.block.format>['randomness']
   >().toEqualTypeOf<{
     committed: `0x${string}`
     revealed: `0x${string}`
@@ -55,54 +54,31 @@ describe('block', () => {
 
 describe('transaction', () => {
   expectTypeOf<
-    ReturnType<typeof formattersCelo.transaction.format>['feeCurrency']
+    ReturnType<typeof formatters.transaction.format>['feeCurrency']
   >().toEqualTypeOf<`0x${string}` | null>()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.transaction.format>['gatewayFee']
+    ReturnType<typeof formatters.transaction.format>['gatewayFee']
   >().toEqualTypeOf<bigint | null | undefined>()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.transaction.format>['gatewayFeeRecipient']
+    ReturnType<typeof formatters.transaction.format>['gatewayFeeRecipient']
   >().toEqualTypeOf<`0x${string}` | null | undefined>()
 })
 
-describe('transactionReceipt', () => {
-  expectTypeOf(formattersCelo.transactionReceipt.format)
-    .parameter(0)
-    .toEqualTypeOf<
-      Partial<RpcTransactionReceipt> & {
-        feeCurrency: `0x${string}` | null
-        gatewayFee: `0x${string}` | null
-        gatewayFeeRecipient: `0x${string}` | null
-      }
-    >()
-  expectTypeOf<
-    ReturnType<typeof formattersCelo.transactionReceipt.format>['feeCurrency']
-  >().toEqualTypeOf<`0x${string}` | null>()
-  expectTypeOf<
-    ReturnType<typeof formattersCelo.transactionReceipt.format>['gatewayFee']
-  >().toEqualTypeOf<bigint | null>()
-  expectTypeOf<
-    ReturnType<
-      typeof formattersCelo.transactionReceipt.format
-    >['gatewayFeeRecipient']
-  >().toEqualTypeOf<`0x${string}` | null>()
-})
-
 describe('transactionRequest', () => {
-  expectTypeOf(formattersCelo.transactionRequest.format)
+  expectTypeOf(formatters.transactionRequest.format)
     .parameter(0)
     .toEqualTypeOf<
       Assign<Partial<TransactionRequest>, CeloTransactionRequest>
     >()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.transactionRequest.format>['feeCurrency']
+    ReturnType<typeof formatters.transactionRequest.format>['feeCurrency']
   >().toEqualTypeOf<`0x${string}` | undefined>()
   expectTypeOf<
-    ReturnType<typeof formattersCelo.transactionRequest.format>['gatewayFee']
+    ReturnType<typeof formatters.transactionRequest.format>['gatewayFee']
   >().toEqualTypeOf<`0x${string}` | undefined>()
   expectTypeOf<
     ReturnType<
-      typeof formattersCelo.transactionRequest.format
+      typeof formatters.transactionRequest.format
     >['gatewayFeeRecipient']
   >().toEqualTypeOf<`0x${string}` | undefined>()
 })
@@ -178,23 +154,6 @@ describe('smoke', () => {
     >()
     expectTypeOf(transaction.type).toEqualTypeOf<
       'legacy' | 'eip2930' | 'eip1559' | 'cip42' | 'cip64'
-    >()
-  })
-
-  test('transactionReceipt', async () => {
-    const client = createPublicClient({
-      chain: celo,
-      transport: http(),
-    })
-
-    const transaction = await getTransactionReceipt(client, {
-      hash: '0x',
-    })
-
-    expectTypeOf(transaction.feeCurrency).toEqualTypeOf<`0x${string}` | null>()
-    expectTypeOf(transaction.gatewayFee).toEqualTypeOf<bigint | null>()
-    expectTypeOf(transaction.gatewayFeeRecipient).toEqualTypeOf<
-      `0x${string}` | null
     >()
   })
 

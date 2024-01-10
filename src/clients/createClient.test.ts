@@ -73,14 +73,8 @@ describe('transports', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
-              "http": [
-                "http://127.0.0.1:8545",
-              ],
-            },
-            "public": {
               "http": [
                 "http://127.0.0.1:8545",
               ],
@@ -102,7 +96,7 @@ describe('transports', () => {
           "retryDelay": 150,
           "timeout": 10000,
           "type": "http",
-          "url": undefined,
+          "url": "http://127.0.0.1:8545",
         },
         "type": "base",
       }
@@ -131,14 +125,8 @@ describe('transports', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
-              "http": [
-                "http://127.0.0.1:8545",
-              ],
-            },
-            "public": {
               "http": [
                 "http://127.0.0.1:8545",
               ],
@@ -434,14 +422,8 @@ describe('extends', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
-              "http": [
-                "http://127.0.0.1:8545",
-              ],
-            },
-            "public": {
               "http": [
                 "http://127.0.0.1:8545",
               ],
@@ -499,7 +481,7 @@ describe('extends', () => {
           "retryDelay": 150,
           "timeout": 10000,
           "type": "http",
-          "url": undefined,
+          "url": "http://127.0.0.1:8545",
         },
         "type": "base",
         "uninstallFilter": [Function],
@@ -515,7 +497,7 @@ describe('extends', () => {
     `)
   })
 
-  test('ignores protected properties', () => {
+  describe('ignores protected properties', () => {
     test('default', () => {
       const client = createClient({
         chain: localhost,

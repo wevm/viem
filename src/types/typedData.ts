@@ -4,77 +4,57 @@ import type {
   TypedDataToPrimitiveTypes,
 } from 'abitype'
 
+import type { Prettify } from './utils.js'
+
 export type TypedDataDefinition<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
+  typedData extends TypedData | Record<string, unknown> = TypedData,
+  primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
+  ///
+  primaryTypes = typedData extends TypedData ? keyof typedData : string,
+> = primaryType extends 'EIP712Domain'
+  ? EIP712DomainDefinition<typedData, primaryType>
+  : MessageDefinition<typedData, primaryType, primaryTypes>
+
+type MessageDefinition<
+  typedData extends TypedData | Record<string, unknown> = TypedData,
+  primaryType extends keyof typedData = keyof typedData,
+  ///
+  primaryTypes = typedData extends TypedData ? keyof typedData : string,
+  schema extends Record<string, unknown> = typedData extends TypedData
+    ? TypedDataToPrimitiveTypes<typedData>
+    : Record<string, unknown>,
+  message = schema[primaryType extends keyof schema
+    ? primaryType
+    : keyof schema],
 > = {
-  primaryType: GetTypedDataPrimaryType<TTypedData, TPrimaryType>
-} & GetTypedDataMessage<TTypedData, TPrimaryType> &
-  GetTypedDataTypes<TTypedData, TPrimaryType> &
-  GetTypedDataDomain<TTypedData, TPrimaryType>
+  types: typedData
+} & {
+  primaryType:
+    | primaryTypes // show all values
+    | (primaryType extends primaryTypes ? primaryType : never) // infer value
+  domain?:
+    | (schema extends { EIP712Domain: infer domain }
+        ? domain
+        : Prettify<TypedDataDomain>)
+    | undefined
+  message: { [_: string]: any } extends message // Check if message was inferred
+    ? Record<string, unknown>
+    : message
+}
 
-export type GetTypedDataDomain<
-  TTypedData extends TypedData | { [key_1: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-  TSchema = TTypedData extends TypedData
-    ? TypedDataToPrimitiveTypes<TTypedData>
-    : { [key_2: string]: any },
-  TDomain = TSchema extends { EIP712Domain: infer Domain }
-    ? Domain
-    : TypedDataDomain,
-> = TPrimaryType extends 'EIP712Domain'
-  ? {
-      domain: TDomain
-    }
-  : {
-      domain?: TDomain
-    }
-
-export type GetTypedDataMessage<
-  TTypedData extends TypedData | { [key_1: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-  TSchema = TTypedData extends TypedData
-    ? TypedDataToPrimitiveTypes<TTypedData>
-    : { [key_2: string]: any },
-  TMessage = TSchema[TPrimaryType extends keyof TSchema
-    ? TPrimaryType
-    : keyof TSchema],
-> = TPrimaryType extends 'EIP712Domain'
-  ? {}
-  : { [key_3: string]: any } extends TMessage // Check if we were able to infer the shape of typed data
-  ? {
-      /**
-       * Data to sign
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link types} for type inference.
-       */
-      message: { [key_4: string]: unknown }
-    }
-  : {
-      /** Data to sign */
-      message: TMessage
-    }
-
-export type GetTypedDataPrimaryType<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = TTypedData extends TypedData
-  ? keyof TTypedData extends infer AbiFunctionNames
-    ?
-        | AbiFunctionNames
-        | (TPrimaryType extends AbiFunctionNames ? TPrimaryType : never)
-        | (TypedData extends TTypedData ? string : never)
-        | 'EIP712Domain'
-    : never
-  : TPrimaryType
-
-export type GetTypedDataTypes<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = TPrimaryType extends 'EIP712Domain'
-  ? {
-      types?: TTypedData
-    }
-  : {
-      types: TTypedData
-    }
+type EIP712DomainDefinition<
+  typedData extends TypedData | Record<string, unknown> = TypedData,
+  primaryType extends 'EIP712Domain' = 'EIP712Domain',
+  ///
+  schema extends Record<string, unknown> = typedData extends TypedData
+    ? TypedDataToPrimitiveTypes<typedData>
+    : Record<string, unknown>,
+> = {
+  types?: typedData | undefined
+} & {
+  primaryType: 'EIP712Domain' | primaryType
+  domain: schema extends { EIP712Domain: infer domain }
+    ? domain
+    : Prettify<TypedDataDomain>
+  message?: never
+}

@@ -133,21 +133,14 @@ test("errors: error doesn't exist", () => {
       ],
       // @ts-expect-error
       errorName: 'AccessDeniedError',
-      args: [
-        {
-          delegate: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-          vote: 41n,
-          voted: true,
-          weight: 69420n,
-        },
-      ],
+      args: [],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Error \\"AccessDeniedError\\" not found on ABI.
+    [AbiErrorNotFoundError: Error "AccessDeniedError" not found on ABI.
     Make sure you are using the correct ABI and that the error exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeErrorResult.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -186,11 +179,11 @@ test('error: abi item not an error', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
-    "Error not found on ABI.
+    [AbiErrorNotFoundError: Error not found on ABI.
     Make sure you are using the correct ABI and that the error exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeErrorResult.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `,
   )
 })
@@ -215,12 +208,12 @@ test('errors: no inputs', () => {
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Arguments (\`args\`) were provided to \\"AccessDeniedError\\", but \\"AccessDeniedError\\" on the ABI does not contain any parameters (\`inputs\`).
+    [AbiErrorInputsNotFoundError: Arguments (\`args\`) were provided to "AccessDeniedError", but "AccessDeniedError" on the ABI does not contain any parameters (\`inputs\`).
     Cannot encode error result without knowing what the parameter types are.
     Make sure you are using the correct ABI and that the inputs exist on it.
 
     Docs: https://viem.sh/docs/contract/encodeErrorResult.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
   expect(() =>
     encodeErrorResult({
@@ -242,11 +235,11 @@ test('errors: no inputs', () => {
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Arguments (\`args\`) were provided to \\"AccessDeniedError\\", but \\"AccessDeniedError\\" on the ABI does not contain any parameters (\`inputs\`).
+    [AbiErrorInputsNotFoundError: Arguments (\`args\`) were provided to "AccessDeniedError", but "AccessDeniedError" on the ABI does not contain any parameters (\`inputs\`).
     Cannot encode error result without knowing what the parameter types are.
     Make sure you are using the correct ABI and that the inputs exist on it.
 
     Docs: https://viem.sh/docs/contract/encodeErrorResult.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

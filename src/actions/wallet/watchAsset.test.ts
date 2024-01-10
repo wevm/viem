@@ -31,10 +31,10 @@ test('errors: unsupported type', async () => {
       },
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Invalid parameters were provided to the RPC method.
+    [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
     Double check you have provided the correct parameters.
 
     Details: Token type ERC721 not supported.
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

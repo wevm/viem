@@ -52,7 +52,7 @@ export const address = {
 } as const
 
 const messages = new Map()
-function warn(message: string) {
+export function warn(message: string) {
   if (!messages.has(message)) {
     messages.set(message, true)
     console.warn(message)

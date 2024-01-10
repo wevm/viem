@@ -221,7 +221,7 @@ describe('args: transport', () => {
           "key": "custom",
           "name": "Custom Provider",
           "request": [Function],
-          "retryCount": 0,
+          "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
           "type": "custom",
@@ -269,7 +269,7 @@ describe('args: transport', () => {
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
-          "retryCount": 0,
+          "retryCount": 3,
           "retryDelay": 150,
           "timeout": 10000,
           "type": "http",
@@ -305,14 +305,8 @@ describe('args: transport', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
-              "http": [
-                "http://127.0.0.1:8545",
-              ],
-            },
-            "public": {
               "http": [
                 "http://127.0.0.1:8545",
               ],
@@ -343,7 +337,7 @@ describe('args: transport', () => {
           "key": "webSocket",
           "name": "WebSocket JSON-RPC",
           "request": [Function],
-          "retryCount": 0,
+          "retryCount": 3,
           "retryDelay": 150,
           "subscribe": [Function],
           "timeout": 10000,
@@ -386,14 +380,8 @@ test('extend', () => {
           "name": "Ether",
           "symbol": "ETH",
         },
-        "network": "localhost",
         "rpcUrls": {
           "default": {
-            "http": [
-              "http://127.0.0.1:8545",
-            ],
-          },
-          "public": {
             "http": [
               "http://127.0.0.1:8545",
             ],
@@ -407,6 +395,7 @@ test('extend', () => {
       "createPendingTransactionFilter": [Function],
       "deployContract": [Function],
       "dropTransaction": [Function],
+      "dumpState": [Function],
       "estimateContractGas": [Function],
       "estimateFeesPerGas": [Function],
       "estimateGas": [Function],
@@ -444,6 +433,7 @@ test('extend', () => {
       "increaseTime": [Function],
       "inspectTxpool": [Function],
       "key": "wallet",
+      "loadState": [Function],
       "mine": [Function],
       "multicall": [Function],
       "name": "Wallet Client",
@@ -485,11 +475,11 @@ test('extend', () => {
         "key": "http",
         "name": "HTTP JSON-RPC",
         "request": [Function],
-        "retryCount": 0,
+        "retryCount": 3,
         "retryDelay": 150,
         "timeout": 10000,
         "type": "http",
-        "url": undefined,
+        "url": "http://127.0.0.1:8545",
       },
       "type": "walletClient",
       "uninstallFilter": [Function],

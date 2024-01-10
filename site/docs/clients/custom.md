@@ -72,7 +72,7 @@ const debugClient = createClient({
 }))
 
 const response = await debugClient.traceCall({
-  from: '0xdeadbeef29292929192939494959594933929292',
+  account: '0xdeadbeef29292929192939494959594933929292',
   to: '0xde929f939d939d393f939393f93939f393929023',
   gas: 69420n,
   data: '0xf00d4b5d00000000000000000000000001291230982139282304923482304912923823920000000000000000000000001293123098123928310239129839291010293810'
@@ -80,7 +80,7 @@ const response = await debugClient.traceCall({
 // { failed: false, gas: 69420, returnValue: '...', structLogs: [] }
 ```
 
-For a more succinct implementation of using `.extend`, check out viem's [Public Client implementation](https://github.com/wagmi-dev/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/createPublicClient.ts#L48-L68) extended with [Public Actions](https://github.com/wagmi-dev/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/decorators/public.ts#L1377-L1425).
+For a more succinct implementation of using `.extend`, check out viem's [Public Client implementation](https://github.com/wevm/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/createPublicClient.ts#L48-L68) extended with [Public Actions](https://github.com/wevm/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/decorators/public.ts#L1377-L1425).
 
 ### Tree-shaking
 

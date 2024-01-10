@@ -70,37 +70,37 @@ Re-exported from [ABIType](https://abitype.dev/api/types.html#address).
 
 A type for a [Block](/docs/glossary/terms#block).
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/block.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/block.ts)
 
 ## `Chain`
 
 A type for a [Chain](/docs/glossary/terms#chain).
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/chain.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/chain.ts)
 
 ## `CompactSignature`
 
 A type for [EIP-2098](https://eips.ethereum.org/EIPS/eip-2098) compact signatures.
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/misc.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/misc.ts)
 
 ## `FeeHistory`
 
 A type for fee history.
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/fee.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/fee.ts)
 
 ## `FeeValues`
 
 A type for fee values.
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/fee.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/fee.ts)
 
 ## `Filter`
 
 A type for a [Filter](/docs/glossary/terms#filter).
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/filter.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/filter.ts)
 
 ## `Hash`
 
@@ -114,37 +114,37 @@ Type for a hex value – a "0x"-prefixed string: `"0x${string}"`
 
 A type for [Event Logs](/docs/glossary/terms#event-log).
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/log.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/log.ts)
 
 ## `Signature`
 
 A type for a structured signature.
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/misc.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/misc.ts)
 
 ## `Transaction`
 
 A type for [Transactions](/docs/glossary/terms#transaction).
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/transaction.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/transaction.ts)
 
 ## `TransactionReceipt`
 
 A type for [Transaction Receipts](/docs/glossary/terms#transaction-receipt).
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/transaction.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/transaction.ts)
 
 ## `Transport`
 
 A type for [Transports](/docs/glossary/terms#transports).
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/clients/transports/createTransport.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/clients/transports/createTransport.ts)
 
 ## `WalletPermission`
 
 A type for wallet (JSON-RPC Account) permissions.
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/eip1193.ts)
+[See Type](https://github.com/wevm/viem/blob/main/src/types/eip1193.ts)
 
 ## `TransactionSerializedEIP1559`
 
@@ -166,4 +166,4 @@ All types of transactions. `"eip1559" | "eip2930" | "legacy"`
 
 A type for all transaction requests.
 
-[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/transaction.ts).
+[See Type](https://github.com/wevm/viem/blob/main/src/types/transaction.ts).

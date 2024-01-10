@@ -15,7 +15,6 @@ const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 test('estimates gas', async () => {
   expect(
     await estimateGas(publicClient, {
-      account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     }),
@@ -25,6 +24,16 @@ test('estimates gas', async () => {
 test('falls back to wallet client account', async () => {
   expect(
     await estimateGas(walletClient, {
+      account: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
+    }),
+  ).toMatchInlineSnapshot('21000n')
+})
+
+test('args: account', async () => {
+  expect(
+    await estimateGas(publicClient, {
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
@@ -183,7 +192,7 @@ describe('local account', () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Chain does not support EIP-1559 fees.
+      [EstimateGasExecutionError: Chain does not support EIP-1559 fees.
 
       Estimate Gas Arguments:
         from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
@@ -191,7 +200,7 @@ describe('local account', () => {
         value:         1 ETH
         maxFeePerGas:  33 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -208,23 +217,6 @@ describe('local account', () => {
 })
 
 describe('errors', () => {
-  test('no account', async () => {
-    await expect(() =>
-      // @ts-expect-error
-      estimateGas(publicClient, {
-        to: accounts[1].address,
-        value: parseEther('1'),
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Could not find an Account to execute with this Action.
-      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
-
-      Docs: https://viem.sh/docs/actions/public/estimateGas.html#account
-      Version: viem@1.0.2"
-    `)
-  })
-
   test('fee cap too high', async () => {
     await expect(() =>
       estimateGas(publicClient, {
@@ -234,7 +226,7 @@ describe('errors', () => {
         maxFeePerGas: 2n ** 256n - 1n + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [EstimateGasExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Estimate Gas Arguments:
         from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -242,7 +234,7 @@ describe('errors', () => {
         value:         1 ETH
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -257,7 +249,7 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
+      [EstimateGasExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
 
       Estimate Gas Arguments:
         from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -266,7 +258,7 @@ describe('errors', () => {
         maxFeePerGas:          10 gwei
         maxPriorityFeePerGas:  11 gwei
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `,
     )
   })

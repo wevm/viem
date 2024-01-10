@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import * as chains from '../../chains/index.js'
 import { extractChain } from './extractChain.js'
 
@@ -11,10 +12,6 @@ test('default', async () => {
     {
       "blockExplorers": {
         "default": {
-          "name": "Etherscan",
-          "url": "https://etherscan.io",
-        },
-        "etherscan": {
           "name": "Etherscan",
           "url": "https://etherscan.io",
         },
@@ -41,30 +38,8 @@ test('default', async () => {
         "name": "Ether",
         "symbol": "ETH",
       },
-      "network": "homestead",
       "rpcUrls": {
-        "alchemy": {
-          "http": [
-            "https://eth-mainnet.g.alchemy.com/v2",
-          ],
-          "webSocket": [
-            "wss://eth-mainnet.g.alchemy.com/v2",
-          ],
-        },
         "default": {
-          "http": [
-            "https://cloudflare-eth.com",
-          ],
-        },
-        "infura": {
-          "http": [
-            "https://mainnet.infura.io/v3",
-          ],
-          "webSocket": [
-            "wss://mainnet.infura.io/ws/v3",
-          ],
-        },
-        "public": {
           "http": [
             "https://cloudflare-eth.com",
           ],
@@ -85,15 +60,39 @@ test('default', async () => {
           "name": "Optimism Explorer",
           "url": "https://explorer.optimism.io",
         },
-        "etherscan": {
-          "name": "Etherscan",
-          "url": "https://optimistic.etherscan.io",
-        },
       },
       "contracts": {
+        "gasPriceOracle": {
+          "address": "0x420000000000000000000000000000000000000F",
+        },
+        "l1Block": {
+          "address": "0x4200000000000000000000000000000000000015",
+        },
+        "l2CrossDomainMessenger": {
+          "address": "0x4200000000000000000000000000000000000007",
+        },
+        "l2Erc721Bridge": {
+          "address": "0x4200000000000000000000000000000000000014",
+        },
+        "l2OutputOracle": {
+          "1": {
+            "address": "0xdfe97868233d1aa22e815a266982f2cf17685a27",
+          },
+        },
+        "l2StandardBridge": {
+          "address": "0x4200000000000000000000000000000000000010",
+        },
+        "l2ToL1MessagePasser": {
+          "address": "0x4200000000000000000000000000000000000016",
+        },
         "multicall3": {
           "address": "0xca11bde05977b3631167028862be2a173976ca11",
           "blockCreated": 4286263,
+        },
+        "portal": {
+          "1": {
+            "address": "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed",
+          },
         },
       },
       "fees": undefined,
@@ -121,36 +120,17 @@ test('default', async () => {
         "name": "Ether",
         "symbol": "ETH",
       },
-      "network": "optimism",
       "rpcUrls": {
-        "alchemy": {
-          "http": [
-            "https://opt-mainnet.g.alchemy.com/v2",
-          ],
-          "webSocket": [
-            "wss://opt-mainnet.g.alchemy.com/v2",
-          ],
-        },
         "default": {
           "http": [
             "https://mainnet.optimism.io",
           ],
         },
-        "infura": {
-          "http": [
-            "https://optimism-mainnet.infura.io/v3",
-          ],
-          "webSocket": [
-            "wss://optimism-mainnet.infura.io/ws/v3",
-          ],
-        },
-        "public": {
-          "http": [
-            "https://mainnet.optimism.io",
-          ],
-        },
       },
-      "serializers": undefined,
+      "serializers": {
+        "transaction": [Function],
+      },
+      "sourceId": 1,
     }
   `)
 })

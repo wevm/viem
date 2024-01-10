@@ -3,14 +3,9 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const scroll = /*#__PURE__*/ defineChain({
   id: 534_352,
   name: 'Scroll',
-  network: 'scroll',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.scroll.io'],
-      webSocket: ['wss://wss-rpc.scroll.io/ws'],
-    },
-    public: {
       http: ['https://rpc.scroll.io'],
       webSocket: ['wss://wss-rpc.scroll.io/ws'],
     },
@@ -19,10 +14,6 @@ export const scroll = /*#__PURE__*/ defineChain({
     default: {
       name: 'Scrollscan',
       url: 'https://scrollscan.com',
-    },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://blockscout.scroll.io',
     },
   },
   contracts: {

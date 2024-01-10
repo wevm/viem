@@ -28,11 +28,13 @@ import {
 } from '../../utils/typedData.js'
 
 export type SignTypedDataParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-  TAccount extends Account | undefined = undefined,
-> = GetAccountParameter<TAccount> &
-  TypedDataDefinition<TTypedData, TPrimaryType>
+  typedData extends TypedData | Record<string, unknown> = TypedData,
+  primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
+  account extends Account | undefined = undefined,
+  ///
+  primaryTypes = typedData extends TypedData ? keyof typedData : string,
+> = TypedDataDefinition<typedData, primaryType, primaryTypes> &
+  GetAccountParameter<account>
 
 export type SignTypedDataReturnType = Hex
 
@@ -146,20 +148,21 @@ export type SignTypedDataErrorType =
  * })
  */
 export async function signTypedData<
-  const TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string,
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  const typedData extends TypedData | Record<string, unknown>,
+  primaryType extends keyof typedData | 'EIP712Domain',
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  {
+  client: Client<Transport, chain, account>,
+  parameters: SignTypedDataParameters<typedData, primaryType, account>,
+): Promise<SignTypedDataReturnType> {
+  const {
     account: account_ = client.account,
     domain,
     message,
     primaryType,
-    types: types_,
-  }: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
-): Promise<SignTypedDataReturnType> {
+  } = parameters as unknown as SignTypedDataParameters
+
   if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/signTypedData',
@@ -168,32 +171,25 @@ export async function signTypedData<
 
   const types = {
     EIP712Domain: getTypesForEIP712Domain({ domain }),
-    ...(types_ as TTypedData),
+    ...parameters.types,
   }
 
   // Need to do a runtime validation check on addresses, byte ranges, integer ranges, etc
   // as we can't statically check this with TypeScript.
-  validateTypedData({
-    domain,
-    message,
-    primaryType,
-    types,
-  } as TypedDataDefinition)
+  validateTypedData({ domain, message, primaryType, types })
 
   if (account.type === 'local')
-    return account.signTypedData({
-      domain,
-      primaryType,
-      types,
-      message,
-    } as TypedDataDefinition)
+    return account.signTypedData({ domain, message, primaryType, types })
 
   const typedData = stringify(
-    { domain: domain ?? {}, primaryType, types, message },
+    { domain: domain ?? {}, message, primaryType, types },
     (_, value) => (isHex(value) ? value.toLowerCase() : value),
   )
-  return client.request({
-    method: 'eth_signTypedData_v4',
-    params: [account.address, typedData],
-  })
+  return client.request(
+    {
+      method: 'eth_signTypedData_v4',
+      params: [account.address, typedData],
+    },
+    { retryCount: 0 },
+  )
 }

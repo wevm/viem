@@ -47,9 +47,9 @@ describe('converts bytes to number', () => {
     expect(() =>
       bytesToNumber(numberToBytes(69420, { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -105,9 +105,9 @@ describe('converts bytes to bigint', () => {
     expect(() =>
       bytesToBigInt(numberToBytes(69420, { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -140,9 +140,9 @@ describe('converts bytes to boolean', () => {
     expect(() =>
       bytesToBool(boolToBytes(true, { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 
@@ -150,16 +150,16 @@ describe('converts bytes to boolean', () => {
     expect(() =>
       bytesToBool(new Uint8Array([69])),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Bytes value \\"69\\" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
+      [InvalidBytesBooleanError: Bytes value "69" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
     expect(() =>
       bytesToBool(new Uint8Array([1, 2])),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Bytes value \\"1,2\\" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
+      [InvalidBytesBooleanError: Bytes value "1,2" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -214,9 +214,9 @@ describe('converts bytes to string', () => {
     expect(() =>
       bytesToString(stringToBytes('wagmi', { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })
@@ -279,9 +279,9 @@ describe('converts bytes to hex', () => {
     expect(() =>
       bytesToHex(hexToBytes('0x420696', { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+      [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2"
+      Version: viem@1.0.2]
     `)
   })
 })

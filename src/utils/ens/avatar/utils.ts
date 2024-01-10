@@ -117,7 +117,9 @@ export function resolveAvatarUri({
       isOnChain: false,
       isEncoded: false,
     }
-  } else if (protocol === 'ar:/' && target) {
+  }
+
+  if (protocol === 'ar:/' && target) {
     return {
       uri: `${arweaveGateway}/${target}${subtarget || ''}`,
       isOnChain: false,

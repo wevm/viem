@@ -3,14 +3,11 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const confluxESpace = /*#__PURE__*/ defineChain({
   id: 1_030,
   name: 'Conflux eSpace',
-  network: 'cfx-espace',
   nativeCurrency: { name: 'Conflux', symbol: 'CFX', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://evm.confluxrpc.org'],
-    },
-    public: {
-      http: ['https://evm.confluxrpc.org'],
+      webSocket: ['wss://evm.confluxrpc.org/ws'],
     },
   },
   blockExplorers: {

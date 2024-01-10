@@ -190,9 +190,9 @@ test('zero data', () => {
       data: '0x',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Cannot decode zero data (\\"0x\\") with ABI parameters.
+    [AbiDecodingZeroDataError: Cannot decode zero data ("0x") with ABI parameters.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -209,11 +209,11 @@ test("errors: error doesn't exist", () => {
       data: '0xa37414670000000000000000000000000000000000000000000000000000000000010f2c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000029',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Encoded error signature \\"0xa3741467\\" not found on ABI.
+    [AbiErrorSignatureNotFoundError: Encoded error signature "0xa3741467" not found on ABI.
     Make sure you are using the correct ABI and that the error exists on it.
     You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xa3741467.
 
     Docs: https://viem.sh/docs/contract/decodeErrorResult.html
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })

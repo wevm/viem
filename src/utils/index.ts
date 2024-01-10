@@ -1,7 +1,5 @@
 export {
-  type IsDeterministicErrorType,
   type RequestErrorType,
-  isDeterministicError,
   buildRequest,
 } from './buildRequest.js'
 
@@ -114,6 +112,12 @@ export {
   encodeFunctionResult,
 } from './abi/encodeFunctionResult.js'
 export {
+  type ParseEventLogsErrorType,
+  type ParseEventLogsParameters,
+  type ParseEventLogsReturnType,
+  parseEventLogs,
+} from './abi/parseEventLogs.js'
+export {
   type GetAbiItemErrorType,
   type GetAbiItemParameters,
   getAbiItem,
@@ -167,16 +171,6 @@ export {
   type IsAddressEqualErrorType,
   isAddressEqual,
 } from './address/isAddressEqual.js'
-export {
-  type ExtractFunctionNameErrorType,
-  type ExtractFunctionParamsErrorType,
-  type ExtractFunctionPartsErrorType,
-  type ExtractFunctionTypeErrorType,
-  extractFunctionName,
-  extractFunctionParams,
-  extractFunctionType,
-  extractFunctionParts,
-} from './contract/extractFunctionParts.js'
 export {
   type ConcatBytesErrorType,
   type ConcatErrorType,
@@ -291,7 +285,6 @@ export {
   type FromBytesParameters,
   type FromBytesReturnType,
   bytesToBigInt,
-  /** @deprecated – use `bytesToBigInt` */
   bytesToBigInt as bytesToBigint,
   bytesToBool,
   bytesToNumber,
@@ -358,6 +351,8 @@ export {
 } from './hash/getFunctionSelector.js'
 export { type IsHashErrorType, isHash } from './hash/isHash.js'
 export { type Keccak256ErrorType, keccak256 } from './hash/keccak256.js'
+export { type Sha256ErrorType, sha256 } from './hash/sha256.js'
+export { type Ripemd160ErrorType, ripemd160 } from './hash/ripemd160.js'
 export {
   type HashDomainErrorType,
   type HashTypedDataParameters,
@@ -431,10 +426,6 @@ export {
   type ParseTransactionErrorType,
   parseTransaction,
 } from './transaction/parseTransaction.js'
-export {
-  /** @deprecated import `prepareTransactionRequest` from `viem/actions` instead. */
-  prepareTransactionRequest,
-} from '../actions/wallet/prepareTransactionRequest.js'
 export {
   serializeTransaction,
   type SerializeTransactionErrorType,

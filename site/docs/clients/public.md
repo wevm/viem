@@ -73,7 +73,7 @@ const client = createPublicClient({
 Now, when you start to utilize `readContract` Actions, the Public Client will batch and send over those requests at the end of the message queue (or custom time period) in a single `eth_call` multicall request:
 
 ```ts
-const contract = getContract({ address, abi })
+const contract = getContract({ address, abi, client })
 
 // The below will send a single request to the RPC Provider.
 const [name, totalSupply, symbol, tokenUri, balance] = await Promise.all([
@@ -238,6 +238,6 @@ const client = createPublicClient({
 
 ## Live Example
 
-Check out the usage of `createPublicClient` in the live [Public Client Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients_public-client) below.
+Check out the usage of `createPublicClient` in the live [Public Client Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/clients_public-client) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients_public-client?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wevm/viem/tree/main/examples/clients_public-client?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

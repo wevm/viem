@@ -3,13 +3,9 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const scrollSepolia = /*#__PURE__*/ defineChain({
   id: 534_351,
   name: 'Scroll Sepolia',
-  network: 'scroll-sepolia',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://sepolia-rpc.scroll.io'],
-    },
-    public: {
       http: ['https://sepolia-rpc.scroll.io'],
     },
   },

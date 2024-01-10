@@ -12,7 +12,7 @@ describe('Create contract instance', () => {
   bench('viem: `getContract`', async () => {
     getContract({
       ...wagmiContractConfig,
-      publicClient,
+      client: { public: publicClient },
     })
   })
 
@@ -27,7 +27,7 @@ describe('Create contract instance', () => {
 
 const viemContract = getContract({
   ...wagmiContractConfig,
-  publicClient,
+  client: { public: publicClient },
 })
 const ethersContract = new Contract(
   wagmiContractConfig.address,

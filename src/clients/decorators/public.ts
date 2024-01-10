@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent } from 'abitype'
+import type { Abi, AbiEvent, Address } from 'abitype'
 
 import {
   type GetEnsAddressParameters,
@@ -217,6 +217,7 @@ import {
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
 import {
+  type PrepareTransactionRequestParameterType,
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestReturnType,
   prepareTransactionRequest,
@@ -230,7 +231,9 @@ import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  ContractFunctionConfig,
+  ContractEventName,
+  ContractFunctionArgs,
+  ContractFunctionName,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
@@ -310,7 +313,7 @@ export type PublicActions<
    */
   createContractEventFilter: <
     const TAbi extends Abi | readonly unknown[],
-    TEventName extends string | undefined,
+    TEventName extends ContractEventName<TAbi> | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
     TStrict extends boolean | undefined = undefined,
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -437,10 +440,15 @@ export type PublicActions<
    */
   estimateContractGas: <
     TChain extends Chain | undefined,
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+    args extends ContractFunctionArgs<
+      abi,
+      'nonpayable' | 'payable',
+      functionName
+    >,
   >(
-    args: EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
+    args: EstimateContractGasParameters<abi, functionName, args, TChain>,
   ) => Promise<EstimateContractGasReturnType>
   /**
    * Estimates the gas necessary to complete a transaction without submitting it to the network.
@@ -466,7 +474,7 @@ export type PublicActions<
    * })
    */
   estimateGas: (
-    args: EstimateGasParameters<TChain, TAccount>,
+    args: EstimateGasParameters<TChain>,
   ) => Promise<EstimateGasReturnType>
   /**
    * Returns the balance of an address in wei.
@@ -507,7 +515,7 @@ export type PublicActions<
    * Returns information about a block at a block number, hash, or tag.
    *
    * - Docs: https://viem.sh/docs/actions/public/getBlock.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/fetching-blocks
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/fetching-blocks
    * - JSON-RPC Methods:
    *   - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) for `blockNumber` & `blockTag`.
    *   - Calls [`eth_getBlockByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbyhash) for `blockHash`.
@@ -535,7 +543,7 @@ export type PublicActions<
    * Returns the number of the most recent block seen.
    *
    * - Docs: https://viem.sh/docs/actions/public/getBlockNumber.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/fetching-blocks
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/fetching-blocks
    * - JSON-RPC Methods: [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber)
    *
    * @param args - {@link GetBlockNumberParameters}
@@ -647,27 +655,27 @@ export type PublicActions<
    * })
    */
   getContractEvents: <
-    const TAbi extends Abi | readonly unknown[],
-    TEventName extends string | undefined = undefined,
-    TStrict extends boolean | undefined = undefined,
-    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+    const abi extends Abi | readonly unknown[],
+    eventName extends ContractEventName<abi> | undefined = undefined,
+    strict extends boolean | undefined = undefined,
+    fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    toBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
     args: GetContractEventsParameters<
-      TAbi,
-      TEventName,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      abi,
+      eventName,
+      strict,
+      fromBlock,
+      toBlock
     >,
   ) => Promise<
-    GetContractEventsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
+    GetContractEventsReturnType<abi, eventName, strict, fromBlock, toBlock>
   >
   /**
    * Gets address for ENS name.
    *
    * - Docs: https://viem.sh/docs/ens/actions/getEnsAddress.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
    *
    * @remarks
    * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
@@ -687,7 +695,7 @@ export type PublicActions<
    *   transport: http(),
    * })
    * const ensAddress = await client.getEnsAddress({
-   *   name: normalize('wagmi-dev.eth'),
+   *   name: normalize('wevm.eth'),
    * })
    * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
    */
@@ -698,7 +706,7 @@ export type PublicActions<
    * Gets the avatar of an ENS name.
    *
    * - Docs: https://viem.sh/docs/ens/actions/getEnsAvatar.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
    *
    * @remarks
    * Calls [`getEnsText`](https://viem.sh/docs/ens/actions/getEnsText.html) with `key` set to `'avatar'`.
@@ -718,7 +726,7 @@ export type PublicActions<
    *   transport: http(),
    * })
    * const ensAvatar = await client.getEnsAvatar({
-   *   name: normalize('wagmi-dev.eth'),
+   *   name: normalize('wevm.eth'),
    * })
    * // 'https://ipfs.io/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio'
    */
@@ -729,7 +737,7 @@ export type PublicActions<
    * Gets primary name for specified address.
    *
    * - Docs: https://viem.sh/docs/ens/actions/getEnsName.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
    *
    * @remarks
    * Calls `reverse(bytes)` on ENS Universal Resolver Contract to "reverse resolve" the address to the primary ENS name.
@@ -748,14 +756,14 @@ export type PublicActions<
    * const ensName = await client.getEnsName({
    *   address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
    * })
-   * // 'wagmi-dev.eth'
+   * // 'wevm.eth'
    */
   getEnsName: (args: GetEnsNameParameters) => Promise<GetEnsNameReturnType>
   /**
    * Gets resolver for ENS name.
    *
    * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
    *
    * @remarks
    * Calls `findResolver(bytes)` on ENS Universal Resolver Contract to retrieve the resolver of an ENS name.
@@ -775,7 +783,7 @@ export type PublicActions<
    *   transport: http(),
    * })
    * const resolverAddress = await client.getEnsResolver({
-   *   name: normalize('wagmi-dev.eth'),
+   *   name: normalize('wevm.eth'),
    * })
    * // '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'
    */
@@ -786,7 +794,7 @@ export type PublicActions<
    * Gets a text record for specified ENS name.
    *
    * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
    *
    * @remarks
    * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
@@ -806,7 +814,7 @@ export type PublicActions<
    *   transport: http(),
    * })
    * const twitterRecord = await client.getEnsText({
-   *   name: normalize('wagmi-dev.eth'),
+   *   name: normalize('wevm.eth'),
    *   key: 'com.twitter',
    * })
    * // 'wagmi_sh'
@@ -1034,7 +1042,7 @@ export type PublicActions<
    * Returns a list of event logs matching the provided parameters.
    *
    * - Docs: https://viem.sh/docs/actions/public/getLogs.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/filters-and-logs/event-logs
    * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
    *
    * @param args - {@link GetLogsParameters}
@@ -1150,7 +1158,7 @@ export type PublicActions<
    * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) given a hash or block identifier.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransaction.html
-   * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
+   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
    * - JSON-RPC Methods: [`eth_getTransactionByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionByHash)
    *
    * @param args - {@link GetTransactionParameters}
@@ -1175,7 +1183,7 @@ export type PublicActions<
    * Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransactionConfirmations.html
-   * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
+   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
    * - JSON-RPC Methods: [`eth_getTransactionConfirmations`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionConfirmations)
    *
    * @param args - {@link GetTransactionConfirmationsParameters}
@@ -1224,7 +1232,7 @@ export type PublicActions<
    * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms.html#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransactionReceipt.html
-   * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
+   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
    * - JSON-RPC Methods: [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt)
    *
    * @param args - {@link GetTransactionReceiptParameters}
@@ -1283,11 +1291,11 @@ export type PublicActions<
    * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
    */
   multicall: <
-    TContracts extends ContractFunctionConfig[],
-    TAllowFailure extends boolean = true,
+    const contracts extends readonly unknown[],
+    allowFailure extends boolean = true,
   >(
-    args: MulticallParameters<TContracts, TAllowFailure>,
-  ) => Promise<MulticallReturnType<TContracts, TAllowFailure>>
+    args: MulticallParameters<contracts, allowFailure>,
+  ) => Promise<MulticallReturnType<contracts, allowFailure>>
   /**
    * Prepares a transaction request for signing.
    *
@@ -1327,15 +1335,31 @@ export type PublicActions<
    * })
    */
   prepareTransactionRequest: <
+    TParameterType extends PrepareTransactionRequestParameterType,
     TChainOverride extends Chain | undefined = undefined,
+    TAccountOverride extends Account | Address | undefined = undefined,
   >(
-    args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
-  ) => Promise<PrepareTransactionRequestReturnType>
+    args: PrepareTransactionRequestParameters<
+      TChain,
+      TAccount,
+      TChainOverride,
+      TAccountOverride,
+      TParameterType
+    >,
+  ) => Promise<
+    PrepareTransactionRequestReturnType<
+      Chain,
+      TAccount,
+      TChainOverride,
+      TAccountOverride,
+      TParameterType
+    >
+  >
   /**
    * Calls a read-only function on a contract, and returns the response.
    *
    * - Docs: https://viem.sh/docs/contract/readContract.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/reading-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/reading-contracts
    *
    * @remarks
    * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
@@ -1363,11 +1387,12 @@ export type PublicActions<
    * // 424122n
    */
   readContract: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
   >(
-    args: ReadContractParameters<TAbi, TFunctionName>,
-  ) => Promise<ReadContractReturnType<TAbi, TFunctionName>>
+    args: ReadContractParameters<abi, functionName, args>,
+  ) => Promise<ReadContractReturnType<abi, functionName, args>>
   /**
    * Sends a **signed** transaction to the network
    *
@@ -1399,7 +1424,7 @@ export type PublicActions<
    * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
    *
    * - Docs: https://viem.sh/docs/contract/simulateContract.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
    *
    * @remarks
    * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract.html), but also supports contract write functions.
@@ -1426,18 +1451,34 @@ export type PublicActions<
    * })
    */
   simulateContract: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
-    TChainOverride extends Chain | undefined = undefined,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+    args extends ContractFunctionArgs<
+      abi,
+      'nonpayable' | 'payable',
+      functionName
+    >,
+    chainOverride extends Chain | undefined,
+    accountOverride extends Account | Address | undefined = undefined,
   >(
     args: SimulateContractParameters<
-      TAbi,
-      TFunctionName,
+      abi,
+      functionName,
+      args,
       TChain,
-      TChainOverride
+      chainOverride,
+      accountOverride
     >,
   ) => Promise<
-    SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
+    SimulateContractReturnType<
+      abi,
+      functionName,
+      args,
+      TChain,
+      TAccount,
+      chainOverride,
+      accountOverride
+    >
   >
   verifyMessage: (
     args: VerifyMessageParameters,
@@ -1474,7 +1515,7 @@ export type PublicActions<
    * Waits for the [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) to be included on a [Block](https://viem.sh/docs/glossary/terms.html#block) (one confirmation), and then returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms.html#transaction-receipt). If the Transaction reverts, then the action will throw an error.
    *
    * - Docs: https://viem.sh/docs/actions/public/waitForTransactionReceipt.html
-   * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/sending-transactions
+   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/sending-transactions
    * - JSON-RPC Methods:
    *   - Polls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt) on each block until it has been processed.
    *   - If a Transaction has been replaced:
@@ -1515,7 +1556,7 @@ export type PublicActions<
    * Watches and returns incoming block numbers.
    *
    * - Docs: https://viem.sh/docs/actions/public/watchBlockNumber.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/watching-blocks
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/watching-blocks
    * - JSON-RPC Methods:
    *   - When `poll: true`, calls [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber) on a polling interval.
    *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
@@ -1542,7 +1583,7 @@ export type PublicActions<
    * Watches and returns information for incoming blocks.
    *
    * - Docs: https://viem.sh/docs/actions/public/watchBlocks.html
-   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/watching-blocks
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/watching-blocks
    * - JSON-RPC Methods:
    *   - When `poll: true`, calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval.
    *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
@@ -1604,10 +1645,10 @@ export type PublicActions<
    */
   watchContractEvent: <
     const TAbi extends Abi | readonly unknown[],
-    TEventName extends string,
+    TEventName extends ContractEventName<TAbi>,
     TStrict extends boolean | undefined = undefined,
   >(
-    args: WatchContractEventParameters<TAbi, TEventName, TStrict>,
+    args: WatchContractEventParameters<TAbi, TEventName, TStrict, TTransport>,
   ) => WatchContractEventReturnType
   /**
    * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms.html#event-log).
@@ -1648,7 +1689,7 @@ export type PublicActions<
       | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
     TStrict extends boolean | undefined = undefined,
   >(
-    args: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict>,
+    args: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
   ) => WatchEventReturnType
   /**
    * Watches and returns pending transaction hashes.
@@ -1727,7 +1768,7 @@ export function publicActions<
       getTransactionConfirmations(client, args),
     getTransactionCount: (args) => getTransactionCount(client, args),
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
-    multicall: (args) => multicall(client, args as any) as any,
+    multicall: (args) => multicall(client, args),
     prepareTransactionRequest: (args) =>
       prepareTransactionRequest(client as any, args as any),
     readContract: (args) => readContract(client, args),

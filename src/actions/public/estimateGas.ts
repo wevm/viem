@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -5,9 +6,7 @@ import {
 } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
-import type { GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { TransactionRequest } from '../../types/transaction.js'
@@ -42,10 +41,9 @@ export type FormattedEstimateGas<
 
 export type EstimateGasParameters<
   TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = undefined,
-> = UnionOmit<FormattedEstimateGas<TChain>, 'from'> &
-  GetAccountParameter<TAccount> &
-  (
+> = UnionOmit<FormattedEstimateGas<TChain>, 'from'> & {
+  account?: Account | Address
+} & (
     | {
         /** The balance of the account at a block number. */
         blockNumber?: bigint
@@ -100,14 +98,10 @@ export async function estimateGas<
   TAccount extends Account | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
-  args: EstimateGasParameters<TChain, TAccount>,
+  args: EstimateGasParameters<TChain>,
 ): Promise<EstimateGasReturnType> {
   const account_ = args.account ?? client.account
-  if (!account_)
-    throw new AccountNotFoundError({
-      docsPath: '/docs/actions/public/estimateGas',
-    })
-  const account = parseAccount(account_)
+  const account = account_ ? parseAccount(account_) : undefined
 
   try {
     const {
@@ -124,7 +118,7 @@ export async function estimateGas<
       value,
       ...rest
     } =
-      account.type === 'local'
+      account?.type === 'local'
         ? ((await prepareTransactionRequest(
             client,
             args as PrepareTransactionRequestParameters,
@@ -142,7 +136,7 @@ export async function estimateGas<
     const request = format({
       // Pick out extra data that might exist on the chain's transaction request type.
       ...extract(rest, { format: chainFormat }),
-      from: account.address,
+      from: account?.address,
       accessList,
       data,
       gas,

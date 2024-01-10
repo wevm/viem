@@ -3,26 +3,13 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const arbitrumNova = /*#__PURE__*/ defineChain({
   id: 42_170,
   name: 'Arbitrum Nova',
-  network: 'arbitrum-nova',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    blast: {
-      http: ['https://arbitrum-nova.public.blastapi.io'],
-      webSocket: ['wss://arbitrum-nova.public.blastapi.io'],
-    },
     default: {
-      http: ['https://nova.arbitrum.io/rpc'],
-    },
-    public: {
       http: ['https://nova.arbitrum.io/rpc'],
     },
   },
   blockExplorers: {
-    etherscan: { name: 'Arbiscan', url: 'https://nova.arbiscan.io' },
-    blockScout: {
-      name: 'BlockScout',
-      url: 'https://nova-explorer.arbitrum.io/',
-    },
     default: { name: 'Arbiscan', url: 'https://nova.arbiscan.io' },
   },
   contracts: {

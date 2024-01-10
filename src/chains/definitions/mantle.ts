@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const mantle = /*#__PURE__*/ defineChain({
   id: 5000,
   name: 'Mantle',
-  network: 'mantle',
   nativeCurrency: {
     decimals: 18,
     name: 'MNT',
@@ -11,13 +10,8 @@ export const mantle = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://rpc.mantle.xyz'] },
-    public: { http: ['https://rpc.mantle.xyz'] },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Mantle Explorer',
-      url: 'https://explorer.mantle.xyz',
-    },
     default: {
       name: 'Mantle Explorer',
       url: 'https://explorer.mantle.xyz',

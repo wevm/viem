@@ -51,7 +51,7 @@ export type GetBlockParameters<
 )
 
 export type GetBlockReturnType<
-  TChain extends Chain | undefined = Chain | undefined,
+  TChain extends Chain | undefined = undefined,
   TIncludeTransactions extends boolean = false,
   TBlockTag extends BlockTag = 'latest',
 > = FormattedBlock<TChain, TIncludeTransactions, TBlockTag>
@@ -66,7 +66,7 @@ export type GetBlockErrorType =
  * Returns information about a block at a block number, hash, or tag.
  *
  * - Docs: https://viem.sh/docs/actions/public/getBlock.html
- * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/fetching-blocks
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/fetching-blocks
  * - JSON-RPC Methods:
  *   - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) for `blockNumber` & `blockTag`.
  *   - Calls [`eth_getBlockByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbyhash) for `blockHash`.

@@ -220,9 +220,9 @@ test('error: invalid address', () => {
   expect(() =>
     encodePacked(['address'], ['0xdeadbeef']),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Address \\"0xdeadbeef\\" is invalid.
+    [InvalidAddressError: Address "0xdeadbeef" is invalid.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -231,11 +231,11 @@ test('error: length mismatch', () => {
     // @ts-expect-error
     () => encodePacked(['address'], [address.vitalik, '0x']),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "ABI encoding params/values length mismatch.
+    [AbiEncodingLengthMismatchError: ABI encoding params/values length mismatch.
     Expected length (params): 1
     Given length (values): 2
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -243,9 +243,9 @@ test('error: bytes size mismatch', () => {
   expect(() =>
     encodePacked(['bytes8'], ['0xdeadbeef']),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Expected bytes8, got bytes4.
+    [BytesSizeMismatchError: Expected bytes8, got bytes4.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
 
@@ -254,8 +254,8 @@ test('error: unsupported type', () => {
     // @ts-expect-error
     () => encodePacked(['function'], ['0x']),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Type \\"function\\" is not supported for packed encoding.
+    [UnsupportedPackedAbiType: Type "function" is not supported for packed encoding.
 
-    Version: viem@1.0.2"
+    Version: viem@1.0.2]
   `)
 })
