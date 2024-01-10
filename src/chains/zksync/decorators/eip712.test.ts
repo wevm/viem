@@ -2,12 +2,12 @@ import { describe, expect, test } from 'vitest'
 
 import { greeterContract } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
+import { publicClient } from '~test/src/utils.js'
 import { zkSyncClient } from '~test/src/zksync.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { simulateContract } from '../../../actions/index.js'
 import type { EIP1193RequestFn } from '../../../types/eip1193.js'
 import { eip712Actions } from './eip712.js'
-import { publicClient } from '~test/src/utils.js'
 
 const zkSyncClient_ = zkSyncClient.extend(eip712Actions)
 
