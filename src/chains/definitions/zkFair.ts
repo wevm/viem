@@ -23,5 +23,11 @@ export const zkFair = /*#__PURE__*/ defineChain({
       url: 'https://scan.zkfair.io',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 6090959,
+    },
+  },
   testnet: false,
 })
