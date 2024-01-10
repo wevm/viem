@@ -19,7 +19,7 @@ import {
 export type GetEnsAvatarParameters = Prettify<
   Omit<GetEnsTextParameters, 'key'> & {
     /** Gateway urls to resolve IPFS and/or Arweave assets. */
-    gatewayUrls?: AssetGatewayUrls
+    assetGatewayUrls?: AssetGatewayUrls
   }
 >
 
@@ -63,8 +63,10 @@ export async function getEnsAvatar<TChain extends Chain | undefined>(
   {
     blockNumber,
     blockTag,
-    gatewayUrls,
+    assetGatewayUrls,
     name,
+    gatewayUrls,
+    strict,
     universalResolverAddress,
   }: GetEnsAvatarParameters,
 ): Promise<GetEnsAvatarReturnType> {
@@ -78,10 +80,15 @@ export async function getEnsAvatar<TChain extends Chain | undefined>(
     key: 'avatar',
     name,
     universalResolverAddress,
+    gatewayUrls,
+    strict,
   })
   if (!record) return null
   try {
-    return await parseAvatarRecord(client, { record, gatewayUrls })
+    return await parseAvatarRecord(client, {
+      record,
+      gatewayUrls: assetGatewayUrls,
+    })
   } catch {
     return null
   }

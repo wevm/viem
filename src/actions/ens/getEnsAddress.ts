@@ -43,6 +43,10 @@ export type GetEnsAddressParameters = Prettify<
     name: string
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
+    /** Batch gateway URLs to use for resolving CCIP-read requests. */
+    gatewayUrls?: string[]
+    /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
+    strict?: boolean
   }
 >
 
@@ -93,6 +97,8 @@ export async function getEnsAddress<TChain extends Chain | undefined>(
     blockTag,
     coinType,
     name,
+    gatewayUrls,
+    strict,
     universalResolverAddress: universalResolverAddress_,
   }: GetEnsAddressParameters,
 ): Promise<GetEnsAddressReturnType> {
@@ -119,20 +125,27 @@ export async function getEnsAddress<TChain extends Chain | undefined>(
         : { args: [namehash(name)] }),
     })
 
-    const res = await getAction(
-      client,
-      readContract,
-      'readContract',
-    )({
+    const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
       functionName: 'resolve',
       args: [toHex(packetToBytes(name)), functionData],
       blockNumber,
       blockTag,
-    })
+    } as const
+
+    const readContractAction = getAction(client, readContract, 'readContract')
+
+    const res = gatewayUrls
+      ? await readContractAction({
+          ...readContractParameters,
+          args: [...readContractParameters.args, gatewayUrls],
+        })
+      : await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
+
+    console.log(res[0])
 
     const address = decodeFunctionResult({
       abi: addressResolverAbi,
@@ -145,6 +158,7 @@ export async function getEnsAddress<TChain extends Chain | undefined>(
     if (trim(address) === '0x00') return null
     return address
   } catch (err) {
+    if (strict) throw err
     if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
   }
