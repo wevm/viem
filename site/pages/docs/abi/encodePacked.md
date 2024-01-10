@@ -4,7 +4,7 @@ description: Generates ABI encoded data.
 
 # encodePacked
 
-Generates [ABI non-standard packed encoded data](https://docs.soliditylang.org/en/v0.8.18/abi-spec.html#non-standard-packed-mode) given a set of solidity types compatible with packed encoding.
+Generates [ABI non-standard packed encoded data](https://docs.soliditylang.org/en/v0.8.18/abi-spec#non-standard-packed-mode) given a set of solidity types compatible with packed encoding.
 
 ## Import
 

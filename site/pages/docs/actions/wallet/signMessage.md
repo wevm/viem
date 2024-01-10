@@ -53,7 +53,7 @@ export const account = privateKeyToAccount(...)
 
 If you do not wish to pass an `account` to every `signMessage`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
-[Learn more](/docs/clients/wallet.html#withaccount).
+[Learn more](/docs/clients/wallet#withaccount).
 
 :::code-group
 
@@ -142,6 +142,6 @@ const signature = await walletClient.signMessage({
 ## JSON-RPC Methods
 
 - JSON-RPC Accounts:
-  - [`personal_sign`](https://docs.metamask.io/guide/signing-data.html#personal-sign)
+  - [`personal_sign`](https://docs.metamask.io/guide/signing-data#personal-sign)
 - Local Accounts
   - Signs locally. No JSON-RPC request.

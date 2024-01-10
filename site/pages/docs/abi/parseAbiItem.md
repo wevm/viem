@@ -4,7 +4,7 @@ description: Parses human-readable ABI item (e.g. error, event, function) into A
 
 # parseAbiItem
 
-Parses human-readable ABI item (e.g. error, event, function) into ABI item. Re-exported from [ABIType](https://abitype.dev/api/human.html#parseabiitem-1).
+Parses human-readable ABI item (e.g. error, event, function) into ABI item. Re-exported from [ABIType](https://abitype.dev/api/human#parseabiitem-1).
 
 ## Import
 

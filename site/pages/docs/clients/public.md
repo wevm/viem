@@ -71,7 +71,7 @@ const [name, totalSupply, symbol, tokenUri, balance] = await Promise.all([
 ])
 ```
 
-> Read more on [Contract Instances](/docs/contract/getContract.html).
+> Read more on [Contract Instances](/docs/contract/getContract).
 
 ## Parameters
 

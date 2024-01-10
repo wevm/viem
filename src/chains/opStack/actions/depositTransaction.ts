@@ -67,7 +67,7 @@ export type DepositTransactionErrorType =
  * Internally performs a contract write to the [`depositTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L378)
  * on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol).
  *
- * - Docs: https://viem.sh/op-stack/actions/depositTransaction.html
+ * - Docs: https://viem.sh/op-stack/actions/depositTransaction
  *
  * @param client - Client to use
  * @param parameters - {@link DepositTransactionParameters}

@@ -64,15 +64,15 @@ export type GetFilterChangesErrorType =
 /**
  * Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter) since the last time it was called.
  *
- * - Docs: https://viem.sh/docs/actions/public/getFilterChanges.html
+ * - Docs: https://viem.sh/docs/actions/public/getFilterChanges
  * - JSON-RPC Methods: [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterchanges)
  *
  * A Filter can be created from the following actions:
  *
- * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter.html)
- * - [`createContractEventFilter`](https://viem.sh/docs/contract/createContractEventFilter.html)
- * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter.html)
- * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter.html)
+ * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter)
+ * - [`createContractEventFilter`](https://viem.sh/docs/contract/createContractEventFilter)
+ * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter)
+ * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter)
  *
  * Depending on the type of filter, the return value will be different:
  *

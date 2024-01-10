@@ -5,7 +5,7 @@ description: Retrieves the first L2 output proposal that occurred after a provid
 
 # getL2Output
 
-Retrieves the first L2 output proposal that occurred after a provided block number. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+Retrieves the first L2 output proposal that occurred after a provided block number. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
 
 ## Usage
 

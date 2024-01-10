@@ -4,7 +4,7 @@ description: Parses human-readable ABI parameters into ABI parameters.
 
 # parseAbiParameters
 
-Parses human-readable ABI parameters into [`AbiParameter`s](/docs/glossary/types#abiparameter). Re-exported from [ABIType](https://abitype.dev/api/human.html#parseabiparameters-1).
+Parses human-readable ABI parameters into [`AbiParameter`s](/docs/glossary/types#abiparameter). Re-exported from [ABIType](https://abitype.dev/api/human#parseabiparameters-1).
 
 ## Import
 

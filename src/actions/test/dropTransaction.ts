@@ -19,7 +19,7 @@ export type DropTransactionErrorType = RequestErrorType | ErrorType
 /**
  * Removes a transaction from the mempool.
  *
- * - Docs: https://viem.sh/docs/actions/test/dropTransaction.html
+ * - Docs: https://viem.sh/docs/actions/test/dropTransaction
  *
  * @param client - Client to use
  * @param parameters - {@link DropTransactionParameters}

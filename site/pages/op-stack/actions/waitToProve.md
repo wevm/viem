@@ -5,9 +5,9 @@ description: Waits until the L2 withdrawal transaction is ready to be proved.
 
 # waitToProve
 
-Waits until the L2 withdrawal transaction is ready to be proved. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+Waits until the L2 withdrawal transaction is ready to be proved. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
 
-Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Output.html) and waits the returned `seconds`.
+Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Output) and waits the returned `seconds`.
 
 ## Usage
 

@@ -64,9 +64,9 @@ export type GetTransactionErrorType =
   | ErrorType
 
 /**
- * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) given a hash or block identifier.
+ * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash or block identifier.
  *
- * - Docs: https://viem.sh/docs/actions/public/getTransaction.html
+ * - Docs: https://viem.sh/docs/actions/public/getTransaction
  * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
  * - JSON-RPC Methods: [`eth_getTransactionByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionByHash)
  *

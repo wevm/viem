@@ -6,7 +6,7 @@ description: Gets the avatar of an ENS name.
 
 Gets the avatar of an ENS name.
 
-Calls [`getEnsText`](/docs/ens/actions/getEnsText.html) with `key` set to `'avatar'`.
+Calls [`getEnsText`](/docs/ens/actions/getEnsText) with `key` set to `'avatar'`.
 
 ## Usage
 

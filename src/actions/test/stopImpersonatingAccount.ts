@@ -18,9 +18,9 @@ export type StopImpersonatingAccountParameters = {
 export type StopImpersonatingAccountErrorType = RequestErrorType | ErrorType
 
 /**
- * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount.html).
+ * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount).
  *
- * - Docs: https://viem.sh/docs/actions/test/stopImpersonatingAccount.html
+ * - Docs: https://viem.sh/docs/actions/test/stopImpersonatingAccount
  *
  * @param client - Client to use
  * @param parameters – {@link StopImpersonatingAccountParameters}

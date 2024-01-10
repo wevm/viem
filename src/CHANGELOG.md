@@ -52,11 +52,11 @@
 
 - [#1610](https://github.com/wevm/viem/pull/1610) [`440b3ba7`](https://github.com/wevm/viem/commit/440b3ba7d7faa9e51fe87df07acd6a5d373b3b9a) Thanks [@tmm](https://github.com/tmm)! - Viem 2.0 featuring:
 
-  - [Low-level OP Stack extensions](https://viem.sh/op-stack.html),
+  - [Low-level OP Stack extensions](https://viem.sh/op-stack),
   - Enhanced types,
   - Miscellaneous improvements and bug fixes.
 
-  [Breaking Changes & Migration Guide](https://viem.sh/docs/migration-guide.html)
+  [Breaking Changes & Migration Guide](https://viem.sh/docs/migration-guide)
 
 ## 1.21.4
 
@@ -478,7 +478,7 @@
 
 ### Minor Changes
 
-- [#1263](https://github.com/wevm/viem/pull/1263) [`399a43db`](https://github.com/wevm/viem/commit/399a43db5e559cd84dafb5c66bfe0a7ad24c2d67) Thanks [@jxom](https://github.com/jxom)! - Added error types for exported modules (e.g. `<Module>ErrorType`). [Read more.](https://viem.sh/docs/error-handling.html)
+- [#1263](https://github.com/wevm/viem/pull/1263) [`399a43db`](https://github.com/wevm/viem/commit/399a43db5e559cd84dafb5c66bfe0a7ad24c2d67) Thanks [@jxom](https://github.com/jxom)! - Added error types for exported modules (e.g. `<Module>ErrorType`). [Read more.](https://viem.sh/docs/error-handling)
 
 ### Patch Changes
 
@@ -1218,7 +1218,7 @@
 
 ## 1.0.0
 
-### [Migration Guide](https://viem.sh/docs/migration-guide.html)
+### [Migration Guide](https://viem.sh/docs/migration-guide)
 
 ### Major Changes
 
@@ -1230,7 +1230,7 @@
 
 - [#576](https://github.com/wevm/viem/pull/576) [`7d42767`](https://github.com/wevm/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `ethersWalletToAccount` adapter.
 
-  This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/privateKey.html) & [HD Accounts](https://viem.sh/docs/accounts/mnemonic.html).
+  This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/privateKey) & [HD Accounts](https://viem.sh/docs/accounts/mnemonic).
 
   If you still need it, you can copy + paste the [old implementation](https://github.com/wevm/viem/blob/a9a71507032db896295fa1f3fa2dd6c2bdc85137/src/adapters/ethers.ts).
 
@@ -1702,7 +1702,7 @@
 
 - [#285](https://github.com/wevm/viem/pull/285) [`ab9fd12`](https://github.com/wevm/viem/commit/ab9fd121fbe271ba9bee43aea2d7bba122dc4f03) Thanks [@tmm](https://github.com/tmm)! - Exported `hdKeyToAccount` and `mnemonicToAccount`.
 
-## 0.2.0 – [Migration Guide](https://viem.sh/docs/migration-guide.html)
+## 0.2.0 – [Migration Guide](https://viem.sh/docs/migration-guide)
 
 ### Minor Changes
 
@@ -1728,7 +1728,7 @@
 
   If you were using the Ethers Wallet adapter, you can use the `ethersWalletToAccount` function.
 
-  > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey.html) & [Mnemonic Account](/docs/accounts/mnemonic.html) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
+  > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey) & [Mnemonic Account](/docs/accounts/mnemonic) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
 
   ```diff
   import { createWalletClient, custom } from 'viem'

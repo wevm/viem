@@ -7,7 +7,7 @@ description: Waits for the next L2 output (after the provided block number) to b
 
 Waits for the next L2 output (after the provided block number) to be submitted. Used within the [waitToProve](/op-stack/actions/waitToProve) Action.
 
-Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Output.html) and waits the returned `seconds`.
+Internally calls [`getTimeToNextL2Output`](/op-stack/actions/getTimeToNextL2Output) and waits the returned `seconds`.
 
 ## Usage
 

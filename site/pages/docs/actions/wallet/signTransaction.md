@@ -47,7 +47,7 @@ export const account = privateKeyToAccount(...)
 
 If you do not wish to pass an `account` to every `prepareTransactionRequest`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
-[Learn more](/docs/clients/wallet.html#account).
+[Learn more](/docs/clients/wallet#account).
 
 :::code-group
 

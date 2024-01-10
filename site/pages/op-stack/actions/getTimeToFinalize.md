@@ -5,7 +5,7 @@ description: Returns the time until the withdrawal transaction can be finalized.
 
 # getTimeToFinalize
 
-Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
 
 ## Usage
 

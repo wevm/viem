@@ -38,7 +38,7 @@ When a filter is created, it returns a filter ID, which can be used to retrieve 
 
 ## Human-Readable ABI
 
-Human-Readable ABIs compress JSON ABIs into signatures that are nicer to read and less verbose to write. For more info, check out the [ABIType](https://abitype.dev/api/human.html) docs.
+Human-Readable ABIs compress JSON ABIs into signatures that are nicer to read and less verbose to write. For more info, check out the [ABIType](https://abitype.dev/api/human) docs.
 
 ## Legacy Transaction
 

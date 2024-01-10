@@ -46,7 +46,7 @@ The selector as a hex value.
 
 ### event
 
-- **Type:** `string |`[`AbiEvent`](https://abitype.dev/api/types.html#abievent)
+- **Type:** `string |`[`AbiEvent`](https://abitype.dev/api/types#abievent)
 
 The event to generate a selector for.
 

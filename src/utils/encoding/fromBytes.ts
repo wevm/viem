@@ -47,8 +47,8 @@ export type FromBytesErrorType =
 /**
  * Decodes a byte array into a UTF-8 string, hex value, number, bigint or boolean.
  *
- * - Docs: https://viem.sh/docs/utilities/fromBytes.html
- * - Example: https://viem.sh/docs/utilities/fromBytes.html#usage
+ * - Docs: https://viem.sh/docs/utilities/fromBytes
+ * - Example: https://viem.sh/docs/utilities/fromBytes#usage
  *
  * @param bytes Byte array to decode.
  * @param toOrOpts Type to convert to or options.
@@ -102,7 +102,7 @@ export type BytesToBigIntErrorType =
 /**
  * Decodes a byte array into a bigint.
  *
- * - Docs: https://viem.sh/docs/utilities/fromBytes.html#bytestobigint
+ * - Docs: https://viem.sh/docs/utilities/fromBytes#bytestobigint
  *
  * @param bytes Byte array to decode.
  * @param opts Options.
@@ -135,7 +135,7 @@ export type BytesToBoolErrorType =
 /**
  * Decodes a byte array into a boolean.
  *
- * - Docs: https://viem.sh/docs/utilities/fromBytes.html#bytestobool
+ * - Docs: https://viem.sh/docs/utilities/fromBytes#bytestobool
  *
  * @param bytes Byte array to decode.
  * @param opts Options.
@@ -170,7 +170,7 @@ export type BytesToNumberErrorType =
 /**
  * Decodes a byte array into a number.
  *
- * - Docs: https://viem.sh/docs/utilities/fromBytes.html#bytestonumber
+ * - Docs: https://viem.sh/docs/utilities/fromBytes#bytestonumber
  *
  * @param bytes Byte array to decode.
  * @param opts Options.
@@ -203,7 +203,7 @@ export type BytesToStringErrorType =
 /**
  * Decodes a byte array into a UTF-8 string.
  *
- * - Docs: https://viem.sh/docs/utilities/fromBytes.html#bytestostring
+ * - Docs: https://viem.sh/docs/utilities/fromBytes#bytestostring
  *
  * @param bytes Byte array to decode.
  * @param opts Options.

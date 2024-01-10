@@ -5,7 +5,7 @@ description: Builds & prepares parameters for a withdrawal to be initiated on an
 
 # getTimeToNextL2Output
 
-Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
 
 ## Usage
 

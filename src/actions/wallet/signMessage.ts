@@ -36,14 +36,14 @@ export type SignMessageErrorType =
 /**
  * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
  *
- * - Docs: https://viem.sh/docs/actions/wallet/signMessage.html
+ * - Docs: https://viem.sh/docs/actions/wallet/signMessage
  * - JSON-RPC Methods:
- *   - JSON-RPC Accounts: [`personal_sign`](https://docs.metamask.io/guide/signing-data.html#personal-sign)
+ *   - JSON-RPC Accounts: [`personal_sign`](https://docs.metamask.io/guide/signing-data#personal-sign)
  *   - Local Accounts: Signs locally. No JSON-RPC request.
  *
  * With the calculated signature, you can:
- * - use [`verifyMessage`](https://viem.sh/docs/utilities/verifyMessage.html) to verify the signature,
- * - use [`recoverMessageAddress`](https://viem.sh/docs/utilities/recoverMessageAddress.html) to recover the signing address from a signature.
+ * - use [`verifyMessage`](https://viem.sh/docs/utilities/verifyMessage) to verify the signature,
+ * - use [`recoverMessageAddress`](https://viem.sh/docs/utilities/recoverMessageAddress) to recover the signing address from a signature.
  *
  * @param client - Client to use
  * @param parameters - {@link SignMessageParameters}

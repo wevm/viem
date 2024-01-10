@@ -4,7 +4,7 @@ description: Parses human-readable ABI into JSON.
 
 # parseAbi
 
-Parses human-readable ABI into JSON [`Abi`](/docs/glossary/types.html#abi). Re-exported from [ABIType](https://abitype.dev/api/human.html#parseabi-1).
+Parses human-readable ABI into JSON [`Abi`](/docs/glossary/types#abi). Re-exported from [ABIType](https://abitype.dev/api/human#parseabi-1).
 
 ## Import
 

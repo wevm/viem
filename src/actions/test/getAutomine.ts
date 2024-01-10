@@ -15,7 +15,7 @@ export type GetAutomineErrorType = RequestErrorType | ErrorType
 /**
  * Returns the automatic mining status of the node.
  *
- * - Docs: https://viem.sh/docs/actions/test/getAutomine.html
+ * - Docs: https://viem.sh/docs/actions/test/getAutomine
  *
  * @param client - Client to use
  * @returns Whether or not the node is auto mining. {@link GetAutomineReturnType}

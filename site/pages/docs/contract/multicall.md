@@ -216,7 +216,7 @@ const results = await publicClient.multicall({
 ### batchSize (optional)
 
 - **Type:** `number`
-- **Default:** [`client.batch.multicall.batchSize`](/docs/clients/public.html#batch-multicall-batchsize-optional) (if set) or `1024`
+- **Default:** [`client.batch.multicall.batchSize`](/docs/clients/public#batch-multicall-batchsize-optional) (if set) or `1024`
 
 The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit.
 

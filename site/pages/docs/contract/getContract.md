@@ -14,7 +14,7 @@ import { getContract } from 'viem'
 
 ## Usage
 
-You can create a Contract Instance with the `getContract` function by passing in a [ABI](/docs/glossary/types.html#abi), address, and [Public](/docs/clients/public.html) and/or [Wallet Client](/docs/clients/wallet.html). Once created, you can call contract methods, fetch for events, listen to events, etc.
+You can create a Contract Instance with the `getContract` function by passing in a [ABI](/docs/glossary/types#abi), address, and [Public](/docs/clients/public) and/or [Wallet Client](/docs/clients/wallet). Once created, you can call contract methods, fetch for events, listen to events, etc.
 
 :::code-group
 
@@ -90,7 +90,7 @@ export const wagmiAbi = [
 
 :::
 
-Using Contract Instances can make it easier to work with contracts if you don't want to pass the `abi` and `address` properties every time you perform contract actions, e.g. [`readContract`](/docs/contract/readContract.html), [`writeContract`](/docs/contract/writeContract.html), [`estimateContractGas`](/docs/contract/estimateContractGas.html), etc. Switch between the tabs below to see the difference between standalone Contract Actions and Contract Instance Actions:
+Using Contract Instances can make it easier to work with contracts if you don't want to pass the `abi` and `address` properties every time you perform contract actions, e.g. [`readContract`](/docs/contract/readContract), [`writeContract`](/docs/contract/writeContract), [`estimateContractGas`](/docs/contract/estimateContractGas), etc. Switch between the tabs below to see the difference between standalone Contract Actions and Contract Instance Actions:
 
 :::code-group
 
@@ -192,25 +192,25 @@ Depending on if you create a contract instance with a Public Client, Wallet Clie
 
 #### With Public Client
 
-If you pass in a [`publicClient`](https://viem.sh/docs/clients/public.html), the following methods are available:
+If you pass in a [`publicClient`](https://viem.sh/docs/clients/public), the following methods are available:
 
-- [`createEventFilter`](/docs/contract/createContractEventFilter.html)
-- [`estimateGas`](/docs/contract/estimateContractGas.html)
-- [`getEvents`](/docs/contract/getContractEvents.html)
-- [`read`](/docs/contract/readContract.html)
-- [`simulate`](/docs/contract/simulateContract.html)
-- [`watchEvent`](/docs/contract/watchContractEvent.html)
+- [`createEventFilter`](/docs/contract/createContractEventFilter)
+- [`estimateGas`](/docs/contract/estimateContractGas)
+- [`getEvents`](/docs/contract/getContractEvents)
+- [`read`](/docs/contract/readContract)
+- [`simulate`](/docs/contract/simulateContract)
+- [`watchEvent`](/docs/contract/watchContractEvent)
 
 #### With Wallet Client
 
-If you pass in a [`walletClient`](/docs/clients/wallet.html), the following methods are available:
+If you pass in a [`walletClient`](/docs/clients/wallet), the following methods are available:
 
-- [`estimateGas`](/docs/contract/estimateContractGas.html)
-- [`write`](/docs/contract/writeContract.html)
+- [`estimateGas`](/docs/contract/estimateContractGas)
+- [`write`](/docs/contract/writeContract)
 
 #### Calling methods
 
-If you are using [TypeScript](/docs/typescript.html) with viem, your editor will be able to provide autocomplete suggestions for the methods available on the contract instance, as well as the arguments and other options for each method.
+If you are using [TypeScript](/docs/typescript) with viem, your editor will be able to provide autocomplete suggestions for the methods available on the contract instance, as well as the arguments and other options for each method.
 
 In general, contract instance methods follow the following format:
 
@@ -256,9 +256,9 @@ const contract = getContract({
 
 ### client
 
-- **Type:** [`Client | { public: Client; wallet: Client }`](/docs/clients/public.html)
+- **Type:** [`Client | { public: Client; wallet: Client }`](/docs/clients/public)
 
-The Client used for performing [contract actions](/docs/contract/getContract.html#return-value).
+The Client used for performing [contract actions](/docs/contract/getContract#return-value).
 
 ```ts
 const contract = getContract({

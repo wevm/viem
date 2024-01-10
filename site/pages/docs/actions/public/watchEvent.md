@@ -8,7 +8,7 @@ Watches and returns emitted [Event Logs](/docs/glossary/terms#event-log).
 
 This Action will batch up all the Event Logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onlogs).
 
-`watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (ie. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](/docs/actions/public/getLogs) instead.
+`watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (ie. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](/docs/actions/public/getLogs) instead.
 
 ## Usage
 
@@ -112,7 +112,7 @@ export const publicClient = createPublicClient({
 
 :::
 
-By default, `event` accepts the [`AbiEvent`](/docs/glossary/types.html#abievent) type:
+By default, `event` accepts the [`AbiEvent`](/docs/glossary/types#abievent) type:
 
 :::code-group
 

@@ -13,7 +13,7 @@ export type GetPermissionsErrorType = RequestErrorType | ErrorType
 /**
  * Gets the wallets current permissions.
  *
- * - Docs: https://viem.sh/docs/actions/wallet/getPermissions.html
+ * - Docs: https://viem.sh/docs/actions/wallet/getPermissions
  * - JSON-RPC Methods: [`wallet_getPermissions`](https://eips.ethereum.org/EIPS/eip-2255)
  *
  * @param client - Client to use

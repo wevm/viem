@@ -13,7 +13,7 @@ export type WatchAssetErrorType = RequestErrorType | ErrorType
 /**
  * Adds an EVM chain to the wallet.
  *
- * - Docs: https://viem.sh/docs/actions/wallet/watchAsset.html
+ * - Docs: https://viem.sh/docs/actions/wallet/watchAsset
  * - JSON-RPC Methods: [`eth_switchEthereumChain`](https://eips.ethereum.org/EIPS/eip-747)
  *
  * @param client - Client to use

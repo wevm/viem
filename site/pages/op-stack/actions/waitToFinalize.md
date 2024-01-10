@@ -5,9 +5,9 @@ description: Waits until the withdrawal transaction can be finalized.
 
 # waitToFinalize
 
-Waits until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+Waits until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
 
-Internally calls [`getTimeToFinalize`](/op-stack/actions/getTimeToFinalize.html) and waits the returned `seconds`.
+Internally calls [`getTimeToFinalize`](/op-stack/actions/getTimeToFinalize) and waits the returned `seconds`.
 
 ## Usage
 

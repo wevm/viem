@@ -4,7 +4,7 @@ description: Generates ABI encoded data.
 
 # encodeAbiParameters
 
-Generates ABI encoded data using the [ABI specification](https://solidity.readthedocs.io/en/latest/abi-spec.html), given a set of ABI parameters (`inputs`/`outputs`) and their corresponding values.
+Generates ABI encoded data using the [ABI specification](https://solidity.readthedocs.io/en/latest/abi-spec), given a set of ABI parameters (`inputs`/`outputs`) and their corresponding values.
 
 The `encodeAbiParameters` function is used by the other contract encoding utilities (ie. `encodeFunctionData`, `encodeEventTopics`, etc).
 
@@ -38,7 +38,7 @@ const encodedData = encodeAbiParameters(
 
 ### Human Readable
 
-You can also pass in [Human Readable](/docs/glossary/terms.html#human-readable-abi) parameters with the [`parseAbiParameters` utility](/docs/abi/parseAbiParameters).
+You can also pass in [Human Readable](/docs/glossary/terms#human-readable-abi) parameters with the [`parseAbiParameters` utility](/docs/abi/parseAbiParameters).
 
 ```ts
 import { encodeAbiParameters, parseAbiParameters } from 'viem'
@@ -64,7 +64,7 @@ The ABI encoded data.
 
 The set of ABI parameters to encode, in the shape of the `inputs` or `outputs` attribute of an ABI event/function.
 
-These parameters must include valid [ABI types](https://docs.soliditylang.org/en/develop/abi-spec.html#types).
+These parameters must include valid [ABI types](https://docs.soliditylang.org/en/develop/abi-spec#types).
 
 ```ts
 encodeAbiParameters(

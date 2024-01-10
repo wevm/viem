@@ -129,7 +129,7 @@ test('error: insufficient funds', async () => {
       args:                        (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 21000, 0xdeadbeef)
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/estimateContractGas.html
+    Docs: https://viem.sh/docs/contract/estimateContractGas
     Details: Insufficient funds for gas * price + value
     Version: viem@1.0.2]
   `)
@@ -166,7 +166,7 @@ test('error: small gas', async () => {
       args:                        (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 21000, 0xdeadbeef)
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/estimateContractGas.html
+    Docs: https://viem.sh/docs/contract/estimateContractGas
     Details: Out of gas: gas required exceeds allowance: 69
     Version: viem@1.0.2]
   `)

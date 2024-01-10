@@ -1,11 +1,18 @@
-import { createRequire } from 'module'
+import * as React from 'react'
 import { defineConfig } from 'vocs'
+import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
 
-const require = createRequire(import.meta.url)
-const pkg = require('../src/package.json')
-
 export default defineConfig({
+  head: (
+    <>
+      <script
+        src="https://cdn.usefathom.com/script.js"
+        data-site="BYCJMNBD"
+        defer
+      />
+    </>
+  ),
   ogImageUrl: {
     '/': '/og-image.png',
     '/docs':
@@ -201,7 +208,7 @@ export default defineConfig({
       items: [
         {
           text: `Migrating to ${toPatchVersionRange(pkg.version)}`,
-          link: `/docs/migration-guide.html#_${toPatchVersionRange(
+          link: `/docs/migration-guide#_${toPatchVersionRange(
             pkg.version,
           ).replace(/\./g, '-')}-breaking-changes`,
         },

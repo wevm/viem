@@ -16,7 +16,7 @@ export type LoadStateErrorType = RequestErrorType | ErrorType
 /**
  * Adds state previously dumped with `dumpState` to the current chain.
  *
- * - Docs: https://viem.sh/docs/actions/test/loadState.html
+ * - Docs: https://viem.sh/docs/actions/test/loadState
  *
  * @param client - Client to use
  * @param parameters - {@link LoadStateParameters}

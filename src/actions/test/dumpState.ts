@@ -16,7 +16,7 @@ export type DumpStateErrorType = RequestErrorType | ErrorType
  * Serializes the current state (including contracts code, contract's storage,
  * accounts properties, etc.) into a savable data blob.
  *
- * - Docs: https://viem.sh/docs/actions/test/dumpState.html
+ * - Docs: https://viem.sh/docs/actions/test/dumpState
  *
  * @param client - Client to use
  *

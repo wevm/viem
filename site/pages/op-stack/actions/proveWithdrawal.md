@@ -127,7 +127,7 @@ export const account = privateKeyToAccount(...)
 
 If you do not wish to pass an `account` to every `proveWithdrawal`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
-[Learn more.](/docs/clients/wallet.html#account)
+[Learn more.](/docs/clients/wallet#account)
 
 :::code-group
 
@@ -265,7 +265,7 @@ const hash = await client.proveWithdrawal({
 
 - **Type:** `bigint`
 
-The index of the L2 output. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
+The index of the L2 output. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal).
 
 ```ts
 const hash = await client.proveWithdrawal({
@@ -338,7 +338,7 @@ const hash = await client.proveWithdrawal({
 
 - **Type:** `bigint`
 
-The proof of the L2 output. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
+The proof of the L2 output. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal).
 
 ```ts
 const hash = await client.proveWithdrawal({
@@ -396,7 +396,7 @@ const hash = await client.proveWithdrawal({
 
 - **Type:** `bigint`
 
-The proof of the L2 withdrawal. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
+The proof of the L2 withdrawal. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal).
 
 ```ts
 const hash = await client.proveWithdrawal({
@@ -414,7 +414,7 @@ const hash = await client.proveWithdrawal({
 
 - **Type:** `bigint`
 
-The withdrawal. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
+The withdrawal. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal).
 
 ```ts
 const hash = await client.proveWithdrawal({

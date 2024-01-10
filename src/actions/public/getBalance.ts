@@ -37,10 +37,10 @@ export type GetBalanceErrorType =
 /**
  * Returns the balance of an address in wei.
  *
- * - Docs: https://viem.sh/docs/actions/public/getBalance.html
+ * - Docs: https://viem.sh/docs/actions/public/getBalance
  * - JSON-RPC Methods: [`eth_getBalance`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getbalance)
  *
- * You can convert the balance to ether units with [`formatEther`](https://viem.sh/docs/utilities/formatEther.html).
+ * You can convert the balance to ether units with [`formatEther`](https://viem.sh/docs/utilities/formatEther).
  *
  * ```ts
  * const balance = await getBalance(client, {

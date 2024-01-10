@@ -2,45 +2,45 @@
 
 ## `Abi`
 
-Type matching the [Contract ABI Specification](https://docs.soliditylang.org/en/latest/abi-spec.html#json)
+Type matching the [Contract ABI Specification](https://docs.soliditylang.org/en/latest/abi-spec#json)
 
-Re-exported from [ABIType](https://abitype.dev/api/types.html#abi).
+Re-exported from [ABIType](https://abitype.dev/api/types#abi).
 
 ## `AbiError`
 
-ABI [Error](https://docs.soliditylang.org/en/latest/abi-spec.html#errors) type.
+ABI [Error](https://docs.soliditylang.org/en/latest/abi-spec#errors) type.
 
-Re-exported from [ABIType](https://abitype.dev/api/types.html#abierror).
+Re-exported from [ABIType](https://abitype.dev/api/types#abierror).
 
 ## `AbiEvent`
 
-ABI [Event](https://docs.soliditylang.org/en/latest/abi-spec.html#events) type.
+ABI [Event](https://docs.soliditylang.org/en/latest/abi-spec#events) type.
 
-Re-exported from [ABIType](https://abitype.dev/api/types.html#abievent).
+Re-exported from [ABIType](https://abitype.dev/api/types#abievent).
 
 ## `AbiFunction`
 
-ABI [Function](https://docs.soliditylang.org/en/latest/abi-spec.html#argument-encoding) type.
+ABI [Function](https://docs.soliditylang.org/en/latest/abi-spec#argument-encoding) type.
 
-Re-exported from [ABIType](https://abitype.dev/api/types.html#abifunction).
+Re-exported from [ABIType](https://abitype.dev/api/types#abifunction).
 
 ## `AbiParameter`
 
 `inputs` and `ouputs` item for ABI functions, events, and errors.
 
-Re-exported from [ABIType](https://abitype.dev/api/types.html#abiparameter).
+Re-exported from [ABIType](https://abitype.dev/api/types#abiparameter).
 
 ## `AbiParameterToPrimitiveTypes`
 
 Converts `AbiParameter` to corresponding TypeScript primitive type.
 
-[See more](https://abitype.dev/api/utilities.html#abiparametertoprimitivetype)
+[See more](https://abitype.dev/api/utilities#abiparametertoprimitivetype)
 
 ## `AbiParametersToPrimitiveTypes`
 
 Converts array of `AbiParameter` to corresponding TypeScript primitive types.
 
-[See more](https://abitype.dev/api/utilities.html#abiparameterstoprimitivetypes)
+[See more](https://abitype.dev/api/utilities#abiparameterstoprimitivetypes)
 
 ## `AccessList`
 
@@ -50,7 +50,7 @@ An access list.
 
 An address.
 
-Re-exported from [ABIType](https://abitype.dev/api/types.html#address).
+Re-exported from [ABIType](https://abitype.dev/api/types#address).
 
 ## `Block`
 

@@ -19,9 +19,9 @@ To ensure everything works correctly, make sure that your `tsconfig.json` has [`
 
 ## Type Inference
 
-viem can infer types based on [ABI](https://docs.soliditylang.org/en/v0.8.15/abi-spec.html#json) and [EIP-712](https://eips.ethereum.org/EIPS/eip-712) Typed Data definitions (powered by [ABIType](https://abitype.dev)), giving you full end-to-end type-safety from your contracts to your frontend and incredible developer experience (e.g. autocomplete ABI function names and catch misspellings, strongly-typed ABI function arguments, etc.).
+viem can infer types based on [ABI](https://docs.soliditylang.org/en/v0.8.15/abi-spec#json) and [EIP-712](https://eips.ethereum.org/EIPS/eip-712) Typed Data definitions (powered by [ABIType](https://abitype.dev)), giving you full end-to-end type-safety from your contracts to your frontend and incredible developer experience (e.g. autocomplete ABI function names and catch misspellings, strongly-typed ABI function arguments, etc.).
 
-For this to work, you must either add [const assertions](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) to specific configuration parameters (more info on those below) or **define them inline**. For example, [`readContract`](/docs/contract/readContract)'s `abi` configuration parameter:
+For this to work, you must either add [const assertions](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4#const-assertions) to specific configuration parameters (more info on those below) or **define them inline**. For example, [`readContract`](/docs/contract/readContract)'s `abi` configuration parameter:
 
 ```ts twoslash
 import { createPublicClient, http, parseAbi } from 'viem'
@@ -206,7 +206,7 @@ The following utilities support type inference when you use const assertions or 
 
 ## Configuring Internal Types
 
-For advanced use-cases, you may want to configure viem's internal types. Most of viem's types relating to ABIs and EIP-712 Typed Data are powered by [ABIType](https://abitype.dev). See ABIType's [documentation](https://abitype.dev/config.html) for more info on how to configure types.
+For advanced use-cases, you may want to configure viem's internal types. Most of viem's types relating to ABIs and EIP-712 Typed Data are powered by [ABIType](https://abitype.dev). See ABIType's [documentation](https://abitype.dev/config) for more info on how to configure types.
 
 ## `window` Polyfill
 

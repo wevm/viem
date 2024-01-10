@@ -105,7 +105,7 @@ const unwatch = publicClient.watchBlocks(
 
 Whether or not to emit missed blocks to the callback.
 
-Missed blocks may occur in instances where internet connection is lost, or the block time is lesser than the [polling interval](/docs/clients/public.html#pollinginterval-optional) of the client.
+Missed blocks may occur in instances where internet connection is lost, or the block time is lesser than the [polling interval](/docs/clients/public#pollinginterval-optional) of the client.
 
 ```ts
 const unwatch = publicClient.watchBlocks(

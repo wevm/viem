@@ -115,14 +115,14 @@ export type CreateEventFilterErrorType =
   | ErrorType
 
 /**
- * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
+ * Creates a [`Filter`](https://viem.sh/docs/glossary/types#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
  *
- * - Docs: https://viem.sh/docs/actions/public/createEventFilter.html
+ * - Docs: https://viem.sh/docs/actions/public/createEventFilter
  * - JSON-RPC Methods: [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter)
  *
  * @param client - Client to use
  * @param parameters - {@link CreateEventFilterParameters}
- * @returns [`Filter`](https://viem.sh/docs/glossary/types.html#filter). {@link CreateEventFilterReturnType}
+ * @returns [`Filter`](https://viem.sh/docs/glossary/types#filter). {@link CreateEventFilterReturnType}
  *
  * @example
  * import { createPublicClient, http } from 'viem'

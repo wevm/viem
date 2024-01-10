@@ -48,9 +48,9 @@ export type GetWithdrawalStatusErrorType =
   | ErrorType
 
 /**
- * Returns the current status of a withdrawal. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+ * Returns the current status of a withdrawal. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/getWithdrawalStatus.html
+ * - Docs: https://viem.sh/op-stack/actions/getWithdrawalStatus
  *
  * @param client - Client to use
  * @param parameters - {@link GetWithdrawalStatusParameters}

@@ -111,7 +111,7 @@ test('error: portal contract non-existent (old block)', async () => {
       function:  getL2OutputIndexAfter(uint256 _l2BlockNumber)
       args:                           (113388533)
 
-    Docs: https://viem.sh/docs/contract/readContract.html
+    Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2]
   `)
 })

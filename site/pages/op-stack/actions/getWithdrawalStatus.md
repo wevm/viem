@@ -5,7 +5,7 @@ description: Returns the current status of a withdrawal.
 
 # getWithdrawalStatus
 
-Returns the current status of a withdrawal. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow. 
+Returns the current status of a withdrawal. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow. 
 
 ## Usage
 

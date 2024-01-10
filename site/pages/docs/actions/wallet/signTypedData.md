@@ -78,7 +78,7 @@ export const account = privateKeyToAccount('0x...')
 
 If you do not wish to pass an `account` to every `signTypedData`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
-[Learn more](/docs/clients/wallet.html#withaccount).
+[Learn more](/docs/clients/wallet#withaccount).
 
 :::code-group
 
@@ -338,6 +338,6 @@ Check out the usage of `signTypedData` in the live [Sign Typed Data Example](htt
 ## JSON-RPC Methods
 
 - JSON-RPC Accounts:
-  - [`eth_signTypedData_v4`](https://docs.metamask.io/guide/signing-data.html#signtypeddata-v4)
+  - [`eth_signTypedData_v4`](https://docs.metamask.io/guide/signing-data#signtypeddata-v4)
 - Local Accounts
   - Signs locally. No JSON-RPC request.

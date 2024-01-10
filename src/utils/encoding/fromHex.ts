@@ -61,8 +61,8 @@ export type FromHexErrorType =
 /**
  * Decodes a hex string into a string, number, bigint, boolean, or byte array.
  *
- * - Docs: https://viem.sh/docs/utilities/fromHex.html
- * - Example: https://viem.sh/docs/utilities/fromHex.html#usage
+ * - Docs: https://viem.sh/docs/utilities/fromHex
+ * - Example: https://viem.sh/docs/utilities/fromHex#usage
  *
  * @param hex Hex string to decode.
  * @param toOrOpts Type to convert to or options.
@@ -111,7 +111,7 @@ export type HexToBigIntErrorType = AssertSizeErrorType | ErrorType
 /**
  * Decodes a hex value into a bigint.
  *
- * - Docs: https://viem.sh/docs/utilities/fromHex.html#hextobigint
+ * - Docs: https://viem.sh/docs/utilities/fromHex#hextobigint
  *
  * @param hex Hex value to decode.
  * @param opts Options.
@@ -156,7 +156,7 @@ export type HexToBoolErrorType =
 /**
  * Decodes a hex value into a boolean.
  *
- * - Docs: https://viem.sh/docs/utilities/fromHex.html#hextobool
+ * - Docs: https://viem.sh/docs/utilities/fromHex#hextobool
  *
  * @param hex Hex value to decode.
  * @param opts Options.
@@ -190,7 +190,7 @@ export type HexToNumberErrorType = HexToBigIntErrorType | ErrorType
 /**
  * Decodes a hex string into a number.
  *
- * - Docs: https://viem.sh/docs/utilities/fromHex.html#hextonumber
+ * - Docs: https://viem.sh/docs/utilities/fromHex#hextonumber
  *
  * @param hex Hex value to decode.
  * @param opts Options.
@@ -224,7 +224,7 @@ export type HexToStringErrorType =
 /**
  * Decodes a hex value into a UTF-8 string.
  *
- * - Docs: https://viem.sh/docs/utilities/fromHex.html#hextostring
+ * - Docs: https://viem.sh/docs/utilities/fromHex#hextostring
  *
  * @param hex Hex value to decode.
  * @param opts Options.

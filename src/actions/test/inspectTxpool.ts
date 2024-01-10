@@ -20,7 +20,7 @@ export type InspectTxpoolErrorType = RequestErrorType | ErrorType
 /**
  * Returns a summary of all the transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
  *
- * - Docs: https://viem.sh/docs/actions/test/inspectTxpool.html
+ * - Docs: https://viem.sh/docs/actions/test/inspectTxpool
  *
  * @param client - Client to use
  * @returns Transaction pool inspection data. {@link InspectTxpoolReturnType}

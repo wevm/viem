@@ -187,7 +187,7 @@ Note: A Filter scoped to multiple events cannot be also scoped with [indexed arg
 
 ### Strict Mode
 
-By default, `createEventFilter` will include logs that [do not conform](/docs/glossary/terms.html#non-conforming-log) to the indexed & non-indexed arguments on the `event`.
+By default, `createEventFilter` will include logs that [do not conform](/docs/glossary/terms#non-conforming-log) to the indexed & non-indexed arguments on the `event`.
 viem will not return a value for arguments that do not conform to the ABI, thus, some arguments on `args` may be undefined.
 
 ```ts {8}

@@ -4,7 +4,7 @@ description: Removes setBlockTimestampInterval if it exists.
 
 # removeBlockTimestampInterval
 
-Removes [`setBlockTimestampInterval`](/docs/actions/test/setBlockTimestampInterval.html) if it exists.
+Removes [`setBlockTimestampInterval`](/docs/actions/test/setBlockTimestampInterval) if it exists.
 
 ## Usage
 

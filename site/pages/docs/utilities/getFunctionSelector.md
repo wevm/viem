@@ -44,7 +44,7 @@ The selector as a hex value.
 
 ### function
 
-- **Type:** `string |`[`AbiFunction`](https://abitype.dev/api/types.html#abifunction)
+- **Type:** `string |`[`AbiFunction`](https://abitype.dev/api/types#abifunction)
 
 The function to generate a selector for.
 

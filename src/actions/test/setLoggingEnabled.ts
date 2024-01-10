@@ -13,7 +13,7 @@ export type SetLoggingEnabledErrorType = RequestErrorType | ErrorType
 /**
  * Enable or disable logging on the test node network.
  *
- * - Docs: https://viem.sh/docs/actions/test/setLoggingEnabled.html
+ * - Docs: https://viem.sh/docs/actions/test/setLoggingEnabled
  *
  * @param client - Client to use
  *

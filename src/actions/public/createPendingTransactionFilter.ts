@@ -13,13 +13,13 @@ export type CreatePendingTransactionFilterErrorType =
   | ErrorType
 
 /**
- * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
+ * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
  *
- * - Docs: https://viem.sh/docs/actions/public/createPendingTransactionFilter.html
+ * - Docs: https://viem.sh/docs/actions/public/createPendingTransactionFilter
  * - JSON-RPC Methods: [`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter)
  *
  * @param client - Client to use
- * @returns [`Filter`](https://viem.sh/docs/glossary/types.html#filter). {@link CreateBlockFilterReturnType}
+ * @returns [`Filter`](https://viem.sh/docs/glossary/types#filter). {@link CreateBlockFilterReturnType}
  *
  * @example
  * import { createPublicClient, http } from 'viem'

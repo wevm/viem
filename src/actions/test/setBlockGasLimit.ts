@@ -19,7 +19,7 @@ export type SetBlockGasLimitErrorType = RequestErrorType | ErrorType
 /**
  * Sets the block's gas limit.
  *
- * - Docs: https://viem.sh/docs/actions/test/setBlockGasLimit.html
+ * - Docs: https://viem.sh/docs/actions/test/setBlockGasLimit
  *
  * @param client - Client to use
  * @param parameters – {@link SetBlockGasLimitParameters}

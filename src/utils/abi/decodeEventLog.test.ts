@@ -847,7 +847,7 @@ test("errors: event doesn't exist", () => {
     Make sure you are using the correct ABI and that the event exists on it.
     You can look up the signature here: https://openchain.xyz/signatures?query=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 
-    Docs: https://viem.sh/docs/contract/decodeEventLog.html
+    Docs: https://viem.sh/docs/contract/decodeEventLog
     Version: viem@1.0.2]
   `)
 })
@@ -873,7 +873,7 @@ test('errors: no topics', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [AbiEventSignatureEmptyTopicsError: Cannot extract event signature from empty topics.
 
-    Docs: https://viem.sh/docs/contract/decodeEventLog.html
+    Docs: https://viem.sh/docs/contract/decodeEventLog
     Version: viem@1.0.2]
   `)
 })

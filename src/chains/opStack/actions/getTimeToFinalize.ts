@@ -36,9 +36,9 @@ export type GetTimeToFinalizeErrorType = MulticallErrorType | ErrorType
 const buffer = 10
 
 /**
- * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals.html) flow.
+ * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/getTimeToFinalize.html
+ * - Docs: https://viem.sh/op-stack/actions/getTimeToFinalize
  *
  * @param client - Client to use
  * @param parameters - {@link GetTimeToFinalizeParameters}

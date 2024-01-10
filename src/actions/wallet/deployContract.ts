@@ -46,12 +46,12 @@ export type DeployContractErrorType = SendTransactionErrorType | ErrorType
 /**
  * Deploys a contract to the network, given bytecode and constructor arguments.
  *
- * - Docs: https://viem.sh/docs/contract/deployContract.html
+ * - Docs: https://viem.sh/docs/contract/deployContract
  * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
  *
  * @param client - Client to use
  * @param parameters - {@link DeployContractParameters}
- * @returns The [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash. {@link DeployContractReturnType}
+ * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
  *
  * @example
  * import { createWalletClient, http } from 'viem'

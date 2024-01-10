@@ -4,7 +4,7 @@ description: Destroys a Filter.
 
 # uninstallFilter
 
-Destroys a [`Filter`](/docs/glossary/types.html#filter) that was created from one of the following Actions:
+Destroys a [`Filter`](/docs/glossary/types#filter) that was created from one of the following Actions:
 
 - [`createBlockFilter`](/docs/actions/public/createBlockFilter)
 - [`createEventFilter`](/docs/actions/public/createEventFilter)

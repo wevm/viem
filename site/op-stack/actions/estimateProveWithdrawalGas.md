@@ -123,7 +123,7 @@ const hash = await client.estimateProveWithdrawalGas({
 
 - **Type:** `bigint`
 
-The index of the L2 output. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
+The index of the L2 output. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal).
 
 ```ts
 const hash = await client.estimateProveWithdrawalGas({
@@ -196,7 +196,7 @@ const hash = await client.estimateProveWithdrawalGas({
 
 - **Type:** `bigint`
 
-The proof of the L2 output. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
+The proof of the L2 output. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal).
 
 ```ts
 const hash = await client.estimateProveWithdrawalGas({
@@ -254,7 +254,7 @@ const hash = await client.estimateProveWithdrawalGas({
 
 - **Type:** `bigint`
 
-The proof of the L2 withdrawal. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
+The proof of the L2 withdrawal. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal).
 
 ```ts
 const hash = await client.estimateProveWithdrawalGas({
@@ -272,7 +272,7 @@ const hash = await client.estimateProveWithdrawalGas({
 
 - **Type:** `bigint`
 
-The withdrawal. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal.html).
+The withdrawal. Typically derived from the [`buildProveWithdrawal` Action](/op-stack/actions/buildProveWithdrawal).
 
 ```ts
 const hash = await client.estimateProveWithdrawalGas({

@@ -11,9 +11,9 @@ import type { RequestErrorType } from '../../utils/buildRequest.js'
 export type RemoveBlockTimestampIntervalErrorType = RequestErrorType | ErrorType
 
 /**
- * Removes [`setBlockTimestampInterval`](https://viem.sh/docs/actions/test/setBlockTimestampInterval.html) if it exists.
+ * Removes [`setBlockTimestampInterval`](https://viem.sh/docs/actions/test/setBlockTimestampInterval) if it exists.
  *
- * - Docs: https://viem.sh/docs/actions/test/removeBlockTimestampInterval.html
+ * - Docs: https://viem.sh/docs/actions/test/removeBlockTimestampInterval
  *
  * @param client - Client to use
  *
