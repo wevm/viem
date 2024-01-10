@@ -180,6 +180,7 @@ test('w/ simulateContract', async () => {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
+    args: [],
   })
   expect(await writeContract(walletClient, request)).toBeDefined()
 
@@ -232,6 +233,7 @@ test('w/ simulateContract (args chain mismatch)', async () => {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
+    args: [],
     chain: optimism,
   })
   await expect(() =>
@@ -261,6 +263,7 @@ test('w/ simulateContract (client chain mismatch)', async () => {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
+    args: [],
   })
   await expect(() =>
     writeContract(walletClient, request),

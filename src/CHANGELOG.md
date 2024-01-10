@@ -1,5 +1,31 @@
 # viem
 
+## 2.0.6
+
+### Patch Changes
+
+- [#1462](https://github.com/wevm/viem/pull/1462) [`f1aaca8f`](https://github.com/wevm/viem/commit/f1aaca8f104d3595fd86018d28f0bf97cdd8dcc8) Thanks [@0xarthurxyz](https://github.com/0xarthurxyz)! - Removed Celo Cannoli testnet which is [deprecated](https://forum.celo.org/t/cannoli-testnet-deprecation-announcement/6796).
+
+## 2.0.5
+
+### Patch Changes
+
+- [#1659](https://github.com/wevm/viem/pull/1659) [`d8740646`](https://github.com/wevm/viem/commit/d8740646c83d3064ea103928a00928a3c260ed65) Thanks [@d1onys1us](https://github.com/d1onys1us)! - Added Taiko Katla chain.
+
+- [#1663](https://github.com/wevm/viem/pull/1663) [`e22c85e8`](https://github.com/wevm/viem/commit/e22c85e8149f8ec7b255655ced70dc3dbc3e1383) Thanks [@saqlain1020](https://github.com/saqlain1020)! - Exported `parseEventLogs` (and types).
+
+- [#1662](https://github.com/wevm/viem/pull/1662) [`71d14759`](https://github.com/wevm/viem/commit/71d14759acfaef4d0589e98b3c97b11f2a91e561) Thanks [@zkgggggame](https://github.com/zkgggggame)! - Added multicall3 to Taiko Jolnir.
+
+- [`14ad813f`](https://github.com/wevm/viem/commit/14ad813fed2d9ee97e053e8b7d701faf9e68f0cf) Thanks [@jxom](https://github.com/jxom)! - Fixed extreme edge-case where decoding a **malformed** payload against a nested array type could cause \`decodeAbiParameters\` to enter an infinite loop.
+
+## 2.0.4
+
+### Patch Changes
+
+- [`991b2936`](https://github.com/wevm/viem/commit/991b29367ea2ef594d1daa1c3f82fb5f1dffc046) Thanks [@jxom](https://github.com/jxom)! - Return derived URL in HTTP transport.
+
+- [#1657](https://github.com/wevm/viem/pull/1657) [`7ddff316`](https://github.com/wevm/viem/commit/7ddff31654f214c9edf2be77afc0ac8d58ac297c) Thanks [@tmm](https://github.com/tmm)! - Fixed `writeContract` `args` type inference.
+
 ## 2.0.3
 
 ### Patch Changes

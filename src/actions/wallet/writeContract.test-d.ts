@@ -8,6 +8,7 @@ import { walletClientWithAccount } from '~test/src/utils.js'
 import { mainnet } from '../../chains/definitions/mainnet.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { custom } from '../../clients/transports/custom.js'
+import { http } from '../../clients/transports/http.js'
 import { type WriteContractParameters, writeContract } from './writeContract.js'
 
 test('WriteContractParameters', async () => {
@@ -100,6 +101,7 @@ test('infers args', () => {
     >
   >[1]
   expectTypeOf<Result1['functionName']>().toEqualTypeOf<'foo' | 'bar'>()
+  expectTypeOf<Result1['args']>().toEqualTypeOf<readonly [Address]>()
   expectTypeOf<Result2['functionName']>().toEqualTypeOf<'foo' | 'bar'>()
 
   writeContract(client, {
@@ -107,6 +109,20 @@ test('infers args', () => {
     abi,
     functionName: 'foo',
     args: ['0x'],
+  })
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    // @ts-expect-error
+    args: [],
+  })
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    // @ts-expect-error
+    args: [123n],
   })
 })
 
@@ -245,5 +261,53 @@ test('args: value', () => {
     functionName: 'approve',
     // @ts-expect-error
     value: 5n,
+  })
+})
+
+test('overloads', async () => {
+  const client = createWalletClient({
+    account: '0x',
+    chain: mainnet,
+    transport: http(),
+  })
+  const abi = parseAbi([
+    'function foo() returns (int8)',
+    'function foo(address) returns (string)',
+    'function foo(address, address) returns ((address foo, address bar))',
+    'function bar() returns (int8)',
+  ])
+
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+  })
+
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    args: ['0x'],
+  })
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    // @ts-expect-error
+    args: [123n],
+  })
+
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    args: ['0x', '0x'],
+  })
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    // @ts-expect-error
+    args: ['0x', 123n],
   })
 })

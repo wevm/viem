@@ -96,7 +96,7 @@ describe('transports', () => {
           "retryDelay": 150,
           "timeout": 10000,
           "type": "http",
-          "url": undefined,
+          "url": "http://127.0.0.1:8545",
         },
         "type": "base",
       }
@@ -481,7 +481,7 @@ describe('extends', () => {
           "retryDelay": 150,
           "timeout": 10000,
           "type": "http",
-          "url": undefined,
+          "url": "http://127.0.0.1:8545",
         },
         "type": "base",
         "uninstallFilter": [Function],

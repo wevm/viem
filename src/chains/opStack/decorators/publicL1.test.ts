@@ -35,7 +35,7 @@ test('default', async () => {
 describe('smoke test', () => {
   test('buildInitiateWithdrawal', async () => {
     const request = await client.buildInitiateWithdrawal({
-      account: accounts[0].address,
+      account: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
       to: accounts[1].address,
       value: 1n,
     })

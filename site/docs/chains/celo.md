@@ -23,7 +23,6 @@ The following Viem chains are implemented on Celo:
 import {
   celo, // [!code hl]
   celoAlfajores, // [!code hl]
-  celoCannoli, // [!code hl]
 } from 'viem/chains'
 ```
 
