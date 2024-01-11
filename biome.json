@@ -18,7 +18,8 @@
       "tsconfig.*.json",
       "generated.ts",
       "vectors/*.json",
-      "vectors/**/*.test.ts"
+      "vectors/**/*.test.ts",
+      "site/dist"
     ]
   },
   "formatter": {
