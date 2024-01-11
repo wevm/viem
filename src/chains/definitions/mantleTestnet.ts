@@ -17,5 +17,11 @@ export const mantleTestnet = /*#__PURE__*/ defineChain({
       url: 'https://explorer.testnet.mantle.xyz',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 561333
+    },
+  },
   testnet: true,
 })
