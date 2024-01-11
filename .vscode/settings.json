@@ -16,7 +16,7 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome"
+    "editor.defaultFormatter": "biomejs.biome-nightly"
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"

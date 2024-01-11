@@ -35,14 +35,14 @@ export type {
 /**
  * Creates, signs, and sends a new transaction to the network.
  *
- * - Docs: https://viem.sh/docs/zksync/actions/sendTransaction.html
+ * - Docs: https://viem.sh/docs/zksync/actions/sendTransaction
  * - JSON-RPC Methods:
  *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
  *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
  *
  * @param client - Client to use
  * @param parameters - {@link SendTransactionParameters}
- * @returns The [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash. {@link SendTransactionReturnType}
+ * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link SendTransactionReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'

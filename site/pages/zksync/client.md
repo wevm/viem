@@ -42,7 +42,7 @@ const hash = await walletClient.sendTransaction({
 
 ### Calling contracts
 
-[Read more](./actions/writeContract.md)
+[Read more](../docs/contract/writeContract.md)
 
 ```ts
 import { simulateContract } from 'viem/contract'

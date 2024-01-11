@@ -57,7 +57,7 @@ export type {
 /**
  * Signs a transaction.
  *
- * - Docs: https://viem.sh/docs/zksync/actions/signTransaction.html
+ * - Docs: https://viem.sh/docs/zksync/actions/signTransaction
  * - JSON-RPC Methods:
  *   - JSON-RPC Accounts: [`eth_signTransaction`](https://ethereum.github.io/execution-apis/api-documentation/)
  *   - Local Accounts: Signs locally. No JSON-RPC request.

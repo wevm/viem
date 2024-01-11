@@ -26,7 +26,7 @@ export type {
 /**
  * Prepares a transaction request for signing.
  *
- * - Docs: https://viem.sh/docs/zksync/actions/prepareEip712TransactionRequest.html
+ * - Docs: https://viem.sh/docs/zksync/actions/prepareEip712TransactionRequest
  *
  * @param args - {@link PrepareTransactionRequestParameters}
  * @returns The transaction request. {@link PrepareTransactionRequestReturnType}

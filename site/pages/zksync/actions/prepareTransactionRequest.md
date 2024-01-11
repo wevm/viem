@@ -1,34 +1,47 @@
 ---
-description: Creates, signs, and sends a new EIP712 transaction to the network.
+description: Prepares an EIP712 transaction request for signing.
 ---
 
-# sendTransaction
+# prepareTransactionRequest
 
-Creates, signs, and sends a new EIP712 transaction to the network.
+Prepares an EIP712 transaction request for signing by populating a nonce, gas limit, fee values, and a transaction type.
 
 ## Usage
 
-::: code-group
+:::code-group
 
 ```ts [example.ts]
 import { account, walletClient } from './config'
-
-const hash = await walletClient.sendTransaction({ // [!code focus:99]
+ 
+const request = await walletClient.prepareTransactionRequest({ // [!code focus:16]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
-// '0x...'
+/**
+ * {
+ *   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+ *   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+ *   maxFeePerGas: 150000000000n,
+ *   maxPriorityFeePerGas: 1000000000n,
+ *   nonce: 69,
+ *   type: 'eip712',
+ *   value: 1000000000000000000n
+ * }
+ */
+
+const signature = await walletClient.signTransaction(request)
+const hash = await walletClient.sendRawTransaction(signature)
 ```
 
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { zksync } from 'viem/chains'
+import { zkSync } from 'viem/chains'
 import { eip712Actions } from 'viem/chains/zksync'
 
 export const walletClient = createWalletClient({
-  chain: zksync,
+  chain: zkSync,
   transport: custom(window.ethereum)
 }).extend(eip712Actions)
 
@@ -42,20 +55,33 @@ export const account = privateKeyToAccount(...)
 
 ### Account Hoisting
 
-If you do not wish to pass an `account` to every `sendTransaction`, you can also hoist the Account on the Wallet Client (see `config.ts`).
+If you do not wish to pass an `account` to every `prepareTransactionRequest`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
-[Learn more](/docs/clients/wallet.html#account).
+[Learn more](/docs/clients/wallet#account).
 
-::: code-group
+:::code-group
 
 ```ts [example.ts]
 import { walletClient } from './config'
- 
-const hash = await walletClient.sendTransaction({ // [!code focus:99]
+
+const request = await walletClient.prepareTransactionRequest({ // [!code focus:16]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
-// '0x...'
+/**
+ * {
+ *   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+ *   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+ *   maxFeePerGas: 150000000000n,
+ *   maxPriorityFeePerGas: 1000000000n,
+ *   nonce: 69,
+ *   type: 'eip712',
+ *   value: 1000000000000000000n
+ * }
+ */
+
+const signature = await walletClient.signTransaction(request)
+const hash = await walletClient.sendRawTransaction(signature)
 ```
 
 ```ts {4-6,9} [config.ts (JSON-RPC Account)]
@@ -88,9 +114,9 @@ export const walletClient = createWalletClient({
 
 ## Returns
 
-[`Hash`](/docs/glossary/types#hash)
+[`TransactionRequest`](/docs/glossary/types#transactionrequest)
 
-The [Transaction](/docs/glossary/terms#transaction) hash.
+The transaction request.
 
 ## Parameters
 
@@ -103,7 +129,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -117,7 +143,7 @@ const hash = await walletClient.sendTransaction({
 The transaction recipient or contract address.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
   value: 1000000000000000000n,
@@ -132,7 +158,7 @@ const hash = await walletClient.sendTransaction({
 The access list.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
@@ -151,13 +177,13 @@ const hash = await walletClient.sendTransaction({
 
 The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
-The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `sendTransaction`).
+The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `prepareTransactionRequest`).
 
 ```ts
-import { zksync } from 'viem/chains' // [!code focus]
+import { zkync } from 'viem/chains' // [!code focus]
 
-const hash = await walletClient.sendTransaction({
-  chain: zksync, // [!code focus]
+const request = await walletClient.prepareTransactionRequest({
+  chain: zkync, // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -171,7 +197,7 @@ const hash = await walletClient.sendTransaction({
 A contract hashed method call with encoded args.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -186,11 +212,11 @@ const hash = await walletClient.sendTransaction({
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   gasPrice: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n
+  value: parseEther('1') 
 })
 ```
 
@@ -201,7 +227,7 @@ const hash = await walletClient.sendTransaction({
 Unique number identifying this transaction.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -216,7 +242,7 @@ const hash = await walletClient.sendTransaction({
 Value in wei sent with this transaction.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1'), // [!code focus]
@@ -231,7 +257,7 @@ const hash = await walletClient.sendTransaction({
 The amount of gas for publishing one byte of data on Ethereum.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const hash = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   gasPerPubdata: 50000, // [!code focus]
@@ -247,7 +273,7 @@ const hash = await walletClient.sendTransaction({
 Contains bytecode of the deployed contract.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const hash = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   factoryDeps: ['0xcde...'], // [!code focus]
@@ -263,7 +289,7 @@ const hash = await walletClient.sendTransaction({
 Address of the paymaster account that will pay the fees. The `paymasterInput` field is required with this one.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const hash = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021', // [!code focus]
@@ -280,7 +306,7 @@ const hash = await walletClient.sendTransaction({
 Input data to the paymaster. The `paymaster` field is required with this one.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const hash = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021', // [!code focus]
@@ -290,13 +316,3 @@ const hash = await walletClient.sendTransaction({
 })
 ```
 
-## Tips
-
-- For dapps: When using this action, it is assumed that the user has connected to their wallet (e.g. given permission for the dapp to access their accounts via [`requestAddresses`](/docs/actions/wallet/requestAddresses)). You can also check if the user has granted access to their accounts via [`getAddresses`](/docs/actions/wallet/getAddresses)
-
-## JSON-RPC Methods
-
-- JSON-RPC Accounts:
-  - [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
-- Local Accounts:
-  - [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
