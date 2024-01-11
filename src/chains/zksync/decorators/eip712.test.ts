@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest'
 
 import { greeterContract } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
-import { publicClient } from '~test/src/utils.js'
 import { zkSyncClient } from '~test/src/zksync.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { simulateContract } from '../../../actions/index.js'
@@ -92,7 +91,7 @@ describe('Action tests', () => {
     }) as EIP1193RequestFn
     const client = zkSyncClient_.extend(eip712Actions)
 
-    const { request } = await simulateContract(publicClient, {
+    const { request } = await simulateContract(client, {
       ...greeterContract,
       account: privateKeyToAccount(accounts[0].privateKey),
       functionName: 'setGreeting',
