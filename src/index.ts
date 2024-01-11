@@ -42,6 +42,11 @@ export {
   type GetContractReturnType,
 } from './actions/getContract.js'
 export {
+  type GetContractEventsErrorType,
+  type GetContractEventsParameters,
+  type GetContractEventsReturnType,
+} from './actions/public/getContractEvents.js'
+export {
   type AddChainErrorType,
   type AddChainParameters,
 } from './actions/wallet/addChain.js'
