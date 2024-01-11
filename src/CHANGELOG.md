@@ -1,5 +1,17 @@
 # viem
 
+## 2.0.7
+
+### Patch Changes
+
+- [#1677](https://github.com/wevm/viem/pull/1677) [`e74a80c9`](https://github.com/wevm/viem/commit/e74a80c9f90abb60d1bc88501892bcfd83930baf) Thanks [@cong1223](https://github.com/cong1223)! - Added Etherscan link for zkSync.
+
+- [#1661](https://github.com/wevm/viem/pull/1661) [`4fdc1d9f`](https://github.com/wevm/viem/commit/4fdc1d9fe25b4ff7d9583188f2450c3ed144026c) Thanks [@zkgggggame](https://github.com/zkgggggame)! - Added multicall3 to Mantle Testnet.
+
+- [#1674](https://github.com/wevm/viem/pull/1674) [`c3bcf486`](https://github.com/wevm/viem/commit/c3bcf4868d76c1535dfa3802cd37baf778cb5494) Thanks [@mr-kenikh](https://github.com/mr-kenikh)! - Added multicall3 for zkFair Mainnet
+
+- [#1667](https://github.com/wevm/viem/pull/1667) [`d697cf99`](https://github.com/wevm/viem/commit/d697cf996eca039e429bff91024179f27dc32f77) Thanks [@mehmetraufoguz](https://github.com/mehmetraufoguz)! - Added MetaChain chain.
+
 ## 2.0.6
 
 ### Patch Changes
