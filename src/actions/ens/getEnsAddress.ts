@@ -10,29 +10,29 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import {
-  decodeFunctionResult,
   type DecodeFunctionResultErrorType,
+  decodeFunctionResult,
 } from '../../utils/abi/decodeFunctionResult.js'
 import {
-  encodeFunctionData,
   type EncodeFunctionDataErrorType,
+  encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import {
-  getChainContractAddress,
   type GetChainContractAddressErrorType,
+  getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
-import { trim, type TrimErrorType } from '../../utils/data/trim.js'
-import { toHex, type ToHexErrorType } from '../../utils/encoding/toHex.js'
+import { type TrimErrorType, trim } from '../../utils/data/trim.js'
+import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
-import { namehash, type NamehashErrorType } from '../../utils/ens/namehash.js'
+import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
 import {
-  packetToBytes,
   type PacketToBytesErrorType,
+  packetToBytes,
 } from '../../utils/ens/packetToBytes.js'
 import { getAction } from '../../utils/getAction.js'
 import {
-  readContract,
   type ReadContractParameters,
+  readContract,
 } from '../public/readContract.js'
 
 export type GetEnsAddressParameters = Prettify<
