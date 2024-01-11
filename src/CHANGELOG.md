@@ -1,5 +1,11 @@
 # viem
 
+## 2.0.8
+
+### Patch Changes
+
+- [#1679](https://github.com/wevm/viem/pull/1679) [`c10c68ef`](https://github.com/wevm/viem/commit/c10c68eff0d02f0dcc0970bcceddd026801b27bd) Thanks [@marthendalnunes](https://github.com/marthendalnunes)! - Exported `deployContract` and `getContractEvents`.
+
 ## 2.0.7
 
 ### Patch Changes
