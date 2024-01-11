@@ -4,6 +4,12 @@ export {
   addChain,
 } from './wallet/addChain.js'
 export {
+  type DeployContractErrorType,
+  type DeployContractParameters,
+  type DeployContractReturnType,
+  deployContract,
+} from './wallet/deployContract.js'
+export {
   type GetEnsAddressErrorType,
   type GetEnsAddressParameters,
   type GetEnsAddressReturnType,
@@ -125,6 +131,12 @@ export {
   type GetChainIdReturnType,
   getChainId,
 } from './public/getChainId.js'
+export {
+  type GetContractEventsErrorType,
+  type GetContractEventsParameters,
+  type GetContractEventsReturnType,
+  getContractEvents,
+} from './public/getContractEvents.js'
 export {
   type GetFeeHistoryErrorType,
   type GetFeeHistoryParameters,
