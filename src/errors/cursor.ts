@@ -21,3 +21,19 @@ export class PositionOutOfBoundsError extends BaseError {
     )
   }
 }
+
+export type ReferenceLimitExceededErrorType = ReferenceLimitExceededError & {
+  name: 'ReferenceLimitExceededError'
+}
+export class ReferenceLimitExceededError extends BaseError {
+  override name = 'ReferenceLimitExceededError'
+  constructor({
+    count,
+    limit,
+    position,
+  }: { count: number; limit: number; position: number }) {
+    super(
+      `Reference limit of \`${limit}\` exceeded on position \`${position}\` (read count: \`${count}\`).`,
+    )
+  }
+}

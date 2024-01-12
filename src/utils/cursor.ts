@@ -1,16 +1,21 @@
 import {
   NegativeOffsetError,
   PositionOutOfBoundsError,
+  ReferenceLimitExceededError,
 } from '../errors/cursor.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { ByteArray } from '../types/misc.js'
 
 export type Cursor = {
   bytes: ByteArray
+  referenceLimit: number
   dataView: DataView
   position: number
+  positionFingerprint: Map<number, number>
+  assertFingerprint(position?: number): void
   assertPosition(position: number): void
   decrementPosition(offset: number): void
+  getFingerprint(position?: number): number
   incrementPosition(offset: number): void
   inspectByte(position?: number): ByteArray[number]
   inspectBytes(length: number, position?: number): ByteArray
@@ -25,12 +30,13 @@ export type Cursor = {
   pushUint24(value: number): void
   pushUint32(value: number): void
   readByte(): ByteArray[number]
-  readBytes(length: number): ByteArray
+  readBytes(length: number, size?: number): ByteArray
   readUint8(): number
   readUint16(): number
   readUint24(): number
   readUint32(): number
-  setPosition(position: number): void
+  setPosition(position: number): () => void
+  _touch(): void
 }
 
 export type CreateCursorErrorType = ErrorType
@@ -51,6 +57,18 @@ const staticCursor: Cursor = {
   bytes: new Uint8Array(),
   dataView: new DataView(new ArrayBuffer(0)),
   position: 0,
+  positionFingerprint: new Map(),
+  referenceLimit: Infinity,
+  assertFingerprint(position) {
+    const position_ = position ?? this.position
+    const fingerprint = this.getFingerprint(position_)
+    if (fingerprint >= this.referenceLimit)
+      throw new ReferenceLimitExceededError({
+        count: fingerprint + 1,
+        limit: this.referenceLimit,
+        position: position_,
+      })
+  },
   assertPosition(position) {
     if (position < 0 || position > this.bytes.length - 1)
       throw new PositionOutOfBoundsError({
@@ -63,6 +81,9 @@ const staticCursor: Cursor = {
     const position = this.position - offset
     this.assertPosition(position)
     this.position = position
+  },
+  getFingerprint(position) {
+    return this.positionFingerprint.get(position || this.position) || 0
   },
   incrementPosition(offset) {
     if (offset < 0) throw new NegativeOffsetError({ offset })
@@ -135,48 +156,73 @@ const staticCursor: Cursor = {
     this.position += 4
   },
   readByte() {
+    this.assertFingerprint()
+    this._touch()
     const value = this.inspectByte()
     this.position++
     return value
   },
-  readBytes(length) {
+  readBytes(length, size) {
+    this.assertFingerprint()
+    this._touch()
     const value = this.inspectBytes(length)
-    this.position += length
+    this.position += size ?? length
     return value
   },
   readUint8() {
+    this.assertFingerprint()
+    this._touch()
     const value = this.inspectUint8()
     this.position += 1
     return value
   },
   readUint16() {
+    this.assertFingerprint()
+    this._touch()
     const value = this.inspectUint16()
     this.position += 2
     return value
   },
   readUint24() {
+    this.assertFingerprint()
+    this._touch()
     const value = this.inspectUint24()
     this.position += 3
     return value
   },
   readUint32() {
+    this.assertFingerprint()
+    this._touch()
     const value = this.inspectUint32()
     this.position += 4
     return value
   },
   setPosition(position) {
+    const oldPosition = this.position
     this.assertPosition(position)
     this.position = position
+    return () => (this.position = oldPosition)
+  },
+  _touch() {
+    const fingerprint = this.getFingerprint()
+    this.positionFingerprint.set(this.position, fingerprint + 1)
   },
 }
 
-export function createCursor(bytes: ByteArray): Cursor {
-  const cursor = Object.create(staticCursor)
+type CursorConfig = { referenceLimit?: number }
+
+export function createCursor(
+  bytes: ByteArray,
+  { referenceLimit = 1 }: CursorConfig = {},
+): Cursor {
+  const cursor: Cursor = Object.create(staticCursor)
   cursor.bytes = bytes
   cursor.dataView = new DataView(
     bytes.buffer,
     bytes.byteOffset,
     bytes.byteLength,
   )
+  cursor.positionFingerprint = new Map()
+  cursor.referenceLimit = referenceLimit
   return cursor
 }

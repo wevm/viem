@@ -36,7 +36,9 @@ describe('setPosition', () => {
   })
 
   test('w/ increment/decrement/readByte/readBytes', () => {
-    const cursor = createCursor(new Uint8Array(generateBytes(420)))
+    const cursor = createCursor(new Uint8Array(generateBytes(420)), {
+      referenceLimit: 1,
+    })
 
     cursor.setPosition(69)
     expect(cursor.position).toBe(69)

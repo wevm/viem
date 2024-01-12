@@ -1,4 +1,4 @@
-import { type Address } from 'abitype'
+import { type Address, parseAbiParameters } from 'abitype'
 import { assertType, describe, expect, test } from 'vitest'
 
 import { seaportContractConfig } from '~test/src/abis.js'
@@ -9,6 +9,8 @@ import { getAddress } from '../address/getAddress.js'
 
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { getAbiItem } from './getAbiItem.js'
+
+import { encodeAbiParameters } from './encodeAbiParameters.js'
 
 describe('static', () => {
   test('blank', () => {
@@ -565,7 +567,7 @@ describe('static', () => {
     })
   })
 
-  describe('(uint256[2],bool,string[])', () => {
+  describe('(uint256[2],bool,string[3])', () => {
     test('default', () => {
       const result = decodeAbiParameters(
         [
@@ -1380,6 +1382,36 @@ describe('dynamic', () => {
     })
   })
 
+  describe('(uint256, string)', () => {
+    test('default', () => {
+      const result = decodeAbiParameters(
+        parseAbiParameters('(uint256, string)'),
+        '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000170000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000',
+      )
+      expect(result).toEqual([[23n, 'hello']])
+    })
+  })
+
+  describe('((uint256, string))', () => {
+    test('default', () => {
+      const result = decodeAbiParameters(
+        parseAbiParameters('((uint256, string))'),
+        '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000170000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000',
+      )
+      expect(result).toEqual([[[23n, 'hello']]])
+    })
+  })
+
+  describe('((uint256[], string))', () => {
+    test('default', () => {
+      const result = decodeAbiParameters(
+        parseAbiParameters('((uint256[], string))'),
+        '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000017000000000000000000000000000000000000000000000000000000000000002e000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000',
+      )
+      expect(result).toEqual([[[[23n, 46n], 'hello']]])
+    })
+  })
+
   // cast abi-encode "a((uint256[],bool,string[]))" "([1,2,3,4],true,[hello,world])"
   describe('((uint256[],bool,string[]))', () => {
     test('default', () => {
@@ -1491,7 +1523,7 @@ describe('dynamic', () => {
     })
   })
 
-  describe('(((uint256[],bool,bytes[])),uint256,string[])', () => {
+  describe('(((uint256[],bool,string[])),uint256,string[])', () => {
     test('default', () => {
       const result = decodeAbiParameters(
         [
@@ -1540,7 +1572,7 @@ describe('dynamic', () => {
     })
   })
 
-  describe('(((uint256[],bool,string[])),uint256,string[])', () => {
+  describe('(uint256[],bool,string[]),(((uint256[],bool,string[]),uint256,string[]),((uint256[],bool,string[]), uint256, string[]),uint256,string[])', () => {
     test('default', () => {
       const result = decodeAbiParameters(
         [
@@ -1995,10 +2027,7 @@ test('data size too small', () => {
       '0x0000000000000000000000000000000000000000000000000000000000010f2c',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [AbiDecodingDataSizeTooSmallError: Data size of 32 bytes is too small for given parameters.
-
-    Params: (uint256, uint256)
-    Data:   0x0000000000000000000000000000000000000000000000000000000000010f2c (32 bytes)
+    [PositionOutOfBoundsError: Position \`32\` is out of bounds (\`0 < position < 32\`).
 
     Version: viem@1.0.2]
   `)
@@ -2055,8 +2084,234 @@ test('error: recursive decode array', () => {
       `0x${payload}`,
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [AbiDecodingOffsetOutOfBoundsError: Offset at "32" is out-of-bounds (current position: "64").
+    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`608\` (read count: \`2\`).
 
     Version: viem@1.0.2]
   `)
 })
+
+test('zst', () => {
+  const payload =
+    '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000FFFFFFFF' as const
+
+  expect(() =>
+    decodeAbiParameters([{ type: 'uint256[0][4294967295]' }], payload),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters([{ type: 'uint32[0][4294967295]' }], payload),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters([{ type: 'uint256[4294967295][4294967295]' }], payload),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`95\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters([{ type: 'uint32[4294967295][4294967295]' }], payload),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`95\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters([{ type: 'uint256[0][]' }], payload),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters([{ type: 'uint256[0][]' }], payload),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters([{ type: 'tuple[]', components: [] }], payload),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters(
+      [{ type: 'tuple[]', components: [{ type: 'tuple', components: [] }] }],
+      payload,
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters(
+      [{ type: 'tuple[]', components: [{ type: 'uint32[0]' }] }],
+      payload,
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters(
+      [
+        {
+          type: 'tuple[]',
+          components: [{ type: 'tuple', components: [{ type: 'uint32[0]' }] }],
+        },
+      ],
+      payload,
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('recursive', () => {
+  const arr2 = parseAbiParameters('uint256[][]')
+  const arr4 = parseAbiParameters('uint256[][][][]')
+  const arr10 = parseAbiParameters('uint256[][][][][][][][][][]')
+  const a = [[[], [], [], [], [], [], [], [], [], []]] as const
+  const p = encodeAbiParameters(arr2, a)
+  expect(p).toEqual(
+    '0x0000000000000000000000000000000000000000000000000000000000000020' + // ptr
+      '000000000000000000000000000000000000000000000000000000000000000a' + // len=10
+      '0000000000000000000000000000000000000000000000000000000000000140' +
+      '0000000000000000000000000000000000000000000000000000000000000160' +
+      '0000000000000000000000000000000000000000000000000000000000000180' +
+      '00000000000000000000000000000000000000000000000000000000000001a0' +
+      '00000000000000000000000000000000000000000000000000000000000001c0' +
+      '00000000000000000000000000000000000000000000000000000000000001e0' +
+      '0000000000000000000000000000000000000000000000000000000000000200' +
+      '0000000000000000000000000000000000000000000000000000000000000220' +
+      '0000000000000000000000000000000000000000000000000000000000000240' +
+      '0000000000000000000000000000000000000000000000000000000000000260' + // ptrs end (10)
+      '0000000000000000000000000000000000000000000000000000000000000000' +
+      '0000000000000000000000000000000000000000000000000000000000000000' +
+      '0000000000000000000000000000000000000000000000000000000000000000' +
+      '0000000000000000000000000000000000000000000000000000000000000000' +
+      '0000000000000000000000000000000000000000000000000000000000000000' +
+      '0000000000000000000000000000000000000000000000000000000000000000' +
+      '0000000000000000000000000000000000000000000000000000000000000000' +
+      '0000000000000000000000000000000000000000000000000000000000000000' +
+      '0000000000000000000000000000000000000000000000000000000000000000' +
+      '0000000000000000000000000000000000000000000000000000000000000000', // 10 values
+  )
+
+  const payload =
+    `0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a${'0000000000000000000000000000000000000000000000000000000000000020'.repeat(
+      64,
+    )}` as const
+  expect(() =>
+    decodeAbiParameters(arr10, payload),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`608\` (read count: \`2\`).
+
+    Version: viem@1.0.2]
+  `)
+
+  const ptrArr = parseAbiParameters('uint256[]')
+  // Try to break check
+  const p2 = encodeAbiParameters(ptrArr, [
+    Array.from({ length: 10 * 1024 }, (_, j) => BigInt(j + 1) * 32n),
+  ])
+  expect(() =>
+    decodeAbiParameters(arr10, p2),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`327744\` is out of bounds (\`0 < position < 327744\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters(arr4, p2),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`512\` (read count: \`2\`).
+
+    Version: viem@1.0.2]
+  `)
+  expect(() =>
+    decodeAbiParameters(arr2, p2),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`96\` (read count: \`2\`).
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('recursive 2', () => {
+  const arr10 = parseAbiParameters('uint256[][][][][][][][][][]')
+  const a = [[], [], [], [], [], [], [], [], [], []] as const
+  const ptrArr = parseAbiParameters('uint256[]')
+  const mainPtr = encodeAbiParameters(ptrArr, [
+    a.map((i) => BigInt(a.length - i + 1) * 32n),
+  ])
+  expect(() =>
+    decodeAbiParameters(arr10, `0x${mainPtr.slice(2).repeat(10 + 1)}`),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`3488\` (read count: \`2\`).
+
+    Version: viem@1.0.2]
+  `)
+})
+
+// test.todo('Interleave ptrs', () => {
+//   const ptrArr = parseAbiParameters('uint256[]')
+//   const arr2 = parseAbiParameters('uint256[][]')
+
+//   const getArr = (length: number) => {
+//     const arr = Array.from({ length }, (_i, j) => BigInt(length - j) * 32n)
+
+//     // 10: 32 * (length + 256 + 2*length +2)
+//     // 11: 32 * (length + 256 + 5*length+3)
+//     // 12: 32 * (length + 256 + 8*lenght+4)
+//     //    return hex.encode(ptrArr.encode(arr)) + '00'.repeat(32 * (30 * length + 3));
+
+//     const repeats = {
+//       4: 47, // 6kb -> 6kb (+0x)
+//       8: 109, // 15kb -> 30kb (+1x)
+//       16: 233, // 30kb -> 123kb (+3x)
+//       32: 481, // 63kb -> 510kb (+7x)
+//       64: 977, // 129kb -> 2mb (+15x)
+//       128: 1969, // 260kb -> 8mb (+31x)
+//       256: 3953, // 522kb -> 33mb (+63x)
+//       512: 7921, // 1mb -> 133mb (+127x)
+//       1024: 15857, // 2mb -> 533mb (+255x)
+//       2048: 32000, // 4mb -> 2gb (+511x)
+//       4096: 64000, // 8mb -> est: 8gb (+1023x)
+//     }
+
+//     return (
+//       encodeAbiParameters(ptrArr, [arr]) + '00'.repeat(32 * 2 * repeats[length])
+//     )
+//   }
+
+//   for (const l of [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]) {
+//     const ptrEnc = getArr(l)
+//     expect(() =>
+//       encodeAbiParameters(arr2, decodeAbiParameters(arr2, ptrEnc)),
+//     ).toThrowError()
+//   }
+// })
+
+// test.todo('junk', () => {
+//   const abi = parseAbiParameters('uint256[]')
+//   const data = [1n, 2n, 3n, 4n] as const
+//   const encoded = encodeAbiParameters(abi, [data])
+//   const encodedWithFingerprint = encoded + '11'.repeat(32)
+//   expect(() =>
+//     decodeAbiParameters(abi, encodedWithFingerprint as `0x${string}`),
+//   ).toThrowError()
+// })
