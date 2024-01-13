@@ -95,6 +95,7 @@ test('exports chains', () => {
       "mantaTestnet",
       "mantle",
       "mantleTestnet",
+      "metachain",
       "meter",
       "meterTestnet",
       "metis",
