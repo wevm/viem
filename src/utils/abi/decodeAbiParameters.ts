@@ -6,21 +6,29 @@ import {
   AbiDecodingDataSizeTooSmallError,
   AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
+  type InvalidAbiDecodingTypeErrorType,
 } from '../../errors/abi.js'
 import type { ErrorType } from '../../errors/utils.js'
-import { checksumAddress } from '../address/getAddress.js'
-import { type Cursor, createCursor } from '../cursor.js'
-import { size } from '../data/size.js'
-import { sliceBytes } from '../data/slice.js'
 import {
+  type ChecksumAddressErrorType,
+  checksumAddress,
+} from '../address/getAddress.js'
+import { type Cursor, createCursor } from '../cursor.js'
+import { type SizeErrorType, size } from '../data/size.js'
+import { type SliceBytesErrorType, sliceBytes } from '../data/slice.js'
+import { type TrimErrorType, trim } from '../data/trim.js'
+import {
+  type BytesToBigIntErrorType,
+  type BytesToBoolErrorType,
+  type BytesToNumberErrorType,
+  type BytesToStringErrorType,
   bytesToBigInt,
   bytesToBool,
   bytesToNumber,
   bytesToString,
 } from '../encoding/fromBytes.js'
-import { hexToBytes } from '../encoding/toBytes.js'
-import { bytesToHex } from '../encoding/toHex.js'
-import { trim } from '../index.js'
+import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
+import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 import { getArrayComponents } from './encodeAbiParameters.js'
 
 export type DecodeAbiParametersReturnType<
@@ -29,7 +37,12 @@ export type DecodeAbiParametersReturnType<
   TParams extends readonly AbiParameter[] ? TParams : AbiParameter[]
 >
 
-export type DecodeAbiParametersErrorType = ErrorType
+export type DecodeAbiParametersErrorType =
+  | HexToBytesErrorType
+  | BytesToHexErrorType
+  | DecodeParameterErrorType
+  | SizeErrorType
+  | ErrorType
 
 export function decodeAbiParameters<
   const TParams extends readonly AbiParameter[],
@@ -54,33 +67,45 @@ export function decodeAbiParameters<
   for (let i = 0; i < params.length; ++i) {
     const param = params[i]
     cursor.setPosition(consumed)
-    const [data, consumed_] = decodeParameter(cursor, param, { refPosition: 0 })
+    const [data, consumed_] = decodeParameter(cursor, param, {
+      staticPosition: 0,
+    })
     consumed += consumed_
     values.push(data)
   }
   return values as DecodeAbiParametersReturnType<TParams>
 }
 
+type DecodeParameterErrorType =
+  | DecodeArrayErrorType
+  | DecodeTupleErrorType
+  | DecodeAddressErrorType
+  | DecodeBoolErrorType
+  | DecodeBytesErrorType
+  | DecodeNumberErrorType
+  | DecodeStringErrorType
+  | InvalidAbiDecodingTypeErrorType
+
 function decodeParameter(
   cursor: Cursor,
   param: AbiParameter,
-  { refPosition }: { refPosition: number },
+  { staticPosition }: { staticPosition: number },
 ) {
   const arrayComponents = getArrayComponents(param.type)
   if (arrayComponents) {
     const [length, type] = arrayComponents
-    return decodeArray(cursor, { ...param, type }, { length, refPosition })
+    return decodeArray(cursor, { ...param, type }, { length, staticPosition })
   }
   if (param.type === 'tuple')
-    return decodeTuple(cursor, param as TupleAbiParameter, { refPosition })
+    return decodeTuple(cursor, param as TupleAbiParameter, { staticPosition })
 
   if (param.type === 'address') return decodeAddress(cursor)
   if (param.type === 'bool') return decodeBool(cursor)
   if (param.type.startsWith('bytes'))
-    return decodeBytes(cursor, param, { refPosition })
+    return decodeBytes(cursor, param, { staticPosition })
   if (param.type.startsWith('uint') || param.type.startsWith('int'))
     return decodeNumber(cursor, param)
-  if (param.type === 'string') return decodeString(cursor, { refPosition })
+  if (param.type === 'string') return decodeString(cursor, { staticPosition })
   throw new InvalidAbiDecodingTypeError(param.type, {
     docsPath: '/docs/contract/decodeAbiParameters',
   })
@@ -92,15 +117,23 @@ function decodeParameter(
 const sizeOfLength = 32
 const sizeOfOffset = 32
 
+type DecodeAddressErrorType =
+  | ChecksumAddressErrorType
+  | BytesToHexErrorType
+  | SliceBytesErrorType
+  | ErrorType
+
 function decodeAddress(cursor: Cursor) {
   const value = cursor.readBytes(32)
   return [checksumAddress(bytesToHex(sliceBytes(value, -20))), 32]
 }
 
+type DecodeArrayErrorType = BytesToNumberErrorType | ErrorType
+
 function decodeArray(
   cursor: Cursor,
   param: AbiParameter,
-  { length, refPosition }: { length: number | null; refPosition: number },
+  { length, staticPosition }: { length: number | null; staticPosition: number },
 ) {
   // If the length of the array is not known in advance (dynamic array),
   // this means we will need to wonder off to the pointer and decode.
@@ -108,8 +141,8 @@ function decodeArray(
     // Dealing with a dynamic type, so get the offset of the array data.
     const offset = bytesToNumber(cursor.readBytes(sizeOfOffset))
 
-    // Start is the position of current slot + offset.
-    const start = refPosition + offset
+    // Start is the static position of current slot + offset.
+    const start = staticPosition + offset
     const startOfData = start + sizeOfLength
 
     // Get the length of the array from the offset.
@@ -126,14 +159,14 @@ function decodeArray(
       // Otherwise, elements will be the size of their encoding (consumed bytes).
       cursor.setPosition(startOfData + (dynamicChild ? i * 32 : consumed))
       const [data, consumed_] = decodeParameter(cursor, param, {
-        refPosition: startOfData,
+        staticPosition: startOfData,
       })
       consumed += consumed_
       value.push(data)
     }
 
-    // As we have gone wondering, set position back to the original position + next slot.
-    cursor.setPosition(refPosition + 32)
+    // As we have gone wondering, restore to the original position + next slot.
+    cursor.setPosition(staticPosition + 32)
     return [value, 32]
   }
 
@@ -144,21 +177,21 @@ function decodeArray(
     // Dealing with dynamic types, so get the offset of the array data.
     const offset = bytesToNumber(cursor.readBytes(sizeOfOffset))
 
-    // Start is the position of current slot + offset.
-    const start = refPosition + offset
+    // Start is the static position of current slot + offset.
+    const start = staticPosition + offset
 
     const value: unknown[] = []
     for (let i = 0; i < length; ++i) {
       // Move cursor along to the next slot (next offset pointer).
       cursor.setPosition(start + i * 32)
       const [data] = decodeParameter(cursor, param, {
-        refPosition: start,
+        staticPosition: start,
       })
       value.push(data)
     }
 
-    // As we have gone wondering, set position back to the original position + next slot.
-    cursor.setPosition(refPosition + 32)
+    // As we have gone wondering, restore to the original position + next slot.
+    cursor.setPosition(staticPosition + 32)
     return [value, 32]
   }
 
@@ -168,7 +201,7 @@ function decodeArray(
   const value: unknown[] = []
   for (let i = 0; i < length; ++i) {
     const [data, consumed_] = decodeParameter(cursor, param, {
-      refPosition: refPosition + consumed,
+      staticPosition: staticPosition + consumed,
     })
     consumed += consumed_
     value.push(data)
@@ -176,14 +209,21 @@ function decodeArray(
   return [value, consumed]
 }
 
+type DecodeBoolErrorType = BytesToBoolErrorType | ErrorType
+
 function decodeBool(cursor: Cursor) {
   return [bytesToBool(cursor.readBytes(32), { size: 32 }), 32]
 }
 
+type DecodeBytesErrorType =
+  | BytesToNumberErrorType
+  | BytesToHexErrorType
+  | ErrorType
+
 function decodeBytes(
   cursor: Cursor,
   param: AbiParameter,
-  { refPosition }: { refPosition: number },
+  { staticPosition }: { staticPosition: number },
 ) {
   const [_, size] = param.type.split('bytes')
   if (!size) {
@@ -191,27 +231,32 @@ function decodeBytes(
     const offset = bytesToNumber(cursor.readBytes(32))
 
     // Set position of the cursor to start of bytes data.
-    cursor.setPosition(refPosition + offset)
+    cursor.setPosition(staticPosition + offset)
 
     const length = bytesToNumber(cursor.readBytes(32))
 
     // If there is no length, we have zero data.
     if (length === 0) {
-      // As we have gone wondering, set position back to the original position + next slot.
-      cursor.setPosition(refPosition + 32)
+      // As we have gone wondering, restore to the original position + next slot.
+      cursor.setPosition(staticPosition + 32)
       return ['0x', 32]
     }
 
     const data = cursor.readBytes(length)
 
-    // As we have gone wondering, set position back to the original position + next slot.
-    cursor.setPosition(refPosition + 32)
+    // As we have gone wondering, restore to the original position + next slot.
+    cursor.setPosition(staticPosition + 32)
     return [bytesToHex(data), 32]
   }
 
   const value = bytesToHex(cursor.readBytes(parseInt(size), 32))
   return [value, 32]
 }
+
+type DecodeNumberErrorType =
+  | BytesToNumberErrorType
+  | BytesToBigIntErrorType
+  | ErrorType
 
 function decodeNumber(cursor: Cursor, param: AbiParameter) {
   const signed = param.type.startsWith('int')
@@ -227,10 +272,12 @@ function decodeNumber(cursor: Cursor, param: AbiParameter) {
 
 type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
 
+type DecodeTupleErrorType = BytesToNumberErrorType | ErrorType
+
 function decodeTuple(
   cursor: Cursor,
   param: TupleAbiParameter,
-  { refPosition }: { refPosition: number },
+  { staticPosition }: { staticPosition: number },
 ) {
   // Tuples can have unnamed components (i.e. they are arrays), so we must
   // determine whether the tuple is named or unnamed. In the case of a named
@@ -250,21 +297,21 @@ function decodeTuple(
     // Dealing with dynamic types, so get the offset of the tuple data.
     const offset = bytesToNumber(cursor.readBytes(sizeOfOffset))
 
-    // Start is the position of referencing slot + offset.
-    const start = refPosition + offset
+    // Start is the static position of referencing slot + offset.
+    const start = staticPosition + offset
 
     for (let i = 0; i < param.components.length; ++i) {
       const component = param.components[i]
       cursor.setPosition(start + consumed)
       const [data, consumed_] = decodeParameter(cursor, component, {
-        refPosition: start,
+        staticPosition: start,
       })
       consumed += consumed_
       value[hasUnnamedChild ? i : component?.name!] = data
     }
 
-    // As we have gone wondering, set position back to the original position + next slot.
-    cursor.setPosition(refPosition + 32)
+    // As we have gone wondering, restore to the original position + next slot.
+    cursor.setPosition(staticPosition + 32)
     return [value, 32]
   }
 
@@ -273,7 +320,7 @@ function decodeTuple(
   for (let i = 0; i < param.components.length; ++i) {
     const component = param.components[i]
     const [data, consumed_] = decodeParameter(cursor, component, {
-      refPosition,
+      staticPosition,
     })
     value[hasUnnamedChild ? i : component?.name!] = data
     consumed += consumed_
@@ -281,30 +328,36 @@ function decodeTuple(
   return [value, consumed]
 }
 
+type DecodeStringErrorType =
+  | BytesToNumberErrorType
+  | BytesToStringErrorType
+  | TrimErrorType
+  | ErrorType
+
 function decodeString(
   cursor: Cursor,
-  { refPosition }: { refPosition: number },
+  { staticPosition }: { staticPosition: number },
 ) {
   // Get offset to start of string data.
   const offset = bytesToNumber(cursor.readBytes(32))
 
-  // Start is the position of current slot + offset.
-  const start = refPosition + offset
+  // Start is the static position of current slot + offset.
+  const start = staticPosition + offset
   cursor.setPosition(start)
 
   const length = bytesToNumber(cursor.readBytes(32))
 
   // If there is no length, we have zero data (empty string).
   if (length === 0) {
-    cursor.setPosition(refPosition + 32)
+    cursor.setPosition(staticPosition + 32)
     return ['', 32]
   }
 
   const data = cursor.readBytes(length, 32)
   const value = bytesToString(trim(data))
 
-  // As we have gone wondering, set position back to the original position + next slot.
-  cursor.setPosition(refPosition + 32)
+  // As we have gone wondering, restore to the original position + next slot.
+  cursor.setPosition(staticPosition + 32)
 
   return [value, 32]
 }
