@@ -1,3 +1,5 @@
+/// <reference types="bun-types" />
+
 import { join } from 'node:path'
 
 import { bytesToHex } from '../../src/utils/encoding/toHex.js'
