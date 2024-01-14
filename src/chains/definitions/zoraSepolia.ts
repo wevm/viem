@@ -23,6 +23,7 @@ export const zoraSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Zora Sepolia Explorer',
       url: 'https://sepolia.explorer.zora.energy/',
+      apiUrl: 'https://sepolia.explorer.zora.energy/api',
     },
   },
   contracts: {

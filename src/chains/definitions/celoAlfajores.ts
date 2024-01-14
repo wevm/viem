@@ -19,6 +19,7 @@ export const celoAlfajores = /*#__PURE__*/ defineChain({
     default: {
       name: 'Celo Explorer',
       url: 'https://explorer.celo.org/alfajores',
+      apiUrl: 'https://explorer.celo.org/api',
     },
   },
   contracts: {

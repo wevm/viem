@@ -18,6 +18,7 @@ export const moonbeam = /*#__PURE__*/ defineChain({
     default: {
       name: 'Moonscan',
       url: 'https://moonscan.io',
+      apiUrl: 'https://api-moonbeam.moonscan.io/api',
     },
   },
   contracts: {

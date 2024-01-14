@@ -13,6 +13,7 @@ export const oasys = /*#__PURE__*/ defineChain({
     default: {
       name: 'OasysScan',
       url: 'https://scan.oasys.games',
+      apiUrl: 'https://scan.oasys.games/api',
     },
   },
 })

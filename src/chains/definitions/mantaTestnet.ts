@@ -16,10 +16,12 @@ export const mantaTestnet = /*#__PURE__*/ defineChain({
     etherscan: {
       name: 'Manta Testnet Explorer',
       url: 'https://pacific-explorer.testnet.manta.network',
+      apiUrl: 'https://pacific-explorer.testnet.manta.network/api',
     },
     default: {
       name: 'Manta Testnet Explorer',
       url: 'https://pacific-explorer.testnet.manta.network',
+      apiUrl: 'https://pacific-explorer.testnet.manta.network/api',
     },
   },
   contracts: {

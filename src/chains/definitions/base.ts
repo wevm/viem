@@ -17,6 +17,7 @@ export const base = /*#__PURE__*/ defineChain({
     default: {
       name: 'Basescan',
       url: 'https://basescan.org',
+      apiUrl: 'https://api.basescan.org/api',
     },
   },
   contracts: {

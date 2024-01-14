@@ -13,6 +13,7 @@ export const polygonZkEvmTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'PolygonScan',
       url: 'https://testnet-zkevm.polygonscan.com',
+      apiUrl: 'https://testnet-zkevm.polygonscan.com/api',
     },
   },
   testnet: true,

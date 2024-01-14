@@ -12,7 +12,11 @@ export const fantom = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.ankr.com/fantom'] },
   },
   blockExplorers: {
-    default: { name: 'FTMScan', url: 'https://ftmscan.com' },
+    default: {
+      name: 'FTMScan',
+      url: 'https://ftmscan.com',
+      apiUrl: 'https://api.ftmscan.com/api',
+    },
   },
   contracts: {
     multicall3: {

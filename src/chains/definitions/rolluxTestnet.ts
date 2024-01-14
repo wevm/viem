@@ -18,6 +18,7 @@ export const rolluxTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'RolluxTestnetExplorer',
       url: 'https://rollux.tanenbaum.io',
+      apiUrl: 'https://rollux.tanenbaum.io/api',
     },
   },
   contracts: {

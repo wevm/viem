@@ -13,6 +13,7 @@ export const polygonZkEvm = /*#__PURE__*/ defineChain({
     default: {
       name: 'PolygonScan',
       url: 'https://zkevm.polygonscan.com',
+      apiUrl: 'https://api-zkevm.polygonscan.com/api',
     },
   },
   contracts: {

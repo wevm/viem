@@ -15,6 +15,7 @@ export const baseGoerli = /*#__PURE__*/ defineChain({
     default: {
       name: 'Basescan',
       url: 'https://goerli.basescan.org',
+      apiUrl: 'https://goerli.basescan.org/api',
     },
   },
   contracts: {

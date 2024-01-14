@@ -13,8 +13,14 @@ export const klaytnBaobab = /*#__PURE__*/ defineChain({
     default: { http: ['https://public-en-baobab.klaytn.net'] },
   },
   blockExplorers: {
-    etherscan: { name: 'KlaytnScope', url: 'https://baobab.klaytnscope.com' },
-    default: { name: 'KlaytnScope', url: 'https://baobab.klaytnscope.com' },
+    etherscan: {
+      name: 'KlaytnScope',
+      url: 'https://baobab.klaytnscope.com',
+    },
+    default: {
+      name: 'KlaytnScope',
+      url: 'https://baobab.klaytnscope.com',
+    },
   },
   contracts: {
     multicall3: {

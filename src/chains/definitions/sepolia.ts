@@ -13,6 +13,7 @@ export const sepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://sepolia.etherscan.io',
+      apiUrl: 'https://api-sepolia.etherscan.io/api',
     },
   },
   contracts: {

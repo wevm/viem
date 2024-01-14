@@ -15,6 +15,7 @@ export const dogechain = /*#__PURE__*/ defineChain({
     default: {
       name: 'DogeChainExplorer',
       url: 'https://explorer.dogechain.dog',
+      apiUrl: 'https://explorer.dogechain.dog/api',
     },
   },
 })

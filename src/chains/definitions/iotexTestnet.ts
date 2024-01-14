@@ -15,6 +15,9 @@ export const iotexTestnet = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'IoTeXScan', url: 'https://testnet.iotexscan.io' },
+    default: {
+      name: 'IoTeXScan',
+      url: 'https://testnet.iotexscan.io',
+    },
   },
 })

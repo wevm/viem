@@ -10,8 +10,16 @@ export const wemixTestnet = /*#__PURE__*/ defineChain({
     public: { http: ['https://api.test.wemix.com'] },
   },
   blockExplorers: {
-    etherscan: { name: 'wemixExplorer', url: 'https://testnet.wemixscan.com' },
-    default: { name: 'wemixExplorer', url: 'https://testnet.wemixscan.com' },
+    etherscan: {
+      name: 'wemixExplorer',
+      url: 'https://testnet.wemixscan.com',
+      apiUrl: 'https://testnet.wemixscan.com/api',
+    },
+    default: {
+      name: 'wemixExplorer',
+      url: 'https://testnet.wemixscan.com',
+      apiUrl: 'https://testnet.wemixscan.com/api',
+    },
   },
   testnet: true,
 })

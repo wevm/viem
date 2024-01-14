@@ -15,7 +15,11 @@ export const rollux = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'RolluxExplorer', url: 'https://explorer.rollux.com' },
+    default: {
+      name: 'RolluxExplorer',
+      url: 'https://explorer.rollux.com',
+      apiUrl: 'https://explorer.rollux.com/api',
+    },
   },
   contracts: {
     multicall3: {

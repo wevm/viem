@@ -13,7 +13,11 @@ export const kava = /*#__PURE__*/ defineChain({
     default: { http: ['https://evm.kava.io'] },
   },
   blockExplorers: {
-    default: { name: 'Kava EVM Explorer', url: 'https://kavascan.com' },
+    default: {
+      name: 'Kava EVM Explorer',
+      url: 'https://kavascan.com',
+      apiUrl: 'https://kavascan.com/api',
+    },
   },
   contracts: {
     multicall3: {

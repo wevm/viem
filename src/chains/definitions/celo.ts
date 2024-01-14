@@ -17,6 +17,7 @@ export const celo = /*#__PURE__*/ defineChain({
     default: {
       name: 'Celo Explorer',
       url: 'https://explorer.celo.org/mainnet',
+      apiUrl: 'https://explorer.celo.org/api',
     },
   },
   contracts: {

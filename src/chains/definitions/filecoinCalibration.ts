@@ -12,6 +12,9 @@ export const filecoinCalibration = /*#__PURE__*/ defineChain({
     default: { http: ['https://api.calibration.node.glif.io/rpc/v1'] },
   },
   blockExplorers: {
-    default: { name: 'Filscan', url: 'https://calibration.filscan.io' },
+    default: {
+      name: 'Filscan',
+      url: 'https://calibration.filscan.io',
+    },
   },
 })

@@ -21,6 +21,7 @@ export const zkFair = /*#__PURE__*/ defineChain({
     default: {
       name: 'zkFair Explorer',
       url: 'https://scan.zkfair.io',
+      apiUrl: 'https://scan.zkfair.io/api',
     },
   },
   contracts: {

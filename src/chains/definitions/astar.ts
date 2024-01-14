@@ -13,7 +13,10 @@ export const astar = /*#__PURE__*/ defineChain({
     default: { http: ['https://astar.api.onfinality.io/public'] },
   },
   blockExplorers: {
-    default: { name: 'Astar Subscan', url: 'https://astar.subscan.io' },
+    default: {
+      name: 'Astar Subscan',
+      url: 'https://astar.subscan.io',
+    },
   },
   contracts: {
     multicall3: {

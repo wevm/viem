@@ -12,7 +12,10 @@ export const harmonyOne = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.ankr.com/harmony'] },
   },
   blockExplorers: {
-    default: { name: 'Harmony Explorer', url: 'https://explorer.harmony.one' },
+    default: {
+      name: 'Harmony Explorer',
+      url: 'https://explorer.harmony.one',
+    },
   },
   contracts: {
     multicall3: {

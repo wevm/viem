@@ -15,6 +15,7 @@ export const sapphireTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Oasis Sapphire Testnet Explorer',
       url: 'https://testnet.explorer.sapphire.oasis.dev',
+      apiUrl: 'https://testnet.explorer.sapphire.oasis.dev/api',
     },
   },
   testnet: true,
