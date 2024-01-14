@@ -16,7 +16,7 @@ export const optimism = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Optimism Explorer',
-      url: 'https://explorer.optimism.io',
+      url: 'https://optimistic.etherscan.io',
       apiUrl: 'https://api-optimistic.etherscan.io',
     },
   },
