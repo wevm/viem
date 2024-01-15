@@ -1,5 +1,17 @@
 # viem
 
+## 2.1.0
+
+### Minor Changes
+
+- [`06105dfc`](https://github.com/wevm/viem/commit/06105dfcb01571f9278e0268f30c954f58958e2b) Thanks [@jxom](https://github.com/jxom)! - Refactored ABI decoding implementation to use a cursor instead of array copies, and prevent excessive recursive pointers.
+
+### Patch Changes
+
+- [#1691](https://github.com/wevm/viem/pull/1691) [`8d011e8b`](https://github.com/wevm/viem/commit/8d011e8bf13685fe51e8cb69d6ef633fa1247e9a) Thanks [@skenaja](https://github.com/skenaja)! - Added Palm and Palm Testnet chains
+
+- [#1684](https://github.com/wevm/viem/pull/1684) [`06a28ddb`](https://github.com/wevm/viem/commit/06a28ddbb69e51c6288e2dad0ff3b99b209e5276) Thanks [@Yuripetusko](https://github.com/Yuripetusko)! - Added Multicall3 config to Base Sepolia chain definition
+
 ## 2.0.10
 
 ### Patch Changes
