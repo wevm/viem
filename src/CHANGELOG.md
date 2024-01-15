@@ -1,5 +1,11 @@
 # viem
 
+## 2.0.10
+
+### Patch Changes
+
+- [#1689](https://github.com/wevm/viem/pull/1689) [`0216aff9`](https://github.com/wevm/viem/commit/0216aff904354e209d598c7b67b7ab5f156d94f6) Thanks [@tmm](https://github.com/tmm)! - Removed non-default chain properties.
+
 ## 2.0.9
 
 ### Patch Changes
