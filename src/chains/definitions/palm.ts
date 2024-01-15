@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const palm = /*#__PURE__*/ defineChain({
-  id: 11297108109,
+  id: 11_297_108_109,
   name: 'Palm',
   nativeCurrency: {
     decimals: 18,
