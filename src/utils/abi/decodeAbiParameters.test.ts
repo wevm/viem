@@ -1738,7 +1738,7 @@ test('recursive 2', () => {
   const a = [[], [], [], [], [], [], [], [], [], []] as const
   const ptrArr = parseAbiParameters('uint256[]')
   const mainPtr = encodeAbiParameters(ptrArr, [
-    a.map((i) => BigInt(a.length - i + 1) * 32n),
+    a.map((i: any) => BigInt(a.length - i + 1) * 32n),
   ])
   expect(() =>
     decodeAbiParameters(arr10, `0x${mainPtr.slice(2).repeat(10 + 1)}`),
