@@ -957,7 +957,7 @@ test('errors: invalid bool', () => {
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidHexBooleanError: Hex value "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" is not a valid boolean. The hex value must be "0x0" (false) or "0x1" (true).
+    [InvalidBytesBooleanError: Bytes value "221,242,82,173,27,226,200,155,105,194,176,104,252,55,141,170,149,43,167,241,99,196,161,22,40,245,90,77,245,35,179,239" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
 
     Version: viem@1.0.2]
   `)

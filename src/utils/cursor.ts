@@ -203,6 +203,7 @@ const staticCursor: Cursor = {
     return () => (this.position = oldPosition)
   },
   _touch() {
+    if (this.recursiveReadLimit === Infinity) return
     const count = this.getReadCount()
     this.positionReadCount.set(this.position, count + 1)
     if (count > 0) this.recursiveReadCount++
