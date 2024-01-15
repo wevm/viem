@@ -11,10 +11,6 @@ export const shibarium = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Blockscout',
-      url: 'https://shibariumscan.io',
-    },
     default: {
       name: 'Blockscout',
       url: 'https://shibariumscan.io',

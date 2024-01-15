@@ -22,11 +22,6 @@ export const defichainEvmTestnet = /*#__PURE__*/ defineChain({
       name: 'DeFiScan',
       url: 'https://meta.defiscan.live/?network=TestNet',
     },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://blockscout.testnet.ocean.jellyfishsdk.com',
-      apiUrl: 'https://blockscout.testnet.ocean.jellyfishsdk.com/api',
-    },
   },
   contracts: {
     multicall3: {

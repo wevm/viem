@@ -10,10 +10,6 @@ export const wemix = /*#__PURE__*/ defineChain({
     public: { http: ['https://api.wemix.com'] },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'wemixExplorer',
-      url: 'https://explorer.wemix.com',
-    },
     default: {
       name: 'wemixExplorer',
       url: 'https://explorer.wemix.com',
