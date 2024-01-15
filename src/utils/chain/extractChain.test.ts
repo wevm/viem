@@ -12,9 +12,9 @@ test('default', async () => {
     {
       "blockExplorers": {
         "default": {
+          "apiUrl": "https://api.etherscan.io/api",
           "name": "Etherscan",
           "url": "https://etherscan.io",
-          "apiUrl": "https://api.etherscan.io/api",
         },
       },
       "contracts": {
@@ -58,9 +58,9 @@ test('default', async () => {
     {
       "blockExplorers": {
         "default": {
+          "apiUrl": "https://api-optimistic.etherscan.io",
           "name": "Optimism Explorer",
           "url": "https://optimistic.etherscan.io",
-          "apiUrl": "https://api-optimistic.etherscan.io",
         },
       },
       "contracts": {
