@@ -24,11 +24,13 @@ import type {
   Prettify,
   UnionEvaluate,
 } from '../../types/utils.js'
+import { size } from '../data/size.js'
 import {
   type GetEventSelectorErrorType,
   getEventSelector,
 } from '../hash/getEventSelector.js'
 
+import { PositionOutOfBoundsError } from '../../errors/cursor.js'
 import {
   type DecodeAbiParametersErrorType,
   decodeAbiParameters,
@@ -156,12 +158,15 @@ export function decodeEventLog<
         }
       } catch (err) {
         if (strict) {
-          if (err instanceof AbiDecodingDataSizeTooSmallError)
+          if (
+            err instanceof AbiDecodingDataSizeTooSmallError ||
+            err instanceof PositionOutOfBoundsError
+          )
             throw new DecodeLogDataMismatch({
               abiItem,
-              data: err.data,
-              params: err.params,
-              size: err.size,
+              data: data,
+              params: nonIndexedInputs,
+              size: size(data),
             })
           throw err
         }
