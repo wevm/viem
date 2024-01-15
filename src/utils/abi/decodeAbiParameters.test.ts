@@ -1566,7 +1566,7 @@ test('error: recursive decode array', () => {
       `0x${payload}`,
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`608\` (read count: \`2\`).
+    [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@1.0.2]
   `)
@@ -1700,7 +1700,7 @@ test('recursive', () => {
   expect(() =>
     decodeAbiParameters(arr10, payload),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`608\` (read count: \`2\`).
+    [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@1.0.2]
   `)
@@ -1720,14 +1720,14 @@ test('recursive', () => {
   expect(() =>
     decodeAbiParameters(arr4, p2),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`512\` (read count: \`2\`).
+    [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@1.0.2]
   `)
   expect(() =>
     decodeAbiParameters(arr2, p2),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`96\` (read count: \`2\`).
+    [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@1.0.2]
   `)
@@ -1743,7 +1743,7 @@ test('recursive 2', () => {
   expect(() =>
     decodeAbiParameters(arr10, `0x${mainPtr.slice(2).repeat(10 + 1)}`),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ReferenceLimitExceededError: Reference limit of \`1\` exceeded on position \`3488\` (read count: \`2\`).
+    [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@1.0.2]
   `)

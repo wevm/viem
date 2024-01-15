@@ -22,18 +22,15 @@ export class PositionOutOfBoundsError extends BaseError {
   }
 }
 
-export type ReferenceLimitExceededErrorType = ReferenceLimitExceededError & {
-  name: 'ReferenceLimitExceededError'
-}
-export class ReferenceLimitExceededError extends BaseError {
-  override name = 'ReferenceLimitExceededError'
-  constructor({
-    count,
-    limit,
-    position,
-  }: { count: number; limit: number; position: number }) {
+export type RecursiveReadLimitExceededErrorType =
+  RecursiveReadLimitExceededError & {
+    name: 'RecursiveReadLimitExceededError'
+  }
+export class RecursiveReadLimitExceededError extends BaseError {
+  override name = 'RecursiveReadLimitExceededError'
+  constructor({ count, limit }: { count: number; limit: number }) {
     super(
-      `Reference limit of \`${limit}\` exceeded on position \`${position}\` (read count: \`${count}\`).`,
+      `Recursive read limit of \`${limit}\` exceeded (recursive read count: \`${count}\`).`,
     )
   }
 }

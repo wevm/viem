@@ -36,9 +36,7 @@ describe('setPosition', () => {
   })
 
   test('w/ increment/decrement/readByte/readBytes', () => {
-    const cursor = createCursor(new Uint8Array(generateBytes(420)), {
-      referenceLimit: 1,
-    })
+    const cursor = createCursor(new Uint8Array(generateBytes(420)))
 
     cursor.setPosition(69)
     expect(cursor.position).toBe(69)
@@ -668,6 +666,45 @@ describe('readUint32', () => {
     expect(cursor.readUint32()).toBe(16777257)
     expect(() => cursor.readUint32()).toThrowErrorMatchingInlineSnapshot(`
       [PositionOutOfBoundsError: Position \`7\` is out of bounds (\`0 < position < 7\`).
+
+      Version: viem@1.0.2]
+    `)
+  })
+})
+
+describe('args: recursiveReadLimit', () => {
+  test('default', () => {
+    const cursor = createCursor(new Uint8Array(generateBytes(420)), {
+      recursiveReadLimit: Infinity,
+    })
+
+    cursor.readBytes(10)
+    cursor.setPosition(0)
+    cursor.readBytes(10)
+    cursor.setPosition(0)
+    cursor.readBytes(10)
+    cursor.setPosition(0)
+    cursor.readBytes(10)
+    cursor.setPosition(0)
+    cursor.readBytes(10)
+    cursor.setPosition(0)
+    cursor.readBytes(10)
+    cursor.setPosition(0)
+  })
+
+  test('=== 2', () => {
+    const cursor = createCursor(new Uint8Array(generateBytes(420)), {
+      recursiveReadLimit: 2,
+    })
+
+    cursor.readBytes(10)
+    cursor.setPosition(0)
+    cursor.readBytes(10)
+    cursor.setPosition(0)
+    cursor.readBytes(10)
+    cursor.setPosition(20)
+    expect(() => cursor.readBytes(10)).toThrowErrorMatchingInlineSnapshot(`
+      [RecursiveReadLimitExceededError: Recursive read limit of \`2\` exceeded (recursive read count: \`3\`).
 
       Version: viem@1.0.2]
     `)
