@@ -13,11 +13,6 @@ export const rootstock = /*#__PURE__*/ defineChain({
     default: { http: ['https://public-node.rsk.co'] },
   },
   blockExplorers: {
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://rootstock.blockscout.com',
-      apiUrl: 'https://rootstock.blockscout.com/api',
-    },
     default: {
       name: 'RSK Explorer',
       url: 'https://explorer.rsk.co',

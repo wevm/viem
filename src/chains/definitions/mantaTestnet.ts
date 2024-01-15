@@ -13,11 +13,6 @@ export const mantaTestnet = /*#__PURE__*/ defineChain({
     default: { http: ['https://manta-testnet.calderachain.xyz/http'] },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Manta Testnet Explorer',
-      url: 'https://pacific-explorer.testnet.manta.network',
-      apiUrl: 'https://pacific-explorer.testnet.manta.network/api',
-    },
     default: {
       name: 'Manta Testnet Explorer',
       url: 'https://pacific-explorer.testnet.manta.network',
