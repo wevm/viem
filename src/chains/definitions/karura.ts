@@ -23,6 +23,7 @@ export const karura = /*#__PURE__*/ defineChain({
     default: {
       name: 'Karura Blockscout',
       url: 'https://blockscout.karura.network',
+      apiUrl: 'https://blockscout.karura.network/api',
     },
   },
   testnet: false,

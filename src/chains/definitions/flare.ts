@@ -15,6 +15,7 @@ export const flare = /*#__PURE__*/ defineChain({
     default: {
       name: 'Flare Explorer',
       url: 'https://flare-explorer.flare.network',
+      apiUrl: 'https://flare-explorer.flare.network/api',
     },
   },
 })

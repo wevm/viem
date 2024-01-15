@@ -17,6 +17,7 @@ export const optimismSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blockscout',
       url: 'https://optimism-sepolia.blockscout.com',
+      apiUrl: 'https://optimism-sepolia.blockscout.com/api',
     },
   },
   contracts: {

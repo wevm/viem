@@ -12,7 +12,10 @@ export const coreDao = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.coredao.org'] },
   },
   blockExplorers: {
-    default: { name: 'CoreDao', url: 'https://scan.coredao.org' },
+    default: {
+      name: 'CoreDao',
+      url: 'https://scan.coredao.org',
+    },
   },
   contracts: {
     multicall3: {

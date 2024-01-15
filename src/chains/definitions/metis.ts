@@ -15,6 +15,7 @@ export const metis = /*#__PURE__*/ defineChain({
     default: {
       name: 'Andromeda Explorer',
       url: 'https://andromeda-explorer.metis.io',
+      apiUrl: 'https://andromeda-explorer.metis.io/api',
     },
   },
   contracts: {

@@ -13,6 +13,7 @@ export const goerli = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://goerli.etherscan.io',
+      apiUrl: 'https://api-goerli.etherscan.io/api',
     },
   },
   contracts: {

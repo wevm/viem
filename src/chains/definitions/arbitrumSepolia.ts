@@ -18,8 +18,16 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    etherscan: { name: 'Arbiscan', url: 'https://sepolia.arbiscan.io' },
-    default: { name: 'Arbiscan', url: 'https://sepolia.arbiscan.io' },
+    etherscan: {
+      name: 'Arbiscan',
+      url: 'https://sepolia.arbiscan.io',
+      apiUrl: 'https://sepolia.arbiscan.io/api',
+    },
+    default: {
+      name: 'Arbiscan',
+      url: 'https://sepolia.arbiscan.io',
+      apiUrl: 'https://sepolia.arbiscan.io/api',
+    },
   },
   contracts: {
     multicall3: {

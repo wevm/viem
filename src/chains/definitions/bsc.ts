@@ -12,7 +12,11 @@ export const bsc = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.ankr.com/bsc'] },
   },
   blockExplorers: {
-    default: { name: 'BscScan', url: 'https://bscscan.com' },
+    default: {
+      name: 'BscScan',
+      url: 'https://bscscan.com',
+      apiUrl: 'https://api.bscscan.com/api',
+    },
   },
   contracts: {
     multicall3: {

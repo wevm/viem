@@ -25,6 +25,7 @@ export const defichainEvm = /*#__PURE__*/ defineChain({
     blockscout: {
       name: 'Blockscout',
       url: 'https://blockscout.mainnet.ocean.jellyfishsdk.com',
+      apiUrl: 'https://blockscout.mainnet.ocean.jellyfishsdk.com/api',
     },
   },
   contracts: {

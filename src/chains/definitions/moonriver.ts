@@ -18,6 +18,7 @@ export const moonriver = /*#__PURE__*/ defineChain({
     default: {
       name: 'Moonscan',
       url: 'https://moonriver.moonscan.io',
+      apiUrl: 'https://api-moonriver.moonscan.io/api',
     },
   },
   contracts: {

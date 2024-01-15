@@ -15,6 +15,7 @@ export const edgewareTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Edgscan by Bharathcoorg',
       url: 'https://testnet.edgscan.live',
+      apiUrl: 'https://testnet.edgscan.live/api',
     },
   },
 })

@@ -72,6 +72,7 @@ export type Chain<
 type ChainBlockExplorer = {
   name: string
   url: string
+  apiUrl?: string | undefined
 }
 
 export type ChainContract = {

@@ -17,10 +17,12 @@ export const pgn = /*#__PURE__*/ defineChain({
     default: {
       name: 'PGN Explorer',
       url: 'https://explorer.publicgoods.network',
+      apiUrl: 'https://explorer.publicgoods.network/api',
     },
     blocksout: {
       name: 'PGN Explorer',
       url: 'https://explorer.publicgoods.network',
+      apiUrl: 'https://explorer.publicgoods.network/api',
     },
   },
   contracts: {

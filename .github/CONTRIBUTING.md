@@ -276,6 +276,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://etherscan.io',
+      apiUrl: 'https://api.etherscan.io/api',
     },
   },
   contracts: {
