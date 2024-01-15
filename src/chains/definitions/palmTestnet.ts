@@ -13,9 +13,6 @@ export const palmTestnet = /*#__PURE__*/ defineChain({
       http: ['https://palm-mainnet.public.blastapi.io'],
       webSocket: ['wss://palm-mainnet.public.blastapi.io'],
     },
-    infura: {
-      http: ['https://palm-mainnet.infura.io/v3'],
-    },
   },
   blockExplorers: {
     default: {
