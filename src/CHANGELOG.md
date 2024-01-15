@@ -1,5 +1,11 @@
 # viem
 
+## 2.0.9
+
+### Patch Changes
+
+- [#1687](https://github.com/wevm/viem/pull/1687) [`ffc3f255`](https://github.com/wevm/viem/commit/ffc3f255ac2483e4974e1c6d879ecf2247e36b01) Thanks [@0xOlias](https://github.com/0xOlias)! - Added API URLs for block explorers in `viem/chains`.
+
 ## 2.0.8
 
 ### Patch Changes
