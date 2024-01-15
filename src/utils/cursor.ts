@@ -8,10 +8,10 @@ import type { ByteArray } from '../types/misc.js'
 
 export type Cursor = {
   bytes: ByteArray
-  recursiveReadCount: number
   dataView: DataView
   position: number
   positionReadCount: Map<number, number>
+  recursiveReadCount: number
   recursiveReadLimit: number
   assertReadLimit(position?: number): void
   assertPosition(position: number): void
