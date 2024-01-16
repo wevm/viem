@@ -1,5 +1,13 @@
 # viem
 
+## 2.1.1
+
+### Patch Changes
+
+- [#1693](https://github.com/wevm/viem/pull/1693) [`d3ec8be8`](https://github.com/wevm/viem/commit/d3ec8be8bba0eff16fa0b9d812761f4fd2bb3c3a) Thanks [@NicolasMahe](https://github.com/NicolasMahe)! - Add multicall3 contract to Neon EVM MainNet
+
+- [#1695](https://github.com/wevm/viem/pull/1695) [`ac052a4d`](https://github.com/wevm/viem/commit/ac052a4dae4b1fc503c3e09e175f5f88522d4635) Thanks [@NicolasMahe](https://github.com/NicolasMahe)! - Add Lightlink Phoenix and Pegasus chains
+
 ## 2.1.0
 
 ### Minor Changes
