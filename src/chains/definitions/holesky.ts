@@ -9,6 +9,12 @@ export const holesky = /*#__PURE__*/ defineChain({
       http: ['https://ethereum-holesky.publicnode.com'],
     },
   },
+  blockExplorers: {
+    default: {
+      name: 'Etherscan',
+      url: 'https://holesky.etherscan.io',
+    },
+  },
   contracts: {
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
