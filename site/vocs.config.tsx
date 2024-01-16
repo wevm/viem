@@ -190,7 +190,6 @@ export default defineConfig({
       light: '#ff9318',
       dark: '#ffc517',
     },
-    colorScheme: 'system',
   },
   topNav: [
     { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
