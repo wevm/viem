@@ -39,14 +39,14 @@ export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** ENSIP-9 compliant coinType used to resolve addresses for other chains */
     coinType?: number
+    /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
+    gatewayUrls?: string[]
     /** Name to get the address for. */
     name: string
-    /** Address of ENS Universal Resolver Contract. */
-    universalResolverAddress?: Address
-    /** Batch gateway URLs to use for resolving CCIP-read requests. */
-    gatewayUrls?: string[]
     /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
     strict?: boolean
+    /** Address of ENS Universal Resolver Contract. */
+    universalResolverAddress?: Address
   }
 >
 

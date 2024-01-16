@@ -38,14 +38,14 @@ export type GetEnsTextParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** ENS name to get Text for. */
     name: string
+    /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
+    gatewayUrls?: string[]
     /** Text record to retrieve. */
     key: string
-    /** Address of ENS Universal Resolver Contract. */
-    universalResolverAddress?: Address
-    /** Batch gateway URLs to use for resolving CCIP-read requests. */
-    gatewayUrls?: string[]
     /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
     strict?: boolean
+    /** Address of ENS Universal Resolver Contract. */
+    universalResolverAddress?: Address
   }
 >
 
