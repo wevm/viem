@@ -85,6 +85,8 @@ test('exports chains', () => {
       "klaytnBaobab",
       "kroma",
       "kromaSepolia",
+      "lightlinkPegasus",
+      "lightlinkPhoenix",
       "linea",
       "lineaTestnet",
       "localhost",
