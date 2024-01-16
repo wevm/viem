@@ -61,6 +61,21 @@ const ensText = await publicClient.getEnsAvatar({
 })
 ```
 
+### assetGatewayUrls (optional)
+
+- **Type:** `{ ipfs?: string; arweave?: string }`
+
+Gateway urls to resolve IPFS and/or Arweave assets.
+
+```ts
+const ensText = await publicClient.getEnsAvatar({
+  name: normalize('wevm.eth'),
+  assetGatewayUrls: { // [!code focus:3]
+    ipfs: 'https://cloudflare-ipfs.com'
+  }
+})
+```
+
 ### blockNumber (optional)
 
 - **Type:** `number`
@@ -88,18 +103,30 @@ const ensText = await publicClient.getEnsAvatar({
 })
 ```
 
-### gatewayUrls
+### gatewayUrls (optional)
 
-- **Type:** `{ ipfs?: string; arweave?: string }`
+- **Type:** `string[]`
 
-Gateway urls to resolve IPFS and/or Arweave assets.
+A set of Universal Resolver gateways, used for resolving CCIP-Read requests made through the ENS Universal Resolver Contract.
 
 ```ts
 const ensText = await publicClient.getEnsAvatar({
-  name: normalize('wevm.eth'),
-  gatewayUrls: { // [!code focus:3]
-    ipfs: 'https://cloudflare-ipfs.com'
-  }
+  name: normalize('wevm.eth'), 
+  gatewayUrls: ["https://ccip.ens.xyz"], // [!code focus]
+})
+```
+
+### strict (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+A boolean value that when set to true will strictly propagate all ENS Universal Resolver Contract errors.
+
+```ts
+const ensText = await publicClient.getEnsAvatar({
+  name: normalize('wevm.eth'), 
+  strict: true, // [!code focus]
 })
 ```
 
