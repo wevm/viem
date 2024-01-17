@@ -1,5 +1,0 @@
----
-"viem": minor
----
-
-Bumped abitype

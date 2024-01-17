@@ -1,5 +1,11 @@
 # viem
 
+## 2.2.0
+
+### Minor Changes
+
+- [#1708](https://github.com/wevm/viem/pull/1708) [`217174da0ff9f2179e1d800692f6fa1b094984a3`](https://github.com/wevm/viem/commit/217174da0ff9f2179e1d800692f6fa1b094984a3) Thanks [@tmm](https://github.com/tmm)! - Bumped abitype
+
 ## 2.1.1
 
 ### Patch Changes
