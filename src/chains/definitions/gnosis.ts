@@ -17,7 +17,7 @@ export const gnosis = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Gnosisscan',
-      url: 'https://gnosisscan.io/',
+      url: 'https://gnosisscan.io',
       apiUrl: 'https://api.gnosisscan.io/api',
     },
   },
