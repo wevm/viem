@@ -150,7 +150,7 @@ export async function sendTransaction<
   try {
     assertRequest(args as AssertRequestParameters)
 
-    let chainId
+    let chainId: number | undefined
     if (chain !== null) {
       chainId = await getAction(client, getChainId, 'getChainId')({})
       assertCurrentChain({

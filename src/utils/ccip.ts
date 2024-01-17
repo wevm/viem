@@ -124,7 +124,7 @@ export async function ccipFetch({
         },
       )
 
-      let result
+      let result: any
       if (
         response.headers.get('Content-Type')?.startsWith('application/json')
       ) {

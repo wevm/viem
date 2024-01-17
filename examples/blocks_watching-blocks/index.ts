@@ -8,16 +8,14 @@ const client = createPublicClient({
 
 client.watchBlockNumber({
   onBlockNumber: (blockNumber) => {
-    document.getElementById(
-      'block-number',
-    )!.innerHTML = `Block number: ${blockNumber}`
+    document.getElementById('block-number')!.innerHTML =
+      `Block number: ${blockNumber}`
   },
 })
 
 client.watchBlocks({
   onBlock: (block) => {
-    document.getElementById(
-      'block',
-    )!.innerHTML = `Block: <pre><code>${stringify(block, null, 2)}</code></pre>`
+    document.getElementById('block')!.innerHTML =
+      `Block: <pre><code>${stringify(block, null, 2)}</code></pre>`
   },
 })

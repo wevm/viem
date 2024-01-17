@@ -117,7 +117,7 @@ async function http<TBody extends RpcRequest | RpcRequest[]>(
       },
     )
 
-    let data
+    let data: any
     if (response.headers.get('Content-Type')?.startsWith('application/json')) {
       data = await response.json()
     } else {
