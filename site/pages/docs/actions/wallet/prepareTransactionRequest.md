@@ -126,7 +126,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -140,7 +140,7 @@ const request = await walletClient.prepareSendTransaction({
 The transaction recipient or contract address.
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
   value: 1000000000000000000n,
@@ -155,7 +155,7 @@ const request = await walletClient.prepareSendTransaction({
 The access list.
 
 ```ts
-const request = await publicClient.prepareSendTransaction({
+const request = await publicClient.prepareTransactionRequest({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
@@ -174,12 +174,12 @@ const request = await publicClient.prepareSendTransaction({
 
 The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
-The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `prepareSendTransaction`).
+The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `prepareTransactionRequest`).
 
 ```ts
 import { optimism } from 'viem/chains' // [!code focus]
 
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   chain: optimism, // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -194,7 +194,7 @@ const request = await walletClient.prepareSendTransaction({
 A contract hashed method call with encoded args.
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -209,7 +209,7 @@ const request = await walletClient.prepareSendTransaction({
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   gasPrice: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -224,7 +224,7 @@ const request = await walletClient.prepareSendTransaction({
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   maxFeePerGas: parseGwei('20'),  // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -239,7 +239,7 @@ const request = await walletClient.prepareSendTransaction({
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
@@ -255,7 +255,7 @@ const request = await walletClient.prepareSendTransaction({
 Unique number identifying this transaction.
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -273,7 +273,7 @@ Parameters to prepare.
 For instance, if `["gas", "nonce"]` is provided, then only the `gas` and `nonce` parameters will be prepared.
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -288,7 +288,7 @@ const request = await walletClient.prepareSendTransaction({
 Value in wei sent with this transaction.
 
 ```ts
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1'), // [!code focus]
