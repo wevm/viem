@@ -143,16 +143,17 @@ export async function internal_estimateFeesPerGas<
     if (typeof block.baseFeePerGas !== 'bigint')
       throw new Eip1559FeesNotSupportedError()
 
-    const maxPriorityFeePerGas = request?.maxPriorityFeePerGas
-      ? request.maxPriorityFeePerGas
-      : await internal_estimateMaxPriorityFeePerGas(
-          client as Client<Transport, Chain>,
-          {
-            block: block as Block,
-            chain,
-            request,
-          },
-        )
+    const maxPriorityFeePerGas =
+      typeof request?.maxPriorityFeePerGas === 'bigint'
+        ? request.maxPriorityFeePerGas
+        : await internal_estimateMaxPriorityFeePerGas(
+            client as Client<Transport, Chain>,
+            {
+              block: block as Block,
+              chain,
+              request,
+            },
+          )
 
     const baseFeePerGas = multiply(block.baseFeePerGas)
     const maxFeePerGas =
