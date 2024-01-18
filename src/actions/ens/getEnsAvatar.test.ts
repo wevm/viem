@@ -181,7 +181,7 @@ describe('args: gateways', async () => {
     await expect(
       getEnsAvatar(publicClient, {
         name: 'vitalik.eth',
-        gatewayUrls: { ipfs: 'https://cloudflare-ipfs.com' },
+        assetGatewayUrls: { ipfs: 'https://cloudflare-ipfs.com' },
       }),
     ).resolves.toEqual(expected)
   })

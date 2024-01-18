@@ -17,6 +17,9 @@ export function isNullUniversalResolverError(
   if (!(cause instanceof ContractFunctionRevertedError)) return false
   if (cause.data?.errorName === 'ResolverNotFound') return true
   if (cause.data?.errorName === 'ResolverWildcardNotSupported') return true
+  if (cause.data?.errorName === 'ResolverNotContract') return true
+  if (cause.data?.errorName === 'ResolverError') return true
+  if (cause.data?.errorName === 'HttpError') return true
   // Backwards compatibility for older UniversalResolver contracts
   if (
     cause.reason?.includes(
