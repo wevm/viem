@@ -1146,6 +1146,24 @@ const result = decodeFunctionResult({
 })
 ```
 
+### Interface.getSighash
+
+#### Ethers
+
+```ts {3-3}
+import { Interface, FunctionFragment } from '@ethersproject/abi';
+
+const hash = Interface.getSighash(FunctionFragment.from('function ownerOf(uint256)'));
+```
+
+#### viem
+
+```ts {3-7}
+import { toSignatureHash } from 'viem'
+
+const hash = toSignatureHash('function ownerOf(uint256)')
+```
+
 ## Address Utilities
 
 ### getAddress
