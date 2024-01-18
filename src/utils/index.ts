@@ -344,26 +344,34 @@ export {
 export {
   type ToEventSelectorErrorType,
   toEventSelector,
-  /** @deprecated – use `ToEventSelectorErrorType`. */
+  /** @deprecated use `ToEventSelectorErrorType`. */
   type ToEventSelectorErrorType as GetEventSelectorErrorType,
-  /** @deprecated – use `toEventSelector`. */
+  /** @deprecated use `toEventSelector`. */
   toEventSelector as getEventSelector,
 } from './hash/toEventSelector.js'
 export {
   type ToFunctionSelectorErrorType,
   toFunctionSelector,
-  /** @deprecated – use `ToFunctionSelectorErrorType`. */
+  /** @deprecated use `ToFunctionSelectorErrorType`. */
   type ToFunctionSelectorErrorType as GetFunctionSelectorErrorType,
-  /** @deprecated – use `toFunctionSelector`. */
+  /** @deprecated use `toFunctionSelector`. */
   toFunctionSelector as getFunctionSelector,
 } from './hash/toFunctionSelector.js'
 export {
   type ToEventSignatureErrorType,
   toEventSignature,
+  /** @deprecated use `ToEventSignatureErrorType`. */
+  type ToEventSignatureErrorType as GetEventSignatureErrorType,
+  /** @deprecated use `toEventSignature`. */
+  toEventSignature as getEventSignature,
 } from './hash/toEventSignature.js'
 export {
   type ToFunctionSignatureErrorType,
   toFunctionSignature,
+  /** @deprecated use `ToFunctionSignatureErrorType`. */
+  type ToFunctionSignatureErrorType as GetFunctionSignatureErrorType,
+  /** @deprecated use `toFunctionSignature`. */
+  toFunctionSignature as getFunctionSignature,
 } from './hash/toFunctionSignature.js'
 export {
   type ToEventHashErrorType,
