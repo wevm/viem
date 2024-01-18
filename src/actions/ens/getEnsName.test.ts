@@ -78,7 +78,7 @@ test('address with primary name that has no resolver - strict', async () => {
       function:  reverse(bytes reverseName)
       args:             (0x28303030303030303030303030363161643865653139303731303530386138313861653533323563330461646472077265766572736500)
 
-    Docs: https://viem.sh/docs/contract/readContract.html
+    Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2]
   `)
 })
@@ -111,7 +111,7 @@ describe('primary name with resolver that does not support text()', () => {
         function:  reverse(bytes reverseName)
         args:             (0x28643864613662663236393634616639643765656439653033653533343135643337616139363034350461646472077265766572736500)
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -144,7 +144,7 @@ describe('primary name with non-contract resolver', () => {
         function:  reverse(bytes reverseName)
         args:             (0x28643864613662663236393634616639643765656439653033653533343135643337616139363034350461646472077265766572736500)
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
@@ -238,7 +238,7 @@ describe('universal resolver with generic errors', () => {
         function:  reverse(bytes reverseName)
         args:             (0x28303030303030303030303030363161643865653139303731303530386138313861653533323563330461646472077265766572736500)
 
-      Docs: https://viem.sh/docs/contract/readContract.html
+      Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
     `)
   })
