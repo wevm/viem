@@ -1146,6 +1146,28 @@ const result = decodeFunctionResult({
 })
 ```
 
+### Interface.getSighash (For Function)
+
+#### Ethers
+
+```ts {3-3}
+import {Interface, FunctionFragment} from '@ethersproject/abi';
+
+const signature = Interface.getSighash(FunctionFragment.from(fragment));
+```
+
+#### viem
+
+```ts {3-7}
+import { getFunctionSignature, keccak256, toBytes } from 'viem'
+
+const hash = (value: string) => keccak256(toBytes(value))
+
+function hashFunction(def: AbiFunction) {
+  return hash(getFunctionSignature(def))
+}
+```
+
 ## Address Utilities
 
 ### getAddress
