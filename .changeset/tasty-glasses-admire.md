@@ -6,6 +6,6 @@
 - Added `toFunctionHash`.
 - Deprecated `getEventSelector` (use `toEventSelector`).
 - Deprecated `getFunctionSelector` (use `toFunctionSelector`).
-- Deprecated `getEventSignature`. (use `toEventSignature`).
-- Deprecated `getFunctionSignature`. (use `toFunctionSignature`).
+- Deprecated `getEventSignature` (use `toEventSignature`).
+- Deprecated `getFunctionSignature` (use `toFunctionSignature`).
 
