@@ -1,5 +1,17 @@
 # viem
 
+## 2.3.0
+
+### Minor Changes
+
+- [#1676](https://github.com/wevm/viem/pull/1676) [`0ca8818c83636775886a1a9f261b2ea73840c9d7`](https://github.com/wevm/viem/commit/0ca8818c83636775886a1a9f261b2ea73840c9d7) Thanks [@TateB](https://github.com/TateB)! - Added `gatewayUrls` and `strict` properties to ENS Actions.
+
+### Patch Changes
+
+- [#1706](https://github.com/wevm/viem/pull/1706) [`5b27bef47245ea0e5a12955bb0571bf8fe7f1270`](https://github.com/wevm/viem/commit/5b27bef47245ea0e5a12955bb0571bf8fe7f1270) Thanks [@sakulstra](https://github.com/sakulstra)! - Replaces the default block explorer on gnosis from blockscout to gnosisscan.
+
+- [`10d1177a2e9497e87e37d5c9f7753583084266ca`](https://github.com/wevm/viem/commit/10d1177a2e9497e87e37d5c9f7753583084266ca) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `prepareTransactionRequest` would ignore a provided `maxPriorityFeePerGas` of zero.
+
 ## 2.2.0
 
 ### Minor Changes
