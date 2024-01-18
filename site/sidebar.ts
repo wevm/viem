@@ -766,20 +766,8 @@ export const sidebar = {
           text: 'Hash',
           items: [
             {
-              text: 'getEventSelector',
-              link: '/docs/utilities/getEventSelector',
-            },
-            {
-              text: 'getEventSignature',
-              link: '/docs/utilities/getEventSignature',
-            },
-            {
-              text: 'getFunctionSelector',
-              link: '/docs/utilities/getFunctionSelector',
-            },
-            {
-              text: 'getFunctionSignature',
-              link: '/docs/utilities/getFunctionSignature',
+              text: 'hashDefinition',
+              link: '/docs/utilities/hashDefinition',
             },
             {
               text: 'keccak256',
@@ -792,6 +780,18 @@ export const sidebar = {
             {
               text: 'sha256',
               link: '/docs/utilities/sha256',
+            },
+            {
+              text: 'toEventSelector',
+              link: '/docs/utilities/toEventSelector',
+            },
+            {
+              text: 'toFunctionSelector',
+              link: '/docs/utilities/toFunctionSelector',
+            },
+            {
+              text: 'toSignature',
+              link: '/docs/utilities/toSignature',
             },
           ],
         },

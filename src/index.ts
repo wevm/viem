@@ -1329,21 +1329,41 @@ export {
   getContractError,
 } from './utils/errors/getContractError.js'
 export {
-  type GetEventSelectorErrorType,
-  getEventSelector,
-} from './utils/hash/getEventSelector.js'
+  type ToEventSelectorErrorType,
+  toEventSelector,
+  /** @deprecated – use `ToEventSelectorErrorType`. */
+  type ToEventSelectorErrorType as GetEventSelectorErrorType,
+  /** @deprecated – use `toEventSelector`. */
+  toEventSelector as getEventSelector,
+} from './utils/hash/toEventSelector.js'
 export {
-  type GetEventSignatureErrorType,
-  getEventSignature,
-} from './utils/hash/getEventSignature.js'
+  type ToSignatureErrorType,
+  toSignature,
+  /** @deprecated – use `ToSignatureErrorType`. */
+  type ToSignatureErrorType as GetEventSignatureErrorType,
+  /** @deprecated – use `toSignature`. */
+  toSignature as getEventSignature,
+  /** @deprecated – use `ToSignatureErrorType`. */
+  type ToSignatureErrorType as GetFunctionSignatureErrorType,
+  /** @deprecated – use `toSignature`. */
+  toSignature as getFunctionSignature,
+} from './utils/hash/toSignature.js'
 export {
-  type GetFunctionSelectorErrorType,
-  getFunctionSelector,
-} from './utils/hash/getFunctionSelector.js'
+  type ToFunctionSelectorErrorType,
+  toFunctionSelector,
+  /** @deprecated – use `ToFunctionSelectorErrorType`. */
+  type ToFunctionSelectorErrorType as GetFunctionSelectorErrorType,
+  /** @deprecated – use `toFunctionSelector`. */
+  toFunctionSelector as getFunctionSelector,
+} from './utils/hash/toFunctionSelector.js'
 export {
-  type GetFunctionSignatureErrorType,
-  getFunctionSignature,
-} from './utils/hash/getFunctionSignature.js'
+  type HashSignatureErrorType,
+  hashSignature,
+} from './utils/hash/hashSignature.js'
+export {
+  type HashDefinitionErrorType,
+  hashDefinition,
+} from './utils/hash/hashDefinition.js'
 export {
   type HashMessageErrorType,
   hashMessage,

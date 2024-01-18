@@ -26,9 +26,9 @@ import type {
 } from '../../types/utils.js'
 import { size } from '../data/size.js'
 import {
-  type GetEventSelectorErrorType,
-  getEventSelector,
-} from '../hash/getEventSelector.js'
+  type ToEventSelectorErrorType,
+  toEventSelector,
+} from '../hash/toEventSelector.js'
 
 import { PositionOutOfBoundsError } from '../../errors/cursor.js'
 import {
@@ -91,7 +91,7 @@ export type DecodeEventLogErrorType =
   | DecodeLogTopicsMismatchErrorType
   | DecodeLogDataMismatchErrorType
   | FormatAbiItemErrorType
-  | GetEventSelectorErrorType
+  | ToEventSelectorErrorType
   | ErrorType
 
 const docsPath = '/docs/contract/decodeEventLog'
@@ -119,7 +119,7 @@ export function decodeEventLog<
   const abiItem = abi.find(
     (x) =>
       x.type === 'event' &&
-      signature === getEventSelector(formatAbiItem(x) as EventDefinition),
+      signature === toEventSelector(formatAbiItem(x) as EventDefinition),
   )
   if (!(abiItem && 'name' in abiItem) || abiItem.type !== 'event')
     throw new AbiEventSignatureNotFoundError(signature, { docsPath })
