@@ -3,12 +3,12 @@ import type { AbiFunction } from 'abitype'
 import type { ErrorType } from '../../errors/utils.js'
 import { type SliceErrorType, slice } from '../data/slice.js'
 import {
-  type HashDefinitionErrorType,
-  hashDefinition,
-} from './hashDefinition.js'
+  type ToSignatureHashErrorType,
+  toSignatureHash,
+} from './toSignatureHash.js'
 
 export type ToFunctionSelectorErrorType =
-  | HashDefinitionErrorType
+  | ToSignatureHashErrorType
   | SliceErrorType
   | ErrorType
 
@@ -20,4 +20,4 @@ export type ToFunctionSelectorErrorType =
  * // 0x6352211e
  */
 export const toFunctionSelector = (fn: string | AbiFunction) =>
-  slice(hashDefinition(fn), 0, 4)
+  slice(toSignatureHash(fn), 0, 4)

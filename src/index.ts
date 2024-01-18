@@ -1361,9 +1361,9 @@ export {
   hashSignature,
 } from './utils/hash/hashSignature.js'
 export {
-  type HashDefinitionErrorType,
-  hashDefinition,
-} from './utils/hash/hashDefinition.js'
+  type ToSignatureHashErrorType,
+  toSignatureHash,
+} from './utils/hash/toSignatureHash.js'
 export {
   type HashMessageErrorType,
   hashMessage,

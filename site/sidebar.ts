@@ -766,10 +766,6 @@ export const sidebar = {
           text: 'Hash',
           items: [
             {
-              text: 'hashDefinition',
-              link: '/docs/utilities/hashDefinition',
-            },
-            {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
             },
@@ -792,6 +788,10 @@ export const sidebar = {
             {
               text: 'toSignature',
               link: '/docs/utilities/toSignature',
+            },
+            {
+              text: 'toSignatureHash',
+              link: '/docs/utilities/toSignatureHash',
             },
           ],
         },
