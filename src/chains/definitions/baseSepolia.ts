@@ -16,7 +16,7 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Blockscout',
+      name: 'Basescan',
       url: 'https://sepolia.basescan.org',
       apiUrl: 'https://api-sepolia.basescan.org/api',
     },
