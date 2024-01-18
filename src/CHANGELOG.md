@@ -1,5 +1,11 @@
 # viem
 
+## 2.3.1
+
+### Patch Changes
+
+- [#1712](https://github.com/wevm/viem/pull/1712) [`5e30b542fbad19ba35dd7fb378765ee1f7c614dc`](https://github.com/wevm/viem/commit/5e30b542fbad19ba35dd7fb378765ee1f7c614dc) Thanks [@0xOlias](https://github.com/0xOlias)! - Updated Base Sepolia explorer URL.
+
 ## 2.3.0
 
 ### Minor Changes
