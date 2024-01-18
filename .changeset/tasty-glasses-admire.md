@@ -2,8 +2,10 @@
 "viem": minor
 ---
 
-- Added `toSignatureHash`.
+- Added `toEventHash`.
+- Added `toFunctionHash`.
 - Deprecated `getEventSelector` (use `toEventSelector`).
 - Deprecated `getFunctionSelector` (use `toFunctionSelector`).
-- Deprecated `getEventSignature` & `getFunctionSignature`. (use `toSignature`).
+- Deprecated `getEventSignature`. (use `toEventSignature`).
+- Deprecated `getFunctionSignature`. (use `toFunctionSignature`).
 

@@ -778,6 +778,14 @@ export const sidebar = {
               link: '/docs/utilities/sha256',
             },
             {
+              text: 'toEventHash',
+              link: '/docs/utilities/toEventHash',
+            },
+            {
+              text: 'toFunctionHash',
+              link: '/docs/utilities/toFunctionHash',
+            },
+            {
               text: 'toEventSelector',
               link: '/docs/utilities/toEventSelector',
             },
@@ -786,12 +794,12 @@ export const sidebar = {
               link: '/docs/utilities/toFunctionSelector',
             },
             {
-              text: 'toSignature',
-              link: '/docs/utilities/toSignature',
+              text: 'toEventSignature',
+              link: '/docs/utilities/toEventSignature',
             },
             {
-              text: 'toSignatureHash',
-              link: '/docs/utilities/toSignatureHash',
+              text: 'toFunctionSignature',
+              link: '/docs/utilities/toFunctionSignature',
             },
           ],
         },

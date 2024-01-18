@@ -358,9 +358,21 @@ export {
   toFunctionSelector as getFunctionSelector,
 } from './hash/toFunctionSelector.js'
 export {
-  type ToSignatureHashErrorType,
-  toSignatureHash,
-} from './hash/toSignatureHash.js'
+  type ToEventSignatureErrorType,
+  toEventSignature,
+} from './hash/toEventSignature.js'
+export {
+  type ToFunctionSignatureErrorType,
+  toFunctionSignature,
+} from './hash/toFunctionSignature.js'
+export {
+  type ToEventHashErrorType,
+  toEventHash,
+} from './hash/toEventHash.js'
+export {
+  type ToFunctionHashErrorType,
+  toFunctionHash,
+} from './hash/toFunctionHash.js'
 export { type IsHashErrorType, isHash } from './hash/isHash.js'
 export { type Keccak256ErrorType, keccak256 } from './hash/keccak256.js'
 export { type Sha256ErrorType, sha256 } from './hash/sha256.js'

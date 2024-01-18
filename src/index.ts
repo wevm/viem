@@ -1337,18 +1337,6 @@ export {
   toEventSelector as getEventSelector,
 } from './utils/hash/toEventSelector.js'
 export {
-  type ToSignatureErrorType,
-  toSignature,
-  /** @deprecated – use `ToSignatureErrorType`. */
-  type ToSignatureErrorType as GetEventSignatureErrorType,
-  /** @deprecated – use `toSignature`. */
-  toSignature as getEventSignature,
-  /** @deprecated – use `ToSignatureErrorType`. */
-  type ToSignatureErrorType as GetFunctionSignatureErrorType,
-  /** @deprecated – use `toSignature`. */
-  toSignature as getFunctionSignature,
-} from './utils/hash/toSignature.js'
-export {
   type ToFunctionSelectorErrorType,
   toFunctionSelector,
   /** @deprecated – use `ToFunctionSelectorErrorType`. */
@@ -1357,13 +1345,21 @@ export {
   toFunctionSelector as getFunctionSelector,
 } from './utils/hash/toFunctionSelector.js'
 export {
-  type HashSignatureErrorType,
-  hashSignature,
-} from './utils/hash/hashSignature.js'
+  type ToEventSignatureErrorType,
+  toEventSignature,
+} from './utils/hash/toEventSignature.js'
 export {
-  type ToSignatureHashErrorType,
-  toSignatureHash,
-} from './utils/hash/toSignatureHash.js'
+  type ToFunctionSignatureErrorType,
+  toFunctionSignature,
+} from './utils/hash/toFunctionSignature.js'
+export {
+  type ToEventHashErrorType,
+  toEventHash,
+} from './utils/hash/toEventHash.js'
+export {
+  type ToFunctionHashErrorType,
+  toFunctionHash,
+} from './utils/hash/toFunctionHash.js'
 export {
   type HashMessageErrorType,
   hashMessage,
