@@ -1,31 +1,31 @@
 import { expect, test } from 'vitest'
 
-import { getFunctionSelector } from './getFunctionSelector.js'
+import { toFunctionSelector } from './toFunctionSelector.js'
 
 test('creates function signature', () => {
-  expect(getFunctionSelector('_compound(uint256,uint256,uint256)')).toEqual(
+  expect(toFunctionSelector('_compound(uint256,uint256,uint256)')).toEqual(
     '0xf4fbb312',
   )
   expect(
-    getFunctionSelector('function _compound(uint256 a, uint256 b, uint256 c)'),
+    toFunctionSelector('function _compound(uint256 a, uint256 b, uint256 c)'),
   ).toEqual('0xf4fbb312')
-  expect(getFunctionSelector('function ownerOf(uint256 tokenId)')).toEqual(
+  expect(toFunctionSelector('function ownerOf(uint256 tokenId)')).toEqual(
     '0x6352211e',
   )
-  expect(getFunctionSelector('ownerOf(uint256)')).toEqual('0x6352211e')
-  expect(
-    getFunctionSelector('processInvestment(address,uint256,bool)'),
-  ).toEqual('0xcf4b8f61')
-  expect(getFunctionSelector('processAccount(uint256 , address )')).toEqual(
+  expect(toFunctionSelector('ownerOf(uint256)')).toEqual('0x6352211e')
+  expect(toFunctionSelector('processInvestment(address,uint256,bool)')).toEqual(
+    '0xcf4b8f61',
+  )
+  expect(toFunctionSelector('processAccount(uint256 , address )')).toEqual(
     '0x73933128',
   )
-  expect(getFunctionSelector('claimed()')).toEqual('0xe834a834')
-  expect(getFunctionSelector('function claimed()')).toEqual('0xe834a834')
+  expect(toFunctionSelector('claimed()')).toEqual('0xe834a834')
+  expect(toFunctionSelector('function claimed()')).toEqual('0xe834a834')
 })
 
 test('creates function signature from `AbiFunction`', () => {
   expect(
-    getFunctionSelector({
+    toFunctionSelector({
       name: '_compound',
       type: 'function',
       inputs: [
@@ -39,7 +39,7 @@ test('creates function signature from `AbiFunction`', () => {
   ).toEqual('0xf4fbb312')
 
   expect(
-    getFunctionSelector({
+    toFunctionSelector({
       name: '_compound',
       type: 'function',
       inputs: [
@@ -53,7 +53,7 @@ test('creates function signature from `AbiFunction`', () => {
   ).toEqual('0xf4fbb312')
 
   expect(
-    getFunctionSelector({
+    toFunctionSelector({
       name: 'ownerOf',
       type: 'function',
       inputs: [{ name: 'tokenId', type: 'uint256' }],
@@ -63,7 +63,7 @@ test('creates function signature from `AbiFunction`', () => {
   ).toEqual('0x6352211e')
 
   expect(
-    getFunctionSelector({
+    toFunctionSelector({
       name: 'ownerOf',
       type: 'function',
       inputs: [{ name: '', type: 'uint256' }],
@@ -73,7 +73,7 @@ test('creates function signature from `AbiFunction`', () => {
   ).toEqual('0x6352211e')
 
   expect(
-    getFunctionSelector({
+    toFunctionSelector({
       name: 'processInvestment',
       type: 'function',
       inputs: [
@@ -87,7 +87,7 @@ test('creates function signature from `AbiFunction`', () => {
   ).toEqual('0xcf4b8f61')
 
   expect(
-    getFunctionSelector({
+    toFunctionSelector({
       name: 'processAccount',
       type: 'function',
       inputs: [
@@ -100,7 +100,7 @@ test('creates function signature from `AbiFunction`', () => {
   ).toEqual('0x73933128')
 
   expect(
-    getFunctionSelector({
+    toFunctionSelector({
       name: 'claimed',
       type: 'function',
       inputs: [],
@@ -110,7 +110,7 @@ test('creates function signature from `AbiFunction`', () => {
   ).toEqual('0xe834a834')
 
   expect(
-    getFunctionSelector({
+    toFunctionSelector({
       inputs: [
         {
           components: [

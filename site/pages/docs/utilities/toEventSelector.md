@@ -2,29 +2,29 @@
 description: Returns the event selector for a given event definition.
 ---
 
-# getEventSelector
+# toEventSelector
 
 Returns the event selector for a given event definition.
 
 ## Install
 
 ```ts
-import { getEventSelector } from 'viem'
+import { toEventSelector } from 'viem'
 ```
 
 ## Usage
 
-```ts
-import { getEventSelector } from 'viem'
+```ts twoslash
+import { toEventSelector } from 'viem'
 
-const selector = getEventSelector('Transfer(address,address,uint256)')
-// 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
+// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
+const selector_1 = toEventSelector('Transfer(address,address,uint256)')
 
-const selector = getEventSelector('Transfer(address indexed from, address indexed to, uint256 amount)')
-// 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
+// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
+const selector_2 = toEventSelector('Transfer(address indexed from, address indexed to, uint256 amount)')
 
 // or from an `AbiEvent` on your contract ABI
-const selector = getEventSelector({
+const selector_3 = toEventSelector({
   name: 'Transfer',
   type: 'event',
   inputs: [
@@ -32,8 +32,8 @@ const selector = getEventSelector({
     { name: 'to', type: 'address', indexed: true },
     { name: 'amount', type: 'uint256', indexed: false },
   ],
+// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 })
-// 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 ```
 
 ## Returns

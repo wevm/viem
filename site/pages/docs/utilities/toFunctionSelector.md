@@ -2,36 +2,36 @@
 description: Returns the function selector (4 byte encoding) for a given function definition.
 ---
 
-# getFunctionSelector
+# toFunctionSelector
 
 Returns the function selector (4 byte encoding) for a given function definition.
 
 ## Install
 
 ```ts
-import { getFunctionSelector } from 'viem'
+import { toFunctionSelector } from 'viem'
 ```
 
 ## Usage
 
-```ts
-import { getFunctionSelector } from 'viem'
+```ts twoslash
+import { toFunctionSelector } from 'viem'
 
-const selector = getFunctionSelector('function ownerOf(uint256 tokenId)')
-// 0x6352211e
+// @log: Output: 0x6352211e
+const selector_1 = toFunctionSelector('function ownerOf(uint256 tokenId)')
 
-const selector = getFunctionSelector('ownerOf(uint256)')
-// 0x6352211e
+// @log: Output: 0x6352211e
+const selector_2 = toFunctionSelector('ownerOf(uint256)')
 
 // or from an `AbiFunction` on your contract ABI
-const selector = getFunctionSelector({
+const selector_3 = toFunctionSelector({
   name: 'ownerOf',
   type: 'function',
   inputs: [{ name: 'tokenId', type: 'uint256' }],
   outputs: [],
   stateMutability: 'view',
+// @log: Output: 0x6352211e
 })
-// 0x6352211e
 ```
 
 ## Returns

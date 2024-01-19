@@ -10,9 +10,9 @@ import type { Hex } from '../../types/misc.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
 import { type SliceErrorType, slice } from '../data/slice.js'
 import {
-  type GetFunctionSelectorErrorType,
-  getFunctionSelector,
-} from '../hash/getFunctionSelector.js'
+  type ToFunctionSelectorErrorType,
+  toFunctionSelector,
+} from '../hash/toFunctionSelector.js'
 import {
   type DecodeAbiParametersErrorType,
   decodeAbiParameters,
@@ -49,7 +49,7 @@ export type DecodeFunctionDataErrorType =
   | AbiFunctionSignatureNotFoundError
   | DecodeAbiParametersErrorType
   | FormatAbiItemErrorType
-  | GetFunctionSelectorErrorType
+  | ToFunctionSelectorErrorType
   | SliceErrorType
   | ErrorType
 
@@ -61,7 +61,7 @@ export function decodeFunctionData<const abi extends Abi | readonly unknown[]>(
   const description = abi.find(
     (x) =>
       x.type === 'function' &&
-      signature === getFunctionSelector(formatAbiItem(x)),
+      signature === toFunctionSelector(formatAbiItem(x)),
   )
   if (!description)
     throw new AbiFunctionSignatureNotFoundError(signature, {
