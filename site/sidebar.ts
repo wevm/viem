@@ -782,20 +782,20 @@ export const sidebar = {
               link: '/docs/utilities/toEventHash',
             },
             {
-              text: 'toFunctionHash',
-              link: '/docs/utilities/toFunctionHash',
-            },
-            {
               text: 'toEventSelector',
               link: '/docs/utilities/toEventSelector',
             },
             {
-              text: 'toFunctionSelector',
-              link: '/docs/utilities/toFunctionSelector',
-            },
-            {
               text: 'toEventSignature',
               link: '/docs/utilities/toEventSignature',
+            },
+            {
+              text: 'toFunctionHash',
+              link: '/docs/utilities/toFunctionHash',
+            },
+            {
+              text: 'toFunctionSelector',
+              link: '/docs/utilities/toFunctionSelector',
             },
             {
               text: 'toFunctionSignature',
