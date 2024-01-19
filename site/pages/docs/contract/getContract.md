@@ -103,34 +103,6 @@ const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   client: {
-    publicClient,
-    walletClient,
-  }
-})
-
-const balance = await contract.read.balanceOf([
-  '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-])
-const hash = await contract.write.mint([69420])
-const logs = await contract.getEvents.Transfer()
-const unwatch = contract.watchEvent.Transfer(
-  {
-    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-    to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
-  },
-  { onLogs: logs => console.log(logs) }
-)
-```
-
-```ts [contract-instance.ts]
-import { getContract } from 'viem'
-import { wagmiAbi } from './abi'
-import { publicClient, walletClient } from './client'
-
-const contract = getContract({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  abi: wagmiAbi,
-  client: {
     public: publicClient,
     wallet: walletClient,
   }
