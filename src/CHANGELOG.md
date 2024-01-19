@@ -1,5 +1,16 @@
 # viem
 
+## 2.4.0
+
+### Minor Changes
+
+- [#1716](https://github.com/wevm/viem/pull/1716) [`0b4ee201219fe2fec8d6d33051603776765bed06`](https://github.com/wevm/viem/commit/0b4ee201219fe2fec8d6d33051603776765bed06) Thanks [@jxom](https://github.com/jxom)! - - Added `toEventHash`.
+  - Added `toFunctionHash`.
+  - Deprecated `getEventSelector` (use `toEventSelector`).
+  - Deprecated `getFunctionSelector` (use `toFunctionSelector`).
+  - Deprecated `getEventSignature` (use `toEventSignature`).
+  - Deprecated `getFunctionSignature` (use `toFunctionSignature`).
+
 ## 2.3.1
 
 ### Patch Changes
