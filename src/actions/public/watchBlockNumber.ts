@@ -55,7 +55,7 @@ export type WatchBlockNumberErrorType = PollErrorType | ErrorType
 /**
  * Watches and returns incoming block numbers.
  *
- * - Docs: https://viem.sh/docs/actions/public/watchBlockNumber.html
+ * - Docs: https://viem.sh/docs/actions/public/watchBlockNumber
  * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/watching-blocks
  * - JSON-RPC Methods:
  *   - When `poll: true`, calls [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber) on a polling interval.

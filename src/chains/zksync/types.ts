@@ -30,7 +30,7 @@ type EIP712Type = '0x71'
 type PriorityType = '0xff'
 
 // Types
-// https://era.zksync.io/docs/api/js/types.html
+// https://era.zksync.io/docs/api/js/types
 
 export type ZkSyncLog<
   TQuantity = bigint,
@@ -52,7 +52,7 @@ export type ZkSyncLog<
 
 export type ZkSyncRpcLog = RpcLog_ & {
   l1BatchNumber: Hex | null
-  // These are returned but doesn't apear in Log structure neither is mentioned in https://era.zksync.io/docs/api/js/types.html
+  // These are returned but doesn't apear in Log structure neither is mentioned in https://era.zksync.io/docs/api/js/types
   transactionLogIndex: Hex
   logType: Hex | null
 }
@@ -104,7 +104,7 @@ export type ZkSyncFeeValues<TQuantity = bigint> = {
 }
 
 // Block
-// https://era.zksync.io/docs/api/js/types.html#block
+// https://era.zksync.io/docs/api/js/types#block
 
 export type ZkSyncBlockOverrides = {
   l1BatchNumber: bigint | null
@@ -139,7 +139,7 @@ export type ZkSyncRpcBlock<
   ZkSyncRpcBlockOverrides
 
 // Transaction
-// https://era.zksync.io/docs/api/js/types.html#transactionresponse
+// https://era.zksync.io/docs/api/js/types#transactionresponse
 
 type TransactionOverrides = {
   l1BatchNumber: bigint | null
@@ -220,7 +220,7 @@ export type ZkSyncRpcTransaction<TPending extends boolean = boolean> =
   >
 
 // Transaction Request
-// https://era.zksync.io/docs/reference/concepts/transactions.html
+// https://era.zksync.io/docs/reference/concepts/transactions
 
 type TransactionRequest = TransactionRequest_ & {
   gasPerPubdata?: undefined
@@ -266,7 +266,7 @@ export type ZkSyncRpcTransactionRequest =
 export type ZkSyncTransactionType = TransactionType | 'eip712' | 'priority'
 
 // Transaction Receipt
-// https://era.zksync.io/docs/api/js/types.html#transactionreceipt
+// https://era.zksync.io/docs/api/js/types#transactionreceipt
 
 export type ZkSyncRpcTransactionReceiptOverrides = {
   l1BatchNumber: Hex | null

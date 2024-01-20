@@ -33,7 +33,11 @@ import {
   OffchainLookupExample,
   Payable,
 } from '../contracts/generated.js'
-import { baycContractConfig, ensRegistryConfig } from './abis.js'
+import {
+  baycContractConfig,
+  ensRegistryConfig,
+  ensReverseRegistrarConfig,
+} from './abis.js'
 import {
   accounts,
   address,
@@ -271,6 +275,32 @@ export async function setVitalikResolver() {
     functionName: 'setResolver',
     args: [namehash('vitalik.eth'), ensRegistryConfig.address],
   })
+
+  await writeContract(walletClient, {
+    ...ensRegistryConfig,
+    account: address.vitalik,
+    functionName: 'setResolver',
+    args: [namehash('vbuterin.eth'), address.vitalik],
+  })
+
+  await mine(testClient, { blocks: 1 })
+  await stopImpersonatingAccount(testClient, {
+    address: address.vitalik,
+  })
+}
+
+export async function setVitalikName(name: string) {
+  await impersonateAccount(testClient, {
+    address: address.vitalik,
+  })
+
+  await writeContract(walletClient, {
+    ...ensReverseRegistrarConfig,
+    account: address.vitalik,
+    functionName: 'setName',
+    args: [name],
+  })
+
   await mine(testClient, { blocks: 1 })
   await stopImpersonatingAccount(testClient, {
     address: address.vitalik,

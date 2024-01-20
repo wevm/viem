@@ -13,6 +13,7 @@ export const sepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://sepolia.etherscan.io',
+      apiUrl: 'https://api-sepolia.etherscan.io/api',
     },
   },
   contracts: {
@@ -22,8 +23,8 @@ export const sepolia = /*#__PURE__*/ defineChain({
     },
     ensRegistry: { address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e' },
     ensUniversalResolver: {
-      address: '0x21B000Fd62a880b2125A61e36a284BB757b76025',
-      blockCreated: 3914906,
+      address: '0xBaBC7678D7A63104f1658c11D6AE9A21cdA09725',
+      blockCreated: 5_043_334,
     },
   },
   testnet: true,

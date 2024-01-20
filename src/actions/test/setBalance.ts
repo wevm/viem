@@ -23,7 +23,7 @@ export type SetBalanceErrorType = RequestErrorType | ErrorType
 /**
  * Modifies the balance of an account.
  *
- * - Docs: https://viem.sh/docs/actions/test/setBalance.html
+ * - Docs: https://viem.sh/docs/actions/test/setBalance
  *
  * @param client - Client to use
  * @param parameters – {@link SetBalanceParameters}

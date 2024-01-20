@@ -12,7 +12,10 @@ export const gobi = /*#__PURE__*/ defineChain({
     default: { http: ['https://gobi-testnet.horizenlabs.io/ethv1'] },
   },
   blockExplorers: {
-    default: { name: 'Gobi Explorer', url: 'https://gobi-explorer.horizen.io' },
+    default: {
+      name: 'Gobi Explorer',
+      url: 'https://gobi-explorer.horizen.io',
+    },
   },
   contracts: {},
   testnet: true,

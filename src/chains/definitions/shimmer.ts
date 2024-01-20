@@ -18,6 +18,7 @@ export const shimmer = /*#__PURE__*/ defineChain({
     default: {
       name: 'Shimmer Network Explorer',
       url: 'https://explorer.evm.shimmer.network',
+      apiUrl: 'https://explorer.evm.shimmer.network/api',
     },
   },
 })

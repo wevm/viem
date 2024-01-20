@@ -38,6 +38,16 @@ chains_.forEach((chain) => {
       },
       { timeout: defaultTimeout },
     )
+
+    const explorerApiUrl = chain.blockExplorers?.default.apiUrl
+    if (explorerApiUrl)
+      test(
+        `${chain.name}: check block explorer API`,
+        async () => {
+          await assertExplorerApiUrl(explorerApiUrl)
+        },
+        { timeout: defaultTimeout },
+      )
 })
 
 function isLocalNetwork(url: string): boolean {
@@ -88,4 +98,14 @@ async function assertWebSocketRpcUrls(
 
 async function assertExplorerUrl(explorerUrl: string): Promise<void> {
   await fetch(explorerUrl, { method: 'HEAD' })
+}
+
+async function assertExplorerApiUrl(explorerApiUrl: string): Promise<void> {
+  const url = `${explorerApiUrl}?module=block&action=getblocknobytime&closest=before&timestamp=${Math.floor(Date.now() / 1000)}`
+  const response = await fetch(url)
+  const data = await response.json()
+  expect(data).toMatchObject({
+    status: "1",
+    message: expect.stringContaining("OK"),
+  })
 }

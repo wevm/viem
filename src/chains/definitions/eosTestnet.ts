@@ -15,6 +15,7 @@ export const eosTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'EOS EVM Testnet Explorer',
       url: 'https://explorer.testnet.evm.eosnetwork.com',
+      apiUrl: 'https://explorer.testnet.evm.eosnetwork.com/api',
     },
   },
   contracts: {

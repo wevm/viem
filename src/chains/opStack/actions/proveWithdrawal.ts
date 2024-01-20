@@ -75,7 +75,7 @@ export type ProveWithdrawalErrorType =
 /**
  * Proves a withdrawal that occurred on an L2. Used in the Withdrawal flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/proveWithdrawal.html
+ * - Docs: https://viem.sh/op-stack/actions/proveWithdrawal
  *
  * @param client - Client to use
  * @param parameters - {@link ProveWithdrawalParameters}

@@ -19,7 +19,7 @@ export type RevertErrorType = RequestErrorType | ErrorType
 /**
  * Revert the state of the blockchain at the current block.
  *
- * - Docs: https://viem.sh/docs/actions/test/revert.html
+ * - Docs: https://viem.sh/docs/actions/test/revert
  *
  * @param client - Client to use
  * @param parameters – {@link RevertParameters}

@@ -23,6 +23,7 @@ export const mandala = /*#__PURE__*/ defineChain({
     default: {
       name: 'Mandala Blockscout',
       url: 'https://blockscout.mandala.aca-staging.network',
+      apiUrl: 'https://blockscout.mandala.aca-staging.network/api',
     },
   },
   testnet: true,

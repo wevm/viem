@@ -104,7 +104,7 @@ export type TestActions = {
   /**
    * Removes a transaction from the mempool.
    *
-   * - Docs: https://viem.sh/docs/actions/test/dropTransaction.html
+   * - Docs: https://viem.sh/docs/actions/test/dropTransaction
    *
    * @param args - {@link DropTransactionParameters}
    *
@@ -126,7 +126,7 @@ export type TestActions = {
    * Serializes the current state (including contracts code, contract's storage,
    * accounts properties, etc.) into a savable data blob.
    *
-   * - Docs: https://viem.sh/docs/actions/test/dumpState.html
+   * - Docs: https://viem.sh/docs/actions/test/dumpState
    *
    * @param client - Client to use
    *
@@ -145,7 +145,7 @@ export type TestActions = {
   /**
    * Returns the automatic mining status of the node.
    *
-   * - Docs: https://viem.sh/docs/actions/test/getAutomine.html
+   * - Docs: https://viem.sh/docs/actions/test/getAutomine
    *
    * @returns Whether or not the node is auto mining. {@link GetAutomineReturnType}
    *
@@ -164,7 +164,7 @@ export type TestActions = {
   /**
    * Returns the details of all transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
    *
-   * - Docs: https://viem.sh/docs/actions/test/getTxpoolContent.html
+   * - Docs: https://viem.sh/docs/actions/test/getTxpoolContent
    *
    * @returns Transaction pool content. {@link GetTxpoolContentReturnType}
    *
@@ -183,7 +183,7 @@ export type TestActions = {
   /**
    * Returns a summary of all the transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
    *
-   * - Docs: https://viem.sh/docs/actions/test/getTxpoolStatus.html
+   * - Docs: https://viem.sh/docs/actions/test/getTxpoolStatus
    *
    * @returns Transaction pool status. {@link GetTxpoolStatusReturnType}
    *
@@ -202,7 +202,7 @@ export type TestActions = {
   /**
    * Impersonate an account or contract address. This lets you send transactions from that account even if you don't have access to its private key.
    *
-   * - Docs: https://viem.sh/docs/actions/test/impersonateAccount.html
+   * - Docs: https://viem.sh/docs/actions/test/impersonateAccount
    *
    * @param args - {@link ImpersonateAccountParameters}
    *
@@ -223,7 +223,7 @@ export type TestActions = {
   /**
    * Jump forward in time by the given amount of time, in seconds.
    *
-   * - Docs: https://viem.sh/docs/actions/test/increaseTime.html
+   * - Docs: https://viem.sh/docs/actions/test/increaseTime
    *
    * @param args – {@link IncreaseTimeParameters}
    *
@@ -244,7 +244,7 @@ export type TestActions = {
   /**
    * Returns a summary of all the transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
    *
-   * - Docs: https://viem.sh/docs/actions/test/inspectTxpool.html
+   * - Docs: https://viem.sh/docs/actions/test/inspectTxpool
    *
    * @returns Transaction pool inspection data. {@link InspectTxpoolReturnType}
    *
@@ -263,7 +263,7 @@ export type TestActions = {
   /**
    * Adds state previously dumped with `dumpState` to the current chain.
    *
-   * - Docs: https://viem.sh/docs/actions/test/loadState.html
+   * - Docs: https://viem.sh/docs/actions/test/loadState
    *
    * @param client - Client to use
    *
@@ -282,7 +282,7 @@ export type TestActions = {
   /**
    * Mine a specified number of blocks.
    *
-   * - Docs: https://viem.sh/docs/actions/test/mine.html
+   * - Docs: https://viem.sh/docs/actions/test/mine
    *
    * @param client - Client to use
    * @param args – {@link MineParameters}
@@ -300,9 +300,9 @@ export type TestActions = {
    */
   mine: (args: MineParameters) => Promise<void>
   /**
-   * Removes [`setBlockTimestampInterval`](https://viem.sh/docs/actions/test/setBlockTimestampInterval.html) if it exists.
+   * Removes [`setBlockTimestampInterval`](https://viem.sh/docs/actions/test/setBlockTimestampInterval) if it exists.
    *
-   * - Docs: https://viem.sh/docs/actions/test/removeBlockTimestampInterval.html
+   * - Docs: https://viem.sh/docs/actions/test/removeBlockTimestampInterval
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -320,7 +320,7 @@ export type TestActions = {
   /**
    * Resets fork back to its original state.
    *
-   * - Docs: https://viem.sh/docs/actions/test/reset.html
+   * - Docs: https://viem.sh/docs/actions/test/reset
    *
    * @param args – {@link ResetParameters}
    *
@@ -339,7 +339,7 @@ export type TestActions = {
   /**
    * Revert the state of the blockchain at the current block.
    *
-   * - Docs: https://viem.sh/docs/actions/test/revert.html
+   * - Docs: https://viem.sh/docs/actions/test/revert
    *
    * @param args – {@link RevertParameters}
    *
@@ -358,7 +358,7 @@ export type TestActions = {
   /**
    * Returns the details of all transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
    *
-   * - Docs: https://viem.sh/docs/actions/test/getTxpoolContent.html
+   * - Docs: https://viem.sh/docs/actions/test/getTxpoolContent
    *
    * @param args – {@link SendUnsignedTransactionParameters}
    * @returns The transaction hash. {@link SendUnsignedTransactionReturnType}
@@ -384,7 +384,7 @@ export type TestActions = {
   /**
    * Enables or disables the automatic mining of new blocks with each new transaction submitted to the network.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setAutomine.html
+   * - Docs: https://viem.sh/docs/actions/test/setAutomine
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -401,7 +401,7 @@ export type TestActions = {
   /**
    * Modifies the balance of an account.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setBalance.html
+   * - Docs: https://viem.sh/docs/actions/test/setBalance
    *
    * @param args – {@link SetBalanceParameters}
    *
@@ -423,7 +423,7 @@ export type TestActions = {
   /**
    * Sets the block's gas limit.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setBlockGasLimit.html
+   * - Docs: https://viem.sh/docs/actions/test/setBlockGasLimit
    *
    * @param args – {@link SetBlockGasLimitParameters}
    *
@@ -440,9 +440,9 @@ export type TestActions = {
    */
   setBlockGasLimit: (args: SetBlockGasLimitParameters) => Promise<void>
   /**
-   * Similar to [`increaseTime`](https://viem.sh/docs/actions/test/increaseTime.html), but sets a block timestamp `interval`. The timestamp of future blocks will be computed as `lastBlock_timestamp` + `interval`.
+   * Similar to [`increaseTime`](https://viem.sh/docs/actions/test/increaseTime), but sets a block timestamp `interval`. The timestamp of future blocks will be computed as `lastBlock_timestamp` + `interval`.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setBlockTimestampInterval.html
+   * - Docs: https://viem.sh/docs/actions/test/setBlockTimestampInterval
    *
    * @param args – {@link SetBlockTimestampIntervalParameters}
    *
@@ -463,7 +463,7 @@ export type TestActions = {
   /**
    * Modifies the bytecode stored at an account's address.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setCode.html
+   * - Docs: https://viem.sh/docs/actions/test/setCode
    *
    * @param args – {@link SetCodeParameters}
    *
@@ -485,7 +485,7 @@ export type TestActions = {
   /**
    * Sets the coinbase address to be used in new blocks.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setCoinbase.html
+   * - Docs: https://viem.sh/docs/actions/test/setCoinbase
    *
    * @param args – {@link SetCoinbaseParameters}
    *
@@ -506,7 +506,7 @@ export type TestActions = {
   /**
    * Sets the automatic mining interval (in seconds) of blocks. Setting the interval to 0 will disable automatic mining.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setIntervalMining.html
+   * - Docs: https://viem.sh/docs/actions/test/setIntervalMining
    *
    * @param args – {@link SetIntervalMiningParameters}
    *
@@ -525,7 +525,7 @@ export type TestActions = {
   /**
    * Enable or disable logging on the test node network.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setLoggingEnabled.html
+   * - Docs: https://viem.sh/docs/actions/test/setLoggingEnabled
    *
    * @param client - Client to use
    *
@@ -544,7 +544,7 @@ export type TestActions = {
   /**
    * Change the minimum gas price accepted by the network (in wei).
    *
-   * - Docs: https://viem.sh/docs/actions/test/setMinGasPrice.html
+   * - Docs: https://viem.sh/docs/actions/test/setMinGasPrice
    *
    * Note: `setMinGasPrice` can only be used on clients that do not have EIP-1559 enabled.
    *
@@ -567,7 +567,7 @@ export type TestActions = {
   /**
    * Sets the next block's base fee per gas.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setNextBlockBaseFeePerGas.html
+   * - Docs: https://viem.sh/docs/actions/test/setNextBlockBaseFeePerGas
    *
    * @param args – {@link SetNextBlockBaseFeePerGasParameters}
    *
@@ -590,7 +590,7 @@ export type TestActions = {
   /**
    * Sets the next block's timestamp.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setNextBlockTimestamp.html
+   * - Docs: https://viem.sh/docs/actions/test/setNextBlockTimestamp
    *
    * @param args – {@link SetNextBlockTimestampParameters}
    *
@@ -611,7 +611,7 @@ export type TestActions = {
   /**
    * Modifies (overrides) the nonce of an account.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setNonce.html
+   * - Docs: https://viem.sh/docs/actions/test/setNonce
    *
    * @param args – {@link SetNonceParameters}
    *
@@ -633,7 +633,7 @@ export type TestActions = {
   /**
    * Sets the backend RPC URL.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setRpcUrl.html
+   * - Docs: https://viem.sh/docs/actions/test/setRpcUrl
    *
    * @param jsonRpcUrl – RPC URL
    *
@@ -652,7 +652,7 @@ export type TestActions = {
   /**
    * Writes to a slot of an account's storage.
    *
-   * - Docs: https://viem.sh/docs/actions/test/setStorageAt.html
+   * - Docs: https://viem.sh/docs/actions/test/setStorageAt
    *
    * @param args – {@link SetStorageAtParameters}
    *
@@ -675,7 +675,7 @@ export type TestActions = {
   /**
    * Snapshot the state of the blockchain at the current block.
    *
-   * - Docs: https://viem.sh/docs/actions/test/snapshot.html
+   * - Docs: https://viem.sh/docs/actions/test/snapshot
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -691,9 +691,9 @@ export type TestActions = {
    */
   snapshot: () => Promise<Quantity>
   /**
-   * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount.html).
+   * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount).
    *
-   * - Docs: https://viem.sh/docs/actions/test/stopImpersonatingAccount.html
+   * - Docs: https://viem.sh/docs/actions/test/stopImpersonatingAccount
    *
    * @param args – {@link StopImpersonatingAccountParameters}
    *

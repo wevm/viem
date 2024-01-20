@@ -112,9 +112,9 @@ export type WatchEventErrorType =
   | ErrorType
 
 /**
- * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms.html#event-log).
+ * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms#event-log).
  *
- * - Docs: https://viem.sh/docs/actions/public/watchEvent.html
+ * - Docs: https://viem.sh/docs/actions/public/watchEvent
  * - JSON-RPC Methods:
  *   - **RPC Provider supports `eth_newFilter`:**
  *     - Calls [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter) to create a filter (called on initialize).
@@ -122,9 +122,9 @@ export type WatchEventErrorType =
  *   - **RPC Provider does not support `eth_newFilter`:**
  *     - Calls [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs) for each block between the polling interval.
  *
- * This Action will batch up all the Event Logs found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/actions/public/watchEvent.html#onLogs).
+ * This Action will batch up all the Event Logs found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchEvent#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/actions/public/watchEvent#onLogs).
  *
- * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs.html) instead.
+ * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
  *
  * @param client - Client to use
  * @param parameters - {@link WatchEventParameters}
@@ -317,8 +317,8 @@ export function watchEvent<
               const formatted = formatLog(log, { args, eventName })
               onLogs([formatted] as any)
             } catch (err) {
-              let eventName
-              let isUnnamed
+              let eventName: string | undefined
+              let isUnnamed: boolean | undefined
               if (
                 err instanceof DecodeLogDataMismatch ||
                 err instanceof DecodeLogTopicsMismatch

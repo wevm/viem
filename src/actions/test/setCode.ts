@@ -23,7 +23,7 @@ export type SetCodeErrorType = RequestErrorType | ErrorType
 /**
  * Modifies the bytecode stored at an account's address.
  *
- * - Docs: https://viem.sh/docs/actions/test/setCode.html
+ * - Docs: https://viem.sh/docs/actions/test/setCode
  *
  * @param client - Client to use
  * @param parameters – {@link SetCodeParameters}

@@ -19,7 +19,11 @@ export const zora = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.zora.energy' },
+    default: {
+      name: 'Explorer',
+      url: 'https://explorer.zora.energy',
+      apiUrl: 'https://explorer.zora.energy/api',
+    },
   },
   contracts: {
     ...chainConfig.contracts,

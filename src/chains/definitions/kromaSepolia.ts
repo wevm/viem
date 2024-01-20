@@ -13,6 +13,7 @@ export const kromaSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Kroma Sepolia Explorer',
       url: 'https://blockscout.sepolia.kroma.network',
+      apiUrl: 'https://blockscout.sepolia.kroma.network/api',
     },
   },
   testnet: true,

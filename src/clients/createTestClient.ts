@@ -63,11 +63,11 @@ export type CreateTestClientErrorType = CreateClientErrorType | ErrorType
  * @description Creates a test client with a given transport.
  */
 /**
- * Creates a Test Client with a given [Transport](https://viem.sh/docs/clients/intro.html) configured for a [Chain](https://viem.sh/docs/clients/chains.html).
+ * Creates a Test Client with a given [Transport](https://viem.sh/docs/clients/intro) configured for a [Chain](https://viem.sh/docs/clients/chains).
  *
- * - Docs: https://viem.sh/docs/clients/test.html
+ * - Docs: https://viem.sh/docs/clients/test
  *
- * A Test Client is an interface to "test" JSON-RPC API methods accessible through a local Ethereum test node such as [Anvil](https://book.getfoundry.sh/anvil/) or [Hardhat](https://hardhat.org/) such as mining blocks, impersonating accounts, setting fees, etc through [Test Actions](https://viem.sh/docs/actions/test/introduction.html).
+ * A Test Client is an interface to "test" JSON-RPC API methods accessible through a local Ethereum test node such as [Anvil](https://book.getfoundry.sh/anvil/) or [Hardhat](https://hardhat.org/) such as mining blocks, impersonating accounts, setting fees, etc through [Test Actions](https://viem.sh/docs/actions/test/introduction).
  *
  * @param config - {@link TestClientConfig}
  * @returns A Test Client. {@link TestClient}

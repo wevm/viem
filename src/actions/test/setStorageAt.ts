@@ -26,7 +26,7 @@ export type SetStorageAtErrorType = RequestErrorType | ErrorType
 /**
  * Writes to a slot of an account's storage.
  *
- * - Docs: https://viem.sh/docs/actions/test/setStorageAt.html
+ * - Docs: https://viem.sh/docs/actions/test/setStorageAt
  *
  * @param client - Client to use
  * @param parameters – {@link SetStorageAtParameters}

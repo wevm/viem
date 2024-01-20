@@ -75,7 +75,7 @@ export type BuildProveWithdrawalErrorType =
 /**
  * Builds the transaction that proves a withdrawal was initiated on an L2. Used in the Withdrawal flow.
  *
- * - Docs: https://viem.sh/op-stack/actions/buildProveWithdrawal.html
+ * - Docs: https://viem.sh/op-stack/actions/buildProveWithdrawal
  *
  * @param client - Client to use
  * @param parameters - {@link BuildProveWithdrawalParameters}

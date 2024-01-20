@@ -17,6 +17,7 @@ export const optimismGoerli = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://goerli-optimism.etherscan.io',
+      apiUrl: 'https://goerli-optimism.etherscan.io/api',
     },
   },
   contracts: {

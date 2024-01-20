@@ -131,7 +131,7 @@ When adding new features or fixing bugs, it's important to add test cases to cov
 
 ### Writing documentation
 
-Documentation is crucial to helping developers of all experience levels use viem. viem uses [VitePress](https://github.com/vuejs/vitepress) and Markdown for the documentation site (located at [`site`](../site)). To start the site in dev mode, run:
+Documentation is crucial to helping developers of all experience levels use viem. viem uses [Vocs](https://vocs.dev) and Markdown for the documentation site (located at [`site`](../site)). To start the site in dev mode, run:
 
 ```bash
 bun run dev:docs
@@ -207,7 +207,6 @@ If you wish to contribute to add an additional Chain to the `viem/chains` entryp
   - a [multicall3](https://www.multicall3.com/) contract (`contracts.multicall3`)
     - this contract **must** be verified, and **must** match the bytecode of the [multicall3 contract](https://etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code).
 - **Optional**
-  - other named RPC URLs (such as `rpcUrls.alchemy`, `rpcUrls.infura`, etc.)
   - ENS registry contract (`contracts.ensRegistry`)
   - testnet flag (`testnet`)
 
@@ -276,6 +275,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://etherscan.io',
+      apiUrl: 'https://api.etherscan.io/api',
     },
   },
   contracts: {

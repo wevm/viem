@@ -5,6 +5,7 @@ import {
 } from '../../constants/abis.js'
 import { BaseError } from '../../errors/base.js'
 import { ContractFunctionRevertedError } from '../../errors/contract.js'
+import { encodeErrorResult } from '../index.js'
 import { isNullUniversalResolverError } from './errors.js'
 
 describe('isNullUniversalResolverError', () => {
@@ -15,6 +16,9 @@ describe('isNullUniversalResolverError', () => {
         resolverNotFound: true,
         resolverWildcardNotSupported: true,
         resolverWildcardMessage: true,
+        resolverNotContract: true,
+        resolverError: true,
+        httpError: true,
         panicReason50: false,
       },
     },
@@ -24,18 +28,23 @@ describe('isNullUniversalResolverError', () => {
         resolverNotFound: true,
         resolverWildcardNotSupported: true,
         resolverWildcardMessage: true,
+        resolverNotContract: true,
+        resolverError: true,
+        httpError: true,
         panicReason50: true,
       },
     },
   ] as const)('$callType', ({ callType, expected }) => {
+    const abi =
+      callType === 'resolve'
+        ? universalResolverResolveAbi
+        : universalResolverReverseAbi
+
     test('resolver not found error', () => {
       expect(
         isNullUniversalResolverError(
           new ContractFunctionRevertedError({
-            abi:
-              callType === 'resolve'
-                ? universalResolverResolveAbi
-                : universalResolverReverseAbi,
+            abi,
             // ResolverNotFound()
             data: '0x7199966d',
             functionName: callType,
@@ -49,10 +58,7 @@ describe('isNullUniversalResolverError', () => {
       expect(
         isNullUniversalResolverError(
           new ContractFunctionRevertedError({
-            abi:
-              callType === 'resolve'
-                ? universalResolverResolveAbi
-                : universalResolverReverseAbi,
+            abi,
             // ResolverWildcardNotSupported()
             data: '0x82c2c728',
             functionName: callType,
@@ -62,14 +68,56 @@ describe('isNullUniversalResolverError', () => {
       ).toBe(expected.resolverWildcardNotSupported)
     })
 
+    test('resolver not contract error', () => {
+      expect(
+        isNullUniversalResolverError(
+          new ContractFunctionRevertedError({
+            abi,
+            // ResolverNotContract()
+            data: '0x4981ac05',
+            functionName: callType,
+          }),
+          callType,
+        ),
+      ).toBe(expected.resolverNotContract)
+    })
+
+    test('resolver error', () => {
+      expect(
+        isNullUniversalResolverError(
+          new ContractFunctionRevertedError({
+            abi,
+            // ResolverError(bytes) + empty bytes
+            data: '0x95c0c75200000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+            functionName: callType,
+          }),
+          callType,
+        ),
+      ).toBe(expected.resolverError)
+    })
+
+    test('http error', () => {
+      expect(
+        isNullUniversalResolverError(
+          new ContractFunctionRevertedError({
+            abi,
+            data: encodeErrorResult({
+              abi,
+              errorName: 'HttpError',
+              args: [[{ status: 404, message: 'Not Found' }]],
+            }),
+            functionName: callType,
+          }),
+          callType,
+        ),
+      ).toBe(expected.httpError)
+    })
+
     test('wildcard message error reason', () => {
       expect(
         isNullUniversalResolverError(
           new ContractFunctionRevertedError({
-            abi:
-              callType === 'resolve'
-                ? universalResolverResolveAbi
-                : universalResolverReverseAbi,
+            abi,
             // Error('UniversalResolver: Wildcard on non-extended resolvers is not supported')
             data: '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000046556e6976657273616c5265736f6c7665723a2057696c6463617264206f6e206e6f6e2d657874656e646564207265736f6c76657273206973206e6f7420737570706f727465640000000000000000000000000000000000000000000000000000',
             functionName: callType,
@@ -83,10 +131,7 @@ describe('isNullUniversalResolverError', () => {
       expect(
         isNullUniversalResolverError(
           new ContractFunctionRevertedError({
-            abi:
-              callType === 'resolve'
-                ? universalResolverResolveAbi
-                : universalResolverReverseAbi,
+            abi,
             // Panic(50)
             data: '0x4e487b710000000000000000000000000000000000000000000000000000000000000032',
             functionName: callType,
@@ -109,10 +154,7 @@ describe('isNullUniversalResolverError', () => {
       expect(
         isNullUniversalResolverError(
           new ContractFunctionRevertedError({
-            abi:
-              callType === 'resolve'
-                ? universalResolverResolveAbi
-                : universalResolverReverseAbi,
+            abi,
             data: '0x',
             functionName: callType,
           }),

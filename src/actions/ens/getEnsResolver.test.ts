@@ -9,7 +9,7 @@ import { http } from '../../clients/transports/http.js'
 import { getEnsResolver } from './getEnsResolver.js'
 
 beforeAll(async () => {
-  await setBlockNumber(16966590n)
+  await setBlockNumber(18958931n)
 })
 
 test('default', async () => {
@@ -80,7 +80,7 @@ test('universal resolver contract deployed on later block', async () => {
     [ChainDoesNotSupportContract: Chain "Localhost" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract "ensUniversalResolver" was not deployed until block 16966585 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 18958930 (current block 14353601).
 
     Version: viem@1.0.2]
   `)
@@ -100,7 +100,7 @@ test('invalid universal resolver address', async () => {
       function:  findResolver(bytes)
       args:                  (0x046a786f6d0365746800)
 
-    Docs: https://viem.sh/docs/contract/readContract.html
+    Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2]
   `)
 })

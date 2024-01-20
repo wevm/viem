@@ -1,0 +1,64 @@
+# Error Handling 
+
+Every module in viem exports an accompanying error type which you can use to strongly type your `catch` statements.
+
+These types come in the form of `<Module>ErrorType`. For example, the `getBlockNumber` action exports a `GetBlockNumberErrorType` type.
+
+Unfortunately, [TypeScript doesn't have an abstraction for typed exceptions](https://github.com/microsoft/TypeScript/issues/13219), so the most pragmatic & vanilla approach would be to explicitly cast error types in the `catch` statement.
+
+:::code-group
+
+```ts [example.ts] twoslash
+// @noErrors
+// @filename: client.ts
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+// @filename: index.ts
+// ---cut---
+import { type GetBlockNumberErrorType } from 'viem'
+import { client } from './client'
+
+try {
+  const blockNumber = await client.getBlockNumber()
+} catch (e) {
+  const error = e as GetBlockNumberErrorType
+  error.name 
+//      ^?
+
+
+
+
+
+
+  if (error.name === 'InternalRpcError')
+    error.code
+    //    ^?
+
+
+  if (error.name === 'HttpRequestError') {
+    error.headers
+    //    ^?
+
+
+    error.status
+    //    ^?
+  }
+}
+```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::

@@ -100,11 +100,11 @@ export type WatchContractEventErrorType =
 /**
  * Watches and returns emitted contract event logs.
  *
- * - Docs: https://viem.sh/docs/contract/watchContractEvent.html
+ * - Docs: https://viem.sh/docs/contract/watchContractEvent
  *
- * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
+ * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent#onLogs).
  *
- * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+ * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
  *
  * @param client - Client to use
  * @param parameters - {@link WatchContractEventParameters}
@@ -292,8 +292,8 @@ export function watchContractEvent<
               })
               onLogs([formatted] as any)
             } catch (err) {
-              let eventName
-              let isUnnamed
+              let eventName: string | undefined
+              let isUnnamed: boolean | undefined
               if (
                 err instanceof DecodeLogDataMismatch ||
                 err instanceof DecodeLogTopicsMismatch

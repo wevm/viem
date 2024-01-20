@@ -109,7 +109,7 @@ export type PrepareTransactionRequestErrorType =
 /**
  * Prepares a transaction request for signing.
  *
- * - Docs: https://viem.sh/docs/actions/wallet/prepareTransactionRequest.html
+ * - Docs: https://viem.sh/docs/actions/wallet/prepareTransactionRequest
  *
  * @param args - {@link PrepareTransactionRequestParameters}
  * @returns The transaction request. {@link PrepareTransactionRequestReturnType}

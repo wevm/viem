@@ -1,5 +1,108 @@
 # viem
 
+## 2.4.0
+
+### Minor Changes
+
+- [#1716](https://github.com/wevm/viem/pull/1716) [`0b4ee201219fe2fec8d6d33051603776765bed06`](https://github.com/wevm/viem/commit/0b4ee201219fe2fec8d6d33051603776765bed06) Thanks [@jxom](https://github.com/jxom)! - - Added `toEventHash`.
+  - Added `toFunctionHash`.
+  - Deprecated `getEventSelector` (use `toEventSelector`).
+  - Deprecated `getFunctionSelector` (use `toFunctionSelector`).
+  - Deprecated `getEventSignature` (use `toEventSignature`).
+  - Deprecated `getFunctionSignature` (use `toFunctionSignature`).
+
+## 2.3.1
+
+### Patch Changes
+
+- [#1712](https://github.com/wevm/viem/pull/1712) [`5e30b542fbad19ba35dd7fb378765ee1f7c614dc`](https://github.com/wevm/viem/commit/5e30b542fbad19ba35dd7fb378765ee1f7c614dc) Thanks [@0xOlias](https://github.com/0xOlias)! - Updated Base Sepolia explorer URL.
+
+## 2.3.0
+
+### Minor Changes
+
+- [#1676](https://github.com/wevm/viem/pull/1676) [`0ca8818c83636775886a1a9f261b2ea73840c9d7`](https://github.com/wevm/viem/commit/0ca8818c83636775886a1a9f261b2ea73840c9d7) Thanks [@TateB](https://github.com/TateB)! - Added `gatewayUrls` and `strict` properties to ENS Actions.
+
+### Patch Changes
+
+- [#1706](https://github.com/wevm/viem/pull/1706) [`5b27bef47245ea0e5a12955bb0571bf8fe7f1270`](https://github.com/wevm/viem/commit/5b27bef47245ea0e5a12955bb0571bf8fe7f1270) Thanks [@sakulstra](https://github.com/sakulstra)! - Replaces the default block explorer on gnosis from blockscout to gnosisscan.
+
+- [`10d1177a2e9497e87e37d5c9f7753583084266ca`](https://github.com/wevm/viem/commit/10d1177a2e9497e87e37d5c9f7753583084266ca) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `prepareTransactionRequest` would ignore a provided `maxPriorityFeePerGas` of zero.
+
+## 2.2.0
+
+### Minor Changes
+
+- [#1708](https://github.com/wevm/viem/pull/1708) [`217174da0ff9f2179e1d800692f6fa1b094984a3`](https://github.com/wevm/viem/commit/217174da0ff9f2179e1d800692f6fa1b094984a3) Thanks [@tmm](https://github.com/tmm)! - Bumped abitype
+
+## 2.1.1
+
+### Patch Changes
+
+- [#1693](https://github.com/wevm/viem/pull/1693) [`d3ec8be8`](https://github.com/wevm/viem/commit/d3ec8be8bba0eff16fa0b9d812761f4fd2bb3c3a) Thanks [@NicolasMahe](https://github.com/NicolasMahe)! - Add multicall3 contract to Neon EVM MainNet
+
+- [#1695](https://github.com/wevm/viem/pull/1695) [`ac052a4d`](https://github.com/wevm/viem/commit/ac052a4dae4b1fc503c3e09e175f5f88522d4635) Thanks [@NicolasMahe](https://github.com/NicolasMahe)! - Add Lightlink Phoenix and Pegasus chains
+
+## 2.1.0
+
+### Minor Changes
+
+- [`06105dfc`](https://github.com/wevm/viem/commit/06105dfcb01571f9278e0268f30c954f58958e2b) Thanks [@jxom](https://github.com/jxom)! - Refactored ABI decoding implementation to use a cursor instead of array copies, and prevent excessive recursive pointers.
+
+### Patch Changes
+
+- [#1691](https://github.com/wevm/viem/pull/1691) [`8d011e8b`](https://github.com/wevm/viem/commit/8d011e8bf13685fe51e8cb69d6ef633fa1247e9a) Thanks [@skenaja](https://github.com/skenaja)! - Added Palm and Palm Testnet chains
+
+- [#1684](https://github.com/wevm/viem/pull/1684) [`06a28ddb`](https://github.com/wevm/viem/commit/06a28ddbb69e51c6288e2dad0ff3b99b209e5276) Thanks [@Yuripetusko](https://github.com/Yuripetusko)! - Added Multicall3 config to Base Sepolia chain definition
+
+## 2.0.10
+
+### Patch Changes
+
+- [#1689](https://github.com/wevm/viem/pull/1689) [`0216aff9`](https://github.com/wevm/viem/commit/0216aff904354e209d598c7b67b7ab5f156d94f6) Thanks [@tmm](https://github.com/tmm)! - Removed non-default chain properties.
+
+## 2.0.9
+
+### Patch Changes
+
+- [#1687](https://github.com/wevm/viem/pull/1687) [`ffc3f255`](https://github.com/wevm/viem/commit/ffc3f255ac2483e4974e1c6d879ecf2247e36b01) Thanks [@0xOlias](https://github.com/0xOlias)! - Added API URLs for block explorers in `viem/chains`.
+
+## 2.0.8
+
+### Patch Changes
+
+- [#1679](https://github.com/wevm/viem/pull/1679) [`c10c68ef`](https://github.com/wevm/viem/commit/c10c68eff0d02f0dcc0970bcceddd026801b27bd) Thanks [@marthendalnunes](https://github.com/marthendalnunes)! - Exported `deployContract` and `getContractEvents`.
+
+## 2.0.7
+
+### Patch Changes
+
+- [#1677](https://github.com/wevm/viem/pull/1677) [`e74a80c9`](https://github.com/wevm/viem/commit/e74a80c9f90abb60d1bc88501892bcfd83930baf) Thanks [@cong1223](https://github.com/cong1223)! - Added Etherscan link for zkSync.
+
+- [#1661](https://github.com/wevm/viem/pull/1661) [`4fdc1d9f`](https://github.com/wevm/viem/commit/4fdc1d9fe25b4ff7d9583188f2450c3ed144026c) Thanks [@zkgggggame](https://github.com/zkgggggame)! - Added multicall3 to Mantle Testnet.
+
+- [#1674](https://github.com/wevm/viem/pull/1674) [`c3bcf486`](https://github.com/wevm/viem/commit/c3bcf4868d76c1535dfa3802cd37baf778cb5494) Thanks [@mr-kenikh](https://github.com/mr-kenikh)! - Added multicall3 for zkFair Mainnet
+
+- [#1667](https://github.com/wevm/viem/pull/1667) [`d697cf99`](https://github.com/wevm/viem/commit/d697cf996eca039e429bff91024179f27dc32f77) Thanks [@mehmetraufoguz](https://github.com/mehmetraufoguz)! - Added MetaChain chain.
+
+## 2.0.6
+
+### Patch Changes
+
+- [#1462](https://github.com/wevm/viem/pull/1462) [`f1aaca8f`](https://github.com/wevm/viem/commit/f1aaca8f104d3595fd86018d28f0bf97cdd8dcc8) Thanks [@0xarthurxyz](https://github.com/0xarthurxyz)! - Removed Celo Cannoli testnet which is [deprecated](https://forum.celo.org/t/cannoli-testnet-deprecation-announcement/6796).
+
+## 2.0.5
+
+### Patch Changes
+
+- [#1659](https://github.com/wevm/viem/pull/1659) [`d8740646`](https://github.com/wevm/viem/commit/d8740646c83d3064ea103928a00928a3c260ed65) Thanks [@d1onys1us](https://github.com/d1onys1us)! - Added Taiko Katla chain.
+
+- [#1663](https://github.com/wevm/viem/pull/1663) [`e22c85e8`](https://github.com/wevm/viem/commit/e22c85e8149f8ec7b255655ced70dc3dbc3e1383) Thanks [@saqlain1020](https://github.com/saqlain1020)! - Exported `parseEventLogs` (and types).
+
+- [#1662](https://github.com/wevm/viem/pull/1662) [`71d14759`](https://github.com/wevm/viem/commit/71d14759acfaef4d0589e98b3c97b11f2a91e561) Thanks [@zkgggggame](https://github.com/zkgggggame)! - Added multicall3 to Taiko Jolnir.
+
+- [`14ad813f`](https://github.com/wevm/viem/commit/14ad813fed2d9ee97e053e8b7d701faf9e68f0cf) Thanks [@jxom](https://github.com/jxom)! - Fixed extreme edge-case where decoding a **malformed** payload against a nested array type could cause \`decodeAbiParameters\` to enter an infinite loop.
+
 ## 2.0.4
 
 ### Patch Changes
@@ -34,11 +137,11 @@
 
 - [#1610](https://github.com/wevm/viem/pull/1610) [`440b3ba7`](https://github.com/wevm/viem/commit/440b3ba7d7faa9e51fe87df07acd6a5d373b3b9a) Thanks [@tmm](https://github.com/tmm)! - Viem 2.0 featuring:
 
-  - [Low-level OP Stack extensions](https://viem.sh/op-stack.html),
+  - [Low-level OP Stack extensions](https://viem.sh/op-stack),
   - Enhanced types,
   - Miscellaneous improvements and bug fixes.
 
-  [Breaking Changes & Migration Guide](https://viem.sh/docs/migration-guide.html)
+  [Breaking Changes & Migration Guide](https://viem.sh/docs/migration-guide)
 
 ## 1.21.4
 
@@ -460,7 +563,7 @@
 
 ### Minor Changes
 
-- [#1263](https://github.com/wevm/viem/pull/1263) [`399a43db`](https://github.com/wevm/viem/commit/399a43db5e559cd84dafb5c66bfe0a7ad24c2d67) Thanks [@jxom](https://github.com/jxom)! - Added error types for exported modules (e.g. `<Module>ErrorType`). [Read more.](https://viem.sh/docs/error-handling.html)
+- [#1263](https://github.com/wevm/viem/pull/1263) [`399a43db`](https://github.com/wevm/viem/commit/399a43db5e559cd84dafb5c66bfe0a7ad24c2d67) Thanks [@jxom](https://github.com/jxom)! - Added error types for exported modules (e.g. `<Module>ErrorType`). [Read more.](https://viem.sh/docs/error-handling)
 
 ### Patch Changes
 
@@ -1200,7 +1303,7 @@
 
 ## 1.0.0
 
-### [Migration Guide](https://viem.sh/docs/migration-guide.html)
+### [Migration Guide](https://viem.sh/docs/migration-guide)
 
 ### Major Changes
 
@@ -1212,7 +1315,7 @@
 
 - [#576](https://github.com/wevm/viem/pull/576) [`7d42767`](https://github.com/wevm/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `ethersWalletToAccount` adapter.
 
-  This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/privateKey.html) & [HD Accounts](https://viem.sh/docs/accounts/mnemonic.html).
+  This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/privateKey) & [HD Accounts](https://viem.sh/docs/accounts/mnemonic).
 
   If you still need it, you can copy + paste the [old implementation](https://github.com/wevm/viem/blob/a9a71507032db896295fa1f3fa2dd6c2bdc85137/src/adapters/ethers.ts).
 
@@ -1684,7 +1787,7 @@
 
 - [#285](https://github.com/wevm/viem/pull/285) [`ab9fd12`](https://github.com/wevm/viem/commit/ab9fd121fbe271ba9bee43aea2d7bba122dc4f03) Thanks [@tmm](https://github.com/tmm)! - Exported `hdKeyToAccount` and `mnemonicToAccount`.
 
-## 0.2.0 – [Migration Guide](https://viem.sh/docs/migration-guide.html)
+## 0.2.0 – [Migration Guide](https://viem.sh/docs/migration-guide)
 
 ### Minor Changes
 
@@ -1710,7 +1813,7 @@
 
   If you were using the Ethers Wallet adapter, you can use the `ethersWalletToAccount` function.
 
-  > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey.html) & [Mnemonic Account](/docs/accounts/mnemonic.html) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
+  > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey) & [Mnemonic Account](/docs/accounts/mnemonic) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
 
   ```diff
   import { createWalletClient, custom } from 'viem'

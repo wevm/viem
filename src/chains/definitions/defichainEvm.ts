@@ -22,10 +22,6 @@ export const defichainEvm = /*#__PURE__*/ defineChain({
       name: 'DeFiScan',
       url: 'https://meta.defiscan.live',
     },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://blockscout.mainnet.ocean.jellyfishsdk.com',
-    },
   },
   contracts: {
     multicall3: {

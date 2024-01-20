@@ -176,8 +176,8 @@ export class ContractFunctionRevertedError extends BaseError {
   }: { abi: Abi; data?: Hex; functionName: string; message?: string }) {
     let cause: Error | undefined
     let decodedData: DecodeErrorResultReturnType | undefined = undefined
-    let metaMessages
-    let reason
+    let metaMessages: string[] | undefined
+    let reason: string | undefined
     if (data && data !== '0x') {
       try {
         decodedData = decodeErrorResult({ abi, data })

@@ -13,13 +13,10 @@ export const manta = /*#__PURE__*/ defineChain({
     default: { http: ['https://pacific-rpc.manta.network/http'] },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Manta Explorer',
-      url: 'https://pacific-explorer.manta.network',
-    },
     default: {
       name: 'Manta Explorer',
       url: 'https://pacific-explorer.manta.network',
+      apiUrl: 'https://pacific-explorer.manta.network/api',
     },
   },
   contracts: {

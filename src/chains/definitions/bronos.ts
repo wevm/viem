@@ -12,6 +12,9 @@ export const bronos = /*#__PURE__*/ defineChain({
     default: { http: ['https://evm.bronos.org'] },
   },
   blockExplorers: {
-    default: { name: 'BronoScan', url: 'https://broscan.bronos.org' },
+    default: {
+      name: 'BronoScan',
+      url: 'https://broscan.bronos.org',
+    },
   },
 })

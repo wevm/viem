@@ -18,6 +18,7 @@ export const moonbaseAlpha = /*#__PURE__*/ defineChain({
     default: {
       name: 'Moonscan',
       url: 'https://moonbase.moonscan.io',
+      apiUrl: 'https://moonbase.moonscan.io/api',
     },
   },
   contracts: {

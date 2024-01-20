@@ -13,6 +13,7 @@ export const oasisTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Ftnscan',
       url: 'https://oasis.ftnscan.com',
+      apiUrl: 'https://oasis.ftnscan.com/api',
     },
   },
   testnet: true,

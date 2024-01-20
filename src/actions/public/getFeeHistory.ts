@@ -47,7 +47,7 @@ export type GetFeeHistoryErrorType =
 /**
  * Returns a collection of historical gas information.
  *
- * - Docs: https://viem.sh/docs/actions/public/getFeeHistory.html
+ * - Docs: https://viem.sh/docs/actions/public/getFeeHistory
  * - JSON-RPC Methods: [`eth_feeHistory`](https://docs.alchemy.com/reference/eth-feehistory)
  *
  * @param client - Client to use

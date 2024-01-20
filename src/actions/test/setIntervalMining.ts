@@ -18,7 +18,7 @@ export type SetIntervalMiningErrorType = RequestErrorType | ErrorType
 /**
  * Sets the automatic mining interval (in seconds) of blocks. Setting the interval to 0 will disable automatic mining.
  *
- * - Docs: https://viem.sh/docs/actions/test/setIntervalMining.html
+ * - Docs: https://viem.sh/docs/actions/test/setIntervalMining
  *
  * @param client - Client to use
  * @param parameters – {@link SetIntervalMiningParameters}

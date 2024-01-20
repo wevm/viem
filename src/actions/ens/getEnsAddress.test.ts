@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import { localHttpUrl } from '~test/src/constants.js'
 import {
+  createHttpServer,
   publicClient,
   setBlockNumber,
   setVitalikResolver,
@@ -13,7 +14,7 @@ import { http } from '../../clients/transports/http.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
 beforeAll(async () => {
-  await setBlockNumber(17431812n)
+  await setBlockNumber(18958931n)
   await setVitalikResolver()
 })
 
@@ -23,6 +24,22 @@ test('gets address for name', async () => {
   ).resolves.toMatchInlineSnapshot(
     '"0xA0Cf798816D4b9b9866b5330EEa46a18382f251e"',
   )
+})
+
+test('gatewayUrls provided', async () => {
+  let called = false
+
+  const server = await createHttpServer((_, res) => {
+    called = true
+    res.end()
+  })
+
+  await getEnsAddress(publicClient, {
+    name: '1.offchainexample.eth',
+    gatewayUrls: [server.url],
+  }).catch(() => {})
+
+  expect(called).toBe(true)
 })
 
 test('gets address that starts with 0s for name', async () => {
@@ -57,6 +74,25 @@ test('name with resolver that does not support addr', async () => {
   await expect(
     getEnsAddress(publicClient, { name: 'vitalik.eth' }),
   ).resolves.toBeNull()
+})
+
+test('name with resolver that does not support addr - strict', async () => {
+  await expect(
+    getEnsAddress(publicClient, { name: 'vitalik.eth', strict: true }),
+  ).rejects.toMatchInlineSnapshot(`
+    [ContractFunctionExecutionError: The contract function "resolve" reverted.
+
+    Error: ResolverError(bytes returnData)
+                        (0x)
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  resolve(bytes name, bytes data)
+      args:             (0x07766974616c696b0365746800, 0x3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835)
+
+    Docs: https://viem.sh/docs/contract/readContract
+    Version: viem@1.0.2]
+  `)
 })
 
 test('name that looks like a hex', async () => {
@@ -194,7 +230,7 @@ test('universal resolver contract deployed on later block', async () => {
     [ChainDoesNotSupportContract: Chain "Localhost" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract "ensUniversalResolver" was not deployed until block 16966585 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 18958930 (current block 14353601).
 
     Version: viem@1.0.2]
   `)
@@ -214,7 +250,7 @@ test('invalid universal resolver address', async () => {
       function:  resolve(bytes name, bytes data)
       args:             (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c)
 
-    Docs: https://viem.sh/docs/contract/readContract.html
+    Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2]
   `)
 })

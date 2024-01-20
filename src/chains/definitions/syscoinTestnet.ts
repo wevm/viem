@@ -15,7 +15,10 @@ export const syscoinTestnet = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'SyscoinTestnetExplorer', url: 'https://tanenbaum.io' },
+    default: {
+      name: 'SyscoinTestnetExplorer',
+      url: 'https://tanenbaum.io',
+    },
   },
   contracts: {
     multicall3: {

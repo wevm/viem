@@ -46,7 +46,7 @@ export type GetBlockTransactionCountErrorType =
 /**
  * Returns the number of Transactions at a block number, hash, or tag.
  *
- * - Docs: https://viem.sh/docs/actions/public/getBlockTransactionCount.html
+ * - Docs: https://viem.sh/docs/actions/public/getBlockTransactionCount
  * - JSON-RPC Methods:
  *   - Calls [`eth_getBlockTransactionCountByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblocktransactioncountbynumber) for `blockNumber` & `blockTag`.
  *   - Calls [`eth_getBlockTransactionCountByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblocktransactioncountbyhash) for `blockHash`.

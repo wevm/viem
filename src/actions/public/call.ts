@@ -101,7 +101,7 @@ export type CallErrorType = GetCallErrorReturnType<
 /**
  * Executes a new message call immediately without submitting a transaction to the network.
  *
- * - Docs: https://viem.sh/docs/actions/public/call.html
+ * - Docs: https://viem.sh/docs/actions/public/call
  * - JSON-RPC Methods: [`eth_call`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
  *
  * @param client - Client to use

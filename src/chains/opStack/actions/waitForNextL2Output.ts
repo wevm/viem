@@ -48,7 +48,7 @@ export type WaitForNextL2OutputErrorType =
 /**
  * Waits for the next L2 output (after the provided block number) to be submitted.
  *
- * - Docs: https://viem.sh/op-stack/actions/waitForNextL2Output.html
+ * - Docs: https://viem.sh/op-stack/actions/waitForNextL2Output
  *
  * @param client - Client to use
  * @param parameters - {@link WaitForNextL2OutputParameters}

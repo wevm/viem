@@ -20,7 +20,7 @@ export type SetCoinbaseErrorType = RequestErrorType | ErrorType
 /**
  * Sets the coinbase address to be used in new blocks.
  *
- * - Docs: https://viem.sh/docs/actions/test/setCoinbase.html
+ * - Docs: https://viem.sh/docs/actions/test/setCoinbase
  *
  * @param client - Client to use
  * @param parameters – {@link SetCoinbaseParameters}

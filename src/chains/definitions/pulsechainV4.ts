@@ -15,6 +15,7 @@ export const pulsechainV4 = /*#__PURE__*/ defineChain({
     default: {
       name: 'PulseScan',
       url: 'https://scan.v4.testnet.pulsechain.com',
+      apiUrl: 'https://scan.v4.testnet.pulsechain.com/api',
     },
   },
   contracts: {

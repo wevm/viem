@@ -16,8 +16,9 @@ export const gnosis = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Gnosis Chain Explorer',
-      url: 'https://blockscout.com/xdai/mainnet',
+      name: 'Gnosisscan',
+      url: 'https://gnosisscan.io',
+      apiUrl: 'https://api.gnosisscan.io/api',
     },
   },
   contracts: {

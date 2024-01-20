@@ -13,6 +13,7 @@ export const nexi = /*#__PURE__*/ defineChain({
     default: {
       name: 'NexiScan',
       url: 'https://www.nexiscan.com',
+      apiUrl: 'https://www.nexiscan.com/api',
     },
   },
   contracts: {

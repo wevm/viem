@@ -13,7 +13,7 @@ export type SetRpcUrlErrorType = RequestErrorType | ErrorType
 /**
  * Sets the backend RPC URL.
  *
- * - Docs: https://viem.sh/docs/actions/test/setRpcUrl.html
+ * - Docs: https://viem.sh/docs/actions/test/setRpcUrl
  *
  * @param client - Client to use
  * @param jsonRpcUrl – RPC URL

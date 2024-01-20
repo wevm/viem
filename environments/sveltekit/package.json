@@ -12,7 +12,7 @@
     "viem": "file:../../src/"
   },
   "devDependencies": {
-    "@playwright/test": "^1.40.1",
+    "@playwright/test": "1.40.1",
     "@sveltejs/adapter-vercel": "^3.0.3",
     "@sveltejs/kit": "^1.20.4",
     "svelte": "^4.0.5",

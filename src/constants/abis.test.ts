@@ -1340,6 +1340,41 @@ test('exports abis', () => {
           "type": "error",
         },
         {
+          "inputs": [],
+          "name": "ResolverNotContract",
+          "type": "error",
+        },
+        {
+          "inputs": [
+            {
+              "name": "returnData",
+              "type": "bytes",
+            },
+          ],
+          "name": "ResolverError",
+          "type": "error",
+        },
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "name": "status",
+                  "type": "uint16",
+                },
+                {
+                  "name": "message",
+                  "type": "string",
+                },
+              ],
+              "name": "errors",
+              "type": "tuple[]",
+            },
+          ],
+          "name": "HttpError",
+          "type": "error",
+        },
+        {
           "inputs": [
             {
               "name": "name",
@@ -1348,6 +1383,35 @@ test('exports abis', () => {
             {
               "name": "data",
               "type": "bytes",
+            },
+          ],
+          "name": "resolve",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes",
+            },
+            {
+              "name": "address",
+              "type": "address",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+        {
+          "inputs": [
+            {
+              "name": "name",
+              "type": "bytes",
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+            },
+            {
+              "name": "gateways",
+              "type": "string[]",
             },
           ],
           "name": "resolve",
@@ -1377,10 +1441,78 @@ test('exports abis', () => {
           "type": "error",
         },
         {
+          "inputs": [],
+          "name": "ResolverNotContract",
+          "type": "error",
+        },
+        {
+          "inputs": [
+            {
+              "name": "returnData",
+              "type": "bytes",
+            },
+          ],
+          "name": "ResolverError",
+          "type": "error",
+        },
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "name": "status",
+                  "type": "uint16",
+                },
+                {
+                  "name": "message",
+                  "type": "string",
+                },
+              ],
+              "name": "errors",
+              "type": "tuple[]",
+            },
+          ],
+          "name": "HttpError",
+          "type": "error",
+        },
+        {
           "inputs": [
             {
               "name": "reverseName",
               "type": "bytes",
+            },
+          ],
+          "name": "reverse",
+          "outputs": [
+            {
+              "name": "resolvedName",
+              "type": "string",
+            },
+            {
+              "name": "resolvedAddress",
+              "type": "address",
+            },
+            {
+              "name": "reverseResolver",
+              "type": "address",
+            },
+            {
+              "name": "resolver",
+              "type": "address",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+        {
+          "inputs": [
+            {
+              "name": "reverseName",
+              "type": "bytes",
+            },
+            {
+              "name": "gateways",
+              "type": "string[]",
             },
           ],
           "name": "reverse",

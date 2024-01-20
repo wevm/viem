@@ -1,0 +1,20 @@
+@layer vocs_preflight {
+  @tailwind base;
+}
+
+@tailwind components;
+@tailwind utilities;
+
+#home-install .vocs_CodeGroup {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+#home-install .vocs_Tabs_content {
+  flex: 1;
+}
+
+#home-install .vocs_Code {
+  font-size: 18px;
+}

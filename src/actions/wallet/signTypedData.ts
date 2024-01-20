@@ -52,9 +52,9 @@ export type SignTypedDataErrorType =
 /**
  * Signs typed data and calculates an Ethereum-specific signature in [https://eips.ethereum.org/EIPS/eip-712](https://eips.ethereum.org/EIPS/eip-712): `sign(keccak256("\x19\x01" ‖ domainSeparator ‖ hashStruct(message)))`
  *
- * - Docs: https://viem.sh/docs/actions/wallet/signTypedData.html
+ * - Docs: https://viem.sh/docs/actions/wallet/signTypedData
  * - JSON-RPC Methods:
- *   - JSON-RPC Accounts: [`eth_signTypedData_v4`](https://docs.metamask.io/guide/signing-data.html#signtypeddata-v4)
+ *   - JSON-RPC Accounts: [`eth_signTypedData_v4`](https://docs.metamask.io/guide/signing-data#signtypeddata-v4)
  *   - Local Accounts: Signs locally. No JSON-RPC request.
  *
  * @param client - Client to use

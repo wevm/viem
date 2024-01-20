@@ -11,9 +11,9 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import {
-  type GetFunctionSelectorErrorType,
-  getFunctionSelector,
-} from '../hash/getFunctionSelector.js'
+  type ToFunctionSelectorErrorType,
+  toFunctionSelector,
+} from '../hash/toFunctionSelector.js'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
@@ -61,7 +61,7 @@ export type EncodeErrorResultReturnType = Hex
 export type EncodeErrorResultErrorType =
   | GetAbiItemErrorType
   | FormatAbiItemErrorType
-  | GetFunctionSelectorErrorType
+  | ToFunctionSelectorErrorType
   | EncodeAbiParametersErrorType
   | ConcatHexErrorType
   | ErrorType
@@ -85,7 +85,7 @@ export function encodeErrorResult<
     throw new AbiErrorNotFoundError(undefined, { docsPath })
 
   const definition = formatAbiItem(abiItem)
-  const signature = getFunctionSelector(definition)
+  const signature = toFunctionSelector(definition)
 
   let data: Hex = '0x'
   if (args && args.length > 0) {

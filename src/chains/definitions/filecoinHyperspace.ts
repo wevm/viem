@@ -12,6 +12,9 @@ export const filecoinHyperspace = /*#__PURE__*/ defineChain({
     default: { http: ['https://api.hyperspace.node.glif.io/rpc/v1'] },
   },
   blockExplorers: {
-    default: { name: 'Filfox', url: 'https://hyperspace.filfox.info/en' },
+    default: {
+      name: 'Filfox',
+      url: 'https://hyperspace.filfox.info/en',
+    },
   },
 })

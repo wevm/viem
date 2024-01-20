@@ -18,7 +18,7 @@ export type WalletActionsL2<
    * Internally performs a contract write to the [`initiateWithdrawal` function](https://github.com/ethereum-optimism/optimism/blob/283f0aa2e3358ced30ff7cbd4028c0c0c3faa140/packages/contracts-bedrock/src/L2/L2ToL1MessagePasser.sol#L73)
    * on the [Optimism L2ToL1MessagePasser predeploy contract](https://github.com/ethereum-optimism/optimism/blob/283f0aa2e3358ced30ff7cbd4028c0c0c3faa140/packages/contracts-bedrock/src/L2/L2ToL1MessagePasser.sol).
    *
-   * - Docs: https://viem.sh/op-stack/actions/initiateWithdrawal.html
+   * - Docs: https://viem.sh/op-stack/actions/initiateWithdrawal
    *
    * @param client - Client to use
    * @param parameters - {@link InitiateWithdrawalParameters}
@@ -72,7 +72,7 @@ export type WalletActionsL2<
 /**
  * A suite of Wallet Actions for suited for development with Layer 2 (OP Stack) chains.
  *
- * - Docs: https://viem.sh/op-stack/client.html
+ * - Docs: https://viem.sh/op-stack/client
  *
  * @example
  * import { createPublicClient, createWalletClient, http } from 'viem'

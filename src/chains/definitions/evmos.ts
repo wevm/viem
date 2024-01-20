@@ -12,6 +12,9 @@ export const evmos = /*#__PURE__*/ defineChain({
     default: { http: ['https://eth.bd.evmos.org:8545'] },
   },
   blockExplorers: {
-    default: { name: 'Evmos Block Explorer', url: 'https://escan.live' },
+    default: {
+      name: 'Evmos Block Explorer',
+      url: 'https://escan.live',
+    },
   },
 })

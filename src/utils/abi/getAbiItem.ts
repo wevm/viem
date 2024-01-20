@@ -12,12 +12,12 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate } from '../../types/utils.js'
 import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
-import { getEventSelector } from '../../utils/hash/getEventSelector.js'
-import {
-  type GetFunctionSelectorErrorType,
-  getFunctionSelector,
-} from '../../utils/hash/getFunctionSelector.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
+import { toEventSelector } from '../hash/toEventSelector.js'
+import {
+  type ToFunctionSelectorErrorType,
+  toFunctionSelector,
+} from '../hash/toFunctionSelector.js'
 
 export type GetAbiItemParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -56,7 +56,7 @@ export type GetAbiItemParameters<
 export type GetAbiItemErrorType =
   | IsArgOfTypeErrorType
   | IsHexErrorType
-  | GetFunctionSelectorErrorType
+  | ToFunctionSelectorErrorType
   | ErrorType
 
 export type GetAbiItemReturnType<
@@ -86,8 +86,8 @@ export function getAbiItem<
   const abiItems = (abi as Abi).filter((abiItem) => {
     if (isSelector) {
       if (abiItem.type === 'function')
-        return getFunctionSelector(abiItem) === name
-      if (abiItem.type === 'event') return getEventSelector(abiItem) === name
+        return toFunctionSelector(abiItem) === name
+      if (abiItem.type === 'event') return toEventSelector(abiItem) === name
       return false
     }
     return 'name' in abiItem && abiItem.name === name

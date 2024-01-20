@@ -38,9 +38,9 @@ export type EstimateMaxPriorityFeePerGasErrorType =
 /**
  * Returns an estimate for the max priority fee per gas (in wei) for a
  * transaction to be likely included in the next block.
- * Defaults to [`chain.fees.defaultPriorityFee`](/docs/clients/chains.html#fees-defaultpriorityfee) if set.
+ * Defaults to [`chain.fees.defaultPriorityFee`](/docs/clients/chains#fees-defaultpriorityfee) if set.
  *
- * - Docs: https://viem.sh/docs/actions/public/estimateMaxPriorityFeePerGas.html
+ * - Docs: https://viem.sh/docs/actions/public/estimateMaxPriorityFeePerGas
  *
  * @param client - Client to use
  * @returns An estimate (in wei) for the max priority fee per gas. {@link EstimateMaxPriorityFeePerGasReturnType}

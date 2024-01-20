@@ -10,9 +10,9 @@ import type {
 } from '../../types/contract.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import {
-  type GetFunctionSelectorErrorType,
-  getFunctionSelector,
-} from '../hash/getFunctionSelector.js'
+  type ToFunctionSelectorErrorType,
+  toFunctionSelector,
+} from '../hash/toFunctionSelector.js'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
@@ -71,7 +71,7 @@ export type EncodeFunctionDataErrorType =
   | EncodeAbiParametersErrorType
   | FormatAbiItemErrorType
   | GetAbiItemErrorType
-  | GetFunctionSelectorErrorType
+  | ToFunctionSelectorErrorType
   | ErrorType
 
 export function encodeFunctionData<
@@ -97,7 +97,7 @@ export function encodeFunctionData<
     throw new AbiFunctionNotFoundError(undefined, { docsPath })
 
   const definition = formatAbiItem(abiItem)
-  const signature = getFunctionSelector(definition)
+  const signature = toFunctionSelector(definition)
   const data =
     'inputs' in abiItem && abiItem.inputs
       ? encodeAbiParameters(abiItem.inputs, args ?? [])

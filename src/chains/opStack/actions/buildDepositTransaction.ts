@@ -81,7 +81,7 @@ export type BuildDepositTransactionErrorType =
 /**
  * Prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1.
  *
- * - Docs: https://viem.sh/op-stack/actions/buildDepositTransaction.html
+ * - Docs: https://viem.sh/op-stack/actions/buildDepositTransaction
  *
  * @param client - Client to use
  * @param parameters - {@link BuildDepositTransactionParameters}

@@ -37,7 +37,7 @@ export type VerifyMessageErrorType =
  *        It is highly recommended to use `publicClient.verifyMessage` instead to ensure
  *        wallet interoperability.
  *
- * - Docs {@link https://viem.sh/docs/utilities/verifyMessage.html}
+ * - Docs {@link https://viem.sh/docs/utilities/verifyMessage}
  *
  * @param parameters - {@link VerifyMessageParameters}
  * @returns Whether or not the signature is valid. {@link VerifyMessageReturnType}

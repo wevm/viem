@@ -38,8 +38,12 @@ export type GetEnsTextParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** ENS name to get Text for. */
     name: string
+    /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
+    gatewayUrls?: string[]
     /** Text record to retrieve. */
     key: string
+    /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
+    strict?: boolean
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
   }
@@ -59,12 +63,12 @@ export type GetEnsTextErrorType =
 /**
  * Gets a text record for specified ENS name.
  *
- * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
+ * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver
  * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/ens
  *
  * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
  *
- * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+ * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize) function for this.
  *
  * @param client - Client to use
  * @param parameters - {@link GetEnsTextParameters}
@@ -92,6 +96,8 @@ export async function getEnsText<TChain extends Chain | undefined>(
     blockTag,
     name,
     key,
+    gatewayUrls,
+    strict,
     universalResolverAddress: universalResolverAddress_,
   }: GetEnsTextParameters,
 ): Promise<GetEnsTextReturnType> {
@@ -110,11 +116,7 @@ export async function getEnsText<TChain extends Chain | undefined>(
   }
 
   try {
-    const res = await getAction(
-      client,
-      readContract,
-      'readContract',
-    )({
+    const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
       functionName: 'resolve',
@@ -128,7 +130,16 @@ export async function getEnsText<TChain extends Chain | undefined>(
       ],
       blockNumber,
       blockTag,
-    })
+    } as const
+
+    const readContractAction = getAction(client, readContract, 'readContract')
+
+    const res = gatewayUrls
+      ? await readContractAction({
+          ...readContractParameters,
+          args: [...readContractParameters.args, gatewayUrls],
+        })
+      : await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
 
@@ -140,6 +151,7 @@ export async function getEnsText<TChain extends Chain | undefined>(
 
     return record === '' ? null : record
   } catch (err) {
+    if (strict) throw err
     if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
   }

@@ -100,19 +100,19 @@ export type GetContractParameters<
   address: TAddress
   /** The Client.
    *
-   * If you pass in a [`publicClient`](https://viem.sh/docs/clients/public.html), the following methods are available:
+   * If you pass in a [`publicClient`](https://viem.sh/docs/clients/public), the following methods are available:
    *
-   * - [`createEventFilter`](https://viem.sh/docs/contract/createContractEventFilter.html)
-   * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas.html)
-   * - [`getEvents`](https://viem.sh/docs/contract/getContractEvents.html)
-   * - [`read`](https://viem.sh/docs/contract/readContract.html)
-   * - [`simulate`](https://viem.sh/docs/contract/simulateContract.html)
-   * - [`watchEvent`](https://viem.sh/docs/contract/watchContractEvent.html)
+   * - [`createEventFilter`](https://viem.sh/docs/contract/createContractEventFilter)
+   * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas)
+   * - [`getEvents`](https://viem.sh/docs/contract/getContractEvents)
+   * - [`read`](https://viem.sh/docs/contract/readContract)
+   * - [`simulate`](https://viem.sh/docs/contract/simulateContract)
+   * - [`watchEvent`](https://viem.sh/docs/contract/watchContractEvent)
    *
-   * If you pass in a [`walletClient`](https://viem.sh/docs/clients/wallet.html), the following methods are available:
+   * If you pass in a [`walletClient`](https://viem.sh/docs/clients/wallet), the following methods are available:
    *
-   * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas.html)
-   * - [`write`](https://viem.sh/docs/contract/writeContract.html)
+   * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas)
+   * - [`write`](https://viem.sh/docs/contract/writeContract)
    */
   client: TClient
 }
@@ -158,7 +158,7 @@ export type GetContractReturnType<
                *
                * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
                *
-               * Internally, `read` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+               * Internally, `read` uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
                *
                * @example
                * import { createPublicClient, getContract, http, parseAbi } from 'viem'
@@ -231,9 +231,9 @@ export type GetContractReturnType<
                 /**
                  * Simulates/validates a contract interaction. This is useful for retrieving return data and revert reasons of contract write functions.
                  *
-                 * This function does not require gas to execute and does not change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract.html), but also supports contract write functions.
+                 * This function does not require gas to execute and does not change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract), but also supports contract write functions.
                  *
-                 * Internally, `simulate` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+                 * Internally, `simulate` uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
                  *
                  * @example
                  * import { createPublicClient, getContract, http, parseAbi } from 'viem'
@@ -273,7 +273,7 @@ export type GetContractReturnType<
             ? unknown
             : {
                 /**
-                 * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
+                 * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs).
                  *
                  * @example
                  * import { createPublicClient, getContract, http, parseAbi } from 'viem'
@@ -300,7 +300,7 @@ export type GetContractReturnType<
                   >
                 }
                 /**
-                 * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
+                 * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs).
                  *
                  * @example
                  * import { createPublicClient, getContract, http, parseAbi } from 'viem'
@@ -329,9 +329,9 @@ export type GetContractReturnType<
                 /**
                  * Watches and returns emitted contract event logs.
                  *
-                 * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
+                 * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent#onLogs).
                  *
-                 * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs.html) instead.
+                 * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
                  *
                  * @example
                  * import { createPublicClient, getContract, http, parseAbi } from 'viem'
@@ -404,11 +404,11 @@ export type GetContractReturnType<
               /**
                * Executes a write function on a contract.
                *
-               * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
+               * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms) is needed to be broadcast in order to change the state.
                *
-               * Internally, `write` uses a [Wallet Client](https://viem.sh/docs/clients/wallet.html) to call the [`sendTransaction` action](https://viem.sh/docs/actions/wallet/sendTransaction.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+               * Internally, `write` uses a [Wallet Client](https://viem.sh/docs/clients/wallet) to call the [`sendTransaction` action](https://viem.sh/docs/actions/wallet/sendTransaction) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
                *
-               * __Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.__
+               * __Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract#usage) before you execute it.__
                *
                * @example
                * import { createWalletClient, getContract, http, parseAbi } from 'viem'
@@ -451,9 +451,9 @@ export type GetContractErrorType = ErrorType
 /**
  * Gets type-safe interface for performing contract-related actions with a specific `abi` and `address`.
  *
- * - Docs https://viem.sh/docs/contract/getContract.html
+ * - Docs https://viem.sh/docs/contract/getContract
  *
- * Using Contract Instances can make it easier to work with contracts if you don't want to pass the `abi` and `address` properites every time you perform contract actions, e.g. [`readContract`](https://viem.sh/docs/contract/readContract.html), [`writeContract`](https://viem.sh/docs/contract/writeContract.html), [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas.html), etc.
+ * Using Contract Instances can make it easier to work with contracts if you don't want to pass the `abi` and `address` properites every time you perform contract actions, e.g. [`readContract`](https://viem.sh/docs/contract/readContract), [`writeContract`](https://viem.sh/docs/contract/writeContract), [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas), etc.
  *
  * @example
  * import { createPublicClient, getContract, http, parseAbi } from 'viem'

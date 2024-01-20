@@ -1,3 +1,5 @@
+/// <reference types="bun-types" />
+
 import { join } from 'node:path'
 
 import { generatePrivateKey } from '../../src/accounts/generatePrivateKey.js'

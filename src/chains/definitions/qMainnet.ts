@@ -15,6 +15,7 @@ export const qMainnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Q Mainnet Explorer',
       url: 'https://explorer.q.org',
+      apiUrl: 'https://explorer.q.org/api',
     },
   },
 })

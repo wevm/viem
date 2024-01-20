@@ -13,6 +13,7 @@ export const modeTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blockscout',
       url: 'https://sepolia.explorer.mode.network',
+      apiUrl: 'https://sepolia.explorer.mode.network/api',
     },
   },
   contracts: {

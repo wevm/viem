@@ -235,7 +235,7 @@ describe('ContractFunctionExecutionError', () => {
         function:  mintApe(uint256 numberOfTokens)
         args:             (1)
 
-      Docs: https://viem.sh/docs.html
+      Docs: https://viem.sh/docs
       Version: viem@1.0.2]
     `)
   })
@@ -409,7 +409,7 @@ describe('ContractFunctionRevertedError', () => {
       Make sure you are using the correct ABI and that the error exists on it.
       You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xdb731cfa.
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult.html
+      Docs: https://viem.sh/docs/contract/decodeErrorResult
       Version: viem@1.0.2]
     `)
   })

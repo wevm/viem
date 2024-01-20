@@ -35,6 +35,7 @@ export const bahamut = /*#__PURE__*/ defineChain({
     default: {
       name: 'Ftnscan',
       url: 'https://www.ftnscan.com',
+      apiUrl: 'https://www.ftnscan.com/api',
     },
   },
 })

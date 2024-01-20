@@ -15,6 +15,7 @@ export const mantle = /*#__PURE__*/ defineChain({
     default: {
       name: 'Mantle Explorer',
       url: 'https://explorer.mantle.xyz',
+      apiUrl: 'https://explorer.mantle.xyz/api',
     },
   },
   contracts: {

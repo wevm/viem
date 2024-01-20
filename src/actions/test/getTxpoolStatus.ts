@@ -19,7 +19,7 @@ export type GetTxpoolStatusErrorType = RequestErrorType | ErrorType
 /**
  * Returns a summary of all the transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
  *
- * - Docs: https://viem.sh/docs/actions/test/getTxpoolStatus.html
+ * - Docs: https://viem.sh/docs/actions/test/getTxpoolStatus
  *
  * @param client - Client to use
  * @returns Transaction pool status. {@link GetTxpoolStatusReturnType}

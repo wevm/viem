@@ -13,7 +13,11 @@ export const tenet = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.tenet.org'] },
   },
   blockExplorers: {
-    default: { name: 'TenetScan Mainnet', url: 'https://tenetscan.io' },
+    default: {
+      name: 'TenetScan Mainnet',
+      url: 'https://tenetscan.io',
+      apiUrl: 'https://tenetscan.io/api',
+    },
   },
   testnet: false,
 })
