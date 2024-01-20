@@ -4,7 +4,7 @@ export const blastSepolia = /*#__PURE__*/ defineChain({
   id: 168_587_773,
   name: 'Blast Sepolia',
   nativeCurrency: {
-    name: 'Blast Sepolia Ether',
+    name: 'Ether',
     symbol: 'ETH',
     decimals: 18,
   },
@@ -17,7 +17,6 @@ export const blastSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blastscan',
       url: 'https://testnet.blastscan.io',
-      apiUrl: 'https://testnet.blastscan.io/api',
     },
   },
   testnet: true,
