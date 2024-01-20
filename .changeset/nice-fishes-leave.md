@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add berachain testnet
+Added Berachain Testnet chain.
