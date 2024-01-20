@@ -14,7 +14,7 @@ export const berachainTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Berachain',
-      url: 'https://artio.beratrail.io/',
+      url: 'https://artio.beratrail.io',
       apiUrl: 'https://api.routescan.io/v2/network/testnet/evm/80085/etherscan',
     },
   },
