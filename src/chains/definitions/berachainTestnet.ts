@@ -9,7 +9,7 @@ export const berachainTestnet = /*#__PURE__*/ defineChain({
     symbol: 'tBERA',
   },
   rpcUrls: {
-    default: { http: ['https://artio.rpc.berachain.com/'] },
+    default: { http: ['https://artio.rpc.berachain.com'] },
   },
   blockExplorers: {
     default: {
