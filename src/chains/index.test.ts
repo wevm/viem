@@ -24,6 +24,7 @@ test('exports chains', () => {
       "bearNetworkChainTestnet",
       "bitTorrent",
       "bitTorrentTestnet",
+      "blastSepolia",
       "boba",
       "bronos",
       "bronosTestnet",
