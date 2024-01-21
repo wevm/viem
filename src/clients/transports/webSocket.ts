@@ -5,7 +5,7 @@ import {
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hash } from '../../types/misc.js'
-import { type RpcResponse, getSocket, rpc } from '../../utils/rpc.js'
+import { type RpcResponse, getWebSocket, rpc } from '../../utils/rpc.js'
 import {
   type CreateTransportErrorType,
   type Transport,
@@ -81,7 +81,7 @@ export function webSocket(
         name,
         async request({ method, params }) {
           const body = { method, params }
-          const socket = await getSocket(url_)
+          const socket = await getWebSocket(url_)
           const { error, result } = await rpc.webSocketAsync(socket, {
             body,
             timeout,
@@ -101,10 +101,10 @@ export function webSocket(
       },
       {
         getSocket() {
-          return getSocket(url_)
+          return getWebSocket(url_)
         },
         async subscribe({ params, onData, onError }: any) {
-          const socket = await getSocket(url_)
+          const socket = await getWebSocket(url_)
           const { result: subscriptionId } = await new Promise<any>(
             (resolve, reject) =>
               rpc.webSocket(socket, {

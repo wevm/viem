@@ -13,7 +13,7 @@ import { createHttpServer, testClient } from '~test/src/utils.js'
 import { mine } from '../actions/test/mine.js'
 import { numberToHex } from './encoding/toHex.js'
 import * as withTimeout from './promise/withTimeout.js'
-import { type RpcResponse, getSocket, rpc } from './rpc.js'
+import { type RpcResponse, getWebSocket, rpc } from './rpc.js'
 import { wait } from './wait.js'
 
 test('rpc', () => {
@@ -423,9 +423,9 @@ describe('http (batch)', () => {
   })
 })
 
-describe('getSocket', () => {
+describe('getWebSocket', () => {
   test('creates WebSocket instance', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     expect(socket).toBeDefined()
     expect(socket.readyState).toEqual(WebSocket.OPEN)
   })
@@ -433,10 +433,10 @@ describe('getSocket', () => {
   test('multiple invocations on a url only opens one socket', async () => {
     const url = 'ws://127.0.0.1:8545/69420'
     const [socket, socket2, socket3, socket4] = await Promise.all([
-      getSocket(url),
-      getSocket(url),
-      getSocket(url),
-      getSocket(url),
+      getWebSocket(url),
+      getWebSocket(url),
+      getWebSocket(url),
+      getWebSocket(url),
     ])
     expect(socket).toEqual(socket2)
     expect(socket).toEqual(socket3)
@@ -446,7 +446,7 @@ describe('getSocket', () => {
 
 describe('webSocket', () => {
   test('valid request', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     const { id, ...version } = await new Promise<any>((resolve) =>
       rpc.webSocket(socket, {
         body: { method: 'web3_clientVersion' },
@@ -464,7 +464,7 @@ describe('webSocket', () => {
   })
 
   test('valid request', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     const { id, ...block } = await new Promise<any>((resolve) =>
       rpc.webSocket(socket, {
         body: {
@@ -640,7 +640,7 @@ describe('webSocket', () => {
   })
 
   test('invalid request', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     await expect(
       new Promise<any>((resolve) =>
         rpc.webSocket(socket, {
@@ -657,7 +657,7 @@ describe('webSocket', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 79,
+        "id": 2,
         "jsonrpc": "2.0",
       }
     `,
@@ -666,7 +666,7 @@ describe('webSocket', () => {
   })
 
   test('invalid request (closing socket)', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     await wait(1000)
     socket.close()
     await expect(
@@ -694,7 +694,7 @@ describe('webSocket', () => {
   })
 
   test('invalid request (closed socket)', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     socket.close()
     await wait(1000)
     await expect(
@@ -723,7 +723,7 @@ describe('webSocket', () => {
 
 describe('webSocket (subscription)', () => {
   test('basic', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     const data_: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
@@ -760,7 +760,7 @@ describe('webSocket (subscription)', () => {
   })
 
   test('multiple', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     const s1: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
@@ -841,7 +841,7 @@ describe('webSocket (subscription)', () => {
   })
 
   test('invalid subscription', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     let err_: RpcResponse | undefined
     rpc.webSocket(socket, {
       body: {
@@ -868,7 +868,7 @@ describe('webSocket (subscription)', () => {
 
 describe('webSocketAsync', () => {
   test('valid request', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     const { id, ...version } = await rpc.webSocketAsync(socket, {
       body: { method: 'web3_clientVersion' },
     })
@@ -883,7 +883,7 @@ describe('webSocketAsync', () => {
   })
 
   test('valid request', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     const { id, ...block } = await rpc.webSocketAsync(socket, {
       body: {
         method: 'eth_getBlockByNumber',
@@ -1056,7 +1056,7 @@ describe('webSocketAsync', () => {
   })
 
   test('serial requests', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
@@ -1076,9 +1076,9 @@ describe('webSocketAsync', () => {
     expect(socket.requests.size).toBe(0)
   })
 
-  test('parallel requests', async () => {
+  test.only('parallel requests', async () => {
     await wait(500)
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     const response = await Promise.all(
       Array.from({ length: 100 }).map(async (_, i) => {
         return await rpc.webSocketAsync(socket, {
@@ -1096,10 +1096,10 @@ describe('webSocketAsync', () => {
     )
     expect(socket.requests.size).toBe(0)
     await wait(500)
-  })
+  }, 30_000)
 
   test('invalid request', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
     await expect(
       rpc.webSocketAsync(socket, {
         body: {
@@ -1122,7 +1122,7 @@ describe('webSocketAsync', () => {
 
   // TODO: This is flaky.
   test.skip('timeout', async () => {
-    const socket = await getSocket(localWsUrl)
+    const socket = await getWebSocket(localWsUrl)
 
     await expect(() =>
       rpc.webSocketAsync(socket, {

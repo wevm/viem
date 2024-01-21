@@ -48,7 +48,12 @@ type Subscription<TResult, TError> = {
   )
 }
 
-export type RpcRequest = { method: string; params?: any; id?: number }
+export type RpcRequest = {
+  jsonrpc?: '2.0'
+  method: string
+  params?: any
+  id?: number
+}
 
 export type RpcResponse<TResult = any, TError = any> = {
   jsonrpc: `${number}`
@@ -153,81 +158,165 @@ type Id = string | number
 type CallbackFn = (message: any) => void
 type CallbackMap = Map<Id, CallbackFn>
 
-export type Socket = WebSocket & {
-  requests: CallbackMap
-  subscriptions: CallbackMap
+export type SocketImpl<socketImpl extends {} = WebSocket> = socketImpl & {
+  request: (request: RpcRequest) => void
 }
+
+export type Socket<socketImpl extends {} = WebSocket> =
+  SocketImpl<socketImpl> & {
+    onResponse: (response: RpcResponse) => void
+    requestSync: (params: {
+      body: RpcRequest
+      onResponse: (message: RpcResponse) => void
+    }) => Promise<RpcResponse>
+    requests: CallbackMap
+    subscriptions: CallbackMap
+  }
 
 export type GetSocketErrorType = CreateBatchSchedulerErrorType | ErrorType
 
-export const socketsCache = /*#__PURE__*/ new Map<string, Socket>()
+export const socketsCache = /*#__PURE__*/ new Map<string, Socket<SocketImpl>>()
 
-export async function getSocket(url: string) {
+type SetupParameters = {
+  onClose: () => void
+  onData: (data: RpcResponse) => void
+  url: string
+}
+
+export async function setupWebSocket({
+  onClose,
+  onData,
+  url,
+}: SetupParameters): Promise<SocketImpl<WebSocket>> {
+  const WebSocket = await import('isows').then((module) => module.WebSocket)
+  const socket = new WebSocket(url)
+
+  const onMessage: (event: MessageEvent) => void = ({ data }) => {
+    const message: RpcResponse = JSON.parse(data as string)
+    onData(message)
+  }
+  const onClose_ = () => {
+    onClose()
+    socket.removeEventListener('close', onClose_)
+    socket.removeEventListener('message', onMessage)
+  }
+
+  // Setup event listeners for RPC & subscription responses.
+  socket.addEventListener('close', onClose_)
+  socket.addEventListener('message', onMessage)
+
+  // Wait for the socket to open.
+  if (socket.readyState === WebSocket.CONNECTING) {
+    await new Promise((resolve, reject) => {
+      if (!socket) return
+      socket.onopen = resolve
+      socket.onerror = reject
+    })
+  }
+
+  return Object.assign(socket, {
+    request(body) {
+      console.log('send')
+      return socket.send(JSON.stringify(body))
+    },
+  } as SocketImpl<WebSocket>)
+}
+
+export async function getSocket<socketImpl extends SocketImpl>(
+  url: string,
+  {
+    setup,
+  }: {
+    setup: (params: SetupParameters) => Promise<socketImpl>
+  },
+): Promise<Socket<socketImpl>> {
   let socket = socketsCache.get(url)
 
   // If the socket already exists, return it.
-  if (socket) return socket
+  if (socket) return socket as Socket<socketImpl>
 
-  const { schedule } = createBatchScheduler<undefined, [Socket]>({
+  const { schedule } = createBatchScheduler<undefined, [Socket<socketImpl>]>({
     id: url,
     fn: async () => {
-      const WebSocket = await import('isows').then((module) => module.WebSocket)
-      const webSocket = new WebSocket(url)
-
       // Set up a cache for incoming "synchronous" requests.
       const requests = new Map<Id, CallbackFn>()
 
       // Set up a cache for subscriptions (eth_subscribe).
       const subscriptions = new Map<Id, CallbackFn>()
 
-      const onMessage: (event: MessageEvent) => void = ({ data }) => {
-        const message: RpcResponse = JSON.parse(data as string)
-        const isSubscription = message.method === 'eth_subscription'
-        const id = isSubscription ? message.params.subscription : message.id
+      function onClose() {
+        socketsCache.delete(url)
+      }
+      function onData(data: RpcResponse) {
+        console.log('res')
+        const isSubscription = data.method === 'eth_subscription'
+        const id = isSubscription ? data.params.subscription : data.id
         const cache = isSubscription ? subscriptions : requests
         const callback = cache.get(id)
         if (callback) callback({ data })
         if (!isSubscription) cache.delete(id)
       }
-      const onClose = () => {
-        socketsCache.delete(url)
-        webSocket.removeEventListener('close', onClose)
-        webSocket.removeEventListener('message', onMessage)
-      }
 
-      // Setup event listeners for RPC & subscription responses.
-      webSocket.addEventListener('close', onClose)
-      webSocket.addEventListener('message', onMessage)
-
-      // Wait for the socket to open.
-      if (webSocket.readyState === WebSocket.CONNECTING) {
-        await new Promise((resolve, reject) => {
-          if (!webSocket) return
-          webSocket.onopen = resolve
-          webSocket.onerror = reject
-        })
-      }
+      // Set up socket implementation.
+      const socketImpl = await setup({ onClose, onData, url })
 
       // Create a new socket instance.
-      socket = Object.assign(webSocket, {
+      socket = Object.assign(socketImpl as any, {
         requests,
         subscriptions,
-      })
+      }) as Socket<socketImpl>
       socketsCache.set(url, socket)
 
-      return [socket]
+      return [socket] as any
     },
   })
 
   const [_, [socket_]] = await schedule()
-  return socket_
+
+  async function requestSync({
+    body,
+    onResponse,
+  }: { body: RpcRequest; onResponse: (message: RpcResponse) => void }) {
+    const id_ = body.id ?? id++
+
+    const callback = ({ data }: { data: RpcResponse }) => {
+      console.log('ok')
+      if (typeof data.id === 'number' && id_ !== data.id) return
+
+      onResponse(data)
+
+      // If we are subscribing to a topic, we want to set up a listener for incoming
+      // messages.
+      if (body.method === 'eth_subscribe' && typeof data.result === 'string') {
+        socket_.subscriptions.set(data.result, callback)
+      }
+
+      // If we are unsubscribing from a topic, we want to remove the listener.
+      if (body.method === 'eth_unsubscribe') {
+        socket_.subscriptions.delete(body.params?.[0])
+      }
+    }
+
+    socket_.requests.set(id_, callback)
+    socket_.request({
+      jsonrpc: '2.0',
+      id: id_,
+      ...body,
+    })
+  }
+
+  return Object.assign(socket_, { requestSync }) as Socket<socketImpl>
+}
+
+export async function getWebSocket(url: string): Promise<Socket<WebSocket>> {
+  return getSocket(url, { setup: setupWebSocket })
 }
 
 export type WebSocketOptions = {
   /** The RPC request body. */
   body: RpcRequest
   /** The callback to invoke on response. */
-  onResponse?: (message: RpcResponse) => void
+  onResponse: (message: RpcResponse) => void
 }
 
 export type WebSocketReturnType = Socket
@@ -248,29 +337,7 @@ function webSocket(
       details: 'Socket is closed.',
     })
 
-  const id_ = id++
-
-  const callback = ({ data }: { data: any }) => {
-    const message: RpcResponse = JSON.parse(data)
-
-    if (typeof message.id === 'number' && id_ !== message.id) return
-
-    onResponse?.(message)
-
-    // If we are subscribing to a topic, we want to set up a listener for incoming
-    // messages.
-    if (body.method === 'eth_subscribe' && typeof message.result === 'string') {
-      socket.subscriptions.set(message.result, callback)
-    }
-
-    // If we are unsubscribing from a topic, we want to remove the listener.
-    if (body.method === 'eth_unsubscribe') {
-      socket.subscriptions.delete(body.params?.[0])
-    }
-  }
-  socket.requests.set(id_, callback)
-
-  socket.send(JSON.stringify({ jsonrpc: '2.0', ...body, id: id_ }))
+  socket.requestSync({ body, onResponse })
 
   return socket
 }
