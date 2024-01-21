@@ -5,7 +5,10 @@ import {
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hash } from '../../types/misc.js'
-import { type RpcResponse, getWebSocket, rpc } from '../../utils/rpc.js'
+import type { RpcResponse } from '../../types/rpc.js'
+import { getSocket } from '../../utils/rpc/compat.js'
+import type { SocketClient } from '../../utils/rpc/socket.js'
+import { createWebSocketClient } from '../../utils/rpc/webSocket.js'
 import {
   type CreateTransportErrorType,
   type Transport,
@@ -51,7 +54,11 @@ export type WebSocketTransportConfig = {
 export type WebSocketTransport = Transport<
   'webSocket',
   {
+    /**
+     * @deprecated use `getSocketClient` instead.
+     */
     getSocket(): Promise<WebSocket>
+    getSocketClient(): Promise<SocketClient<WebSocket>>
     subscribe: WebSocketTransportSubscribe['subscribe']
   }
 >
@@ -81,8 +88,8 @@ export function webSocket(
         name,
         async request({ method, params }) {
           const body = { method, params }
-          const socket = await getWebSocket(url_)
-          const { error, result } = await rpc.webSocketAsync(socket, {
+          const socketClient = await createWebSocketClient(url_)
+          const { error, result } = await socketClient.requestAsync({
             body,
             timeout,
           })
@@ -101,13 +108,16 @@ export function webSocket(
       },
       {
         getSocket() {
-          return getWebSocket(url_)
+          return getSocket(url_)
+        },
+        getSocketClient() {
+          return createWebSocketClient(url_)
         },
         async subscribe({ params, onData, onError }: any) {
-          const socket = await getWebSocket(url_)
+          const socketClient = await createWebSocketClient(url_)
           const { result: subscriptionId } = await new Promise<any>(
             (resolve, reject) =>
-              rpc.webSocket(socket, {
+              socketClient.request({
                 body: {
                   method: 'eth_subscribe',
                   params,
@@ -132,7 +142,7 @@ export function webSocket(
             subscriptionId,
             async unsubscribe() {
               return new Promise<any>((resolve) =>
-                rpc.webSocket(socket, {
+                socketClient.request({
                   body: {
                     method: 'eth_unsubscribe',
                     params: [subscriptionId],

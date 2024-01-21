@@ -39,6 +39,7 @@ describe('config', () => {
         "request": [Function],
         "value": {
           "getSocket": [Function],
+          "getSocketClient": [Function],
           "subscribe": [Function],
         },
       }
@@ -64,6 +65,7 @@ describe('config', () => {
         "request": [Function],
         "value": {
           "getSocket": [Function],
+          "getSocketClient": [Function],
           "subscribe": [Function],
         },
       }
@@ -87,6 +89,7 @@ describe('config', () => {
         "request": [Function],
         "value": {
           "getSocket": [Function],
+          "getSocketClient": [Function],
           "subscribe": [Function],
         },
       }
