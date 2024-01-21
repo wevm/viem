@@ -1,5 +1,11 @@
 # viem
 
+## 2.4.1
+
+### Patch Changes
+
+- [#1704](https://github.com/wevm/viem/pull/1704) [`e7eadff4e75c86a515f95addd64e93791a5340d3`](https://github.com/wevm/viem/commit/e7eadff4e75c86a515f95addd64e93791a5340d3) Thanks [@armatrix](https://github.com/armatrix)! - Added Blast Sepolia.
+
 ## 2.4.0
 
 ### Minor Changes
