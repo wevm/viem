@@ -209,7 +209,7 @@ const filter = await publicClient.createEventFilter({
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
   strict: true
 })
-const logs = await publicClient.getFilterLogs({ logs })
+const logs = await publicClient.getFilterLogs({ filter })
 
 logs[0].args
 //      ^? { address: Address, to: Address, value: bigint }
