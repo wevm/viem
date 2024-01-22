@@ -791,4 +791,21 @@ describe('extractMessages', () => {
       `"{"jsonrpc":"2.0","id":4,"result":{{{}}"`,
     )
   })
+
+  test('whitespace', () => {
+    const [messages, remaining] = extractMessages(
+      Buffer.from(
+        '  {"jsonrpc":"2.0","id":1,"result":1} \n     {"jsonrpc":"2.0","id":2,"result":{"ok": {"ok": "haha"}}}  ',
+      ),
+    )
+    expect(messages.map((m) => m.toString())).toMatchInlineSnapshot(
+      `
+      [
+        "{"jsonrpc":"2.0","id":1,"result":1}",
+        "{"jsonrpc":"2.0","id":2,"result":{"ok": {"ok": "haha"}}}",
+      ]
+    `,
+    )
+    expect(remaining.toString()).toMatchInlineSnapshot(`""`)
+  })
 })

@@ -14,7 +14,12 @@ export function extractMessages(buffer: Buffer): [Buffer[], Buffer] {
     if (buffer[i] === openingBrace) level++
     if (buffer[i] === closingBrace) level--
     if (level === 0) {
-      messages.push(buffer.subarray(cursor, i + 1))
+      const message = buffer.subarray(cursor, i + 1)
+      if (
+        message[0] === openingBrace &&
+        message[message.length - 1] === closingBrace
+      )
+        messages.push(message)
       cursor = i + 1
     }
   }
