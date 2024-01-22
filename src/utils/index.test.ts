@@ -73,7 +73,6 @@ test('exports utils', () => {
       "getFunctionSelector": [Function],
       "getFunctionSignature": [Function],
       "getHttpRpcClient": [Function],
-      "getIpcRpcClient": [Function],
       "getNodeError": [Function],
       "getSerializedTransactionType": [Function],
       "getSocket": [Function],
