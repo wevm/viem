@@ -1,28 +1,50 @@
-import { describe, expect, test } from 'vitest'
+import { createAnvil } from '@viem/anvil'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { forkBlockNumber, localIpcPath } from '~test/src/constants.js'
+import { forkBlockNumber, forkUrl, localIpcPath } from '~test/src/constants.js'
 
-import { publicClient, testClient } from '../../../test/src/utils.js'
+import { anvilChain } from '../../../test/src/utils.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
+import { http, createClient } from '../../index.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { numberToHex } from '../index.js'
 import { wait } from '../wait.js'
-import { createIpcClient, extractMessages } from './ipc.js'
+import { extractMessages, getIpcRpcClient } from './ipc.js'
 
-describe('createIpcClient', () => {
+const client = createClient({
+  chain: anvilChain,
+  transport: http('http://127.0.0.1:6969'),
+}).extend(() => ({ mode: 'anvil' }))
+
+const anvil = createAnvil({
+  port: 6969,
+  ipc: localIpcPath,
+  forkBlockNumber,
+  forkUrl,
+})
+
+beforeAll(async () => {
+  await anvil.start()
+})
+
+afterAll(async () => {
+  await anvil.stop()
+})
+
+describe('getIpcRpcClient', () => {
   test('creates IPC instance', async () => {
-    const socketClient = await createIpcClient(localIpcPath)
-    expect(socketClient).toBeDefined()
-    expect(socketClient.socket.readyState).toEqual('open')
-    socketClient.close()
+    const rpcClient = await getIpcRpcClient(localIpcPath)
+    expect(rpcClient).toBeDefined()
+    expect(rpcClient.socket.readyState).toEqual('open')
+    rpcClient.close()
   })
 
   test('multiple invocations on a url only opens one socket', async () => {
     const [client1, client2, client3, client4] = await Promise.all([
-      createIpcClient(localIpcPath),
-      createIpcClient(localIpcPath),
-      createIpcClient(localIpcPath),
-      createIpcClient(localIpcPath),
+      getIpcRpcClient(localIpcPath),
+      getIpcRpcClient(localIpcPath),
+      getIpcRpcClient(localIpcPath),
+      getIpcRpcClient(localIpcPath),
     ])
     expect(client1).toEqual(client2)
     expect(client1).toEqual(client3)
@@ -33,9 +55,9 @@ describe('createIpcClient', () => {
 
 describe('request', () => {
   test('valid request', async () => {
-    const socketClient = await createIpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(localIpcPath)
     const { id, ...version } = await new Promise<any>((resolve) =>
-      socketClient.request({
+      rpcClient.request({
         body: { method: 'web3_clientVersion' },
         onResponse: resolve,
       }),
@@ -47,14 +69,14 @@ describe('request', () => {
         "result": "anvil/v0.2.0",
       }
     `)
-    expect(socketClient.requests.size).toBe(0)
-    socketClient.close()
+    expect(rpcClient.requests.size).toBe(0)
+    rpcClient.close()
   })
 
   test('valid request', async () => {
-    const socketClient = await createIpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(localIpcPath)
     const { id, ...block } = await new Promise<any>((resolve) =>
-      socketClient.request({
+      rpcClient.request({
         body: {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(forkBlockNumber), false],
@@ -224,15 +246,15 @@ describe('request', () => {
           },
         }
       `)
-    expect(socketClient.requests.size).toBe(0)
-    socketClient.close()
+    expect(rpcClient.requests.size).toBe(0)
+    rpcClient.close()
   })
 
   test('invalid request', async () => {
-    const socketClient = await createIpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(localIpcPath)
     await expect(
       new Promise<any>((resolve, reject) =>
-        socketClient.request({
+        rpcClient.request({
           body: {
             method: 'wagmi_lol',
           },
@@ -252,17 +274,17 @@ describe('request', () => {
       }
     `,
     )
-    expect(socketClient.requests.size).toBe(0)
+    expect(rpcClient.requests.size).toBe(0)
   })
 
   test('invalid request (closing socket)', async () => {
-    const socketClient = await createIpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(localIpcPath)
     await wait(1000)
-    socketClient.close()
+    rpcClient.close()
     await expect(
       () =>
         new Promise<any>((resolve, reject) =>
-          socketClient.request({
+          rpcClient.request({
             body: {
               method: 'wagmi_lol',
             },
@@ -285,13 +307,13 @@ describe('request', () => {
   })
 
   test('invalid request (closed socket)', async () => {
-    const socketClient = await createIpcClient(localIpcPath)
-    socketClient.close()
+    const rpcClient = await getIpcRpcClient(localIpcPath)
+    rpcClient.close()
     await wait(1000)
     await expect(
       () =>
         new Promise<any>((resolve, reject) =>
-          socketClient.request({
+          rpcClient.request({
             body: {
               method: 'wagmi_lol',
             },
@@ -315,9 +337,9 @@ describe('request', () => {
 
 describe('request (subscription)', () => {
   test('basic', async () => {
-    const socketClient = await createIpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(localIpcPath)
     const data_: RpcResponse[] = []
-    socketClient.request({
+    rpcClient.request({
       body: {
         method: 'eth_subscribe',
         params: ['newHeads'],
@@ -325,32 +347,32 @@ describe('request (subscription)', () => {
       onResponse: (data) => data_.push(data),
     })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    expect(socketClient.subscriptions.size).toBe(1)
-    // expect(data_.length).toBe(3)
-    await socketClient.requestAsync({
+    expect(rpcClient.subscriptions.size).toBe(1)
+    expect(data_.length).toBe(3)
+    await rpcClient.requestAsync({
       body: {
         method: 'eth_unsubscribe',
         params: [(data_[0] as any).result],
       },
     })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    expect(socketClient.subscriptions.size).toBe(0)
-    // expect(data_.length).toBe(3)
-    socketClient.close()
+    expect(rpcClient.subscriptions.size).toBe(0)
+    expect(data_.length).toBe(3)
+    rpcClient.close()
   })
 
   test('multiple', async () => {
-    const client = await createIpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(localIpcPath)
     const s1: RpcResponse[] = []
-    client.request({
+    rpcClient.request({
       body: {
         method: 'eth_subscribe',
         params: ['newHeads'],
@@ -358,7 +380,7 @@ describe('request (subscription)', () => {
       onResponse: (data) => s1.push(data),
     })
     const s2: RpcResponse[] = []
-    client.request({
+    rpcClient.request({
       body: {
         method: 'eth_subscribe',
         params: ['newHeads'],
@@ -366,7 +388,7 @@ describe('request (subscription)', () => {
       onResponse: (data) => s2.push(data),
     })
     const s3: RpcResponse[] = []
-    client.request({
+    rpcClient.request({
       body: {
         method: 'eth_subscribe',
         params: ['newPendingTransactions'],
@@ -374,54 +396,54 @@ describe('request (subscription)', () => {
       onResponse: (data) => s3.push(data),
     })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(500)
-    expect(client.requests.size).toBe(0)
-    expect(client.subscriptions.size).toBe(3)
+    expect(rpcClient.requests.size).toBe(0)
+    expect(rpcClient.subscriptions.size).toBe(3)
     expect(s1.length).toBe(3)
     expect(s2.length).toBe(3)
     expect(s3.length).toBe(1)
-    await client.requestAsync({
+    await rpcClient.requestAsync({
       body: {
         method: 'eth_unsubscribe',
         params: [(s1[0] as any).result],
       },
     })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    expect(client.requests.size).toBe(0)
-    expect(client.subscriptions.size).toBe(2)
+    expect(rpcClient.requests.size).toBe(0)
+    expect(rpcClient.subscriptions.size).toBe(2)
     expect(s1.length).toBe(3)
     expect(s2.length).toBe(5)
     expect(s3.length).toBe(1)
-    await client.requestAsync({
+    await rpcClient.requestAsync({
       body: {
         method: 'eth_unsubscribe',
         params: [(s2[0] as any).result],
       },
     })
-    await client.requestAsync({
+    await rpcClient.requestAsync({
       body: {
         method: 'eth_unsubscribe',
         params: [(s3[0] as any).result],
       },
     })
     await wait(2000)
-    expect(client.requests.size).toBe(0)
-    expect(client.subscriptions.size).toBe(0)
+    expect(rpcClient.requests.size).toBe(0)
+    expect(rpcClient.subscriptions.size).toBe(0)
     expect(s1.length).toBe(3)
     expect(s2.length).toBe(5)
     expect(s3.length).toBe(1)
-    client.close()
+    rpcClient.close()
   })
 
   test('invalid subscription', async () => {
-    const client = await createIpcClient(localIpcPath)
+    const client = await getIpcRpcClient(localIpcPath)
     let err_: RpcResponse | undefined
     client.request({
       body: {
@@ -439,7 +461,7 @@ describe('request (subscription)', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 13,
+        "id": 21,
         "jsonrpc": "2.0",
       }
     `)
@@ -448,7 +470,7 @@ describe('request (subscription)', () => {
 
 describe('requestAsync', () => {
   test('valid request', async () => {
-    const client = await createIpcClient(localIpcPath)
+    const client = await getIpcRpcClient(localIpcPath)
     const { id, ...version } = await client.requestAsync({
       body: { method: 'web3_clientVersion' },
     })
@@ -463,7 +485,7 @@ describe('requestAsync', () => {
   })
 
   test('valid request', async () => {
-    const client = await createIpcClient(localIpcPath)
+    const client = await getIpcRpcClient(localIpcPath)
     const { id, ...block } = await client.requestAsync({
       body: {
         method: 'eth_getBlockByNumber',
@@ -636,7 +658,7 @@ describe('requestAsync', () => {
   })
 
   test('serial requests', async () => {
-    const client = await createIpcClient(localIpcPath)
+    const client = await getIpcRpcClient(localIpcPath)
     const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
@@ -659,13 +681,13 @@ describe('requestAsync', () => {
   test('parallel requests', async () => {
     await wait(500)
 
-    await mine(testClient, { blocks: 100 })
-    const blockNumber = await getBlockNumber(publicClient)
+    await mine(client, { blocks: 100 })
+    const blockNumber = await getBlockNumber(client)
 
-    const client = await createIpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(localIpcPath)
     const response = await Promise.all(
       Array.from({ length: 100 }).map(async (_, i) => {
-        return await client.requestAsync({
+        return await rpcClient.requestAsync({
           body: {
             method: 'eth_getBlockByNumber',
             params: [numberToHex(blockNumber - BigInt(i)), false],
@@ -678,12 +700,12 @@ describe('requestAsync', () => {
         numberToHex(blockNumber - BigInt(i)),
       ),
     )
-    expect(client.requests.size).toBe(0)
+    expect(rpcClient.requests.size).toBe(0)
     await wait(500)
   }, 30_000)
 
   test('invalid request', async () => {
-    const client = await createIpcClient(localIpcPath)
+    const client = await getIpcRpcClient(localIpcPath)
     await expect(
       client.requestAsync({
         body: {
@@ -692,20 +714,20 @@ describe('requestAsync', () => {
       }),
     ).resolves.toThrowErrorMatchingInlineSnapshot(
       `
-        {
-          "error": {
-            "code": -32602,
-            "message": "data did not match any variant of untagged enum EthRpcCall",
-          },
-          "id": 127,
-          "jsonrpc": "2.0",
-        }
-      `,
+      {
+        "error": {
+          "code": -32602,
+          "message": "data did not match any variant of untagged enum EthRpcCall",
+        },
+        "id": 136,
+        "jsonrpc": "2.0",
+      }
+    `,
     )
   })
 
   test('timeout', async () => {
-    const client = await createIpcClient(localIpcPath)
+    const client = await getIpcRpcClient(localIpcPath)
 
     await expect(() =>
       client.requestAsync({

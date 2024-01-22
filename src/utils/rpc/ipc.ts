@@ -31,9 +31,9 @@ export function extractMessages(buffer: Buffer): [Buffer[], Buffer] {
   return [messages, buffer.subarray(cursor)]
 }
 
-export type IpcClient = SocketRpcClient<NetSocket>
+export type IpcRpcClient = SocketRpcClient<NetSocket>
 
-export async function createIpcClient(path: string): Promise<IpcClient> {
+export async function getIpcRpcClient(path: string): Promise<IpcRpcClient> {
   return getSocketRpcClient({
     async getSocket({ onResponse }) {
       const { connect } = await import('node:net')

@@ -255,8 +255,8 @@ describe('transports', () => {
         "snapshot": [Function],
         "stopImpersonatingAccount": [Function],
         "transport": {
+          "getRpcClient": [Function],
           "getSocket": [Function],
-          "getSocketClient": [Function],
           "key": "webSocket",
           "name": "WebSocket JSON-RPC",
           "request": [Function],

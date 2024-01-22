@@ -3,7 +3,7 @@ import { type UrlRequiredErrorType } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcResponse } from '../../types/rpc.js'
-import { type IpcClient, createIpcClient } from '../../utils/rpc/ipc.js'
+import { type IpcRpcClient, getIpcRpcClient } from '../../utils/rpc/ipc.js'
 import {
   type CreateTransportErrorType,
   type Transport,
@@ -49,7 +49,7 @@ export type IpcTransportConfig = {
 export type IpcTransport = Transport<
   'ipc',
   {
-    getSocketClient(): Promise<IpcClient>
+    getRpcClient(): Promise<IpcRpcClient>
     subscribe: IpcTransportSubscribe['subscribe']
   }
 >
@@ -76,8 +76,8 @@ export function ipc(
         name,
         async request({ method, params }) {
           const body = { method, params }
-          const socketClient = await createIpcClient(path)
-          const { error, result } = await socketClient.requestAsync({
+          const rpcClient = await getIpcRpcClient(path)
+          const { error, result } = await rpcClient.requestAsync({
             body,
             timeout,
           })
@@ -95,14 +95,14 @@ export function ipc(
         type: 'ipc',
       },
       {
-        getSocketClient() {
-          return createIpcClient(path)
+        getRpcClient() {
+          return getIpcRpcClient(path)
         },
         async subscribe({ params, onData, onError }: any) {
-          const socketClient = await createIpcClient(path)
+          const rpcClient = await getIpcRpcClient(path)
           const { result: subscriptionId } = await new Promise<any>(
             (resolve, reject) =>
-              socketClient.request({
+              rpcClient.request({
                 body: {
                   method: 'eth_subscribe',
                   params,
@@ -127,7 +127,7 @@ export function ipc(
             subscriptionId,
             async unsubscribe() {
               return new Promise<any>((resolve) =>
-                socketClient.request({
+                rpcClient.request({
                   body: {
                     method: 'eth_unsubscribe',
                     params: [subscriptionId],

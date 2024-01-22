@@ -1,13 +1,36 @@
-import { assertType, describe, expect, test } from 'vitest'
+import { createAnvil } from '@viem/anvil'
+import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 
-import { localIpcPath } from '~test/src/constants.js'
-import { testClient } from '~test/src/utils.js'
+import { forkBlockNumber, forkUrl, localIpcPath } from '~test/src/constants.js'
+import { anvilChain } from '~test/src/utils.js'
 
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
+import { createClient } from '../createClient.js'
+import { http } from './http.js'
 import { type IpcTransport, ipc } from './ipc.js'
+
+const client = createClient({
+  chain: anvilChain,
+  transport: http('http://127.0.0.1:6969'),
+}).extend(() => ({ mode: 'anvil' }))
+
+const anvil = createAnvil({
+  port: 6969,
+  ipc: localIpcPath,
+  forkBlockNumber,
+  forkUrl,
+})
+
+beforeAll(async () => {
+  await anvil.start()
+})
+
+afterAll(async () => {
+  await anvil.stop()
+})
 
 test('default', () => {
   const transport = ipc(localIpcPath)
@@ -37,7 +60,7 @@ describe('config', () => {
         },
         "request": [Function],
         "value": {
-          "getSocketClient": [Function],
+          "getRpcClient": [Function],
           "subscribe": [Function],
         },
       }
@@ -62,7 +85,7 @@ describe('config', () => {
         },
         "request": [Function],
         "value": {
-          "getSocketClient": [Function],
+          "getRpcClient": [Function],
           "subscribe": [Function],
         },
       }
@@ -85,7 +108,7 @@ describe('config', () => {
         },
         "request": [Function],
         "value": {
-          "getSocketClient": [Function],
+          "getRpcClient": [Function],
           "subscribe": [Function],
         },
       }
@@ -93,9 +116,9 @@ describe('config', () => {
   })
 })
 
-test('getSocketClient', async () => {
+test('getRpcClient', async () => {
   const transport = ipc(localIpcPath)
-  const socket = await transport({}).value?.getSocketClient()
+  const socket = await transport({}).value?.getRpcClient()
   expect(socket).toBeDefined()
 })
 
@@ -136,7 +159,7 @@ test('subscribe', async () => {
   expect(subscriptionId).toBeDefined()
 
   // Make sure we are receiving blocks.
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
   await wait(200)
   expect(blocks.length).toBe(1)
 
@@ -145,7 +168,7 @@ test('subscribe', async () => {
   expect(result).toBeDefined()
 
   // Make sure we are no longer receiving blocks.
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
   await wait(200)
   expect(blocks.length).toBe(1)
 })
