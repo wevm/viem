@@ -1,6 +1,6 @@
 import { startProxy } from '@viem/anvil'
 
-import { forkBlockNumber, forkUrl } from './src/constants.js'
+import { forkBlockNumber, forkUrl, localIpcPath } from './src/constants.js'
 import { forkBlockNumberOptimism, forkUrlOptimism } from './src/opStack.js'
 
 export default async function () {
@@ -34,6 +34,7 @@ export default async function () {
   const shutdown_2 = await startProxy({
     port: Number(process.env.VITE_ANVIL_PORT || '8545'),
     options: {
+      ipc: localIpcPath,
       forkUrl,
       forkBlockNumber,
       noMining: true,
