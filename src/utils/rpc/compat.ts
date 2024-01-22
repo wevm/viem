@@ -1,3 +1,6 @@
+// TODO(v3): This file is here for backwards compatibility, and to prevent breaking changes.
+// These APIs will be removed in v3.
+
 /* c8 ignore start */
 import {
   type TimeoutErrorType,
