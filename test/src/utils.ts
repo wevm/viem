@@ -23,7 +23,7 @@ import { RpcRequestError } from '~viem/errors/request.js'
 import type { Chain } from '~viem/types/chain.js'
 import { type EIP1193Provider, ProviderRpcError } from '~viem/types/eip1193.js'
 import { namehash } from '~viem/utils/ens/namehash.js'
-import { createHttpClient } from '~viem/utils/rpc/http.js'
+import { getHttpRpcClient } from '~viem/utils/rpc/http.js'
 
 import { type RequestListener, createServer } from 'http'
 import type { AddressInfo } from 'net'
@@ -107,8 +107,8 @@ const provider: EIP1193Provider = {
         },
       ]
 
-    const httpClient = createHttpClient(localHttpUrl)
-    const { error, result } = await httpClient.request({
+    const rpcClient = getHttpRpcClient(localHttpUrl)
+    const { error, result } = await rpcClient.request({
       body: {
         method,
         params,

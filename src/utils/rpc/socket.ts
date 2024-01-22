@@ -23,7 +23,7 @@ export type Socket<socket extends {}> = socket & {
   }): void
 }
 
-export type SocketClient<socket extends {}> = {
+export type SocketRpcClient<socket extends {}> = {
   close(): void
   socket: Socket<socket>
   request(params: {
@@ -40,31 +40,34 @@ export type SocketClient<socket extends {}> = {
   url: string
 }
 
-export type CreateSocketClientParameters<socket extends {}> = {
+export type GetSocketRpcClientParameters<socket extends {}> = {
   url: string
   getSocket(params: GetSocketParameters): Promise<Socket<socket>>
 }
 
-export type CreateSocketClientErrorType =
+export type GetSocketRpcClientErrorType =
   | CreateBatchSchedulerErrorType
   | ErrorType
 
 export const socketClientCache = /*#__PURE__*/ new Map<
   string,
-  SocketClient<Socket<{}>>
+  SocketRpcClient<Socket<{}>>
 >()
 
-export async function createSocketClient<socket extends {}>(
-  params: CreateSocketClientParameters<socket>,
-): Promise<SocketClient<socket>> {
+export async function getSocketRpcClient<socket extends {}>(
+  params: GetSocketRpcClientParameters<socket>,
+): Promise<SocketRpcClient<socket>> {
   const { getSocket, url } = params
 
   let socketClient = socketClientCache.get(url)
 
   // If the socket already exists, return it.
-  if (socketClient) return socketClient as {} as SocketClient<socket>
+  if (socketClient) return socketClient as {} as SocketRpcClient<socket>
 
-  const { schedule } = createBatchScheduler<undefined, [SocketClient<socket>]>({
+  const { schedule } = createBatchScheduler<
+    undefined,
+    [SocketRpcClient<socket>]
+  >({
     id: url,
     fn: async () => {
       // Set up a cache for incoming "synchronous" requests.
@@ -150,7 +153,7 @@ export async function createSocketClient<socket extends {}>(
       }
       socketClientCache.set(url, socketClient)
 
-      return [socketClient as {} as SocketClient<socket>]
+      return [socketClient as {} as SocketRpcClient<socket>]
     },
   })
 

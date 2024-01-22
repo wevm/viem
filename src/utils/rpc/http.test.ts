@@ -9,11 +9,11 @@ import { getBlockNumber, mine } from '../../actions/index.js'
 import { numberToHex } from '../encoding/toHex.js'
 import * as withTimeout from '../promise/withTimeout.js'
 import { wait } from '../wait.js'
-import { createHttpClient } from './http.js'
+import { getHttpRpcClient } from './http.js'
 
 describe('request', () => {
   test('valid request', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
     expect(
       await client.request({
         body: { method: 'web3_clientVersion' },
@@ -28,7 +28,7 @@ describe('request', () => {
   })
 
   test('valid request w/ incremented id', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
     expect(
       await client.request({
         body: { method: 'web3_clientVersion' },
@@ -43,7 +43,7 @@ describe('request', () => {
   })
 
   test('invalid rpc params', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
     await expect(
       client.request({
         body: { method: 'eth_getBlockByHash', params: ['0x0', false] },
@@ -63,7 +63,7 @@ describe('request', () => {
   })
 
   test('invalid request', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
     await expect(
       client.request({
         body: { method: 'eth_wagmi' },
@@ -81,7 +81,7 @@ describe('request', () => {
   })
 
   test('serial requests', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
     const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
@@ -101,7 +101,7 @@ describe('request', () => {
   })
 
   test('parallel requests', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
 
     await wait(500)
 
@@ -133,7 +133,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const client = createHttpClient(server.url)
+    const client = getHttpRpcClient(server.url)
 
     expect(
       await client.request({
@@ -159,7 +159,7 @@ describe('request', () => {
       res.end(JSON.stringify({ error: 'ngmi' }))
     })
 
-    const client = createHttpClient(server.url)
+    const client = getHttpRpcClient(server.url)
 
     await expect(() =>
       client.request({
@@ -186,7 +186,7 @@ describe('request', () => {
       res.end()
     })
 
-    const client = createHttpClient(server.url)
+    const client = getHttpRpcClient(server.url)
 
     await expect(() =>
       client.request({
@@ -211,7 +211,7 @@ describe('request', () => {
 
   // TODO: This is flaky.
   test.skip('timeout', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
 
     await expect(() =>
       client.request({
@@ -235,7 +235,7 @@ describe('request', () => {
   })
 
   test('unknown', async () => {
-    const client = createHttpClient('http://127.0.0.1')
+    const client = getHttpRpcClient('http://127.0.0.1')
 
     const mock = vi
       .spyOn(withTimeout, 'withTimeout')
@@ -265,7 +265,7 @@ describe('request', () => {
 
 describe('http (batch)', () => {
   test('valid request', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
 
     expect(
       await client.request({
@@ -291,7 +291,7 @@ describe('http (batch)', () => {
   })
 
   test('invalid rpc params', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
 
     expect(
       await client.request({
@@ -320,7 +320,7 @@ describe('http (batch)', () => {
   })
 
   test('invalid request', async () => {
-    const client = createHttpClient(localHttpUrl)
+    const client = getHttpRpcClient(localHttpUrl)
 
     expect(
       await client.request({
@@ -353,7 +353,7 @@ describe('http (batch)', () => {
       res.end(JSON.stringify({ error: 'ngmi' }))
     })
 
-    const client = createHttpClient(server.url)
+    const client = getHttpRpcClient(server.url)
 
     await expect(() =>
       client.request({
@@ -383,7 +383,7 @@ describe('http (batch)', () => {
       res.end()
     })
 
-    const client = createHttpClient(server.url)
+    const client = getHttpRpcClient(server.url)
 
     await expect(() =>
       client.request({
@@ -410,7 +410,7 @@ describe('http (batch)', () => {
   })
 
   test('unknown', async () => {
-    const client = createHttpClient('http://127.0.0.1')
+    const client = getHttpRpcClient('http://127.0.0.1')
 
     const mock = vi
       .spyOn(withTimeout, 'withTimeout')

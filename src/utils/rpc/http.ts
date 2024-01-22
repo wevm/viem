@@ -13,7 +13,7 @@ import {
 import { stringify } from '../stringify.js'
 import { idCache } from './id.js'
 
-export type HttpClientOptions = {
+export type HttpRpcClientOptions = {
   // Request configuration to pass to `fetch`.
   fetchOptions?: Omit<RequestInit, 'body'>
   // The timeout (in ms) for the request.
@@ -26,9 +26,9 @@ export type HttpRequestParameters<
   // The RPC request body.
   body: TBody
   // Request configuration to pass to `fetch`.
-  fetchOptions?: HttpClientOptions['fetchOptions']
+  fetchOptions?: HttpRpcClientOptions['fetchOptions']
   // The timeout (in ms) for the request.
-  timeout?: HttpClientOptions['timeout']
+  timeout?: HttpRpcClientOptions['timeout']
 }
 
 export type HttpRequestReturnType<
@@ -41,16 +41,16 @@ export type HttpRequestErrorType =
   | WithTimeoutErrorType
   | ErrorType
 
-export type HttpClient = {
+export type HttpRpcClient = {
   request<TBody extends RpcRequest | RpcRequest[]>(
     params: HttpRequestParameters<TBody>,
   ): Promise<HttpRequestReturnType<TBody>>
 }
 
-export function createHttpClient(
+export function getHttpRpcClient(
   url: string,
-  options: HttpClientOptions = {},
-): HttpClient {
+  options: HttpRpcClientOptions = {},
+): HttpRpcClient {
   return {
     async request(params) {
       const {

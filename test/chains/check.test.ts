@@ -4,7 +4,7 @@ import * as chains from '~viem/chains/index.js'
 import type { Chain } from '~viem/types/chain.js'
 import { withTimeout } from '~viem/utils/promise/withTimeout.js'
 import { request as httpRequest } from '~viem/utils/rpc/http.js'
-import { createWebSocketClient } from '~viem/utils/rpc/webSocket.js'
+import { getWebSocketRpcClient } from '~viem/utils/rpc/webSocket.js'
 
 const defaultTimeout = 10_000
 
@@ -81,7 +81,7 @@ async function assertWebSocketRpcUrls(
   for (const url of rpcUrls) {
     if (isLocalNetwork(url)) continue
 
-    const client = await withTimeout(() => createWebSocketClient(url), {
+    const client = await withTimeout(() => getWebSocketRpcClient(url), {
       timeout: defaultTimeout,
     })
     const response = await client

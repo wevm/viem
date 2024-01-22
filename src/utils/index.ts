@@ -42,23 +42,23 @@ export {
   rpc,
 } from './rpc/compat.js'
 export {
-  type HttpClient,
-  type HttpClientOptions,
+  type HttpRpcClient,
+  type HttpRpcClientOptions,
   type HttpRequestErrorType,
   type HttpRequestParameters,
   type HttpRequestReturnType,
-  createHttpClient,
+  getHttpRpcClient,
 } from './rpc/http.js'
 export {
-  type CreateSocketClientErrorType,
-  type CreateSocketClientParameters,
+  type GetSocketRpcClientErrorType,
+  type GetSocketRpcClientParameters,
   type GetSocketParameters,
   type Socket,
-  type SocketClient,
-  createSocketClient,
+  type SocketRpcClient,
+  getSocketRpcClient,
   socketClientCache,
 } from './rpc/socket.js'
-export { createWebSocketClient } from './rpc/webSocket.js'
+export { getWebSocketRpcClient } from './rpc/webSocket.js'
 export { type StringifyErrorType, stringify } from './stringify.js'
 export {
   type DomainSeparatorErrorType,

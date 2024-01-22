@@ -9,11 +9,11 @@ import { mine } from '../../actions/test/mine.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { numberToHex } from '../encoding/toHex.js'
 import { wait } from '../wait.js'
-import { createWebSocketClient } from './webSocket.js'
+import { getWebSocketRpcClient } from './webSocket.js'
 
-describe('createWebSocketClient', () => {
+describe('getWebSocketRpcClient', () => {
   test('creates WebSocket instance', async () => {
-    const socketClient = await createWebSocketClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(localWsUrl)
     expect(socketClient).toBeDefined()
     expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
   })
@@ -21,10 +21,10 @@ describe('createWebSocketClient', () => {
   test('multiple invocations on a url only opens one socket', async () => {
     const url = 'ws://127.0.0.1:8545/69420'
     const [client1, client2, client3, client4] = await Promise.all([
-      createWebSocketClient(url),
-      createWebSocketClient(url),
-      createWebSocketClient(url),
-      createWebSocketClient(url),
+      getWebSocketRpcClient(url),
+      getWebSocketRpcClient(url),
+      getWebSocketRpcClient(url),
+      getWebSocketRpcClient(url),
     ])
     expect(client1).toEqual(client2)
     expect(client1).toEqual(client3)
@@ -34,7 +34,7 @@ describe('createWebSocketClient', () => {
 
 describe('request', () => {
   test('valid request', async () => {
-    const socketClient = await createWebSocketClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(localWsUrl)
     const { id, ...version } = await new Promise<any>((resolve) =>
       socketClient.request({
         body: { method: 'web3_clientVersion' },
@@ -52,7 +52,7 @@ describe('request', () => {
   })
 
   test('valid request', async () => {
-    const socketClient = await createWebSocketClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(localWsUrl)
     const { id, ...block } = await new Promise<any>((resolve) =>
       socketClient.request({
         body: {
@@ -228,7 +228,7 @@ describe('request', () => {
   })
 
   test('invalid request', async () => {
-    const socketClient = await createWebSocketClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(localWsUrl)
     await expect(
       new Promise<any>((resolve, reject) =>
         socketClient.request({
@@ -255,7 +255,7 @@ describe('request', () => {
   })
 
   test('invalid request (closing socket)', async () => {
-    const socketClient = await createWebSocketClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(localWsUrl)
     await wait(1000)
     socketClient.close()
     await expect(
@@ -284,7 +284,7 @@ describe('request', () => {
   })
 
   test('invalid request (closed socket)', async () => {
-    const socketClient = await createWebSocketClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(localWsUrl)
     socketClient.close()
     await wait(1000)
     await expect(
@@ -314,7 +314,7 @@ describe('request', () => {
 
 describe('request (subscription)', () => {
   test('basic', async () => {
-    const socketClient = await createWebSocketClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(localWsUrl)
     const data_: RpcResponse[] = []
     socketClient.request({
       body: {
@@ -346,7 +346,7 @@ describe('request (subscription)', () => {
   })
 
   test('multiple', async () => {
-    const client = await createWebSocketClient(localWsUrl)
+    const client = await getWebSocketRpcClient(localWsUrl)
     const s1: RpcResponse[] = []
     client.request({
       body: {
@@ -418,7 +418,7 @@ describe('request (subscription)', () => {
   })
 
   test('invalid subscription', async () => {
-    const client = await createWebSocketClient(localWsUrl)
+    const client = await getWebSocketRpcClient(localWsUrl)
     let err_: RpcResponse | undefined
     client.request({
       body: {
@@ -445,7 +445,7 @@ describe('request (subscription)', () => {
 
 describe('requestAsync', () => {
   test('valid request', async () => {
-    const client = await createWebSocketClient(localWsUrl)
+    const client = await getWebSocketRpcClient(localWsUrl)
     const { id, ...version } = await client.requestAsync({
       body: { method: 'web3_clientVersion' },
     })
@@ -460,7 +460,7 @@ describe('requestAsync', () => {
   })
 
   test('valid request', async () => {
-    const client = await createWebSocketClient(localWsUrl)
+    const client = await getWebSocketRpcClient(localWsUrl)
     const { id, ...block } = await client.requestAsync({
       body: {
         method: 'eth_getBlockByNumber',
@@ -633,7 +633,7 @@ describe('requestAsync', () => {
   })
 
   test('serial requests', async () => {
-    const client = await createWebSocketClient(localWsUrl)
+    const client = await getWebSocketRpcClient(localWsUrl)
     const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
@@ -659,7 +659,7 @@ describe('requestAsync', () => {
     await mine(testClient, { blocks: 100 })
     const blockNumber = await getBlockNumber(publicClient)
 
-    const client = await createWebSocketClient(localWsUrl)
+    const client = await getWebSocketRpcClient(localWsUrl)
     const response = await Promise.all(
       Array.from({ length: 100 }).map(async (_, i) => {
         return await client.requestAsync({
@@ -680,7 +680,7 @@ describe('requestAsync', () => {
   }, 30_000)
 
   test('invalid request', async () => {
-    const client = await createWebSocketClient(localWsUrl)
+    const client = await getWebSocketRpcClient(localWsUrl)
     await expect(
       client.requestAsync({
         body: {
@@ -702,7 +702,7 @@ describe('requestAsync', () => {
   })
 
   test('timeout', async () => {
-    const client = await createWebSocketClient(localWsUrl)
+    const client = await getWebSocketRpcClient(localWsUrl)
 
     await expect(() =>
       client.requestAsync({

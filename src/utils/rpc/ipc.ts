@@ -1,6 +1,10 @@
 import { type Socket as NetSocket } from 'node:net'
 import { WebSocketRequestError } from '../../index.js'
-import { type Socket, type SocketClient, createSocketClient } from './socket.js'
+import {
+  type Socket,
+  type SocketRpcClient,
+  getSocketRpcClient,
+} from './socket.js'
 
 const openingBrace = '{'.charCodeAt(0)
 const closingBrace = '}'.charCodeAt(0)
@@ -27,10 +31,10 @@ export function extractMessages(buffer: Buffer): [Buffer[], Buffer] {
   return [messages, buffer.subarray(cursor)]
 }
 
-export type IpcClient = SocketClient<NetSocket>
+export type IpcClient = SocketRpcClient<NetSocket>
 
 export async function createIpcClient(path: string): Promise<IpcClient> {
-  return createSocketClient({
+  return getSocketRpcClient({
     async getSocket({ onResponse }) {
       const { connect } = await import('node:net')
       const socket = connect(path)

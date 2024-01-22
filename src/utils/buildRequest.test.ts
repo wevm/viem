@@ -30,10 +30,10 @@ import {
 } from '../errors/rpc.js'
 
 import { buildRequest, shouldRetry } from './buildRequest.js'
-import { createHttpClient } from './rpc/http.js'
+import { getHttpRpcClient } from './rpc/http.js'
 
 function request(url: string) {
-  const httpClient = createHttpClient(url)
+  const httpClient = getHttpRpcClient(url)
   return async ({ method, params }: any) => {
     const { error, result } = await httpClient.request({
       body: {

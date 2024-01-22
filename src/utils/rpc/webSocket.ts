@@ -1,12 +1,16 @@
 import type { MessageEvent } from 'isows'
 
 import { WebSocketRequestError } from '../../errors/request.js'
-import { type Socket, type SocketClient, createSocketClient } from './socket.js'
+import {
+  type Socket,
+  type SocketRpcClient,
+  getSocketRpcClient,
+} from './socket.js'
 
-export async function createWebSocketClient(
+export async function getWebSocketRpcClient(
   url: string,
-): Promise<SocketClient<WebSocket>> {
-  return createSocketClient({
+): Promise<SocketRpcClient<WebSocket>> {
+  return getSocketRpcClient({
     async getSocket({ onResponse }) {
       const WebSocket = await import('isows').then((module) => module.WebSocket)
       const socket = new WebSocket(url)

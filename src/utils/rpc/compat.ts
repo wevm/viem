@@ -9,16 +9,18 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { type WithTimeoutErrorType } from '../promise/withTimeout.js'
-import { type HttpRequestParameters, createHttpClient } from './http.js'
-import { type SocketClient } from './socket.js'
-import { createWebSocketClient } from './webSocket.js'
+import { type HttpRequestParameters, getHttpRpcClient } from './http.js'
+import { type SocketRpcClient } from './socket.js'
+import { getWebSocketRpcClient } from './webSocket.js'
 
-export type WebSocketOptions = Parameters<SocketClient<WebSocket>['request']>[0]
-export type WebSocketReturnType = SocketClient<WebSocket>
+export type WebSocketOptions = Parameters<
+  SocketRpcClient<WebSocket>['request']
+>[0]
+export type WebSocketReturnType = SocketRpcClient<WebSocket>
 export type WebSocketErrorType = WebSocketRequestError | ErrorType
 
 function webSocket(
-  socketClient: SocketClient<WebSocket>,
+  socketClient: SocketRpcClient<WebSocket>,
   { body, onError, onResponse }: WebSocketOptions,
 ): WebSocketReturnType {
   socketClient.request({
@@ -30,7 +32,7 @@ function webSocket(
 }
 
 export type WebSocketAsyncOptions = Parameters<
-  SocketClient<WebSocket>['requestAsync']
+  SocketRpcClient<WebSocket>['requestAsync']
 >[0]
 export type WebSocketAsyncReturnType = RpcResponse
 export type WebSocketAsyncErrorType =
@@ -40,7 +42,7 @@ export type WebSocketAsyncErrorType =
   | ErrorType
 
 async function webSocketAsync(
-  socketClient: SocketClient<WebSocket>,
+  socketClient: SocketRpcClient<WebSocket>,
   { body, timeout = 10_000 }: WebSocketAsyncOptions,
 ): Promise<WebSocketAsyncReturnType> {
   return socketClient.requestAsync({
@@ -62,7 +64,7 @@ async function webSocketAsync(
  * ```
  */
 export async function getSocket(url: string) {
-  const client = await createWebSocketClient(url)
+  const client = await getWebSocketRpcClient(url)
   return Object.assign(client.socket, {
     requests: client.requests,
     subscriptions: client.subscriptions,
@@ -71,42 +73,42 @@ export async function getSocket(url: string) {
 
 export const rpc = {
   /**
-   * @deprecated use `getHttpClient` instead.
+   * @deprecated use `getHttpRpcClient` instead.
    *
    * ```diff
    * -import { rpc } from 'viem/utils'
-   * +import { getHttpClient } from 'viem/utils'
+   * +import { getHttpRpcClient } from 'viem/utils'
    *
    * -rpc.http(url, params)
-   * +const httpClient = createHttpClient(url)
+   * +const httpClient = getHttpRpcClient(url)
    * +httpClient.request(params)
    * ```
    */
   http(url: string, params: HttpRequestParameters) {
-    return createHttpClient(url).request(params)
+    return getHttpRpcClient(url).request(params)
   },
   /**
-   * @deprecated use `createWebSocketClient` instead.
+   * @deprecated use `getWebSocketRpcClient` instead.
    *
    * ```diff
    * -import { rpc } from 'viem/utils'
-   * +import { createWebSocketClient } from 'viem/utils'
+   * +import { getWebSocketRpcClient } from 'viem/utils'
    *
    * -rpc.webSocket(url, params)
-   * +const webSocketClient = createWebSocketClient(url)
+   * +const webSocketClient = getWebSocketRpcClient(url)
    * +webSocketClient.request(params)
    * ```
    */
   webSocket,
   /**
-   * @deprecated use `createWebSocketClient` instead.
+   * @deprecated use `getWebSocketRpcClient` instead.
    *
    * ```diff
    * -import { rpc } from 'viem/utils'
-   * +import { createWebSocketClient } from 'viem/utils'
+   * +import { getWebSocketRpcClient } from 'viem/utils'
    *
    * -const response = await rpc.webSocketAsync(url, params)
-   * +const webSocketClient = createWebSocketClient(url)
+   * +const webSocketClient = getWebSocketRpcClient(url)
    * +const response = await webSocketClient.requestAsync(params)
    * ```
    */

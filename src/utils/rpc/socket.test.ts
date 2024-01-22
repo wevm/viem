@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 import { localWsUrl } from '../../../test/src/constants.js'
-import { createSocketClient } from './socket.js'
+import { getSocketRpcClient } from './socket.js'
 
 test('default', async () => {
   let active = false
-  const socketClient = await createSocketClient({
+  const socketClient = await getSocketRpcClient({
     async getSocket() {
       active = true
       return {
@@ -24,7 +24,7 @@ test('parallel invocations of same url returns identical client', async () => {
   let count = 0
 
   const socketClient = async () =>
-    createSocketClient({
+    getSocketRpcClient({
       async getSocket() {
         count++
         return {
@@ -62,7 +62,7 @@ test('sequential invocations of same url returns identical client', async () => 
   let count = 0
 
   const socketClient = async () =>
-    createSocketClient({
+    getSocketRpcClient({
       async getSocket() {
         count++
         return {
@@ -95,7 +95,7 @@ test('sequential invocations of same url returns identical client', async () => 
 })
 
 test('request', async () => {
-  const socketClient = await createSocketClient({
+  const socketClient = await getSocketRpcClient({
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -131,7 +131,7 @@ test('request', async () => {
 })
 
 test('request (eth_subscribe)', async () => {
-  const socketClient = await createSocketClient({
+  const socketClient = await getSocketRpcClient({
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -165,7 +165,7 @@ test('request (eth_subscribe)', async () => {
 })
 
 test('request (eth_unsubscribe)', async () => {
-  const socketClient = await createSocketClient({
+  const socketClient = await getSocketRpcClient({
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -199,7 +199,7 @@ test('request (eth_unsubscribe)', async () => {
 })
 
 test('request (eth_subscription)', async () => {
-  const socketClient = await createSocketClient({
+  const socketClient = await getSocketRpcClient({
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -247,7 +247,7 @@ test('request (eth_subscription)', async () => {
 })
 
 test('request (error)', async () => {
-  const socketClient = await createSocketClient({
+  const socketClient = await getSocketRpcClient({
     async getSocket() {
       return {
         close() {},
@@ -274,7 +274,7 @@ test('request (error)', async () => {
 })
 
 test('requestAsync', async () => {
-  const socketClient = await createSocketClient({
+  const socketClient = await getSocketRpcClient({
     async getSocket({ onResponse }) {
       return {
         close() {},
