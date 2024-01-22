@@ -1,4 +1,4 @@
-export function createId() {
+export function createIdStore() {
   return {
     current: 0,
     take() {
@@ -10,4 +10,4 @@ export function createId() {
   }
 }
 
-export const idCache = createId()
+export const idCache = /*#__PURE__*/ createIdStore()
