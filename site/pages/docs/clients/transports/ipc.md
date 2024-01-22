@@ -5,20 +5,19 @@ The `ipc` Transport connects to a JSON-RPC API via IPC (inter-process communicat
 ## Import
 
 ```ts
-import { ipc } from 'viem'
+import { ipc } from 'viem/node'
 ```
 
 ## Usage
 
-```ts {4}
-import { createPublicClient, ipc } from 'viem'
+```ts
+import { createPublicClient } from 'viem'
+import { ipc } from 'viem/node'
 import { mainnet } from 'viem/chains'
-
-const transport = ipc('/tmp/reth.ipc')
 
 const client = createPublicClient({
   chain: mainnet, 
-  transport,
+  transport: ipc('/tmp/reth.ipc'), // [!code hl]
 })
 ```
 

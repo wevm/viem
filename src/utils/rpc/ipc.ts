@@ -1,4 +1,4 @@
-import { type Socket as NetSocket } from 'node:net'
+import { type Socket as NetSocket, connect } from 'node:net'
 import { WebSocketRequestError } from '../../index.js'
 import {
   type Socket,
@@ -36,7 +36,6 @@ export type IpcRpcClient = SocketRpcClient<NetSocket>
 export async function getIpcRpcClient(path: string): Promise<IpcRpcClient> {
   return getSocketRpcClient({
     async getSocket({ onResponse }) {
-      const { connect } = await import('node:net')
       const socket = connect(path)
 
       function onClose() {

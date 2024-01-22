@@ -50,10 +50,6 @@ export {
   getHttpRpcClient,
 } from './rpc/http.js'
 export {
-  type IpcRpcClient,
-  getIpcRpcClient,
-} from './rpc/ipc.js'
-export {
   type GetSocketRpcClientErrorType,
   type GetSocketRpcClientParameters,
   type GetSocketParameters,
