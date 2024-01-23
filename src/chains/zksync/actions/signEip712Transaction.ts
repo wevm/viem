@@ -1,7 +1,10 @@
 import type { Account } from '../../../accounts/types.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import { getChainId } from '../../../actions/public/getChainId.js'
-import type { SignTransactionReturnType } from '../../../actions/wallet/signTransaction.js'
+import type {
+  SignTransactionErrorType,
+  SignTransactionReturnType,
+} from '../../../actions/wallet/signTransaction.js'
 import { signTypedData } from '../../../actions/wallet/signTypedData.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
@@ -45,7 +48,7 @@ export type SignEip712TransactionParameters<
 
 export type SignEip712TransactionReturnType = SignTransactionReturnType
 
-export type { SignTransactionErrorType as SignEip712TransactionErrorType } from '../../../actions/wallet/signTransaction.js'
+export type SignEip712TransactionErrorType = SignTransactionErrorType
 
 /**
  * Signs an EIP712 transaction.

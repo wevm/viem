@@ -4,6 +4,7 @@ import { getChainId } from '../../../actions/public/getChainId.js'
 import { prepareTransactionRequest } from '../../../actions/wallet/prepareTransactionRequest.js'
 import { sendRawTransaction } from '../../../actions/wallet/sendRawTransaction.js'
 import type {
+  SendTransactionErrorType,
   SendTransactionParameters as SendTransactionParameters_,
   SendTransactionReturnType,
 } from '../../../actions/wallet/sendTransaction.js'
@@ -22,8 +23,6 @@ import { type ChainEIP712 } from '../types/chain.js'
 import { assertEip712Request } from '../utils/assertEip712Request.js'
 import { signTransaction } from './signTransaction.js'
 
-export type { SendTransactionErrorType as SendEip712TransactionErrorType } from '../../../actions/wallet/sendTransaction.js'
-
 export type SendEip712TransactionParameters<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
   TAccount extends Account | undefined = Account | undefined,
@@ -31,6 +30,8 @@ export type SendEip712TransactionParameters<
 > = SendTransactionParameters_<TChain, TAccount, TChainOverride>
 
 export type SendEip712TransactionReturnType = SendTransactionReturnType
+
+export type SendEip712TransactionErrorType = SendTransactionErrorType
 
 /**
  * Creates, signs, and sends a new EIP712 transaction to the network.

@@ -34,7 +34,7 @@ const publicClient = createPublicClient({
 const l1Gas = await publicClient.estimateL1Gas({/* ... */})
 ```
 
-## Decorators
+## Extensions
 
 ### `walletActionsL1`
 

@@ -481,7 +481,7 @@ export const sidebar = {
             },
             {
               text: 'zkSync',
-              link: '/docs/chains/zksync',
+              link: '/zksync',
             },
           ],
         },
@@ -1156,16 +1156,16 @@ export const sidebar = {
         text: 'Actions',
         items: [
           {
-            text: 'prepareTransactionRequest',
-            link: '/zksync/actions/prepareTransactionRequest',
-          },
-          {
             text: 'sendTransaction',
             link: '/zksync/actions/sendTransaction',
           },
           {
             text: 'signTransaction',
             link: '/zksync/actions/signTransaction',
+          },
+          {
+            text: 'writeContract',
+            link: '/zksync/actions/writeContract',
           },
         ],
       },

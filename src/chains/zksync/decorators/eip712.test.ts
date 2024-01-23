@@ -6,12 +6,12 @@ import { zkSyncClient } from '~test/src/zksync.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { simulateContract } from '../../../actions/index.js'
 import type { EIP1193RequestFn } from '../../../types/eip1193.js'
-import { eip712Actions } from './eip712.js'
+import { eip712WalletActions } from './eip712.js'
 
-const zkSyncClient_ = zkSyncClient.extend(eip712Actions)
+const zkSyncClient_ = zkSyncClient.extend(eip712WalletActions())
 
 test('default', async () => {
-  expect(eip712Actions(zkSyncClient)).toMatchInlineSnapshot(`
+  expect(eip712WalletActions()(zkSyncClient)).toMatchInlineSnapshot(`
     {
       "sendTransaction": [Function],
       "signTransaction": [Function],
@@ -26,7 +26,7 @@ test('sendTransaction', async () => {
       return '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
     return zkSyncClient.request({ method, params } as any)
   }) as EIP1193RequestFn
-  const client = zkSyncClient_.extend(eip712Actions)
+  const client = zkSyncClient_.extend(eip712WalletActions())
 
   const result = await client.sendTransaction({
     account: privateKeyToAccount(accounts[0].privateKey),
@@ -69,7 +69,7 @@ test('writeContract', async () => {
       return '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
     return zkSyncClient.request({ method, params } as any)
   }) as EIP1193RequestFn
-  const client = zkSyncClient_.extend(eip712Actions)
+  const client = zkSyncClient_.extend(eip712WalletActions())
 
   const { request } = await simulateContract(client, {
     ...greeterContract,

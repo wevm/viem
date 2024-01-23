@@ -1,8 +1,9 @@
 import type { Account } from '../../../accounts/types.js'
 import { sendTransaction as sendTransaction_ } from '../../../actions/wallet/sendTransaction.js'
 import type {
+  SendTransactionErrorType as SendTransactionErrorType_,
   SendTransactionParameters as SendTransactionParameters_,
-  SendTransactionReturnType,
+  SendTransactionReturnType as SendTransactionReturnType_,
 } from '../../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
@@ -10,16 +11,15 @@ import { type ChainEIP712 } from '../types/chain.js'
 import { isEIP712Transaction } from '../utils/isEip712Transaction.js'
 import { sendEip712Transaction } from './sendEip712Transaction.js'
 
-export type {
-  SendTransactionErrorType,
-  SendTransactionReturnType,
-} from '../../../actions/wallet/sendTransaction.js'
-
 export type SendTransactionParameters<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
 > = SendTransactionParameters_<TChain, TAccount, TChainOverride>
+
+export type SendTransactionReturnType = SendTransactionReturnType_
+
+export type SendTransactionErrorType = SendTransactionErrorType_
 
 /**
  * Creates, signs, and sends a new transaction to the network.
@@ -36,7 +36,7 @@ export type SendTransactionParameters<
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { zkSync } from 'viem/chains'
- * import { sendTransaction } from 'viem/chains/zksync'
+ * import { sendTransaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
  *   chain: zkSync,
@@ -53,7 +53,7 @@ export type SendTransactionParameters<
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { zkSync } from 'viem/chains'
- * import { sendTransaction } from 'viem/chains/zksync'
+ * import { sendTransaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),

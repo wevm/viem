@@ -1,6 +1,9 @@
 import type { Account } from '../../../accounts/types.js'
 import { signTransaction as signTransaction_ } from '../../../actions/wallet/signTransaction.js'
-import type { SignTransactionReturnType } from '../../../actions/wallet/signTransaction.js'
+import type {
+  SignTransactionErrorType as SignTransactionErrorType_,
+  SignTransactionReturnType as SignTransactionReturnType_,
+} from '../../../actions/wallet/signTransaction.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { GetAccountParameter } from '../../../types/account.js'
@@ -35,10 +38,9 @@ export type SignTransactionParameters<
   GetAccountParameter<TAccount> &
   GetChainParameter<TChain, TChainOverride>
 
-export type {
-  SignTransactionReturnType,
-  SignTransactionErrorType,
-} from '../../../actions/wallet/signTransaction.js'
+export type SignTransactionReturnType = SignTransactionReturnType_
+
+export type SignTransactionErrorType = SignTransactionErrorType_
 
 /**
  * Signs a transaction.
@@ -51,7 +53,7 @@ export type {
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { zkSync } from 'viem/chains'
- * import { signTransaction } from 'viem/chains/zksync'
+ * import { signTransaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
  *   chain: zkSync,
@@ -68,7 +70,7 @@ export type {
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { zkSync } from 'viem/chains'
- * import { signTransaction } from 'viem/chains/zksync'
+ * import { signTransaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),

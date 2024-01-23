@@ -4,26 +4,36 @@ description: Setting up your zkSync Viem Client
 
 # Client
 
-To be able to send transactions and use contracts on the zkSync blockchain you must create a Viem client
+To use the zkSync functionality of Viem, you must extend your existing (or new) Viem Client with zkSync Actions.
 
 ## Usage
 
-### Client set up
-
-```ts
-import { createPublicClient, createWalletClient, custom } from 'viem'
+```ts twoslash
+import 'viem/window'
+// ---cut---
+import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { zkSync } from 'viem/chains'
-import { eip712Actions } from 'viem/chains/zksync'
+import { eip712WalletActions } from 'viem/zksync'
  
 const walletClient = createWalletClient({
   chain: zkSync,
-  transport: custom(window.ethereum),
-}).extend(eip712Actions)
+  transport: custom(window.ethereum!),
+}).extend(eip712WalletActions()) // [!code hl]
 
-export const publicClient = createPublicClient({
+const publicClient = createPublicClient({
   chain: zkSync,
   transport: http()
 })
+```
+
+## Extensions
+
+### `eip712WalletActions`
+
+A suite of [Wallet Actions](/zksync/actions/sendTransaction) for suited for development with zkSync chains.
+
+```ts twoslash
+import { eip712WalletActions } from 'viem/zksync'
 ```
 
 ### Sending transactions using paymaster

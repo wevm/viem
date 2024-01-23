@@ -1,10 +1,10 @@
 ---
-description: Signs an EIP712 transaction.
+description: Signs a transaction, with EIP712 transaction support.
 ---
 
 # signTransaction
 
-Signs an EIP712 transaction.
+Signs a transaction, with EIP712 transaction support.
 
 ## Usage
 
@@ -13,7 +13,7 @@ Signs an EIP712 transaction.
 ```ts [example.ts]
 import { account, walletClient } from './config'
  
-const request = await walletClient.prepareEip712TransactionRequest({
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -22,14 +22,14 @@ const request = await walletClient.prepareEip712TransactionRequest({
 const signature = await walletClient.signTransaction(request) // [!code focus:2]
 // 0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33
 
-const hash = await client.sendRawTransaction(signature)
+const hash = await walletClient.sendRawTransaction(signature)
 ```
 
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { zkSync } from 'viem/chains'
-import { eip712Actions } from 'viem/chains/zksync'
+import { eip712Actions } from 'viem/zksync'
 
 export const walletClient = createWalletClient({
   chain: zkSync,
@@ -66,28 +66,28 @@ const signature = await walletClient.signTransaction(request) // [!code focus:2]
 const hash = await client.sendRawTransaction(signature)
 ```
 
-```ts {4-6,9} [config.ts (JSON-RPC Account)]
+```ts [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
-import { eip712Actions } from 'viem/chains/zksync'
+import { eip712Actions } from 'viem/zksync'
 
-// Retrieve Account from an EIP-712 Provider.
-const [account] = await window.ethereum.request({ 
-  method: 'eth_requestAccounts' 
-})
+// Retrieve Account from an EIP-712 Provider. // [!code focus]
+const [account] = await window.ethereum.request({ // [!code focus]
+  method: 'eth_requestAccounts' // [!code focus]
+}) // [!code focus]
 
 export const walletClient = createWalletClient({
-  account,
+  account, // [!code focus]
   transport: custom(window.ethereum)
 }).extend(eip712Action)
 ```
 
-```ts {5} [config.ts (Local Account)]
+```ts [config.ts (Local Account)]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip712Actions } from 'viem/chains/zksync'
+import { eip712Actions } from 'viem/zksync'
 
 export const walletClient = createWalletClient({
-  account: privateKeyToAccount('0x...'),
+  account: privateKeyToAccount('0x...'), // [!code focus]
   transport: custom(window.ethereum)
 }).extend(eip712Action)
 ```

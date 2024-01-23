@@ -1,10 +1,10 @@
 ---
-description: Creates, signs, and sends a new transaction to the network, with EIP712 transaction support.
+description: Executes a write function on a contract, with EIP712 transaction support.
 ---
 
-# sendTransaction
+# writeContract
 
-Creates, signs, and sends a new transaction to the network, with EIP712 transaction support.
+Executes a write function on a contract, with EIP712 transaction support.
 
 ## Usage
 
@@ -13,10 +13,11 @@ Creates, signs, and sends a new transaction to the network, with EIP712 transact
 ```ts [example.ts]
 import { account, walletClient } from './config'
 
-const hash = await walletClient.sendTransaction({ // [!code focus:99]
+const hash = await walletClient.writeContract({ // [!code focus:99]
   account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
 })
 // '0x...'
 ```
@@ -51,9 +52,11 @@ If you do not wish to pass an `account` to every `sendTransaction`, you can also
 ```ts [example.ts]
 import { walletClient } from './config'
  
-const hash = await walletClient.sendTransaction({ // [!code focus:99]
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n
+const hash = await walletClient.writeContract({ // [!code focus:99]
+  account,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
 })
 // '0x...'
 ```
@@ -94,6 +97,51 @@ The [Transaction](/docs/glossary/terms#transaction) hash.
 
 ## Parameters
 
+### address
+
+- **Type:** [`Address`](/docs/glossary/types#address)
+
+The contract address.
+
+```ts
+await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420]
+})
+```
+
+### abi
+
+- **Type:** [`Abi`](/docs/glossary/types#abi)
+
+The contract's ABI.
+
+```ts
+await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi, // [!code focus]
+  functionName: 'mint',
+  args: [69420]
+})
+```
+
+### functionName
+
+- **Type:** `string`
+
+A function to extract from the ABI.
+
+```ts
+await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint', // [!code focus]
+  args: [69420]
+})
+```
+
 ### account
 
 - **Type:** `Account | Address`
@@ -103,25 +151,11 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const hash = await walletClient.sendTransaction({
-  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n
-})
-```
-
-### to
-
-- **Type:** `0x${string}`
-
-The transaction recipient or contract address.
-
-```ts
-const hash = await walletClient.sendTransaction({
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
-  value: 1000000000000000000n,
-  nonce: 69
+await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420]
 })
 ```
 
@@ -132,15 +166,17 @@ const hash = await walletClient.sendTransaction({
 The access list.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const hash = await walletClient.writeContract({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
       storageKeys: ['0x1'],
     },
   ],
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420]
 })
 ```
 
@@ -151,16 +187,15 @@ const hash = await walletClient.sendTransaction({
 
 The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
-The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `sendTransaction`).
-
 ```ts
 import { zksync } from 'viem/chains' // [!code focus]
 
-const hash = await walletClient.sendTransaction({
+const hash = await walletClient.writeContract({
   chain: zksync, // [!code focus]
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420]
 })
 ```
 
@@ -171,11 +206,12 @@ const hash = await walletClient.sendTransaction({
 A contract hashed method call with encoded args.
 
 ```ts
-const hash = await walletClient.sendTransaction({
+const hash = await walletClient.writeContract({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420]
 })
 ```
 
@@ -186,11 +222,12 @@ const hash = await walletClient.sendTransaction({
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
-const hash = await walletClient.sendTransaction({
-  account,
+const hash = await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
   gasPrice: parseGwei('20'), // [!code focus]
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n
 })
 ```
 
@@ -201,10 +238,11 @@ const hash = await walletClient.sendTransaction({
 Unique number identifying this transaction.
 
 ```ts
-const hash = await walletClient.sendTransaction({
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n,
+const hash = await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
   nonce: 69 // [!code focus]
 })
 ```
@@ -216,11 +254,12 @@ const hash = await walletClient.sendTransaction({
 Value in wei sent with this transaction.
 
 ```ts
-const hash = await walletClient.sendTransaction({
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+const hash = await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
   value: parseEther('1'), // [!code focus]
-  nonce: 69
 })
 ```
 
@@ -231,12 +270,12 @@ const hash = await walletClient.sendTransaction({
 The amount of gas for publishing one byte of data on Ethereum.
 
 ```ts
-const hash = await walletClient.sendTransaction({
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+const hash = await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
   gasPerPubdata: 50000, // [!code focus]
-  nonce: 69,
-  value: 1000000000000000000n
 })
 ```
 
@@ -247,12 +286,12 @@ const hash = await walletClient.sendTransaction({
 Contains bytecode of the deployed contract.
 
 ```ts
-const hash = await walletClient.sendTransaction({
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+const hash = await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
   factoryDeps: ['0xcde...'], // [!code focus]
-  nonce: 69,
-  value: 1000000000000000000n
 })
 ```
 
@@ -263,13 +302,13 @@ const hash = await walletClient.sendTransaction({
 Address of the paymaster account that will pay the fees. The `paymasterInput` field is required with this one.
 
 ```ts
-const hash = await walletClient.sendTransaction({
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+const hash = await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
   paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021', // [!code focus]
   paymasterInput: '0x8c5a...' // [!code focus]
-  nonce: 69,
-  value: 1000000000000000000n
 })
 ```
 
@@ -280,12 +319,12 @@ const hash = await walletClient.sendTransaction({
 Input data to the paymaster. The `paymaster` field is required with this one.
 
 ```ts
-const hash = await walletClient.sendTransaction({
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+const hash = await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
   paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021', // [!code focus]
   paymasterInput: '0x8c5a...' // [!code focus]
-  nonce: 69,
-  value: 1000000000000000000n
 })
 ```

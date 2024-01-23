@@ -31,7 +31,10 @@ export {
 
 export { chainConfig } from './chainConfig.js'
 
-export { eip712Actions, type Eip712Actions } from './decorators/eip712.js'
+export {
+  eip712WalletActions,
+  type Eip712WalletActions,
+} from './decorators/eip712.js'
 
 export { serializeTransaction } from './serializers.js'
 
