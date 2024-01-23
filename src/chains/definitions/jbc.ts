@@ -25,6 +25,14 @@ export const jbc = /*#__PURE__*/ defineChain({
       address: '0xc0C8C486D1466C57Efe13C2bf000d4c56F47CBdC',
       blockCreated: 2299048,
     },
+    ensRegistry: {
+      address: '0x87e31EbcAF0129C281b357E956660E057D36a39F',
+      blockCreated: 2489986,
+    },
+    ensUniversalResolver: {
+      address: '0x80996350689A851016f83F112038Fb8Bac867d08',
+      blockCreated: 2490020,
+    },
   },
   testnet: false,
 })
