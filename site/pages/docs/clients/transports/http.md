@@ -4,21 +4,19 @@ The `http` Transport connects to a JSON-RPC API via HTTP.
 
 ## Import
 
-```ts
+```ts twoslash
 import { http } from 'viem'
 ```
 
 ## Usage
 
-```ts {4}
+```ts twoslash {4}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...')
-
 const client = createPublicClient({
   chain: mainnet,
-  transport,
+  transport: http('https://eth-mainnet.g.alchemy.com/v2/...'), // [!code focus]
 })
 ```
 
@@ -34,7 +32,9 @@ The Transport will batch up Actions over a given period and execute them in a si
 
 You can enable Batch JSON-RPC by setting the `batch` flag to `true`:
 
-```ts 
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   batch: true // [!code focus]
 })
@@ -42,7 +42,15 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 Now when you invoke Actions, the `http` Transport will batch and send over those requests at the end of the message queue (or custom time period) in a single Batch JSON-RPC HTTP request:
 
-```ts
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http('https://eth-mainnet.g.alchemy.com/v2/...'), 
+})
+// ---cut---
 // The below will send a single Batch JSON-RPC HTTP request to the RPC Provider.
 const [blockNumber, balance, ensName] = await Promise.all([
   client.getBlockNumber(),
@@ -60,7 +68,9 @@ const [blockNumber, balance, ensName] = await Promise.all([
 
 URL of the JSON-RPC API.
 
-```ts
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...')
 ```
 
@@ -71,7 +81,9 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...')
 
 Toggle to enable Batch JSON-RPC
 
-```ts 
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   batch: true // [!code focus]
 })
@@ -84,7 +96,9 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 The maximum number of JSON-RPC requests to send in a batch.
 
-```ts 
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   batch: {
     batchSize: 2_000 // [!code focus]
@@ -99,7 +113,9 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 The maximum number of milliseconds to wait before sending a batch.
 
-```ts 
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   batch: {
     wait: 16 // [!code focus]
@@ -113,7 +129,9 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 [Fetch options](https://developer.mozilla.org/en-US/docs/Web/API/fetch) to pass to the internal `fetch` function. Useful for passing auth headers or cache options.
 
-```ts
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   fetchOptions: { // [!code focus:5]
     headers: {
@@ -130,7 +148,9 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 A key for the Transport.
 
-```ts
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   key: 'alchemy', // [!code focus]
 })
@@ -143,7 +163,9 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 A name for the Transport
 
-```ts
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   name: 'Alchemy HTTP Provider', // [!code focus]
 })
@@ -156,7 +178,9 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 The max number of times to retry when a request fails.
 
-```ts
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   retryCount: 5, // [!code focus]
 })
@@ -169,7 +193,9 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 The base delay (in ms) between retries. By default, the Transport will use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) (`~~(1 << count) * retryDelay`), which means the time between retries is not constant.
 
-```ts
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   retryDelay: 100, // [!code focus]
 })
@@ -182,7 +208,9 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 The timeout for requests.
 
-```ts
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   timeout: 60_000, // [!code focus]
 })

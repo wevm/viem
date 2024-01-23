@@ -8,7 +8,7 @@ The `createClient` function sets up a base viem Client with a given [Transport](
 
 ## Import
 
-```ts
+```ts twoslash
 import { createClient } from 'viem'
 ```
 
@@ -16,7 +16,7 @@ import { createClient } from 'viem'
 
 Initialize a Client with your desired [Chain](/docs/chains/introduction) (e.g. `mainnet`) and [Transport](/docs/clients/intro) (e.g. `http`).
 
-```ts
+```ts twoslash
 import { createClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -34,7 +34,8 @@ You can extend your Client with custom Actions or configuration by using the `.e
 
 Below is a naive implementation of implementing a [geth Debug](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-debug) Client with a `traceCall` Action that uses the `debug_traceCall` RPC method.
 
-```ts {12-21,23-29}
+```ts twoslash {12-21,23-29}
+// @noErrors
 import { 
   createClient, 
   http,
@@ -74,7 +75,8 @@ You can use the Client as-is, with no decorated Actions, to maximize tree-shakin
 
 In the example below, instead of calling `getBlock` from the Public Client, we are importing the Action directly from `viem` and then injecting our Client as the first parameter to the Action.
 
-```ts {3,10-11}
+```ts twoslash {3,10-11}
+// @noErrors
 import { createClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { getBlock, sendTransaction } from 'viem/actions'
@@ -96,7 +98,10 @@ const hash = await sendTransaction(client, { ... })
 
 The [Transport](/docs/clients/intro) of the Public Client.
 
-```ts
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createClient({
   chain: mainnet,
   transport: http(), // [!code focus]
@@ -111,11 +116,14 @@ The Account to use for the Client. This will be used for Actions that require an
 
 Accepts a [JSON-RPC Account](/docs/accounts/jsonRpc) or [Local Account (Private Key, etc)](/docs/accounts/privateKey).
 
-```ts
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 import { privateKeyToAccount } from 'viem/accounts'
 
 const client = createClient({
-  account: privateKeyToAccount('0x...') // [!code focus]
+  account: privateKeyToAccount('0x...'), // [!code focus]
   chain: mainnet,
   transport: http(),
 })
@@ -127,7 +135,10 @@ const client = createClient({
 
 The [Chain](/docs/chains/introduction) of the Public Client.
 
-```ts
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createClient({
   chain: mainnet, // [!code focus]
   transport: http(),
@@ -145,7 +156,10 @@ Flags for batch settings.
 
 Toggle to enable `eth_call` multicall aggregation.
 
-```ts
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createClient({
   batch: {
     multicall: true, // [!code focus]
@@ -164,7 +178,10 @@ The maximum size (in bytes) for each multicall (`aggregate3`) calldata chunk.
 
 > Note: Some RPC Providers limit the amount of calldata that can be sent in a single request. It is best to check with your RPC Provider to see if there are any calldata size limits to `eth_call` requests.
 
-```ts
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createClient({
   batch: {
     multicall: {
@@ -183,7 +200,10 @@ const client = createClient({
 
 The maximum number of milliseconds to wait before sending a batch.
 
-```ts
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createClient({
   batch: {
     multicall: {
@@ -202,7 +222,10 @@ const client = createClient({
 
 A key for the Client.
 
-```ts
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createClient({
   chain: mainnet,
   key: 'public', // [!code focus]
@@ -217,7 +240,10 @@ const client = createClient({
 
 A name for the Client.
 
-```ts
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createClient({
   chain: mainnet,
   name: 'Public Client', // [!code focus]
@@ -232,7 +258,10 @@ const client = createClient({
 
 Frequency (in ms) for polling enabled Actions.
 
-```ts
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createClient({
   chain: mainnet,
   pollingInterval: 10_000, // [!code focus]

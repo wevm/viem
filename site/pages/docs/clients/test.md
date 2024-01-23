@@ -6,7 +6,7 @@ The `createTestClient` function sets up a Test RPC Client with a given [Transpor
 
 ## Import
 
-```ts
+```ts twoslash
 import { createTestClient } from 'viem'
 ```
 
@@ -14,7 +14,7 @@ import { createTestClient } from 'viem'
 
 Initialize a Client with your desired [Chain](/docs/chains/introduction), [Transport](/docs/clients/intro) (e.g. `http`) and [mode](#mode) (e.g. `"anvil"`).
 
-```ts
+```ts twoslash
 import { createTestClient, http } from 'viem'
 import { foundry } from 'viem/chains'
 
@@ -27,7 +27,16 @@ const client = createTestClient({
 
 Then you can consume [Test Actions](/docs/actions/test/introduction):
 
-```ts
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+const client = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+// ---cut---
 const mine = await client.mine({ blocks: 1 }) // [!code focus:10]
 ```
 
@@ -35,7 +44,8 @@ const mine = await client.mine({ blocks: 1 }) // [!code focus:10]
 
 When interacting with a Ethereum test node, you may also find yourself wanting to interact with [Public Actions](/docs/actions/public/introduction) and [Wallet Actions](/docs/actions/wallet/introduction) with the same `chain` and `transport`. Instead of creating three different Clients, you can instead just extend the Test Client with those actions:
 
-```ts
+```ts twoslash
+// @noErrors
 import { createTestClient, http, publicActions, walletActions } from 'viem'
 import { foundry } from 'viem/chains'
 
@@ -44,8 +54,8 @@ const client = createTestClient({
   mode: 'anvil',
   transport: http(), 
 })
-  .extend(publicActions)
-  .extend(walletActions)
+  .extend(publicActions) // [!code hl]
+  .extend(walletActions) // [!code hl]
 
 const blockNumber = await client.getBlockNumber() // Public Action
 const hash = await client.sendTransaction({ ... }) // Wallet Action
@@ -60,7 +70,10 @@ const mine = await client.mine({ blocks: 1 }) // Test Action
 
 Mode of the Test Client.
 
-```ts
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+// ---cut---
 const client = createTestClient({
   chain: foundry,
   mode: 'anvil', // [!code focus]
@@ -74,7 +87,10 @@ const client = createTestClient({
 
 [Transport](/docs/clients/intro) of the Test Client.
 
-```ts
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+// ---cut---
 const client = createTestClient({
   chain: foundry,
   mode: 'anvil', 
@@ -90,11 +106,14 @@ The Account to use for the Client. This will be used for Actions that require an
 
 Accepts a [JSON-RPC Account](/docs/accounts/jsonRpc) or [Local Account (Private Key, etc)](/docs/accounts/privateKey).
 
-```ts
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+// ---cut---
 import { privateKeyToAccount } from 'viem/accounts'
 
 const client = createTestClient({
-  account: privateKeyToAccount('0x...') // [!code focus]
+  account: privateKeyToAccount('0x...'), // [!code focus]
   chain: foundry,
   mode: 'anvil',
   transport: http(),
@@ -107,7 +126,10 @@ const client = createTestClient({
 
 [Chain](/docs/chains/introduction) of the Test Client.
 
-```ts
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+// ---cut---
 const client = createTestClient({
   chain: foundry, // [!code focus]
   mode: 'anvil',
@@ -122,7 +144,10 @@ const client = createTestClient({
 
 Time (in ms) that cached data will remain in memory.
 
-```ts
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+// ---cut---
 const client = createTestClient({
   cacheTime: 10_000, // [!code focus]
   chain: foundry,
@@ -138,7 +163,10 @@ const client = createTestClient({
 
 A name for the Client.
 
-```ts
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+// ---cut---
 const client = createTestClient({
   chain: foundry,
   mode: 'anvil', 
@@ -154,7 +182,10 @@ const client = createTestClient({
 
 Frequency (in ms) for polling enabled Actions.
 
-```ts
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+// ---cut---
 const client = createTestClient({
   chain: foundry,
   mode: 'anvil', 

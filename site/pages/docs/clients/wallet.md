@@ -25,13 +25,15 @@ Below is an example of how you can set up a JSON-RPC Account.
 
 Before we set up our Account and start consuming Wallet Actions, we will need to set up our Wallet Client with the [`custom` Transport](/docs/clients/transports/custom), where we will pass in the `window.ethereum` Provider:
 
-```ts
+```ts twoslash
+import 'viem/window'
+// ---cut---
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```
 
@@ -39,13 +41,15 @@ const client = createWalletClient({
 
 We will want to retrieve an address that we can access in our Wallet (e.g. MetaMask).
 
-```ts
-import { createWalletClient, custom } from 'viem' // [!code focus]
+```ts twoslash
+import 'viem/window'
+// ---cut---
+import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 
 const [address] = await client.getAddresses() // [!code focus:10]
@@ -58,13 +62,15 @@ const [address] = await client.getAddresses() // [!code focus:10]
 
 Now you can use that address within Wallet Actions that require a signature from the user:
 
-```ts
-import { createWalletClient, custom } from 'viem'
+```ts twoslash
+import 'viem/window'
+// ---cut---
+import { createWalletClient, custom, parseEther } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 
 const [address] = await client.getAddresses()
@@ -80,11 +86,13 @@ const hash = await client.sendTransaction({ // [!code focus:10]
 
 If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account into the Wallet Client.
 
-```ts
-import { createWalletClient, http } from 'viem'
+```ts twoslash
+import 'viem/window'
+// ---cut---
+import { createWalletClient, http, parseEther } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+const [account] = await window.ethereum!.request({ method: 'eth_requestAccounts' })
 
 const client = createWalletClient({ // [!code focus:99]
   account, // [!code ++]
@@ -115,7 +123,7 @@ Below are the steps to integrate a **Private Key Account**, but the same steps c
 
 Before we set up our Account and start consuming Wallet Actions, we will need to set up our Wallet Client with the [`http` Transport](/docs/clients/transports/http):
 
-```ts
+```ts twoslash
 import { createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -129,7 +137,7 @@ const client = createWalletClient({
 
 Next, we will instantiate a Private Key Account using `privateKeyToAccount`:
 
-```ts
+```ts twoslash
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts' // [!code focus]
 import { mainnet } from 'viem/chains'
@@ -146,8 +154,8 @@ const account = privateKeyToAccount('0x...') // [!code focus:1]
 
 Now you can use that Account within Wallet Actions that need a signature from the user:
 
-```ts
-import { createWalletClient, http } from 'viem'
+```ts twoslash
+import { createWalletClient, http, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -169,8 +177,8 @@ const hash = await client.sendTransaction({ // [!code focus:5]
 
 If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account into the Wallet Client.
 
-```ts
-import { createWalletClient, http } from 'viem'
+```ts twoslash
+import { createWalletClient, http, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -195,20 +203,22 @@ When using a Local Account, you may be finding yourself using a [Public Client](
 
 In this case, you can extend your Wallet Client with [Public Actions](/docs/actions/public/introduction) to avoid having to handle multiple Clients.
 
-```ts {12}
+```ts twoslash
+// @noErrors
 import { createWalletClient, http, publicActions } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 const account = privateKeyToAccount('0x...')
 
-const client = createWalletClient({
+const client = createWalletClient({ // [!code focus]
   account,
   chain: mainnet,
   transport: http()
-}).extend(publicActions) // [!code ++]
+}).extend(publicActions) // [!code ++] // [!code focus]
 
-const { request } = await client.simulateContract({ ... }) // Public Action
-const hash = await client.writeContract(request) // Wallet Action
+const { request } = await client.simulateContract({ ... }) // Public Action // [!code focus]
+const hash = await client.writeContract(request) // Wallet Action // [!code focus]
 ```
 
 ## Parameters
@@ -221,14 +231,16 @@ The Account to use for the Wallet Client. This will be used for Actions that req
 
 Accepts a [JSON-RPC Account](#json-rpc-accounts) or [Local Account (Private Key, etc)](#local-accounts-private-key-mnemonic-etc).
 
-```ts
-import { createWalletClient, custom } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+```ts twoslash
+import 'viem/window'
+// ---cut---
+import { createWalletClient, custom, parseEther } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
-  account: privateKeyToAccount('0x...') // [!code focus]
-  key: 'foo', 
-  transport: custom(window.ethereum)
+  account: '0x...', // [!code focus]
+  chain: mainnet,
+  transport: custom(window.ethereum!)
 })
 
 const hash = await client.sendTransaction({
@@ -245,10 +257,14 @@ The [Chain](/docs/chains/introduction) of the Wallet Client.
 
 Used in the [`sendTransaction`](/docs/actions/wallet/sendTransaction) & [`writeContract`](/docs/contract/writeContract) Actions to assert that the chain matches the wallet's active chain.
 
-```ts
+```ts twoslash
+import 'viem/window'
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createWalletClient({
   chain: mainnet, // [!code focus]
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```
 
@@ -259,11 +275,15 @@ const client = createWalletClient({
 
 Time (in ms) that cached data will remain in memory.
 
-```ts
+```ts twoslash
+import 'viem/window'
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
 const client = createWalletClient({
   cacheTime: 10_000, // [!code focus]
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```
 
@@ -274,12 +294,13 @@ const client = createWalletClient({
 
 A key for the Client.
 
-```ts
+```ts twoslash
+import 'viem/window'
 import { createWalletClient, custom } from 'viem'
-
+// ---cut---
 const client = createWalletClient({
   key: 'foo', // [!code focus]
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```
 
@@ -290,12 +311,13 @@ const client = createWalletClient({
 
 A name for the Client.
 
-```ts
+```ts twoslash
+import 'viem/window'
 import { createWalletClient, custom } from 'viem'
-
+// ---cut---
 const client = createWalletClient({
   name: 'Foo Wallet Client', // [!code focus]
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```
 
@@ -306,11 +328,12 @@ const client = createWalletClient({
 
 Frequency (in ms) for polling enabled Actions.
 
-```ts
+```ts twoslash
+import 'viem/window'
 import { createWalletClient, custom } from 'viem'
-
+// ---cut---
 const client = createWalletClient({
   pollingInterval: 10_000, // [!code focus]
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```

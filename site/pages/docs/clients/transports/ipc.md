@@ -4,13 +4,13 @@ The `ipc` Transport connects to a JSON-RPC API via IPC (inter-process communicat
 
 ## Import
 
-```ts
+```ts twoslash
 import { ipc } from 'viem/node'
 ```
 
 ## Usage
 
-```ts
+```ts twoslash
 import { createPublicClient } from 'viem'
 import { ipc } from 'viem/node'
 import { mainnet } from 'viem/chains'
@@ -29,7 +29,9 @@ const client = createPublicClient({
 
 IPC Path the transport should connect to.
 
-```ts
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
 const transport = ipc('/tmp/reth.ipc')
 ```
 
@@ -40,7 +42,9 @@ const transport = ipc('/tmp/reth.ipc')
 
 A key for the Transport.
 
-```ts
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
 const transport = ipc('/tmp/reth.ipc', { 
   key: 'reth-ipc',  // [!code focus]
 })
@@ -53,7 +57,9 @@ const transport = ipc('/tmp/reth.ipc', {
 
 A name for the Transport
 
-```ts
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
 const transport = ipc('/tmp/reth.ipc', { 
   name: 'Reth IPC',  // [!code focus]
 })
@@ -66,7 +72,9 @@ const transport = ipc('/tmp/reth.ipc', {
 
 The max number of times to retry when a request fails.
 
-```ts
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
 const transport = ipc('/tmp/reth.ipc', {
   retryCount: 5, // [!code focus]
 })
@@ -79,7 +87,9 @@ const transport = ipc('/tmp/reth.ipc', {
 
 The base delay (in ms) between retries. By default, the Transport will use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) (`~~(1 << count) * retryDelay`), which means the time between retries is not constant.
 
-```ts
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
 const transport = ipc('/tmp/reth.ipc', {
   retryDelay: 100, // [!code focus]
 })
@@ -92,7 +102,9 @@ const transport = ipc('/tmp/reth.ipc', {
 
 The timeout for async IPC requests.
 
-```ts
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
 const transport = ipc('/tmp/reth.ipc', {
   timeout: 60_000, // [!code focus]
 })
