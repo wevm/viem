@@ -1,32 +1,18 @@
 import type { Account } from '../../../accounts/types.js'
-import { parseAccount } from '../../../accounts/utils/parseAccount.js'
-import { signTransaction as signTransactionOriginal } from '../../../actions/index.js'
-import { getChainId } from '../../../actions/public/getChainId.js'
-import type {
-  SignTransactionParameters as OriginalSignTransactionParameters,
-  SignTransactionReturnType,
-} from '../../../actions/wallet/signTransaction.js'
-import { signTypedData } from '../../../actions/wallet/signTypedData.js'
+import { signTransaction as signTransaction_ } from '../../../actions/wallet/signTransaction.js'
+import type { SignTransactionReturnType } from '../../../actions/wallet/signTransaction.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../../errors/account.js'
 import type { GetAccountParameter } from '../../../types/account.js'
 import type {
   ExtractChainFormatterParameters,
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { UnionOmit } from '../../../types/utils.js'
-import { assertCurrentChain } from '../../../utils/chain/assertCurrentChain.js'
-import { getAction } from '../../../utils/getAction.js'
-import {
-  type AssertRequestParameters,
-  assertRequest,
-} from '../../../utils/transaction/assertRequest.js'
-import {
-  type ChainEIP712,
-  type TransactionRequestEIP712,
-  isEip712Transaction,
-} from '../types.js'
+import type { ChainEIP712 } from '../types/chain.js'
+import type { TransactionRequestEIP712 } from '../types/transaction.js'
+import { isEIP712Transaction } from '../utils/isEip712Transaction.js'
+import { signEip712Transaction } from './signEip712Transaction.js'
 
 type FormattedTransactionRequest<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
@@ -58,9 +44,6 @@ export type {
  * Signs a transaction.
  *
  * - Docs: https://viem.sh/docs/zksync/actions/signTransaction
- * - JSON-RPC Methods:
- *   - JSON-RPC Accounts: [`eth_signTransaction`](https://ethereum.github.io/execution-apis/api-documentation/)
- *   - Local Accounts: Signs locally. No JSON-RPC request.
  *
  * @param args - {@link SignTransactionParameters}
  * @returns The signed serialized tranasction. {@link SignTransactionReturnType}
@@ -105,64 +88,6 @@ export async function signTransaction<
   client: Client<Transport, TChain, TAccount>,
   args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SignTransactionReturnType> {
-  const {
-    account: account_ = client.account,
-    chain = client.chain,
-    ...transaction
-  } = args
-
-  if (!account_)
-    throw new AccountNotFoundError({
-      docsPath: '/docs/actions/wallet/signTransaction',
-    })
-  const account = parseAccount(account_)
-
-  assertRequest({
-    account,
-    ...(args as AssertRequestParameters),
-  })
-
-  // Handle EIP712 transactions
-  if (
-    client.chain?.custom?.eip712domain?.eip712domain &&
-    client.chain?.serializers?.transaction &&
-    isEip712Transaction({ ...transaction, type: args.type ?? '' })
-  ) {
-    const chainId = await getAction(client, getChainId, 'getChainId')({})
-    if (chain !== null)
-      assertCurrentChain({
-        currentChainId: chainId,
-        chain: chain,
-      })
-
-    const eip712Domain = client.chain?.custom.eip712domain?.eip712domain({
-      ...transaction,
-      from: account.address,
-      type: 'eip712',
-    })
-
-    const customSignature = await signTypedData(client, {
-      ...eip712Domain,
-      account: account,
-    })
-
-    // If we have the customSignature we can sign the transaction, doesn't matter if account type
-    // is `local` or `json-rpc`.
-    return client.chain?.serializers?.transaction(
-      {
-        chainId,
-        ...transaction,
-        customSignature,
-        type: 'eip712',
-      },
-      // Use this blank private key, probably we should change the code to be optional,
-      // or option if it is EIP712.
-      { r: '0x0', s: '0x0', v: 0n },
-    )
-  }
-
-  return await signTransactionOriginal(
-    client,
-    args as OriginalSignTransactionParameters,
-  )
+  if (isEIP712Transaction(args)) return signEip712Transaction(client, args)
+  return await signTransaction_(client, args as any)
 }

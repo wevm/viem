@@ -16,16 +16,15 @@ import type { Hash } from '../../types/misc.js'
 import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
-import { zkSync, zkSyncSepoliaTestnet } from '../index.js'
+import { zkSync } from '../index.js'
 import { formatters } from './formatters.js'
+import type { ZkSyncEip712Meta } from './types/eip712.js'
+import type { ZkSyncL2ToL1Log, ZkSyncLog } from './types/log.js'
 import type {
-  ZkSyncEip712Meta,
-  ZkSyncL2ToL1Log,
-  ZkSyncLog,
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionReceiptOverrides,
   ZkSyncTransactionRequest,
-} from './types.js'
+} from './types/transaction.js'
 
 describe('block', () => {
   expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
@@ -173,12 +172,11 @@ describe('smoke', () => {
   test('transactionRequest (prepareTransactionRequest)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncSepoliaTestnet,
+      chain: zkSync,
       transport: http(),
     })
 
     prepareTransactionRequest(client, {
-      chain: zkSync,
       to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
       data: '0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869204461766964340000000000000000000000000000000000000000000000',
       gasPerPubdata: 50000n,
@@ -192,12 +190,11 @@ describe('smoke', () => {
   test('transactionRequest (sendTransaction)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncSepoliaTestnet,
+      chain: zkSync,
       transport: http(),
     })
 
     sendTransaction(client, {
-      chain: zkSync,
       to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
       maxFeePerGas: 0n,
       gasPerPubdata: 50000n,
@@ -216,7 +213,6 @@ describe('smoke', () => {
     })
 
     signTransaction(client, {
-      chain: zkSync,
       gasPerPubdata: 50000n,
       maxFeePerGas: 250000000n,
       maxPriorityFeePerGas: 0n,

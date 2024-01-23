@@ -10,16 +10,17 @@ import { defineTransactionReceipt } from '../../utils/formatters/transactionRece
 import { defineTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import type {
   ZkSyncBlockOverrides,
-  ZkSyncL2ToL1Log,
-  ZkSyncLog,
   ZkSyncRpcBlockOverrides,
+} from './types/block.js'
+import type { ZkSyncL2ToL1Log, ZkSyncLog } from './types/log.js'
+import type {
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionReceiptOverrides,
   ZkSyncRpcTransactionRequest,
   ZkSyncTransaction,
   ZkSyncTransactionReceipt,
   ZkSyncTransactionRequest,
-} from './types.js'
+} from './types/transaction.js'
 
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({
@@ -146,5 +147,3 @@ export const formatters = {
     },
   }),
 } as const satisfies ChainFormatters
-
-// eth_call needs customSignature to use 'Array.from(hexToBytes()'

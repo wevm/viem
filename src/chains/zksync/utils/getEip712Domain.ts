@@ -1,34 +1,20 @@
-import { isEIP712 as isZkSyncEIP712 } from './serializers.js'
+import type { EIP712DomainFn } from '../types/eip712.js'
 import type {
-  ChainEIP712Domain,
-  EIP712Domain,
-  EIP712DomainFn,
-  ZkSyncEIP712TransactionToSign,
+  ZkSyncEIP712TransactionSignable,
   ZkSyncTransactionSerializable,
   ZkSyncTransactionSerializableEIP712,
-} from './types.js'
+} from '../types/transaction.js'
+import { assertEip712Transaction } from './assertEip712Transaction.js'
 
-export const getZkSyncEIP712Domain: EIP712DomainFn<
+export const getEip712Domain: EIP712DomainFn<
   ZkSyncTransactionSerializable,
-  ZkSyncEIP712TransactionToSign
-> = (tx) => {
-  if (isZkSyncEIP712(tx))
-    return createEIP712Domain(tx as ZkSyncTransactionSerializableEIP712)
-  throw new Error('Cannot sign ZkSync EIP712 transaction, missing fields!')
-}
+  ZkSyncEIP712TransactionSignable
+> = (transaction) => {
+  assertEip712Transaction(transaction)
 
-export const eip712domainZkSync = {
-  eip712domain: getZkSyncEIP712Domain,
-  isEip712domain: isZkSyncEIP712,
-} as const satisfies ChainEIP712Domain
-
-//////////////////////////////////////////////////////////////////////////////
-// EIP712 Signers
-
-function createEIP712Domain(
-  transaction: ZkSyncTransactionSerializableEIP712,
-): EIP712Domain<ZkSyncEIP712TransactionToSign> {
-  const message = transactionToMessage(transaction)
+  const message = transactionToMessage(
+    transaction as ZkSyncTransactionSerializableEIP712,
+  )
 
   return {
     domain: {
@@ -63,7 +49,7 @@ function createEIP712Domain(
 
 function transactionToMessage(
   transaction: ZkSyncTransactionSerializableEIP712,
-): ZkSyncEIP712TransactionToSign {
+): ZkSyncEIP712TransactionSignable {
   const {
     gas,
     nonce,
@@ -90,7 +76,7 @@ function transactionToMessage(
     paymaster: paymaster ? BigInt(paymaster) : 0n,
     nonce: nonce ? BigInt(nonce) : 0n,
     value: value ?? 0n,
-    data: data ? data : '0x01',
+    data: data ? data : '0x0',
     factoryDeps: factoryDeps ?? [],
     paymasterInput: paymasterInput ? paymasterInput : '0x0',
   }

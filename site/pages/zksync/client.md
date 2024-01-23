@@ -21,7 +21,7 @@ const walletClient = createWalletClient({
 }).extend(eip712Actions)
 
 export const publicClient = createPublicClient({
-  chain: mainnet,
+  chain: zkSync,
   transport: http()
 })
 ```

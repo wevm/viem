@@ -96,7 +96,11 @@ export type InvalidChainIdErrorType = InvalidChainIdError & {
 export class InvalidChainIdError extends BaseError {
   override name = 'InvalidChainIdError'
 
-  constructor({ chainId }: { chainId: number }) {
-    super(`Chain ID "${chainId}" is invalid.`)
+  constructor({ chainId }: { chainId?: number }) {
+    super(
+      typeof chainId === 'number'
+        ? `Chain ID "${chainId}" is invalid.`
+        : 'Chain ID is invalid.',
+    )
   }
 }

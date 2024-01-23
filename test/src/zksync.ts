@@ -1,7 +1,7 @@
-import { zkSyncSepoliaTestnet } from '~viem/chains/index.js'
+import { zkSync } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { http, type Chain } from '~viem/index.js'
-import { warn } from './constants.js'
+import { accounts, warn } from './constants.js'
 
 export let anvilPortZkSync: number
 if (process.env.VITE_ANVIL_PORT_ZKSYNC) {
@@ -19,7 +19,7 @@ if (process.env.VITE_ANVIL_BLOCK_NUMBER_ZKSYNC) {
     Number(process.env.VITE_ANVIL_BLOCK_NUMBER_ZKSYNC),
   )
 } else {
-  forkBlockNumberZkSync = 25734n
+  forkBlockNumberZkSync = 24739066n
   warn(
     `\`VITE_ANVIL_BLOCK_NUMBER_ZKSYNC\` not found. Falling back to \`${forkBlockNumberZkSync}\`.`,
   )
@@ -29,7 +29,7 @@ export let forkUrlZkSync: string
 if (process.env.VITE_ANVIL_FORK_URL_ZKSYNC) {
   forkUrlZkSync = process.env.VITE_ANVIL_FORK_URL_ZKSYNC
 } else {
-  forkUrlZkSync = 'https://sepolia.era.zksync.dev'
+  forkUrlZkSync = 'https://mainnet.era.zksync.io'
   warn(
     `\`VITE_ANVIL_FORK_URL_ZKSYNC\` not found. Falling back to \`${forkUrlZkSync}\`.`,
   )
@@ -40,7 +40,7 @@ export const localHttpUrlZkSync = `http://127.0.0.1:${anvilPortZkSync}/${poolId}
 export const localWsUrlZkSync = `ws://127.0.0.1:${anvilPortZkSync}/${poolId}`
 
 export const zksyncAnvilChain = {
-  ...zkSyncSepoliaTestnet,
+  ...zkSync,
   rpcUrls: {
     default: {
       http: [localHttpUrlZkSync],
@@ -54,6 +54,12 @@ export const zksyncAnvilChain = {
 } as const satisfies Chain
 
 export const zkSyncClient = createClient({
+  chain: zksyncAnvilChain,
+  transport: http(),
+})
+
+export const zkSyncClientWithAccount = createClient({
+  account: accounts[0].address,
   chain: zksyncAnvilChain,
   transport: http(),
 })

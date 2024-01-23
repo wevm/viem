@@ -58,6 +58,7 @@ export type Chain<
   /** Flag for test networks */
   testnet?: boolean | undefined
 
+  /** Custom chain data. */
   custom?: custom
   /**
    * Modifies how chain data structures (ie. Blocks, Transactions, etc)

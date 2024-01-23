@@ -1,11 +1,11 @@
-import { eip712domainZkSync } from './eip712signers.js'
 import { formatters } from './formatters.js'
 import { serializers } from './serializers.js'
+import { getEip712Domain } from './utils/getEip712Domain.js'
 
 export const chainConfig = {
   formatters,
   serializers,
   custom: {
-    eip712domain: eip712domainZkSync,
+    getEip712Domain,
   },
 } as const
