@@ -20,7 +20,7 @@ export const telosTestnet = /*#__PURE__*/ defineChain({
   contracts: {
     multicall3: {
       address: '0xAE96D72FE112a9eB21C5627222F9173E9FF9b285',
-      blockCreated: 278_551_551,
+      blockCreated: 278551551,
     },
   },
   testnet: true,
