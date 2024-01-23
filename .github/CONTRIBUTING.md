@@ -133,8 +133,6 @@ When adding new features or fixing bugs, it's important to add test cases to cov
 
 Documentation is crucial to helping developers of all experience levels use viem. viem uses [Vocs](https://vocs.dev) and Markdown for the documentation site (located at [`site`](../site)). To start the site in dev mode, run:
 
-![image](https://github.com/wevm/viem/assets/56932084/4602dbd6-519f-4fb6-8f00-3115cb131316)
-
 ```bash
 bun run docs:dev 
 ```
