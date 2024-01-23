@@ -17,5 +17,11 @@ export const telosTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet.teloscan.io/',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xAE96D72FE112a9eB21C5627222F9173E9FF9b285',
+      blockCreated: 278_551_551,
+    },
+  },
   testnet: true,
 })
