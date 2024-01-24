@@ -26,12 +26,12 @@ const hash = await walletClient.writeContract({ // [!code focus:99]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { zksync } from 'viem/chains'
-import { eip712Actions } from 'viem/zksync'
+import { eip712WalletActions } from 'viem/zksync'
 
 export const walletClient = createWalletClient({
   chain: zksync,
   transport: custom(window.ethereum)
-}).extend(eip712Actions())
+}).extend(eip712WalletActions())
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
@@ -63,7 +63,7 @@ const hash = await walletClient.writeContract({ // [!code focus:99]
 
 ```ts [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
-import { eip712Actions } from 'viem/zksync'
+import { eip712WalletActions } from 'viem/zksync'
 
 // Retrieve Account from an EIP-712 Provider. // [!code focus]
 const [account] = await window.ethereum.request({  // [!code focus]
@@ -73,18 +73,18 @@ const [account] = await window.ethereum.request({  // [!code focus]
 export const walletClient = createWalletClient({
   account,
   transport: custom(window.ethereum) // [!code focus]
-}).extend(eip712Actions())
+}).extend(eip712WalletActions())
 ```
 
 ```ts [config.ts (Local Account)]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip712Actions } from 'viem/zksync'
+import { eip712WalletActions } from 'viem/zksync'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'), // [!code focus]
   transport: custom(window.ethereum)
-}).extend(eip712Actions())
+}).extend(eip712WalletActions())
 ```
 
 :::

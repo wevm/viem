@@ -30,7 +30,7 @@ import { eip712Actions } from 'viem/zksync'
 export const walletClient = createWalletClient({
   chain: zksync,
   transport: custom(window.ethereum)
-}).extend(eip712Actions())
+}).extend(eip712WalletActions())
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
@@ -70,7 +70,7 @@ const [account] = await window.ethereum.request({  // [!code focus]
 export const walletClient = createWalletClient({
   account,
   transport: custom(window.ethereum) // [!code focus]
-}).extend(eip712Actions())
+}).extend(eip712WalletActions())
 ```
 
 ```ts [config.ts (Local Account)]
@@ -81,7 +81,7 @@ import { eip712Actions } from 'viem/zksync'
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'), // [!code focus]
   transport: custom(window.ethereum)
-}).extend(eip712Actions())
+}).extend(eip712WalletActions())
 ```
 
 :::
