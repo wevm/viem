@@ -20,6 +20,8 @@ test('exports chains', () => {
       "base",
       "baseGoerli",
       "baseSepolia",
+      "beam",
+      "beamTestnet",
       "bearNetworkChainMainnet",
       "bearNetworkChainTestnet",
       "bitTorrent",
