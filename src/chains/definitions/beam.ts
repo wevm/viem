@@ -5,7 +5,10 @@ export const beam = /*#__PURE__*/ defineChain({
   name: 'Beam Mainnet',
   nativeCurrency: { name: 'Beam', symbol: 'BEAM', decimals: 18 },
   rpcUrls: {
-    default: { http: ['https://build.onbeam.com/rpc'] },
+    default: {
+      http: ['https://build.onbeam.com/rpc'],
+      webSocket: ['wss://build.onbeam.com/ws'],
+    },
   },
   blockExplorers: {
     default: {

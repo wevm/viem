@@ -5,7 +5,10 @@ export const beamTestnet = /*#__PURE__*/ defineChain({
   name: 'Beam Testnet',
   nativeCurrency: { name: 'Beam', symbol: 'BEAM', decimals: 18 },
   rpcUrls: {
-    default: { http: ['https://build.onbeam.com/rpc/testnet'] },
+    default: {
+      http: ['https://build.onbeam.com/rpc/testnet'],
+      webSocket: ['wss://build.onbeam.com/ws/testnet'],
+    },
   },
   blockExplorers: {
     default: {
