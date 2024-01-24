@@ -57,3 +57,16 @@ describe('errors', () => {
     `)
   })
 })
+
+test('multiple addresses', () => {
+  const addresses = [
+    '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    '0xd2135cfb216b74109775236e36d4b433f1DF507b',
+  ].map(getAddress)
+  const addresses2 = [
+    '0xd2135cfb216b74109775236e36d4b433f1DF507b',
+    '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  ].map(getAddress)
+
+  expect(addresses).toEqual(addresses2)
+})
