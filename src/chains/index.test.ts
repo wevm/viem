@@ -82,6 +82,7 @@ test('exports chains', () => {
       "holesky",
       "kava",
       "kavaTestnet",
+      "kcc",
       "klaytn",
       "klaytnBaobab",
       "kroma",
