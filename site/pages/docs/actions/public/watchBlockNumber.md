@@ -12,20 +12,18 @@ Pass through your Public Client, along with a listener.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const unwatch = publicClient.watchBlockNumber( // [!code focus:99]
   { onBlockNumber: blockNumber => console.log(blockNumber) }
 )
-/**
- * > 69420n
- * > 69421n
- * > 69422n
- */
+// @log: > 69420n
+// @log: > 69421n
+// @log: > 69422n
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -60,7 +58,9 @@ Whether or not to emit missed block numbers to the callback.
 
 Missed block numbers may occur in instances where internet connection is lost, or the block time is lesser than the [polling interval](/docs/clients/public#pollinginterval-optional) of the client.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlockNumber(
   { 
     emitMissed: true, // [!code focus]
@@ -76,7 +76,9 @@ const unwatch = publicClient.watchBlockNumber(
 
 Whether or not to emit the latest block number to the callback when the subscription opens.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlockNumber(
   { 
     emitOnBegin: true, // [!code focus]
@@ -94,7 +96,7 @@ Whether or not to use a polling mechanism to check for new block numbers instead
 
 This option is only configurable for Clients with a [WebSocket Transport](/docs/clients/transports/websocket).
 
-```ts
+```ts twoslash
 import { createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -117,7 +119,9 @@ const unwatch = publicClient.watchBlockNumber(
 
 Polling frequency (in ms). Defaults to Client's `pollingInterval` config.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlockNumber(
   { 
     onBlockNumber: blockNumber => console.log(blockNumber),

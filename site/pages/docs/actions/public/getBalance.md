@@ -10,23 +10,17 @@ Returns the balance of an address in wei.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const balance = await publicClient.getBalance({ // [!code focus:4]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
-// 10000000000000000000000n (wei)
+// @log: > 10000000000000000000000n (wei)
 ```
 
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
+```ts twoslash [client.ts] filename="client.ts"
+// [!include ~/snippets/publicClient.ts]
 ```
 
 :::
@@ -45,7 +39,9 @@ The balance of the address in wei.
 
 The address of the account.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const balance = await publicClient.getBalance({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
 })
@@ -57,7 +53,9 @@ const balance = await publicClient.getBalance({
 
 The balance of the account at a block number.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const balance = await publicClient.getBalance({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockNumber: 69420n  // [!code focus]
@@ -70,7 +68,9 @@ const balance = await publicClient.getBalance({
 
 The balance of the account at a block tag.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const balance = await publicClient.getBalance({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'  // [!code focus]
@@ -81,7 +81,11 @@ const balance = await publicClient.getBalance({
 
 - You can convert the balance to ether units with [`formatEther`](/docs/utilities/formatEther).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { formatEther } from 'viem' // [!code focus]
+
 const balance = await publicClient.getBalance({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'

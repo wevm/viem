@@ -10,21 +10,15 @@ Returns the number of the most recent block seen.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
-const block = await publicClient.getBlockNumber() // [!code focus:99]
-// 69420n
+const blockNumber = await publicClient.getBlockNumber() // [!code focus:99]
+// @log: Output: 69420n
 ```
 
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
+```ts twoslash [client.ts] filename="client.ts"
+// [!include ~/snippets/publicClient.ts]
 ```
 
 :::
@@ -44,7 +38,9 @@ The number of the block.
 
 Time (in ms) that cached block number will remain in memory.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const block = await publicClient.getBlockNumber({
   cacheTime: 4_000 // [!code focus]
 })
