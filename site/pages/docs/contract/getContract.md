@@ -55,7 +55,7 @@ export const publicClient = createPublicClient({
 // eg: Metamask
 export const walletClient = createWalletClient({
   chain: mainnet,
-  transport: custom(window.ethereum),
+  transport: custom(window.ethereum!),
 })
 
 // eg: WalletConnect
