@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added kcc chain.
+Added KCC Mainnet chain.
