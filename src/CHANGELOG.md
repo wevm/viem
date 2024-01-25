@@ -1,5 +1,17 @@
 # viem
 
+## 2.5.0
+
+### Minor Changes
+
+- [#1724](https://github.com/wevm/viem/pull/1724) [`1aa664cc888516efb828b7e6e90c13993963459b`](https://github.com/wevm/viem/commit/1aa664cc888516efb828b7e6e90c13993963459b) Thanks [@jxom](https://github.com/jxom)! - Added support for IPC transport.
+
+## 2.4.1
+
+### Patch Changes
+
+- [#1704](https://github.com/wevm/viem/pull/1704) [`e7eadff4e75c86a515f95addd64e93791a5340d3`](https://github.com/wevm/viem/commit/e7eadff4e75c86a515f95addd64e93791a5340d3) Thanks [@armatrix](https://github.com/armatrix)! - Added Blast Sepolia.
+
 ## 2.4.0
 
 ### Minor Changes

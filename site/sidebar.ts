@@ -39,6 +39,10 @@ export const sidebar = {
               link: '/docs/clients/transports/custom',
             },
             {
+              text: 'IPC',
+              link: '/docs/clients/transports/ipc',
+            },
+            {
               text: 'Fallback',
               link: '/docs/clients/transports/fallback',
             },

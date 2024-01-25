@@ -57,3 +57,47 @@ export type RpcTransaction<TPending extends boolean = boolean> = UnionOmit<
   >,
   'typeHex'
 >
+
+type SuccessResult<T> = {
+  method?: never
+  result: T
+  error?: never
+}
+type ErrorResult<T> = {
+  method?: never
+  result?: never
+  error: T
+}
+type Subscription<TResult, TError> = {
+  method: 'eth_subscription'
+  error?: never
+  result?: never
+  params: {
+    subscription: string
+  } & (
+    | {
+        result: TResult
+        error?: never
+      }
+    | {
+        result?: never
+        error: TError
+      }
+  )
+}
+
+export type RpcRequest = {
+  jsonrpc?: '2.0'
+  method: string
+  params?: any
+  id?: number
+}
+
+export type RpcResponse<TResult = any, TError = any> = {
+  jsonrpc: `${number}`
+  id: number
+} & (
+  | SuccessResult<TResult>
+  | ErrorResult<TError>
+  | Subscription<TResult, TError>
+)

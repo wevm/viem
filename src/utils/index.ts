@@ -32,13 +32,6 @@ export {
 export { arrayRegex, bytesRegex, integerRegex } from './regex.js'
 
 export {
-  type GetSocketErrorType,
-  type HttpErrorType,
-  type HttpOptions,
-  type HttpReturnType,
-  type RpcRequest,
-  type RpcResponse,
-  type Socket,
   type WebSocketAsyncErrorType,
   type WebSocketAsyncOptions,
   type WebSocketAsyncReturnType,
@@ -47,7 +40,25 @@ export {
   type WebSocketReturnType,
   getSocket,
   rpc,
-} from './rpc.js'
+} from './rpc/compat.js'
+export {
+  type HttpRpcClient,
+  type HttpRpcClientOptions,
+  type HttpRequestErrorType,
+  type HttpRequestParameters,
+  type HttpRequestReturnType,
+  getHttpRpcClient,
+} from './rpc/http.js'
+export {
+  type GetSocketRpcClientErrorType,
+  type GetSocketRpcClientParameters,
+  type GetSocketParameters,
+  type Socket,
+  type SocketRpcClient,
+  getSocketRpcClient,
+  socketClientCache,
+} from './rpc/socket.js'
+export { getWebSocketRpcClient } from './rpc/webSocket.js'
 export { type StringifyErrorType, stringify } from './stringify.js'
 export {
   type DomainSeparatorErrorType,

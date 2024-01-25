@@ -4,21 +4,19 @@ The `webSocket` Transport connects to a JSON-RPC API via a WebSocket.
 
 ## Import
 
-```ts
+```ts twoslash
 import { webSocket } from 'viem'
 ```
 
 ## Usage
 
-```ts {4}
+```ts twoslash {4}
 import { createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...')
-
 const client = createPublicClient({
   chain: mainnet, 
-  transport,
+  transport: webSocket('wss://eth-mainnet.g.alchemy.com/v2/...'), // [!code focus]
 })
 ```
 
@@ -34,7 +32,9 @@ If no `url` is provided, then the transport will fall back to a public RPC URL o
 
 URL of the JSON-RPC API.
 
-```ts
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
 const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...')
 ```
 
@@ -45,7 +45,9 @@ const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...')
 
 A key for the Transport.
 
-```ts
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
 const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', { 
   key: 'alchemy',  // [!code focus]
 })
@@ -58,7 +60,9 @@ const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
 
 A name for the Transport
 
-```ts
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
 const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', { 
   name: 'Alchemy WebSocket Provider',  // [!code focus]
 })
@@ -71,7 +75,9 @@ const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
 
 The max number of times to retry when a request fails.
 
-```ts
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
 const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
   retryCount: 5, // [!code focus]
 })
@@ -84,7 +90,9 @@ const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
 
 The base delay (in ms) between retries. By default, the Transport will use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) (`~~(1 << count) * retryDelay`), which means the time between retries is not constant.
 
-```ts
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
 const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
   retryDelay: 100, // [!code focus]
 })
@@ -97,7 +105,9 @@ const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
 
 The timeout for async WebSocket requests.
 
-```ts
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
 const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
   timeout: 60_000, // [!code focus]
 })

@@ -17,12 +17,13 @@ import { createTestClient } from '~viem/clients/createTestClient.js'
 import { createWalletClient } from '~viem/clients/createWalletClient.js'
 import { custom } from '~viem/clients/transports/custom.js'
 import { http } from '~viem/clients/transports/http.js'
+import { ipc } from '~viem/clients/transports/ipc.js'
 import { webSocket } from '~viem/clients/transports/webSocket.js'
 import { RpcRequestError } from '~viem/errors/request.js'
 import type { Chain } from '~viem/types/chain.js'
 import { type EIP1193Provider, ProviderRpcError } from '~viem/types/eip1193.js'
 import { namehash } from '~viem/utils/ens/namehash.js'
-import { rpc } from '~viem/utils/rpc.js'
+import { getHttpRpcClient } from '~viem/utils/rpc/http.js'
 
 import { type RequestListener, createServer } from 'http'
 import type { AddressInfo } from 'net'
@@ -43,6 +44,7 @@ import {
   address,
   forkUrl,
   localHttpUrl,
+  localIpcPath,
   localWsUrl,
 } from './constants.js'
 
@@ -105,7 +107,8 @@ const provider: EIP1193Provider = {
         },
       ]
 
-    const { error, result } = await rpc.http(localHttpUrl, {
+    const rpcClient = getHttpRpcClient(localHttpUrl)
+    const { error, result } = await rpcClient.request({
       body: {
         method,
         params,
@@ -133,6 +136,15 @@ export const httpClient = createPublicClient({
   }),
 })
 
+export const ipcClient = createPublicClient({
+  batch: {
+    multicall: process.env.VITE_BATCH_MULTICALL === 'true',
+  },
+  chain: anvilChain,
+  pollingInterval: 100,
+  transport: ipc(localIpcPath),
+})
+
 export const webSocketClient = createPublicClient({
   batch: {
     multicall: process.env.VITE_BATCH_MULTICALL === 'true',
@@ -142,11 +154,12 @@ export const webSocketClient = createPublicClient({
   transport: webSocket(localWsUrl),
 })
 
-export const publicClient = (
-  process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
-    ? webSocketClient
-    : httpClient
-) as typeof httpClient
+export const publicClient = (() => {
+  if (process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')
+    return webSocketClient
+  if (process.env.VITE_NETWORK_TRANSPORT_MODE === 'ipc') return ipcClient
+  return httpClient
+})() as typeof httpClient
 
 export const publicClientMainnet = createPublicClient({
   chain: mainnet,

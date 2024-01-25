@@ -1,27 +1,49 @@
-import { WebSocket } from 'isows'
+import { createAnvil } from '@viem/anvil'
+import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 
-import { assertType, describe, expect, test } from 'vitest'
+import { forkBlockNumber, forkUrl, localIpcPath } from '~test/src/constants.js'
+import { anvilChain } from '~test/src/utils.js'
 
-import { localWsUrl } from '~test/src/constants.js'
-import { testClient } from '~test/src/utils.js'
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
-import { type WebSocketTransport, webSocket } from './webSocket.js'
+import { createClient } from '../createClient.js'
+import { http } from './http.js'
+import { type IpcTransport, ipc } from './ipc.js'
+
+const client = createClient({
+  chain: anvilChain,
+  transport: http('http://127.0.0.1:6969'),
+}).extend(() => ({ mode: 'anvil' }))
+
+const anvil = createAnvil({
+  port: 6969,
+  ipc: localIpcPath,
+  forkBlockNumber,
+  forkUrl,
+})
+
+beforeAll(async () => {
+  await anvil.start()
+})
+
+afterAll(async () => {
+  await anvil.stop()
+})
 
 test('default', () => {
-  const transport = webSocket(localWsUrl)
+  const transport = ipc(localIpcPath)
 
-  assertType<WebSocketTransport>(transport)
-  assertType<'webSocket'>(transport({}).config.type)
+  assertType<IpcTransport>(transport)
+  assertType<'ipc'>(transport({}).config.type)
 
   expect(transport).toMatchInlineSnapshot('[Function]')
 })
 
 describe('config', () => {
   test('key', () => {
-    const transport = webSocket(localWsUrl, {
+    const transport = ipc(localIpcPath, {
       key: 'mock',
     })
 
@@ -29,17 +51,16 @@ describe('config', () => {
       {
         "config": {
           "key": "mock",
-          "name": "WebSocket JSON-RPC",
+          "name": "IPC JSON-RPC",
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": 10000,
-          "type": "webSocket",
+          "type": "ipc",
         },
         "request": [Function],
         "value": {
           "getRpcClient": [Function],
-          "getSocket": [Function],
           "subscribe": [Function],
         },
       }
@@ -47,25 +68,24 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const transport = webSocket(localWsUrl, {
+    const transport = ipc(localIpcPath, {
       name: 'Mock Transport',
     })
 
     expect(transport({})).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "webSocket",
+          "key": "ipc",
           "name": "Mock Transport",
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": 10000,
-          "type": "webSocket",
+          "type": "ipc",
         },
         "request": [Function],
         "value": {
           "getRpcClient": [Function],
-          "getSocket": [Function],
           "subscribe": [Function],
         },
       }
@@ -73,23 +93,22 @@ describe('config', () => {
   })
 
   test('url', () => {
-    const transport = webSocket('https://mockapi.com/rpc')
+    const transport = ipc('https://mockapi.com/rpc')
 
     expect(transport({})).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "webSocket",
-          "name": "WebSocket JSON-RPC",
+          "key": "ipc",
+          "name": "IPC JSON-RPC",
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": 10000,
-          "type": "webSocket",
+          "type": "ipc",
         },
         "request": [Function],
         "value": {
           "getRpcClient": [Function],
-          "getSocket": [Function],
           "subscribe": [Function],
         },
       }
@@ -97,41 +116,14 @@ describe('config', () => {
   })
 })
 
-test('getSocket', async () => {
-  const transport = webSocket(localWsUrl)
-  const socket = await transport({}).value?.getSocket()
-  expect(socket).toBeDefined()
-  expect(socket?.readyState).toBe(WebSocket.OPEN)
-})
-
 test('getRpcClient', async () => {
-  const transport = webSocket(localWsUrl)
+  const transport = ipc(localIpcPath)
   const socket = await transport({}).value?.getRpcClient()
   expect(socket).toBeDefined()
 })
 
-test('request', async () => {
-  const transport = webSocket(undefined, {
-    key: 'jsonRpc',
-    name: 'JSON RPC',
-  })
-
-  expect(
-    await transport({
-      chain: {
-        ...localhost,
-        rpcUrls: {
-          default: { http: [localWsUrl], webSocket: [localWsUrl] },
-        },
-      },
-    }).config.request({
-      method: 'eth_blockNumber',
-    }),
-  ).toBeDefined()
-})
-
 test('errors: rpc error', async () => {
-  const transport = webSocket(localWsUrl, {
+  const transport = ipc(localIpcPath, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })({ chain: localhost })
@@ -151,7 +143,7 @@ test('errors: rpc error', async () => {
 })
 
 test('subscribe', async () => {
-  const transport = webSocket(localWsUrl, {
+  const transport = ipc(localIpcPath, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })({})
@@ -167,7 +159,7 @@ test('subscribe', async () => {
   expect(subscriptionId).toBeDefined()
 
   // Make sure we are receiving blocks.
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
   await wait(200)
   expect(blocks.length).toBe(1)
 
@@ -176,13 +168,13 @@ test('subscribe', async () => {
   expect(result).toBeDefined()
 
   // Make sure we are no longer receiving blocks.
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
   await wait(200)
   expect(blocks.length).toBe(1)
 })
 
 test('throws on bogus subscription', async () => {
-  const transport = webSocket(localWsUrl, {
+  const transport = ipc(localIpcPath, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })
@@ -197,13 +189,4 @@ test('throws on bogus subscription', async () => {
     }),
   ).rejects.toThrowError()
   expect(errors.length).toBeGreaterThan(0)
-})
-
-test('no url', () => {
-  expect(() => webSocket()({})).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
-
-    Docs: https://viem.sh/docs/clients/intro
-    Version: viem@1.0.2]
-  `)
 })
