@@ -2,9 +2,9 @@ import type { ErrorType } from '../errors/utils.js'
 import type { KzgCommitment, KzgProof } from '../types/kzg.js'
 import type { ByteArray } from '../types/misc.js'
 
-export type CreateKzgParameters = Kzg
-export type CreateKzgReturnType = Kzg
-export type CreateKzgErrorType = ErrorType
+export type DefineKzgParameters = Kzg
+export type DefineKzgReturnType = Kzg
+export type DefineKzgErrorType = ErrorType
 
 export type Kzg = {
   /**
@@ -36,16 +36,30 @@ export type Kzg = {
   ): boolean
 }
 
-export function createKzg({
+export function defineKzg({
   blobToKzgCommitment,
   computeBlobKzgProof,
   verifyBlobKzgProofBatch,
   verifyKzgProof,
-}: CreateKzgParameters): CreateKzgReturnType {
+}: DefineKzgParameters): DefineKzgReturnType {
   return {
     blobToKzgCommitment,
     computeBlobKzgProof,
     verifyKzgProof,
     verifyBlobKzgProofBatch,
   }
+}
+
+export type SetupKzgOptions = DefineKzgParameters & {
+  loadTrustedSetup(path: string): void
+}
+
+export function setupKzg(path: string, options: SetupKzgOptions): Kzg {
+  try {
+    options.loadTrustedSetup(path)
+  } catch (e) {
+    const error = e as Error
+    if (!error.message.includes('trusted setup is already loaded')) throw error
+  }
+  return defineKzg(options)
 }

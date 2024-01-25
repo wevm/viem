@@ -1,38 +1,24 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import {
-  blobToKzgCommitment,
-  computeBlobKzgProof,
-  loadTrustedSetup,
-  verifyBlobKzgProofBatch,
-  verifyKzgProof,
-} from 'c-kzg'
-import { expect, test } from 'vitest'
+import * as cKzg from 'c-kzg'
+import { describe, expect, test } from 'vitest'
 
 import { hexToBytes } from './index.js'
-import { createKzg } from './kzg.js'
+import { type Kzg, defineKzg, setupKzg } from './kzg.js'
 
-const blobCommitments = JSON.parse(
+const blobToKzgCommitmentCases = JSON.parse(
   readFileSync(
-    resolve(__dirname, '../../test/kzg/blob-commitments.json'),
+    resolve(__dirname, '../../test/kzg/blob-to-kzg-commitment.json'),
     'utf8',
   ),
 )
+const trustedSetupPath = resolve(__dirname, '../../test/kzg/trusted_setup.txt')
 
-test('default', () => {
-  loadTrustedSetup(resolve(__dirname, '../../test/kzg/trusted_setup.txt'))
-  const kzg = createKzg({
-    blobToKzgCommitment,
-    computeBlobKzgProof,
-    verifyBlobKzgProofBatch,
-    verifyKzgProof,
-  })
+let kzg: Kzg
 
-  expect(
-    Uint8Array.from(
-      kzg.blobToKzgCommitment(hexToBytes(blobCommitments[0].blob)),
-    ),
-  ).toEqual(hexToBytes(blobCommitments[0].commitment))
+test('defineKzg', () => {
+  cKzg.loadTrustedSetup(trustedSetupPath)
+  const kzg = defineKzg(cKzg)
 
   expect(kzg).toMatchInlineSnapshot(`
     {
@@ -42,4 +28,32 @@ test('default', () => {
       "verifyKzgProof": [Function],
     }
   `)
+})
+
+test('setupKzg', () => {
+  kzg = setupKzg(trustedSetupPath, cKzg)
+
+  expect(kzg).toMatchInlineSnapshot(`
+    {
+      "blobToKzgCommitment": [Function],
+      "computeBlobKzgProof": [Function],
+      "verifyBlobKzgProofBatch": [Function],
+      "verifyKzgProof": [Function],
+    }
+  `)
+})
+
+describe('blobToKzgCommitment', () => {
+  for (const data of blobToKzgCommitmentCases) {
+    test(data.name, () => {
+      if (data.output === null)
+        expect(() =>
+          Uint8Array.from(kzg.blobToKzgCommitment(hexToBytes(data.input.blob))),
+        ).toThrowError()
+      else
+        expect(
+          Uint8Array.from(kzg.blobToKzgCommitment(hexToBytes(data.input.blob))),
+        ).toEqual(hexToBytes(data.output))
+    })
+  }
 })
