@@ -18,7 +18,7 @@ export const kcc = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.kcc.io/en' },
+    default: { name: 'KCC Explorer', url: 'https://explorer.kcc.io' },
   },
   contracts: {
     multicall3: {
