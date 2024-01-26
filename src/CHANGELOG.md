@@ -1,5 +1,13 @@
 # viem
 
+## 2.5.1
+
+### Patch Changes
+
+- [#1736](https://github.com/wevm/viem/pull/1736) [`0dcfae5e76ed739e416b45512c1197ebe2958b31`](https://github.com/wevm/viem/commit/0dcfae5e76ed739e416b45512c1197ebe2958b31) Thanks [@izayl](https://github.com/izayl)! - Updated zkSync explorer
+
+- [#1737](https://github.com/wevm/viem/pull/1737) [`9fb40ea88290464dc0e3ea2796dd0608a5ce49ae`](https://github.com/wevm/viem/commit/9fb40ea88290464dc0e3ea2796dd0608a5ce49ae) Thanks [@ibwei](https://github.com/ibwei)! - Added KCC Mainnet chain.
+
 ## 2.5.0
 
 ### Minor Changes
