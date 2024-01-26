@@ -13,6 +13,18 @@ const blobToKzgCommitmentCases = JSON.parse(
     'utf8',
   ),
 )
+const computeBlobKzgProofCases = JSON.parse(
+  readFileSync(
+    resolve(__dirname, '../../../test/kzg/compute-blob-kzg-proof.json'),
+    'utf8',
+  ),
+)
+const verifyBlobKzgProofBatchCases = JSON.parse(
+  readFileSync(
+    resolve(__dirname, '../../../test/kzg/verify-blob-kzg-proof-batch.json'),
+    'utf8',
+  ),
+)
 const trustedSetupPath = resolve(
   __dirname,
   '../../../test/kzg/trusted_setup.txt',
@@ -29,7 +41,6 @@ test('defineKzg', () => {
       "blobToKzgCommitment": [Function],
       "computeBlobKzgProof": [Function],
       "verifyBlobKzgProofBatch": [Function],
-      "verifyKzgProof": [Function],
     }
   `)
 })
@@ -45,6 +56,54 @@ describe('blobToKzgCommitment', () => {
         expect(
           Uint8Array.from(kzg.blobToKzgCommitment(hexToBytes(data.input.blob))),
         ).toEqual(hexToBytes(data.output))
+    })
+  }
+})
+
+describe('computeBlobKzgProof', () => {
+  for (const data of computeBlobKzgProofCases) {
+    test(data.name, () => {
+      if (data.output === null)
+        expect(() =>
+          Uint8Array.from(
+            kzg.computeBlobKzgProof(
+              hexToBytes(data.input.blob),
+              hexToBytes(data.input.commitment),
+            ),
+          ),
+        ).toThrowError()
+      else
+        expect(
+          Uint8Array.from(
+            kzg.computeBlobKzgProof(
+              hexToBytes(data.input.blob),
+              hexToBytes(data.input.commitment),
+            ),
+          ),
+        ).toEqual(hexToBytes(data.output))
+    })
+  }
+})
+
+describe('verifyBlobKzgProofBatch', () => {
+  for (const data of verifyBlobKzgProofBatchCases) {
+    test(data.name, () => {
+      if (data.output === null)
+        expect(() =>
+          kzg.verifyBlobKzgProofBatch(
+            data.input.blobs.map((b: any) => hexToBytes(b)),
+            data.input.commitments.map((c: any) => hexToBytes(c)),
+            data.input.proofs.map((p: any) => hexToBytes(p)),
+          ),
+        ).toThrowError()
+      else
+        expect(
+          kzg.verifyBlobKzgProofBatch(
+            data.input.blobs.map((b: any) => hexToBytes(b)),
+            data.input.commitments.map((c: any) => hexToBytes(c)),
+            data.input.proofs.map((p: any) => hexToBytes(p)),
+          ),
+        ).toEqual(data.output)
     })
   }
 })

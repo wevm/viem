@@ -15,15 +15,6 @@ export type Kzg = {
    */
   computeBlobKzgProof(blob: ByteArray, commitmentBytes: ByteArray): KzgProof
   /**
-   * Verify a KZG poof claiming that `p(z) == y`.
-   */
-  verifyKzgProof(
-    proof: ByteArray,
-    commitment: ByteArray,
-    index: ByteArray,
-    value: ByteArray,
-  ): boolean
-  /**
    * Given an array of blobs and their proofs, verify that they corresponds to their
    * provided commitment.
    */

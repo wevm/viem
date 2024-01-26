@@ -9,12 +9,10 @@ export function defineKzg({
   blobToKzgCommitment,
   computeBlobKzgProof,
   verifyBlobKzgProofBatch,
-  verifyKzgProof,
 }: DefineKzgParameters): DefineKzgReturnType {
   return {
     blobToKzgCommitment,
     computeBlobKzgProof,
     verifyBlobKzgProofBatch,
-    verifyKzgProof,
   }
 }

@@ -17,7 +17,6 @@ test('setupKzg', () => {
       "blobToKzgCommitment": [Function],
       "computeBlobKzgProof": [Function],
       "verifyBlobKzgProofBatch": [Function],
-      "verifyKzgProof": [Function],
     }
   `)
 })
