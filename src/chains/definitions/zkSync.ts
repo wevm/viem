@@ -22,7 +22,7 @@ export const zkSync = /*#__PURE__*/ defineChain({
       name: 'Etherscan',
       url: 'https://era.zksync.network/',
       apiUrl: 'https://api-era.zksync.network/api',
-    }
+    },
   },
   contracts: {
     multicall3: {
