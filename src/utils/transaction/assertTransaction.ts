@@ -17,9 +17,25 @@ import type { ErrorType } from '../../errors/utils.js'
 import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
+  TransactionSerializableEIP4844,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
+
+export type AssertTransactionEIP4844ErrorType =
+  | BaseErrorType
+  | IsAddressErrorType
+  | InvalidAddressErrorType
+  | InvalidChainIdErrorType
+  | FeeCapTooHighErrorType
+  | TipAboveFeeCapErrorType
+  | ErrorType
+
+export function assertTransactionEIP4844(
+  transaction: TransactionSerializableEIP4844,
+) {
+  assertTransactionEIP1559(transaction as {} as TransactionSerializableEIP1559)
+}
 
 export type AssertTransactionEIP1559ErrorType =
   | BaseErrorType

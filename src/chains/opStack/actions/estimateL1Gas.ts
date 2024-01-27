@@ -121,6 +121,6 @@ export async function estimateL1Gas<
     abi: gasPriceOracleAbi,
     address: gasPriceOracleAddress,
     functionName: 'getL1GasUsed',
-    args: [transaction],
+    args: [transaction as any],
   })
 }

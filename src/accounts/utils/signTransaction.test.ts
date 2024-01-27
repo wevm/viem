@@ -7,9 +7,8 @@ import type {
   TransactionSerializableBase,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
+  TransactionSerializableGeneric,
   TransactionSerializableLegacy,
-  TransactionSerializedEIP1559,
-  TransactionSerializedEIP2930,
   TransactionSerializedLegacy,
 } from '../../types/transaction.js'
 import type { SerializeTransactionFn } from '../../utils/transaction/serializeTransaction.js'
@@ -33,7 +32,6 @@ describe('eip1559', () => {
       transaction: baseEip1559,
       privateKey: accounts[0].privateKey,
     })
-    assertType<TransactionSerializedEIP1559>(signature)
     expect(signature).toMatchInlineSnapshot(
       '"0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33"',
     )
@@ -139,7 +137,6 @@ describe('eip2930', () => {
       transaction: baseEip2930,
       privateKey: accounts[0].privateKey,
     })
-    assertType<TransactionSerializedEIP2930>(signature)
     expect(signature).toMatchInlineSnapshot(
       '"0x01f84f0182031180825208808080c080a089cebce5c7f728febd1060b55837c894ec2a79dd7854350abce252fc2de96b5da039f2782c70b92f4b1916aa8db91453c7229f33458bd091b3e10a40f9a7e443d2"',
     )
@@ -242,7 +239,7 @@ describe('eip2930', () => {
 })
 
 describe('with custom EIP2718 serializer', () => {
-  type ExampleTransaction = TransactionSerializable & {
+  type ExampleTransaction = Omit<TransactionSerializableGeneric, 'type'> & {
     type: 'cip42'
     chainId: number
     additionalField: `0x${string}`
@@ -264,7 +261,7 @@ describe('with custom EIP2718 serializer', () => {
         } = transaction
 
         const serializedTransaction = [
-          toHex(chainId),
+          chainId ? toHex(chainId) : '0x',
           nonce ? toHex(nonce) : '0x',
           maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
           maxFeePerGas ? toHex(maxFeePerGas) : '0x',

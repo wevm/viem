@@ -142,7 +142,7 @@ describe('deposit', async () => {
           data: tx_1.input,
           sourceHash: tx_1.sourceHash!,
           type: 'deposit',
-        }),
+        } as TransactionSerializableDeposit),
       ),
     ).toEqual(hash_1)
 
@@ -158,7 +158,7 @@ describe('deposit', async () => {
           data: tx_2.input,
           sourceHash: tx_2.sourceHash!,
           type: 'deposit',
-        }),
+        } as TransactionSerializableDeposit),
       ),
     ).toEqual(hash_2)
 
@@ -174,7 +174,7 @@ describe('deposit', async () => {
           data: tx_3.input,
           sourceHash: tx_3.sourceHash!,
           type: 'deposit',
-        }),
+        } as TransactionSerializableDeposit),
       ),
     ).toEqual(hash_3)
 
@@ -190,7 +190,7 @@ describe('deposit', async () => {
           data: tx_4.input,
           sourceHash: tx_4.sourceHash!,
           type: 'deposit',
-        }),
+        } as TransactionSerializableDeposit),
       ),
     ).toEqual(hash_4)
   })

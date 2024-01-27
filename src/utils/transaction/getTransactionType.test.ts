@@ -22,7 +22,7 @@ describe('type', () => {
   })
 
   test('other', () => {
-    const type = getTransactionType({ type: '0x7e' } as const)
+    const type = getTransactionType({ type: '0x7e' })
     assertType<'0x7e'>(type)
     expect(type).toEqual('0x7e')
   })

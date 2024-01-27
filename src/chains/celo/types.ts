@@ -21,7 +21,7 @@ import type {
   TransactionSerializableBase,
   TransactionSerialized,
 } from '../../types/transaction.js'
-import type { NeverBy } from '../../types/utils.js'
+import type { NeverBy, OneOf } from '../../types/utils.js'
 
 type CeloBlockExclude =
   | 'difficulty'
@@ -89,10 +89,11 @@ export type CeloTransactionRequest =
   | TransactionRequestCIP42
   | TransactionRequestCIP64
 
-export type CeloTransactionSerializable =
+export type CeloTransactionSerializable = OneOf<
+  | TransactionSerializable
   | TransactionSerializableCIP42
   | TransactionSerializableCIP64
-  | CeloTransactionSerializableBase
+>
 
 export type CeloTransactionSerialized<
   TType extends CeloTransactionType = 'legacy',
@@ -239,12 +240,6 @@ export type TransactionSerializableCIP64<
     chainId: number
     type?: 'cip64'
   }
-
-export type CeloTransactionSerializableBase = TransactionSerializable & {
-  feeCurrency?: undefined
-  gatewayFee?: undefined
-  gatewayFeeRecipient?: undefined
-}
 
 export type TransactionSerializedCIP42 = `0x7c${string}`
 export type TransactionSerializedCIP64 = `0x7b${string}`

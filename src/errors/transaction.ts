@@ -69,6 +69,7 @@ export class InvalidSerializableTransactionError extends BaseError {
         '- a `type` to the Transaction, or',
         '- an EIP-1559 Transaction with `maxFeePerGas`, or',
         '- an EIP-2930 Transaction with `gasPrice` & `accessList`, or',
+        '- an EIP-4844 Transaction with `blobVersionedHashes`, or',
         '- a Legacy Transaction with `gasPrice`',
       ],
     })

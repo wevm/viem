@@ -8,13 +8,17 @@ import type {
   TransactionSerializable,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
+  TransactionSerializableEIP4844,
+  TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
+  TransactionSerializedEIP4844,
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
+import type { OneOf } from '../../types/utils.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { trim } from '../data/trim.js'
 import { type ToHexErrorType, toHex } from '../encoding/toHex.js'
@@ -23,9 +27,11 @@ import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
 import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
+  type AssertTransactionEIP4844ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
+  assertTransactionEIP4844,
   assertTransactionLegacy,
 } from './assertTransaction.js'
 import {
@@ -41,24 +47,28 @@ import {
 export type SerializedTransactionReturnType<
   TTransactionSerializable extends
     TransactionSerializable = TransactionSerializable,
-  TTransactionType extends
+  ///
+  _transactionType extends
     TransactionType = GetTransactionType<TTransactionSerializable>,
-> = TransactionSerialized<TTransactionType>
+> = TransactionSerialized<_transactionType>
 
 export type SerializeTransactionFn<
   TTransactionSerializable extends
-    TransactionSerializable = TransactionSerializable,
-> = typeof serializeTransaction<TTransactionSerializable>
+    TransactionSerializableGeneric = TransactionSerializable,
+> = typeof serializeTransaction<
+  OneOf<TransactionSerializable | TTransactionSerializable>
+>
 
 export type SerializeTransactionErrorType =
   | GetTransationTypeErrorType
   | SerializeTransactionEIP1559ErrorType
   | SerializeTransactionEIP2930ErrorType
+  | SerializeTransactionEIP4844ErrorType
   | SerializeTransactionLegacyErrorType
   | ErrorType
 
 export function serializeTransaction<
-  TTransactionSerializable extends TransactionSerializable,
+  const TTransactionSerializable extends TransactionSerializable,
 >(
   transaction: TTransactionSerializable,
   signature?: Signature,
@@ -77,10 +87,82 @@ export function serializeTransaction<
       signature,
     ) as SerializedTransactionReturnType<TTransactionSerializable>
 
+  if (type === 'eip4844')
+    return serializeTransactionEIP4844(
+      transaction as TransactionSerializableEIP4844,
+      signature,
+    ) as SerializedTransactionReturnType<TTransactionSerializable>
+
   return serializeTransactionLegacy(
     transaction as TransactionSerializableLegacy,
     signature,
   ) as SerializedTransactionReturnType<TTransactionSerializable>
+}
+
+type SerializeTransactionEIP4844ErrorType =
+  | AssertTransactionEIP4844ErrorType
+  | ConcatHexErrorType
+  | InvalidLegacyVErrorType
+  | ToHexErrorType
+  | ToRlpErrorType
+  | SerializeAccessListErrorType
+  | ErrorType
+
+function serializeTransactionEIP4844(
+  transaction: TransactionSerializableEIP4844,
+  signature?: Signature,
+): TransactionSerializedEIP4844 {
+  const {
+    blobs,
+    blobVersionedHashes,
+    chainId,
+    gas,
+    kzgCommitments,
+    kzgProofs,
+    nonce,
+    to,
+    value,
+    maxFeePerBlobGas,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    accessList,
+    data,
+  } = transaction
+
+  assertTransactionEIP4844(transaction)
+
+  const serializedAccessList = serializeAccessList(accessList)
+
+  const serializedTransaction = [
+    toHex(chainId),
+    nonce ? toHex(nonce) : '0x',
+    maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
+    maxFeePerGas ? toHex(maxFeePerGas) : '0x',
+    gas ? toHex(gas) : '0x',
+    to ?? '0x',
+    value ? toHex(value) : '0x',
+    data ?? '0x',
+    serializedAccessList,
+    maxFeePerBlobGas ? toHex(maxFeePerBlobGas) : '0x',
+    blobVersionedHashes,
+  ]
+
+  if (signature) {
+    const yParity = (() => {
+      if (signature.v === 0n) return '0x'
+      if (signature.v === 1n) return toHex(1)
+
+      return signature.v === 27n ? '0x' : toHex(1)
+    })()
+    serializedTransaction.push(yParity, trim(signature.r), trim(signature.s))
+  }
+
+  return concatHex([
+    '0x03',
+    blobs
+      ? toRlp([serializedTransaction, blobs, kzgCommitments, kzgProofs])
+      : toRlp(serializedTransaction),
+  ]) as TransactionSerializedEIP4844
 }
 
 type SerializeTransactionEIP1559ErrorType =

@@ -15,7 +15,7 @@ import type {
   TransactionSerialized,
   TransactionType,
 } from '../../../types/transaction.js'
-import type { RequiredBy } from '../../../types/utils.js'
+import type { OneOf } from '../../../types/utils.js'
 
 type RpcTransaction<TPending extends boolean = boolean> =
   RpcTransaction_<TPending> & {
@@ -77,13 +77,9 @@ export type OpStackTransactionReceiptOverrides = {
 export type OpStackTransactionReceipt = TransactionReceipt &
   OpStackTransactionReceiptOverrides
 
-export type OpStackTransactionSerializable =
-  | RequiredBy<TransactionSerializableDeposit, 'type'>
-  | (TransactionSerializable & {
-      isSystemTx?: undefined
-      mint?: undefined
-      sourceHash?: undefined
-    })
+export type OpStackTransactionSerializable = OneOf<
+  TransactionSerializableDeposit | TransactionSerializable
+>
 
 export type OpStackTransactionSerialized<
   TType extends OpStackTransactionType = 'legacy',
@@ -102,7 +98,7 @@ export type TransactionSerializableDeposit<
   isSystemTx?: boolean
   mint?: bigint
   sourceHash: Hex
-  type?: 'deposit'
+  type: 'deposit'
 }
 
 export type TransactionSerializedDeposit = `0x7e${string}`

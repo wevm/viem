@@ -4,17 +4,13 @@ import { InvalidChainIdError } from '../../errors/chain.js'
 import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
 import type { ChainSerializers } from '../../types/chain.js'
 import type { Signature } from '../../types/misc.js'
-import type { TransactionSerializable } from '../../types/transaction.js'
 import { isAddress } from '../../utils/address/isAddress.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { trim } from '../../utils/data/trim.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import { serializeAccessList } from '../../utils/transaction/serializeAccessList.js'
-import {
-  type SerializeTransactionFn,
-  serializeTransaction as serializeTransaction_,
-} from '../../utils/transaction/serializeTransaction.js'
+import { serializeTransaction as serializeTransaction_ } from '../../utils/transaction/serializeTransaction.js'
 import type {
   CeloTransactionSerializable,
   TransactionSerializableCIP42,
@@ -24,12 +20,15 @@ import type {
 } from './types.js'
 import { isCIP42, isCIP64, isEmpty, isPresent } from './utils.js'
 
-export const serializeTransaction: SerializeTransactionFn<
-  CeloTransactionSerializable | TransactionSerializable
-> = (tx, signature) => {
-  if (isCIP64(tx)) return serializeTransactionCIP64(tx, signature)
-  if (isCIP42(tx)) return serializeTransactionCIP42(tx, signature)
-  return serializeTransaction_(tx as TransactionSerializable, signature)
+export function serializeTransaction(
+  transaction: CeloTransactionSerializable,
+  signature?: Signature,
+) {
+  if (isCIP64(transaction))
+    return serializeTransactionCIP64(transaction, signature)
+  if (isCIP42(transaction))
+    return serializeTransactionCIP42(transaction, signature)
+  return serializeTransaction_(transaction, signature)
 }
 
 export const serializers = {
