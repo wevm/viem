@@ -118,6 +118,7 @@ export { optimismGoerli } from './definitions/optimismGoerli.js'
 export { optimismSepolia } from './definitions/optimismSepolia.js'
 export { opBNB } from './definitions/opBNB.js'
 export { opBNBTestnet } from './definitions/opBNBTestnet.js'
+export { oortMainnetDev } from './definitions/oort.js'
 export { palm } from './definitions/palm.js'
 export { palmTestnet } from './definitions/palmTestnet.js'
 export { pgn } from './definitions/pgn.js'
@@ -194,7 +195,6 @@ export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
-export { oortMainnetDev } from './definitions/oort.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // required for type inference since in explicit return type
