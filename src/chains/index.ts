@@ -194,6 +194,7 @@ export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
+export { oortMainnetDev } from './definitions/oort.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // required for type inference since in explicit return type
