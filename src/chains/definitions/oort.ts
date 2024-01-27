@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const oortMainnetDev = /*#__PURE__*/ defineChain({
-  id: 9584236,
+  id: 9700,
   name: 'OORT MainnetDev',
   nativeCurrency: {
     decimals: 18,
