@@ -27,10 +27,6 @@ const walletClient = createWalletClient({ // [!code hl]
 }).extend(eip712WalletActions()) // [!code hl]
 ```
 
-:::note[Note]
-Viem currently only supports Wallet-based Actions for zkSync.
-:::
-
 ### 2. Use Actions
 
 Now that you have a Client set up, you can [send a transaction](./zksync/actions/sendTransaction.md) on zkSync using a [paymaster](https://docs.zksync.io/build/developer-reference/account-abstraction.html#paymasters)!
