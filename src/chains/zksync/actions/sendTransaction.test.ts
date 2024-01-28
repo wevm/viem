@@ -15,7 +15,7 @@ const client = { ...zkSyncClient }
 client.request = (async ({ method, params }) => {
   if (method === 'eth_sendRawTransaction')
     return '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
-  if (method == 'eth_estimateGas') return 158774n
+  if (method === 'eth_estimateGas') return 158774n
   return zkSyncClient.request({ method, params } as any)
 }) as EIP1193RequestFn
 
