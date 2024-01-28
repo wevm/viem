@@ -232,6 +232,7 @@ export type TransactionSerialized<
   result =
     | (TType extends 'eip1559' ? TransactionSerializedEIP1559 : never)
     | (TType extends 'eip2930' ? TransactionSerializedEIP2930 : never)
+    | (TType extends 'eip4844' ? TransactionSerializedEIP4844 : never)
     | (TType extends 'legacy' ? TransactionSerializedLegacy : never),
 > = IsNever<result> extends true ? TransactionSerializedGeneric : result
 

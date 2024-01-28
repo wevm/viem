@@ -3,7 +3,7 @@ import {
   type InvalidLegacyVErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Signature } from '../../types/misc.js'
+import type { Hex, Signature } from '../../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerializableEIP1559,
@@ -147,17 +147,8 @@ function serializeTransactionEIP4844(
     serializedAccessList,
     maxFeePerBlobGas ? toHex(maxFeePerBlobGas) : '0x',
     blobVersionedHashes,
+    ...toYParitySignatureArray(transaction, signature),
   ]
-
-  if (signature) {
-    const yParity = (() => {
-      if (signature.v === 0n) return '0x'
-      if (signature.v === 1n) return toHex(1)
-
-      return signature.v === 27n ? '0x' : toHex(1)
-    })()
-    serializedTransaction.push(yParity, trim(signature.r), trim(signature.s))
-  }
 
   return concatHex([
     '0x03',
@@ -206,17 +197,8 @@ function serializeTransactionEIP1559(
     value ? toHex(value) : '0x',
     data ?? '0x',
     serializedAccessList,
+    ...toYParitySignatureArray(transaction, signature),
   ]
-
-  if (signature) {
-    const yParity = (() => {
-      if (signature.v === 0n) return '0x'
-      if (signature.v === 1n) return toHex(1)
-
-      return signature.v === 27n ? '0x' : toHex(1)
-    })()
-    serializedTransaction.push(yParity, trim(signature.r), trim(signature.s))
-  }
 
   return concatHex([
     '0x02',
@@ -253,17 +235,8 @@ function serializeTransactionEIP2930(
     value ? toHex(value) : '0x',
     data ?? '0x',
     serializedAccessList,
+    ...toYParitySignatureArray(transaction, signature),
   ]
-
-  if (signature) {
-    const yParity = (() => {
-      if (signature.v === 0n) return '0x'
-      if (signature.v === 1n) return toHex(1)
-
-      return signature.v === 27n ? '0x' : toHex(1)
-    })()
-    serializedTransaction.push(yParity, trim(signature.r), trim(signature.s))
-  }
 
   return concatHex([
     '0x01',
@@ -330,4 +303,23 @@ function serializeTransactionLegacy(
   }
 
   return toRlp(serializedTransaction) as TransactionSerializedLegacy
+}
+
+function toYParitySignatureArray(
+  transaction: TransactionSerializable,
+  signature?: Signature & { yParity?: Hex },
+) {
+  const { r, s, v, yParity } = signature ?? transaction
+  if (typeof r === 'undefined') return []
+  if (typeof s === 'undefined') return []
+  if (typeof v === 'undefined' && typeof yParity === 'undefined') return []
+
+  const yParity_ = (() => {
+    if (typeof yParity === 'number') return toHex(yParity)
+    if (v === 0n) return '0x'
+    if (v === 1n) return toHex(1)
+
+    return v === 27n ? '0x' : toHex(1)
+  })()
+  return [yParity_, trim(r), trim(s)]
 }

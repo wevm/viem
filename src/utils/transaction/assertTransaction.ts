@@ -1,8 +1,17 @@
+import { versionedHashVersionKzg } from '../../constants/kzg.js'
 import {
   InvalidAddressError,
   type InvalidAddressErrorType,
 } from '../../errors/address.js'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
+import {
+  EmptyBlobLengthError,
+  type EmptyBlobLengthErrorType,
+  InvalidVersionedHashSizeError,
+  type InvalidVersionedHashSizeErrorType,
+  InvalidVersionedHashVersionError,
+  type InvalidVersionedHashVersionErrorType,
+} from '../../errors/blob.js'
 import {
   InvalidChainIdError,
   type InvalidChainIdErrorType,
@@ -21,19 +30,33 @@ import type {
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
+import { size } from '../data/size.js'
+import { slice } from '../data/slice.js'
+import { hexToNumber } from '../encoding/fromHex.js'
 
 export type AssertTransactionEIP4844ErrorType =
-  | BaseErrorType
-  | IsAddressErrorType
-  | InvalidAddressErrorType
-  | InvalidChainIdErrorType
-  | FeeCapTooHighErrorType
-  | TipAboveFeeCapErrorType
+  | AssertTransactionEIP1559ErrorType
+  | EmptyBlobLengthErrorType
+  | InvalidVersionedHashSizeErrorType
+  | InvalidVersionedHashVersionErrorType
   | ErrorType
 
 export function assertTransactionEIP4844(
   transaction: TransactionSerializableEIP4844,
 ) {
+  const { blobVersionedHashes } = transaction
+  if (blobVersionedHashes.length === 0) throw new EmptyBlobLengthError()
+  for (const hash of blobVersionedHashes) {
+    const size_ = size(hash)
+    const version = hexToNumber(slice(hash, 0, 1))
+    if (size_ !== 32)
+      throw new InvalidVersionedHashSizeError({ hash, size: size_ })
+    if (version !== versionedHashVersionKzg)
+      throw new InvalidVersionedHashVersionError({
+        hash,
+        version,
+      })
+  }
   assertTransactionEIP1559(transaction as {} as TransactionSerializableEIP1559)
 }
 

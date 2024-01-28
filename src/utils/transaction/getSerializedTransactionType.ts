@@ -52,6 +52,9 @@ export function getSerializedTransactionType<
 ): GetSerializedTransactionType<serializedTransaction> {
   const serializedType = sliceHex(serializedTransaction, 0, 1)
 
+  if (serializedType === '0x03')
+    return 'eip4844' as GetSerializedTransactionType<serializedTransaction>
+
   if (serializedType === '0x02')
     return 'eip1559' as GetSerializedTransactionType<serializedTransaction>
 

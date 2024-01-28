@@ -17,10 +17,12 @@ import type {
   TransactionSerializable,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
+  TransactionSerializableEIP4844,
   TransactionSerializableLegacy,
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
+  TransactionSerializedEIP4844,
   TransactionSerializedGeneric,
   TransactionType,
 } from '../../types/transaction.js'
@@ -42,9 +44,11 @@ import { isHash } from '../hash/isHash.js'
 import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
+  type AssertTransactionEIP4844ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
+  assertTransactionEIP4844,
   assertTransactionLegacy,
 } from './assertTransaction.js'
 import {
@@ -60,6 +64,7 @@ export type ParseTransactionReturnType<
   ?
       | (TType extends 'eip1559' ? TransactionSerializableEIP1559 : never)
       | (TType extends 'eip2930' ? TransactionSerializableEIP2930 : never)
+      | (TType extends 'eip4844' ? TransactionSerializableEIP4844 : never)
       | (TType extends 'legacy' ? TransactionSerializableLegacy : never)
   : TransactionSerializable
 
@@ -67,6 +72,7 @@ export type ParseTransactionErrorType =
   | GetSerializedTransactionTypeErrorType
   | ParseTransactionEIP1559ErrorType
   | ParseTransactionEIP2930ErrorType
+  | ParseTransactionEIP4844ErrorType
   | ParseTransactionLegacyErrorType
 
 export function parseTransaction<
@@ -84,9 +90,100 @@ export function parseTransaction<
       serializedTransaction as TransactionSerializedEIP2930,
     ) as ParseTransactionReturnType<TSerialized>
 
+  if (type === 'eip4844')
+    return parseTransactionEIP4844(
+      serializedTransaction as TransactionSerializedEIP4844,
+    ) as ParseTransactionReturnType<TSerialized>
+
   return parseTransactionLegacy(
     serializedTransaction,
   ) as ParseTransactionReturnType<TSerialized>
+}
+
+type ParseTransactionEIP4844ErrorType =
+  | AssertTransactionEIP4844ErrorType
+  | ToTransactionArrayErrorType
+  | HexToBigIntErrorType
+  | HexToNumberErrorType
+  | InvalidLegacyVErrorType
+  | InvalidSerializedTransactionErrorType
+  | IsHexErrorType
+  | ParseEIP155SignatureErrorType
+  | ErrorType
+
+function parseTransactionEIP4844(
+  serializedTransaction: TransactionSerializedEIP4844,
+): TransactionSerializableEIP4844 {
+  const transactionArray = toTransactionArray(serializedTransaction)
+
+  const [
+    chainId,
+    nonce,
+    maxPriorityFeePerGas,
+    maxFeePerGas,
+    gas,
+    to,
+    value,
+    data,
+    accessList,
+    maxFeePerBlobGas,
+    blobVersionedHashes,
+    v,
+    r,
+    s,
+  ] = transactionArray
+
+  if (!(transactionArray.length === 11 || transactionArray.length === 14))
+    throw new InvalidSerializedTransactionError({
+      attributes: {
+        chainId,
+        nonce,
+        maxPriorityFeePerGas,
+        maxFeePerGas,
+        gas,
+        to,
+        value,
+        data,
+        accessList,
+        ...(transactionArray.length > 9
+          ? {
+              v,
+              r,
+              s,
+            }
+          : {}),
+      },
+      serializedTransaction,
+      type: 'eip1559',
+    })
+
+  const transaction: TransactionSerializableEIP4844 = {
+    blobVersionedHashes: blobVersionedHashes as Hex[],
+    chainId: hexToNumber(chainId as Hex),
+    type: 'eip4844',
+  }
+  if (isHex(to) && to !== '0x') transaction.to = to
+  if (isHex(gas) && gas !== '0x') transaction.gas = hexToBigInt(gas)
+  if (isHex(data) && data !== '0x') transaction.data = data
+  if (isHex(nonce) && nonce !== '0x') transaction.nonce = hexToNumber(nonce)
+  if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
+  if (isHex(maxFeePerBlobGas) && maxFeePerBlobGas !== '0x')
+    transaction.maxFeePerBlobGas = hexToBigInt(maxFeePerBlobGas)
+  if (isHex(maxFeePerGas) && maxFeePerGas !== '0x')
+    transaction.maxFeePerGas = hexToBigInt(maxFeePerGas)
+  if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
+    transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
+  if (accessList.length !== 0 && accessList !== '0x')
+    transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
+
+  assertTransactionEIP4844(transaction)
+
+  const signature =
+    transactionArray.length === 14
+      ? parseEIP155Signature(transactionArray)
+      : undefined
+
+  return { ...signature, ...transaction }
 }
 
 type ParseTransactionEIP1559ErrorType =
