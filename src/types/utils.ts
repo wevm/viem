@@ -1,3 +1,7 @@
+declare const symbol: unique symbol
+
+export type Branded<T, U> = T & { [symbol]: U }
+
 /**
  * Filters out all members of {@link T} that are not {@link P}
  *

@@ -7,7 +7,7 @@ import type {
 } from './fee.js'
 import type { Log } from './log.js'
 import type { Hash, Hex, Signature } from './misc.js'
-import type { OneOf } from './utils.js'
+import type { Branded, IsNever, OneOf } from './utils.js'
 
 export type AccessList = { address: Address; storageKeys: Hex[] }[]
 
@@ -225,19 +225,15 @@ export type TransactionRequest<TQuantity = bigint, TIndex = number> =
 export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
 export type TransactionSerializedEIP4844 = `0x03${string}`
-export type TransactionSerializedLegacy = Hex
-export type TransactionSerializedGeneric = Hex
+export type TransactionSerializedLegacy = Branded<`0x${string}`, 'legacy'>
+export type TransactionSerializedGeneric = `0x${string}`
 export type TransactionSerialized<
-  TType extends TransactionType | undefined = 'legacy',
-> = TType extends 'eip1559'
-  ? TransactionSerializedEIP1559
-  : TType extends 'eip2930'
-    ? TransactionSerializedEIP2930
-    : TType extends 'eip4844'
-      ? TransactionSerializedEIP4844
-      : TType extends 'legacy'
-        ? TransactionSerializedLegacy
-        : TransactionSerializedGeneric
+  TType extends TransactionType = TransactionType,
+  result =
+    | (TType extends 'eip1559' ? TransactionSerializedEIP1559 : never)
+    | (TType extends 'eip2930' ? TransactionSerializedEIP2930 : never)
+    | (TType extends 'legacy' ? TransactionSerializedLegacy : never),
+> = IsNever<result> extends true ? TransactionSerializedGeneric : result
 
 export type TransactionSerializableBase<
   TQuantity = bigint,

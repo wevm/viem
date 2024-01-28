@@ -96,7 +96,7 @@ export type CeloTransactionSerializable = OneOf<
 >
 
 export type CeloTransactionSerialized<
-  TType extends CeloTransactionType = 'legacy',
+  TType extends CeloTransactionType = CeloTransactionType,
 > =
   | TransactionSerialized<TType>
   | TransactionSerializedCIP42

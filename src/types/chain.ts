@@ -9,6 +9,7 @@ import type { FeeValuesType } from '../types/fee.js'
 import type {
   TransactionSerializable,
   TransactionSerializableGeneric,
+  TransactionSerializedGeneric,
 } from '../types/transaction.js'
 import type { IsNarrowable, IsUndefined, Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
@@ -162,7 +163,8 @@ export type ChainSerializers<
             ? TransactionSerializableGeneric &
                 Parameters<formatters['transactionRequest']['format']>[0]
             : TransactionSerializable
-          : TransactionSerializable
+          : TransactionSerializable,
+        TransactionSerializedGeneric
       >
     | undefined
 }

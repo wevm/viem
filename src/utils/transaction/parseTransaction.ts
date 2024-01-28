@@ -14,14 +14,17 @@ import type {
   AccessList,
   TransactionRequestEIP2930,
   TransactionRequestLegacy,
+  TransactionSerializable,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableLegacy,
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
+  TransactionSerializedGeneric,
   TransactionType,
 } from '../../types/transaction.js'
+import type { IsNarrowable } from '../../types/utils.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
 import { type PadHexErrorType, padHex } from '../data/pad.js'
@@ -51,12 +54,14 @@ import {
 } from './getSerializedTransactionType.js'
 
 export type ParseTransactionReturnType<
-  TSerialized extends TransactionSerialized = TransactionSerialized,
+  TSerialized extends TransactionSerializedGeneric = TransactionSerialized,
   TType extends TransactionType = GetSerializedTransactionType<TSerialized>,
-> =
-  | (TType extends 'eip1559' ? TransactionSerializableEIP1559 : never)
-  | (TType extends 'eip2930' ? TransactionSerializableEIP2930 : never)
-  | (TType extends 'legacy' ? TransactionSerializableLegacy : never)
+> = IsNarrowable<TSerialized, Hex> extends true
+  ?
+      | (TType extends 'eip1559' ? TransactionSerializableEIP1559 : never)
+      | (TType extends 'eip2930' ? TransactionSerializableEIP2930 : never)
+      | (TType extends 'legacy' ? TransactionSerializableLegacy : never)
+  : TransactionSerializable
 
 export type ParseTransactionErrorType =
   | GetSerializedTransactionTypeErrorType
@@ -64,9 +69,9 @@ export type ParseTransactionErrorType =
   | ParseTransactionEIP2930ErrorType
   | ParseTransactionLegacyErrorType
 
-export function parseTransaction<TSerialized extends TransactionSerialized>(
-  serializedTransaction: TSerialized,
-): ParseTransactionReturnType<TSerialized> {
+export function parseTransaction<
+  const TSerialized extends TransactionSerializedGeneric,
+>(serializedTransaction: TSerialized): ParseTransactionReturnType<TSerialized> {
   const type = getSerializedTransactionType(serializedTransaction)
 
   if (type === 'eip1559')

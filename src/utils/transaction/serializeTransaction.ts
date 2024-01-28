@@ -45,18 +45,18 @@ import {
 } from './serializeAccessList.js'
 
 export type SerializedTransactionReturnType<
-  TTransactionSerializable extends
-    TransactionSerializable = TransactionSerializable,
+  transaction extends TransactionSerializable = TransactionSerializable,
   ///
-  _transactionType extends
-    TransactionType = GetTransactionType<TTransactionSerializable>,
+  _transactionType extends TransactionType = GetTransactionType<transaction>,
 > = TransactionSerialized<_transactionType>
 
 export type SerializeTransactionFn<
-  TTransactionSerializable extends
-    TransactionSerializableGeneric = TransactionSerializable,
+  transaction extends TransactionSerializableGeneric = TransactionSerializable,
+  ///
+  _transactionType extends TransactionType = never,
 > = typeof serializeTransaction<
-  OneOf<TransactionSerializable | TTransactionSerializable>
+  OneOf<TransactionSerializable | transaction>,
+  _transactionType
 >
 
 export type SerializeTransactionErrorType =
@@ -68,35 +68,37 @@ export type SerializeTransactionErrorType =
   | ErrorType
 
 export function serializeTransaction<
-  const TTransactionSerializable extends TransactionSerializable,
+  const transaction extends TransactionSerializable,
+  ///
+  _transactionType extends TransactionType = GetTransactionType<transaction>,
 >(
-  transaction: TTransactionSerializable,
+  transaction: transaction,
   signature?: Signature,
-): SerializedTransactionReturnType<TTransactionSerializable> {
+): SerializedTransactionReturnType<transaction, _transactionType> {
   const type = getTransactionType(transaction) as GetTransactionType
 
   if (type === 'eip1559')
     return serializeTransactionEIP1559(
       transaction as TransactionSerializableEIP1559,
       signature,
-    ) as SerializedTransactionReturnType<TTransactionSerializable>
+    ) as SerializedTransactionReturnType<transaction>
 
   if (type === 'eip2930')
     return serializeTransactionEIP2930(
       transaction as TransactionSerializableEIP2930,
       signature,
-    ) as SerializedTransactionReturnType<TTransactionSerializable>
+    ) as SerializedTransactionReturnType<transaction>
 
   if (type === 'eip4844')
     return serializeTransactionEIP4844(
       transaction as TransactionSerializableEIP4844,
       signature,
-    ) as SerializedTransactionReturnType<TTransactionSerializable>
+    ) as SerializedTransactionReturnType<transaction>
 
   return serializeTransactionLegacy(
     transaction as TransactionSerializableLegacy,
     signature,
-  ) as SerializedTransactionReturnType<TTransactionSerializable>
+  ) as SerializedTransactionReturnType<transaction>
 }
 
 type SerializeTransactionEIP4844ErrorType =
@@ -327,5 +329,5 @@ function serializeTransactionLegacy(
     ]
   }
 
-  return toRlp(serializedTransaction)
+  return toRlp(serializedTransaction) as TransactionSerializedLegacy
 }

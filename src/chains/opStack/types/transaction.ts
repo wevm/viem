@@ -82,8 +82,10 @@ export type OpStackTransactionSerializable = OneOf<
 >
 
 export type OpStackTransactionSerialized<
-  TType extends OpStackTransactionType = 'legacy',
-> = TransactionSerialized<TType> | TransactionSerializedDeposit
+  TType extends OpStackTransactionType = OpStackTransactionType,
+> = TType extends 'deposit'
+  ? TransactionSerializedDeposit
+  : TransactionSerialized<TType>
 
 export type OpStackTransactionType = TransactionType | 'deposit'
 
