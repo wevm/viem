@@ -19,8 +19,9 @@ export const zkSync = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'zkExplorer',
-      url: 'https://explorer.zksync.io',
+      name: 'Etherscan',
+      url: 'https://era.zksync.network/',
+      apiUrl: 'https://api-era.zksync.network/api',
     },
   },
   contracts: {
