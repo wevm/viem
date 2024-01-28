@@ -54,7 +54,7 @@ describe('eip4844', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 28n,
+          yParity: 1,
         },
       ),
     ).toEqual(
@@ -67,7 +67,7 @@ describe('eip4844', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 27n,
+          yParity: 0,
         },
       ),
     ).toEqual(
@@ -233,7 +233,7 @@ describe('eip1559', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 28n,
+          yParity: 1,
         },
       ),
     ).toEqual(
@@ -246,7 +246,7 @@ describe('eip1559', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 27n,
+          yParity: 0,
         },
       ),
     ).toEqual(
@@ -457,7 +457,7 @@ describe('eip2930', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 28n,
+          yParity: 1,
         },
       ),
     ).toEqual(
@@ -470,7 +470,7 @@ describe('eip2930', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 27n,
+          yParity: 0,
         },
       ),
     ).toEqual(
@@ -654,6 +654,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
       ...signature,
+      yParity: undefined,
       type: 'legacy',
     })
   })
@@ -703,6 +704,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...args,
       ...signature,
+      yParity: undefined,
       type: 'legacy',
       v: 173n,
     })

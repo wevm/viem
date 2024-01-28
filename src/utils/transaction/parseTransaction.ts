@@ -405,6 +405,7 @@ function parseTransactionLegacy(
   if (chainId > 0) transaction.chainId = chainId
   else if (v !== 27n && v !== 28n) throw new InvalidLegacyVError({ v })
 
+  delete transaction.yParity
   transaction.v = v
   transaction.s = s as Hex
   transaction.r = r as Hex

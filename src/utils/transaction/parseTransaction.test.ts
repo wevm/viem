@@ -487,6 +487,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
       ...signature,
+      yParity: undefined,
       type: 'legacy',
     })
   })
@@ -504,6 +505,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...args,
       ...signature,
+      yParity: undefined,
       type: 'legacy',
       v: 173n,
     })
@@ -695,7 +697,10 @@ describe('errors', () => {
   test('invalid transaction', () => {
     expect(() => parseTransaction('0x03')).toThrowErrorMatchingInlineSnapshot(
       `
-      [InvalidSerializedTransactionType: Serialized transaction type "0x03" is invalid.
+      [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip1559" was provided.
+
+      Serialized Transaction: "0x03"
+      Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList
 
       Version: viem@1.0.2]
     `,

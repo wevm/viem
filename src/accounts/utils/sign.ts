@@ -32,5 +32,6 @@ export async function sign({
     r: toHex(r),
     s: toHex(s),
     v: recovery ? 28n : 27n,
+    yParity: recovery,
   }
 }

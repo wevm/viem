@@ -6,11 +6,13 @@ import type { ChainSerializers } from '../../types/chain.js'
 import type { Signature } from '../../types/misc.js'
 import { isAddress } from '../../utils/address/isAddress.js'
 import { concatHex } from '../../utils/data/concat.js'
-import { trim } from '../../utils/data/trim.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import { serializeAccessList } from '../../utils/transaction/serializeAccessList.js'
-import { serializeTransaction as serializeTransaction_ } from '../../utils/transaction/serializeTransaction.js'
+import {
+  serializeTransaction as serializeTransaction_,
+  toYParitySignatureArray,
+} from '../../utils/transaction/serializeTransaction.js'
 import type {
   CeloTransactionSerializable,
   TransactionSerializableCIP42,
@@ -77,15 +79,8 @@ function serializeTransactionCIP42(
     value ? toHex(value) : '0x',
     data ?? '0x',
     serializeAccessList(accessList),
+    ...toYParitySignatureArray(transaction, signature),
   ]
-
-  if (signature) {
-    serializedTransaction.push(
-      signature.v === 27n ? '0x' : toHex(1), // yParity
-      trim(signature.r),
-      trim(signature.s),
-    )
-  }
 
   return concatHex([
     '0x7c',
@@ -122,15 +117,8 @@ function serializeTransactionCIP64(
     data ?? '0x',
     serializeAccessList(accessList),
     feeCurrency!,
+    ...toYParitySignatureArray(transaction, signature),
   ]
-
-  if (signature) {
-    serializedTransaction.push(
-      signature.v === 27n ? '0x' : toHex(1), // yParity
-      trim(signature.r),
-      trim(signature.s),
-    )
-  }
 
   return concatHex([
     '0x7b',

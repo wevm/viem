@@ -17,15 +17,15 @@ const base = {
 
 const legacy = serializeTransaction(
   { ...base, gasPrice: 1n },
-  { r: '0x1', s: '0x2', v: 28n },
+  { r: '0x1', s: '0x2', yParity: 1 },
 )
 const eip1559 = serializeTransaction(
   { ...base, chainId: 1, maxFeePerGas: 1n },
-  { r: '0x1', s: '0x2', v: 28n },
+  { r: '0x1', s: '0x2', yParity: 1 },
 )
 const eip2930 = serializeTransaction(
   { ...base, chainId: 1, gasPrice: 1n, accessList: [] },
-  { r: '0x1', s: '0x2', v: 28n },
+  { r: '0x1', s: '0x2', yParity: 1 },
 )
 
 describe('Parse Transaction (Legacy)', () => {

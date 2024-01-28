@@ -3,7 +3,7 @@ import {
   type InvalidLegacyVErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Hex, Signature } from '../../types/misc.js'
+import type { Signature, SignatureLegacy } from '../../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerializableEIP1559,
@@ -97,7 +97,7 @@ export function serializeTransaction<
 
   return serializeTransactionLegacy(
     transaction as TransactionSerializableLegacy,
-    signature,
+    signature as SignatureLegacy,
   ) as SerializedTransactionReturnType<transaction>
 }
 
@@ -253,7 +253,7 @@ type SerializeTransactionLegacyErrorType =
 
 function serializeTransactionLegacy(
   transaction: TransactionSerializableLegacy,
-  signature?: Signature,
+  signature?: SignatureLegacy,
 ): TransactionSerializedLegacy {
   const { chainId = 0, gas, data, nonce, to, value, gasPrice } = transaction
 
@@ -305,9 +305,9 @@ function serializeTransactionLegacy(
   return toRlp(serializedTransaction) as TransactionSerializedLegacy
 }
 
-function toYParitySignatureArray(
-  transaction: TransactionSerializable,
-  signature?: Signature & { yParity?: Hex },
+export function toYParitySignatureArray(
+  transaction: TransactionSerializableGeneric,
+  signature?: Signature,
 ) {
   const { r, s, v, yParity } = signature ?? transaction
   if (typeof r === 'undefined') return []
@@ -315,7 +315,7 @@ function toYParitySignatureArray(
   if (typeof v === 'undefined' && typeof yParity === 'undefined') return []
 
   const yParity_ = (() => {
-    if (typeof yParity === 'number') return toHex(yParity)
+    if (typeof yParity === 'number') return yParity ? toHex(1) : '0x'
     if (v === 0n) return '0x'
     if (v === 1n) return toHex(1)
 

@@ -217,7 +217,7 @@ describe('cip42', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 28n,
+          yParity: 1,
         },
       ),
     ).toEqual(tx1)
@@ -228,7 +228,7 @@ describe('cip42', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 27n,
+          yParity: 0,
         },
       ),
     ).toEqual(tx2)
@@ -400,7 +400,7 @@ describe('cip64', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 28n,
+          yParity: 1,
         },
       ),
     ).toEqual(tx1)
@@ -411,7 +411,7 @@ describe('cip64', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 27n,
+          yParity: 0,
         },
       ),
     ).toEqual(tx2)
