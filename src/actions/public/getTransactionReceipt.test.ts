@@ -11,7 +11,7 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
-import type { ZkSyncTransactionReceipt } from '../../chains/zksync/types.js'
+import type { ZkSyncTransactionReceipt } from '../../chains/zksync/types/transaction.js'
 import { wait } from '../../utils/wait.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'

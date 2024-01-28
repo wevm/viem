@@ -200,6 +200,10 @@ export default defineConfig({
           text: 'OP Stack',
           link: '/op-stack',
         },
+        {
+          text: 'zkSync',
+          link: '/zksync',
+        },
       ],
     },
     {

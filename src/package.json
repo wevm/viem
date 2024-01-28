@@ -138,21 +138,12 @@
   "license": "MIT",
   "homepage": "https://viem.sh",
   "repository": "wevm/viem",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": [
-    "eth",
-    "ethereum",
-    "dapps",
-    "wallet",
-    "web3"
-  ]
+  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"]
 }

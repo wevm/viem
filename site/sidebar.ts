@@ -481,7 +481,7 @@ export const sidebar = {
             },
             {
               text: 'zkSync',
-              link: '/docs/chains/zksync',
+              link: '/zksync',
             },
           ],
         },
@@ -1133,6 +1133,39 @@ export const sidebar = {
           {
             text: 'serializeTransaction',
             link: '/op-stack/utilities/serializeTransaction',
+          },
+        ],
+      },
+    ],
+  },
+  '/zksync': {
+    backLink: true,
+    items: [
+      {
+        text: 'zkSync',
+        items: [
+          {
+            text: 'Getting started',
+            link: '/zksync',
+          },
+          { text: 'Client', link: '/zksync/client' },
+          { text: 'Chains', link: '/zksync/chains' },
+        ],
+      },
+      {
+        text: 'Actions',
+        items: [
+          {
+            text: 'sendTransaction',
+            link: '/zksync/actions/sendTransaction',
+          },
+          {
+            text: 'signTransaction',
+            link: '/zksync/actions/signTransaction',
+          },
+          {
+            text: 'writeContract',
+            link: '/zksync/actions/writeContract',
           },
         ],
       },

@@ -10,16 +10,17 @@ import { defineTransactionReceipt } from '../../utils/formatters/transactionRece
 import { defineTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import type {
   ZkSyncBlockOverrides,
-  ZkSyncL2ToL1Log,
-  ZkSyncLog,
   ZkSyncRpcBlockOverrides,
+} from './types/block.js'
+import type { ZkSyncL2ToL1Log, ZkSyncLog } from './types/log.js'
+import type {
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionReceiptOverrides,
   ZkSyncRpcTransactionRequest,
   ZkSyncTransaction,
   ZkSyncTransactionReceipt,
   ZkSyncTransactionRequest,
-} from './types.js'
+} from './types/transaction.js'
 
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({
@@ -32,7 +33,7 @@ export const formatters = {
     } {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
-        const formatted = formatters.transaction.format(
+        const formatted = formatters.transaction?.format(
           transaction as ZkSyncRpcTransaction,
         ) as ZkSyncTransaction
         if (formatted.typeHex === '0x71') formatted.type = 'eip712'
@@ -140,7 +141,7 @@ export const formatters = {
                 }
               : {}),
           },
-          type: args.type === 'eip712' ? '0x71' : '0xff',
+          type: '0x71',
         } as ZkSyncRpcTransactionRequest
       return {} as ZkSyncRpcTransactionRequest
     },
