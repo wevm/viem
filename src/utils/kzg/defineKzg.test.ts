@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import * as cKzg from 'c-kzg'
 import { describe, expect, test } from 'vitest'
 
+import { trustedSetupPath } from '../../../test/src/kzg.js'
 import type { Kzg } from '../../types/kzg.js'
 import { hexToBytes } from '../index.js'
 import { defineKzg } from './defineKzg.js'
@@ -24,10 +25,6 @@ const verifyBlobKzgProofBatchCases = JSON.parse(
     resolve(__dirname, '../../../test/kzg/verify-blob-kzg-proof-batch.json'),
     'utf8',
   ),
-)
-const trustedSetupPath = resolve(
-  __dirname,
-  '../../../test/kzg/trusted_setup.txt',
 )
 
 let kzg: Kzg

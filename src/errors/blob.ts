@@ -3,13 +3,25 @@ import type { Hash } from '../types/misc.js'
 
 import { BaseError } from './base.js'
 
-export type EmptyBlobLengthErrorType = EmptyBlobLengthError & {
-  name: 'EmptyBlobLengthError'
+export type BlobSizeTooLargeType = BlobSizeTooLarge & {
+  name: 'BlobSizeTooLarge'
 }
-export class EmptyBlobLengthError extends BaseError {
-  override name = 'EmptyBlobLengthError'
+export class BlobSizeTooLarge extends BaseError {
+  override name = 'BlobSizeTooLarge'
+  constructor({ maxSize, size }: { maxSize: number; size: number }) {
+    super('Blob size is too large.', {
+      metaMessages: [`Max: ${maxSize} bytes`, `Given: ${size} bytes`],
+    })
+  }
+}
+
+export type EmptyBlobErrorType = EmptyBlobError & {
+  name: 'EmptyBlobError'
+}
+export class EmptyBlobError extends BaseError {
+  override name = 'EmptyBlobError'
   constructor() {
-    super('Transaction must contain a blob.')
+    super('Blob data must not be empty.')
   }
 }
 

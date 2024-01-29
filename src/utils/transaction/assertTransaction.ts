@@ -5,8 +5,8 @@ import {
 } from '../../errors/address.js'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
-  EmptyBlobLengthError,
-  type EmptyBlobLengthErrorType,
+  EmptyBlobError,
+  type EmptyBlobErrorType,
   InvalidVersionedHashSizeError,
   type InvalidVersionedHashSizeErrorType,
   InvalidVersionedHashVersionError,
@@ -36,7 +36,7 @@ import { hexToNumber } from '../encoding/fromHex.js'
 
 export type AssertTransactionEIP4844ErrorType =
   | AssertTransactionEIP1559ErrorType
-  | EmptyBlobLengthErrorType
+  | EmptyBlobErrorType
   | InvalidVersionedHashSizeErrorType
   | InvalidVersionedHashVersionErrorType
   | ErrorType
@@ -45,7 +45,7 @@ export function assertTransactionEIP4844(
   transaction: TransactionSerializableEIP4844,
 ) {
   const { blobVersionedHashes } = transaction
-  if (blobVersionedHashes.length === 0) throw new EmptyBlobLengthError()
+  if (blobVersionedHashes.length === 0) throw new EmptyBlobError()
   for (const hash of blobVersionedHashes) {
     const size_ = size(hash)
     const version = hexToNumber(slice(hash, 0, 1))
