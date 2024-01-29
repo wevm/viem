@@ -1,5 +1,15 @@
 # viem
 
+## 2.6.0
+
+### Minor Changes
+
+- [#1665](https://github.com/wevm/viem/pull/1665) [`09a4d9eef6ab766ff48f2b7272fad129f6deef74`](https://github.com/wevm/viem/commit/09a4d9eef6ab766ff48f2b7272fad129f6deef74) Thanks [@mariopil](https://github.com/mariopil)! - Added zkSync Extensions.
+
+### Patch Changes
+
+- [#1718](https://github.com/wevm/viem/pull/1718) [`4593b65d2baa708e1d67e8f5cc606891f0ead4c9`](https://github.com/wevm/viem/commit/4593b65d2baa708e1d67e8f5cc606891f0ead4c9) Thanks [@xsubject](https://github.com/xsubject)! - Added Berachain Testnet chain.
+
 ## 2.5.1
 
 ### Patch Changes
