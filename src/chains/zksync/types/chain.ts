@@ -1,10 +1,7 @@
 import type { ChainFormatters } from '../../../types/chain.js'
 import type { Chain, ChainFormatter } from '../../../types/chain.js'
-import type {
-  TransactionSerializable,
-  TransactionSerializableGeneric,
-} from '../../../types/transaction.js'
 import type { EIP712DomainFn } from './eip712.js'
+import type { ZkSyncTransactionSerializable } from './transaction.js'
 
 export type ChainEIP712<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
@@ -17,10 +14,10 @@ export type ChainEIP712<
       | EIP712DomainFn<
           formatters extends ChainFormatters
             ? formatters['transactionRequest'] extends ChainFormatter
-              ? TransactionSerializableGeneric &
+              ? ZkSyncTransactionSerializable &
                   Parameters<formatters['transactionRequest']['format']>[0]
-              : TransactionSerializable
-            : TransactionSerializable,
+              : ZkSyncTransactionSerializable
+            : ZkSyncTransactionSerializable,
           TransactionSignable
         >
       | undefined

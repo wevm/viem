@@ -1,6 +1,6 @@
 import type { Address, TypedDataDomain } from 'abitype'
 import type { Hex } from '../../../types/misc.js'
-import type { TransactionSerializable } from '../../../types/transaction.js'
+import type { ZkSyncTransactionSerializable } from './transaction.js'
 
 type PaymasterParams = {
   paymaster: Address
@@ -26,6 +26,6 @@ export type EIP712Domain<TransactionSignable> = {
 
 export type EIP712DomainFn<
   TTransactionSerializable extends
-    TransactionSerializable = TransactionSerializable,
+    ZkSyncTransactionSerializable = ZkSyncTransactionSerializable,
   TransactionSignable = {},
 > = (transaction: TTransactionSerializable) => EIP712Domain<TransactionSignable>

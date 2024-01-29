@@ -143,8 +143,8 @@ export async function signEip712Transaction<
       chainId,
       ...transaction,
       customSignature,
-      type: 'eip712',
+      type: 'eip712' as any,
     },
     { r: '0x0', s: '0x0', v: 0n },
-  )
+  ) as SignEip712TransactionReturnType
 }
