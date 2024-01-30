@@ -35,6 +35,8 @@ export type TransactionReceipt<
   logs: Log<TQuantity, TIndex, false>[]
   /** Logs bloom filter */
   logsBloom: Hex
+  /** The post-transaction state root. Only specified for transactions included before the Byzantium upgrade. */
+  root?: Hash
   /** `success` if this transaction was successful or `reverted` if it failed */
   status: TStatus
   /** Transaction recipient or `null` if deploying a contract */
