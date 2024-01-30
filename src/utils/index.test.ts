@@ -172,6 +172,7 @@ test('exports utils', () => {
         "0x0": "legacy",
         "0x1": "eip2930",
         "0x2": "eip1559",
+        "0x3": "eip4844",
       },
       "trim": [Function],
       "validateTypedData": [Function],

@@ -574,6 +574,75 @@ test('eip1559 transaction', () => {
   `)
 })
 
+test('eip4844 transaction', () => {
+  expect(
+    formatTransaction({
+      accessList: [
+        {
+          address: '0x1',
+          storageKeys: ['0x1'],
+        },
+      ],
+      blockHash: '0x1',
+      blockNumber: '0x10f2c',
+      chainId: '0x1',
+      from: '0x1',
+      gas: '0x4234584',
+      hash: '0x1',
+      input: '0x1',
+      blobVersionedHashes: [
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+      ],
+      maxFeePerBlobGas: '0x10',
+      maxFeePerGas: '0x5',
+      maxPriorityFeePerGas: '0x1',
+      nonce: '0x1',
+      r: '0x1',
+      s: '0x1',
+      to: '0x1',
+      transactionIndex: '0x1',
+      type: '0x3',
+      v: '0x1b',
+      value: '0x1',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "accessList": [
+        {
+          "address": "0x1",
+          "storageKeys": [
+            "0x1",
+          ],
+        },
+      ],
+      "blobVersionedHashes": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+      ],
+      "blockHash": "0x1",
+      "blockNumber": 69420n,
+      "chainId": 1,
+      "from": "0x1",
+      "gas": 69420420n,
+      "gasPrice": undefined,
+      "hash": "0x1",
+      "input": "0x1",
+      "maxFeePerBlobGas": 16n,
+      "maxFeePerGas": 5n,
+      "maxPriorityFeePerGas": 1n,
+      "nonce": 1,
+      "r": "0x1",
+      "s": "0x1",
+      "to": "0x1",
+      "transactionIndex": 1,
+      "type": "eip4844",
+      "typeHex": "0x3",
+      "v": 27n,
+      "value": 1n,
+      "yParity": 0,
+    }
+  `)
+})
+
 test('pending transaction', () => {
   expect(
     formatTransaction({
@@ -679,6 +748,7 @@ test('nullish values', () => {
       "gasPrice": undefined,
       "hash": "0x1",
       "input": "0x1",
+      "maxFeePerBlobGas": undefined,
       "maxFeePerGas": 5n,
       "maxPriorityFeePerGas": 1n,
       "nonce": undefined,

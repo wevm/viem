@@ -11,6 +11,7 @@ import type { Proof } from './proof.js'
 import type {
   TransactionEIP1559,
   TransactionEIP2930,
+  TransactionEIP4844,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequestEIP1559,
@@ -50,7 +51,8 @@ export type RpcTransaction<TPending extends boolean = boolean> = UnionOmit<
   UnionPartialBy<
     | TransactionLegacy<Quantity, Index, TPending, '0x0'>
     | TransactionEIP2930<Quantity, Index, TPending, '0x1'>
-    | TransactionEIP1559<Quantity, Index, TPending, '0x2'>,
+    | TransactionEIP1559<Quantity, Index, TPending, '0x2'>
+    | TransactionEIP4844<Quantity, Index, TPending, '0x3'>,
     // `yParity` is optional on the RPC type as some nodes do not return it
     // for 1559 & 2930 transactions (they should!).
     'yParity'
