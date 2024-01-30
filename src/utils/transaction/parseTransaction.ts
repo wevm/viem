@@ -116,14 +116,15 @@ function parseTransactionEIP4844(
   serializedTransaction: TransactionSerializedEIP4844,
 ): TransactionSerializableEIP4844 {
   const transactionOrWrapperArray = toTransactionArray(serializedTransaction)
-  const transactionArray =
-    transactionOrWrapperArray.length === 4
-      ? transactionOrWrapperArray[0]
-      : transactionOrWrapperArray
-  const wrapperArray =
-    transactionOrWrapperArray.length === 4
-      ? transactionOrWrapperArray.slice(1)
-      : []
+
+  const hasNetworkWrapper = transactionOrWrapperArray.length === 4
+
+  const transactionArray = hasNetworkWrapper
+    ? transactionOrWrapperArray[0]
+    : transactionOrWrapperArray
+  const wrapperArray = hasNetworkWrapper
+    ? transactionOrWrapperArray.slice(1)
+    : []
 
   const [
     chainId,
@@ -164,7 +165,7 @@ function parseTransactionEIP4844(
           : {}),
       },
       serializedTransaction,
-      type: 'eip1559',
+      type: 'eip4844',
     })
 
   const transaction = {
