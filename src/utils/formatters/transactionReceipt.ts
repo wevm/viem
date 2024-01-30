@@ -29,7 +29,7 @@ export type FormatTransactionReceiptErrorType = ErrorType
 export function formatTransactionReceipt(
   transactionReceipt: Partial<RpcTransactionReceipt>,
 ) {
-  return {
+  const receipt = {
     ...transactionReceipt,
     blockNumber: transactionReceipt.blockNumber
       ? BigInt(transactionReceipt.blockNumber)
@@ -62,6 +62,13 @@ export function formatTransactionReceipt(
         ] || transactionReceipt.type
       : null,
   } as TransactionReceipt
+
+  if (transactionReceipt.blobGasPrice)
+    receipt.blobGasPrice = BigInt(transactionReceipt.blobGasPrice)
+  if (transactionReceipt.blobGasUsed)
+    receipt.blobGasUsed = BigInt(transactionReceipt.blobGasUsed)
+
+  return receipt
 }
 
 export type DefineTransactionReceiptErrorType =

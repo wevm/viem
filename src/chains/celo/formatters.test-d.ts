@@ -153,7 +153,7 @@ describe('smoke', () => {
       `0x${string}` | null | undefined
     >()
     expectTypeOf(transaction.type).toEqualTypeOf<
-      'legacy' | 'eip2930' | 'eip1559' | 'cip42' | 'cip64'
+      'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'cip42' | 'cip64'
     >()
   })
 

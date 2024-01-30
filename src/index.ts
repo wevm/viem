@@ -872,6 +872,7 @@ export type {
   TransactionBase,
   TransactionEIP1559,
   TransactionEIP2930,
+  TransactionEIP4844,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequest,
@@ -942,6 +943,7 @@ export type {
   FeeHistory,
   FeeValues,
   FeeValuesEIP1559,
+  FeeValuesEIP4844,
   FeeValuesLegacy,
   FeeValuesType,
 } from './types/fee.js'
