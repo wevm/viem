@@ -20,4 +20,5 @@ export const iotexTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet.iotexscan.io',
     },
   },
+  testnet: true,
 })
