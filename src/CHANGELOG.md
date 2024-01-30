@@ -1,5 +1,15 @@
 # viem
 
+## 2.6.1
+
+### Patch Changes
+
+- [#1748](https://github.com/wevm/viem/pull/1748) [`bf25d0e66e1069aacad2bef7a3815fcbe73b91d9`](https://github.com/wevm/viem/commit/bf25d0e66e1069aacad2bef7a3815fcbe73b91d9) Thanks [@zongzheng123](https://github.com/zongzheng123)! - Added multicall3 contract configuration for Iotex.
+
+- [#1743](https://github.com/wevm/viem/pull/1743) [`8ae627ecde6fa44b767a45e88c71c61703c2acad`](https://github.com/wevm/viem/commit/8ae627ecde6fa44b767a45e88c71c61703c2acad) Thanks [@molecula451](https://github.com/molecula451)! - Added OORT MainnetDev(Testnet) Chain
+
+- [#1750](https://github.com/wevm/viem/pull/1750) [`478333671230de0431a3d93fa8a500ed985fa1c2`](https://github.com/wevm/viem/commit/478333671230de0431a3d93fa8a500ed985fa1c2) Thanks [@TateB](https://github.com/TateB)! - Added ENS Registry and ENS Universal Resolver addresses for Holesky.
+
 ## 2.6.0
 
 ### Minor Changes
