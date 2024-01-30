@@ -9,7 +9,7 @@ test('from hex', () => {
   const blobs = toBlobs(stringToHex('abcd'.repeat(50000)))
   const commitments = blobsToCommitments(blobs, kzg)
 
-  expect(commitmentsToVersionedHashes({ commitments })).toMatchInlineSnapshot(
+  expect(commitmentsToVersionedHashes(commitments)).toMatchInlineSnapshot(
     `
     [
       "0x018666e86e22755cadfd12c1f58facc8a8c7d9550a02af8bc7e38a3d3aec0a9d",
@@ -19,7 +19,7 @@ test('from hex', () => {
   )
 
   expect(
-    commitmentsToVersionedHashes({ commitments }, 'bytes'),
+    commitmentsToVersionedHashes(commitments, 'bytes'),
   ).toMatchInlineSnapshot(
     `
     [
@@ -98,9 +98,9 @@ test('from hex', () => {
 
 test('from bytes', () => {
   const blobs = toBlobs(stringToBytes('abcd'.repeat(50000)))
-  const commitments = blobsToCommitments(blobs, kzg)
+  const commitments = blobsToCommitments(blobs, kzg, 'bytes')
 
-  expect(commitmentsToVersionedHashes({ commitments })).toMatchInlineSnapshot(
+  expect(commitmentsToVersionedHashes(commitments)).toMatchInlineSnapshot(
     `
     [
       Uint8Array [
@@ -176,7 +176,7 @@ test('from bytes', () => {
   )
 
   expect(
-    commitmentsToVersionedHashes({ commitments }, 'hex'),
+    commitmentsToVersionedHashes(commitments, 'hex'),
   ).toMatchInlineSnapshot(
     `
     [
@@ -185,4 +185,98 @@ test('from bytes', () => {
     ]
   `,
   )
+})
+
+test('args: version', () => {
+  const blobs = toBlobs(stringToHex('abcd'.repeat(50000)))
+  const commitments = blobsToCommitments(blobs, kzg)
+
+  expect(
+    commitmentsToVersionedHashes(commitments, { version: 2 }),
+  ).toMatchInlineSnapshot(`
+    [
+      "0x028666e86e22755cadfd12c1f58facc8a8c7d9550a02af8bc7e38a3d3aec0a9d",
+      "0x029cdd013c6f27f86b959b251a97bb7207d2ad079b6998c1c244b6514600bb04",
+    ]
+  `)
+})
+
+test('args: to', () => {
+  const blobs = toBlobs(stringToHex('abcd'.repeat(50000)))
+  const commitments = blobsToCommitments(blobs, kzg)
+
+  expect(
+    commitmentsToVersionedHashes(commitments, { to: 'bytes', version: 2 }),
+  ).toMatchInlineSnapshot(`
+    [
+      Uint8Array [
+        2,
+        134,
+        102,
+        232,
+        110,
+        34,
+        117,
+        92,
+        173,
+        253,
+        18,
+        193,
+        245,
+        143,
+        172,
+        200,
+        168,
+        199,
+        217,
+        85,
+        10,
+        2,
+        175,
+        139,
+        199,
+        227,
+        138,
+        61,
+        58,
+        236,
+        10,
+        157,
+      ],
+      Uint8Array [
+        2,
+        156,
+        221,
+        1,
+        60,
+        111,
+        39,
+        248,
+        107,
+        149,
+        155,
+        37,
+        26,
+        151,
+        187,
+        114,
+        7,
+        210,
+        173,
+        7,
+        155,
+        105,
+        152,
+        193,
+        194,
+        68,
+        182,
+        81,
+        70,
+        0,
+        187,
+        4,
+      ],
+    ]
+  `)
 })

@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import * as cKzg from 'c-kzg'
 import { describe, expect, test } from 'vitest'
 
-import { trustedSetupPath } from '../../../test/src/kzg.js'
+import '../../../test/src/kzg.js'
 import type { Kzg } from '../../types/kzg.js'
 import { hexToBytes } from '../index.js'
 import { defineKzg } from './defineKzg.js'
@@ -30,7 +30,6 @@ const verifyBlobKzgProofBatchCases = JSON.parse(
 let kzg: Kzg
 
 test('defineKzg', () => {
-  cKzg.loadTrustedSetup(trustedSetupPath)
   kzg = defineKzg(cKzg)
 
   expect(kzg).toMatchInlineSnapshot(`

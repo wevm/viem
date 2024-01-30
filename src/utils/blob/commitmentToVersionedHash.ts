@@ -4,10 +4,8 @@ import { sha256 } from '../hash/sha256.js'
 
 type To = 'hex' | 'bytes'
 
-export type CommitmentToVersionedHashParameters<
-  commitment extends Hex | ByteArray = Hex | ByteArray,
-> = {
-  commitment: commitment
+export type CommitmentToVersionedHashOptions<to extends To> = {
+  to?: to | To
   version?: number
 }
 
@@ -21,12 +19,15 @@ export function commitmentToVersionedHash<
     | (commitment extends Hex ? 'hex' : never)
     | (commitment extends ByteArray ? 'bytes' : never),
 >(
-  { commitment, version = 1 }: CommitmentToVersionedHashParameters<commitment>,
-  to_?: to | To | undefined,
+  commitment: commitment | Hex | ByteArray,
+  toOrOptions?: to | To | CommitmentToVersionedHashOptions<to>,
 ): CommitmentToVersionedHashReturnType<to> {
-  const to = to_ ?? (typeof commitment === 'string' ? 'hex' : 'bytes')
+  const options =
+    (typeof toOrOptions === 'string' ? { to: toOrOptions } : toOrOptions) ?? {}
+  const to = options.to ?? (typeof commitment === 'string' ? 'hex' : 'bytes')
+
   const versionedHash = sha256(commitment, 'bytes')
-  versionedHash.set([version], 0)
+  versionedHash.set([options.version ?? 1], 0)
   return (
     to === 'bytes' ? versionedHash : bytesToHex(versionedHash)
   ) as CommitmentToVersionedHashReturnType<to>

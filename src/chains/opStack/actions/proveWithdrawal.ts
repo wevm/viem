@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 import {
   type WriteContractErrorType,
+  type WriteContractParameters,
   writeContract,
 } from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
@@ -137,7 +138,7 @@ export async function proveWithdrawal<
       : gas ?? undefined
 
   return writeContract(client, {
-    account,
+    account: account!,
     abi: portalAbi,
     address: portalAddress,
     chain,
@@ -147,5 +148,5 @@ export async function proveWithdrawal<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-  })
+  } satisfies WriteContractParameters as any)
 }

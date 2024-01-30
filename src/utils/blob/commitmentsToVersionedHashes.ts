@@ -3,10 +3,8 @@ import { commitmentToVersionedHash } from './commitmentToVersionedHash.js'
 
 type To = 'hex' | 'bytes'
 
-export type CommitmentsToVersionedHashesParameters<
-  commitments extends Uint8Array[] | Hex[] = Uint8Array[] | Hex[],
-> = {
-  commitments: commitments
+export type CommitmentsToVersionedHashesOptions<to extends To> = {
+  to?: to | To
   version?: number
 }
 
@@ -18,18 +16,24 @@ export function commitmentsToVersionedHashes<
   const commitments extends Uint8Array[] | Hex[],
   to extends To =
     | (commitments extends Hex[] ? 'hex' : never)
-    | (commitments extends ByteArray[] ? 'bytes' : never),
+    | (commitments extends ByteArray[] ? 'hex' : never),
 >(
-  {
-    commitments,
-    version = 1,
-  }: CommitmentsToVersionedHashesParameters<commitments>,
-  to_?: to | To | undefined,
+  commitments: commitments | Uint8Array[] | Hex[],
+  toOrOptions?: to | To | CommitmentsToVersionedHashesOptions<to>,
 ): CommitmentsToVersionedHashesReturnType<to> {
-  const to = to_ ?? (typeof commitments[0] === 'string' ? 'hex' : 'bytes')
+  const options =
+    (typeof toOrOptions === 'string' ? { to: toOrOptions } : toOrOptions) ?? {}
+  const to =
+    options.to ?? (typeof commitments[0] === 'string' ? 'hex' : 'bytes')
+
   const hashes: Uint8Array[] | Hex[] = []
   for (const commitment of commitments) {
-    hashes.push(commitmentToVersionedHash({ commitment, version }, to) as any)
+    hashes.push(
+      commitmentToVersionedHash(commitment, {
+        to,
+        version: options.version,
+      }) as any,
+    )
   }
   return hashes as CommitmentsToVersionedHashesReturnType<to>
 }

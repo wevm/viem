@@ -1,5 +1,16 @@
 declare const symbol: unique symbol
 
+/**
+ * Creates a branded type of {@link T} with the brand {@link U}.
+ *
+ * @param T - Type to brand
+ * @param U - Label
+ * @returns Branded type
+ *
+ * @example
+ * type Result = Branded<string, 'foo'>
+ * //   ^? type Result = string & { [symbol]: 'foo' }
+ */
 export type Branded<T, U> = T & { [symbol]: U }
 
 /**

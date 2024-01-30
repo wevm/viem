@@ -186,6 +186,7 @@ export type TransactionRequestLegacy<
 > = TransactionRequestBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
     accessList?: never
+    blobs?: undefined
     type?: TTransactionType
   }
 export type TransactionRequestEIP2930<
@@ -195,6 +196,7 @@ export type TransactionRequestEIP2930<
 > = TransactionRequestBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
     accessList?: AccessList
+    blobs?: undefined
     type?: TTransactionType
   }
 export type TransactionRequestEIP1559<
@@ -204,6 +206,7 @@ export type TransactionRequestEIP1559<
 > = TransactionRequestBase<TQuantity, TIndex> &
   Partial<FeeValuesEIP1559<TQuantity>> & {
     accessList?: AccessList
+    blobs?: undefined
     type?: TTransactionType
   }
 export type TransactionRequestEIP4844<
@@ -211,16 +214,18 @@ export type TransactionRequestEIP4844<
   TIndex = number,
   TTransactionType = 'eip4844',
 > = TransactionRequestBase<TQuantity, TIndex> &
-  Partial<FeeValuesEIP1559<TQuantity>> & {
+  Partial<FeeValuesEIP4844<TQuantity>> & {
     accessList?: AccessList
-    blobVersionedHashes: Hex[]
-    maxFeePerBlobGas?: TQuantity
+    /** The blobs associated with this transaction. */
+    blobs: Hex[]
     type?: TTransactionType
   }
-export type TransactionRequest<TQuantity = bigint, TIndex = number> =
+export type TransactionRequest<TQuantity = bigint, TIndex = number> = OneOf<
   | TransactionRequestLegacy<TQuantity, TIndex>
   | TransactionRequestEIP2930<TQuantity, TIndex>
   | TransactionRequestEIP1559<TQuantity, TIndex>
+  | TransactionRequestEIP4844<TQuantity, TIndex>
+>
 
 export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
@@ -280,12 +285,11 @@ export type TransactionSerializableEIP4844<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
-  Partial<FeeValuesEIP1559<TQuantity>> &
+  Partial<FeeValuesEIP4844<TQuantity>> &
   OneOf<WrapperPropertiesEIP4844 | {}> & {
     accessList?: AccessList
     blobVersionedHashes: Hex[]
     chainId: number
-    maxFeePerBlobGas?: TQuantity
     type?: 'eip4844'
     yParity?: number
   }
@@ -298,6 +302,7 @@ export type TransactionSerializableGeneric<
   blobVersionedHashes?: Hex[]
   chainId?: number
   gasPrice?: TQuantity
+  maxFeePerBlobGas?: TQuantity
   maxFeePerGas?: TQuantity
   maxPriorityFeePerGas?: TQuantity
   type?: string

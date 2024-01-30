@@ -16,7 +16,7 @@ export function blobsToCommitments<
     | (blobs extends ByteArray[] ? 'bytes' : never),
 >(
   blobs_: blobs | ByteArray[] | Hex[],
-  { blobToKzgCommitment }: Pick<Kzg, 'blobToKzgCommitment'>,
+  kzg: Pick<Kzg, 'blobToKzgCommitment'>,
   to_?: to | To | undefined,
 ): BlobsToCommitmentsReturnType<to> {
   const to = to_ ?? (typeof blobs_[0] === 'string' ? 'hex' : 'bytes')
@@ -28,7 +28,7 @@ export function blobsToCommitments<
 
   const commitments: ByteArray[] = []
   for (const blob of blobs)
-    commitments.push(Uint8Array.from(blobToKzgCommitment(blob)))
+    commitments.push(Uint8Array.from(kzg.blobToKzgCommitment(blob)))
 
   return (to === 'bytes'
     ? commitments

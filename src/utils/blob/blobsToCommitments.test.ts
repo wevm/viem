@@ -16,7 +16,7 @@ test('from hex', () => {
 })
 
 test('from bytes', () => {
-  const blobs = toBlobs(stringToHex('abcd'.repeat(50000)), 'bytes')
+  const blobs = toBlobs(stringToBytes('abcd'.repeat(50000)))
   const commitments = blobsToCommitments(blobs, kzg)
   expect(commitments).toMatchInlineSnapshot(`
     [

@@ -9,7 +9,7 @@ export type Kzg = {
    * Given a blob, return the KZG proof that is used to verify it against the
    * commitment.
    */
-  computeBlobKzgProof(blob: ByteArray, commitmentBytes: ByteArray): ByteArray
+  computeBlobKzgProof(blob: ByteArray, commitment: ByteArray): ByteArray
   /**
    * Given an array of blobs and their proofs, verify that they corresponds to their
    * provided commitment.
