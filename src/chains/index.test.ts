@@ -124,6 +124,7 @@ test('exports chains', () => {
       "optimismSepolia",
       "opBNB",
       "opBNBTestnet",
+      "oortMainnetDev",
       "palm",
       "palmTestnet",
       "pgn",
