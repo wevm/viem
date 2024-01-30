@@ -9,8 +9,6 @@ runs:
 
     - name: Set up foundry
       uses: foundry-rs/foundry-toolchain@v1
-      with:
-        version: nightly-293fad73670b7b59ca901c7f2105bf7a29165a90
 
     - name: Install dependencies
       shell: bash
