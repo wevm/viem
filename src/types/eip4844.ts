@@ -1,10 +1,13 @@
+import type { ByteArray } from '../_types/index.js'
 import type { Hex } from './misc.js'
 
-export type WrapperPropertiesEIP4844 = {
-  /** The blobs associated with a transaction. */
-  blobs: Hex[]
-  /** The KZG commitments corresponding to each blob. */
-  kzgCommitments: Hex[]
-  /** The KZG proofs corresponding to each blob and it's commitment. */
-  kzgProofs: Hex[]
+export type BlobSidecar<type extends Hex | ByteArray = Hex | ByteArray> = {
+  /** The blob associated with the transaction. */
+  blob: type
+  /** The KZG commitment corresponding to this blob. */
+  commitment: type
+  /** The KZG proof corresponding to this blob and commitment. */
+  proof: type
 }
+export type BlobSidecars<type extends Hex | ByteArray = Hex | ByteArray> =
+  BlobSidecar<type>[]

@@ -4,21 +4,29 @@ import { toBlobs } from './toBlobs.js'
 
 test('default', () => {
   expect(
-    toBlobs(stringToHex('we are all gonna make it'.repeat(10000))),
+    toBlobs({ data: stringToHex('we are all gonna make it'.repeat(10000)) }),
   ).toMatchSnapshot()
   expect(
-    toBlobs(stringToHex('we are all gonna make it'.repeat(10000)), 'bytes'),
+    toBlobs({
+      data: stringToHex('we are all gonna make it'.repeat(10000)),
+      to: 'bytes',
+    }),
   ).toMatchSnapshot()
   expect(
-    toBlobs(stringToBytes('we are all gonna make it'.repeat(10000))),
+    toBlobs({ data: stringToBytes('we are all gonna make it'.repeat(10000)) }),
   ).toMatchSnapshot()
   expect(
-    toBlobs(stringToBytes('we are all gonna make it'.repeat(10000)), 'hex'),
+    toBlobs({
+      data: stringToBytes('we are all gonna make it'.repeat(10000)),
+      to: 'hex',
+    }),
   ).toMatchSnapshot()
 })
 
 test('error: empty blob data', () => {
-  expect(() => toBlobs(stringToHex(''))).toThrowErrorMatchingInlineSnapshot(
+  expect(() =>
+    toBlobs({ data: stringToHex('') }),
+  ).toThrowErrorMatchingInlineSnapshot(
     `
     [EmptyBlobError: Blob data must not be empty.
 
@@ -29,7 +37,7 @@ test('error: empty blob data', () => {
 
 test('error: blob data too big', () => {
   expect(() =>
-    toBlobs(stringToHex('we are all gonna make it'.repeat(20000))),
+    toBlobs({ data: stringToHex('we are all gonna make it'.repeat(20000)) }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [BlobSizeTooLarge: Blob size is too large.
 

@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import type { BlobSidecars } from './eip4844.js'
 import type {
   FeeValuesEIP1559,
   FeeValuesEIP4844,
@@ -285,11 +286,11 @@ export type TransactionSerializableEIP4844<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
-  Partial<FeeValuesEIP4844<TQuantity>> &
-  OneOf<WrapperPropertiesEIP4844 | {}> & {
+  Partial<FeeValuesEIP4844<TQuantity>> & {
     accessList?: AccessList
     blobVersionedHashes: Hex[]
     chainId: number
+    sidecars?: BlobSidecars<Hex>
     type?: 'eip4844'
     yParity?: number
   }

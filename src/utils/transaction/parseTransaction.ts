@@ -28,6 +28,7 @@ import type {
 } from '../../types/transaction.js'
 import type { IsNarrowable } from '../../types/utils.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
+import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
 import { type PadHexErrorType, padHex } from '../data/pad.js'
 import { trim } from '../data/trim.js'
@@ -114,7 +115,15 @@ type ParseTransactionEIP4844ErrorType =
 function parseTransactionEIP4844(
   serializedTransaction: TransactionSerializedEIP4844,
 ): TransactionSerializableEIP4844 {
-  const transactionArray = toTransactionArray(serializedTransaction)
+  const transactionOrWrapperArray = toTransactionArray(serializedTransaction)
+  const transactionArray =
+    transactionOrWrapperArray.length === 4
+      ? transactionOrWrapperArray[0]
+      : transactionOrWrapperArray
+  const wrapperArray =
+    transactionOrWrapperArray.length === 4
+      ? transactionOrWrapperArray.slice(1)
+      : []
 
   const [
     chainId,
@@ -132,6 +141,7 @@ function parseTransactionEIP4844(
     r,
     s,
   ] = transactionArray
+  const [blobs, commitments, proofs] = wrapperArray
 
   if (!(transactionArray.length === 11 || transactionArray.length === 14))
     throw new InvalidSerializedTransactionError({
@@ -157,11 +167,11 @@ function parseTransactionEIP4844(
       type: 'eip1559',
     })
 
-  const transaction: TransactionSerializableEIP4844 = {
+  const transaction = {
     blobVersionedHashes: blobVersionedHashes as Hex[],
     chainId: hexToNumber(chainId as Hex),
     type: 'eip4844',
-  }
+  } as TransactionSerializableEIP4844
   if (isHex(to) && to !== '0x') transaction.to = to
   if (isHex(gas) && gas !== '0x') transaction.gas = hexToBigInt(gas)
   if (isHex(data) && data !== '0x') transaction.data = data
@@ -175,12 +185,18 @@ function parseTransactionEIP4844(
     transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
   if (accessList.length !== 0 && accessList !== '0x')
     transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
+  if (blobs && commitments && proofs)
+    transaction.sidecars = toBlobSidecars({
+      blobs: blobs as Hex[],
+      commitments: commitments as Hex[],
+      proofs: proofs as Hex[],
+    })
 
   assertTransactionEIP4844(transaction)
 
   const signature =
     transactionArray.length === 14
-      ? parseEIP155Signature(transactionArray)
+      ? parseEIP155Signature(transactionArray as RecursiveArray<Hex>)
       : undefined
 
   return { ...signature, ...transaction }

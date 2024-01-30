@@ -5,8 +5,8 @@ import { blobsToCommitments } from './blobsToCommitments.js'
 import { toBlobs } from './toBlobs.js'
 
 test('from hex', () => {
-  const blobs = toBlobs(stringToHex('abcd'.repeat(50000)))
-  const commitments = blobsToCommitments(blobs, kzg)
+  const blobs = toBlobs({ data: stringToHex('abcd'.repeat(50000)) })
+  const commitments = blobsToCommitments({ blobs, kzg })
   expect(commitments).toMatchInlineSnapshot(`
     [
       "0x91e762667295f51030bc928a02fa2930744773df4f88ace99b96464c255b2ffcd67ee0f211b085439b4eca10ddc61445",
@@ -16,8 +16,8 @@ test('from hex', () => {
 })
 
 test('from bytes', () => {
-  const blobs = toBlobs(stringToBytes('abcd'.repeat(50000)))
-  const commitments = blobsToCommitments(blobs, kzg)
+  const blobs = toBlobs({ data: stringToBytes('abcd'.repeat(50000)) })
+  const commitments = blobsToCommitments({ blobs, kzg })
   expect(commitments).toMatchInlineSnapshot(`
     [
       Uint8Array [
@@ -125,8 +125,8 @@ test('from bytes', () => {
 })
 
 test('to hex', () => {
-  const blobs = toBlobs(stringToBytes('abcd'.repeat(50000)))
-  const commitments = blobsToCommitments(blobs, kzg, 'hex')
+  const blobs = toBlobs({ data: stringToBytes('abcd'.repeat(50000)) })
+  const commitments = blobsToCommitments({ blobs, kzg, to: 'hex' })
   expect(commitments).toMatchInlineSnapshot(`
     [
       "0x91e762667295f51030bc928a02fa2930744773df4f88ace99b96464c255b2ffcd67ee0f211b085439b4eca10ddc61445",
@@ -136,8 +136,8 @@ test('to hex', () => {
 })
 
 test('to bytes', () => {
-  const blobs = toBlobs(stringToHex('abcd'.repeat(50000)))
-  const commitments = blobsToCommitments(blobs, kzg, 'bytes')
+  const blobs = toBlobs({ data: stringToHex('abcd'.repeat(50000)) })
+  const commitments = blobsToCommitments({ blobs, kzg, to: 'bytes' })
   expect(commitments).toMatchInlineSnapshot(`
     [
       Uint8Array [

@@ -11,6 +11,16 @@ import { bytesToHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 
+export type ToBlobsParameters<
+  data extends Hex | ByteArray = Hex | ByteArray,
+  to extends To | undefined = undefined,
+> = {
+  /** Data to transform to a blob. */
+  data: data | Hex | ByteArray
+  /** Return type. */
+  to?: to | To | undefined
+}
+
 export type ToBlobsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
@@ -20,12 +30,13 @@ export function toBlobs<
   to extends To =
     | (data extends Hex ? 'hex' : never)
     | (data extends ByteArray ? 'bytes' : never),
->(
-  data_: data | Hex | ByteArray,
-  to_?: to | To | undefined,
-): ToBlobsReturnType<to> {
-  const to = to_ ?? (typeof data_ === 'string' ? 'hex' : 'bytes')
-  const data = typeof data_ === 'string' ? hexToBytes(data_) : data_
+>(parameters: ToBlobsParameters<data, to>): ToBlobsReturnType<to> {
+  const to =
+    parameters.to ?? (typeof parameters.data === 'string' ? 'hex' : 'bytes')
+  const data =
+    typeof parameters.data === 'string'
+      ? hexToBytes(parameters.data)
+      : parameters.data
 
   const size_ = size(data)
   if (!size_) throw new EmptyBlobError()

@@ -5,6 +5,18 @@ import { bytesToHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 
+export type BlobsToCommitmentsParameters<
+  blobs extends ByteArray[] | Hex[] = ByteArray[] | Hex[],
+  to extends To | undefined = undefined,
+> = {
+  /** Blobs to transform into commitments. */
+  blobs: blobs | ByteArray[] | Hex[]
+  /** KZG implementation. */
+  kzg: Pick<Kzg, 'blobToKzgCommitment'>
+  /** Return type. */
+  to?: to | To | undefined
+}
+
 export type BlobsToCommitmentsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
@@ -15,15 +27,16 @@ export function blobsToCommitments<
     | (blobs extends Hex[] ? 'hex' : never)
     | (blobs extends ByteArray[] ? 'bytes' : never),
 >(
-  blobs_: blobs | ByteArray[] | Hex[],
-  kzg: Pick<Kzg, 'blobToKzgCommitment'>,
-  to_?: to | To | undefined,
+  parameters: BlobsToCommitmentsParameters<blobs, to>,
 ): BlobsToCommitmentsReturnType<to> {
-  const to = to_ ?? (typeof blobs_[0] === 'string' ? 'hex' : 'bytes')
+  const { kzg } = parameters
+
+  const to =
+    parameters.to ?? (typeof parameters.blobs[0] === 'string' ? 'hex' : 'bytes')
   const blobs = (
-    typeof blobs_[0] === 'string'
-      ? blobs_.map((x) => hexToBytes(x as any))
-      : blobs_
+    typeof parameters.blobs[0] === 'string'
+      ? parameters.blobs.map((x) => hexToBytes(x as any))
+      : parameters.blobs
   ) as ByteArray[]
 
   const commitments: ByteArray[] = []

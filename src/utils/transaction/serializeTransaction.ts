@@ -3,7 +3,7 @@ import {
   type InvalidLegacyVErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Signature, SignatureLegacy } from '../../types/misc.js'
+import type { Hex, Signature, SignatureLegacy } from '../../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerializableEIP1559,
@@ -115,13 +115,11 @@ function serializeTransactionEIP4844(
   signature?: Signature,
 ): TransactionSerializedEIP4844 {
   const {
-    blobs,
     blobVersionedHashes,
     chainId,
     gas,
-    kzgCommitments,
-    kzgProofs,
     nonce,
+    sidecars,
     to,
     value,
     maxFeePerBlobGas,
@@ -150,10 +148,21 @@ function serializeTransactionEIP4844(
     ...toYParitySignatureArray(transaction, signature),
   ]
 
+  const blobs: Hex[] = []
+  const commitments: Hex[] = []
+  const proofs: Hex[] = []
+  if (sidecars)
+    for (let i = 0; i < sidecars.length; i++) {
+      const { blob, commitment, proof } = sidecars[i]
+      blobs.push(blob)
+      commitments.push(commitment)
+      proofs.push(proof)
+    }
+
   return concatHex([
     '0x03',
-    blobs
-      ? toRlp([serializedTransaction, blobs, kzgCommitments, kzgProofs])
+    sidecars
+      ? toRlp([serializedTransaction, blobs, commitments, proofs])
       : toRlp(serializedTransaction),
   ]) as TransactionSerializedEIP4844
 }

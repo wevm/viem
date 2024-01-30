@@ -6,14 +6,16 @@ import { commitmentToVersionedHash } from './commitmentToVersionedHash.js'
 import { toBlobs } from './toBlobs.js'
 
 test('default', () => {
-  const blobs = toBlobs(stringToHex('abcd'.repeat(50000)))
-  const commitments = blobsToCommitments(blobs, kzg)
+  const blobs = toBlobs({ data: stringToHex('abcd'.repeat(50000)) })
+  const commitments = blobsToCommitments({ blobs, kzg })
 
-  expect(commitmentToVersionedHash(commitments[0])).toMatchInlineSnapshot(
+  expect(
+    commitmentToVersionedHash({ commitment: commitments[0] }),
+  ).toMatchInlineSnapshot(
     `"0x018666e86e22755cadfd12c1f58facc8a8c7d9550a02af8bc7e38a3d3aec0a9d"`,
   )
   expect(
-    commitmentToVersionedHash(commitments[1], 'bytes'),
+    commitmentToVersionedHash({ commitment: commitments[1], to: 'bytes' }),
   ).toMatchInlineSnapshot(
     `
     Uint8Array [
@@ -54,7 +56,8 @@ test('default', () => {
   )
 
   expect(
-    commitmentToVersionedHash(hexToBytes(commitments[0]), {
+    commitmentToVersionedHash({
+      commitment: hexToBytes(commitments[0]),
       to: 'hex',
       version: 69,
     }),
@@ -62,32 +65,71 @@ test('default', () => {
     `"0x458666e86e22755cadfd12c1f58facc8a8c7d9550a02af8bc7e38a3d3aec0a9d"`,
   )
   expect(
-    commitmentToVersionedHash(hexToBytes(commitments[1]), {
-      to: 'hex',
+    commitmentToVersionedHash({
+      commitment: hexToBytes(commitments[1]),
       version: 69,
     }),
   ).toMatchInlineSnapshot(
-    `"0x459cdd013c6f27f86b959b251a97bb7207d2ad079b6998c1c244b6514600bb04"`,
+    `
+    Uint8Array [
+      69,
+      156,
+      221,
+      1,
+      60,
+      111,
+      39,
+      248,
+      107,
+      149,
+      155,
+      37,
+      26,
+      151,
+      187,
+      114,
+      7,
+      210,
+      173,
+      7,
+      155,
+      105,
+      152,
+      193,
+      194,
+      68,
+      182,
+      81,
+      70,
+      0,
+      187,
+      4,
+    ]
+  `,
   )
 })
 
 test('args: version', () => {
-  const blobs = toBlobs(stringToHex('abcd'.repeat(50000)))
-  const commitments = blobsToCommitments(blobs, kzg)
+  const blobs = toBlobs({ data: stringToHex('abcd'.repeat(50000)) })
+  const commitments = blobsToCommitments({ blobs, kzg })
 
   expect(
-    commitmentToVersionedHash(commitments[0], { version: 69 }),
+    commitmentToVersionedHash({ commitment: commitments[0], version: 69 }),
   ).toMatchInlineSnapshot(
     `"0x458666e86e22755cadfd12c1f58facc8a8c7d9550a02af8bc7e38a3d3aec0a9d"`,
   )
 })
 
 test('args: to', () => {
-  const blobs = toBlobs(stringToHex('abcd'.repeat(50000)))
-  const commitments = blobsToCommitments(blobs, kzg)
+  const blobs = toBlobs({ data: stringToHex('abcd'.repeat(50000)) })
+  const commitments = blobsToCommitments({ blobs, kzg })
 
   expect(
-    commitmentToVersionedHash(commitments[0], { version: 69, to: 'bytes' }),
+    commitmentToVersionedHash({
+      commitment: commitments[0],
+      version: 69,
+      to: 'bytes',
+    }),
   ).toMatchInlineSnapshot(
     `
     Uint8Array [
