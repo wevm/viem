@@ -1,5 +1,25 @@
 # viem
 
+## 2.6.1
+
+### Patch Changes
+
+- [#1748](https://github.com/wevm/viem/pull/1748) [`bf25d0e66e1069aacad2bef7a3815fcbe73b91d9`](https://github.com/wevm/viem/commit/bf25d0e66e1069aacad2bef7a3815fcbe73b91d9) Thanks [@zongzheng123](https://github.com/zongzheng123)! - Added multicall3 contract configuration for Iotex.
+
+- [#1743](https://github.com/wevm/viem/pull/1743) [`8ae627ecde6fa44b767a45e88c71c61703c2acad`](https://github.com/wevm/viem/commit/8ae627ecde6fa44b767a45e88c71c61703c2acad) Thanks [@molecula451](https://github.com/molecula451)! - Added OORT MainnetDev(Testnet) Chain
+
+- [#1750](https://github.com/wevm/viem/pull/1750) [`478333671230de0431a3d93fa8a500ed985fa1c2`](https://github.com/wevm/viem/commit/478333671230de0431a3d93fa8a500ed985fa1c2) Thanks [@TateB](https://github.com/TateB)! - Added ENS Registry and ENS Universal Resolver addresses for Holesky.
+
+## 2.6.0
+
+### Minor Changes
+
+- [#1665](https://github.com/wevm/viem/pull/1665) [`09a4d9eef6ab766ff48f2b7272fad129f6deef74`](https://github.com/wevm/viem/commit/09a4d9eef6ab766ff48f2b7272fad129f6deef74) Thanks [@mariopil](https://github.com/mariopil)! - Added zkSync Extensions.
+
+### Patch Changes
+
+- [#1718](https://github.com/wevm/viem/pull/1718) [`4593b65d2baa708e1d67e8f5cc606891f0ead4c9`](https://github.com/wevm/viem/commit/4593b65d2baa708e1d67e8f5cc606891f0ead4c9) Thanks [@xsubject](https://github.com/xsubject)! - Added Berachain Testnet chain.
+
 ## 2.5.1
 
 ### Patch Changes
