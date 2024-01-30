@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add multicall3 contract configuration for iotex
+Added multicall3 contract configuration for Iotex.
