@@ -114,7 +114,7 @@ const transaction = await publicClient.waitForTransactionReceipt(
 ### retryDelay (optional)
 
 - **Type:** `number | (({ count: number; error: Error }) => number)`
-- **Default:** `6`
+- **Default:** `({ count }) => ~~(1 << count) * 200` (exponential backoff)
 
 Time to wait (in ms) between retries.
 
