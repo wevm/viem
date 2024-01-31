@@ -11,7 +11,7 @@ import {
   deployContract,
 } from '~viem/actions/wallet/deployContract.js'
 import { writeContract } from '~viem/actions/wallet/writeContract.js'
-import { localhost, mainnet } from '~viem/chains/index.js'
+import { localhost, mainnet, sepolia } from '~viem/chains/index.js'
 import { createPublicClient } from '~viem/clients/createPublicClient.js'
 import { createTestClient } from '~viem/clients/createTestClient.js'
 import { createWalletClient } from '~viem/clients/createWalletClient.js'
@@ -164,6 +164,11 @@ export const publicClient = (() => {
 export const publicClientMainnet = createPublicClient({
   chain: mainnet,
   transport: http(process.env.VITE_ANVIL_FORK_URL),
+})
+
+export const publicClientSepolia = createPublicClient({
+  chain: sepolia,
+  transport: http(),
 })
 
 export const walletClient = createWalletClient({

@@ -8,6 +8,7 @@ import {
   deployOffchainLookupExample,
   publicClient,
   publicClientMainnet,
+  publicClientSepolia,
   walletClientWithAccount,
 } from '~test/src/utils.js'
 
@@ -157,6 +158,17 @@ test('args: override', async () => {
   expect(data).toMatchInlineSnapshot(
     `"${encodeAbiParameters([{ type: 'string' }], [fakeName])}"`,
   )
+})
+
+test('args: blobs', async () => {
+  // TODO: migrate to `publicClient` once 4844 is supported in Anvil.
+  const { data } = await call(publicClientSepolia, {
+    account: sourceAccount.address,
+    blobs: ['0x123'],
+    maxFeePerBlobGas: parseGwei('20'),
+    to: wagmiContractAddress,
+  })
+  expect(data).toMatchInlineSnapshot('undefined')
 })
 
 describe('account hoisting', () => {

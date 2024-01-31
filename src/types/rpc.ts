@@ -18,9 +18,10 @@ import type {
   TransactionReceipt,
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
+  TransactionRequestEIP4844,
   TransactionRequestLegacy,
 } from './transaction.js'
-import type { UnionOmit, UnionPartialBy } from './utils.js'
+import type { OneOf, UnionOmit, UnionPartialBy } from './utils.js'
 
 export type Index = `0x${string}`
 export type Quantity = `0x${string}`
@@ -45,16 +46,20 @@ export type RpcTransactionReceipt = TransactionReceipt<
   Status,
   TransactionType
 >
-export type RpcTransactionRequest =
+export type RpcTransactionRequest = OneOf<
   | TransactionRequestLegacy<Quantity, Index, '0x0'>
   | TransactionRequestEIP2930<Quantity, Index, '0x1'>
   | TransactionRequestEIP1559<Quantity, Index, '0x2'>
+  | TransactionRequestEIP4844<Quantity, Index, '0x3'>
+>
 export type RpcTransaction<TPending extends boolean = boolean> = UnionOmit<
   UnionPartialBy<
-    | TransactionLegacy<Quantity, Index, TPending, '0x0'>
-    | TransactionEIP2930<Quantity, Index, TPending, '0x1'>
-    | TransactionEIP1559<Quantity, Index, TPending, '0x2'>
-    | TransactionEIP4844<Quantity, Index, TPending, '0x3'>,
+    OneOf<
+      | TransactionLegacy<Quantity, Index, TPending, '0x0'>
+      | TransactionEIP2930<Quantity, Index, TPending, '0x1'>
+      | TransactionEIP1559<Quantity, Index, TPending, '0x2'>
+      | TransactionEIP4844<Quantity, Index, TPending, '0x3'>
+    >,
     // `yParity` is optional on the RPC type as some nodes do not return it
     // for 1559 & 2930 transactions (they should!).
     'yParity'
