@@ -8,7 +8,7 @@ Executes a new message call immediately without submitting a transaction to the 
 
 ```ts [example.ts]
 import { account, publicClient } from './config'
- 
+
 const data = await publicClient.call({ // [!code focus:7]
   account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -225,6 +225,25 @@ const data = await publicClient.call({
   account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
+### stateOverride (optional)
+
+- **Type:** [`StateOverride`](/docs/glossary/types#stateoverride)
+
+The state override set is an optional address-to-state mapping, where each entry specifies some state to be ephemerally overridden prior to executing the call.
+
+```ts
+const data = await publicClient.call({
+  account,
+  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  stateOverride: { // [!code focus:5]
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8': {
+      balance: parseEther('100'),
+    },
+  },
 })
 ```
 

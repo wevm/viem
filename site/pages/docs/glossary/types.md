@@ -153,3 +153,7 @@ All types of transactions. `"eip1559" | "eip2930" | "eip4844" | "legacy"`
 A type for all transaction requests.
 
 [See Type](https://github.com/wevm/viem/blob/main/src/types/transaction.ts).
+
+## `StateOverride`
+
+A type defining state overrides for `eth_call` method. [See more](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-eth#eth-call)
