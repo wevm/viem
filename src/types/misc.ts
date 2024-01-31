@@ -6,9 +6,9 @@ export type LogTopic = Hex | Hex[] | null
 export type SignableMessage =
   | string
   | {
-    /** Raw data representation of the message. */
-    raw: Hex | ByteArray
-  }
+      /** Raw data representation of the message. */
+      raw: Hex | ByteArray
+    }
 export type Signature = {
   r: Hex
   s: Hex

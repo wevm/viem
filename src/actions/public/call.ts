@@ -21,7 +21,12 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Hex, RawAccountStateOverride, RawStateOverride, StateMapping } from '../../types/misc.js'
+import type {
+  Hex,
+  RawAccountStateOverride,
+  RawStateOverride,
+  StateMapping,
+} from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -70,15 +75,18 @@ export type AccountStateOverride = {
   balance?: bigint
   nonce?: number
   code?: Hex
-} & ({
-  /** Fake key-value mapping to override all slots in the account storage before executing the call. */
-  state?: StateMapping,
-  stateDiff?: never,
-} | {
-  /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
-  stateDiff?: StateMapping,
-  state?: never,
-})
+} & (
+  | {
+      /** Fake key-value mapping to override all slots in the account storage before executing the call. */
+      state?: StateMapping
+      stateDiff?: never
+    }
+  | {
+      /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
+      stateDiff?: StateMapping
+      state?: never
+    }
+)
 
 export type StateOverride = {
   [account: Address]: AccountStateOverride
@@ -91,18 +99,18 @@ export type CallParameters<
   batch?: boolean
 } & (
     | {
-      /** The balance of the account at a block number. */
-      blockNumber?: bigint
-      blockTag?: never
-    }
+        /** The balance of the account at a block number. */
+        blockNumber?: bigint
+        blockTag?: never
+      }
     | {
-      blockNumber?: never
-      /**
-       * The balance of the account at a block tag.
-       * @default 'latest'
-       */
-      blockTag?: BlockTag
-    }
+        blockNumber?: never
+        /**
+         * The balance of the account at a block tag.
+         * @default 'latest'
+         */
+        blockTag?: BlockTag
+      }
   ) & {
     stateOverride?: StateOverride
   }
@@ -355,14 +363,12 @@ export function getRevertErrorData(err: unknown) {
   return typeof error.data === 'object' ? error.data.data : error.data
 }
 
-export function parseAccountStateOverride(args: AccountStateOverride): RawAccountStateOverride {
-  const {
-    balance,
-    nonce,
-    ...rest
-  } = args;
+export function parseAccountStateOverride(
+  args: AccountStateOverride,
+): RawAccountStateOverride {
+  const { balance, nonce, ...rest } = args
   const rawAccountStateOverride: RawAccountStateOverride = {
-    ...rest
+    ...rest,
   }
   if (balance !== undefined) {
     rawAccountStateOverride.balance = numberToHex(balance, { size: 32 })
@@ -370,14 +376,18 @@ export function parseAccountStateOverride(args: AccountStateOverride): RawAccoun
   if (nonce !== undefined) {
     rawAccountStateOverride.nonce = numberToHex(nonce, { size: 8 })
   }
-  return rawAccountStateOverride;
+  return rawAccountStateOverride
 }
 
-export function parseStateOverride(args?: StateOverride): RawStateOverride | undefined {
+export function parseStateOverride(
+  args?: StateOverride,
+): RawStateOverride | undefined {
   if (!args) return undefined
   const rawStateOverride: RawStateOverride = {}
   for (const account in args) {
-    rawStateOverride[account as Address] = parseAccountStateOverride(args[account as Address])
+    rawStateOverride[account as Address] = parseAccountStateOverride(
+      args[account as Address],
+    )
   }
   return rawStateOverride
 }
