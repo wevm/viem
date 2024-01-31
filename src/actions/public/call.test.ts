@@ -20,6 +20,8 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
+import { encodeAbiParameters, pad, toHex } from '~viem/index.js'
+import type { StateMapping } from '~viem/types/misc.js'
 import { call, getRevertErrorData } from './call.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
@@ -109,6 +111,39 @@ test('args: blockNumber', async () => {
   expect(data).toMatchInlineSnapshot('undefined')
 })
 
+test('args: override', async () => {
+  const fakeName = 'NotWagmi'
+
+  // layout of strings in storage
+  const nameSlot = toHex(0, { size: 32 })
+  const fakeNameHex = toHex(fakeName)
+  // we don't divide by 2 because length must be length * 2 if word is strictly less than 32 bytes
+  const bytesLen = fakeNameHex.length - 2
+
+  if (bytesLen > 31) throw new Error('name too long')
+
+  const slotValue = `${pad(fakeNameHex, { dir: 'right', size: 31 })}${toHex(
+    bytesLen,
+    { size: 1 },
+  ).slice(2)}`
+
+  const { data } = await call(publicClient, {
+    data: name4bytes,
+    to: wagmiContractAddress,
+    stateOverride: {
+      [wagmiContractAddress]: {
+        stateDiff: {
+          [nameSlot]: slotValue,
+        } as StateMapping,
+      },
+    },
+  })
+
+  expect(data).toMatchInlineSnapshot(
+    `"${encodeAbiParameters([{ type: 'string' }], [fakeName])}"`,
+  )
+})
+
 describe('account hoisting', () => {
   test.skip('no account hoisted', async () => {
     await expect(
@@ -122,7 +157,7 @@ describe('account hoisting', () => {
       Raw Call Arguments:
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:  0xa0712d680000000000000000000000000000000000000000000000000000000000000258
-      
+
       Details: execution reverted: ERC721: mint to the zero address
       Version: viem@1.0.2"
     `)
@@ -263,12 +298,12 @@ describe('errors', () => {
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
        - pay for the value to send.
-       
+
       The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
        - \`gas\` is the amount of gas needed for transaction to execute,
        - \`gas fee\` is the gas fee,
        - \`value\` is the amount of ether to send to the recipient.
-       
+
       Raw Call Arguments:
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:     0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
