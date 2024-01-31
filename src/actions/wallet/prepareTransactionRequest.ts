@@ -214,7 +214,9 @@ export async function prepareTransactionRequest<
   }
 
   if (parameters.includes('fees')) {
-    if (request.type === 'eip1559') {
+    // TODO: derive blob base fees once https://github.com/ethereum/execution-apis/pull/486 is merged.
+
+    if (request.type === 'eip1559' || request.type === 'eip4844') {
       // EIP-1559 fees
       const { maxFeePerGas, maxPriorityFeePerGas } =
         await internal_estimateFeesPerGas(client, {

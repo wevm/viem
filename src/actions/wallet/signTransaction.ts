@@ -14,6 +14,9 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import type { BlobSidecars } from '../../types/eip4844.js'
+import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
+import type { Hex } from '../../types/misc.js'
 import { type RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
@@ -21,33 +24,47 @@ import type {
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
+import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
+import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVersionedHashes.js'
+import { toBlobProofs } from '../../utils/blob/toBlobProofs.js'
+import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type AssertCurrentChainErrorType,
   assertCurrentChain,
 } from '../../utils/chain/assertCurrentChain.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
 import type { NumberToHexErrorType } from '../../utils/encoding/toHex.js'
 import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
-import { numberToHex } from '../../utils/index.js'
 import {
   type AssertRequestErrorType,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 
-export type SignTransactionParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
+type SignTransactionRequest<
+  chain extends Chain | undefined = Chain | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
   ///
-  derivedChain extends Chain | undefined = DeriveChain<TChain, TChainOverride>,
-> = UnionOmit<FormattedTransactionRequest<derivedChain>, 'from'> &
-  GetAccountParameter<TAccount> &
-  GetChainParameter<TChain, TChainOverride>
+  _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
+> = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'>
+
+export type SignTransactionParameters<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
+  request extends SignTransactionRequest<
+    chain,
+    chainOverride
+  > = SignTransactionRequest<chain, chainOverride>,
+> = request &
+  GetAccountParameter<account> &
+  GetChainParameter<chain, chainOverride> &
+  GetTransactionRequestKzgParameter<request>
 
 export type SignTransactionReturnType = TransactionSerialized
 
@@ -105,18 +122,22 @@ export type SignTransactionErrorType =
  * })
  */
 export async function signTransaction<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  chainOverride extends Chain | undefined = undefined,
+  const request extends SignTransactionRequest<
+    chain,
+    chainOverride
+  > = SignTransactionRequest<chain, chainOverride>,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
+  client: Client<Transport, chain, account>,
+  parameters: SignTransactionParameters<chain, account, chainOverride, request>,
 ): Promise<SignTransactionReturnType> {
   const {
     account: account_ = client.account,
     chain = client.chain,
     ...transaction
-  } = args
+  } = parameters
 
   if (!account_)
     throw new AccountNotFoundError({
@@ -126,7 +147,7 @@ export async function signTransaction<
 
   assertRequest({
     account,
-    ...args,
+    ...parameters,
   })
 
   const chainId = await getAction(client, getChainId, 'getChainId')({})
@@ -140,14 +161,36 @@ export async function signTransaction<
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
 
-  if (account.type === 'local')
+  if (account.type === 'local') {
+    let blobVersionedHashes: Hex[] | undefined
+    let sidecars: BlobSidecars<Hex> | undefined
+
+    // If we want to send blob transactions with a local account, we will need
+    // to compute the KZG versioned hashes and sidecars ourself.
+    if (transaction.type === 'eip4844') {
+      const blobs = transaction.blobs as Hex[]
+      const kzg = transaction.kzg!
+      const commitments = blobsToCommitments({
+        blobs,
+        kzg,
+      })
+      const proofs = toBlobProofs({ blobs, commitments, kzg })
+      blobVersionedHashes = commitmentsToVersionedHashes({
+        commitments,
+      })
+      sidecars = toBlobSidecars({ blobs, commitments, proofs })
+    }
+
     return account.signTransaction(
       {
         ...transaction,
+        blobVersionedHashes,
         chainId,
-      } as unknown as TransactionSerializable,
+        sidecars,
+      } as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>
+  }
 
   return await client.request(
     {

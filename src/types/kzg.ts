@@ -1,4 +1,7 @@
+import type { Address } from 'abitype'
+import type { LocalAccount } from './account.js'
 import type { ByteArray } from './misc.js'
+import type { MaybeRequired } from './utils.js'
 
 export type Kzg = {
   /**
@@ -20,3 +23,13 @@ export type Kzg = {
     proofs: ByteArray[],
   ): boolean
 }
+
+export type GetTransactionRequestKzgParameter<request> = MaybeRequired<
+  {
+    /** KZG implementation */
+    kzg?: Kzg
+  },
+  request extends { account: LocalAccount<string, Address>; type: 'eip4844' }
+    ? true
+    : false
+>

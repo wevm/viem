@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { accounts, localHttpUrl } from '~test/src/constants.js'
 import { testClient, walletClient } from '~test/src/utils.js'
+import { kzg } from '../../../test/src/kzg.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
 import {
@@ -12,7 +13,10 @@ import {
   type TransactionRequestLegacy,
   createWalletClient,
   parseGwei,
+  stringToHex,
 } from '../../index.js'
+import type { TransactionRequestEIP4844 } from '../../types/transaction.js'
+import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { mine } from '../index.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
 import { signTransaction } from './signTransaction.js'
@@ -24,6 +28,28 @@ const base = {
   gas: 21000n,
   nonce: 785,
 } satisfies TransactionRequestBase
+
+describe.only('eip4844', () => {
+  const baseEip4844 = {
+    ...base,
+    blobs: toBlobs({ data: stringToHex('abcd') }),
+    maxFeePerBlobGas: parseGwei('20'),
+    type: 'eip4844',
+  } as const satisfies TransactionRequestEIP4844
+
+  test.todo('default: json-rpc')
+
+  test('default: local', async () => {
+    const signature = await signTransaction(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      kzg,
+      ...baseEip4844,
+    })
+    expect(signature).toMatchSnapshot()
+  })
+
+  test.todo('w/ prepareTransactionRequest')
+})
 
 describe('eip1559', () => {
   const baseEip1559 = {
@@ -198,6 +224,7 @@ describe('eip2930', () => {
       value: 1n,
       type: 'eip2930',
     })
+
     const signature = await signTransaction(walletClient, request)
     expect(signature.match(/^0x01/)).toBeTruthy()
   })

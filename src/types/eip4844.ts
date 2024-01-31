@@ -1,5 +1,4 @@
-import type { ByteArray } from '../_types/index.js'
-import type { Hex } from './misc.js'
+import type { ByteArray, Hex } from './misc.js'
 
 export type BlobSidecar<type extends Hex | ByteArray = Hex | ByteArray> = {
   /** The blob associated with the transaction. */
