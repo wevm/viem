@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.1
+
+### Patch Changes
+
+- [`3c1d790e57c667ded5321d6861d9c5d4cbc38a3a`](https://github.com/wevm/viem/commit/3c1d790e57c667ded5321d6861d9c5d4cbc38a3a) Thanks [@jxom](https://github.com/jxom)! - Added `retryCount` & `retryDelay` as a property to `waitForTransactionReceipt`.
+
 ## 2.7.0
 
 ### Minor Changes
