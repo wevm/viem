@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.0
+
+### Minor Changes
+
+- [#1754](https://github.com/wevm/viem/pull/1754) [`85cc1a81d81f789ccc5b587ab99940095100e616`](https://github.com/wevm/viem/commit/85cc1a81d81f789ccc5b587ab99940095100e616) Thanks [@jxom](https://github.com/jxom)! - Added types & formatters for EIP-4844 Blob Transactions.
+
 ## 2.6.1
 
 ### Patch Changes
