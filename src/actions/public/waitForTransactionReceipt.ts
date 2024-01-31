@@ -12,7 +12,10 @@ import type { Hash } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
-import { withRetry } from '../../utils/promise/withRetry.js'
+import {
+  type WithRetryParameters,
+  withRetry,
+} from '../../utils/promise/withRetry.js'
 import { stringify } from '../../utils/stringify.js'
 
 import { type GetBlockErrorType, getBlock } from './getBlock.js'
@@ -62,6 +65,16 @@ export type WaitForTransactionReceiptParameters<
    * @default client.pollingInterval
    */
   pollingInterval?: number
+  /**
+   * Number of times to retry if the transaction or block is not found.
+   * @default 6 (exponential backoff)
+   */
+  retryCount?: WithRetryParameters['retryCount']
+  /**
+   * Time to wait (in ms) between retries.
+   * @default `({ count }) => ~~(1 << count) * 200` (exponential backoff)
+   */
+  retryDelay?: WithRetryParameters['delay']
   /** Optional timeout (in milliseconds) to wait before stopping polling. */
   timeout?: number
 }
@@ -121,6 +134,8 @@ export async function waitForTransactionReceipt<
     hash,
     onReplaced,
     pollingInterval = client.pollingInterval,
+    retryCount = 6,
+    retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
     timeout,
   }: WaitForTransactionReceiptParameters<TChain>,
 ): Promise<WaitForTransactionReceiptReturnType<TChain>> {
@@ -193,9 +208,8 @@ export async function waitForTransactionReceipt<
                       blockNumber = transaction.blockNumber
                   },
                   {
-                    // exponential backoff
-                    delay: ({ count }) => ~~(1 << count) * 200,
-                    retryCount: 6,
+                    delay: retryDelay,
+                    retryCount,
                   },
                 )
                 retrying = false
@@ -247,9 +261,8 @@ export async function waitForTransactionReceipt<
                         includeTransactions: true,
                       }),
                     {
-                      // exponential backoff
-                      delay: ({ count }) => ~~(1 << count) * 200,
-                      retryCount: 6,
+                      delay: retryDelay,
+                      retryCount,
                       shouldRetry: ({ error }) =>
                         error instanceof BlockNotFoundError,
                     },

@@ -95,6 +95,38 @@ const transaction = await publicClient.waitForTransactionReceipt(
 )
 ```
 
+### retryCount (optional)
+
+- **Type:** `number`
+- **Default:** `6`
+
+Number of times to retry if the transaction or block is not found.
+
+```ts
+const transaction = await publicClient.waitForTransactionReceipt(
+  { 
+    hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+    retryCount: 3, // [!code focus:1]
+  }
+)
+```
+
+### retryDelay (optional)
+
+- **Type:** `number | (({ count: number; error: Error }) => number)`
+- **Default:** `6`
+
+Time to wait (in ms) between retries.
+
+```ts
+const transaction = await publicClient.waitForTransactionReceipt(
+  { 
+    hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+    retryDelay: 10_000, // [!code focus:1]
+  }
+)
+```
+
 ### timeout (optional)
 
 - **Type:** `number`
