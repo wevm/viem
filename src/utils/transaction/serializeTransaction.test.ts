@@ -18,6 +18,7 @@ import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
 
 import { kzg } from '../../../test/src/kzg.js'
+import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { stringToHex } from '../index.js'
 import { parseTransaction } from './parseTransaction.js'
@@ -103,8 +104,10 @@ describe('eip4844', () => {
 
   test('network wrapper', () => {
     const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
+    const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
     const transaction = {
       ...baseEip4844,
+      blobVersionedHashes,
       sidecars,
     } satisfies TransactionSerializableEIP4844
     const serialized = serializeTransaction(transaction)

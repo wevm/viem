@@ -49,8 +49,20 @@ export async function signTransaction<
     transaction,
     serializer = serializeTransaction,
   } = parameters
+
+  const signableTransaction = (() => {
+    // For EIP-4844 Transactions, we want to sign the transaction payload body (tx_payload_body) without the sidecars (ie. without the network wrapper).
+    // See: https://github.com/ethereum/EIPs/blob/e00f4daa66bd56e2dbd5f1d36d09fd613811a48b/EIPS/eip-4844.md#networking
+    if (transaction.type === 'eip4844')
+      return {
+        ...transaction,
+        sidecars: undefined,
+      }
+    return transaction
+  })()
+
   const signature = await sign({
-    hash: keccak256(serializer(transaction)),
+    hash: keccak256(serializer(signableTransaction)),
     privateKey,
   })
   return serializer(transaction, signature) as SignTransactionReturnType<

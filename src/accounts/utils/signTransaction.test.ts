@@ -1,7 +1,8 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { concatHex, toHex, toRlp } from '../../index.js'
+import { kzg } from '../../../test/src/kzg.js'
+import { concatHex, stringToHex, toHex, toRlp } from '../../index.js'
 import type {
   TransactionSerializable,
   TransactionSerializableBase,
@@ -11,6 +12,8 @@ import type {
   TransactionSerializableLegacy,
   TransactionSerializedLegacy,
 } from '../../types/transaction.js'
+import { sidecarsToVersionedHashes } from '../../utils/blob/sidecarsToVersionedHashes.js'
+import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
 import type { SerializeTransactionFn } from '../../utils/transaction/serializeTransaction.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { signTransaction } from './signTransaction.js'
@@ -19,6 +22,27 @@ const base = {
   gas: 21000n,
   nonce: 785,
 } satisfies TransactionSerializableBase
+
+describe('eip4844', async () => {
+  const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
+  const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
+
+  const baseEip4844 = {
+    ...base,
+    blobVersionedHashes,
+    chainId: 1,
+    sidecars,
+    type: 'eip4844',
+  } as const satisfies TransactionSerializable
+
+  test('default', async () => {
+    const signature = await signTransaction({
+      transaction: baseEip4844,
+      privateKey: accounts[0].privateKey,
+    })
+    expect(signature).toMatchSnapshot()
+  })
+})
 
 describe('eip1559', () => {
   const baseEip1559 = {
