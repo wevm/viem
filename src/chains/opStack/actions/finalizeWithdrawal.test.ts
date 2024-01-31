@@ -129,7 +129,7 @@ test('error: small gas', async () => {
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Docs: https://viem.sh/docs/contract/estimateContractGas
-    Details: Out of gas: gas required exceeds allowance: 0x0000000000000000000000000000000000000000000000000000000000000045_U256
+    Details: Out of gas: gas required exceeds allowance: 69
     Version: viem@1.0.2]
   `)
 })
