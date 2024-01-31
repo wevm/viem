@@ -6,9 +6,9 @@ export type LogTopic = Hex | Hex[] | null
 export type SignableMessage =
   | string
   | {
-      /** Raw data representation of the message. */
-      raw: Hex | ByteArray
-    }
+    /** Raw data representation of the message. */
+    raw: Hex | ByteArray
+  }
 export type Signature = {
   r: Hex
   s: Hex
@@ -19,23 +19,24 @@ export type CompactSignature = {
   yParityAndS: Hex
 }
 
-export type StateOverride = {
+/** A key-value mapping of slot and storage values (supposedly 32 bytes each) */
+export type StateMapping = {
   [slots: Hex]: Hex
 }
 
-export type SingleAccountStateOverrideSet = {
+export type RawAccountStateOverride = Partial<{
   /** Fake balance to set for the account before executing the call. <32 bytes */
-  balance?: Hex
+  balance: Hex
   /** Fake nonce to set for the account before executing the call. <8 bytes */
-  nonce?: Hex
+  nonce: Hex
   /** Fake EVM bytecode to inject into the account before executing the call. */
-  code?: Hex
+  code: Hex
   /** Fake key-value mapping to override all slots in the account storage before executing the call. */
-  state?: StateOverride
+  state: StateMapping
   /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
-  stateDiff?: StateOverride
-}
+  stateDiff: StateMapping
+}>
 
-export type StateOverrideSet = {
-  [address: Address]: SingleAccountStateOverrideSet
+export type RawStateOverride = {
+  [address: Address]: RawAccountStateOverride
 }

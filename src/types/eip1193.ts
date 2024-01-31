@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { BlockTag } from './block.js'
-import type { Hash, Hex, LogTopic, StateOverrideSet } from './misc.js'
+import type { Hash, Hex, LogTopic, RawStateOverride } from './misc.js'
 import type {
   Quantity,
   RpcBlock as Block,
@@ -227,16 +227,16 @@ export type PublicRpcSchema = [
   {
     Method: 'eth_call'
     Parameters:
-      | [transaction: Partial<TransactionRequest>]
-      | [
-          transaction: Partial<TransactionRequest>,
-          block: BlockNumber | BlockTag | BlockIdentifier,
-        ]
-      | [
-          transaction: Partial<TransactionRequest>,
-          block: BlockNumber | BlockTag | BlockIdentifier,
-          stateOverrideSet: StateOverrideSet,
-        ]
+    | [transaction: Partial<TransactionRequest>]
+    | [
+      transaction: Partial<TransactionRequest>,
+      block: BlockNumber | BlockTag | BlockIdentifier,
+    ]
+    | [
+      transaction: Partial<TransactionRequest>,
+      block: BlockNumber | BlockTag | BlockIdentifier,
+      stateOverrideSet: RawStateOverride,
+    ]
     ReturnType: Hex
   },
   /**
@@ -274,8 +274,8 @@ export type PublicRpcSchema = [
   {
     Method: 'eth_estimateGas'
     Parameters:
-      | [transaction: TransactionRequest]
-      | [transaction: TransactionRequest, block: BlockNumber | BlockTag]
+    | [transaction: TransactionRequest]
+    | [transaction: TransactionRequest, block: BlockNumber | BlockTag]
     ReturnType: Quantity
   },
   /**
@@ -454,15 +454,15 @@ export type PublicRpcSchema = [
         topics?: LogTopic[]
       } & (
         | {
-            fromBlock?: BlockNumber | BlockTag
-            toBlock?: BlockNumber | BlockTag
-            blockHash?: never
-          }
+          fromBlock?: BlockNumber | BlockTag
+          toBlock?: BlockNumber | BlockTag
+          blockHash?: never
+        }
         | {
-            fromBlock?: never
-            toBlock?: never
-            blockHash?: Hash
-          }
+          fromBlock?: never
+          toBlock?: never
+          blockHash?: Hash
+        }
       ),
     ]
     ReturnType: Log[]
@@ -1138,8 +1138,8 @@ export type WalletRpcSchema = [
   {
     Method: 'eth_estimateGas'
     Parameters:
-      | [transaction: TransactionRequest]
-      | [transaction: TransactionRequest, block: BlockNumber | BlockTag]
+    | [transaction: TransactionRequest]
+    | [transaction: TransactionRequest, block: BlockNumber | BlockTag]
     ReturnType: Quantity
   },
   /**
@@ -1330,22 +1330,22 @@ export type EIP1193Parameters<
   TRpcSchema extends RpcSchema | undefined = undefined,
 > = TRpcSchema extends RpcSchema
   ? {
-      [K in keyof TRpcSchema]: Prettify<
-        {
-          method: TRpcSchema[K] extends TRpcSchema[number]
-            ? TRpcSchema[K]['Method']
-            : never
-        } & (TRpcSchema[K] extends TRpcSchema[number]
-          ? TRpcSchema[K]['Parameters'] extends undefined
-            ? { params?: never }
-            : { params: TRpcSchema[K]['Parameters'] }
-          : never)
-      >
-    }[number]
+    [K in keyof TRpcSchema]: Prettify<
+      {
+        method: TRpcSchema[K] extends TRpcSchema[number]
+        ? TRpcSchema[K]['Method']
+        : never
+      } & (TRpcSchema[K] extends TRpcSchema[number]
+        ? TRpcSchema[K]['Parameters'] extends undefined
+        ? { params?: never }
+        : { params: TRpcSchema[K]['Parameters'] }
+        : never)
+    >
+  }[number]
   : {
-      method: string
-      params?: unknown
-    }
+    method: string
+    params?: unknown
+  }
 
 export type EIP1193RequestOptions = {
   // The base delay (in ms) between retries.
@@ -1372,11 +1372,11 @@ export type EIP1193RequestFn<
     TRpcSchema,
     TRpcSchemaOverride
   > extends RpcSchema
-    ? Extract<
-        DerivedRpcSchema<TRpcSchema, TRpcSchemaOverride>[number],
-        { Method: TParameters['method'] }
-      >['ReturnType']
-    : unknown,
+  ? Extract<
+    DerivedRpcSchema<TRpcSchema, TRpcSchemaOverride>[number],
+    { Method: TParameters['method'] }
+  >['ReturnType']
+  : unknown,
 >(
   args: TParameters,
   options?: EIP1193RequestOptions,

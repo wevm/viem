@@ -21,7 +21,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hex, RawAccountStateOverride, RawStateOverride, StateMapping } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -66,6 +66,24 @@ export type FormattedCall<
   TChain extends Chain | undefined = Chain | undefined,
 > = FormattedTransactionRequest<TChain>
 
+export type AccountStateOverride = {
+  balance?: bigint
+  nonce?: number
+  code?: Hex
+} & ({
+  /** Fake key-value mapping to override all slots in the account storage before executing the call. */
+  state?: StateMapping,
+  stateDiff?: never,
+} | {
+  /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
+  stateDiff?: StateMapping,
+  state?: never,
+})
+
+export type StateOverride = {
+  [account: Address]: AccountStateOverride
+}
+
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedCall<TChain>, 'from'> & {
@@ -73,19 +91,21 @@ export type CallParameters<
   batch?: boolean
 } & (
     | {
-        /** The balance of the account at a block number. */
-        blockNumber?: bigint
-        blockTag?: never
-      }
+      /** The balance of the account at a block number. */
+      blockNumber?: bigint
+      blockTag?: never
+    }
     | {
-        blockNumber?: never
-        /**
-         * The balance of the account at a block tag.
-         * @default 'latest'
-         */
-        blockTag?: BlockTag
-      }
-  )
+      blockNumber?: never
+      /**
+       * The balance of the account at a block tag.
+       * @default 'latest'
+       */
+      blockTag?: BlockTag
+    }
+  ) & {
+    stateOverride?: StateOverride
+  }
 
 export type CallReturnType = { data: Hex | undefined }
 
@@ -141,6 +161,7 @@ export async function call<TChain extends Chain | undefined>(
     nonce,
     to,
     value,
+    stateOverride,
     ...rest
   } = args
   const account = account_ ? parseAccount(account_) : undefined
@@ -150,6 +171,8 @@ export async function call<TChain extends Chain | undefined>(
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
+
+    const rawStateOverride = parseStateOverride(stateOverride)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
@@ -169,7 +192,7 @@ export async function call<TChain extends Chain | undefined>(
       value,
     } as TransactionRequest) as TransactionRequest
 
-    if (batch && shouldPerformMulticall({ request })) {
+    if (!rawStateOverride && batch && shouldPerformMulticall({ request })) {
       try {
         return await scheduleMulticall(client, {
           ...request,
@@ -187,9 +210,9 @@ export async function call<TChain extends Chain | undefined>(
 
     const response = await client.request({
       method: 'eth_call',
-      params: block
-        ? [request as Partial<RpcTransactionRequest>, block]
-        : [request as Partial<RpcTransactionRequest>],
+      params: rawStateOverride
+        ? [request as Partial<RpcTransactionRequest>, block, rawStateOverride]
+        : [request as Partial<RpcTransactionRequest>, block],
     })
     if (response === '0x') return { data: undefined }
     return { data: response }
@@ -330,4 +353,31 @@ export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined
   const error = err.walk() as RawContractError
   return typeof error.data === 'object' ? error.data.data : error.data
+}
+
+export function parseAccountStateOverride(args: AccountStateOverride): RawAccountStateOverride {
+  const {
+    balance,
+    nonce,
+    ...rest
+  } = args;
+  const rawAccountStateOverride: RawAccountStateOverride = {
+    ...rest
+  }
+  if (balance !== undefined) {
+    rawAccountStateOverride.balance = numberToHex(balance, { size: 32 })
+  }
+  if (nonce !== undefined) {
+    rawAccountStateOverride.nonce = numberToHex(nonce, { size: 8 })
+  }
+  return rawAccountStateOverride;
+}
+
+export function parseStateOverride(args?: StateOverride): RawStateOverride | undefined {
+  if (!args) return undefined
+  const rawStateOverride: RawStateOverride = {}
+  for (const account in args) {
+    rawStateOverride[account as Address] = parseAccountStateOverride(args[account as Address])
+  }
+  return rawStateOverride
 }
