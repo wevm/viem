@@ -83,18 +83,18 @@ export type CallParameters<
   batch?: boolean
 } & (
     | {
-      /** The balance of the account at a block number. */
-      blockNumber?: bigint
-      blockTag?: never
-    }
+        /** The balance of the account at a block number. */
+        blockNumber?: bigint
+        blockTag?: never
+      }
     | {
-      blockNumber?: never
-      /**
-       * The balance of the account at a block tag.
-       * @default 'latest'
-       */
-      blockTag?: BlockTag
-    }
+        blockNumber?: never
+        /**
+         * The balance of the account at a block tag.
+         * @default 'latest'
+         */
+        blockTag?: BlockTag
+      }
   ) & {
     stateOverride?: StateOverride
   }
