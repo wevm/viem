@@ -1,10 +1,9 @@
 import type { Address } from 'abitype'
 
-import type {
-  AccountStateOverride,
-  StateMapping,
-  StateOverride,
-} from '~viem/types/stateOverride.js'
+import {
+  AccountStateConflictError,
+  StateAssignmentConflictError,
+} from '~viem/errors/stateOverride.js'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -23,6 +22,7 @@ import {
   RawContractError,
   type RawContractErrorType,
 } from '../../errors/contract.js'
+import { InvalidBytesLengthError } from '../../errors/data.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -33,6 +33,7 @@ import type {
   RpcStateOverride,
   RpcTransactionRequest,
 } from '../../types/rpc.js'
+import type { StateMapping, StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -351,18 +352,31 @@ export function parseStateMapping(
   stateMapping: StateMapping | undefined,
 ): RpcStateMapping | undefined {
   if (!stateMapping || stateMapping.length === 0) return undefined
-  return stateMapping.reduce((acc, kv) => {
-    acc[kv.slot] = kv.value
+  return stateMapping.reduce((acc, { slot, value }) => {
+    if (slot.length !== 66)
+      throw new InvalidBytesLengthError({
+        size: slot.length,
+        targetSize: 66,
+        type: 'hex',
+      })
+    if (value.length !== 66)
+      throw new InvalidBytesLengthError({
+        size: value.length,
+        targetSize: 66,
+        type: 'hex',
+      })
+    acc[slot] = value
     return acc
   }, {} as RpcStateMapping)
 }
 
 export function parseAccountStateOverride(
-  args: AccountStateOverride,
+  args: StateOverride[number],
 ): RpcAccountStateOverride {
-  const { balance, nonce, state, stateDiff, ...rest } = args
-  const rpcAccountStateOverride: RpcAccountStateOverride = {
-    ...rest,
+  const { balance, nonce, state, stateDiff, code } = args
+  const rpcAccountStateOverride: RpcAccountStateOverride = {}
+  if (code !== undefined) {
+    rpcAccountStateOverride.code = code
   }
   if (balance !== undefined) {
     rpcAccountStateOverride.balance = numberToHex(balance, { size: 32 })
@@ -374,6 +388,7 @@ export function parseAccountStateOverride(
     rpcAccountStateOverride.state = parseStateMapping(state)
   }
   if (stateDiff !== undefined) {
+    if (rpcAccountStateOverride.state) throw new StateAssignmentConflictError()
     rpcAccountStateOverride.stateDiff = parseStateMapping(stateDiff)
   }
   return rpcAccountStateOverride
@@ -384,10 +399,11 @@ export function parseStateOverride(
 ): RpcStateOverride | undefined {
   if (!args) return undefined
   const rpcStateOverride: RpcStateOverride = {}
-  for (const account in args) {
-    rpcStateOverride[account as Address] = parseAccountStateOverride(
-      args[account as Address],
-    )
+  for (const accountState of args) {
+    if (rpcStateOverride[accountState.address])
+      throw new AccountStateConflictError({ address: accountState.address })
+    rpcStateOverride[accountState.address] =
+      parseAccountStateOverride(accountState)
   }
   return rpcStateOverride
 }

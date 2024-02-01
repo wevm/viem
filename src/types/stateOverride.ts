@@ -7,21 +7,18 @@ export type StateMapping = Array<{
   value: Hex
 }>
 
-export type AccountStateOverride = {
+export type StateOverride = Array<{
+  address: Address
   balance?: bigint
   nonce?: number
   code?: Hex
 } & OneOf<
   | {
-      /** Fake key-value mapping to override all slots in the account storage before executing the call. */
-      state?: StateMapping
-    }
+    /** Fake key-value mapping to override all slots in the account storage before executing the call. */
+    state?: StateMapping
+  }
   | {
-      /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
-      stateDiff?: StateMapping
-    }
->
-
-export type StateOverride = {
-  [account: Address]: AccountStateOverride
-}
+    /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
+    stateDiff?: StateMapping
+  }
+>>

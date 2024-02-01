@@ -20,7 +20,7 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
-import { type Hex, encodeAbiParameters, pad, toHex } from '~viem/index.js'
+import { type Hex, encodeAbiParameters, pad, toHex } from '../../index.js'
 import { call, getRevertErrorData } from './call.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
@@ -129,8 +129,9 @@ test('args: override', async () => {
   const { data } = await call(publicClient, {
     data: name4bytes,
     to: wagmiContractAddress,
-    stateOverride: {
-      [wagmiContractAddress]: {
+    stateOverride: [
+      {
+        address: wagmiContractAddress,
         stateDiff: [
           {
             slot: nameSlot,
@@ -138,7 +139,7 @@ test('args: override', async () => {
           },
         ],
       },
-    },
+    ],
   })
 
   expect(data).toMatchInlineSnapshot(
