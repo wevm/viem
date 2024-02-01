@@ -26,7 +26,7 @@ export const rpcTransactionType = {
 export type FormatTransactionRequestErrorType = ErrorType
 
 export function formatTransactionRequest(request: Partial<TransactionRequest>) {
-  const rpcRequest = request as RpcTransactionRequest
+  const rpcRequest = { ...request } as RpcTransactionRequest
 
   if (typeof request.gas !== 'undefined')
     rpcRequest.gas = numberToHex(request.gas)

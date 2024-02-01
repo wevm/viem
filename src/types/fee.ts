@@ -1,4 +1,4 @@
-import type { Assign } from './utils.js'
+import type { Assign, OneOf } from './utils.js'
 
 export type FeeHistory<TQuantity = bigint> = {
   /**
@@ -39,9 +39,10 @@ export type FeeValuesEIP4844<TQuantity = bigint> = Assign<
   }
 >
 
-export type FeeValues<TQuantity = bigint> =
+export type FeeValues<TQuantity = bigint> = OneOf<
   | FeeValuesLegacy<TQuantity>
   | FeeValuesEIP1559<TQuantity>
   | FeeValuesEIP4844<TQuantity>
+>
 
 export type FeeValuesType = 'legacy' | 'eip1559' | 'eip4844'

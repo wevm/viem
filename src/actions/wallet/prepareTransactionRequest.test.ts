@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { kzg } from '~test/src/kzg.js'
 import {
   anvilChain,
   publicClient,
@@ -540,8 +541,9 @@ describe('prepareTransactionRequest', () => {
       {
         account: privateKeyToAccount(sourceAccount.privateKey),
         blobs: ['0x123'],
+        kzg,
+        maxFeePerBlobGas: parseGwei('20'),
         to: targetAccount.address,
-        type: 'eip4844',
         value: parseEther('1'),
       },
     )
@@ -561,6 +563,12 @@ describe('prepareTransactionRequest', () => {
         ],
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
+        "kzg": {
+          "blobToKzgCommitment": [Function],
+          "computeBlobKzgProof": [Function],
+          "verifyBlobKzgProofBatch": [Function],
+        },
+        "maxFeePerBlobGas": 20000000000n,
         "maxFeePerGas": 30500000000n,
         "maxPriorityFeePerGas": 18500000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",

@@ -2,6 +2,8 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { kzg } from '../../../test/src/kzg.js'
+import { walletClient } from '../../../test/src/utils.js'
+import { prepareTransactionRequest } from '../../actions/index.js'
 import { concatHex, stringToHex, toHex, toRlp } from '../../index.js'
 import type {
   TransactionSerializable,
@@ -14,8 +16,10 @@ import type {
 } from '../../types/transaction.js'
 import { sidecarsToVersionedHashes } from '../../utils/blob/sidecarsToVersionedHashes.js'
 import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
+import { toBlobs } from '../../utils/blob/toBlobs.js'
 import type { SerializeTransactionFn } from '../../utils/transaction/serializeTransaction.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { privateKeyToAccount } from '../privateKeyToAccount.js'
 import { signTransaction } from './signTransaction.js'
 
 const base = {
@@ -41,6 +45,29 @@ describe('eip4844', async () => {
       privateKey: accounts[0].privateKey,
     })
     expect(signature).toMatchSnapshot()
+  })
+
+  test('args: blobs + kzg', async () => {
+    const blobs = toBlobs({ data: stringToHex('abcd') })
+    const signature = await signTransaction({
+      transaction: { ...base, blobs, chainId: 1, kzg, type: 'eip4844' },
+      privateKey: accounts[0].privateKey,
+    })
+    expect(signature).toMatchSnapshot()
+  })
+
+  test('w/ prepareTransactionRequest', async () => {
+    const request = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(accounts[0].privateKey),
+      blobs: toBlobs({ data: stringToHex('abcd') }),
+      kzg,
+      maxFeePerBlobGas: parseGwei('20'),
+    })
+    // TODO(4844): should prepareTransactionRequest also prepare chain id?
+    await signTransaction({
+      transaction: { ...request, chainId: 1 },
+      privateKey: accounts[0].privateKey,
+    })
   })
 })
 

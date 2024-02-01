@@ -1,14 +1,15 @@
 import type { Address } from 'abitype'
 
-import type { BlobSidecars } from './eip4844.js'
+import type { BlobSidecar } from './eip4844.js'
 import type {
   FeeValuesEIP1559,
   FeeValuesEIP4844,
   FeeValuesLegacy,
 } from './fee.js'
+import type { Kzg } from './kzg.js'
 import type { Log } from './log.js'
 import type { Hash, Hex, Signature } from './misc.js'
-import type { Branded, IsNever, OneOf } from './utils.js'
+import type { Branded, IsNever, OneOf, RequiredBy } from './utils.js'
 
 export type AccessList = { address: Address; storageKeys: Hex[] }[]
 
@@ -215,7 +216,7 @@ export type TransactionRequestEIP4844<
   TIndex = number,
   TTransactionType = 'eip4844',
 > = TransactionRequestBase<TQuantity, TIndex> &
-  Partial<FeeValuesEIP4844<TQuantity>> & {
+  RequiredBy<Partial<FeeValuesEIP4844<TQuantity>>, 'maxFeePerBlobGas'> & {
     accessList?: AccessList
     /** The blobs associated with this transaction. */
     blobs: Hex[]
@@ -253,6 +254,7 @@ export type TransactionSerializableLegacy<
 > = TransactionSerializableBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
     accessList?: undefined
+    blobs?: undefined
     blobVersionedHashes?: undefined
     chainId?: number
     type?: 'legacy'
@@ -264,6 +266,7 @@ export type TransactionSerializableEIP2930<
 > = TransactionSerializableBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
     accessList?: AccessList
+    blobs?: undefined
     blobVersionedHashes?: undefined
     chainId: number
     type?: 'eip2930'
@@ -276,6 +279,7 @@ export type TransactionSerializableEIP1559<
 > = TransactionSerializableBase<TQuantity, TIndex> &
   Partial<FeeValuesEIP1559<TQuantity>> & {
     accessList?: AccessList
+    blobs?: undefined
     blobVersionedHashes?: undefined
     chainId: number
     type?: 'eip1559'
@@ -288,24 +292,30 @@ export type TransactionSerializableEIP4844<
 > = TransactionSerializableBase<TQuantity, TIndex> &
   Partial<FeeValuesEIP4844<TQuantity>> & {
     accessList?: AccessList
-    blobVersionedHashes: Hex[]
     chainId: number
-    sidecars?: BlobSidecars<Hex>
     type?: 'eip4844'
     yParity?: number
-  }
+  } & OneOf<
+    | {
+        blobVersionedHashes: readonly Hex[]
+        sidecars?: readonly BlobSidecar<Hex>[] | false
+      }
+    | { blobs: readonly Hex[]; kzg: Kzg; sidecars?: false }
+  >
 
 export type TransactionSerializableGeneric<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> & {
   accessList?: AccessList
-  blobVersionedHashes?: Hex[]
+  blobs?: readonly Hex[]
+  blobVersionedHashes?: readonly Hex[]
   chainId?: number
   gasPrice?: TQuantity
   maxFeePerBlobGas?: TQuantity
   maxFeePerGas?: TQuantity
   maxPriorityFeePerGas?: TQuantity
+  sidecars?: readonly BlobSidecar<Hex>[] | false
   type?: string
 }
 

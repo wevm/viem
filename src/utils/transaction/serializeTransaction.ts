@@ -19,6 +19,10 @@ import type {
   TransactionType,
 } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
+import { blobsToCommitments } from '../blob/blobsToCommitments.js'
+import { commitmentsToVersionedHashes } from '../blob/commitmentsToVersionedHashes.js'
+import { toBlobProofs } from '../blob/toBlobProofs.js'
+import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { trim } from '../data/trim.js'
 import { type ToHexErrorType, toHex } from '../encoding/toHex.js'
@@ -115,11 +119,9 @@ function serializeTransactionEIP4844(
   signature?: Signature,
 ): TransactionSerializedEIP4844 {
   const {
-    blobVersionedHashes,
     chainId,
     gas,
     nonce,
-    sidecars,
     to,
     value,
     maxFeePerBlobGas,
@@ -130,6 +132,25 @@ function serializeTransactionEIP4844(
   } = transaction
 
   assertTransactionEIP4844(transaction)
+
+  let blobVersionedHashes = transaction.blobVersionedHashes
+  let sidecars = transaction.sidecars
+  // If `blobs` are passed, we will need to compute the KZG commitments & proofs.
+  if (transaction.blobs) {
+    const blobs = transaction.blobs as Hex[]
+    const kzg = transaction.kzg!
+    const commitments = blobsToCommitments({
+      blobs,
+      kzg,
+    })
+    const proofs = toBlobProofs({ blobs, commitments, kzg })
+    blobVersionedHashes = commitmentsToVersionedHashes({
+      commitments,
+    })
+
+    if (sidecars !== false)
+      sidecars = toBlobSidecars({ blobs, commitments, proofs })
+  }
 
   const serializedAccessList = serializeAccessList(accessList)
 
@@ -144,9 +165,9 @@ function serializeTransactionEIP4844(
     data ?? '0x',
     serializedAccessList,
     maxFeePerBlobGas ? toHex(maxFeePerBlobGas) : '0x',
-    blobVersionedHashes,
+    blobVersionedHashes ?? [],
     ...toYParitySignatureArray(transaction, signature),
-  ]
+  ] as const
 
   const blobs: Hex[] = []
   const commitments: Hex[] = []
@@ -162,8 +183,10 @@ function serializeTransactionEIP4844(
   return concatHex([
     '0x03',
     sidecars
-      ? toRlp([serializedTransaction, blobs, commitments, proofs])
-      : toRlp(serializedTransaction),
+      ? // If sidecars are enabled, envelope turns into a "wrapper":
+        toRlp([serializedTransaction, blobs, commitments, proofs])
+      : // If sidecars are disabled, standard envelope is used:
+        toRlp(serializedTransaction),
   ]) as TransactionSerializedEIP4844
 }
 

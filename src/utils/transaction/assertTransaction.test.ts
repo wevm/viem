@@ -17,7 +17,7 @@ describe('eip4844', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [EmptyBlobLengthError: Transaction must contain a blob.
+      [EmptyBlobError: Blob data must not be empty.
 
       Version: viem@1.0.2]
     `)

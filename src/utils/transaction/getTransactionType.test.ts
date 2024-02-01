@@ -15,6 +15,12 @@ describe('type', () => {
     expect(type).toEqual('eip2930')
   })
 
+  test('eip4844', () => {
+    const type = getTransactionType({ chainId: 1, type: 'eip4844' })
+    assertType<'eip4844'>(type)
+    expect(type).toEqual('eip4844')
+  })
+
   test('legacy', () => {
     const type = getTransactionType({ type: 'legacy' })
     assertType<'legacy'>(type)
@@ -68,6 +74,25 @@ describe('attributes', () => {
     })
     assertType<'eip2930'>(type)
     expect(type).toEqual('eip2930')
+  })
+
+  test('eip4844', () => {
+    const type = getTransactionType({
+      blobs: ['0x'],
+      chainId: 1,
+    })
+    assertType<'eip4844'>(type)
+    expect(type).toEqual('eip4844')
+  })
+
+  test('eip4844 with eip1559 properties', () => {
+    const type = getTransactionType({
+      blobs: ['0x'],
+      maxFeePerGas: 1n,
+      chainId: 1,
+    })
+    assertType<'eip4844'>(type)
+    expect(type).toEqual('eip4844')
   })
 
   test('legacy', () => {

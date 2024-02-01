@@ -14,9 +14,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
-import type { BlobSidecars } from '../../types/eip4844.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import type { Hex } from '../../types/misc.js'
 import { type RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
@@ -24,10 +22,6 @@ import type {
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
-import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
-import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVersionedHashes.js'
-import { toBlobProofs } from '../../utils/blob/toBlobProofs.js'
-import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type AssertCurrentChainErrorType,
@@ -162,31 +156,10 @@ export async function signTransaction<
     formatters?.transactionRequest?.format || formatTransactionRequest
 
   if (account.type === 'local') {
-    let blobVersionedHashes: Hex[] | undefined
-    let sidecars: BlobSidecars<Hex> | undefined
-
-    // If we want to send blob transactions with a local account, we will need
-    // to compute the KZG versioned hashes and sidecars ourself.
-    if (transaction.type === 'eip4844') {
-      const blobs = transaction.blobs as Hex[]
-      const kzg = transaction.kzg!
-      const commitments = blobsToCommitments({
-        blobs,
-        kzg,
-      })
-      const proofs = toBlobProofs({ blobs, commitments, kzg })
-      blobVersionedHashes = commitmentsToVersionedHashes({
-        commitments,
-      })
-      sidecars = toBlobSidecars({ blobs, commitments, proofs })
-    }
-
     return account.signTransaction(
       {
         ...transaction,
-        blobVersionedHashes,
         chainId,
-        sidecars,
       } as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>

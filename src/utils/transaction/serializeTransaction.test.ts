@@ -20,6 +20,7 @@ import { parseGwei } from '../unit/parseGwei.js'
 import { kzg } from '../../../test/src/kzg.js'
 import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
+import { toBlobs } from '../blob/toBlobs.js'
 import { stringToHex } from '../index.js'
 import { parseTransaction } from './parseTransaction.js'
 import { serializeTransaction } from './serializeTransaction.js'
@@ -102,7 +103,7 @@ describe('eip4844', () => {
     )
   })
 
-  test('network wrapper', () => {
+  test('network wrapper (blobVersionedHashes + sidecars)', () => {
     const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
     const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
     const transaction = {
@@ -117,6 +118,18 @@ describe('eip4844', () => {
       ...transaction,
       type: 'eip4844',
     })
+  })
+
+  test('network wrapper (blobs + kzg)', () => {
+    const transaction = {
+      ...baseEip4844,
+      blobVersionedHashes: undefined,
+      blobs: toBlobs({ data: stringToHex('abcd') }),
+      kzg,
+    } satisfies TransactionSerializableEIP4844
+    const serialized = serializeTransaction(transaction)
+    assertType<TransactionSerializedEIP4844>(serialized)
+    expect(serialized).toMatchSnapshot()
   })
 })
 

@@ -29,7 +29,7 @@ const base = {
   nonce: 785,
 } satisfies TransactionRequestBase
 
-describe.only('eip4844', () => {
+describe('eip4844', () => {
   const baseEip4844 = {
     ...base,
     blobs: toBlobs({ data: stringToHex('abcd') }),
@@ -48,7 +48,15 @@ describe.only('eip4844', () => {
     expect(signature).toMatchSnapshot()
   })
 
-  test.todo('w/ prepareTransactionRequest')
+  test('w/ prepareTransactionRequest', async () => {
+    const request = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      kzg,
+      ...baseEip4844,
+    })
+    const signature = await signTransaction(walletClient, request)
+    expect(signature).toMatchSnapshot()
+  })
 })
 
 describe('eip1559', () => {

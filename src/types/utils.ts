@@ -58,6 +58,21 @@ export type IsNarrowable<T, U> = IsNever<
 export type IsNever<T> = [T] extends [never] ? true : false
 
 /**
+ * @description Returns type {@link T} if it is an opaque type of {@link U}
+ * @param T - Type to check
+ * @param U - Type to against
+ *
+ * @example
+ * type Result = Opaque<string, 'foo'>
+ * //   ^? never
+ *
+ * @example
+ * type Result = Opaque<string, string>
+ * //   ^? string
+ */
+export type Opaque<T, U> = IsNarrowable<T, U> extends true ? T : never
+
+/**
  * @description Evaluates boolean "or" condition for {@link T} properties.
  * @param T - Type to check
  *
@@ -218,10 +233,18 @@ export type ExactPartial<type> = {
 
 export type OneOf<
   union extends object,
+  fallback extends object | undefined = undefined,
   ///
   keys extends KeyofUnion<union> = KeyofUnion<union>,
 > = union extends infer Item
-  ? Prettify<Item & { [_K in Exclude<keys, keyof Item>]?: undefined }>
+  ? Prettify<
+      Item & {
+        [_K in Exclude<keys, keyof Item>]?: fallback extends object
+          ? // @ts-ignore
+            fallback[_K]
+          : undefined
+      }
+    >
   : never
 type KeyofUnion<type> = type extends type ? keyof type : never
 
@@ -251,6 +274,16 @@ export type UnionLooseOmit<type, keys extends string> = type extends any
  */
 export type UnionOmit<type, keys extends keyof type> = type extends any
   ? Omit<type, keys>
+  : never
+
+/**
+ * @description Construct a type with the properties of union type T except for those in type K.
+ * @example
+ * type Result = UnionOmit<{ a: string, b: number } | { a: string, b: undefined, c: number }, 'a'>
+ * => { b: number } | { b: undefined, c: number }
+ */
+export type UnionPick<type, keys extends keyof type> = type extends any
+  ? Pick<type, keys>
   : never
 
 /**

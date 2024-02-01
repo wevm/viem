@@ -15,12 +15,16 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
 import { type Chain, type GetChainParameter } from '../../../types/chain.js'
-import type { TransactionRequestEIP1559 } from '../../../types/transaction.js'
+import type {
+  TransactionRequestEIP1559,
+  TransactionSerializable,
+} from '../../../types/transaction.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
 import { type HexToNumberErrorType } from '../../../utils/encoding/fromHex.js'
 import {
   type AssertRequestErrorType,
+  type AssertRequestParameters,
   assertRequest,
 } from '../../../utils/transaction/assertRequest.js'
 import {
@@ -109,13 +113,13 @@ export async function estimateL1Gas<
     })(),
   ])
 
-  assertRequest(request)
+  assertRequest(request as AssertRequestParameters)
 
   const transaction = serializeTransaction({
     ...request,
     chainId,
     type: 'eip1559',
-  })
+  } as TransactionSerializable)
 
   return readContract(client, {
     abi: gasPriceOracleAbi,

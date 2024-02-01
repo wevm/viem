@@ -56,7 +56,7 @@ export async function signTransaction<
     if (transaction.type === 'eip4844')
       return {
         ...transaction,
-        sidecars: undefined,
+        sidecars: false,
       }
     return transaction
   })()

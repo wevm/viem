@@ -45,17 +45,19 @@ export function assertTransactionEIP4844(
   transaction: TransactionSerializableEIP4844,
 ) {
   const { blobVersionedHashes } = transaction
-  if (blobVersionedHashes.length === 0) throw new EmptyBlobError()
-  for (const hash of blobVersionedHashes) {
-    const size_ = size(hash)
-    const version = hexToNumber(slice(hash, 0, 1))
-    if (size_ !== 32)
-      throw new InvalidVersionedHashSizeError({ hash, size: size_ })
-    if (version !== versionedHashVersionKzg)
-      throw new InvalidVersionedHashVersionError({
-        hash,
-        version,
-      })
+  if (blobVersionedHashes) {
+    if (blobVersionedHashes.length === 0) throw new EmptyBlobError()
+    for (const hash of blobVersionedHashes) {
+      const size_ = size(hash)
+      const version = hexToNumber(slice(hash, 0, 1))
+      if (size_ !== 32)
+        throw new InvalidVersionedHashSizeError({ hash, size: size_ })
+      if (version !== versionedHashVersionKzg)
+        throw new InvalidVersionedHashVersionError({
+          hash,
+          version,
+        })
+    }
   }
   assertTransactionEIP1559(transaction as {} as TransactionSerializableEIP1559)
 }
