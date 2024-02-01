@@ -1,9 +1,5 @@
 import type { Address } from 'abitype'
 
-import {
-  AccountStateConflictError,
-  StateAssignmentConflictError,
-} from '~viem/errors/stateOverride.js'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -13,6 +9,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { aggregate3Signature } from '../../constants/contract.js'
+import { InvalidAddressError } from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
 import {
   ChainDoesNotSupportContract,
@@ -23,6 +20,10 @@ import {
   type RawContractErrorType,
 } from '../../errors/contract.js'
 import { InvalidBytesLengthError } from '../../errors/data.js'
+import {
+  AccountStateConflictError,
+  StateAssignmentConflictError,
+} from '../../errors/stateOverride.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -44,6 +45,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { isAddress } from '../../utils/address/isAddress.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetChainContractAddressErrorType,
@@ -371,7 +373,7 @@ export function parseStateMapping(
 }
 
 export function parseAccountStateOverride(
-  args: StateOverride[number],
+  args: Omit<StateOverride[number], 'address'>,
 ): RpcAccountStateOverride {
   const { balance, nonce, state, stateDiff, code } = args
   const rpcAccountStateOverride: RpcAccountStateOverride = {}
@@ -399,11 +401,11 @@ export function parseStateOverride(
 ): RpcStateOverride | undefined {
   if (!args) return undefined
   const rpcStateOverride: RpcStateOverride = {}
-  for (const accountState of args) {
-    if (rpcStateOverride[accountState.address])
-      throw new AccountStateConflictError({ address: accountState.address })
-    rpcStateOverride[accountState.address] =
-      parseAccountStateOverride(accountState)
+  for (const { address, ...accountState } of args) {
+    if (!isAddress(address)) throw new InvalidAddressError({ address })
+    if (rpcStateOverride[address])
+      throw new AccountStateConflictError({ address: address })
+    rpcStateOverride[address] = parseAccountStateOverride(accountState)
   }
   return rpcStateOverride
 }
