@@ -83,18 +83,18 @@ export type CallParameters<
   batch?: boolean
 } & (
     | {
-        /** The balance of the account at a block number. */
-        blockNumber?: bigint
-        blockTag?: never
-      }
+      /** The balance of the account at a block number. */
+      blockNumber?: bigint
+      blockTag?: never
+    }
     | {
-        blockNumber?: never
-        /**
-         * The balance of the account at a block tag.
-         * @default 'latest'
-         */
-        blockTag?: BlockTag
-      }
+      blockNumber?: never
+      /**
+       * The balance of the account at a block tag.
+       * @default 'latest'
+       */
+      blockTag?: BlockTag
+    }
   ) & {
     stateOverride?: StateOverride
   }
@@ -361,22 +361,22 @@ export function parseAccountStateOverride(
   args: AccountStateOverride,
 ): RpcAccountStateOverride {
   const { balance, nonce, state, stateDiff, ...rest } = args
-  const rawAccountStateOverride: RpcAccountStateOverride = {
+  const rpcAccountStateOverride: RpcAccountStateOverride = {
     ...rest,
   }
   if (balance !== undefined) {
-    rawAccountStateOverride.balance = numberToHex(balance, { size: 32 })
+    rpcAccountStateOverride.balance = numberToHex(balance, { size: 32 })
   }
   if (nonce !== undefined) {
-    rawAccountStateOverride.nonce = numberToHex(nonce, { size: 8 })
+    rpcAccountStateOverride.nonce = numberToHex(nonce, { size: 8 })
   }
   if (state !== undefined) {
-    rawAccountStateOverride.state = parseStateMapping(state)
+    rpcAccountStateOverride.state = parseStateMapping(state)
   }
   if (stateDiff !== undefined) {
-    rawAccountStateOverride.stateDiff = parseStateMapping(stateDiff)
+    rpcAccountStateOverride.stateDiff = parseStateMapping(stateDiff)
   }
-  return rawAccountStateOverride
+  return rpcAccountStateOverride
 }
 
 export function parseStateOverride(
