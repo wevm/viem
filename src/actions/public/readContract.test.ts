@@ -106,7 +106,7 @@ describe('wagmi', () => {
     ).toEqual(3n)
   })
 
-  test('state override', async () => {
+  test('args: stateOverride', async () => {
     const fakeName = 'NotWagmi'
 
     // layout of strings in storage
