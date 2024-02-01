@@ -239,11 +239,19 @@ const data = await publicClient.call({
   account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  stateOverride: { // [!code focus:5]
-    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8': {
-      balance: parseEther('100'),
-    },
-  },
+  stateOverride: [ // [!code focus:13]
+    {
+      address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      balance: parseEther('1'),
+      code: '0x0',
+      stateDiff: [
+        {
+          slot: "0x00000000000000000000000000000000000000000000000000000000000001a4",
+          value: "0x00000000000000000000000000000000000000000000000000000000000001a4",
+        },
+      ],
+    }
+  ],
 })
 ```
 

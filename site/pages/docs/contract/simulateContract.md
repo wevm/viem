@@ -262,6 +262,148 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Simulate an approve and execute
+
+When using `simulateContract`, there sometimes needs to be an initial state change to make the transaction pass. A common use case would be an approval. For that, there are [state overrides](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-eth#eth-call). In the example below, we are simulating sending a token on behalf of another user. To do this, we need to modify the state of the token contract to have maximum approve from the token owner.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @filename: config.ts
+
+import { createPublicClient, custom, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+const PRIVATE_KEY = '0x0' as `0x${string}`
+export const account = privateKeyToAccount(PRIVATE_KEY)
+ 
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+
+// @filename: constants.ts
+export const token: `0x${string}` = '0x0'
+export const otherUser: `0x${string}` = '0x0'
+export const allowanceSlot: `0x${string}` = '0x0'
+export const maxAllowance: `0x${string}` = '0x0'
+
+// @filename: abi.ts
+export const erc20abi = [
+  {
+    type: 'function',
+    name: 'transferFrom',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'sender',
+        type: 'address',
+      },
+      {
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+  },
+] as const;
+
+// @filename: example.ts
+// ---cut---
+import { account, publicClient } from './config'
+import { erc20abi } from './abi'
+import { token, otherUser, allowanceSlot, maxAllowance } from './constants'
+
+const { result } = await publicClient.simulateContract({
+//      ^?
+  address: token,
+  abi: erc20abi,
+  functionName: 'transferFrom',
+  args: [otherUser, account.address, 69420n],
+  stateOverride: [
+    {
+      // modifying the state of the token contract
+      address: token,
+      stateDiff: [
+        {
+          slot: allowanceSlot,
+          value: maxAllowance,
+        },
+      ],
+    },
+  ],
+  account,
+})
+
+console.log(result)
+// @log: true
+```
+
+```ts twoslash [constants.ts]
+// The address of the token contract
+export const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+// The address of the user we are sending the token on behalf of
+export const otherUser = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+// Allowance slot: A 32 bytes hex string representing the allowance slot of `otherUser`
+export const allowanceSlot = '0x....'
+// Max allowance: A 32 bytes hex string representing the maximum allowance (2^256 - 1)
+export const maxAllowance = '0xFFFF....'
+```
+
+```ts twoslash [abi.ts]
+export const erc20abi = [
+  {
+    type: 'function',
+    name: 'transferFrom',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'sender',
+        type: 'address',
+      },
+      {
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+  },
+] as const;
+```
+
+```ts twoslash [config.ts]
+const PRIVATE_KEY = '0x0' as `0x${string}`
+// ---cut---
+import { createPublicClient, custom, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+
+export const account = privateKeyToAccount(PRIVATE_KEY)
+ 
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ## Return Value
 
 The simulation result and write request. Type is inferred.
@@ -517,6 +659,36 @@ const { result } = await publicClient.simulateContract({
   functionName: 'mint',
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
   blockTag: 'safe', // [!code focus]
+})
+```
+
+### stateOverride (optional)
+
+- **Type:** [`StateOverride`](/docs/glossary/types#stateoverride)
+
+The state override set is an optional address-to-state mapping, where each entry specifies some state to be ephemerally overridden prior to executing the call.
+
+> Note: By using state overrides, you simulate the contract based on a fake state. Using this is useful for testing purposes, but making a transaction based on the returned `request` object might fail regardless of the simulation result.
+
+```ts
+const data = await publicClient.simulateContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+  stateOverride: [ // [!code focus:13]
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      balance: parseEther('1'),
+      code: '0x0',
+      stateDiff: [
+        {
+          slot: "0x00000000000000000000000000000000000000000000000000000000000001a4",
+          value: "0x00000000000000000000000000000000000000000000000000000000000001a4",
+        },
+      ],
+    }
+  ],
 })
 ```
 

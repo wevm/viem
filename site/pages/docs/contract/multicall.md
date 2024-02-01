@@ -277,6 +277,38 @@ const results = await publicClient.multicall({
 })
 ```
 
+### stateOverride (optional)
+
+- **Type:** [`StateOverride`](/docs/glossary/types#stateoverride)
+
+The state override set is an optional address-to-state mapping, where each entry specifies some state to be ephemerally overridden prior to executing the call.
+
+```ts
+const data = await publicClient.multicall({
+  contracts: [
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi: wagmiAbi,
+      functionName: 'totalSupply',
+    },
+    ...
+  ],
+  stateOverride: [ // [!code focus:13]
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      balance: parseEther('1'),
+      code: '0x0',
+      stateDiff: [
+        {
+          slot: "0x00000000000000000000000000000000000000000000000000000000000001a4",
+          value: "0x00000000000000000000000000000000000000000000000000000000000001a4",
+        },
+      ],
+    }
+  ],
+})
+```
+
 ## Live Example
 
 Check out the usage of `multicall` in the live [Multicall Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_multicall) below.
