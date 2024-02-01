@@ -409,9 +409,17 @@ describe('errors', () => {
           ],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [InvalidAddressError: Address "0x1" is invalid.
+      [CallExecutionError: Address "0x1" is invalid.
 
-        Version: viem@1.0.2]
+      Raw Call Arguments:
+        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:  0x06fdde03
+        State Override:
+          0x1:
+            stateDiff:
+              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+
+      Version: viem@1.0.2]
       `)
     })
 
@@ -442,9 +450,20 @@ describe('errors', () => {
           ],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [AccountStateConflictError: State for account "${wagmiContractAddress}" is set multiple times.
+      [CallExecutionError: State for account "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2" is set multiple times.
 
-        Version: viem@1.0.2]
+      Raw Call Arguments:
+        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:  0x06fdde03
+        State Override:
+          0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
+            stateDiff:
+              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+          0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
+            stateDiff:
+              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+
+      Version: viem@1.0.2]
       `)
     })
 
@@ -473,9 +492,19 @@ describe('errors', () => {
           ],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [StateAssignmentConflictError: \`state\` and \`stateDiff\` are set on the same account.
+      [CallExecutionError: \`state\` and \`stateDiff\` are set on the same account.
 
-        Version: viem@1.0.2]
+      Raw Call Arguments:
+        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:  0x06fdde03
+        State Override:
+          0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
+            state:
+              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+            stateDiff:
+              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+
+      Version: viem@1.0.2]
       `)
     })
   })
