@@ -160,14 +160,13 @@ export async function call<TChain extends Chain | undefined>(
     ...rest
   } = args
   const account = account_ ? parseAccount(account_) : undefined
+  const rpcStateOverride = parseStateOverride(stateOverride)
 
   try {
     assertRequest(args as AssertRequestParameters)
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
-
-    const rpcStateOverride = parseStateOverride(stateOverride)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest

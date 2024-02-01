@@ -389,6 +389,96 @@ describe('errors', () => {
       Version: viem@1.0.2]
     `)
   })
+
+  describe('state overrides error', () => {
+    test('wrong address', async () => {
+      await expect(
+        call(publicClient, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [
+            {
+              address: '0x1',
+              stateDiff: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+            },
+          ],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [InvalidAddressError: Address "0x1" is invalid.
+
+        Version: viem@1.0.2]
+      `)
+    })
+
+    test('duplicate address', async () => {
+      await expect(
+        call(publicClient, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [
+            {
+              address: wagmiContractAddress,
+              stateDiff: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+            },
+            {
+              address: wagmiContractAddress,
+              stateDiff: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+            },
+          ],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [AccountStateConflictError: State for account "${wagmiContractAddress}" is set multiple times.
+
+        Version: viem@1.0.2]
+      `)
+    })
+
+    test('pass state and stateDiff', async () => {
+      await expect(
+        call(publicClient, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [
+            // @ts-expect-error Cannot pass `state` and `stateDiff` at the same time
+            {
+              address: wagmiContractAddress,
+              stateDiff: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+              state: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+            },
+          ],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [StateAssignmentConflictError: \`state\` and \`stateDiff\` are set on the same account.
+
+        Version: viem@1.0.2]
+      `)
+    })
+  })
 })
 
 describe('batch call', () => {
