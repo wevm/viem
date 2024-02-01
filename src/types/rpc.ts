@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import type {
   Block,
   BlockIdentifier,
@@ -7,6 +8,7 @@ import type {
 } from './block.js'
 import type { FeeHistory, FeeValues } from './fee.js'
 import type { Log } from './log.js'
+import type { Hex } from './misc.js'
 import type { Proof } from './proof.js'
 import type {
   TransactionEIP1559,
@@ -103,3 +105,25 @@ export type RpcResponse<TResult = any, TError = any> = {
   | ErrorResult<TError>
   | Subscription<TResult, TError>
 )
+
+/** A key-value mapping of slot and storage values (supposedly 32 bytes each) */
+export type RpcStateMapping = {
+  [slots: Hex]: Hex
+}
+
+export type RpcAccountStateOverride = {
+  /** Fake balance to set for the account before executing the call. <32 bytes */
+  balance?: Hex
+  /** Fake nonce to set for the account before executing the call. <8 bytes */
+  nonce?: Hex
+  /** Fake EVM bytecode to inject into the account before executing the call. */
+  code?: Hex
+  /** Fake key-value mapping to override all slots in the account storage before executing the call. */
+  state?: RpcStateMapping
+  /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
+  stateDiff?: RpcStateMapping
+}
+
+export type RpcStateOverride = {
+  [address: Address]: RpcAccountStateOverride
+}

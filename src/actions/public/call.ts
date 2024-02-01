@@ -1,5 +1,10 @@
 import type { Address } from 'abitype'
 
+import type {
+  AccountStateOverride,
+  StateMapping,
+  StateOverride,
+} from '~viem/types/stateOverride.js'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -21,13 +26,13 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 import type {
-  Hex,
-  RawAccountStateOverride,
-  RawStateOverride,
-  StateMapping,
-} from '../../types/misc.js'
-import type { RpcTransactionRequest } from '../../types/rpc.js'
+  RpcAccountStateOverride,
+  RpcStateMapping,
+  RpcStateOverride,
+  RpcTransactionRequest,
+} from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -70,27 +75,6 @@ import type {
 export type FormattedCall<
   TChain extends Chain | undefined = Chain | undefined,
 > = FormattedTransactionRequest<TChain>
-
-export type AccountStateOverride = {
-  balance?: bigint
-  nonce?: number
-  code?: Hex
-} & (
-  | {
-      /** Fake key-value mapping to override all slots in the account storage before executing the call. */
-      state?: StateMapping
-      stateDiff?: never
-    }
-  | {
-      /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
-      stateDiff?: StateMapping
-      state?: never
-    }
-)
-
-export type StateOverride = {
-  [account: Address]: AccountStateOverride
-}
 
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -180,7 +164,7 @@ export async function call<TChain extends Chain | undefined>(
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
-    const rawStateOverride = parseStateOverride(stateOverride)
+    const rpcStateOverride = parseStateOverride(stateOverride)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
@@ -200,7 +184,7 @@ export async function call<TChain extends Chain | undefined>(
       value,
     } as TransactionRequest) as TransactionRequest
 
-    if (!rawStateOverride && batch && shouldPerformMulticall({ request })) {
+    if (batch && shouldPerformMulticall({ request }) && !rpcStateOverride) {
       try {
         return await scheduleMulticall(client, {
           ...request,
@@ -218,8 +202,8 @@ export async function call<TChain extends Chain | undefined>(
 
     const response = await client.request({
       method: 'eth_call',
-      params: rawStateOverride
-        ? [request as Partial<RpcTransactionRequest>, block, rawStateOverride]
+      params: rpcStateOverride
+        ? [request as Partial<RpcTransactionRequest>, block, rpcStateOverride]
         : [request as Partial<RpcTransactionRequest>, block],
     })
     if (response === '0x') return { data: undefined }
@@ -363,11 +347,21 @@ export function getRevertErrorData(err: unknown) {
   return typeof error.data === 'object' ? error.data.data : error.data
 }
 
+export function parseStateMapping(
+  stateMapping: StateMapping | undefined,
+): RpcStateMapping | undefined {
+  if (!stateMapping || stateMapping.length === 0) return undefined
+  return stateMapping.reduce((acc, kv) => {
+    acc[kv.slot] = kv.value
+    return acc
+  }, {} as RpcStateMapping)
+}
+
 export function parseAccountStateOverride(
   args: AccountStateOverride,
-): RawAccountStateOverride {
-  const { balance, nonce, ...rest } = args
-  const rawAccountStateOverride: RawAccountStateOverride = {
+): RpcAccountStateOverride {
+  const { balance, nonce, state, stateDiff, ...rest } = args
+  const rawAccountStateOverride: RpcAccountStateOverride = {
     ...rest,
   }
   if (balance !== undefined) {
@@ -376,18 +370,24 @@ export function parseAccountStateOverride(
   if (nonce !== undefined) {
     rawAccountStateOverride.nonce = numberToHex(nonce, { size: 8 })
   }
+  if (state !== undefined) {
+    rawAccountStateOverride.state = parseStateMapping(state)
+  }
+  if (stateDiff !== undefined) {
+    rawAccountStateOverride.stateDiff = parseStateMapping(stateDiff)
+  }
   return rawAccountStateOverride
 }
 
 export function parseStateOverride(
   args?: StateOverride,
-): RawStateOverride | undefined {
+): RpcStateOverride | undefined {
   if (!args) return undefined
-  const rawStateOverride: RawStateOverride = {}
+  const rpcStateOverride: RpcStateOverride = {}
   for (const account in args) {
-    rawStateOverride[account as Address] = parseAccountStateOverride(
+    rpcStateOverride[account as Address] = parseAccountStateOverride(
       args[account as Address],
     )
   }
-  return rawStateOverride
+  return rpcStateOverride
 }

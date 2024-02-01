@@ -1,7 +1,8 @@
 import type { Address } from 'abitype'
 
 import type { BlockTag } from './block.js'
-import type { Hash, Hex, LogTopic, RawStateOverride } from './misc.js'
+import type { Hash, Hex, LogTopic } from './misc.js'
+import type { RpcStateOverride } from './rpc.js'
 import type {
   Quantity,
   RpcBlock as Block,
@@ -235,7 +236,7 @@ export type PublicRpcSchema = [
       | [
           transaction: Partial<TransactionRequest>,
           block: BlockNumber | BlockTag | BlockIdentifier,
-          stateOverrideSet: RawStateOverride,
+          stateOverrideSet: RpcStateOverride,
         ]
     ReturnType: Hex
   },
