@@ -8,11 +8,9 @@ export type DefineKzgErrorType = ErrorType
 export function defineKzg({
   blobToKzgCommitment,
   computeBlobKzgProof,
-  verifyBlobKzgProofBatch,
 }: DefineKzgParameters): DefineKzgReturnType {
   return {
     blobToKzgCommitment,
     computeBlobKzgProof,
-    verifyBlobKzgProofBatch,
   }
 }

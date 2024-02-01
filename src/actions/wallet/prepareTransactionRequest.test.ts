@@ -566,7 +566,6 @@ describe('prepareTransactionRequest', () => {
         "kzg": {
           "blobToKzgCommitment": [Function],
           "computeBlobKzgProof": [Function],
-          "verifyBlobKzgProofBatch": [Function],
         },
         "maxFeePerBlobGas": 20000000000n,
         "maxFeePerGas": 30500000000n,

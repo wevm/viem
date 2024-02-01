@@ -14,15 +14,6 @@ export type Kzg = {
    * commitment.
    */
   computeBlobKzgProof(blob: ByteArray, commitment: ByteArray): ByteArray
-  /**
-   * Given an array of blobs and their proofs, verify that they corresponds to their
-   * provided commitment.
-   */
-  verifyBlobKzgProofBatch(
-    blobs: ByteArray[],
-    commitments: ByteArray[],
-    proofs: ByteArray[],
-  ): boolean
 }
 
 export type GetTransactionRequestKzgParameter<

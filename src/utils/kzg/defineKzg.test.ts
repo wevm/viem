@@ -20,12 +20,6 @@ const computeBlobKzgProofCases = JSON.parse(
     'utf8',
   ),
 )
-const verifyBlobKzgProofBatchCases = JSON.parse(
-  readFileSync(
-    resolve(__dirname, '../../../test/kzg/verify-blob-kzg-proof-batch.json'),
-    'utf8',
-  ),
-)
 
 let kzg: Kzg
 
@@ -36,7 +30,6 @@ test('defineKzg', () => {
     {
       "blobToKzgCommitment": [Function],
       "computeBlobKzgProof": [Function],
-      "verifyBlobKzgProofBatch": [Function],
     }
   `)
 })
@@ -77,29 +70,6 @@ describe('computeBlobKzgProof', () => {
             ),
           ),
         ).toEqual(hexToBytes(data.output))
-    })
-  }
-})
-
-describe('verifyBlobKzgProofBatch', () => {
-  for (const data of verifyBlobKzgProofBatchCases) {
-    test(data.name, () => {
-      if (data.output === null)
-        expect(() =>
-          kzg.verifyBlobKzgProofBatch(
-            data.input.blobs.map((b: any) => hexToBytes(b)),
-            data.input.commitments.map((c: any) => hexToBytes(c)),
-            data.input.proofs.map((p: any) => hexToBytes(p)),
-          ),
-        ).toThrowError()
-      else
-        expect(
-          kzg.verifyBlobKzgProofBatch(
-            data.input.blobs.map((b: any) => hexToBytes(b)),
-            data.input.commitments.map((c: any) => hexToBytes(c)),
-            data.input.proofs.map((p: any) => hexToBytes(p)),
-          ),
-        ).toEqual(data.output)
     })
   }
 })
