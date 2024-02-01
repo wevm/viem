@@ -34,6 +34,7 @@ describe('eip4844', () => {
     ...base,
     blobs: toBlobs({ data: stringToHex('abcd') }),
     maxFeePerBlobGas: parseGwei('20'),
+    to: '0x0000000000000000000000000000000000000000',
     type: 'eip4844',
   } as const satisfies TransactionRequestEIP4844
 

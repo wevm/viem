@@ -89,10 +89,11 @@ test('args: type', async () => {
   const result_eip4844 = await prepareTransactionRequest(walletClient, {
     blobs: ['0x'],
     maxFeePerBlobGas: 1n,
+    to: '0x0000000000000000000000000000000000000000',
     type: 'eip4844',
   })
   expectTypeOf(result_eip4844.type).toEqualTypeOf<'eip4844'>()
-  expectTypeOf(result_eip4844.blobs).toEqualTypeOf<Hex[]>()
+  expectTypeOf(result_eip4844.blobs).toEqualTypeOf<readonly Hex[]>()
   expectTypeOf(result_eip4844.gasPrice).toEqualTypeOf<never>()
   expectTypeOf(result_eip4844.maxFeePerBlobGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_eip4844.maxFeePerGas).toEqualTypeOf<bigint>()
@@ -119,9 +120,10 @@ test('args: eip4844 attributes', async () => {
   const result_1 = await prepareTransactionRequest(walletClient, {
     blobs: ['0x'],
     maxFeePerBlobGas: 1n,
+    to: '0x0000000000000000000000000000000000000000',
   })
   expectTypeOf(result_1.type).toEqualTypeOf<'eip4844'>()
-  expectTypeOf(result_1.blobs).toEqualTypeOf<Hex[]>()
+  expectTypeOf(result_1.blobs).toEqualTypeOf<readonly Hex[]>()
   expectTypeOf(result_1.gasPrice).toEqualTypeOf<never>()
   expectTypeOf(result_1.maxFeePerGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_1.maxPriorityFeePerGas).toEqualTypeOf<bigint>()

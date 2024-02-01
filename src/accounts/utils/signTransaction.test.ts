@@ -62,6 +62,7 @@ describe('eip4844', async () => {
       blobs: toBlobs({ data: stringToHex('abcd') }),
       kzg,
       maxFeePerBlobGas: parseGwei('20'),
+      to: '0x0000000000000000000000000000000000000000',
     })
     // TODO(4844): should prepareTransactionRequest also prepare chain id?
     await signTransaction({
