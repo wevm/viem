@@ -119,7 +119,7 @@ test('args: override', async () => {
   // we don't divide by 2 because length must be length * 2 if word is strictly less than 32 bytes
   const bytesLen = fakeNameHex.length - 2
 
-  if (bytesLen > 31) throw new Error('name too long')
+  expect(bytesLen).toBeLessThanOrEqual(62)
 
   const slotValue = `${pad(fakeNameHex, { dir: 'right', size: 31 })}${toHex(
     bytesLen,
