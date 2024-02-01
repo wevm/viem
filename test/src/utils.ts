@@ -1,6 +1,7 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { getTransactionReceipt } from '~viem/actions/public/getTransactionReceipt.js'
 import { impersonateAccount } from '~viem/actions/test/impersonateAccount.js'
 import { mine } from '~viem/actions/test/mine.js'
@@ -12,6 +13,7 @@ import {
 } from '~viem/actions/wallet/deployContract.js'
 import { writeContract } from '~viem/actions/wallet/writeContract.js'
 import { localhost, mainnet, sepolia } from '~viem/chains/index.js'
+import { createClient } from '~viem/clients/createClient.js'
 import { createPublicClient } from '~viem/clients/createPublicClient.js'
 import { createTestClient } from '~viem/clients/createTestClient.js'
 import { createWalletClient } from '~viem/clients/createWalletClient.js'
@@ -166,11 +168,6 @@ export const publicClientMainnet = createPublicClient({
   transport: http(process.env.VITE_ANVIL_FORK_URL),
 })
 
-export const publicClientSepolia = createPublicClient({
-  chain: sepolia,
-  transport: http(),
-})
-
 export const walletClient = createWalletClient({
   chain: anvilChain,
   transport: custom(provider),
@@ -184,6 +181,19 @@ export const walletClientWithAccount = createWalletClient({
 
 export const walletClientWithoutChain = createWalletClient({
   transport: custom(provider),
+})
+
+export const sepoliaClient = createClient({
+  chain: sepolia,
+  transport: http(),
+})
+
+export const sepoliaClientWithAccount = createClient({
+  account: privateKeyToAccount(
+    process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
+  ),
+  chain: sepolia,
+  transport: http(),
 })
 
 export const testClient = createTestClient({

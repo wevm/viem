@@ -44,6 +44,7 @@ import {
 } from '../../actions/wallet/sendRawTransaction.js'
 import {
   type SendTransactionParameters,
+  type SendTransactionRequest,
   type SendTransactionReturnType,
   sendTransaction,
 } from '../../actions/wallet/sendTransaction.js'
@@ -374,8 +375,11 @@ export type WalletActions<
    *   value: 1000000000000000000n,
    * })
    */
-  sendTransaction: <TChainOverride extends Chain | undefined = undefined>(
-    args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
+  sendTransaction: <
+    const TRequest extends SendTransactionRequest<TChain, TChainOverride>,
+    TChainOverride extends Chain | undefined = undefined,
+  >(
+    args: SendTransactionParameters<TChain, TAccount, TChainOverride, TRequest>,
   ) => Promise<SendTransactionReturnType>
   /**
    * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.

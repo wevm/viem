@@ -215,11 +215,11 @@ export type TransactionRequestEIP4844<
   TQuantity = bigint,
   TIndex = number,
   TTransactionType = 'eip4844',
-> = TransactionRequestBase<TQuantity, TIndex> &
+> = RequiredBy<TransactionRequestBase<TQuantity, TIndex>, 'to'> &
   RequiredBy<Partial<FeeValuesEIP4844<TQuantity>>, 'maxFeePerBlobGas'> & {
     accessList?: AccessList
     /** The blobs associated with this transaction. */
-    blobs: Hex[]
+    blobs: readonly Hex[]
     type?: TTransactionType
   }
 export type TransactionRequest<TQuantity = bigint, TIndex = number> = OneOf<
