@@ -6,7 +6,7 @@ import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 
-export type ToBlobProofsParameters<
+export type blobsToProofsParameters<
   blobs extends ByteArray[] | Hex[],
   commitments extends ByteArray[] | Hex[],
   to extends To =
@@ -30,11 +30,11 @@ export type ToBlobProofsParameters<
   to?: to | To | undefined
 }
 
-export type ToBlobProofsReturnType<to extends To> =
+export type blobsToProofsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
 
-export type ToBlobProofsErrorType =
+export type blobsToProofsErrorType =
   | BytesToHexErrorType
   | HexToBytesErrorType
   | ErrorType
@@ -52,18 +52,18 @@ export type ToBlobProofsErrorType =
  *
  * const blobs = toBlobs({ data: '0x1234' })
  * const commitments = blobsToCommitments({ blobs, kzg })
- * const proofs = toBlobProofs({ blobs, commitments, kzg })
+ * const proofs = blobsToProofs({ blobs, commitments, kzg })
  * ```
  */
-export function toBlobProofs<
+export function blobsToProofs<
   const blobs extends ByteArray[] | Hex[],
   const commitments extends ByteArray[] | Hex[],
   to extends To =
     | (blobs extends Hex[] ? 'hex' : never)
     | (blobs extends ByteArray[] ? 'bytes' : never),
 >(
-  parameters: ToBlobProofsParameters<blobs, commitments, to>,
-): ToBlobProofsReturnType<to> {
+  parameters: blobsToProofsParameters<blobs, commitments, to>,
+): blobsToProofsReturnType<to> {
   const { kzg } = parameters
 
   const to =
@@ -89,5 +89,5 @@ export function toBlobProofs<
 
   return (to === 'bytes'
     ? proofs
-    : proofs.map((x) => bytesToHex(x))) as {} as ToBlobProofsReturnType<to>
+    : proofs.map((x) => bytesToHex(x))) as {} as blobsToProofsReturnType<to>
 }

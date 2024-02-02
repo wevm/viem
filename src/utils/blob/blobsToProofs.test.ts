@@ -2,20 +2,20 @@ import { expect, test } from 'vitest'
 import { kzg } from '../../../test/src/kzg.js'
 import { stringToBytes, stringToHex } from '../index.js'
 import { blobsToCommitments } from './blobsToCommitments.js'
-import { toBlobProofs } from './toBlobProofs.js'
+import { blobsToProofs } from './blobsToProofs.js'
 import { toBlobs } from './toBlobs.js'
 
 test('from hex', () => {
   const blobs = toBlobs({ data: stringToHex('abcd'.repeat(50000)) })
   const commitments = blobsToCommitments({ blobs, kzg })
-  expect(toBlobProofs({ blobs, commitments, kzg })).toMatchInlineSnapshot(`
+  expect(blobsToProofs({ blobs, commitments, kzg })).toMatchInlineSnapshot(`
     [
       "0x9957ae6d2755b91bd099944c40c52aec45b843a01b9671915ab544ca97c9694caf27a47394aadde5123cd6096fe65250",
       "0xaa5694d541a1fcc297e7801d0df7f8e984b6def23d20381b644f4acf44741f4854f59901080275d1084afc7d5ae7c53e",
     ]
   `)
   expect(
-    toBlobProofs({ blobs, commitments, kzg, to: 'bytes' }),
+    blobsToProofs({ blobs, commitments, kzg, to: 'bytes' }),
   ).toMatchInlineSnapshot(`
     [
       Uint8Array [
@@ -125,7 +125,7 @@ test('from hex', () => {
 test('from bytes', () => {
   const blobs = toBlobs({ data: stringToBytes('abcd'.repeat(50000)) })
   const commitments = blobsToCommitments({ blobs, kzg })
-  expect(toBlobProofs({ blobs, commitments, kzg })).toMatchInlineSnapshot(`
+  expect(blobsToProofs({ blobs, commitments, kzg })).toMatchInlineSnapshot(`
     [
       Uint8Array [
         153,
@@ -230,7 +230,7 @@ test('from bytes', () => {
     ]
   `)
   expect(
-    toBlobProofs({ blobs, commitments, kzg, to: 'hex' }),
+    blobsToProofs({ blobs, commitments, kzg, to: 'hex' }),
   ).toMatchInlineSnapshot(`
     [
       "0x9957ae6d2755b91bd099944c40c52aec45b843a01b9671915ab544ca97c9694caf27a47394aadde5123cd6096fe65250",

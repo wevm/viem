@@ -696,6 +696,39 @@ export const sidebar = {
           ],
         },
         {
+          text: 'Blob',
+          items: [
+            {
+              text: 'blobsToProofs',
+              link: '/docs/utilities/blobsToProofs',
+            },
+            {
+              text: 'blobsToCommitments',
+              link: '/docs/utilities/blobsToCommitments',
+            },
+            {
+              text: 'commitmentsToVersionedHashes',
+              link: '/docs/utilities/commitmentsToVersionedHashes',
+            },
+            {
+              text: 'commitmentToVersionedHash',
+              link: '/docs/utilities/commitmentToVersionedHash',
+            },
+            {
+              text: 'sidecarsToVersionedHashes',
+              link: '/docs/utilities/sidecarsToVersionedHashes',
+            },
+            {
+              text: 'toBlobs',
+              link: '/docs/utilities/toBlobs',
+            },
+            {
+              text: 'toBlobSidecars',
+              link: '/docs/utilities/toBlobSidecars',
+            },
+          ],
+        },
+        {
           text: 'Chain',
           items: [
             {

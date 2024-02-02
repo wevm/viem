@@ -24,13 +24,13 @@ import {
   blobsToCommitments,
 } from '../blob/blobsToCommitments.js'
 import {
+  blobsToProofs,
+  type blobsToProofsErrorType,
+} from '../blob/blobsToProofs.js'
+import {
   type CommitmentsToVersionedHashesErrorType,
   commitmentsToVersionedHashes,
 } from '../blob/commitmentsToVersionedHashes.js'
-import {
-  type ToBlobProofsErrorType,
-  toBlobProofs,
-} from '../blob/toBlobProofs.js'
 import {
   type ToBlobSidecarsErrorType,
   toBlobSidecars,
@@ -121,7 +121,7 @@ type SerializeTransactionEIP4844ErrorType =
   | AssertTransactionEIP4844ErrorType
   | BlobsToCommitmentsErrorType
   | CommitmentsToVersionedHashesErrorType
-  | ToBlobProofsErrorType
+  | blobsToProofsErrorType
   | ToBlobSidecarsErrorType
   | ConcatHexErrorType
   | InvalidLegacyVErrorType
@@ -159,7 +159,7 @@ function serializeTransactionEIP4844(
       blobs,
       kzg,
     })
-    const proofs = toBlobProofs({ blobs, commitments, kzg })
+    const proofs = blobsToProofs({ blobs, commitments, kzg })
     blobVersionedHashes = commitmentsToVersionedHashes({
       commitments,
     })

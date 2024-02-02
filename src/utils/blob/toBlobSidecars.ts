@@ -7,7 +7,7 @@ import {
   type BlobsToCommitmentsErrorType,
   blobsToCommitments,
 } from './blobsToCommitments.js'
-import { type ToBlobProofsErrorType, toBlobProofs } from './toBlobProofs.js'
+import { blobsToProofs, type blobsToProofsErrorType } from './blobsToProofs.js'
 import { type ToBlobsErrorType, toBlobs } from './toBlobs.js'
 
 type To = 'hex' | 'bytes'
@@ -49,7 +49,7 @@ export type ToBlobSidecarsReturnType<to extends To> =
 export type ToBlobSidecarsErrorType =
   | BlobsToCommitmentsErrorType
   | ToBlobsErrorType
-  | ToBlobProofsErrorType
+  | blobsToProofsErrorType
   | ErrorType
 
 /**
@@ -67,14 +67,14 @@ export type ToBlobSidecarsErrorType =
  * import {
  *   blobsToCommitments,
  *   toBlobs,
- *   toBlobProofs,
+ *   blobsToProofs,
  *   toBlobSidecars,
  *   stringToHex
  * } from 'viem'
  *
  * const blobs = toBlobs({ data: stringToHex('hello world') })
  * const commitments = blobsToCommitments({ blobs, kzg })
- * const proofs = toBlobProofs({ blobs, commitments, kzg })
+ * const proofs = blobsToProofs({ blobs, commitments, kzg })
  *
  * const sidecars = toBlobSidecars({ blobs, commitments, proofs })
  * ```
@@ -95,7 +95,7 @@ export function toBlobSidecars<
   const commitments =
     parameters.commitments ?? blobsToCommitments({ blobs, kzg: kzg!, to })
   const proofs =
-    parameters.proofs ?? toBlobProofs({ blobs, commitments, kzg: kzg!, to })
+    parameters.proofs ?? blobsToProofs({ blobs, commitments, kzg: kzg!, to })
 
   const sidecars: BlobSidecars = []
   for (let i = 0; i < blobs.length; i++)

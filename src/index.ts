@@ -1292,11 +1292,11 @@ export {
   sidecarsToVersionedHashes,
 } from './utils/blob/sidecarsToVersionedHashes.js'
 export {
-  type ToBlobProofsErrorType,
-  type ToBlobProofsParameters,
-  type ToBlobProofsReturnType,
-  toBlobProofs,
-} from './utils/blob/toBlobProofs.js'
+  type blobsToProofsErrorType,
+  type blobsToProofsParameters,
+  type blobsToProofsReturnType,
+  blobsToProofs,
+} from './utils/blob/blobsToProofs.js'
 export {
   type ToBlobSidecarsErrorType,
   type ToBlobSidecarsParameters,

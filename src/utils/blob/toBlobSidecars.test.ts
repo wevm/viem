@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { kzg } from '../../../test/src/kzg.js'
 import { stringToBytes, stringToHex } from '../index.js'
 import { blobsToCommitments } from './blobsToCommitments.js'
-import { toBlobProofs } from './toBlobProofs.js'
+import { blobsToProofs } from './blobsToProofs.js'
 import { toBlobSidecars } from './toBlobSidecars.js'
 import { toBlobs } from './toBlobs.js'
 
@@ -18,7 +18,7 @@ test('args: data', () => {
 test('args: blobs, commitments, proofs', () => {
   const blobs = toBlobs({ data: stringToHex('abcd') })
   const commitments = blobsToCommitments({ blobs, kzg })
-  const proofs = toBlobProofs({ blobs, commitments, kzg })
+  const proofs = blobsToProofs({ blobs, commitments, kzg })
   expect(
     toBlobSidecars({
       blobs,

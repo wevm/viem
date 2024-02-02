@@ -322,7 +322,7 @@ test('exports', () => {
       "commitmentToVersionedHash",
       "commitmentsToVersionedHashes",
       "sidecarsToVersionedHashes",
-      "toBlobProofs",
+      "blobsToProofs",
       "toBlobSidecars",
       "toBlobs",
       "defineKzg",
