@@ -30,7 +30,7 @@ export type ToBlobProofsParameters<
   to?: to | To | undefined
 }
 
-export type toBlobProofsReturnType<to extends To> =
+export type ToBlobProofsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
 
@@ -63,7 +63,7 @@ export function toBlobProofs<
     | (blobs extends ByteArray[] ? 'bytes' : never),
 >(
   parameters: ToBlobProofsParameters<blobs, commitments, to>,
-): toBlobProofsReturnType<to> {
+): ToBlobProofsReturnType<to> {
   const { kzg } = parameters
 
   const to =
@@ -89,5 +89,5 @@ export function toBlobProofs<
 
   return (to === 'bytes'
     ? proofs
-    : proofs.map((x) => bytesToHex(x))) as {} as toBlobProofsReturnType<to>
+    : proofs.map((x) => bytesToHex(x))) as {} as ToBlobProofsReturnType<to>
 }

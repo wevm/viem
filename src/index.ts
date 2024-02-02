@@ -1268,6 +1268,60 @@ export {
   offchainLookupSignature,
 } from './utils/ccip.js'
 export {
+  type BlobsToCommitmentsErrorType,
+  type BlobsToCommitmentsParameters,
+  type BlobsToCommitmentsReturnType,
+  blobsToCommitments,
+} from './utils/blob/blobsToCommitments.js'
+export {
+  type CommitmentToVersionedHashErrorType,
+  type CommitmentToVersionedHashParameters,
+  type CommitmentToVersionedHashReturnType,
+  commitmentToVersionedHash,
+} from './utils/blob/commitmentToVersionedHash.js'
+export {
+  type CommitmentsToVersionedHashesErrorType,
+  type CommitmentsToVersionedHashesParameters,
+  type CommitmentsToVersionedHashesReturnType,
+  commitmentsToVersionedHashes,
+} from './utils/blob/commitmentsToVersionedHashes.js'
+export {
+  type SidecarsToVersionedHashesErrorType,
+  type SidecarsToVersionedHashesParameters,
+  type SidecarsToVersionedHashesReturnType,
+  sidecarsToVersionedHashes,
+} from './utils/blob/sidecarsToVersionedHashes.js'
+export {
+  type ToBlobProofsErrorType,
+  type ToBlobProofsParameters,
+  type ToBlobProofsReturnType,
+  toBlobProofs,
+} from './utils/blob/toBlobProofs.js'
+export {
+  type ToBlobSidecarsErrorType,
+  type ToBlobSidecarsParameters,
+  type ToBlobSidecarsReturnType,
+  toBlobSidecars,
+} from './utils/blob/toBlobSidecars.js'
+export {
+  type ToBlobsErrorType,
+  type ToBlobsParameters,
+  type ToBlobsReturnType,
+  toBlobs,
+} from './utils/blob/toBlobs.js'
+export {
+  type DefineKzgErrorType,
+  type DefineKzgParameters,
+  type DefineKzgReturnType,
+  defineKzg,
+} from './utils/kzg/defineKzg.js'
+export {
+  type SetupKzgErrorType,
+  type SetupKzgOptions,
+  type SetupKzgReturnType,
+  setupKzg,
+} from './utils/kzg/setupKzg.js'
+export {
   type ConcatBytesErrorType,
   type ConcatErrorType,
   type ConcatHexErrorType,
