@@ -57,7 +57,7 @@ export class InvalidBytesLengthError extends BaseError {
     super(
       `${type.charAt(0).toUpperCase()}${type
         .slice(1)
-        .toLowerCase()} if expected to be ${targetSize} bytes long, but is ${size} bytes long.`,
+        .toLowerCase()} is expected to be ${targetSize} ${type} long, but is ${size} ${type} long.`,
     )
   }
 }

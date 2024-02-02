@@ -16,12 +16,24 @@ import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { trim } from '../../utils/data/trim.js'
-import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
-import { type Hex, encodeAbiParameters, pad, toHex } from '../../index.js'
-import { call, getRevertErrorData } from './call.js'
+import {
+  type Hex,
+  type StateMapping,
+  type StateOverride,
+  encodeAbiParameters,
+  pad,
+  parseEther,
+  toHex,
+} from '../../index.js'
+import {
+  call,
+  getRevertErrorData,
+  parseAccountStateOverride,
+  parseStateMapping,
+} from './call.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
@@ -951,5 +963,126 @@ describe('getRevertErrorData', () => {
         }),
       ),
     ).toBe('0x556f1830')
+  })
+})
+
+describe('parsing overrides', () => {
+  test('state mapping', () => {
+    const stateMapping: StateMapping = [
+      {
+        slot: `0x${fourTwenty}`,
+        value: `0x${fourTwenty}`,
+      },
+    ]
+    expect(parseStateMapping(stateMapping)).toMatchInlineSnapshot(`
+      {
+        "0x${fourTwenty}": "0x${fourTwenty}",
+      }
+    `)
+  })
+
+  test('state mapping: undefined', () => {
+    expect(parseStateMapping(undefined)).toMatchInlineSnapshot('undefined')
+  })
+
+  test('state mapping: invalid key', () => {
+    const stateMapping: StateMapping = [
+      {
+        // invalid bytes length
+        slot: `0x${fourTwenty.slice(0, -1)}`,
+        value: `0x${fourTwenty}`,
+      },
+    ]
+
+    expect(() =>
+      parseStateMapping(stateMapping),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('state mapping: invalid value', () => {
+    const stateMapping: StateMapping = [
+      {
+        slot: `0x${fourTwenty}`,
+        value: `0x${fourTwenty.slice(0, -1)}`,
+      },
+    ]
+
+    expect(() =>
+      parseStateMapping(stateMapping),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('args: code', () => {
+    const stateOverride: Omit<StateOverride[number], 'address'> = {
+      code: `0x${fourTwenty}`,
+    }
+
+    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
+      {
+        "code": "0x${fourTwenty}",
+      }
+    `)
+
+    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
+      code: undefined,
+    }
+
+    expect(
+      parseAccountStateOverride(emptyStateOverride),
+    ).toMatchInlineSnapshot(`
+      {}
+    `)
+  })
+
+  test('args: balance', () => {
+    const stateOverride: Omit<StateOverride[number], 'address'> = {
+      balance: 1n,
+    }
+
+    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
+      {
+        "balance": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      }
+    `)
+
+    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
+      balance: undefined,
+    }
+
+    expect(
+      parseAccountStateOverride(emptyStateOverride),
+    ).toMatchInlineSnapshot(`
+      {}
+    `)
+  })
+
+  test('args: nonce', () => {
+    const stateOverride: Omit<StateOverride[number], 'address'> = {
+      nonce: 1,
+    }
+
+    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
+      {
+        "nonce": "0x0000000000000001",
+      }
+    `)
+
+    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
+      nonce: undefined,
+    }
+
+    expect(
+      parseAccountStateOverride(emptyStateOverride),
+    ).toMatchInlineSnapshot(`
+      {}
+    `)
   })
 })
