@@ -1,12 +1,12 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const hederaTestnet = /*#__PURE__*/ defineChain({
-    id: 0x128,
+    id: 296,
     name: 'Hedera Testnet',
     network: 'hedera-testnet',
     nativeCurrency: {
-        symbol: 'ℏ',
-        name: 'tHBAR',
+        symbol: 'HBAR',
+        name: 'HBAR',
         decimals:  18,
     },
     rpcUrls: {
