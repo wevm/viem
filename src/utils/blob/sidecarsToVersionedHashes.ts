@@ -20,6 +20,17 @@ export type SidecarsToVersionedHashesReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
 
+/**
+ * Transforms a list of sidecars to their versioned hashes.
+ *
+ * @example
+ * ```ts
+ * import { toBlobSidecars, sidecarsToVersionedHashes, stringToHex } from 'viem'
+ *
+ * const sidecars = toBlobSidecars({ data: stringToHex('hello world') })
+ * const versionedHashes = sidecarsToVersionedHashes({ sidecars })
+ * ```
+ */
 export function sidecarsToVersionedHashes<
   const sidecars extends BlobSidecars,
   to extends To =

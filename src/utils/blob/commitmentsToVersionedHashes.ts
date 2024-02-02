@@ -19,6 +19,23 @@ export type CommitmentsToVersionedHashesReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
 
+/**
+ * Transform a list of commitments to their versioned hashes.
+ *
+ * @example
+ * ```ts
+ * import {
+ *   blobsToCommitments,
+ *   commitmentsToVersionedHashes,
+ *   toBlobs
+ * } from 'viem'
+ * import { kzg } from './kzg'
+ *
+ * const blobs = toBlobs({ data: '0x1234' })
+ * const commitments = blobsToCommitments({ blobs, kzg })
+ * const versionedHashes = commitmentsToVersionedHashes({ commitments })
+ * ```
+ */
 export function commitmentsToVersionedHashes<
   const commitments extends Uint8Array[] | Hex[],
   to extends To =

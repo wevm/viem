@@ -12,6 +12,17 @@ export type SetupKzgOptions = DefineKzgParameters & {
 export type SetupKzgReturnType = DefineKzgReturnType
 export type SetupKzgErrorType = DefineKzgErrorType | ErrorType
 
+/**
+ * Sets up and returns a KZG interface.
+ *
+ * @example
+ * ```ts
+ * import { setupKzg } from 'viem'
+ * import * as cKzg from 'c-kzg'
+ *
+ * const kzg = setupKzg('./trusted-setup.json', cKzg)
+ * ```
+ */
 export function setupKzg(
   path: string,
   options: SetupKzgOptions,

@@ -21,6 +21,18 @@ export type BlobsToCommitmentsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
 
+/**
+ * Compute commitments from a list of blobs.
+ *
+ * @example
+ * ```ts
+ * import { blobsToCommitments, toBlobs } from 'viem'
+ * import { kzg } from './kzg'
+ *
+ * const blobs = toBlobs({ data: '0x1234' })
+ * const commitments = blobsToCommitments({ blobs, kzg })
+ * ```
+ */
 export function blobsToCommitments<
   const blobs extends ByteArray[] | Hex[],
   to extends To =

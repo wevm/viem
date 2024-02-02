@@ -41,6 +41,33 @@ export type ToBlobSidecarsReturnType<to extends To> =
   | (to extends 'bytes' ? BlobSidecars<ByteArray> : never)
   | (to extends 'hex' ? BlobSidecars<Hex> : never)
 
+/**
+ * Transforms arbitrary data (or blobs, commitments, & proofs) into a sidecar array.
+ *
+ * @example
+ * ```ts
+ * import { toBlobSidecars, stringToHex } from 'viem'
+ *
+ * const sidecars = toBlobSidecars({ data: stringToHex('hello world') })
+ * ```
+ *
+ * @example
+ * ```ts
+ * import {
+ *   blobsToCommitments,
+ *   toBlobs,
+ *   toBlobProofs,
+ *   toBlobSidecars,
+ *   stringToHex
+ * } from 'viem'
+ *
+ * const blobs = toBlobs({ data: stringToHex('hello world') })
+ * const commitments = blobsToCommitments({ blobs, kzg })
+ * const proofs = toBlobProofs({ blobs, commitments, kzg })
+ *
+ * const sidecars = toBlobSidecars({ blobs, commitments, proofs })
+ * ```
+ */
 export function toBlobSidecars<
   const data extends Hex | ByteArray | undefined = undefined,
   const blobs extends Hex[] | ByteArray[] | undefined = undefined,

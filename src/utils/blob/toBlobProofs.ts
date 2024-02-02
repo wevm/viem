@@ -33,6 +33,22 @@ export type toBlobProofsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
 
+/**
+ * Compute the proofs for a list of blobs and their commitments.
+ *
+ * @example
+ * ```ts
+ * import {
+ *   blobsToCommitments,
+ *   toBlobs
+ * } from 'viem'
+ * import { kzg } from './kzg'
+ *
+ * const blobs = toBlobs({ data: '0x1234' })
+ * const commitments = blobsToCommitments({ blobs, kzg })
+ * const proofs = toBlobProofs({ blobs, commitments, kzg })
+ * ```
+ */
 export function toBlobProofs<
   const blobs extends ByteArray[] | Hex[],
   const commitments extends ByteArray[] | Hex[],

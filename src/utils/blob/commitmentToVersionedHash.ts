@@ -20,6 +20,23 @@ export type CommitmentToVersionedHashReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray : never)
   | (to extends 'hex' ? Hex : never)
 
+/**
+ * Transform a commitment to it's versioned hash.
+ *
+ * @example
+ * ```ts
+ * import {
+ *   blobsToCommitments,
+ *   commitmentToVersionedHash,
+ *   toBlobs
+ * } from 'viem'
+ * import { kzg } from './kzg'
+ *
+ * const blobs = toBlobs({ data: '0x1234' })
+ * const [commitment] = blobsToCommitments({ blobs, kzg })
+ * const versionedHash = commitmentToVersionedHash({ commitment })
+ * ```
+ */
 export function commitmentToVersionedHash<
   const commitment extends Hex | ByteArray,
   to extends To =

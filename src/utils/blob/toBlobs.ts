@@ -25,6 +25,16 @@ export type ToBlobsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
 
+/**
+ * Transforms arbitrary data to blobs.
+ *
+ * @example
+ * ```ts
+ * import { toBlobs, stringToHex } from 'viem'
+ *
+ * const blobs = toBlobs({ data: stringToHex('hello world') })
+ * ```
+ */
 export function toBlobs<
   const data extends Hex | ByteArray,
   to extends To =
