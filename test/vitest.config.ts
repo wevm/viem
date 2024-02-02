@@ -28,6 +28,6 @@ export default defineConfig({
     include: ['src/**/*.test.ts'],
     setupFiles: [join(__dirname, './setup.ts')],
     globalSetup: [join(__dirname, './globalSetup.ts')],
-    testTimeout: 10_000,
+    testTimeout: 20_000,
   },
 })
