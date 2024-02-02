@@ -44,7 +44,7 @@ import {
   prepareTransactionRequest,
 } from './prepareTransactionRequest.js'
 import {
-  type SendRawTransactionReturnType,
+  type SendRawTransactionErrorType,
   sendRawTransaction,
 } from './sendRawTransaction.js'
 
@@ -67,7 +67,7 @@ export type SendTransactionErrorType =
       | AssertRequestErrorType
       | GetChainIdErrorType
       | PrepareTransactionRequestErrorType
-      | SendRawTransactionReturnType
+      | SendRawTransactionErrorType
       | SignTransactionErrorType
       | RequestErrorType
     >
