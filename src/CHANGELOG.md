@@ -1,5 +1,15 @@
 # viem
 
+## 2.7.2
+
+### Patch Changes
+
+- [#1764](https://github.com/wevm/viem/pull/1764) [`525bf85165fc2eba57445f6ed0076c243748e978`](https://github.com/wevm/viem/commit/525bf85165fc2eba57445f6ed0076c243748e978) Thanks [@franm91](https://github.com/franm91)! - Renamed Optimism Sepolia chain
+
+- [`1852477ee428f55bf78c68744a6aa3e2f5bac05b`](https://github.com/wevm/viem/commit/1852477ee428f55bf78c68744a6aa3e2f5bac05b) Thanks [@jxom](https://github.com/jxom)! - Fixed `SendTransactionErrorType`.
+
+- [#1758](https://github.com/wevm/viem/pull/1758) [`232c4d34a5ee57ad55bac734f97eb58c9f402b4b`](https://github.com/wevm/viem/commit/232c4d34a5ee57ad55bac734f97eb58c9f402b4b) Thanks [@bguiz](https://github.com/bguiz)! - Added Hedera chains.
+
 ## 2.7.1
 
 ### Patch Changes
