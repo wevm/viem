@@ -3,11 +3,11 @@ import type { Hash } from '../types/misc.js'
 
 import { BaseError } from './base.js'
 
-export type BlobSizeTooLargeType = BlobSizeTooLarge & {
-  name: 'BlobSizeTooLarge'
+export type BlobSizeTooLargeErrorType = BlobSizeTooLargeError & {
+  name: 'BlobSizeTooLargeError'
 }
-export class BlobSizeTooLarge extends BaseError {
-  override name = 'BlobSizeTooLarge'
+export class BlobSizeTooLargeError extends BaseError {
+  override name = 'BlobSizeTooLargeError'
   constructor({ maxSize, size }: { maxSize: number; size: number }) {
     super('Blob size is too large.', {
       metaMessages: [`Max: ${maxSize} bytes`, `Given: ${size} bytes`],

@@ -19,10 +19,22 @@ import type {
   TransactionType,
 } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
-import { blobsToCommitments } from '../blob/blobsToCommitments.js'
-import { commitmentsToVersionedHashes } from '../blob/commitmentsToVersionedHashes.js'
-import { toBlobProofs } from '../blob/toBlobProofs.js'
-import { toBlobSidecars } from '../blob/toBlobSidecars.js'
+import {
+  type BlobsToCommitmentsErrorType,
+  blobsToCommitments,
+} from '../blob/blobsToCommitments.js'
+import {
+  type CommitmentsToVersionedHashesErrorType,
+  commitmentsToVersionedHashes,
+} from '../blob/commitmentsToVersionedHashes.js'
+import {
+  type ToBlobProofsErrorType,
+  toBlobProofs,
+} from '../blob/toBlobProofs.js'
+import {
+  type ToBlobSidecarsErrorType,
+  toBlobSidecars,
+} from '../blob/toBlobSidecars.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { trim } from '../data/trim.js'
 import { type ToHexErrorType, toHex } from '../encoding/toHex.js'
@@ -107,6 +119,10 @@ export function serializeTransaction<
 
 type SerializeTransactionEIP4844ErrorType =
   | AssertTransactionEIP4844ErrorType
+  | BlobsToCommitmentsErrorType
+  | CommitmentsToVersionedHashesErrorType
+  | ToBlobProofsErrorType
+  | ToBlobSidecarsErrorType
   | ConcatHexErrorType
   | InvalidLegacyVErrorType
   | ToHexErrorType

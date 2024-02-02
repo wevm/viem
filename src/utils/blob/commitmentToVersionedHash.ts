@@ -1,6 +1,7 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { bytesToHex } from '../encoding/toHex.js'
-import { sha256 } from '../hash/sha256.js'
+import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
+import { type Sha256ErrorType, sha256 } from '../hash/sha256.js'
 
 type To = 'hex' | 'bytes'
 
@@ -19,6 +20,11 @@ export type CommitmentToVersionedHashParameters<
 export type CommitmentToVersionedHashReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray : never)
   | (to extends 'hex' ? Hex : never)
+
+export type CommitmentToVersionedHashErrorType =
+  | Sha256ErrorType
+  | BytesToHexErrorType
+  | ErrorType
 
 /**
  * Transform a commitment to it's versioned hash.

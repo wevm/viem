@@ -1,5 +1,9 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { commitmentToVersionedHash } from './commitmentToVersionedHash.js'
+import {
+  type CommitmentToVersionedHashErrorType,
+  commitmentToVersionedHash,
+} from './commitmentToVersionedHash.js'
 
 type To = 'hex' | 'bytes'
 
@@ -18,6 +22,10 @@ export type CommitmentsToVersionedHashesParameters<
 export type CommitmentsToVersionedHashesReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
+
+export type CommitmentsToVersionedHashesErrorType =
+  | CommitmentToVersionedHashErrorType
+  | ErrorType
 
 /**
  * Transform a list of commitments to their versioned hashes.

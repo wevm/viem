@@ -1,6 +1,10 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlobSidecars } from '../../types/eip4844.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { commitmentToVersionedHash } from './commitmentToVersionedHash.js'
+import {
+  type CommitmentToVersionedHashErrorType,
+  commitmentToVersionedHash,
+} from './commitmentToVersionedHash.js'
 
 type To = 'hex' | 'bytes'
 
@@ -19,6 +23,10 @@ export type SidecarsToVersionedHashesParameters<
 export type SidecarsToVersionedHashesReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
+
+export type SidecarsToVersionedHashesErrorType =
+  | CommitmentToVersionedHashErrorType
+  | ErrorType
 
 /**
  * Transforms a list of sidecars to their versioned hashes.

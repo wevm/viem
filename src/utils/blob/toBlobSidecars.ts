@@ -1,10 +1,14 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlobSidecars } from '../../types/eip4844.js'
 import type { Kzg } from '../../types/kzg.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import type { OneOf } from '../../types/utils.js'
-import { blobsToCommitments } from './blobsToCommitments.js'
-import { toBlobProofs } from './toBlobProofs.js'
-import { toBlobs } from './toBlobs.js'
+import {
+  type BlobsToCommitmentsErrorType,
+  blobsToCommitments,
+} from './blobsToCommitments.js'
+import { type ToBlobProofsErrorType, toBlobProofs } from './toBlobProofs.js'
+import { type ToBlobsErrorType, toBlobs } from './toBlobs.js'
 
 type To = 'hex' | 'bytes'
 
@@ -37,9 +41,16 @@ export type ToBlobSidecarsParameters<
       proofs: _blobsType | Hex[] | ByteArray[]
     }
 >
+
 export type ToBlobSidecarsReturnType<to extends To> =
   | (to extends 'bytes' ? BlobSidecars<ByteArray> : never)
   | (to extends 'hex' ? BlobSidecars<Hex> : never)
+
+export type ToBlobSidecarsErrorType =
+  | BlobsToCommitmentsErrorType
+  | ToBlobsErrorType
+  | ToBlobProofsErrorType
+  | ErrorType
 
 /**
  * Transforms arbitrary data (or blobs, commitments, & proofs) into a sidecar array.

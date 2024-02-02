@@ -1,7 +1,8 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { Kzg } from '../../types/kzg.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { hexToBytes } from '../encoding/toBytes.js'
-import { bytesToHex } from '../encoding/toHex.js'
+import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
+import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 
@@ -32,6 +33,11 @@ export type ToBlobProofsParameters<
 export type toBlobProofsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
+
+export type ToBlobProofsErrorType =
+  | BytesToHexErrorType
+  | HexToBytesErrorType
+  | ErrorType
 
 /**
  * Compute the proofs for a list of blobs and their commitments.

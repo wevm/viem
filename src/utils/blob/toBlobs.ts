@@ -3,11 +3,17 @@ import {
   fieldElementsPerBlob,
   maxBytesPerTransaction,
 } from '../../constants/blob.js'
-import { BlobSizeTooLarge, EmptyBlobError } from '../../errors/blob.js'
+import {
+  BlobSizeTooLargeError,
+  type BlobSizeTooLargeErrorType,
+  EmptyBlobError,
+  type EmptyBlobErrorType,
+} from '../../errors/blob.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { size } from '../data/size.js'
-import { hexToBytes } from '../encoding/toBytes.js'
-import { bytesToHex } from '../encoding/toHex.js'
+import { type SizeErrorType, size } from '../data/size.js'
+import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
+import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 
@@ -24,6 +30,14 @@ export type ToBlobsParameters<
 export type ToBlobsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray[] : never)
   | (to extends 'hex' ? Hex[] : never)
+
+export type ToBlobsErrorType =
+  | BlobSizeTooLargeErrorType
+  | BytesToHexErrorType
+  | EmptyBlobErrorType
+  | HexToBytesErrorType
+  | SizeErrorType
+  | ErrorType
 
 /**
  * Transforms arbitrary data to blobs.
@@ -51,7 +65,10 @@ export function toBlobs<
   const size_ = size(data)
   if (!size_) throw new EmptyBlobError()
   if (size_ > maxBytesPerTransaction)
-    throw new BlobSizeTooLarge({ maxSize: maxBytesPerTransaction, size: size_ })
+    throw new BlobSizeTooLargeError({
+      maxSize: maxBytesPerTransaction,
+      size: size_,
+    })
 
   const length = Math.ceil(size_ / bytesPerBlob)
   const paddedData = pad(data as any, length)
