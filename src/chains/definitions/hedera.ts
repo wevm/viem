@@ -1,11 +1,11 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const hedera = /*#__PURE__*/ defineChain({
-    id: 0x127,
+    id: 295,
     name: 'Hedera Mainnet',
     network: 'hedera-mainnet',
     nativeCurrency: {
-        symbol: 'ℏ',
+        symbol: 'HBAR',
         name: 'HBAR',
         decimals:  18,
     },
