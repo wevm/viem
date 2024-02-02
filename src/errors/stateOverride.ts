@@ -19,7 +19,7 @@ export type StateAssignmentConflictErrorType = StateAssignmentConflictError & {
 export class StateAssignmentConflictError extends BaseError {
   override name = 'StateAssignmentConflictError'
   constructor() {
-    super('`state` and `stateDiff` are set on the same account.')
+    super('state and stateDiff are set on the same account.')
   }
 }
 
