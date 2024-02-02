@@ -101,7 +101,7 @@ const publicClient = createPublicClient({
 
 ### 3. Create a signer
 
-This can be any Viem account type.  In this case we use a [LocalAccount](/accounts/local).
+This can be any Viem account type.  In this case we use a [Local Account](/docs/accounts/local).
 
 ```ts
 import { Hex } from "viem"
