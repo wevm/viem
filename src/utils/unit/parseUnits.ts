@@ -14,7 +14,19 @@ export type ParseUnitsErrorType = ErrorType
  * // 420000000000n
  */
 export function parseUnits(value: string, decimals: number) {
+  const scientificToBigInt = (scientificNotation) => {
+    const [coefficient, exponent] = scientificNotation.toLowerCase().split('e');
+    const shift = BigInt(exponent);
+    const shiftedValue = BigInt(coefficient.replace('.', '')) * 10n ** shift;
+    return shiftedValue;
+  };
+  
   let [integer, fraction = '0'] = value.split('.')
+
+  // Handle scientific notation
+  if (value.toLowerCase().includes('e')) {
+    return scientificToBigInt(value);
+  }
 
   const negative = integer.startsWith('-')
   if (negative) integer = integer.slice(1)
