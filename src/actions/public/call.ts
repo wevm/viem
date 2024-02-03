@@ -9,7 +9,10 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { aggregate3Signature } from '../../constants/contract.js'
-import { InvalidAddressError } from '../../errors/address.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
 import {
   ChainDoesNotSupportContract,
@@ -19,10 +22,15 @@ import {
   RawContractError,
   type RawContractErrorType,
 } from '../../errors/contract.js'
-import { InvalidBytesLengthError } from '../../errors/data.js'
+import {
+  InvalidBytesLengthError,
+  type InvalidBytesLengthErrorType,
+} from '../../errors/data.js'
 import {
   AccountStateConflictError,
+  type AccountStateConflictErrorType,
   StateAssignmentConflictError,
+  type StateAssignmentConflictErrorType,
 } from '../../errors/stateOverride.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
@@ -106,6 +114,7 @@ export type CallReturnType = { data: Hex | undefined }
 
 export type CallErrorType = GetCallErrorReturnType<
   | ParseAccountErrorType
+  | ParseStateOverrideErrorType
   | AssertRequestErrorType
   | NumberToHexErrorType
   | FormatTransactionRequestErrorType
@@ -350,6 +359,8 @@ export function getRevertErrorData(err: unknown) {
   return typeof error.data === 'object' ? error.data.data : error.data
 }
 
+export type ParseStateMappingErrorType = InvalidBytesLengthErrorType
+
 export function parseStateMapping(
   stateMapping: StateMapping | undefined,
 ): RpcStateMapping | undefined {
@@ -371,6 +382,11 @@ export function parseStateMapping(
     return acc
   }, {} as RpcStateMapping)
 }
+
+export type ParseAccountStateOverrideErrorType =
+  | NumberToHexErrorType
+  | StateAssignmentConflictErrorType
+  | ParseStateMappingErrorType
 
 export function parseAccountStateOverride(
   args: Omit<StateOverride[number], 'address'>,
@@ -395,6 +411,11 @@ export function parseAccountStateOverride(
   }
   return rpcAccountStateOverride
 }
+
+export type ParseStateOverrideErrorType =
+  | InvalidAddressErrorType
+  | AccountStateConflictErrorType
+  | ParseAccountStateOverrideErrorType
 
 export function parseStateOverride(
   args?: StateOverride,
