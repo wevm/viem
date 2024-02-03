@@ -313,12 +313,12 @@ describe('errors', () => {
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
        - pay for the value to send.
-
+       
       The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
        - \`gas\` is the amount of gas needed for transaction to execute,
        - \`gas fee\` is the gas fee,
        - \`value\` is the amount of ether to send to the recipient.
-
+       
       Raw Call Arguments:
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:     0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -504,19 +504,19 @@ describe('errors', () => {
           ],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [CallExecutionError: \`state\` and \`stateDiff\` are set on the same account.
+        [CallExecutionError: state and stateDiff are set on the same account.
 
-      Raw Call Arguments:
-        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-        data:  0x06fdde03
-        State Override:
-          0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
-            state:
-              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
-            stateDiff:
-              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+        Raw Call Arguments:
+          to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+          data:  0x06fdde03
+          State Override:
+            0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
+              state:
+                0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+              stateDiff:
+                0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
-      Version: viem@1.0.2]
+        Version: viem@1.0.2]
       `)
     })
   })
