@@ -1,4 +1,4 @@
-import { http, createPublicClient, stringify, parseAbiItem } from 'viem'
+import { http, createPublicClient, parseAbiItem, stringify } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
@@ -9,7 +9,7 @@ const client = createPublicClient({
 const el = document.getElementById('app')
 
 const event = parseAbiItem(
-  'event NameRegistered(string name,bytes32 indexed label,address indexed owner,uint256 cost,uint256 expires)'
+  'event NameRegistered(string name,bytes32 indexed label,address indexed owner,uint256 cost,uint256 expires)',
 )
 
 // Get initial event logs (last 20 blocks)
