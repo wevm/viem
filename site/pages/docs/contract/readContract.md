@@ -213,6 +213,32 @@ const data = await publicClient.readContract({
 })
 ```
 
+### stateOverride (optional)
+
+- **Type:** [`StateOverride`](/docs/glossary/types#stateoverride)
+
+The state override set is an optional address-to-state mapping, where each entry specifies some state to be ephemerally overridden prior to executing the call.
+
+```ts
+const data = await publicClient.readContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'totalSupply',
+  stateOverride: [ // [!code focus]
+    { // [!code focus]
+      address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
+      balance: parseEther('1'), // [!code focus]
+      stateDiff: [ // [!code focus]
+        { // [!code focus]
+          slot: '0x3ea2f1d0abf3fc66cf29eebb70cbd4e7fe762ef8a09bcc06c8edf641230afec0', // [!code focus]
+          value: '0x00000000000000000000000000000000000000000000000000000000000001a4', // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    } // [!code focus]
+  ], // [!code focus]
+})
+```
+
 ## Live Example
 
 Check out the usage of `readContract` in the live [Reading Contracts Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_reading-contracts) below.

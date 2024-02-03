@@ -8,7 +8,7 @@ Executes a new message call immediately without submitting a transaction to the 
 
 ```ts [example.ts]
 import { account, publicClient } from './config'
- 
+
 const data = await publicClient.call({ // [!code focus:7]
   account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -106,6 +106,37 @@ const data = await publicClient.call({
 })
 ```
 
+### blockNumber (optional)
+
+- **Type:** `number`
+
+The block number to perform the call against.
+
+```ts
+const data = await publicClient.call({
+  blockNumber: 15121123n, // [!code focus]
+  account,
+  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
+### blockTag (optional)
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+The block tag to perform the call against.
+
+```ts
+const data = await publicClient.call({
+  blockTag: 'safe', // [!code focus]
+  account,
+  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
 ### gas (optional)
 
 - **Type:** `bigint`
@@ -182,6 +213,32 @@ const data = await publicClient.call({
 })
 ```
 
+### stateOverride (optional)
+
+- **Type:** [`StateOverride`](/docs/glossary/types#stateoverride)
+
+The state override set is an optional address-to-state mapping, where each entry specifies some state to be ephemerally overridden prior to executing the call.
+
+```ts
+const data = await publicClient.call({
+  account,
+  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  stateOverride: [ // [!code focus]
+    { // [!code focus]
+      address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
+      balance: parseEther('1'), // [!code focus]
+      stateDiff: [ // [!code focus]
+        { // [!code focus]
+          slot: '0x3ea2f1d0abf3fc66cf29eebb70cbd4e7fe762ef8a09bcc06c8edf641230afec0', // [!code focus]
+          value: '0x00000000000000000000000000000000000000000000000000000000000001a4', // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    } // [!code focus]
+  ], // [!code focus]
+})
+```
+
 ### value (optional)
 
 - **Type:** `bigint`
@@ -194,37 +251,6 @@ const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1'), // [!code focus]
-})
-```
-
-### blockNumber (optional)
-
-- **Type:** `number`
-
-The block number to perform the call against.
-
-```ts
-const data = await publicClient.call({
-  blockNumber: 15121123n, // [!code focus]
-  account,
-  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-})
-```
-
-### blockTag (optional)
-
-- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
-- **Default:** `'latest'`
-
-The block tag to perform the call against.
-
-```ts
-const data = await publicClient.call({
-  blockTag: 'safe', // [!code focus]
-  account,
-  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
 

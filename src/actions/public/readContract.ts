@@ -40,7 +40,7 @@ export type ReadContractParameters<
     functionName
   > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
 > = UnionEvaluate<
-  Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag'>
+  Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag' | 'stateOverride'>
 > &
   ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>
 
