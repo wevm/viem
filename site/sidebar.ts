@@ -841,6 +841,15 @@ export const sidebar = {
           ],
         },
         {
+          text: 'KZG',
+          items: [
+            {
+              text: 'defineKzg',
+              link: '/docs/utilities/defineKzg',
+            },
+          ],
+        },
+        {
           text: 'Signature',
           items: [
             {
