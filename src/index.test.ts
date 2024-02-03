@@ -244,6 +244,8 @@ test('exports', () => {
       "SizeExceedsPaddingSizeError",
       "SliceOffsetOutOfBoundsError",
       "UrlRequiredError",
+      "AccountStateConflictError",
+      "StateAssignmentConflictError",
       "labelhash",
       "namehash",
       "defineBlock",

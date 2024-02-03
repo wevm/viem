@@ -19,7 +19,7 @@ test('AccountStateConflictError', () => {
 
 test('StateAssignmentConflictError', () => {
   expect(new StateAssignmentConflictError()).toMatchInlineSnapshot(`
-    [StateAssignmentConflictError: \`state\` and \`stateDiff\` are set on the same account.
+    [StateAssignmentConflictError: state and stateDiff are set on the same account.
 
     Version: viem@1.0.2]
   `)
