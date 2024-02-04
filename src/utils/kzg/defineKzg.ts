@@ -10,10 +10,11 @@ export type DefineKzgErrorType = ErrorType
  *
  * @example
  * ```ts
- * import { defineKzg } from 'viem'
  * import * as cKzg from 'c-kzg'
+ * import { defineKzg } from 'viem'
+ * import { mainnetTrustedSetup } from 'viem/node'
  *
- * cKzg.loadTrustedSetup('./trusted-setup.json')
+ * cKzg.loadTrustedSetup(mainnetTrustedSetup)
  *
  * const kzg = defineKzg(cKzg)
  * ```
