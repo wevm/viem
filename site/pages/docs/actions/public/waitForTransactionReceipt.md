@@ -4,7 +4,7 @@ description: Retrieves a Transaction Receipt for a given Transaction hash.
 
 # waitForTransactionReceipt
 
-Waits for the [Transaction](/docs/glossary/terms#transaction) to be included on a [Block](/docs/glossary/terms#block) (one confirmation), and then returns the [Transaction Receipt](/docs/glossary/terms#transaction-receipt). If the Transaction reverts, then the action will throw an error.
+Waits for the [Transaction](/docs/glossary/terms#transaction) to be included on a [Block](/docs/glossary/terms#block) (one confirmation), and then returns the [Transaction Receipt](/docs/glossary/terms#transaction-receipt).
 
 The `waitForTransactionReceipt` action additionally supports Replacement detection (e.g. sped up Transactions).
 
