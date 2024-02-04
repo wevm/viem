@@ -1317,7 +1317,7 @@ export {
 } from './utils/kzg/defineKzg.js'
 export {
   type SetupKzgErrorType,
-  type SetupKzgOptions,
+  type SetupKzgParameters,
   type SetupKzgReturnType,
   setupKzg,
 } from './utils/kzg/setupKzg.js'

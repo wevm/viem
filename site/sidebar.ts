@@ -844,8 +844,8 @@ export const sidebar = {
           text: 'KZG',
           items: [
             {
-              text: 'defineKzg',
-              link: '/docs/utilities/defineKzg',
+              text: 'setupKzg',
+              link: '/docs/utilities/setupKzg',
             },
           ],
         },

@@ -6,7 +6,7 @@ description: Defines a KZG interface.
 
 Defines a [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844) compatible [KZG interface](https://notes.ethereum.org/@vbuterin/proto_danksharding_faq#How-%E2%80%9Ccomplicated%E2%80%9D-and-%E2%80%9Cnew%E2%80%9D-is-KZG). The KZG interface is used in the blob transaction signing process to generate KZG commitments & proofs.
 
-The KZG interface currently accepts two functions:
+`defineKzg` accepts a KZG interface that implements two functions:
 
 - `blobToKzgCommitment`: A function that takes a blob and returns it's KZG commitment.
 - `computeBlobKzgProof`: A function that takes a blob and it's commitment, and returns the KZG proof.
