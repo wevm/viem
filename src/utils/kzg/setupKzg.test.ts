@@ -1,11 +1,11 @@
 import * as cKzg from 'c-kzg'
 import { expect, test } from 'vitest'
 
-import { trustedSetupPath } from '../../../test/src/kzg.js'
+import { mainnetTrustedSetup } from '../../node/index.js'
 import { setupKzg } from './setupKzg.js'
 
 test('setupKzg', () => {
-  const kzg = setupKzg(trustedSetupPath, cKzg)
+  const kzg = setupKzg(cKzg, mainnetTrustedSetup)
 
   expect(kzg).toMatchInlineSnapshot(`
     {

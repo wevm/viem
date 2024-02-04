@@ -6,7 +6,7 @@ import {
   defineKzg,
 } from './defineKzg.js'
 
-export type SetupKzgOptions = DefineKzgParameters & {
+export type SetupKzgParameters = DefineKzgParameters & {
   loadTrustedSetup(path: string): void
 }
 export type SetupKzgReturnType = DefineKzgReturnType
@@ -17,21 +17,22 @@ export type SetupKzgErrorType = DefineKzgErrorType | ErrorType
  *
  * @example
  * ```ts
- * import { setupKzg } from 'viem'
  * import * as cKzg from 'c-kzg'
+ * import { setupKzg } from 'viem'
+ * import { mainnetTrustedSetup } from 'viem/node'
  *
- * const kzg = setupKzg('./trusted-setup.json', cKzg)
+ * const kzg = setupKzg(cKzg, mainnetTrustedSetup)
  * ```
  */
 export function setupKzg(
+  parameters: SetupKzgParameters,
   path: string,
-  options: SetupKzgOptions,
 ): SetupKzgReturnType {
   try {
-    options.loadTrustedSetup(path)
+    parameters.loadTrustedSetup(path)
   } catch (e) {
     const error = e as Error
     if (!error.message.includes('trusted setup is already loaded')) throw error
   }
-  return defineKzg(options)
+  return defineKzg(parameters)
 }

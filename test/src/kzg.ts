@@ -1,7 +1,5 @@
-import { resolve } from 'node:path'
 import * as cKzg from 'c-kzg'
+import { mainnetTrustedSetup } from '~viem/node/trustedSetups.js'
 import { setupKzg } from '~viem/utils/kzg/setupKzg.js'
 
-export const trustedSetupPath = resolve(__dirname, '../kzg/trusted_setup.json')
-
-export const kzg = setupKzg(trustedSetupPath, cKzg)
+export const kzg = setupKzg(cKzg, mainnetTrustedSetup)

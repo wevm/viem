@@ -28,8 +28,9 @@ const versionedHashes = sidecarsToVersionedHashes({ sidecars }) // [!code focus]
 // @noErrors
 import * as kzg from 'c-kzg'
 import { setupKzg } from 'viem'
+import { mainnetTrustedSetup } from 'viem/node'
 
-export const kzg = setupKzg('./trusted-setup.json', cKzg)
+export const kzg = setupKzg(cKzg, mainnetTrustedSetup)
 ```
 
 :::

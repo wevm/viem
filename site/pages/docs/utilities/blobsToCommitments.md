@@ -28,8 +28,9 @@ const commitments = blobsToCommitments({ blobs, kzg }) // [!code focus]
 // @noErrors
 import * as kzg from 'c-kzg'
 import { setupKzg } from 'viem'
+import { mainnetTrustedSetup } from 'viem/node'
 
-export const kzg = setupKzg('./trusted-setup.json', cKzg)
+export const kzg = setupKzg(cKzg, mainnetTrustedSetup)
 ```
 
 :::
@@ -71,8 +72,9 @@ KZG implementation. See [`setupKzg`](/docs/utilities/setupKzg) for more informat
 // @noErrors
 import * as kzg from 'c-kzg'
 import { blobsToCommitments, setupKzg, toBlobs } from 'viem'
+import { mainnetTrustedSetup } from 'viem/node'
 
-const kzg = setupKzg('./trusted-setup.json', cKzg) // [!code focus]
+const kzg = setupKzg(cKzg, mainnetTrustedSetup) // [!code focus]
 
 const commitments = blobsToCommitments({ 
   blobs: toBlobs({ data: '0x1234' }),  

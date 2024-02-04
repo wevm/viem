@@ -93,10 +93,11 @@ KZG implementation. See [`setupKzg`](/docs/utilities/setupKzg) for more informat
 // @noErrors
 import * as kzg from 'c-kzg'
 import { blobsToProofs, setupKzg } from 'viem'
+import { mainnetTrustedSetup } from 'viem/node'
 
 const blobs = toBlobs({ data: '0x...' })
 const commitments = blobsToCommitments({ blobs, kzg })
-const kzg = setupKzg('./trusted-setup.json', cKzg) // [!code focus]
+const kzg = setupKzg(cKzg, mainnetTrustedSetup) // [!code focus]
 
 const proofs = blobsToProofs({ 
   blobs,
