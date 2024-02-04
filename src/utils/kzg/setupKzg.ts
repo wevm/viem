@@ -19,9 +19,9 @@ export type SetupKzgErrorType = DefineKzgErrorType | ErrorType
  * ```ts
  * import * as cKzg from 'c-kzg'
  * import { setupKzg } from 'viem'
- * import { mainnetTrustedSetup } from 'viem/node'
+ * import { mainnetTrustedSetupPath } from 'viem/node'
  *
- * const kzg = setupKzg(cKzg, mainnetTrustedSetup)
+ * const kzg = setupKzg(cKzg, mainnetTrustedSetupPath)
  * ```
  */
 export function setupKzg(

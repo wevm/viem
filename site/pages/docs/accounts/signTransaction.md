@@ -95,9 +95,9 @@ Blobs for [Blob Transactions](/docs/guides/blob-transactions).
 ```ts
 import * as kzg from 'c-kzg'
 import { toBlobs, stringToHex } from 'viem'
-import { mainnetTrustedSetup } from 'viem/node'
+import { mainnetTrustedSetupPath } from 'viem/node'
 
-const kzg = setupKzg(cKzg, mainnetTrustedSetup) 
+const kzg = setupKzg(cKzg, mainnetTrustedSetupPath) 
 
 const hash = await account.signTransaction({
   blobs: toBlobs({ data: stringToHex('blobby blob!') }), // [!code focus]
@@ -178,9 +178,9 @@ See [`setupKzg`](/docs/utilities/setupKzg) for more information.
 ```ts
 import * as kzg from 'c-kzg'
 import { toBlobs, stringToHex } from 'viem'
-import { mainnetTrustedSetup } from 'viem/node'
+import { mainnetTrustedSetupPath } from 'viem/node'
 
-const kzg = setupKzg(cKzg, mainnetTrustedSetup) // [!code focus]
+const kzg = setupKzg(cKzg, mainnetTrustedSetupPath) // [!code focus]
 
 const signature = await account.signTransaction({
   blobs: toBlobs({ data: stringToHex('blobby blob!') }), // [!code focus]

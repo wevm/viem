@@ -10,6 +10,7 @@ cache
 coverage
 node_modules
 tsconfig*.tsbuildinfo
+**/trusted-setups/**/*.txt
 
 # local env files
 .env

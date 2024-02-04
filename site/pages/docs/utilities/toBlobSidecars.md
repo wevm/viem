@@ -31,9 +31,9 @@ const sidecars = toBlobSidecars({ data: '0x...', kzg }) // [!code focus]
 // @noErrors
 import * as kzg from 'c-kzg'
 import { setupKzg } from 'viem'
-import { mainnetTrustedSetup } from 'viem/node'
+import { mainnetTrustedSetupPath } from 'viem/node'
 
-export const kzg = setupKzg(cKzg, mainnetTrustedSetup)
+export const kzg = setupKzg(cKzg, mainnetTrustedSetupPath)
 ```
 
 :::
@@ -63,9 +63,9 @@ const sidecars = toBlobSidecars({ blobs, commitments, proofs }) // [!code focus]
 // @noErrors
 import * as kzg from 'c-kzg'
 import { setupKzg } from 'viem'
-import { mainnetTrustedSetup } from 'viem/node'
+import { mainnetTrustedSetupPath } from 'viem/node'
 
-export const kzg = setupKzg(cKzg, mainnetTrustedSetup)
+export const kzg = setupKzg(cKzg, mainnetTrustedSetupPath)
 ```
 
 :::
@@ -156,9 +156,9 @@ KZG implementation. See [`setupKzg`](/docs/utilities/setupKzg) for more informat
 // @noErrors
 import * as kzg from 'c-kzg'
 import { toBlobSidecars, setupKzg } from 'viem'
-import { mainnetTrustedSetup } from 'viem/node'
+import { mainnetTrustedSetupPath } from 'viem/node'
 
-const kzg = setupKzg(cKzg, mainnetTrustedSetup) // [!code focus]
+const kzg = setupKzg(cKzg, mainnetTrustedSetupPath) // [!code focus]
 
 const sidecars = toBlobSidecars({ 
   data: '0x...',

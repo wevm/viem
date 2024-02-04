@@ -29,9 +29,40 @@ import { setupKzg } from 'viem'
 ```ts twoslash
 import * as cKzg from 'c-kzg'
 import { setupKzg } from 'viem'
-import { mainnetTrustedSetup } from 'viem/node'
+import { mainnetTrustedSetupPath } from 'viem/node'
 
-const kzg = setupKzg(cKzg, mainnetTrustedSetup)
+const kzg = setupKzg(cKzg, mainnetTrustedSetupPath)
+```
+
+### Trusted Setups
+
+As seen above, when you set up your KZG interface, you will need to provide a trusted setup file. You can either import a trusted setup via the [`viem/node` entrypoint](#viemnode-entrypoint) (if you're using an engine that supports Node.js' `node:fs` module), or you can directly import the trusted setup `.json` via the [`viem/trusted-setups` entrypoint](#viemtrusted-setups-entrypoint).
+
+Viem exports the following trusted setups:
+
+- `mainnet.json`: For Ethereum Mainnet & it's Testnets (Sepolia, Goerli, etc).
+- `minimal.json`: For low-resource local dev testnets, and spec-testing.
+
+The trusted setup files are retrieved from the Ethereum [consensus-specs repository](https://github.com/ethereum/consensus-specs/tree/dev/presets).
+
+#### `viem/node` Entrypoint
+
+Viem exports **paths to the trusted setup** via the `viem/node` entrypoint, designed to be used with `setupKzg`. 
+
+```ts
+import {
+  mainnetTrustedSetupPath,
+  minimalTrustedSetupPath,
+} from 'viem/node'
+```
+
+#### `viem/trusted-setups` Entrypoint
+
+Alternatively, you can directly import the **contents of the trusted setup** file from the `viem/trusted-setups` entrypoint.
+
+```ts
+import mainnetTrustedSetup from 'viem/trusted-setups/mainnet.json'
+import minimalTrustedSetup from 'viem/trusted-setups/minimal.json'
 ```
 
 ## Returns
@@ -51,11 +82,11 @@ The [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844) compatible [KZG interfac
 ```ts twoslash
 import * as cKzg from 'c-kzg' // [!code focus]
 import { setupKzg } from 'viem'
-import { mainnetTrustedSetup } from 'viem/node'
+import { mainnetTrustedSetupPath } from 'viem/node'
 
 const kzg = setupKzg(
   cKzg, // [!code focus]
-  mainnetTrustedSetup
+  mainnetTrustedSetupPath
 )
 ```
 
@@ -68,11 +99,11 @@ The path to the trusted setup file.
 ```ts twoslash
 import * as cKzg from 'c-kzg'
 import { setupKzg } from 'viem'
-import { mainnetTrustedSetup } from 'viem/node' // [!code focus]
+import { mainnetTrustedSetupPath } from 'viem/node' // [!code focus]
 
 const kzg = setupKzg(
   cKzg, 
-  mainnetTrustedSetup // [!code focus]
+  mainnetTrustedSetupPath // [!code focus]
 )
 ```
 
