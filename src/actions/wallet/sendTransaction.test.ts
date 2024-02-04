@@ -812,12 +812,12 @@ describe('local account', () => {
       )
     })
 
-    test.skip('args: blobs', () => {
+    test.skip('args: blobs', async () => {
       // TODO: migrate to Anvil once 4844 supported.
       const blobs = toBlobs({
         data: stringToHex('hello world'),
       })
-      sendTransaction(sepoliaClient, {
+      const hash = await sendTransaction(sepoliaClient, {
         account: privateKeyToAccount(
           process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
         ),
@@ -826,6 +826,7 @@ describe('local account', () => {
         maxFeePerBlobGas: parseGwei('30'),
         to: '0x0000000000000000000000000000000000000000',
       })
+      expect(hash).toBeDefined()
     })
   })
 

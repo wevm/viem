@@ -3,9 +3,10 @@ import type {
   Chain,
   ExtractChainFormatterParameters,
 } from '../../types/chain.js'
+import type { ByteArray } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import { numberToHex } from '../encoding/toHex.js'
+import { bytesToHex, numberToHex } from '../encoding/toHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
 export type FormattedTransactionRequest<
@@ -28,6 +29,11 @@ export type FormatTransactionRequestErrorType = ErrorType
 export function formatTransactionRequest(request: Partial<TransactionRequest>) {
   const rpcRequest = { ...request } as RpcTransactionRequest
 
+  if (
+    typeof request.blobs !== 'undefined' &&
+    typeof request.blobs[0] !== 'string'
+  )
+    rpcRequest.blobs = (request.blobs as ByteArray[]).map((x) => bytesToHex(x))
   if (typeof request.gas !== 'undefined')
     rpcRequest.gas = numberToHex(request.gas)
   if (typeof request.gasPrice !== 'undefined')

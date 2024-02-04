@@ -8,7 +8,7 @@ import type {
 } from './fee.js'
 import type { Kzg } from './kzg.js'
 import type { Log } from './log.js'
-import type { Hash, Hex, Signature } from './misc.js'
+import type { ByteArray, Hash, Hex, Signature } from './misc.js'
 import type { Branded, IsNever, OneOf, RequiredBy } from './utils.js'
 
 export type AccessList = { address: Address; storageKeys: Hex[] }[]
@@ -219,7 +219,7 @@ export type TransactionRequestEIP4844<
   RequiredBy<Partial<FeeValuesEIP4844<TQuantity>>, 'maxFeePerBlobGas'> & {
     accessList?: AccessList
     /** The blobs associated with this transaction. */
-    blobs: readonly Hex[]
+    blobs: readonly Hex[] | readonly ByteArray[]
     type?: TTransactionType
   }
 export type TransactionRequest<TQuantity = bigint, TIndex = number> = OneOf<
@@ -300,7 +300,11 @@ export type TransactionSerializableEIP4844<
         blobVersionedHashes: readonly Hex[]
         sidecars?: readonly BlobSidecar<Hex>[] | false
       }
-    | { blobs: readonly Hex[]; kzg: Kzg; sidecars?: false }
+    | {
+        blobs: readonly Hex[] | readonly ByteArray[]
+        kzg: Kzg
+        sidecars?: false
+      }
   >
 
 export type TransactionSerializableGeneric<
@@ -308,7 +312,7 @@ export type TransactionSerializableGeneric<
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> & {
   accessList?: AccessList
-  blobs?: readonly Hex[]
+  blobs?: readonly Hex[] | readonly ByteArray[]
   blobVersionedHashes?: readonly Hex[]
   chainId?: number
   gasPrice?: TQuantity

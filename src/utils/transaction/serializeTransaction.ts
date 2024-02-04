@@ -3,7 +3,12 @@ import {
   type InvalidLegacyVErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Hex, Signature, SignatureLegacy } from '../../types/misc.js'
+import type {
+  ByteArray,
+  Hex,
+  Signature,
+  SignatureLegacy,
+} from '../../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerializableEIP1559,
@@ -37,7 +42,7 @@ import {
 } from '../blob/toBlobSidecars.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { trim } from '../data/trim.js'
-import { type ToHexErrorType, toHex } from '../encoding/toHex.js'
+import { type ToHexErrorType, bytesToHex, toHex } from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
 
 import {
@@ -153,7 +158,11 @@ function serializeTransactionEIP4844(
   let sidecars = transaction.sidecars
   // If `blobs` are passed, we will need to compute the KZG commitments & proofs.
   if (transaction.blobs) {
-    const blobs = transaction.blobs as Hex[]
+    const blobs = (
+      typeof transaction.blobs[0] === 'string'
+        ? transaction.blobs
+        : (transaction.blobs as ByteArray[]).map((x) => bytesToHex(x))
+    ) as Hex[]
     const kzg = transaction.kzg!
     const commitments = blobsToCommitments({
       blobs,
