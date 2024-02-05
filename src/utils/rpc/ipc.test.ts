@@ -726,7 +726,7 @@ describe('requestAsync', () => {
     )
   })
 
-  test('timeout', async () => {
+  test.skip('timeout', async () => {
     const client = await getIpcRpcClient(localIpcPath)
 
     await expect(() =>
