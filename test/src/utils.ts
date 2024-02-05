@@ -188,14 +188,6 @@ export const sepoliaClient = createClient({
   transport: http(),
 })
 
-export const sepoliaClientWithAccount = createClient({
-  account: privateKeyToAccount(
-    process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
-  ),
-  chain: sepolia,
-  transport: http(),
-})
-
 export const testClient = createTestClient({
   chain: anvilChain,
   mode: 'anvil',
