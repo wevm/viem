@@ -39,7 +39,7 @@ test('error: blob data too big', () => {
   expect(() =>
     toBlobs({ data: stringToHex('we are all gonna make it'.repeat(20000)) }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [BlobSizeTooLarge: Blob size is too large.
+    [BlobSizeTooLargeError: Blob size is too large.
 
     Max: 262143 bytes
     Given: 480000 bytes
