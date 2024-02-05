@@ -1,7 +1,6 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { getTransactionReceipt } from '~viem/actions/public/getTransactionReceipt.js'
 import { impersonateAccount } from '~viem/actions/test/impersonateAccount.js'
 import { mine } from '~viem/actions/test/mine.js'
