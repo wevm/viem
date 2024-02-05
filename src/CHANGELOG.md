@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.5
+
+### Patch Changes
+
+- [`df2d17de952bcb58d31efbc71ebbec909cea7d8a`](https://github.com/wevm/viem/commit/df2d17de952bcb58d31efbc71ebbec909cea7d8a) Thanks [@jxom](https://github.com/jxom)! - Fixed inference on formatter return type.
+
 ## 2.7.4
 
 ### Patch Changes
