@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.4
+
+### Patch Changes
+
+- [#1768](https://github.com/wevm/viem/pull/1768) [`010390000d628b6a2bc532458da224740cfd9237`](https://github.com/wevm/viem/commit/010390000d628b6a2bc532458da224740cfd9237) Thanks [@gjj](https://github.com/gjj)! - Added X1 Testnet chain.
+
 ## 2.7.3
 
 ### Patch Changes
