@@ -10,7 +10,7 @@ import type {
   TransactionSerializable,
   TransactionSerializableGeneric,
 } from '../types/transaction.js'
-import type { IsUndefined, Prettify } from '../types/utils.js'
+import type { IsNarrowable, IsUndefined, Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
@@ -236,14 +236,16 @@ export type ExtractChainFormatterReturnType<
   chain extends Chain | undefined,
   type extends keyof ChainFormatters,
   fallback,
-> = chain extends {
-  formatters?:
-    | { [_ in type]?: infer formatter extends ChainFormatter }
-    | undefined
-}
-  ? chain['formatters'] extends undefined
-    ? fallback
-    : ReturnType<formatter['format']>
+> = IsNarrowable<chain, Chain> extends true
+  ? chain extends {
+      formatters?:
+        | { [_ in type]?: infer formatter extends ChainFormatter }
+        | undefined
+    }
+    ? chain['formatters'] extends undefined
+      ? fallback
+      : ReturnType<formatter['format']>
+    : fallback
   : fallback
 
 export type DeriveChain<
