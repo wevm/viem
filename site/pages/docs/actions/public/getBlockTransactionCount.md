@@ -10,14 +10,14 @@ Returns the number of Transactions at a block number, hash or tag.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const count = await publicClient.getBlockTransactionCount() // [!code focus:99]
-// 23
+// @log: Output: 23
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -43,7 +43,9 @@ The block transaction count.
 
 Count at a given block hash.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const count = await publicClient.getBlockTransactionCount({
   blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d' // [!code focus]
 })
@@ -55,7 +57,9 @@ const count = await publicClient.getBlockTransactionCount({
 
 Count at a given block number.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const block = await publicClient.getBlockTransactionCount({
   blockNumber: 42069n // [!code focus]
 })
@@ -68,7 +72,9 @@ const block = await publicClient.getBlockTransactionCount({
 
 Count at a given block tag.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const block = await publicClient.getBlockTransactionCount({
   blockTag: 'safe' // [!code focus]
 })

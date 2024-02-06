@@ -14,7 +14,7 @@ Destroys a [`Filter`](/docs/glossary/types#filter) that was created from one of 
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const filter = await publicClient.createPendingTransactionFilter()
@@ -22,7 +22,7 @@ const uninstalled = await publicClient.uninstallFilter({ filter }) // [!code foc
 // true
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -48,7 +48,9 @@ A boolean indicating if the Filter was successfully uninstalled.
 
 A created filter.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const filter = await publicClient.createPendingTransactionFilter()
 const uninstalled = await publicClient.uninstallFilter({
   filter, // [!code focus]

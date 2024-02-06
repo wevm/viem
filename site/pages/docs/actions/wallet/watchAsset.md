@@ -10,7 +10,7 @@ Requests that the user tracks the token in their wallet. Returns a boolean indic
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { walletClient } from './client'
  
 const success = await walletClient.watchAsset({ // [!code focus:99]
@@ -23,14 +23,8 @@ const success = await walletClient.watchAsset({ // [!code focus:99]
 })
 ```
 
-```ts [client.ts]
-import { createWalletClient, custom } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const walletClient = createWalletClient({
-  chain: mainnet,
-  transport: custom(window.ethereum)
-})
+```ts twoslash [client.ts] filename="client.ts"
+// [!include ~/snippets/walletClient.ts]
 ```
 
 :::
@@ -49,7 +43,9 @@ Boolean indicating if the token was successfully added.
 
 Token type.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut--
 const success = await walletClient.watchAsset({
   type: 'ERC20', // [!code focus]
   options: {
@@ -66,7 +62,9 @@ const success = await walletClient.watchAsset({
 
 The address of the token contract.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const success = await walletClient.watchAsset({
   type: 'ERC20',
   options: {
@@ -83,7 +81,9 @@ const success = await walletClient.watchAsset({
 
 The number of token decimals.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const success = await walletClient.watchAsset({
   type: 'ERC20',
   options: {
@@ -100,12 +100,14 @@ const success = await walletClient.watchAsset({
 
 A ticker symbol or shorthand, up to 11 characters.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const success = await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    decimals: 18
+    decimals: 18,
     symbol: 'WETH', // [!code focus]
   }
 })
@@ -117,12 +119,14 @@ const success = await walletClient.watchAsset({
 
 A string url of the token logo.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const success = await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    decimals: 18
+    decimals: 18,
     symbol: 'WETH',
     image: 'https://weth.com/icon.png', // [!code focus]
   }

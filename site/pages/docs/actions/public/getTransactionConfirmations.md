@@ -10,7 +10,7 @@ Returns the number of blocks passed (confirmations) since the transaction was pr
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const transactionReceipt = await publicClient.getTransactionReceipt({ hash: '...' })
@@ -20,7 +20,7 @@ const confirmations = await publicClient.getTransactionConfirmations({  // [!cod
 // 15n
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -36,16 +36,16 @@ You can also fetch confirmations by Transaction hash:
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const confirmations = await publicClient.getTransactionConfirmations({  // [!code focus:99]
   hash: '0x...'
 })
-// 15n
+// @log: 15n
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -71,7 +71,10 @@ The number of blocks passed since the transaction was processed. If confirmation
 
 The transaction receipt.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+// @noErrors
 const balance = await publicClient.getTransactionConfirmations({
   transactionReceipt: { ... }, // [!code focus]
 })
@@ -83,7 +86,9 @@ const balance = await publicClient.getTransactionConfirmations({
 
 The hash of the transaction.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const balance = await publicClient.getTransactionConfirmations({
   hash: '0x...'  // [!code focus]
 })
