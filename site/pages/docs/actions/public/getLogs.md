@@ -12,14 +12,14 @@ By default, `getLogs` returns all events. In practice, you must use scoping to f
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const logs = await publicClient.getLogs()  // [!code focus:99]
-// [{ ... }, { ... }, { ... }]
+// @log: Output: [{ ... }, { ... }, { ... }]
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -37,7 +37,7 @@ You can also scope to a set of given attributes.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseAbiItem } from 'viem'
 import { publicClient } from './client'
 
@@ -53,7 +53,7 @@ const logs = await publicClient.getLogs({  // [!code focus:99]
 })
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -69,7 +69,7 @@ By default, `event` accepts the [`AbiEvent`](/docs/glossary/types#abievent) type
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const logs = await publicClient.getLogs(publicClient, {
@@ -91,7 +91,7 @@ const logs = await publicClient.getLogs(publicClient, {
 })
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -109,7 +109,7 @@ Logs can be scoped to an **address**:
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const logs = await publicClient.getLogs({
@@ -117,7 +117,7 @@ const logs = await publicClient.getLogs({
 })
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -137,7 +137,7 @@ The `event` argument takes in an event in ABI format – we have a [`parseAbiIte
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseAbiItem } from 'viem' // [!code focus]
 import { publicClient } from './client'
 
@@ -147,7 +147,7 @@ const logs = await publicClient.getLogs({
 })
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -163,7 +163,11 @@ export const publicClient = createPublicClient({
 
 Logs can be scoped to given **_indexed_ arguments**:
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const logs = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -178,7 +182,11 @@ Only indexed arguments in `event` are candidates for `args`.
 
 An argument can also be an array to indicate that other values can exist in the position:
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const logs = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -197,7 +205,11 @@ const logs = await publicClient.getLogs({
 
 Logs can be scoped to a **block range**:
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const logs = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -210,7 +222,11 @@ const logs = await publicClient.getLogs({
 
 Logs can be scoped to **multiple events**:
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbi } from 'viem'
+
 const logs = await publicClient.getLogs({
   events: parseAbi([ // [!code focus:4]
     'event Approval(address indexed owner, address indexed sender, uint256 value)',
@@ -226,19 +242,33 @@ Note: Logs scoped to multiple events cannot be also scoped with [indexed argumen
 By default, `getLogs` will include logs that [do not conform](/docs/glossary/terms#non-conforming-log) to the indexed & non-indexed arguments on the `event`.
 viem will not return a value for arguments that do not conform to the ABI, thus, some arguments on `args` may be undefined.
 
-```ts {7}
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem' 
+
 const logs = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)')
 })
 
 logs[0].args
-//      ^? { address?: Address, to?: Address, value?: bigint }
+//      ^? 
+
+
+
+
+
+
 ```
 
 You can turn on `strict` mode to only return logs that conform to the indexed & non-indexed arguments on the `event`, meaning that `args` will always be defined. The trade-off is that non-conforming logs will be filtered out.
 
-```ts {7}
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem' 
+
 const logs = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -246,7 +276,13 @@ const logs = await publicClient.getLogs({
 })
 
 logs[0].args
-//      ^? { address: Address, to: Address, value: bigint }
+//      ^?
+
+
+
+
+
+
 ```
 
 ## Returns
@@ -263,7 +299,9 @@ A list of event logs.
 
 A contract address or a list of contract addresses. Only logs originating from the contract(s) will be included in the result.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const logs = await publicClient.getLogs({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
 })
@@ -277,7 +315,11 @@ The event in ABI format.
 
 A [`parseAbiItem` utility](/docs/abi/parseAbiItem) is exported from viem that converts from a human-readable event signature → ABI.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const logs = await publicClient.getLogs({
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
@@ -289,7 +331,11 @@ const logs = await publicClient.getLogs({
 
 A list of _indexed_ event arguments.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const logs = await publicClient.getLogs({
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
@@ -305,7 +351,9 @@ const logs = await publicClient.getLogs({
 
 Block to start including logs from. Mutually exclusive with `blockHash`.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const filter = await publicClient.createEventFilter({
   fromBlock: 69420n // [!code focus]
 })
@@ -317,7 +365,9 @@ const filter = await publicClient.createEventFilter({
 
 Block to stop including logs from. Mutually exclusive with `blockHash`.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const filter = await publicClient.createEventFilter({
   toBlock: 70120n // [!code focus]
 })
@@ -329,7 +379,9 @@ const filter = await publicClient.createEventFilter({
 
 Block hash to include logs from. Mutually exclusive with `fromBlock`/`toBlock`.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const logs = await publicClient.getLogs({
   blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })

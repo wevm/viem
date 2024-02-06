@@ -1,5 +1,25 @@
 # viem
 
+## 2.7.5
+
+### Patch Changes
+
+- [`df2d17de952bcb58d31efbc71ebbec909cea7d8a`](https://github.com/wevm/viem/commit/df2d17de952bcb58d31efbc71ebbec909cea7d8a) Thanks [@jxom](https://github.com/jxom)! - Fixed inference on formatter return type.
+
+## 2.7.4
+
+### Patch Changes
+
+- [#1768](https://github.com/wevm/viem/pull/1768) [`010390000d628b6a2bc532458da224740cfd9237`](https://github.com/wevm/viem/commit/010390000d628b6a2bc532458da224740cfd9237) Thanks [@gjj](https://github.com/gjj)! - Added X1 Testnet chain.
+
+## 2.7.3
+
+### Patch Changes
+
+- [#1776](https://github.com/wevm/viem/pull/1776) [`444f61def8f7a3be0cae4e11eca7a9bb4ef12799`](https://github.com/wevm/viem/commit/444f61def8f7a3be0cae4e11eca7a9bb4ef12799) Thanks [@tmm](https://github.com/tmm)! - Added missing state override error types.
+
+- [#1759](https://github.com/wevm/viem/pull/1759) [`7d89ce8a4021719aba74c62c54228b9bc51ac9c9`](https://github.com/wevm/viem/commit/7d89ce8a4021719aba74c62c54228b9bc51ac9c9) Thanks [@maxencerb](https://github.com/maxencerb)! - Added `stateOverride` property to `call`, `simulateContract`, `readContract`, and `multicall`.
+
 ## 2.7.2
 
 ### Patch Changes

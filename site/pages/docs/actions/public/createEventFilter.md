@@ -8,14 +8,14 @@ By default, an Event Filter with no arguments will query for/listen to all event
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const filter = await publicClient.createEventFilter()
-// { id: "0x345a6572337856574a76364e457a4366", type: 'event' }
+// @log: { id: "0x345a6572337856574a76364e457a4366", type: 'event' }
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -41,7 +41,7 @@ A Filter can be scoped to an **address**:
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const filter = await publicClient.createEventFilter({
@@ -49,7 +49,7 @@ const filter = await publicClient.createEventFilter({
 })
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -69,7 +69,7 @@ The `event` argument takes in an event in ABI format – we have a [`parseAbiIte
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseAbiItem } from 'viem' // [!code focus]
 import { publicClient } from './client'
 
@@ -79,7 +79,7 @@ const filter = await publicClient.createEventFilter({
 })
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -95,7 +95,7 @@ By default, `event` accepts the [`AbiEvent`](/docs/glossary/types#abievent) type
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const filter = await publicClient.createEventFilter(publicClient, {
@@ -111,7 +111,7 @@ const filter = await publicClient.createEventFilter(publicClient, {
 })
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -127,7 +127,11 @@ export const publicClient = createPublicClient({
 
 A Filter can be scoped to given **_indexed_ arguments**:
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -142,7 +146,11 @@ Only indexed arguments in `event` are candidates for `args`.
 
 A Filter Argument can also be an array to indicate that other values can exist in the position:
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -161,7 +169,11 @@ const filter = await publicClient.createEventFilter({
 
 A Filter can be scoped to a **block range**:
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -174,7 +186,11 @@ const filter = await publicClient.createEventFilter({
 
 A Filter can be scoped to **multiple events**:
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbi } from 'viem'
+
 const filter = await publicClient.createEventFilter({
   events: parseAbi([ // [!code focus:4]
     'event Approval(address indexed owner, address indexed sender, uint256 value)',
@@ -190,7 +206,11 @@ Note: A Filter scoped to multiple events cannot be also scoped with [indexed arg
 By default, `createEventFilter` will include logs that [do not conform](/docs/glossary/terms#non-conforming-log) to the indexed & non-indexed arguments on the `event`.
 viem will not return a value for arguments that do not conform to the ABI, thus, some arguments on `args` may be undefined.
 
-```ts {8}
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -198,12 +218,22 @@ const filter = await publicClient.createEventFilter({
 const logs = await publicClient.getFilterLogs({ filter })
 
 logs[0].args
-//      ^? { address?: Address, to?: Address, value?: bigint }
+//      ^?
+
+
+
+
+
+
 ```
 
 You can turn on `strict` mode to only return logs that conform to the indexed & non-indexed arguments on the `event`, meaning that `args` will always be defined. The trade-off is that non-conforming logs will be filtered out.
 
-```ts {9}
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -212,7 +242,13 @@ const filter = await publicClient.createEventFilter({
 const logs = await publicClient.getFilterLogs({ filter })
 
 logs[0].args
-//      ^? { address: Address, to: Address, value: bigint }
+//      ^?
+
+
+
+
+
+
 ```
 
 ## Returns
@@ -227,7 +263,9 @@ logs[0].args
 
 The contract address or a list of addresses from which Logs should originate.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const filter = await publicClient.createEventFilter({
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
@@ -241,7 +279,9 @@ The event in ABI format.
 
 A [`parseAbiItem` utility](/docs/abi/parseAbiItem) is exported from viem that converts from a human-readable event signature → ABI.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 import { parseAbiItem } from 'viem' // [!code focus]
 
 const filter = await publicClient.createEventFilter({
@@ -256,7 +296,11 @@ const filter = await publicClient.createEventFilter({
 
 A list of _indexed_ event arguments.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
 const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -273,7 +317,9 @@ const filter = await publicClient.createEventFilter({
 
 Block to start querying/listening from.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const filter = await publicClient.createEventFilter({
   fromBlock: 69420n // [!code focus]
 })
@@ -285,7 +331,9 @@ const filter = await publicClient.createEventFilter({
 
 Block to query/listen until.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const filter = await publicClient.createEventFilter({
   toBlock: 70120n // [!code focus]
 })

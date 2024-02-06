@@ -6,14 +6,14 @@ Creates a Filter to listen for new pending transaction hashes that can be used w
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const filter = await publicClient.createPendingTransactionFilter() // [!code focus:99]
-// { id: "0x345a6572337856574a76364e457a4366", type: 'transaction' }
+// @log: Output: { id: "0x345a6572337856574a76364e457a4366", type: 'transaction' }
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 

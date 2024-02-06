@@ -17,11 +17,11 @@ import { toEventSelector } from 'viem'
 ```ts twoslash
 import { toEventSelector } from 'viem'
 
-// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 const selector_1 = toEventSelector('Transfer(address,address,uint256)')
-
 // @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
+
 const selector_2 = toEventSelector('Transfer(address indexed from, address indexed to, uint256 amount)')
+// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 
 // or from an `AbiEvent` on your contract ABI
 const selector_3 = toEventSelector({
@@ -32,8 +32,8 @@ const selector_3 = toEventSelector({
     { name: 'to', type: 'address', indexed: true },
     { name: 'amount', type: 'uint256', indexed: false },
   ],
-// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 })
+// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 ```
 
 ## Returns

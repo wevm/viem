@@ -852,6 +852,12 @@ export {
   UrlRequiredError,
   type UrlRequiredErrorType,
 } from './errors/transport.js'
+export {
+  AccountStateConflictError,
+  type AccountStateConflictErrorType,
+  StateAssignmentConflictError,
+  type StateAssignmentConflictErrorType,
+} from './errors/stateOverride.js'
 export type {
   AbiItem,
   ExtractAbiFunctionForArgs,
@@ -973,8 +979,15 @@ export type {
   RpcUncle,
   Status,
   RpcProof,
+  RpcAccountStateOverride,
+  RpcStateOverride,
+  RpcStateMapping,
 } from './types/rpc.js'
 export type { Withdrawal } from './types/withdrawal.js'
+export type {
+  StateMapping,
+  StateOverride,
+} from './types/stateOverride.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
 export { namehash, type NamehashErrorType } from './utils/ens/namehash.js'
 export {

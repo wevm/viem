@@ -10,7 +10,7 @@ Signs typed data and calculates an Ethereum-specific signature in [https://eips.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { account, walletClient } from './config'
 import { domain, types } from './data'
 
@@ -33,7 +33,7 @@ const signature = await walletClient.signTypedData({
 })
 ```
 
-```ts [data.ts]
+```ts twoslash [data.ts]
 // All properties on a domain are optional
 export const domain = {
   name: 'Ether Mail',
@@ -56,20 +56,14 @@ export const types = {
 } as const
 ```
 
-```ts [config.ts]
-import { createWalletClient, custom } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet } from 'viem/chains'
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/walletClient.ts]
 
-export const walletClient = createWalletClient({
-  chain: mainnet,
-  transport: custom(window.ethereum)
-})
-
-// JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account
-export const account = privateKeyToAccount('0x...')
+// @log: ↑ JSON-RPC Account
+
+// export const account = privateKeyToAccount(...)
+// @log: ↑ Local Account
 ```
 
 :::
@@ -82,7 +76,7 @@ If you do not wish to pass an `account` to every `signTypedData`, you can also h
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { walletClient } from './config'
 import { domain, types } from './data'
 
@@ -104,7 +98,7 @@ const signature = await walletClient.signTypedData({
 })
 ```
 
-```ts [data.ts]
+```ts twoslash [data.ts]
 // All properties on a domain are optional
 export const domain = {
   name: 'Ether Mail',
@@ -127,7 +121,7 @@ export const types = {
 } as const
 ```
 
-```ts [config.ts (JSON-RPC Account)] {4-6,9}
+```ts [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
 
 // Retrieve Account from an EIP-1193 Provider.
@@ -137,17 +131,17 @@ const [account] = await window.ethereum.request({
 
 export const walletClient = createWalletClient({
   account,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```
 
-```ts [config.ts (Local Account)] {5}
-import { createWalletClient, custom } from 'viem'
+```ts twoslash [config.ts (Local Account)] filename="config.ts"
+import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'),
-  transport: custom(window.ethereum)
+  transport: http()
 })
 ```
 
@@ -169,7 +163,9 @@ The Account to use for signing.
 
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const signature = await walletClient.signTypedData({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   domain: {
@@ -178,7 +174,17 @@ const signature = await walletClient.signTypedData({
     chainId: 1,
     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
   },
-  types,
+  types: {
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallet', type: 'address' },
+    ],
+    Mail: [
+      { name: 'from', type: 'Person' },
+      { name: 'to', type: 'Person' },
+      { name: 'contents', type: 'string' },
+    ],
+  },
   primaryType: 'Mail',
   message: {
     from: {
@@ -200,7 +206,9 @@ const signature = await walletClient.signTypedData({
 
 The typed data domain.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const signature = await walletClient.signTypedData({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain: { // [!code focus:6]
@@ -209,7 +217,17 @@ const signature = await walletClient.signTypedData({
     chainId: 1,
     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
   },
-  types,
+  types: {
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallet', type: 'address' },
+    ],
+    Mail: [
+      { name: 'from', type: 'Person' },
+      { name: 'to', type: 'Person' },
+      { name: 'contents', type: 'string' },
+    ],
+  },
   primaryType: 'Mail',
   message: {
     from: {
@@ -229,10 +247,17 @@ const signature = await walletClient.signTypedData({
 
 The type definitions for the typed data.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const signature = await walletClient.signTypedData({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  domain,
+  domain: { 
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
   types: { // [!code focus:11]
     Person: [
       { name: 'name', type: 'string' },
@@ -265,10 +290,17 @@ const signature = await walletClient.signTypedData({
 
 The primary type to extract from `types` and use in `value`.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const signature = await walletClient.signTypedData({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  domain,
+  domain: { 
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
   types: {
     Person: [
       { name: 'name', type: 'string' },
@@ -299,10 +331,17 @@ const signature = await walletClient.signTypedData({
 
 **Type:** Inferred from `types` & `primaryType`.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const signature = await walletClient.signTypedData({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  domain,
+  domain: { 
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
   types: {
     Person: [
       { name: 'name', type: 'string' },

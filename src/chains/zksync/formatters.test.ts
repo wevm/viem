@@ -1220,7 +1220,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 14,
+            "transactionLogIndex": 0,
           },
           {
             "address": "0x9c931462ac1bf8b47a727aaad7776405ac894482",
@@ -1236,7 +1236,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 15,
+            "transactionLogIndex": 1,
           },
           {
             "address": "0x0000000000000000000000000000000000008006",
@@ -1255,7 +1255,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 16,
+            "transactionLogIndex": 2,
           },
           {
             "address": "0x1eb710030273e529a6ad7e1e14d4e601765ba3c6",
@@ -1273,7 +1273,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 17,
+            "transactionLogIndex": 3,
           },
           {
             "address": "0x0000000000000000000000000000000000008006",
@@ -1292,7 +1292,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 18,
+            "transactionLogIndex": 4,
           },
           {
             "address": "0x1eb710030273e529a6ad7e1e14d4e601765ba3c6",
@@ -1310,7 +1310,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 19,
+            "transactionLogIndex": 5,
           },
           {
             "address": "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102",
@@ -1326,7 +1326,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 20,
+            "transactionLogIndex": 6,
           },
           {
             "address": "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102",
@@ -1342,7 +1342,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 21,
+            "transactionLogIndex": 7,
           },
           {
             "address": "0x0000000000000000000000000000000000008006",
@@ -1361,7 +1361,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 22,
+            "transactionLogIndex": 8,
           },
           {
             "address": "0x000000000000000000000000000000000000800a",
@@ -1378,7 +1378,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 23,
+            "transactionLogIndex": 9,
           },
         ],
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -1389,7 +1389,7 @@ describe('transaction receipt', () => {
         "transactionIndex": 5,
         "type": "0xff",
       }
-      `)
+    `)
   })
 })
 

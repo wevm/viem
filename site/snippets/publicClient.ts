@@ -3,7 +3,7 @@ import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
 // [!endregion imports]
 
-export const client = createPublicClient({
+export const publicClient = createPublicClient({
   chain: mainnet,
   transport: http(),
 })

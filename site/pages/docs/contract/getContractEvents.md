@@ -298,27 +298,27 @@ const logs = await publicClient.getContractEvents({
 By default, `getContractEvents` will include logs that [do not conform](/docs/glossary/terms#non-conforming-log) to the indexed & non-indexed arguments on the `event`.
 viem will not return a value for arguments that do not conform to the ABI, thus, some arguments on `args` may be undefined.
 
-```ts {7}
+```ts
 const logs = await publicClient.getContractEvents({
   abi: erc20Abi,
   eventName: 'Transfer',
 })
 
-logs[0].args
-//      ^? { address?: Address, to?: Address, value?: bigint }
+logs[0].args // [!code focus]
+//      ^? { address?: Address, to?: Address, value?: bigint } // [!code focus]
 ```
 
 You can turn on `strict` mode to only return logs that conform to the indexed & non-indexed arguments on the `event`, meaning that `args` will always be defined. The trade-off is that non-conforming logs will be filtered out.
 
-```ts {7}
+```ts 
 const logs = await publicClient.getContractEvents({
   abi: erc20Abi,
   eventName: 'Transfer',
   strict: true
 })
 
-logs[0].args
-//      ^? { address: Address, to: Address, value: bigint }
+logs[0].args // [!code focus]
+//      ^? { address: Address, to: Address, value: bigint } // [!code focus]
 ```
 
 ## Returns
