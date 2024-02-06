@@ -14,15 +14,19 @@ export type ParseUnitsErrorType = ErrorType
  * // 420000000000n
  */
 export function parseUnits(value: string, decimals: number) {
-  const scientificToBigInt = (scientificNotation: string) => {
-    const [coefficient, exponent] = scientificNotation.toLowerCase().split('e');
-    const shift = parseFloat(exponent);
-    if (shift < 0 && Math.abs(shift) < decimals + 1) {
-      return BigInt(0);
-    } else {
-      return BigInt(coefficient.replace('.', '')) * 10n ** BigInt(decimals - 1);
-    }
-  };
+  const scientificToBigInt = (scientificNotation) => {
+        const [coefficient, exponent] = scientificNotation.toLowerCase().split('e');
+        const shift = parseFloat(exponent);
+        if(shift >= 0) {
+            return BigInt(parseFloat(scientificNotation)) * 10n ** BigInt(decimals);
+        } else {
+            if (Math.abs(shift) < decimals + 1) {
+                return BigInt(0);
+            } else {
+                return BigInt(coefficient.replace('.', '')) * 10n ** BigInt(shift + decimals-1);
+            }
+        }
+    };
   
   let [integer, fraction = '0'] = value.split('.')
 
