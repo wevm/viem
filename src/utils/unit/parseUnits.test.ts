@@ -100,3 +100,9 @@ test('decimals < fraction length', () => {
   expect(parseUnits('69.59000000059', 9)).toMatchInlineSnapshot('69590000001n')
   expect(parseUnits('69.59000002359', 9)).toMatchInlineSnapshot('69590000024n')
 })
+
+test('parses scientific notations', () => {
+  expect(parseUnits('4.5e-6', 7)).toMatchInlineSnapshot('45n');
+  expect(parseUnits('4.5e7', 7)).toMatchInlineSnapshot('45000000n')
+  expect(parseUnits('4.5e-6', 6)).toMatchInlineSnapshot('0n')
+})
