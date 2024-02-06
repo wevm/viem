@@ -64,21 +64,21 @@ The byte array to decode.
 
 The output type or options.
 
-```ts {3}
+```ts 
 fromBytes(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]), 
-  'string' 
+  'string' // [!code focus]
 )
 // 'Hello world'
 ```
 
-```ts {3-6}
+```ts 
 fromBytes(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 
-  {
-    size: 32,
-    to: 'string'
-  }
+  { // [!code focus]
+    size: 32, // [!code focus]
+    to: 'string' // [!code focus]
+  } // [!code focus]
 )
 // 'Hello world'
 ```
