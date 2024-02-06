@@ -20,8 +20,12 @@ export function parseUnits(value: string, decimals: number) {
     if (shift >= 0) {
       return BigInt(parseFloat(scientificNotation)) * 10n ** BigInt(decimals)
     }
-    if (Math.abs(shift) < decimals + 1) {
+    if (Math.abs(shift) > decimals) {
       return BigInt(0)
+    }
+    if (Math.abs(shift) === decimals) {
+      const integer = value.split('.')[0]
+      return BigInt(integer)
     }
     return (
       BigInt(coefficient.replace('.', '')) * 10n ** BigInt(shift + decimals - 1)

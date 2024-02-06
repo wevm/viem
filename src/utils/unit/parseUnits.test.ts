@@ -102,12 +102,14 @@ test('decimals < fraction length', () => {
 })
 
 test('parses scientific notations', () => {
+  expect(parseUnits('4.5e-6', 5)).toMatchInlineSnapshot('0n')
+  expect(parseUnits('4.5e-6', 6)).toMatchInlineSnapshot('4n')
+  expect(parseUnits('4.5e7', 7)).toMatchInlineSnapshot('450000000000000n')
   expect(parseUnits('4.5e-6', 7)).toMatchInlineSnapshot('45n')
-  expect(parseUnits('4.5e7', 7)).toMatchInlineSnapshot('45000000n')
-  expect(parseUnits('4.5e-6', 6)).toMatchInlineSnapshot('0n')
   expect(parseUnits('-10e10', 10)).toMatchInlineSnapshot(
     '-1000000000000000000000n',
   )
+  expect(parseUnits('-1.2e-6', 5)).toMatchInlineSnapshot('0n')
+  expect(parseUnits('-1.2e-6', 6)).toMatchInlineSnapshot('-1n')
   expect(parseUnits('-1.2e-6', 7)).toMatchInlineSnapshot('-12n')
-  expect(parseUnits('-1.2e-6', 6)).toMatchInlineSnapshot('0n')
 })
