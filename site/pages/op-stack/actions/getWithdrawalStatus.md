@@ -69,7 +69,7 @@ The L2 chain.
 
 ```ts
 const status = await publicClientL1.getWithdrawalStatus({
-  l2BlockNumber,
+  receipt,
   targetChain: optimism, // [!code focus]
 })
 ```
