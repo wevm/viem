@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const polygonMumbai = /*#__PURE__*/ defineChain({
+export const polygonAmoy = /*#__PURE__*/ defineChain({
   id: 80_002,
   name: 'Polygon Amoy',
   nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
