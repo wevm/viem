@@ -13,7 +13,6 @@ export const polygonAmoy = /*#__PURE__*/ defineChain({
     default: {
       name: 'OK LINK',
       url: 'https://www.oklink.com/amoy',
-      apiUrl: 'https://www.oklink.com/amoy',
     },
   },
   testnet: true,
