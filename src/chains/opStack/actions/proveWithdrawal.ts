@@ -134,7 +134,7 @@ export async function proveWithdrawal<
           client,
           parameters as EstimateProveWithdrawalGasParameters,
         )
-      : (gas ?? undefined)
+      : gas ?? undefined
 
   return writeContract(client, {
     account,
