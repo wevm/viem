@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { parseUnits } from './parseUnits.js'
+import { parseUnits, scientificToDecimal } from './parseUnits.js'
 
 test('converts number to unit of a given length', () => {
   expect(parseUnits('69', 1)).toMatchInlineSnapshot('690n')
@@ -101,9 +101,9 @@ test('decimals < fraction length', () => {
   expect(parseUnits('69.59000002359', 9)).toMatchInlineSnapshot('69590000024n')
 })
 
-test('parses scientific notations', () => {
+test('parses scientific notation', () => {
   expect(parseUnits('4.5e-6', 5)).toMatchInlineSnapshot('0n')
-  expect(parseUnits('4.5e-6', 6)).toMatchInlineSnapshot('4n')
+  expect(parseUnits('4.5e-6', 6)).toMatchInlineSnapshot('5n')
   expect(parseUnits('4.5e-6', 7)).toMatchInlineSnapshot('45n')
   expect(parseUnits('4.5e7', 7)).toMatchInlineSnapshot('450000000000000n')
   expect(parseUnits('-1.2e-6', 5)).toMatchInlineSnapshot('0n')
@@ -111,5 +111,38 @@ test('parses scientific notations', () => {
   expect(parseUnits('-1.2e-6', 7)).toMatchInlineSnapshot('-12n')
   expect(parseUnits('-10e10', 10)).toMatchInlineSnapshot(
     '-1000000000000000000000n',
+  )
+})
+
+test('scientificToDecimal', () => {
+  expect(scientificToDecimal('0e2')).toEqual('0')
+  expect(scientificToDecimal('1e0')).toEqual('1')
+  expect(scientificToDecimal('1e1')).toEqual('10')
+  expect(scientificToDecimal('-1e1')).toEqual('-10')
+  expect(scientificToDecimal('1e2')).toEqual('100')
+  expect(scientificToDecimal('10e1')).toEqual('100')
+  expect(scientificToDecimal('69e3')).toEqual('69000')
+  expect(scientificToDecimal('1e-1')).toEqual('0.1')
+  expect(scientificToDecimal('1e-2')).toEqual('0.01')
+  expect(scientificToDecimal('69e-2')).toEqual('0.69')
+  expect(scientificToDecimal('69e-3')).toEqual('0.069')
+  expect(scientificToDecimal('6229e-10')).toEqual('0.0000006229')
+  expect(scientificToDecimal('-6229e-10')).toEqual('-0.0000006229')
+  expect(scientificToDecimal('4.5e1')).toEqual('45')
+  expect(scientificToDecimal('4.1515e1')).toEqual('41.515')
+  expect(scientificToDecimal('42.1515e3')).toEqual('42151.5')
+  expect(scientificToDecimal('4.5e7')).toEqual('45000000')
+  expect(scientificToDecimal('4e7')).toEqual('40000000')
+  expect(scientificToDecimal('4.5e-1')).toEqual('0.45')
+  expect(scientificToDecimal('42.5e-2')).toEqual('0.425')
+  expect(scientificToDecimal('42.5e-3')).toEqual('0.0425')
+  expect(scientificToDecimal('4223.25e-2')).toEqual('42.2325')
+  expect(scientificToDecimal('42.5e-5')).toEqual('0.000425')
+  expect(scientificToDecimal('-10e10')).toEqual('-100000000000')
+  expect(scientificToDecimal('1.5e-100')).toEqual(
+    '0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000015',
+  )
+  expect(scientificToDecimal('1.23456789e50')).toEqual(
+    '123456789000000000000000000000000000000000000000000',
   )
 })

@@ -13,31 +13,10 @@ export type ParseUnitsErrorType = ErrorType
  * parseUnits('420', 9)
  * // 420000000000n
  */
-export function parseUnits(value: string, decimals: number) {
-  const scientificToBigInt = (scientificNotation: string) => {
-    const [coefficient, exponent] = scientificNotation.toLowerCase().split('e')
-    const shift = parseFloat(exponent)
-    if (shift >= 0) {
-      return BigInt(parseFloat(scientificNotation)) * 10n ** BigInt(decimals)
-    }
-    if (Math.abs(shift) > decimals) {
-      return BigInt(0)
-    }
-    if (Math.abs(shift) === decimals) {
-      const integer = value.split('.')[0]
-      return BigInt(integer)
-    }
-    return (
-      BigInt(coefficient.replace('.', '')) * 10n ** BigInt(shift + decimals - 1)
-    )
-  }
+export function parseUnits(value_: string, decimals: number) {
+  const value = value_.includes('e') ? scientificToDecimal(value_) : value_
 
   let [integer, fraction = '0'] = value.split('.')
-
-  // Handle scientific notation
-  if (value.toLowerCase().includes('e')) {
-    return scientificToBigInt(value)
-  }
 
   const negative = integer.startsWith('-')
   if (negative) integer = integer.slice(1)
@@ -73,4 +52,50 @@ export function parseUnits(value: string, decimals: number) {
   }
 
   return BigInt(`${negative ? '-' : ''}${integer}${fraction}`)
+}
+
+export function scientificToDecimal(value: string) {
+  const [coefficient, exponent] = value.toLowerCase().split('e')
+  let [whole, fraction = ''] = coefficient.split('.')
+
+  const negative = whole.startsWith('-')
+  if (negative) whole = whole.slice(1)
+
+  // Combine whole and fraction parts into an integer.
+  const integer = `${whole}${fraction}`
+
+  // If the number is 0, return 0.
+  if (integer === '0') return integer
+
+  // Get shifted number.
+  const shifted = (() => {
+    if (Number(exponent) < 0) {
+      const zeroes = Math.abs(Number(exponent)) - whole.length
+      const paddedInteger = `${zeroes > 0 ? '0'.repeat(zeroes) : ''}${whole}`
+      const [left, right] = [
+        paddedInteger.slice(0, Number(exponent)),
+        paddedInteger.slice(Number(exponent)),
+      ]
+      // e.g. 123.456e-2 => 1.23456    (negative zeroes)
+      //      123.456e-4 => 0.0123456  (positive zeroes)
+      return `${left || '0'}.${right}${fraction}`
+    }
+
+    const zeroes = Number(exponent) - fraction.length
+
+    if (zeroes < 0) {
+      const [whole, fraction] = [
+        integer.slice(0, zeroes),
+        integer.slice(zeroes),
+      ]
+      // e.g. 123.456e2 => 12345.6
+      return `${whole}.${fraction}`
+    }
+
+    // e.g. 123.456e5 => 12345600
+    return `${integer}${'0'.repeat(zeroes)}`
+  })()
+
+  // Form the signed number.
+  return `${negative ? '-' : ''}${shifted}`
 }
