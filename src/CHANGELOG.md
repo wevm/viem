@@ -1,5 +1,13 @@
 # viem
 
+## 2.7.8
+
+### Patch Changes
+
+- [#1792](https://github.com/wevm/viem/pull/1792) [`da2b00c710b1909acd5f07b5cff8f525d3d61a79`](https://github.com/wevm/viem/commit/da2b00c710b1909acd5f07b5cff8f525d3d61a79) Thanks [@kim-hera](https://github.com/kim-hera)! - Added multicall address to Blast Sepolia.
+
+- [#1794](https://github.com/wevm/viem/pull/1794) [`c456ba87f5fc94321e8ae619fefa0c7d011ba53d`](https://github.com/wevm/viem/commit/c456ba87f5fc94321e8ae619fefa0c7d011ba53d) Thanks [@roninjin10](https://github.com/roninjin10)! - Fixed `gas` derivation in OP Stack's `proveWithdrawal`.
+
 ## 2.7.7
 
 ### Patch Changes
