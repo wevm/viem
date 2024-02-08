@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.7
+
+### Patch Changes
+
+- [#1787](https://github.com/wevm/viem/pull/1787) [`38a88e27e514e5a992335ccd27015113adcb30b1`](https://github.com/wevm/viem/commit/38a88e27e514e5a992335ccd27015113adcb30b1) Thanks [@0xfourzerofour](https://github.com/0xfourzerofour)! - Added Polygon Amoy to chains.
+
 ## 2.7.5
 
 ### Patch Changes
