@@ -6,7 +6,7 @@ export const polygonAmoy = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc-amoy.polygon.technology/'],
+      http: ['https://rpc-amoy.polygon.technology'],
     },
   },
   blockExplorers: {
