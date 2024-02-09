@@ -1,4 +1,5 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
+import { lineaEstimateFeesPerGas } from '../linea/actions/lineaEstimateFeesPerGas.js'
 
 export const lineaTestnet = /*#__PURE__*/ defineChain({
   id: 59_140,
@@ -24,4 +25,9 @@ export const lineaTestnet = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
+  fees: {
+    // Override the fees calculation to accurately price the fees
+    // on Linea using the rpc call linea_estimateGas
+    estimateFeesPerGas: lineaEstimateFeesPerGas,
+  },
 })
