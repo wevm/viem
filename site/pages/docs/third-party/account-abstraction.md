@@ -1,11 +1,74 @@
 # Account Abstraction [Integrate Account Abstraction (ERC-4337) into viem.]
 
-While Account Abstraction is not built into the core `viem` library, you can use a third-party library like [permissionless.js](https://docs.pimlico.io/permissionless/reference) and [ZeroDev](https://docs.zerodev.app/) to integrate with ERC-4337.
+While Account Abstraction is not built into the core `viem` library, you can use a third-party library like [Biconomy](https://docs.biconomy.io/), [permissionless.js](https://docs.pimlico.io/permissionless/reference) and [ZeroDev](https://docs.zerodev.app/) to integrate with ERC-4337.
 
 **Libraries:**
 
+- [Biconomy](#biconomy)
 - [permissionless.js](#permissionless-js)
 - [ZeroDev](#zerodev)
+
+## Biconomy
+
+[Biconomy](https://docs.biconomy.io/) offers a viem compatible SDK that can be used to interact with ERC-4337 Bundlers and Paymasters very easily with minimal integration required.
+
+Below are instructions for setting up a smart account and sending a sponsored user operation.
+
+### 1. Install
+
+:::code-group
+
+```bash [npm]
+npm i @biconomy/account
+```
+
+```bash [pnpm]
+pnpm i @biconomy/account
+```
+
+```bash [bun]
+yarn add @biconomy/account
+```
+
+### 2. Create a signer
+
+This can be any Viem account type. In this case we use a [Local Account](/docs/accounts/local).
+
+```ts
+import { Hex } from "viem"
+import { privateKeyToAccount } from "viem/accounts"
+ 
+const signer = privateKeyToAccount("PRIVATE_KEY" as Hex)  // replace with actual private key
+```
+
+### 3. Create a smart account client
+
+```ts
+import { createSmartAccountClient } from "@biconomy/account"
+ 
+const account = await createSmartAccountClient({
+  singer,
+  bundlerUrl,
+  biconomyPaymasterApiKey
+});
+```
+
+### 4. Send a Sponsored user operation
+
+```ts
+import { createSmartAccountClient } from "@biconomy/account"
+
+const transaction = {
+  to: "TO_ADDRESS",
+  data: "0xDATA",  
+}
+ 
+const { wait } = await smartAccount.sendTransaction([transaction], {
+  paymasterServiceData: {
+    mode: PaymasterMode.SPONSORED,
+  }
+});
+```
 
 ## permissionless.js
 
@@ -170,4 +233,4 @@ const bundlerClient = kernelClient.extend(bundlerActions)
 const receipt = await bundlerClient.waitForUserOperationReceipt({
   hash: userOpHash,
 })
-```
+``
