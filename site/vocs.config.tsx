@@ -181,6 +181,8 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/lattice-light.svg',
           },
+        ],
+        [
           {
             name: 'Supa',
             link: 'https://twitter.com/supafinance',
