@@ -9,7 +9,7 @@ const isAddressCache = /*#__PURE__*/ new LruMap<boolean>(8192)
 
 export type IsAddressOptions = {
   /**
-   * Enables strict mode. Whether or not to compare the address against it's checksum.
+   * Enables strict mode. Whether or not to compare the address against its checksum.
    *
    * @default true
    */

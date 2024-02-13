@@ -220,6 +220,9 @@ describe('eip1559', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidAddressError: Address "0x0000000000000000000000000000000000000000000000000000000000000001" is invalid.
 
+        - Address must be a hex value of 20 bytes (40 hex characters).
+        - Address must match its checksum counterpart.
+
         Version: viem@1.0.2]
       `)
     })
@@ -439,6 +442,9 @@ describe('eip2930', () => {
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidAddressError: Address "0x0" is invalid.
+
+        - Address must be a hex value of 20 bytes (40 hex characters).
+        - Address must match its checksum counterpart.
 
         Version: viem@1.0.2]
       `)
