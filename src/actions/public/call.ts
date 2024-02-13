@@ -423,7 +423,8 @@ export function parseStateOverride(
   if (!args) return undefined
   const rpcStateOverride: RpcStateOverride = {}
   for (const { address, ...accountState } of args) {
-    if (!isAddress(address)) throw new InvalidAddressError({ address })
+    if (!isAddress(address, { strict: false }))
+      throw new InvalidAddressError({ address })
     if (rpcStateOverride[address])
       throw new AccountStateConflictError({ address: address })
     rpcStateOverride[address] = parseAccountStateOverride(accountState)
