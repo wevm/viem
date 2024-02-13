@@ -13,7 +13,10 @@ import {
 } from '../../../index.js'
 import { getAction } from '../../../utils/getAction.js'
 import { linea, lineaTestnet } from '../chains.js'
-import type { LineaEstimateFeesPerGasReturnType, LineaEstimateGasReturnType } from '../types/fee.js'
+import type {
+  LineaEstimateFeesPerGasReturnType,
+  LineaEstimateGasReturnType,
+} from '../types/fee.js'
 import { lineaEstimateGas } from './lineaEstimateGas.js'
 
 const BASE_FEE_PER_GAS_MARGIN = 1.35
