@@ -176,6 +176,12 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg',
           },
           {
+            name: 'Lattice',
+            link: 'https://lattice.xyz',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/lattice-light.svg',
+          },
+          {
             name: 'Supa',
             link: 'https://twitter.com/supafinance',
             image:
