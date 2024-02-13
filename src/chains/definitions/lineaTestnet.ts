@@ -7,9 +7,7 @@ export const lineaTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: [
-        'https://linea-mainnet.infura.io/v3/ec39fccc12d54776b7234a4d3edde98b',
-      ],
+      http: ['https://rpc.goerli.linea.build'],
       webSocket: ['wss://rpc.goerli.linea.build'],
     },
   },
@@ -35,14 +33,14 @@ export const lineaTestnet = /*#__PURE__*/ defineChain({
       const { maxPriorityFeePerGas } = await lineaEstimateFeesPerGas({
         client: args.client,
         request: args.request,
-        type: "eip1559",
-      } as any);
-    
+        type: 'eip1559',
+      } as any)
+
       if (maxPriorityFeePerGas === undefined) {
-        throw new Error("maxPriorityFeePerGas is undefined");
+        throw new Error('maxPriorityFeePerGas is undefined')
       }
-    
-      return maxPriorityFeePerGas;
-    }
+
+      return maxPriorityFeePerGas
+    },
   },
 })
