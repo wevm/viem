@@ -26,7 +26,7 @@ import type { LineaEstimateGasRpcSchema } from '../types/rpc.js'
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateGasParameters}
- * @returns The gas estimate (in wei). {@link LineaEstimateGasReturnType}
+ * @returns An estimate (in wei) for the base fee per gas, the priority fee per gas and the gas limit. {@link LineaEstimateGasReturnType}
  *
  * @example
  * import { createPublicClient, http, parseEther } from 'viem'
@@ -97,8 +97,6 @@ export async function lineaEstimateGas<
       to,
       value,
     } as TransactionRequest)
-
-    console.log({ request })
 
     return await client.request<LineaEstimateGasRpcSchema>({
       method: 'linea_estimateGas',

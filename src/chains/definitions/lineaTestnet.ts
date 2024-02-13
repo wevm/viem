@@ -7,7 +7,9 @@ export const lineaTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.goerli.linea.build'],
+      http: [
+        'https://linea-mainnet.infura.io/v3/ec39fccc12d54776b7234a4d3edde98b',
+      ],
       webSocket: ['wss://rpc.goerli.linea.build'],
     },
   },
