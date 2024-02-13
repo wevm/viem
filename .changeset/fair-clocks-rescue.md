@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fix typings for writeContract args in walletActions
+Fixed wallet actions types
