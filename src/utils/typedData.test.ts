@@ -307,7 +307,7 @@ describe('validateTypedData', () => {
         name: 'Ether!',
         version: '1',
         chainId: 1n,
-        verifyingContract: '0xCccCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
       },
       primaryType: 'EIP712Domain',
       types: {
