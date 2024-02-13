@@ -1,11 +1,12 @@
 # Account Abstraction [Integrate Account Abstraction (ERC-4337) into viem.]
 
-While Account Abstraction is not built into the core `viem` library, you can use a third-party library like [permissionless.js](https://docs.pimlico.io/permissionless/reference) and [ZeroDev](https://docs.zerodev.app/) to integrate with ERC-4337.
+While Account Abstraction is not built into the core `viem` library, you can use a third-party library like [permissionless.js](https://docs.pimlico.io/permissionless/reference), [ZeroDev](https://docs.zerodev.app/) and [Biconomy](https://docs.biconomy.io/) to integrate with ERC-4337.
 
 **Libraries:**
 
 - [permissionless.js](#permissionless-js)
 - [ZeroDev](#zerodev)
+- [Biconomy](#biconomy)
 
 ## permissionless.js
 
@@ -89,45 +90,44 @@ bun i @zerodev/sdk @zerodev/ecdsa-validator
 
 :::
 
-### 2. Create a public client
+### 2. Create a Public Client
 
 ```ts
-import { createPublicClient, http } from "viem"
+import { createPublicClient, http } from 'viem'
  
 const publicClient = createPublicClient({
   transport: http("RPC_URL"),  // use your RPC provider or bundler
 })
 ```
 
-### 3. Create a signer
+### 3. Create an Account
 
 This can be any Viem account type.  In this case we use a [Local Account](/docs/accounts/local).
 
 ```ts
-import { Hex } from "viem"
-import { privateKeyToAccount } from "viem/accounts"
+import { privateKeyToAccount } from 'viem/accounts'
  
-const signer = privateKeyToAccount("PRIVATE_KEY" as Hex)  // replace with actual private key
+const account = privateKeyToAccount('0x...')  // replace with actual private key
 ```
 
-### 4. Create a validator plugin
+### 4. Create a Validator Plugin
 
 In this case, we are creating a smart account that uses ECDSA for validation (just like EOAs).
 
 ```ts
-import { signerToEcdsaValidator } from "@zerodev/ecdsa-validator"
+import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator'
  
 const ecdsaValidator = await signerToEcdsaValidator(publicClient, {
-  signer,
+  signer: account,
 })
 ```
 
-### 5. Create a smart account
+### 5. Create a Smart Account
 
 ```ts
-import { createKernelAccount } from "@zerodev/sdk"
+import { createKernelAccount } from '@zerodev/sdk'
  
-const account = await createKernelAccount(publicClient, {
+const smartAccount = await createKernelAccount(publicClient, {
   plugins: {
     validator: ecdsaValidator,
   },
@@ -137,12 +137,12 @@ const account = await createKernelAccount(publicClient, {
 ### 6. Create an account client
 
 ```ts
-import { createKernelAccountClient } from "@zerodev/sdk"
-import { http } from "viem"
+import { createKernelAccountClient } from '@zerodev/sdk'
+import { http } from 'viem'
 import { polygonMumbai } from 'viem/chains'
  
 const kernelClient = createKernelAccountClient({
-  account,
+  account: smartAccount,
   chain: polygonMumbai,
   transport: http('BUNDLER_RPC'),  // use your bundler RPC
   sponsorUserOperation,  // optional -- only if you want to use a paymaster
@@ -155,19 +155,75 @@ Now you can send UserOps using the account client:
 
 ```ts
 const txnHash = await kernelClient.sendTransaction({
-  to: "TO_ADDRESS",
-  value: VALUE,  // default to 0
-  data: "0xDATA",  // default to 0x
+  to: '0x...',
+  value: parseEther('0.1'),
 })
 ```
 
 You can also extend the account client with `bundlerActions` from Permissionless.js if you need to call any bundler RPCs:
 
 ```ts
-import { bundlerActions } from "permissionless"
+import { bundlerActions } from 'permissionless'
  
 const bundlerClient = kernelClient.extend(bundlerActions)
 const receipt = await bundlerClient.waitForUserOperationReceipt({
   hash: userOpHash,
+})
+```
+
+## Biconomy
+
+[Biconomy](https://docs.biconomy.io/) offers a viem compatible SDK that can be used to interact with ERC-4337 Bundlers and Paymasters very easily with minimal integration required.
+
+Below are instructions for setting up a smart account and sending a sponsored user operation.
+
+### 1. Install
+
+:::code-group
+
+```bash [npm]
+npm i @biconomy/account
+```
+
+```bash [pnpm]
+pnpm i @biconomy/account
+```
+
+```bash [bun]
+yarn add @biconomy/account
+```
+
+### 2. Create an Account
+
+This can be any Viem Account type. In this case we use a [Local Account](/docs/accounts/local).
+
+```ts
+import { privateKeyToAccount } from 'viem/accounts'
+ 
+const account = privateKeyToAccount('0x...')  // replace with actual private key
+```
+
+### 3. Create a Smart Account Client
+
+```ts
+import { createSmartAccountClient } from '@biconomy/account'
+ 
+const smartAccount = await createSmartAccountClient({
+  bundlerUrl,
+  biconomyPaymasterApiKey,
+  signer: account,
+})
+```
+
+### 4. Send a Sponsored User Operation
+
+```ts
+const { wait } = await smartAccount.sendTransaction([{
+  data: '0x...',
+  to: '0x...',
+}], {
+  paymasterServiceData: {
+    mode: PaymasterMode.SPONSORED,
+  }
 })
 ```
