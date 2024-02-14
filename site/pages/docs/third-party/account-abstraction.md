@@ -194,6 +194,7 @@ pnpm i @biconomy/account
 ```bash [bun]
 yarn add @biconomy/account
 ```
+:::
 
 ### 2. Create a signer
 
@@ -208,6 +209,8 @@ const signer = privateKeyToAccount("PRIVATE_KEY" as Hex)  // replace with actual
 
 ### 3. Create a smart account client
 
+Head over to https://dashboard.biconomy.io/ to get your bundlerUrl and biconomyPaymasterApiKey.
+
 ```ts
 import { createSmartAccountClient } from "@biconomy/account"
  
@@ -221,8 +224,6 @@ const account = await createSmartAccountClient({
 ### 4. Send a Sponsored user operation
 
 ```ts
-import { createSmartAccountClient } from "@biconomy/account"
-
 const transaction = {
   to: "TO_ADDRESS",
   data: "0xDATA",  
