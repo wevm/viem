@@ -326,7 +326,8 @@ export function parseAccessList(accessList_: RecursiveArray<Hex>): AccessList {
   for (let i = 0; i < accessList_.length; i++) {
     const [address, storageKeys] = accessList_[i] as [Hex, Hex[]]
 
-    if (!isAddress(address)) throw new InvalidAddressError({ address })
+    if (!isAddress(address, { strict: false }))
+      throw new InvalidAddressError({ address })
 
     accessList.push({
       address: address,

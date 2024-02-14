@@ -421,17 +421,20 @@ describe('errors', () => {
           ],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [CallExecutionError: Address "0x1" is invalid.
+        [CallExecutionError: Address "0x1" is invalid.
 
-      Raw Call Arguments:
-        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-        data:  0x06fdde03
-        State Override:
-          0x1:
-            stateDiff:
-              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+        - Address must be a hex value of 20 bytes (40 hex characters).
+        - Address must match its checksum counterpart.
+         
+        Raw Call Arguments:
+          to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+          data:  0x06fdde03
+          State Override:
+            0x1:
+              stateDiff:
+                0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
-      Version: viem@1.0.2]
+        Version: viem@1.0.2]
       `)
     })
 

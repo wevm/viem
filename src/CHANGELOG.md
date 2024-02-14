@@ -1,5 +1,15 @@
 # viem
 
+## 2.7.9
+
+### Patch Changes
+
+- [#1806](https://github.com/wevm/viem/pull/1806) [`9ce678b91cad0b1535ec7795128f5989f4446f24`](https://github.com/wevm/viem/commit/9ce678b91cad0b1535ec7795128f5989f4446f24) Thanks [@maxencerb](https://github.com/maxencerb)! - Fixed wallet actions types
+
+- [#1805](https://github.com/wevm/viem/pull/1805) [`f5833b7c3e6b820f442ceb7cc0abfd34003f50ce`](https://github.com/wevm/viem/commit/f5833b7c3e6b820f442ceb7cc0abfd34003f50ce) Thanks [@bajpai244](https://github.com/bajpai244)! - Added Kakarot Sepolia chain.
+
+- [#1802](https://github.com/wevm/viem/pull/1802) [`9f8196fcc08c84be2b69a11907c6c33d37532a29`](https://github.com/wevm/viem/commit/9f8196fcc08c84be2b69a11907c6c33d37532a29) Thanks [@sashaaldrick](https://github.com/sashaaldrick)! - Added Etherlink Testnet chain.
+
 ## 2.7.8
 
 ### Patch Changes
