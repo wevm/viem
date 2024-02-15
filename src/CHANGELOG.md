@@ -1,5 +1,15 @@
 # viem
 
+## 2.7.10
+
+### Patch Changes
+
+- [#1804](https://github.com/wevm/viem/pull/1804) [`223ccc5814952e7644a551e9d1f9adaa7ea1c590`](https://github.com/wevm/viem/commit/223ccc5814952e7644a551e9d1f9adaa7ea1c590) Thanks [@dawsbot](https://github.com/dawsbot)! - Upgraded `isAddress` to return false for addresses that contain an invalid checksum.
+
+- [#1811](https://github.com/wevm/viem/pull/1811) [`9f4cbad2aa5d24211f0602a265faddcd3b2edf1f`](https://github.com/wevm/viem/commit/9f4cbad2aa5d24211f0602a265faddcd3b2edf1f) Thanks [@0xbeny](https://github.com/0xbeny)! - Added multicall to XDC mainnet and testnet
+
+- [#1814](https://github.com/wevm/viem/pull/1814) [`7d81244ffb6b520ab4b809131a12d8731a238a2d`](https://github.com/wevm/viem/commit/7d81244ffb6b520ab4b809131a12d8731a238a2d) Thanks [@lukasrosario](https://github.com/lukasrosario)! - Added L1StandardBridge addresses to OP Stack chains
+
 ## 2.7.9
 
 ### Patch Changes
