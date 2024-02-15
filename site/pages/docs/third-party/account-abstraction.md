@@ -192,6 +192,7 @@ pnpm i @biconomy/account
 ```bash [bun]
 yarn add @biconomy/account
 ```
+:::
 
 ### 2. Create an Account
 
@@ -204,6 +205,8 @@ const account = privateKeyToAccount('0x...')  // replace with actual private key
 ```
 
 ### 3. Create a Smart Account Client
+
+Head over to https://dashboard.biconomy.io/ to get your bundlerUrl and biconomyPaymasterApiKey.
 
 ```ts
 import { createSmartAccountClient } from '@biconomy/account'
