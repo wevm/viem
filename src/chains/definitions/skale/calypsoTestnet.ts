@@ -6,12 +6,8 @@ export const skaleCalypsoTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {
-      http: [
-        'https://testnet.skalenodes.com/v1/giant-half-dual-testnet',
-      ],
-      webSocket: [
-        'wss://testnet.skalenodes.com/v1/ws/giant-half-dual-testnet',
-      ],
+      http: ['https://testnet.skalenodes.com/v1/giant-half-dual-testnet'],
+      webSocket: ['wss://testnet.skalenodes.com/v1/ws/giant-half-dual-testnet'],
     },
   },
   blockExplorers: {
