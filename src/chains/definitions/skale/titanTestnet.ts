@@ -6,12 +6,8 @@ export const skaleTitanTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {
-      http: [
-        'https://testnet.skalenodes.com/v1/aware-fake-trim-testnet',
-      ],
-      webSocket: [
-        'wss://testnet.skalenodes.com/v1/ws/aware-fake-trim-testnet',
-      ],
+      http: ['https://testnet.skalenodes.com/v1/aware-fake-trim-testnet'],
+      webSocket: ['wss://testnet.skalenodes.com/v1/ws/aware-fake-trim-testnet'],
     },
   },
   blockExplorers: {
