@@ -13,7 +13,7 @@ export const skaleCalypsoTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'SKALE Explorer',
-      url: 'https://giant-half-dual-testnet.explorer.testnet.skalenodes.com/',
+      url: 'https://giant-half-dual-testnet.explorer.testnet.skalenodes.com',
     },
   },
   contracts: {},

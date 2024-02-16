@@ -7,15 +7,13 @@ export const skaleEuropaTestnet = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://testnet.skalenodes.com/v1/juicy-low-small-testnet'],
-      webSocket: [
-        'wss://testnet.skalenodes.com/v1/ws/juicy-low-small-testnet',
-      ],
+      webSocket: ['wss://testnet.skalenodes.com/v1/ws/juicy-low-small-testnet'],
     },
   },
   blockExplorers: {
     default: {
       name: 'SKALE Explorer',
-      url: 'https://juicy-low-small-testnet.explorer.testnet.skalenodes.com/',
+      url: 'https://juicy-low-small-testnet.explorer.testnet.skalenodes.com',
     },
   },
   contracts: {},

@@ -7,9 +7,7 @@ export const skaleNebulaTestnet = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://testnet.skalenodes.com/v1/lanky-ill-funny-testnet'],
-      webSocket: [
-        'wss://testnet.skalenodes.com/v1/ws/lanky-ill-funny-testnet',
-      ],
+      webSocket: ['wss://testnet.skalenodes.com/v1/ws/lanky-ill-funny-testnet'],
     },
   },
   blockExplorers: {
