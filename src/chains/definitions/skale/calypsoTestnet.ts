@@ -16,6 +16,11 @@ export const skaleCalypsoTestnet = /*#__PURE__*/ defineChain({
       url: 'https://giant-half-dual-testnet.explorer.testnet.skalenodes.com',
     },
   },
-  contracts: {},
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 103_220,
+    },
+  },
   testnet: true,
 })
