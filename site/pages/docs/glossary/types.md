@@ -2,7 +2,7 @@
 
 ## `Abi`
 
-Type matching the [Contract ABI Specification](https://docs.soliditylang.org/en/latest/abi-spec#json)
+Type matching the [Contract ABI Specification](https://docs.soliditylang.org/en/latest/abi-spec.html#json)
 
 Re-exported from [ABIType](https://abitype.dev/api/types#abi).
 
