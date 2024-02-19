@@ -1,5 +1,13 @@
 # viem
 
+## 2.7.11
+
+### Patch Changes
+
+- [#1824](https://github.com/wevm/viem/pull/1824) [`1c715eb2c7ccd8bd6e4566c00d97d3eb07752a4d`](https://github.com/wevm/viem/commit/1c715eb2c7ccd8bd6e4566c00d97d3eb07752a4d) Thanks [@JazzBashara](https://github.com/JazzBashara)! - Updated Avalanche explorer to snowscan.xyz, a product of Etherscan.
+
+- [#1813](https://github.com/wevm/viem/pull/1813) [`d267f1a17d3fb13ed22c50eaef2bc748e5e2a773`](https://github.com/wevm/viem/commit/d267f1a17d3fb13ed22c50eaef2bc748e5e2a773) Thanks [@NicolasMahe](https://github.com/NicolasMahe)! - Updated Lightlink RPC urls
+
 ## 2.7.10
 
 ### Patch Changes
