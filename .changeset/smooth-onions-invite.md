@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Update Lightlink RPC urls
+Updated Lightlink RPC urls
