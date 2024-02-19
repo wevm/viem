@@ -11,10 +11,7 @@ export const lightlinkPegasus = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://replicator-01.pegasus.lightlink.io/rpc/v1',
-        'https://replicator-02.pegasus.lightlink.io/rpc/v1',
-      ],
+      http: ['https://replicator.pegasus.lightlink.io/rpc/v1'],
     },
   },
   blockExplorers: {
