@@ -12,7 +12,7 @@ Note: `getFilterLogs` is only compatible with **event filters**.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseAbiItem } from 'viem'
 import { publicClient } from './client'
 
@@ -20,12 +20,11 @@ const filter = await publicClient.createEventFilter({ // [!code focus:99]
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed, address indexed, uint256)'),
 })
-// ...
 const logs = await publicClient.getFilterLogs({ filter })
-// [{ ... }, { ... }, { ... }]
+// @log: [{ ... }, { ... }, { ... }]
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -52,7 +51,9 @@ A list of event logs.
 
 An **event** filter.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const filter = await publicClient.createEventFilter()
 const logs = await publicClient.getFilterChanges({
   filter, // [!code focus]

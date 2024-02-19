@@ -2,7 +2,7 @@
 
 ## `Abi`
 
-Type matching the [Contract ABI Specification](https://docs.soliditylang.org/en/latest/abi-spec#json)
+Type matching the [Contract ABI Specification](https://docs.soliditylang.org/en/latest/abi-spec.html#json)
 
 Re-exported from [ABIType](https://abitype.dev/api/types#abi).
 
@@ -146,10 +146,14 @@ Legacy transaction hex value – a "0x"-prefixed string: `"0x${string}"`
 
 ## `TransactionType`
 
-All types of transactions. `"eip1559" | "eip2930" | "legacy"`
+All types of transactions. `"eip1559" | "eip2930" | "eip4844" | "legacy"`
 
 ## `TransactionRequest`
 
 A type for all transaction requests.
 
 [See Type](https://github.com/wevm/viem/blob/main/src/types/transaction.ts).
+
+## `StateOverride`
+
+A type defining state overrides for `eth_call` method. [See more](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-eth#eth-call)

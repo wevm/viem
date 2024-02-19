@@ -1,5 +1,81 @@
 # viem
 
+## 2.7.10
+
+### Patch Changes
+
+- [#1804](https://github.com/wevm/viem/pull/1804) [`223ccc5814952e7644a551e9d1f9adaa7ea1c590`](https://github.com/wevm/viem/commit/223ccc5814952e7644a551e9d1f9adaa7ea1c590) Thanks [@dawsbot](https://github.com/dawsbot)! - Upgraded `isAddress` to return false for addresses that contain an invalid checksum.
+
+- [#1811](https://github.com/wevm/viem/pull/1811) [`9f4cbad2aa5d24211f0602a265faddcd3b2edf1f`](https://github.com/wevm/viem/commit/9f4cbad2aa5d24211f0602a265faddcd3b2edf1f) Thanks [@0xbeny](https://github.com/0xbeny)! - Added multicall to XDC mainnet and testnet
+
+- [#1814](https://github.com/wevm/viem/pull/1814) [`7d81244ffb6b520ab4b809131a12d8731a238a2d`](https://github.com/wevm/viem/commit/7d81244ffb6b520ab4b809131a12d8731a238a2d) Thanks [@lukasrosario](https://github.com/lukasrosario)! - Added L1StandardBridge addresses to OP Stack chains
+
+## 2.7.9
+
+### Patch Changes
+
+- [#1806](https://github.com/wevm/viem/pull/1806) [`9ce678b91cad0b1535ec7795128f5989f4446f24`](https://github.com/wevm/viem/commit/9ce678b91cad0b1535ec7795128f5989f4446f24) Thanks [@maxencerb](https://github.com/maxencerb)! - Fixed wallet actions types
+
+- [#1805](https://github.com/wevm/viem/pull/1805) [`f5833b7c3e6b820f442ceb7cc0abfd34003f50ce`](https://github.com/wevm/viem/commit/f5833b7c3e6b820f442ceb7cc0abfd34003f50ce) Thanks [@bajpai244](https://github.com/bajpai244)! - Added Kakarot Sepolia chain.
+
+- [#1802](https://github.com/wevm/viem/pull/1802) [`9f8196fcc08c84be2b69a11907c6c33d37532a29`](https://github.com/wevm/viem/commit/9f8196fcc08c84be2b69a11907c6c33d37532a29) Thanks [@sashaaldrick](https://github.com/sashaaldrick)! - Added Etherlink Testnet chain.
+
+## 2.7.8
+
+### Patch Changes
+
+- [#1792](https://github.com/wevm/viem/pull/1792) [`da2b00c710b1909acd5f07b5cff8f525d3d61a79`](https://github.com/wevm/viem/commit/da2b00c710b1909acd5f07b5cff8f525d3d61a79) Thanks [@kim-hera](https://github.com/kim-hera)! - Added multicall address to Blast Sepolia.
+
+- [#1794](https://github.com/wevm/viem/pull/1794) [`c456ba87f5fc94321e8ae619fefa0c7d011ba53d`](https://github.com/wevm/viem/commit/c456ba87f5fc94321e8ae619fefa0c7d011ba53d) Thanks [@roninjin10](https://github.com/roninjin10)! - Fixed `gas` derivation in OP Stack's `proveWithdrawal`.
+
+## 2.7.7
+
+### Patch Changes
+
+- [#1787](https://github.com/wevm/viem/pull/1787) [`38a88e27e514e5a992335ccd27015113adcb30b1`](https://github.com/wevm/viem/commit/38a88e27e514e5a992335ccd27015113adcb30b1) Thanks [@0xfourzerofour](https://github.com/0xfourzerofour)! - Added Polygon Amoy to chains.
+
+## 2.7.5
+
+### Patch Changes
+
+- [`df2d17de952bcb58d31efbc71ebbec909cea7d8a`](https://github.com/wevm/viem/commit/df2d17de952bcb58d31efbc71ebbec909cea7d8a) Thanks [@jxom](https://github.com/jxom)! - Fixed inference on formatter return type.
+
+## 2.7.4
+
+### Patch Changes
+
+- [#1768](https://github.com/wevm/viem/pull/1768) [`010390000d628b6a2bc532458da224740cfd9237`](https://github.com/wevm/viem/commit/010390000d628b6a2bc532458da224740cfd9237) Thanks [@gjj](https://github.com/gjj)! - Added X1 Testnet chain.
+
+## 2.7.3
+
+### Patch Changes
+
+- [#1776](https://github.com/wevm/viem/pull/1776) [`444f61def8f7a3be0cae4e11eca7a9bb4ef12799`](https://github.com/wevm/viem/commit/444f61def8f7a3be0cae4e11eca7a9bb4ef12799) Thanks [@tmm](https://github.com/tmm)! - Added missing state override error types.
+
+- [#1759](https://github.com/wevm/viem/pull/1759) [`7d89ce8a4021719aba74c62c54228b9bc51ac9c9`](https://github.com/wevm/viem/commit/7d89ce8a4021719aba74c62c54228b9bc51ac9c9) Thanks [@maxencerb](https://github.com/maxencerb)! - Added `stateOverride` property to `call`, `simulateContract`, `readContract`, and `multicall`.
+
+## 2.7.2
+
+### Patch Changes
+
+- [#1764](https://github.com/wevm/viem/pull/1764) [`525bf85165fc2eba57445f6ed0076c243748e978`](https://github.com/wevm/viem/commit/525bf85165fc2eba57445f6ed0076c243748e978) Thanks [@franm91](https://github.com/franm91)! - Renamed Optimism Sepolia chain
+
+- [`1852477ee428f55bf78c68744a6aa3e2f5bac05b`](https://github.com/wevm/viem/commit/1852477ee428f55bf78c68744a6aa3e2f5bac05b) Thanks [@jxom](https://github.com/jxom)! - Fixed `SendTransactionErrorType`.
+
+- [#1758](https://github.com/wevm/viem/pull/1758) [`232c4d34a5ee57ad55bac734f97eb58c9f402b4b`](https://github.com/wevm/viem/commit/232c4d34a5ee57ad55bac734f97eb58c9f402b4b) Thanks [@bguiz](https://github.com/bguiz)! - Added Hedera chains.
+
+## 2.7.1
+
+### Patch Changes
+
+- [`3c1d790e57c667ded5321d6861d9c5d4cbc38a3a`](https://github.com/wevm/viem/commit/3c1d790e57c667ded5321d6861d9c5d4cbc38a3a) Thanks [@jxom](https://github.com/jxom)! - Added `retryCount` & `retryDelay` as a property to `waitForTransactionReceipt`.
+
+## 2.7.0
+
+### Minor Changes
+
+- [#1754](https://github.com/wevm/viem/pull/1754) [`85cc1a81d81f789ccc5b587ab99940095100e616`](https://github.com/wevm/viem/commit/85cc1a81d81f789ccc5b587ab99940095100e616) Thanks [@jxom](https://github.com/jxom)! - Added types & formatters for EIP-4844 Blob Transactions.
+
 ## 2.6.1
 
 ### Patch Changes

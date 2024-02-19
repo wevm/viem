@@ -60,8 +60,12 @@ export type ClientConfig<
 // They are allowed to be extended, but must conform to their parameter & return type interfaces.
 // Example: an extended `call` action must accept `CallParameters` as parameters,
 // and conform to the `CallReturnType` return type.
-type ExtendableProtectedActions = Pick<
-  PublicActions,
+type ExtendableProtectedActions<
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+> = Pick<
+  PublicActions<transport, chain, account>,
   | 'call'
   | 'createContractEventFilter'
   | 'createEventFilter'
@@ -86,7 +90,7 @@ type ExtendableProtectedActions = Pick<
   | 'watchBlockNumber'
   | 'watchContractEvent'
 > &
-  Pick<WalletActions, 'sendTransaction' | 'writeContract'>
+  Pick<WalletActions<chain, account>, 'sendTransaction' | 'writeContract'>
 
 // TODO: Move `transport` to slot index 2 since `chain` and `account` used more frequently.
 // Otherwise, we end up with a lot of `Client<Transport, chain, account>` in actions.
@@ -99,7 +103,8 @@ export type Client<
 > = Client_Base<transport, chain, account, rpcSchema> &
   (extended extends Extended ? extended : unknown) & {
     extend: <
-      const client extends Extended & Partial<ExtendableProtectedActions>,
+      const client extends Extended &
+        Partial<ExtendableProtectedActions<transport, chain, account>>,
     >(
       fn: (
         client: Client<transport, chain, account, rpcSchema, extended>,

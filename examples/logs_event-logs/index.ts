@@ -1,4 +1,4 @@
-import { http, createPublicClient, stringify } from 'viem'
+import { http, createPublicClient, parseAbiItem, stringify } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
@@ -8,18 +8,9 @@ const client = createPublicClient({
 
 const el = document.getElementById('app')
 
-// TODO: convert to `parseAbiItem`.
-const event = {
-  inputs: [
-    { indexed: false, name: 'name', type: 'string' },
-    { indexed: true, name: 'label', type: 'bytes32' },
-    { indexed: true, name: 'owner', type: 'address' },
-    { indexed: false, name: 'cost', type: 'uint256' },
-    { indexed: false, name: 'expires', type: 'uint256' },
-  ],
-  name: 'NameRegistered',
-  type: 'event',
-} as const
+const event = parseAbiItem(
+  'event NameRegistered(string name,bytes32 indexed label,address indexed owner,uint256 cost,uint256 expires)',
+)
 
 // Get initial event logs (last 20 blocks)
 const blockNumber = await client.getBlockNumber()

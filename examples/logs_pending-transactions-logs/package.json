@@ -1,0 +1,15 @@
+{
+  "name": "example-pending-transactions-logs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "viem": "latest"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.3",
+    "vite": "^4.4.2"
+  }
+}

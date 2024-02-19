@@ -48,34 +48,36 @@ describe('block', () => {
         nonce: '0x0000000000000000',
       }),
     ).toMatchInlineSnapshot(`
-    {
-      "baseFeePerGas": 250000000n,
-      "difficulty": 0n,
-      "extraData": "0x",
-      "gasLimit": 4294967295n,
-      "gasUsed": 2152203n,
-      "hash": "0x288c26fa1cc1814b638f3010f20d17fc5d1a2667fb5aa1dd6354ad889fa335b4",
-      "l1BatchNumber": 20598n,
-      "l1BatchTimestamp": 1682529985n,
-      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "miner": "0x0000000000000000000000000000000000000000",
-      "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "nonce": "0x0000000000000000",
-      "number": 2302499n,
-      "parentHash": "0xb1f996bdcc7c1f1893b016bd47150a846ac1e11f443d23df4cbc7c36fa1d4ae1",
-      "receiptsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "sealFields": [],
-      "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-      "size": 0n,
-      "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "timestamp": 1682530046n,
-      "totalDifficulty": 0n,
-      "transactions": [
-        "0xae443579604b132e8e8a9a03a09f4ba1c8387190d4feac2f60283a6df564b66c",
-      ],
-      "transactionsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "uncles": [],
-    }
+      {
+        "baseFeePerGas": 250000000n,
+        "blobGasUsed": undefined,
+        "difficulty": 0n,
+        "excessBlobGas": undefined,
+        "extraData": "0x",
+        "gasLimit": 4294967295n,
+        "gasUsed": 2152203n,
+        "hash": "0x288c26fa1cc1814b638f3010f20d17fc5d1a2667fb5aa1dd6354ad889fa335b4",
+        "l1BatchNumber": 20598n,
+        "l1BatchTimestamp": 1682529985n,
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "miner": "0x0000000000000000000000000000000000000000",
+        "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "nonce": "0x0000000000000000",
+        "number": 2302499n,
+        "parentHash": "0xb1f996bdcc7c1f1893b016bd47150a846ac1e11f443d23df4cbc7c36fa1d4ae1",
+        "receiptsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "sealFields": [],
+        "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+        "size": 0n,
+        "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "timestamp": 1682530046n,
+        "totalDifficulty": 0n,
+        "transactions": [
+          "0xae443579604b132e8e8a9a03a09f4ba1c8387190d4feac2f60283a6df564b66c",
+        ],
+        "transactionsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "uncles": [],
+      }
     `)
 
     expect(
@@ -141,7 +143,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
+        "blobGasUsed": undefined,
         "difficulty": 0n,
+        "excessBlobGas": undefined,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 3248087n,
@@ -173,6 +177,7 @@ describe('block', () => {
             "input": "0x0fc87d250000000000000000000000003355df6d4c9c3035724fd0e3914de96a5a83aaf40000000000000000000000003f81edcbd9bc84271fb8fdf270257a18f4d47e9b0000000000000000000000000000000000000000000002b94cc7d236b39b0bff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ef9e8e39782b1b544a6eb6db6aa85207bacb4c2000000000000000000000000000000000000000000000000000000000641e1c0b0000000000000000000000000000000000000000000000000000000000000000",
             "l1BatchNumber": 569n,
             "l1BatchTxIndex": 340n,
+            "maxFeePerBlobGas": undefined,
             "maxFeePerGas": 250000000n,
             "maxPriorityFeePerGas": 250000000n,
             "nonce": 15,
@@ -231,7 +236,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
+        "blobGasUsed": undefined,
         "difficulty": 0n,
+        "excessBlobGas": undefined,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 2152203n,
@@ -284,6 +291,7 @@ describe('block', () => {
         "input": "0x3cda33510000000000000000000000000000000000000000000000000000000000000000010000553109a66f1432eb2286c54694784d1b6993bc24a168be0a49b4d0fd4500000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
         "l1BatchNumber": 1n,
         "l1BatchTxIndex": 0n,
+        "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 0n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
@@ -299,7 +307,9 @@ describe('block', () => {
     expect(rest).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 500000000n,
+        "blobGasUsed": undefined,
         "difficulty": 0n,
+        "excessBlobGas": undefined,
         "gasLimit": 4294967295n,
         "gasUsed": 432000000n,
         "hash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
@@ -518,6 +528,7 @@ describe('transaction', () => {
         "input": "0x3cda33510000000000000000000000000000000000000000000000000000000000000000010000553109a66f1432eb2286c54694784d1b6993bc24a168be0a49b4d0fd4500000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
         "l1BatchNumber": 1n,
         "l1BatchTxIndex": 0n,
+        "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 0n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
@@ -630,6 +641,7 @@ describe('transaction', () => {
         "input": "0x0fc87d250000000000000000000000003355df6d4c9c3035724fd0e3914de96a5a83aaf40000000000000000000000003f81edcbd9bc84271fb8fdf270257a18f4d47e9b0000000000000000000000000000000000000000000002b94cc7d236b39b0bff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ef9e8e39782b1b544a6eb6db6aa85207bacb4c2000000000000000000000000000000000000000000000000000000000641e1c0b0000000000000000000000000000000000000000000000000000000000000000",
         "l1BatchNumber": 569n,
         "l1BatchTxIndex": 340n,
+        "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 250000000n,
         "maxPriorityFeePerGas": 250000000n,
         "nonce": 15,
@@ -1208,7 +1220,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 14,
+            "transactionLogIndex": 0,
           },
           {
             "address": "0x9c931462ac1bf8b47a727aaad7776405ac894482",
@@ -1224,7 +1236,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 15,
+            "transactionLogIndex": 1,
           },
           {
             "address": "0x0000000000000000000000000000000000008006",
@@ -1243,7 +1255,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 16,
+            "transactionLogIndex": 2,
           },
           {
             "address": "0x1eb710030273e529a6ad7e1e14d4e601765ba3c6",
@@ -1261,7 +1273,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 17,
+            "transactionLogIndex": 3,
           },
           {
             "address": "0x0000000000000000000000000000000000008006",
@@ -1280,7 +1292,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 18,
+            "transactionLogIndex": 4,
           },
           {
             "address": "0x1eb710030273e529a6ad7e1e14d4e601765ba3c6",
@@ -1298,7 +1310,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 19,
+            "transactionLogIndex": 5,
           },
           {
             "address": "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102",
@@ -1314,7 +1326,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 20,
+            "transactionLogIndex": 6,
           },
           {
             "address": "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102",
@@ -1330,7 +1342,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 21,
+            "transactionLogIndex": 7,
           },
           {
             "address": "0x0000000000000000000000000000000000008006",
@@ -1349,7 +1361,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 22,
+            "transactionLogIndex": 8,
           },
           {
             "address": "0x000000000000000000000000000000000000800a",
@@ -1366,7 +1378,7 @@ describe('transaction receipt', () => {
             ],
             "transactionHash": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "transactionIndex": 5,
-            "transactionLogIndex": 23,
+            "transactionLogIndex": 9,
           },
         ],
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -1377,7 +1389,7 @@ describe('transaction receipt', () => {
         "transactionIndex": 5,
         "type": "0xff",
       }
-      `)
+    `)
   })
 })
 

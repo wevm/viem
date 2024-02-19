@@ -14,29 +14,25 @@ Otherwise, for EIP-1159 Transactions, viem will estimate the fees using a combin
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const {
   maxFeePerGas,
   maxPriorityFeePerGas
 } = await publicClient.estimateFeesPerGas()
-/**
- * {
- *   maxFeePerGas: 15_000_000_000n,
- *   maxPriorityFeePerGas: 1_000_000_000n,
- * }
- */
+// @log: {
+// @log:   maxFeePerGas: 15_000_000_000n,
+// @log:   maxPriorityFeePerGas: 1_000_000_000n,
+// @log: }
 
 const { gasPrice } = await publicClient.estimateFeesPerGas({
   type: 'legacy'
 })
-/** 
- * { gasPrice: 15_000_000_000n } 
- */
+// @log: { gasPrice: 15_000_000_000n } 
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -63,7 +59,9 @@ An estimate (in wei) for the fees per gas.
 
 Optional Chain override. Used to infer the fees per gas from [`chain.fees.estimateFeesPerGas`](/docs/actions/public/estimateFeesPerGas).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 import { optimism } from 'viem/chains' // [!code focus]
 
 const { maxFeePerGas, maxPriorityFeePerGas } = 
@@ -77,7 +75,9 @@ const { maxFeePerGas, maxPriorityFeePerGas } =
 - **Type:** `"legacy" | "eip1559"`
 - **Default:** `"eip1559"`
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const { gasPrice } = await publicClient.estimateFeesPerGas({
   type: 'legacy' // [!code focus]
 })

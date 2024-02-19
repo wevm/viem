@@ -70,6 +70,11 @@ test('default', async () => {
         "l1Block": {
           "address": "0x4200000000000000000000000000000000000015",
         },
+        "l1StandardBridge": {
+          "1": {
+            "address": "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1",
+          },
+        },
         "l2CrossDomainMessenger": {
           "address": "0x4200000000000000000000000000000000000007",
         },

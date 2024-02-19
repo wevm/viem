@@ -39,3 +39,25 @@ export class SizeExceedsPaddingSizeError extends BaseError {
     )
   }
 }
+
+export type InvalidBytesLengthErrorType = InvalidBytesLengthError & {
+  name: 'InvalidBytesLengthError'
+}
+export class InvalidBytesLengthError extends BaseError {
+  override name = 'InvalidBytesLengthError'
+  constructor({
+    size,
+    targetSize,
+    type,
+  }: {
+    size: number
+    targetSize: number
+    type: 'hex' | 'bytes'
+  }) {
+    super(
+      `${type.charAt(0).toUpperCase()}${type
+        .slice(1)
+        .toLowerCase()} is expected to be ${targetSize} ${type} long, but is ${size} ${type} long.`,
+    )
+  }
+}

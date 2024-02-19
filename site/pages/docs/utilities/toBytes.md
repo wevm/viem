@@ -51,19 +51,19 @@ The byte array represented as a `Uint8Array`.
 
 The value to encode as bytes.
 
-```ts {2}
+```ts 
 toBytes(
-  'Hello world'
+  'Hello world' // [!code focus]
 )
 // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
 ```
 
 ### options
 
-```ts {3}
+```ts 
 toBytes(
   'Hello world', 
-  { size: 32 }
+  { size: 32 } // [!code focus]
 )
 // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 ```

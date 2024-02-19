@@ -6,7 +6,7 @@ const sourceId = 11_155_111 // sepolia
 export const optimismSepolia = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 11155420,
-  name: 'Optimism Sepolia',
+  name: 'OP Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
@@ -34,6 +34,11 @@ export const optimismSepolia = /*#__PURE__*/ defineChain({
     portal: {
       [sourceId]: {
         address: '0x16Fc5058F25648194471939df75CF27A2fdC48BC',
+      },
+    },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: '0xFBb0621E0B23b5478B630BD55a5f21f67730B0F1',
       },
     },
   },

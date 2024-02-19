@@ -48,7 +48,11 @@ export function formatBlock(block: Partial<RpcBlock>) {
   return {
     ...block,
     baseFeePerGas: block.baseFeePerGas ? BigInt(block.baseFeePerGas) : null,
+    blobGasUsed: block.blobGasUsed ? BigInt(block.blobGasUsed) : undefined,
     difficulty: block.difficulty ? BigInt(block.difficulty) : undefined,
+    excessBlobGas: block.excessBlobGas
+      ? BigInt(block.excessBlobGas)
+      : undefined,
     gasLimit: block.gasLimit ? BigInt(block.gasLimit) : undefined,
     gasUsed: block.gasUsed ? BigInt(block.gasUsed) : undefined,
     hash: block.hash ? block.hash : null,

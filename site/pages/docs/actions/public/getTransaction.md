@@ -10,23 +10,21 @@ Returns information about a [Transaction](/docs/glossary/terms#transaction) give
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const transaction = await publicClient.getTransaction({ // [!code focus:99]
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
 })
-/**
- * {
- *  blockHash: '0xaf1dadb8a98f1282e8f7b42cc3da8847bfa2cf4e227b8220403ae642e1173088',
- *  blockNumber: 15132008n,
- *  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
- *  ...
- * }
- */
+// @log: {
+// @log:  blockHash: '0xaf1dadb8a98f1282e8f7b42cc3da8847bfa2cf4e227b8220403ae642e1173088',
+// @log:  blockNumber: 15132008n,
+// @log:  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+// @log:  ...
+// @log: }
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -52,7 +50,9 @@ The transaction information.
 
 Get information about a transaction given a transaction hash.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const transaction = await publicClient.getTransaction({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
@@ -64,7 +64,9 @@ const transaction = await publicClient.getTransaction({
 
 Get information about a transaction given a block hash (and index).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const transaction = await publicClient.getTransaction({
   blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus:2]
   index: 0
@@ -77,7 +79,9 @@ const transaction = await publicClient.getTransaction({
 
 Get information about a transaction given a block number (and index).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const transaction = await publicClient.getTransaction({
   blockNumber: 69420n, // [!code focus:2]
   index: 0
@@ -90,7 +94,9 @@ const transaction = await publicClient.getTransaction({
 
 Get information about a transaction given a block tag (and index).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const transaction = await publicClient.getTransaction({
   blockTag: 'safe', // [!code focus:2]
   index: 0
@@ -103,7 +109,9 @@ const transaction = await publicClient.getTransaction({
 
 An index to be used with a block identifier (number, hash or tag).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const transaction = await publicClient.getTransaction({
   blockTag: 'safe',
   index: 0 // [!code focus]

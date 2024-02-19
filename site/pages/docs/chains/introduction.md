@@ -6,12 +6,12 @@ The `viem/chains` entrypoint contains references to popular EVM-compatible chain
 
 Import your chain from the entrypoint and use them in the consuming viem code:
 
-```tsx {2,5}
+```tsx
 import { createPublicClient, http } from 'viem'
-import { zora } from 'viem/chains'
+import { zora } from 'viem/chains' // [!code focus]
 
 const client = createPublicClient({
-  chain: zora,
+  chain: zora, // [!code focus]
   transport: http()
 })
 ```

@@ -22,8 +22,8 @@ import { toEventSignature } from 'viem'
 import { toEventSignature } from 'viem'
 
 // from event definition
-// @log: Output: Transfer(address,address,uint256)
 const signature_1 = toEventSignature('event Transfer(address indexed from, address indexed to, uint256 amount)')
+// @log: Output: Transfer(address,address,uint256)
 
 // from an `AbiEvent` on your contract ABI
 const signature_2 = toEventSignature({
@@ -34,8 +34,8 @@ const signature_2 = toEventSignature({
     { name: 'address', type: 'address', indexed: true },
     { name: 'uint256', type: 'uint256', indexed: false },
   ],
-// @log: Output: Transfer(address,address,uint256)
 })
+// @log: Output: Transfer(address,address,uint256)
 ```
 
 ## Returns

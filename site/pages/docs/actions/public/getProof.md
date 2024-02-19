@@ -10,7 +10,7 @@ Returns the account and storage values of the specified account including the Me
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const proof = await publicClient.getProof({ 
@@ -21,7 +21,7 @@ const proof = await publicClient.getProof({
 })
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { optimism } from 'viem/chains'
 
@@ -47,7 +47,9 @@ Proof data.
 
 Account address.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const proof = await publicClient.getProof({
   address: '0x4200000000000000000000000000000000000016', // [!code focus]
   storageKeys: [
@@ -63,7 +65,9 @@ const proof = await publicClient.getProof({
 
 Array of storage-keys that should be proofed and included.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const proof = await publicClient.getProof({
   address: '0x4200000000000000000000000000000000000016',
   storageKeys: [ // [!code focus:3]

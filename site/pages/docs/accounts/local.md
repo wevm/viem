@@ -14,7 +14,7 @@ Below are the steps to integrate a **Private Key Account**, but the same steps c
 
 Before we set up our Account and start consuming Wallet Actions, we will need to set up our Wallet Client with the [`http` Transport](/docs/clients/transports/http):
 
-```ts
+```ts twoslash
 import { createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -28,7 +28,7 @@ const client = createWalletClient({
 
 Next, we will instantiate a Private Key Account using `privateKeyToAccount`:
 
-```ts
+```ts twoslash
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts' // [!code focus]
 import { mainnet } from 'viem/chains'
@@ -45,8 +45,8 @@ const account = privateKeyToAccount('0x...') // [!code focus:1]
 
 Now you can use that Account within Wallet Actions that need a signature from the user:
 
-```ts
-import { createWalletClient, http } from 'viem'
+```ts twoslash
+import { createWalletClient, http, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -68,8 +68,8 @@ const hash = await client.sendTransaction({ // [!code focus:5]
 
 If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account into the Wallet Client.
 
-```ts
-import { createWalletClient, http } from 'viem'
+```ts twoslash
+import { createWalletClient, http, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -94,8 +94,10 @@ When using a Local Account, you may be finding yourself using a [Public Client](
 
 In this case, you can extend your Wallet Client with [Public Actions](/docs/actions/public/introduction) to avoid having to handle multiple Clients.
 
-```ts {12}
+```ts twoslash {12}
+// @noErrors
 import { createWalletClient, http, publicActions } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 const account = privateKeyToAccount('0x...')
