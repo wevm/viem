@@ -310,7 +310,7 @@ describe('contract errors', () => {
 
       Error: SimpleError(string message)
                         (bugger)
-
+       
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomRead()
@@ -333,7 +333,7 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "simpleCustomReadNoArgs" reverted.
 
       Error: SimpleErrorNoArgs()
-
+       
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomReadNoArgs()
@@ -357,7 +357,7 @@ describe('contract errors', () => {
 
       Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
                          ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
-
+       
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  complexCustomRead()
@@ -387,7 +387,7 @@ describe('contract errors', () => {
       Unable to decode signature "0xf9006398" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
       You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xf9006398.
-
+       
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomRead()
@@ -412,7 +412,7 @@ test('fake contract address', async () => {
       - The contract does not have the function "totalSupply",
       - The parameters passed to the contract function may be invalid, or
       - The address is not a contract.
-
+     
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
       function:  totalSupply()
