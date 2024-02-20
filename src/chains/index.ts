@@ -107,6 +107,7 @@ export { metis } from './definitions/metis.js'
 export { metisGoerli } from './definitions/metisGoerli.js'
 export { mev } from './definitions/mev.js'
 export { mevTestnet } from './definitions/mevTestnet.js'
+export { mode } from './definitions/mode.js'
 export { modeTestnet } from './definitions/modeTestnet.js'
 export { moonbaseAlpha } from './definitions/moonbaseAlpha.js'
 export { moonbeam } from './definitions/moonbeam.js'
@@ -203,7 +204,6 @@ export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
-export { mode } from './definitions/mode.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // required for type inference since in explicit return type

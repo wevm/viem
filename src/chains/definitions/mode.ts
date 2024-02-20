@@ -7,14 +7,13 @@ export const mode = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://mainnet.mode.network/'],
+      http: ['https://mainnet.mode.network'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Mode Explorer',
-      url: 'https://explorer.mode.network/',
-    //   apiUrl: '',
+      url: 'https://explorer.mode.network',
     },
   },
   contracts: {
