@@ -386,7 +386,7 @@ describe('contract errors', () => {
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "overflowWrite" reverted with the following reason:
-      Arithmic operation resulted in underflow or overflow.
+      Arithmetic operation resulted in underflow or overflow.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
@@ -460,7 +460,7 @@ describe('contract errors', () => {
 
       Error: SimpleError(string message)
                         (bugger)
-       
+
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomWrite()
@@ -486,7 +486,7 @@ describe('contract errors', () => {
 
       Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
                          ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
-       
+
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  complexCustomWrite()
@@ -521,7 +521,7 @@ test('fake contract address', async () => {
       - The contract does not have the function "mint",
       - The parameters passed to the contract function may be invalid, or
       - The address is not a contract.
-     
+
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
       function:  mint()
@@ -550,7 +550,7 @@ describe('node errors', () => {
         to:            0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:          0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
-       
+
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
@@ -581,7 +581,7 @@ describe('node errors', () => {
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:  0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
         gas:   100
-       
+
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
@@ -660,7 +660,7 @@ describe('node errors', () => {
         to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:   0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
         nonce:  0
-       
+
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
@@ -689,18 +689,18 @@ describe('node errors', () => {
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
        - pay for the value to send.
-       
+
       The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
        - \`gas\` is the amount of gas needed for transaction to execute,
        - \`gas fee\` is the gas fee,
        - \`value\` is the amount of ether to send to the recipient.
-       
+
       Raw Call Arguments:
         from:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
         to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         value:  100000 ETH
         data:   0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
-       
+
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
@@ -743,7 +743,7 @@ describe('node errors', () => {
         data:                  0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
         maxFeePerGas:          20 gwei
         maxPriorityFeePerGas:  22 gwei
-       
+
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)

@@ -275,7 +275,7 @@ describe('contract errors', () => {
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "overflowWrite" reverted with the following reason:
-      Arithmic operation resulted in underflow or overflow.
+      Arithmetic operation resulted in underflow or overflow.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
@@ -349,7 +349,7 @@ describe('contract errors', () => {
 
       Error: SimpleError(string message)
                         (bugger)
-       
+
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomWrite()
@@ -375,7 +375,7 @@ describe('contract errors', () => {
 
       Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
                          ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
-       
+
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  complexCustomWrite()
