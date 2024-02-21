@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const localhost = /*#__PURE__*/ defineChain({
-  id: 1_337,
+  id: 31_337,
   name: 'Localhost',
   nativeCurrency: {
     decimals: 18,
