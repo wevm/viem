@@ -1,6 +1,5 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-
 export const mode = /*#__PURE__*/ defineChain({
   id: 34443,
   name: 'Mode Mainnet',
