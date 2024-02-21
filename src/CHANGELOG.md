@@ -1,5 +1,13 @@
 # viem
 
+## 2.7.12
+
+### Patch Changes
+
+- [#1831](https://github.com/wevm/viem/pull/1831) [`bd7e4bcc84e3400aef242db3a1e05df47123064b`](https://github.com/wevm/viem/commit/bd7e4bcc84e3400aef242db3a1e05df47123064b) Thanks [@holic](https://github.com/holic)! - Exported `getAction`.
+
+- [#1826](https://github.com/wevm/viem/pull/1826) [`554dae0942af8cda6599e4ce4c0ad4d1b090526b`](https://github.com/wevm/viem/commit/554dae0942af8cda6599e4ce4c0ad4d1b090526b) Thanks [@joshuanwankwo](https://github.com/joshuanwankwo)! - Added Mode chain.
+
 ## 2.7.11
 
 ### Patch Changes
