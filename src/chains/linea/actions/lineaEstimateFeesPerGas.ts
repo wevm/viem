@@ -97,9 +97,8 @@ export async function lineaEstimateFeesPerGas({
 
   const { baseFeePerGas, priorityFeePerGas, gasLimit } =
     lineaEstimateGasResponse
-  // Multiply by 2 as a temporary measure to be above the minimum gas price accepted by the sequencer
-  const adjustedPriorityFeePerGas = BigInt(priorityFeePerGas) * BigInt(2)
 
+  const adjustedPriorityFeePerGas = BigInt(priorityFeePerGas)
   const adjustedBaseFee =
     (BigInt(baseFeePerGas) * BigInt(BASE_FEE_PER_GAS_MARGIN * 100)) /
     BigInt(100)
