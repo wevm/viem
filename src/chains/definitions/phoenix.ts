@@ -1,7 +1,7 @@
 // src/chains/definitions/phoenix.ts
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const mainnet = /*#__PURE__*/ defineChain({
+export const phoenix = /*#__PURE__*/ defineChain({
   id: 13381,
   name: 'Phoenix Blockchain',
   nativeCurrency: { name: 'Phoenix', symbol: 'PHX', decimals: 18 },
