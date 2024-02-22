@@ -28,5 +28,5 @@ export const blastSepolia = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
-  sourceId
+  sourceId,
 })
