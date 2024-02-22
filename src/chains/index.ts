@@ -206,8 +206,8 @@ export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
-// required for type inference since in explicit return type
-//////////////////////////////////////////////////////////////////////////////////////
+// Required type exports to prevent TypeScript error "TS2742".
+
 export type {
   Assign,
   Omit,
@@ -215,6 +215,32 @@ export type {
   Prettify,
   UnionLooseOmit,
 } from '../types/utils.js'
+export type {
+  CeloBlock,
+  CeloBlockOverrides,
+  CeloRpcBlock,
+  CeloRpcBlockOverrides,
+  CeloRpcTransaction,
+  CeloRpcTransactionRequest,
+  CeloTransaction,
+  CeloTransactionRequest,
+  CeloTransactionType,
+  CeloTransactionSerializable,
+  CeloTransactionSerializableBase,
+  CeloTransactionSerialized,
+  RpcTransactionCIP42,
+  RpcTransactionCIP64,
+  RpcTransactionRequestCIP42,
+  RpcTransactionRequestCIP64,
+  TransactionCIP42,
+  TransactionCIP64,
+  TransactionRequestCIP42,
+  TransactionRequestCIP64,
+  TransactionSerializableCIP42,
+  TransactionSerializableCIP64,
+  TransactionSerializedCIP42,
+  TransactionSerializedCIP64,
+} from './celo/types.js'
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
@@ -236,3 +262,39 @@ export type {
   TransactionSerializableDeposit,
   TransactionSerializedDeposit,
 } from './opStack/types/transaction.js'
+export type {
+  ZkSyncBlock,
+  ZkSyncBlockOverrides,
+  ZkSyncRpcBlock,
+  ZkSyncRpcBlockOverrides,
+} from './zksync/types/block.js'
+export type { ChainEIP712 } from './zksync/types/chain.js'
+export type { ZkSyncEip712Meta } from './zksync/types/eip712.js'
+export type { ZkSyncFeeValues } from './zksync/types/fee.js'
+export type {
+  ZkSyncL2ToL1Log,
+  ZkSyncLog,
+  ZkSyncRpcL2ToL1Log,
+  ZkSyncRpcLog,
+} from './zksync/types/log.js'
+export type {
+  TransactionRequestEIP712,
+  ZkSyncEIP712TransactionSignable,
+  ZkSyncRpcTransaction,
+  ZkSyncRpcTransactionEIP712,
+  ZkSyncRpcTransactionPriority,
+  ZkSyncRpcTransactionReceiptOverrides,
+  ZkSyncRpcTransactionRequest,
+  ZkSyncRpcTransactionRequestEIP712,
+  ZkSyncTransaction,
+  ZkSyncTransactionEIP712,
+  ZkSyncTransactionReceipt,
+  ZkSyncTransactionReceiptOverrides,
+  ZkSyncTransactionRequest,
+  ZkSyncTransactionRequestEIP712,
+  ZkSyncTransactionSerializable,
+  ZkSyncTransactionSerializableEIP712,
+  ZkSyncTransactionSerialized,
+  ZkSyncTransactionSerializedEIP712,
+  ZkSyncTransactionType,
+} from './zksync/types/transaction.js'
