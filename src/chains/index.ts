@@ -1,6 +1,7 @@
 export type { Chain } from '../types/chain.js'
 
 export { acala } from './definitions/acala.js'
+export { anvil } from './definitions/anvil.js'
 export { arbitrum } from './definitions/arbitrum.js'
 export { arbitrumGoerli } from './definitions/arbitrumGoerli.js'
 export { arbitrumNova } from './definitions/arbitrumNova.js'
@@ -61,6 +62,9 @@ export { filecoinCalibration } from './definitions/filecoinCalibration.js'
 export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
+/** 
+ * @deprecated Use `anvil` instead.
+ */
 export { foundry } from './definitions/foundry.js'
 export { fuse } from './definitions/fuse.js'
 export { fuseSparknet } from './definitions/fuseSparknet.js'
