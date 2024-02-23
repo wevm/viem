@@ -522,9 +522,7 @@ describe('errors', async () => {
           },
           {
             ...wagmiContractConfig,
-            // @ts-expect-error non-pure/view function
             functionName: 'transferFrom',
-            // @ts-expect-error args invalid
             args: [address.vitalik, accounts[0].address, 1n],
           },
           {
@@ -923,9 +921,7 @@ describe('errors', async () => {
           },
           {
             ...wagmiContractConfig,
-            // @ts-expect-error non-pure/view function
             functionName: 'transferFrom',
-            // @ts-expect-error args invalid
             args: [address.vitalik, accounts[0].address, 1n],
           },
           {
