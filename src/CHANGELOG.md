@@ -1,5 +1,33 @@
 # viem
 
+## 2.7.13
+
+### Patch Changes
+
+- [`0c2b6b2e574e95fe5cb900030c46251cb405bef2`](https://github.com/wevm/viem/commit/0c2b6b2e574e95fe5cb900030c46251cb405bef2) Thanks [@jxom](https://github.com/jxom)! - Exported chain types required for inference.
+
+- [#1838](https://github.com/wevm/viem/pull/1838) [`66a421d1592040a39bd5dce4ce8e8555d1dcbd86`](https://github.com/wevm/viem/commit/66a421d1592040a39bd5dce4ce8e8555d1dcbd86) Thanks [@Fluffynorth](https://github.com/Fluffynorth)! - Added Phoenix chain.
+
+- [#1833](https://github.com/wevm/viem/pull/1833) [`3677a5ad783eff85bebcf4e0d41c393db06737af`](https://github.com/wevm/viem/commit/3677a5ad783eff85bebcf4e0d41c393db06737af) Thanks [@wk0](https://github.com/wk0)! - Added `sourceId` to Blast Sepolia chain.
+
+- [#1837](https://github.com/wevm/viem/pull/1837) [`9023409423583b09cf8b6129ddcd8e7f2136c95a`](https://github.com/wevm/viem/commit/9023409423583b09cf8b6129ddcd8e7f2136c95a) Thanks [@monodyle](https://github.com/monodyle)! - Updated Saigon explorer URL.
+
+## 2.7.12
+
+### Patch Changes
+
+- [#1831](https://github.com/wevm/viem/pull/1831) [`bd7e4bcc84e3400aef242db3a1e05df47123064b`](https://github.com/wevm/viem/commit/bd7e4bcc84e3400aef242db3a1e05df47123064b) Thanks [@holic](https://github.com/holic)! - Exported `getAction`.
+
+- [#1826](https://github.com/wevm/viem/pull/1826) [`554dae0942af8cda6599e4ce4c0ad4d1b090526b`](https://github.com/wevm/viem/commit/554dae0942af8cda6599e4ce4c0ad4d1b090526b) Thanks [@joshuanwankwo](https://github.com/joshuanwankwo)! - Added Mode chain.
+
+## 2.7.11
+
+### Patch Changes
+
+- [#1824](https://github.com/wevm/viem/pull/1824) [`1c715eb2c7ccd8bd6e4566c00d97d3eb07752a4d`](https://github.com/wevm/viem/commit/1c715eb2c7ccd8bd6e4566c00d97d3eb07752a4d) Thanks [@JazzBashara](https://github.com/JazzBashara)! - Updated Avalanche explorer to snowscan.xyz, a product of Etherscan.
+
+- [#1813](https://github.com/wevm/viem/pull/1813) [`d267f1a17d3fb13ed22c50eaef2bc748e5e2a773`](https://github.com/wevm/viem/commit/d267f1a17d3fb13ed22c50eaef2bc748e5e2a773) Thanks [@NicolasMahe](https://github.com/NicolasMahe)! - Updated Lightlink RPC urls
+
 ## 2.7.10
 
 ### Patch Changes

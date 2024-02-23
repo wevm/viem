@@ -110,7 +110,9 @@ test('dynamic', async () => {
       },
     ].map((x) => x),
   })
-  expectTypeOf(res).toEqualTypeOf<(string | number | bigint | boolean)[]>()
+  expectTypeOf(res).toEqualTypeOf<
+    (string | number | bigint | boolean | void)[]
+  >()
 
   const res2 = await multicall(publicClient, {
     allowFailure: false,

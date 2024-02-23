@@ -60,6 +60,7 @@ test('exports utils', () => {
       "fromHex": [Function],
       "fromRlp": [Function],
       "getAbiItem": [Function],
+      "getAction": [Function],
       "getAddress": [Function],
       "getCallError": [Function],
       "getChainContractAddress": [Function],

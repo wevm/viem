@@ -348,7 +348,7 @@ describe('e2e', () => {
       {
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
-        "deposit_nonce": null,
+        "depositNonce": null,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gasUsed": 21000n,
         "logs": [],

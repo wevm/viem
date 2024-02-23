@@ -1,4 +1,4 @@
-import type { Address, Narrow } from 'abitype'
+import type { AbiStateMutability, Address, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -47,7 +47,7 @@ export type MulticallParameters<
   batchSize?: number | undefined
   contracts: MulticallContracts<
     Narrow<contracts>,
-    { mutability: 'pure' | 'view' } & options
+    { mutability: AbiStateMutability } & options
   >
   multicallAddress?: Address | undefined
 }
@@ -61,7 +61,7 @@ export type MulticallReturnType<
 > = MulticallResults<
   Narrow<contracts>,
   allowFailure,
-  { mutability: 'pure' | 'view' } & options
+  { mutability: AbiStateMutability } & options
 >
 
 export type MulticallErrorType =

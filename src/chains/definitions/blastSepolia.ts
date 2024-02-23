@@ -1,5 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
+const sourceId = 11_155_111 // sepolia
+
 export const blastSepolia = /*#__PURE__*/ defineChain({
   id: 168_587_773,
   name: 'Blast Sepolia',
@@ -26,4 +28,5 @@ export const blastSepolia = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
+  sourceId,
 })

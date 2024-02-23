@@ -242,7 +242,7 @@ describe('contract errors', () => {
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "overflowRead" reverted with the following reason:
-      Arithmic operation resulted in underflow or overflow.
+      Arithmetic operation resulted in underflow or overflow.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
