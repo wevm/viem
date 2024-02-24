@@ -64,7 +64,7 @@ const transactionCount = await publicClient.getTransactionCount({
 
 ### blockTag
 
-- **Type:** `bigint`
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
 Get the count at a block tag.
 
