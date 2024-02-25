@@ -62,9 +62,7 @@ export { filecoinCalibration } from './definitions/filecoinCalibration.js'
 export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
-/** 
- * @deprecated Use `anvil` instead.
- */
+/** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
 export { fuse } from './definitions/fuse.js'
 export { fuseSparknet } from './definitions/fuseSparknet.js'
