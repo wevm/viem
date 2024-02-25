@@ -213,16 +213,16 @@ function serializeTransactionLegacy(
 
   if (signature) {
     const v = (() => {
-      // EIP-155 (explicit chainId)
-      if (chainId > 0)
-        return BigInt(chainId * 2) + BigInt(35n + signature.v - 27n)
-
       // EIP-155 (inferred chainId)
       if (signature.v >= 35n) {
         const inferredChainId = (signature.v - 35n) / 2n
         if (inferredChainId > 0) return signature.v
         return 27n + (signature.v === 35n ? 0n : 1n)
       }
+
+      // EIP-155 (explicit chainId)
+      if (chainId > 0)
+        return BigInt(chainId * 2) + BigInt(35n + signature.v - 27n)
 
       // Pre-EIP-155 (no chainId)
       const v = 27n + (signature.v === 27n ? 0n : 1n)
