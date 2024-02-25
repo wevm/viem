@@ -59,41 +59,23 @@ export function warn(message: string) {
   }
 }
 
-export let forkBlockNumber: bigint
-if (process.env.VITE_ANVIL_BLOCK_NUMBER) {
-  forkBlockNumber = BigInt(Number(process.env.VITE_ANVIL_BLOCK_NUMBER))
-} else {
-  forkBlockNumber = 16280770n
-  warn(
-    `\`VITE_ANVIL_BLOCK_NUMBER\` not found. Falling back to \`${forkBlockNumber}\`.`,
-  )
+function getEnvVar(name: string, fallback: string): string {
+  const value = process.env[name]
+  if (value) return value
+  warn(`\`${name}\` not found. Falling back to \`${fallback}\``)
+  return fallback
 }
 
-export let forkUrl: string
-if (process.env.VITE_ANVIL_FORK_URL) {
-  forkUrl = process.env.VITE_ANVIL_FORK_URL
-} else {
-  forkUrl = 'https://cloudflare-eth.com'
-  warn(`\`VITE_ANVIL_FORK_URL\` not found. Falling back to \`${forkUrl}\`.`)
-}
-
-export let blockTime: number
-if (process.env.VITE_ANVIL_BLOCK_TIME) {
-  blockTime = Number(process.env.VITE_ANVIL_BLOCK_TIME)
-} else {
-  blockTime = 1
-  warn(`\`VITE_ANVIL_BLOCK_TIME\` not found. Falling back to \`${blockTime}\`.`)
-}
-
-export let anvilPort: number
-if (process.env.VITE_ANVIL_PORT) {
-  anvilPort = Number(process.env.VITE_ANVIL_PORT)
-} else {
-  anvilPort = 8545
-  warn(`\`VITE_ANVIL_PORT\` not found. Falling back to \`${anvilPort}\`.`)
-}
-
-export const poolId = Number(process.env.VITEST_POOL_ID ?? 1)
+export const forkBlockNumber: bigint = BigInt(
+  getEnvVar('VITE_ANVIL_BLOCK_NUMBER', ' 16280770'),
+)
+export const forkUrl: string = getEnvVar(
+  'VITE_ANVIL_FORK_URL',
+  'https://cloudflare-eth.com',
+)
+export const blockTime: number = Number(getEnvVar('VITE_ANVIL_BLOCK_TIME', '1'))
+export const anvilPort: number = Number(getEnvVar('VITE_ANVIL_PORT', '8545'))
+export const poolId = Number(getEnvVar('VITEST_POOL_ID', '1'))
 export const localHttpUrl = `http://127.0.0.1:${anvilPort}/${poolId}`
 export const localWsUrl = `ws://127.0.0.1:${anvilPort}/${poolId}`
 export const localIpcPath = `/tmp/anvil-${poolId}.ipc`
