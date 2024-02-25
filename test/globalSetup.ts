@@ -25,7 +25,7 @@ export default async function () {
   // We still need to remember to reset the anvil instance between test files. This is generally
   // handled in `setup.ts` but may require additional resetting (e.g. via `afterAll`), in case of
   // any custom per-test adjustments that persist beyond `anvil_reset`.
-  const shutdown_1 = await startProxy({
+  const shutdownMainnet = await startProxy({
     port: Number(process.env.VITE_ANVIL_PORT || '8545'),
     options: {
       forkUrl,
@@ -34,7 +34,7 @@ export default async function () {
       startTimeout: 20_000,
     },
   })
-  const shutdown_2 = await startProxy({
+  const shutdownOptimism = await startProxy({
     port: Number(process.env.VITE_ANVIL_PORT_OPTIMISM || '8645'),
     options: {
       forkUrl: forkUrlOptimism,
@@ -42,7 +42,7 @@ export default async function () {
       startTimeout: 20_000,
     },
   })
-  const shutdown_3 = await startProxy({
+  const shutdownZkSync = await startProxy({
     port: Number(process.env.VITE_ANVIL_PORT_ZKSYNC || '8745'),
     options: {
       forkUrl: forkUrlZkSync,
@@ -51,8 +51,8 @@ export default async function () {
     },
   })
   return () => {
-    shutdown_1()
-    shutdown_2()
-    shutdown_3()
+    shutdownMainnet()
+    shutdownOptimism()
+    shutdownZkSync()
   }
 }
