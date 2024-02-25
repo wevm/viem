@@ -1,5 +1,19 @@
 # viem
 
+## 2.7.14
+
+### Patch Changes
+
+- [#1817](https://github.com/wevm/viem/pull/1817) [`4f3de2da33cf7c2eeb5488ed9941cb014d0beaee`](https://github.com/wevm/viem/commit/4f3de2da33cf7c2eeb5488ed9941cb014d0beaee) Thanks [@TheGreatAxios](https://github.com/TheGreatAxios)! - Migrated SKALE Testnet chains to new testnet networks.
+
+- [#1846](https://github.com/wevm/viem/pull/1846) [`f44bc9649860c821d59db0fdbc2a5f3673c23146`](https://github.com/wevm/viem/commit/f44bc9649860c821d59db0fdbc2a5f3673c23146) Thanks [@twynne20](https://github.com/twynne20)! - Added Anvil chain (deprecate `foundry`).
+
+- [`a098c98231d47ccac9bda1a944880b034020a1b5`](https://github.com/wevm/viem/commit/a098c98231d47ccac9bda1a944880b034020a1b5) Thanks [@jxom](https://github.com/jxom)! - Fixed `multicall` types for payable/non-payable functions.
+
+- [#1841](https://github.com/wevm/viem/pull/1841) [`0054c88da5fede080e32fc58d3c2196ebab64ffa`](https://github.com/wevm/viem/commit/0054c88da5fede080e32fc58d3c2196ebab64ffa) Thanks [@mehmetraufoguz](https://github.com/mehmetraufoguz)! - Added MetaChain Istanbul chain.
+
+- [`50ac4762d0cabdb0f46bc2f7fe74331f328883bd`](https://github.com/wevm/viem/commit/50ac4762d0cabdb0f46bc2f7fe74331f328883bd) Thanks [@jxom](https://github.com/jxom)! - Fixed `v` derivation for legacy transactions (#1849)
+
 ## 2.7.13
 
 ### Patch Changes
