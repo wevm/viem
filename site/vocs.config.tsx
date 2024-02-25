@@ -76,6 +76,20 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg',
           },
         ],
+        [
+          {
+            name: 'PancakeSwap',
+            link: 'https://pancakeswap.finance/',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pancake-light.svg',
+          },
+          {
+            name: 'zkSync',
+            link: 'https://zksync.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
+          },
+        ],
       ],
     },
     {
@@ -144,12 +158,6 @@ export default defineConfig({
         ],
         [
           {
-            name: 'PancakeSwap',
-            link: 'https://pancakeswap.finance',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pancake-light.svg',
-          },
-          {
             name: 'Celo',
             link: 'https://celo.org',
             image:
@@ -161,14 +169,14 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rainbow-light.svg',
           },
-        ],
-        [
           {
             name: 'Pimlico',
             link: 'https://pimlico.io',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pimlico-light.svg',
           },
+        ],
+        [
           {
             name: 'Zora',
             link: 'https://zora.co',
@@ -188,6 +196,12 @@ export default defineConfig({
             link: 'https://twitter.com/supafinance',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg',
+          },
+          {
+            name: 'Blocto',
+            link: 'https://blocto.io/',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/blocto-light.svg',
           },
         ],
       ],
