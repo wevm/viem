@@ -59,7 +59,7 @@ export function warn(message: string) {
   }
 }
 
-function getEnvVar(name: string, fallback: string): string {
+export function getEnvVar(name: string, fallback: string): string {
   const value = process.env[name]
   if (value) return value
   warn(`\`${name}\` not found. Falling back to \`${fallback}\``)
