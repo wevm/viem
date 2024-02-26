@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.15
+
+### Patch Changes
+
+- [#1860](https://github.com/wevm/viem/pull/1860) [`83ece5674715759bd2af821f48e98afbed0e0692`](https://github.com/wevm/viem/commit/83ece5674715759bd2af821f48e98afbed0e0692) Thanks [@YanYuanFE](https://github.com/YanYuanFE)! - Added Zetachain.
+
 ## 2.7.14
 
 ### Patch Changes
