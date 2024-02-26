@@ -64,6 +64,8 @@ export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
+export { fraxtal } from './definitions/fraxtal.js'
+export { fraxtalTestnet } from './definitions/fraxtalTestnet.js'
 export { fuse } from './definitions/fuse.js'
 export { fuseSparknet } from './definitions/fuseSparknet.js'
 export { iotex } from './definitions/iotex.js'

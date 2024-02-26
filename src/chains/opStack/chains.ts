@@ -1,6 +1,8 @@
 export { base } from '../definitions/base.js'
 export { baseGoerli } from '../definitions/baseGoerli.js'
 export { baseSepolia } from '../definitions/baseSepolia.js'
+export { fraxtal } from '../definitions/fraxtal.js'
+export { fraxtalTestnet } from '../definitions/fraxtalTestnet.js'
 export { optimism } from '../definitions/optimism.js'
 export { optimismGoerli } from '../definitions/optimismGoerli.js'
 export { optimismSepolia } from '../definitions/optimismSepolia.js'
