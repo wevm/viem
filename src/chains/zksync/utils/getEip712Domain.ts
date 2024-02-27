@@ -1,3 +1,4 @@
+import { toHex } from '../../../utils/encoding/toHex.js'
 import type { EIP712DomainFn } from '../types/eip712.js'
 import type {
   ZkSyncEIP712TransactionSignable,
@@ -5,6 +6,7 @@ import type {
   ZkSyncTransactionSerializableEIP712,
 } from '../types/transaction.js'
 import { assertEip712Transaction } from './assertEip712Transaction.js'
+import { hashBytecode } from './hashBytecode.js'
 
 export const getEip712Domain: EIP712DomainFn<
   ZkSyncTransactionSerializable,
@@ -77,7 +79,7 @@ function transactionToMessage(
     nonce: nonce ? BigInt(nonce) : 0n,
     value: value ?? 0n,
     data: data ? data : '0x0',
-    factoryDeps: factoryDeps ?? [],
-    paymasterInput: paymasterInput ? paymasterInput : '0x0',
+    factoryDeps: factoryDeps?.map((dep) => toHex(hashBytecode(dep))) ?? [],
+    paymasterInput: paymasterInput ? paymasterInput : '0x',
   }
 }

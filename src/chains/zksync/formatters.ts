@@ -134,7 +134,13 @@ export const formatters = {
                   },
                 }
               : {}),
-            ...(args.factoryDeps ? { factoryDeps: args.factoryDeps } : {}),
+            ...(args.factoryDeps
+              ? {
+                  factoryDeps: args.factoryDeps.map((dep) =>
+                    Array.from(hexToBytes(dep)),
+                  ),
+                }
+              : {}),
             ...(args.customSignature
               ? {
                   customSignature: Array.from(hexToBytes(args.customSignature)),
