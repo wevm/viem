@@ -3,7 +3,7 @@ import { chainConfig } from '../opStack/chainConfig.js'
 
 const sourceId = 17000 // holesky
 
-export const fraxtal = /*#__PURE__*/ defineChain({
+export const fraxtalTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 2522,
   name: 'Fraxtal Testnet',
