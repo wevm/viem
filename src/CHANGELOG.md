@@ -1,5 +1,15 @@
 # viem
 
+## 2.7.16
+
+### Patch Changes
+
+- [#1866](https://github.com/wevm/viem/pull/1866) [`91a1b784f49cb30f803c1179dcacb7481fe9a328`](https://github.com/wevm/viem/commit/91a1b784f49cb30f803c1179dcacb7481fe9a328) Thanks [@pegahcarter](https://github.com/pegahcarter)! - Added Fraxtal chains.
+
+- [#1868](https://github.com/wevm/viem/pull/1868) [`b3254f9b59471c76534b09d7b2c34e2f9d192389`](https://github.com/wevm/viem/commit/b3254f9b59471c76534b09d7b2c34e2f9d192389) Thanks [@hstarorg](https://github.com/hstarorg)! - Added BNB Greenfield chain.
+
+- [#1872](https://github.com/wevm/viem/pull/1872) [`5986ba14236c23fdbc55cd3b9dcccca7bbc24d4c`](https://github.com/wevm/viem/commit/5986ba14236c23fdbc55cd3b9dcccca7bbc24d4c) Thanks [@Tschakki](https://github.com/Tschakki)! - Added Lisk Sepolia
+
 ## 2.7.15
 
 ### Patch Changes
