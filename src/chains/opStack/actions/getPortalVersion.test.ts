@@ -1,12 +1,12 @@
 import { beforeAll, expect, test } from 'vitest'
-import { createTevmServer } from '../../../../test/src/utils.js'
+import { createL1Server } from '../../../../test/src/opStack.js'
 import { optimism } from '../chains.js'
 import { getPortalVersion } from './getPortalVersion.js'
 
-let publicClient: Awaited<ReturnType<typeof createTevmServer>>['publicClient']
+let publicClient: Awaited<ReturnType<typeof createL1Server>>['publicClient']
 
 beforeAll(async () => {
-  const res = await createTevmServer()
+  const res = await createL1Server()
   publicClient = res.publicClient
   return res.server.close
 })
