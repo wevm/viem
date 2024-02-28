@@ -121,9 +121,9 @@ test('name with a label larger than 255 bytes', async () => {
 
 test('offchain: gets address for name', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'jake.cb.id' }),
+    getEnsAddress(publicClient, { name: '1.offchainexample.eth' }),
   ).resolves.toMatchInlineSnapshot(
-    '"0xdAb929527D862F6A75422cf40a9fb0B53059D801"',
+    `"0x41563129cDbbD0c5D3e1c86cf9563926b243834d"`,
   )
 })
 
@@ -143,8 +143,8 @@ test('offchain: aggregated', async () => {
   })
 
   const names = await Promise.all([
-    getEnsAddress(client, { name: 'jake.cb.id' }),
-    getEnsAddress(client, { name: 'brian.cb.id' }),
+    getEnsAddress(client, { name: '1.offchainexample.eth' }),
+    getEnsAddress(client, { name: '2.offchainexample.eth' }),
     getEnsAddress(client, {
       name: 'loalsdsladasdhjasgdhasjdghasgdjgasjdasd.cb.id',
     }),
@@ -152,12 +152,12 @@ test('offchain: aggregated', async () => {
 
   expect(names).toMatchInlineSnapshot(
     `
-      [
-        "0xdAb929527D862F6A75422cf40a9fb0B53059D801",
-        "0xc1D9D4E2fACf0F4E72Cad1579Ac7a86598dd605D",
-        null,
-      ]
-    `,
+    [
+      "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
+      "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
+      null,
+    ]
+  `,
   )
 })
 
