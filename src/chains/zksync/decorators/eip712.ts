@@ -5,7 +5,7 @@ import type { WalletActions } from '../../../clients/decorators/wallet.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import {
-  type DeployContractParameters,
+  type DeployContractParametersExtended,
   type DeployContractReturnType,
   deployContract,
 } from '../actions/deployContract.js'
@@ -123,7 +123,7 @@ export type Eip712WalletActions<
     const abi extends Abi | readonly unknown[],
     chainOverride extends ChainEIP712 | undefined,
   >(
-    args: DeployContractParameters<
+    args: DeployContractParametersExtended<
       abi,
       ChainEIP712 | undefined,
       Account | undefined,

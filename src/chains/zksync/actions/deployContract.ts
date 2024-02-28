@@ -1,17 +1,16 @@
 import type { Abi } from 'abitype'
 
 import type { Account } from '../../../accounts/types.js'
+import type { DeployContractParameters } from '../../../actions/wallet/deployContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import type { GetChainParameter } from '../../../types/chain.js'
 import type { ContractConstructorArgs } from '../../../types/contract.js'
-import type { Hex } from '../../../types/misc.js'
-import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
 import type { ChainEIP712 } from '../types/chain.js'
 import { encodeDeployData } from '../utils/abi/encodeDeployData.js'
 
 import type { ErrorType } from '../../../errors/utils.js'
 import { contractDeployerAddress } from '../constants/address.js'
+import type { ContractDeploymentType } from '../types/contract.js'
 import {
   type SendEip712TransactionErrorType,
   type SendEip712TransactionParameters,
@@ -19,26 +18,15 @@ import {
   sendEip712Transaction,
 } from './sendEip712Transaction.js'
 
-export type DeployContractParameters<
+export type DeployContractParametersExtended<
   abi extends Abi | readonly unknown[] = Abi,
   chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  ///
   allArgs = ContractConstructorArgs<abi>,
-> = UnionOmit<
-  SendEip712TransactionParameters<chain, account, chainOverride>,
-  'accessList' | 'chain' | 'data'
-> &
-  GetChainParameter<chain, chainOverride> &
-  UnionEvaluate<
-    readonly [] extends allArgs
-      ? { args?: allArgs | undefined }
-      : { args: allArgs }
-  > & {
-    abi: abi
-    bytecode: Hex
-  }
+> = DeployContractParameters<abi, chain, account, chainOverride, allArgs> & {
+  deploymentType?: ContractDeploymentType
+}
 
 export type DeployContractReturnType = SendEip712TransactionReturnType
 
@@ -51,7 +39,7 @@ export type DeployContractErrorType = SendEip712TransactionErrorType | ErrorType
  * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
  *
  * @param client - Client to use
- * @param parameters - {@link DeployContractParameters}
+ * @param parameters - {@link DeployContractParametersExtended}
  * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
  *
  * @example
@@ -79,16 +67,21 @@ export function deployContract<
   chainOverride extends ChainEIP712 | undefined,
 >(
   walletClient: Client<Transport, chain, account>,
-  parameters: DeployContractParameters<abi, chain, account, chainOverride>,
+  parameters: DeployContractParametersExtended<
+    abi,
+    chain,
+    account,
+    chainOverride
+  >,
 ): Promise<DeployContractReturnType> {
-  const { abi, args, bytecode, ...request } =
-    parameters as DeployContractParameters
-  request.to = contractDeployerAddress
-
-  const calldata = encodeDeployData({ abi, args, bytecode })
-
+  const { abi, args, bytecode, deploymentType, ...request } =
+    parameters as DeployContractParametersExtended
+  const calldata = encodeDeployData({ abi, args, bytecode, deploymentType })
+  // TODO: Add bytecode to the list of factoryDeps if it's not already there
   return sendEip712Transaction(walletClient, {
     ...request,
+    // to is allways the contract deployer address
+    to: contractDeployerAddress,
     data: calldata,
   } as unknown as SendEip712TransactionParameters<
     chain,
