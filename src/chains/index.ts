@@ -2,6 +2,7 @@ export type { Chain } from '../types/chain.js'
 
 export { acala } from './definitions/acala.js'
 export { anvil } from './definitions/anvil.js'
+export { apexTestnet } from './definitions/apexTestnet.js'
 export { arbitrum } from './definitions/arbitrum.js'
 export { arbitrumGoerli } from './definitions/arbitrumGoerli.js'
 export { arbitrumNova } from './definitions/arbitrumNova.js'
