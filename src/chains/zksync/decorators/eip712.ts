@@ -1,8 +1,14 @@
+import type { Abi } from 'abitype'
 import { writeContract } from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { WalletActions } from '../../../clients/decorators/wallet.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
+import {
+  type DeployContractParameters,
+  type DeployContractReturnType,
+  deployContract,
+} from '../actions/deployContract.js'
 import {
   type SendTransactionParameters,
   type SendTransactionReturnType,
@@ -112,6 +118,18 @@ export type Eip712WalletActions<
   signTransaction: <chainOverride extends ChainEIP712 | undefined = undefined>(
     args: SignTransactionParameters<chain, account, chainOverride>,
   ) => Promise<SignTransactionReturnType>
+  // TODO
+  deployContract: <
+    const abi extends Abi | readonly unknown[],
+    chainOverride extends ChainEIP712 | undefined,
+  >(
+    args: DeployContractParameters<
+      abi,
+      ChainEIP712 | undefined,
+      Account | undefined,
+      chainOverride
+    >,
+  ) => Promise<DeployContractReturnType>
   /**
    * Executes a write function on a contract.
    *
@@ -175,6 +193,7 @@ export function eip712WalletActions() {
   ): Eip712WalletActions<chain, account> => ({
     sendTransaction: (args) => sendTransaction(client, args),
     signTransaction: (args) => signTransaction(client, args),
+    deployContract: (args) => deployContract(client, args),
     writeContract: (args) =>
       writeContract(
         Object.assign(client, {

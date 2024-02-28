@@ -1,10 +1,9 @@
-import { maxUint16 } from '../../../constants/number.js'
 import { pad } from '../../../utils/data/pad.js'
 import { toBytes } from '../../../utils/encoding/toBytes.js'
 import { sha256 } from '../../../utils/hash/sha256.js'
+import { maxBytecodeLenBytes } from '../constants/number.js'
 
 export function hashBytecode(bytecode: string): Uint8Array {
-  const MAX_BYTECODE_LEN_BYTES = maxUint16 * 32n
   // For getting the consistent length we first convert the bytecode to UInt8Array
   const bytecodeAsArray = toBytes(bytecode)
 
@@ -12,9 +11,9 @@ export function hashBytecode(bytecode: string): Uint8Array {
     throw new Error('The bytecode length in bytes must be divisible by 32')
   }
 
-  if (bytecodeAsArray.length > MAX_BYTECODE_LEN_BYTES) {
+  if (bytecodeAsArray.length > maxBytecodeLenBytes) {
     throw new Error(
-      `Bytecode can not be longer than ${MAX_BYTECODE_LEN_BYTES} bytes`,
+      `Bytecode can not be longer than ${maxBytecodeLenBytes} bytes`,
     )
   }
 
