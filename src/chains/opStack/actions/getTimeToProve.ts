@@ -34,6 +34,9 @@ export type GetTimeToProveParameters<
 export type GetTimeToProveReturnType = GetTimeToNextL2OutputReturnType
 export type GetTimeToProveErrorType = GetTimeToNextL2OutputErrorType | ErrorType
 
+// This can be removed after mainnet and testnet are upgraded to >=v3.0.0
+// Note outputs do not happen on any specific interval in the newest protocol
+// though the expectation is you get one output every hour
 /**
  * Returns the time until the withdrawal transaction is ready to prove. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
  *

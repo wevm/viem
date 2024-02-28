@@ -26,12 +26,15 @@ import { fromRlp } from '../../../utils/encoding/fromRlp.js'
 import { toRlp } from '../../../utils/encoding/toRlp.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
 import { contracts } from '../contracts.js'
+import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
   type GetWithdrawalHashStorageSlotErrorType,
   getWithdrawalHashStorageSlot,
 } from '../utils/getWithdrawalHashStorageSlot.js'
+import { getDisputeGame } from './getDisputeGame.js'
 import type { GetL2OutputReturnType } from './getL2Output.js'
+import { getPortalVersion } from './getPortalVersion.js'
 import type { ProveWithdrawalParameters } from './proveWithdrawal.js'
 
 const outputRootProofVersion =
@@ -47,6 +50,7 @@ export type BuildProveWithdrawalParameters<
     | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetAccountParameter<account, accountOverride, false> &
+  GetContractAddressParameter<_derivedChain, 'portal' | 'disputeGameFactory'> &
   GetChainParameter<chain, chainOverride> & {
     withdrawal: Withdrawal
     output: GetL2OutputReturnType
@@ -117,6 +121,28 @@ export async function buildProveWithdrawal<
   BuildProveWithdrawalReturnType<chain, account, chainOverride, accountOverride>
 > {
   const { account, chain = client.chain, output, withdrawal } = args
+
+  const portalAddress = (() => {
+    if (args.portalAddress) return args.portalAddress
+    if (args.chain)
+      return args.targetChain!.contracts.portal[args.chain.id].address
+    return Object.values(args.targetChain!.contracts.portal)[0].address
+  })()
+  const disputeGameFactoryAddress = (() => {
+    if (args.disputeGameFactoryAddress) return args.disputeGameFactoryAddress
+    if (args.chain)
+      return args.targetChain!.contracts.disputeGameFactory[args.chain.id]
+        .address
+    return Object.values(args.targetChain!.contracts.disputeGameFactory)[0]
+      .address
+  })()
+  const version = await getPortalVersion(client, {
+    portalAddress: portalAddress,
+  })
+
+  const isLegacy = version.major < 3
+
+  // This entire code base can be removed after mainnet and testnet are migrated to v3
   const { withdrawalHash } = withdrawal
   const { l2BlockNumber } = output
 
@@ -132,13 +158,41 @@ export async function buildProveWithdrawal<
     }),
   ])
 
+  if (isLegacy) {
+    return {
+      account,
+      l2OutputIndex: output.outputIndex,
+      outputRootProof: {
+        latestBlockhash: block.hash,
+        messagePasserStorageRoot: proof.storageHash,
+        stateRoot: block.stateRoot,
+        version: outputRootProofVersion,
+      },
+      targetChain: chain,
+      withdrawalProof: proof.storageProof[0].proof,
+      withdrawal,
+    } as unknown as BuildProveWithdrawalReturnType<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >
+  }
+
+  const game = await getDisputeGame(client, {
+    portalAddress,
+    strategy: 'random',
+    l2BlockNumber: args.output.l2BlockNumber,
+    disputeGameFactoryAddress,
+  })
+
   return {
     account,
-    l2OutputIndex: output.outputIndex,
+    l2OutputIndex: game.index,
     outputRootProof: {
       latestBlockhash: block.hash,
       messagePasserStorageRoot: proof.storageHash,
-      stateRoot: block.stateRoot,
+      stateRoot: game.rootClaim,
       version: outputRootProofVersion,
     },
     targetChain: chain,

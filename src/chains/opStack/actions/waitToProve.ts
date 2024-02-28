@@ -26,7 +26,10 @@ export type WaitToProveParameters<
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
-  GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
+  GetContractAddressParameter<
+    _derivedChain,
+    'l2OutputOracle' | 'disputeGameFactory' | 'portal'
+  > & {
     receipt: TransactionReceipt
     /**
      * Polling frequency (in ms). Defaults to Client's pollingInterval config.

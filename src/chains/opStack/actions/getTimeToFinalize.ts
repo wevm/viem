@@ -1,3 +1,4 @@
+import { readContract } from '~viem/actions/index.js'
 import {
   type MulticallErrorType,
   multicall,
@@ -12,8 +13,9 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { Hash } from '../../../types/misc.js'
-import { l2OutputOracleAbi, portalAbi } from '../abis.js'
+import { l2OutputOracleAbi, portal2Abi, portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
+import { getPortalVersion } from './getPortalVersion.js'
 
 export type GetTimeToFinalizeParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -80,43 +82,78 @@ export async function getTimeToFinalize<
 ): Promise<GetTimeToFinalizeReturnType> {
   const { chain = client.chain, withdrawalHash, targetChain } = parameters
 
-  const l2OutputOracleAddress = (() => {
-    if (parameters.l2OutputOracleAddress)
-      return parameters.l2OutputOracleAddress
-    if (chain) return targetChain!.contracts.l2OutputOracle[chain.id].address
-    return Object.values(targetChain!.contracts.l2OutputOracle)[0].address
-  })()
   const portalAddress = (() => {
     if (parameters.portalAddress) return parameters.portalAddress
     if (chain) return targetChain!.contracts.portal[chain.id].address
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const [[_outputRoot, proveTimestamp, _l2OutputIndex], period] =
-    await multicall(client, {
-      allowFailure: false,
-      contracts: [
-        {
-          abi: portalAbi,
-          address: portalAddress,
-          functionName: 'provenWithdrawals',
-          args: [withdrawalHash],
-        },
-        {
-          abi: l2OutputOracleAbi,
-          address: l2OutputOracleAddress,
-          functionName: 'FINALIZATION_PERIOD_SECONDS',
-        },
-      ],
-    })
+  const portalVersion = await getPortalVersion(client, { portalAddress })
+
+  // this code block can be deleted after mainnet and testnet are >= v3
+  if (portalVersion.major < 3) {
+    const l2OutputOracleAddress = (() => {
+      if (parameters.l2OutputOracleAddress)
+        return parameters.l2OutputOracleAddress
+      if (chain) return targetChain!.contracts.l2OutputOracle[chain.id].address
+      return Object.values(targetChain!.contracts.l2OutputOracle)[0].address
+    })()
+    const [[_outputRoot, proveTimestamp, _l2OutputIndex], period] =
+      await multicall(client, {
+        allowFailure: false,
+        contracts: [
+          {
+            abi: portalAbi,
+            address: portalAddress,
+            functionName: 'provenWithdrawals',
+            args: [withdrawalHash],
+          },
+          {
+            abi: l2OutputOracleAbi,
+            address: l2OutputOracleAddress,
+            functionName: 'FINALIZATION_PERIOD_SECONDS',
+          },
+        ],
+      })
+
+    const secondsSinceProven = Date.now() / 1000 - Number(proveTimestamp)
+    const secondsToFinalize = Number(period) - secondsSinceProven
+
+    const seconds = Math.floor(
+      secondsToFinalize < 0 ? 0 : secondsToFinalize + buffer,
+    )
+    const timestamp = Date.now() + seconds * 1000
+
+    return { period: Number(period), seconds, timestamp }
+  }
+
+  const [[_disputeGameProxy, proveTimestamp], proofMaturityDelaySeconds] =
+    await Promise.all([
+      readContract(client, {
+        abi: portal2Abi,
+        address: portalAddress,
+        functionName: 'provenWithdrawals',
+        args: [withdrawalHash],
+      }),
+      readContract(client, {
+        abi: portal2Abi,
+        address: portalAddress,
+        functionName: 'proofMaturityDelaySeconds',
+      }),
+    ])
+
+  if (proveTimestamp === 0n) {
+    throw new Error('Withdrawal has not been proven on L1')
+  }
 
   const secondsSinceProven = Date.now() / 1000 - Number(proveTimestamp)
-  const secondsToFinalize = Number(period) - secondsSinceProven
+  const secondsToFinalize =
+    proofMaturityDelaySeconds - BigInt(secondsSinceProven)
 
   const seconds = Math.floor(
-    secondsToFinalize < 0 ? 0 : secondsToFinalize + buffer,
+    secondsToFinalize < 0n ? 0 : Number(secondsToFinalize) + buffer,
   )
   const timestamp = Date.now() + seconds * 1000
 
-  return { period: Number(period), seconds, timestamp }
+  return { period: Number(proofMaturityDelaySeconds), seconds, timestamp }
 }
