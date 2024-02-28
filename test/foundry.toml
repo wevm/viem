@@ -1,3 +1,5 @@
 [profile.default]
+# TODO remove this change. This is only neeeded to get foundry working on my machine i think
+solc = "0.8.20"
 src = "contracts/src"
 out = "contracts/out"

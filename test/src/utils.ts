@@ -319,4 +319,34 @@ export async function setVitalikName(name: string) {
     address: address.vitalik,
   })
 }
+
+/**
+ * @experimental
+ * A simple test utility that simply starts and stops a tevm server running mainnet
+ * l1 devnet with Optimism mainnet contracts deployed. Also returns a public client
+ * Can be nuked in favor of using anvil once OP stack contracts are deployed
+ */
+export const createTevmServer = async () => {
+  const { createHttpHandler } = await import('@tevm/server')
+  const { createL1Client } = await import('@tevm/opstack')
+
+  const client = createL1Client()
+  await client.ready()
+
+  const handler = createHttpHandler(client)
+
+  const server = await createHttpServer(handler)
+
+  const publicClient = createPublicClient({
+    chain: mainnet,
+    transport: http(server.url),
+  })
+
+  // return only the server
+  // returning the tevm client would be useful so we could interact with it in tests
+  // but we want these tests to not be coupled to tevm. Thus they should only
+  // interact with the server via http JSON-RPC using eth_ and anvil_ methods
+  return { server, publicClient }
+}
+
 /* c8 ignore stop */
