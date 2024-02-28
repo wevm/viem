@@ -1,23 +1,18 @@
-import { afterAll, beforeAll, expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 import { createTevmServer } from '../../../../test/src/utils.js'
 import { optimism } from '../chains.js'
-import { portalVersion } from './portalVersion.js'
+import { getPortalVersion } from './getPortalVersion.js'
 
-let server: Awaited<ReturnType<typeof createTevmServer>>['server']
 let publicClient: Awaited<ReturnType<typeof createTevmServer>>['publicClient']
 
 beforeAll(async () => {
   const res = await createTevmServer()
-  server = res.server
   publicClient = res.publicClient
-})
-
-afterAll(async () => {
-  await server.close()
+  return res.server.close
 })
 
 test('returns the portal version', async () => {
-  const output = await portalVersion(publicClient, {
+  const output = await getPortalVersion(publicClient, {
     targetChain: optimism,
   })
   expect(output).toEqual({

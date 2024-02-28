@@ -1,9 +1,7 @@
-// TODO replace this import with copy pasting the abi in
-import { OptimismPortal2Abi as portalAbi } from '@tevm/opstack'
 import {
   type ReadContractErrorType,
   readContract,
-} from '~viem/actions/index.js'
+} from '../../../actions/public/readContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
@@ -14,13 +12,14 @@ import type {
 } from '../../../types/chain.js'
 import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
+// TODO replace this import with copy pasting the abi in
+import { portal2Abi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 
 /**
- * Parameters for the {@link portalVersion} action
- * @experimental
+ * Parameters for the {@link getPortalVersion} action
  */
-export type PortalVersionParameters<
+export type GetPortalVersionParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
@@ -43,13 +42,13 @@ export type PortalVersionParameters<
 /**
  * The portal contract version returned as semver object
  */
-export type PortalVersionReturnType = {
+export type GetPortalVersionReturnType = {
   major: number
   minor: number
   patch: number
 }
 
-export type PortalVersionErrorType = ReadContractErrorType | ErrorType
+export type GetPortalVersionErrorType = ReadContractErrorType | ErrorType
 
 /**
  * Reads the version of the Optimism Portal contract on L1. The portal contract
@@ -59,20 +58,20 @@ export type PortalVersionErrorType = ReadContractErrorType | ErrorType
  * - Docs: https://viem.sh/op-stack/actions/portalVersion
  *
  * @param client - Client to use
- * @param parameters - {@link PortalVersionParameters}
+ * @param parameters - {@link GetPortalVersionParameters}
  * @returns The version as an object with `major` `minor` and `patch` properties.
  *
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { portalVersion } from 'viem/op-stack'
+ * import { getPortalVersion } from 'viem/op-stack'
  *
  * const l1EthereumClient = createPublicClient({
  *   chain: mainnet,
  *   transport: http('https://mainnet.optimism.io'),
  * })
  *
- * const {major, minor, patch} = await portalVersion(l1EthereumClient, {
+ * const {major, minor, patch} = await getPortalVersion(l1EthereumClient, {
  *   targetChain: optimism,
  * })
  *
@@ -82,12 +81,12 @@ export type PortalVersionErrorType = ReadContractErrorType | ErrorType
  *   console.log('Fault proofs are not enabled on this version of optimism')
  * }
  */
-export async function portalVersion<
+export async function getPortalVersion<
   chain extends Chain | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain>,
-  parameters: PortalVersionParameters<chain, chainOverride>,
+  parameters: GetPortalVersionParameters<chain, chainOverride>,
 ) {
   const { chain = client.chain, targetChain } = parameters
 
@@ -98,7 +97,7 @@ export async function portalVersion<
   })()
 
   const version = await readContract(client, {
-    abi: portalAbi,
+    abi: portal2Abi,
     address: portalAddress,
     functionName: 'version',
   })
