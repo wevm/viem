@@ -901,6 +901,1049 @@ export const l2ToL1MessagePasserAbi = [
   { stateMutability: 'payable', type: 'receive' },
 ] as const
 
+export const disputeGameFactoryAbi = [
+  {
+    type: 'constructor',
+    inputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'create',
+    inputs: [
+      {
+        name: '_gameType',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+      {
+        name: '_rootClaim',
+        type: 'bytes32',
+        internalType: 'Claim',
+      },
+      {
+        name: '_extraData',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+    ],
+    outputs: [
+      {
+        name: 'proxy_',
+        type: 'address',
+        internalType: 'contract IDisputeGame',
+      },
+    ],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    name: 'findLatestGames',
+    inputs: [
+      {
+        name: '_gameType',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+      {
+        name: '_start',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: '_n',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: 'games_',
+        type: 'tuple[]',
+        internalType: 'struct IDisputeGameFactory.GameSearchResult[]',
+        components: [
+          {
+            name: 'index',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'metadata',
+            type: 'bytes32',
+            internalType: 'GameId',
+          },
+          {
+            name: 'timestamp',
+            type: 'uint64',
+            internalType: 'Timestamp',
+          },
+          {
+            name: 'rootClaim',
+            type: 'bytes32',
+            internalType: 'Claim',
+          },
+          {
+            name: 'extraData',
+            type: 'bytes',
+            internalType: 'bytes',
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'gameAtIndex',
+    inputs: [
+      {
+        name: '_index',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: 'gameType_',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+      {
+        name: 'timestamp_',
+        type: 'uint64',
+        internalType: 'Timestamp',
+      },
+      {
+        name: 'proxy_',
+        type: 'address',
+        internalType: 'contract IDisputeGame',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'gameCount',
+    inputs: [],
+    outputs: [
+      {
+        name: 'gameCount_',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'gameImpls',
+    inputs: [
+      {
+        name: '',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract IDisputeGame',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'games',
+    inputs: [
+      {
+        name: '_gameType',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+      {
+        name: '_rootClaim',
+        type: 'bytes32',
+        internalType: 'Claim',
+      },
+      {
+        name: '_extraData',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+    ],
+    outputs: [
+      {
+        name: 'proxy_',
+        type: 'address',
+        internalType: 'contract IDisputeGame',
+      },
+      {
+        name: 'timestamp_',
+        type: 'uint64',
+        internalType: 'Timestamp',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'getGameUUID',
+    inputs: [
+      {
+        name: '_gameType',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+      {
+        name: '_rootClaim',
+        type: 'bytes32',
+        internalType: 'Claim',
+      },
+      {
+        name: '_extraData',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+    ],
+    outputs: [
+      {
+        name: 'uuid_',
+        type: 'bytes32',
+        internalType: 'Hash',
+      },
+    ],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    name: 'initBonds',
+    inputs: [
+      {
+        name: '',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'initialize',
+    inputs: [
+      {
+        name: '_owner',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'owner',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'renounceOwnership',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setImplementation',
+    inputs: [
+      {
+        name: '_gameType',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+      {
+        name: '_impl',
+        type: 'address',
+        internalType: 'contract IDisputeGame',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setInitBond',
+    inputs: [
+      {
+        name: '_gameType',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+      {
+        name: '_initBond',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'transferOwnership',
+    inputs: [
+      {
+        name: 'newOwner',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'version',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'string',
+        internalType: 'string',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'event',
+    name: 'DisputeGameCreated',
+    inputs: [
+      {
+        name: 'disputeProxy',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'gameType',
+        type: 'uint32',
+        indexed: true,
+        internalType: 'GameType',
+      },
+      {
+        name: 'rootClaim',
+        type: 'bytes32',
+        indexed: true,
+        internalType: 'Claim',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'ImplementationSet',
+    inputs: [
+      {
+        name: 'impl',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'gameType',
+        type: 'uint32',
+        indexed: true,
+        internalType: 'GameType',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'InitBondUpdated',
+    inputs: [
+      {
+        name: 'gameType',
+        type: 'uint32',
+        indexed: true,
+        internalType: 'GameType',
+      },
+      {
+        name: 'newBond',
+        type: 'uint256',
+        indexed: true,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Initialized',
+    inputs: [
+      {
+        name: 'version',
+        type: 'uint8',
+        indexed: false,
+        internalType: 'uint8',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferred',
+    inputs: [
+      {
+        name: 'previousOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'error',
+    name: 'GameAlreadyExists',
+    inputs: [
+      {
+        name: 'uuid',
+        type: 'bytes32',
+        internalType: 'Hash',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InsufficientBond',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'NoImplementation',
+    inputs: [
+      {
+        name: 'gameType',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+    ],
+  },
+] as const
+export const portal2Abi = [
+  {
+    type: 'constructor',
+    inputs: [
+      {
+        name: '_proofMaturityDelaySeconds',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: '_disputeGameFinalityDelaySeconds',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: '_initialRespectedGameType',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'receive',
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    name: 'GUARDIAN',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'SYSTEM_CONFIG',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract SystemConfig',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'blacklistDisputeGame',
+    inputs: [
+      {
+        name: '_disputeGame',
+        type: 'address',
+        internalType: 'contract IDisputeGame',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'checkWithdrawal',
+    inputs: [
+      {
+        name: '_withdrawalHash',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'deleteProvenWithdrawal',
+    inputs: [
+      {
+        name: '_withdrawalHash',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'depositTransaction',
+    inputs: [
+      {
+        name: '_to',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: '_value',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: '_gasLimit',
+        type: 'uint64',
+        internalType: 'uint64',
+      },
+      {
+        name: '_isCreation',
+        type: 'bool',
+        internalType: 'bool',
+      },
+      {
+        name: '_data',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    name: 'disputeGameBlacklist',
+    inputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract IDisputeGame',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'disputeGameFactory',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract DisputeGameFactory',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'donateETH',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    name: 'finalizeWithdrawalTransaction',
+    inputs: [
+      {
+        name: '_tx',
+        type: 'tuple',
+        internalType: 'struct Types.WithdrawalTransaction',
+        components: [
+          {
+            name: 'nonce',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'sender',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'target',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'value',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'gasLimit',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'data',
+            type: 'bytes',
+            internalType: 'bytes',
+          },
+        ],
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'finalizedWithdrawals',
+    inputs: [
+      {
+        name: '',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'guardian',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'initialize',
+    inputs: [
+      {
+        name: '_disputeGameFactory',
+        type: 'address',
+        internalType: 'contract DisputeGameFactory',
+      },
+      {
+        name: '_systemConfig',
+        type: 'address',
+        internalType: 'contract SystemConfig',
+      },
+      {
+        name: '_superchainConfig',
+        type: 'address',
+        internalType: 'contract SuperchainConfig',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'l2Sender',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'minimumGasLimit',
+    inputs: [
+      {
+        name: '_byteCount',
+        type: 'uint64',
+        internalType: 'uint64',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'uint64',
+        internalType: 'uint64',
+      },
+    ],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    name: 'params',
+    inputs: [],
+    outputs: [
+      {
+        name: 'prevBaseFee',
+        type: 'uint128',
+        internalType: 'uint128',
+      },
+      {
+        name: 'prevBoughtGas',
+        type: 'uint64',
+        internalType: 'uint64',
+      },
+      {
+        name: 'prevBlockNum',
+        type: 'uint64',
+        internalType: 'uint64',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'paused',
+    inputs: [],
+    outputs: [
+      {
+        name: 'paused_',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'proveWithdrawalTransaction',
+    inputs: [
+      {
+        name: '_tx',
+        type: 'tuple',
+        internalType: 'struct Types.WithdrawalTransaction',
+        components: [
+          {
+            name: 'nonce',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'sender',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'target',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'value',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'gasLimit',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'data',
+            type: 'bytes',
+            internalType: 'bytes',
+          },
+        ],
+      },
+      {
+        name: '_disputeGameIndex',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: '_outputRootProof',
+        type: 'tuple',
+        internalType: 'struct Types.OutputRootProof',
+        components: [
+          {
+            name: 'version',
+            type: 'bytes32',
+            internalType: 'bytes32',
+          },
+          {
+            name: 'stateRoot',
+            type: 'bytes32',
+            internalType: 'bytes32',
+          },
+          {
+            name: 'messagePasserStorageRoot',
+            type: 'bytes32',
+            internalType: 'bytes32',
+          },
+          {
+            name: 'latestBlockhash',
+            type: 'bytes32',
+            internalType: 'bytes32',
+          },
+        ],
+      },
+      {
+        name: '_withdrawalProof',
+        type: 'bytes[]',
+        internalType: 'bytes[]',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'provenWithdrawals',
+    inputs: [
+      {
+        name: '',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+    outputs: [
+      {
+        name: 'disputeGameProxy',
+        type: 'address',
+        internalType: 'contract IDisputeGame',
+      },
+      {
+        name: 'timestamp',
+        type: 'uint64',
+        internalType: 'uint64',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'respectedGameType',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'setRespectedGameType',
+    inputs: [
+      {
+        name: '_gameType',
+        type: 'uint32',
+        internalType: 'GameType',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'superchainConfig',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract SuperchainConfig',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'systemConfig',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract SystemConfig',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'version',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'string',
+        internalType: 'string',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'event',
+    name: 'Initialized',
+    inputs: [
+      {
+        name: 'version',
+        type: 'uint8',
+        indexed: false,
+        internalType: 'uint8',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'TransactionDeposited',
+    inputs: [
+      {
+        name: 'from',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'to',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'version',
+        type: 'uint256',
+        indexed: true,
+        internalType: 'uint256',
+      },
+      {
+        name: 'opaqueData',
+        type: 'bytes',
+        indexed: false,
+        internalType: 'bytes',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'WithdrawalFinalized',
+    inputs: [
+      {
+        name: 'withdrawalHash',
+        type: 'bytes32',
+        indexed: true,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'success',
+        type: 'bool',
+        indexed: false,
+        internalType: 'bool',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'WithdrawalProven',
+    inputs: [
+      {
+        name: 'withdrawalHash',
+        type: 'bytes32',
+        indexed: true,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'from',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'to',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+] as const
 export const portalAbi = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   {
