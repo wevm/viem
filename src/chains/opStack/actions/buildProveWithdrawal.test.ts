@@ -71,7 +71,7 @@ test('default', async () => {
 }, 20_000)
 
 describe('proof vulnerability clientside fix', () => {
-  // Test taken from opBNB testnet withdrawal.
+  // Test taken from opBNB testnet withdrawal. https://dashboard.tenderly.co/tenderlyusernamez/project/simulator/da9b29fb-2d79-43c3-acdf-e33ea84c99f1?sharedSimulation=true
   test('should add a proof node when final node is inside of a branch', () => {
     const key = keccak256(
       '0x5cd60ecef836e75dd12539abe8ad5f4ba0dc4fcaae2c45024c69bd9e20746eba',
@@ -93,7 +93,7 @@ describe('proof vulnerability clientside fix', () => {
     ])
   })
 
-  // Test taken from opBNB testnet withdrawal.
+  // Test taken from opBNB testnet withdrawal. https://dashboard.tenderly.co/tenderlyusernamez/project/simulator/da9b29fb-2d79-43c3-acdf-e33ea84c99f1?sharedSimulation=true
   test('should not add a proof node when final node is a leaf node', () => {
     const key = keccak256(
       '0x55b08006167f308d31af5ea9f302384725df906124e39e0eb2c6d040498e0fae',
