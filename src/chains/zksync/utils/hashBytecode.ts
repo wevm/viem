@@ -1,20 +1,27 @@
+import type { Hex } from '../../../types/misc.js'
 import { pad } from '../../../utils/data/pad.js'
 import { toBytes } from '../../../utils/encoding/toBytes.js'
 import { sha256 } from '../../../utils/hash/sha256.js'
 import { maxBytecodeLenBytes } from '../constants/number.js'
+import {
+  BytecodeLengthExceedsMaxError,
+  BytecodeLengthInWordsMustBeOddError,
+  BytecodeLengthMustBeDivisibleBy32Error,
+} from '../errors/bytecode.js'
 
-export function hashBytecode(bytecode: string): Uint8Array {
-  // For getting the consistent length we first convert the bytecode to UInt8Array
+export function hashBytecode(bytecode: Hex): Uint8Array {
   const bytecodeAsArray = toBytes(bytecode)
-
   if (bytecodeAsArray.length % 32 !== 0) {
-    throw new Error('The bytecode length in bytes must be divisible by 32')
+    throw new BytecodeLengthMustBeDivisibleBy32Error({
+      givenLength: bytecodeAsArray.length,
+    })
   }
 
   if (bytecodeAsArray.length > maxBytecodeLenBytes) {
-    throw new Error(
-      `Bytecode can not be longer than ${maxBytecodeLenBytes} bytes`,
-    )
+    throw new BytecodeLengthExceedsMaxError({
+      givenLength: bytecodeAsArray.length,
+      maxBytecodeLenBytes,
+    })
   }
 
   const hashStr = sha256(bytecodeAsArray)
@@ -24,7 +31,9 @@ export function hashBytecode(bytecode: string): Uint8Array {
   // should be provided in 32-byte words.
   const bytecodeLengthInWords = bytecodeAsArray.length / 32
   if (bytecodeLengthInWords % 2 === 0) {
-    throw new Error('Bytecode length in 32-byte words must be odd')
+    throw new BytecodeLengthInWordsMustBeOddError({
+      givenLengthInWords: bytecodeLengthInWords,
+    })
   }
 
   const bytecodeLength = toBytes(bytecodeLengthInWords)

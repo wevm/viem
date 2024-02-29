@@ -9,6 +9,7 @@ import type { ChainEIP712 } from '../types/chain.js'
 import { encodeDeployData } from '../utils/abi/encodeDeployData.js'
 
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Hash, Hex } from '../../../types/misc.js'
 import { contractDeployerAddress } from '../constants/address.js'
 import type { ContractDeploymentType } from '../types/contract.js'
 import {
@@ -26,6 +27,8 @@ export type DeployContractParametersExtended<
   allArgs = ContractConstructorArgs<abi>,
 > = DeployContractParameters<abi, chain, account, chainOverride, allArgs> & {
   deploymentType?: ContractDeploymentType
+  factoryDeps?: Hex[]
+  salt?: Hash
 }
 
 export type DeployContractReturnType = SendEip712TransactionReturnType
@@ -76,13 +79,25 @@ export function deployContract<
     chainOverride
   >,
 ): Promise<DeployContractReturnType> {
-  const { abi, args, bytecode, deploymentType, ...request } =
+  const { abi, args, bytecode, deploymentType, salt, ...request } =
     parameters as DeployContractParametersExtended
-  const calldata = encodeDeployData({ abi, args, bytecode, deploymentType })
-  // TODO: Add bytecode to the list of factoryDeps if it's not already there
+
+  const calldata = encodeDeployData({
+    abi,
+    args,
+    bytecode,
+    deploymentType,
+    salt,
+  })
+
+  // Add the bytecode to the factoryDeps if it's not already there
+  request.factoryDeps = request.factoryDeps || []
+  if (!request.factoryDeps.includes(bytecode)) {
+    request.factoryDeps.push(bytecode)
+  }
+
   return sendEip712Transaction(walletClient, {
     ...request,
-    // to is allways the contract deployer address
     to: contractDeployerAddress,
     data: calldata,
   } as unknown as SendEip712TransactionParameters<

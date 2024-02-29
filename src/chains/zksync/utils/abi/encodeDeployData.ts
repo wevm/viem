@@ -6,6 +6,8 @@ import {
   AbiConstructorParamsNotFoundError,
 } from '../../../../errors/abi.js'
 import type { ContractConstructorArgs } from '../../../../types/contract.js'
+import type { Hash } from '../../../../types/misc.js'
+import type { Hex } from '../../../../types/misc.js'
 import { encodeAbiParameters } from '../../../../utils/abi/encodeAbiParameters.js'
 import {
   type EncodeDeployDataParameters,
@@ -14,6 +16,7 @@ import {
 import { encodeFunctionData } from '../../../../utils/abi/encodeFunctionData.js'
 import { toHex } from '../../../../utils/encoding/toHex.js'
 import { contractDeployerAbi } from '../../constants/abis.js'
+import { accountAbstractionVersion1 } from '../../constants/contract.js'
 import type { ContractDeploymentType } from '../../types/contract.js'
 import { hashBytecode } from '../hashBytecode.js'
 
@@ -31,28 +34,49 @@ export type EncodeDeployDataParametersExtended<
   allArgs = ContractConstructorArgs<abi>,
 > = EncodeDeployDataParameters<abi, hasConstructor, allArgs> & {
   deploymentType?: ContractDeploymentType
+  salt?: Hash
 }
 
 export function encodeDeployData<const abi extends Abi | readonly unknown[]>(
   parameters: EncodeDeployDataParametersExtended<abi>,
 ): EncodeDeployDataReturnType {
-  const {
-    abi,
-    args: initialArgs,
-    bytecode,
-    deploymentType,
-  } = parameters as EncodeDeployDataParametersExtended
-  const args = initialArgs || []
+  const { abi, args, bytecode, deploymentType, salt } =
+    parameters as EncodeDeployDataParametersExtended
 
   const description = abi.find((x) => 'type' in x && x.type === 'constructor')
   if (!description) throw new AbiConstructorNotFoundError({ docsPath })
   if (!('inputs' in description))
     throw new AbiConstructorParamsNotFoundError({ docsPath })
 
-  const data = encodeAbiParameters(description.inputs || [], args)
+  const data =
+    description.inputs && args
+      ? encodeAbiParameters(description.inputs, args)
+      : '0x'
 
-  const contractDeploymentArgs = [zeroHash, toHex(hashBytecode(bytecode)), data]
-  const accountDeploymentArgs = [...contractDeploymentArgs, 1]
+  const { functionName, argsContractDeployer } = getDeploymentDetails(
+    deploymentType,
+    salt ?? zeroHash,
+    toHex(hashBytecode(bytecode)),
+    data,
+  )
+
+  return encodeFunctionData({
+    abi: contractDeployerAbi,
+    functionName,
+    args: argsContractDeployer,
+  })
+}
+
+function getDeploymentDetails(
+  deploymentType: ContractDeploymentType,
+  salt: Hash,
+  bytecodeHash: Hex,
+  data: Hex,
+): {
+  functionName: string
+  argsContractDeployer: readonly unknown[]
+} {
+  const contractDeploymentArgs = [salt ?? zeroHash, bytecodeHash, data]
 
   const deploymentOptions = {
     create: {
@@ -65,21 +89,20 @@ export function encodeDeployData<const abi extends Abi | readonly unknown[]>(
     },
     createAccount: {
       functionName: 'createAccount',
-      argsContractDeployer: accountDeploymentArgs,
+      argsContractDeployer: [
+        ...contractDeploymentArgs,
+        accountAbstractionVersion1,
+      ],
     },
     create2Account: {
       functionName: 'create2Account',
-      argsContractDeployer: accountDeploymentArgs,
+      argsContractDeployer: [
+        ...contractDeploymentArgs,
+        accountAbstractionVersion1,
+      ],
     },
   }
 
   const deploymentKey = deploymentType || 'create'
-  const { functionName, argsContractDeployer } =
-    deploymentOptions[deploymentKey]
-
-  return encodeFunctionData({
-    abi: contractDeployerAbi,
-    functionName,
-    args: argsContractDeployer,
-  })
+  return deploymentOptions[deploymentKey]
 }
