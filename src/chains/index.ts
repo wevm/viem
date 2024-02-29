@@ -22,6 +22,7 @@ export { bearNetworkChainTestnet } from './definitions/bearNetworkChainTestnet.j
 export { berachainTestnet } from './definitions/berachainTestnet.js'
 export { bitTorrent } from './definitions/bitTorrent.js'
 export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js'
+export { blast } from './definitions/blast.js'
 export { blastSepolia } from './definitions/blastSepolia.js'
 export { boba } from './definitions/boba.js'
 export { bronos } from './definitions/bronos.js'
