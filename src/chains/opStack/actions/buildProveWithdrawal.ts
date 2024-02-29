@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-import { type Hex, fromRlp, toRlp } from '~viem/index.js'
 import {
   type GetBlockErrorType,
   getBlock,
@@ -21,7 +20,10 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
+import { type Hex } from '../../../types/misc.js'
 import type { Prettify } from '../../../types/utils.js'
+import { fromRlp } from '../../../utils/encoding/fromRlp.js'
+import { toRlp } from '../../../utils/encoding/toRlp.js'
 import { contracts } from '../contracts.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
@@ -85,7 +87,7 @@ export type BuildProveWithdrawalErrorType =
  * @param proof Proof to potentially modify.
  * @returns Modified proof.
  */
-export const maybeAddProofNode = (key: string, proof: readonly Hex[]) => {
+export const maybeAddProofNode = (slot: string, proof: readonly Hex[]) => {
   const modifiedProof = [...proof]
   const finalProofEl = modifiedProof[modifiedProof.length - 1]
   const finalProofElDecoded = fromRlp(finalProofEl)
@@ -101,7 +103,7 @@ export const maybeAddProofNode = (key: string, proof: readonly Hex[]) => {
         // within itself. If (1) then this logic will work, if (2) then this won't find anything
         // and we won't append any proof elements, which is exactly what we would want.
         const suffix = item[0].slice(3)
-        if (typeof suffix === 'string' && key.endsWith(suffix)) {
+        if (typeof suffix === 'string' && slot.endsWith(suffix)) {
           modifiedProof.push(toRlp(item))
         }
       }
