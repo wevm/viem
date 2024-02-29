@@ -22,6 +22,12 @@ export {
   type SignTransactionReturnType,
   signTransaction,
 } from './actions/signTransaction.js'
+export {
+  type DeployContractErrorType,
+  type DeployContractParametersExtended,
+  type DeployContractReturnType,
+  deployContract,
+} from './actions/deployContract.js'
 
 export {
   zkSync,

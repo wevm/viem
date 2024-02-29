@@ -33,7 +33,7 @@ export type DeployContractReturnType = SendEip712TransactionReturnType
 export type DeployContractErrorType = SendEip712TransactionErrorType | ErrorType
 
 /**
- * Deploys a contract to the network, given bytecode and constructor arguments.
+ * Deploys a contract to the network, given bytecode and constructor arguments using EIP712 transaction.
  *
  * - Docs: https://viem.sh/docs/contract/deployContract
  * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
@@ -43,23 +43,25 @@ export type DeployContractErrorType = SendEip712TransactionErrorType | ErrorType
  * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
  *
  * @example
- * import { createWalletClient, http } from 'viem'
+ * import { createWalletClient, custom } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { mainnet } from 'viem/chains'
- * import { deployContract } from 'viem/contract'
+ * import { zkSync } from 'viem/chains'
+ * import { deployContract } from 'viem/zksync'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),
- *   chain: mainnet,
- *   transport: http(),
+ *   chain: zksync,
+ *   transport: custom(provider),
  * })
  * const hash = await deployContract(client, {
  *   abi: [],
  *   account: '0x…,
+ *   deploymentType: 'create',
  *   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
+ *   factoryDeps: ['0x608060405260405161083e38038061083e833981016040819052610...'],
+ *   gasPerPubdata: 50000n
  * })
  */
-// TODO
 export function deployContract<
   const abi extends Abi | readonly unknown[],
   chain extends ChainEIP712 | undefined,

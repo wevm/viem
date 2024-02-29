@@ -118,7 +118,35 @@ export type Eip712WalletActions<
   signTransaction: <chainOverride extends ChainEIP712 | undefined = undefined>(
     args: SignTransactionParameters<chain, account, chainOverride>,
   ) => Promise<SignTransactionReturnType>
-  // TODO
+  /**
+   * Deploys a contract to the network, given bytecode and constructor arguments using EIP712 transaction.
+   *
+   * - Docs: https://viem.sh/docs/contract/deployContract
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
+   *
+   * @param args - {@link DeployContractParametersExtended}
+   * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { zkSync } from 'viem/chains'
+   * import { deployContract } from 'viem/contract'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: zksync,
+   *   transport: custom(provider),
+   * })
+   * const hash = await client.deployContract(client, {
+   *   abi: [],
+   *   account: '0x…,
+   *   deploymentType: 'create',
+   *   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
+   *   factoryDeps: ['0x608060405260405161083e38038061083e833981016040819052610...'],
+   *   gasPerPubdata: 50000n
+   * })
+   */
   deployContract: <
     const abi extends Abi | readonly unknown[],
     chainOverride extends ChainEIP712 | undefined,
