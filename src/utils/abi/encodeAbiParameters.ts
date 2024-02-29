@@ -46,9 +46,15 @@ export type EncodeAbiParametersErrorType =
 
 /**
  * @description Encodes a list of primitive values into an ABI-encoded hex value.
+ *
+ * - Docs: https://viem.sh/docs/abi/encodeAbiParameters#encodeabiparameters
+ *
+ *   Generates ABI encoded data using the [ABI specification](https://docs.soliditylang.org/en/latest/abi-spec), given a set of ABI parameters (inputs/outputs) and their corresponding values.
+ *
  * @param params - a set of ABI Parameters (params), that can be in the shape of the inputs or outputs attribute of an ABI Item.
  * @param values - a set of values (values) that correspond to the given params.
  * @example
+ * ```typescript
  * import { encodeAbiParameters } from 'viem'
  *
  * const encodedData = encodeAbiParameters(
@@ -59,6 +65,19 @@ export type EncodeAbiParametersErrorType =
  *   ],
  *   ['wagmi', 420n, true]
  * )
+ * ```
+ *
+ * You can also pass in Human Readable parameters with the parseAbiParameters utility.
+ *
+ * @example
+ * ```typescript
+ * import { encodeAbiParameters, parseAbiParameters } from 'viem'
+ *
+ * const encodedData = encodeAbiParameters(
+ *   parseAbiParameters('string x, uint y, bool z'),
+ *   ['wagmi', 420n, true]
+ * )
+ * ```
  */
 export function encodeAbiParameters<
   const TParams extends readonly AbiParameter[] | readonly unknown[],
