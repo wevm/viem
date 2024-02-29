@@ -88,26 +88,29 @@ export type BuildProveWithdrawalErrorType =
  * @returns Modified proof.
  */
 export const maybeAddProofNode = (slot: string, proof: readonly Hex[]) => {
-  const modifiedProof = [...proof]
-  const finalProofEl = modifiedProof[modifiedProof.length - 1]
+  const finalProofEl = proof[proof.length - 1]
   const finalProofElDecoded = fromRlp(finalProofEl)
-  if (finalProofElDecoded.length === 17) {
-    for (const item of finalProofElDecoded) {
-      // Find any nodes located inside of the branch node.
-      if (Array.isArray(item)) {
-        // Check if the key inside the node matches the key we're looking for. We remove the first
-        // two characters (0x) and then we remove one more character (the first nibble) since this
-        // is the identifier for the type of node we're looking at. In this case we don't actually
-        // care what type of node it is because a branch node would only ever be the final proof
-        // element if (1) it includes the leaf node we're looking for or (2) it stores the value
-        // within itself. If (1) then this logic will work, if (2) then this won't find anything
-        // and we won't append any proof elements, which is exactly what we would want.
-        const suffix = item[0].slice(3)
-        if (typeof suffix === 'string' && slot.endsWith(suffix)) {
-          modifiedProof.push(toRlp(item))
-        }
-      }
+  if (finalProofElDecoded.length !== 17) {
+    return proof
+  }
+  const modifiedProof = [...proof]
+  for (const item of finalProofElDecoded) {
+    // Find any nodes located inside of the branch node.
+    if (!Array.isArray(item)) {
+      continue
     }
+    // Check if the key inside the node matches the key we're looking for. We remove the first
+    // two characters (0x) and then we remove one more character (the first nibble) since this
+    // is the identifier for the type of node we're looking at. In this case we don't actually
+    // care what type of node it is because a branch node would only ever be the final proof
+    // element if (1) it includes the leaf node we're looking for or (2) it stores the value
+    // within itself. If (1) then this logic will work, if (2) then this won't find anything
+    // and we won't append any proof elements, which is exactly what we would want.
+    const suffix = item[0].slice(3)
+    if (typeof suffix !== 'string' || !slot.endsWith(suffix)) {
+      continue
+    }
+    modifiedProof.push(toRlp(item))
   }
   return modifiedProof
 }
