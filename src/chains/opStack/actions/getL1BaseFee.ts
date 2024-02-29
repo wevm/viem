@@ -4,9 +4,7 @@ import {
   type ReadContractErrorType,
   readContract,
 } from '../../../actions/public/readContract.js'
-import {
-  type PrepareTransactionRequestErrorType
-} from '../../../actions/wallet/prepareTransactionRequest.js'
+import { type PrepareTransactionRequestErrorType } from '../../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
@@ -21,10 +19,10 @@ import { contracts } from '../contracts.js'
 export type GetL1BaseFeeParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TChainOverride extends Chain | undefined = undefined,
-> =  GetChainParameter<TChain, TChainOverride> & {
-    /** Gas price oracle address. */
-    gasPriceOracleAddress?: Address
-  }
+> = GetChainParameter<TChain, TChainOverride> & {
+  /** Gas price oracle address. */
+  gasPriceOracleAddress?: Address
+}
 
 export type GetL1BaseFeeReturnType = bigint
 
@@ -34,7 +32,6 @@ export type GetL1BaseFeeErrorType =
   | HexToNumberErrorType
   | ReadContractErrorType
   | ErrorType
-
 
 /**
  * get the L1 base fee
@@ -79,6 +76,6 @@ export async function getL1BaseFee<
   return readContract(client, {
     abi: gasPriceOracleAbi,
     address: gasPriceOracleAddress,
-    functionName: 'baseFee'
+    functionName: 'baseFee',
   })
 }

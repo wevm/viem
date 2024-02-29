@@ -48,11 +48,6 @@ import {
   estimateL1Fee,
 } from '../actions/estimateL1Fee.js'
 import {
-  type GetL1BaseFeeParameters,
-  type GetL1BaseFeeReturnType,
-  getL1BaseFee,
-} from '../actions/getL1BaseFee.js'
-import {
   type EstimateL1GasParameters,
   type EstimateL1GasReturnType,
   estimateL1Gas,
@@ -67,6 +62,11 @@ import {
   type EstimateTotalGasReturnType,
   estimateTotalGas,
 } from '../actions/estimateTotalGas.js'
+import {
+  type GetL1BaseFeeParameters,
+  type GetL1BaseFeeReturnType,
+  getL1BaseFee,
+} from '../actions/getL1BaseFee.js'
 
 export type PublicActionsL2<
   chain extends Chain | undefined = Chain | undefined,
@@ -370,7 +370,7 @@ export type PublicActionsL2<
     parameters: EstimateL1FeeParameters<chain, account, chainOverride>,
   ) => Promise<EstimateL1FeeReturnType>
 
-   /**
+  /**
    * Get the L1 basefee
    *
    * @param client - Client to use
@@ -389,7 +389,7 @@ export type PublicActionsL2<
    *
    * const l1BaseFee = await client.getL1BaseFee()
    */
-   getL1BaseFee: <chainOverride extends Chain | undefined = undefined>(
+  getL1BaseFee: <chainOverride extends Chain | undefined = undefined>(
     parameters?: GetL1BaseFeeParameters<chain, chainOverride>,
   ) => Promise<GetL1BaseFeeReturnType>
   /**

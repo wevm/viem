@@ -8,7 +8,6 @@ import {
 
 import { getL1BaseFee } from './getL1BaseFee.js'
 
-
 test('default', async () => {
   const baseFee = await getL1BaseFee(optimismClient)
   expect(baseFee >= 0).toBeTruthy()
