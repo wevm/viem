@@ -46,6 +46,19 @@ export type EncodeAbiParametersErrorType =
 
 /**
  * @description Encodes a list of primitive values into an ABI-encoded hex value.
+ * @param params - a set of ABI Parameters (params), that can be in the shape of the inputs or outputs attribute of an ABI Item.
+ * @param values - a set of values (values) that correspond to the given params.
+ * @example
+ * import { encodeAbiParameters } from 'viem'
+ *
+ * const encodedData = encodeAbiParameters(
+ *   [
+ *     { name: 'x', type: 'string' },
+ *     { name: 'y', type: 'uint' },
+ *     { name: 'z', type: 'bool' }
+ *   ],
+ *   ['wagmi', 420n, true]
+ * )
  */
 export function encodeAbiParameters<
   const TParams extends readonly AbiParameter[] | readonly unknown[],
