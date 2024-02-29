@@ -76,6 +76,6 @@ export async function getL1BaseFee<
   return readContract(client, {
     abi: gasPriceOracleAbi,
     address: gasPriceOracleAddress,
-    functionName: 'baseFee',
+    functionName: 'l1BaseFee',
   })
 }
