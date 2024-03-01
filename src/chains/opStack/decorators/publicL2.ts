@@ -62,6 +62,11 @@ import {
   type EstimateTotalGasReturnType,
   estimateTotalGas,
 } from '../actions/estimateTotalGas.js'
+import {
+  type GetL1BaseFeeParameters,
+  type GetL1BaseFeeReturnType,
+  getL1BaseFee,
+} from '../actions/getL1BaseFee.js'
 
 export type PublicActionsL2<
   chain extends Chain | undefined = Chain | undefined,
@@ -364,6 +369,29 @@ export type PublicActionsL2<
   estimateL1Fee: <chainOverride extends Chain | undefined = undefined>(
     parameters: EstimateL1FeeParameters<chain, account, chainOverride>,
   ) => Promise<EstimateL1FeeReturnType>
+
+  /**
+   * Get the L1 basefee
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetL1BaseFeeParameters}
+   * @returns The fee (in wei). {@link GetL1BaseFeeReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseEther } from 'viem'
+   * import { optimism } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/op-stack'
+   *
+   * const client = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const l1BaseFee = await client.getL1BaseFee()
+   */
+  getL1BaseFee: <chainOverride extends Chain | undefined = undefined>(
+    parameters?: GetL1BaseFeeParameters<chain, chainOverride>,
+  ) => Promise<GetL1BaseFeeReturnType>
   /**
    * Estimates the amount of L1 data gas required to execute an L2 transaction.
    *
@@ -479,6 +507,7 @@ export function publicActionsL2() {
       estimateInitiateWithdrawalGas: (args) =>
         estimateInitiateWithdrawalGas(client, args),
       estimateL1Fee: (args) => estimateL1Fee(client, args),
+      getL1BaseFee: (args) => getL1BaseFee(client, args),
       estimateL1Gas: (args) => estimateL1Gas(client, args),
       estimateTotalFee: (args) => estimateTotalFee(client, args),
       estimateTotalGas: (args) => estimateTotalGas(client, args),
