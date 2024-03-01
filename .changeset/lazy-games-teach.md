@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add getL1BaseFee action for op-stack
+Added `getL1BaseFee` action for OP Stack.
