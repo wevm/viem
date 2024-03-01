@@ -24,6 +24,7 @@ import { type Hex } from '../../../types/misc.js'
 import type { Prettify } from '../../../types/utils.js'
 import { fromRlp } from '../../../utils/encoding/fromRlp.js'
 import { toRlp } from '../../../utils/encoding/toRlp.js'
+import { keccak256 } from '../../../utils/hash/keccak256.js'
 import { contracts } from '../contracts.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
@@ -87,7 +88,7 @@ export type BuildProveWithdrawalErrorType =
  * @param proof Proof to potentially modify.
  * @returns Modified proof.
  */
-export const maybeAddProofNode = (slot: string, proof: readonly Hex[]) => {
+export const maybeAddProofNode = (key: string, proof: readonly Hex[]) => {
   const finalProofEl = proof[proof.length - 1]
   const finalProofElDecoded = fromRlp(finalProofEl)
   if (finalProofElDecoded.length !== 17) {
@@ -107,7 +108,7 @@ export const maybeAddProofNode = (slot: string, proof: readonly Hex[]) => {
     // within itself. If (1) then this logic will work, if (2) then this won't find anything
     // and we won't append any proof elements, which is exactly what we would want.
     const suffix = item[0].slice(3)
-    if (typeof suffix !== 'string' || !slot.endsWith(suffix)) {
+    if (typeof suffix !== 'string' || !key.endsWith(suffix)) {
       continue
     }
     modifiedProof.push(toRlp(item))
@@ -181,7 +182,10 @@ export async function buildProveWithdrawal<
       version: outputRootProofVersion,
     },
     targetChain: chain,
-    withdrawalProof: maybeAddProofNode(slot, proof.storageProof[0].proof),
+    withdrawalProof: maybeAddProofNode(
+      keccak256(slot),
+      proof.storageProof[0].proof,
+    ),
     withdrawal,
   } as unknown as BuildProveWithdrawalReturnType<
     chain,
