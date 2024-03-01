@@ -11,7 +11,6 @@ export const blast = /*#__PURE__*/ defineChain({
       symbol: 'ETH',
     },
     rpcUrls: {
-      public: { http: ['https://rpc.blast.io'] },
       default: { http: ['https://rpc.blast.io'] },
     },
     blockExplorers: {
