@@ -1,5 +1,19 @@
 # viem
 
+## 2.7.17
+
+### Patch Changes
+
+- [#1878](https://github.com/wevm/viem/pull/1878) [`42d9d9fe2d96d3c1e50f61fb03f3623e3e4ef29e`](https://github.com/wevm/viem/commit/42d9d9fe2d96d3c1e50f61fb03f3623e3e4ef29e) Thanks [@wighawag](https://github.com/wighawag)! - Added `getL1BaseFee` action for OP Stack.
+
+- [#1883](https://github.com/wevm/viem/pull/1883) [`929a00f06b1de6e6e1d489e36e7232a3c7bf4a43`](https://github.com/wevm/viem/commit/929a00f06b1de6e6e1d489e36e7232a3c7bf4a43) Thanks [@ibrosen](https://github.com/ibrosen)! - Added Blast chain.
+
+- [#1879](https://github.com/wevm/viem/pull/1879) [`7e01bf01b6dc85899eba5b25a1ce41d1640fc59a`](https://github.com/wevm/viem/commit/7e01bf01b6dc85899eba5b25a1ce41d1640fc59a) Thanks [@SergeevDmitry](https://github.com/SergeevDmitry)! - Added Auroria Testnet chain.
+
+- [#1877](https://github.com/wevm/viem/pull/1877) [`c30eb49f89cef8704d6dcb5eae8e02a3247adb65`](https://github.com/wevm/viem/commit/c30eb49f89cef8704d6dcb5eae8e02a3247adb65) Thanks [@wighawag](https://github.com/wighawag)! - add definitions for ancient8 mainnet and testnet
+
+- [#1884](https://github.com/wevm/viem/pull/1884) [`386a0be9ea92d6dbf2833a7a8d90b5e8c4c637d4`](https://github.com/wevm/viem/commit/386a0be9ea92d6dbf2833a7a8d90b5e8c4c637d4) Thanks [@cauu](https://github.com/cauu)! - Added Merlin chain.
+
 ## 2.7.16
 
 ### Patch Changes
