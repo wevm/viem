@@ -7,10 +7,7 @@ export const astarZkyoto = /*#__PURE__*/ defineChain({
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
         default: {
-            http: [
-                'https://rpc.zkyoto.gelato.digital',
-                'https://rpc.startale.com/zkyoto',
-            ],
+            http: ['https://rpc.startale.com/zkyoto'],
         },
     },
     blockExplorers: {
