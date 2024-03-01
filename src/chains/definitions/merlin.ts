@@ -4,9 +4,9 @@ export const merlin = /*#__PURE__*/ defineChain({
   id: 4200,
   name: 'Merlin',
   nativeCurrency: {
-    name: "BTC",
-    symbol: "BTC",
-    decimals: 18
+    name: 'BTC',
+    symbol: 'BTC',
+    decimals: 18,
   },
   rpcUrls: {
     default: { http: ['https://rpc.merlinchain.io'] },
