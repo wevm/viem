@@ -5,7 +5,6 @@ const sourceId = 1 // mainnet
 export const blast = /*#__PURE__*/ defineChain({
     id: 81457,
     name: 'Blast',
-    network: 'blast',
     nativeCurrency: {
       decimals: 18,
       name: 'Ether',
