@@ -1,3 +1,5 @@
+export { ancient8 } from '../definitions/ancient8.js'
+export { ancient8Sepolia } from '../definitions/ancient8Sepolia.js'
 export { base } from '../definitions/base.js'
 export { baseGoerli } from '../definitions/baseGoerli.js'
 export { baseSepolia } from '../definitions/baseSepolia.js'
