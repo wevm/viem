@@ -18,10 +18,10 @@ test('default', async () => {
       "estimateContractTotalGas": [Function],
       "estimateInitiateWithdrawalGas": [Function],
       "estimateL1Fee": [Function],
-      "getL1BaseFee": [Function],
       "estimateL1Gas": [Function],
       "estimateTotalFee": [Function],
       "estimateTotalGas": [Function],
+      "getL1BaseFee": [Function],
     }
   `)
 })
