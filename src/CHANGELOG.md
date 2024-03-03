@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.18
+
+### Patch Changes
+
+- [#1891](https://github.com/wevm/viem/pull/1891) [`6dbc8d4af38b39a1372dfa130e7c6e0105a3deee`](https://github.com/wevm/viem/commit/6dbc8d4af38b39a1372dfa130e7c6e0105a3deee) Thanks [@JazzBashara](https://github.com/JazzBashara)! - Replaced SnowTrace with SnowScan for avalancheFuji
+
 ## 2.7.17
 
 ### Patch Changes
