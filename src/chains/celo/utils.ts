@@ -33,8 +33,8 @@ export function isEIP1559(
   transaction: CeloTransactionSerializable | CeloTransactionRequest,
 ): boolean {
   return (
-    isPresent(transaction.maxFeePerGas) &&
-    isPresent(transaction.maxPriorityFeePerGas)
+    typeof transaction.maxFeePerGas !== 'undefined' &&
+    typeof transaction.maxPriorityFeePerGas !== 'undefined'
   )
 }
 
