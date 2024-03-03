@@ -47,17 +47,20 @@ const client = createWalletClient({
 
 ## Parameters
 
-### mnemonic
+### hdKey
 
 - **Type:** `string`
 
 The BIP-39 mnemonic phrase.
 
 ```ts twoslash
-import { mnemonicToAccount } from 'viem/accounts'
+// @noErrors
+import { hdKeyToAccount } from 'viem/accounts'
 // ---cut---
-const account = mnemonicToAccount(
-  'legal winner thank year wave sausage worth useful legal winner thank yellow' // [!code focus]
+const hdKey = HDKey.fromMasterSeed(...)
+
+const account = hdKeyToAccount(
+  hdKey, // [!code focus]
 )
 ```
 
@@ -69,10 +72,13 @@ const account = mnemonicToAccount(
 The account index to use in the path (`"m/44'/60'/${accountIndex}'/0/0"`) to derive a private key.
 
 ```ts twoslash
-import { mnemonicToAccount } from 'viem/accounts'
+// @noErrors
+import { hdKeyToAccount } from 'viem/accounts'
 // ---cut---
-const account = mnemonicToAccount(
-  'legal winner thank year wave sausage worth useful legal winner thank yellow',
+const hdKey = HDKey.fromMasterSeed(...)
+
+const account = hdKeyToAccount(
+  hdKey,
   {
     accountIndex: 1 // [!code focus]
   }
@@ -87,10 +93,13 @@ const account = mnemonicToAccount(
 The address index to use in the path (`"m/44'/60'/0'/0/${addressIndex}"`) to derive a private key.
 
 ```ts twoslash
-import { mnemonicToAccount } from 'viem/accounts'
+// @noErrors
+import { hdKeyToAccount } from 'viem/accounts'
 // ---cut---
-const account = mnemonicToAccount(
-  'legal winner thank year wave sausage worth useful legal winner thank yellow',
+const hdKey = HDKey.fromMasterSeed(...)
+
+const account = hdKeyToAccount(
+  hdKey,
   {
     accountIndex: 1,
     addressIndex: 6 // [!code focus]
@@ -106,10 +115,13 @@ const account = mnemonicToAccount(
 The change index to use in the path (`"m/44'/60'/0'/${changeIndex}/0"`) to derive a private key.
 
 ```ts twoslash
-import { mnemonicToAccount } from 'viem/accounts'
+// @noErrors
+import { hdKeyToAccount } from 'viem/accounts'
 // ---cut---
-const account = mnemonicToAccount(
-  'legal winner thank year wave sausage worth useful legal winner thank yellow',
+const hdKey = HDKey.fromMasterSeed(...)
+
+const account = hdKeyToAccount(
+  hdKey,
   {
     accountIndex: 1,
     addressIndex: 6,
@@ -125,10 +137,13 @@ const account = mnemonicToAccount(
 The HD path to use to derive a private key.
 
 ```ts twoslash
-import { mnemonicToAccount } from 'viem/accounts'
+// @noErrors
+import { hdKeyToAccount } from 'viem/accounts'
 // ---cut---
-const account = mnemonicToAccount(
-  'legal winner thank year wave sausage worth useful legal winner thank yellow',
+const hdKey = HDKey.fromMasterSeed(...)
+
+const account = hdKeyToAccount(
+  hdKey,
   {
     path: "m/44'/60'/5'/0/2" // [!code focus]
   }
