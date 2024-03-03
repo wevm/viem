@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.19
+
+### Patch Changes
+
+- [`367eef3aa1879172df46cfd803419747d81086ff`](https://github.com/wevm/viem/commit/367eef3aa1879172df46cfd803419747d81086ff) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where zero gas fees would bypass Celo's transaction type detection.
+
 ## 2.7.18
 
 ### Patch Changes
