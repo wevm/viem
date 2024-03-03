@@ -13,7 +13,7 @@ export const astarZkEVM = /*#__PURE__*/ defineChain({
     blockExplorers: {
         default: {
             name: 'Astar zkEVM Explorer',
-            url: 'https://astar-zkevm.explorer.startale.com/',
+            url: 'https://astar-zkevm.explorer.startale.com',
         },
     },
     contracts: {
