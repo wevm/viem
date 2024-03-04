@@ -43,16 +43,28 @@ export function encodeDeployData<const abi extends Abi | readonly unknown[]>(
   const { abi, args, bytecode, deploymentType, salt } =
     parameters as EncodeDeployDataParametersExtended
 
+  if (!args || args.length === 0) {
+    const { functionName, argsContractDeployer } = getDeploymentDetails(
+      deploymentType,
+      salt ?? zeroHash,
+      toHex(hashBytecode(bytecode)),
+      '0x',
+    )
+    return encodeFunctionData({
+      abi: contractDeployerAbi,
+      functionName,
+      args: argsContractDeployer,
+    })
+  }
+
   const description = abi.find((x) => 'type' in x && x.type === 'constructor')
   if (!description) throw new AbiConstructorNotFoundError({ docsPath })
   if (!('inputs' in description))
     throw new AbiConstructorParamsNotFoundError({ docsPath })
+  if (!description.inputs || description.inputs.length === 0)
+    throw new AbiConstructorParamsNotFoundError({ docsPath })
 
-  const data =
-    description.inputs && args
-      ? encodeAbiParameters(description.inputs, args)
-      : '0x'
-
+  const data = encodeAbiParameters(description.inputs, args)
   const { functionName, argsContractDeployer } = getDeploymentDetails(
     deploymentType,
     salt ?? zeroHash,

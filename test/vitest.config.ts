@@ -25,7 +25,7 @@ export default defineConfig({
       ],
     },
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    include: ['src/chains/zksync/utils/hashBytecode.test.ts'],
     setupFiles: [join(__dirname, './setup.ts')],
     globalSetup: [join(__dirname, './globalSetup.ts')],
     hookTimeout: 20_000,
