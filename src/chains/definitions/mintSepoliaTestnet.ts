@@ -11,7 +11,7 @@ export const mintSepoliaTestnet = /*#__PURE__*/ defineChain({
     },
     blockExplorers: {
         default: {
-            name: 'mintchain testnet explorer',
+            name: 'Mintchain Testnet explorer',
             url: 'https://testnet-explorer.mintchain.io',
         },
     },
