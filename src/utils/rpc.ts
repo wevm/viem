@@ -1,55 +1,55 @@
-import type { MessageEvent, WebSocket } from "isomorphic-ws";
+import type { MessageEvent, WebSocket } from 'isomorphic-ws'
 
 import {
   HttpRequestError,
   TimeoutError,
   WebSocketRequestError,
-} from "../errors/request.js";
+} from '../errors/request.js'
 
-import { createBatchScheduler } from "./promise/createBatchScheduler.js";
-import { withTimeout } from "./promise/withTimeout.js";
-import { stringify } from "./stringify.js";
+import { createBatchScheduler } from './promise/createBatchScheduler.js'
+import { withTimeout } from './promise/withTimeout.js'
+import { stringify } from './stringify.js'
 
-let id = 0;
+let id = 0
 
 type SuccessResult<T> = {
-  method?: never;
-  result: T;
-  error?: never;
-};
+  method?: never
+  result: T
+  error?: never
+}
 type ErrorResult<T> = {
-  method?: never;
-  result?: never;
-  error: T;
-};
+  method?: never
+  result?: never
+  error: T
+}
 type Subscription<TResult, TError> = {
-  method: "eth_subscription";
-  error?: never;
-  result?: never;
+  method: 'eth_subscription'
+  error?: never
+  result?: never
   params: {
-    subscription: string;
+    subscription: string
   } & (
     | {
-        result: TResult;
-        error?: never;
+        result: TResult
+        error?: never
       }
     | {
-        result?: never;
-        error: TError;
+        result?: never
+        error: TError
       }
-  );
-};
+  )
+}
 
-export type RpcRequest = { method: string; params?: any };
+export type RpcRequest = { method: string; params?: any }
 
 export type RpcResponse<TResult = any, TError = any> = {
-  jsonrpc: `${number}`;
-  id: number;
+  jsonrpc: `${number}`
+  id: number
 } & (
   | SuccessResult<TResult>
   | ErrorResult<TError>
   | Subscription<TResult, TError>
-);
+)
 
 ///////////////////////////////////////////////////
 // HTTP
@@ -57,22 +57,22 @@ export type RpcResponse<TResult = any, TError = any> = {
 export type HttpOptions<TBody extends RpcRequest | RpcRequest[] = RpcRequest,> =
   {
     // The RPC request body.
-    body: TBody;
+    body: TBody
     // Request configuration to pass to `fetch`.
-    fetchOptions?: Omit<RequestInit, "body">;
+    fetchOptions?: Omit<RequestInit, 'body'>
     // The timeout (in ms) for the request.
-    timeout?: number;
-  };
+    timeout?: number
+  }
 
 export type HttpReturnType<
   TBody extends RpcRequest | RpcRequest[] = RpcRequest,
-> = TBody extends RpcRequest[] ? RpcResponse[] : RpcResponse;
+> = TBody extends RpcRequest[] ? RpcResponse[] : RpcResponse
 
 async function http<TBody extends RpcRequest | RpcRequest[]>(
   url: string,
   { body, fetchOptions = {}, timeout = 10_000 }: HttpOptions<TBody>,
 ): Promise<HttpReturnType<TBody>> {
-  const { headers, method, signal: signal_ } = fetchOptions;
+  const { headers, method, signal: signal_ } = fetchOptions
   try {
     const response = await withTimeout(
       async ({ signal }) => {
@@ -81,33 +81,33 @@ async function http<TBody extends RpcRequest | RpcRequest[]>(
           body: Array.isArray(body)
             ? stringify(
                 body.map((body) => ({
-                  jsonrpc: "2.0",
+                  jsonrpc: '2.0',
                   id: id++,
                   ...body,
                 })),
               )
-            : stringify({ jsonrpc: "2.0", id: id++, ...body }),
+            : stringify({ jsonrpc: '2.0', id: id++, ...body }),
           headers: {
             ...headers,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          method: method || "POST",
+          method: method || 'POST',
           signal: signal_ || (timeout > 0 ? signal : undefined),
-        });
-        return response;
+        })
+        return response
       },
       {
         errorInstance: new TimeoutError({ body, url }),
         timeout,
         signal: true,
       },
-    );
+    )
 
-    let data;
-    if (response.headers.get("Content-Type")?.startsWith("application/json")) {
-      data = await response.json();
+    let data
+    if (response.headers.get('Content-Type')?.startsWith('application/json')) {
+      data = await response.json()
     } else {
-      data = await response.text();
+      data = await response.text()
     }
 
     if (!response.ok) {
@@ -117,40 +117,40 @@ async function http<TBody extends RpcRequest | RpcRequest[]>(
         headers: response.headers,
         status: response.status,
         url,
-      });
+      })
     }
 
-    return data;
+    return data
   } catch (err) {
-    if (err instanceof HttpRequestError) throw err;
-    if (err instanceof TimeoutError) throw err;
+    if (err instanceof HttpRequestError) throw err
+    if (err instanceof TimeoutError) throw err
     throw new HttpRequestError({
       body,
       details: (err as Error).message,
       url,
-    });
+    })
   }
 }
 
 ///////////////////////////////////////////////////
 // WebSocket
 
-type Id = string | number;
-type CallbackFn = (message: any) => void;
-type CallbackMap = Map<Id, CallbackFn>;
+type Id = string | number
+type CallbackFn = (message: any) => void
+type CallbackMap = Map<Id, CallbackFn>
 
 export type Socket = WebSocket & {
-  requests: CallbackMap;
-  subscriptions: CallbackMap;
-};
+  requests: CallbackMap
+  subscriptions: CallbackMap
+}
 
-const sockets = /*#__PURE__*/ new Map<string, Socket>();
+const sockets = /*#__PURE__*/ new Map<string, Socket>()
 
 type SocketConfig = {
-  reconnect: boolean;
-  maxReconnectAttempts: number;
-  reconnectTimeout: number;
-};
+  reconnect: boolean
+  maxReconnectAttempts: number
+  reconnectTimeout: number
+}
 
 export async function getSocket(
   url_: string,
@@ -160,19 +160,19 @@ export async function getSocket(
     reconnectTimeout = 5000,
   }: SocketConfig,
 ) {
-  const url = new URL(url_);
-  const urlKey = url.toString();
-  let reconnectAttempts = 0;
+  const url = new URL(url_)
+  const urlKey = url.toString()
+  let reconnectAttempts = 0
 
-  let socket = sockets.get(urlKey);
+  let socket = sockets.get(urlKey)
 
   // If the socket already exists, return it.
-  if (socket) return socket;
+  if (socket) return socket
 
   const { schedule } = createBatchScheduler<undefined, [Socket]>({
     id: urlKey,
     fn: async () => {
-      let WebSocket = await import("isomorphic-ws");
+      let WebSocket = await import('isomorphic-ws')
       // Workaround for Vite.
       // https://github.com/vitejs/vite/issues/9703
       // TODO: Remove when issue is resolved.
@@ -181,83 +181,83 @@ export async function getSocket(
           ?.constructor
       )
         WebSocket = (WebSocket as unknown as { default: typeof WebSocket })
-          .default;
-      else WebSocket = WebSocket.WebSocket;
+          .default
+      else WebSocket = WebSocket.WebSocket
 
-      const webSocket = new WebSocket(url);
+      const webSocket = new WebSocket(url)
 
       // Set up a cache for incoming "synchronous" requests.
-      const requests = new Map<Id, CallbackFn>();
+      const requests = new Map<Id, CallbackFn>()
 
       // Set up a cache for subscriptions (eth_subscribe).
-      const subscriptions = new Map<Id, CallbackFn>();
+      const subscriptions = new Map<Id, CallbackFn>()
       const onError = () => {
         if (reconnect && reconnectAttempts < maxReconnectAttempts) {
           // delay reconnection
           setTimeout(() => {
-            reconnectAttempts++;
-            schedule().catch(console.error); // log error during reconnection
-          }, reconnectTimeout); // delay for 5 second default
+            reconnectAttempts++
+            schedule().catch(console.error) // log error during reconnection
+          }, reconnectTimeout) // delay for 5 second default
         }
-      };
+      }
       const onOpen = () => {
-        reconnectAttempts = 0;
-      };
+        reconnectAttempts = 0
+      }
       const onMessage: (event: MessageEvent) => void = ({ data }) => {
-        const message: RpcResponse = JSON.parse(data as string);
-        const isSubscription = message.method === "eth_subscription";
-        const id = isSubscription ? message.params.subscription : message.id;
-        const cache = isSubscription ? subscriptions : requests;
-        const callback = cache.get(id);
-        if (callback) callback({ data });
-        if (!isSubscription) cache.delete(id);
-      };
+        const message: RpcResponse = JSON.parse(data as string)
+        const isSubscription = message.method === 'eth_subscription'
+        const id = isSubscription ? message.params.subscription : message.id
+        const cache = isSubscription ? subscriptions : requests
+        const callback = cache.get(id)
+        if (callback) callback({ data })
+        if (!isSubscription) cache.delete(id)
+      }
       const onClose = () => {
-        sockets.delete(urlKey);
-        webSocket.removeEventListener("close", onClose);
-        webSocket.removeEventListener("message", onMessage);
-        webSocket.removeEventListener("error", onError);
-        webSocket.removeEventListener("open", onOpen);
-      };
+        sockets.delete(urlKey)
+        webSocket.removeEventListener('close', onClose)
+        webSocket.removeEventListener('message', onMessage)
+        webSocket.removeEventListener('error', onError)
+        webSocket.removeEventListener('open', onOpen)
+      }
 
       // Setup event listeners for RPC & subscription responses.
-      webSocket.addEventListener("close", onClose);
-      webSocket.addEventListener("message", onMessage);
-      webSocket.addEventListener("error", onError);
-      webSocket.addEventListener("open", onOpen);
+      webSocket.addEventListener('close', onClose)
+      webSocket.addEventListener('message', onMessage)
+      webSocket.addEventListener('error', onError)
+      webSocket.addEventListener('open', onOpen)
 
       // Wait for the socket to open.
       if (webSocket.readyState === WebSocket.CONNECTING) {
         await new Promise((resolve, reject) => {
-          if (!webSocket) return;
-          webSocket.onopen = resolve;
-          webSocket.onerror = reject;
-        });
+          if (!webSocket) return
+          webSocket.onopen = resolve
+          webSocket.onerror = reject
+        })
       }
 
       // Create a new socket instance.
       socket = Object.assign(webSocket, {
         requests,
         subscriptions,
-      });
-      sockets.set(urlKey, socket);
+      })
+      sockets.set(urlKey, socket)
 
-      return [socket];
+      return [socket]
     },
-  });
+  })
 
-  const [_, [socket_]] = await schedule();
-  return socket_;
+  const [_, [socket_]] = await schedule()
+  return socket_
 }
 
 export type WebSocketOptions = {
   /** The RPC request body. */
-  body: RpcRequest;
+  body: RpcRequest
   /** The callback to invoke on response. */
-  onResponse?: (message: RpcResponse) => void;
-};
+  onResponse?: (message: RpcResponse) => void
+}
 
-export type WebSocketReturnType = Socket;
+export type WebSocketReturnType = Socket
 
 function webSocket(
   socket: Socket,
@@ -270,44 +270,44 @@ function webSocket(
     throw new WebSocketRequestError({
       body,
       url: socket.url,
-      details: "Socket is closed.",
-    });
+      details: 'Socket is closed.',
+    })
 
-  const id_ = id++;
+  const id_ = id++
 
   const callback = ({ data }: { data: any }) => {
-    const message: RpcResponse = JSON.parse(data);
+    const message: RpcResponse = JSON.parse(data)
 
-    if (typeof message.id === "number" && id_ !== message.id) return;
+    if (typeof message.id === 'number' && id_ !== message.id) return
 
-    onResponse?.(message);
+    onResponse?.(message)
 
     // If we are subscribing to a topic, we want to set up a listener for incoming
     // messages.
-    if (body.method === "eth_subscribe" && typeof message.result === "string") {
-      socket.subscriptions.set(message.result, callback);
+    if (body.method === 'eth_subscribe' && typeof message.result === 'string') {
+      socket.subscriptions.set(message.result, callback)
     }
 
     // If we are unsubscribing from a topic, we want to remove the listener.
-    if (body.method === "eth_unsubscribe") {
-      socket.subscriptions.delete(body.params?.[0]);
+    if (body.method === 'eth_unsubscribe') {
+      socket.subscriptions.delete(body.params?.[0])
     }
-  };
-  socket.requests.set(id_, callback);
+  }
+  socket.requests.set(id_, callback)
 
-  socket.send(JSON.stringify({ jsonrpc: "2.0", ...body, id: id_ }));
+  socket.send(JSON.stringify({ jsonrpc: '2.0', ...body, id: id_ }))
 
-  return socket;
+  return socket
 }
 
 export type WebSocketAsyncOptions = {
   /** The RPC request body. */
-  body: RpcRequest;
+  body: RpcRequest
   /** The timeout (in ms) for the request. */
-  timeout?: number;
-};
+  timeout?: number
+}
 
-export type WebSocketAsyncReturnType = RpcResponse;
+export type WebSocketAsyncReturnType = RpcResponse
 
 async function webSocketAsync(
   socket: Socket,
@@ -325,7 +325,7 @@ async function webSocketAsync(
       errorInstance: new TimeoutError({ body, url: socket.url }),
       timeout,
     },
-  );
+  )
 }
 
 ///////////////////////////////////////////////////
@@ -334,4 +334,4 @@ export const rpc = {
   http,
   webSocket,
   webSocketAsync,
-};
+}
