@@ -11,10 +11,10 @@ export const beamTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     public: {
-        http: ['https://subnets.avax.network/beam/testnet/rpc']
+        http: ['https://build.onbeam.com/rpc/testnet']
     },
     default: {
-        http: ['https://subnets.avax.network/beam/testnet/rpc']
+        http: ['https://build.onbeam.com/rpc/testnet']
     },
   },
   blockExplorers: {

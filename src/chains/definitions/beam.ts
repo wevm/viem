@@ -11,10 +11,10 @@ export const beam = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     public: {
-        http: ['https://subnets.avax.network/beam/mainnet/rpc']
+        http: ['https://build.onbeam.com/rpc']
     },
     default: {
-        http: ['https://subnets.avax.network/beam/mainnet/rpc']
+        http: ['https://build.onbeam.com/rpc']
     },
   },
   blockExplorers: {
