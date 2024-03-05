@@ -1240,6 +1240,10 @@ export const sidebar = {
             link: '/zksync/actions/signTransaction',
           },
           {
+            text: 'deployContract',
+            link: '/zksync/actions/deployContract',
+          },
+          {
             text: 'writeContract',
             link: '/zksync/actions/writeContract',
           },
