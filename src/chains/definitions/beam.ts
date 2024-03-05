@@ -11,10 +11,10 @@ export const beam = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     public: {
-        http: ['https://build.onbeam.com/rpc']
+      http: ['https://build.onbeam.com/rpc'],
     },
     default: {
-        http: ['https://build.onbeam.com/rpc']
+      http: ['https://build.onbeam.com/rpc'],
     },
   },
   blockExplorers: {
