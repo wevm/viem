@@ -25,8 +25,8 @@ export const holesky = /*#__PURE__*/ defineChain({
       blockCreated: 801613,
     },
     ensUniversalResolver: {
-      address: '0x2548a7E09deE955c4d97688dcB6C5b24085725f5',
-      blockCreated: 815385,
+      address: '0xa6AC935D4971E3CD133b950aE053bECD16fE7f3b',
+      blockCreated: 973484,
     },
   },
   testnet: true,
