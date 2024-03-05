@@ -19,7 +19,7 @@ import {
 import { getEnsText } from './getEnsText.js'
 
 beforeAll(async () => {
-  await setBlockNumber(18958931n)
+  await setBlockNumber(19_258_213n)
   await setVitalikResolver()
 })
 
