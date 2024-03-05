@@ -1421,8 +1421,14 @@ describe('transactionRequest', () => {
       {
         "eip712Meta": {
           "factoryDeps": [
-            "0x1234",
-            "0xabcd",
+            [
+              18,
+              52,
+            ],
+            [
+              171,
+              205,
+            ],
           ],
           "gasPerPubdata": "0xc350",
           "paymasterParams": {
@@ -1520,8 +1526,14 @@ describe('transactionRequest', () => {
       {
         "eip712Meta": {
           "factoryDeps": [
-            "0x1234",
-            "0xabcd",
+            [
+              18,
+              52,
+            ],
+            [
+              171,
+              205,
+            ],
           ],
         },
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",

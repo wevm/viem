@@ -9,11 +9,27 @@ const invalidBytecodeLengthInWordsMustBeOdd =
   '0x00050000000000020000008003000039000000400030043f0000000003010019d50000000000020000008003000039000000400030043f0000000003010019d'
 
 test('invalid bytecode - length must be devisible by 32', async () => {
-  expect(() => hashBytecode(invalidBytecodeLengthMustBeDivisibleBy32)).toThrow()
+  expect(() =>
+    hashBytecode(invalidBytecodeLengthMustBeDivisibleBy32),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    [BytecodeLengthMustBeDivisibleBy32Error: The bytecode length in bytes must be divisible by 32. Given length: 33
+
+    Version: viem@1.0.2]
+  `,
+  )
 })
 
-test('invalid bytecode - length must be devisible by 32', async () => {
-  expect(() => hashBytecode(invalidBytecodeLengthInWordsMustBeOdd)).toThrow()
+test('invalid bytecode - length in words must be odd', async () => {
+  expect(() =>
+    hashBytecode(invalidBytecodeLengthInWordsMustBeOdd),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    [BytecodeLengthInWordsMustBeOddError: Bytecode length in 32-byte words must be odd. Given length in words: 2
+
+    Version: viem@1.0.2]
+  `,
+  )
 })
 
 test('hashed bytecode', async () => {

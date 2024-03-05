@@ -13,6 +13,7 @@ const zkSyncClient_ = zkSyncClient.extend(eip712WalletActions())
 test('default', async () => {
   expect(eip712WalletActions()(zkSyncClient)).toMatchInlineSnapshot(`
     {
+      "deployContract": [Function],
       "sendTransaction": [Function],
       "signTransaction": [Function],
       "writeContract": [Function],
