@@ -72,6 +72,7 @@ export { filecoinCalibration } from './definitions/filecoinCalibration.js'
 export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
+export { flowPreviewnet } from './definitions/flowPreviewnet.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
 export { fraxtal } from './definitions/fraxtal.js'
