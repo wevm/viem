@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.21
+
+### Patch Changes
+
+- [#1881](https://github.com/wevm/viem/pull/1881) [`b468c8749751b97b6c9a1ecb733e087580a989c5`](https://github.com/wevm/viem/commit/b468c8749751b97b6c9a1ecb733e087580a989c5) Thanks [@roninjin10](https://github.com/roninjin10)! - Added proof validation for OP Stack's `buildProveWithdrawal`.
+
 ## 2.7.20
 
 ### Patch Changes
