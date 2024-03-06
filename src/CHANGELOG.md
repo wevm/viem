@@ -1,5 +1,15 @@
 # viem
 
+## 2.7.20
+
+### Patch Changes
+
+- [#1901](https://github.com/wevm/viem/pull/1901) [`094c8b5da0555fde0c9456f58b2a948233b705ee`](https://github.com/wevm/viem/commit/094c8b5da0555fde0c9456f58b2a948233b705ee) Thanks [@YanYuanFE](https://github.com/YanYuanFE)! - Added Mint Sepolia chain.
+
+- [#1892](https://github.com/wevm/viem/pull/1892) [`fc6698322f798dd951b11e5dc1879d27ae7b3fe7`](https://github.com/wevm/viem/commit/fc6698322f798dd951b11e5dc1879d27ae7b3fe7) Thanks [@PierreOssun](https://github.com/PierreOssun)! - Add Astar zkEVM & testnet chains.
+
+- [#1906](https://github.com/wevm/viem/pull/1906) [`a82924d0aaf8a4644d6c620209a3d79d9ab0ac92`](https://github.com/wevm/viem/commit/a82924d0aaf8a4644d6c620209a3d79d9ab0ac92) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Added Beam chains.
+
 ## 2.7.19
 
 ### Patch Changes
