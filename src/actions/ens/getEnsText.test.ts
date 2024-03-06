@@ -295,7 +295,7 @@ test('universal resolver contract deployed on later block', async () => {
     [ChainDoesNotSupportContract: Chain "Localhost" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract "ensUniversalResolver" was not deployed until block 18958930 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 19258213 (current block 14353601).
 
     Version: viem@1.0.2]
   `)
