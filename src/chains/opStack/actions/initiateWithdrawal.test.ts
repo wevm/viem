@@ -172,7 +172,7 @@ test('error: small gas', async () => {
   `)
 })
 
-test.only('e2e (sepolia)', async () => {
+test.skip('e2e (sepolia)', async () => {
   const account = privateKeyToAccount(
     process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
   )
