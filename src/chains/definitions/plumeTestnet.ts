@@ -4,7 +4,6 @@ const sourceId = 11_155_111 // sepolia
 
 export const plumeTestnet = /*#__PURE__*/ defineChain({
   id: 161_221_135,
-  network: 'plume-testnet',
   name: 'Plume Testnet',
   nativeCurrency: {
     name: 'Plume Sepolia Ether',
@@ -13,10 +12,6 @@ export const plumeTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://plume-testnet.rpc.caldera.xyz/http'],
-      webSocket: ['wss://plume-testnet.rpc.caldera.xyz/ws'],
-    },
-    public: {
       http: ['https://plume-testnet.rpc.caldera.xyz/http'],
       webSocket: ['wss://plume-testnet.rpc.caldera.xyz/ws'],
     },
