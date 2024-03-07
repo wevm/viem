@@ -73,6 +73,7 @@ export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
 export { flowPreviewnet } from './definitions/flowPreviewnet.js'
+export { flowMainnet } from './definitions/flowMainnet.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
 export { fraxtal } from './definitions/fraxtal.js'
