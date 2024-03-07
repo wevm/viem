@@ -59,12 +59,6 @@
     "import": "*"
   },
   {
-    "name": "viem/chains/utils (tree-shaking)",
-    "path": "./src/_esm/chains/utils.js",
-    "limit": "5 kB",
-    "import": "{ parseTransactionCelo }"
-  },
-  {
     "name": "viem/ens",
     "path": "./src/_esm/ens/index.js",
     "limit": "45 kB",
