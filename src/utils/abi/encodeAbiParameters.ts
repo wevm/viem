@@ -90,12 +90,12 @@ export function encodeAbiParameters<
   if (params.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
       expectedLength: params.length as number,
-      givenLength: values.length,
+      givenLength: values.length as any,
     })
   // Prepare the parameters to determine dynamic types to encode.
   const preparedParams = prepareParams({
     params: params as readonly AbiParameter[],
-    values,
+    values: values as any,
   })
   const data = encodeParams(preparedParams)
   if (data.length === 0) return '0x'
