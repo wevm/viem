@@ -25,7 +25,7 @@ test('default', async () => {
 
 test('minimal', async () => {
   const gas = await estimateL1Gas(optimismClientWithAccount, {})
-  expect(gas >= 2668n && gas <= 2724n).toBeTruthy()
+  expect(gas).toBe(1600n)
 })
 
 test('args: account', async () => {
@@ -41,7 +41,7 @@ test('args: data', async () => {
     ...baseTransaction,
     data: '0x00000000000000000000000000000000000000000000000004fefa17b7240000',
   })
-  expect(gas).toBe(3316n)
+  expect(gas).toBe(2244n)
 })
 
 test('args: gasPriceOracleAddress', async () => {
