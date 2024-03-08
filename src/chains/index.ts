@@ -245,7 +245,6 @@ export type {
   CeloTransactionRequest,
   CeloTransactionType,
   CeloTransactionSerializable,
-  CeloTransactionSerializableBase,
   CeloTransactionSerialized,
   RpcTransactionCIP42,
   RpcTransactionCIP64,
