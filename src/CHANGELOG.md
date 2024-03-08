@@ -1,5 +1,11 @@
 # viem
 
+## 2.7.22
+
+### Patch Changes
+
+- [#1919](https://github.com/wevm/viem/pull/1919) [`94cda7f990ac479334b427c9765c47c6726fa54d`](https://github.com/wevm/viem/commit/94cda7f990ac479334b427c9765c47c6726fa54d) Thanks [@roninjin10](https://github.com/roninjin10)! - Fixed incorrect OP Stack L1 fee estimation.
+
 ## 2.7.21
 
 ### Patch Changes
