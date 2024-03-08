@@ -12,16 +12,13 @@ import {
 } from '../../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import { maxInt256 } from '../../../constants/number.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
 import { type Chain, type GetChainParameter } from '../../../types/chain.js'
-import type { Signature } from '../../../types/misc.js'
 import type { TransactionRequestEIP1559 } from '../../../types/transaction.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
 import { type HexToNumberErrorType } from '../../../utils/encoding/fromHex.js'
-import { numberToHex } from '../../../utils/encoding/toHex.js'
 import {
   type AssertRequestErrorType,
   assertRequest,
@@ -54,12 +51,6 @@ export type EstimateL1GasErrorType =
   | HexToNumberErrorType
   | ReadContractErrorType
   | ErrorType
-
-const stubSignature = {
-  r: numberToHex(maxInt256),
-  s: numberToHex(maxInt256),
-  v: 28n,
-} as const satisfies Signature
 
 /**
  * Estimates the L1 data gas required to execute an L2 transaction.
@@ -120,14 +111,11 @@ export async function estimateL1Gas<
 
   assertRequest(request)
 
-  const transaction = serializeTransaction(
-    {
-      ...request,
-      chainId,
-      type: 'eip1559',
-    },
-    stubSignature,
-  )
+  const transaction = serializeTransaction({
+    ...request,
+    chainId,
+    type: 'eip1559',
+  })
 
   return readContract(client, {
     abi: gasPriceOracleAbi,
