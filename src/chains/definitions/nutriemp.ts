@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const mainnet = /*#__PURE__*/ defineChain({
+export const nutriemp = /*#__PURE__*/ defineChain({
   id: 420000,
   name: 'NutriEmp - Chain',
   nativeCurrency: { name: 'GRAMZ', symbol: 'GRAMZ', decimals: 18 },
