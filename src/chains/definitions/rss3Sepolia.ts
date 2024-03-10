@@ -43,5 +43,6 @@ export const rss3Sepolia = /*#__PURE__*/ defineChain({
       },
     },
   },
+  testnet: true,
   sourceId
 })
