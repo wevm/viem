@@ -124,7 +124,7 @@ describe('prepareTransactionRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxPriorityFeePerGas": 18500000000n,
+        "maxPriorityFeePerGas": 1000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -157,7 +157,7 @@ describe('prepareTransactionRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxPriorityFeePerGas": 18500000000n,
+        "maxPriorityFeePerGas": 1000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -188,7 +188,7 @@ describe('prepareTransactionRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxPriorityFeePerGas": 18500000000n,
+        "maxPriorityFeePerGas": 1000000000n,
         "nonce": 5,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
@@ -291,7 +291,7 @@ describe('prepareTransactionRequest', () => {
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "maxFeePerGas": 100000000000n,
-        "maxPriorityFeePerGas": 18500000000n,
+        "maxPriorityFeePerGas": 1000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -306,11 +306,11 @@ describe('prepareTransactionRequest', () => {
       prepareTransactionRequest(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
-        maxFeePerGas: parseGwei('1'),
+        maxFeePerGas: parseGwei('0.1'),
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [MaxFeePerGasTooLowError: \`maxFeePerGas\` cannot be less than the \`maxPriorityFeePerGas\` (18.5 gwei).
+      [MaxFeePerGasTooLowError: \`maxFeePerGas\` cannot be less than the \`maxPriorityFeePerGas\` (1 gwei).
 
       Version: viem@1.0.2]
     `)
@@ -364,6 +364,40 @@ describe('prepareTransactionRequest', () => {
         "gas": 21000n,
         "maxFeePerGas": 17000000000n,
         "maxPriorityFeePerGas": 5000000000n,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+  })
+
+  test('args: maxPriorityFeePerGas === 0', async () => {
+    await setup()
+
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(
+      walletClient,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        maxPriorityFeePerGas: 0n,
+        value: parseEther('1'),
+      },
+    )
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "account": {
+          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "source": "privateKey",
+          "type": "local",
+        },
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 12000000000n,
+        "maxPriorityFeePerGas": 0n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -489,8 +523,8 @@ describe('prepareTransactionRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 30500000000n,
-        "maxPriorityFeePerGas": 18500000000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -544,8 +578,8 @@ describe('prepareTransactionRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 30500000000n,
-        "maxPriorityFeePerGas": 18500000000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -571,8 +605,8 @@ describe('prepareTransactionRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 30500000000n,
-        "maxPriorityFeePerGas": 18500000000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
         "nonce": 375,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
@@ -599,8 +633,8 @@ describe('prepareTransactionRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 30500000000n,
-        "maxPriorityFeePerGas": 18500000000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
         "nonce": 375,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",

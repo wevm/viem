@@ -35,14 +35,15 @@ export function toAccount<TAccountSource extends AccountSource>(
   source: TAccountSource,
 ): GetAccountReturnType<TAccountSource> {
   if (typeof source === 'string') {
-    if (!isAddress(source)) throw new InvalidAddressError({ address: source })
+    if (!isAddress(source, { strict: false }))
+      throw new InvalidAddressError({ address: source })
     return {
       address: source,
       type: 'json-rpc',
     } as GetAccountReturnType<TAccountSource>
   }
 
-  if (!isAddress(source.address))
+  if (!isAddress(source.address, { strict: false }))
     throw new InvalidAddressError({ address: source.address })
   return {
     address: source.address,

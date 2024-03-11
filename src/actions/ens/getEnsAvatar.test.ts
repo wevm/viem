@@ -21,7 +21,7 @@ beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: address.vitalik,
   })
-  await setBlockNumber(16966590n)
+  await setBlockNumber(19_258_213n)
 
   return async () => {
     await stopImpersonatingAccount(testClient, {
@@ -181,7 +181,7 @@ describe('args: gateways', async () => {
     await expect(
       getEnsAvatar(publicClient, {
         name: 'vitalik.eth',
-        gatewayUrls: { ipfs: 'https://cloudflare-ipfs.com' },
+        assetGatewayUrls: { ipfs: 'https://cloudflare-ipfs.com' },
       }),
     ).resolves.toEqual(expected)
   })

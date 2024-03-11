@@ -38,6 +38,7 @@ describe('config', () => {
         },
         "request": [Function],
         "value": {
+          "getRpcClient": [Function],
           "getSocket": [Function],
           "subscribe": [Function],
         },
@@ -63,6 +64,7 @@ describe('config', () => {
         },
         "request": [Function],
         "value": {
+          "getRpcClient": [Function],
           "getSocket": [Function],
           "subscribe": [Function],
         },
@@ -86,6 +88,7 @@ describe('config', () => {
         },
         "request": [Function],
         "value": {
+          "getRpcClient": [Function],
           "getSocket": [Function],
           "subscribe": [Function],
         },
@@ -99,6 +102,12 @@ test('getSocket', async () => {
   const socket = await transport({}).value?.getSocket()
   expect(socket).toBeDefined()
   expect(socket?.readyState).toBe(WebSocket.OPEN)
+})
+
+test('getRpcClient', async () => {
+  const transport = webSocket(localWsUrl)
+  const socket = await transport({}).value?.getRpcClient()
+  expect(socket).toBeDefined()
 })
 
 test('request', async () => {

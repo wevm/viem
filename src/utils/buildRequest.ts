@@ -57,7 +57,7 @@ import type {
 } from '../types/eip1193.js'
 import type { CreateBatchSchedulerErrorType } from './promise/createBatchScheduler.js'
 import { type WithRetryErrorType, withRetry } from './promise/withRetry.js'
-import type { GetSocketErrorType } from './rpc.js'
+import type { GetSocketRpcClientErrorType } from './rpc/socket.js'
 
 export type RequestErrorType =
   | ChainDisconnectedErrorType
@@ -67,7 +67,7 @@ export type RequestErrorType =
   | InvalidInputRpcErrorType
   | InvalidParamsRpcErrorType
   | InvalidRequestRpcErrorType
-  | GetSocketErrorType
+  | GetSocketRpcClientErrorType
   | JsonRpcVersionUnsupportedErrorType
   | LimitExceededRpcErrorType
   | MethodNotFoundRpcErrorType

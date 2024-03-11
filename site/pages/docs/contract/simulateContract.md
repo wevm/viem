@@ -262,6 +262,96 @@ export const publicClient = createPublicClient({
 
 :::
 
+### State Overrides
+
+When using `simulateContract`, there sometimes needs to be an initial state change to make the transaction pass. A common use case would be an approval. For that, there are [state overrides](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-eth#eth-call). In the example below, we are simulating sending a token on behalf of another user. To do this, we need to modify the state of the token contract to have maximum approve from the token owner.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { account, publicClient } from './config'
+import { abi, address } from './contract'
+
+// Allowance slot: A 32 bytes hex string representing the allowance slot of the sender.
+const allowanceSlot = '0x....'
+
+// Max allowance: A 32 bytes hex string representing the maximum allowance (2^256 - 1)
+const maxAllowance = numberToHex(maxUint256)
+
+const { result } = await publicClient.simulateContract({
+  abi,
+  address,
+  account,
+  functionName: 'transferFrom',
+  args: [
+    '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', 
+    account.address, 
+    69420n
+  ],
+  stateOverride: [ // [!code hl]
+    { // [!code hl]
+      // modifying the state of the token contract // [!code hl]
+      address, // [!code hl]
+      stateDiff: [ // [!code hl]
+        { // [!code hl]
+          slot: allowanceSlot, // [!code hl]
+          value: maxAllowance, // [!code hl]
+        }, // [!code hl]
+      ], // [!code hl]
+    }, // [!code hl]
+  ], // [!code hl]
+})
+
+console.log(result)
+// @log: Output: true
+```
+
+```ts twoslash [contract.ts] filename="contract.ts"
+export const address = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+
+export const abi = [
+  {
+    type: 'function',
+    name: 'transferFrom',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'sender',
+        type: 'address',
+      },
+      {
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+  },
+] as const
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, custom, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+
+export const account = privateKeyToAccount('0x...')
+ 
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ## Return Value
 
 The simulation result and write request. Type is inferred.
@@ -367,7 +457,40 @@ const { result } = await publicClient.simulateContract({
 })
 ```
 
-### dataSuffix
+### blockNumber (optional)
+
+- **Type:** `number`
+
+The block number to perform the read against.
+
+```ts
+const { result } = await publicClient.simulateContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+  blockNumber: 15121123n, // [!code focus]
+})
+```
+
+### blockTag (optional)
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+The block tag to perform the read against.
+
+```ts
+const { result } = await publicClient.simulateContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+  blockTag: 'safe', // [!code focus]
+})
+```
+
+### dataSuffix (optional)
 
 - **Type:** `Hex`
 
@@ -468,6 +591,35 @@ const { result } = await publicClient.simulateContract({
 })
 ```
 
+### stateOverride (optional)
+
+- **Type:** [`StateOverride`](/docs/glossary/types#stateoverride)
+
+The state override set is an optional address-to-state mapping, where each entry specifies some state to be ephemerally overridden prior to executing the call.
+
+> Note: By using state overrides, you simulate the contract based on a fake state. Using this is useful for testing purposes, but making a transaction based on the returned `request` object might fail regardless of the simulation result.
+
+```ts
+const data = await publicClient.simulateContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+  stateOverride: [ // [!code focus]
+    { // [!code focus]
+      address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
+      balance: parseEther('1'), // [!code focus]
+      stateDiff: [ // [!code focus]
+        { // [!code focus]
+          slot: '0x3ea2f1d0abf3fc66cf29eebb70cbd4e7fe762ef8a09bcc06c8edf641230afec0', // [!code focus]
+          value: '0x00000000000000000000000000000000000000000000000000000000000001a4', // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    } // [!code focus]
+  ], // [!code focus]
+})
+```
+
 ### value (optional)
 
 - **Type:** `number`
@@ -482,41 +634,6 @@ const { result } = await publicClient.simulateContract({
   args: [69420],
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
   value: parseEther('1') // [!code focus]
-})
-```
-
-
-
-### blockNumber (optional)
-
-- **Type:** `number`
-
-The block number to perform the read against.
-
-```ts
-const { result } = await publicClient.simulateContract({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  abi: wagmiAbi,
-  functionName: 'mint',
-  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-  blockNumber: 15121123n, // [!code focus]
-})
-```
-
-### blockTag (optional)
-
-- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
-- **Default:** `'latest'`
-
-The block tag to perform the read against.
-
-```ts
-const { result } = await publicClient.simulateContract({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  abi: wagmiAbi,
-  functionName: 'mint',
-  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-  blockTag: 'safe', // [!code focus]
 })
 ```
 

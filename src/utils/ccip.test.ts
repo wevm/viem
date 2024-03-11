@@ -118,7 +118,7 @@ describe('offchainLookup', () => {
 
 describe('ccipFetch', async () => {
   test('default', async () => {
-    let url
+    let url: string | undefined
     const server = await createHttpServer((req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ describe('ccipFetch', async () => {
   })
 
   test('result text', async () => {
-    let url
+    let url: string | undefined
     const server = await createHttpServer((req, res) => {
       url = req.url
       res.end('0xcafebabe')
@@ -217,7 +217,7 @@ describe('ccipFetch', async () => {
 
   test('multiple urls', async () => {
     let count = 0
-    let url
+    let url: string | undefined
     const server1 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(500)

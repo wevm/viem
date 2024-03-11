@@ -89,6 +89,9 @@ test('invalid address', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0x123" is invalid.
 
+    - Address must be a hex value of 20 bytes (40 hex characters).
+    - Address must match its checksum counterpart.
+
     Version: viem@1.0.2]
   `)
 
@@ -97,6 +100,9 @@ test('invalid address', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0x123" is invalid.
 
+    - Address must be a hex value of 20 bytes (40 hex characters).
+    - Address must match its checksum counterpart.
+
     Version: viem@1.0.2]
   `)
 
@@ -104,6 +110,9 @@ test('invalid address', () => {
     assertTransactionLegacy({ to: '0x123', chainId: 1 }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0x123" is invalid.
+
+    - Address must be a hex value of 20 bytes (40 hex characters).
+    - Address must match its checksum counterpart.
 
     Version: viem@1.0.2]
   `)

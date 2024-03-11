@@ -54,6 +54,41 @@ const universalResolverErrors = [
     name: 'ResolverWildcardNotSupported',
     type: 'error',
   },
+  {
+    inputs: [],
+    name: 'ResolverNotContract',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        name: 'returnData',
+        type: 'bytes',
+      },
+    ],
+    name: 'ResolverError',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            name: 'status',
+            type: 'uint16',
+          },
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+        name: 'errors',
+        type: 'tuple[]',
+      },
+    ],
+    name: 'HttpError',
+    type: 'error',
+  },
 ] as const
 
 export const universalResolverResolveAbi = [
@@ -71,6 +106,20 @@ export const universalResolverResolveAbi = [
       { name: 'address', type: 'address' },
     ],
   },
+  {
+    name: 'resolve',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'name', type: 'bytes' },
+      { name: 'data', type: 'bytes' },
+      { name: 'gateways', type: 'string[]' },
+    ],
+    outputs: [
+      { name: '', type: 'bytes' },
+      { name: 'address', type: 'address' },
+    ],
+  },
 ] as const
 
 export const universalResolverReverseAbi = [
@@ -80,6 +129,21 @@ export const universalResolverReverseAbi = [
     type: 'function',
     stateMutability: 'view',
     inputs: [{ type: 'bytes', name: 'reverseName' }],
+    outputs: [
+      { type: 'string', name: 'resolvedName' },
+      { type: 'address', name: 'resolvedAddress' },
+      { type: 'address', name: 'reverseResolver' },
+      { type: 'address', name: 'resolver' },
+    ],
+  },
+  {
+    name: 'reverse',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes', name: 'reverseName' },
+      { type: 'string[]', name: 'gateways' },
+    ],
     outputs: [
       { type: 'string', name: 'resolvedName' },
       { type: 'address', name: 'resolvedAddress' },

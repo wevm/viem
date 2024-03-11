@@ -9,7 +9,7 @@ import {
 import { parseAvatarRecord } from './parseAvatarRecord.js'
 
 beforeAll(async () => {
-  await setBlockNumber(16966590n)
+  await setBlockNumber(19_258_213n)
 })
 
 test('default', async () => {

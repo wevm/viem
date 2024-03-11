@@ -36,8 +36,8 @@ const abi = [{ // [!code focus]
   stateMutability: 'view', // [!code focus]
   inputs: [{ type: 'address' }], // [!code focus]
   outputs: [{ type: 'uint256' }], // [!code focus]
-// @log:       ↑ const assertion
 }] as const // [!code focus]
+// @log:       ↑ const assertion
 
 const result = client.readContract({
   address: '0x27a69ffba1e939ddcfecc8c7e0f967b872bac65c',
@@ -54,8 +54,8 @@ const client = createPublicClient({
   transport: http()
 })
 // ---cut---
-const result = client.readContract({
 // @log:   ↓ defined inline
+const result = client.readContract({
   address: '0x27a69ffba1e939ddcfecc8c7e0f967b872bac65c',
   abi: [{ // [!code focus]
     type: 'function', // [!code focus]
@@ -217,15 +217,9 @@ By importing the `viem/window` Polyfill, the global `window.ethereum` will typed
 import 'viem/window';
 
 const hash = await window.ethereum.request({
-  method: '  
-//         ^|
+  method: 'e 
+//          ^|
 })
-
-
-
-
-
-
 
 
 

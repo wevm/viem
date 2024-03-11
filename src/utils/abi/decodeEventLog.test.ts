@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { getEventSelector } from '../../utils/hash/getEventSelector.js'
 import { getAddress } from '../address/getAddress.js'
+import { toEventSelector } from '../hash/toEventSelector.js'
 
 import { decodeEventLog } from './decodeEventLog.js'
 
@@ -951,13 +951,13 @@ test('errors: invalid bool', () => {
       data: '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
       eventName: 'Transfer',
       topics: [
-        getEventSelector('Transfer(address,address,bool)'),
+        toEventSelector('Transfer(address,address,bool)'),
         '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
         '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidHexBooleanError: Hex value "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" is not a valid boolean. The hex value must be "0x0" (false) or "0x1" (true).
+    [InvalidBytesBooleanError: Bytes value "221,242,82,173,27,226,200,155,105,194,176,104,252,55,141,170,149,43,167,241,99,196,161,22,40,245,90,77,245,35,179,239" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
 
     Version: viem@1.0.2]
   `)

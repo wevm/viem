@@ -13,6 +13,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://etherscan.io',
+      apiUrl: 'https://api.etherscan.io/api',
     },
   },
   contracts: {
@@ -20,8 +21,8 @@ export const mainnet = /*#__PURE__*/ defineChain({
       address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
     },
     ensUniversalResolver: {
-      address: '0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62',
-      blockCreated: 16_966_585,
+      address: '0xce01f8eee7E479C928F8919abD53E553a36CeF67',
+      blockCreated: 19_258_213,
     },
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',

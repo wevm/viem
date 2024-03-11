@@ -852,6 +852,12 @@ export {
   UrlRequiredError,
   type UrlRequiredErrorType,
 } from './errors/transport.js'
+export {
+  AccountStateConflictError,
+  type AccountStateConflictErrorType,
+  StateAssignmentConflictError,
+  type StateAssignmentConflictErrorType,
+} from './errors/stateOverride.js'
 export type {
   AbiItem,
   ExtractAbiFunctionForArgs,
@@ -872,6 +878,7 @@ export type {
   TransactionBase,
   TransactionEIP1559,
   TransactionEIP2930,
+  TransactionEIP4844,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequest,
@@ -942,6 +949,7 @@ export type {
   FeeHistory,
   FeeValues,
   FeeValuesEIP1559,
+  FeeValuesEIP4844,
   FeeValuesLegacy,
   FeeValuesType,
 } from './types/fee.js'
@@ -971,8 +979,15 @@ export type {
   RpcUncle,
   Status,
   RpcProof,
+  RpcAccountStateOverride,
+  RpcStateOverride,
+  RpcStateMapping,
 } from './types/rpc.js'
 export type { Withdrawal } from './types/withdrawal.js'
+export type {
+  StateMapping,
+  StateOverride,
+} from './types/stateOverride.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
 export { namehash, type NamehashErrorType } from './utils/ens/namehash.js'
 export {
@@ -1329,21 +1344,45 @@ export {
   getContractError,
 } from './utils/errors/getContractError.js'
 export {
-  type GetEventSelectorErrorType,
-  getEventSelector,
-} from './utils/hash/getEventSelector.js'
+  type ToEventSelectorErrorType,
+  toEventSelector,
+  /** @deprecated use `ToEventSelectorErrorType`. */
+  type ToEventSelectorErrorType as GetEventSelectorErrorType,
+  /** @deprecated use `toEventSelector`. */
+  toEventSelector as getEventSelector,
+} from './utils/hash/toEventSelector.js'
 export {
-  type GetEventSignatureErrorType,
-  getEventSignature,
-} from './utils/hash/getEventSignature.js'
+  type ToFunctionSelectorErrorType,
+  toFunctionSelector,
+  /** @deprecated use `ToFunctionSelectorErrorType`. */
+  type ToFunctionSelectorErrorType as GetFunctionSelectorErrorType,
+  /** @deprecated use `toFunctionSelector`. */
+  toFunctionSelector as getFunctionSelector,
+} from './utils/hash/toFunctionSelector.js'
 export {
-  type GetFunctionSelectorErrorType,
-  getFunctionSelector,
-} from './utils/hash/getFunctionSelector.js'
+  type ToEventSignatureErrorType,
+  toEventSignature,
+  /** @deprecated use `ToEventSignatureErrorType`. */
+  type ToEventSignatureErrorType as GetEventSignatureErrorType,
+  /** @deprecated use `toEventSignature`. */
+  toEventSignature as getEventSignature,
+} from './utils/hash/toEventSignature.js'
 export {
-  type GetFunctionSignatureErrorType,
-  getFunctionSignature,
-} from './utils/hash/getFunctionSignature.js'
+  type ToFunctionSignatureErrorType,
+  toFunctionSignature,
+  /** @deprecated use `ToFunctionSignatureErrorType`. */
+  type ToFunctionSignatureErrorType as GetFunctionSignatureErrorType,
+  /** @deprecated use `toFunctionSignature`. */
+  toFunctionSignature as getFunctionSignature,
+} from './utils/hash/toFunctionSignature.js'
+export {
+  type ToEventHashErrorType,
+  toEventHash,
+} from './utils/hash/toEventHash.js'
+export {
+  type ToFunctionHashErrorType,
+  toFunctionHash,
+} from './utils/hash/toFunctionHash.js'
 export {
   type HashMessageErrorType,
   hashMessage,

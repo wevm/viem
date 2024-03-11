@@ -82,6 +82,33 @@ const ensName = await publicClient.getEnsName({
 })
 ```
 
+### gatewayUrls (optional)
+
+- **Type:** `string[]`
+
+A set of Universal Resolver gateways, used for resolving CCIP-Read requests made through the ENS Universal Resolver Contract.
+
+```ts
+const ensName = await publicClient.getEnsName({
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  gatewayUrls: ["https://ccip.ens.xyz"], // [!code focus]
+})
+```
+
+### strict (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+A boolean value that when set to true will strictly propagate all ENS Universal Resolver Contract errors.
+
+```ts
+const ensName = await publicClient.getEnsName({
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  strict: true, // [!code focus]
+})
+```
+
 ### universalResolverAddress (optional)
 
 - **Type:** [`Address`](/docs/glossary/types#address)

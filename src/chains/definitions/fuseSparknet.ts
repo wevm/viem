@@ -11,6 +11,7 @@ export const fuseSparknet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Sparkent Explorer',
       url: 'https://explorer.fusespark.io',
+      apiUrl: 'https://explorer.fusespark.io/api',
     },
   },
 })

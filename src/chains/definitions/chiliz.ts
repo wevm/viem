@@ -18,6 +18,7 @@ export const chiliz = /*#__PURE__*/ defineChain({
     default: {
       name: 'Chiliz Explorer',
       url: 'https://scan.chiliz.com',
+      apiUrl: 'https://scan.chiliz.com/api',
     },
   },
 })

@@ -8,7 +8,11 @@ export const fuse = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.fuse.io'] },
   },
   blockExplorers: {
-    default: { name: 'Fuse Explorer', url: 'https://explorer.fuse.io' },
+    default: {
+      name: 'Fuse Explorer',
+      url: 'https://explorer.fuse.io',
+      apiUrl: 'https://explorer.fuse.io/api',
+    },
   },
   contracts: {
     multicall3: {

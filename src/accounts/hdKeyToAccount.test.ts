@@ -32,7 +32,6 @@ test('default', () => {
 })
 
 describe('args: addressIndex', () => {
-  // biome-ignore lint/complexity/noForEach:
   Array.from({ length: 10 }).forEach((_, index) => {
     test(`addressIndex: ${index}`, () => {
       const account = hdKeyToAccount(hdKey, {
@@ -44,7 +43,6 @@ describe('args: addressIndex', () => {
 })
 
 describe('args: path', () => {
-  // biome-ignore lint/complexity/noForEach:
   Array.from({ length: 10 }).forEach((_, index) => {
     test(`path: m/44'/60'/0'/0/${index}`, () => {
       const account = hdKeyToAccount(hdKey, {

@@ -55,7 +55,7 @@ Returns `null` if ENS name does not resolve to address.
 Name to get the address for.
 
 ```ts
-const ensName = await publicClient.getEnsAddress({
+const ensAddress = await publicClient.getEnsAddress({
   name: normalize('wevm.eth'), // [!code focus]
 })
 ```
@@ -67,7 +67,7 @@ const ensName = await publicClient.getEnsAddress({
 The block number to perform the read against.
 
 ```ts
-const ensName = await publicClient.getEnsAddress({
+const ensAddress = await publicClient.getEnsAddress({
   name: normalize('wevm.eth'),
   blockNumber: 15121123n, // [!code focus]
 })
@@ -81,7 +81,7 @@ const ensName = await publicClient.getEnsAddress({
 The block tag to perform the read against.
 
 ```ts
-const ensName = await publicClient.getEnsAddress({
+const ensAddress = await publicClient.getEnsAddress({
   name: normalize('wevm.eth'),
   blockTag: 'safe', // [!code focus]
 })
@@ -94,9 +94,36 @@ const ensName = await publicClient.getEnsAddress({
 The [ENSIP-9](https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution) coin type to fetch the address for
 
 ```ts
-const ensName = await publicClient.getEnsAddress({
+const ensAddress = await publicClient.getEnsAddress({
   name: normalize('wevm.eth'), 
   coinType: 60, // [!code focus]
+})
+```
+
+### gatewayUrls (optional)
+
+- **Type:** `string[]`
+
+A set of Universal Resolver gateways, used for resolving CCIP-Read requests made through the ENS Universal Resolver Contract.
+
+```ts
+const ensAddress = await publicClient.getEnsAddress({
+  name: normalize('wevm.eth'), 
+  gatewayUrls: ["https://ccip.ens.xyz"], // [!code focus]
+})
+```
+
+### strict (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+A boolean value that when set to true will strictly propagate all ENS Universal Resolver Contract errors.
+
+```ts
+const ensAddress = await publicClient.getEnsAddress({
+  name: normalize('wevm.eth'), 
+  strict: true, // [!code focus]
 })
 ```
 
@@ -108,7 +135,7 @@ const ensName = await publicClient.getEnsAddress({
 Address of ENS Universal Resolver Contract.
 
 ```ts
-const ensName = await publicClient.getEnsAddress({
+const ensAddress = await publicClient.getEnsAddress({
   name: normalize('wevm.eth'),
   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376', // [!code focus]
 })

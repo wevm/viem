@@ -16,16 +16,15 @@ import type { Hash } from '../../types/misc.js'
 import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
-import { zkSync, zkSyncSepoliaTestnet } from '../index.js'
+import { zkSync } from '../index.js'
 import { formatters } from './formatters.js'
+import type { ZkSyncEip712Meta } from './types/eip712.js'
+import type { ZkSyncL2ToL1Log, ZkSyncLog } from './types/log.js'
 import type {
-  ZkSyncEip712Meta,
-  ZkSyncL2ToL1Log,
-  ZkSyncLog,
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionReceiptOverrides,
   ZkSyncTransactionRequest,
-} from './types.js'
+} from './types/transaction.js'
 
 describe('block', () => {
   expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
@@ -150,7 +149,7 @@ describe('smoke', () => {
     })
 
     expectTypeOf(transaction.type).toEqualTypeOf<
-      'legacy' | 'eip2930' | 'eip1559' | 'eip712' | 'priority'
+      'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip712' | 'priority'
     >()
   })
 
@@ -173,7 +172,7 @@ describe('smoke', () => {
   test('transactionRequest (prepareTransactionRequest)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncSepoliaTestnet,
+      chain: zkSync,
       transport: http(),
     })
 
@@ -191,7 +190,7 @@ describe('smoke', () => {
   test('transactionRequest (sendTransaction)', async () => {
     const client = createWalletClient({
       account: privateKeyToAccount(accounts[0].privateKey),
-      chain: zkSyncSepoliaTestnet,
+      chain: zkSync,
       transport: http(),
     })
 

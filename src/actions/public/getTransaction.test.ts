@@ -2,16 +2,16 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts, forkBlockNumber } from '~test/src/constants.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
-import { celo } from '../../chains/index.js'
+import { celo, goerli } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
+import { createClient } from '../../index.js'
 import type { Transaction } from '../../types/transaction.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
+import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
-
-import { wait } from '../../utils/wait.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 
@@ -60,7 +60,7 @@ test('gets transaction (legacy)', async () => {
     {
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
-      "chainId": undefined,
+      "chainId": 1,
       "from": "0x47a6b2f389cf4bb6e4b69411c87ae82371daf87e",
       "gas": 200000n,
       "gasPrice": 57000000000n,
@@ -130,6 +130,46 @@ test('gets transaction (eip2930)', async () => {
     '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
   )
   expect(transaction.value).toMatchInlineSnapshot('1000000000000000000n')
+})
+
+test('gets transaction (eip4844)', async () => {
+  const client = createClient({
+    chain: goerli,
+    transport: http(),
+  })
+  const transaction = await getTransaction(client, {
+    hash: '0xddd4cf20353111cff8f35a4428ed6ee4242b74bb6458b4c19239487e6dc8a920',
+  })
+  expect(transaction).toMatchInlineSnapshot(`
+    {
+      "accessList": [],
+      "blobVersionedHashes": [
+        "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014",
+        "0x01888622651ffb322d2946e1261be7cab044dbb3507702458013eb14d54c09f3",
+      ],
+      "blockHash": "0xc4b5043ad53dd7f6f742a720dfccb331e6066d2f99e9f6e0141bcd1455f0b00f",
+      "blockNumber": 10458925n,
+      "chainId": 5,
+      "from": "0x4f56ffc63c28b72f79b02e91f11a4707bac4043c",
+      "gas": 21000n,
+      "gasPrice": 2000045414n,
+      "hash": "0xddd4cf20353111cff8f35a4428ed6ee4242b74bb6458b4c19239487e6dc8a920",
+      "input": "0x",
+      "maxFeePerBlobGas": 20000000000n,
+      "maxFeePerGas": 200000000000n,
+      "maxPriorityFeePerGas": 2000000000n,
+      "nonce": 10228,
+      "r": "0xb2de3b227986e1ffbe97e6e7c747d01c818e7972a6d16969454cfcd805e45d94",
+      "s": "0xf6297d7c951e0bd9cbb2a4d8d6d71f05e07eba4819c0f2b8fe7aa0b711044f",
+      "to": "0x8fd478e878ab94c5aa3f724adf68300db2ebd9f2",
+      "transactionIndex": 4,
+      "type": "eip4844",
+      "typeHex": "0x3",
+      "v": 0n,
+      "value": 0n,
+      "yParity": 0,
+    }
+  `)
 })
 
 test('chain w/ custom block type', async () => {

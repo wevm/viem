@@ -12,7 +12,11 @@ export const bscTestnet = /*#__PURE__*/ defineChain({
     default: { http: ['https://data-seed-prebsc-1-s1.bnbchain.org:8545'] },
   },
   blockExplorers: {
-    default: { name: 'BscScan', url: 'https://testnet.bscscan.com' },
+    default: {
+      name: 'BscScan',
+      url: 'https://testnet.bscscan.com',
+      apiUrl: 'https://testnet.bscscan.com/api',
+    },
   },
   contracts: {
     multicall3: {

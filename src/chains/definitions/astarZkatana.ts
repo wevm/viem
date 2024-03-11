@@ -14,10 +14,6 @@ export const astarZkatana = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    blockscout: {
-      name: 'Blockscout zKatana chain explorer',
-      url: 'https://zkatana.blockscout.com',
-    },
     default: {
       name: 'zKatana Explorer',
       url: 'https://zkatana.explorer.startale.com',

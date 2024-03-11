@@ -307,6 +307,7 @@ describe('transports', () => {
         "sendRawTransaction": [Function],
         "simulateContract": [Function],
         "transport": {
+          "getRpcClient": [Function],
           "getSocket": [Function],
           "key": "webSocket",
           "name": "WebSocket JSON-RPC",

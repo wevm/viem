@@ -27,6 +27,10 @@ export type GetEnsNameParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** Address to get ENS name for. */
     address: Address
+    /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
+    gatewayUrls?: string[]
+    /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
+    strict?: boolean
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
   }
@@ -73,6 +77,8 @@ export async function getEnsName<TChain extends Chain | undefined>(
     address,
     blockNumber,
     blockTag,
+    gatewayUrls,
+    strict,
     universalResolverAddress: universalResolverAddress_,
   }: GetEnsNameParameters,
 ): Promise<GetEnsNameReturnType> {
@@ -92,21 +98,28 @@ export async function getEnsName<TChain extends Chain | undefined>(
 
   const reverseNode = `${address.toLowerCase().substring(2)}.addr.reverse`
   try {
-    const [name, resolvedAddress] = await getAction(
-      client,
-      readContract,
-      'readContract',
-    )({
+    const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverReverseAbi,
       functionName: 'reverse',
       args: [toHex(packetToBytes(reverseNode))],
       blockNumber,
       blockTag,
-    })
+    } as const
+
+    const readContractAction = getAction(client, readContract, 'readContract')
+
+    const [name, resolvedAddress] = gatewayUrls
+      ? await readContractAction({
+          ...readContractParameters,
+          args: [...readContractParameters.args, gatewayUrls],
+        })
+      : await readContractAction(readContractParameters)
+
     if (address.toLowerCase() !== resolvedAddress.toLowerCase()) return null
     return name
   } catch (err) {
+    if (strict) throw err
     if (isNullUniversalResolverError(err, 'reverse')) return null
     throw err
   }

@@ -8,7 +8,7 @@ Verify that a message was signed by the provided address.
 
 :::warning[Warning]
 This utility can only verify a message that was signed by an Externally Owned Account (EOA).
-To verify messages from Contract Accounts (& EOA), use the [`publicClient.verifyMessage` Action](../actions/public/verifyMessage.md) instead.
+To verify messages from Contract Accounts (& EOA), use the [`publicClient.verifyMessage` Action](/docs/actions/public/verifyMessage) instead.
 :::
 
 ## Usage

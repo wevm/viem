@@ -11,6 +11,9 @@ import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { address, forkBlockNumber } from '~test/src/constants.js'
 import { deployErrorExample, publicClient } from '~test/src/utils.js'
 
+import type { Hex } from '../../types/misc.js'
+import { pad } from '../../utils/data/pad.js'
+import { toHex } from '../../utils/encoding/toHex.js'
 import { readContract } from './readContract.js'
 
 describe('wagmi', () => {
@@ -101,6 +104,41 @@ describe('wagmi', () => {
         args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
       }),
     ).toEqual(3n)
+  })
+
+  test('args: stateOverride', async () => {
+    const fakeName = 'NotWagmi'
+
+    // layout of strings in storage
+    const nameSlot = toHex(0, { size: 32 })
+    const fakeNameHex = toHex(fakeName)
+    // we don't divide by 2 because length must be length * 2 if word is strictly less than 32 bytes
+    const bytesLen = fakeNameHex.length - 2
+
+    expect(bytesLen).toBeLessThanOrEqual(62)
+
+    const slotValue = `${pad(fakeNameHex, { dir: 'right', size: 31 })}${toHex(
+      bytesLen,
+      { size: 1 },
+    ).slice(2)}` as Hex
+
+    expect(
+      await readContract(publicClient, {
+        ...wagmiContractConfig,
+        functionName: 'name',
+        stateOverride: [
+          {
+            address: wagmiContractConfig.address,
+            stateDiff: [
+              {
+                slot: nameSlot,
+                value: slotValue,
+              },
+            ],
+          },
+        ],
+      }),
+    ).toEqual(fakeName)
   })
 })
 
@@ -204,7 +242,7 @@ describe('contract errors', () => {
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "overflowRead" reverted with the following reason:
-      Arithmic operation resulted in underflow or overflow.
+      Arithmetic operation resulted in underflow or overflow.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000

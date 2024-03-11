@@ -4413,7 +4413,115 @@ export const ensRegistryConfig = {
   ],
 } as const
 
+export const ensReverseRegistrarConfig = {
+  address: '0x9062c0a6dbd6108336bcbe4593a3d1ce05512069',
+  abi: [
+    {
+      constant: false,
+      inputs: [
+        { name: 'owner', type: 'address' },
+        { name: 'resolver', type: 'address' },
+      ],
+      name: 'claimWithResolver',
+      outputs: [{ name: 'node', type: 'bytes32' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: false,
+      inputs: [{ name: 'owner', type: 'address' }],
+      name: 'claim',
+      outputs: [{ name: 'node', type: 'bytes32' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'ens',
+      outputs: [{ name: '', type: 'address' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'defaultResolver',
+      outputs: [{ name: '', type: 'address' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: true,
+      inputs: [{ name: 'addr', type: 'address' }],
+      name: 'node',
+      outputs: [{ name: 'ret', type: 'bytes32' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: false,
+      inputs: [{ name: 'name', type: 'string' }],
+      name: 'setName',
+      outputs: [{ name: 'node', type: 'bytes32' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      inputs: [
+        { name: 'ensAddr', type: 'address' },
+        { name: 'resolverAddr', type: 'address' },
+      ],
+      payable: false,
+      type: 'constructor',
+    },
+  ],
+} as const
+
 export const smartAccountConfig = {
   address: '0x3FCf42e10CC70Fe75A62EB3aDD6D305Aa840d145',
   abi: smartAccountAbi,
+} as const
+
+export const greeterContract = {
+  address: '0xbe9bcf56654fd81a921b6Bd07965Dd67Afbb0B69',
+  abi: [
+    {
+      inputs: [
+        {
+          internalType: 'string',
+          name: '_greeting',
+          type: 'string',
+        },
+      ],
+      stateMutability: 'nonpayable',
+      type: 'constructor',
+    },
+    {
+      inputs: [],
+      name: 'greet',
+      outputs: [
+        {
+          internalType: 'string',
+          name: '',
+          type: 'string',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'string',
+          name: '_greeting',
+          type: 'string',
+        },
+      ],
+      name: 'setGreeting',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+  ],
 } as const

@@ -50,6 +50,33 @@ const bytecode = await publicClient.getBytecode({
 })
 ```
 
+### blockNumber (optional)
+
+- **Type:** `number`
+
+The block number to perform the bytecode read against.
+
+```ts
+const bytecode = await publicClient.getBytecode({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockNumber: 15121123n, // [!code focus]
+})
+```
+
+### blockTag (optional)
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+The block tag to perform the bytecode read against.
+
+```ts
+const bytecode = await publicClient.getBytecode({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockTag: 'safe', // [!code focus]
+})
+```
+
 ## JSON-RPC Method
 
 [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)

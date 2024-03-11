@@ -12,7 +12,11 @@ export const avalancheFuji = /*#__PURE__*/ defineChain({
     default: { http: ['https://api.avax-test.network/ext/bc/C/rpc'] },
   },
   blockExplorers: {
-    default: { name: 'SnowTrace', url: 'https://testnet.snowtrace.io' },
+    default: {
+      name: 'SnowScan',
+      url: 'https://testnet.snowscan.xyz',
+      apiUrl: 'https://api-testnet.snowscan.xyz',
+    },
   },
   contracts: {
     multicall3: {

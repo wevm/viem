@@ -42,7 +42,7 @@ export function serializeAccessList(
       }
     }
 
-    if (!isAddress(address)) {
+    if (!isAddress(address, { strict: false })) {
       throw new InvalidAddressError({ address })
     }
 

@@ -39,8 +39,12 @@ export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** ENSIP-9 compliant coinType used to resolve addresses for other chains */
     coinType?: number
+    /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
+    gatewayUrls?: string[]
     /** Name to get the address for. */
     name: string
+    /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
+    strict?: boolean
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
   }
@@ -93,6 +97,8 @@ export async function getEnsAddress<TChain extends Chain | undefined>(
     blockTag,
     coinType,
     name,
+    gatewayUrls,
+    strict,
     universalResolverAddress: universalResolverAddress_,
   }: GetEnsAddressParameters,
 ): Promise<GetEnsAddressReturnType> {
@@ -119,18 +125,23 @@ export async function getEnsAddress<TChain extends Chain | undefined>(
         : { args: [namehash(name)] }),
     })
 
-    const res = await getAction(
-      client,
-      readContract,
-      'readContract',
-    )({
+    const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
       functionName: 'resolve',
       args: [toHex(packetToBytes(name)), functionData],
       blockNumber,
       blockTag,
-    })
+    } as const
+
+    const readContractAction = getAction(client, readContract, 'readContract')
+
+    const res = gatewayUrls
+      ? await readContractAction({
+          ...readContractParameters,
+          args: [...readContractParameters.args, gatewayUrls],
+        })
+      : await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
 
@@ -145,6 +156,7 @@ export async function getEnsAddress<TChain extends Chain | undefined>(
     if (trim(address) === '0x00') return null
     return address
   } catch (err) {
+    if (strict) throw err
     if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
   }

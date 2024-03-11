@@ -20,12 +20,12 @@ const baseTransaction = {
 
 test('default', async () => {
   const gas = await estimateL1Gas(optimismClientWithAccount, baseTransaction)
-  expect(gas).toBe(3116n)
+  expect(gas).toBe(2028n)
 })
 
 test('minimal', async () => {
   const gas = await estimateL1Gas(optimismClientWithAccount, {})
-  expect(gas >= 2668n && gas <= 2724n).toBeTruthy()
+  expect(gas).toBe(1600n)
 })
 
 test('args: account', async () => {
@@ -33,7 +33,7 @@ test('args: account', async () => {
     ...baseTransaction,
     account: accounts[0].address,
   })
-  expect(gas).toBe(3116n)
+  expect(gas).toBe(2028n)
 })
 
 test('args: data', async () => {
@@ -41,7 +41,7 @@ test('args: data', async () => {
     ...baseTransaction,
     data: '0x00000000000000000000000000000000000000000000000004fefa17b7240000',
   })
-  expect(gas).toBe(3316n)
+  expect(gas).toBe(2244n)
 })
 
 test('args: gasPriceOracleAddress', async () => {
@@ -49,7 +49,7 @@ test('args: gasPriceOracleAddress', async () => {
     ...baseTransaction,
     gasPriceOracleAddress: '0x420000000000000000000000000000000000000F',
   })
-  expect(gas).toBe(3116n)
+  expect(gas).toBe(2028n)
 })
 
 test('args: nonce', async () => {
@@ -57,7 +57,7 @@ test('args: nonce', async () => {
     ...baseTransaction,
     nonce: 69,
   })
-  expect(gas).toBe(3116n)
+  expect(gas).toBe(2028n)
 })
 
 test('args: nullish chain', async () => {
@@ -66,5 +66,5 @@ test('args: nullish chain', async () => {
     account: accounts[0].address,
     chain: null,
   })
-  expect(gas).toBe(3116n)
+  expect(gas).toBe(2028n)
 })

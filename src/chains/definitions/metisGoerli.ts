@@ -15,6 +15,7 @@ export const metisGoerli = /*#__PURE__*/ defineChain({
     default: {
       name: 'Metis Goerli Explorer',
       url: 'https://goerli.explorer.metisdevops.link',
+      apiUrl: 'https://goerli.explorer.metisdevops.link/api',
     },
   },
   contracts: {

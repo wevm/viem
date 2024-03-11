@@ -14,7 +14,11 @@ export const crossbell = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'CrossScan', url: 'https://scan.crossbell.io' },
+    default: {
+      name: 'CrossScan',
+      url: 'https://scan.crossbell.io',
+      apiUrl: 'https://scan.crossbell.io/api',
+    },
   },
   contracts: {
     multicall3: {

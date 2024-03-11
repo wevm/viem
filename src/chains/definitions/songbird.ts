@@ -15,6 +15,7 @@ export const songbird = /*#__PURE__*/ defineChain({
     default: {
       name: 'Songbird Explorer',
       url: 'https://songbird-explorer.flare.network',
+      apiUrl: 'https://songbird-explorer.flare.network/api',
     },
   },
 })

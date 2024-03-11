@@ -10,8 +10,11 @@ export const bitTorrentTestnet = /*#__PURE__*/ defineChain({
     public: { http: ['https://testrpc.bittorrentchain.io'] },
   },
   blockExplorers: {
-    etherscan: { name: 'Bttcscan', url: 'https://testnet.bttcscan.com' },
-    default: { name: 'Bttcscan', url: 'https://testnet.bttcscan.com' },
+    default: {
+      name: 'Bttcscan',
+      url: 'https://testnet.bttcscan.com',
+      apiUrl: 'https://testnet.bttcscan.com/api',
+    },
   },
   testnet: true,
 })

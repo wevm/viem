@@ -12,6 +12,10 @@ export const ekta = /*#__PURE__*/ defineChain({
     default: { http: ['https://main.ekta.io'] },
   },
   blockExplorers: {
-    default: { name: 'Ektascan', url: 'https://ektascan.io' },
+    default: {
+      name: 'Ektascan',
+      url: 'https://ektascan.io',
+      apiUrl: 'https://ektascan.io/api',
+    },
   },
 })

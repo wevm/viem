@@ -4,8 +4,12 @@ import {
   type UrlRequiredErrorType,
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { RpcRequest } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
-import { type HttpOptions, type RpcRequest, rpc } from '../../utils/rpc.js'
+import {
+  type HttpRpcClientOptions,
+  getHttpRpcClient,
+} from '../../utils/rpc/http.js'
 
 import {
   type CreateTransportErrorType,
@@ -31,7 +35,7 @@ export type HttpTransportConfig = {
    * Request configuration to pass to `fetch`.
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
    */
-  fetchOptions?: HttpOptions['fetchOptions']
+  fetchOptions?: HttpRpcClientOptions['fetchOptions']
   /** The key of the HTTP transport. */
   key?: TransportConfig['key']
   /** The name of the HTTP transport. */
@@ -79,6 +83,9 @@ export function http(
     const timeout = timeout_ ?? config.timeout ?? 10_000
     const url_ = url || chain?.rpcUrls.default.http[0]
     if (!url_) throw new UrlRequiredError()
+
+    const rpcClient = getHttpRpcClient(url_, { fetchOptions, timeout })
+
     return createTransport(
       {
         key,
@@ -93,10 +100,8 @@ export function http(
               return requests.length > batchSize
             },
             fn: (body: RpcRequest[]) =>
-              rpc.http(url_, {
+              rpcClient.request({
                 body,
-                fetchOptions,
-                timeout,
               }),
             sort: (a, b) => a.id - b.id,
           })
@@ -104,7 +109,11 @@ export function http(
           const fn = async (body: RpcRequest) =>
             batch
               ? schedule(body)
-              : [await rpc.http(url_, { body, fetchOptions, timeout })]
+              : [
+                  await rpcClient.request({
+                    body,
+                  }),
+                ]
 
           const [{ error, result }] = await fn(body)
           if (error)

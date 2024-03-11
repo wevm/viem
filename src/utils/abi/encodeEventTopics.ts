@@ -22,11 +22,11 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
 import { type ToBytesErrorType, toBytes } from '../encoding/toBytes.js'
-import {
-  type GetEventSelectorErrorType,
-  getEventSelector,
-} from '../hash/getEventSelector.js'
 import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
+import {
+  type ToEventSelectorErrorType,
+  toEventSelector,
+} from '../hash/toEventSelector.js'
 import {
   type EncodeAbiParametersErrorType,
   encodeAbiParameters,
@@ -71,7 +71,7 @@ export type EncodeEventTopicsErrorType =
   | EncodeArgErrorType
   | FormatAbiItemErrorType
   | GetAbiItemErrorType
-  | GetEventSelectorErrorType
+  | ToEventSelectorErrorType
   | ErrorType
 
 export function encodeEventTopics<
@@ -91,7 +91,7 @@ export function encodeEventTopics<
     throw new AbiEventNotFoundError(undefined, { docsPath })
 
   const definition = formatAbiItem(abiItem)
-  const signature = getEventSelector(definition as EventDefinition)
+  const signature = toEventSelector(definition as EventDefinition)
 
   let topics: Hex[] = []
   if (args && 'inputs' in abiItem) {

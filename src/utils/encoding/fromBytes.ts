@@ -119,7 +119,7 @@ export function bytesToBigInt(
 ): bigint {
   if (typeof opts.size !== 'undefined') assertSize(bytes, { size: opts.size })
   const hex = bytesToHex(bytes, opts)
-  return hexToBigInt(hex)
+  return hexToBigInt(hex, opts)
 }
 
 export type BytesToBoolOpts = {
@@ -187,7 +187,7 @@ export function bytesToNumber(
 ): number {
   if (typeof opts.size !== 'undefined') assertSize(bytes, { size: opts.size })
   const hex = bytesToHex(bytes, opts)
-  return hexToNumber(hex)
+  return hexToNumber(hex, opts)
 }
 
 export type BytesToStringOpts = {

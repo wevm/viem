@@ -15,7 +15,11 @@ export const syscoin = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'SyscoinExplorer', url: 'https://explorer.syscoin.org' },
+    default: {
+      name: 'SyscoinExplorer',
+      url: 'https://explorer.syscoin.org',
+      apiUrl: 'https://explorer.syscoin.org/api',
+    },
   },
   contracts: {
     multicall3: {

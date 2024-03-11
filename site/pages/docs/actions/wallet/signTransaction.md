@@ -10,7 +10,7 @@ Signs a transaction.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { account, walletClient } from './config'
  
 const request = await walletClient.prepareTransactionRequest({
@@ -25,20 +25,14 @@ const signature = await walletClient.signTransaction(request) // [!code focus:2]
 const hash = await walletClient.sendRawTransaction(signature)
 ```
 
-```ts [config.ts]
-import { createWalletClient, custom } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet } from 'viem/chains'
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/walletClient.ts]
 
-export const walletClient = createWalletClient({
-  chain: mainnet,
-  transport: custom(window.ethereum)
-})
-
-// JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account
-export const account = privateKeyToAccount(...)
+// @log: ↑ JSON-RPC Account
+
+// export const account = privateKeyToAccount(...)
+// @log: ↑ Local Account
 ```
 
 :::
@@ -51,7 +45,7 @@ If you do not wish to pass an `account` to every `prepareTransactionRequest`, yo
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { walletClient } from './config'
  
 const request = await walletClient.prepareTransactionRequest({
@@ -65,7 +59,7 @@ const signature = await walletClient.signTransaction(request) // [!code focus:2]
 const hash = await walletClient.sendRawTransaction(signature)
 ```
 
-```ts [config.ts (JSON-RPC Account)] {4-6,9}
+```ts [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
 
 // Retrieve Account from an EIP-1193 Provider.
@@ -75,17 +69,17 @@ const [account] = await window.ethereum.request({
 
 export const walletClient = createWalletClient({
   account,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```
 
-```ts [config.ts (Local Account)] {5}
-import { createWalletClient, custom } from 'viem'
+```ts twoslash [config.ts (Local Account)] filename="config.ts"
+import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'),
-  transport: custom(window.ethereum)
+  transport: http()
 })
 ```
 
@@ -107,7 +101,10 @@ The Account to send the transaction from.
 
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
 const signature = await walletClient.signTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -121,7 +118,10 @@ const signature = await walletClient.signTransaction({
 
 The transaction recipient or contract address.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
 const signature = await walletClient.signTransaction({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
@@ -136,7 +136,9 @@ const signature = await walletClient.signTransaction({
 
 The access list.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
 const signature = await publicClient.signTransaction({
   accessList: [ // [!code focus:6]
     {
@@ -158,7 +160,10 @@ The target chain. If there is a mismatch between the wallet's current chain & th
 
 The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `signTransaction`).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
 import { optimism } from 'viem/chains' // [!code focus]
 
 const signature = await walletClient.signTransaction({
@@ -175,7 +180,10 @@ const signature = await walletClient.signTransaction({
 
 A contract hashed method call with encoded args.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
 const signature = await walletClient.signTransaction({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
   account,
@@ -190,7 +198,10 @@ const signature = await walletClient.signTransaction({
 
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
 const signature = await walletClient.signTransaction({
   account,
   gasPrice: parseGwei('20'), // [!code focus]
@@ -205,7 +216,10 @@ const signature = await walletClient.signTransaction({
 
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
 const signature = await walletClient.signTransaction({
   account,
   maxFeePerGas: parseGwei('20'),  // [!code focus]
@@ -220,7 +234,10 @@ const signature = await walletClient.signTransaction({
 
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
 const signature = await walletClient.signTransaction({
   account,
   maxFeePerGas: parseGwei('20'),
@@ -236,7 +253,10 @@ const signature = await walletClient.signTransaction({
 
 Unique number identifying this transaction.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
 const signature = await walletClient.signTransaction({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -251,7 +271,10 @@ const signature = await walletClient.signTransaction({
 
 Value in wei sent with this transaction.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
 const signature = await walletClient.signTransaction({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',

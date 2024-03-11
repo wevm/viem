@@ -13,6 +13,7 @@ export const scrollSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blockscout',
       url: 'https://sepolia-blockscout.scroll.io',
+      apiUrl: 'https://sepolia-blockscout.scroll.io/api',
     },
   },
   contracts: {

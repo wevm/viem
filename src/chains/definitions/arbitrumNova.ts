@@ -10,7 +10,11 @@ export const arbitrumNova = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Arbiscan', url: 'https://nova.arbiscan.io' },
+    default: {
+      name: 'Arbiscan',
+      url: 'https://nova.arbiscan.io',
+      apiUrl: 'https://api-nova.arbiscan.io/api',
+    },
   },
   contracts: {
     multicall3: {

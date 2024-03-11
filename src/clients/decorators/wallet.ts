@@ -663,7 +663,11 @@ export type WalletActions<
   writeContract: <
     const abi extends Abi | readonly unknown[],
     functionName extends ContractFunctionName<abi, 'payable' | 'nonpayable'>,
-    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+    args extends ContractFunctionArgs<
+      abi,
+      'payable' | 'nonpayable',
+      functionName
+    >,
     TChainOverride extends Chain | undefined = undefined,
   >(
     args: WriteContractParameters<

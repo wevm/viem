@@ -12,30 +12,28 @@ Pass through your Public Client, along with a listener.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const unwatch = publicClient.watchBlocks( // [!code focus:99]
   { onBlock: block => console.log(block) }
 )
-/**
- * > {
- *  baseFeePerGas: 10789405161n,
- *  difficulty: 11569232145203128n,
- *  extraData: '0x75732d656173742d38',
- *  ...
- * }
- * 
- * > {
- *  baseFeePerGas: 12394051511n,
- *  difficulty: 11512315412421123n,
- *  extraData: '0x5123ab1512dd14aa',
- *  ...
- * }
- */
+// @log: > {
+// @log:  baseFeePerGas: 10789405161n,
+// @log:  difficulty: 11569232145203128n,
+// @log:  extraData: '0x75732d656173742d38',
+// @log:  ...
+// @log: }
+
+// @log: > {
+// @log:  baseFeePerGas: 12394051511n,
+// @log:  difficulty: 11512315412421123n,
+// @log:  extraData: '0x5123ab1512dd14aa',
+// @log:  ...
+// @log: }
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -61,7 +59,9 @@ A function that can be invoked to stop watching for new blocks.
 
 The block information.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlocks(
   { onBlock: block => console.log(block) } // [!code focus:1]
 )
@@ -73,7 +73,9 @@ const unwatch = publicClient.watchBlocks(
 
 Error thrown from getting a block.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlocks(
   { 
     onBlock: block => console.log(block),
@@ -89,7 +91,9 @@ const unwatch = publicClient.watchBlocks(
 
 Watch for new blocks on a given tag.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlocks(
   { 
     blockTag: 'safe',
@@ -107,7 +111,9 @@ Whether or not to emit missed blocks to the callback.
 
 Missed blocks may occur in instances where internet connection is lost, or the block time is lesser than the [polling interval](/docs/clients/public#pollinginterval-optional) of the client.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlocks(
   { 
     emitMissed: true, // [!code focus]
@@ -123,7 +129,9 @@ const unwatch = publicClient.watchBlocks(
 
 Whether or not to emit the block to the callback when the subscription opens.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlocks(
   { 
     emitOnBegin: true, // [!code focus]
@@ -138,7 +146,9 @@ const unwatch = publicClient.watchBlocks(
 
 Whether or not to include transactions (as a structured array of `Transaction` objects).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlocks(
   { 
     includeTransactions: true,  // [!code focus]
@@ -156,7 +166,7 @@ Whether or not to use a polling mechanism to check for new blocks instead of a W
 
 This option is only configurable for Clients with a [WebSocket Transport](/docs/clients/transports/websocket).
 
-```ts
+```ts twoslash
 import { createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -179,7 +189,9 @@ const unwatch = publicClient.watchBlocks(
 
 Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchBlocks(
   { 
     onBlock: block => console.log(block),

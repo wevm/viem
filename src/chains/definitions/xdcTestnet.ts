@@ -12,7 +12,15 @@ export const xdcTestnet = /*#__PURE__*/ defineChain({
     default: { http: ['https://erpc.apothem.network'] },
   },
   blockExplorers: {
-    xinfin: { name: 'XinFin', url: 'https://explorer.apothem.network' },
-    default: { name: 'Blocksscan', url: 'https://apothem.blocksscan.io' },
+    default: {
+      name: 'Blocksscan',
+      url: 'https://apothem.blocksscan.io',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 59765389,
+    },
   },
 })

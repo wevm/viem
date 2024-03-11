@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import { localHttpUrl } from '~test/src/constants.js'
 import {
+  createHttpServer,
   publicClient,
   setBlockNumber,
   setVitalikResolver,
@@ -13,7 +14,7 @@ import { http } from '../../clients/transports/http.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
 beforeAll(async () => {
-  await setBlockNumber(17431812n)
+  await setBlockNumber(19_258_213n)
   await setVitalikResolver()
 })
 
@@ -23,6 +24,22 @@ test('gets address for name', async () => {
   ).resolves.toMatchInlineSnapshot(
     '"0xA0Cf798816D4b9b9866b5330EEa46a18382f251e"',
   )
+})
+
+test('gatewayUrls provided', async () => {
+  let called = false
+
+  const server = await createHttpServer((_, res) => {
+    called = true
+    res.end()
+  })
+
+  await getEnsAddress(publicClient, {
+    name: '1.offchainexample.eth',
+    gatewayUrls: [server.url],
+  }).catch(() => {})
+
+  expect(called).toBe(true)
 })
 
 test('gets address that starts with 0s for name', async () => {
@@ -59,6 +76,25 @@ test('name with resolver that does not support addr', async () => {
   ).resolves.toBeNull()
 })
 
+test('name with resolver that does not support addr - strict', async () => {
+  await expect(
+    getEnsAddress(publicClient, { name: 'vitalik.eth', strict: true }),
+  ).rejects.toMatchInlineSnapshot(`
+    [ContractFunctionExecutionError: The contract function "resolve" reverted.
+
+    Error: ResolverError(bytes returnData)
+                        (0x)
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  resolve(bytes name, bytes data)
+      args:             (0x07766974616c696b0365746800, 0x3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835)
+
+    Docs: https://viem.sh/docs/contract/readContract
+    Version: viem@1.0.2]
+  `)
+})
+
 test('name that looks like a hex', async () => {
   await expect(
     getEnsAddress(publicClient, { name: '0xyoshi.eth' }),
@@ -85,9 +121,9 @@ test('name with a label larger than 255 bytes', async () => {
 
 test('offchain: gets address for name', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'jake.cb.id' }),
+    getEnsAddress(publicClient, { name: '1.offchainexample.eth' }),
   ).resolves.toMatchInlineSnapshot(
-    '"0xdAb929527D862F6A75422cf40a9fb0B53059D801"',
+    `"0x41563129cDbbD0c5D3e1c86cf9563926b243834d"`,
   )
 })
 
@@ -107,8 +143,8 @@ test('offchain: aggregated', async () => {
   })
 
   const names = await Promise.all([
-    getEnsAddress(client, { name: 'jake.cb.id' }),
-    getEnsAddress(client, { name: 'brian.cb.id' }),
+    getEnsAddress(client, { name: '1.offchainexample.eth' }),
+    getEnsAddress(client, { name: '2.offchainexample.eth' }),
     getEnsAddress(client, {
       name: 'loalsdsladasdhjasgdhasjdghasgdjgasjdasd.cb.id',
     }),
@@ -116,12 +152,12 @@ test('offchain: aggregated', async () => {
 
   expect(names).toMatchInlineSnapshot(
     `
-      [
-        "0xdAb929527D862F6A75422cf40a9fb0B53059D801",
-        "0xc1D9D4E2fACf0F4E72Cad1579Ac7a86598dd605D",
-        null,
-      ]
-    `,
+    [
+      "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
+      "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
+      null,
+    ]
+  `,
   )
 })
 
@@ -194,7 +230,7 @@ test('universal resolver contract deployed on later block', async () => {
     [ChainDoesNotSupportContract: Chain "Localhost" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract "ensUniversalResolver" was not deployed until block 16966585 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 19258213 (current block 14353601).
 
     Version: viem@1.0.2]
   `)

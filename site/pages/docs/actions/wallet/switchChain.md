@@ -10,19 +10,15 @@ Switch the target chain in a wallet.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { avalanche } from 'viem/chains'
 import { walletClient } from './client'
  
 await walletClient.switchChain({ id: avalanche.id }) // [!code focus]
 ```
 
-```ts [client.ts]
-import { createWalletClient, custom } from 'viem'
-
-export const walletClient = createWalletClient({
-  transport: custom(window.ethereum)
-})
+```ts twoslash [client.ts] filename="client.ts"
+// [!include ~/snippets/walletClient.ts]
 ```
 
 :::

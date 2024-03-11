@@ -44,7 +44,7 @@ import {
   prepareTransactionRequest,
 } from './prepareTransactionRequest.js'
 import {
-  type SendRawTransactionReturnType,
+  type SendRawTransactionErrorType,
   sendRawTransaction,
 } from './sendRawTransaction.js'
 
@@ -67,7 +67,7 @@ export type SendTransactionErrorType =
       | AssertRequestErrorType
       | GetChainIdErrorType
       | PrepareTransactionRequestErrorType
-      | SendRawTransactionReturnType
+      | SendRawTransactionErrorType
       | SignTransactionErrorType
       | RequestErrorType
     >
@@ -150,7 +150,7 @@ export async function sendTransaction<
   try {
     assertRequest(args as AssertRequestParameters)
 
-    let chainId
+    let chainId: number | undefined
     if (chain !== null) {
       chainId = await getAction(client, getChainId, 'getChainId')({})
       assertCurrentChain({

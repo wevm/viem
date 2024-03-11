@@ -3,7 +3,8 @@ import { expect, test } from 'bun:test'
 import * as chains from '~viem/chains/index.js'
 import type { Chain } from '~viem/types/chain.js'
 import { withTimeout } from '~viem/utils/promise/withTimeout.js'
-import { getSocket, rpc } from '~viem/utils/rpc.js'
+import { request as httpRequest } from '~viem/utils/rpc/http.js'
+import { getWebSocketRpcClient } from '~viem/utils/rpc/webSocket.js'
 
 const defaultTimeout = 10_000
 
@@ -38,6 +39,16 @@ chains_.forEach((chain) => {
       },
       { timeout: defaultTimeout },
     )
+
+  const explorerApiUrl = chain.blockExplorers?.default.apiUrl
+  if (explorerApiUrl)
+    test(
+      `${chain.name}: check block explorer API`,
+      async () => {
+        await assertExplorerApiUrl(explorerApiUrl)
+      },
+      { timeout: defaultTimeout },
+    )
 })
 
 function isLocalNetwork(url: string): boolean {
@@ -54,13 +65,11 @@ async function assertHttpRpcUrls(
 ): Promise<void> {
   for (const url of rpcUrls) {
     if (isLocalNetwork(url)) continue
-    const response = await rpc
-      .http(url, {
-        body: { method: 'eth_chainId' },
-        fetchOptions: { headers: { 'Content-Type': 'application/json' } },
-        timeout: defaultTimeout,
-      })
-      .then((r) => r.result)
+    const response = await httpRequest(url, {
+      body: { method: 'eth_chainId' },
+      fetchOptions: { headers: { 'Content-Type': 'application/json' } },
+      timeout: defaultTimeout,
+    }).then((r) => r.result)
     expect(BigInt(response)).toBe(BigInt(chainId))
   }
 }
@@ -72,20 +81,32 @@ async function assertWebSocketRpcUrls(
   for (const url of rpcUrls) {
     if (isLocalNetwork(url)) continue
 
-    const socket = await withTimeout(() => getSocket(url), {
+    const client = await withTimeout(() => getWebSocketRpcClient(url), {
       timeout: defaultTimeout,
     })
-    const response = await rpc
-      .webSocketAsync(socket, {
+    const response = await client
+      .requestAsync({
         body: { method: 'eth_chainId' },
         timeout: defaultTimeout,
       })
       .then((r) => r.result)
-    socket.close()
+    client.close()
     expect(BigInt(response)).toBe(BigInt(chainId))
   }
 }
 
 async function assertExplorerUrl(explorerUrl: string): Promise<void> {
   await fetch(explorerUrl, { method: 'HEAD' })
+}
+
+async function assertExplorerApiUrl(explorerApiUrl: string): Promise<void> {
+  const url = `${explorerApiUrl}?module=block&action=getblocknobytime&closest=before&timestamp=${Math.floor(
+    Date.now() / 1000,
+  )}`
+  const response = await fetch(url)
+  const data = await response.json()
+  expect(data).toMatchObject({
+    status: '1',
+    message: expect.stringContaining('OK'),
+  })
 }

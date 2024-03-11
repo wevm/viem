@@ -4,9 +4,9 @@ description: Getting started with the OP Stack in Viem
 
 # Getting started with OP Stack
 
-Viem provides first-class support for chains implemented on the [OP Stack](https://docs.optimism.io/getting-started-op-stack).
+Viem provides first-class support for chains implemented on the [OP Stack](https://docs.optimism.io/stack/getting-started).
 
-The OP Stack is a set of modular open-source software that enable developers to build fast, secure, and scalable Layer 2 Ethereum protocols & applications. [Read more.](https://docs.optimism.io/getting-started-op-stack)
+The OP Stack is a set of modular open-source software that enable developers to build fast, secure, and scalable Layer 2 Ethereum protocols & applications. [Read more.](https://docs.optimism.io/stack/getting-started)
 
 ## Quick Start
 
@@ -14,14 +14,14 @@ The OP Stack is a set of modular open-source software that enable developers to 
 
 Firstly, set up your [Client](/docs/clients/intro) with a desired [Transport](/docs/clients/intro) & [OP Stack Chain](/op-stack/chains).
 
-```ts {4-7}
+```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: base,
-  transport: http(),
-})
+const client = createPublicClient({ // [!code focus]
+  chain: base, // [!code focus]
+  transport: http(), // [!code focus]
+}) // [!code focus]
 ```
 
 :::info

@@ -22,6 +22,7 @@ export const zoraTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Explorer',
       url: 'https://testnet.explorer.zora.energy',
+      apiUrl: 'https://testnet.explorer.zora.energy/api',
     },
   },
   contracts: {

@@ -1,15 +1,22 @@
 import type { Address } from 'abitype'
 
-import type { transactionType } from '../utils/formatters/transaction.js'
-
-import type { FeeValuesEIP1559, FeeValuesLegacy } from './fee.js'
+import type {
+  FeeValuesEIP1559,
+  FeeValuesEIP4844,
+  FeeValuesLegacy,
+} from './fee.js'
 import type { Log } from './log.js'
 import type { Hash, Hex, Signature } from './misc.js'
-import type { ValueOf } from './utils.js'
+import type { OneOf } from './utils.js'
 
 export type AccessList = { address: Address; storageKeys: Hex[] }[]
 
-export type TransactionType = ValueOf<typeof transactionType> | (string & {})
+export type TransactionType =
+  | 'legacy'
+  | 'eip1559'
+  | 'eip2930'
+  | 'eip4844'
+  | (string & {})
 
 export type TransactionReceipt<
   TQuantity = bigint,
@@ -17,6 +24,10 @@ export type TransactionReceipt<
   TStatus = 'success' | 'reverted',
   TType = TransactionType,
 > = {
+  /** The actual value per gas deducted from the sender's account for blob gas. Only specified for blob transactions as defined by EIP-4844. */
+  blobGasPrice?: TQuantity
+  /** The amount of blob gas used. Only specified for blob transactions as defined by EIP-4844. */
+  blobGasUsed?: TQuantity
   /** Hash of block containing this transaction */
   blockHash: Hash
   /** Number of block containing this transaction */
@@ -35,6 +46,8 @@ export type TransactionReceipt<
   logs: Log<TQuantity, TIndex, false>[]
   /** Logs bloom filter */
   logsBloom: Hex
+  /** The post-transaction state root. Only specified for transactions included before the Byzantium upgrade. */
+  root?: Hash
   /** `success` if this transaction was successful or `reverted` if it failed */
   status: TStatus
   /** Transaction recipient or `null` if deploying a contract */
@@ -92,6 +105,7 @@ export type TransactionLegacy<
   FeeValuesLegacy<TQuantity> & {
     /** EIP-2930 Access List. */
     accessList?: never
+    blobVersionedHashes?: never
     /** Chain ID that this transaction is valid on. */
     chainId?: TIndex
     yParity?: never
@@ -106,6 +120,7 @@ export type TransactionEIP2930<
   FeeValuesLegacy<TQuantity> & {
     /** EIP-2930 Access List. */
     accessList: AccessList
+    blobVersionedHashes?: never
     /** Chain ID that this transaction is valid on. */
     chainId: TIndex
     type: TType
@@ -119,6 +134,22 @@ export type TransactionEIP1559<
   FeeValuesEIP1559<TQuantity> & {
     /** EIP-2930 Access List. */
     accessList: AccessList
+    blobVersionedHashes?: never
+    /** Chain ID that this transaction is valid on. */
+    chainId: TIndex
+    type: TType
+  }
+export type TransactionEIP4844<
+  TQuantity = bigint,
+  TIndex = number,
+  TPending extends boolean = boolean,
+  TType = 'eip4844',
+> = TransactionBase<TQuantity, TIndex, TPending> &
+  FeeValuesEIP4844<TQuantity> & {
+    /** EIP-2930 Access List. */
+    accessList: AccessList
+    /** List of versioned blob hashes associated with the transaction's blobs. */
+    blobVersionedHashes: Hex[]
     /** Chain ID that this transaction is valid on. */
     chainId: TIndex
     type: TType
@@ -127,10 +158,12 @@ export type Transaction<
   TQuantity = bigint,
   TIndex = number,
   TPending extends boolean = boolean,
-> =
+> = OneOf<
   | TransactionLegacy<TQuantity, TIndex, TPending>
   | TransactionEIP2930<TQuantity, TIndex, TPending>
   | TransactionEIP1559<TQuantity, TIndex, TPending>
+  | TransactionEIP4844<TQuantity, TIndex, TPending>
+>
 
 export type TransactionRequestBase<TQuantity = bigint, TIndex = number> = {
   /** Contract code or a hashed method call with encoded args */

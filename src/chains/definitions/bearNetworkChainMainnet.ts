@@ -12,6 +12,10 @@ export const bearNetworkChainMainnet = /*#__PURE__*/ defineChain({
     default: { http: ['https://brnkc-mainnet.bearnetwork.net'] },
   },
   blockExplorers: {
-    default: { name: 'BrnkScan', url: 'https://brnkscan.bearnetwork.net' },
+    default: {
+      name: 'BrnkScan',
+      url: 'https://brnkscan.bearnetwork.net',
+      apiUrl: 'https://brnkscan.bearnetwork.net/api',
+    },
   },
 })

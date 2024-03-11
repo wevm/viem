@@ -333,6 +333,7 @@ describe('args: transport', () => {
         "signTypedData": [Function],
         "switchChain": [Function],
         "transport": {
+          "getRpcClient": [Function],
           "getSocket": [Function],
           "key": "webSocket",
           "name": "WebSocket JSON-RPC",

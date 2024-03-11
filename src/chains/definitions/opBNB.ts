@@ -12,7 +12,10 @@ export const opBNB = /*#__PURE__*/ defineChain({
     default: { http: ['https://opbnb-mainnet-rpc.bnbchain.org'] },
   },
   blockExplorers: {
-    default: { name: 'opbnbscan', url: 'https://mainnet.opbnbscan.com' },
+    default: {
+      name: 'opbnbscan',
+      url: 'https://mainnet.opbnbscan.com',
+    },
   },
   contracts: {
     multicall3: {

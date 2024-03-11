@@ -41,7 +41,7 @@ export function fromRlp<to extends To = 'hex'>(
     return value
   })()
 
-  const cursor = createCursor(bytes)
+  const cursor = createCursor(bytes, { recursiveReadLimit: Infinity })
   const result = fromRlpCursor(cursor, to)
 
   return result as FromRlpReturnType<to>

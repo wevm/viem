@@ -14,6 +14,7 @@ export const lineaTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://goerli.lineascan.build',
+      apiUrl: 'https://goerli.lineascan.build/api',
     },
   },
   contracts: {

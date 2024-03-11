@@ -10,7 +10,10 @@ export const bitTorrent = /*#__PURE__*/ defineChain({
     public: { http: ['https://rpc.bittorrentchain.io'] },
   },
   blockExplorers: {
-    etherscan: { name: 'Bttcscan', url: 'https://bttcscan.com' },
-    default: { name: 'Bttcscan', url: 'https://bttcscan.com' },
+    default: {
+      name: 'Bttcscan',
+      url: 'https://bttcscan.com',
+      apiUrl: 'https://api.bttcscan.com/api',
+    },
   },
 })

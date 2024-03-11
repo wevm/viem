@@ -12,7 +12,11 @@ export const fantomTestnet = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.testnet.fantom.network'] },
   },
   blockExplorers: {
-    default: { name: 'FTMScan', url: 'https://testnet.ftmscan.com' },
+    default: {
+      name: 'FTMScan',
+      url: 'https://testnet.ftmscan.com',
+      apiUrl: 'https://testnet.ftmscan.com/api',
+    },
   },
   contracts: {
     multicall3: {

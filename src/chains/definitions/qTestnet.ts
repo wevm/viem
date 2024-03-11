@@ -15,6 +15,7 @@ export const qTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Q Testnet Explorer',
       url: 'https://explorer.qtestnet.org',
+      apiUrl: 'https://explorer.qtestnet.org/api',
     },
   },
   testnet: true,

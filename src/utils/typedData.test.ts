@@ -172,6 +172,9 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidAddressError: Address "0x000000000000000000000000000000000000z" is invalid.
 
+      - Address must be a hex value of 20 bytes (40 hex characters).
+      - Address must match its checksum counterpart.
+
       Version: viem@1.0.2]
     `)
   })
@@ -297,6 +300,9 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidAddressError: Address "0xCczCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC" is invalid.
 
+      - Address must be a hex value of 20 bytes (40 hex characters).
+      - Address must match its checksum counterpart.
+
       Version: viem@1.0.2]
     `)
   })
@@ -307,7 +313,7 @@ describe('validateTypedData', () => {
         name: 'Ether!',
         version: '1',
         chainId: 1n,
-        verifyingContract: '0xCccCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
       },
       primaryType: 'EIP712Domain',
       types: {

@@ -1,3 +1,5 @@
+// TODO(v3): Convert to sync.
+
 import { secp256k1 } from '@noble/curves/secp256k1'
 
 import type { ErrorType } from '../../errors/utils.js'

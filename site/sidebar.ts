@@ -39,6 +39,10 @@ export const sidebar = {
               link: '/docs/clients/transports/custom',
             },
             {
+              text: 'IPC',
+              link: '/docs/clients/transports/ipc',
+            },
+            {
               text: 'Fallback',
               link: '/docs/clients/transports/fallback',
             },
@@ -477,7 +481,7 @@ export const sidebar = {
             },
             {
               text: 'zkSync',
-              link: '/docs/chains/zksync',
+              link: '/zksync',
             },
           ],
         },
@@ -766,22 +770,6 @@ export const sidebar = {
           text: 'Hash',
           items: [
             {
-              text: 'getEventSelector',
-              link: '/docs/utilities/getEventSelector',
-            },
-            {
-              text: 'getEventSignature',
-              link: '/docs/utilities/getEventSignature',
-            },
-            {
-              text: 'getFunctionSelector',
-              link: '/docs/utilities/getFunctionSelector',
-            },
-            {
-              text: 'getFunctionSignature',
-              link: '/docs/utilities/getFunctionSignature',
-            },
-            {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
             },
@@ -792,6 +780,30 @@ export const sidebar = {
             {
               text: 'sha256',
               link: '/docs/utilities/sha256',
+            },
+            {
+              text: 'toEventHash',
+              link: '/docs/utilities/toEventHash',
+            },
+            {
+              text: 'toEventSelector',
+              link: '/docs/utilities/toEventSelector',
+            },
+            {
+              text: 'toEventSignature',
+              link: '/docs/utilities/toEventSignature',
+            },
+            {
+              text: 'toFunctionHash',
+              link: '/docs/utilities/toFunctionHash',
+            },
+            {
+              text: 'toFunctionSelector',
+              link: '/docs/utilities/toFunctionSelector',
+            },
+            {
+              text: 'toFunctionSignature',
+              link: '/docs/utilities/toFunctionSignature',
             },
           ],
         },
@@ -1121,6 +1133,39 @@ export const sidebar = {
           {
             text: 'serializeTransaction',
             link: '/op-stack/utilities/serializeTransaction',
+          },
+        ],
+      },
+    ],
+  },
+  '/zksync': {
+    backLink: true,
+    items: [
+      {
+        text: 'zkSync',
+        items: [
+          {
+            text: 'Getting started',
+            link: '/zksync',
+          },
+          { text: 'Client', link: '/zksync/client' },
+          { text: 'Chains', link: '/zksync/chains' },
+        ],
+      },
+      {
+        text: 'Actions',
+        items: [
+          {
+            text: 'sendTransaction',
+            link: '/zksync/actions/sendTransaction',
+          },
+          {
+            text: 'signTransaction',
+            link: '/zksync/actions/signTransaction',
+          },
+          {
+            text: 'writeContract',
+            link: '/zksync/actions/writeContract',
           },
         ],
       },

@@ -17,6 +17,7 @@ export const jbc = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blockscout',
       url: 'https://exp-l1.jibchain.net',
+      apiUrl: 'https://exp-l1.jibchain.net/api',
     },
   },
   contracts: {

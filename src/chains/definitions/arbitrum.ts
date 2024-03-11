@@ -10,7 +10,11 @@ export const arbitrum = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Arbiscan', url: 'https://arbiscan.io' },
+    default: {
+      name: 'Arbiscan',
+      url: 'https://arbiscan.io',
+      apiUrl: 'https://api.arbiscan.io/api',
+    },
   },
   contracts: {
     multicall3: {

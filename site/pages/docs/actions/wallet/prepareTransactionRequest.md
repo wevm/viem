@@ -10,7 +10,7 @@ Prepares a transaction request for signing by populating a nonce, gas limit, fee
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { account, walletClient } from './config'
  
 const request = await walletClient.prepareTransactionRequest({ // [!code focus:16]
@@ -18,36 +18,38 @@ const request = await walletClient.prepareTransactionRequest({ // [!code focus:1
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
-/**
- * {
- *   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
- *   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
- *   maxFeePerGas: 150000000000n,
- *   maxPriorityFeePerGas: 1000000000n,
- *   nonce: 69,
- *   type: 'eip1559',
- *   value: 1000000000000000000n
- * }
- */
+// @log: {
+// @log:   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+// @log:   maxFeePerGas: 150000000000n,
+// @log:   maxPriorityFeePerGas: 1000000000n,
+// @log:   nonce: 69,
+// @log:   type: 'eip1559',
+// @log:   value: 1000000000000000000n
+// @log: }
+
 
 const signature = await walletClient.signTransaction(request)
 const hash = await walletClient.sendRawTransaction(signature)
 ```
 
-```ts [config.ts]
+```ts twoslash [config.ts] filename="config.ts"
+import 'viem/window'
+// ---cut---
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 
-// JSON-RPC Account
-export const [account] = await walletClient.getAddresses()
-// Local Account
-export const account = privateKeyToAccount(...)
+// @log: ↓ JSON-RPC Account
+export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+
+// @log: ↓ Local Account
+// export const account = privateKeyToAccount(...)
 ```
 
 :::
@@ -60,30 +62,29 @@ If you do not wish to pass an `account` to every `prepareTransactionRequest`, yo
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { walletClient } from './config'
  
 const request = await walletClient.prepareTransactionRequest({ // [!code focus:16]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
-/**
- * {
- *   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
- *   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
- *   maxFeePerGas: 150000000000n,
- *   maxPriorityFeePerGas: 1000000000n,
- *   nonce: 69,
- *   type: 'eip1559',
- *   value: 1000000000000000000n
- * }
- */
+// @log: {
+// @log:   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+// @log:   maxFeePerGas: 150000000000n,
+// @log:   maxPriorityFeePerGas: 1000000000n,
+// @log:   nonce: 69,
+// @log:   type: 'eip1559',
+// @log:   value: 1000000000000000000n
+// @log: }
+
 
 const signature = await walletClient.signTransaction(request)
 const hash = await walletClient.sendRawTransaction(signature)
 ```
 
-```ts [config.ts (JSON-RPC Account)] {4-6,9}
+```ts [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
 
 // Retrieve Account from an EIP-1193 Provider.
@@ -93,17 +94,17 @@ const [account] = await window.ethereum.request({
 
 export const walletClient = createWalletClient({
   account,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```
 
-```ts [config.ts (Local Account)] {5}
-import { createWalletClient, custom } from 'viem'
+```ts twoslash [config.ts (Local Account)] filename="config.ts"
+import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'),
-  transport: custom(window.ethereum)
+  transport: http()
 })
 ```
 
@@ -125,8 +126,10 @@ The Account to send the transaction from.
 
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
-```ts
-const request = await walletClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+const request = await walletClient.prepareTransactionRequest({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -139,8 +142,10 @@ const request = await walletClient.prepareSendTransaction({
 
 The transaction recipient or contract address.
 
-```ts
-const request = await walletClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
   value: 1000000000000000000n,
@@ -154,8 +159,10 @@ const request = await walletClient.prepareSendTransaction({
 
 The access list.
 
-```ts
-const request = await publicClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+const request = await walletClient.prepareTransactionRequest({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
@@ -174,12 +181,14 @@ const request = await publicClient.prepareSendTransaction({
 
 The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
-The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `prepareSendTransaction`).
+The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `prepareTransactionRequest`).
 
-```ts
+```ts twoslash
+// [!include config.ts]
+// ---cut---
 import { optimism } from 'viem/chains' // [!code focus]
 
-const request = await walletClient.prepareSendTransaction({
+const request = await walletClient.prepareTransactionRequest({
   chain: optimism, // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -193,8 +202,10 @@ const request = await walletClient.prepareSendTransaction({
 
 A contract hashed method call with encoded args.
 
-```ts
-const request = await walletClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+const request = await walletClient.prepareTransactionRequest({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -208,8 +219,12 @@ const request = await walletClient.prepareSendTransaction({
 
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
-```ts
-const request = await walletClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+import { parseEther, parseGwei } from 'viem'
+
+const request = await walletClient.prepareTransactionRequest({
   account,
   gasPrice: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -223,8 +238,12 @@ const request = await walletClient.prepareSendTransaction({
 
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
-```ts
-const request = await walletClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+import { parseEther, parseGwei } from 'viem'
+
+const request = await walletClient.prepareTransactionRequest({
   account,
   maxFeePerGas: parseGwei('20'),  // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -238,8 +257,12 @@ const request = await walletClient.prepareSendTransaction({
 
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
-```ts
-const request = await walletClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+import { parseEther, parseGwei } from 'viem'
+
+const request = await walletClient.prepareTransactionRequest({
   account,
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
@@ -254,8 +277,10 @@ const request = await walletClient.prepareSendTransaction({
 
 Unique number identifying this transaction.
 
-```ts
-const request = await walletClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -272,8 +297,10 @@ Parameters to prepare.
 
 For instance, if `["gas", "nonce"]` is provided, then only the `gas` and `nonce` parameters will be prepared.
 
-```ts
-const request = await walletClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -287,8 +314,12 @@ const request = await walletClient.prepareSendTransaction({
 
 Value in wei sent with this transaction.
 
-```ts
-const request = await walletClient.prepareSendTransaction({
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+import { parseEther } from 'viem'
+
+const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1'), // [!code focus]

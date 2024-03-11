@@ -12,7 +12,10 @@ export const nexilix = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpcurl.pos.nexilix.com'] },
   },
   blockExplorers: {
-    default: { name: 'NexilixScan', url: 'https://scan.nexilix.com' },
+    default: {
+      name: 'NexilixScan',
+      url: 'https://scan.nexilix.com',
+    },
   },
   contracts: {
     multicall3: {

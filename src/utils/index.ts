@@ -32,13 +32,6 @@ export {
 export { arrayRegex, bytesRegex, integerRegex } from './regex.js'
 
 export {
-  type GetSocketErrorType,
-  type HttpErrorType,
-  type HttpOptions,
-  type HttpReturnType,
-  type RpcRequest,
-  type RpcResponse,
-  type Socket,
   type WebSocketAsyncErrorType,
   type WebSocketAsyncOptions,
   type WebSocketAsyncReturnType,
@@ -47,7 +40,25 @@ export {
   type WebSocketReturnType,
   getSocket,
   rpc,
-} from './rpc.js'
+} from './rpc/compat.js'
+export {
+  type HttpRpcClient,
+  type HttpRpcClientOptions,
+  type HttpRequestErrorType,
+  type HttpRequestParameters,
+  type HttpRequestReturnType,
+  getHttpRpcClient,
+} from './rpc/http.js'
+export {
+  type GetSocketRpcClientErrorType,
+  type GetSocketRpcClientParameters,
+  type GetSocketParameters,
+  type Socket,
+  type SocketRpcClient,
+  getSocketRpcClient,
+  socketClientCache,
+} from './rpc/socket.js'
+export { getWebSocketRpcClient } from './rpc/webSocket.js'
 export { type StringifyErrorType, stringify } from './stringify.js'
 export {
   type DomainSeparatorErrorType,
@@ -337,18 +348,51 @@ export {
   type GetTransactionErrorReturnType,
   getTransactionError,
 } from './errors/getTransactionError.js'
+export { getAction } from './getAction.js'
 export {
   type DefineFormatterErrorType,
   defineFormatter,
 } from './formatters/formatter.js'
 export {
-  type GetEventSelectorErrorType,
-  getEventSelector,
-} from './hash/getEventSelector.js'
+  type ToEventSelectorErrorType,
+  toEventSelector,
+  /** @deprecated use `ToEventSelectorErrorType`. */
+  type ToEventSelectorErrorType as GetEventSelectorErrorType,
+  /** @deprecated use `toEventSelector`. */
+  toEventSelector as getEventSelector,
+} from './hash/toEventSelector.js'
 export {
-  type GetFunctionSelectorErrorType,
-  getFunctionSelector,
-} from './hash/getFunctionSelector.js'
+  type ToFunctionSelectorErrorType,
+  toFunctionSelector,
+  /** @deprecated use `ToFunctionSelectorErrorType`. */
+  type ToFunctionSelectorErrorType as GetFunctionSelectorErrorType,
+  /** @deprecated use `toFunctionSelector`. */
+  toFunctionSelector as getFunctionSelector,
+} from './hash/toFunctionSelector.js'
+export {
+  type ToEventSignatureErrorType,
+  toEventSignature,
+  /** @deprecated use `ToEventSignatureErrorType`. */
+  type ToEventSignatureErrorType as GetEventSignatureErrorType,
+  /** @deprecated use `toEventSignature`. */
+  toEventSignature as getEventSignature,
+} from './hash/toEventSignature.js'
+export {
+  type ToFunctionSignatureErrorType,
+  toFunctionSignature,
+  /** @deprecated use `ToFunctionSignatureErrorType`. */
+  type ToFunctionSignatureErrorType as GetFunctionSignatureErrorType,
+  /** @deprecated use `toFunctionSignature`. */
+  toFunctionSignature as getFunctionSignature,
+} from './hash/toFunctionSignature.js'
+export {
+  type ToEventHashErrorType,
+  toEventHash,
+} from './hash/toEventHash.js'
+export {
+  type ToFunctionHashErrorType,
+  toFunctionHash,
+} from './hash/toFunctionHash.js'
 export { type IsHashErrorType, isHash } from './hash/isHash.js'
 export { type Keccak256ErrorType, keccak256 } from './hash/keccak256.js'
 export { type Sha256ErrorType, sha256 } from './hash/sha256.js'

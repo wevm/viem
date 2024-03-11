@@ -19,6 +19,7 @@ export const lukso = /*#__PURE__*/ defineChain({
     default: {
       name: 'LUKSO Mainnet Explorer',
       url: 'https://explorer.execution.mainnet.lukso.network',
+      apiUrl: 'https://api.explorer.execution.mainnet.lukso.network/api',
     },
   },
 })

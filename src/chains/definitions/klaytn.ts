@@ -12,7 +12,10 @@ export const klaytn = /*#__PURE__*/ defineChain({
     default: { http: ['https://public-en-cypress.klaytn.net'] },
   },
   blockExplorers: {
-    default: { name: 'KlaytnScope', url: 'https://scope.klaytn.com' },
+    default: {
+      name: 'KlaytnScope',
+      url: 'https://scope.klaytn.com',
+    },
   },
   contracts: {
     multicall3: {

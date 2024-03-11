@@ -17,6 +17,7 @@ export const haqqMainnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'HAQQ Explorer',
       url: 'https://explorer.haqq.network',
+      apiUrl: 'https://explorer.haqq.network/api',
     },
   },
 })

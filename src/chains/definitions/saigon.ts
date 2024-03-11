@@ -12,7 +12,7 @@ export const saigon = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Saigon Explorer',
-      url: 'https://saigon-explorer.roninchain.com',
+      url: 'https://saigon-app.roninchain.com',
     },
   },
   contracts: {

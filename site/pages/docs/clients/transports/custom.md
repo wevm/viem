@@ -4,7 +4,7 @@ The `custom` Transport accepts an [EIP-1193 `request` function](https://eips.eth
 
 ## Import
 
-```ts
+```ts twoslash
 import { custom } from 'viem'
 ```
 
@@ -12,19 +12,22 @@ import { custom } from 'viem'
 
 You can use any [EIP-1193 compatible](https://eips.ethereum.org/EIPS/eip-1193) Ethereum Provider with the `custom` Transport:
 
-```ts
+```ts twoslash
+import 'viem/window'
+// ---cut---
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 ```
 
 Or you can define your own:
 
-```ts
+```ts twoslash
+// @noErrors
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 import { customRpc } from './rpc'
@@ -48,7 +51,10 @@ const client = createWalletClient({
 
 An [EIP-1193 `request` function](https://eips.ethereum.org/EIPS/eip-1193#request) function.
 
-```ts
+```ts twoslash
+// @noErrors
+import { custom } from 'viem'
+// ---cut---
 import { customRpc } from './rpc'
 
 const transport = custom({
@@ -66,9 +72,12 @@ const transport = custom({
 
 A key for the Transport.
 
-```ts
+```ts twoslash
+import 'viem/window'
+import { custom } from 'viem'
+// ---cut---
 const transport = custom(
-  window.ethereum,
+  window.ethereum!,
   { 
     key: 'windowProvider', // [!code focus]
   }
@@ -82,9 +91,12 @@ const transport = custom(
 
 A name for the Transport
 
-```ts
+```ts twoslash
+import 'viem/window'
+import { custom } from 'viem'
+// ---cut---
 const transport = custom(
-  window.ethereum,
+  window.ethereum!,
   { 
     name: 'Window Ethereum Provider', // [!code focus]
   }
@@ -98,8 +110,11 @@ const transport = custom(
 
 The max number of times to retry when a request fails.
 
-```ts
-const transport = custom(window.ethereum, {
+```ts twoslash
+import 'viem/window'
+import { custom } from 'viem'
+// ---cut---
+const transport = custom(window.ethereum!, {
   retryCount: 5, // [!code focus]
 })
 ```
@@ -111,8 +126,11 @@ const transport = custom(window.ethereum, {
 
 The base delay (in ms) between retries. By default, the Transport will use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) (`~~(1 << count) * retryDelay`), which means the time between retries is not constant.
 
-```ts
-const transport = custom(window.ethereum, {
+```ts twoslash
+import 'viem/window'
+import { custom } from 'viem'
+// ---cut---
+const transport = custom(window.ethereum!, {
   retryDelay: 100, // [!code focus]
 })
 ```

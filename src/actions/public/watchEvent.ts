@@ -317,8 +317,8 @@ export function watchEvent<
               const formatted = formatLog(log, { args, eventName })
               onLogs([formatted] as any)
             } catch (err) {
-              let eventName
-              let isUnnamed
+              let eventName: string | undefined
+              let isUnnamed: boolean | undefined
               if (
                 err instanceof DecodeLogDataMismatch ||
                 err instanceof DecodeLogTopicsMismatch

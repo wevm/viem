@@ -13,6 +13,7 @@ export const kroma = /*#__PURE__*/ defineChain({
     default: {
       name: 'Kroma Explorer',
       url: 'https://blockscout.kroma.network',
+      apiUrl: 'https://blockscout.kroma.network/api',
     },
   },
   testnet: false,

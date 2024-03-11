@@ -23,6 +23,7 @@ export const acala = /*#__PURE__*/ defineChain({
     default: {
       name: 'Acala Blockscout',
       url: 'https://blockscout.acala.network',
+      apiUrl: 'https://blockscout.acala.network/api',
     },
   },
   testnet: false,

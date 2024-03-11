@@ -16,6 +16,7 @@ export const kavaTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Kava EVM Testnet Explorer',
       url: 'https://testnet.kavascan.com/',
+      apiUrl: 'https://testnet.kavascan.com/api',
     },
   },
   contracts: {

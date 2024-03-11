@@ -23,6 +23,7 @@ export const zoraSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Zora Sepolia Explorer',
       url: 'https://sepolia.explorer.zora.energy/',
+      apiUrl: 'https://sepolia.explorer.zora.energy/api',
     },
   },
   contracts: {
@@ -39,6 +40,11 @@ export const zoraSepolia = /*#__PURE__*/ defineChain({
     portal: {
       [sourceId]: {
         address: '0xeffE2C6cA9Ab797D418f0D91eA60807713f3536f',
+      },
+    },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: '0x5376f1D543dcbB5BD416c56C189e4cB7399fCcCB',
       },
     },
   },

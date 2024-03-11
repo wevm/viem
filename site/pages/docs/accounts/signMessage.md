@@ -9,7 +9,7 @@ With the calculated signature, you can:
 
 ## Usage
 
-```ts
+```ts twoslash
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
@@ -18,7 +18,7 @@ const signature = await account.signMessage({
   // Hex data representation of message.
   message: { raw: '0x68656c6c6f20776f726c64' },
 })
-// "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
+// @log: Output: "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
 ```
 
 ## Returns
@@ -37,7 +37,11 @@ Message to sign.
 
 By default, viem signs the UTF-8 representation of the message.
 
-```ts
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+// ---cut---
 const signature = await account.signMessage({
   message: 'hello world', // [!code focus:1]
 })
@@ -45,7 +49,11 @@ const signature = await account.signMessage({
 
 To sign the data representation of the message, you can use the `raw` attribute.
 
-```ts
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+// ---cut---
 const signature = await account.signMessage({
   message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus:1]
 })

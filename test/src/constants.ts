@@ -96,6 +96,7 @@ if (process.env.VITE_ANVIL_PORT) {
 export const poolId = Number(process.env.VITEST_POOL_ID ?? 1)
 export const localHttpUrl = `http://127.0.0.1:${anvilPort}/${poolId}`
 export const localWsUrl = `ws://127.0.0.1:${anvilPort}/${poolId}`
+export const localIpcPath = `/tmp/anvil-${poolId}.ipc`
 
 export const typedData = {
   basic: {

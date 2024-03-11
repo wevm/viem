@@ -15,6 +15,7 @@ export const bearNetworkChainTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'BrnkTestScan',
       url: 'https://brnktest-scan.bearnetwork.net',
+      apiUrl: 'https://brnktest-scan.bearnetwork.net/api',
     },
   },
   testnet: true,

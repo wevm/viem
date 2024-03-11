@@ -12,7 +12,10 @@ export const bronosTestnet = /*#__PURE__*/ defineChain({
     default: { http: ['https://evm-testnet.bronos.org'] },
   },
   blockExplorers: {
-    default: { name: 'BronoScan', url: 'https://tbroscan.bronos.org' },
+    default: {
+      name: 'BronoScan',
+      url: 'https://tbroscan.bronos.org',
+    },
   },
   testnet: true,
 })

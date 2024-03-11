@@ -12,7 +12,10 @@ export const boba = /*#__PURE__*/ defineChain({
     default: { http: ['https://mainnet.boba.network'] },
   },
   blockExplorers: {
-    default: { name: 'BOBAScan', url: 'https://bobascan.com' },
+    default: {
+      name: 'BOBAScan',
+      url: 'https://bobascan.com',
+    },
   },
   contracts: {
     multicall3: {

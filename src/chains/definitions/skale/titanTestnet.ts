@@ -1,29 +1,25 @@
 import { defineChain } from '../../../utils/chain/defineChain.js'
 
 export const skaleTitanTestnet = /*#__PURE__*/ defineChain({
-  id: 1_517_929_550,
-  name: 'SKALE | Titan Community Hub Testnet',
+  id: 1_020_352_220,
+  name: 'SKALE Titan Hub',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {
-      http: [
-        'https://staging-v3.skalenodes.com/v1/staging-aware-chief-gianfar',
-      ],
-      webSocket: [
-        'wss://staging-v3.skalenodes.com/v1/ws/staging-aware-chief-gianfar',
-      ],
+      http: ['https://testnet.skalenodes.com/v1/aware-fake-trim-testnet'],
+      webSocket: ['wss://testnet.skalenodes.com/v1/ws/aware-fake-trim-testnet'],
     },
   },
   blockExplorers: {
     default: {
       name: 'SKALE Explorer',
-      url: 'https://staging-aware-chief-gianfar.explorer.staging-v3.skalenodes.com',
+      url: 'https://aware-fake-trim-testnet.explorer.testnet.skalenodes.com',
     },
   },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 2085155,
+      blockCreated: 104_072,
     },
   },
   testnet: true,

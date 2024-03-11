@@ -12,6 +12,9 @@ export const fibo = /*#__PURE__*/ defineChain({
     default: { http: ['https://network.hzroc.art'] },
   },
   blockExplorers: {
-    default: { name: 'FiboScan', url: 'https://scan.fibochain.org' },
+    default: {
+      name: 'FiboScan',
+      url: 'https://scan.fibochain.org',
+    },
   },
 })

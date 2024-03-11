@@ -61,21 +61,21 @@ The hex value to decode.
 
 The output type or options.
 
-```ts {3}
+```ts 
 fromHex(
   '0x48656c6c6f20776f726c642e', 
-  'string'
+  'string' // [!code focus]
 )
 // 'Hello world'
 ```
 
-```ts {3-6}
+```ts 
 fromHex(
   '0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000', 
-  {
-    size: 32,
-    to: 'string'
-  }
+  { // [!code focus]
+    size: 32, // [!code focus]
+    to: 'string' // [!code focus]
+  } // [!code focus]
 )
 // 'Hello world'
 ```

@@ -105,6 +105,36 @@ const ensText = await publicClient.getEnsText({
 })
 ```
 
+### gatewayUrls (optional)
+
+- **Type:** `string[]`
+
+A set of Universal Resolver gateways, used for resolving CCIP-Read requests made through the ENS Universal Resolver Contract.
+
+```ts
+const ensText = await publicClient.getEnsText({
+  name: normalize('wevm.eth'),
+  key: 'com.twitter',
+  gatewayUrls: ["https://ccip.ens.xyz"], // [!code focus]
+})
+```
+
+### strict (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+A boolean value that when set to true will strictly propagate all ENS Universal Resolver Contract errors.
+
+```ts
+const ensText = await publicClient.getEnsText({
+  name: normalize('wevm.eth'),
+  key: 'com.twitter',
+  strict: true, // [!code focus]
+})
+```
+
+
 ### universalResolverAddress (optional)
 
 - **Type:** [`Address`](/docs/glossary/types#address)

@@ -220,8 +220,8 @@ export function rankTransports({
         const transport_ = transport({ chain, retryCount: 0, timeout })
 
         const start = Date.now()
-        let end
-        let success
+        let end: number
+        let success: number
         try {
           await transport_.request({ method: 'net_listening' })
           success = 1

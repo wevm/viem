@@ -103,8 +103,8 @@ export function parseEventLogs<
         if (eventName && !eventName.includes(event.eventName!)) return null
         return { ...event, ...log }
       } catch (err) {
-        let eventName
-        let isUnnamed
+        let eventName: string | undefined
+        let isUnnamed: boolean | undefined
 
         if (err instanceof AbiEventSignatureNotFoundError) return null
         if (

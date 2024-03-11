@@ -18,6 +18,7 @@ export const shimmerTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Shimmer Network Explorer',
       url: 'https://explorer.evm.testnet.shimmer.network',
+      apiUrl: 'https://explorer.evm.testnet.shimmer.network/api',
     },
   },
   testnet: true,

@@ -14,6 +14,7 @@ export const scrollTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blockscout',
       url: 'https://blockscout.scroll.io',
+      apiUrl: 'https://blockscout.scroll.io/api',
     },
   },
   testnet: true,

@@ -15,6 +15,7 @@ export const mantleTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Mantle Testnet Explorer',
       url: 'https://explorer.testnet.mantle.xyz',
+      apiUrl: 'https://explorer.testnet.mantle.xyz/api',
     },
   },
   contracts: {

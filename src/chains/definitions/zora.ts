@@ -19,7 +19,11 @@ export const zora = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.zora.energy' },
+    default: {
+      name: 'Explorer',
+      url: 'https://explorer.zora.energy',
+      apiUrl: 'https://explorer.zora.energy/api',
+    },
   },
   contracts: {
     ...chainConfig.contracts,
@@ -35,6 +39,11 @@ export const zora = /*#__PURE__*/ defineChain({
     portal: {
       [sourceId]: {
         address: '0x1a0ad011913A150f69f6A19DF447A0CfD9551054',
+      },
+    },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: '0x3e2Ea9B92B7E48A52296fD261dc26fd995284631',
       },
     },
   },

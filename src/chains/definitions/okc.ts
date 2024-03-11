@@ -12,7 +12,10 @@ export const okc = /*#__PURE__*/ defineChain({
     default: { http: ['https://exchainrpc.okex.org'] },
   },
   blockExplorers: {
-    default: { name: 'oklink', url: 'https://www.oklink.com/okc' },
+    default: {
+      name: 'oklink',
+      url: 'https://www.oklink.com/okc',
+    },
   },
   contracts: {
     multicall3: {

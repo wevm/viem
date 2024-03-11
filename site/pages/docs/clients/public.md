@@ -6,7 +6,7 @@ The `createPublicClient` function sets up a Public Client with a given [Transpor
 
 ## Import
 
-```ts
+```ts twoslash
 import { createPublicClient } from 'viem'
 ```
 
@@ -14,11 +14,11 @@ import { createPublicClient } from 'viem'
 
 Initialize a Client with your desired [Chain](/docs/chains/introduction) (e.g. `mainnet`) and [Transport](/docs/clients/intro) (e.g. `http`).
 
-```ts
+```ts twoslash
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({ 
+const publicClient = createPublicClient({ 
   chain: mainnet,
   transport: http()
 })
@@ -26,8 +26,10 @@ const client = createPublicClient({
 
 Then you can consume [Public Actions](/docs/actions/public/introduction):
 
-```ts
-const blockNumber = await client.getBlockNumber() // [!code focus:10]
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const blockNumber = await publicClient.getBlockNumber() // [!code focus:10]
 ```
 
 ## Optimization
@@ -44,8 +46,11 @@ The Public Client schedules the aggregation of `eth_call` requests over a given 
 
 You can enable `eth_call` aggregation by setting the `batch.multicall` flag to `true`:
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const publicClient = createPublicClient({
   batch: {
     multicall: true, // [!code focus]
   },
@@ -58,18 +63,42 @@ const client = createPublicClient({
 
 Now, when you start to utilize `readContract` Actions, the Public Client will batch and send over those requests at the end of the message queue (or custom time period) in a single `eth_call` multicall request:
 
-```ts
-const contract = getContract({ address, abi, client })
+:::code-group
+
+```ts twoslash [example.ts]
+// @filename: client.ts
+// [!include ~/snippets/publicClient.ts]
+
+// @filename: abi.ts
+// [!include ~/snippets/erc20Abi.ts]
+
+// @filename: example.ts
+const address = '0x'
+// ---cut---
+import { getContract } from 'viem'
+import { abi } from './abi'
+import { publicClient } from './client'
+
+const contract = getContract({ address, abi, client: publicClient })
 
 // The below will send a single request to the RPC Provider.
-const [name, totalSupply, symbol, tokenUri, balance] = await Promise.all([
+const [name, totalSupply, symbol, balance] = await Promise.all([
   contract.read.name(),
   contract.read.totalSupply(),
   contract.read.symbol(),
-  contract.read.tokenURI([420n]),
   contract.read.balanceOf([address]),
 ])
 ```
+
+```ts twoslash [client.ts]
+// [!include ~/snippets/publicClient.ts]
+```
+
+```ts twoslash [abi.ts]
+// [!include ~/snippets/erc20Abi.ts]
+```
+
+:::
 
 > Read more on [Contract Instances](/docs/contract/getContract).
 
@@ -81,8 +110,10 @@ const [name, totalSupply, symbol, tokenUri, balance] = await Promise.all([
 
 The [Transport](/docs/clients/intro) of the Public Client.
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
   chain: mainnet,
   transport: http(), // [!code focus]
 })
@@ -94,8 +125,10 @@ const client = createPublicClient({
 
 The [Chain](/docs/chains/introduction) of the Public Client.
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
   chain: mainnet, // [!code focus]
   transport: http(),
 })
@@ -112,8 +145,10 @@ Flags for batch settings.
 
 Toggle to enable `eth_call` multicall aggregation.
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
   batch: {
     multicall: true, // [!code focus]
   },
@@ -131,8 +166,10 @@ The maximum size (in bytes) for each multicall (`aggregate3`) calldata chunk.
 
 > Note: Some RPC Providers limit the amount of calldata that can be sent in a single request. It is best to check with your RPC Provider to see if there are any calldata size limits to `eth_call` requests.
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
   batch: {
     multicall: {
       batchSize: 512, // [!code focus]
@@ -150,8 +187,10 @@ const client = createPublicClient({
 
 The maximum number of milliseconds to wait before sending a batch.
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
   batch: {
     multicall: {
       wait: 16, // [!code focus]
@@ -169,8 +208,10 @@ const client = createPublicClient({
 
 Time (in ms) that cached data will remain in memory.
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
   cacheTime: 10_000, // [!code focus]
   chain: mainnet,
   transport: http(),
@@ -184,8 +225,10 @@ const client = createPublicClient({
 
 A key for the Client.
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
   chain: mainnet,
   key: 'public', // [!code focus]
   transport: http(),
@@ -199,8 +242,10 @@ const client = createPublicClient({
 
 A name for the Client.
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
   chain: mainnet,
   name: 'Public Client', // [!code focus]
   transport: http(),
@@ -214,8 +259,10 @@ const client = createPublicClient({
 
 Frequency (in ms) for polling enabled Actions.
 
-```ts
-const client = createPublicClient({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
   chain: mainnet,
   pollingInterval: 10_000, // [!code focus]
   transport: http(),

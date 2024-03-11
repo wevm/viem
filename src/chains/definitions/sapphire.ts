@@ -15,6 +15,7 @@ export const sapphire = /*#__PURE__*/ defineChain({
     default: {
       name: 'Oasis Sapphire Explorer',
       url: 'https://explorer.sapphire.oasis.io',
+      apiUrl: 'https://explorer.sapphire.oasis.io/api',
     },
   },
   contracts: {

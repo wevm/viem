@@ -17,6 +17,7 @@ export const haqqTestedge2 = /*#__PURE__*/ defineChain({
     default: {
       name: 'HAQQ Explorer',
       url: 'https://explorer.testedge2.haqq.network',
+      apiUrl: 'https://explorer.testedge2.haqq.network/api',
     },
   },
 })

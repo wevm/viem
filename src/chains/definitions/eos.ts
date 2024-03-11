@@ -15,6 +15,7 @@ export const eos = /*#__PURE__*/ defineChain({
     default: {
       name: 'EOS EVM Explorer',
       url: 'https://explorer.evm.eosnetwork.com',
+      apiUrl: 'https://explorer.evm.eosnetwork.com/api',
     },
   },
   contracts: {

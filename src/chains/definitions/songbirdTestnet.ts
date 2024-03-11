@@ -15,6 +15,7 @@ export const songbirdTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Coston Explorer',
       url: 'https://coston-explorer.flare.network',
+      apiUrl: 'https://coston-explorer.flare.network/api',
     },
   },
   testnet: true,

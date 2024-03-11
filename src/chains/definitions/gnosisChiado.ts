@@ -18,6 +18,7 @@ export const gnosisChiado = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blockscout',
       url: 'https://blockscout.chiadochain.net',
+      apiUrl: 'https://blockscout.chiadochain.net/api',
     },
   },
   contracts: {

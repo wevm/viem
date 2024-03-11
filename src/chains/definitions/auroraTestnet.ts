@@ -12,7 +12,11 @@ export const auroraTestnet = /*#__PURE__*/ defineChain({
     default: { http: ['https://testnet.aurora.dev'] },
   },
   blockExplorers: {
-    default: { name: 'Aurorascan', url: 'https://testnet.aurorascan.dev' },
+    default: {
+      name: 'Aurorascan',
+      url: 'https://testnet.aurorascan.dev',
+      apiUrl: 'https://testnet.aurorascan.dev/api',
+    },
   },
   testnet: true,
 })

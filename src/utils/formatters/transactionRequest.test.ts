@@ -256,6 +256,7 @@ test('rpcTransactionType', () => {
     {
       "eip1559": "0x2",
       "eip2930": "0x1",
+      "eip4844": "0x3",
       "legacy": "0x0",
     }
   `)

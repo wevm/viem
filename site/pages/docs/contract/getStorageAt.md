@@ -67,6 +67,35 @@ const data = await publicClient.getStorageAt({
 })
 ```
 
+### blockNumber (optional)
+
+- **Type:** `number`
+
+The block number to perform the storage slot read against.
+
+```ts
+const bytecode = await publicClient.getStorageAt({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  slot: toHex(0),
+  blockNumber: 15121123n, // [!code focus]
+})
+```
+
+### blockTag (optional)
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+The block tag to perform the storage slot read against.
+
+```ts
+const bytecode = await publicClient.getStorageAt({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  slot: toHex(0),
+  blockTag: 'safe', // [!code focus]
+})
+```
+
 ## JSON-RPC Method
 
 [`eth_getStorageAt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getstorageat)

@@ -14,6 +14,7 @@ export const scroll = /*#__PURE__*/ defineChain({
     default: {
       name: 'Scrollscan',
       url: 'https://scrollscan.com',
+      apiUrl: 'https://api.scrollscan.com/api',
     },
   },
   contracts: {

@@ -10,7 +10,7 @@ viem internally uses [`@scure/bip32`](https://github.com/paulmillr/scure-bip32),
 
 ## Import
 
-```ts
+```ts twoslash
 import { mnemonicToAccount } from 'viem/accounts'
 ```
 
@@ -18,7 +18,7 @@ import { mnemonicToAccount } from 'viem/accounts'
 
 To initialize a Mnemonic Account, you will need to pass a mnemonic phrase to `mnemonicToAccount`:
 
-```ts
+```ts twoslash
 import { createWalletClient, http } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
@@ -38,7 +38,7 @@ const client = createWalletClient({
 
 You can generate a random BIP-39 mnemonic using the `generateMnemonic` function with a wordlist:
 
-```ts
+```ts twoslash
 import { english, generateMnemonic } from 'viem/accounts'
 
 const mnemonic = generateMnemonic(english)
@@ -68,7 +68,9 @@ Available wordlists:
 
 The BIP-39 mnemonic phrase.
 
-```ts
+```ts twoslash
+import { mnemonicToAccount } from 'viem/accounts'
+// ---cut---
 const account = mnemonicToAccount(
   'legal winner thank year wave sausage worth useful legal winner thank yellow' // [!code focus]
 )
@@ -81,7 +83,9 @@ const account = mnemonicToAccount(
 
 The account index to use in the path (`"m/44'/60'/${accountIndex}'/0/0"`) to derive a private key.
 
-```ts
+```ts twoslash
+import { mnemonicToAccount } from 'viem/accounts'
+// ---cut---
 const account = mnemonicToAccount(
   'legal winner thank year wave sausage worth useful legal winner thank yellow',
   {
@@ -97,7 +101,9 @@ const account = mnemonicToAccount(
 
 The address index to use in the path (`"m/44'/60'/0'/0/${addressIndex}"`) to derive a private key.
 
-```ts
+```ts twoslash
+import { mnemonicToAccount } from 'viem/accounts'
+// ---cut---
 const account = mnemonicToAccount(
   'legal winner thank year wave sausage worth useful legal winner thank yellow',
   {
@@ -114,7 +120,9 @@ const account = mnemonicToAccount(
 
 The change index to use in the path (`"m/44'/60'/0'/${changeIndex}/0"`) to derive a private key.
 
-```ts
+```ts twoslash
+import { mnemonicToAccount } from 'viem/accounts'
+// ---cut---
 const account = mnemonicToAccount(
   'legal winner thank year wave sausage worth useful legal winner thank yellow',
   {
@@ -131,7 +139,9 @@ const account = mnemonicToAccount(
 
 The HD path to use to derive a private key.
 
-```ts
+```ts twoslash
+import { mnemonicToAccount } from 'viem/accounts'
+// ---cut---
 const account = mnemonicToAccount(
   'legal winner thank year wave sausage worth useful legal winner thank yellow',
   {

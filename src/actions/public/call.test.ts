@@ -16,11 +16,24 @@ import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { trim } from '../../utils/data/trim.js'
-import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
-import { call, getRevertErrorData } from './call.js'
+import {
+  type Hex,
+  type StateMapping,
+  type StateOverride,
+  encodeAbiParameters,
+  pad,
+  parseEther,
+  toHex,
+} from '../../index.js'
+import {
+  call,
+  getRevertErrorData,
+  parseAccountStateOverride,
+  parseStateMapping,
+} from './call.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
@@ -109,6 +122,43 @@ test('args: blockNumber', async () => {
   expect(data).toMatchInlineSnapshot('undefined')
 })
 
+test('args: override', async () => {
+  const fakeName = 'NotWagmi'
+
+  // layout of strings in storage
+  const nameSlot = toHex(0, { size: 32 })
+  const fakeNameHex = toHex(fakeName)
+  // we don't divide by 2 because length must be length * 2 if word is strictly less than 32 bytes
+  const bytesLen = fakeNameHex.length - 2
+
+  expect(bytesLen).toBeLessThanOrEqual(62)
+
+  const slotValue = `${pad(fakeNameHex, { dir: 'right', size: 31 })}${toHex(
+    bytesLen,
+    { size: 1 },
+  ).slice(2)}` as Hex
+
+  const { data } = await call(publicClient, {
+    data: name4bytes,
+    to: wagmiContractAddress,
+    stateOverride: [
+      {
+        address: wagmiContractAddress,
+        stateDiff: [
+          {
+            slot: nameSlot,
+            value: slotValue,
+          },
+        ],
+      },
+    ],
+  })
+
+  expect(data).toMatchInlineSnapshot(
+    `"${encodeAbiParameters([{ type: 'string' }], [fakeName])}"`,
+  )
+})
+
 describe('account hoisting', () => {
   test.skip('no account hoisted', async () => {
     await expect(
@@ -122,7 +172,7 @@ describe('account hoisting', () => {
       Raw Call Arguments:
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:  0xa0712d680000000000000000000000000000000000000000000000000000000000000258
-      
+
       Details: execution reverted: ERC721: mint to the zero address
       Version: viem@1.0.2"
     `)
@@ -319,14 +369,14 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      [CallExecutionError: Execution reverted with reason: Token ID is taken.
+      [CallExecutionError: Execution reverted with reason: revert: Token ID is taken.
 
       Raw Call Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
-      Details: execution reverted: Token ID is taken
+      Details: execution reverted: revert: Token ID is taken
       Version: viem@1.0.2]
     `,
     )
@@ -350,6 +400,128 @@ describe('errors', () => {
       Details: execution reverted
       Version: viem@1.0.2]
     `)
+  })
+
+  describe('state overrides error', () => {
+    test('wrong address', async () => {
+      await expect(
+        call(publicClient, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [
+            {
+              address: '0x1',
+              stateDiff: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+            },
+          ],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [CallExecutionError: Address "0x1" is invalid.
+
+        - Address must be a hex value of 20 bytes (40 hex characters).
+        - Address must match its checksum counterpart.
+         
+        Raw Call Arguments:
+          to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+          data:  0x06fdde03
+          State Override:
+            0x1:
+              stateDiff:
+                0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+
+        Version: viem@1.0.2]
+      `)
+    })
+
+    test('duplicate address', async () => {
+      await expect(
+        call(publicClient, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [
+            {
+              address: wagmiContractAddress,
+              stateDiff: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+            },
+            {
+              address: wagmiContractAddress,
+              stateDiff: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+            },
+          ],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [CallExecutionError: State for account "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2" is set multiple times.
+
+      Raw Call Arguments:
+        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:  0x06fdde03
+        State Override:
+          0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
+            stateDiff:
+              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+          0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
+            stateDiff:
+              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+
+      Version: viem@1.0.2]
+      `)
+    })
+
+    test('pass state and stateDiff', async () => {
+      await expect(
+        call(publicClient, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [
+            // @ts-expect-error Cannot pass `state` and `stateDiff` at the same time
+            {
+              address: wagmiContractAddress,
+              stateDiff: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+              state: [
+                {
+                  slot: `0x${fourTwenty}`,
+                  value: `0x${fourTwenty}`,
+                },
+              ],
+            },
+          ],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [CallExecutionError: state and stateDiff are set on the same account.
+
+        Raw Call Arguments:
+          to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+          data:  0x06fdde03
+          State Override:
+            0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
+              state:
+                0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+              stateDiff:
+                0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+
+        Version: viem@1.0.2]
+      `)
+    })
   })
 })
 
@@ -794,5 +966,126 @@ describe('getRevertErrorData', () => {
         }),
       ),
     ).toBe('0x556f1830')
+  })
+})
+
+describe('parsing overrides', () => {
+  test('state mapping', () => {
+    const stateMapping: StateMapping = [
+      {
+        slot: `0x${fourTwenty}`,
+        value: `0x${fourTwenty}`,
+      },
+    ]
+    expect(parseStateMapping(stateMapping)).toMatchInlineSnapshot(`
+      {
+        "0x${fourTwenty}": "0x${fourTwenty}",
+      }
+    `)
+  })
+
+  test('state mapping: undefined', () => {
+    expect(parseStateMapping(undefined)).toMatchInlineSnapshot('undefined')
+  })
+
+  test('state mapping: invalid key', () => {
+    const stateMapping: StateMapping = [
+      {
+        // invalid bytes length
+        slot: `0x${fourTwenty.slice(0, -1)}`,
+        value: `0x${fourTwenty}`,
+      },
+    ]
+
+    expect(() =>
+      parseStateMapping(stateMapping),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('state mapping: invalid value', () => {
+    const stateMapping: StateMapping = [
+      {
+        slot: `0x${fourTwenty}`,
+        value: `0x${fourTwenty.slice(0, -1)}`,
+      },
+    ]
+
+    expect(() =>
+      parseStateMapping(stateMapping),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('args: code', () => {
+    const stateOverride: Omit<StateOverride[number], 'address'> = {
+      code: `0x${fourTwenty}`,
+    }
+
+    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
+      {
+        "code": "0x${fourTwenty}",
+      }
+    `)
+
+    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
+      code: undefined,
+    }
+
+    expect(
+      parseAccountStateOverride(emptyStateOverride),
+    ).toMatchInlineSnapshot(`
+      {}
+    `)
+  })
+
+  test('args: balance', () => {
+    const stateOverride: Omit<StateOverride[number], 'address'> = {
+      balance: 1n,
+    }
+
+    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
+      {
+        "balance": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      }
+    `)
+
+    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
+      balance: undefined,
+    }
+
+    expect(
+      parseAccountStateOverride(emptyStateOverride),
+    ).toMatchInlineSnapshot(`
+      {}
+    `)
+  })
+
+  test('args: nonce', () => {
+    const stateOverride: Omit<StateOverride[number], 'address'> = {
+      nonce: 1,
+    }
+
+    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
+      {
+        "nonce": "0x0000000000000001",
+      }
+    `)
+
+    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
+      nonce: undefined,
+    }
+
+    expect(
+      parseAccountStateOverride(emptyStateOverride),
+    ).toMatchInlineSnapshot(`
+      {}
+    `)
   })
 })

@@ -43,17 +43,31 @@ const unwatch = contract.watchEvent.Transfer(
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http, injected } from 'viem'
+import { createPublicClient, createWalletClient, http, custom } from 'viem'
 import { mainnet } from 'viem/chains'
+import { EthereumProvider } from '@walletconnect/ethereum-provider'
 
 export const publicClient = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
 
-export const walletClient = createPublicClient({
+// eg: Metamask
+export const walletClient = createWalletClient({
   chain: mainnet,
-  transport: injected(window.ethereum),
+  transport: custom(window.ethereum!),
+})
+
+// eg: WalletConnect
+const provider = await EthereumProvider.init({
+  projectId: "abcd1234",
+  showQrModal: true,
+  chains: [1],
+})
+
+export const walletClientWC = createWalletClient({
+  chain: mainnet,
+  transport: custom(provider),
 })
 ```
 
@@ -103,34 +117,6 @@ const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   client: {
-    publicClient,
-    walletClient,
-  }
-})
-
-const balance = await contract.read.balanceOf([
-  '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-])
-const hash = await contract.write.mint([69420])
-const logs = await contract.getEvents.Transfer()
-const unwatch = contract.watchEvent.Transfer(
-  {
-    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-    to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
-  },
-  { onLogs: logs => console.log(logs) }
-)
-```
-
-```ts [contract-instance.ts]
-import { getContract } from 'viem'
-import { wagmiAbi } from './abi'
-import { publicClient, walletClient } from './client'
-
-const contract = getContract({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  abi: wagmiAbi,
-  client: {
     public: publicClient,
     wallet: walletClient,
   }
@@ -170,7 +156,7 @@ const unwatch = publicClient.watchContractEvent({
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
   abi: wagmiAbi,
   eventName: 'Transfer',
-  args: {  
+  args: {
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
   },

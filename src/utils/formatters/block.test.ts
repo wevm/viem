@@ -5,8 +5,10 @@ import type { RpcBlock } from '../../types/rpc.js'
 import { formatBlock } from './block.js'
 
 const block: RpcBlock = {
+  blobGasUsed: '0x1',
   baseFeePerGas: '0x0',
   difficulty: '0x2d3a678cddba9b',
+  excessBlobGas: '0x2',
   extraData: '0x',
   gasLimit: '0x1c9c347',
   gasUsed: '0x0',
@@ -45,7 +47,9 @@ test('deserializes block', () => {
   expect(formatBlock(block)).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": 0n,
+      "blobGasUsed": 1n,
       "difficulty": 12730590371363483n,
+      "excessBlobGas": 2n,
       "extraData": "0x",
       "gasLimit": 29999943n,
       "gasUsed": 0n,
@@ -79,6 +83,8 @@ test('nullish values', () => {
   expect(
     formatBlock({
       ...block,
+      blobGasUsed: undefined,
+      excessBlobGas: undefined,
       difficulty: undefined,
       number: null,
       baseFeePerGas: undefined,
@@ -94,7 +100,9 @@ test('nullish values', () => {
   ).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": null,
+      "blobGasUsed": undefined,
       "difficulty": undefined,
+      "excessBlobGas": undefined,
       "extraData": "0x",
       "gasLimit": undefined,
       "gasUsed": undefined,

@@ -12,7 +12,19 @@ export const xdc = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.xinfin.network'] },
   },
   blockExplorers: {
-    xinfin: { name: 'XinFin', url: 'https://explorer.xinfin.network' },
-    default: { name: 'Blocksscan', url: 'https://xdc.blocksscan.io' },
+    xinfin: {
+      name: 'XinFin',
+      url: 'https://explorer.xinfin.network',
+    },
+    default: {
+      name: 'Blocksscan',
+      url: 'https://xdc.blocksscan.io',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 71542788,
+    },
   },
 })

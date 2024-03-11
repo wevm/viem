@@ -15,6 +15,7 @@ export const baseGoerli = /*#__PURE__*/ defineChain({
     default: {
       name: 'Basescan',
       url: 'https://goerli.basescan.org',
+      apiUrl: 'https://goerli.basescan.org/api',
     },
   },
   contracts: {
@@ -31,6 +32,11 @@ export const baseGoerli = /*#__PURE__*/ defineChain({
     portal: {
       [sourceId]: {
         address: '0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA',
+      },
+    },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: '0xfA6D8Ee5BE770F84FC001D098C4bD604Fe01284a',
       },
     },
   },

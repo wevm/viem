@@ -187,7 +187,7 @@ export function numberToHex(
 
   const value = BigInt(value_)
 
-  let maxValue
+  let maxValue: bigint | number | undefined
   if (size) {
     if (signed) maxValue = (1n << (BigInt(size) * 8n - 1n)) - 1n
     else maxValue = 2n ** (BigInt(size) * 8n) - 1n

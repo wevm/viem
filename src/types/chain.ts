@@ -10,12 +10,15 @@ import type {
   TransactionSerializable,
   TransactionSerializableGeneric,
 } from '../types/transaction.js'
-import type { IsUndefined, Prettify } from '../types/utils.js'
+import type { IsNarrowable, IsUndefined, Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+  custom extends Record<string, unknown> | undefined =
+    | Record<string, unknown>
+    | undefined,
 > = {
   /** Collection of block explorers */
   blockExplorers?:
@@ -55,6 +58,8 @@ export type Chain<
   /** Flag for test networks */
   testnet?: boolean | undefined
 
+  /** Custom chain data. */
+  custom?: custom
   /**
    * Modifies how chain data structures (ie. Blocks, Transactions, etc)
    * are formatted & typed.
@@ -72,6 +77,7 @@ export type Chain<
 type ChainBlockExplorer = {
   name: string
   url: string
+  apiUrl?: string | undefined
 }
 
 export type ChainContract = {
@@ -230,14 +236,18 @@ export type ExtractChainFormatterReturnType<
   chain extends Chain | undefined,
   type extends keyof ChainFormatters,
   fallback,
-> = chain extends {
-  formatters?:
-    | { [_ in type]?: infer formatter extends ChainFormatter }
-    | undefined
-}
-  ? chain['formatters'] extends undefined
-    ? fallback
-    : ReturnType<formatter['format']>
+> = IsNarrowable<chain, Chain> extends true
+  ? chain extends {
+      formatters?:
+        | { [_ in type]?: infer formatter extends ChainFormatter }
+        | undefined
+    }
+    ? chain['formatters'] extends undefined
+      ? fallback
+      : IsNarrowable<formatter, ChainFormatter<type>> extends true
+        ? ReturnType<formatter['format']>
+        : fallback
+    : fallback
   : fallback
 
 export type DeriveChain<

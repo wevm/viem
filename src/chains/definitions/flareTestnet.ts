@@ -15,6 +15,7 @@ export const flareTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Coston2 Explorer',
       url: 'https://coston2-explorer.flare.network',
+      apiUrl: 'https://coston2-explorer.flare.network/api',
     },
   },
   testnet: true,

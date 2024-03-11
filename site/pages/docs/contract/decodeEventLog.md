@@ -82,11 +82,11 @@ By default, if the `topics` and `data` does not conform to the ABI (a mismatch b
 
 For example, the following will throw an error as there is a mismatch in non-`indexed` arguments & `data` length.
 
-```ts {2-4}
+```ts
 decodeEventLog({
-  abi: parseAbi(['event Transfer(address indexed, address, uint256)']),
-  // `data` should be 64 bytes, but is only 32 bytes.
-  data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  abi: parseAbi(['event Transfer(address indexed, address, uint256)']), // [!code focus]
+  // `data` should be 64 bytes, but is only 32 bytes. // [!code focus]
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
   topics: [
     '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
     '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -97,10 +97,10 @@ decodeEventLog({
 
 It is possible for `decodeEventLog` to try and partially decode the Log, this can be done by setting the `strict` argument to `false`:
 
-```ts {2-4}
-decodeEventLog({
-  abi: parseAbi(['event Transfer(address indexed, address, uint256)']),
-  data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+```ts 
+decodeEventLog({ // [!code focus]
+  abi: parseAbi(['event Transfer(address indexed, address, uint256)']), // [!code focus]
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
   topics: [
     '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
     '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',

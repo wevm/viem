@@ -10,10 +10,16 @@ import { optimism } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 
+import { createHttpServer } from '~test/src/utils.js'
+import {
+  encodeErrorResult,
+  encodeFunctionResult,
+  parseAbi,
+} from '~viem/index.js'
 import { getEnsText } from './getEnsText.js'
 
 beforeAll(async () => {
-  await setBlockNumber(17431812n)
+  await setBlockNumber(19_258_213n)
   await setVitalikResolver()
 })
 
@@ -21,6 +27,23 @@ test('gets text record for name', async () => {
   await expect(
     getEnsText(publicClient, { name: 'wagmi-dev.eth', key: 'com.twitter' }),
   ).resolves.toMatchInlineSnapshot('"wagmi_sh"')
+})
+
+test('gatewayUrls provided', async () => {
+  let called = false
+
+  const server = await createHttpServer((_, res) => {
+    called = true
+    res.end()
+  })
+
+  await getEnsText(publicClient, {
+    name: '1.offchainexample.eth',
+    key: 'email',
+    gatewayUrls: [server.url],
+  }).catch(() => {})
+
+  expect(called).toBe(true)
 })
 
 test('name without text record', async () => {
@@ -41,6 +64,29 @@ test('name with resolver that does not support text()', async () => {
   ).resolves.toBeNull()
 })
 
+test('name with resolver that does not support text() - strict', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'vitalik.eth',
+      key: 'com.twitter',
+      strict: true,
+    }),
+  ).rejects.toMatchInlineSnapshot(`
+    [ContractFunctionExecutionError: The contract function "resolve" reverted.
+
+    Error: ResolverError(bytes returnData)
+                        (0x)
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  resolve(bytes name, bytes data)
+      args:             (0x07766974616c696b0365746800, 0x59d1d43cee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a534758350000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000b636f6d2e74776974746572000000000000000000000000000000000000000000)
+
+    Docs: https://viem.sh/docs/contract/readContract
+    Version: viem@1.0.2]
+  `)
+})
+
 test('name without resolver', async () => {
   await expect(
     getEnsText(publicClient, {
@@ -48,6 +94,113 @@ test('name without resolver', async () => {
       key: 'com.twitter',
     }),
   ).resolves.toBeNull()
+})
+
+test('name without resolver - strict', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'random1223232222.eth',
+      key: 'com.twitter',
+      strict: true,
+    }),
+  ).rejects.toMatchInlineSnapshot(`
+    [ContractFunctionExecutionError: The contract function "resolve" reverted.
+
+    Error: ResolverWildcardNotSupported()
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  resolve(bytes name, bytes data)
+      args:             (0x1072616e646f6d313232333233323232320365746800, 0x59d1d43c08e69c7f3b86ec46d8fb6fcebf6b6512306f0171375c6309b751a585ab24864b0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000b636f6d2e74776974746572000000000000000000000000000000000000000000)
+
+    Docs: https://viem.sh/docs/contract/readContract
+    Version: viem@1.0.2]
+  `)
+})
+
+test('name with non-contract resolver', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'vbuterin.eth',
+      key: 'com.twitter',
+    }),
+  ).resolves.toBeNull()
+})
+test('name with non-contract resolver - strict', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'vbuterin.eth',
+      key: 'com.twitter',
+      strict: true,
+    }),
+  ).rejects.toMatchInlineSnapshot(`
+    [ContractFunctionExecutionError: The contract function "resolve" reverted.
+
+    Error: ResolverNotContract()
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  resolve(bytes name, bytes data)
+      args:             (0x08766275746572696e0365746800, 0x59d1d43c133a0d6e787307c1bdb6a3cde083ac5096ad9d67298908427642512fa2f6aa4f0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000b636f6d2e74776974746572000000000000000000000000000000000000000000)
+
+    Docs: https://viem.sh/docs/contract/readContract
+    Version: viem@1.0.2]
+  `)
+})
+
+describe('http error', () => {
+  let server: Awaited<ReturnType<typeof createHttpServer>> | undefined
+  beforeAll(async () => {
+    server = await createHttpServer((_, res) => {
+      const parsed = parseAbi([
+        'function query((address,string[],bytes)[]) returns (bool[],bytes[])',
+        'error HttpError((uint16,string)[])',
+      ])
+
+      const encoded = encodeFunctionResult({
+        abi: parsed,
+        functionName: 'query',
+        result: [
+          [true],
+          [
+            encodeErrorResult({
+              abi: parsed,
+              errorName: 'HttpError',
+              args: [[[404, 'Not Found']]],
+            }),
+          ],
+        ],
+      })
+
+      const response = JSON.stringify({ data: encoded })
+      res.statusCode = 200
+      res.setHeader('Content-Type', 'application/json')
+      res.write(response)
+      res.end()
+    })
+  })
+  test('non-strict', async () => {
+    await expect(
+      getEnsText(publicClient, {
+        name: '1.offchainexample.eth',
+        key: 'email',
+        gatewayUrls: [server!.url],
+      }),
+    ).resolves.toBeNull()
+  })
+  test('strict', async () => {
+    await expect(
+      getEnsText(publicClient, {
+        name: '1.offchainexample.eth',
+        key: 'email',
+        gatewayUrls: [server!.url],
+        strict: true,
+      }),
+    ).rejects.toThrowError(`The contract function "resolve" reverted.
+
+Error: HttpError((uint16 status, string message)[])
+                ([{"status":404,"message":"Not Found"}])`)
+  })
 })
 
 test('custom universal resolver address', async () => {
@@ -60,24 +213,36 @@ test('custom universal resolver address', async () => {
   ).resolves.toMatchInlineSnapshot('"wagmi_sh"')
 })
 
-describe('universal resolver with custom errors', () => {
-  test('name without resolver', async () => {
-    await expect(
-      getEnsText(publicClient, {
-        name: 'random123.zzz',
-        key: 'com.twitter',
-        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
-      }),
-    ).resolves.toBeNull()
-  })
-  test('name with invalid wildcard resolver', async () => {
+describe('universal resolver with generic errors', () => {
+  test('wildcard error', async () => {
     await expect(
       getEnsText(publicClient, {
         name: 'random1223232222.eth',
         key: 'com.twitter',
-        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
+        universalResolverAddress: '0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62',
       }),
     ).resolves.toBeNull()
+  })
+  test('wildcard error - strict', async () => {
+    await expect(
+      getEnsText(publicClient, {
+        name: 'random1223232222.eth',
+        key: 'com.twitter',
+        strict: true,
+        universalResolverAddress: '0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "resolve" reverted with the following reason:
+      UniversalResolver: Wildcard on non-extended resolvers is not supported
+
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  resolve(bytes name, bytes data)
+        args:             (0x1072616e646f6d313232333233323232320365746800, 0x59d1d43c08e69c7f3b86ec46d8fb6fcebf6b6512306f0171375c6309b751a585ab24864b0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000b636f6d2e74776974746572000000000000000000000000000000000000000000)
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2]
+    `)
   })
 })
 
@@ -130,7 +295,7 @@ test('universal resolver contract deployed on later block', async () => {
     [ChainDoesNotSupportContract: Chain "Localhost" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract "ensUniversalResolver" was not deployed until block 16966585 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 19258213 (current block 14353601).
 
     Version: viem@1.0.2]
   `)
