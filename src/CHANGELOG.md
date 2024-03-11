@@ -1,5 +1,15 @@
 # viem
 
+## 2.8.1
+
+### Patch Changes
+
+- [`15935b7913cd55470b270f03f98517e355e54a92`](https://github.com/wevm/viem/commit/15935b7913cd55470b270f03f98517e355e54a92) Thanks [@jxom](https://github.com/jxom)! - Added support for passing `blobs` to `eth_sendTransaction`.
+
+- [#1929](https://github.com/wevm/viem/pull/1929) [`7d809ff0bad4d81a13d01b9e936a505df1ccef39`](https://github.com/wevm/viem/commit/7d809ff0bad4d81a13d01b9e936a505df1ccef39) Thanks [@wkyleg](https://github.com/wkyleg)! - Deduped `eth_subscribe` instantiation on `watchBlockNumber`.
+
+- [#1921](https://github.com/wevm/viem/pull/1921) [`c485df25f618b5a5e84077f419dc2e3c4f78256a`](https://github.com/wevm/viem/commit/c485df25f618b5a5e84077f419dc2e3c4f78256a) Thanks [@Songkeys](https://github.com/Songkeys)! - Added rss3 mainnet and testnet chains.
+
 ## 2.8.0
 
 ### Minor Changes
