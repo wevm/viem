@@ -14,10 +14,7 @@ import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { GetChainParameter } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash } from '../../types/misc.js'
-import type {
-  TransactionRequest,
-  TransactionSerializable,
-} from '../../types/transaction.js'
+import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
@@ -143,9 +140,11 @@ export async function sendTransaction<
     account: account_ = client.account,
     chain = client.chain,
     accessList,
+    blobs,
     data,
     gas,
     gasPrice,
+    maxFeePerBlobGas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
@@ -181,11 +180,13 @@ export async function sendTransaction<
       )({
         account,
         accessList,
+        blobs,
         chain,
         chainId,
         data,
         gas,
         gasPrice,
+        maxFeePerBlobGas,
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
@@ -195,13 +196,9 @@ export async function sendTransaction<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(
-        {
-          ...request,
-          chainId: request.chainId,
-        } as TransactionSerializable,
-        { serializer },
-      )) as Hash
+      const serializedTransaction = (await account.signTransaction(request, {
+        serializer,
+      })) as Hash
       return await getAction(
         client,
         sendRawTransaction,
@@ -218,10 +215,12 @@ export async function sendTransaction<
       // Pick out extra data that might exist on the chain's transaction request type.
       ...extract(rest, { format: chainFormat }),
       accessList,
+      blobs,
       data,
       from: account.address,
       gas,
       gasPrice,
+      maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
