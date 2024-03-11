@@ -24,5 +24,5 @@ test('large', () => {
     fromBlobs({
       blobs,
     }),
-  ).toEqual(blobData)
+  ).toEqual(stringToHex(blobData))
 })
