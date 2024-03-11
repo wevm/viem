@@ -1,7 +1,8 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { createCursor } from '../cursor.js'
-import { hexToBytes } from '../encoding/toBytes.js'
-import { bytesToHex } from '../encoding/toHex.js'
+import { type CreateCursorErrorType, createCursor } from '../cursor.js'
+import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
+import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 
@@ -19,6 +20,12 @@ export type FromBlobsParameters<
 export type FromBlobsReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray : never)
   | (to extends 'hex' ? Hex : never)
+
+export type FromBlobsErrorType =
+  | BytesToHexErrorType
+  | CreateCursorErrorType
+  | HexToBytesErrorType
+  | ErrorType
 
 export function fromBlobs<
   const blobs extends readonly Hex[] | readonly ByteArray[],

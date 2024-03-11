@@ -721,6 +721,10 @@ export const sidebar = {
               link: '/docs/utilities/commitmentToVersionedHash',
             },
             {
+              text: 'fromBlobs',
+              link: '/docs/utilities/fromBlobs',
+            },
+            {
               text: 'sidecarsToVersionedHashes',
               link: '/docs/utilities/sidecarsToVersionedHashes',
             },
