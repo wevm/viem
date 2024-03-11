@@ -1,12 +1,10 @@
+import type { Signature } from '../../index.js'
 import type { ChainSerializers } from '../../types/chain.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
-import {
-  type SerializeTransactionFn,
-  serializeTransaction as serializeTransaction_,
-} from '../../utils/transaction/serializeTransaction.js'
+import { serializeTransaction as serializeTransaction_ } from '../../utils/transaction/serializeTransaction.js'
 import type {
   ZkSyncTransactionSerializable,
   ZkSyncTransactionSerializableEIP712,
@@ -15,12 +13,18 @@ import type {
 import { assertEip712Transaction } from './utils/assertEip712Transaction.js'
 import { isEIP712Transaction } from './utils/isEip712Transaction.js'
 
-export const serializeTransaction: SerializeTransactionFn<
-  ZkSyncTransactionSerializable
-> = (tx, signature) => {
-  if (isEIP712Transaction(tx))
-    return serializeTransactionEIP712(tx as ZkSyncTransactionSerializableEIP712)
-  return serializeTransaction_(tx as TransactionSerializable, signature)
+export function serializeTransaction(
+  transaction: ZkSyncTransactionSerializable,
+  signature?: Signature,
+) {
+  if (isEIP712Transaction(transaction))
+    return serializeTransactionEIP712(
+      transaction as ZkSyncTransactionSerializableEIP712,
+    )
+  return serializeTransaction_(
+    transaction as TransactionSerializable,
+    signature,
+  )
 }
 
 export const serializers = {

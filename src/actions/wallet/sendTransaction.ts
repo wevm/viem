@@ -12,6 +12,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { GetChainParameter } from '../../types/chain.js'
+import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash } from '../../types/misc.js'
 import type {
   TransactionRequest,
@@ -48,15 +49,26 @@ import {
   sendRawTransaction,
 } from './sendRawTransaction.js'
 
-export type SendTransactionParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
+export type SendTransactionRequest<
+  chain extends Chain | undefined = Chain | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
   ///
-  derivedChain extends Chain | undefined = DeriveChain<TChain, TChainOverride>,
-> = UnionOmit<FormattedTransactionRequest<derivedChain>, 'from'> &
-  GetAccountParameter<TAccount> &
-  GetChainParameter<TChain, TChainOverride>
+  _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
+> = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
+  GetTransactionRequestKzgParameter
+
+export type SendTransactionParameters<
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
+  request extends SendTransactionRequest<
+    chain,
+    chainOverride
+  > = SendTransactionRequest<chain, chainOverride>,
+> = request &
+  GetAccountParameter<account> &
+  GetChainParameter<chain, chainOverride> &
+  GetTransactionRequestKzgParameter<request>
 
 export type SendTransactionReturnType = Hash
 
@@ -119,12 +131,13 @@ export type SendTransactionErrorType =
  * })
  */
 export async function sendTransaction<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  const request extends SendTransactionRequest<chain, chainOverride>,
+  chainOverride extends Chain | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
+  client: Client<Transport, chain, account>,
+  parameters: SendTransactionParameters<chain, account, chainOverride, request>,
 ): Promise<SendTransactionReturnType> {
   const {
     account: account_ = client.account,
@@ -139,7 +152,7 @@ export async function sendTransaction<
     to,
     value,
     ...rest
-  } = args
+  } = parameters
 
   if (!account_)
     throw new AccountNotFoundError({
@@ -148,7 +161,7 @@ export async function sendTransaction<
   const account = parseAccount(account_)
 
   try {
-    assertRequest(args as AssertRequestParameters)
+    assertRequest(parameters as AssertRequestParameters)
 
     let chainId: number | undefined
     if (chain !== null) {
@@ -169,6 +182,7 @@ export async function sendTransaction<
         account,
         accessList,
         chain,
+        chainId,
         data,
         gas,
         gasPrice,
@@ -180,14 +194,11 @@ export async function sendTransaction<
         ...rest,
       } as any)
 
-      if (!chainId)
-        chainId = await getAction(client, getChainId, 'getChainId')({})
-
       const serializer = chain?.serializers?.transaction
       const serializedTransaction = (await account.signTransaction(
         {
           ...request,
-          chainId,
+          chainId: request.chainId,
         } as TransactionSerializable,
         { serializer },
       )) as Hash
@@ -226,9 +237,9 @@ export async function sendTransaction<
     )
   } catch (err) {
     throw getTransactionError(err as BaseError, {
-      ...args,
+      ...parameters,
       account,
-      chain: args.chain || undefined,
+      chain: parameters.chain || undefined,
     })
   }
 }

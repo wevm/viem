@@ -1,7 +1,7 @@
 import { InvalidAddressError } from '../../errors/address.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ChainSerializers } from '../../types/chain.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hex, Signature } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
 import type { RequiredBy } from '../../types/utils.js'
 import { isAddress } from '../../utils/address/isAddress.js'
@@ -10,7 +10,6 @@ import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
   type SerializeTransactionErrorType as SerializeTransactionErrorType_,
-  type SerializeTransactionFn,
   serializeTransaction as serializeTransaction_,
 } from '../../utils/transaction/serializeTransaction.js'
 import type {
@@ -27,9 +26,10 @@ export type SerializeTransactionErrorType =
   | SerializeTransactionErrorType_
   | ErrorType
 
-export const serializeTransaction: SerializeTransactionFn<
-  OpStackTransactionSerializable
-> = (transaction, signature) => {
+export function serializeTransaction(
+  transaction: OpStackTransactionSerializable,
+  signature?: Signature,
+) {
   if (isDeposit(transaction)) return serializeTransactionDeposit(transaction)
   return serializeTransaction_(
     transaction as TransactionSerializable,

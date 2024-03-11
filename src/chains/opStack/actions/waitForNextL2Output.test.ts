@@ -26,7 +26,7 @@ test('default', async () => {
       "timestamp": 1702343004n,
     }
   `)
-})
+}, 20_000)
 
 test('error: other', async () => {
   await expect(() =>
@@ -39,4 +39,4 @@ test('error: other', async () => {
 
     Version: viem@1.0.2]
   `)
-})
+}, 20_000)

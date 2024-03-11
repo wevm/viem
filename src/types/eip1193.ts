@@ -195,14 +195,14 @@ export type PublicRpcSchema = [
     ReturnType: Quantity
   },
   /**
-   * @description Returns the current blob price of gas expressed in wei
+   * @description Returns the base fee per blob gas in wei.
    *
    * @example
-   * provider.request({ method: 'eth_blobGasPrice' })
+   * provider.request({ method: 'eth_blobBaseFee' })
    * // => '0x09184e72a000'
    */
   {
-    Method: 'eth_blobGasPrice'
+    Method: 'eth_blobBaseFee'
     Parameters?: undefined
     ReturnType: Quantity
   },
