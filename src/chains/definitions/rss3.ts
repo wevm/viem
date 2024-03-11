@@ -43,5 +43,5 @@ export const rss3 = /*#__PURE__*/ defineChain({
       },
     },
   },
-  sourceId
+  sourceId,
 })
