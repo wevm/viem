@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.2
+
+### Patch Changes
+
+- [`67c09385e2c928c6cf6b3aeb87544c41828c5505`](https://github.com/wevm/viem/commit/67c09385e2c928c6cf6b3aeb87544c41828c5505) Thanks [@jxom](https://github.com/jxom)! - Exported `PrepareTransactionRequestRequest` type.
+
 ## 2.8.1
 
 ### Patch Changes
