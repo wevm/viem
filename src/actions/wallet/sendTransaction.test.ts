@@ -813,7 +813,7 @@ describe('local account', () => {
     })
   })
 
-  test.only('args: blobs', async () => {
+  test.skip('args: blobs', async () => {
     // TODO: migrate to Anvil once 4844 supported.
     const blobs = toBlobs({
       data: stringToHex(blobData),

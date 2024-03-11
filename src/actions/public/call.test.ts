@@ -20,6 +20,7 @@ import { trim } from '../../utils/data/trim.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
+import { blobData } from '../../../test/src/kzg.js'
 import {
   type Hex,
   type StateMapping,
@@ -27,6 +28,8 @@ import {
   encodeAbiParameters,
   pad,
   parseEther,
+  stringToHex,
+  toBlobs,
   toHex,
 } from '../../index.js'
 import {
@@ -162,9 +165,10 @@ test('args: override', async () => {
 
 test('args: blobs', async () => {
   // TODO: migrate to `publicClient` once 4844 is supported in Anvil.
+  const blobs = toBlobs({ data: stringToHex(blobData) })
   const { data } = await call(holeskyClient, {
     account: sourceAccount.address,
-    blobs: ['0x123'],
+    blobs,
     maxFeePerBlobGas: parseGwei('20'),
     to: wagmiContractAddress,
   })
