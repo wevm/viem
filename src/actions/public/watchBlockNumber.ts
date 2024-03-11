@@ -156,7 +156,7 @@ export function watchBlockNumber<
       emitMissed,
     ])
 
-    return observe(observerId, { onBlockNumber, onError }, () => {
+    return observe(observerId, { onBlockNumber, onError }, (emit) => {
       let active = true
       let unsubscribe = () => (active = false)
       ;(async () => {
@@ -167,11 +167,11 @@ export function watchBlockNumber<
               onData(data: any) {
                 if (!active) return
                 const blockNumber = hexToBigInt(data.result?.number)
-                onBlockNumber(blockNumber, prevBlockNumber)
+                emit.onBlockNumber(blockNumber, prevBlockNumber)
                 prevBlockNumber = blockNumber
               },
               onError(error: Error) {
-                onError?.(error)
+                emit.onError?.(error)
               },
             })
           unsubscribe = unsubscribe_
