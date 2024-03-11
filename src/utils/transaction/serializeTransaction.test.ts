@@ -17,7 +17,7 @@ import { keccak256 } from '../hash/keccak256.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
 
-import { kzg } from '../../../test/src/kzg.js'
+import { blobData, kzg } from '../../../test/src/kzg.js'
 import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { toBlobs } from '../blob/toBlobs.js'
@@ -124,7 +124,7 @@ describe('eip4844', () => {
     const transaction = {
       ...baseEip4844,
       blobVersionedHashes: undefined,
-      blobs: toBlobs({ data: stringToHex('abcd') }),
+      blobs: toBlobs({ data: stringToHex(blobData) }),
       kzg,
     } satisfies TransactionSerializableEIP4844
     const serialized = serializeTransaction(transaction)

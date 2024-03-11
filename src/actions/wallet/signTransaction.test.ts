@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { accounts, localHttpUrl } from '~test/src/constants.js'
 import { testClient, walletClient } from '~test/src/utils.js'
-import { kzg } from '../../../test/src/kzg.js'
+import { blobData, kzg } from '../../../test/src/kzg.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
 import {
@@ -32,7 +32,7 @@ const base = {
 describe('eip4844', () => {
   const baseEip4844 = {
     ...base,
-    blobs: toBlobs({ data: stringToHex('abcd') }),
+    blobs: toBlobs({ data: stringToHex(blobData) }),
     maxFeePerBlobGas: parseGwei('20'),
     to: '0x0000000000000000000000000000000000000000',
     type: 'eip4844',

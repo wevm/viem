@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { kzg } from '../../../test/src/kzg.js'
+import { blobData, kzg } from '../../../test/src/kzg.js'
 import { walletClient } from '../../../test/src/utils.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
 import { concatHex, stringToHex, toHex, toRlp } from '../../index.js'
@@ -48,7 +48,7 @@ describe('eip4844', async () => {
   })
 
   test('args: blobs + kzg', async () => {
-    const blobs = toBlobs({ data: stringToHex('abcd') })
+    const blobs = toBlobs({ data: stringToHex(blobData) })
     const signature = await signTransaction({
       transaction: { ...base, blobs, chainId: 1, kzg, type: 'eip4844' },
       privateKey: accounts[0].privateKey,
@@ -57,9 +57,10 @@ describe('eip4844', async () => {
   })
 
   test('w/ prepareTransactionRequest', async () => {
+    const blobs = toBlobs({ data: stringToHex(blobData) })
     const request = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(accounts[0].privateKey),
-      blobs: toBlobs({ data: stringToHex('abcd') }),
+      blobs: blobs,
       kzg,
       maxFeePerBlobGas: parseGwei('20'),
       to: '0x0000000000000000000000000000000000000000',

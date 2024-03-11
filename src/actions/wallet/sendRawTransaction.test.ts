@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
-import { kzg } from '~test/src/kzg.js'
+import { blobData, kzg } from '~test/src/kzg.js'
 import { walletClient } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { sepolia } from '../../chains/index.js'
@@ -30,7 +30,7 @@ test.skip('4844', async () => {
 
   const privateKey = '0x'
   const account = privateKeyToAccount(privateKey)
-  const blobs = toBlobs({ data: stringToHex('hello wwworld') })
+  const blobs = toBlobs({ data: stringToHex(blobData) })
   const nonce = await getTransactionCount(client, {
     address: account.address,
     blockTag: 'pending',

@@ -1,18 +1,18 @@
 import { expect, test } from 'vitest'
-import { kzg } from '../../../test/src/kzg.js'
+import { blobData, kzg } from '../../../test/src/kzg.js'
 import { hexToBytes, stringToHex } from '../index.js'
 import { blobsToCommitments } from './blobsToCommitments.js'
 import { commitmentToVersionedHash } from './commitmentToVersionedHash.js'
 import { toBlobs } from './toBlobs.js'
 
 test('default', () => {
-  const blobs = toBlobs({ data: stringToHex('abcd'.repeat(50000)) })
+  const blobs = toBlobs({ data: stringToHex(blobData) })
   const commitments = blobsToCommitments({ blobs, kzg })
 
   expect(
     commitmentToVersionedHash({ commitment: commitments[0] }),
   ).toMatchInlineSnapshot(
-    `"0x018666e86e22755cadfd12c1f58facc8a8c7d9550a02af8bc7e38a3d3aec0a9d"`,
+    `"0x012580b7683c14cc7540be305587b0eec4e7ec739094213ca080e2526c9237c4"`,
   )
   expect(
     commitmentToVersionedHash({ commitment: commitments[1], to: 'bytes' }),
@@ -20,37 +20,37 @@ test('default', () => {
     `
     Uint8Array [
       1,
-      156,
-      221,
-      1,
+      36,
       60,
-      111,
-      39,
-      248,
-      107,
-      149,
-      155,
-      37,
-      26,
-      151,
-      187,
-      114,
-      7,
-      210,
-      173,
-      7,
-      155,
-      105,
-      152,
-      193,
-      194,
+      24,
+      160,
+      36,
+      200,
+      53,
+      204,
+      225,
       68,
+      179,
       182,
+      176,
+      235,
+      135,
+      139,
+      120,
+      32,
+      199,
+      199,
+      183,
+      217,
+      254,
+      255,
+      128,
+      8,
+      13,
+      118,
       81,
-      70,
-      0,
-      187,
-      4,
+      156,
+      69,
     ]
   `,
   )
@@ -62,7 +62,7 @@ test('default', () => {
       version: 69,
     }),
   ).toMatchInlineSnapshot(
-    `"0x458666e86e22755cadfd12c1f58facc8a8c7d9550a02af8bc7e38a3d3aec0a9d"`,
+    `"0x452580b7683c14cc7540be305587b0eec4e7ec739094213ca080e2526c9237c4"`,
   )
   expect(
     commitmentToVersionedHash({
@@ -73,55 +73,55 @@ test('default', () => {
     `
     Uint8Array [
       69,
-      156,
-      221,
-      1,
+      36,
       60,
-      111,
-      39,
-      248,
-      107,
-      149,
-      155,
-      37,
-      26,
-      151,
-      187,
-      114,
-      7,
-      210,
-      173,
-      7,
-      155,
-      105,
-      152,
-      193,
-      194,
+      24,
+      160,
+      36,
+      200,
+      53,
+      204,
+      225,
       68,
+      179,
       182,
+      176,
+      235,
+      135,
+      139,
+      120,
+      32,
+      199,
+      199,
+      183,
+      217,
+      254,
+      255,
+      128,
+      8,
+      13,
+      118,
       81,
-      70,
-      0,
-      187,
-      4,
+      156,
+      69,
     ]
   `,
   )
 })
 
 test('args: version', () => {
-  const blobs = toBlobs({ data: stringToHex('abcd'.repeat(50000)) })
+  const blobs = toBlobs({ data: stringToHex(blobData) })
   const commitments = blobsToCommitments({ blobs, kzg })
 
   expect(
     commitmentToVersionedHash({ commitment: commitments[0], version: 69 }),
   ).toMatchInlineSnapshot(
-    `"0x458666e86e22755cadfd12c1f58facc8a8c7d9550a02af8bc7e38a3d3aec0a9d"`,
+    `"0x452580b7683c14cc7540be305587b0eec4e7ec739094213ca080e2526c9237c4"`,
   )
 })
 
 test('args: to', () => {
-  const blobs = toBlobs({ data: stringToHex('abcd'.repeat(50000)) })
+  const blobs = toBlobs({ data: stringToHex(blobData) })
   const commitments = blobsToCommitments({ blobs, kzg })
 
   expect(
@@ -134,37 +134,37 @@ test('args: to', () => {
     `
     Uint8Array [
       69,
-      134,
-      102,
-      232,
-      110,
-      34,
+      37,
+      128,
+      183,
+      104,
+      60,
+      20,
+      204,
       117,
-      92,
-      173,
-      253,
-      18,
-      193,
-      245,
-      143,
-      172,
-      200,
-      168,
-      199,
-      217,
+      64,
+      190,
+      48,
       85,
-      10,
-      2,
-      175,
-      139,
-      199,
-      227,
-      138,
-      61,
-      58,
+      135,
+      176,
+      238,
+      196,
+      231,
       236,
-      10,
-      157,
+      115,
+      144,
+      148,
+      33,
+      60,
+      160,
+      128,
+      226,
+      82,
+      108,
+      146,
+      55,
+      196,
     ]
   `,
   )

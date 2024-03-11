@@ -80,20 +80,28 @@ export function toBlobs<
   while (active) {
     const blob = createCursor(new Uint8Array(bytesPerBlob))
 
-    let fieldLength = 0
-    while (fieldLength < fieldElementsPerBlob) {
+    let size = 0
+    while (size < fieldElementsPerBlob) {
       const bytes = data.slice(position, position + (bytesPerFieldElement - 1))
 
+      // Push a zero byte so the field element doesn't overflow the BLS modulus.
       blob.pushByte(0x00)
+
+      // Push the current segment of data bytes.
       blob.pushBytes(bytes)
+
+      // If we detect that the current segment of data bytes is less than 31 bytes,
+      // we can stop processing and push a terminator byte to indicate the end of the blob.
       if (bytes.length < 31) {
         blob.pushByte(0x80)
         active = false
         break
       }
-      fieldLength++
+
+      size++
       position += 31
     }
+
     blobs.push(blob)
   }
 

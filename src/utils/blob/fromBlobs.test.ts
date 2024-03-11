@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { expect, test } from 'vitest'
+import { blobData } from '../../../test/src/kzg.js'
 import { stringToHex } from '../encoding/toHex.js'
 import { fromBlobs } from './fromBlobs.js'
 import { toBlobs } from './toBlobs.js'
@@ -18,18 +17,12 @@ test('default', () => {
 })
 
 test('large', () => {
-  const data = stringToHex(
-    readFileSync(
-      resolve(__dirname, '../../../test/kzg/lorem-ipsum.txt'),
-      'utf-8',
-    ),
-  )
   const blobs = toBlobs({
-    data,
+    data: stringToHex(blobData),
   })
   expect(
     fromBlobs({
       blobs,
     }),
-  ).toEqual(data)
+  ).toEqual(blobData)
 })

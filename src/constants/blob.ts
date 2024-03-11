@@ -13,4 +13,9 @@ export const fieldElementsPerBlob = 4096
 export const bytesPerBlob = bytesPerFieldElement * fieldElementsPerBlob
 
 /** Blob bytes limit per transaction. */
-export const maxBytesPerTransaction = bytesPerBlob * blobsPerTransaction - 1
+export const maxBytesPerTransaction =
+  bytesPerBlob * blobsPerTransaction -
+  // terminator byte (0x80).
+  1 -
+  // zero byte (0x00) appended to each field element.
+  1 * fieldElementsPerBlob * blobsPerTransaction

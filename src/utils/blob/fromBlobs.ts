@@ -41,6 +41,7 @@ export function fromBlobs<
   for (const blob of blobs) {
     const cursor = createCursor(blob)
     while (active && cursor.position < blob.length) {
+      // First byte will be a zero 0x00 byte – we can skip.
       cursor.incrementPosition(1)
 
       let consume = 31
