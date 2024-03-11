@@ -1,11 +1,13 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts, localHttpUrl } from '~test/src/constants.js'
 import { kzg } from '~test/src/kzg.js'
 import {
   anvilChain,
+  holeskyClient,
   publicClient,
-  sepoliaClient,
   testClient,
   walletClient,
   walletClientWithAccount,
@@ -814,10 +816,14 @@ describe('local account', () => {
 
     test.skip('args: blobs', async () => {
       // TODO: migrate to Anvil once 4844 supported.
+      const text = readFileSync(
+        resolve(__dirname, '../../../test/kzg/lorem-ipsum.txt'),
+        'utf-8',
+      )
       const blobs = toBlobs({
-        data: stringToHex('hello world'),
+        data: stringToHex(text),
       })
-      const hash = await sendTransaction(sepoliaClient, {
+      const hash = await sendTransaction(holeskyClient, {
         account: privateKeyToAccount(
           process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
         ),

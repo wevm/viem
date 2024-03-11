@@ -10,12 +10,6 @@ To read more on Blob Transactions and EIP-4844, check out these resources:
 
 In this guide, we will walk you through how to send your first Blob Transaction with Viem.
 
-:::warning
-**Sending Blob Transactions are only compatible with Node.js**. 
-
-There are currently no known pure JavaScript or WebAssembly KZG implementations. This means you won't be able to send Blob Transactions in the browser.
-:::
-
 ::::steps
 
 ## Set up Client
@@ -38,32 +32,32 @@ export const client = createWalletClient({
 })
 ```
 
-:::warning[Warning]
-Blob Transactions are currently only supported on **Holesky**, **Sepolia**, and **Goerli**. Mainnet support is coming around March.
-:::
-
 ## Install KZG bindings
 
 Next, we will need to install some KZG bindings. KZG will be used to compute the commitments of the blobs, and generate proofs from the blobs & commitments. The commitments and proofs are needed to serialize and sign the Blob Transaction before we send it off.
 
-One of the most common KZG implementations for EIP-4844 is [c-kzg](https://github.com/ethereum/c-kzg-4844) – we recommend using it.
-
-:::warning[Warning]
-`c-kzg` only offers Node.js bindings. There are currently no known pure JavaScript or WebAssembly KZG implementations. This means you won't be able to use KZG in the browser. 
-:::
+A couple of KZG implementations we recommend are:
+- [c-kzg](https://github.com/ethereum/c-kzg-4844): Node.js bindings to c-kzg.
+- [kzg-wasm](https://github.com/ethereumjs/kzg-wasm): WebAssembly bindings to c-kzg.
 
 :::code-group
 
 ```bash [npm]
 npm i c-kzg
+# or
+npm i kzg-wasm
 ```
 
 ```bash [pnpm]
 pnpm i c-kzg
+# or
+pnpm i kzg-wasm
 ```
 
 ```bash [bun]
 bun i c-kzg
+# or
+bun i kzg-wasm
 ```
 
 :::

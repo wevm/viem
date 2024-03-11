@@ -11,7 +11,7 @@ import {
   deployContract,
 } from '~viem/actions/wallet/deployContract.js'
 import { writeContract } from '~viem/actions/wallet/writeContract.js'
-import { localhost, mainnet, sepolia } from '~viem/chains/index.js'
+import { holesky, localhost, mainnet } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { createPublicClient } from '~viem/clients/createPublicClient.js'
 import { createTestClient } from '~viem/clients/createTestClient.js'
@@ -182,8 +182,8 @@ export const walletClientWithoutChain = createWalletClient({
   transport: custom(provider),
 })
 
-export const sepoliaClient = createClient({
-  chain: sepolia,
+export const holeskyClient = createClient({
+  chain: holesky,
   transport: http(),
 })
 

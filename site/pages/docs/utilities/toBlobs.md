@@ -4,7 +4,11 @@ description: Transforms arbitrary data into blobs.
 
 # toBlobs
 
-Transforms arbitrary data into blobs.
+Transforms arbitrary data into Viem-shaped blobs. 
+
+:::warning
+This function transforms data into Viem-shaped blobs. It is designed to be used with Viem's `fromBlobs` function to convert back to the data.
+:::
 
 ## Import
 

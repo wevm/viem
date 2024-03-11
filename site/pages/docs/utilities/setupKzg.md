@@ -12,11 +12,9 @@ Sets up and defines a [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844) compat
 - `blobToKzgCommitment`: A function that takes a blob and returns it's KZG commitment.
 - `computeBlobKzgProof`: A function that takes a blob and it's commitment, and returns the KZG proof.
 
-One of the most common KZG implementations for EIP-4844 is [c-kzg](https://github.com/ethereum/c-kzg-4844) – we recommend using it.
-
-:::warning[Warning]
-`c-kzg` only offers Node.js bindings. There are currently no known pure JavaScript or WebAssembly KZG implementations. This means you won't be able to use KZG in the browser. 
-:::
+A couple of KZG implementations we recommend are:
+- [c-kzg](https://github.com/ethereum/c-kzg-4844): Node.js bindings to c-kzg.
+- [kzg-wasm](https://github.com/ethereumjs/kzg-wasm): WebAssembly bindings to c-kzg.
 
 ## Import
 

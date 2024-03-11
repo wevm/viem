@@ -1,5 +1,6 @@
 import {
   bytesPerBlob,
+  bytesPerFieldElement,
   fieldElementsPerBlob,
   maxBytesPerTransaction,
 } from '../../constants/blob.js'
@@ -11,6 +12,7 @@ import {
 } from '../../errors/blob.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
+import { createCursor } from '../cursor.js'
 import { type SizeErrorType, size } from '../data/size.js'
 import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
 import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
@@ -57,10 +59,11 @@ export function toBlobs<
 >(parameters: ToBlobsParameters<data, to>): ToBlobsReturnType<to> {
   const to =
     parameters.to ?? (typeof parameters.data === 'string' ? 'hex' : 'bytes')
-  const data =
+  const data = (
     typeof parameters.data === 'string'
       ? hexToBytes(parameters.data)
       : parameters.data
+  ) as ByteArray
 
   const size_ = size(data)
   if (!size_) throw new EmptyBlobError()
@@ -70,35 +73,33 @@ export function toBlobs<
       size: size_,
     })
 
-  const length = Math.ceil(size_ / bytesPerBlob)
-  const paddedData = pad(data as any, length)
+  const blobs = []
 
-  const blobs: Uint8Array[] = []
-  for (let i = 0; i < length; i++) {
-    const chunk = paddedData.subarray(i * bytesPerBlob, (i + 1) * bytesPerBlob)
-    const blob = toBlob(chunk)
+  let active = true
+  let position = 0
+  while (active) {
+    const blob = createCursor(new Uint8Array(bytesPerBlob))
+
+    let fieldLength = 0
+    while (fieldLength < fieldElementsPerBlob) {
+      const bytes = data.slice(position, position + (bytesPerFieldElement - 1))
+
+      blob.pushByte(0x00)
+      blob.pushBytes(bytes)
+      if (bytes.length < 31) {
+        blob.pushByte(0x80)
+        active = false
+        break
+      }
+      fieldLength++
+      position += 31
+    }
     blobs.push(blob)
   }
 
   return (
-    to === 'bytes' ? blobs : blobs.map((x) => bytesToHex(x))
+    to === 'bytes'
+      ? blobs.map((x) => x.bytes)
+      : blobs.map((x) => bytesToHex(x.bytes))
   ) as ToBlobsReturnType<to>
-}
-
-function pad(data_: ByteArray, length: number): ByteArray {
-  const data = new Uint8Array(length * bytesPerBlob).fill(0)
-  data.set(data_)
-  data[data_.byteLength] = 0x80
-  return data
-}
-
-function toBlob(data: Uint8Array): Uint8Array {
-  const blob = new Uint8Array(bytesPerBlob)
-  for (let i = 0; i < fieldElementsPerBlob; i++) {
-    const chunk = new Uint8Array(32)
-    chunk.set(data.subarray(i * 31, (i + 1) * 31), 0)
-    blob.set(chunk, i * 32)
-  }
-
-  return blob
 }
