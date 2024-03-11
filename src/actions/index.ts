@@ -103,6 +103,11 @@ export {
   getBalance,
 } from './public/getBalance.js'
 export {
+  type GetBlobBaseFeeErrorType,
+  type GetBlobBaseFeeReturnType,
+  getBlobBaseFee,
+} from './public/getBlobBaseFee.js'
+export {
   type GetBlockErrorType,
   type GetBlockParameters,
   type GetBlockReturnType,

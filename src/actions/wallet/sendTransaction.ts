@@ -182,6 +182,7 @@ export async function sendTransaction<
         account,
         accessList,
         chain,
+        chainId,
         data,
         gas,
         gasPrice,
@@ -193,14 +194,11 @@ export async function sendTransaction<
         ...rest,
       } as any)
 
-      if (!chainId)
-        chainId = await getAction(client, getChainId, 'getChainId')({})
-
       const serializer = chain?.serializers?.transaction
       const serializedTransaction = (await account.signTransaction(
         {
           ...request,
-          chainId,
+          chainId: request.chainId,
         } as TransactionSerializable,
         { serializer },
       )) as Hash

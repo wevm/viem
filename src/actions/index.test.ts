@@ -21,6 +21,7 @@ test('exports actions', () => {
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],
+      "getBlobBaseFee": [Function],
       "getBlock": [Function],
       "getBlockNumber": [Function],
       "getBlockTransactionCount": [Function],

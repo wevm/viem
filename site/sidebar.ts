@@ -118,6 +118,10 @@ export const sidebar = {
               link: '/docs/actions/public/estimateMaxPriorityFeePerGas',
             },
             {
+              text: 'getBlobBaseFee',
+              link: '/docs/actions/public/getBlobBaseFee',
+            },
+            {
               text: 'getFeeHistory',
               link: '/docs/actions/public/getFeeHistory',
             },

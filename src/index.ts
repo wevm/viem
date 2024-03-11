@@ -120,6 +120,10 @@ export type {
   GetBalanceReturnType,
 } from './actions/public/getBalance.js'
 export type {
+  GetBlobBaseFeeErrorType,
+  GetBlobBaseFeeReturnType,
+} from './actions/public/getBlobBaseFee.js'
+export type {
   GetBlockNumberErrorType,
   GetBlockNumberParameters,
   GetBlockNumberReturnType,

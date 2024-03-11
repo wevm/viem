@@ -55,8 +55,10 @@ import type {
 } from '../../utils/transaction/assertRequest.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import { getTransactionType } from '../../utils/transaction/getTransactionType.js'
+import { getChainId } from '../public/getChainId.js'
 
 export type PrepareTransactionRequestParameterType =
+  | 'chainId'
   | 'fees'
   | 'gas'
   | 'nonce'
@@ -92,7 +94,7 @@ export type PrepareTransactionRequestParameters<
 > = request &
   GetAccountParameter<account, accountOverride, false> &
   GetChainParameter<chain, chainOverride> &
-  GetTransactionRequestKzgParameter<request>
+  GetTransactionRequestKzgParameter<request> & { chainId?: number }
 
 export type PrepareTransactionRequestReturnType_<
   chain extends Chain | undefined = Chain | undefined,
@@ -155,7 +157,7 @@ export type PrepareTransactionRequestReturnType<
       IsNever<_transactionRequest> extends true
         ? unknown
         : Partial<_transactionRequest>
-    >,
+    > & { chainId?: number },
     ParameterTypeToParameters<
       request['parameters'] extends PrepareTransactionRequestParameterType[]
         ? request['parameters'][number]
@@ -241,9 +243,10 @@ export async function prepareTransactionRequest<
   const {
     account: account_ = client.account,
     chain,
+    chainId,
     gas,
     nonce,
-    parameters = ['fees', 'gas', 'nonce', 'type'],
+    parameters = ['chainId', 'fees', 'gas', 'nonce', 'type'],
     type,
   } = args
   const account = account_ ? parseAccount(account_) : undefined
@@ -255,6 +258,12 @@ export async function prepareTransactionRequest<
   )({ blockTag: 'latest' })
 
   const request = { ...args, ...(account ? { from: account?.address } : {}) }
+
+  if (parameters.includes('chainId')) {
+    if (chain) request.chainId = chain.id
+    else if (typeof chainId !== 'undefined') request.chainId = chainId
+    else request.chainId = await getAction(client, getChainId, 'getChainId')({})
+  }
 
   if (parameters.includes('nonce') && typeof nonce === 'undefined' && account)
     request.nonce = await getAction(

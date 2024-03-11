@@ -65,9 +65,8 @@ describe('eip4844', async () => {
       maxFeePerBlobGas: parseGwei('20'),
       to: '0x0000000000000000000000000000000000000000',
     })
-    // TODO(4844): should prepareTransactionRequest also prepare chain id?
     await signTransaction({
-      transaction: { ...request, chainId: 1 },
+      transaction: request,
       privateKey: accounts[0].privateKey,
     })
   })
