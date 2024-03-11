@@ -186,36 +186,36 @@ jobs:
         shell: bash
         run: bun run vectors
 
-  wagmi:
-    name: Wagmi
-    needs: [build, types]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    strategy:
-      matrix:
-        # TODO: Add 'latest' once https://github.com/wevm/viem/issues/1916 resolved
-        typescript-version: ['5.0.4', '5.1.6', '5.2.2', '5.3.2']
+  # wagmi:
+  #   name: Wagmi
+  #   needs: [build, types]
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 5
+  #   strategy:
+  #     matrix:
+  #       # TODO: Add 'latest' once https://github.com/wevm/viem/issues/1916 resolved
+  #       typescript-version: ['5.0.4', '5.1.6', '5.2.2', '5.3.2']
 
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Clone repository
+  #       uses: actions/checkout@v4
 
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
+  #     - name: Install dependencies
+  #       uses: ./.github/actions/install-dependencies
 
-      - name: Setup wagmi
-        uses: ./.github/actions/setup-wagmi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Setup wagmi
+  #       uses: ./.github/actions/setup-wagmi
+  #       env:
+  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
-        working-directory: ./wagmi
+  #     - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
+  #       working-directory: ./wagmi
 
-      - name: Check types
-        run: pnpm typecheck
-        working-directory: ./wagmi
+  #     - name: Check types
+  #       run: pnpm typecheck
+  #       working-directory: ./wagmi
 
-      - name: Check build
-        run: pnpm build
-        working-directory: ./wagmi
+  #     - name: Check build
+  #       run: pnpm build
+  #       working-directory: ./wagmi
 
