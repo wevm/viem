@@ -326,6 +326,7 @@ export type {
   PrepareTransactionRequestErrorType,
   PrepareTransactionRequestParameters,
   PrepareTransactionRequestParameterType,
+  PrepareTransactionRequestRequest,
   PrepareTransactionRequestReturnType,
 } from './actions/wallet/prepareTransactionRequest.js'
 export type {
