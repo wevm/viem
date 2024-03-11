@@ -1298,6 +1298,12 @@ export {
   blobsToProofs,
 } from './utils/blob/blobsToProofs.js'
 export {
+  type FromBlobsErrorType,
+  type FromBlobsParameters,
+  type FromBlobsReturnType,
+  fromBlobs,
+} from './utils/blob/fromBlobs.js'
+export {
   type ToBlobSidecarsErrorType,
   type ToBlobSidecarsParameters,
   type ToBlobSidecarsReturnType,

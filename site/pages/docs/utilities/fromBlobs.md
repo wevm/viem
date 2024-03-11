@@ -41,7 +41,7 @@ Transforms blobs into the originating data.
 ```ts twoslash
 import { fromBlobs } from 'viem'
 
-const blobs = fromBlobs({ 
+const data = fromBlobs({ 
   blobs: ['0x...'] // [!code focus]
 })
 ```
@@ -55,12 +55,12 @@ The output type.
 ```ts twoslash
 import { fromBlobs } from 'viem'
 
-const blobs = fromBlobs({ 
+const data = fromBlobs({ 
   blobs: ['0x...'],
   to: 'bytes' // [!code focus]
 })
 
-blobs // [!code focus]
+data // [!code focus]
 // ^?
 
 
