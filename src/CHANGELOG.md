@@ -1,5 +1,15 @@
 # viem
 
+## 2.8.0
+
+### Minor Changes
+
+- [#1740](https://github.com/wevm/viem/pull/1740) [`c706328c5a0a0b1d7a146f1be5bb9dcb91dc3d64`](https://github.com/wevm/viem/commit/c706328c5a0a0b1d7a146f1be5bb9dcb91dc3d64) Thanks [@jxom](https://github.com/jxom)! - Added support for signing & sending blob transactions + blob utilities.
+
+### Patch Changes
+
+- [#1915](https://github.com/wevm/viem/pull/1915) [`d8fb13100f71d255ebf4f38552887a882a4df9e5`](https://github.com/wevm/viem/commit/d8fb13100f71d255ebf4f38552887a882a4df9e5) Thanks [@eyqs](https://github.com/eyqs)! - Added Plume Testnet chain.
+
 ## 2.7.22
 
 ### Patch Changes
