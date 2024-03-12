@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.5
+
+### Patch Changes
+
+- [`e0c9729bec77fe33c733281e603fe07be92b9076`](https://github.com/wevm/viem/commit/e0c9729bec77fe33c733281e603fe07be92b9076) Thanks [@jxom](https://github.com/jxom)! - Added `onFetchResponse` to `http` transport.
+
 ## 2.8.4
 
 ### Patch Changes
