@@ -315,6 +315,7 @@ export type {
 export type {
   SendTransactionErrorType,
   SendTransactionParameters,
+  SendTransactionRequest,
   SendTransactionReturnType,
 } from './actions/wallet/sendTransaction.js'
 export type {
@@ -895,13 +896,28 @@ export type {
   TransactionSerializableBase,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
+  TransactionSerializableEIP4844,
+  TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
+  TransactionSerializedEIP4844,
+  TransactionSerializedGeneric,
   TransactionSerializedLegacy,
   TransactionType,
+  TransactionRequestEIP4844,
 } from './types/transaction.js'
+export type {
+  IsNever,
+  OneOf,
+  Opaque,
+  UnionOmit,
+  UnionPartialBy,
+  UnionPick,
+  UnionRequiredBy,
+  UnionToTuple,
+} from './types/utils.js'
 export type {
   Account,
   AccountSource,
@@ -950,6 +966,7 @@ export type {
   WalletPermission,
   WalletRpcSchema,
 } from './types/eip1193.js'
+export type { BlobSidecar, BlobSidecars } from './types/eip4844.js'
 export type {
   FeeHistory,
   FeeValues,
@@ -968,7 +985,10 @@ export type {
   MulticallResponse,
   MulticallResults,
 } from './types/multicall.js'
-export type { ParseAccount } from './types/account.js'
+export type {
+  ParseAccount,
+  DeriveAccount,
+} from './types/account.js'
 export type {
   Index,
   Quantity,
