@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.3
+
+### Patch Changes
+
+- [`1041db5e2b0ae3e651ce031f538f66c1bfef9b76`](https://github.com/wevm/viem/commit/1041db5e2b0ae3e651ce031f538f66c1bfef9b76) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
 ## 2.8.2
 
 ### Patch Changes
