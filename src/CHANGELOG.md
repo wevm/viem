@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.4
+
+### Patch Changes
+
+- [`c8dae3c8c2c932ec5609e81a8c6d81042193e553`](https://github.com/wevm/viem/commit/c8dae3c8c2c932ec5609e81a8c6d81042193e553) Thanks [@jxom](https://github.com/jxom)! - Exported OP Stack `serializeTransaction` for chain type inference.
+
 ## 2.8.3
 
 ### Patch Changes
