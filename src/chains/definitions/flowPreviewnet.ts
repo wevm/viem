@@ -10,7 +10,7 @@ export const flowPreviewnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-        http: ['https://previewnet.evm.nodes.onflow.org']
+      http: ['https://previewnet.evm.nodes.onflow.org'],
     },
   },
   blockExplorers: {
