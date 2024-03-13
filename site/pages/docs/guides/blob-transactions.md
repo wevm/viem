@@ -1,9 +1,5 @@
 # Blob Transactions [Sending your first Blob Transaction with Viem.]
 
-:::warning
-Blob Transactions will be compatible with Ethereum Mainnet after the Dencun Hardfork (~Wed, 13 Mar 2024 13:55:35 GMT).
-:::
-
 Blob Transactions are a new type of transaction in Ethereum (introduced in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844)) that allows you to broadcast BLObs (Binary Large Objects) to the Ethereum network. Blob Transactions are like any other transaction, but with the added ability to carry a payload of Blobs. Blobs are extremely larger than regular calldata (~128kB), however unlike regular calldata, they are not accessible on the EVM. The EVM can only view the commitments of the blobs. Blobs are also transient, and only last for 4096 epochs (approx. 18 days).
 
 To read more on Blob Transactions and EIP-4844, check out these resources: 
