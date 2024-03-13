@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Flow previewnet evm network
+Added Flow previewnet evm network
