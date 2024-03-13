@@ -1,5 +1,15 @@
 # viem
 
+## 2.8.6
+
+### Patch Changes
+
+- [`90b4e572357211e338ced87ff339d6fc5654fc6f`](https://github.com/wevm/viem/commit/90b4e572357211e338ced87ff339d6fc5654fc6f) Thanks [@jxom](https://github.com/jxom)! - Fixed OP Stack `getSourceHash` function
+
+- [`589cd1e636fc2355d61b51d05e5fe203dcde8bd0`](https://github.com/wevm/viem/commit/589cd1e636fc2355d61b51d05e5fe203dcde8bd0) Thanks [@jxom](https://github.com/jxom)! - Fixed Optimism API url.
+
+- [`7fd24316657877be9af83d97f71a0f5643441401`](https://github.com/wevm/viem/commit/7fd24316657877be9af83d97f71a0f5643441401) Thanks [@jxom](https://github.com/jxom)! - Fixed case where a node could return a malformed error.
+
 ## 2.8.5
 
 ### Patch Changes
