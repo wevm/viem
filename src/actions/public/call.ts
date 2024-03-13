@@ -360,7 +360,7 @@ export type GetRevertErrorDataErrorType = ErrorType
 export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined
   const error = err.walk() as RawContractError
-  return typeof error.data === 'object' ? error.data.data : error.data
+  return typeof error?.data === 'object' ? error.data?.data : error.data
 }
 
 export type ParseStateMappingErrorType = InvalidBytesLengthErrorType
