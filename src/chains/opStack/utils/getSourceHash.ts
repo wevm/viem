@@ -52,7 +52,7 @@ export function getSourceHash({
   l1BlockHash,
   sequenceNumber,
 }: GetSourceHashParameters) {
-  const marker = toHex(l1LogIndex! || sequenceNumber!)
+  const marker = toHex(l1LogIndex! ?? sequenceNumber!)
   const input = concat([l1BlockHash, pad(marker, { size: 32 })])
   const depositIdHash = keccak256(input)
   const domainHex = toHex(sourceHashDomainMap[domain])
