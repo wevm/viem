@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const flowPreviewnet = /*#__PURE__*/ defineChain({
   id: 646,
-  name: 'Previewnet',
+  name: 'FlowEVM Previewnet',
   nativeCurrency: {
     decimals: 18,
     name: 'Flow',
