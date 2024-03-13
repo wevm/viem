@@ -19,5 +19,10 @@ export const albireo = /*#__PURE__*/ defineChain({
       url: 'https://albireo-explorer.playfi.ai/',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
+    },
+  },
   testnet: true,
 })

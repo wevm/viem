@@ -27,6 +27,7 @@ export {
   zkSync,
   zkSyncTestnet,
   zkSyncSepoliaTestnet,
+  albireo,
 } from './chains.js'
 
 export { chainConfig } from './chainConfig.js'
