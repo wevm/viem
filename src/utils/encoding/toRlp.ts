@@ -10,7 +10,7 @@ import {
 import { type HexToBytesErrorType, hexToBytes } from './toBytes.js'
 import { type BytesToHexErrorType, bytesToHex } from './toHex.js'
 
-export type RecursiveArray<T> = T | RecursiveArray<T>[]
+export type RecursiveArray<T> = T | readonly RecursiveArray<T>[]
 
 type To = 'hex' | 'bytes'
 
@@ -64,7 +64,7 @@ function getEncodable(
 ): Encodable {
   if (Array.isArray(bytes))
     return getEncodableList(bytes.map((x) => getEncodable(x)))
-  return getEncodableBytes(bytes)
+  return getEncodableBytes(bytes as any)
 }
 
 function getEncodableList(list: Encodable[]): Encodable {

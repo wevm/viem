@@ -83,7 +83,7 @@ describe('isEIP1559', () => {
         maxPriorityFeePerGas: 0n,
         from: mockAddress,
       }),
-    ).toBe(false)
+    ).toBe(true)
 
     expect(
       isEIP1559({
@@ -97,7 +97,7 @@ describe('isEIP1559', () => {
         maxPriorityFeePerGas: 456n,
         from: mockAddress,
       }),
-    ).toBe(false)
+    ).toBe(true)
 
     expect(
       isEIP1559({
@@ -105,7 +105,7 @@ describe('isEIP1559', () => {
         maxPriorityFeePerGas: 0n,
         from: mockAddress,
       }),
-    ).toBe(false)
+    ).toBe(true)
 
     expect(
       isEIP1559({
@@ -279,7 +279,7 @@ describe('isCIP64', () => {
         maxPriorityFeePerGas: 456n,
         from: mockAddress,
       }),
-    ).toBe(false)
+    ).toBe(true)
   })
 
   expect(

@@ -6,7 +6,9 @@ description: Verifies a typed data signature
 
 Verify that typed data was signed by the provided address.
 
-:::info 💡 Why should I use this over the [`verifyTypedData`](../../utilities/verifyTypedData.md) util?
+:::info 
+**Why should I use this over the [`verifyTypedData`](../../utilities/verifyTypedData.md) util?**
+
 This Action supports verifying typed data that was signed by either a Smart Contract Account or Externally Owned Account (via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492)). The [`verifyTypedData`](../../utilities/verifyTypedData.md) util only supports Externally Owned Accounts. This is getting increasingly important as more wallets implement [Account Abstraction](https://eips.ethereum.org/EIPS/eip-4337). 
 :::
 
@@ -14,8 +16,9 @@ This Action supports verifying typed data that was signed by either a Smart Cont
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { account, walletClient, publicClient } from './client'
+import { domain, types } from './data'
 
 const message = {
   from: {
@@ -27,7 +30,7 @@ const message = {
     wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
   },
   contents: 'Hello, Bob!',
-} as const
+}
 
 const signature = await walletClient.signTypedData({
   account,
@@ -48,7 +51,7 @@ const valid = await publicClient.verifyTypedData({
 // true
 ```
 
-```ts [data.ts]
+```ts twoslash [data.ts] filename="data.ts"
 // All properties on a domain are optional
 export const domain = {
   name: 'Ether Mail',
@@ -71,8 +74,10 @@ export const types = {
 } as const
 ```
 
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
+```ts twoslash [client.ts] filename="client.ts"
+import 'viem/window'
+// ---cut---
+import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -81,13 +86,14 @@ export const publicClient = createPublicClient({
 })
 
 export const walletClient = createWalletClient({
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum!)
 })
 
-// JSON-RPC Account
+// @log: ↓ JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account
-export const account = privateKeyToAccount(...)
+
+// @log: ↓ Local Account
+// export const account = privateKeyToAccount(...)
 ```
 
 :::
@@ -106,8 +112,10 @@ Wheather the signed message is valid for the given address.
 
 The Ethereum address that signed the original message.
 
-```ts
-const valid = await verifyTypedData({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const valid = await publicClient.verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus:1]
   domain: {
     name: 'Ether Mail',
@@ -115,7 +123,17 @@ const valid = await verifyTypedData({
     chainId: 1,
     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
   },
-  types,
+  types: {
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallet', type: 'address' },
+    ],
+    Mail: [
+      { name: 'from', type: 'Person' },
+      { name: 'to', type: 'Person' },
+      { name: 'contents', type: 'string' },
+    ],
+  },
   primaryType: 'Mail',
   message: {
     from: {
@@ -138,8 +156,10 @@ const valid = await verifyTypedData({
 
 The typed data domain.
 
-```ts
-const valid = await verifyTypedData({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const valid = await publicClient.verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain: { // [!code focus:6]
     name: 'Ether Mail',
@@ -147,7 +167,17 @@ const valid = await verifyTypedData({
     chainId: 1,
     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
   },
-  types,
+  types: {
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallet', type: 'address' },
+    ],
+    Mail: [
+      { name: 'from', type: 'Person' },
+      { name: 'to', type: 'Person' },
+      { name: 'contents', type: 'string' },
+    ],
+  },
   primaryType: 'Mail',
   message: {
     from: {
@@ -168,10 +198,17 @@ const valid = await verifyTypedData({
 
 The type definitions for the typed data.
 
-```ts
-const valid = await verifyTypedData({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const valid = await publicClient.verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  domain,
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
   types: { // [!code focus:11]
     Person: [
       { name: 'name', type: 'string' },
@@ -205,10 +242,17 @@ const valid = await verifyTypedData({
 
 The primary type to extract from `types` and use in `value`.
 
-```ts
-const valid = await verifyTypedData({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const valid = await publicClient.verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  domain,
+  domain: { 
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
   types: {
     Person: [
       { name: 'name', type: 'string' },
@@ -240,10 +284,17 @@ const valid = await verifyTypedData({
 
 **Type:** Inferred from `types` & `primaryType`.
 
-```ts
-const valid = await verifyTypedData({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const valid = await publicClient.verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  domain,
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
   types: {
     Person: [
       { name: 'name', type: 'string' },
@@ -277,10 +328,17 @@ const valid = await verifyTypedData({
 
 The signature of the typed data.
 
-```ts
-const valid = await verifyTypedData({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const valid = await publicClient.verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  domain,
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
   types: {
     Person: [
       { name: 'name', type: 'string' },
@@ -314,8 +372,10 @@ const valid = await verifyTypedData({
 
 Only used when verifying a typed data that was signed by a Smart Contract Account. The block number to check if the contract was already deployed.
 
-```ts
-const valid = await verifyTypedData({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const valid = await publicClient.verifyTypedData({
   blockNumber: 42069n, // [!code focus]
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain: {
@@ -324,7 +384,17 @@ const valid = await verifyTypedData({
     chainId: 1,
     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
   },
-  types,
+  types: {
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallet', type: 'address' },
+    ],
+    Mail: [
+      { name: 'from', type: 'Person' },
+      { name: 'to', type: 'Person' },
+      { name: 'contents', type: 'string' },
+    ],
+  },
   primaryType: 'Mail',
   message: {
     from: {
@@ -348,8 +418,10 @@ const valid = await verifyTypedData({
 
 Only used when verifying a typed data that was signed by a Smart Contract Account. The block tag to check if the contract was already deployed.
 
-```ts
-const valid = await verifyTypedData({
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const valid = await publicClient.verifyTypedData({
   blockNumber: 42069n, // [!code focus]
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain: {
@@ -358,7 +430,17 @@ const valid = await verifyTypedData({
     chainId: 1,
     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
   },
-  types,
+  types: {
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallet', type: 'address' },
+    ],
+    Mail: [
+      { name: 'from', type: 'Person' },
+      { name: 'to', type: 'Person' },
+      { name: 'contents', type: 'string' },
+    ],
+  },
   primaryType: 'Mail',
   message: {
     from: {

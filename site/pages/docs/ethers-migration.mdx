@@ -10,22 +10,22 @@ You may notice some of the APIs in viem are a little more verbose than Ethers. W
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { getDefaultProvider } from 'ethers'
 
-const provider = getDefaultProvider()
+const provider = getDefaultProvider() // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
+const client = createPublicClient({ // [!code hl]
+  chain: mainnet, // [!code hl]
+  transport: http() // [!code hl]
+}) // [!code hl]
 ```
 
 > We are more verbose here – we want to be explicit and clear what chain you are connecting to & what transport you are using to avoid any confusion. :)
@@ -36,46 +36,46 @@ const client = createPublicClient({
 
 This is also interchangeable with `StaticJsonRpcProvider`.
 
-```ts {3}
+```ts 
 import { providers } from 'ethers'
 
-const provider = new providers.JsonRpcProvider('https://cloudflare-eth.com')
+const provider = new providers.JsonRpcProvider('https://cloudflare-eth.com') // [!code hl]
 ```
 
 Custom Chain:
 
-```ts {3-6}
+```ts 
 import { providers } from 'ethers'
 
-const provider = new providers.JsonRpcProvider('https://rpc.ankr.com/fantom/​', {
-  name: 'Fantom',
-  id: 250
-})
+const provider = new providers.JsonRpcProvider('https://rpc.ankr.com/fantom/​', { // [!code hl]
+  name: 'Fantom', // [!code hl]
+  id: 250 // [!code hl]
+}) // [!code hl]
 ```
 
 
 #### viem
 
-```ts {4-7}
+```ts 
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http('https://cloudflare-eth.com')
-})
+const client = createPublicClient({ // [!code hl]
+  chain: mainnet, // [!code hl]
+  transport: http('https://cloudflare-eth.com') // [!code hl]
+}) // [!code hl]
 ```
 
 Custom Chain:
 
-```ts {4-7}
+```ts 
 import { createPublicClient, http } from 'viem'
 import { fantom } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: fantom,
-  transport: http('https://rpc.ankr.com/fantom/​')
-})
+const client = createPublicClient({ // [!code hl]
+  chain: fantom, // [!code hl]
+  transport: http('https://rpc.ankr.com/fantom/​') // [!code hl]
+}) // [!code hl]
 ```
 
 > viem exports custom EVM chains in the `viem/chains` entrypoint.
@@ -84,22 +84,22 @@ const client = createPublicClient({
 
 #### Ethers
 
-```ts {3}
+```ts
 import { providers } from 'ethers'
 
-const provider = new providers.InfuraProvider('homestead', '<apiKey>')
+const provider = new providers.InfuraProvider('homestead', '<apiKey>') // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts 
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http('https://mainnet.infura.io/v3/<apiKey>')
-})
+const client = createPublicClient({ // [!code hl]
+  chain: mainnet, // [!code hl]
+  transport: http('https://mainnet.infura.io/v3/<apiKey>') // [!code hl]
+}) // [!code hl]
 ```
 
 > viem does not have custom API Provider clients – you can just pass in their RPC URL.
@@ -108,22 +108,22 @@ const client = createPublicClient({
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { providers } from 'ethers'
 
-const provider = new providers.AlchemyProvider('homestead', '<apiKey>')
+const provider = new providers.AlchemyProvider('homestead', '<apiKey>') // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts 
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http('https://eth-mainnet.g.alchemy.com/v2/<apiKey>')
-})
+const client = createPublicClient({ // [!code hl]
+  chain: mainnet, // [!code hl]
+  transport: http('https://eth-mainnet.g.alchemy.com/v2/<apiKey>') // [!code hl]
+}) // [!code hl]
 ```
 
 > viem does not have custom API Provider clients – you can just pass in their RPC URL.
@@ -132,22 +132,22 @@ const client = createPublicClient({
 
 #### Ethers
 
-```ts {3}
+```ts
 import { providers } from 'ethers'
 
-const provider = new providers.CloudflareProvider()
+const provider = new providers.CloudflareProvider() // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http('https://cloudflare-eth.com/')
-})
+const client = createPublicClient({ // [!code hl]
+  chain: mainnet, // [!code hl]
+  transport: http('https://cloudflare-eth.com/') // [!code hl]
+}) // [!code hl]
 ```
 
 > viem does not have custom API Provider clients – you can just pass in their RPC URL.
@@ -156,22 +156,22 @@ const client = createPublicClient({
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { providers } from 'ethers'
 
-const provider = new providers.PocketProvider('homestead', '<apiKey>')
+const provider = new providers.PocketProvider('homestead', '<apiKey>') // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http('https://eth-mainnet.gateway.pokt.network/v1/lb/<apiKey>')
-})
+const client = createPublicClient({ // [!code hl]
+  chain: mainnet, // [!code hl]
+  transport: http('https://eth-mainnet.gateway.pokt.network/v1/lb/<apiKey>') // [!code hl]
+}) // [!code hl]
 ```
 
 > viem does not have custom API Provider clients – you can just pass in their RPC URL.
@@ -180,22 +180,22 @@ const client = createPublicClient({
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { providers } from 'ethers'
 
-const provider = new providers.AnkrProvider('homestead', '<apiKey>')
+const provider = new providers.AnkrProvider('homestead', '<apiKey>') // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts 
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http('https://rpc.ankr.com/eth/<apiKey>')
-})
+const client = createPublicClient({ // [!code hl]
+  chain: mainnet, // [!code hl]
+  transport: http('https://rpc.ankr.com/eth/<apiKey>') // [!code hl]
+}) // [!code hl]
 ```
 
 > viem does not have custom API Provider clients – you can just pass in their RPC URL.
@@ -204,26 +204,26 @@ const client = createPublicClient({
 
 #### Ethers
 
-```ts {3-5}
+```ts
 import { providers } from 'ethers'
 
-const alchemy = new providers.AlchemyProvider('homestead', '<apiKey>')
-const infura = new providers.InfuraProvider('homestead', '<apiKey>')
-const provider = new providers.FallbackProvider([alchemy, infura])
+const alchemy = new providers.AlchemyProvider('homestead', '<apiKey>') // [!code hl]
+const infura = new providers.InfuraProvider('homestead', '<apiKey>') // [!code hl]
+const provider = new providers.FallbackProvider([alchemy, infura]) // [!code hl]
 ```
 
 #### viem
 
-```ts {4-5,9}
+```ts 
 import { createPublicClient, http, fallback } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const alchemy = http('https://eth-mainnet.g.alchemy.com/v2/<apiKey>')
-const infura = http('https://mainnet.infura.io/v3/<apiKey>')
+const alchemy = http('https://eth-mainnet.g.alchemy.com/v2/<apiKey>') // [!code hl]
+const infura = http('https://mainnet.infura.io/v3/<apiKey>') // [!code hl]
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: fallback([alchemy, infura])
+  transport: fallback([alchemy, infura]) // [!code hl]
 })
 ```
 
@@ -239,44 +239,44 @@ Coming soon.
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { providers } from 'ethers'
 
-const provider = new providers.Web3Provider(window.ethereum)
+const provider = new providers.Web3Provider(window.ethereum) // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts 
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createWalletClient({
-  chain: mainnet,
-  transport: custom(window.ethereum)
-})
+const client = createWalletClient({ // [!code hl]
+  chain: mainnet, // [!code hl] 
+  transport: custom(window.ethereum) // [!code hl]
+}) // [!code hl]
 ```
 
 ### WebSocketProvider
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { providers } from 'ethers'
 
-const provider = new providers.WebSocketProvider('wss://eth-mainnet.g.alchemy.com/v2/<apiKey>')
+const provider = new providers.WebSocketProvider('wss://eth-mainnet.g.alchemy.com/v2/<apiKey>') // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts
 import { createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: webSocket('wss://eth-mainnet.g.alchemy.com/v2/<apiKey>')
-})
+const client = createPublicClient({ // [!code hl]
+  chain: mainnet, // [!code hl]
+  transport: webSocket('wss://eth-mainnet.g.alchemy.com/v2/<apiKey>') // [!code hl]
+}) // [!code hl]
 ```
 
 ## Signers → Accounts
@@ -285,27 +285,27 @@ const client = createPublicClient({
 
 #### Ethers
 
-```ts {5-6}
+```ts
 import { providers } from 'ethers'
 
 const provider = new providers.Web3Provider(window.ethereum)
 
-const [address] = await provider.listAccounts()
-const signer = provider.getSigner(address)
+const [address] = await provider.listAccounts() // [!code hl]
+const signer = provider.getSigner(address) // [!code hl]
 
 signer.sendTransaction({ ... })
 ```
 
 #### viem
 
-```ts {4,7}
+```ts
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' }) // [!code hl]
 
 const client = createWalletClient({
-  account,
+  account, // [!code hl]
   chain: mainnet,
   transport: custom(window.ethereum)
 })
@@ -319,27 +319,27 @@ client.sendTransaction({ ... })
 
 #### Ethers
 
-```ts {5}
+```ts 
 import { providers, Wallet } from 'ethers'
 
 const provider = new providers.Web3Provider(window.ethereum)
 
-const wallet = new Wallet('0x...', provider)
+const wallet = new Wallet('0x...', provider) // [!code hl]
 
 wallet.sendTransaction({ ... })
 ```
 
 #### viem
 
-```ts {6,9}
+```ts
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
-const account = privateKeyToAccount('0x...')
+const account = privateKeyToAccount('0x...') // [!code hl]
 
 const client = createWalletClient({
-  account,
+  account, // [!code hl]
   chain: mainnet,
   transport: custom(window.ethereum)
 })
@@ -353,19 +353,19 @@ client.sendTransaction({ ... })
 
 #### Ethers
 
-```ts {5-7}
+```ts
 import { getDefaultProvider } from 'ethers'
 
 const provider = getDefaultProvider()
 
-provider.getBlock(...)
-provider.getTransaction(...)
+provider.getBlock(...) // [!code hl]
+provider.getTransaction(...) // [!code hl]
 ...
 ```
 
 #### viem
 
-```ts {9-11}
+```ts 
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -374,8 +374,8 @@ const client = createPublicClient({
   transport: http()
 })
 
-client.getBlock(...)
-client.getTransaction(...)
+client.getBlock(...) // [!code hl]
+client.getTransaction(...) // [!code hl]
 ...
 ```
 
@@ -389,7 +389,7 @@ client.getTransaction(...)
 
 #### Ethers
 
-```ts {8-9}
+```ts
 import { providers } from 'ethers'
 
 const provider = new providers.Web3Provider(window.ethereum)
@@ -397,14 +397,14 @@ const provider = new providers.Web3Provider(window.ethereum)
 const [address] = await provider.listAccounts()
 const signer = provider.getSigner(address)
 
-signer.sendTransaction(...)
-signer.signMessage(...)
+signer.sendTransaction(...) // [!code hl]
+signer.signMessage(...) // [!code hl]
 ...
 ```
 
 #### viem
 
-```ts {12-13}
+```ts 
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -416,8 +416,8 @@ const client = createWalletClient({
   transport: custom(window.ethereum)
 })
 
-client.sendTransaction({ ... })
-client.signMessage({ ... })
+client.sendTransaction({ ... }) // [!code hl]
+client.signMessage({ ... }) // [!code hl]
 ...
 ```
 
@@ -431,20 +431,20 @@ client.signMessage({ ... })
 
 #### Ethers
 
-```ts {6-8}
+```ts
 import { getDefaultProvider } from 'ethers'
 import { wagmiContractConfig } from './abi'
 
 const provider = getDefaultProvider()
 
-const { abi, address } = wagmiContractConfig
-const contract = new Contract(address, abi, provider)
-const supply = await contract.totalSupply()
+const { abi, address } = wagmiContractConfig // [!code hl]
+const contract = new Contract(address, abi, provider) // [!code hl]
+const supply = await contract.totalSupply() // [!code hl]
 ```
 
 #### viem
 
-```ts {10-13}
+```ts 
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -454,17 +454,17 @@ const client = createPublicClient({
   transport: http()
 })
 
-const supply = await client.readContract({
-  ...wagmiContractConfig,
-  functionName: 'totalSupply'
-})
+const supply = await client.readContract({ // [!code hl]
+  ...wagmiContractConfig, // [!code hl]
+  functionName: 'totalSupply' // [!code hl]
+}) // [!code hl]
 ```
 
 ### Writing to Contracts
 
 #### Ethers
 
-```ts {9-11}
+```ts 
 import { Contract, providers } from 'ethers'
 import { wagmiContractConfig } from './abi'
 
@@ -473,22 +473,18 @@ const provider = new providers.Web3Provider(window.ethereum)
 const [address] = await provider.listAccounts()
 const signer = provider.getSigner(address)
 
-const { abi, address } = wagmiContractConfig
-const contract = new Contract(address, abi, signer)
-const hash = await contract.mint()
+const { abi, address } = wagmiContractConfig // [!code hl]
+const contract = new Contract(address, abi, signer) // [!code hl]
+const hash = await contract.mint() // [!code hl]
 ```
 
 #### viem
 
-```ts {17-22}
+```ts
 import { createPublicClient, createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
 
-const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
 const walletClient = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
@@ -496,19 +492,18 @@ const walletClient = createWalletClient({
 
 const [address] = await walletClient.getAddresses()
 
-const { request } = await publicClient.simulateContract({
-  ...wagmiContractConfig,
-  functionName: 'mint',
-  account: address,
-})
-const hash = await walletClient.writeContract(request)
+const hash = await walletClient.writeContract({ // [!code hl]
+  ...wagmiContractConfig, // [!code hl]
+  functionName: 'mint', // [!code hl]
+  account: address, // [!code hl]
+}) // [!code hl]
 ```
 
 ### Deploying Contracts
 
 #### Ethers
 
-```ts {9-10}
+```ts 
 import { ContractFactory, providers } from 'ethers'
 import { abi, bytecode } from './abi'
 
@@ -517,13 +512,13 @@ const provider = new providers.Web3Provider(window.ethereum)
 const [address] = await provider.listAccounts()
 const signer = provider.getSigner(address)
 
-const contract = new ContractFactory(abi, bytecode, signer)
-await contract.deploy()
+const contract = new ContractFactory(abi, bytecode, signer) // [!code hl]
+await contract.deploy() // [!code hl]
 ```
 
 #### viem
 
-```ts {12-16}
+```ts
 import { createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { abi, bytecode } from './abi'
@@ -535,38 +530,38 @@ const walletClient = createWalletClient({
 
 const [address] = await walletClient.getAddresses()
 
-await walletClient.deployContract({
-  abi,
-  account: address,
-  bytecode,
-})
+await walletClient.deployContract({ // [!code hl]
+  abi, // [!code hl]
+  account: address, // [!code hl]
+  bytecode, // [!code hl]
+}) // [!code hl]
 ```
 
 ### Contract Events
 
 #### Ethers
 
-```ts {6-15}
+```ts 
 import { getDefaultProvider } from 'ethers'
 import { wagmiContractConfig } from './abi'
 
 const provider = getDefaultProvider()
 
-const { abi, address } = wagmiContractConfig
-const contract = new Contract(address, abi, provider)
+const { abi, address } = wagmiContractConfig // [!code hl]
+const contract = new Contract(address, abi, provider) // [!code hl]
 
-const listener = (from, to, amount, event) => {
-  // ...
-}
-contract.on('Transfer', listener)
+const listener = (from, to, amount, event) => { // [!code hl]
+  // ... // [!code hl]
+} // [!code hl]
+contract.on('Transfer', listener) // [!code hl]
 
-// unsubscribe
-contract.off('Transfer', listener)
+// unsubscribe // [!code hl]
+contract.off('Transfer', listener) // [!code hl]
 ```
 
 #### viem
 
-```ts {10-20}
+```ts
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -576,17 +571,17 @@ const client = createPublicClient({
   transport: http()
 })
 
-const unwatch = client.watchContractEvent({
-  ...wagmiContractConfig,
-  eventName: 'Transfer',
-  onLogs: logs => {
-    const { args: { from, to, amount }, eventName } = logs[0]
-    // ...
-  },
-})
+const unwatch = client.watchContractEvent({ // [!code hl]
+  ...wagmiContractConfig, // [!code hl]
+  eventName: 'Transfer', // [!code hl]
+  onLogs: logs => { // [!code hl]
+    const { args: { from, to, amount }, eventName } = logs[0] // [!code hl]
+    // ... // [!code hl]
+  }, // [!code hl]
+}) // [!code hl]
 
-// unsubscribe
-unwatch()
+// unsubscribe // [!code hl]
+unwatch() // [!code hl]
 ```
 
 > Note: Logs are batched between polling intervals in viem to avoid excessive callback invocations. You can disable this behavior with `batch: false` however.
@@ -595,20 +590,20 @@ unwatch()
 
 #### Ethers
 
-```ts {6-8}
+```ts 
 import { getDefaultProvider } from 'ethers'
 import { wagmiContractConfig } from './abi'
 
 const provider = getDefaultProvider()
 
-const { abi, address } = wagmiContractConfig
-const contract = new Contract(address, abi, provider)
-const gas = await contract.estimateGas.mint()
+const { abi, address } = wagmiContractConfig // [!code hl]
+const contract = new Contract(address, abi, provider) // [!code hl]
+const gas = await contract.estimateGas.mint() // [!code hl]
 ```
 
 #### viem
 
-```ts {10-13}
+```ts
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -618,30 +613,30 @@ const client = createPublicClient({
   transport: http()
 })
 
-const gas = await client.estimateContractGas({
-  ...wagmiContractConfig, 
-  functionName: 'mint'
-})
+const gas = await client.estimateContractGas({ // [!code hl]
+  ...wagmiContractConfig,  // [!code hl]
+  functionName: 'mint' // [!code hl]
+}) // [!code hl]
 ```
 
 ### Call
 
 #### Ethers
 
-```ts {6-8}
+```ts 
 import { getDefaultProvider } from 'ethers'
 import { wagmiContractConfig } from './abi'
 
 const provider = getDefaultProvider()
 
-const { abi, address } = wagmiContractConfig
-const contract = new Contract(address, abi, provider)
-await contract.callStatic.mint()
+const { abi, address } = wagmiContractConfig // [!code hl]
+const contract = new Contract(address, abi, provider) // [!code hl]
+await contract.callStatic.mint() // [!code hl]
 ```
 
 #### viem
 
-```ts {10-13}
+```ts 
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -651,24 +646,24 @@ const client = createPublicClient({
   transport: http()
 })
 
-await client.simulateContract({
-  ...wagmiContractConfig, 
-  functionName: 'mint'
-})
+await client.simulateContract({ // [!code hl]
+  ...wagmiContractConfig,  // [!code hl]
+  functionName: 'mint' // [!code hl]
+}) // [!code hl]
 ```
 
 ### Contract Instances
 
 #### Ethers
 
-```ts {6-7}
+```ts 
 import { getDefaultProvider } from 'ethers'
 import { wagmiContractConfig } from './abi'
 
 const provider = getDefaultProvider()
 
-const { abi, address } = wagmiContractConfig
-const contract = new Contract(address, abi, provider)
+const { abi, address } = wagmiContractConfig // [!code hl]
+const contract = new Contract(address, abi, provider) // [!code hl]
 
 const supply = await contract.totalSupply()
 const listener = (from, to, amount, event) => {
@@ -680,7 +675,7 @@ contract.off('Transfer', listener)
 
 #### viem
 
-```ts {10-13}
+```ts 
 import { createPublicClient, http, getContract } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -690,10 +685,10 @@ const client = createPublicClient({
   transport: http()
 })
 
-const contract = getContract({
-  ...wagmiContractConfig,
-  client,
-})
+const contract = getContract({ // [!code hl]
+  ...wagmiContractConfig, // [!code hl]
+  client, // [!code hl] 
+}) // [!code hl]
 
 const supply = await contract.read.totalSupply()
 const unwatch = contract.watchEvent.Transfer({
@@ -801,116 +796,116 @@ viem only supports Human Readable → Object format.
 
 #### Ethers
 
-```ts {3-10}
+```ts 
 import { utils } from 'ethers'
 
-const interface = new Interface([
-  'constructor(string symbol, string name)',
-  'function transferFrom(address from, address to, uint amount)',
-  'function transferFrom(address from, address to, uint amount, bool x)',
-  'function mint(uint amount) payable',
-  'function balanceOf(address owner) view returns (uint)'
-])
-const json = interface.format(utils.FormatTypes.json)
+const interface = new Interface([ // [!code hl]
+  'constructor(string symbol, string name)', // [!code hl]
+  'function transferFrom(address from, address to, uint amount)', // [!code hl]
+  'function transferFrom(address from, address to, uint amount, bool x)', // [!code hl]
+  'function mint(uint amount) payable', // [!code hl]
+  'function balanceOf(address owner) view returns (uint)' // [!code hl]
+]) // [!code hl]
+const json = interface.format(utils.FormatTypes.json) // [!code hl]
 ```
 
 #### viem
 
-```ts {3-10}
+```ts
 import { parseAbi } from 'viem'
 
-const json = parseAbi([
-  'constructor(string symbol, string name)',
-  'function transferFrom(address from, address to, uint amount)',
-  'function transferFrom(address from, address to, uint amount, bool x)',
-  'function mint(uint amount) payable',
-  'function balanceOf(address owner) view returns (uint)',
-  'event Transfer(address indexed from, address indexed to, uint256 amount)'
-])
+const json = parseAbi([ // [!code hl]
+  'constructor(string symbol, string name)', // [!code hl]
+  'function transferFrom(address from, address to, uint amount)', // [!code hl]
+  'function transferFrom(address from, address to, uint amount, bool x)', // [!code hl]
+  'function mint(uint amount) payable', // [!code hl]
+  'function balanceOf(address owner) view returns (uint)', // [!code hl]
+  'event Transfer(address indexed from, address indexed to, uint256 amount)' // [!code hl]
+]) // [!code hl]
 ```
 
 ### Fragment.from
 
 #### ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-const fragment = utils.Fragment.from('function balanceOf(address owner) view returns (uint)')
+const fragment = utils.Fragment.from('function balanceOf(address owner) view returns (uint)') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { parseAbiItem } from 'viem'
 
-const abiItem = parseAbiItem('function balanceOf(address owner) view returns (uint)')
+const abiItem = parseAbiItem('function balanceOf(address owner) view returns (uint)') // [!code hl]
 ```
 
 ### ParamType.from
 
 #### ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-const param = utils.ParamType.from('address owner')
+const param = utils.ParamType.from('address owner') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { parseAbiParameter } from 'viem'
 
-const param = parseAbiParameter('address owner')
+const param = parseAbiParameter('address owner') // [!code hl]
 ```
 
 ### Fragment Access
 
 #### Ethers
 
-```ts {4-6}
+```ts 
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const interface = new utils.Interface(abi) 
-interface.getFunction('transferFrom')
-interface.getEvent('Transfer')
+const interface = new utils.Interface(abi)  // [!code hl]
+interface.getFunction('transferFrom') // [!code hl]
+interface.getEvent('Transfer') // [!code hl]
 ```
 
 #### viem
 
-```ts {4-5}
+```ts
 import { getAbiItem } from 'viem'
 import { abi } from './abi'
 
-getAbiItem({ abi, name: 'transferFrom' }) 
-getAbiItem({ abi, name: 'Transfer' })
+getAbiItem({ abi, name: 'transferFrom' })  // [!code hl]
+getAbiItem({ abi, name: 'Transfer' }) // [!code hl]
 ```
 
 ### Interface.encodeDeploy
 
 #### Ethers
 
-```ts {4-5}
+```ts 
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const iface = new utils.Interface(abi); 
-const data = iface.encodeDeploy(['SYM', 'Some Name'])
+const iface = new utils.Interface(abi);  // [!code hl]
+const data = iface.encodeDeploy(['SYM', 'Some Name']) // [!code hl]
 ```
 
 #### viem
 
-```ts {4-8}
+```ts 
 import { encodeDeployData } from 'viem'
 import { abi, bytecode } from './abi'
 
-const data = encodeDeployData({ 
-  abi,
-  bytecode,
-  args: ['SYM', 'Some Name']
-})
+const data = encodeDeployData({ // [!code hl]
+  abi, // [!code hl]
+  bytecode, // [!code hl]
+  args: ['SYM', 'Some Name'] // [!code hl]
+}) // [!code hl]
 ```
 
 > Note: viem concatinates the contract bytecode onto the ABI encoded data.
@@ -919,249 +914,249 @@ const data = encodeDeployData({
 
 #### Ethers
 
-```ts {4-8}
+```ts 
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const iface = new utils.Interface(abi); 
-const data = iface.encodeErrorResult('AccountLocked', [
-  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
-  utils.parseEther('1.0')
-]);
+const iface = new utils.Interface(abi);  // [!code hl]
+const data = iface.encodeErrorResult('AccountLocked', [ // [!code hl]
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code hl]
+  utils.parseEther('1.0') // [!code hl]
+]); // [!code hl]
 ```
 
 #### viem
 
-```ts {4-11}
+```ts 
 import { encodeErrorResult, parseEther } from 'viem'
 import { abi } from './abi'
 
-const data = encodeErrorResult({ 
-  abi: wagmiAbi,
-  errorName: 'AccountLocked',
-  args: [
-    '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
-    parseEther('1.0')
-  ]
-})
+const data = encodeErrorResult({  // [!code hl]
+  abi: wagmiAbi, // [!code hl]
+  errorName: 'AccountLocked', // [!code hl]
+  args: [ // [!code hl]
+    '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code hl]
+    parseEther('1.0') // [!code hl]
+  ] // [!code hl]
+}) // [!code hl]
 ```
 
 ### Interface.encodeFilterTopics
 
 #### Ethers
 
-```ts {4-8}
+```ts 
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const iface = new utils.Interface(abi); 
-const data = iface.encodeFilterTopics('Transfer', [
-  null,
-  '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
-])
+const iface = new utils.Interface(abi);  // [!code hl]
+const data = iface.encodeFilterTopics('Transfer', [ // [!code hl]
+  null, // [!code hl]
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72' // [!code hl]
+]) // [!code hl]
 ```
 
 #### viem
 
-```ts {4-10}
+```ts 
 import { encodeEventTopics } from 'viem'
 import { abi } from './abi'
 
-const data = encodeEventTopics({ 
-  abi,
-  eventName: 'Transfer',
-  args: {
-    to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
-  }
-})
+const data = encodeEventTopics({ // [!code hl]
+  abi, // [!code hl]
+  eventName: 'Transfer', // [!code hl]
+  args: { // [!code hl]
+    to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' // [!code hl]
+  } // [!code hl]
+}) // [!code hl]
 ```
 
 ### Interface.encodeFunctionData
 
 #### Ethers
 
-```ts {4-9}
+```ts 
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const iface = new utils.Interface(abi); 
-const data = iface.encodeFunctionData('transferFrom', [
-  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
-  '0xaB7C8803962c0f2F5BBBe3FA8bf41cd82AA1923C',
-  parseEther('1.0')
-])
+const iface = new utils.Interface(abi); // [!code hl]
+const data = iface.encodeFunctionData('transferFrom', [ // [!code hl]
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code hl]
+  '0xaB7C8803962c0f2F5BBBe3FA8bf41cd82AA1923C', // [!code hl]
+  parseEther('1.0') // [!code hl]
+]) // [!code hl]
 ```
 
 #### viem
 
-```ts {4-12}
+```ts 
 import { encodeFunctionData, parseEther } from 'viem'
 import { abi } from './abi'
 
-const data = encodeFunctionData({ 
-  abi,
-  functionName: 'transferFrom',
-  args: [
-    '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
-    '0xaB7C8803962c0f2F5BBBe3FA8bf41cd82AA1923C',
-    parseEther('1.0')
-  ]
-})
+const data = encodeFunctionData({  // [!code hl]
+  abi, // [!code hl]
+  functionName: 'transferFrom', // [!code hl]
+  args: [ // [!code hl]
+    '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code hl]
+    '0xaB7C8803962c0f2F5BBBe3FA8bf41cd82AA1923C', // [!code hl]
+    parseEther('1.0') // [!code hl]
+  ] // [!code hl]
+}) // [!code hl]
 ```
 
 ### Interface.encodeFunctionResult
 
 #### Ethers
 
-```ts {4-7}
+```ts 
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const iface = new utils.Interface(abi); 
-const data = iface.encodeFunctionResult('balanceOf', [
-  '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
-])
+const iface = new utils.Interface(abi); // [!code hl]
+const data = iface.encodeFunctionResult('balanceOf', [ // [!code hl]
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72' // [!code hl]
+]) // [!code hl]
 ```
 
 #### viem
 
-```ts {4-8}
+```ts 
 import { encodeFunctionResult, parseEther } from 'viem'
 import { abi } from './abi'
 
-const data = encodeFunctionResult({ 
-  abi,
-  functionName: 'balanceOf',
-  value: ['0x8ba1f109551bD432803012645Ac136ddd64DBA72']
-})
+const data = encodeFunctionResult({  // [!code hl]
+  abi, // [!code hl]
+  functionName: 'balanceOf', // [!code hl]
+  value: ['0x8ba1f109551bD432803012645Ac136ddd64DBA72'] // [!code hl]
+}) // [!code hl]
 ```
 
 ### Interface.decodeErrorResult
 
 #### Ethers
 
-```ts {4-5}
+```ts 
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const iface = new utils.Interface(abi); 
-const result = iface.decodeErrorResult("AccountLocked", '0xf7c3865a0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba720000000000000000000000000000000000000000000000000de0b6b3a7640000')
+const iface = new utils.Interface(abi); // [!code hl] 
+const result = iface.decodeErrorResult("AccountLocked", '0xf7c3865a0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba720000000000000000000000000000000000000000000000000de0b6b3a7640000') // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts
 import { decodeErrorResult, parseEther } from 'viem'
 import { abi } from './abi'
 
-const result = decodeErrorResult({ 
-  abi,
-  data: '0xf7c3865a0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba720000000000000000000000000000000000000000000000000de0b6b3a7640000'
-})
+const result = decodeErrorResult({  // [!code hl]
+  abi, // [!code hl]
+  data: '0xf7c3865a0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba720000000000000000000000000000000000000000000000000de0b6b3a7640000' // [!code hl]
+}) // [!code hl]
 ```
 
 ### Interface.decodeEventLog
 
 #### Ethers
 
-```ts {4-13}
+```ts 
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const iface = new utils.Interface(abi); 
-const result = iface.decodeEventLog(
-  'Transfer', 
-  data: '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000', 
-  topics: [
-    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-    '0x0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72',
-    '0x000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c'
-  ]
-);
+const iface = new utils.Interface(abi); // [!code hl]
+const result = iface.decodeEventLog( // [!code hl]
+  'Transfer', // [!code hl]
+  data: '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000', // [!code hl] 
+  topics: [ // [!code hl]
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', // [!code hl]
+    '0x0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72', // [!code hl]
+    '0x000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c' // [!code hl]
+  ] // [!code hl]
+); // [!code hl] 
 ```
 
 #### viem
 
-```ts {4-12}
+```ts 
 import { decodeEventLog, parseEther } from 'viem'
 import { abi } from './abi'
 
-const result = decodeEventLog({ 
-  abi,
-  data: '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000', 
-  topics: [
-    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-    '0x0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72',
-    '0x000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c'
-  ]
-})
+const result = decodeEventLog({ // [!code hl]
+  abi, // [!code hl]
+  data: '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000', // [!code hl] 
+  topics: [ // [!code hl]
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', // [!code hl]
+    '0x0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72', // [!code hl]
+    '0x000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c' // [!code hl]
+  ] // [!code hl]
+}) // [!code hl]
 ```
 
 ### Interface.decodeFunctionData
 
 #### Ethers
 
-```ts {4-5}
+```ts 
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const iface = new utils.Interface(abi); 
-const result = iface.decodeFunctionData('transferFrom', '0x23b872dd0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c0000000000000000000000000000000000000000000000000de0b6b3a7640000');
+const iface = new utils.Interface(abi); // [!code hl]
+const result = iface.decodeFunctionData('transferFrom', '0x23b872dd0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c0000000000000000000000000000000000000000000000000de0b6b3a7640000'); // [!code hl]
 ```
 
 #### viem
 
-```ts {4-7}
+```ts
 import { decodeFunctionData, parseEther } from 'viem'
 import { abi } from './abi'
 
-const result = decodeFunctionData({ 
-  abi,
-  data: '0x23b872dd0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c0000000000000000000000000000000000000000000000000de0b6b3a7640000',
-})
+const result = decodeFunctionData({ // [!code hl]
+  abi, // [!code hl]
+  data: '0x23b872dd0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c0000000000000000000000000000000000000000000000000de0b6b3a7640000', // [!code hl]
+}) // [!code hl]
 ```
 
 ### Interface.decodeFunctionResult
 
 #### Ethers
 
-```ts {4-5}
+```ts
 import { utils } from 'ethers'
 import { abi } from './abi'
 
-const iface = new utils.Interface(abi); 
-const result = iface.decodeFunctionResult('balanceOf', '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000');
+const iface = new utils.Interface(abi); // [!code hl]
+const result = iface.decodeFunctionResult('balanceOf', '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000'); // [!code hl]
 ```
 
 #### viem
 
-```ts {4-8}
+```ts
 import { decodeFunctionResult, parseEther } from 'viem'
 import { abi } from './abi'
 
-const result = decodeFunctionResult({ 
-  abi,
-  functionName: 'balanceOf',
-  data: '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000',
-})
+const result = decodeFunctionResult({ // [!code hl]
+  abi, // [!code hl]
+  functionName: 'balanceOf', // [!code hl]
+  data: '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000', // [!code hl]
+}) // [!code hl]
 ```
 
 ### Interface.getSighash
 
 #### Ethers
 
-```ts {3-3}
+```ts
 import { Interface, FunctionFragment } from '@ethersproject/abi';
 
-const hash = Interface.getSighash(FunctionFragment.from('function ownerOf(uint256)'));
+const hash = Interface.getSighash(FunctionFragment.from('function ownerOf(uint256)')); // [!code hl]
 ```
 
 #### viem
 
-```ts {3-7}
+```ts 
 import { toFunctionHash } from 'viem'
 
-const hash = toFunctionHash('function ownerOf(uint256)')
+const hash = toFunctionHash('function ownerOf(uint256)') // [!code hl]
 ```
 
 ## Address Utilities
@@ -1170,82 +1165,82 @@ const hash = toFunctionHash('function ownerOf(uint256)')
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-const address = utils.getAddress('0x8ba1f109551bd432803012645ac136ddd64dba72')
+const address = utils.getAddress('0x8ba1f109551bd432803012645ac136ddd64dba72') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { getAddress } from 'viem'
 
-const address = getAddress('0x8ba1f109551bd432803012645ac136ddd64dba72')
+const address = getAddress('0x8ba1f109551bd432803012645ac136ddd64dba72') // [!code hl]
 ```
 
 ### isAddress
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-const address = utils.isAddress('0x8ba1f109551bd432803012645ac136ddd64dba72')
+const address = utils.isAddress('0x8ba1f109551bd432803012645ac136ddd64dba72') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { isAddress } from 'viem'
 
-const address = isAddress('0x8ba1f109551bd432803012645ac136ddd64dba72')
+const address = isAddress('0x8ba1f109551bd432803012645ac136ddd64dba72') // [!code hl]
 ```
 
 ### getContractAddress
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-const address = utils.getContractAddress({ from: '0x...', nonce: 5 });
+const address = utils.getContractAddress({ from: '0x...', nonce: 5 }); // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { getContractAddress } from 'viem'
 
-const address = getContractAddress({ from: '0x...', nonce: 5 })
+const address = getContractAddress({ from: '0x...', nonce: 5 }) // [!code hl]
 ```
 
 ### getCreate2Address
 
 #### Ethers
-
-```ts {3-8}
+ 
+```ts
 import { utils } from 'ethers'
 
-const from = '0x8ba1f109551bD432803012645Ac136ddd64DBA72';
-const salt = '0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331';
-const initCode = '0x6394198df16000526103ff60206004601c335afa6040516060f3';
-const initCodeHash = utils.keccak256(initCode);
+const from = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'; // [!code hl]
+const salt = '0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331'; // [!code hl]
+const initCode = '0x6394198df16000526103ff60206004601c335afa6040516060f3'; // [!code hl]
+const initCodeHash = utils.keccak256(initCode); // [!code hl]
 
-const address = utils.getCreate2Address(from, salt, initCodeHash);
+const address = utils.getCreate2Address(from, salt, initCodeHash); // [!code hl]
 ```
 
 #### viem
 
-```ts {3-8}
+```ts 
 import { getContractAddress } from 'viem'
 
-const address = getContractAddress({
-  bytecode: '0x6394198df16000526103ff60206004601c335afa6040516060f3',
-  from: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
-  opcode: 'CREATE2',
-  salt: '0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331',
-});
+const address = getContractAddress({ // [!code hl]
+  bytecode: '0x6394198df16000526103ff60206004601c335afa6040516060f3', // [!code hl]
+  from: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code hl]
+  opcode: 'CREATE2', // [!code hl]
+  salt: '0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331', // [!code hl]
+}); // [!code hl]
 ```
 
 ## BigNumber Utilities
@@ -1264,130 +1259,127 @@ None. We use browser native [BigInt](https://developer.mozilla.org/en-US/docs/We
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.isBytes(new Uint8Array([1, 69, 420]))
+utils.isBytes(new Uint8Array([1, 69, 420])) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { isBytes } from 'viem'
 
-isBytes(new Uint8Array([1, 69, 420]))
+isBytes(new Uint8Array([1, 69, 420])) // [!code hl]
 ```
 
 ### isHexString
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.isHexString('0xdeadbeef')
+utils.isHexString('0xdeadbeef') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { isHex } from 'viem'
 
-isHex('0xdeadbeef')
+isHex('0xdeadbeef') // [!code hl]
 ```
 
 ### isBytesLike
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.isBytesLike('0xdeadbeef')
+utils.isBytesLike('0xdeadbeef') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { isBytes, isHex } from 'viem'
 
-isBytes('0xdeadbeef') || isHex('0xdeadbeef')
+isBytes('0xdeadbeef') || isHex('0xdeadbeef') // [!code hl]
 ```
 
 ### arrayify
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.arrayify('0xdeadbeef')
+utils.arrayify('0xdeadbeef') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { toBytes } from 'viem'
 
-toBytes('0xdeadbeef')
+toBytes('0xdeadbeef') // [!code hl]
 ```
 
 ### hexlify
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.hexlify(new Uint8Array([1, 69, 420]))
+utils.hexlify(new Uint8Array([1, 69, 420])) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { toHex } from 'viem'
 
-toHex(new Uint8Array([1, 69, 420]))
+toHex(new Uint8Array([1, 69, 420])) // [!code hl]
 ```
 
 ### hexValue
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.hexValue(1)
+utils.hexValue(1) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { toHex } from 'viem'
 
-toHex(1)
+toHex(1) // [!code hl]
 ```
 
 ### formatBytes32String
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.formatBytes32String('Hello world')
+utils.formatBytes32String('Hello world') // [!code hl]
 // 0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000
 ```
 
 #### viem
 
-```ts {3-6}
+```ts
 import { stringToHex } from 'viem'
 
-stringToHex(
-  'Hello world', 
-  { size: 32 }
-)
+stringToHex('Hello world', { size: 32 }) // [!code hl]
 // 0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000
 ```
 
@@ -1395,22 +1387,19 @@ stringToHex(
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.parseBytes32String('0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000')
+utils.parseBytes32String('0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000') // [!code hl]
 // "Hello world"
 ```
 
 #### viem
 
-```ts {3-6}
+```ts 
 import { hexToString } from 'viem'
 
-hexToString(
-  '0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000', 
-  { size: 32 }
-)
+hexToString('0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000', { size: 32 }) // [!code hl]
 // "Hello world"
 ```
 
@@ -1418,144 +1407,144 @@ hexToString(
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.concat([new Uint8Array([69]), new Uint8Array([420])])
+utils.concat([new Uint8Array([69]), new Uint8Array([420])]) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { concat, toBytes } from 'viem'
 
-concat([new Uint8Array([69]), new Uint8Array([420])])
+concat([new Uint8Array([69]), new Uint8Array([420])]) // [!code hl]
 ```
 
 ### stripZeros
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.stripZeros(new Uint8Array([0, 0, 0, 0, 0, 69]))
+utils.stripZeros(new Uint8Array([0, 0, 0, 0, 0, 69])) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { trim } from 'viem'
 
-trim(new Uint8Array([0, 0, 0, 0, 0, 69]))
+trim(new Uint8Array([0, 0, 0, 0, 0, 69])) // [!code hl]
 ```
 
 ### zeroPad
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.zeroPad(new Uint8Array([69]), 32)
+utils.zeroPad(new Uint8Array([69]), 32) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { pad } from 'viem'
 
-pad(new Uint8Array([69]), { size: 32 })
+pad(new Uint8Array([69]), { size: 32 }) // [!code hl]
 ```
 
 ### hexConcat
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.hexConcat(['0x00000069', '0x00000420'])
+utils.hexConcat(['0x00000069', '0x00000420']) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { concat, toBytes } from 'viem'
 
-concat(['0x00000069', '0x00000420'])
+concat(['0x00000069', '0x00000420']) // [!code hl]
 ```
 
 ### hexDataLength
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.hexDataLength('0x00000069')
+utils.hexDataLength('0x00000069') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { size } from 'viem'
 
-size('0x00000069')
+size('0x00000069') // [!code hl]
 ```
 
 ### hexDataSlice
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.hexDataSlice('0x00000069', 4)
+utils.hexDataSlice('0x00000069', 4) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { slice } from 'viem'
 
-slice('0x00000069', 4)
+slice('0x00000069', 4) // [!code hl]
 ```
 
 ### hexStripZeros
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.hexStripZeros('0x00000069')
+utils.hexStripZeros('0x00000069') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { trim } from 'viem'
 
-trim('0x00000069')
+trim('0x00000069') // [!code hl]
 ```
 
 ### hexZeroPad
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.hexZeroPad('0x69', 32)
+utils.hexZeroPad('0x69', 32) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { pad } from 'viem'
 
-pad('0x69', { size: 32 })
+pad('0x69', { size: 32 }) // [!code hl]
 ```
 
 ## Display Logic & Input Utilities
@@ -1564,72 +1553,72 @@ pad('0x69', { size: 32 })
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.formatUnits(BigNumber.from('1000000000'), 9)
+utils.formatUnits(BigNumber.from('1000000000'), 9) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { formatUnits } from 'viem'
 
-formatUnits(1000000000n, 9)
+formatUnits(1000000000n, 9) // [!code hl]
 ```
 
 ### formatEther
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.formatEther(BigNumber.from('1000000000000000000'))
+utils.formatEther(BigNumber.from('1000000000000000000')) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { formatEther } from 'viem'
 
-formatEther(1000000000000000000n)
+formatEther(1000000000000000000n) // [!code hl]
 ```
 
 ### parseUnits
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.parseUnits('1.0', 18)
+utils.parseUnits('1.0', 18) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { parseUnits } from 'viem'
 
-parseUnits('1', 18)
+parseUnits('1', 18) // [!code hl]
 ```
 
 ### parseEther
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.parseEther('1.0')
+utils.parseEther('1.0') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts
 import { parseEther } from 'viem'
 
-parseEther('1')
+parseEther('1') // [!code hl]
 ```
 
 ## Encoding Utilities
@@ -1638,36 +1627,36 @@ parseEther('1')
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.RLP.encode('0x12345678')
+utils.RLP.encode('0x12345678') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { toRlp } from 'viem'
 
-toRlp('0x12345678')
+toRlp('0x12345678') // [!code hl]
 ```
 
 ### RLP.decode
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.RLP.decode('0x8412345678')
+utils.RLP.decode('0x8412345678') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { fromRlp } from 'viem'
 
-fromRlp('0x8412345678')
+fromRlp('0x8412345678') // [!code hl]
 ```
 
 ## Hashing Utilities
@@ -1676,42 +1665,42 @@ fromRlp('0x8412345678')
 
 #### Ethers
 
-```ts {3,5-6}
+```ts 
 import { utils } from 'ethers'
 
-utils.id('function ownerOf(uint256 tokenId)')
+utils.id('function ownerOf(uint256 tokenId)') // [!code hl]
 
 // hash utf-8 data
-utils.id('hello world')
+utils.id('hello world') // [!code hl]
 ```
 
 #### viem
 
-```ts {3,5-6}
-import { getFunctionSelector, keccak256, toHex } from 'viem'
+```ts 
+import { toFunctionSelector, keccak256, toHex } from 'viem'
 
-getFunctionSelector('function ownerOf(uint256 tokenId)')
+toFunctionSelector('function ownerOf(uint256 tokenId)') // [!code hl]
 
 // hash utf-8 data
-keccak256(toHex('hello world'))
+keccak256(toHex('hello world')) // [!code hl]
 ```
 
 ### keccak256
 
 #### Ethers
 
-```ts {3}
+```ts
 import { utils } from 'ethers'
 
-utils.keccak256(utils.toUtf8Bytes('hello world'))
+utils.keccak256(utils.toUtf8Bytes('hello world')) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { keccak256, toBytes } from 'viem'
 
-keccak256(toBytes('hello world'))
+keccak256(toBytes('hello world')) // [!code hl]
 ```
 
 ### encodeBase64/decodeBase64
@@ -1730,38 +1719,38 @@ You can use libraries such as [`base58-js`](https://www.npmjs.com/package/base58
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.namehash('awkweb.eth')
+utils.namehash('awkweb.eth') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { namehash } from 'viem'
 
-namehash('awkweb.eth')
+namehash('awkweb.eth') // [!code hl]
 ```
 
 ### solidityPack & solidityKeccak256
 
 #### Ethers
 
-```ts {3,4}
+```ts 
 import { utils } from 'ethers'
 
-utils.solidityPack(['int16', 'uint48'], [-1, 12])
-utils.solidityKeccak256(['int16', 'uint48'], [-1, 12])
+utils.solidityPack(['int16', 'uint48'], [-1, 12]) // [!code hl]
+utils.solidityKeccak256(['int16', 'uint48'], [-1, 12]) // [!code hl]
 ```
 
 #### viem
 
-```ts {3,4}
+```ts
 import { encodePacked, keccak256 } from 'viem'
 
-encodePacked(['int16', 'uint48'], [-1, 12])
-keccak256(encodePacked(['int16', 'uint48'], [-1, 12]))
+encodePacked(['int16', 'uint48'], [-1, 12]) // [!code hl]
+keccak256(encodePacked(['int16', 'uint48'], [-1, 12])) // [!code hl]
 ```
 
 ## String Utilities
@@ -1770,36 +1759,36 @@ keccak256(encodePacked(['int16', 'uint48'], [-1, 12]))
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.toUtf8Bytes('Hello World')
+utils.toUtf8Bytes('Hello World') // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { stringToBytes } from 'viem'
 
-stringToBytes('Hello World')
+stringToBytes('Hello World') // [!code hl]
 ```
 
 ### toUtf8String
 
 #### Ethers
 
-```ts {3}
+```ts 
 import { utils } from 'ethers'
 
-utils.toUtf8String(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]))
+utils.toUtf8String(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])) // [!code hl]
 ```
 
 #### viem
 
-```ts {3}
+```ts 
 import { bytesToString } from 'viem'
 
-bytesToString(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]))
+bytesToString(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])) // [!code hl]
 ```
 
 ## Transaction Utilities

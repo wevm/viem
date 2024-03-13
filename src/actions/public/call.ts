@@ -9,6 +9,10 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { aggregate3Signature } from '../../constants/contract.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
 import {
   ChainDoesNotSupportContract,
@@ -18,11 +22,27 @@ import {
   RawContractError,
   type RawContractErrorType,
 } from '../../errors/contract.js'
+import {
+  InvalidBytesLengthError,
+  type InvalidBytesLengthErrorType,
+} from '../../errors/data.js'
+import {
+  AccountStateConflictError,
+  type AccountStateConflictErrorType,
+  StateAssignmentConflictError,
+  type StateAssignmentConflictErrorType,
+} from '../../errors/stateOverride.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
-import type { RpcTransactionRequest } from '../../types/rpc.js'
+import type {
+  RpcAccountStateOverride,
+  RpcStateMapping,
+  RpcStateOverride,
+  RpcTransactionRequest,
+} from '../../types/rpc.js'
+import type { StateMapping, StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -33,6 +53,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { isAddress } from '../../utils/address/isAddress.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetChainContractAddressErrorType,
@@ -85,12 +106,15 @@ export type CallParameters<
          */
         blockTag?: BlockTag
       }
-  )
+  ) & {
+    stateOverride?: StateOverride
+  }
 
 export type CallReturnType = { data: Hex | undefined }
 
 export type CallErrorType = GetCallErrorReturnType<
   | ParseAccountErrorType
+  | ParseStateOverrideErrorType
   | AssertRequestErrorType
   | NumberToHexErrorType
   | FormatTransactionRequestErrorType
@@ -133,14 +157,17 @@ export async function call<TChain extends Chain | undefined>(
     blockNumber,
     blockTag = 'latest',
     accessList,
+    blobs,
     data,
     gas,
     gasPrice,
+    maxFeePerBlobGas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
     to,
     value,
+    stateOverride,
     ...rest
   } = args
   const account = account_ ? parseAccount(account_) : undefined
@@ -151,6 +178,8 @@ export async function call<TChain extends Chain | undefined>(
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
+    const rpcStateOverride = parseStateOverride(stateOverride)
+
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
 
@@ -159,9 +188,11 @@ export async function call<TChain extends Chain | undefined>(
       ...extract(rest, { format: chainFormat }),
       from: account?.address,
       accessList,
+      blobs,
       data,
       gas,
       gasPrice,
+      maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
@@ -169,7 +200,7 @@ export async function call<TChain extends Chain | undefined>(
       value,
     } as TransactionRequest) as TransactionRequest
 
-    if (batch && shouldPerformMulticall({ request })) {
+    if (batch && shouldPerformMulticall({ request }) && !rpcStateOverride) {
       try {
         return await scheduleMulticall(client, {
           ...request,
@@ -187,9 +218,9 @@ export async function call<TChain extends Chain | undefined>(
 
     const response = await client.request({
       method: 'eth_call',
-      params: block
-        ? [request as Partial<RpcTransactionRequest>, block]
-        : [request as Partial<RpcTransactionRequest>],
+      params: rpcStateOverride
+        ? [request as Partial<RpcTransactionRequest>, block, rpcStateOverride]
+        : [request as Partial<RpcTransactionRequest>, block],
     })
     if (response === '0x') return { data: undefined }
     return { data: response }
@@ -330,4 +361,77 @@ export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined
   const error = err.walk() as RawContractError
   return typeof error.data === 'object' ? error.data.data : error.data
+}
+
+export type ParseStateMappingErrorType = InvalidBytesLengthErrorType
+
+export function parseStateMapping(
+  stateMapping: StateMapping | undefined,
+): RpcStateMapping | undefined {
+  if (!stateMapping || stateMapping.length === 0) return undefined
+  return stateMapping.reduce((acc, { slot, value }) => {
+    if (slot.length !== 66)
+      throw new InvalidBytesLengthError({
+        size: slot.length,
+        targetSize: 66,
+        type: 'hex',
+      })
+    if (value.length !== 66)
+      throw new InvalidBytesLengthError({
+        size: value.length,
+        targetSize: 66,
+        type: 'hex',
+      })
+    acc[slot] = value
+    return acc
+  }, {} as RpcStateMapping)
+}
+
+export type ParseAccountStateOverrideErrorType =
+  | NumberToHexErrorType
+  | StateAssignmentConflictErrorType
+  | ParseStateMappingErrorType
+
+export function parseAccountStateOverride(
+  args: Omit<StateOverride[number], 'address'>,
+): RpcAccountStateOverride {
+  const { balance, nonce, state, stateDiff, code } = args
+  const rpcAccountStateOverride: RpcAccountStateOverride = {}
+  if (code !== undefined) {
+    rpcAccountStateOverride.code = code
+  }
+  if (balance !== undefined) {
+    rpcAccountStateOverride.balance = numberToHex(balance, { size: 32 })
+  }
+  if (nonce !== undefined) {
+    rpcAccountStateOverride.nonce = numberToHex(nonce, { size: 8 })
+  }
+  if (state !== undefined) {
+    rpcAccountStateOverride.state = parseStateMapping(state)
+  }
+  if (stateDiff !== undefined) {
+    if (rpcAccountStateOverride.state) throw new StateAssignmentConflictError()
+    rpcAccountStateOverride.stateDiff = parseStateMapping(stateDiff)
+  }
+  return rpcAccountStateOverride
+}
+
+export type ParseStateOverrideErrorType =
+  | InvalidAddressErrorType
+  | AccountStateConflictErrorType
+  | ParseAccountStateOverrideErrorType
+
+export function parseStateOverride(
+  args?: StateOverride,
+): RpcStateOverride | undefined {
+  if (!args) return undefined
+  const rpcStateOverride: RpcStateOverride = {}
+  for (const { address, ...accountState } of args) {
+    if (!isAddress(address, { strict: false }))
+      throw new InvalidAddressError({ address })
+    if (rpcStateOverride[address])
+      throw new AccountStateConflictError({ address: address })
+    rpcStateOverride[address] = parseAccountStateOverride(accountState)
+  }
+  return rpcStateOverride
 }

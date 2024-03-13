@@ -17,8 +17,8 @@ import { toEventHash } from 'viem'
 ```ts twoslash
 import { toEventHash } from 'viem'
 
-// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 const hash_1 = toEventHash('event Transfer(address,address,uint256)')
+// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 
 const hash_2 = toEventHash({
   name: 'Transfer',
@@ -28,8 +28,8 @@ const hash_2 = toEventHash({
     { name: 'to', type: 'address', indexed: true },
     { name: 'amount', type: 'uint256', indexed: false },
   ],
-// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 })
+// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 ```
 
 ## Returns

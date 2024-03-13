@@ -66,11 +66,7 @@ export function createPublicClient<
   chain extends Chain | undefined = undefined,
 >(
   parameters: PublicClientConfig<transport, chain>,
-): PublicClient<transport, chain>
-
-export function createPublicClient(
-  parameters: PublicClientConfig,
-): PublicClient {
+): PublicClient<transport, chain> {
   const { key = 'public', name = 'Public Client' } = parameters
   const client = createClient({
     ...parameters,

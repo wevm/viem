@@ -216,6 +216,12 @@ Check out the following places for more viem-related content:
     <img alt="supa logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg" width="auto" height="50">
   </picture>
 </a>
+<a href="https://blocto.io/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/blocto-dark.svg">
+    <img alt="blocto logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/blocto-light.svg" width="auto" height="50">
+  </picture>
+</a>
 
 ## Contributing
 

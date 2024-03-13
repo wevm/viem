@@ -4,12 +4,12 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "vocs build",
+    "build": "vocs build --searchIndex false && vocs search-index",
     "preview": "vocs preview"
   },
   "devDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "vocs": "1.0.0-alpha.26"
+    "vocs": "1.0.0-alpha.43"
   }
 }

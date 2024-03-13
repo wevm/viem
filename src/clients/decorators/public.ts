@@ -217,8 +217,8 @@ import {
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
 import {
-  type PrepareTransactionRequestParameterType,
   type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestRequest,
   type PrepareTransactionRequestReturnType,
   prepareTransactionRequest,
 } from '../../actions/wallet/prepareTransactionRequest.js'
@@ -1335,7 +1335,10 @@ export type PublicActions<
    * })
    */
   prepareTransactionRequest: <
-    TParameterType extends PrepareTransactionRequestParameterType,
+    const TRequest extends PrepareTransactionRequestRequest<
+      TChain,
+      TChainOverride
+    >,
     TChainOverride extends Chain | undefined = undefined,
     TAccountOverride extends Account | Address | undefined = undefined,
   >(
@@ -1344,7 +1347,7 @@ export type PublicActions<
       TAccount,
       TChainOverride,
       TAccountOverride,
-      TParameterType
+      TRequest
     >,
   ) => Promise<
     PrepareTransactionRequestReturnType<
@@ -1352,7 +1355,8 @@ export type PublicActions<
       TAccount,
       TChainOverride,
       TAccountOverride,
-      TParameterType
+      // @ts-expect-error
+      TRequest
     >
   >
   /**

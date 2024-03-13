@@ -1,36 +1,35 @@
-import { InvalidAddressError } from '../../errors/address.js'
-import { BaseError } from '../../errors/base.js'
-import { InvalidChainIdError } from '../../errors/chain.js'
+import type { Signature } from '../../index.js'
 import type { ChainSerializers } from '../../types/chain.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
-import { isAddress } from '../../utils/address/isAddress.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
-import {
-  type SerializeTransactionFn,
-  serializeTransaction as serializeTransaction_,
-} from '../../utils/transaction/serializeTransaction.js'
+import { serializeTransaction as serializeTransaction_ } from '../../utils/transaction/serializeTransaction.js'
 import type {
   ZkSyncTransactionSerializable,
   ZkSyncTransactionSerializableEIP712,
   ZkSyncTransactionSerializedEIP712,
-} from './types.js'
+} from './types/transaction.js'
+import { assertEip712Transaction } from './utils/assertEip712Transaction.js'
+import { isEIP712Transaction } from './utils/isEip712Transaction.js'
 
-export const serializeTransaction: SerializeTransactionFn<
-  ZkSyncTransactionSerializable
-> = (tx, signature) => {
-  if (isEIP712(tx))
-    return serializeTransactionEIP712(tx as ZkSyncTransactionSerializableEIP712)
-  return serializeTransaction_(tx as TransactionSerializable, signature)
+export function serializeTransaction(
+  transaction: ZkSyncTransactionSerializable,
+  signature?: Signature,
+) {
+  if (isEIP712Transaction(transaction))
+    return serializeTransactionEIP712(
+      transaction as ZkSyncTransactionSerializableEIP712,
+    )
+  return serializeTransaction_(
+    transaction as TransactionSerializable,
+    signature,
+  )
 }
 
 export const serializers = {
   transaction: serializeTransaction,
 } as const satisfies ChainSerializers
-
-//////////////////////////////////////////////////////////////////////////////
-// Serializers
 
 export type SerializeTransactionEIP712ReturnType =
   ZkSyncTransactionSerializedEIP712
@@ -55,7 +54,7 @@ function serializeTransactionEIP712(
     data,
   } = transaction
 
-  assertTransactionEIP712(transaction)
+  assertEip712Transaction(transaction)
 
   const serializedTransaction = [
     nonce ? toHex(nonce) : '0x',
@@ -64,7 +63,7 @@ function serializeTransactionEIP712(
     gas ? toHex(gas) : '0x',
     to ?? '0x',
     value ? toHex(value) : '0x',
-    data ?? '0x',
+    data ?? '0x0',
     toHex(chainId),
     toHex(''),
     toHex(''),
@@ -80,43 +79,4 @@ function serializeTransactionEIP712(
     '0x71',
     toRlp(serializedTransaction),
   ]) as SerializeTransactionEIP712ReturnType
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Utilities
-
-function isEIP712(transaction: ZkSyncTransactionSerializable) {
-  if (
-    'customSignature' in transaction ||
-    'paymaster' in transaction ||
-    'paymasterInput' in transaction ||
-    'gasPerPubdata' in transaction ||
-    'factoryDeps' in transaction
-  )
-    return true
-  return false
-}
-
-export function assertTransactionEIP712(
-  transaction: ZkSyncTransactionSerializableEIP712,
-) {
-  const { chainId, to, from, paymaster, paymasterInput } = transaction
-  if (chainId <= 0) throw new InvalidChainIdError({ chainId })
-
-  if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
-  if (from && !isAddress(from)) throw new InvalidAddressError({ address: from })
-  if (paymaster && !isAddress(paymaster))
-    throw new InvalidAddressError({ address: paymaster })
-
-  if (paymaster && !paymasterInput) {
-    throw new BaseError(
-      '`paymasterInput` must be provided when `paymaster` is defined',
-    )
-  }
-
-  if (!paymaster && paymasterInput) {
-    throw new BaseError(
-      '`paymaster` must be provided when `paymasterInput` is defined',
-    )
-  }
 }

@@ -6,7 +6,7 @@ Signs typed data and calculates an Ethereum-specific signature in [https://eips.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { privateKeyToAccount } from 'viem/accounts'
 import { domain, types } from './data'
 
@@ -30,7 +30,7 @@ const signature = await account.signTypedData({
 })
 ```
 
-```ts [data.ts]
+```ts twoslash [data.ts] filename="data.ts"
 // All properties on a domain are optional
 export const domain = {
   name: 'Ether Mail',

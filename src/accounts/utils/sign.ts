@@ -1,3 +1,5 @@
+// TODO(v3): Convert to sync.
+
 import { secp256k1 } from '@noble/curves/secp256k1'
 
 import type { ErrorType } from '../../errors/utils.js'
@@ -30,5 +32,6 @@ export async function sign({
     r: toHex(r),
     s: toHex(s),
     v: recovery ? 28n : 27n,
+    yParity: recovery,
   }
 }

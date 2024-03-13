@@ -19,17 +19,21 @@ export type AccountSource = Address | CustomSource
 export type CustomSource = {
   address: Address
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
-  signTransaction: <TTransactionSerializable extends TransactionSerializable>(
-    transaction: TTransactionSerializable,
+  signTransaction: <
+    serializer extends
+      SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
+    transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
+  >(
+    transaction: transaction,
     args?: {
-      serializer?: SerializeTransactionFn<TTransactionSerializable>
+      serializer?: serializer
     },
   ) => Promise<
     IsNarrowable<
-      TransactionSerialized<GetTransactionType<TTransactionSerializable>>,
+      TransactionSerialized<GetTransactionType<transaction>>,
       Hash
     > extends true
-      ? TransactionSerialized<GetTransactionType<TTransactionSerializable>>
+      ? TransactionSerialized<GetTransactionType<transaction>>
       : Hash
   >
   signTypedData: <

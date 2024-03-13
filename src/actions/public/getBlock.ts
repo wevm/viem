@@ -10,6 +10,7 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
+import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
@@ -54,7 +55,7 @@ export type GetBlockReturnType<
   TChain extends Chain | undefined = undefined,
   TIncludeTransactions extends boolean = false,
   TBlockTag extends BlockTag = 'latest',
-> = FormattedBlock<TChain, TIncludeTransactions, TBlockTag>
+> = Prettify<FormattedBlock<TChain, TIncludeTransactions, TBlockTag>>
 
 export type GetBlockErrorType =
   | BlockNotFoundErrorType

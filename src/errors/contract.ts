@@ -17,6 +17,7 @@ import { formatGwei } from '../utils/unit/formatGwei.js'
 
 import { AbiErrorSignatureNotFoundError } from './abi.js'
 import { BaseError } from './base.js'
+import { prettyStateOverride } from './stateOverride.js'
 import { prettyPrint } from './transaction.js'
 import { getContractAddress } from './utils.js'
 
@@ -42,10 +43,11 @@ export class CallExecutionError extends BaseError {
       nonce,
       to,
       value,
+      stateOverride,
     }: CallParameters & { chain?: Chain; docsPath?: string },
   ) {
     const account = account_ ? parseAccount(account_) : undefined
-    const prettyArgs = prettyPrint({
+    let prettyArgs = prettyPrint({
       from: account?.address,
       to,
       value:
@@ -63,6 +65,10 @@ export class CallExecutionError extends BaseError {
         `${formatGwei(maxPriorityFeePerGas)} gwei`,
       nonce,
     })
+
+    if (stateOverride) {
+      prettyArgs += `\n${prettyStateOverride(stateOverride)}`
+    }
 
     super(cause.shortMessage, {
       cause,

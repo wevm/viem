@@ -62,11 +62,12 @@ If your calldata includes argument(s) after the 4byte function signature, you ca
 
 :::code-group
 
-```ts {7} [example.ts]
+```ts [example.ts]
 import { decodeFunctionData } from 'viem'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
+// [!code word:args:1]
 const { functionName, args } = decodeFunctionData({
   abi: wagmiAbi,
   data: '0x0423a1320000000000000000000000000000000000000000000000000000000000000001'

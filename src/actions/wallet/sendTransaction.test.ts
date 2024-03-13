@@ -1,8 +1,10 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { blobData, kzg } from '~test/src/kzg.js'
 import {
   anvilChain,
+  holeskyClient,
   publicClient,
   testClient,
   walletClient,
@@ -14,10 +16,11 @@ import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { type Hex } from '../../types/misc.js'
 import { type TransactionSerializable } from '../../types/transaction.js'
+import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
-import { toHex } from '../../utils/encoding/toHex.js'
+import { stringToHex, toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
@@ -170,7 +173,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f40182017985044eaf9900850719f11100825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f301820179843b9aca00850306dc4200825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -808,6 +811,23 @@ describe('local account', () => {
       `,
       )
     })
+  })
+
+  test.skip('args: blobs', async () => {
+    // TODO: migrate to Anvil once 4844 supported.
+    const blobs = toBlobs({
+      data: stringToHex(blobData),
+    })
+    const hash = await sendTransaction(holeskyClient, {
+      account: privateKeyToAccount(
+        process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
+      ),
+      blobs,
+      kzg,
+      maxFeePerBlobGas: parseGwei('30'),
+      to: '0x0000000000000000000000000000000000000000',
+    })
+    expect(hash).toBeDefined()
   })
 
   describe('args: maxPriorityFeePerGas', () => {

@@ -84,7 +84,7 @@ function safeTransferFrom(address, address, uint256) {}
 function safeTransferFrom(address from, address to, uint256 tokenId, bytes data) {}
 ```
 
-In this case, the type of the overload parameters starts to diverage from each other:
+In this case, the type of the overload parameters start to diverge from each other:
 
 ```ts
 type Args =
@@ -129,7 +129,7 @@ These names show up in your editor so you get nice developer experience when usi
 
 ## Why is a contract function return type returning an array instead of an object?
 
-Suppose you ABI looks like this:
+Suppose your ABI looks like this:
 
 ```ts
 [
@@ -191,7 +191,7 @@ function latestRoundData() external view returns (Data data);
 
 The first function returns a set of five items, so viem maps it to an array. The reason why we don't convert it to an object is because things get ambiguous when we come to decode structs. How do you determine the difference between a "return" tuple (first function) and a "struct" tuple (second function).
 
-Another reason is that folks might expect it to be an array (because it is a set of return items). Other libraries, like ethers, mitigates this by returning a hybrid Array/Object type, but that kind of type is not serializable in JavaScript, and viem prefers to not try and "hack" JavaScript types.
+Another reason is that folks might expect it to be an array (because it is a set of return items). Other libraries, like ethers, mitigate this by returning a hybrid Array/Object type, but that kind of type is not serializable in JavaScript, and viem prefers to not try and "hack" JavaScript types.
 
 ## Why doesn't Wallet Client support public actions?
 

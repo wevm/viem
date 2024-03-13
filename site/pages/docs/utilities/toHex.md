@@ -53,19 +53,19 @@ The hex value.
 
 The value to hex encode.
 
-```ts {2}
+```ts 
 toHex(
-  'Hello world'
+  'Hello world' // [!code focus]
 )
 // '0x48656c6c6f20776f726c642e'
 ```
 
 ### options
 
-```ts {3}
+```ts 
 toHex(
   'Hello world', 
-  { size: 32 }
+  { size: 32 } // [!code focus]
 )
 // '0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000'
 ```

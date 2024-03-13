@@ -8,7 +8,7 @@ viem internally uses [`@noble/curves`](https://github.com/paulmillr/noble-curves
 
 ## Import
 
-```ts
+```ts twoslash
 import { privateKeyToAccount } from 'viem/accounts'
 ```
 
@@ -16,7 +16,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 To initialize a Private Key Account, you will need to pass a private key to `privateKeyToAccount`:
 
-```ts
+```ts twoslash
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
@@ -36,7 +36,7 @@ const client = createWalletClient({
 
 You can generate a random private key using the `generatePrivateKey` function:
 
-```ts
+```ts twoslash
 import { generatePrivateKey } from 'viem/accounts'
 
 const privateKey = generatePrivateKey()
@@ -56,7 +56,9 @@ The private key to use for the Account.
 
 The address of the Account.
 
-```ts
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+// ---cut---
 const account = privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
 
 account.address
@@ -67,7 +69,9 @@ account.address
 
 Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
 
-```ts
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+// ---cut---
 const account = privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
 
 account.signMessage({ message: 'Hello World' })

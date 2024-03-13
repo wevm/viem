@@ -348,6 +348,7 @@ export {
   type GetTransactionErrorReturnType,
   getTransactionError,
 } from './errors/getTransactionError.js'
+export { getAction } from './getAction.js'
 export {
   type DefineFormatterErrorType,
   defineFormatter,

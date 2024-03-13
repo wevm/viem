@@ -7,6 +7,8 @@ import {
   base, // [!code hl]
   baseGoerli, // [!code hl]
   baseSepolia, // [!code hl]
+  fraxtal, // [!code hl]
+  fraxtalTestnet, // [!code hl]
   optimism, // [!code hl]
   optimismGoerli, // [!code hl]
   optimismSepolia, // [!code hl]

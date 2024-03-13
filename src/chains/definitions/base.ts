@@ -37,6 +37,12 @@ export const base = /*#__PURE__*/ defineChain({
         blockCreated: 17482143,
       },
     },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: '0x3154Cf16ccdb4C6d922629664174b904d80F2C35',
+        blockCreated: 17482143,
+      },
+    },
   },
   sourceId,
 })

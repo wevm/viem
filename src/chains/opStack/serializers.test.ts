@@ -99,6 +99,9 @@ describe('deposit', async () => {
       `
       [InvalidAddressError: Address "0xaabbccddeeff00112233445566778899aabbccd" is invalid.
 
+      - Address must be a hex value of 20 bytes (40 hex characters).
+      - Address must match its checksum counterpart.
+
       Version: viem@1.0.2]
     `,
     )
@@ -112,6 +115,9 @@ describe('deposit', async () => {
     expect(() => serializeTransaction(tx)).toThrowErrorMatchingInlineSnapshot(
       `
       [InvalidAddressError: Address "0xaabbccddeeff00112233445566778899aabbccd" is invalid.
+
+      - Address must be a hex value of 20 bytes (40 hex characters).
+      - Address must match its checksum counterpart.
 
       Version: viem@1.0.2]
     `,
@@ -136,7 +142,7 @@ describe('deposit', async () => {
           data: tx_1.input,
           sourceHash: tx_1.sourceHash!,
           type: 'deposit',
-        }),
+        } as TransactionSerializableDeposit),
       ),
     ).toEqual(hash_1)
 
@@ -152,7 +158,7 @@ describe('deposit', async () => {
           data: tx_2.input,
           sourceHash: tx_2.sourceHash!,
           type: 'deposit',
-        }),
+        } as TransactionSerializableDeposit),
       ),
     ).toEqual(hash_2)
 
@@ -168,7 +174,7 @@ describe('deposit', async () => {
           data: tx_3.input,
           sourceHash: tx_3.sourceHash!,
           type: 'deposit',
-        }),
+        } as TransactionSerializableDeposit),
       ),
     ).toEqual(hash_3)
 
@@ -184,7 +190,7 @@ describe('deposit', async () => {
           data: tx_4.input,
           sourceHash: tx_4.sourceHash!,
           type: 'deposit',
-        }),
+        } as TransactionSerializableDeposit),
       ),
     ).toEqual(hash_4)
   })

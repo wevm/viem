@@ -23,8 +23,8 @@ import {
   getPermissions,
 } from '../../actions/wallet/getPermissions.js'
 import {
-  type PrepareTransactionRequestParameterType,
   type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestRequest,
   type PrepareTransactionRequestReturnType,
   prepareTransactionRequest,
 } from '../../actions/wallet/prepareTransactionRequest.js'
@@ -44,6 +44,7 @@ import {
 } from '../../actions/wallet/sendRawTransaction.js'
 import {
   type SendTransactionParameters,
+  type SendTransactionRequest,
   type SendTransactionReturnType,
   sendTransaction,
 } from '../../actions/wallet/sendTransaction.js'
@@ -234,7 +235,10 @@ export type WalletActions<
    * })
    */
   prepareTransactionRequest: <
-    TParameterType extends PrepareTransactionRequestParameterType,
+    const TRequest extends PrepareTransactionRequestRequest<
+      TChain,
+      TChainOverride
+    >,
     TChainOverride extends Chain | undefined = undefined,
     TAccountOverride extends Account | Address | undefined = undefined,
   >(
@@ -243,7 +247,7 @@ export type WalletActions<
       TAccount,
       TChainOverride,
       TAccountOverride,
-      TParameterType
+      TRequest
     >,
   ) => Promise<
     PrepareTransactionRequestReturnType<
@@ -251,7 +255,8 @@ export type WalletActions<
       TAccount,
       TChainOverride,
       TAccountOverride,
-      TParameterType
+      // @ts-expect-error
+      TRequest
     >
   >
   /**
@@ -370,8 +375,11 @@ export type WalletActions<
    *   value: 1000000000000000000n,
    * })
    */
-  sendTransaction: <TChainOverride extends Chain | undefined = undefined>(
-    args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
+  sendTransaction: <
+    const TRequest extends SendTransactionRequest<TChain, TChainOverride>,
+    TChainOverride extends Chain | undefined = undefined,
+  >(
+    args: SendTransactionParameters<TChain, TAccount, TChainOverride, TRequest>,
   ) => Promise<SendTransactionReturnType>
   /**
    * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
@@ -663,7 +671,11 @@ export type WalletActions<
   writeContract: <
     const abi extends Abi | readonly unknown[],
     functionName extends ContractFunctionName<abi, 'payable' | 'nonpayable'>,
-    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+    args extends ContractFunctionArgs<
+      abi,
+      'payable' | 'nonpayable',
+      functionName
+    >,
     TChainOverride extends Chain | undefined = undefined,
   >(
     args: WriteContractParameters<

@@ -155,7 +155,7 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
   const abiParameterType = abiParameter.type
   switch (abiParameterType) {
     case 'address':
-      return isAddress(arg as Address)
+      return isAddress(arg as Address, { strict: false })
     case 'bool':
       return argType === 'boolean'
     case 'function':
@@ -233,9 +233,9 @@ export function getAmbiguousTypes(
     const ambiguous = (() => {
       if (types.includes('address') && types.includes('bytes20')) return true
       if (types.includes('address') && types.includes('string'))
-        return isAddress(args[parameterIndex] as Address)
+        return isAddress(args[parameterIndex] as Address, { strict: false })
       if (types.includes('address') && types.includes('bytes'))
-        return isAddress(args[parameterIndex] as Address)
+        return isAddress(args[parameterIndex] as Address, { strict: false })
       return false
     })()
 

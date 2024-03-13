@@ -6,6 +6,7 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
+import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
@@ -56,7 +57,7 @@ export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
 export type GetTransactionReturnType<
   TChain extends Chain | undefined = undefined,
   TBlockTag extends BlockTag = 'latest',
-> = FormattedTransaction<TChain, TBlockTag>
+> = Prettify<FormattedTransaction<TChain, TBlockTag>>
 
 export type GetTransactionErrorType =
   | NumberToHexErrorType

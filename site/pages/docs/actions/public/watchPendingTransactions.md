@@ -13,20 +13,18 @@ This Action will batch up all the pending transactions found within the [`pollin
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const unwatch = publicClient.watchPendingTransactions( // [!code focus:99]
   { onTransactions: hashes => console.log(hashes) }
 )
-/**
- * > ['0x...', '0x...', '0x...']
- * > ['0x...', '0x...']
- * > ['0x...', '0x...', '0x...', ...]
- */
+// @log: > ['0x...', '0x...', '0x...']
+// @log: > ['0x...', '0x...']
+// @log: > ['0x...', '0x...', '0x...', ...]
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -52,7 +50,9 @@ A function that can be invoked to stop watching for new pending transaction hash
 
 The new pending transaction hashes.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchPendingTransactions(
   { onTransactions: hashes => console.log(hashes) } // [!code focus:1]
 )
@@ -65,7 +65,9 @@ const unwatch = publicClient.watchPendingTransactions(
 
 Whether or not to batch the transaction hashes between polling intervals.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const unwatch = publicClient.watchPendingTransactions(
   { 
     batch: false, // [!code focus]
@@ -80,10 +82,13 @@ const unwatch = publicClient.watchPendingTransactions(
 
 Error thrown from listening for new pending transactions.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+// @noErrors
 const unwatch = publicClient.watchPendingTransactions(
   { 
-    onError: error => console.log(error) // [!code focus:1]
+    onError: error => console.log(error), // [!code focus:1]
     onTransactions: hashes => console.log(hashes),
   }
 )
@@ -98,7 +103,7 @@ Whether or not to use a polling mechanism to check for new pending transactions 
 
 This option is only configurable for Clients with a [WebSocket Transport](/docs/clients/transports/websocket).
 
-```ts
+```ts twoslash
 import { createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -121,8 +126,11 @@ const unwatch = publicClient.watchPendingTransactions(
 
 Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 
-```ts
-const unwatch = publicClient..watchPendingTransactions(
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+// @noErrors
+const unwatch = publicClient.watchPendingTransactions(
   { 
     pollingInterval: 1_000, // [!code focus]
     onTransactions: hashes => console.log(hashes),

@@ -36,6 +36,10 @@ export type HttpTransportConfig = {
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
    */
   fetchOptions?: HttpRpcClientOptions['fetchOptions']
+  /**
+   * A callback to handle the response from `fetch`.
+   */
+  onFetchResponse?: HttpRpcClientOptions['onResponse']
   /** The key of the HTTP transport. */
   key?: TransportConfig['key']
   /** The name of the HTTP transport. */
@@ -74,6 +78,7 @@ export function http(
     fetchOptions,
     key = 'http',
     name = 'HTTP JSON-RPC',
+    onFetchResponse,
     retryDelay,
   } = config
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
@@ -84,7 +89,11 @@ export function http(
     const url_ = url || chain?.rpcUrls.default.http[0]
     if (!url_) throw new UrlRequiredError()
 
-    const rpcClient = getHttpRpcClient(url_, { fetchOptions, timeout })
+    const rpcClient = getHttpRpcClient(url_, {
+      fetchOptions,
+      onResponse: onFetchResponse,
+      timeout,
+    })
 
     return createTransport(
       {

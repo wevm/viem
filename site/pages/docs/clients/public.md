@@ -18,7 +18,7 @@ Initialize a Client with your desired [Chain](/docs/chains/introduction) (e.g. `
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({ 
+const publicClient = createPublicClient({ 
   chain: mainnet,
   transport: http()
 })
@@ -29,7 +29,7 @@ Then you can consume [Public Actions](/docs/actions/public/introduction):
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts]
 // ---cut---
-const blockNumber = await client.getBlockNumber() // [!code focus:10]
+const blockNumber = await publicClient.getBlockNumber() // [!code focus:10]
 ```
 
 ## Optimization
@@ -50,7 +50,7 @@ You can enable `eth_call` aggregation by setting the `batch.multicall` flag to `
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   batch: {
     multicall: true, // [!code focus]
   },
@@ -77,9 +77,9 @@ const address = '0x'
 // ---cut---
 import { getContract } from 'viem'
 import { abi } from './abi'
-import { client } from './client'
+import { publicClient } from './client'
 
-const contract = getContract({ address, abi, client })
+const contract = getContract({ address, abi, client: publicClient })
 
 // The below will send a single request to the RPC Provider.
 const [name, totalSupply, symbol, balance] = await Promise.all([
@@ -113,7 +113,7 @@ The [Transport](/docs/clients/intro) of the Public Client.
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   chain: mainnet,
   transport: http(), // [!code focus]
 })
@@ -128,7 +128,7 @@ The [Chain](/docs/chains/introduction) of the Public Client.
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   chain: mainnet, // [!code focus]
   transport: http(),
 })
@@ -148,7 +148,7 @@ Toggle to enable `eth_call` multicall aggregation.
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   batch: {
     multicall: true, // [!code focus]
   },
@@ -169,7 +169,7 @@ The maximum size (in bytes) for each multicall (`aggregate3`) calldata chunk.
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   batch: {
     multicall: {
       batchSize: 512, // [!code focus]
@@ -190,7 +190,7 @@ The maximum number of milliseconds to wait before sending a batch.
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   batch: {
     multicall: {
       wait: 16, // [!code focus]
@@ -211,7 +211,7 @@ Time (in ms) that cached data will remain in memory.
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   cacheTime: 10_000, // [!code focus]
   chain: mainnet,
   transport: http(),
@@ -228,7 +228,7 @@ A key for the Client.
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   chain: mainnet,
   key: 'public', // [!code focus]
   transport: http(),
@@ -245,7 +245,7 @@ A name for the Client.
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   chain: mainnet,
   name: 'Public Client', // [!code focus]
   transport: http(),
@@ -262,7 +262,7 @@ Frequency (in ms) for polling enabled Actions.
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
-const client = createPublicClient({
+const publicClient = createPublicClient({
   chain: mainnet,
   pollingInterval: 10_000, // [!code focus]
   transport: http(),

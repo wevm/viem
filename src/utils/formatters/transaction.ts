@@ -5,8 +5,9 @@ import type {
   ExtractChainFormatterExclude,
   ExtractChainFormatterReturnType,
 } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
-import type { Transaction } from '../../types/transaction.js'
+import type { Transaction, TransactionType } from '../../types/transaction.js'
 import type { UnionLooseOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
@@ -37,7 +38,8 @@ export const transactionType = {
   '0x0': 'legacy',
   '0x1': 'eip2930',
   '0x2': 'eip1559',
-} as const
+  '0x3': 'eip4844',
+} as const satisfies Record<Hex, TransactionType>
 
 export type FormatTransactionErrorType = ErrorType
 
@@ -51,6 +53,9 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
     chainId: transaction.chainId ? hexToNumber(transaction.chainId) : undefined,
     gas: transaction.gas ? BigInt(transaction.gas) : undefined,
     gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,
+    maxFeePerBlobGas: transaction.maxFeePerBlobGas
+      ? BigInt(transaction.maxFeePerBlobGas)
+      : undefined,
     maxFeePerGas: transaction.maxFeePerGas
       ? BigInt(transaction.maxFeePerGas)
       : undefined,
@@ -86,13 +91,18 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
 
   if (transaction_.type === 'legacy') {
     delete transaction_.accessList
+    delete transaction_.maxFeePerBlobGas
     delete transaction_.maxFeePerGas
     delete transaction_.maxPriorityFeePerGas
     delete transaction_.yParity
   }
   if (transaction_.type === 'eip2930') {
+    delete transaction_.maxFeePerBlobGas
     delete transaction_.maxFeePerGas
     delete transaction_.maxPriorityFeePerGas
+  }
+  if (transaction_.type === 'eip1559') {
+    delete transaction_.maxFeePerBlobGas
   }
   return transaction_
 }

@@ -14,15 +14,14 @@ Otherwise, the Action will either call [`eth_maxPriorityFeePerGas`](https://gith
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
-const maxPriorityFeePerGas = 
-  await publicClient.estimateMaxPriorityFeePerGas()
-// 1_000_000_000n
+const maxPriorityFeePerGas = await publicClient.estimateMaxPriorityFeePerGas()
+// @log: Output: 1_000_000_000n
 ```
 
-```ts [client.ts]
+```ts twoslash [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -49,7 +48,9 @@ An estimate (in wei) for the max priority fee per gas.
 
 Optional Chain override. Used to infer the default `maxPriorityFeePerGas` from [`chain.fees.defaultPriorityFee`](/docs/chains/fees#feesdefaultpriorityfee).
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 import { optimism } from 'viem/chains' // [!code focus]
 
 const maxPriorityFeePerGas = 

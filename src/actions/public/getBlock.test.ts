@@ -27,14 +27,16 @@ test('gets latest block', async () => {
       "gasLimit",
       "gasUsed",
       "timestamp",
+      "totalDifficulty",
       "extraData",
       "mixHash",
       "nonce",
       "baseFeePerGas",
-      "totalDifficulty",
       "uncles",
       "transactions",
       "size",
+      "blobGasUsed",
+      "excessBlobGas",
     ]
   `)
 })
@@ -78,7 +80,9 @@ test('chain w/ custom block type', async () => {
   expect(rest).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": null,
+      "blobGasUsed": undefined,
       "epochSnarkData": null,
+      "excessBlobGas": undefined,
       "gasUsed": 5045322n,
       "hash": "0xac8c9bc3b84e103dc321bbe83b670e425ff68bfc9a333a4f1b1b204ad11c583d",
       "logsBloom": "0x02004000004200000000000000800020000000000000400002040000002020000000802000000000000180000001000020800000000000000000000000000000000000000022000260000008000800000000000000000000000000000000000000000008000410002100000140000800000044c00200000000400010000800008800000080000000000010000040000000000000000000000000000000800020028000000100000000000000000000002002881000000000000800020000040020900402020000180000000000000040000800000011020090002000400000200010002000001000000000000080000000000000000000000000000004000000",
@@ -107,7 +111,9 @@ describe('args: blockNumber', () => {
     expect(block).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 13091396207n,
+        "blobGasUsed": undefined,
         "difficulty": 0n,
+        "excessBlobGas": undefined,
         "extraData": "0x",
         "gasLimit": 30000000n,
         "gasUsed": 12140682n,
@@ -274,14 +280,16 @@ describe('args: blockTag', () => {
         "gasLimit",
         "gasUsed",
         "timestamp",
+        "totalDifficulty",
         "extraData",
         "mixHash",
         "nonce",
         "baseFeePerGas",
-        "totalDifficulty",
         "uncles",
         "transactions",
         "size",
+        "blobGasUsed",
+        "excessBlobGas",
       ]
     `)
   })
@@ -306,14 +314,16 @@ describe('args: blockTag', () => {
         "gasLimit",
         "gasUsed",
         "timestamp",
+        "totalDifficulty",
         "extraData",
         "mixHash",
         "nonce",
         "baseFeePerGas",
-        "totalDifficulty",
         "uncles",
         "transactions",
         "size",
+        "blobGasUsed",
+        "excessBlobGas",
       ]
     `)
   })
@@ -338,14 +348,16 @@ describe('args: blockTag', () => {
         "gasLimit",
         "gasUsed",
         "timestamp",
+        "totalDifficulty",
         "extraData",
         "mixHash",
         "nonce",
-        "totalDifficulty",
         "uncles",
         "transactions",
         "size",
         "baseFeePerGas",
+        "blobGasUsed",
+        "excessBlobGas",
       ]
     `)
   })
@@ -362,7 +374,9 @@ describe('args: hash', () => {
     expect(block).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 12779459001n,
+        "blobGasUsed": undefined,
         "difficulty": 0n,
+        "excessBlobGas": undefined,
         "extraData": "0x6265617665726275696c642e6f7267",
         "gasLimit": 30000000n,
         "gasUsed": 18922448n,

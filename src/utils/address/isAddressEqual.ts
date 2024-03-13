@@ -11,7 +11,9 @@ export type IsAddressEqualReturnType = boolean
 export type IsAddressEqualErrorType = InvalidAddressErrorType | ErrorType
 
 export function isAddressEqual(a: Address, b: Address) {
-  if (!isAddress(a)) throw new InvalidAddressError({ address: a })
-  if (!isAddress(b)) throw new InvalidAddressError({ address: b })
+  if (!isAddress(a, { strict: false }))
+    throw new InvalidAddressError({ address: a })
+  if (!isAddress(b, { strict: false }))
+    throw new InvalidAddressError({ address: b })
   return a.toLowerCase() === b.toLowerCase()
 }

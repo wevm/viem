@@ -29,7 +29,7 @@ beforeEach(async () => {
 
   if (process.env.SKIP_GLOBAL_SETUP) return
   await setIntervalMining(testClient, { interval: 0 })
-})
+}, 20_000)
 
 afterAll(async () => {
   vi.restoreAllMocks()

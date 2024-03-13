@@ -29,8 +29,8 @@ The below list is not exhaustive, and is a work in progress. If you have an idea
   - [x] ENS Name from Address
   - [ ] Fetch ENS Resolver
 - Filters & Logs
-  - [ ] Blocks
-  - [ ] Pending Transactions
+  - [x] Blocks
+  - [x] Pending Transactions
   - [x] Events
 - Anvil/Hardhat
   - [ ] Impersonating Accounts

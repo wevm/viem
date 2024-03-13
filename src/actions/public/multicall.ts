@@ -1,4 +1,4 @@
-import type { Address, Narrow } from 'abitype'
+import type { AbiStateMutability, Address, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -42,12 +42,12 @@ export type MulticallParameters<
     optional?: boolean
     properties?: Record<string, any>
   } = {},
-> = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
+> = Pick<CallParameters, 'blockNumber' | 'blockTag' | 'stateOverride'> & {
   allowFailure?: allowFailure | boolean | undefined
   batchSize?: number | undefined
   contracts: MulticallContracts<
     Narrow<contracts>,
-    { mutability: 'pure' | 'view' } & options
+    { mutability: AbiStateMutability } & options
   >
   multicallAddress?: Address | undefined
 }
@@ -61,7 +61,7 @@ export type MulticallReturnType<
 > = MulticallResults<
   Narrow<contracts>,
   allowFailure,
-  { mutability: 'pure' | 'view' } & options
+  { mutability: AbiStateMutability } & options
 >
 
 export type MulticallErrorType =
@@ -125,6 +125,7 @@ export async function multicall<
     blockNumber,
     blockTag,
     multicallAddress: multicallAddress_,
+    stateOverride,
   } = parameters
   const contracts = parameters.contracts as ContractFunctionParameters[]
 
@@ -218,6 +219,7 @@ export async function multicall<
         blockNumber,
         blockTag,
         functionName: 'aggregate3',
+        stateOverride,
       }),
     ),
   )

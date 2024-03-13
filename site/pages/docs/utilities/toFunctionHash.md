@@ -17,8 +17,8 @@ import { toFunctionHash } from 'viem'
 ```ts twoslash
 import { toFunctionHash } from 'viem'
 
-// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 const hash_1 = toFunctionHash('function ownerOf(uint256)')
+// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 
 // or from an `AbiEvent` on your contract ABI
 const hash_2 = toFunctionHash({
@@ -27,8 +27,8 @@ const hash_2 = toFunctionHash({
   inputs: [{ name: 'tokenId', type: 'uint256' }],
   outputs: [],
   stateMutability: 'view',
-// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 })
+// @log: Output: 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 ```
 
 ## Returns

@@ -34,6 +34,12 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
         blockCreated: 4446677,
       },
     },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: '0xfd0Bf71F60660E2f608ed56e1659C450eB113120',
+        blockCreated: 4446677,
+      },
+    },
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 1059647,

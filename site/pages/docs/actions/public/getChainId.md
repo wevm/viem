@@ -10,14 +10,14 @@ Returns the chain ID associated with the current network
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const chainId = await publicClient.getChainId() // [!code focus:99]
-// 1
+// @log: 1
 ```
 
-```ts [client.ts]
+```ts [client.ts] filename="client.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 

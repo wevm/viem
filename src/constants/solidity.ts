@@ -3,7 +3,7 @@ import type { AbiError } from 'abitype'
 // https://docs.soliditylang.org/en/v0.8.16/control-structures.html#panic-via-assert-and-error-via-require
 export const panicReasons = {
   1: 'An `assert` condition failed.',
-  17: 'Arithmic operation resulted in underflow or overflow.',
+  17: 'Arithmetic operation resulted in underflow or overflow.',
   18: 'Division or modulo by zero (e.g. `5 / 0` or `23 % 0`).',
   33: 'Attempted to convert to an invalid type.',
   34: 'Attempted to access a storage byte array that is incorrectly encoded.',

@@ -26,7 +26,9 @@ import {
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-
+import type { Hex } from '../../types/misc.js'
+import { pad } from '../../utils/data/pad.js'
+import { toHex } from '../../utils/encoding/toHex.js'
 import { multicall } from './multicall.js'
 import * as readContract from './readContract.js'
 
@@ -282,6 +284,69 @@ test('args: multicallAddress', async () => {
   `)
 })
 
+test('args: stateOverride', async () => {
+  const fakeName = 'NotWagmi'
+
+  // layout of strings in storage
+  const nameSlot = toHex(0, { size: 32 })
+  const fakeNameHex = toHex(fakeName)
+  // we don't divide by 2 because length must be length * 2 if word is strictly less than 32 bytes
+  const bytesLen = fakeNameHex.length - 2
+
+  expect(bytesLen).toBeLessThanOrEqual(62)
+
+  const slotValue = `${pad(fakeNameHex, { dir: 'right', size: 31 })}${toHex(
+    bytesLen,
+    { size: 1 },
+  ).slice(2)}` as Hex
+
+  expect(
+    await multicall(publicClient, {
+      batchSize: 2,
+      contracts: [
+        {
+          ...wagmiContractConfig,
+          functionName: 'name',
+        },
+        {
+          ...wagmiContractConfig,
+          functionName: 'name',
+        },
+        {
+          ...wagmiContractConfig,
+          functionName: 'name',
+        },
+      ],
+      stateOverride: [
+        {
+          address: wagmiContractConfig.address,
+          stateDiff: [
+            {
+              slot: nameSlot,
+              value: slotValue,
+            },
+          ],
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": "${fakeName}",
+        "status": "success",
+      },
+      {
+        "result": "${fakeName}",
+        "status": "success",
+      },
+      {
+        "result": "${fakeName}",
+        "status": "success",
+      },
+    ]
+  `)
+})
+
 describe('errors', async () => {
   describe('allowFailure is truthy', async () => {
     test('function not found', async () => {
@@ -457,9 +522,7 @@ describe('errors', async () => {
           },
           {
             ...wagmiContractConfig,
-            // @ts-expect-error non-pure/view function
             functionName: 'transferFrom',
-            // @ts-expect-error args invalid
             args: [address.vitalik, accounts[0].address, 1n],
           },
           {
@@ -858,9 +921,7 @@ describe('errors', async () => {
           },
           {
             ...wagmiContractConfig,
-            // @ts-expect-error non-pure/view function
             functionName: 'transferFrom',
-            // @ts-expect-error args invalid
             args: [address.vitalik, accounts[0].address, 1n],
           },
           {

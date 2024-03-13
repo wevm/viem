@@ -2,7 +2,7 @@ import { assertType, describe, expect, it, test } from 'vitest'
 
 import { accounts, forkBlockNumber } from '~test/src/constants.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
-import { zkSync } from '../../chains/index.js'
+import { holesky, zkSync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
@@ -11,7 +11,8 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
-import type { ZkSyncTransactionReceipt } from '../../chains/zksync/types.js'
+import type { ZkSyncTransactionReceipt } from '../../chains/zksync/types/transaction.js'
+import { createClient } from '../../index.js'
 import { wait } from '../../utils/wait.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
@@ -42,6 +43,37 @@ test('gets transaction receipt', async () => {
       "transactionHash": "0xbf7d27700d053765c9638d3b9d39eb3c56bfc48377583e8be483d61f9f18a871",
       "transactionIndex": 0,
       "type": "legacy",
+    }
+  `)
+})
+
+test('gets transaction receipt (4844)', async () => {
+  const client = createClient({
+    chain: holesky,
+    transport: http(),
+  })
+  const receipt = await getTransactionReceipt(client, {
+    hash: '0x2ad52593fd11478bc0771a48361250220e93123a772e9f316ad8e87d05abe33a',
+  })
+  assertType<TransactionReceipt>(receipt)
+  expect(receipt).toMatchInlineSnapshot(`
+    {
+      "blobGasPrice": 18391084153n,
+      "blobGasUsed": 262144n,
+      "blockHash": "0xea4b9a0d4ddeb927ddca9d1ebbb8b0e623ffc7a8b1b62990ba2d1c4aac1f23b6",
+      "blockNumber": 1117041n,
+      "contractAddress": null,
+      "cumulativeGasUsed": 17555099n,
+      "effectiveGasPrice": 1262418454n,
+      "from": "0xcb98643b8786950f0461f3b0edf99d88f274574d",
+      "gasUsed": 21000n,
+      "logs": [],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "status": "success",
+      "to": "0x0000000000000000000000000000000000000000",
+      "transactionHash": "0x2ad52593fd11478bc0771a48361250220e93123a772e9f316ad8e87d05abe33a",
+      "transactionIndex": 57,
+      "type": "eip4844",
     }
   `)
 })
@@ -316,7 +348,7 @@ describe('e2e', () => {
       {
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
-        "deposit_nonce": null,
+        "depositNonce": null,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gasUsed": 21000n,
         "logs": [],

@@ -14,14 +14,14 @@ The OP Stack is a set of modular open-source software that enable developers to 
 
 Firstly, set up your [Client](/docs/clients/intro) with a desired [Transport](/docs/clients/intro) & [OP Stack Chain](/op-stack/chains).
 
-```ts {4-7}
+```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: base,
-  transport: http(),
-})
+const client = createPublicClient({ // [!code focus]
+  chain: base, // [!code focus]
+  transport: http(), // [!code focus]
+}) // [!code focus]
 ```
 
 :::info

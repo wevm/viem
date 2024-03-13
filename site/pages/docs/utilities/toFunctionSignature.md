@@ -22,8 +22,8 @@ import { toFunctionSignature } from 'viem'
 import { toFunctionSignature } from 'viem'
 
 // from function definition
-// @log: Output: ownerOf(uint256)
 const signature_1 = toFunctionSignature('function ownerOf(uint256 tokenId)')
+// @log: Output: ownerOf(uint256)
 
 // from an `AbiFunction` on your contract ABI
 const signature_2 = toFunctionSignature({
@@ -32,8 +32,8 @@ const signature_2 = toFunctionSignature({
   inputs: [{ name: 'tokenId', type: 'uint256' }],
   outputs: [],
   stateMutability: 'view',
-// @log: Output: ownerOf(uint256)
 })
+// @log: Output: ownerOf(uint256)
 ```
 
 ## Returns

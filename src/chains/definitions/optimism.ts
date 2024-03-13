@@ -36,6 +36,11 @@ export const optimism = /*#__PURE__*/ defineChain({
         address: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
       },
     },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: '0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1',
+      },
+    },
   },
   sourceId,
 })

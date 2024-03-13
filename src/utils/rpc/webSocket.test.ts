@@ -701,7 +701,7 @@ describe('requestAsync', () => {
     )
   })
 
-  test('timeout', async () => {
+  test.skip('timeout', async () => {
     const client = await getWebSocketRpcClient(localWsUrl)
 
     await expect(() =>

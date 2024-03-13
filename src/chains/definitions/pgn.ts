@@ -40,6 +40,11 @@ export const pgn = /*#__PURE__*/ defineChain({
         address: '0xb26Fd985c5959bBB382BAFdD0b879E149e48116c',
       },
     },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: '0xD0204B9527C1bA7bD765Fa5CCD9355d38338272b',
+      },
+    },
   },
   formatters,
   sourceId,

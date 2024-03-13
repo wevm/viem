@@ -10,21 +10,15 @@ Returns a list of account addresses owned by the wallet or client.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { walletClient } from './client'
  
 const accounts = await walletClient.getAddresses() // [!code focus:99]
 // ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
 ```
 
-```ts [client.ts]
-import { createWalletClient, custom } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const walletClient = createWalletClient({
-  chain: mainnet,
-  transport: custom(window.ethereum)
-})
+```ts twoslash [client.ts] filename="client.ts"
+// [!include ~/snippets/walletClient.ts]
 ```
 
 :::

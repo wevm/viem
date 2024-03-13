@@ -5,10 +5,12 @@ import { formatTransactionReceipt } from './transactionReceipt.js'
 test('formats', () => {
   expect(
     formatTransactionReceipt({
+      blobGasPrice: '0x2beb40be9',
+      blobGasUsed: '0x9458',
       blockHash:
         '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
       blockNumber: '0xe6e55f',
-      contractAddress: null,
+      contractAddress: '0x0000000000000000000000000000000000000000',
       cumulativeGasUsed: '0x58b887',
       effectiveGasPrice: '0x2beb40be9',
       from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
@@ -60,9 +62,11 @@ test('formats', () => {
     }),
   ).toMatchInlineSnapshot(`
     {
+      "blobGasPrice": 11789405161n,
+      "blobGasUsed": 37976n,
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
-      "contractAddress": null,
+      "contractAddress": "0x0000000000000000000000000000000000000000",
       "cumulativeGasUsed": 5814407n,
       "effectiveGasPrice": 11789405161n,
       "from": "0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e",
@@ -133,6 +137,8 @@ test('unknown type', () => {
 test('nullish values', () => {
   expect(
     formatTransactionReceipt({
+      blobGasPrice: undefined,
+      blobGasUsed: undefined,
       blockHash:
         '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
       blockNumber: undefined,
@@ -153,6 +159,8 @@ test('nullish values', () => {
     }),
   ).toMatchInlineSnapshot(`
     {
+      "blobGasPrice": undefined,
+      "blobGasUsed": undefined,
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": null,
       "contractAddress": null,

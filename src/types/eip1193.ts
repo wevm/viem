@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 
 import type { BlockTag } from './block.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
+import type { RpcStateOverride } from './rpc.js'
 import type {
   Quantity,
   RpcBlock as Block,
@@ -194,14 +195,14 @@ export type PublicRpcSchema = [
     ReturnType: Quantity
   },
   /**
-   * @description Returns the current blob price of gas expressed in wei
+   * @description Returns the base fee per blob gas in wei.
    *
    * @example
-   * provider.request({ method: 'eth_blobGasPrice' })
+   * provider.request({ method: 'eth_blobBaseFee' })
    * // => '0x09184e72a000'
    */
   {
-    Method: 'eth_blobGasPrice'
+    Method: 'eth_blobBaseFee'
     Parameters?: undefined
     ReturnType: Quantity
   },
@@ -231,6 +232,11 @@ export type PublicRpcSchema = [
       | [
           transaction: Partial<TransactionRequest>,
           block: BlockNumber | BlockTag | BlockIdentifier,
+        ]
+      | [
+          transaction: Partial<TransactionRequest>,
+          block: BlockNumber | BlockTag | BlockIdentifier,
+          stateOverrideSet: RpcStateOverride,
         ]
     ReturnType: Hex
   },

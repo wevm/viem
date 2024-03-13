@@ -10,23 +10,17 @@ Returns the number of [Transactions](/docs/glossary/terms#transaction) an Accoun
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { publicClient } from './client'
 
 const transactionCount = await publicClient.getTransactionCount({  // [!code focus:99]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
-// 420
+// @log: > 420
 ```
 
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
+```ts [client.ts] filename="client.ts"
+// [!include ~/snippets/publicClient.ts]
 ```
 
 :::
@@ -45,7 +39,9 @@ The number of transactions an account has sent.
 
 The address of the account.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const transactionCount = await publicClient.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
 })
@@ -57,7 +53,9 @@ const transactionCount = await publicClient.getTransactionCount({
 
 Get the count at a block number.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const transactionCount = await publicClient.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockNumber: 69420n  // [!code focus]
@@ -66,11 +64,13 @@ const transactionCount = await publicClient.getTransactionCount({
 
 ### blockTag
 
-- **Type:** `bigint`
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
 Get the count at a block tag.
 
-```ts
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
 const transactionCount = await publicClient.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'  // [!code focus]
