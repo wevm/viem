@@ -12,7 +12,7 @@ export const morphSepolia = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Morph Testnet Explorer',
-      url: 'https://explorer-testnet.morphl2.io/',
+      url: 'https://explorer-testnet.morphl2.io',
       apiUrl: 'https://explorer-api-testnet.morphl2.io/api',
     },
   },
