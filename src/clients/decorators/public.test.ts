@@ -139,6 +139,10 @@ describe('smoke test', () => {
     ).toEqual(10000000000000000000000n)
   })
 
+  test.skip('getBlobBaseFee', async () => {
+    expect(await publicClient.getBlobBaseFee()).toBeDefined()
+  })
+
   test('getBlock', async () => {
     expect(
       await publicClient.getBlock({ blockNumber: forkBlockNumber }),
