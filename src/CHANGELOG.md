@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.8
+
+### Patch Changes
+
+- [#1950](https://github.com/wevm/viem/pull/1950) [`73653824541e60240d644eee0fbfe83e0bed817d`](https://github.com/wevm/viem/commit/73653824541e60240d644eee0fbfe83e0bed817d) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Added Beam Websocket RPC URLs.
+
 ## 2.8.7
 
 ### Patch Changes
