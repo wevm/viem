@@ -16,6 +16,8 @@ import { idCache } from './id.js'
 export type HttpRpcClientOptions = {
   // Request configuration to pass to `fetch`.
   fetchOptions?: Omit<RequestInit, 'body'>
+  // A callback to handle the response.
+  onResponse?: (response: Response) => Promise<void> | void
   // The timeout (in ms) for the request.
   timeout?: number
 }
@@ -27,6 +29,8 @@ export type HttpRequestParameters<
   body: TBody
   // Request configuration to pass to `fetch`.
   fetchOptions?: HttpRpcClientOptions['fetchOptions']
+  // A callback to handle the response.
+  onResponse?: (response: Response) => Promise<void> | void
   // The timeout (in ms) for the request.
   timeout?: HttpRpcClientOptions['timeout']
 }
@@ -56,6 +60,7 @@ export function getHttpRpcClient(
       const {
         body,
         fetchOptions = {},
+        onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
       } = params
       const {
@@ -97,6 +102,8 @@ export function getHttpRpcClient(
             signal: true,
           },
         )
+
+        if (onResponse) await onResponse(response)
 
         let data: any
         if (

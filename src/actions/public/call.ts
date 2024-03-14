@@ -157,9 +157,11 @@ export async function call<TChain extends Chain | undefined>(
     blockNumber,
     blockTag = 'latest',
     accessList,
+    blobs,
     data,
     gas,
     gasPrice,
+    maxFeePerBlobGas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
@@ -186,9 +188,11 @@ export async function call<TChain extends Chain | undefined>(
       ...extract(rest, { format: chainFormat }),
       from: account?.address,
       accessList,
+      blobs,
       data,
       gas,
       gasPrice,
+      maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
@@ -356,7 +360,7 @@ export type GetRevertErrorDataErrorType = ErrorType
 export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined
   const error = err.walk() as RawContractError
-  return typeof error.data === 'object' ? error.data.data : error.data
+  return typeof error?.data === 'object' ? error.data?.data : error.data
 }
 
 export type ParseStateMappingErrorType = InvalidBytesLengthErrorType

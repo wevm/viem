@@ -3,14 +3,12 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
-import type { TransactionSerialized } from '../../types/transaction.js'
+import type { TransactionSerializedGeneric } from '../../types/transaction.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type SendRawTransactionParameters = {
-  /**
-   * The signed serialized tranasction.
-   */
-  serializedTransaction: TransactionSerialized
+  /** The signed serialized tranasction. */
+  serializedTransaction: TransactionSerializedGeneric
 }
 
 export type SendRawTransactionReturnType = Hash

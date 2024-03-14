@@ -21,7 +21,7 @@ beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: address.vitalik,
   })
-  await setBlockNumber(18958931n)
+  await setBlockNumber(19_258_213n)
 
   return async () => {
     await stopImpersonatingAccount(testClient, {
