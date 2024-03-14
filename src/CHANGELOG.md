@@ -1,5 +1,15 @@
 # viem
 
+## 2.8.7
+
+### Patch Changes
+
+- [`b3c73b94f0e589da6217c75e3df38b29e05f0b64`](https://github.com/wevm/viem/commit/b3c73b94f0e589da6217c75e3df38b29e05f0b64) Thanks [@jxom](https://github.com/jxom)! - Added `getBlobBaseFee` to public decorators.
+
+- [#1931](https://github.com/wevm/viem/pull/1931) [`798b34602cfe41ddba8f0b3e13dd086fdc7c3357`](https://github.com/wevm/viem/commit/798b34602cfe41ddba8f0b3e13dd086fdc7c3357) Thanks [@Rahat-ch](https://github.com/Rahat-ch)! - Added Morph Sepolia Testnet
+
+- [#1913](https://github.com/wevm/viem/pull/1913) [`b078820856c0d1093fcf961f389dab269c605e0e`](https://github.com/wevm/viem/commit/b078820856c0d1093fcf961f389dab269c605e0e) Thanks [@bthaile](https://github.com/bthaile)! - Added Flow previewnet evm network
+
 ## 2.8.6
 
 ### Patch Changes
