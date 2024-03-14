@@ -12,9 +12,11 @@ export const beam = /*#__PURE__*/ defineChain({
   rpcUrls: {
     public: {
       http: ['https://build.onbeam.com/rpc'],
+      webSocket: ['wss://build.onbeam.com/ws'],
     },
     default: {
       http: ['https://build.onbeam.com/rpc'],
+      webSocket: ['wss://build.onbeam.com/ws'],
     },
   },
   blockExplorers: {
