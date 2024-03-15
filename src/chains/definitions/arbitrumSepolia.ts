@@ -17,7 +17,7 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Arbiscan',
       url: 'https://sepolia.arbiscan.io',
-      apiUrl: 'https://sepolia.arbiscan.io/api',
+      apiUrl: 'https://api-sepolia.arbiscan.io/api',
     },
   },
   contracts: {
