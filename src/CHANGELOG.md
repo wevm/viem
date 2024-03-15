@@ -1,5 +1,13 @@
 # viem
 
+## 2.8.10
+
+### Patch Changes
+
+- [#1956](https://github.com/wevm/viem/pull/1956) [`bb7a066a96c6d25baba3fb0e8026f31696592a1e`](https://github.com/wevm/viem/commit/bb7a066a96c6d25baba3fb0e8026f31696592a1e) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated Arbitrum Sepolia API URL.
+
+- [`4d52c74d318daf4eebb0dae43f581aa20ef62118`](https://github.com/wevm/viem/commit/4d52c74d318daf4eebb0dae43f581aa20ef62118) Thanks [@jxom](https://github.com/jxom)! - Fixed boolean conversion issue.
+
 ## 2.8.9
 
 ### Patch Changes
