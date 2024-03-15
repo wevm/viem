@@ -442,6 +442,7 @@ describe('extends', () => {
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
         "getBalance": [Function],
+        "getBlobBaseFee": [Function],
         "getBlock": [Function],
         "getBlockNumber": [Function],
         "getBlockTransactionCount": [Function],

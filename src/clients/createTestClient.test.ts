@@ -326,6 +326,7 @@ test('extend', () => {
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],
+      "getBlobBaseFee": [Function],
       "getBlock": [Function],
       "getBlockNumber": [Function],
       "getBlockTransactionCount": [Function],

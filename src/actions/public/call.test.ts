@@ -6,7 +6,6 @@ import { createCcipServer } from '~test/src/ccip.js'
 import { accounts, forkBlockNumber } from '~test/src/constants.js'
 import {
   deployOffchainLookupExample,
-  holeskyClient,
   publicClient,
   publicClientMainnet,
   walletClientWithAccount,
@@ -163,10 +162,10 @@ test('args: override', async () => {
   )
 })
 
-test('args: blobs', async () => {
+test.skip('args: blobs', async () => {
   // TODO: migrate to `publicClient` once 4844 is supported in Anvil.
   const blobs = toBlobs({ data: stringToHex(blobData) })
-  const { data } = await call(holeskyClient, {
+  const { data } = await call(publicClient, {
     account: sourceAccount.address,
     blobs,
     maxFeePerBlobGas: parseGwei('20'),
