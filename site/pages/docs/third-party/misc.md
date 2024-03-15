@@ -37,12 +37,12 @@ bun i reverse-mirage
 ```ts
 import { createClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import publicActionsReverseMirage from 'reverse-mirage'
+import { publicActionReverseMirage } from 'reverse-mirage'
  
 const client = createClient({ 
   chain: mainnet,
   transport: http()
-}).extend(publicActionsReverseMirage)
+}).extend(publicActionReverseMirage)
 ```
 
 ### 3. Consume Actions
