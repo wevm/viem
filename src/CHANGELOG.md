@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.9
+
+### Patch Changes
+
+- [#1953](https://github.com/wevm/viem/pull/1953) [`185e2bbdde7115779900ff3ad9178e3a7ec0cc64`](https://github.com/wevm/viem/commit/185e2bbdde7115779900ff3ad9178e3a7ec0cc64) Thanks [@SergeevDmitry](https://github.com/SergeevDmitry)! - Added Stratis chain.
+
 ## 2.8.8
 
 ### Patch Changes
