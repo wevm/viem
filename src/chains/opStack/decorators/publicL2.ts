@@ -482,7 +482,7 @@ export type PublicActionsL2<
  * import { optimism } from 'viem/chains'
  * import { buildDepositTransaction } from 'viem/wallet'
  *
- * export const opStackPublicClientL2 = createWalletClient({
+ * export const opStackWalletClientL2 = createWalletClient({
  *   chain: optimism,
  *   transport: http(),
  * }).extend(publicActionsL2())
