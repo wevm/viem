@@ -339,7 +339,7 @@ export function watchContractEvent<
           onError?.(err as Error)
         }
       })()
-      return unsubscribe
+      return () => unsubscribe()
     })
   }
 

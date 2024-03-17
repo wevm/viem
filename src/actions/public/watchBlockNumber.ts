@@ -180,7 +180,7 @@ export function watchBlockNumber<
           onError?.(err as Error)
         }
       })()
-      return unsubscribe
+      return () => unsubscribe()
     })
   }
 
