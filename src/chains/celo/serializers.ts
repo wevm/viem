@@ -24,7 +24,7 @@ import { isCIP42, isCIP64, isEmpty, isPresent } from './utils.js'
 
 export function serializeTransaction(
   transaction: CeloTransactionSerializable,
-  signature?: Signature,
+  signature?: Signature | undefined,
 ) {
   if (isCIP64(transaction))
     return serializeTransactionCIP64(transaction, signature)
@@ -48,7 +48,7 @@ export type SerializeTransactionCIP64ReturnType = TransactionSerializedCIP64
 // This will be in addition to the type 0x02 transaction as specified in EIP-1559.
 function serializeTransactionCIP42(
   transaction: TransactionSerializableCIP42,
-  signature?: Signature,
+  signature?: Signature | undefined,
 ): SerializeTransactionCIP42ReturnType {
   assertTransactionCIP42(transaction)
   const {
@@ -90,7 +90,7 @@ function serializeTransactionCIP42(
 
 function serializeTransactionCIP64(
   transaction: TransactionSerializableCIP64,
-  signature?: Signature,
+  signature?: Signature | undefined,
 ): SerializeTransactionCIP64ReturnType {
   assertTransactionCIP64(transaction)
   const {

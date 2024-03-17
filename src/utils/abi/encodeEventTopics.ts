@@ -60,9 +60,9 @@ export type EncodeEventTopicsParameters<
 } & UnionEvaluate<
   IsNarrowable<abi, Abi> extends true
     ? abi['length'] extends 1
-      ? { eventName?: eventName | allErrorNames }
+      ? { eventName?: eventName | allErrorNames | undefined }
       : { eventName: eventName | allErrorNames }
-    : { eventName?: eventName | allErrorNames }
+    : { eventName?: eventName | allErrorNames | undefined }
 > &
   (hasEvents extends true ? unknown : never)
 

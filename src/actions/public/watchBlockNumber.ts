@@ -26,7 +26,7 @@ export type WatchBlockNumberParameters<
   /** The callback to call when a new block number is received. */
   onBlockNumber: OnBlockNumberFn
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: ((error: Error) => void) | undefined
 } & (
   | (GetTransportConfig<TTransport>['type'] extends 'webSocket'
       ? {

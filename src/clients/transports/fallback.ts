@@ -20,13 +20,13 @@ export type OnResponseFn = (
     transport: ReturnType<Transport>
   } & (
     | {
-        error?: never
+        error?: never | undefined
         response: unknown
         status: 'success'
       }
     | {
         error: Error
-        response?: never
+        response?: never | undefined
         status: 'error'
       }
   ),
@@ -37,45 +37,47 @@ type RankOptions = {
    * The polling interval (in ms) at which the ranker should ping the RPC URL.
    * @default client.pollingInterval
    */
-  interval?: number
+  interval?: number | undefined
   /**
    * The number of previous samples to perform ranking on.
    * @default 10
    */
-  sampleCount?: number
+  sampleCount?: number | undefined
   /**
    * Timeout when sampling transports.
    * @default 1_000
    */
-  timeout?: number
+  timeout?: number | undefined
   /**
    * Weights to apply to the scores. Weight values are proportional.
    */
-  weights?: {
-    /**
-     * The weight to apply to the latency score.
-     * @default 0.3
-     */
-    latency?: number
-    /**
-     * The weight to apply to the stability score.
-     * @default 0.7
-     */
-    stability?: number
-  }
+  weights?:
+    | {
+        /**
+         * The weight to apply to the latency score.
+         * @default 0.3
+         */
+        latency?: number | undefined
+        /**
+         * The weight to apply to the stability score.
+         * @default 0.7
+         */
+        stability?: number | undefined
+      }
+    | undefined
 }
 
 export type FallbackTransportConfig = {
   /** The key of the Fallback transport. */
-  key?: TransportConfig['key']
+  key?: TransportConfig['key'] | undefined
   /** The name of the Fallback transport. */
-  name?: TransportConfig['name']
+  name?: TransportConfig['name'] | undefined
   /** Toggle to enable ranking, or rank options. */
-  rank?: boolean | RankOptions
+  rank?: boolean | RankOptions | undefined
   /** The max number of times to retry. */
-  retryCount?: TransportConfig['retryCount']
+  retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
-  retryDelay?: TransportConfig['retryDelay']
+  retryDelay?: TransportConfig['retryDelay'] | undefined
 }
 
 export type FallbackTransport = Transport<
@@ -198,13 +200,13 @@ export function rankTransports({
   transports,
   weights = {},
 }: {
-  chain?: Chain
+  chain?: Chain | undefined
   interval: RankOptions['interval']
   onTransports: (transports: Transport[]) => void
-  sampleCount?: RankOptions['sampleCount']
-  timeout?: RankOptions['timeout']
+  sampleCount?: RankOptions['sampleCount'] | undefined
+  timeout?: RankOptions['timeout'] | undefined
   transports: Transport[]
-  weights?: RankOptions['weights']
+  weights?: RankOptions['weights'] | undefined
 }) {
   const { stability: stabilityWeight = 0.7, latency: latencyWeight = 0.3 } =
     weights

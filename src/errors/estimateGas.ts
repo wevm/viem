@@ -30,9 +30,9 @@ export class EstimateGasExecutionError extends BaseError {
       to,
       value,
     }: Omit<EstimateGasParameters<any>, 'account'> & {
-      account?: Account
-      chain?: Chain
-      docsPath?: string
+      account?: Account | undefined
+      chain?: Chain | undefined
+      docsPath?: string | undefined
     },
   ) {
     const prettyArgs = prettyPrint({

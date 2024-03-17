@@ -33,26 +33,29 @@ export type CreateContractEventFilterParameters<
   fromBlock extends BlockNumber | BlockTag | undefined = undefined,
   toBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
-  address?: Address | Address[]
+  address?: Address | Address[] | undefined
   abi: abi
   eventName?: eventName | ContractEventName<abi> | undefined
-  fromBlock?: fromBlock | BlockNumber | BlockTag
+  fromBlock?: fromBlock | BlockNumber | BlockTag | undefined
   /**
    * Whether or not the logs must match the indexed/non-indexed arguments in the event ABI item.
    * @default false
    */
   strict?: strict | boolean | undefined
-  toBlock?: toBlock | BlockNumber | BlockTag
+  toBlock?: toBlock | BlockNumber | BlockTag | undefined
 } & (undefined extends eventName
   ? {
-      args?: never
+      args?: never | undefined
     }
   : MaybeExtractEventArgsFromAbi<abi, eventName> extends infer TEventFilterArgs
     ? {
-        args?: TEventFilterArgs | (args extends TEventFilterArgs ? args : never)
+        args?:
+          | TEventFilterArgs
+          | (args extends TEventFilterArgs ? args : never)
+          | undefined
       }
     : {
-        args?: never
+        args?: never | undefined
       })
 
 export type CreateContractEventFilterReturnType<

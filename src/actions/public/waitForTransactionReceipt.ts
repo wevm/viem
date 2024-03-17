@@ -55,28 +55,28 @@ export type WaitForTransactionReceiptParameters<
    * The number of confirmations (blocks that have passed) to wait before resolving.
    * @default 1
    */
-  confirmations?: number
+  confirmations?: number | undefined
   /** The hash of the transaction. */
   hash: Hash
   /** Optional callback to emit if the transaction has been replaced. */
-  onReplaced?: (response: ReplacementReturnType<TChain>) => void
+  onReplaced?: ((response: ReplacementReturnType<TChain>) => void) | undefined
   /**
    * Polling frequency (in ms). Defaults to the client's pollingInterval config.
    * @default client.pollingInterval
    */
-  pollingInterval?: number
+  pollingInterval?: number | undefined
   /**
    * Number of times to retry if the transaction or block is not found.
    * @default 6 (exponential backoff)
    */
-  retryCount?: WithRetryParameters['retryCount']
+  retryCount?: WithRetryParameters['retryCount'] | undefined
   /**
    * Time to wait (in ms) between retries.
    * @default `({ count }) => ~~(1 << count) * 200` (exponential backoff)
    */
-  retryDelay?: WithRetryParameters['delay']
+  retryDelay?: WithRetryParameters['delay'] | undefined
   /** Optional timeout (in milliseconds) to wait before stopping polling. */
-  timeout?: number
+  timeout?: number | undefined
 }
 
 export type WaitForTransactionReceiptErrorType =

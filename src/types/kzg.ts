@@ -21,7 +21,7 @@ export type GetTransactionRequestKzgParameter<
 > = MaybeRequired<
   {
     /** KZG implementation */
-    kzg?: Kzg
+    kzg?: Kzg | undefined
   },
   request extends {
     account: LocalAccount<string, Address>

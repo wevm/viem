@@ -13,7 +13,7 @@ export type GenerateMnemonicErrorType = ErrorType
  */
 export function generateMnemonic(
   wordlist: string[],
-  strength?: number,
+  strength?: number | undefined,
 ): string {
   return generateMnemonic_(wordlist, strength)
 }

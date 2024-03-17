@@ -22,13 +22,13 @@ export type Signature = OneOf<
       s: Hex
       /** @deprecated use `yParity`. */
       v: bigint
-      yParity?: number
+      yParity?: number | undefined
     }
   | {
       r: Hex
       s: Hex
       /** @deprecated use `yParity`. */
-      v?: bigint
+      v?: bigint | undefined
       yParity: number
     }
 >

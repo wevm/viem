@@ -10,7 +10,7 @@ import type {
   EIP1474Methods,
   RpcSchema,
 } from '../types/eip1193.js'
-import type { Prettify } from '../types/utils.js'
+import type { ExactPartial, Prettify } from '../types/utils.js'
 import { parseAccount } from '../utils/accounts.js'
 import { uid } from '../utils/uid.js'
 import type { PublicActions } from './decorators/public.js'
@@ -104,7 +104,7 @@ export type Client<
   (extended extends Extended ? extended : unknown) & {
     extend: <
       const client extends Extended &
-        Partial<ExtendableProtectedActions<transport, chain, account>>,
+        ExactPartial<ExtendableProtectedActions<transport, chain, account>>,
     >(
       fn: (
         client: Client<transport, chain, account, rpcSchema, extended>,
@@ -225,7 +225,7 @@ export function createClient(parameters: ClientConfig): Client {
       const extended = extendFn(base) as Extended
       for (const key in client) delete extended[key]
       const combined = { ...base, ...extended }
-      return Object.assign(combined, { extend: extend(combined) })
+      return Object.assign(combined, { extend: extend(combined as any) })
     }
   }
 

@@ -210,7 +210,7 @@ const staticCursor: Cursor = {
   },
 }
 
-type CursorConfig = { recursiveReadLimit?: number }
+type CursorConfig = { recursiveReadLimit?: number | undefined }
 
 export function createCursor(
   bytes: ByteArray,

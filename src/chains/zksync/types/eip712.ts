@@ -8,10 +8,10 @@ type PaymasterParams = {
 }
 
 export type ZkSyncEip712Meta = {
-  gasPerPubdata?: Hex
-  factoryDeps?: Hex[]
-  customSignature?: Hex
-  paymasterParams?: PaymasterParams
+  gasPerPubdata?: Hex | undefined
+  factoryDeps?: Hex[] | undefined
+  customSignature?: Hex | undefined
+  paymasterParams?: PaymasterParams | undefined
 }
 
 type EIP712FieldType = 'uint256' | 'bytes' | 'bytes32[]'

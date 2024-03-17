@@ -7,7 +7,7 @@ import { getCache, withCache } from '../../utils/promise/withCache.js'
 
 export type GetBlockNumberParameters = {
   /** Time (in ms) that cached block number will remain in memory. */
-  cacheTime?: number
+  cacheTime?: number | undefined
 }
 
 export type GetBlockNumberReturnType = bigint

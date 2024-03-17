@@ -31,6 +31,7 @@ import {
   InvalidInputRpcError,
   TransactionRejectedRpcError,
 } from '../../errors/rpc.js'
+import type { ExactPartial } from '../../types/utils.js'
 
 export function containsNodeError(err: BaseError) {
   return (
@@ -40,7 +41,9 @@ export function containsNodeError(err: BaseError) {
   )
 }
 
-export type GetNodeErrorParameters = Partial<SendTransactionParameters<any>>
+export type GetNodeErrorParameters = ExactPartial<
+  SendTransactionParameters<any>
+>
 
 export type GetNodeErrorReturnType =
   | ExecutionRevertedErrorType

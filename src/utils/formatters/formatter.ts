@@ -15,7 +15,7 @@ export function defineFormatter<TType extends string, TParameters, TReturnType>(
     exclude,
     format: overrides,
   }: {
-    exclude?: TExclude
+    exclude?: TExclude | undefined
     format: (_: TOverrideParameters) => TOverrideReturnType
   }) => {
     return {

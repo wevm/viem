@@ -20,7 +20,7 @@ export type Ripemd160ErrorType =
 
 export function ripemd160<TTo extends To = 'hex'>(
   value: Hex | ByteArray,
-  to_?: TTo,
+  to_?: TTo | undefined,
 ): Ripemd160Hash<TTo> {
   const to = to_ || 'hex'
   const bytes = noble_ripemd160(

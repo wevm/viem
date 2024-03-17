@@ -15,7 +15,7 @@ import { isEIP712Transaction } from './utils/isEip712Transaction.js'
 
 export function serializeTransaction(
   transaction: ZkSyncTransactionSerializable,
-  signature?: Signature,
+  signature?: Signature | undefined,
 ) {
   if (isEIP712Transaction(transaction))
     return serializeTransactionEIP712(

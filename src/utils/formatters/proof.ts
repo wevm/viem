@@ -1,6 +1,7 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { Proof } from '../../types/proof.js'
 import type { RpcProof } from '../../types/rpc.js'
+import type { ExactPartial } from '../../types/utils.js'
 import { hexToNumber } from '../index.js'
 
 export type FormatProofErrorType = ErrorType
@@ -12,7 +13,7 @@ function formatStorageProof(storageProof: RpcProof['storageProof']) {
   }))
 }
 
-export function formatProof(proof: Partial<RpcProof>) {
+export function formatProof(proof: ExactPartial<RpcProof>) {
   return {
     ...proof,
     balance: proof.balance ? BigInt(proof.balance) : undefined,

@@ -28,13 +28,13 @@ export type BuildInitiateWithdrawalParameters<
 > = GetAccountParameter<account, accountOverride, false> &
   GetChainParameter<chain, chainOverride> & {
     /** Encoded contract method & arguments. */
-    data?: Hex
+    data?: Hex | undefined
     /** Gas limit for transaction execution on the L1. */
-    gas?: bigint
+    gas?: bigint | undefined
     /** L1 Transaction recipient. */
     to: Address
     /** Value in wei to withdrawal to the L1. Debited from the caller's L2 balance. */
-    value?: bigint
+    value?: bigint | undefined
   }
 
 export type BuildInitiateWithdrawalReturnType<

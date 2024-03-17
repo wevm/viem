@@ -19,7 +19,7 @@ import {
 export type GetEnsAvatarParameters = Prettify<
   Omit<GetEnsTextParameters, 'key'> & {
     /** Gateway urls to resolve IPFS and/or Arweave assets. */
-    assetGatewayUrls?: AssetGatewayUrls
+    assetGatewayUrls?: AssetGatewayUrls | undefined
   }
 >
 

@@ -26,9 +26,9 @@ export function getEstimateGasError<err extends ErrorType<string>>(
     docsPath,
     ...args
   }: Omit<EstimateGasParameters, 'account'> & {
-    account?: Account
-    chain?: Chain
-    docsPath?: string
+    account?: Account | undefined
+    chain?: Chain | undefined
+    docsPath?: string | undefined
   },
 ): GetEstimateGasErrorReturnType<err> {
   const cause = (() => {

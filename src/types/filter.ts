@@ -31,14 +31,14 @@ export type Filter<
   type: TFilterType
 } & (TFilterType extends 'event'
   ? {
-      fromBlock?: TFromBlock
-      toBlock?: TToBlock
+      fromBlock?: TFromBlock | undefined
+      toBlock?: TToBlock | undefined
     } & (TAbi extends Abi
       ? undefined extends TEventName
         ? {
             abi: TAbi
-            args?: never
-            eventName?: never
+            args?: never | undefined
+            eventName?: never | undefined
             strict: TStrict
           }
         : TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName>
@@ -50,14 +50,14 @@ export type Filter<
             }
           : {
               abi: TAbi
-              args?: never
+              args?: never | undefined
               eventName: TEventName
               strict: TStrict
             }
       : {
-          abi?: never
-          args?: never
-          eventName?: never
-          strict?: never
+          abi?: never | undefined
+          args?: never | undefined
+          eventName?: never | undefined
+          strict?: never | undefined
         })
   : {})

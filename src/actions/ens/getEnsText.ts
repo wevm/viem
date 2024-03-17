@@ -39,13 +39,13 @@ export type GetEnsTextParameters = Prettify<
     /** ENS name to get Text for. */
     name: string
     /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
-    gatewayUrls?: string[]
+    gatewayUrls?: string[] | undefined
     /** Text record to retrieve. */
     key: string
     /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
-    strict?: boolean
+    strict?: boolean | undefined
     /** Address of ENS Universal Resolver Contract. */
-    universalResolverAddress?: Address
+    universalResolverAddress?: Address | undefined
   }
 >
 

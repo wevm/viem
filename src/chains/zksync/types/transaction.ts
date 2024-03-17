@@ -20,7 +20,7 @@ import type {
   TransactionSerialized,
   TransactionType,
 } from '../../../types/transaction.js'
-import type { OneOf, UnionOmit } from '../../../types/utils.js'
+import type { ExactPartial, OneOf, UnionOmit } from '../../../types/utils.js'
 import type { ZkSyncEip712Meta } from './eip712.js'
 import type { ZkSyncFeeValues } from './fee.js'
 import type {
@@ -129,11 +129,11 @@ export type ZkSyncTransactionRequestEIP712 = Omit<
   TransactionRequestBase,
   'type'
 > &
-  Partial<FeeValuesEIP1559> & {
-    gasPerPubdata?: bigint
-    customSignature?: Hex
-    factoryDeps?: Hex[]
-    type?: 'eip712' | 'priority'
+  ExactPartial<FeeValuesEIP1559> & {
+    gasPerPubdata?: bigint | undefined
+    customSignature?: Hex | undefined
+    factoryDeps?: Hex[] | undefined
+    type?: 'eip712' | 'priority' | undefined
   } & (
     | { paymaster: Address; paymasterInput: Hex }
     | { paymaster?: undefined; paymasterInput?: undefined }
@@ -149,7 +149,7 @@ export type ZkSyncRpcTransactionRequestEIP712 = TransactionRequestBase<
   Quantity,
   Index
 > &
-  Partial<FeeValuesEIP1559<Quantity>> & {
+  ExactPartial<FeeValuesEIP1559<Quantity>> & {
     eip712Meta: ZkSyncEip712Meta
     type: EIP712Type | PriorityType
   }
@@ -203,12 +203,12 @@ export type ZkSyncTransactionSerializableEIP712<
   TIndex = number,
 > = Omit<TransactionSerializableEIP1559<TQuantity, TIndex>, 'type'> & {
   from: Hex
-  gasPerPubdata?: bigint
-  paymaster?: Address
-  factoryDeps?: Hex[]
-  paymasterInput?: Hex
-  customSignature?: Hex
-  type?: 'eip712'
+  gasPerPubdata?: bigint | undefined
+  paymaster?: Address | undefined
+  factoryDeps?: Hex[] | undefined
+  paymasterInput?: Hex | undefined
+  customSignature?: Hex | undefined
+  type?: 'eip712' | undefined
 }
 
 // EIP712 Signer
@@ -234,12 +234,12 @@ export type TransactionRequestEIP712<
   TIndex = number,
   TTransactionType = 'eip712',
 > = TransactionRequestBase<TQuantity, TIndex> &
-  Partial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: never
-    gasPerPubdata?: bigint
-    factoryDeps?: Hex[]
-    paymaster?: Address
-    paymasterInput?: Hex
-    customSignature?: Hex
-    type?: TTransactionType
+  ExactPartial<FeeValuesEIP1559<TQuantity>> & {
+    accessList?: never | undefined
+    gasPerPubdata?: bigint | undefined
+    factoryDeps?: Hex[] | undefined
+    paymaster?: Address | undefined
+    paymasterInput?: Hex | undefined
+    customSignature?: Hex | undefined
+    type?: TTransactionType | undefined
   }

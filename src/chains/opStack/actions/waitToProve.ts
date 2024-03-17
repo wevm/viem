@@ -32,7 +32,7 @@ export type WaitToProveParameters<
      * Polling frequency (in ms). Defaults to Client's pollingInterval config.
      * @default client.pollingInterval
      */
-    pollingInterval?: number
+    pollingInterval?: number | undefined
   }
 export type WaitToProveReturnType = {
   withdrawal: Withdrawal

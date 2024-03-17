@@ -60,7 +60,7 @@ export type Chain<
   testnet?: boolean | undefined
 
   /** Custom chain data. */
-  custom?: custom
+  custom?: custom | undefined
   /**
    * Modifies how chain data structures (ie. Blocks, Transactions, etc)
    * are formatted & typed.

@@ -74,12 +74,12 @@ type KeyedClient<
   TAccount extends Account | undefined = Account | undefined,
 > =
   | {
-      public?: Client<TTransport, TChain>
+      public?: Client<TTransport, TChain> | undefined
       wallet: Client<TTransport, TChain, TAccount>
     }
   | {
       public: Client<TTransport, TChain>
-      wallet?: Client<TTransport, TChain, TAccount>
+      wallet?: Client<TTransport, TChain, TAccount> | undefined
     }
 
 export type GetContractParameters<
@@ -786,7 +786,7 @@ export function getContract<
  * @internal exporting for testing only
  */
 export function getFunctionParameters(
-  values: [args?: readonly unknown[], options?: object],
+  values: [args?: readonly unknown[] | undefined, options?: object | undefined],
 ) {
   const hasArgs = values.length && Array.isArray(values[0])
   const args = hasArgs ? values[0]! : []

@@ -142,7 +142,7 @@ export const formatters = {
               : {}),
           },
           type: '0x71',
-        } as ZkSyncRpcTransactionRequest
+        } as unknown as ZkSyncRpcTransactionRequest
       return {} as ZkSyncRpcTransactionRequest
     },
   }),

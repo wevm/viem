@@ -33,7 +33,7 @@ export type GetContractEventsParameters<
   toBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
   /** The address of the contract. */
-  address?: Address | Address[]
+  address?: Address | Address[] | undefined
   /** Contract ABI. */
   abi: abi
   args?:
@@ -54,16 +54,16 @@ export type GetContractEventsParameters<
 } & (
   | {
       /** Block number or tag after which to include logs */
-      fromBlock?: fromBlock | BlockNumber | BlockTag
+      fromBlock?: fromBlock | BlockNumber | BlockTag | undefined
       /** Block number or tag before which to include logs */
-      toBlock?: toBlock | BlockNumber | BlockTag
+      toBlock?: toBlock | BlockNumber | BlockTag | undefined
       blockHash?: undefined
     }
   | {
       fromBlock?: undefined
       toBlock?: undefined
       /** Hash of block to include logs from */
-      blockHash?: Hash
+      blockHash?: Hash | undefined
     }
 )
 

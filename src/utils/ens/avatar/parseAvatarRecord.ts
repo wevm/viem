@@ -30,7 +30,7 @@ export async function parseAvatarRecord<TChain extends Chain | undefined>(
     gatewayUrls,
     record,
   }: {
-    gatewayUrls?: AssetGatewayUrls
+    gatewayUrls?: AssetGatewayUrls | undefined
     record: string
   },
 ): Promise<string> {
@@ -54,7 +54,7 @@ async function parseNftAvatarUri<TChain extends Chain | undefined>(
     gatewayUrls,
     record,
   }: {
-    gatewayUrls?: AssetGatewayUrls
+    gatewayUrls?: AssetGatewayUrls | undefined
     record: string
   },
 ): Promise<string> {

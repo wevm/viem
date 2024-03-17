@@ -68,38 +68,38 @@ export type RpcTransaction<TPending extends boolean = boolean> = UnionOmit<
 >
 
 type SuccessResult<T> = {
-  method?: never
+  method?: never | undefined
   result: T
-  error?: never
+  error?: never | undefined
 }
 type ErrorResult<T> = {
-  method?: never
-  result?: never
+  method?: never | undefined
+  result?: never | undefined
   error: T
 }
 type Subscription<TResult, TError> = {
   method: 'eth_subscription'
-  error?: never
-  result?: never
+  error?: never | undefined
+  result?: never | undefined
   params: {
     subscription: string
   } & (
     | {
         result: TResult
-        error?: never
+        error?: never | undefined
       }
     | {
-        result?: never
+        result?: never | undefined
         error: TError
       }
   )
 }
 
 export type RpcRequest = {
-  jsonrpc?: '2.0'
+  jsonrpc?: '2.0' | undefined
   method: string
-  params?: any
-  id?: number
+  params?: any | undefined
+  id?: number | undefined
 }
 
 export type RpcResponse<TResult = any, TError = any> = {
@@ -118,15 +118,15 @@ export type RpcStateMapping = {
 
 export type RpcAccountStateOverride = {
   /** Fake balance to set for the account before executing the call. <32 bytes */
-  balance?: Hex
+  balance?: Hex | undefined
   /** Fake nonce to set for the account before executing the call. <8 bytes */
-  nonce?: Hex
+  nonce?: Hex | undefined
   /** Fake EVM bytecode to inject into the account before executing the call. */
-  code?: Hex
+  code?: Hex | undefined
   /** Fake key-value mapping to override all slots in the account storage before executing the call. */
-  state?: RpcStateMapping
+  state?: RpcStateMapping | undefined
   /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
-  stateDiff?: RpcStateMapping
+  stateDiff?: RpcStateMapping | undefined
 }
 
 export type RpcStateOverride = {

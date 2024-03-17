@@ -50,7 +50,7 @@ export type FinalizeWithdrawalParameters<
      * Gas limit for transaction execution on the L1.
      * `null` to skip gas estimation & defer calculation to signer.
      */
-    gas?: bigint | null
+    gas?: bigint | null | undefined
     withdrawal: Withdrawal
   }
 export type FinalizeWithdrawalReturnType = Hash

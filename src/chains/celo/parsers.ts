@@ -1,5 +1,6 @@
 import { InvalidSerializedTransactionError } from '../../errors/transaction.js'
 import type { Hex } from '../../types/misc.js'
+import type { ExactPartial } from '../../types/utils.js'
 import { isHex } from '../../utils/data/isHex.js'
 import { sliceHex } from '../../utils/data/slice.js'
 import { hexToBigInt, hexToNumber } from '../../utils/encoding/fromHex.js'
@@ -102,7 +103,7 @@ function parseTransactionCIP42(
     })
   }
 
-  const transaction: Partial<TransactionSerializableCIP42> = {
+  const transaction: ExactPartial<TransactionSerializableCIP42> = {
     chainId: hexToNumber(chainId as Hex),
     type: 'cip42',
   }
@@ -177,7 +178,7 @@ function parseTransactionCIP64(
     })
   }
 
-  const transaction: Partial<TransactionSerializableCIP64> = {
+  const transaction: ExactPartial<TransactionSerializableCIP64> = {
     chainId: hexToNumber(chainId as Hex),
     type: 'cip64',
   }

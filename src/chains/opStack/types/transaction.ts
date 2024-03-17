@@ -27,8 +27,8 @@ type RpcTransaction<TPending extends boolean = boolean> =
 export type OpStackRpcDepositTransaction<TPending extends boolean = boolean> =
   Omit<TransactionBase<Quantity, Index, TPending>, 'typeHex'> &
     FeeValuesEIP1559<Quantity> & {
-      isSystemTx?: boolean
-      mint?: Hex
+      isSystemTx?: boolean | undefined
+      mint?: Hex | undefined
       sourceHash: Hex
       type: '0x7e'
     }
@@ -59,7 +59,7 @@ export type OpStackDepositTransaction<TPending extends boolean = boolean> =
   TransactionBase<bigint, number, TPending> &
     FeeValuesEIP1559 & {
       isSystemTx?: boolean
-      mint?: bigint
+      mint?: bigint | undefined
       sourceHash: Hex
       type: 'deposit'
     }
@@ -98,7 +98,7 @@ export type TransactionSerializableDeposit<
 > & {
   from: Hex
   isSystemTx?: boolean
-  mint?: bigint
+  mint?: bigint | undefined
   sourceHash: Hex
   type: 'deposit'
 }

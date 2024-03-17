@@ -3,17 +3,22 @@ import { wait } from '../wait.js'
 
 export type WithRetryParameters = {
   // The delay (in ms) between retries.
-  delay?: ((config: { count: number; error: Error }) => number) | number
+  delay?:
+    | ((config: { count: number; error: Error }) => number)
+    | number
+    | undefined
   // The max number of times to retry.
-  retryCount?: number
+  retryCount?: number | undefined
   // Whether or not to retry when an error is thrown.
-  shouldRetry?: ({
-    count,
-    error,
-  }: {
-    count: number
-    error: Error
-  }) => Promise<boolean> | boolean
+  shouldRetry?:
+    | (({
+        count,
+        error,
+      }: {
+        count: number
+        error: Error
+      }) => Promise<boolean> | boolean)
+    | undefined
 }
 
 export type WithRetryErrorType = ErrorType

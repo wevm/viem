@@ -17,7 +17,7 @@ export type SidecarsToVersionedHashesParameters<
   /** Return type. */
   to?: to | To | undefined
   /** Version to tag onto the hashes. */
-  version?: number
+  version?: number | undefined
 }
 
 export type SidecarsToVersionedHashesReturnType<to extends To> =

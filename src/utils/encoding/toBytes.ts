@@ -15,7 +15,7 @@ const encoder = /*#__PURE__*/ new TextEncoder()
 
 export type ToBytesParameters = {
   /** Size of the output bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 export type ToBytesErrorType =
@@ -64,7 +64,7 @@ export function toBytes(
 
 export type BoolToBytesOpts = {
   /** Size of the output bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 export type BoolToBytesErrorType =
@@ -123,7 +123,7 @@ function charCodeToBase16(char: number) {
 
 export type HexToBytesOpts = {
   /** Size of the output bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 export type HexToBytesErrorType = AssertSizeErrorType | PadErrorType | ErrorType
@@ -198,14 +198,17 @@ export type NumberToBytesErrorType =
  * const data = numberToBytes(420, { size: 4 })
  * // Uint8Array([0, 0, 1, 164])
  */
-export function numberToBytes(value: bigint | number, opts?: NumberToHexOpts) {
+export function numberToBytes(
+  value: bigint | number,
+  opts?: NumberToHexOpts | undefined,
+) {
   const hex = numberToHex(value, opts)
   return hexToBytes(hex)
 }
 
 export type StringToBytesOpts = {
   /** Size of the output bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 export type StringToBytesErrorType =

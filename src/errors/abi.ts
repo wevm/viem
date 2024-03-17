@@ -198,7 +198,10 @@ export type AbiErrorNotFoundErrorType = AbiErrorNotFoundError & {
 }
 export class AbiErrorNotFoundError extends BaseError {
   override name = 'AbiErrorNotFoundError'
-  constructor(errorName?: string, { docsPath }: { docsPath?: string } = {}) {
+  constructor(
+    errorName?: string | undefined,
+    { docsPath }: { docsPath?: string | undefined } = {},
+  ) {
     super(
       [
         `Error ${errorName ? `"${errorName}" ` : ''}not found on ABI.`,
@@ -273,7 +276,10 @@ export type AbiEventNotFoundErrorType = AbiEventNotFoundError & {
 }
 export class AbiEventNotFoundError extends BaseError {
   override name = 'AbiEventNotFoundError'
-  constructor(eventName?: string, { docsPath }: { docsPath?: string } = {}) {
+  constructor(
+    eventName?: string | undefined,
+    { docsPath }: { docsPath?: string | undefined } = {},
+  ) {
     super(
       [
         `Event ${eventName ? `"${eventName}" ` : ''}not found on ABI.`,
@@ -291,7 +297,10 @@ export type AbiFunctionNotFoundErrorType = AbiFunctionNotFoundError & {
 }
 export class AbiFunctionNotFoundError extends BaseError {
   override name = 'AbiFunctionNotFoundError'
-  constructor(functionName?: string, { docsPath }: { docsPath?: string } = {}) {
+  constructor(
+    functionName?: string | undefined,
+    { docsPath }: { docsPath?: string | undefined } = {},
+  ) {
     super(
       [
         `Function ${functionName ? `"${functionName}" ` : ''}not found on ABI.`,

@@ -53,7 +53,7 @@ export type DepositTransactionParameters<
      * Gas limit for transaction execution on the L1.
      * `null` to skip gas estimation & defer calculation to signer.
      */
-    gas?: bigint | null
+    gas?: bigint | null | undefined
   }
 export type DepositTransactionReturnType = Hash
 export type DepositTransactionErrorType =
