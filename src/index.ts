@@ -909,6 +909,8 @@ export type {
   TransactionRequestEIP4844,
 } from './types/transaction.js'
 export type {
+  ExactPartial,
+  ExactRequired,
   IsNever,
   OneOf,
   Opaque,
