@@ -132,19 +132,13 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/dynamic-light.svg',
           },
           {
-            name: 'BitKeep',
-            link: 'https://bitkeep.com',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/bitkeep-light.svg',
-          },
-        ],
-        [
-          {
             name: 'Privy',
             link: 'https://privy.io',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/privy-light.svg',
           },
+        ],
+        [
           {
             name: 'Spruce',
             link: 'https://spruceid.com',
@@ -157,14 +151,14 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rollup.id-light.svg',
           },
-        ],
-        [
           {
             name: 'Celo',
             link: 'https://celo.org',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/celo-light.svg',
           },
+        ],
+        [
           {
             name: 'Rainbow',
             link: 'https://rainbow.me',
@@ -177,33 +171,25 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pimlico-light.svg',
           },
-        ],
-        [
           {
             name: 'Zora',
             link: 'https://zora.co',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg',
           },
+        ],
+        [
           {
             name: 'Lattice',
             link: 'https://lattice.xyz',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/lattice-light.svg',
           },
-        ],
-        [
           {
             name: 'Supa',
             link: 'https://twitter.com/supafinance',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg',
-          },
-          {
-            name: 'Blocto',
-            link: 'https://blocto.io/',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/blocto-light.svg',
           },
         ],
       ],
