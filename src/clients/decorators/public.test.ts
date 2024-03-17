@@ -40,6 +40,7 @@ test('default', async () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "getBalance": [Function],
+      "getBlobBaseFee": [Function],
       "getBlock": [Function],
       "getBlockNumber": [Function],
       "getBlockTransactionCount": [Function],
@@ -139,6 +140,10 @@ describe('smoke test', () => {
     ).toEqual(10000000000000000000000n)
   })
 
+  test.skip('getBlobBaseFee', async () => {
+    expect(await publicClient.getBlobBaseFee()).toBeDefined()
+  })
+
   test('getBlock', async () => {
     expect(
       await publicClient.getBlock({ blockNumber: forkBlockNumber }),
@@ -173,7 +178,7 @@ describe('smoke test', () => {
     'getEnsAddress',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(18958931n)
+      await setBlockNumber(19_258_213n)
       expect(
         await publicClient.getEnsAddress({ name: 'jxom.eth' }),
       ).toBeDefined()
@@ -186,7 +191,7 @@ describe('smoke test', () => {
     'getEnsAvatar',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(18958931n)
+      await setBlockNumber(19_258_213n)
       expect(
         await publicClient.getEnsAvatar({ name: 'jxom.eth' }),
       ).toBeDefined()
@@ -199,7 +204,7 @@ describe('smoke test', () => {
     'getEnsName',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(18958931n)
+      await setBlockNumber(19_258_213n)
       expect(
         await publicClient.getEnsName({ address: address.vitalik }),
       ).toBeDefined()
@@ -212,7 +217,7 @@ describe('smoke test', () => {
     'getEnsResolver',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(18958931n)
+      await setBlockNumber(19_258_213n)
       expect(
         await publicClient.getEnsResolver({ name: 'jxom.eth' }),
       ).toBeDefined()
@@ -225,7 +230,7 @@ describe('smoke test', () => {
     'getEnsText',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(18958931n)
+      await setBlockNumber(19_258_213n)
       expect(
         await publicClient.getEnsText({ name: 'jxom.eth', key: 'com.twitter' }),
       ).toBeDefined()

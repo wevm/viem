@@ -53,6 +53,12 @@ export {
   type EstimateL1FeeReturnType,
 } from './actions/estimateL1Fee.js'
 export {
+  getL1BaseFee,
+  type GetL1BaseFeeErrorType,
+  type GetL1BaseFeeParameters,
+  type GetL1BaseFeeReturnType,
+} from './actions/getL1BaseFee.js'
+export {
   estimateL1Gas,
   type EstimateL1GasErrorType,
   type EstimateL1GasParameters,

@@ -20,6 +20,7 @@ import {
   InvalidAddressError,
   type InvalidAddressErrorType,
 } from '../../errors/address.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
@@ -46,6 +47,38 @@ export type EncodeAbiParametersErrorType =
 
 /**
  * @description Encodes a list of primitive values into an ABI-encoded hex value.
+ *
+ * - Docs: https://viem.sh/docs/abi/encodeAbiParameters#encodeabiparameters
+ *
+ *   Generates ABI encoded data using the [ABI specification](https://docs.soliditylang.org/en/latest/abi-spec), given a set of ABI parameters (inputs/outputs) and their corresponding values.
+ *
+ * @param params - a set of ABI Parameters (params), that can be in the shape of the inputs or outputs attribute of an ABI Item.
+ * @param values - a set of values (values) that correspond to the given params.
+ * @example
+ * ```typescript
+ * import { encodeAbiParameters } from 'viem'
+ *
+ * const encodedData = encodeAbiParameters(
+ *   [
+ *     { name: 'x', type: 'string' },
+ *     { name: 'y', type: 'uint' },
+ *     { name: 'z', type: 'bool' }
+ *   ],
+ *   ['wagmi', 420n, true]
+ * )
+ * ```
+ *
+ * You can also pass in Human Readable parameters with the parseAbiParameters utility.
+ *
+ * @example
+ * ```typescript
+ * import { encodeAbiParameters, parseAbiParameters } from 'viem'
+ *
+ * const encodedData = encodeAbiParameters(
+ *   parseAbiParameters('string x, uint y, bool z'),
+ *   ['wagmi', 420n, true]
+ * )
+ * ```
  */
 export function encodeAbiParameters<
   const TParams extends readonly AbiParameter[] | readonly unknown[],
@@ -58,12 +91,12 @@ export function encodeAbiParameters<
   if (params.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
       expectedLength: params.length as number,
-      givenLength: values.length,
+      givenLength: values.length as any,
     })
   // Prepare the parameters to determine dynamic types to encode.
   const preparedParams = prepareParams({
     params: params as readonly AbiParameter[],
-    values,
+    values: values as any,
   })
   const data = encodeParams(preparedParams)
   if (data.length === 0) return '0x'
@@ -279,6 +312,10 @@ export type EncodeBoolErrorType =
   | ErrorType
 
 function encodeBool(value: boolean): PreparedParam {
+  if (typeof value !== 'boolean')
+    throw new BaseError(
+      `Invalid boolean value: "${value}" (type: ${typeof value}). Expected: \`true\` or \`false\`.`,
+    )
   return { dynamic: false, encoded: padHex(boolToHex(value)) }
 }
 

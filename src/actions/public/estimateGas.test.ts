@@ -121,6 +121,17 @@ test('args: gas', async () => {
   ).toMatchInlineSnapshot('21000n')
 })
 
+test('args: blobs', async () => {
+  expect(
+    await estimateGas(publicClient, {
+      account: accounts[0].address,
+      to: accounts[1].address,
+      blobs: ['0x123'],
+      maxFeePerBlobGas: parseGwei('20'),
+    }),
+  ).toMatchInlineSnapshot('21000n')
+})
+
 describe('local account', () => {
   test('default', async () => {
     expect(

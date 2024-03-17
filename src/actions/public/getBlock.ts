@@ -26,28 +26,28 @@ export type GetBlockParameters<
   TBlockTag extends BlockTag = 'latest',
 > = {
   /** Whether or not to include transaction data in the response. */
-  includeTransactions?: TIncludeTransactions
+  includeTransactions?: TIncludeTransactions | undefined
 } & (
   | {
       /** Hash of the block. */
-      blockHash?: Hash
-      blockNumber?: never
-      blockTag?: never
+      blockHash?: Hash | undefined
+      blockNumber?: never | undefined
+      blockTag?: never | undefined
     }
   | {
-      blockHash?: never
+      blockHash?: never | undefined
       /** The block number. */
-      blockNumber?: bigint
-      blockTag?: never
+      blockNumber?: bigint | undefined
+      blockTag?: never | undefined
     }
   | {
-      blockHash?: never
-      blockNumber?: never
+      blockHash?: never | undefined
+      blockNumber?: never | undefined
       /**
        * The block tag.
        * @default 'latest'
        */
-      blockTag?: TBlockTag | BlockTag
+      blockTag?: TBlockTag | BlockTag | undefined
     }
 )
 

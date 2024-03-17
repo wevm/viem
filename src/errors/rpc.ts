@@ -21,9 +21,9 @@ export type RpcErrorCode =
   | -32042 // Method not found
 
 type RpcErrorOptions<TCode extends number = RpcErrorCode> = {
-  code?: TCode | (number & {})
-  docsPath?: string
-  metaMessages?: string[]
+  code?: TCode | (number & {}) | undefined
+  docsPath?: string | undefined
+  metaMessages?: string[] | undefined
   shortMessage: string
 }
 
@@ -76,13 +76,13 @@ export class ProviderRpcError<
 > extends RpcError<ProviderRpcErrorCode> {
   override name = 'ProviderRpcError'
 
-  data?: T
+  data?: T | undefined
 
   constructor(
     cause: Error,
     options: Prettify<
       RpcErrorOptions<ProviderRpcErrorCode> & {
-        data?: T
+        data?: T | undefined
       }
     >,
   ) {

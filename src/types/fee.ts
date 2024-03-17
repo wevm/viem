@@ -1,4 +1,4 @@
-import type { Assign } from './utils.js'
+import type { Assign, OneOf } from './utils.js'
 
 export type FeeHistory<TQuantity = bigint> = {
   /**
@@ -11,20 +11,20 @@ export type FeeHistory<TQuantity = bigint> = {
   /** Lowest number block of the returned range. */
   oldestBlock: TQuantity
   /** An array of effective priority fees (in wei) per gas data points from a single block. All zeroes are returned if the block is empty. */
-  reward?: TQuantity[][]
+  reward?: TQuantity[][] | undefined
 }
 
 export type FeeValuesLegacy<TQuantity = bigint> = {
   /** Base fee per gas. */
   gasPrice: TQuantity
-  maxFeePerBlobGas?: never
-  maxFeePerGas?: never
-  maxPriorityFeePerGas?: never
+  maxFeePerBlobGas?: never | undefined
+  maxFeePerGas?: never | undefined
+  maxPriorityFeePerGas?: never | undefined
 }
 
 export type FeeValuesEIP1559<TQuantity = bigint> = {
-  gasPrice?: never
-  maxFeePerBlobGas?: never
+  gasPrice?: never | undefined
+  maxFeePerBlobGas?: never | undefined
   /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
   maxFeePerGas: TQuantity
   /** Max priority fee per gas (in wei). */
@@ -39,9 +39,10 @@ export type FeeValuesEIP4844<TQuantity = bigint> = Assign<
   }
 >
 
-export type FeeValues<TQuantity = bigint> =
+export type FeeValues<TQuantity = bigint> = OneOf<
   | FeeValuesLegacy<TQuantity>
   | FeeValuesEIP1559<TQuantity>
   | FeeValuesEIP4844<TQuantity>
+>
 
 export type FeeValuesType = 'legacy' | 'eip1559' | 'eip4844'

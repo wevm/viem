@@ -335,7 +335,7 @@ export type TestActions = {
    * })
    * await client.reset({ blockNumber: 69420n })
    */
-  reset: (args?: ResetParameters) => Promise<void>
+  reset: (args?: ResetParameters | undefined) => Promise<void>
   /**
    * Revert the state of the blockchain at the current block.
    *

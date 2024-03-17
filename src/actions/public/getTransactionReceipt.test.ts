@@ -2,7 +2,7 @@ import { assertType, describe, expect, it, test } from 'vitest'
 
 import { accounts, forkBlockNumber } from '~test/src/constants.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
-import { goerli, zkSync } from '../../chains/index.js'
+import { holesky, zkSync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
@@ -49,30 +49,30 @@ test('gets transaction receipt', async () => {
 
 test('gets transaction receipt (4844)', async () => {
   const client = createClient({
-    chain: goerli,
+    chain: holesky,
     transport: http(),
   })
   const receipt = await getTransactionReceipt(client, {
-    hash: '0xddd4cf20353111cff8f35a4428ed6ee4242b74bb6458b4c19239487e6dc8a920',
+    hash: '0x2ad52593fd11478bc0771a48361250220e93123a772e9f316ad8e87d05abe33a',
   })
   assertType<TransactionReceipt>(receipt)
   expect(receipt).toMatchInlineSnapshot(`
     {
-      "blobGasPrice": 19127498403n,
+      "blobGasPrice": 18391084153n,
       "blobGasUsed": 262144n,
-      "blockHash": "0xc4b5043ad53dd7f6f742a720dfccb331e6066d2f99e9f6e0141bcd1455f0b00f",
-      "blockNumber": 10458925n,
+      "blockHash": "0xea4b9a0d4ddeb927ddca9d1ebbb8b0e623ffc7a8b1b62990ba2d1c4aac1f23b6",
+      "blockNumber": 1117041n,
       "contractAddress": null,
-      "cumulativeGasUsed": 1874368n,
-      "effectiveGasPrice": 2000045414n,
-      "from": "0x4f56ffc63c28b72f79b02e91f11a4707bac4043c",
+      "cumulativeGasUsed": 17555099n,
+      "effectiveGasPrice": 1262418454n,
+      "from": "0xcb98643b8786950f0461f3b0edf99d88f274574d",
       "gasUsed": 21000n,
       "logs": [],
       "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "status": "success",
-      "to": "0x8fd478e878ab94c5aa3f724adf68300db2ebd9f2",
-      "transactionHash": "0xddd4cf20353111cff8f35a4428ed6ee4242b74bb6458b4c19239487e6dc8a920",
-      "transactionIndex": 4,
+      "to": "0x0000000000000000000000000000000000000000",
+      "transactionHash": "0x2ad52593fd11478bc0771a48361250220e93123a772e9f316ad8e87d05abe33a",
+      "transactionIndex": 57,
       "type": "eip4844",
     }
   `)

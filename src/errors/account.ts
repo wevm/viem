@@ -5,7 +5,7 @@ export type AccountNotFoundErrorType = AccountNotFoundError & {
 }
 export class AccountNotFoundError extends BaseError {
   override name = 'AccountNotFoundError'
-  constructor({ docsPath }: { docsPath?: string } = {}) {
+  constructor({ docsPath }: { docsPath?: string | undefined } = {}) {
     super(
       [
         'Could not find an Account to execute with this Action.',

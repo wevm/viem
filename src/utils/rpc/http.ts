@@ -15,9 +15,11 @@ import { idCache } from './id.js'
 
 export type HttpRpcClientOptions = {
   // Request configuration to pass to `fetch`.
-  fetchOptions?: Omit<RequestInit, 'body'>
+  fetchOptions?: Omit<RequestInit, 'body'> | undefined
+  // A callback to handle the response.
+  onResponse?: ((response: Response) => Promise<void> | void) | undefined
   // The timeout (in ms) for the request.
-  timeout?: number
+  timeout?: number | undefined
 }
 
 export type HttpRequestParameters<
@@ -26,9 +28,11 @@ export type HttpRequestParameters<
   // The RPC request body.
   body: TBody
   // Request configuration to pass to `fetch`.
-  fetchOptions?: HttpRpcClientOptions['fetchOptions']
+  fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
+  // A callback to handle the response.
+  onResponse?: ((response: Response) => Promise<void> | void) | undefined
   // The timeout (in ms) for the request.
-  timeout?: HttpRpcClientOptions['timeout']
+  timeout?: HttpRpcClientOptions['timeout'] | undefined
 }
 
 export type HttpRequestReturnType<
@@ -56,6 +60,7 @@ export function getHttpRpcClient(
       const {
         body,
         fetchOptions = {},
+        onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
       } = params
       const {
@@ -87,7 +92,7 @@ export function getHttpRpcClient(
                 'Content-Type': 'application/json',
               },
               method: method || 'POST',
-              signal: signal_ || (timeout > 0 ? signal : undefined),
+              signal: signal_ || (timeout > 0 ? signal : null),
             })
             return response
           },
@@ -97,6 +102,8 @@ export function getHttpRpcClient(
             signal: true,
           },
         )
+
+        if (onResponse) await onResponse(response)
 
         let data: any
         if (

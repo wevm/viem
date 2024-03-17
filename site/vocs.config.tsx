@@ -9,15 +9,17 @@ export default defineConfig({
   titleTemplate: '%s · Viem',
   description:
     'Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.',
-  head: (
-    <>
-      <script
-        src="https://cdn.usefathom.com/script.js"
-        data-site="BYCJMNBD"
-        defer
-      />
-    </>
-  ),
+  head() {
+    return (
+      <>
+        <script
+          src="https://cdn.usefathom.com/script.js"
+          data-site="BYCJMNBD"
+          defer
+        />
+      </>
+    )
+  },
   ogImageUrl: {
     '/': '/og-image.png',
     '/docs':

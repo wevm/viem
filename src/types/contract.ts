@@ -308,11 +308,11 @@ export type GetValue<
   _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
 > = _Narrowable extends true
   ? TAbiFunction['stateMutability'] extends 'payable'
-    ? { value?: NoUndefined<TValueType> }
+    ? { value?: NoUndefined<TValueType> | undefined }
     : TAbiFunction['payable'] extends true
-      ? { value?: NoUndefined<TValueType> }
-      : { value?: never }
-  : { value?: TValueType }
+      ? { value?: NoUndefined<TValueType> | undefined }
+      : { value?: never | undefined }
+  : { value?: TValueType | undefined }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -399,7 +399,9 @@ export type AbiEventParametersToPrimitiveTypes<
               name: infer Name extends string
             }
               ? Name
-              : never]?: AbiEventParameterToPrimitiveType<Parameter, Options>
+              : never]?:
+              | AbiEventParameterToPrimitiveType<Parameter, Options>
+              | undefined
           } extends infer Mapped
         ? Prettify<
             MaybeRequired<

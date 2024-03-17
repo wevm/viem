@@ -113,6 +113,7 @@ test('overloads', () => {
     args: ['0x'],
     data: '0x',
   })
+  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   expectTypeOf(res3).toEqualTypeOf<string>()
 
   const res4 = decodeFunctionResult({
@@ -121,6 +122,7 @@ test('overloads', () => {
     args: ['0x', '0x'],
     data: '0x',
   })
+  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   expectTypeOf(res4).toEqualTypeOf<{ foo: Address; bar: Address }>()
 })
 

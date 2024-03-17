@@ -2,7 +2,7 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts, forkBlockNumber } from '~test/src/constants.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
-import { celo, goerli } from '../../chains/index.js'
+import { celo, holesky } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import { createClient } from '../../index.js'
@@ -134,40 +134,40 @@ test('gets transaction (eip2930)', async () => {
 
 test('gets transaction (eip4844)', async () => {
   const client = createClient({
-    chain: goerli,
+    chain: holesky,
     transport: http(),
   })
   const transaction = await getTransaction(client, {
-    hash: '0xddd4cf20353111cff8f35a4428ed6ee4242b74bb6458b4c19239487e6dc8a920',
+    hash: '0x2ad52593fd11478bc0771a48361250220e93123a772e9f316ad8e87d05abe33a',
   })
   expect(transaction).toMatchInlineSnapshot(`
     {
       "accessList": [],
       "blobVersionedHashes": [
-        "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014",
-        "0x01888622651ffb322d2946e1261be7cab044dbb3507702458013eb14d54c09f3",
+        "0x012580b7683c14cc7540be305587b0eec4e7ec739094213ca080e2526c9237c4",
+        "0x01243c18a024c835cce144b3b6b0eb878b7820c7c7b7d9feff80080d76519c45",
       ],
-      "blockHash": "0xc4b5043ad53dd7f6f742a720dfccb331e6066d2f99e9f6e0141bcd1455f0b00f",
-      "blockNumber": 10458925n,
-      "chainId": 5,
-      "from": "0x4f56ffc63c28b72f79b02e91f11a4707bac4043c",
+      "blockHash": "0xea4b9a0d4ddeb927ddca9d1ebbb8b0e623ffc7a8b1b62990ba2d1c4aac1f23b6",
+      "blockNumber": 1117041n,
+      "chainId": 17000,
+      "from": "0xcb98643b8786950f0461f3b0edf99d88f274574d",
       "gas": 21000n,
-      "gasPrice": 2000045414n,
-      "hash": "0xddd4cf20353111cff8f35a4428ed6ee4242b74bb6458b4c19239487e6dc8a920",
+      "gasPrice": 1262418454n,
+      "hash": "0x2ad52593fd11478bc0771a48361250220e93123a772e9f316ad8e87d05abe33a",
       "input": "0x",
-      "maxFeePerBlobGas": 20000000000n,
-      "maxFeePerGas": 200000000000n,
-      "maxPriorityFeePerGas": 2000000000n,
-      "nonce": 10228,
-      "r": "0xb2de3b227986e1ffbe97e6e7c747d01c818e7972a6d16969454cfcd805e45d94",
-      "s": "0xf6297d7c951e0bd9cbb2a4d8d6d71f05e07eba4819c0f2b8fe7aa0b711044f",
-      "to": "0x8fd478e878ab94c5aa3f724adf68300db2ebd9f2",
-      "transactionIndex": 4,
+      "maxFeePerBlobGas": 30000000000n,
+      "maxFeePerGas": 1594475499n,
+      "maxPriorityFeePerGas": 369627615n,
+      "nonce": 8,
+      "r": "0xbab20bc88be122f86584c3150fd351018ba15e0346d2e62ced9851c02a0caaa2",
+      "s": "0x6da45371fa04d5a8759ed24f462642fc187a1f1062589f30f0c1bb57f60338f6",
+      "to": "0x0000000000000000000000000000000000000000",
+      "transactionIndex": 57,
       "type": "eip4844",
       "typeHex": "0x3",
-      "v": 0n,
+      "v": 1n,
       "value": 0n,
-      "yParity": 0,
+      "yParity": 1,
     }
   `)
 })

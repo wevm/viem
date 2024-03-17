@@ -20,9 +20,9 @@ import {
 
 export type BatchOptions = {
   /** The maximum number of JSON-RPC requests to send in a batch. @default 1_000 */
-  batchSize?: number
+  batchSize?: number | undefined
   /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
-  wait?: number
+  wait?: number | undefined
 }
 
 export type HttpTransportConfig = {
@@ -30,29 +30,33 @@ export type HttpTransportConfig = {
    * Whether to enable Batch JSON-RPC.
    * @link https://www.jsonrpc.org/specification#batch
    */
-  batch?: boolean | BatchOptions
+  batch?: boolean | BatchOptions | undefined
   /**
    * Request configuration to pass to `fetch`.
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
    */
-  fetchOptions?: HttpRpcClientOptions['fetchOptions']
+  fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
+  /**
+   * A callback to handle the response from `fetch`.
+   */
+  onFetchResponse?: HttpRpcClientOptions['onResponse'] | undefined
   /** The key of the HTTP transport. */
-  key?: TransportConfig['key']
+  key?: TransportConfig['key'] | undefined
   /** The name of the HTTP transport. */
-  name?: TransportConfig['name']
+  name?: TransportConfig['name'] | undefined
   /** The max number of times to retry. */
-  retryCount?: TransportConfig['retryCount']
+  retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
-  retryDelay?: TransportConfig['retryDelay']
+  retryDelay?: TransportConfig['retryDelay'] | undefined
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
-  timeout?: TransportConfig['timeout']
+  timeout?: TransportConfig['timeout'] | undefined
 }
 
 export type HttpTransport = Transport<
   'http',
   {
-    fetchOptions?: HttpTransportConfig['fetchOptions']
-    url?: string
+    fetchOptions?: HttpTransportConfig['fetchOptions'] | undefined
+    url?: string | undefined
   }
 >
 
@@ -66,7 +70,7 @@ export type HttpTransportErrorType =
  */
 export function http(
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
-  url?: string,
+  url?: string | undefined,
   config: HttpTransportConfig = {},
 ): HttpTransport {
   const {
@@ -74,6 +78,7 @@ export function http(
     fetchOptions,
     key = 'http',
     name = 'HTTP JSON-RPC',
+    onFetchResponse,
     retryDelay,
   } = config
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
@@ -84,7 +89,11 @@ export function http(
     const url_ = url || chain?.rpcUrls.default.http[0]
     if (!url_) throw new UrlRequiredError()
 
-    const rpcClient = getHttpRpcClient(url_, { fetchOptions, timeout })
+    const rpcClient = getHttpRpcClient(url_, {
+      fetchOptions,
+      onResponse: onFetchResponse,
+      timeout,
+    })
 
     return createTransport(
       {

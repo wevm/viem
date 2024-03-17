@@ -44,7 +44,7 @@ import type {
 } from '../../types/rpc.js'
 import type { StateMapping, StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import type { UnionOmit } from '../../types/utils.js'
+import type { ExactPartial, UnionOmit } from '../../types/utils.js'
 import {
   type DecodeFunctionResultErrorType,
   decodeFunctionResult,
@@ -90,24 +90,24 @@ export type FormattedCall<
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedCall<TChain>, 'from'> & {
-  account?: Account | Address
-  batch?: boolean
+  account?: Account | Address | undefined
+  batch?: boolean | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
-        blockNumber?: bigint
-        blockTag?: never
+        blockNumber?: bigint | undefined
+        blockTag?: never | undefined
       }
     | {
-        blockNumber?: never
+        blockNumber?: never | undefined
         /**
          * The balance of the account at a block tag.
          * @default 'latest'
          */
-        blockTag?: BlockTag
+        blockTag?: BlockTag | undefined
       }
   ) & {
-    stateOverride?: StateOverride
+    stateOverride?: StateOverride | undefined
   }
 
 export type CallReturnType = { data: Hex | undefined }
@@ -157,9 +157,11 @@ export async function call<TChain extends Chain | undefined>(
     blockNumber,
     blockTag = 'latest',
     accessList,
+    blobs,
     data,
     gas,
     gasPrice,
+    maxFeePerBlobGas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
@@ -186,9 +188,11 @@ export async function call<TChain extends Chain | undefined>(
       ...extract(rest, { format: chainFormat }),
       from: account?.address,
       accessList,
+      blobs,
       data,
       gas,
       gasPrice,
+      maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
@@ -215,8 +219,12 @@ export async function call<TChain extends Chain | undefined>(
     const response = await client.request({
       method: 'eth_call',
       params: rpcStateOverride
-        ? [request as Partial<RpcTransactionRequest>, block, rpcStateOverride]
-        : [request as Partial<RpcTransactionRequest>, block],
+        ? [
+            request as ExactPartial<RpcTransactionRequest>,
+            block,
+            rpcStateOverride,
+          ]
+        : [request as ExactPartial<RpcTransactionRequest>, block],
     })
     if (response === '0x') return { data: undefined }
     return { data: response }
@@ -258,7 +266,7 @@ type ScheduleMulticallParameters<TChain extends Chain | undefined> = Pick<
   'blockNumber' | 'blockTag'
 > & {
   data: Hex
-  multicallAddress?: Address
+  multicallAddress?: Address | undefined
   to: Address
 }
 
@@ -356,7 +364,7 @@ export type GetRevertErrorDataErrorType = ErrorType
 export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined
   const error = err.walk() as RawContractError
-  return typeof error.data === 'object' ? error.data.data : error.data
+  return typeof error?.data === 'object' ? error.data?.data : error.data
 }
 
 export type ParseStateMappingErrorType = InvalidBytesLengthErrorType
@@ -418,7 +426,7 @@ export type ParseStateOverrideErrorType =
   | ParseAccountStateOverrideErrorType
 
 export function parseStateOverride(
-  args?: StateOverride,
+  args?: StateOverride | undefined,
 ): RpcStateOverride | undefined {
   if (!args) return undefined
   const rpcStateOverride: RpcStateOverride = {}

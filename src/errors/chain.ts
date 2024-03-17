@@ -13,9 +13,9 @@ export class ChainDoesNotSupportContract extends BaseError {
     chain,
     contract,
   }: {
-    blockNumber?: bigint
+    blockNumber?: bigint | undefined
     chain: Chain
-    contract: { name: string; blockCreated?: number }
+    contract: { name: string; blockCreated?: number | undefined }
   }) {
     super(
       `Chain "${chain.name}" does not support contract "${contract.name}".`,
@@ -96,7 +96,7 @@ export type InvalidChainIdErrorType = InvalidChainIdError & {
 export class InvalidChainIdError extends BaseError {
   override name = 'InvalidChainIdError'
 
-  constructor({ chainId }: { chainId?: number }) {
+  constructor({ chainId }: { chainId?: number | undefined }) {
     super(
       typeof chainId === 'number'
         ? `Chain ID "${chainId}" is invalid.`

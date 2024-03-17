@@ -3,9 +3,11 @@ import type {
   Chain,
   ExtractChainFormatterParameters,
 } from '../../types/chain.js'
+import type { ByteArray } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import { numberToHex } from '../encoding/toHex.js'
+import type { ExactPartial } from '../../types/utils.js'
+import { bytesToHex, numberToHex } from '../encoding/toHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
 export type FormattedTransactionRequest<
@@ -26,39 +28,33 @@ export const rpcTransactionType = {
 export type FormatTransactionRequestErrorType = ErrorType
 
 export function formatTransactionRequest(
-  transactionRequest: Partial<TransactionRequest>,
+  request: ExactPartial<TransactionRequest>,
 ) {
-  return {
-    ...transactionRequest,
-    gas:
-      typeof transactionRequest.gas !== 'undefined'
-        ? numberToHex(transactionRequest.gas)
-        : undefined,
-    gasPrice:
-      typeof transactionRequest.gasPrice !== 'undefined'
-        ? numberToHex(transactionRequest.gasPrice)
-        : undefined,
-    maxFeePerGas:
-      typeof transactionRequest.maxFeePerGas !== 'undefined'
-        ? numberToHex(transactionRequest.maxFeePerGas)
-        : undefined,
-    maxPriorityFeePerGas:
-      typeof transactionRequest.maxPriorityFeePerGas !== 'undefined'
-        ? numberToHex(transactionRequest.maxPriorityFeePerGas)
-        : undefined,
-    nonce:
-      typeof transactionRequest.nonce !== 'undefined'
-        ? numberToHex(transactionRequest.nonce)
-        : undefined,
-    type:
-      typeof transactionRequest.type !== 'undefined'
-        ? rpcTransactionType[transactionRequest.type]
-        : undefined,
-    value:
-      typeof transactionRequest.value !== 'undefined'
-        ? numberToHex(transactionRequest.value)
-        : undefined,
-  } as RpcTransactionRequest
+  const rpcRequest = { ...request } as RpcTransactionRequest
+
+  if (
+    typeof request.blobs !== 'undefined' &&
+    typeof request.blobs[0] !== 'string'
+  )
+    rpcRequest.blobs = (request.blobs as ByteArray[]).map((x) => bytesToHex(x))
+  if (typeof request.gas !== 'undefined')
+    rpcRequest.gas = numberToHex(request.gas)
+  if (typeof request.gasPrice !== 'undefined')
+    rpcRequest.gasPrice = numberToHex(request.gasPrice)
+  if (typeof request.maxFeePerBlobGas !== 'undefined')
+    rpcRequest.maxFeePerBlobGas = numberToHex(request.maxFeePerBlobGas)
+  if (typeof request.maxFeePerGas !== 'undefined')
+    rpcRequest.maxFeePerGas = numberToHex(request.maxFeePerGas)
+  if (typeof request.maxPriorityFeePerGas !== 'undefined')
+    rpcRequest.maxPriorityFeePerGas = numberToHex(request.maxPriorityFeePerGas)
+  if (typeof request.nonce !== 'undefined')
+    rpcRequest.nonce = numberToHex(request.nonce)
+  if (typeof request.type !== 'undefined')
+    rpcRequest.type = rpcTransactionType[request.type]
+  if (typeof request.value !== 'undefined')
+    rpcRequest.value = numberToHex(request.value)
+
+  return rpcRequest
 }
 
 export type DefineTransactionRequestErrorType =

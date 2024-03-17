@@ -15,9 +15,9 @@ export type GetAccountParameter<
   TRequired extends boolean = true,
 > = IsUndefined<TAccount> extends true
   ? TRequired extends true
-    ? { account: TAccountOverride }
-    : { account?: TAccountOverride }
-  : { account?: TAccountOverride }
+    ? { account: TAccountOverride | Account | Address }
+    : { account?: TAccountOverride | Account | Address | undefined }
+  : { account?: TAccountOverride | Account | Address | undefined }
 
 export type ParseAccount<
   TAccountOrAddress extends Account | Address | undefined =

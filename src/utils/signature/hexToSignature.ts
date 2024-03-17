@@ -22,5 +22,10 @@ export type HexToSignatureErrorType = NumberToHexErrorType | ErrorType
 export function hexToSignature(signatureHex: Hex): Signature {
   const { r, s } = secp256k1.Signature.fromCompact(signatureHex.slice(2, 130))
   const v = BigInt(`0x${signatureHex.slice(130)}`)
-  return { r: numberToHex(r, { size: 32 }), s: numberToHex(s, { size: 32 }), v }
+  return {
+    r: numberToHex(r, { size: 32 }),
+    s: numberToHex(s, { size: 32 }),
+    v,
+    yParity: v === 28n ? 1 : 0,
+  }
 }

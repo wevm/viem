@@ -3,9 +3,9 @@ import { wait } from './wait.js'
 
 type PollOptions<TData> = {
   // Whether or not to emit when the polling starts.
-  emitOnBegin?: boolean
+  emitOnBegin?: boolean | undefined
   // The initial wait time (in ms) before polling.
-  initialWaitTime?: (data: TData | void) => Promise<number>
+  initialWaitTime?: ((data: TData | void) => Promise<number>) | undefined
   // The interval (in ms).
   interval: number
 }

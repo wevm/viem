@@ -10,17 +10,17 @@ export type StateMapping = Array<{
 export type StateOverride = Array<
   {
     address: Address
-    balance?: bigint
-    nonce?: number
-    code?: Hex
+    balance?: bigint | undefined
+    nonce?: number | undefined
+    code?: Hex | undefined
   } & OneOf<
     | {
         /** Fake key-value mapping to override all slots in the account storage before executing the call. */
-        state?: StateMapping
+        state?: StateMapping | undefined
       }
     | {
         /** Fake key-value mapping to override individual slots in the account storage before executing the call. */
-        stateDiff?: StateMapping
+        stateDiff?: StateMapping | undefined
       }
   >
 >

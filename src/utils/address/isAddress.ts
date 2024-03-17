@@ -5,7 +5,7 @@ import { checksumAddress } from './getAddress.js'
 
 const addressRegex = /^0x[a-fA-F0-9]{40}$/
 
-const isAddressCache = /*#__PURE__*/ new LruMap<boolean>(8192)
+export const isAddressCache = /*#__PURE__*/ new LruMap<boolean>(8192)
 
 export type IsAddressOptions = {
   /**
@@ -13,7 +13,7 @@ export type IsAddressOptions = {
    *
    * @default true
    */
-  strict?: boolean
+  strict?: boolean | undefined
 }
 
 export type IsAddressErrorType = ErrorType

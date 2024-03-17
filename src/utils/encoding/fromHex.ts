@@ -33,7 +33,7 @@ export type FromHexParameters<
   | TTo
   | {
       /** Size (in bytes) of the hex value. */
-      size?: number
+      size?: number | undefined
       /** Type to convert to. */
       to: TTo
     }
@@ -101,9 +101,9 @@ export function fromHex<
 
 export type HexToBigIntOpts = {
   /** Whether or not the number of a signed representation. */
-  signed?: boolean
+  signed?: boolean | undefined
   /** Size (in bytes) of the hex value. */
-  size?: number
+  size?: number | undefined
 }
 
 export type HexToBigIntErrorType = AssertSizeErrorType | ErrorType
@@ -144,7 +144,7 @@ export function hexToBigInt(hex: Hex, opts: HexToBigIntOpts = {}): bigint {
 
 export type HexToBoolOpts = {
   /** Size (in bytes) of the hex value. */
-  size?: number
+  size?: number | undefined
 }
 
 export type HexToBoolErrorType =
@@ -212,7 +212,7 @@ export function hexToNumber(hex: Hex, opts: HexToNumberOpts = {}): number {
 
 export type HexToStringOpts = {
   /** Size (in bytes) of the hex value. */
-  size?: number
+  size?: number | undefined
 }
 
 export type HexToStringErrorType =

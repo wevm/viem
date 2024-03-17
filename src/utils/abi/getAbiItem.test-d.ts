@@ -192,7 +192,9 @@ test('overloads', () => {
     name: 'foo',
     args: ['0x', '0x'],
   })
+  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   expectTypeOf(inputs[0].type).toEqualTypeOf<'address'>()
+  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   expectTypeOf(res2).toEqualTypeOf<{
     name: 'foo'
     type: 'function'
@@ -219,6 +221,7 @@ test('overloads', () => {
     name: 'foo',
     args: ['0x'],
   })
+  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   expectTypeOf(res3).toEqualTypeOf<{
     readonly name: 'foo'
     readonly type: 'function'

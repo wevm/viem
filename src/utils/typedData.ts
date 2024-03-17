@@ -83,7 +83,7 @@ export type GetTypesForEIP712DomainErrorType = ErrorType
 
 export function getTypesForEIP712Domain({
   domain,
-}: { domain?: TypedDataDomain }): TypedDataParameter[] {
+}: { domain?: TypedDataDomain | undefined }): TypedDataParameter[] {
   return [
     typeof domain?.name === 'string' && { name: 'name', type: 'string' },
     domain?.version && { name: 'version', type: 'string' },

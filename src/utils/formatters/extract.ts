@@ -8,7 +8,7 @@ export type ExtractErrorType = ErrorType
  */
 export function extract(
   value_: Record<string, unknown>,
-  { format }: { format?: ChainFormatter['format'] },
+  { format }: { format?: ChainFormatter['format'] | undefined },
 ) {
   if (!format) return {}
 

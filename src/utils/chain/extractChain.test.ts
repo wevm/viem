@@ -22,8 +22,8 @@ test('default', async () => {
           "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
         },
         "ensUniversalResolver": {
-          "address": "0x8cab227b1162f03b8338331adaad7aadc83b895e",
-          "blockCreated": 18958930,
+          "address": "0xce01f8eee7E479C928F8919abD53E553a36CeF67",
+          "blockCreated": 19258213,
         },
         "multicall3": {
           "address": "0xca11bde05977b3631167028862be2a173976ca11",
@@ -58,7 +58,7 @@ test('default', async () => {
     {
       "blockExplorers": {
         "default": {
-          "apiUrl": "https://api-optimistic.etherscan.io",
+          "apiUrl": "https://api-optimistic.etherscan.io/api",
           "name": "Optimism Explorer",
           "url": "https://optimistic.etherscan.io",
         },

@@ -20,7 +20,7 @@ export type Keccak256ErrorType =
 
 export function keccak256<TTo extends To = 'hex'>(
   value: Hex | ByteArray,
-  to_?: TTo,
+  to_?: TTo | undefined,
 ): Keccak256Hash<TTo> {
   const to = to_ || 'hex'
   const bytes = keccak_256(

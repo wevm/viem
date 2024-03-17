@@ -14,8 +14,8 @@ export function formatAbiItemWithArgs({
 }: {
   abiItem: AbiItem
   args: readonly unknown[]
-  includeFunctionName?: boolean
-  includeName?: boolean
+  includeFunctionName?: boolean | undefined
+  includeName?: boolean | undefined
 }) {
   if (!('name' in abiItem)) return
   if (!('inputs' in abiItem)) return

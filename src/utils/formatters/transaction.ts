@@ -5,9 +5,10 @@ import type {
   ExtractChainFormatterExclude,
   ExtractChainFormatterReturnType,
 } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
-import type { Transaction } from '../../types/transaction.js'
-import type { UnionLooseOmit } from '../../types/utils.js'
+import type { Transaction, TransactionType } from '../../types/transaction.js'
+import type { ExactPartial, UnionLooseOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
@@ -38,11 +39,11 @@ export const transactionType = {
   '0x1': 'eip2930',
   '0x2': 'eip1559',
   '0x3': 'eip4844',
-} as const
+} as const satisfies Record<Hex, TransactionType>
 
 export type FormatTransactionErrorType = ErrorType
 
-export function formatTransaction(transaction: Partial<RpcTransaction>) {
+export function formatTransaction(transaction: ExactPartial<RpcTransaction>) {
   const transaction_ = {
     ...transaction,
     blockHash: transaction.blockHash ? transaction.blockHash : null,

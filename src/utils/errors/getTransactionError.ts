@@ -20,8 +20,8 @@ export type GetTransactionErrorParameters = Omit<
   'account' | 'chain'
 > & {
   account: Account
-  chain?: Chain
-  docsPath?: string
+  chain?: Chain | undefined
+  docsPath?: string | undefined
 }
 
 export type GetTransactionErrorReturnType<cause = ErrorType> = Omit<

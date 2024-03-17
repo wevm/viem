@@ -41,7 +41,7 @@ export type EstimateFinalizeWithdrawalGasParameters<
   GetChainParameter<chain, chainOverride> &
   GetContractAddressParameter<_derivedChain, 'portal'> & {
     /** Gas limit for transaction execution on the L2. */
-    gas?: bigint | null
+    gas?: bigint | null | undefined
     withdrawal: Withdrawal
   }
 export type EstimateFinalizeWithdrawalGasReturnType = bigint
