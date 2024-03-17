@@ -376,15 +376,17 @@ export type PublicActions<
       | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
       | undefined = undefined,
   >(
-    args?: CreateEventFilterParameters<
-      TAbiEvent,
-      TAbiEvents,
-      TStrict,
-      TFromBlock,
-      TToBlock,
-      _EventName,
-      _Args
-    >,
+    args?:
+      | CreateEventFilterParameters<
+          TAbiEvent,
+          TAbiEvents,
+          TStrict,
+          TFromBlock,
+          TToBlock,
+          _EventName,
+          _Args
+        >
+      | undefined,
   ) => Promise<
     CreateEventFilterReturnType<
       TAbiEvent,
@@ -562,7 +564,7 @@ export type PublicActions<
     TIncludeTransactions extends boolean = false,
     TBlockTag extends BlockTag = 'latest',
   >(
-    args?: GetBlockParameters<TIncludeTransactions, TBlockTag>,
+    args?: GetBlockParameters<TIncludeTransactions, TBlockTag> | undefined,
   ) => Promise<GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>>
   /**
    * Returns the number of the most recent block seen.
@@ -586,7 +588,7 @@ export type PublicActions<
    * // 69420n
    */
   getBlockNumber: (
-    args?: GetBlockNumberParameters,
+    args?: GetBlockNumberParameters | undefined,
   ) => Promise<GetBlockNumberReturnType>
   /**
    * Returns the number of Transactions at a block number, hash, or tag.
@@ -610,7 +612,7 @@ export type PublicActions<
    * const count = await client.getBlockTransactionCount()
    */
   getBlockTransactionCount: (
-    args?: GetBlockTransactionCountParameters,
+    args?: GetBlockTransactionCountParameters | undefined,
   ) => Promise<GetBlockTransactionCountReturnType>
   /**
    * Retrieves the bytecode at an address.
@@ -895,7 +897,9 @@ export type PublicActions<
     TChainOverride extends Chain | undefined = undefined,
     TType extends FeeValuesType = 'eip1559',
   >(
-    args?: EstimateFeesPerGasParameters<TChain, TChainOverride, TType>,
+    args?:
+      | EstimateFeesPerGasParameters<TChain, TChainOverride, TType>
+      | undefined,
   ) => Promise<EstimateFeesPerGasReturnType>
   /**
    * Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter) since the last time it was called.
@@ -1093,13 +1097,9 @@ export type PublicActions<
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
     TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args?: GetLogsParameters<
-      TAbiEvent,
-      TAbiEvents,
-      TStrict,
-      TFromBlock,
-      TToBlock
-    >,
+    args?:
+      | GetLogsParameters<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
+      | undefined,
   ) => Promise<
     GetLogsReturnType<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
   >
@@ -1151,7 +1151,9 @@ export type PublicActions<
   estimateMaxPriorityFeePerGas: <
     TChainOverride extends Chain | undefined = undefined,
   >(
-    args?: EstimateMaxPriorityFeePerGasParameters<TChain, TChainOverride>,
+    args?:
+      | EstimateMaxPriorityFeePerGasParameters<TChain, TChainOverride>
+      | undefined,
   ) => Promise<EstimateMaxPriorityFeePerGasReturnType>
   /**
    * Returns the value from a storage slot at a given address.

@@ -14,7 +14,7 @@ const hexes = /*#__PURE__*/ Array.from({ length: 256 }, (_v, i) =>
 
 export type ToHexParameters = {
   /** The size (in bytes) of the output hex value. */
-  size?: number
+  size?: number | undefined
 }
 
 export type ToHexErrorType =
@@ -64,7 +64,7 @@ export function toHex(
 
 export type BoolToHexOpts = {
   /** The size (in bytes) of the output hex value. */
-  size?: number
+  size?: number | undefined
 }
 
 export type BoolToHexErrorType = AssertSizeErrorType | PadErrorType | ErrorType
@@ -104,7 +104,7 @@ export function boolToHex(value: boolean, opts: BoolToHexOpts = {}): Hex {
 
 export type BytesToHexOpts = {
   /** The size (in bytes) of the output hex value. */
-  size?: number
+  size?: number | undefined
 }
 
 export type BytesToHexErrorType = AssertSizeErrorType | PadErrorType | ErrorType
@@ -145,14 +145,14 @@ export function bytesToHex(value: ByteArray, opts: BytesToHexOpts = {}): Hex {
 export type NumberToHexOpts =
   | {
       /** Whether or not the number of a signed representation. */
-      signed?: boolean
+      signed?: boolean | undefined
       /** The size (in bytes) of the output hex value. */
       size: number
     }
   | {
-      signed?: never
+      signed?: never | undefined
       /** The size (in bytes) of the output hex value. */
-      size?: number
+      size?: number | undefined
     }
 
 export type NumberToHexErrorType =
@@ -218,7 +218,7 @@ export function numberToHex(
 
 export type StringToHexOpts = {
   /** The size (in bytes) of the output hex value. */
-  size?: number
+  size?: number | undefined
 }
 
 export type StringToHexErrorType = BytesToHexErrorType | ErrorType

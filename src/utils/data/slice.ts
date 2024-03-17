@@ -27,9 +27,9 @@ export type SliceErrorType =
  */
 export function slice<TValue extends ByteArray | Hex>(
   value: TValue,
-  start?: number,
-  end?: number,
-  { strict }: { strict?: boolean } = {},
+  start?: number | undefined,
+  end?: number | undefined,
+  { strict }: { strict?: boolean | undefined } = {},
 ): SliceReturnType<TValue> {
   if (isHex(value, { strict: false }))
     return sliceHex(value as Hex, start, end, {
@@ -45,7 +45,7 @@ export type AssertStartOffsetErrorType =
   | SizeErrorType
   | ErrorType
 
-function assertStartOffset(value: Hex | ByteArray, start?: number) {
+function assertStartOffset(value: Hex | ByteArray, start?: number | undefined) {
   if (typeof start === 'number' && start > 0 && start > size(value) - 1)
     throw new SliceOffsetOutOfBoundsError({
       offset: start,
@@ -59,7 +59,11 @@ export type AssertEndOffsetErrorType =
   | SizeErrorType
   | ErrorType
 
-function assertEndOffset(value: Hex | ByteArray, start?: number, end?: number) {
+function assertEndOffset(
+  value: Hex | ByteArray,
+  start?: number | undefined,
+  end?: number | undefined,
+) {
   if (
     typeof start === 'number' &&
     typeof end === 'number' &&
@@ -87,9 +91,9 @@ export type SliceBytesErrorType =
  */
 export function sliceBytes(
   value_: ByteArray,
-  start?: number,
-  end?: number,
-  { strict }: { strict?: boolean } = {},
+  start?: number | undefined,
+  end?: number | undefined,
+  { strict }: { strict?: boolean | undefined } = {},
 ): ByteArray {
   assertStartOffset(value_, start)
   const value = value_.slice(start, end)
@@ -111,9 +115,9 @@ export type SliceHexErrorType =
  */
 export function sliceHex(
   value_: Hex,
-  start?: number,
-  end?: number,
-  { strict }: { strict?: boolean } = {},
+  start?: number | undefined,
+  end?: number | undefined,
+  { strict }: { strict?: boolean | undefined } = {},
 ): Hex {
   assertStartOffset(value_, start)
   const value = `0x${value_

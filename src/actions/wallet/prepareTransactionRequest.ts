@@ -42,6 +42,7 @@ import type {
   TransactionSerializable,
 } from '../../types/transaction.js'
 import type {
+  ExactPartial,
   IsNever,
   Prettify,
   UnionOmit,
@@ -76,7 +77,7 @@ export type PrepareTransactionRequestRequest<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
   GetTransactionRequestKzgParameter & {
-    parameters?: PrepareTransactionRequestParameterType[]
+    parameters?: PrepareTransactionRequestParameterType[] | undefined
   }
 
 export type PrepareTransactionRequestParameters<
@@ -94,7 +95,7 @@ export type PrepareTransactionRequestParameters<
 > = request &
   GetAccountParameter<account, accountOverride, false> &
   GetChainParameter<chain, chainOverride> &
-  GetTransactionRequestKzgParameter<request> & { chainId?: number }
+  GetTransactionRequestKzgParameter<request> & { chainId?: number | undefined }
 
 export type PrepareTransactionRequestReturnType_<
   chain extends Chain | undefined = Chain | undefined,
@@ -156,8 +157,8 @@ export type PrepareTransactionRequestReturnType<
           : { account?: undefined; from?: undefined }),
       IsNever<_transactionRequest> extends true
         ? unknown
-        : Partial<_transactionRequest>
-    > & { chainId?: number },
+        : ExactPartial<_transactionRequest>
+    > & { chainId?: number | undefined },
     ParameterTypeToParameters<
       request['parameters'] extends PrepareTransactionRequestParameterType[]
         ? request['parameters'][number]

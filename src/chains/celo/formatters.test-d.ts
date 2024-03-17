@@ -11,7 +11,7 @@ import { http } from '../../clients/transports/http.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import type { Assign } from '../../types/utils.js'
+import type { Assign, ExactPartial } from '../../types/utils.js'
 import { celo } from '../index.js'
 import { formatters } from './formatters.js'
 import type {
@@ -23,7 +23,7 @@ import type {
 describe('block', () => {
   expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
     Assign<
-      Partial<RpcBlock>,
+      ExactPartial<RpcBlock>,
       CeloBlockOverrides & {
         transactions: `0x${string}`[] | CeloRpcTransaction[]
       }
@@ -68,7 +68,7 @@ describe('transactionRequest', () => {
   expectTypeOf(formatters.transactionRequest.format)
     .parameter(0)
     .toEqualTypeOf<
-      Assign<Partial<TransactionRequest>, CeloTransactionRequest>
+      Assign<ExactPartial<TransactionRequest>, CeloTransactionRequest>
     >()
   expectTypeOf<
     ReturnType<typeof formatters.transactionRequest.format>['feeCurrency']

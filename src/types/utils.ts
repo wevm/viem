@@ -115,7 +115,7 @@ export type MaybePromise<T> = T | Promise<T>
  * => { a: string, b?: number }
  */
 export type MaybeRequired<T, TRequired extends boolean> = TRequired extends true
-  ? Required<T>
+  ? ExactRequired<T>
   : T
 
 /**
@@ -166,7 +166,8 @@ export type Omit<type, keys extends keyof type> = Pick<
  * PartialBy<{ a: string, b: number }, 'a'>
  * => { a?: string, b: number }
  */
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+export type PartialBy<T, K extends keyof T> = Omit<T, K> &
+  ExactPartial<Pick<T, K>>
 
 /**
  * @description Combines members of an intersection into a readable type.
@@ -187,7 +188,8 @@ export type Prettify<T> = {
  * RequiredBy<{ a?: string, b: number }, 'a'>
  * => { a: string, b: number }
  */
-export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
+  ExactRequired<Pick<T, K>>
 
 /**
  * @description Creates a type that extracts the values of T.
@@ -229,6 +231,10 @@ export type MaybePartial<
 
 export type ExactPartial<type> = {
   [key in keyof type]?: type[key] | undefined
+}
+
+export type ExactRequired<type> = {
+  [P in keyof type]-?: Exclude<type[P], undefined>
 }
 
 export type OneOf<

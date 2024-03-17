@@ -28,7 +28,7 @@ export type GetTimeToNextL2OutputParameters<
      * The buffer to account for discrepencies between non-deterministic time intervals.
      * @default 1.1
      */
-    intervalBuffer?: number
+    intervalBuffer?: number | undefined
     l2BlockNumber: bigint
   }
 export type GetTimeToNextL2OutputReturnType = {
@@ -43,7 +43,7 @@ export type GetTimeToNextL2OutputReturnType = {
    * Estimated timestamp of the next L2 output.
    * `undefined` if the next L2 output has already been submitted.
    */
-  timestamp?: number
+  timestamp?: number | undefined
 }
 export type GetTimeToNextL2OutputErrorType =
   | MulticallErrorType

@@ -28,7 +28,7 @@ export type SerializeAccessListErrorType =
  * @returns Array of hex strings
  */
 export function serializeAccessList(
-  accessList?: AccessList,
+  accessList?: AccessList | undefined,
 ): RecursiveArray<Hex> {
   if (!accessList || accessList.length === 0) return []
 

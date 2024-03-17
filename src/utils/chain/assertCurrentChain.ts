@@ -8,7 +8,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 
 export type AssertCurrentChainParameters = {
-  chain?: Chain
+  chain?: Chain | undefined
   currentChainId: number
 }
 

@@ -390,7 +390,7 @@ export type PublicActionsL2<
    * const l1BaseFee = await client.getL1BaseFee()
    */
   getL1BaseFee: <chainOverride extends Chain | undefined = undefined>(
-    parameters?: GetL1BaseFeeParameters<chain, chainOverride>,
+    parameters?: GetL1BaseFeeParameters<chain, chainOverride> | undefined,
   ) => Promise<GetL1BaseFeeReturnType>
   /**
    * Estimates the amount of L1 data gas required to execute an L2 transaction.

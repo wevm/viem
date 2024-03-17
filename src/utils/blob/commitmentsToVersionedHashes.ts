@@ -16,7 +16,7 @@ export type CommitmentsToVersionedHashesParameters<
   /** Return type. */
   to?: to | To | undefined
   /** Version to tag onto the hashes. */
-  version?: number
+  version?: number | undefined
 }
 
 export type CommitmentsToVersionedHashesReturnType<to extends To> =

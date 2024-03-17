@@ -327,7 +327,7 @@ test('with and without wallet client `account`', () => {
 
   expectTypeOf(contractWithAccount.write.approve)
     .parameter(1)
-    .extract<{ account?: Account | Address }>()
+    .extract<{ account?: Account | Address | undefined }>()
     // @ts-expect-error
     .toBeNever()
   expectTypeOf(contractWithoutAccount.write.approve)
@@ -349,7 +349,7 @@ test('with and without wallet client `chain`', () => {
 
   expectTypeOf(contractWithChain.write.approve)
     .parameter(1)
-    .extract<{ chain?: Chain | null }>()
+    .extract<{ chain?: Chain | null | undefined }>()
     // @ts-expect-error
     .toBeNever()
   expectTypeOf(contractWithoutChain.write.approve)

@@ -21,7 +21,7 @@ export type GetL1BaseFeeParameters<
   TChainOverride extends Chain | undefined = undefined,
 > = GetChainParameter<TChain, TChainOverride> & {
   /** Gas price oracle address. */
-  gasPriceOracleAddress?: Address
+  gasPriceOracleAddress?: Address | undefined
 }
 
 export type GetL1BaseFeeReturnType = bigint
@@ -56,7 +56,7 @@ export async function getL1BaseFee<
   TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain>,
-  args?: GetL1BaseFeeParameters<TChain, TChainOverride>,
+  args?: GetL1BaseFeeParameters<TChain, TChainOverride> | undefined,
 ): Promise<GetL1BaseFeeReturnType> {
   const {
     chain = client.chain,

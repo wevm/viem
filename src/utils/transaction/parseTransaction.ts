@@ -364,7 +364,7 @@ type ParseTransactionLegacyErrorType =
 function parseTransactionLegacy(
   serializedTransaction: Hex,
 ): Omit<TransactionRequestLegacy, 'from'> &
-  ({ chainId?: number } | ({ chainId: number } & Signature)) {
+  ({ chainId?: number | undefined } | ({ chainId: number } & Signature)) {
   const transactionArray = fromRlp(serializedTransaction, 'hex')
 
   const [nonce, gasPrice, gas, to, value, data, chainIdOrV_, r, s] =

@@ -8,7 +8,7 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { Transaction, TransactionType } from '../../types/transaction.js'
-import type { UnionLooseOmit } from '../../types/utils.js'
+import type { ExactPartial, UnionLooseOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
@@ -43,7 +43,7 @@ export const transactionType = {
 
 export type FormatTransactionErrorType = ErrorType
 
-export function formatTransaction(transaction: Partial<RpcTransaction>) {
+export function formatTransaction(transaction: ExactPartial<RpcTransaction>) {
   const transaction_ = {
     ...transaction,
     blockHash: transaction.blockHash ? transaction.blockHash : null,

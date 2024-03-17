@@ -23,7 +23,7 @@ export type SignTransactionParameters<
 > = {
   privateKey: Hex
   transaction: transaction
-  serializer?: serializer
+  serializer?: serializer | undefined
 }
 
 export type SignTransactionReturnType<

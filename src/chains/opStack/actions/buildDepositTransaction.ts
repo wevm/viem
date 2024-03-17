@@ -37,19 +37,19 @@ export type BuildDepositTransactionParameters<
 > = GetAccountParameter<account, accountOverride, false> &
   GetChainParameter<chain, chainOverride> & {
     /** Gas limit for transaction execution on the L2. */
-    gas?: bigint
+    gas?: bigint | undefined
     /** Value in wei to mint (deposit) on the L2. Debited from the caller's L1 balance. */
-    mint?: bigint
+    mint?: bigint | undefined
     /** Value in wei sent with this transaction on the L2. Debited from the caller's L2 balance. */
-    value?: bigint
+    value?: bigint | undefined
   } & (
     | {
         /** Encoded contract method & arguments. */
-        data?: Hex
+        data?: Hex | undefined
         /** Whether or not this is a contract deployment transaction. */
-        isCreation?: false
+        isCreation?: false | undefined
         /** L2 Transaction recipient. */
-        to?: Address
+        to?: Address | undefined
       }
     | {
         /** Contract deployment bytecode. Required for contract deployment transactions. */
@@ -57,7 +57,7 @@ export type BuildDepositTransactionParameters<
         /** Whether or not this is a contract deployment transaction. */
         isCreation: true
         /** L2 Transaction recipient. Cannot exist for contract deployment transactions. */
-        to?: never
+        to?: never | undefined
       }
   )
 

@@ -41,7 +41,7 @@ export type EstimateFeesPerGasParameters<
    *
    * @default 'eip1559'
    */
-  type?: type | FeeValuesType
+  type?: type | FeeValuesType | undefined
 } & GetChainParameter<chain, chainOverride>
 
 export type EstimateFeesPerGasReturnType<
@@ -86,7 +86,7 @@ export async function estimateFeesPerGas<
   type extends FeeValuesType = 'eip1559',
 >(
   client: Client<Transport, chain>,
-  args?: EstimateFeesPerGasParameters<chain, chainOverride, type>,
+  args?: EstimateFeesPerGasParameters<chain, chainOverride, type> | undefined,
 ): Promise<EstimateFeesPerGasReturnType<type>> {
   return internal_estimateFeesPerGas(client, args as any)
 }
@@ -98,8 +98,8 @@ export async function internal_estimateFeesPerGas<
 >(
   client: Client<Transport, chain>,
   args: EstimateFeesPerGasParameters<chain, chainOverride, type> & {
-    block?: Block
-    request?: PrepareTransactionRequestParameters
+    block?: Block | undefined
+    request?: PrepareTransactionRequestParameters | undefined
   },
 ): Promise<EstimateFeesPerGasReturnType<type>> {
   const {

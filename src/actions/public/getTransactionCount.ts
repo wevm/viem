@@ -22,13 +22,13 @@ export type GetTransactionCountParameters = {
 } & (
   | {
       /** The block number. */
-      blockNumber?: bigint
-      blockTag?: never
+      blockNumber?: bigint | undefined
+      blockTag?: never | undefined
     }
   | {
-      blockNumber?: never
+      blockNumber?: never | undefined
       /** The block tag. Defaults to 'latest'. */
-      blockTag?: BlockTag
+      blockTag?: BlockTag | undefined
     }
 )
 export type GetTransactionCountReturnType = number

@@ -94,7 +94,7 @@ export function serializeTransaction<
   _transactionType extends TransactionType = GetTransactionType<transaction>,
 >(
   transaction: transaction,
-  signature?: Signature,
+  signature?: Signature | undefined,
 ): SerializedTransactionReturnType<transaction, _transactionType> {
   const type = getTransactionType(transaction) as GetTransactionType
 
@@ -137,7 +137,7 @@ type SerializeTransactionEIP4844ErrorType =
 
 function serializeTransactionEIP4844(
   transaction: TransactionSerializableEIP4844,
-  signature?: Signature,
+  signature?: Signature | undefined,
 ): TransactionSerializedEIP4844 {
   const {
     chainId,
@@ -226,7 +226,7 @@ type SerializeTransactionEIP1559ErrorType =
 
 function serializeTransactionEIP1559(
   transaction: TransactionSerializableEIP1559,
-  signature?: Signature,
+  signature?: Signature | undefined,
 ): TransactionSerializedEIP1559 {
   const {
     chainId,
@@ -274,7 +274,7 @@ type SerializeTransactionEIP2930ErrorType =
 
 function serializeTransactionEIP2930(
   transaction: TransactionSerializableEIP2930,
-  signature?: Signature,
+  signature?: Signature | undefined,
 ): TransactionSerializedEIP2930 {
   const { chainId, gas, data, nonce, to, value, accessList, gasPrice } =
     transaction
@@ -310,7 +310,7 @@ type SerializeTransactionLegacyErrorType =
 
 function serializeTransactionLegacy(
   transaction: TransactionSerializableLegacy,
-  signature?: SignatureLegacy,
+  signature?: SignatureLegacy | undefined,
 ): TransactionSerializedLegacy {
   const { chainId = 0, gas, data, nonce, to, value, gasPrice } = transaction
 
@@ -364,7 +364,7 @@ function serializeTransactionLegacy(
 
 export function toYParitySignatureArray(
   transaction: TransactionSerializableGeneric,
-  signature?: Signature,
+  signature?: Signature | undefined,
 ) {
   const { r, s, v, yParity } = signature ?? transaction
   if (typeof r === 'undefined') return []

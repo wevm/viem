@@ -21,37 +21,37 @@ export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
   | {
       /** The block hash */
       blockHash: Hash
-      blockNumber?: never
-      blockTag?: never
-      hash?: never
+      blockNumber?: never | undefined
+      blockTag?: never | undefined
+      hash?: never | undefined
       /** The index of the transaction on the block. */
       index: number
     }
   | {
-      blockHash?: never
+      blockHash?: never | undefined
       /** The block number */
       blockNumber: bigint
-      blockTag?: never
-      hash?: never
+      blockTag?: never | undefined
+      hash?: never | undefined
       /** The index of the transaction on the block. */
       index: number
     }
   | {
-      blockHash?: never
-      blockNumber?: never
+      blockHash?: never | undefined
+      blockNumber?: never | undefined
       /** The block tag. */
       blockTag: TBlockTag | BlockTag
-      hash?: never
+      hash?: never | undefined
       /** The index of the transaction on the block. */
       index: number
     }
   | {
-      blockHash?: never
-      blockNumber?: never
-      blockTag?: never
+      blockHash?: never | undefined
+      blockNumber?: never | undefined
+      blockTag?: never | undefined
       /** The hash of the transaction. */
       hash: Hash
-      index?: number
+      index?: number | undefined
     }
 
 export type GetTransactionReturnType<

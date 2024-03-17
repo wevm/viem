@@ -41,7 +41,7 @@ export type EstimateL1GasParameters<
   GetAccountParameter<TAccount> &
   GetChainParameter<TChain, TChainOverride> & {
     /** Gas price oracle address. */
-    gasPriceOracleAddress?: Address
+    gasPriceOracleAddress?: Address | undefined
   }
 
 export type EstimateL1GasReturnType = bigint

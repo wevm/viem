@@ -27,8 +27,8 @@ export function getCallError<err extends ErrorType<string>>(
     docsPath,
     ...args
   }: CallParameters & {
-    chain?: Chain
-    docsPath?: string
+    chain?: Chain | undefined
+    docsPath?: string | undefined
   },
 ): GetCallErrorReturnType<err> {
   const cause = (() => {

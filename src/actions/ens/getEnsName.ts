@@ -28,11 +28,11 @@ export type GetEnsNameParameters = Prettify<
     /** Address to get ENS name for. */
     address: Address
     /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
-    gatewayUrls?: string[]
+    gatewayUrls?: string[] | undefined
     /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
-    strict?: boolean
+    strict?: boolean | undefined
     /** Address of ENS Universal Resolver Contract. */
-    universalResolverAddress?: Address
+    universalResolverAddress?: Address | undefined
   }
 >
 

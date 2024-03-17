@@ -19,9 +19,12 @@ import {
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { ExactPartial } from '../../types/utils.js'
 import { isAddress } from '../address/isAddress.js'
 
-export type AssertRequestParameters = Partial<SendTransactionParameters<Chain>>
+export type AssertRequestParameters = ExactPartial<
+  SendTransactionParameters<Chain>
+>
 
 export type AssertRequestErrorType =
   | InvalidAddressErrorType

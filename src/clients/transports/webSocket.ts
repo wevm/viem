@@ -18,7 +18,7 @@ import {
 
 type WebSocketTransportSubscribeParameters = {
   onData: (data: RpcResponse) => void
-  onError?: (error: any) => void
+  onError?: ((error: any) => void) | undefined
 }
 
 type WebSocketTransportSubscribeReturnType = {
@@ -40,15 +40,15 @@ type WebSocketTransportSubscribe = {
 
 export type WebSocketTransportConfig = {
   /** The key of the WebSocket transport. */
-  key?: TransportConfig['key']
+  key?: TransportConfig['key'] | undefined
   /** The name of the WebSocket transport. */
-  name?: TransportConfig['name']
+  name?: TransportConfig['name'] | undefined
   /** The max number of times to retry. */
-  retryCount?: TransportConfig['retryCount']
+  retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
-  retryDelay?: TransportConfig['retryDelay']
+  retryDelay?: TransportConfig['retryDelay'] | undefined
   /** The timeout (in ms) for async WebSocket requests. Default: 10_000 */
-  timeout?: TransportConfig['timeout']
+  timeout?: TransportConfig['timeout'] | undefined
 }
 
 export type WebSocketTransport = Transport<

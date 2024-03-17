@@ -6,6 +6,7 @@ import type {
 import type { ByteArray } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
+import type { ExactPartial } from '../../types/utils.js'
 import { bytesToHex, numberToHex } from '../encoding/toHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
@@ -26,7 +27,9 @@ export const rpcTransactionType = {
 
 export type FormatTransactionRequestErrorType = ErrorType
 
-export function formatTransactionRequest(request: Partial<TransactionRequest>) {
+export function formatTransactionRequest(
+  request: ExactPartial<TransactionRequest>,
+) {
   const rpcRequest = { ...request } as RpcTransactionRequest
 
   if (

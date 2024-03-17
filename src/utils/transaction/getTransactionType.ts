@@ -20,7 +20,13 @@ import type {
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
-import type { Assign, IsNever, OneOf, Opaque } from '../../types/utils.js'
+import type {
+  Assign,
+  ExactPartial,
+  IsNever,
+  OneOf,
+  Opaque,
+} from '../../types/utils.js'
 
 type BaseProperties = {
   accessList?: undefined
@@ -45,18 +51,18 @@ type EIP1559Properties = Assign<
       },
     FeeValuesEIP1559
   > & {
-    accessList?: TransactionSerializableEIP2930['accessList']
+    accessList?: TransactionSerializableEIP2930['accessList'] | undefined
   }
 >
 type EIP2930Properties = Assign<
   BaseProperties,
-  Partial<FeeValuesLegacy> & {
+  ExactPartial<FeeValuesLegacy> & {
     accessList: TransactionSerializableEIP2930['accessList']
   }
 >
 type EIP4844Properties = Assign<
   BaseProperties,
-  Partial<FeeValuesEIP4844> &
+  ExactPartial<FeeValuesEIP4844> &
     OneOf<
       | {
           blobs: TransactionSerializableEIP4844['blobs']

@@ -44,7 +44,7 @@ export type EstimateDepositTransactionGasParameters<
     /** L2 transaction request. */
     request: DepositRequest
     /** Gas limit for transaction execution on the L1. */
-    gas?: bigint | null
+    gas?: bigint | null | undefined
   }
 export type EstimateDepositTransactionGasReturnType = bigint
 export type EstimateDepositTransactionGasErrorType =

@@ -64,9 +64,9 @@ export type DecodeFunctionResultParameters<
 } & UnionEvaluate<
   IsNarrowable<abi, Abi> extends true
     ? abi['length'] extends 1
-      ? { functionName?: functionName | allFunctionNames }
+      ? { functionName?: functionName | allFunctionNames | undefined }
       : { functionName: functionName | allFunctionNames }
-    : { functionName?: functionName | allFunctionNames }
+    : { functionName?: functionName | allFunctionNames | undefined }
 > &
   UnionEvaluate<
     readonly [] extends allArgs

@@ -46,7 +46,7 @@ export type DecodeEventLogParameters<
 > = {
   abi: abi
   data?: data | undefined
-  eventName?: eventName | ContractEventName<abi>
+  eventName?: eventName | ContractEventName<abi> | undefined
   strict?: strict | boolean | undefined
   topics: [signature: Hex, ...args: topics] | []
 }
