@@ -1,5 +1,0 @@
----
-"viem": patch
----
-
-Support `exactOptionalPropertyTypes`.
