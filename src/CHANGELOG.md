@@ -1,5 +1,13 @@
 # viem
 
+## 2.8.12
+
+### Patch Changes
+
+- [`341fcece33060fa8304db89d0e205e8176100318`](https://github.com/wevm/viem/commit/341fcece33060fa8304db89d0e205e8176100318) Thanks [@jxom](https://github.com/jxom)! - Exported types for inference.
+
+- [#1971](https://github.com/wevm/viem/pull/1971) [`671747de78db010f4f0c4037663ccd0dd5f17d50`](https://github.com/wevm/viem/commit/671747de78db010f4f0c4037663ccd0dd5f17d50) Thanks [@lezzokafka](https://github.com/lezzokafka)! - Updated Chronos explorer URL.
+
 ## 2.8.11
 
 ### Patch Changes
