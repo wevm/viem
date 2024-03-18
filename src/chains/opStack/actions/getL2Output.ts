@@ -1,4 +1,3 @@
-import { decodeAbiParameters } from '~viem/index.js'
 import {
   type ReadContractErrorType,
   readContract,
@@ -13,6 +12,7 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
+import { decodeAbiParameters } from '../../../utils/index.js'
 import {
   disputeGameFactoryAbi,
   l2OutputOracleAbi,

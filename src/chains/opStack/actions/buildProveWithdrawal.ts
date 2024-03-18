@@ -186,6 +186,10 @@ export async function buildProveWithdrawal<
     disputeGameFactoryAddress,
   })
 
+  if (!game) {
+    throw new Error('No dispute game found')
+  }
+
   return {
     account,
     l2OutputIndex: game.index,

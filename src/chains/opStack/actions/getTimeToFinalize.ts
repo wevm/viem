@@ -1,8 +1,8 @@
-import { readContract } from '~viem/actions/index.js'
 import {
   type MulticallErrorType,
   multicall,
 } from '../../../actions/public/multicall.js'
+import { readContract } from '../../../actions/public/readContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'

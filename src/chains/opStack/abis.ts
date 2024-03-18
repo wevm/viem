@@ -1355,595 +1355,622 @@ export const disputeGameFactoryAbi = [
 ] as const
 export const portal2Abi = [
   {
-    type: 'constructor',
-    inputs: [
+    "inputs": [
       {
-        name: '_proofMaturityDelaySeconds',
-        type: 'uint256',
-        internalType: 'uint256',
+        "internalType": "uint256",
+        "name": "_proofMaturityDelaySeconds",
+        "type": "uint256"
       },
       {
-        name: '_disputeGameFinalityDelaySeconds',
-        type: 'uint256',
-        internalType: 'uint256',
+        "internalType": "uint256",
+        "name": "_disputeGameFinalityDelaySeconds",
+        "type": "uint256"
       },
       {
-        name: '_initialRespectedGameType',
-        type: 'uint32',
-        internalType: 'GameType',
-      },
+        "internalType": "GameType",
+        "name": "_initialRespectedGameType",
+        "type": "uint32"
+      }
     ],
-    stateMutability: 'nonpayable',
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
-    type: 'receive',
-    stateMutability: 'payable',
+    "stateMutability": "payable",
+    "type": "receive"
   },
   {
-    type: 'function',
-    name: 'GUARDIAN',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "GUARDIAN",
+    "outputs": [
       {
-        name: '',
-        type: 'address',
-        internalType: 'address',
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'SYSTEM_CONFIG',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "SYSTEM_CONFIG",
+    "outputs": [
       {
-        name: '',
-        type: 'address',
-        internalType: 'contract SystemConfig',
-      },
+        "internalType": "contract SystemConfig",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'blacklistDisputeGame',
-    inputs: [
+    "inputs": [
       {
-        name: '_disputeGame',
-        type: 'address',
-        internalType: 'contract IDisputeGame',
-      },
+        "internalType": "contract IDisputeGame",
+        "name": "_disputeGame",
+        "type": "address"
+      }
     ],
-    outputs: [],
-    stateMutability: 'nonpayable',
+    "name": "blacklistDisputeGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'checkWithdrawal',
-    inputs: [
+    "inputs": [
       {
-        name: '_withdrawalHash',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
+        "internalType": "bytes32",
+        "name": "_withdrawalHash",
+        "type": "bytes32"
+      }
     ],
-    outputs: [],
-    stateMutability: 'view',
+    "name": "checkWithdrawal",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'deleteProvenWithdrawal',
-    inputs: [
+    "inputs": [
       {
-        name: '_withdrawalHash',
-        type: 'bytes32',
-        internalType: 'bytes32',
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
       },
+      {
+        "internalType": "uint256",
+        "name": "_value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint64",
+        "name": "_gasLimit",
+        "type": "uint64"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isCreation",
+        "type": "bool"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_data",
+        "type": "bytes"
+      }
     ],
-    outputs: [],
-    stateMutability: 'nonpayable',
+    "name": "depositTransaction",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'depositTransaction',
-    inputs: [
+    "inputs": [
       {
-        name: '_to',
-        type: 'address',
-        internalType: 'address',
-      },
-      {
-        name: '_value',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-      {
-        name: '_gasLimit',
-        type: 'uint64',
-        internalType: 'uint64',
-      },
-      {
-        name: '_isCreation',
-        type: 'bool',
-        internalType: 'bool',
-      },
-      {
-        name: '_data',
-        type: 'bytes',
-        internalType: 'bytes',
-      },
+        "internalType": "contract IDisputeGame",
+        "name": "",
+        "type": "address"
+      }
     ],
-    outputs: [],
-    stateMutability: 'payable',
-  },
-  {
-    type: 'function',
-    name: 'disputeGameBlacklist',
-    inputs: [
+    "name": "disputeGameBlacklist",
+    "outputs": [
       {
-        name: '',
-        type: 'address',
-        internalType: 'contract IDisputeGame',
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    outputs: [
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "disputeGameFactory",
+    "outputs": [
       {
-        name: '',
-        type: 'bool',
-        internalType: 'bool',
-      },
+        "internalType": "contract DisputeGameFactory",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'disputeGameFactory',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "disputeGameFinalityDelaySeconds",
+    "outputs": [
       {
-        name: '',
-        type: 'address',
-        internalType: 'contract DisputeGameFactory',
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'donateETH',
-    inputs: [],
-    outputs: [],
-    stateMutability: 'payable',
+    "inputs": [],
+    "name": "donateETH",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'finalizeWithdrawalTransaction',
-    inputs: [
+    "inputs": [
       {
-        name: '_tx',
-        type: 'tuple',
-        internalType: 'struct Types.WithdrawalTransaction',
-        components: [
+        "components": [
           {
-            name: 'nonce',
-            type: 'uint256',
-            internalType: 'uint256',
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
           },
           {
-            name: 'sender',
-            type: 'address',
-            internalType: 'address',
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
           },
           {
-            name: 'target',
-            type: 'address',
-            internalType: 'address',
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
           },
           {
-            name: 'value',
-            type: 'uint256',
-            internalType: 'uint256',
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
           },
           {
-            name: 'gasLimit',
-            type: 'uint256',
-            internalType: 'uint256',
+            "internalType": "uint256",
+            "name": "gasLimit",
+            "type": "uint256"
           },
           {
-            name: 'data',
-            type: 'bytes',
-            internalType: 'bytes',
-          },
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
         ],
-      },
+        "internalType": "struct Types.WithdrawalTransaction",
+        "name": "_tx",
+        "type": "tuple"
+      }
     ],
-    outputs: [],
-    stateMutability: 'nonpayable',
+    "name": "finalizeWithdrawalTransaction",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'finalizedWithdrawals',
-    inputs: [
+    "inputs": [
       {
-        name: '',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
     ],
-    outputs: [
+    "name": "finalizedWithdrawals",
+    "outputs": [
       {
-        name: '',
-        type: 'bool',
-        internalType: 'bool',
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'guardian',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "guardian",
+    "outputs": [
       {
-        name: '',
-        type: 'address',
-        internalType: 'address',
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'initialize',
-    inputs: [
+    "inputs": [
       {
-        name: '_disputeGameFactory',
-        type: 'address',
-        internalType: 'contract DisputeGameFactory',
+        "internalType": "contract DisputeGameFactory",
+        "name": "_disputeGameFactory",
+        "type": "address"
       },
       {
-        name: '_systemConfig',
-        type: 'address',
-        internalType: 'contract SystemConfig',
+        "internalType": "contract SystemConfig",
+        "name": "_systemConfig",
+        "type": "address"
       },
       {
-        name: '_superchainConfig',
-        type: 'address',
-        internalType: 'contract SuperchainConfig',
-      },
+        "internalType": "contract SuperchainConfig",
+        "name": "_superchainConfig",
+        "type": "address"
+      }
     ],
-    outputs: [],
-    stateMutability: 'nonpayable',
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'l2Sender',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "l2Sender",
+    "outputs": [
       {
-        name: '',
-        type: 'address',
-        internalType: 'address',
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'minimumGasLimit',
-    inputs: [
+    "inputs": [
       {
-        name: '_byteCount',
-        type: 'uint64',
-        internalType: 'uint64',
-      },
+        "internalType": "uint64",
+        "name": "_byteCount",
+        "type": "uint64"
+      }
     ],
-    outputs: [
+    "name": "minimumGasLimit",
+    "outputs": [
       {
-        name: '',
-        type: 'uint64',
-        internalType: 'uint64',
-      },
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
     ],
-    stateMutability: 'pure',
+    "stateMutability": "pure",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'params',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "params",
+    "outputs": [
       {
-        name: 'prevBaseFee',
-        type: 'uint128',
-        internalType: 'uint128',
+        "internalType": "uint128",
+        "name": "prevBaseFee",
+        "type": "uint128"
       },
       {
-        name: 'prevBoughtGas',
-        type: 'uint64',
-        internalType: 'uint64',
+        "internalType": "uint64",
+        "name": "prevBoughtGas",
+        "type": "uint64"
       },
       {
-        name: 'prevBlockNum',
-        type: 'uint64',
-        internalType: 'uint64',
-      },
+        "internalType": "uint64",
+        "name": "prevBlockNum",
+        "type": "uint64"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'paused',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "paused",
+    "outputs": [
       {
-        name: 'paused_',
-        type: 'bool',
-        internalType: 'bool',
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'proveWithdrawalTransaction',
-    inputs: [
+    "inputs": [],
+    "name": "proofMaturityDelaySeconds",
+    "outputs": [
       {
-        name: '_tx',
-        type: 'tuple',
-        internalType: 'struct Types.WithdrawalTransaction',
-        components: [
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
           {
-            name: 'nonce',
-            type: 'uint256',
-            internalType: 'uint256',
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
           },
           {
-            name: 'sender',
-            type: 'address',
-            internalType: 'address',
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
           },
           {
-            name: 'target',
-            type: 'address',
-            internalType: 'address',
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
           },
           {
-            name: 'value',
-            type: 'uint256',
-            internalType: 'uint256',
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
           },
           {
-            name: 'gasLimit',
-            type: 'uint256',
-            internalType: 'uint256',
+            "internalType": "uint256",
+            "name": "gasLimit",
+            "type": "uint256"
           },
           {
-            name: 'data',
-            type: 'bytes',
-            internalType: 'bytes',
-          },
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
         ],
+        "internalType": "struct Types.WithdrawalTransaction",
+        "name": "_tx",
+        "type": "tuple"
       },
       {
-        name: '_disputeGameIndex',
-        type: 'uint256',
-        internalType: 'uint256',
+        "internalType": "uint256",
+        "name": "_disputeGameIndex",
+        "type": "uint256"
       },
       {
-        name: '_outputRootProof',
-        type: 'tuple',
-        internalType: 'struct Types.OutputRootProof',
-        components: [
+        "components": [
           {
-            name: 'version',
-            type: 'bytes32',
-            internalType: 'bytes32',
+            "internalType": "bytes32",
+            "name": "version",
+            "type": "bytes32"
           },
           {
-            name: 'stateRoot',
-            type: 'bytes32',
-            internalType: 'bytes32',
+            "internalType": "bytes32",
+            "name": "stateRoot",
+            "type": "bytes32"
           },
           {
-            name: 'messagePasserStorageRoot',
-            type: 'bytes32',
-            internalType: 'bytes32',
+            "internalType": "bytes32",
+            "name": "messagePasserStorageRoot",
+            "type": "bytes32"
           },
           {
-            name: 'latestBlockhash',
-            type: 'bytes32',
-            internalType: 'bytes32',
-          },
+            "internalType": "bytes32",
+            "name": "latestBlockhash",
+            "type": "bytes32"
+          }
         ],
+        "internalType": "struct Types.OutputRootProof",
+        "name": "_outputRootProof",
+        "type": "tuple"
       },
       {
-        name: '_withdrawalProof',
-        type: 'bytes[]',
-        internalType: 'bytes[]',
-      },
+        "internalType": "bytes[]",
+        "name": "_withdrawalProof",
+        "type": "bytes[]"
+      }
     ],
-    outputs: [],
-    stateMutability: 'nonpayable',
+    "name": "proveWithdrawalTransaction",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'provenWithdrawals',
-    inputs: [
+    "inputs": [
       {
-        name: '',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
     ],
-    outputs: [
+    "name": "provenWithdrawals",
+    "outputs": [
       {
-        name: 'disputeGameProxy',
-        type: 'address',
-        internalType: 'contract IDisputeGame',
+        "internalType": "contract IDisputeGame",
+        "name": "disputeGameProxy",
+        "type": "address"
       },
       {
-        name: 'timestamp',
-        type: 'uint64',
-        internalType: 'uint64',
-      },
+        "internalType": "uint64",
+        "name": "timestamp",
+        "type": "uint64"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'respectedGameType',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "respectedGameType",
+    "outputs": [
       {
-        name: '',
-        type: 'uint32',
-        internalType: 'GameType',
-      },
+        "internalType": "GameType",
+        "name": "",
+        "type": "uint32"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'setRespectedGameType',
-    inputs: [
+    "inputs": [],
+    "name": "respectedGameTypeUpdatedAt",
+    "outputs": [
       {
-        name: '_gameType',
-        type: 'uint32',
-        internalType: 'GameType',
-      },
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
     ],
-    outputs: [],
-    stateMutability: 'nonpayable',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'superchainConfig',
-    inputs: [],
-    outputs: [
+    "inputs": [
       {
-        name: '',
-        type: 'address',
-        internalType: 'contract SuperchainConfig',
-      },
+        "internalType": "GameType",
+        "name": "_gameType",
+        "type": "uint32"
+      }
     ],
-    stateMutability: 'view',
+    "name": "setRespectedGameType",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'systemConfig',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "superchainConfig",
+    "outputs": [
       {
-        name: '',
-        type: 'address',
-        internalType: 'contract SystemConfig',
-      },
+        "internalType": "contract SuperchainConfig",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'function',
-    name: 'version',
-    inputs: [],
-    outputs: [
+    "inputs": [],
+    "name": "systemConfig",
+    "outputs": [
       {
-        name: '',
-        type: 'string',
-        internalType: 'string',
-      },
+        "internalType": "contract SystemConfig",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: 'view',
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'event',
-    name: 'Initialized',
-    inputs: [
+    "inputs": [],
+    "name": "version",
+    "outputs": [
       {
-        name: 'version',
-        type: 'uint8',
-        indexed: false,
-        internalType: 'uint8',
-      },
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
     ],
-    anonymous: false,
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    type: 'event',
-    name: 'TransactionDeposited',
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        name: 'from',
-        type: 'address',
-        indexed: true,
-        internalType: 'address',
-      },
-      {
-        name: 'to',
-        type: 'address',
-        indexed: true,
-        internalType: 'address',
-      },
-      {
-        name: 'version',
-        type: 'uint256',
-        indexed: true,
-        internalType: 'uint256',
-      },
-      {
-        name: 'opaqueData',
-        type: 'bytes',
-        indexed: false,
-        internalType: 'bytes',
-      },
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
     ],
-    anonymous: false,
+    "name": "Initialized",
+    "type": "event"
   },
   {
-    type: 'event',
-    name: 'WithdrawalFinalized',
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        name: 'withdrawalHash',
-        type: 'bytes32',
-        indexed: true,
-        internalType: 'bytes32',
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
       },
       {
-        name: 'success',
-        type: 'bool',
-        indexed: false,
-        internalType: 'bool',
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
       },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "version",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "opaqueData",
+        "type": "bytes"
+      }
     ],
-    anonymous: false,
+    "name": "TransactionDeposited",
+    "type": "event"
   },
   {
-    type: 'event',
-    name: 'WithdrawalProven',
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        name: 'withdrawalHash',
-        type: 'bytes32',
-        indexed: true,
-        internalType: 'bytes32',
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "withdrawalHash",
+        "type": "bytes32"
       },
       {
-        name: 'from',
-        type: 'address',
-        indexed: true,
-        internalType: 'address',
-      },
-      {
-        name: 'to',
-        type: 'address',
-        indexed: true,
-        internalType: 'address',
-      },
+        "indexed": false,
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
     ],
-    anonymous: false,
+    "name": "WithdrawalFinalized",
+    "type": "event"
   },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "withdrawalHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "WithdrawalProven",
+    "type": "event"
+  }
 ] as const
+
 export const portalAbi = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   {

@@ -1,4 +1,3 @@
-import { decodeAbiParameters } from '~viem/index.js'
 import {
   type ReadContractErrorType,
   readContract,
@@ -12,6 +11,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../../types/chain.js'
+import { decodeAbiParameters } from '../../../utils/index.js'
 import { disputeGameFactoryAbi, portal2Abi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 

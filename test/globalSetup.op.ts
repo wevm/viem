@@ -19,7 +19,7 @@ const setup = async () => {
 }
 
 const start = async () => {
-  console.log(`starting optimism devnet`)
+  console.log('starting optimism devnet...')
   // from context of optimism dir
   await execaCommand(`yarn --cwd ${OPTIMISM_DIR} start`)
 }
