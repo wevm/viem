@@ -275,7 +275,14 @@ export type {
   OpStackRpcBlock,
   OpStackRpcBlockOverrides,
 } from './opStack/types/block.js'
-export type { serializeTransaction as serializeTransactionOpStack } from './opStack/serializers.js'
+export type {
+  SerializeTransactionDepositReturnType,
+  SerializeTransactionErrorType,
+  SerializeTransactionReturnType,
+  serializeTransaction as serializeTransactionOpStack,
+  assertTransactionDeposit as assertTransactionDepositOpStack,
+  serializers as serializersOpStack,
+} from './opStack/serializers.js'
 export type {
   OpStackDepositTransaction,
   OpStackRpcDepositTransaction,
