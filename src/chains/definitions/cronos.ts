@@ -13,9 +13,9 @@ export const cronos = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Cronoscan',
-      url: 'https://cronoscan.com',
-      apiUrl: 'https://api.cronoscan.com/api',
+      name: 'Cronos Explorer',
+      url: 'https://explorer.cronos.org',
+      apiUrl: 'https://explorer-api.cronos.org/mainnet/api',
     },
   },
   contracts: {
