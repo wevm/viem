@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
   http,
-  Address,
-  Hash,
-  TransactionReceipt,
+  type Address,
+  type Hash,
+  type TransactionReceipt,
   createPublicClient,
   createWalletClient,
   custom,
@@ -34,7 +34,6 @@ const walletClient = createWalletClient({
 
 function Example() {
   const [account, setAccount] = useState<Address>()
-  const [hash, setHash] = useState<Hash>()
   const [receipt, setReceipt] = useState<TransactionReceipt>()
 
   const addressInput = React.createRef<HTMLInputElement>()
@@ -46,6 +45,11 @@ function Example() {
     setAccount(address)
   }
 
+  const refreshTransactionReceipt = async (hash: Hash) => {
+    const receipt = await publicClient.waitForTransactionReceipt({ hash })
+    setReceipt(receipt)
+  }
+
   const sendTransaction = async () => {
     if (!account) return
     const hash = await walletClient.sendTransaction({
@@ -53,17 +57,8 @@ function Example() {
       to: addressInput.current!.value as Address,
       value: parseEther(valueInput.current!.value as `${number}`),
     })
-    setHash(hash)
+    refreshTransactionReceipt(hash)
   }
-
-  useEffect(() => {
-    ;(async () => {
-      if (hash) {
-        const receipt = await publicClient.waitForTransactionReceipt({ hash })
-        setReceipt(receipt)
-      }
-    })()
-  }, [hash])
 
   if (account)
     return (
