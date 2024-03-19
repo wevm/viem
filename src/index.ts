@@ -1088,6 +1088,12 @@ export {
   encodeFunctionData,
 } from './utils/abi/encodeFunctionData.js'
 export {
+  type PrepareEncodeFunctionDataErrorType,
+  type PrepareEncodeFunctionDataParameters,
+  type PrepareEncodeFunctionDataReturnType,
+  prepareEncodeFunctionData,
+} from './utils/abi/prepareEncodeFunctionData.js'
+export {
   type EncodeFunctionResultErrorType,
   type EncodeFunctionResultParameters,
   type EncodeFunctionResultReturnType,
