@@ -34,7 +34,6 @@
     "test": "vitest -c ./test/vitest.config.ts dev",
     "test:cov": "vitest dev -c ./test/vitest.config.ts --coverage",
     "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1 --pool=forks",
-    "test:op": "./scripts/opDevnetTests.sh",
     "test:env": "bun run test:env:bun && bun run test:env:next && bun run test:env:node && bun run test:env:vite && bun run test:env:sveltekit",
     "test:env:bun": "cd environments/bun && bun run test",
     "test:env:next": "cd environments/next && bun run test",
