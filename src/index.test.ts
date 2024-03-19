@@ -286,6 +286,7 @@ test('exports', () => {
       "recoverAddress",
       "recoverMessageAddress",
       "recoverPublicKey",
+      "recoverTransactionAddress",
       "recoverTypedDataAddress",
       "signatureToCompactSignature",
       "compactSignatureToHex",
