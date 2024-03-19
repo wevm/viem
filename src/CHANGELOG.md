@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.13
+
+### Patch Changes
+
+- [#1977](https://github.com/wevm/viem/pull/1977) [`ffacb1b6592604d4915a88c15ebd63357586f592`](https://github.com/wevm/viem/commit/ffacb1b6592604d4915a88c15ebd63357586f592) Thanks [@jxom](https://github.com/jxom)! - Added `recoverTransactionAddress`.
+
 ## 2.8.12
 
 ### Patch Changes
