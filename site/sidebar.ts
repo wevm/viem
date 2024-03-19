@@ -903,6 +903,10 @@ export const sidebar = {
               link: '/docs/utilities/recoverPublicKey',
             },
             {
+              text: 'recoverTransactionAddress',
+              link: '/docs/utilities/recoverTransactionAddress',
+            },
+            {
               text: 'recoverTypedDataAddress',
               link: '/docs/utilities/recoverTypedDataAddress',
             },

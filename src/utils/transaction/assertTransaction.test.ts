@@ -124,19 +124,6 @@ describe('eip1559', () => {
       Version: viem@1.0.2]
     `)
   })
-
-  test('invalid transaction type', () => {
-    expect(() =>
-      assertTransactionEIP1559({
-        gasPrice: parseGwei('1') as unknown as undefined,
-        chainId: 1,
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: \`gasPrice\` is not a valid EIP-1559 Transaction attribute.
-
-      Version: viem@1.0.2]
-    `)
-  })
 })
 
 describe('eip2930', () => {
@@ -229,17 +216,6 @@ describe('legacy', () => {
 })
 
 test('invalid transaction type', () => {
-  expect(() =>
-    assertTransactionEIP1559({
-      gasPrice: parseGwei('1') as unknown as undefined,
-      chainId: 1,
-    }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: \`gasPrice\` is not a valid EIP-1559 Transaction attribute.
-
-    Version: viem@1.0.2]
-  `)
-
   expect(() =>
     assertTransactionEIP2930({
       chainId: 1,

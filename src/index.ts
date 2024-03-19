@@ -1186,6 +1186,12 @@ export {
   recoverPublicKey,
 } from './utils/signature/recoverPublicKey.js'
 export {
+  type RecoverTransactionAddressErrorType,
+  type RecoverTransactionAddressParameters,
+  type RecoverTransactionAddressReturnType,
+  recoverTransactionAddress,
+} from './utils/signature/recoverTransactionAddress.js'
+export {
   type RecoverTypedDataAddressErrorType,
   type RecoverTypedDataAddressParameters,
   type RecoverTypedDataAddressReturnType,

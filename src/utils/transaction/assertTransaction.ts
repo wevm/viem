@@ -74,14 +74,9 @@ export type AssertTransactionEIP1559ErrorType =
 export function assertTransactionEIP1559(
   transaction: TransactionSerializableEIP1559,
 ) {
-  const { chainId, maxPriorityFeePerGas, gasPrice, maxFeePerGas, to } =
-    transaction
+  const { chainId, maxPriorityFeePerGas, maxFeePerGas, to } = transaction
   if (chainId <= 0) throw new InvalidChainIdError({ chainId })
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
-  if (gasPrice)
-    throw new BaseError(
-      '`gasPrice` is not a valid EIP-1559 Transaction attribute.',
-    )
   if (maxFeePerGas && maxFeePerGas > 2n ** 256n - 1n)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
