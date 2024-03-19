@@ -41,48 +41,48 @@ export type GetLogsParameters<
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** Address or list of addresses from which logs originated */
-  address?: Address | Address[]
+  address?: Address | Address[] | undefined
 } & (
   | {
       event: TAbiEvent
-      events?: never
-      args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
+      events?: never | undefined
+      args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName> | undefined
       /**
        * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
        * @default false
        */
-      strict?: TStrict
+      strict?: TStrict | undefined
     }
   | {
-      event?: never
+      event?: never | undefined
       events: TAbiEvents
-      args?: never
+      args?: never | undefined
       /**
        * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
        * @default false
        */
-      strict?: TStrict
+      strict?: TStrict | undefined
     }
   | {
-      event?: never
-      events?: never
-      args?: never
-      strict?: never
+      event?: never | undefined
+      events?: never | undefined
+      args?: never | undefined
+      strict?: never | undefined
     }
 ) &
   (
     | {
         /** Block number or tag after which to include logs */
-        fromBlock?: TFromBlock | BlockNumber | BlockTag
+        fromBlock?: TFromBlock | BlockNumber | BlockTag | undefined
         /** Block number or tag before which to include logs */
-        toBlock?: TToBlock | BlockNumber | BlockTag
-        blockHash?: never
+        toBlock?: TToBlock | BlockNumber | BlockTag | undefined
+        blockHash?: never | undefined
       }
     | {
-        fromBlock?: never
-        toBlock?: never
+        fromBlock?: never | undefined
+        toBlock?: never | undefined
         /** Hash of block to include logs from */
-        blockHash?: Hash
+        blockHash?: Hash | undefined
       }
   )
 

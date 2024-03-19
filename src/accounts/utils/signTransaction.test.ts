@@ -1,25 +1,76 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { concatHex, toHex, toRlp } from '../../index.js'
+import { blobData, kzg } from '../../../test/src/kzg.js'
+import { walletClient } from '../../../test/src/utils.js'
+import { prepareTransactionRequest } from '../../actions/index.js'
+import { concatHex, stringToHex, toHex, toRlp } from '../../index.js'
 import type {
   TransactionSerializable,
   TransactionSerializableBase,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
+  TransactionSerializableGeneric,
   TransactionSerializableLegacy,
-  TransactionSerializedEIP1559,
-  TransactionSerializedEIP2930,
   TransactionSerializedLegacy,
 } from '../../types/transaction.js'
+import { sidecarsToVersionedHashes } from '../../utils/blob/sidecarsToVersionedHashes.js'
+import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
+import { toBlobs } from '../../utils/blob/toBlobs.js'
 import type { SerializeTransactionFn } from '../../utils/transaction/serializeTransaction.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { privateKeyToAccount } from '../privateKeyToAccount.js'
 import { signTransaction } from './signTransaction.js'
 
 const base = {
   gas: 21000n,
   nonce: 785,
 } satisfies TransactionSerializableBase
+
+describe('eip4844', async () => {
+  const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
+  const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
+
+  const baseEip4844 = {
+    ...base,
+    blobVersionedHashes,
+    chainId: 1,
+    sidecars,
+    type: 'eip4844',
+  } as const satisfies TransactionSerializable
+
+  test('default', async () => {
+    const signature = await signTransaction({
+      transaction: baseEip4844,
+      privateKey: accounts[0].privateKey,
+    })
+    expect(signature).toMatchSnapshot()
+  })
+
+  test('args: blobs + kzg', async () => {
+    const blobs = toBlobs({ data: stringToHex(blobData) })
+    const signature = await signTransaction({
+      transaction: { ...base, blobs, chainId: 1, kzg, type: 'eip4844' },
+      privateKey: accounts[0].privateKey,
+    })
+    expect(signature).toMatchSnapshot()
+  })
+
+  test('w/ prepareTransactionRequest', async () => {
+    const blobs = toBlobs({ data: stringToHex(blobData) })
+    const request = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(accounts[0].privateKey),
+      blobs: blobs,
+      kzg,
+      maxFeePerBlobGas: parseGwei('20'),
+      to: '0x0000000000000000000000000000000000000000',
+    })
+    await signTransaction({
+      transaction: request,
+      privateKey: accounts[0].privateKey,
+    })
+  })
+})
 
 describe('eip1559', () => {
   const baseEip1559 = {
@@ -33,7 +84,6 @@ describe('eip1559', () => {
       transaction: baseEip1559,
       privateKey: accounts[0].privateKey,
     })
-    assertType<TransactionSerializedEIP1559>(signature)
     expect(signature).toMatchInlineSnapshot(
       '"0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33"',
     )
@@ -139,7 +189,6 @@ describe('eip2930', () => {
       transaction: baseEip2930,
       privateKey: accounts[0].privateKey,
     })
-    assertType<TransactionSerializedEIP2930>(signature)
     expect(signature).toMatchInlineSnapshot(
       '"0x01f84f0182031180825208808080c080a089cebce5c7f728febd1060b55837c894ec2a79dd7854350abce252fc2de96b5da039f2782c70b92f4b1916aa8db91453c7229f33458bd091b3e10a40f9a7e443d2"',
     )
@@ -242,7 +291,7 @@ describe('eip2930', () => {
 })
 
 describe('with custom EIP2718 serializer', () => {
-  type ExampleTransaction = TransactionSerializable & {
+  type ExampleTransaction = Omit<TransactionSerializableGeneric, 'type'> & {
     type: 'cip42'
     chainId: number
     additionalField: `0x${string}`
@@ -264,7 +313,7 @@ describe('with custom EIP2718 serializer', () => {
         } = transaction
 
         const serializedTransaction = [
-          toHex(chainId),
+          chainId ? toHex(chainId) : '0x',
           nonce ? toHex(nonce) : '0x',
           maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
           maxFeePerGas ? toHex(maxFeePerGas) : '0x',

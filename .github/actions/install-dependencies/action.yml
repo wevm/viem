@@ -6,10 +6,12 @@ runs:
   steps:
     - name: Set up Bun
       uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: 1.0.30
 
     - name: Set up foundry
       uses: foundry-rs/foundry-toolchain@v1
 
     - name: Install dependencies
       shell: bash
-      run: bun install --ignore-scripts
+      run: bun install

@@ -20,7 +20,7 @@ export type Sha256ErrorType =
 
 export function sha256<TTo extends To = 'hex'>(
   value: Hex | ByteArray,
-  to_?: TTo,
+  to_?: TTo | undefined,
 ): Sha256Hash<TTo> {
   const to = to_ || 'hex'
   const bytes = noble_sha256(

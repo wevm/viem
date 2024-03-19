@@ -24,16 +24,16 @@ export type GetProofParameters = {
 } & (
   | {
       /** The block number. */
-      blockNumber?: bigint
-      blockTag?: never
+      blockNumber?: bigint | undefined
+      blockTag?: never | undefined
     }
   | {
-      blockNumber?: never
+      blockNumber?: never | undefined
       /**
        * The block tag.
        * @default 'latest'
        */
-      blockTag?: BlockTag
+      blockTag?: BlockTag | undefined
     }
 )
 

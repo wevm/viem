@@ -15,7 +15,7 @@ import type {
   TransactionSerialized,
   TransactionType,
 } from '../../../types/transaction.js'
-import type { RequiredBy } from '../../../types/utils.js'
+import type { OneOf } from '../../../types/utils.js'
 
 type RpcTransaction<TPending extends boolean = boolean> =
   RpcTransaction_<TPending> & {
@@ -27,8 +27,8 @@ type RpcTransaction<TPending extends boolean = boolean> =
 export type OpStackRpcDepositTransaction<TPending extends boolean = boolean> =
   Omit<TransactionBase<Quantity, Index, TPending>, 'typeHex'> &
     FeeValuesEIP1559<Quantity> & {
-      isSystemTx?: boolean
-      mint?: Hex
+      isSystemTx?: boolean | undefined
+      mint?: Hex | undefined
       sourceHash: Hex
       type: '0x7e'
     }
@@ -59,7 +59,7 @@ export type OpStackDepositTransaction<TPending extends boolean = boolean> =
   TransactionBase<bigint, number, TPending> &
     FeeValuesEIP1559 & {
       isSystemTx?: boolean
-      mint?: bigint
+      mint?: bigint | undefined
       sourceHash: Hex
       type: 'deposit'
     }
@@ -77,17 +77,15 @@ export type OpStackTransactionReceiptOverrides = {
 export type OpStackTransactionReceipt = TransactionReceipt &
   OpStackTransactionReceiptOverrides
 
-export type OpStackTransactionSerializable =
-  | RequiredBy<TransactionSerializableDeposit, 'type'>
-  | (TransactionSerializable & {
-      isSystemTx?: undefined
-      mint?: undefined
-      sourceHash?: undefined
-    })
+export type OpStackTransactionSerializable = OneOf<
+  TransactionSerializableDeposit | TransactionSerializable
+>
 
 export type OpStackTransactionSerialized<
-  TType extends OpStackTransactionType = 'legacy',
-> = TransactionSerialized<TType> | TransactionSerializedDeposit
+  TType extends OpStackTransactionType = OpStackTransactionType,
+> = TType extends 'deposit'
+  ? TransactionSerializedDeposit
+  : TransactionSerialized<TType>
 
 export type OpStackTransactionType = TransactionType | 'deposit'
 
@@ -100,9 +98,9 @@ export type TransactionSerializableDeposit<
 > & {
   from: Hex
   isSystemTx?: boolean
-  mint?: bigint
+  mint?: bigint | undefined
   sourceHash: Hex
-  type?: 'deposit'
+  type: 'deposit'
 }
 
 export type TransactionSerializedDeposit = `0x7e${string}`

@@ -13,7 +13,7 @@ export type IsAddressOptions = {
    *
    * @default true
    */
-  strict?: boolean
+  strict?: boolean | undefined
 }
 
 export type IsAddressErrorType = ErrorType

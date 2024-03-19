@@ -56,5 +56,5 @@ type EIP712DomainDefinition<
   domain: schema extends { EIP712Domain: infer domain }
     ? domain
     : Prettify<TypedDataDomain>
-  message?: never
+  message?: never | undefined
 }

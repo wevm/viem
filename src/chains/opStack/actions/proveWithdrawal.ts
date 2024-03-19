@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 import {
   type WriteContractErrorType,
+  type WriteContractParameters,
   writeContract,
 } from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
@@ -48,7 +49,7 @@ export type ProveWithdrawalParameters<
      * Gas limit for transaction execution on the L1.
      * `null` to skip gas estimation & defer calculation to signer.
      */
-    gas?: bigint | null
+    gas?: bigint | null | undefined
     l2OutputIndex: bigint
     outputRootProof: {
       version: Hex
@@ -137,7 +138,7 @@ export async function proveWithdrawal<
       : gas ?? undefined
 
   return writeContract(client, {
-    account,
+    account: account!,
     abi: portalAbi,
     address: portalAddress,
     chain,
@@ -147,5 +148,5 @@ export async function proveWithdrawal<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-  })
+  } satisfies WriteContractParameters as any)
 }

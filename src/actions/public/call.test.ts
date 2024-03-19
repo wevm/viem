@@ -19,6 +19,7 @@ import { trim } from '../../utils/data/trim.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
+import { blobData } from '../../../test/src/kzg.js'
 import {
   type Hex,
   type StateMapping,
@@ -26,6 +27,8 @@ import {
   encodeAbiParameters,
   pad,
   parseEther,
+  stringToHex,
+  toBlobs,
   toHex,
 } from '../../index.js'
 import {
@@ -157,6 +160,18 @@ test('args: override', async () => {
   expect(data).toMatchInlineSnapshot(
     `"${encodeAbiParameters([{ type: 'string' }], [fakeName])}"`,
   )
+})
+
+test.skip('args: blobs', async () => {
+  // TODO: migrate to `publicClient` once 4844 is supported in Anvil.
+  const blobs = toBlobs({ data: stringToHex(blobData) })
+  const { data } = await call(publicClient, {
+    account: sourceAccount.address,
+    blobs,
+    maxFeePerBlobGas: parseGwei('20'),
+    to: wagmiContractAddress,
+  })
+  expect(data).toMatchInlineSnapshot('undefined')
 })
 
 describe('account hoisting', () => {

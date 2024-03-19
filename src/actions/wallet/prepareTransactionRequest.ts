@@ -28,12 +28,26 @@ import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
-import type { Block } from '../../index.js'
+import type { Block, GetTransactionType } from '../../index.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { GetChainParameter } from '../../types/chain.js'
-import type { TransactionSerializable } from '../../types/transaction.js'
-import type { UnionOmit, UnionRequiredBy } from '../../types/utils.js'
+import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
+import type {
+  TransactionRequest,
+  TransactionRequestEIP1559,
+  TransactionRequestEIP2930,
+  TransactionRequestEIP4844,
+  TransactionRequestLegacy,
+  TransactionSerializable,
+} from '../../types/transaction.js'
+import type {
+  ExactPartial,
+  IsNever,
+  Prettify,
+  UnionOmit,
+  UnionRequiredBy,
+} from '../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import type {
@@ -42,60 +56,117 @@ import type {
 } from '../../utils/transaction/assertRequest.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import { getTransactionType } from '../../utils/transaction/getTransactionType.js'
+import { getChainId } from '../public/getChainId.js'
 
 export type PrepareTransactionRequestParameterType =
+  | 'chainId'
   | 'fees'
   | 'gas'
   | 'nonce'
   | 'type'
 type ParameterTypeToParameters<
-  TParameterType extends PrepareTransactionRequestParameterType,
-> = TParameterType extends 'fees'
+  parameterType extends PrepareTransactionRequestParameterType,
+> = parameterType extends 'fees'
   ? 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPrice'
-  : TParameterType
+  : parameterType
 
-export type PrepareTransactionRequestParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
-  TAccountOverride extends Account | Address | undefined =
-    | Account
-    | Address
-    | undefined,
-  TParameterType extends
-    PrepareTransactionRequestParameterType = PrepareTransactionRequestParameterType,
+export type PrepareTransactionRequestRequest<
+  chain extends Chain | undefined = Chain | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
   ///
-  derivedChain extends Chain | undefined = DeriveChain<TChain, TChainOverride>,
-> = UnionOmit<FormattedTransactionRequest<derivedChain>, 'from'> &
-  GetAccountParameter<TAccount, TAccountOverride, false> &
-  GetChainParameter<TChain, TChainOverride> & {
-    parameters?: TParameterType[]
+  _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
+> = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
+  GetTransactionRequestKzgParameter & {
+    parameters?: PrepareTransactionRequestParameterType[] | undefined
   }
 
-export type PrepareTransactionRequestReturnType<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
-  TAccountOverride extends Account | Address | undefined =
+export type PrepareTransactionRequestParameters<
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
+  accountOverride extends Account | Address | undefined =
     | Account
     | Address
     | undefined,
-  TParameterType extends
-    PrepareTransactionRequestParameterType = PrepareTransactionRequestParameterType,
+  request extends PrepareTransactionRequestRequest<
+    chain,
+    chainOverride
+  > = PrepareTransactionRequestRequest<chain, chainOverride>,
+> = request &
+  GetAccountParameter<account, accountOverride, false> &
+  GetChainParameter<chain, chainOverride> &
+  GetTransactionRequestKzgParameter<request> & { chainId?: number | undefined }
+
+export type PrepareTransactionRequestReturnType_<
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
+  accountOverride extends Account | Address | undefined =
+    | Account
+    | Address
+    | undefined,
   ///
-  derivedAccount extends Account | Address | undefined = DeriveAccount<
-    TAccount,
-    TAccountOverride
+  _derivedAccount extends Account | Address | undefined = DeriveAccount<
+    account,
+    accountOverride
   >,
-  derivedChain extends Chain | undefined = DeriveChain<TChain, TChainOverride>,
-> = UnionRequiredBy<
-  UnionOmit<FormattedTransactionRequest<derivedChain>, 'from'>,
-  ParameterTypeToParameters<TParameterType>
-> &
-  GetChainParameter<TChain, TChainOverride> &
-  (derivedAccount extends Account
-    ? { account: derivedAccount; from: Address }
+  _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
+> = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
+  GetChainParameter<chain, chainOverride> &
+  (_derivedAccount extends Account
+    ? { account: _derivedAccount; from: Address }
     : { account?: undefined; from?: undefined })
+
+export type PrepareTransactionRequestReturnType<
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
+  accountOverride extends Account | Address | undefined =
+    | Account
+    | Address
+    | undefined,
+  request extends PrepareTransactionRequestRequest<
+    chain,
+    chainOverride
+  > = PrepareTransactionRequestRequest<chain, chainOverride>,
+  ///
+  _derivedAccount extends Account | Address | undefined = DeriveAccount<
+    account,
+    accountOverride
+  >,
+  _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
+  _transactionType = request['type'] extends string
+    ? request['type']
+    : GetTransactionType<request> extends 'legacy'
+      ? unknown
+      : GetTransactionType<request>,
+  _transactionRequest extends TransactionRequest =
+    | (_transactionType extends 'legacy' ? TransactionRequestLegacy : never)
+    | (_transactionType extends 'eip1559' ? TransactionRequestEIP1559 : never)
+    | (_transactionType extends 'eip2930' ? TransactionRequestEIP2930 : never)
+    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never),
+> = Prettify<
+  UnionRequiredBy<
+    Extract<
+      UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
+        (_derivedChain extends Chain
+          ? { chain: _derivedChain }
+          : { chain?: undefined }) &
+        (_derivedAccount extends Account
+          ? { account: _derivedAccount; from: Address }
+          : { account?: undefined; from?: undefined }),
+      IsNever<_transactionRequest> extends true
+        ? unknown
+        : ExactPartial<_transactionRequest>
+    > & { chainId?: number | undefined },
+    ParameterTypeToParameters<
+      request['parameters'] extends PrepareTransactionRequestParameterType[]
+        ? request['parameters'][number]
+        : PrepareTransactionRequestParameterType
+    >
+  > &
+    (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>)
+>
 
 export type PrepareTransactionRequestErrorType =
   | AccountNotFoundErrorType
@@ -147,35 +218,36 @@ export type PrepareTransactionRequestErrorType =
  * })
  */
 export async function prepareTransactionRequest<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  TParameterType extends PrepareTransactionRequestParameterType,
-  TAccountOverride extends Account | Address | undefined = undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  const request extends PrepareTransactionRequestRequest<chain, chainOverride>,
+  accountOverride extends Account | Address | undefined = undefined,
+  chainOverride extends Chain | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
+  client: Client<Transport, chain, account>,
   args: PrepareTransactionRequestParameters<
-    TChain,
-    TAccount,
-    TChainOverride,
-    TAccountOverride,
-    TParameterType
+    chain,
+    account,
+    chainOverride,
+    accountOverride,
+    request
   >,
 ): Promise<
   PrepareTransactionRequestReturnType<
-    TChain,
-    TAccount,
-    TChainOverride,
-    TAccountOverride,
-    TParameterType
+    chain,
+    account,
+    chainOverride,
+    accountOverride,
+    request
   >
 > {
   const {
     account: account_ = client.account,
     chain,
+    chainId,
     gas,
     nonce,
-    parameters = ['fees', 'gas', 'nonce', 'type'],
+    parameters = ['chainId', 'fees', 'gas', 'nonce', 'type'],
     type,
   } = args
   const account = account_ ? parseAccount(account_) : undefined
@@ -187,6 +259,12 @@ export async function prepareTransactionRequest<
   )({ blockTag: 'latest' })
 
   const request = { ...args, ...(account ? { from: account?.address } : {}) }
+
+  if (parameters.includes('chainId')) {
+    if (chain) request.chainId = chain.id
+    else if (typeof chainId !== 'undefined') request.chainId = chainId
+    else request.chainId = await getAction(client, getChainId, 'getChainId')({})
+  }
 
   if (parameters.includes('nonce') && typeof nonce === 'undefined' && account)
     request.nonce = await getAction(
@@ -214,7 +292,9 @@ export async function prepareTransactionRequest<
   }
 
   if (parameters.includes('fees')) {
-    if (request.type === 'eip1559') {
+    // TODO(4844): derive blob base fees once https://github.com/ethereum/execution-apis/pull/486 is merged.
+
+    if (request.type === 'eip1559' || request.type === 'eip4844') {
       // EIP-1559 fees
       const { maxFeePerGas, maxPriorityFeePerGas } =
         await internal_estimateFeesPerGas(client, {
@@ -271,11 +351,5 @@ export async function prepareTransactionRequest<
 
   delete request.parameters
 
-  return request as unknown as PrepareTransactionRequestReturnType<
-    TChain,
-    TAccount,
-    TChainOverride,
-    TAccountOverride,
-    TParameterType
-  >
+  return request as any
 }

@@ -1,6 +1,5 @@
 import type { Address } from 'abitype'
 
-import { getChainId } from '../../../actions/public/getChainId.js'
 import {
   type ReadContractErrorType,
   readContract,
@@ -15,12 +14,16 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
 import { type Chain, type GetChainParameter } from '../../../types/chain.js'
-import type { TransactionRequestEIP1559 } from '../../../types/transaction.js'
+import type {
+  TransactionRequestEIP1559,
+  TransactionSerializable,
+} from '../../../types/transaction.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
 import { type HexToNumberErrorType } from '../../../utils/encoding/fromHex.js'
 import {
   type AssertRequestErrorType,
+  type AssertRequestParameters,
   assertRequest,
 } from '../../../utils/transaction/assertRequest.js'
 import {
@@ -38,7 +41,7 @@ export type EstimateL1GasParameters<
   GetAccountParameter<TAccount> &
   GetChainParameter<TChain, TChainOverride> & {
     /** Gas price oracle address. */
-    gasPriceOracleAddress?: Address
+    gasPriceOracleAddress?: Address | undefined
   }
 
 export type EstimateL1GasReturnType = bigint
@@ -98,29 +101,22 @@ export async function estimateL1Gas<
   })()
 
   // Populate transaction with required fields to accurately estimate gas.
-  const [request, chainId] = await Promise.all([
-    prepareTransactionRequest(
-      client,
-      args as PrepareTransactionRequestParameters,
-    ),
-    (async () => {
-      if (chain) return chain.id
-      return getChainId(client)
-    })(),
-  ])
+  const request = await prepareTransactionRequest(
+    client,
+    args as PrepareTransactionRequestParameters,
+  )
 
-  assertRequest(request)
+  assertRequest(request as AssertRequestParameters)
 
   const transaction = serializeTransaction({
     ...request,
-    chainId,
     type: 'eip1559',
-  })
+  } as TransactionSerializable)
 
   return readContract(client, {
     abi: gasPriceOracleAbi,
     address: gasPriceOracleAddress,
     functionName: 'getL1GasUsed',
-    args: [transaction],
+    args: [transaction as any],
   })
 }

@@ -8,7 +8,7 @@ Returns an estimate for the fees per gas (in wei) for a transaction to be likely
 
 If [`chain.fees.estimateFeesPerGas`](/docs/actions/public/estimateFeesPerGas) is set on the [Client Chain](/docs/clients/public#chain-optional) or [override Chain](#chain-optional), it will use the returned value.
 
-Otherwise, for EIP-1159 Transactions, viem will estimate the fees using a combination of the block's base fee per gas (to derive `maxFeePerGas`) + the [`estimateMaxPriorityFeePerGas` Action](/docs/actions/public/estimateMaxPriorityFeePerGas) (to derive `maxPriorityFeePerGas`). For Legacy Transactions, viem will estimate the fee based on the gas price (via the [`getGasPrice` Action](/docs/actions/public/getGasPrice)).
+Otherwise, for EIP-1559 Transactions, viem will estimate the fees using a combination of the block's base fee per gas (to derive `maxFeePerGas`) + the [`estimateMaxPriorityFeePerGas` Action](/docs/actions/public/estimateMaxPriorityFeePerGas) (to derive `maxPriorityFeePerGas`). For Legacy Transactions, viem will estimate the fee based on the gas price (via the [`getGasPrice` Action](/docs/actions/public/getGasPrice)).
 
 ## Usage
 

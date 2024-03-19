@@ -42,20 +42,20 @@ export type FormattedEstimateGas<
 export type EstimateGasParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedEstimateGas<TChain>, 'from'> & {
-  account?: Account | Address
+  account?: Account | Address | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
-        blockNumber?: bigint
-        blockTag?: never
+        blockNumber?: bigint | undefined
+        blockTag?: never | undefined
       }
     | {
-        blockNumber?: never
+        blockNumber?: never | undefined
         /**
          * The balance of the account at a block tag.
          * @default 'latest'
          */
-        blockTag?: BlockTag
+        blockTag?: BlockTag | undefined
       }
   )
 
@@ -106,11 +106,13 @@ export async function estimateGas<
   try {
     const {
       accessList,
+      blobs,
       blockNumber,
       blockTag,
       data,
       gas,
       gasPrice,
+      maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
@@ -138,9 +140,11 @@ export async function estimateGas<
       ...extract(rest, { format: chainFormat }),
       from: account?.address,
       accessList,
+      blobs,
       data,
       gas,
       gasPrice,
+      maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,

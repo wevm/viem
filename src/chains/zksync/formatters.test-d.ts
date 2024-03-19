@@ -15,7 +15,7 @@ import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import type { Assign } from '../../types/utils.js'
+import type { Assign, ExactPartial } from '../../types/utils.js'
 import { zkSync } from '../index.js'
 import { formatters } from './formatters.js'
 import type { ZkSyncEip712Meta } from './types/eip712.js'
@@ -29,7 +29,7 @@ import type {
 describe('block', () => {
   expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
     Assign<
-      Partial<RpcBlock>,
+      ExactPartial<RpcBlock>,
       {
         l1BatchNumber: `0x${string}` | null
         l1BatchTimestamp: `0x${string}` | null
@@ -49,7 +49,7 @@ describe('transactionReceipt', () => {
     .parameter(0)
     .toEqualTypeOf<
       Assign<
-        Partial<RpcTransactionReceipt>,
+        ExactPartial<RpcTransactionReceipt>,
         ZkSyncRpcTransactionReceiptOverrides
       >
     >()
@@ -117,7 +117,7 @@ describe('transactionRequest', () => {
   expectTypeOf(formatters.transactionRequest.format)
     .parameter(0)
     .toEqualTypeOf<
-      Assign<Partial<TransactionRequest>, ZkSyncTransactionRequest>
+      Assign<ExactPartial<TransactionRequest>, ZkSyncTransactionRequest>
     >()
   expectTypeOf<
     ReturnType<typeof formatters.transactionRequest.format>['eip712Meta']

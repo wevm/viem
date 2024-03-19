@@ -31,13 +31,15 @@ export type WaitForNextL2OutputParameters<
      * The buffer to account for discrepencies between non-deterministic time intervals.
      * @default 1.1
      */
-    intervalBuffer?: GetTimeToNextL2OutputParameters['intervalBuffer']
+    intervalBuffer?:
+      | GetTimeToNextL2OutputParameters['intervalBuffer']
+      | undefined
     l2BlockNumber: bigint
     /**
      * Polling frequency (in ms). Defaults to Client's pollingInterval config.
      * @default client.pollingInterval
      */
-    pollingInterval?: number
+    pollingInterval?: number | undefined
   }
 export type WaitForNextL2OutputReturnType = GetL2OutputReturnType
 export type WaitForNextL2OutputErrorType =

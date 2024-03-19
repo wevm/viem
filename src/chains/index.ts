@@ -72,6 +72,8 @@ export { filecoinCalibration } from './definitions/filecoinCalibration.js'
 export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
+export { flowPreviewnet } from './definitions/flowPreviewnet.js'
+export { flowMainnet } from './definitions/flowMainnet.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
 export { fraxtal } from './definitions/fraxtal.js'
@@ -109,6 +111,7 @@ export { lineaTestnet } from './definitions/lineaTestnet.js'
 export { liskSepolia } from './definitions/liskSepolia.js'
 export { localhost } from './definitions/localhost.js'
 export { lukso } from './definitions/lukso.js'
+export { luksoTestnet } from './definitions/luksoTestnet.js'
 export { mainnet } from './definitions/mainnet.js'
 export { mandala } from './definitions/mandala.js'
 export { manta } from './definitions/manta.js'
@@ -131,6 +134,7 @@ export { moonbaseAlpha } from './definitions/moonbaseAlpha.js'
 export { moonbeam } from './definitions/moonbeam.js'
 export { moonbeamDev } from './definitions/moonbeamDev.js'
 export { moonriver } from './definitions/moonriver.js'
+export { morphSepolia } from './definitions/morphSepolia.js'
 export { neonDevnet } from './definitions/neonDevnet.js'
 export { neonMainnet } from './definitions/neonMainnet.js'
 export { nexi } from './definitions/nexi.js'
@@ -150,6 +154,7 @@ export { pgn } from './definitions/pgn.js'
 export { pgnTestnet } from './definitions/pgnTestnet.js'
 export { phoenix } from './definitions/phoenix.js'
 export { plinga } from './definitions/plinga.js'
+export { plumeTestnet } from './definitions/plumeTestnet.js'
 export { polygon } from './definitions/polygon.js'
 export { polygonAmoy } from './definitions/polygonAmoy.js'
 export { polygonMumbai } from './definitions/polygonMumbai.js'
@@ -163,6 +168,8 @@ export { rollux } from './definitions/rollux.js'
 export { rolluxTestnet } from './definitions/rolluxTestnet.js'
 export { ronin } from './definitions/ronin.js'
 export { rootstock } from './definitions/rootstock.js'
+export { rss3 } from './definitions/rss3.js'
+export { rss3Sepolia } from './definitions/rss3Sepolia.js'
 export { saigon } from './definitions/saigon.js'
 export { sapphire } from './definitions/sapphire.js'
 export { sapphireTestnet } from './definitions/sapphireTestnet.js'
@@ -191,6 +198,7 @@ export { songbirdTestnet } from './definitions/songbirdTestnet.js'
 export { spicy } from './definitions/spicy.js'
 export { shardeumSphinx } from './definitions/shardeumSphinx.js'
 export { shibarium } from './definitions/shibarium.js'
+export { stratis } from './definitions/stratis.js'
 export { syscoin } from './definitions/syscoin.js'
 export { syscoinTestnet } from './definitions/syscoinTestnet.js'
 export { taraxa } from './definitions/taraxa.js'
@@ -210,16 +218,18 @@ export { wemixTestnet } from './definitions/wemixTestnet.js'
 export { x1Testnet } from './definitions/x1Testnet.js'
 export { xdc } from './definitions/xdc.js'
 export { xdcTestnet } from './definitions/xdcTestnet.js'
+export { zetachain } from './definitions/zetachain.js'
+export { zetachainAthensTestnet } from './definitions/zetachainAthensTestnet.js'
 export { zhejiang } from './definitions/zhejiang.js'
+export { zilliqa } from './definitions/zilliqa.js'
+export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
 export { zkFair } from './definitions/zkFair.js'
 export { zkFairTestnet } from './definitions/zkFairTestnet.js'
 export { zkSync } from './definitions/zkSync.js'
-export { zkSyncTestnet } from './definitions/zkSyncTestnet.js'
+export { zkSyncInMemoryNode } from './definitions/zkSyncInMemoryNode.js'
+export { zkSyncLocalNode } from './definitions/zkSyncLocalNode.js'
 export { zkSyncSepoliaTestnet } from './definitions/zkSyncSepoliaTestnet.js'
-export { zetachain } from './definitions/zetachain.js'
-export { zetachainAthensTestnet } from './definitions/zetachainAthensTestnet.js'
-export { zilliqa } from './definitions/zilliqa.js'
-export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
+export { zkSyncTestnet } from './definitions/zkSyncTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
@@ -245,7 +255,6 @@ export type {
   CeloTransactionRequest,
   CeloTransactionType,
   CeloTransactionSerializable,
-  CeloTransactionSerializableBase,
   CeloTransactionSerialized,
   RpcTransactionCIP42,
   RpcTransactionCIP64,
@@ -266,6 +275,14 @@ export type {
   OpStackRpcBlock,
   OpStackRpcBlockOverrides,
 } from './opStack/types/block.js'
+export type {
+  SerializeTransactionDepositReturnType,
+  SerializeTransactionErrorType,
+  SerializeTransactionReturnType,
+  serializeTransaction as serializeTransactionOpStack,
+  assertTransactionDeposit as assertTransactionDepositOpStack,
+  serializers as serializersOpStack,
+} from './opStack/serializers.js'
 export type {
   OpStackDepositTransaction,
   OpStackRpcDepositTransaction,

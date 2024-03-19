@@ -6,14 +6,22 @@ import type {
   TransactionSerializableBase,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
+  TransactionSerializableEIP4844,
   TransactionSerializableLegacy,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
+  TransactionSerializedEIP4844,
   TransactionSerializedLegacy,
 } from '../../types/transaction.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
+
+import { blobData, kzg } from '../../../test/src/kzg.js'
+import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
+import { toBlobSidecars } from '../blob/toBlobSidecars.js'
+import { toBlobs } from '../blob/toBlobs.js'
+import { stringToHex } from '../index.js'
 import { parseTransaction } from './parseTransaction.js'
 import { serializeTransaction } from './serializeTransaction.js'
 
@@ -22,6 +30,108 @@ const base = {
   nonce: 785,
   value: parseEther('1'),
 } satisfies TransactionSerializableBase
+
+describe('eip4844', () => {
+  const baseEip4844 = {
+    ...base,
+    blobVersionedHashes: [
+      '0x01adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+    ],
+    chainId: 1,
+  } as const satisfies TransactionSerializableEIP4844
+
+  test('default', () => {
+    const serialized = serializeTransaction(baseEip4844)
+    assertType<TransactionSerializedEIP4844>(serialized)
+    expect(serialized).toEqual(
+      '0x03f84a018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080e1a001adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+    )
+    expect(parseTransaction(serialized)).toEqual({
+      ...baseEip4844,
+      type: 'eip4844',
+    })
+  })
+
+  test('signature', () => {
+    expect(
+      serializeTransaction(baseEip4844, {
+        r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        yParity: 1,
+      }),
+    ).toEqual(
+      '0x03f88d018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080e1a001adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef01a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
+    expect(
+      serializeTransaction(
+        baseEip4844,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          yParity: 0,
+        },
+      ),
+    ).toEqual(
+      '0x03f88d018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080e1a001adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
+    expect(
+      serializeTransaction(
+        baseEip4844,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          v: 0n,
+        },
+      ),
+    ).toEqual(
+      '0x03f88d018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080e1a001adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
+    expect(
+      serializeTransaction(
+        baseEip4844,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          v: 1n,
+        },
+      ),
+    ).toEqual(
+      '0x03f88d018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080e1a001adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef01a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
+  })
+
+  test('network wrapper (blobVersionedHashes + sidecars)', () => {
+    const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
+    const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
+    const transaction = {
+      ...baseEip4844,
+      blobVersionedHashes,
+      sidecars,
+    } satisfies TransactionSerializableEIP4844
+    const serialized = serializeTransaction(transaction)
+    assertType<TransactionSerializedEIP4844>(serialized)
+    expect(serialized).toMatchSnapshot()
+    expect(parseTransaction(serialized)).toEqual({
+      ...transaction,
+      type: 'eip4844',
+    })
+  })
+
+  test('network wrapper (blobs + kzg)', () => {
+    const transaction = {
+      ...baseEip4844,
+      blobVersionedHashes: undefined,
+      blobs: toBlobs({ data: stringToHex(blobData) }),
+      kzg,
+    } satisfies TransactionSerializableEIP4844
+    const serialized = serializeTransaction(transaction)
+    assertType<TransactionSerializedEIP4844>(serialized)
+    expect(serialized).toMatchSnapshot()
+  })
+})
 
 describe('eip1559', () => {
   const baseEip1559 = {
@@ -154,7 +264,7 @@ describe('eip1559', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 28n,
+          yParity: 1,
         },
       ),
     ).toEqual(
@@ -167,7 +277,7 @@ describe('eip1559', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 27n,
+          yParity: 0,
         },
       ),
     ).toEqual(
@@ -378,7 +488,7 @@ describe('eip2930', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 28n,
+          yParity: 1,
         },
       ),
     ).toEqual(
@@ -391,7 +501,7 @@ describe('eip2930', () => {
         {
           r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          v: 27n,
+          yParity: 0,
         },
       ),
     ).toEqual(
@@ -575,6 +685,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
       ...signature,
+      yParity: undefined,
       type: 'legacy',
     })
   })
@@ -624,6 +735,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...args,
       ...signature,
+      yParity: undefined,
       type: 'legacy',
       v: 173n,
     })
@@ -667,6 +779,7 @@ test('cannot infer type from transaction object', () => {
     - a \`type\` to the Transaction, or
     - an EIP-1559 Transaction with \`maxFeePerGas\`, or
     - an EIP-2930 Transaction with \`gasPrice\` & \`accessList\`, or
+    - an EIP-4844 Transaction with \`blobs\`, \`blobVersionedHashes\`, \`sidecars\`, or
     - a Legacy Transaction with \`gasPrice\`
 
     Version: viem@1.0.2]

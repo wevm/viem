@@ -1,13 +1,21 @@
 import type { Address } from 'abitype'
 
+import type { BlobSidecar } from './eip4844.js'
 import type {
   FeeValuesEIP1559,
   FeeValuesEIP4844,
   FeeValuesLegacy,
 } from './fee.js'
+import type { Kzg } from './kzg.js'
 import type { Log } from './log.js'
-import type { Hash, Hex, Signature } from './misc.js'
-import type { OneOf } from './utils.js'
+import type { ByteArray, Hash, Hex, Signature } from './misc.js'
+import type {
+  Branded,
+  ExactPartial,
+  IsNever,
+  OneOf,
+  RequiredBy,
+} from './utils.js'
 
 export type AccessList = { address: Address; storageKeys: Hex[] }[]
 
@@ -25,15 +33,15 @@ export type TransactionReceipt<
   TType = TransactionType,
 > = {
   /** The actual value per gas deducted from the sender's account for blob gas. Only specified for blob transactions as defined by EIP-4844. */
-  blobGasPrice?: TQuantity
+  blobGasPrice?: TQuantity | undefined
   /** The amount of blob gas used. Only specified for blob transactions as defined by EIP-4844. */
-  blobGasUsed?: TQuantity
+  blobGasUsed?: TQuantity | undefined
   /** Hash of block containing this transaction */
   blockHash: Hash
   /** Number of block containing this transaction */
   blockNumber: TQuantity
   /** Address of new contract or `null` if no contract was created */
-  contractAddress: Address | null
+  contractAddress: Address | null | undefined
   /** Gas used by this and all preceding transactions in this block */
   cumulativeGasUsed: TQuantity
   /** Pre-London, it is equal to the transaction's gasPrice. Post-London, it is equal to the actual gas price paid for inclusion. */
@@ -47,7 +55,7 @@ export type TransactionReceipt<
   /** Logs bloom filter */
   logsBloom: Hex
   /** The post-transaction state root. Only specified for transactions included before the Byzantium upgrade. */
-  root?: Hash
+  root?: Hash | undefined
   /** `success` if this transaction was successful or `reverted` if it failed */
   status: TStatus
   /** Transaction recipient or `null` if deploying a contract */
@@ -104,11 +112,11 @@ export type TransactionLegacy<
 > = Omit<TransactionBase<TQuantity, TIndex, TPending>, 'yParity'> &
   FeeValuesLegacy<TQuantity> & {
     /** EIP-2930 Access List. */
-    accessList?: never
-    blobVersionedHashes?: never
+    accessList?: never | undefined
+    blobVersionedHashes?: never | undefined
     /** Chain ID that this transaction is valid on. */
-    chainId?: TIndex
-    yParity?: never
+    chainId?: TIndex | undefined
+    yParity?: never | undefined
     type: TType
   }
 export type TransactionEIP2930<
@@ -120,7 +128,7 @@ export type TransactionEIP2930<
   FeeValuesLegacy<TQuantity> & {
     /** EIP-2930 Access List. */
     accessList: AccessList
-    blobVersionedHashes?: never
+    blobVersionedHashes?: never | undefined
     /** Chain ID that this transaction is valid on. */
     chainId: TIndex
     type: TType
@@ -134,7 +142,7 @@ export type TransactionEIP1559<
   FeeValuesEIP1559<TQuantity> & {
     /** EIP-2930 Access List. */
     accessList: AccessList
-    blobVersionedHashes?: never
+    blobVersionedHashes?: never | undefined
     /** Chain ID that this transaction is valid on. */
     chainId: TIndex
     type: TType
@@ -167,110 +175,167 @@ export type Transaction<
 
 export type TransactionRequestBase<TQuantity = bigint, TIndex = number> = {
   /** Contract code or a hashed method call with encoded args */
-  data?: Hex
+  data?: Hex | undefined
   /** Transaction sender */
   from: Address
   /** Gas provided for transaction execution */
-  gas?: TQuantity
+  gas?: TQuantity | undefined
   /** Unique number identifying this transaction */
-  nonce?: TIndex
+  nonce?: TIndex | undefined
   /** Transaction recipient */
-  to?: Address | null
+  to?: Address | null | undefined
   /** Value in wei sent with this transaction */
-  value?: TQuantity
+  value?: TQuantity | undefined
 }
 export type TransactionRequestLegacy<
   TQuantity = bigint,
   TIndex = number,
   TTransactionType = 'legacy',
 > = TransactionRequestBase<TQuantity, TIndex> &
-  Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: never
-    type?: TTransactionType
+  ExactPartial<FeeValuesLegacy<TQuantity>> & {
+    accessList?: never | undefined
+    blobs?: undefined
+    type?: TTransactionType | undefined
   }
 export type TransactionRequestEIP2930<
   TQuantity = bigint,
   TIndex = number,
   TTransactionType = 'eip2930',
 > = TransactionRequestBase<TQuantity, TIndex> &
-  Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: AccessList
-    type?: TTransactionType
+  ExactPartial<FeeValuesLegacy<TQuantity>> & {
+    accessList?: AccessList | undefined
+    blobs?: undefined
+    type?: TTransactionType | undefined
   }
 export type TransactionRequestEIP1559<
   TQuantity = bigint,
   TIndex = number,
   TTransactionType = 'eip1559',
 > = TransactionRequestBase<TQuantity, TIndex> &
-  Partial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: AccessList
-    type?: TTransactionType
+  ExactPartial<FeeValuesEIP1559<TQuantity>> & {
+    accessList?: AccessList | undefined
+    blobs?: undefined
+    type?: TTransactionType | undefined
   }
-export type TransactionRequest<TQuantity = bigint, TIndex = number> =
+export type TransactionRequestEIP4844<
+  TQuantity = bigint,
+  TIndex = number,
+  TTransactionType = 'eip4844',
+> = RequiredBy<TransactionRequestBase<TQuantity, TIndex>, 'to'> &
+  RequiredBy<ExactPartial<FeeValuesEIP4844<TQuantity>>, 'maxFeePerBlobGas'> & {
+    accessList?: AccessList | undefined
+    /** The blobs associated with this transaction. */
+    blobs: readonly Hex[] | readonly ByteArray[]
+    type?: TTransactionType | undefined
+  }
+export type TransactionRequest<TQuantity = bigint, TIndex = number> = OneOf<
   | TransactionRequestLegacy<TQuantity, TIndex>
   | TransactionRequestEIP2930<TQuantity, TIndex>
   | TransactionRequestEIP1559<TQuantity, TIndex>
+  | TransactionRequestEIP4844<TQuantity, TIndex>
+>
 
 export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
-export type TransactionSerializedLegacy = Hex
-export type TransactionSerializedGeneric = Hex
-export type TransactionSerialized<TType extends TransactionType = 'legacy'> =
-  TType extends 'eip1559'
-    ? TransactionSerializedEIP1559
-    : TType extends 'eip2930'
-      ? TransactionSerializedEIP2930
-      : TType extends 'legacy'
-        ? TransactionSerializedLegacy
-        : TransactionSerializedGeneric
+export type TransactionSerializedEIP4844 = `0x03${string}`
+export type TransactionSerializedLegacy = Branded<`0x${string}`, 'legacy'>
+export type TransactionSerializedGeneric = `0x${string}`
+export type TransactionSerialized<
+  TType extends TransactionType = TransactionType,
+  result =
+    | (TType extends 'eip1559' ? TransactionSerializedEIP1559 : never)
+    | (TType extends 'eip2930' ? TransactionSerializedEIP2930 : never)
+    | (TType extends 'eip4844' ? TransactionSerializedEIP4844 : never)
+    | (TType extends 'legacy' ? TransactionSerializedLegacy : never),
+> = IsNever<result> extends true ? TransactionSerializedGeneric : result
 
 export type TransactionSerializableBase<
   TQuantity = bigint,
   TIndex = number,
-> = Omit<TransactionRequestBase<TQuantity, TIndex>, 'from'> & Partial<Signature>
+> = Omit<TransactionRequestBase<TQuantity, TIndex>, 'from'> &
+  ExactPartial<Signature>
+
 export type TransactionSerializableLegacy<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
-  Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: never
-    chainId?: number
-    type?: 'legacy'
+  ExactPartial<FeeValuesLegacy<TQuantity>> & {
+    accessList?: undefined
+    blobs?: undefined
+    blobVersionedHashes?: undefined
+    chainId?: number | undefined
+    type?: 'legacy' | undefined
   }
+
 export type TransactionSerializableEIP2930<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
-  Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: AccessList
+  ExactPartial<FeeValuesLegacy<TQuantity>> & {
+    accessList?: AccessList | undefined
+    blobs?: undefined
+    blobVersionedHashes?: undefined
     chainId: number
-    type?: 'eip2930'
-    yParity?: number
+    type?: 'eip2930' | undefined
+    yParity?: number | undefined
   }
+
 export type TransactionSerializableEIP1559<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
-  Partial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: AccessList
+  ExactPartial<FeeValuesEIP1559<TQuantity>> & {
+    accessList?: AccessList | undefined
+    blobs?: undefined
+    blobVersionedHashes?: undefined
     chainId: number
-    type?: 'eip1559'
-    yParity?: number
+    type?: 'eip1559' | undefined
+    yParity?: number | undefined
   }
+
+export type TransactionSerializableEIP4844<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionSerializableBase<TQuantity, TIndex> &
+  ExactPartial<FeeValuesEIP4844<TQuantity>> & {
+    accessList?: AccessList | undefined
+    chainId: number
+    type?: 'eip4844' | undefined
+    yParity?: number | undefined
+  } & OneOf<
+    | {
+        blobVersionedHashes: readonly Hex[]
+        sidecars?: readonly BlobSidecar<Hex>[] | false | undefined
+      }
+    | {
+        blobs: readonly Hex[] | readonly ByteArray[]
+        kzg: Kzg
+        sidecars?: false | undefined
+      }
+  >
+
 export type TransactionSerializableGeneric<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> & {
-  accessList?: AccessList
-  chainId?: number
-  gasPrice?: TQuantity
-  maxFeePerGas?: TQuantity
-  maxPriorityFeePerGas?: TQuantity
-  type: string
+  accessList?: AccessList | undefined
+  blobs?: readonly Hex[] | readonly ByteArray[] | undefined
+  blobVersionedHashes?: readonly Hex[] | undefined
+  chainId?: number | undefined
+  gasPrice?: TQuantity | undefined
+  maxFeePerBlobGas?: TQuantity | undefined
+  maxFeePerGas?: TQuantity | undefined
+  maxPriorityFeePerGas?: TQuantity | undefined
+  sidecars?: readonly BlobSidecar<Hex>[] | false | undefined
+  type?: string | undefined
 }
 
-export type TransactionSerializable<TQuantity = bigint, TIndex = number> =
+export type TransactionSerializable<
+  TQuantity = bigint,
+  TIndex = number,
+> = OneOf<
   | TransactionSerializableLegacy<TQuantity, TIndex>
   | TransactionSerializableEIP2930<TQuantity, TIndex>
   | TransactionSerializableEIP1559<TQuantity, TIndex>
-  | TransactionSerializableGeneric<TQuantity, TIndex>
+  | TransactionSerializableEIP4844<TQuantity, TIndex>
+>

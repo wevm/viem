@@ -21,7 +21,7 @@ export type WatchPendingTransactionsParameters<
   TTransport extends Transport = Transport,
 > = {
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: ((error: Error) => void) | undefined
   /** The callback to call when new transactions are received. */
   onTransactions: OnTransactionsFn
 } & GetPollOptions<TTransport>
@@ -157,7 +157,7 @@ export function watchPendingTransactions<
         onError?.(err as Error)
       }
     })()
-    return unsubscribe
+    return () => unsubscribe()
   }
 
   return enablePolling

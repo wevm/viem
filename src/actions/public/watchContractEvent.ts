@@ -154,6 +154,7 @@ export function watchContractEvent<
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
 
   const pollContractEvent = () => {
+    const strict = strict_ ?? false
     const observerId = stringify([
       'watchContractEvent',
       address,
@@ -162,8 +163,8 @@ export function watchContractEvent<
       client.uid,
       eventName,
       pollingInterval,
+      strict,
     ])
-    const strict = strict_ ?? false
 
     return observe(observerId, { onLogs, onError }, (emit) => {
       let previousBlockNumber: bigint
@@ -262,69 +263,84 @@ export function watchContractEvent<
   }
 
   const subscribeContractEvent = () => {
+    const strict = strict_ ?? false
+    const observerId = stringify([
+      'watchContractEvent',
+      address,
+      args,
+      batch,
+      client.uid,
+      eventName,
+      pollingInterval,
+      strict,
+    ])
+
     let active = true
     let unsubscribe = () => (active = false)
-    ;(async () => {
-      try {
-        const topics: LogTopic[] = eventName
-          ? encodeEventTopics({
-              abi: abi,
-              eventName: eventName,
-              args,
-            } as EncodeEventTopicsParameters)
-          : []
-
-        const { unsubscribe: unsubscribe_ } = await client.transport.subscribe({
-          params: ['logs', { address, topics }],
-          onData(data: any) {
-            if (!active) return
-            const log = data.result
-            try {
-              const { eventName, args } = decodeEventLog({
+    return observe(observerId, { onLogs, onError }, (emit) => {
+      ;(async () => {
+        try {
+          const topics: LogTopic[] = eventName
+            ? encodeEventTopics({
                 abi: abi,
-                data: log.data,
-                topics: log.topics as any,
-                strict: strict_,
-              })
-              const formatted = formatLog(log, {
+                eventName: eventName,
                 args,
-                eventName: eventName as string,
-              })
-              onLogs([formatted] as any)
-            } catch (err) {
-              let eventName: string | undefined
-              let isUnnamed: boolean | undefined
-              if (
-                err instanceof DecodeLogDataMismatch ||
-                err instanceof DecodeLogTopicsMismatch
-              ) {
-                // If strict mode is on, and log data/topics do not match event definition, skip.
-                if (strict_) return
-                eventName = err.abiItem.name
-                isUnnamed = err.abiItem.inputs?.some(
-                  (x) => !('name' in x && x.name),
-                )
-              }
+              } as EncodeEventTopicsParameters)
+            : []
 
-              // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
-              const formatted = formatLog(log, {
-                args: isUnnamed ? [] : {},
-                eventName,
-              })
-              onLogs([formatted] as any)
-            }
-          },
-          onError(error: Error) {
-            onError?.(error)
-          },
-        })
-        unsubscribe = unsubscribe_
-        if (!active) unsubscribe()
-      } catch (err) {
-        onError?.(err as Error)
-      }
-    })()
-    return unsubscribe
+          const { unsubscribe: unsubscribe_ } =
+            await client.transport.subscribe({
+              params: ['logs', { address, topics }],
+              onData(data: any) {
+                if (!active) return
+                const log = data.result
+                try {
+                  const { eventName, args } = decodeEventLog({
+                    abi: abi,
+                    data: log.data,
+                    topics: log.topics as any,
+                    strict: strict_,
+                  })
+                  const formatted = formatLog(log, {
+                    args,
+                    eventName: eventName as string,
+                  })
+                  emit.onLogs([formatted] as any)
+                } catch (err) {
+                  let eventName: string | undefined
+                  let isUnnamed: boolean | undefined
+                  if (
+                    err instanceof DecodeLogDataMismatch ||
+                    err instanceof DecodeLogTopicsMismatch
+                  ) {
+                    // If strict mode is on, and log data/topics do not match event definition, skip.
+                    if (strict_) return
+                    eventName = err.abiItem.name
+                    isUnnamed = err.abiItem.inputs?.some(
+                      (x) => !('name' in x && x.name),
+                    )
+                  }
+
+                  // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+                  const formatted = formatLog(log, {
+                    args: isUnnamed ? [] : {},
+                    eventName,
+                  })
+                  emit.onLogs([formatted] as any)
+                }
+              },
+              onError(error: Error) {
+                emit.onError?.(error)
+              },
+            })
+          unsubscribe = unsubscribe_
+          if (!active) unsubscribe()
+        } catch (err) {
+          onError?.(err as Error)
+        }
+      })()
+      return () => unsubscribe()
+    })
   }
 
   return enablePolling ? pollContractEvent() : subscribeContractEvent()

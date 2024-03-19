@@ -20,6 +20,7 @@ import {
   InvalidAddressError,
   type InvalidAddressErrorType,
 } from '../../errors/address.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
@@ -311,6 +312,10 @@ export type EncodeBoolErrorType =
   | ErrorType
 
 function encodeBool(value: boolean): PreparedParam {
+  if (typeof value !== 'boolean')
+    throw new BaseError(
+      `Invalid boolean value: "${value}" (type: ${typeof value}). Expected: \`true\` or \`false\`.`,
+    )
   return { dynamic: false, encoded: padHex(boolToHex(value)) }
 }
 

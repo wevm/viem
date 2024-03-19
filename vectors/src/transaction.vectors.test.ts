@@ -18,6 +18,9 @@ const transactions = transactions_.map(
       ...transaction,
       gas: transaction.gas ? BigInt(transaction.gas) : undefined,
       gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,
+      maxFeePerBlobGas: transaction.maxFeePerBlobGas
+        ? BigInt(transaction.maxFeePerBlobGas)
+        : undefined,
       maxFeePerGas: transaction.maxFeePerGas
         ? BigInt(transaction.maxFeePerGas)
         : undefined,
@@ -43,6 +46,7 @@ describe('parseTransaction', () => {
         if (!transaction.gas) delete transaction.gas
         if (!transaction.gasPrice) delete transaction.gasPrice
         if (!transaction.maxFeePerGas) delete transaction.maxFeePerGas
+        if (!transaction.maxFeePerBlobGas) delete transaction.maxFeePerBlobGas
         if (!transaction.maxPriorityFeePerGas)
           delete transaction.maxPriorityFeePerGas
         if (!transaction.nonce) delete transaction.nonce

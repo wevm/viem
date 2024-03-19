@@ -10,9 +10,9 @@ import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type ResetParameters = {
   /** The block number to reset from. */
-  blockNumber?: bigint
+  blockNumber?: bigint | undefined
   /** The JSON RPC URL. */
-  jsonRpcUrl?: string
+  jsonRpcUrl?: string | undefined
 }
 
 export type ResetErrorType = RequestErrorType | ErrorType

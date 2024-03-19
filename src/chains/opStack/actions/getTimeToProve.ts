@@ -26,7 +26,9 @@ export type GetTimeToProveParameters<
      * The buffer to account for discrepencies between non-deterministic time intervals.
      * @default 1.1
      */
-    intervalBuffer?: GetTimeToNextL2OutputParameters['intervalBuffer']
+    intervalBuffer?:
+      | GetTimeToNextL2OutputParameters['intervalBuffer']
+      | undefined
     receipt: TransactionReceipt
   }
 export type GetTimeToProveReturnType = GetTimeToNextL2OutputReturnType

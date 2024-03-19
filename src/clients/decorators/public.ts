@@ -74,6 +74,10 @@ import {
   getBalance,
 } from '../../actions/public/getBalance.js'
 import {
+  type GetBlobBaseFeeReturnType,
+  getBlobBaseFee,
+} from '../../actions/public/getBlobBaseFee.js'
+import {
   type GetBlockParameters,
   type GetBlockReturnType,
   getBlock,
@@ -217,8 +221,8 @@ import {
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
 import {
-  type PrepareTransactionRequestParameterType,
   type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestRequest,
   type PrepareTransactionRequestReturnType,
   prepareTransactionRequest,
 } from '../../actions/wallet/prepareTransactionRequest.js'
@@ -372,15 +376,17 @@ export type PublicActions<
       | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
       | undefined = undefined,
   >(
-    args?: CreateEventFilterParameters<
-      TAbiEvent,
-      TAbiEvents,
-      TStrict,
-      TFromBlock,
-      TToBlock,
-      _EventName,
-      _Args
-    >,
+    args?:
+      | CreateEventFilterParameters<
+          TAbiEvent,
+          TAbiEvents,
+          TStrict,
+          TFromBlock,
+          TToBlock,
+          _EventName,
+          _Args
+        >
+      | undefined,
   ) => Promise<
     CreateEventFilterReturnType<
       TAbiEvent,
@@ -512,6 +518,27 @@ export type PublicActions<
    */
   getBalance: (args: GetBalanceParameters) => Promise<GetBalanceReturnType>
   /**
+   * Returns the base fee per blob gas in wei.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getBlobBaseFee
+   * - JSON-RPC Methods: [`eth_blobBaseFee`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blobBaseFee)
+   *
+   * @param client - Client to use
+   * @returns The blob base fee (in wei). {@link GetBlobBaseFeeReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { getBlobBaseFee } from 'viem/public'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const blobBaseFee = await client.getBlobBaseFee()
+   */
+  getBlobBaseFee: () => Promise<GetBlobBaseFeeReturnType>
+  /**
    * Returns information about a block at a block number, hash, or tag.
    *
    * - Docs: https://viem.sh/docs/actions/public/getBlock
@@ -537,7 +564,7 @@ export type PublicActions<
     TIncludeTransactions extends boolean = false,
     TBlockTag extends BlockTag = 'latest',
   >(
-    args?: GetBlockParameters<TIncludeTransactions, TBlockTag>,
+    args?: GetBlockParameters<TIncludeTransactions, TBlockTag> | undefined,
   ) => Promise<GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>>
   /**
    * Returns the number of the most recent block seen.
@@ -561,7 +588,7 @@ export type PublicActions<
    * // 69420n
    */
   getBlockNumber: (
-    args?: GetBlockNumberParameters,
+    args?: GetBlockNumberParameters | undefined,
   ) => Promise<GetBlockNumberReturnType>
   /**
    * Returns the number of Transactions at a block number, hash, or tag.
@@ -585,7 +612,7 @@ export type PublicActions<
    * const count = await client.getBlockTransactionCount()
    */
   getBlockTransactionCount: (
-    args?: GetBlockTransactionCountParameters,
+    args?: GetBlockTransactionCountParameters | undefined,
   ) => Promise<GetBlockTransactionCountReturnType>
   /**
    * Retrieves the bytecode at an address.
@@ -870,7 +897,9 @@ export type PublicActions<
     TChainOverride extends Chain | undefined = undefined,
     TType extends FeeValuesType = 'eip1559',
   >(
-    args?: EstimateFeesPerGasParameters<TChain, TChainOverride, TType>,
+    args?:
+      | EstimateFeesPerGasParameters<TChain, TChainOverride, TType>
+      | undefined,
   ) => Promise<EstimateFeesPerGasReturnType>
   /**
    * Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter) since the last time it was called.
@@ -1068,13 +1097,9 @@ export type PublicActions<
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
     TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args?: GetLogsParameters<
-      TAbiEvent,
-      TAbiEvents,
-      TStrict,
-      TFromBlock,
-      TToBlock
-    >,
+    args?:
+      | GetLogsParameters<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
+      | undefined,
   ) => Promise<
     GetLogsReturnType<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
   >
@@ -1126,7 +1151,9 @@ export type PublicActions<
   estimateMaxPriorityFeePerGas: <
     TChainOverride extends Chain | undefined = undefined,
   >(
-    args?: EstimateMaxPriorityFeePerGasParameters<TChain, TChainOverride>,
+    args?:
+      | EstimateMaxPriorityFeePerGasParameters<TChain, TChainOverride>
+      | undefined,
   ) => Promise<EstimateMaxPriorityFeePerGasReturnType>
   /**
    * Returns the value from a storage slot at a given address.
@@ -1335,7 +1362,10 @@ export type PublicActions<
    * })
    */
   prepareTransactionRequest: <
-    TParameterType extends PrepareTransactionRequestParameterType,
+    const TRequest extends PrepareTransactionRequestRequest<
+      TChain,
+      TChainOverride
+    >,
     TChainOverride extends Chain | undefined = undefined,
     TAccountOverride extends Account | Address | undefined = undefined,
   >(
@@ -1344,7 +1374,7 @@ export type PublicActions<
       TAccount,
       TChainOverride,
       TAccountOverride,
-      TParameterType
+      TRequest
     >,
   ) => Promise<
     PrepareTransactionRequestReturnType<
@@ -1352,7 +1382,8 @@ export type PublicActions<
       TAccount,
       TChainOverride,
       TAccountOverride,
-      TParameterType
+      // @ts-expect-error
+      TRequest
     >
   >
   /**
@@ -1742,6 +1773,7 @@ export function publicActions<
     estimateContractGas: (args) => estimateContractGas(client, args as any),
     estimateGas: (args) => estimateGas(client, args),
     getBalance: (args) => getBalance(client, args),
+    getBlobBaseFee: () => getBlobBaseFee(client),
     getBlock: (args) => getBlock(client, args),
     getBlockNumber: (args) => getBlockNumber(client, args),
     getBlockTransactionCount: (args) => getBlockTransactionCount(client, args),

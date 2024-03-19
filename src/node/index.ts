@@ -5,6 +5,8 @@ export {
   ipc,
 } from '../clients/transports/ipc.js'
 
+export { mainnetTrustedSetupPath } from './trustedSetups.js'
+
 export {
   type IpcRpcClient,
   getIpcRpcClient,

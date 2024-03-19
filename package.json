@@ -54,6 +54,7 @@
     "@vitest/coverage-v8": "^1.0.4",
     "@vitest/ui": "^1.0.4",
     "bun-types": "^1.0.1",
+    "c-kzg": "^2.1.2",
     "ethers": "^6.0.2",
     "fs-extra": "^10.1.0",
     "globby": "^13.2.2",
@@ -64,6 +65,7 @@
     "vite": "^5.0.7",
     "vitest": "^1.0.4"
   },
+  "trustedDependencies": ["c-kzg"],
   "simple-git-hooks": {
     "pre-commit": "bun run format && bun run lint:fix"
   }

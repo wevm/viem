@@ -390,7 +390,7 @@ export type PublicActionsL2<
    * const l1BaseFee = await client.getL1BaseFee()
    */
   getL1BaseFee: <chainOverride extends Chain | undefined = undefined>(
-    parameters?: GetL1BaseFeeParameters<chain, chainOverride>,
+    parameters?: GetL1BaseFeeParameters<chain, chainOverride> | undefined,
   ) => Promise<GetL1BaseFeeReturnType>
   /**
    * Estimates the amount of L1 data gas required to execute an L2 transaction.
@@ -482,10 +482,10 @@ export type PublicActionsL2<
  * import { optimism } from 'viem/chains'
  * import { buildDepositTransaction } from 'viem/wallet'
  *
- * export const opStackPublicClientL1 = createWalletClient({
+ * export const opStackPublicClientL2 = createPublicClient({
  *   chain: optimism,
  *   transport: http(),
- * }).extend(publicActionsL1())
+ * }).extend(publicActionsL2())
  */
 export function publicActionsL2() {
   return <

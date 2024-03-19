@@ -40,6 +40,7 @@ test('default', async () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "getBalance": [Function],
+      "getBlobBaseFee": [Function],
       "getBlock": [Function],
       "getBlockNumber": [Function],
       "getBlockTransactionCount": [Function],
@@ -137,6 +138,10 @@ describe('smoke test', () => {
     expect(
       await publicClient.getBalance({ address: accounts[5].address }),
     ).toEqual(10000000000000000000000n)
+  })
+
+  test.skip('getBlobBaseFee', async () => {
+    expect(await publicClient.getBlobBaseFee()).toBeDefined()
   })
 
   test('getBlock', async () => {

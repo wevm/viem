@@ -69,6 +69,7 @@ export class InvalidSerializableTransactionError extends BaseError {
         '- a `type` to the Transaction, or',
         '- an EIP-1559 Transaction with `maxFeePerGas`, or',
         '- an EIP-2930 Transaction with `gasPrice` & `accessList`, or',
+        '- an EIP-4844 Transaction with `blobs`, `blobVersionedHashes`, `sidecars`, or',
         '- a Legacy Transaction with `gasPrice`',
       ],
     })
@@ -164,8 +165,8 @@ export class TransactionExecutionError extends BaseError {
       value,
     }: Omit<SendTransactionParameters, 'account' | 'chain'> & {
       account: Account
-      chain?: Chain
-      docsPath?: string
+      chain?: Chain | undefined
+      docsPath?: string | undefined
     },
   ) {
     const prettyArgs = prettyPrint({
@@ -213,11 +214,11 @@ export class TransactionNotFoundError extends BaseError {
     hash,
     index,
   }: {
-    blockHash?: Hash
-    blockNumber?: bigint
-    blockTag?: BlockTag
-    hash?: Hash
-    index?: number
+    blockHash?: Hash | undefined
+    blockNumber?: bigint | undefined
+    blockTag?: BlockTag | undefined
+    hash?: Hash | undefined
+    index?: number | undefined
   }) {
     let identifier = 'Transaction'
     if (blockTag && index !== undefined)

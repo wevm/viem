@@ -40,7 +40,7 @@ export type EstimateInitiateWithdrawalGasParameters<
   GetAccountParameter<account, Account | Address> &
   GetChainParameter<chain, chainOverride> & {
     /** Gas limit for transaction execution on the L2. */
-    gas?: bigint | null
+    gas?: bigint | null | undefined
     /**
      * Withdrawal request.
      * Supplied to the L2ToL1MessagePasser `initiateWithdrawal` method.

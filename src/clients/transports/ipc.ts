@@ -13,7 +13,7 @@ import {
 
 type IpcTransportSubscribeParameters = {
   onData: (data: RpcResponse) => void
-  onError?: (error: any) => void
+  onError?: ((error: any) => void) | undefined
 }
 
 type IpcTransportSubscribeReturnType = {
@@ -35,15 +35,15 @@ type IpcTransportSubscribe = {
 
 export type IpcTransportConfig = {
   /** The key of the Ipc transport. */
-  key?: TransportConfig['key']
+  key?: TransportConfig['key'] | undefined
   /** The name of the Ipc transport. */
-  name?: TransportConfig['name']
+  name?: TransportConfig['name'] | undefined
   /** The max number of times to retry. */
-  retryCount?: TransportConfig['retryCount']
+  retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
-  retryDelay?: TransportConfig['retryDelay']
+  retryDelay?: TransportConfig['retryDelay'] | undefined
   /** The timeout (in ms) for async Ipc requests. Default: 10_000 */
-  timeout?: TransportConfig['timeout']
+  timeout?: TransportConfig['timeout'] | undefined
 }
 
 export type IpcTransport = Transport<

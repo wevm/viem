@@ -69,38 +69,38 @@ export type WatchEventParameters<
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** The address of the contract. */
-  address?: Address | Address[]
+  address?: Address | Address[] | undefined
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
   onLogs: WatchEventOnLogsFn<TAbiEvent, TAbiEvents, TStrict, _EventName>
 } & GetPollOptions<TTransport> &
   (
     | {
         event: TAbiEvent
-        events?: never
-        args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
+        events?: never | undefined
+        args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName> | undefined
         /**
          * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
          * @default false
          */
-        strict?: TStrict
+        strict?: TStrict | undefined
       }
     | {
-        event?: never
-        events?: TAbiEvents
-        args?: never
+        event?: never | undefined
+        events?: TAbiEvents | undefined
+        args?: never | undefined
         /**
          * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
          * @default false
          */
-        strict?: TStrict
+        strict?: TStrict | undefined
       }
     | {
-        event?: never
-        events?: never
-        args?: never
-        strict?: never
+        event?: never | undefined
+        events?: never | undefined
+        args?: never | undefined
+        strict?: never | undefined
       }
   )
 
@@ -349,7 +349,7 @@ export function watchEvent<
         onError?.(err as Error)
       }
     })()
-    return unsubscribe
+    return () => unsubscribe()
   }
 
   return enablePolling ? pollEvent() : subscribeEvent()
