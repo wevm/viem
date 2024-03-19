@@ -27,3 +27,5 @@ vectors/**/*.json
 # docs
 site/dist
 .vercel
+
+.optimism
