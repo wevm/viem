@@ -123,6 +123,26 @@ const data = encodeFunctionData({
 })
 ```
 
+### Preparation (Performance Optimization)
+
+If you are calling the same function multiple times, you can prepare the function selector once and reuse it.
+
+```ts
+import { prepareEncodeFunctionData, encodeFunctionData } from 'viem'
+
+const transfer = prepareEncodeFunctionData({
+  abi: erc20Abi,
+  functionName: 'transfer',
+})
+
+for (const address of addresses) {
+  const data = encodeFunctionData({
+    ...transfer,
+    args: [address, 69420n],
+  })
+}
+```
+
 ## Return Value
 
 [`Hex`](/docs/glossary/types#hex)

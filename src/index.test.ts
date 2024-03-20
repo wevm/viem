@@ -262,6 +262,7 @@ test('exports', () => {
       "encodeErrorResult",
       "encodeEventTopics",
       "encodeFunctionData",
+      "prepareEncodeFunctionData",
       "encodeFunctionResult",
       "parseEventLogs",
       "defineTransaction",

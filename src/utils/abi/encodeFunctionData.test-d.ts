@@ -2,6 +2,7 @@ import { expectTypeOf, test } from 'vitest'
 
 import { type Abi, parseAbi } from 'abitype'
 import { wagmiContractConfig } from '~test/src/abis.js'
+import type { Hex } from '../../types/misc.js'
 import {
   type EncodeFunctionDataParameters,
   encodeFunctionData,
@@ -123,7 +124,9 @@ test('single abi function, functionName not required', () => {
   })
 
   type Result = EncodeFunctionDataParameters<typeof abi>
-  expectTypeOf<Result['functionName']>().toEqualTypeOf<'approve' | undefined>()
+  expectTypeOf<Result['functionName']>().toEqualTypeOf<
+    'approve' | Hex | undefined
+  >()
 })
 
 test('multiple abi functions, functionName required', () => {
@@ -149,6 +152,7 @@ test('multiple abi functions, functionName required', () => {
     | 'tokenURI'
     | 'totalSupply'
     | 'transferFrom'
+    | Hex
   >()
 })
 
