@@ -30,8 +30,8 @@ export const immutableZkEvmTestnet = defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0x965B104e250648d01d4B3b72BaC751Cde809D29E',
-      blockCreated: 3471259,
+      address: '0x2CC787Ed364600B0222361C4188308Fa8E68bA60',
+      blockCreated: 5977391,
     },
   },
 })
