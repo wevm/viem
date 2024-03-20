@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.15
+
+### Patch Changes
+
+- [#1984](https://github.com/wevm/viem/pull/1984) [`843a0e114445da084333f0df0dedf1f325190f3d`](https://github.com/wevm/viem/commit/843a0e114445da084333f0df0dedf1f325190f3d) Thanks [@Confucian-e](https://github.com/Confucian-e)! - Exported `AbiEvent`.
+
 ## 2.8.14
 
 ### Patch Changes
