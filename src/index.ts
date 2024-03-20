@@ -2,6 +2,7 @@ export {
   type Abi,
   type AbiFunction,
   type AbiParameter,
+  type AbiEvent,
   type AbiStateMutability,
   type AbiParameterKind,
   type AbiParameterToPrimitiveType,
