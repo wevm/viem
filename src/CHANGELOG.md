@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.14
+
+### Patch Changes
+
+- [#1981](https://github.com/wevm/viem/pull/1981) [`86b75c4f4d526698f2308145c10a7052cec5b03f`](https://github.com/wevm/viem/commit/86b75c4f4d526698f2308145c10a7052cec5b03f) Thanks [@jxom](https://github.com/jxom)! - Added `prepareEncodeFunctionData`.
+
 ## 2.8.13
 
 ### Patch Changes
