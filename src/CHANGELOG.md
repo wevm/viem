@@ -1,5 +1,11 @@
 # viem
 
+## 2.8.16
+
+### Patch Changes
+
+- [`26d6dc54117a1a0f57bb18098a64fb98692cfdda`](https://github.com/wevm/viem/commit/26d6dc54117a1a0f57bb18098a64fb98692cfdda) Thanks [@jxom](https://github.com/jxom)! - Fixed early termination in `fromBlobs`.
+
 ## 2.8.15
 
 ### Patch Changes
