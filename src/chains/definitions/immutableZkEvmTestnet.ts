@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const immutableZkEvmTestnet = defineChain({
   id: 13473,
-  name: 'Immutable Testnet',
+  name: 'Immutable zkEVM Testnet',
   testnet: true,
   network: 'immutable',
   nativeCurrency: {
