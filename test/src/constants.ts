@@ -97,7 +97,7 @@ if (process.env.VITE_ANVIL_FORK_URL_SEPOLIA) {
 } else {
   forkUrlSepolia = 'https://rpc.sepolia.org'
   warn(
-    `\`VITE_ANVIL_FORK_URL_SEPOLIA\` not found. Falling back to \`${forkUrl}\`.`,
+    `\`VITE_ANVIL_FORK_URL_SEPOLIA\` not found. Falling back to \`${forkUrlSepolia}\`.`,
   )
 }
 
