@@ -196,6 +196,24 @@ import {
 } from 'viem'
 ```
 
+### Utilties: `isAddress` & `getAddress` perform checksum validation
+
+The `isAddress` utility function now performs checksum validation by default. 
+
+To opt-out of this behavior, you can pass `strict: false` or lowercase the address.
+
+```ts
+import { isAddress } from 'viem'
+
+isAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac', {
+  strict: false // [!code ++]
+})
+
+isAddress(
+  '0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac'.toLowerCase() // [!code ++]
+)
+```
+
 ## 1.x.x Breaking changes
 
 The 1.x.x release only includes very minor changes to the behavior in event log decoding, and removes the redundant ethers.js Wallet Adapter. If you do not directly use these APIs, you do not need to update any of your code for this version.
