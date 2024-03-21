@@ -82,12 +82,9 @@ export async function getGame<
   client: Client<Transport, chain, account>,
   parameters: GetGameParameters<chain, chainOverride>,
 ): Promise<GetGameReturnType> {
-  const { l2BlockNumber, limit = 100, strategy = 'latest' } = parameters
+  const { l2BlockNumber, strategy = 'latest' } = parameters
 
-  const latestGames = await getGames(client, {
-    ...parameters,
-    limit,
-  })
+  const latestGames = await getGames(client, parameters)
 
   const games = latestGames.filter((game) => game.l2BlockNumber > l2BlockNumber)
 
