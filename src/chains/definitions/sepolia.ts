@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const sepolia = /*#__PURE__*/ defineChain({
   id: 11_155_111,
   name: 'Sepolia',
-  nativeCurrency: { name: 'Sepolia Ether', symbol: 'SETH', decimals: 18 },
+  nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://rpc.sepolia.org'],
