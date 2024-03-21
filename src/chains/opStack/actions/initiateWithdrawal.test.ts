@@ -176,7 +176,8 @@ test('error: small gas', async () => {
 
 describe.skip('e2e', () => {
   const account = privateKeyToAccount(
-    process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
+    (process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`) ||
+      accounts[0].privateKey,
   )
 
   const client_opSepolia = createClient({
@@ -190,7 +191,7 @@ describe.skip('e2e', () => {
     transport: http(),
   })
 
-  test.skip('full', async () => {
+  test('full', async () => {
     const args = await buildInitiateWithdrawal(client_sepolia, {
       to: account.address,
       value: 69n,
@@ -247,7 +248,7 @@ describe.skip('e2e', () => {
     })
   }, 1200000)
 
-  test.skip('e2e (prove step)', async () => {
+  test('e2e (prove step)', async () => {
     const receipt = await getTransactionReceipt(client_opSepolia, {
       hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
     })
