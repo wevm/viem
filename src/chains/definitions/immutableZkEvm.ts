@@ -21,11 +21,11 @@ export const immutableZkEvm = /*#__PURE__*/ defineChain({
   blockExplorers: {
     etherscan: {
       name: 'Immutable Explorer',
-      url: 'https://explorer.immutable.com/',
+      url: 'https://explorer.immutable.com',
     },
     default: {
       name: 'Immutable Explorer',
-      url: 'https://explorer.immutable.com/',
+      url: 'https://explorer.immutable.com',
     },
   },
   contracts: {
