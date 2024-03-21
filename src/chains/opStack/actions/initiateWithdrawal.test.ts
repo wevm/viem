@@ -20,7 +20,7 @@ import { getWithdrawals } from '../utils/getWithdrawals.js'
 import { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 import { buildProveWithdrawal } from './buildProveWithdrawal.js'
 import { finalizeWithdrawal } from './finalizeWithdrawal.js'
-import { getDisputeGame } from './getDisputeGame.js'
+import { getGame } from './getGame.js'
 import { getTimeToFinalize } from './getTimeToFinalize.js'
 import { getTimeToProve } from './getTimeToProve.js'
 import { initiateWithdrawal } from './initiateWithdrawal.js'
@@ -253,7 +253,7 @@ describe.skip('e2e', () => {
     })
 
     const [withdrawal] = getWithdrawals(receipt)
-    const game = await getDisputeGame(client_sepolia, {
+    const game = await getGame(client_sepolia, {
       l2BlockNumber: receipt.blockNumber,
       targetChain: client_opSepolia.chain,
       strategy: 'latest',

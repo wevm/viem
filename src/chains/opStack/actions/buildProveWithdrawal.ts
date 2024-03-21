@@ -31,7 +31,7 @@ import {
   type GetWithdrawalHashStorageSlotErrorType,
   getWithdrawalHashStorageSlot,
 } from '../utils/getWithdrawalHashStorageSlot.js'
-import { type GetDisputeGameReturnType } from './getDisputeGame.js'
+import { type GetGameReturnType } from './getGame.js'
 import type { GetL2OutputReturnType } from './getL2Output.js'
 import type { ProveWithdrawalParameters } from './proveWithdrawal.js'
 
@@ -50,9 +50,7 @@ export type BuildProveWithdrawalParameters<
 > = GetAccountParameter<account, accountOverride, false> &
   GetChainParameter<chain, chainOverride> & {
     withdrawal: Withdrawal
-  } & OneOf<
-    { output: GetL2OutputReturnType } | { game: GetDisputeGameReturnType }
-  >
+  } & OneOf<{ output: GetL2OutputReturnType } | { game: GetGameReturnType }>
 
 export type BuildProveWithdrawalReturnType<
   chain extends Chain | undefined = Chain | undefined,

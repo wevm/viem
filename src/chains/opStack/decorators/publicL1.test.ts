@@ -25,8 +25,8 @@ test('default', async () => {
       "estimateDepositTransactionGas": [Function],
       "estimateFinalizeWithdrawalGas": [Function],
       "estimateProveWithdrawalGas": [Function],
-      "getDisputeGame": [Function],
-      "getDisputeGames": [Function],
+      "getGame": [Function],
+      "getGames": [Function],
       "getL2Output": [Function],
       "getPortalVersion": [Function],
       "getTimeToFinalize": [Function],
@@ -99,8 +99,8 @@ describe('smoke test', () => {
     expect(gas).toBeDefined()
   })
 
-  test('getDisputeGame', async () => {
-    const request = await sepoliaClient.getDisputeGame({
+  test('getGame', async () => {
+    const request = await sepoliaClient.getGame({
       l2BlockNumber: 9510398n,
       limit: 10,
       targetChain: optimismSepolia,
@@ -108,8 +108,8 @@ describe('smoke test', () => {
     expect(request).toBeDefined()
   })
 
-  test('getDisputeGames', async () => {
-    const request = await sepoliaClient.getDisputeGames({
+  test('getGames', async () => {
+    const request = await sepoliaClient.getGames({
       l2BlockNumber: 9510398n,
       limit: 10,
       targetChain: optimismSepolia,
@@ -160,7 +160,7 @@ describe('smoke test', () => {
   })
 
   test('waitForNextGame', async () => {
-    const games = await sepoliaClient.getDisputeGames({
+    const games = await sepoliaClient.getGames({
       limit: 10,
       targetChain: optimismSepolia,
     })

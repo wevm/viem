@@ -17,7 +17,7 @@ import {
   buildProveWithdrawal,
   maybeAddProofNode,
 } from './buildProveWithdrawal.js'
-import { getDisputeGame } from './getDisputeGame.js'
+import { getGame } from './getGame.js'
 
 beforeAll(async () => {
   await setBlockNumber(18772363n)
@@ -35,7 +35,7 @@ test('default', async () => {
   })
 
   const [withdrawal] = getWithdrawals(receipt)
-  const game = await getDisputeGame(sepoliaClient, {
+  const game = await getGame(sepoliaClient, {
     l2BlockNumber: receipt.blockNumber,
     limit: 10,
     targetChain: optimismSepoliaClient.chain,

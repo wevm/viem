@@ -8,10 +8,7 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
-import {
-  type GetDisputeGamesErrorType,
-  getDisputeGames,
-} from './getDisputeGames.js'
+import { type GetGamesErrorType, getGames } from './getGames.js'
 
 export type GetTimeToNextGameParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -46,7 +43,7 @@ export type GetTimeToNextGameReturnType = {
    */
   timestamp?: number | undefined
 }
-export type GetTimeToNextGameErrorType = GetDisputeGamesErrorType | ErrorType
+export type GetTimeToNextGameErrorType = GetGamesErrorType | ErrorType
 
 /**
  * Returns the time until the next L2 dispute game (after the provided block number) is submitted.
@@ -84,7 +81,7 @@ export async function getTimeToNextGame<
 ): Promise<GetTimeToNextGameReturnType> {
   const { intervalBuffer = 1.1, l2BlockNumber } = parameters
 
-  const games = await getDisputeGames(client, {
+  const games = await getGames(client, {
     ...parameters,
     l2BlockNumber: undefined,
     limit: 10,

@@ -24,15 +24,15 @@ import {
   estimateProveWithdrawalGas,
 } from '../actions/estimateProveWithdrawalGas.js'
 import {
-  type GetDisputeGameParameters,
-  type GetDisputeGameReturnType,
-  getDisputeGame,
-} from '../actions/getDisputeGame.js'
+  type GetGameParameters,
+  type GetGameReturnType,
+  getGame,
+} from '../actions/getGame.js'
 import {
-  type GetDisputeGamesParameters,
-  type GetDisputeGamesReturnType,
-  getDisputeGames,
-} from '../actions/getDisputeGames.js'
+  type GetGamesParameters,
+  type GetGamesReturnType,
+  getGames,
+} from '../actions/getGames.js'
 import {
   type GetL2OutputParameters,
   type GetL2OutputReturnType,
@@ -241,11 +241,11 @@ export type PublicActionsL1<
   /**
    * Retrieves a valid dispute game on an L2 that occurred after a provided L2 block number.
    *
-   * - Docs: https://viem.sh/op-stack/actions/getDisputeGame
+   * - Docs: https://viem.sh/op-stack/actions/getGame
    *
    * @param client - Client to use
-   * @param parameters - {@link GetDisputeGameParameters}
-   * @returns A valid dispute game. {@link GetDisputeGameReturnType}
+   * @param parameters - {@link GetGameParameters}
+   * @returns A valid dispute game. {@link GetGameReturnType}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
@@ -256,22 +256,22 @@ export type PublicActionsL1<
    *   transport: http(),
    * })
    *
-   * const game = await publicClientL1.getDisputeGame({
+   * const game = await publicClientL1.getGame({
    *   l2BlockNumber: 69420n,
    *   targetChain: optimism
    * })
    */
-  getDisputeGame: <chainOverride extends Chain | undefined = undefined>(
-    parameters: GetDisputeGameParameters<chain, chainOverride>,
-  ) => Promise<GetDisputeGameReturnType>
+  getGame: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetGameParameters<chain, chainOverride>,
+  ) => Promise<GetGameReturnType>
   /**
    * Retrieves dispute games for an L2.
    *
-   * - Docs: https://viem.sh/op-stack/actions/getDisputeGame
+   * - Docs: https://viem.sh/op-stack/actions/getGame
    *
    * @param client - Client to use
-   * @param parameters - {@link GetDisputeGameParameters}
-   * @returns Dispute games. {@link GetDisputeGameReturnType}
+   * @param parameters - {@link GetGameParameters}
+   * @returns Dispute games. {@link GetGameReturnType}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
@@ -282,13 +282,13 @@ export type PublicActionsL1<
    *   transport: http(),
    * })
    *
-   * const games = await publicClientL1.getDisputeGames({
+   * const games = await publicClientL1.getGames({
    *   targetChain: optimism
    * })
    */
-  getDisputeGames: <chainOverride extends Chain | undefined = undefined>(
-    parameters: GetDisputeGamesParameters<chain, chainOverride>,
-  ) => Promise<GetDisputeGamesReturnType>
+  getGames: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetGamesParameters<chain, chainOverride>,
+  ) => Promise<GetGamesReturnType>
   /**
    * Retrieves the first L2 output proposal that occurred after a provided block number. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
@@ -675,8 +675,8 @@ export function publicActionsL1() {
         estimateFinalizeWithdrawalGas(client, args),
       estimateProveWithdrawalGas: (args) =>
         estimateProveWithdrawalGas(client, args),
-      getDisputeGame: (args) => getDisputeGame(client, args),
-      getDisputeGames: (args) => getDisputeGames(client, args),
+      getGame: (args) => getGame(client, args),
+      getGames: (args) => getGames(client, args),
       getL2Output: (args) => getL2Output(client, args),
       getPortalVersion: (args) => getPortalVersion(client, args),
       getTimeToFinalize: (args) => getTimeToFinalize(client, args),
