@@ -1,6 +1,7 @@
 {
   "workspaces": ["examples/*", "environments/*", "site", "src", "test"],
   "private": true,
+  "name": "viem-root",
   "type": "module",
   "scripts": {
     "bench": "vitest bench",
