@@ -89,10 +89,7 @@ export async function getGame<
     limit,
   })
 
-  const games = latestGames.filter(
-    (game) =>
-      game.l2BlockNumber > l2BlockNumber && game.l2BlockNumber < 99510398n,
-  )
+  const games = latestGames.filter((game) => game.l2BlockNumber > l2BlockNumber)
 
   const game = (() => {
     if (strategy === 'random')
