@@ -218,7 +218,7 @@ export async function getWithdrawalStatus<
 
   if (disputeGameResult.status === 'rejected') {
     const error = disputeGameResult.reason as GetGameErrorType
-    if (error.name === 'DisputeGameNotFoundError') return 'waiting-to-prove'
+    if (error.name === 'GameNotFoundError') return 'waiting-to-prove'
     throw disputeGameResult.reason
   }
   if (checkWithdrawalResult.status === 'rejected') {

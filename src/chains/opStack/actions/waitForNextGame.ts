@@ -8,7 +8,7 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import { poll } from '../../../utils/poll.js'
-import { DisputeGameNotFoundError } from '../errors/withdrawal.js'
+import { GameNotFoundError } from '../errors/withdrawal.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
   type GetGameErrorType,
@@ -107,7 +107,7 @@ export async function waitForNextGame<
           resolve(game)
         } catch (e) {
           const error = e as GetGameErrorType
-          if (!(error instanceof DisputeGameNotFoundError)) {
+          if (!(error instanceof GameNotFoundError)) {
             unpoll()
             reject(e)
           }

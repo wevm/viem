@@ -8,11 +8,11 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import {
-  DisputeGameNotFoundError,
-  type DisputeGameNotFoundErrorType,
+  GameNotFoundError,
+  type GameNotFoundErrorType,
 } from '../errors/withdrawal.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
-import type { DisputeGame } from '../types/withdrawal.js'
+import type { Game } from '../types/withdrawal.js'
 import { type GetGamesErrorType, getGames } from './getGames.js'
 
 export type GetGameParameters<
@@ -41,13 +41,13 @@ export type GetGameParameters<
      */
     strategy?: 'latest' | 'random'
   }
-export type GetGameReturnType = DisputeGame & {
+export type GetGameReturnType = Game & {
   l2BlockNumber: bigint
 }
 
 export type GetGameErrorType =
   | GetGamesErrorType
-  | DisputeGameNotFoundErrorType
+  | GameNotFoundErrorType
   | ErrorType
 
 /**
@@ -100,6 +100,6 @@ export async function getGame<
     return games[0]
   })()
 
-  if (!game) throw new DisputeGameNotFoundError()
+  if (!game) throw new GameNotFoundError()
   return game
 }

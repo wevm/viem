@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 import type { Hex } from '../../../types/misc.js'
 
-export type DisputeGame = {
+export type Game = {
   index: bigint
   metadata: Hex
   timestamp: bigint

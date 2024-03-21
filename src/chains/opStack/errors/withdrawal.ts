@@ -1,11 +1,11 @@
 import { BaseError } from '../../../errors/base.js'
 import type { Hex } from '../../../types/misc.js'
 
-export type DisputeGameNotFoundErrorType = DisputeGameNotFoundError & {
-  name: 'DisputeGameNotFoundError'
+export type GameNotFoundErrorType = GameNotFoundError & {
+  name: 'GameNotFoundError'
 }
-export class DisputeGameNotFoundError extends BaseError {
-  override name = 'DisputeGameNotFoundError'
+export class GameNotFoundError extends BaseError {
+  override name = 'GameNotFoundError'
   constructor() {
     super('Dispute game not found.')
   }

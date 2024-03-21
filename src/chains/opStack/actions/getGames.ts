@@ -14,7 +14,7 @@ import type {
 import { decodeAbiParameters } from '../../../utils/abi/decodeAbiParameters.js'
 import { disputeGameFactoryAbi, portal2Abi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
-import type { DisputeGame } from '../types/withdrawal.js'
+import type { Game } from '../types/withdrawal.js'
 
 export type GetGamesParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -35,7 +35,7 @@ export type GetGamesParameters<
      */
     limit?: number | undefined
   }
-export type GetGamesReturnType = (DisputeGame & {
+export type GetGamesReturnType = (Game & {
   l2BlockNumber: bigint
 })[]
 export type GetGamesErrorType = ReadContractErrorType | ErrorType
@@ -116,7 +116,7 @@ export async function getGames<
         BigInt(Math.max(0, Number(gameCount - 1n))),
         BigInt(Math.min(limit, Number(gameCount))),
       ],
-    })) as DisputeGame[]
+    })) as Game[]
   )
     .map((game) => {
       const [blockNumber] = decodeAbiParameters(
