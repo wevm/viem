@@ -13,12 +13,9 @@ import {
 } from '../errors/withdrawal.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { DisputeGame } from '../types/withdrawal.js'
-import {
-  type GetDisputeGamesErrorType,
-  getDisputeGames,
-} from './getDisputeGames.js'
+import { type GetGamesErrorType, getGames } from './getGames.js'
 
-export type GetDisputeGameParameters<
+export type GetGameParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
@@ -44,50 +41,50 @@ export type GetDisputeGameParameters<
      */
     strategy?: 'latest' | 'random'
   }
-export type GetDisputeGameReturnType = DisputeGame & {
+export type GetGameReturnType = DisputeGame & {
   l2BlockNumber: bigint
 }
 
-export type GetDisputeGameErrorType =
-  | GetDisputeGamesErrorType
+export type GetGameErrorType =
+  | GetGamesErrorType
   | DisputeGameNotFoundErrorType
   | ErrorType
 
 /**
  * Retrieves a valid dispute game on an L2 that occurred after a provided L2 block number.
  *
- * - Docs: https://viem.sh/op-stack/actions/getDisputeGame
+ * - Docs: https://viem.sh/op-stack/actions/getGame
  *
  * @param client - Client to use
- * @param parameters - {@link GetDisputeGameParameters}
- * @returns A valid dispute game. {@link GetDisputeGameReturnType}
+ * @param parameters - {@link GetGameParameters}
+ * @returns A valid dispute game. {@link GetGameReturnType}
  *
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { mainnet, optimism } from 'viem/chains'
- * import { getDisputeGame } from 'viem/op-stack'
+ * import { getGame } from 'viem/op-stack'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,
  *   transport: http(),
  * })
  *
- * const game = await getDisputeGame(publicClientL1, {
+ * const game = await getGame(publicClientL1, {
  *   l2BlockNumber: 69420n,
  *   targetChain: optimism
  * })
  */
-export async function getDisputeGame<
+export async function getGame<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetDisputeGameParameters<chain, chainOverride>,
-): Promise<GetDisputeGameReturnType> {
+  parameters: GetGameParameters<chain, chainOverride>,
+): Promise<GetGameReturnType> {
   const { l2BlockNumber, limit = 100, strategy = 'latest' } = parameters
 
-  const latestGames = await getDisputeGames(client, {
+  const latestGames = await getGames(client, {
     ...parameters,
     limit,
   })

@@ -23,10 +23,10 @@ import {
   getWithdrawals,
 } from '../utils/getWithdrawals.js'
 import {
-  type GetDisputeGameErrorType,
-  type GetDisputeGameParameters,
-  getDisputeGame,
-} from './getDisputeGame.js'
+  type GetGameErrorType,
+  type GetGameParameters,
+  getGame,
+} from './getGame.js'
 import {
   type GetL2OutputErrorType,
   type GetL2OutputParameters,
@@ -194,11 +194,11 @@ export async function getWithdrawalStatus<
 
   const [disputeGameResult, checkWithdrawalResult, finalizedResult] =
     await Promise.allSettled([
-      getDisputeGame(client, {
+      getGame(client, {
         ...parameters,
         l2BlockNumber: receipt.blockNumber,
         limit: gameLimit,
-      } as GetDisputeGameParameters),
+      } as GetGameParameters),
       readContract(client, {
         abi: portal2Abi,
         address: portalAddress,
@@ -217,7 +217,7 @@ export async function getWithdrawalStatus<
     return 'finalized'
 
   if (disputeGameResult.status === 'rejected') {
-    const error = disputeGameResult.reason as GetDisputeGameErrorType
+    const error = disputeGameResult.reason as GetGameErrorType
     if (error.name === 'DisputeGameNotFoundError') return 'waiting-to-prove'
     throw disputeGameResult.reason
   }

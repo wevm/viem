@@ -11,10 +11,10 @@ import { poll } from '../../../utils/poll.js'
 import { DisputeGameNotFoundError } from '../errors/withdrawal.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
-  type GetDisputeGameErrorType,
-  type GetDisputeGameReturnType,
-  getDisputeGame,
-} from './getDisputeGame.js'
+  type GetGameErrorType,
+  type GetGameReturnType,
+  getGame,
+} from './getGame.js'
 import {
   type GetTimeToNextGameErrorType,
   type GetTimeToNextGameParameters,
@@ -47,9 +47,9 @@ export type WaitForNextGameParameters<
      */
     pollingInterval?: number | undefined
   }
-export type WaitForNextGameReturnType = GetDisputeGameReturnType
+export type WaitForNextGameReturnType = GetGameReturnType
 export type WaitForNextGameErrorType =
-  | GetDisputeGameErrorType
+  | GetGameErrorType
   | GetTimeToNextGameErrorType
   | ErrorType
 
@@ -99,14 +99,14 @@ export async function waitForNextGame<
     poll(
       async ({ unpoll }) => {
         try {
-          const game = await getDisputeGame(client, {
+          const game = await getGame(client, {
             ...parameters,
             strategy: 'random',
           })
           unpoll()
           resolve(game)
         } catch (e) {
-          const error = e as GetDisputeGameErrorType
+          const error = e as GetGameErrorType
           if (!(error instanceof DisputeGameNotFoundError)) {
             unpoll()
             reject(e)

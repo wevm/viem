@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 import { sepoliaClient } from '../../../../test/src/utils.js'
 import { optimismSepolia } from '../chains.js'
-import { getDisputeGames } from './getDisputeGames.js'
+import { getGames } from './getGames.js'
 import { waitForNextGame } from './waitForNextGame.js'
 
-const games = await getDisputeGames(sepoliaClient, {
+const games = await getGames(sepoliaClient, {
   limit: 10,
   targetChain: optimismSepolia,
 })

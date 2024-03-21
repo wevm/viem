@@ -16,7 +16,7 @@ import { disputeGameFactoryAbi, portal2Abi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { DisputeGame } from '../types/withdrawal.js'
 
-export type GetDisputeGamesParameters<
+export type GetGamesParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
@@ -35,42 +35,42 @@ export type GetDisputeGamesParameters<
      */
     limit?: number | undefined
   }
-export type GetDisputeGamesReturnType = (DisputeGame & {
+export type GetGamesReturnType = (DisputeGame & {
   l2BlockNumber: bigint
 })[]
-export type GetDisputeGamesErrorType = ReadContractErrorType | ErrorType
+export type GetGamesErrorType = ReadContractErrorType | ErrorType
 
 /**
  * Retrieves dispute games for an L2.
  *
- * - Docs: https://viem.sh/op-stack/actions/getDisputeGame
+ * - Docs: https://viem.sh/op-stack/actions/getGame
  *
  * @param client - Client to use
- * @param parameters - {@link GetDisputeGameParameters}
- * @returns Dispute games. {@link GetDisputeGameReturnType}
+ * @param parameters - {@link GetGameParameters}
+ * @returns Dispute games. {@link GetGameReturnType}
  *
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { mainnet, optimism } from 'viem/chains'
- * import { getDisputeGames } from 'viem/op-stack'
+ * import { getGames } from 'viem/op-stack'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,
  *   transport: http(),
  * })
  *
- * const games = await getDisputeGames(publicClientL1, {
+ * const games = await getGames(publicClientL1, {
  *   targetChain: optimism
  * })
  */
-export async function getDisputeGames<
+export async function getGames<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetDisputeGamesParameters<chain, chainOverride>,
-): Promise<GetDisputeGamesReturnType> {
+  parameters: GetGamesParameters<chain, chainOverride>,
+): Promise<GetGamesReturnType> {
   const {
     chain = client.chain,
     l2BlockNumber,
@@ -127,7 +127,7 @@ export async function getDisputeGames<
         ? { ...game, l2BlockNumber: blockNumber }
         : null
     })
-    .filter(Boolean) as GetDisputeGamesReturnType
+    .filter(Boolean) as GetGamesReturnType
 
   return games
 }
