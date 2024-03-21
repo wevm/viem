@@ -1,9 +1,4 @@
-import {
-  bytesPerBlob,
-  bytesPerFieldElement,
-  fieldElementsPerBlob,
-  maxBytesPerTransaction,
-} from '../../constants/blob.js'
+import * as blobConstants from '../../constants/blob.js'
 import {
   BlobSizeTooLargeError,
   type BlobSizeTooLargeErrorType,
@@ -27,6 +22,8 @@ export type ToBlobsParameters<
   data: data | Hex | ByteArray
   /** Return type. */
   to?: to | To | undefined
+  blobsPerTransaction?: number
+  maxBytesPerTransaction?: number
 }
 
 export type ToBlobsReturnType<to extends To> =
@@ -65,11 +62,12 @@ export function toBlobs<
       : parameters.data
   ) as ByteArray
 
+  const opts = { ...blobConstants, ...parameters }
   const size_ = size(data)
   if (!size_) throw new EmptyBlobError()
-  if (size_ > maxBytesPerTransaction)
+  if (size_ > opts.maxBytesPerTransaction)
     throw new BlobSizeTooLargeError({
-      maxSize: maxBytesPerTransaction,
+      maxSize: opts.maxBytesPerTransaction,
       size: size_,
     })
 
@@ -78,11 +76,14 @@ export function toBlobs<
   let active = true
   let position = 0
   while (active) {
-    const blob = createCursor(new Uint8Array(bytesPerBlob))
+    const blob = createCursor(new Uint8Array(opts.bytesPerBlob))
 
     let size = 0
-    while (size < fieldElementsPerBlob) {
-      const bytes = data.slice(position, position + (bytesPerFieldElement - 1))
+    while (size < opts.fieldElementsPerBlob) {
+      const bytes = data.slice(
+        position,
+        position + (opts.bytesPerFieldElement - 1),
+      )
 
       // Push a zero byte so the field element doesn't overflow the BLS modulus.
       blob.pushByte(0x00)
