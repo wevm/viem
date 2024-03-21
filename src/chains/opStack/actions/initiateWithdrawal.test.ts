@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { accounts } from '../../../../test/src/constants.js'
 import { optimismClient } from '../../../../test/src/opStack.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
@@ -16,9 +16,11 @@ import {
 import { sepolia } from '../../index.js'
 import { l2ToL1MessagePasserAbi } from '../abis.js'
 import { optimismSepolia } from '../chains.js'
+import { getWithdrawals } from '../utils/getWithdrawals.js'
 import { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 import { buildProveWithdrawal } from './buildProveWithdrawal.js'
 import { finalizeWithdrawal } from './finalizeWithdrawal.js'
+import { getDisputeGame } from './getDisputeGame.js'
 import { getTimeToFinalize } from './getTimeToFinalize.js'
 import { getTimeToProve } from './getTimeToProve.js'
 import { initiateWithdrawal } from './initiateWithdrawal.js'
@@ -172,7 +174,7 @@ test('error: small gas', async () => {
   `)
 })
 
-test.skip('e2e (sepolia)', async () => {
+describe.skip('e2e', () => {
   const account = privateKeyToAccount(
     process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
   )
@@ -188,58 +190,82 @@ test.skip('e2e (sepolia)', async () => {
     transport: http(),
   })
 
-  const args = await buildInitiateWithdrawal(client_sepolia, {
-    to: account.address,
-    value: 69n,
+  test.skip('full', async () => {
+    const args = await buildInitiateWithdrawal(client_sepolia, {
+      to: account.address,
+      value: 69n,
+    })
+
+    const hash = await initiateWithdrawal(client_opSepolia, args)
+
+    const receipt = await waitForTransactionReceipt(client_opSepolia, {
+      hash: hash,
+    })
+
+    const proveTime = await getTimeToProve(client_sepolia, {
+      receipt: receipt,
+      targetChain: client_opSepolia.chain,
+    })
+
+    console.log('seconds to prove:', proveTime.seconds)
+
+    const { game, withdrawal } = await waitToProve(client_sepolia, {
+      receipt: receipt,
+      targetChain: client_opSepolia.chain,
+    })
+
+    const proveArgs = await buildProveWithdrawal(client_opSepolia, {
+      game,
+      withdrawal,
+    })
+
+    const proveHash = await proveWithdrawal(client_sepolia, proveArgs)
+
+    await waitForTransactionReceipt(client_sepolia, {
+      hash: proveHash,
+    })
+
+    const finalizeTime = await getTimeToFinalize(client_sepolia, {
+      targetChain: client_opSepolia.chain,
+      withdrawalHash: withdrawal.withdrawalHash,
+    })
+
+    console.log('seconds to finalize:', finalizeTime.seconds)
+
+    await waitToFinalize(client_sepolia, {
+      targetChain: client_opSepolia.chain,
+      withdrawalHash: withdrawal.withdrawalHash,
+    })
+
+    const finalizeHash = await finalizeWithdrawal(client_sepolia, {
+      targetChain: client_opSepolia.chain,
+      withdrawal,
+    })
+
+    await waitForTransactionReceipt(client_sepolia, {
+      hash: finalizeHash,
+    })
+  }, 1200000)
+
+  test.skip('e2e (prove step)', async () => {
+    const receipt = await getTransactionReceipt(client_opSepolia, {
+      hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+    })
+
+    const [withdrawal] = getWithdrawals(receipt)
+    const game = await getDisputeGame(client_sepolia, {
+      l2BlockNumber: receipt.blockNumber,
+      targetChain: client_opSepolia.chain,
+      strategy: 'latest',
+    })
+
+    const proveArgs = await buildProveWithdrawal(client_opSepolia, {
+      game,
+      withdrawal,
+    })
+
+    const proveHash = await proveWithdrawal(client_sepolia, proveArgs)
+
+    console.log('proveHash', proveHash)
   })
-
-  const hash = await initiateWithdrawal(client_opSepolia, args)
-
-  const receipt = await waitForTransactionReceipt(client_opSepolia, {
-    hash: hash,
-  })
-
-  const proveTime = await getTimeToProve(client_sepolia, {
-    receipt: receipt,
-    targetChain: client_opSepolia.chain,
-  })
-
-  console.log('seconds to prove:', proveTime.seconds)
-
-  const { output, withdrawal } = await waitToProve(client_sepolia, {
-    receipt: receipt,
-    targetChain: client_opSepolia.chain,
-  })
-
-  const proveArgs = await buildProveWithdrawal(client_opSepolia, {
-    output,
-    withdrawal,
-  })
-
-  const proveHash = await proveWithdrawal(client_sepolia, proveArgs)
-
-  await waitForTransactionReceipt(client_sepolia, {
-    hash: proveHash,
-  })
-
-  const finalizeTime = await getTimeToFinalize(client_sepolia, {
-    targetChain: client_opSepolia.chain,
-    withdrawalHash: withdrawal.withdrawalHash,
-  })
-
-  console.log('seconds to finalize:', finalizeTime.seconds)
-
-  await waitToFinalize(client_sepolia, {
-    targetChain: client_opSepolia.chain,
-    withdrawalHash: withdrawal.withdrawalHash,
-  })
-
-  const finalizeHash = await finalizeWithdrawal(client_sepolia, {
-    targetChain: client_opSepolia.chain,
-    withdrawal,
-  })
-
-  await waitForTransactionReceipt(client_sepolia, {
-    hash: finalizeHash,
-  })
-}, 600000)
+})

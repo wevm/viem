@@ -1,32 +1,141 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
-import { optimismClient } from '../../../../test/src/opStack.js'
-import { createL1Server } from '../../../../test/src/opStack.js'
-import { publicClient, setBlockNumber } from '../../../../test/src/utils.js'
-import { getTransactionReceipt } from '../../../actions/index.js'
+import {
+  optimismClient,
+  optimismSepoliaClient,
+} from '../../../../test/src/opStack.js'
+import {
+  publicClient,
+  sepoliaClient,
+  setBlockNumber,
+} from '../../../../test/src/utils.js'
+import { getTransactionReceipt, reset } from '../../../actions/index.js'
 import { getWithdrawalStatus } from './getWithdrawalStatus.js'
 
-describe('getWithdrawalStatusV3', () => {
-  // let publicClient: Awaited<ReturnType<typeof createL1Server>>['publicClient']
-  // let testClient: Awaited<ReturnType<typeof createL1Server>>['testClient']
-
-  beforeAll(async () => {
-    const res = await createL1Server()
-    // publicClient = res.publicClient
-    // testClient = res.testClient
-    return res.server.close
+// TODO(fault-proofs): convert to `publicClient` & `optimismClient` when fault proofs deployed to mainnet.
+test('waiting-to-prove', async () => {
+  await reset(sepoliaClient, {
+    blockNumber: 5527000n,
   })
 
-  test('finalized', async () => {}, 20_000)
-  test('ready-to-prove', async () => {}, 20_000)
+  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
+    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+  })
 
-  test('waiting-to-prove', async () => {})
-
-  test('waiting-to-finalize', async () => {}, 20_000)
-
-  test('ready-to-finalize', async () => {}, 20_000)
+  const status = await getWithdrawalStatus(sepoliaClient, {
+    gameLimit: 10,
+    receipt,
+    targetChain: optimismSepoliaClient.chain,
+  })
+  expect(status).toBe('waiting-to-prove')
 })
 
-describe('getWithdrawalStatusV2', () => {
+test('ready-to-prove', async () => {
+  await reset(sepoliaClient, {
+    blockNumber: 5528129n,
+  })
+
+  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
+    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+  })
+
+  const status = await getWithdrawalStatus(sepoliaClient, {
+    gameLimit: 10,
+    receipt,
+    targetChain: optimismSepoliaClient.chain,
+  })
+  expect(status).toBe('ready-to-prove')
+})
+
+test('waiting-to-finalize', async () => {
+  await reset(sepoliaClient, {
+    blockNumber: 5533180n,
+  })
+
+  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
+    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+  })
+
+  const status = await getWithdrawalStatus(sepoliaClient, {
+    gameLimit: 10,
+    receipt,
+    targetChain: optimismSepoliaClient.chain,
+  })
+  expect(status).toBe('waiting-to-finalize')
+})
+
+// TODO(fault-proofs): unskip when this transaction is actually ready to finalize.
+test.skip('ready-to-finalize', async () => {
+  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
+    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+  })
+
+  const status = await getWithdrawalStatus(sepoliaClient, {
+    gameLimit: 10,
+    receipt,
+    targetChain: optimismSepoliaClient.chain,
+  })
+  expect(status).toBe('ready-to-finalize')
+})
+
+test('finalized', async () => {
+  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
+    hash: '0x28199bd830b7ff4f029145cf5b961aaaf8bf53e993a9d9788eb20d7b7706e517',
+  })
+
+  const status = await getWithdrawalStatus(sepoliaClient, {
+    gameLimit: 10,
+    receipt,
+    targetChain: optimismSepoliaClient.chain,
+  })
+  expect(status).toBe('finalized')
+})
+
+test('error: non-withdrawal tx', async () => {
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023',
+  })
+
+  await expect(() =>
+    getWithdrawalStatus(publicClient, {
+      receipt,
+      targetChain: optimismClient.chain,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [ReceiptContainsNoWithdrawalsError: The provided transaction receipt with hash "0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023" contains no withdrawals.
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('error: portal contract non-existent (old block)', async () => {
+  await setBlockNumber(15772363n)
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
+  })
+
+  await expect(() =>
+    getWithdrawalStatus(publicClient, {
+      receipt,
+      targetChain: optimismClient.chain,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [ContractFunctionExecutionError: The contract function "version" returned no data ("0x").
+
+    This could be due to any of the following:
+      - The contract does not have the function "version",
+      - The parameters passed to the contract function may be invalid, or
+      - The address is not a contract.
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  version()
+
+    Docs: https://viem.sh/docs/contract/readContract
+    Version: viem@1.0.2]
+  `)
+})
+
+describe('legacy (portal v2)', () => {
   beforeAll(async () => {
     await setBlockNumber(18772363n)
   })
@@ -92,50 +201,4 @@ describe('getWithdrawalStatusV2', () => {
     })
     expect(status).toBe('ready-to-finalize')
   }, 20_000)
-
-  test('error: non-withdrawal tx', async () => {
-    const receipt = await getTransactionReceipt(optimismClient, {
-      hash: '0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023',
-    })
-
-    await expect(() =>
-      getWithdrawalStatus(publicClient, {
-        receipt,
-        targetChain: optimismClient.chain,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ReceiptContainsNoWithdrawalsError: The provided transaction receipt with hash "0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023" contains no withdrawals.
-
-    Version: viem@1.0.2]
-  `)
-  })
-
-  test('error: portal contract non-existent (old block)', async () => {
-    await setBlockNumber(15772363n)
-    const receipt = await getTransactionReceipt(optimismClient, {
-      hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
-    })
-
-    await expect(() =>
-      getWithdrawalStatus(publicClient, {
-        receipt,
-        targetChain: optimismClient.chain,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "getL2OutputIndexAfter" returned no data ("0x").
-
-    This could be due to any of the following:
-      - The contract does not have the function "getL2OutputIndexAfter",
-      - The parameters passed to the contract function may be invalid, or
-      - The address is not a contract.
-     
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  getL2OutputIndexAfter(uint256 _l2BlockNumber)
-      args:                           (113388533)
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
-  `)
-  })
 })

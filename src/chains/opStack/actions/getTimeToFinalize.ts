@@ -5,6 +5,7 @@ import {
 import { readContract } from '../../../actions/public/readContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
+import { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account } from '../../../types/account.js'
 import type {
@@ -90,7 +91,7 @@ export async function getTimeToFinalize<
 
   const portalVersion = await getPortalVersion(client, { portalAddress })
 
-  // this code block can be deleted after mainnet and testnet are >= v3
+  // Legacy
   if (portalVersion.major < 3) {
     const l2OutputOracleAddress = (() => {
       if (parameters.l2OutputOracleAddress)
@@ -142,16 +143,15 @@ export async function getTimeToFinalize<
       }),
     ])
 
-  if (proveTimestamp === 0n) {
-    throw new Error('Withdrawal has not been proven on L1')
-  }
+  if (proveTimestamp === 0n)
+    throw new BaseError('Withdrawal has not been proven on L1.')
 
   const secondsSinceProven = Date.now() / 1000 - Number(proveTimestamp)
   const secondsToFinalize =
-    proofMaturityDelaySeconds - BigInt(secondsSinceProven)
+    Number(proofMaturityDelaySeconds) - secondsSinceProven
 
   const seconds = Math.floor(
-    secondsToFinalize < 0n ? 0 : Number(secondsToFinalize) + buffer,
+    secondsToFinalize < 0n ? 0 : secondsToFinalize + buffer,
   )
   const timestamp = Date.now() + seconds * 1000
 

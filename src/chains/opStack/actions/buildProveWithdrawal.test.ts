@@ -1,24 +1,85 @@
 import { keccak256 } from 'ethers'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { accounts } from '../../../../test/src/constants.js'
-import { optimismClient } from '../../../../test/src/opStack.js'
+import {
+  optimismClient,
+  optimismSepoliaClient,
+} from '../../../../test/src/opStack.js'
 import {
   publicClient,
+  sepoliaClient,
   setBlockNumber,
   walletClient,
 } from '../../../../test/src/utils.js'
-import { getTransactionReceipt } from '../../../actions/index.js'
+import { getTransactionReceipt, reset } from '../../../actions/index.js'
 import { getL2Output, getWithdrawals, proveWithdrawal } from '../index.js'
 import {
   buildProveWithdrawal,
   maybeAddProofNode,
 } from './buildProveWithdrawal.js'
+import { getDisputeGame } from './getDisputeGame.js'
 
 beforeAll(async () => {
   await setBlockNumber(18772363n)
 })
 
+// TODO(fault-proofs): convert to `publicClient` & `optimismClient` when fault proofs deployed to mainnet.
 test('default', async () => {
+  await reset(sepoliaClient, {
+    blockNumber: 5528129n,
+  })
+
+  // https://sepolia-optimism.etherscan.io/tx/0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731
+  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
+    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+  })
+
+  const [withdrawal] = getWithdrawals(receipt)
+  const game = await getDisputeGame(sepoliaClient, {
+    l2BlockNumber: receipt.blockNumber,
+    limit: 10,
+    targetChain: optimismSepoliaClient.chain,
+  })
+
+  const request = await buildProveWithdrawal(optimismSepoliaClient, {
+    account: accounts[0].address,
+    game,
+    withdrawal: withdrawal!,
+  })
+  const { targetChain: _, ...rest } = request
+  expect(rest).toMatchInlineSnapshot(`
+    {
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "l2OutputIndex": 126n,
+      "outputRootProof": {
+        "latestBlockhash": "0xfa8de12720d54ee09e7d43d5823a685af27db5b063d6fe07c131df057bdf75f6",
+        "messagePasserStorageRoot": "0xbdbd55d9a6570c96e553d89b50d16f26a30f4b45d41f48273492a15fb804103b",
+        "stateRoot": "0x09402bbdf9e7bd5e3e6a32d77cd97f46f4d0cd8b8a67a6a82ec2ee68d2d3ec6b",
+        "version": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      },
+      "withdrawal": {
+        "data": "0x",
+        "gasLimit": 21000n,
+        "nonce": 1766847064778384329583297500742918515827483896875618958121606201292622161n,
+        "sender": "0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6",
+        "target": "0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6",
+        "value": 69n,
+        "withdrawalHash": "0xcb5e39bf88790e468315b413dcbb66a7fc5f4ae8c962815c5a546aedec2735ea",
+      },
+      "withdrawalProof": [
+        "0xf90211a0eccf299db11c05f2704d507ab6a5d30d2b683db56f37fdb4848a47e4faf035bba0a034c9e88d05f5c97c3616348cc6ffcf8fcfb32851a1166c787d1d1908f8276da0119c2e865e6b9c4bce5d4a90d372c9ae6b64ac26ea8c330931d9c5df1e308f64a027c50cbe8a8bf77041bd466d32bf3a7c9b4cd58a5bccbd297106ba6bdf2cffc0a09d2e57f1f22715ff019ba428fbc2c8a0e2bf2ba51e5da0387d11e4c372c0d054a0155e20a6ae267547c2bd7ab99fef038687c357a96c37a94a31799619609e0cbca0a83a2130357ac5d5f7b6a16ff4febab1090efec8edccbf3c97beaa771d1b706ba0099f345b02c0c4d7c8af6857a4180f76e9bbe97afef99b43cea4582f42f957dfa0ffddd62f08dbe9c69f6bc55a0461e6d2d9ea7f885145b3d2631710af11f529e6a05869f8f713bd8ce830fb5e2155331b3ce85a3d73b9d44e1a7a71e205aa490bb6a0b8d55ec21b94db61613bc0e0c203e8a0b123ca0ffec3e1c66747dc7b2c9ba003a0577df6fd8798dd31641cf34351524ebd693352e555948137ab6bb2d56e474d0fa07ee39a1fbcfafb8f82ace908e8f3891a8841c9bfb28a2e9deae8cdc8f7b8545fa0639c266445b6cf85c0f841b614e78fa81cc82ead7862a1d9aecd9c765114b675a072ebc599d97a58ef6f7735e2cb63e6a63304266dd3f5f834b6bd8896ceb7985da092c7cd483df22b5106288cb90f017277654aac01f127c86249a7e9ee7b1f253680",
+        "0xf90211a014d442a1f4a28883647b2b0f3308b79139e5f2421fbc5d887a6d804609d38b08a00d21c762b09f797b3e420cb87f774d6f33d0154bad0453c83e587ccbad63e2afa0bc7c18dabdef13d0ae9caf15b8baed2eb0b1febf6e8ae5967f56eb178fbc5d7ca07fb0137a339b81021405bab8ce406753f8e02fc2bbbfdcd17676e0c069cded91a0f135dfa054defcb21219ef0ab0228130bd092cf47607eb06114ceb562af7e044a0a5eb92dfc9ab662fd5b2d664d4c732daf5bd77bbd5e428cc3ddf5bfa43bfd830a04183cb7e1fa786672c620175a7578ce3989194cc1a657407b6b394dc640e5684a0eb57ca2dbeec06b773b39a0155258d69f5d9bd5cc56e2d618bc36ec736fb9999a0b212974109607c7cdd96aed754d3a56e224d6e1abf9958720c6ecd7010c053dea0d71e602c5a5c3c62130ef3dab09f13fc9c0545479f478e2309a2b68c9f09d331a05849f10094503ff8b9129811c61232c190aa0a898d0795d3fe26986db663b21ea0707a704dce10c1fa605c66004e571f7eae794fa4a5cc1610d206a99c1da84342a0e6b00b8e43224ff838402e6f88c3aa62cfa47c8923a90c7bad99db13e08772c8a03ed6ab741a801d3cba7427e98d45c368cdb2e6f32be9a7d2e3ae4a101a93eb1ea0e88fd638b953f4bfba19555555a2ffbac81d2005bba9f0ed009907b93e6d58b6a0f776480f485ce7fe48d207eb4bb99f7b53abe9f3c79bf6c554a6790bde6d4d9b80",
+        "0xf8f1a0351ef625f9caf7fbfae712ebfc485539b43ea4ef290170786e127c76d2ee5778a0c6e5e7617231f38c747c0716308bc3a555f75e8be0e5c468e4ecdb5da2c44bafa07a00e04ed102d369f809e590b4fef0c33118634c19b9bb15127d0c0179238eaba03a3052ab4474426552042aca139309d2112a5f8f0945c22c34d13f9bc08350ae808080808080a0e5ee08c1f6193b9d9b861296fea79abfddfad0d87f066f23de5eae193ff0d1fe80a0094339e0a0d08980522889ed313fb5d081bb8a5028b7f5951a416ffee4fd0adea01af4f58d7bfb9667ad02191cdac1ffb410d69d2296f153613222911485ad5034808080",
+        "0xe19f3d78ae895933f6e9967249220e822e1ca6c1bf6609eb0ec1143e4a46ba3df401",
+      ],
+    }
+  `)
+
+  const hash = await proveWithdrawal(sepoliaClient, request)
+  expect(hash).toBeDefined()
+}, 20_000)
+
+test('args: output (legacy)', async () => {
   // https://optimistic.etherscan.io/tx/0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147
   const receipt = await getTransactionReceipt(optimismClient, {
     hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',

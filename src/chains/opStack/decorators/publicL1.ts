@@ -24,15 +24,35 @@ import {
   estimateProveWithdrawalGas,
 } from '../actions/estimateProveWithdrawalGas.js'
 import {
+  type GetDisputeGameParameters,
+  type GetDisputeGameReturnType,
+  getDisputeGame,
+} from '../actions/getDisputeGame.js'
+import {
+  type GetDisputeGamesParameters,
+  type GetDisputeGamesReturnType,
+  getDisputeGames,
+} from '../actions/getDisputeGames.js'
+import {
   type GetL2OutputParameters,
   type GetL2OutputReturnType,
   getL2Output,
 } from '../actions/getL2Output.js'
 import {
+  type GetPortalVersionParameters,
+  type GetPortalVersionReturnType,
+  getPortalVersion,
+} from '../actions/getPortalVersion.js'
+import {
   type GetTimeToFinalizeParameters,
   type GetTimeToFinalizeReturnType,
   getTimeToFinalize,
 } from '../actions/getTimeToFinalize.js'
+import {
+  type GetTimeToNextGameParameters,
+  type GetTimeToNextGameReturnType,
+  getTimeToNextGame,
+} from '../actions/getTimeToNextGame.js'
 import {
   type GetTimeToNextL2OutputParameters,
   type GetTimeToNextL2OutputReturnType,
@@ -48,6 +68,11 @@ import {
   type GetWithdrawalStatusReturnType,
   getWithdrawalStatus,
 } from '../actions/getWithdrawalStatus.js'
+import {
+  type WaitForNextGameParameters,
+  type WaitForNextGameReturnType,
+  waitForNextGame,
+} from '../actions/waitForNextGame.js'
 import {
   type WaitForNextL2OutputParameters,
   type WaitForNextL2OutputReturnType,
@@ -214,6 +239,57 @@ export type PublicActionsL1<
     >,
   ) => Promise<EstimateFinalizeWithdrawalGasReturnType>
   /**
+   * Retrieves a valid dispute game on an L2 that occurred after a provided L2 block number.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/getDisputeGame
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetDisputeGameParameters}
+   * @returns A valid dispute game. {@link GetDisputeGameReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet, optimism } from 'viem/chains'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const game = await publicClientL1.getDisputeGame({
+   *   l2BlockNumber: 69420n,
+   *   targetChain: optimism
+   * })
+   */
+  getDisputeGame: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetDisputeGameParameters<chain, chainOverride>,
+  ) => Promise<GetDisputeGameReturnType>
+  /**
+   * Retrieves dispute games for an L2.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/getDisputeGame
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetDisputeGameParameters}
+   * @returns Dispute games. {@link GetDisputeGameReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet, optimism } from 'viem/chains'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const games = await publicClientL1.getDisputeGames({
+   *   targetChain: optimism
+   * })
+   */
+  getDisputeGames: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetDisputeGamesParameters<chain, chainOverride>,
+  ) => Promise<GetDisputeGamesReturnType>
+  /**
    * Retrieves the first L2 output proposal that occurred after a provided block number. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
    * - Docs: https://viem.sh/op-stack/actions/getL2Output
@@ -240,6 +316,35 @@ export type PublicActionsL1<
   getL2Output: <chainOverride extends Chain | undefined = undefined>(
     parameters: GetL2OutputParameters<chain, chainOverride>,
   ) => Promise<GetL2OutputReturnType>
+  /**
+   * Retrieves the current version of the Portal contract.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/getPortalVersion
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetPortalVersionParameters}
+   * @returns The version object.
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const version = await publicClientL1.getPortalVersion({
+   *   targetChain: optimism,
+   * })
+   *
+   * if (version.major > 3)
+   *   console.log('Fault proofs are enabled on this version of optimism')
+   * console.log('Fault proofs are not enabled on this version of optimism')
+   */
+  getPortalVersion: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetPortalVersionParameters<chain, chainOverride>,
+  ) => Promise<GetPortalVersionReturnType>
   /**
    * Returns the time until the withdrawal transaction can be finalized. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
@@ -278,6 +383,34 @@ export type PublicActionsL1<
   getTimeToFinalize: <chainOverride extends Chain | undefined = undefined>(
     parameters: GetTimeToFinalizeParameters<chain, chainOverride>,
   ) => Promise<GetTimeToFinalizeReturnType>
+  /**
+   * Returns the time until the next L2 dispute game (after the provided block number) is submitted.
+   * Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/getTimeToNextGame
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetTimeToNextGameParameters}
+   * @returns The L2 transaction hash. {@link GetTimeToNextGameReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { getBlockNumber } from 'viem/actions'
+   * import { mainnet, optimism } from 'viem/chains'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const { seconds } = await publicClientL1.getTimeToNextGame({
+   *   l2BlockNumber: 113405763n,
+   *   targetChain: optimism
+   * })
+   */
+  getTimeToNextGame: <chainOverride extends Chain | undefined = undefined>(
+    parameters: GetTimeToNextGameParameters<chain, chainOverride>,
+  ) => Promise<GetTimeToNextGameReturnType>
   /**
    * Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
    *
@@ -381,6 +514,32 @@ export type PublicActionsL1<
   getWithdrawalStatus: <chainOverride extends Chain | undefined = undefined>(
     parameters: GetWithdrawalStatusParameters<chain, chainOverride>,
   ) => Promise<GetWithdrawalStatusReturnType>
+  /**
+   * Waits for the next L2 output (after the provided block number) to be submitted.
+   *
+   * - Docs: https://viem.sh/op-stack/actions/waitForNextGame
+   *
+   * @param client - Client to use
+   * @param parameters - {@link WaitForNextGameParameters}
+   * @returns The L2 transaction hash. {@link WaitForNextGameReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { optimism } from 'viem/chains'
+   *
+   * const publicClientL1 = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * await publicClientL1.waitForNextGame({
+   *   l2BlockNumber: 69420n,
+   *   targetChain: optimism
+   * })
+   */
+  waitForNextGame: <chainOverride extends Chain | undefined = undefined>(
+    parameters: WaitForNextGameParameters<chain, chainOverride>,
+  ) => Promise<WaitForNextGameReturnType>
   /**
    * Waits for the next L2 output (after the provided block number) to be submitted.
    *
@@ -516,11 +675,16 @@ export function publicActionsL1() {
         estimateFinalizeWithdrawalGas(client, args),
       estimateProveWithdrawalGas: (args) =>
         estimateProveWithdrawalGas(client, args),
+      getDisputeGame: (args) => getDisputeGame(client, args),
+      getDisputeGames: (args) => getDisputeGames(client, args),
       getL2Output: (args) => getL2Output(client, args),
+      getPortalVersion: (args) => getPortalVersion(client, args),
       getTimeToFinalize: (args) => getTimeToFinalize(client, args),
+      getTimeToNextGame: (args) => getTimeToNextGame(client, args),
       getTimeToNextL2Output: (args) => getTimeToNextL2Output(client, args),
       getTimeToProve: (args) => getTimeToProve(client, args),
       getWithdrawalStatus: (args) => getWithdrawalStatus(client, args),
+      waitForNextGame: (args) => waitForNextGame(client, args),
       waitForNextL2Output: (args) => waitForNextL2Output(client, args),
       waitToFinalize: (args) => waitToFinalize(client, args),
       waitToProve: (args) => waitToProve(client, args),
