@@ -33,9 +33,11 @@ export type ProveWithdrawalParameters<
   UnionOmit<
     FormattedTransactionRequest<_derivedChain>,
     | 'accessList'
+    | 'blobs'
     | 'data'
     | 'from'
     | 'gas'
+    | 'maxFeePerBlobGas'
     | 'gasPrice'
     | 'to'
     | 'type'
@@ -130,7 +132,7 @@ export async function proveWithdrawal<
   })()
 
   const gas_ =
-    typeof gas !== 'number' && gas !== null
+    typeof gas !== 'bigint' && gas !== null
       ? await estimateProveWithdrawalGas(
           client,
           parameters as EstimateProveWithdrawalGasParameters,

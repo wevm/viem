@@ -11,7 +11,7 @@ import {
   deployContract,
 } from '~viem/actions/wallet/deployContract.js'
 import { writeContract } from '~viem/actions/wallet/writeContract.js'
-import { holesky, localhost, mainnet } from '~viem/chains/index.js'
+import { holesky, localhost, mainnet, sepolia } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { createPublicClient } from '~viem/clients/createPublicClient.js'
 import { createTestClient } from '~viem/clients/createTestClient.js'
@@ -45,6 +45,7 @@ import {
   address,
   forkUrl,
   localHttpUrl,
+  localHttpUrlSepolia,
   localIpcPath,
   localWsUrl,
 } from './constants.js'
@@ -181,6 +182,12 @@ export const walletClientWithAccount = createWalletClient({
 export const walletClientWithoutChain = createWalletClient({
   transport: custom(provider),
 })
+
+// TODO(fault-proofs): remove when fault proofs deployed to mainnet.
+export const sepoliaClient = createClient({
+  chain: sepolia,
+  transport: http(localHttpUrlSepolia),
+}).extend(() => ({ mode: 'anvil' }))
 
 export const holeskyClient = createClient({
   chain: holesky,

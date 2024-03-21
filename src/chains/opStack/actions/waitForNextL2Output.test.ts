@@ -13,6 +13,7 @@ const client_opSepolia = createPublicClient({
   transport: http(),
 })
 
+// TODO: fix
 test('default', async () => {
   const output = await waitForNextL2Output(client_sepolia, {
     l2BlockNumber: 5270108n,
@@ -28,6 +29,7 @@ test('default', async () => {
   `)
 }, 20_000)
 
+// TODO: fix
 test('error: other', async () => {
   await expect(() =>
     waitForNextL2Output(client_sepolia, {

@@ -1353,6 +1353,7 @@ export const disputeGameFactoryAbi = [
     ],
   },
 ] as const
+
 export const portal2Abi = [
   {
     inputs: [

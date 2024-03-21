@@ -1,14 +1,38 @@
-import { beforeAll, expect, test } from 'vitest'
-import { optimismClient } from '../../../../test/src/opStack.js'
-import { publicClient, setBlockNumber } from '../../../../test/src/utils.js'
-import { getTransactionReceipt } from '../../../actions/index.js'
+import { expect, test } from 'vitest'
+import {
+  optimismClient,
+  optimismSepoliaClient,
+} from '../../../../test/src/opStack.js'
+import {
+  publicClient,
+  sepoliaClient,
+  setBlockNumber,
+} from '../../../../test/src/utils.js'
+import { getTransactionReceipt, reset } from '../../../actions/index.js'
 import { waitToProve } from './waitToProve.js'
 
-beforeAll(async () => {
-  await setBlockNumber(18772363n)
+test('default', async () => {
+  await reset(sepoliaClient, {
+    blockNumber: 5528129n,
+    jsonRpcUrl: sepoliaClient.chain.rpcUrls.default.http[0],
+  })
+
+  // https://sepolia-optimism.etherscan.io/tx/0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731
+  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
+    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+  })
+
+  const output = await waitToProve(sepoliaClient, {
+    gameLimit: 10,
+    receipt,
+    targetChain: optimismSepoliaClient.chain,
+  })
+  expect(output).toBeDefined()
 })
 
-test('default', async () => {
+test('legacy (portal v2)', async () => {
+  await setBlockNumber(18772363n)
+
   // https://optimistic.etherscan.io/tx/0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147
   const receipt = await getTransactionReceipt(optimismClient, {
     hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
@@ -20,6 +44,14 @@ test('default', async () => {
   })
   expect(output).toMatchInlineSnapshot(`
     {
+      "game": {
+        "extraData": "0x",
+        "index": 4529n,
+        "l2BlockNumber": 113389063n,
+        "metadata": "0x",
+        "rootClaim": "0xdc3b54fd33b5d8a60f275ca83c74b625e3942be5b70b2f7f0b9cadd869eb7b1a",
+        "timestamp": 1702377887n,
+      },
       "output": {
         "l2BlockNumber": 113389063n,
         "outputIndex": 4529n,
