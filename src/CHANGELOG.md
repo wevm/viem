@@ -1,5 +1,15 @@
 # viem
 
+## 2.8.17
+
+### Patch Changes
+
+- [#1952](https://github.com/wevm/viem/pull/1952) [`3d6109a6faf92090c6500534aebf657332335f30`](https://github.com/wevm/viem/commit/3d6109a6faf92090c6500534aebf657332335f30) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Added Immutable zkEVM (mainnet & testnet) chains.
+
+- [#1995](https://github.com/wevm/viem/pull/1995) [`0cf41702578f90cb7e6328d3ee069fd61a41c2f5`](https://github.com/wevm/viem/commit/0cf41702578f90cb7e6328d3ee069fd61a41c2f5) Thanks [@jxom](https://github.com/jxom)! - Updated `blobs` limit to 6.
+
+- [#1973](https://github.com/wevm/viem/pull/1973) [`b2949d39ec2428775a1b5ec61dccc0b2ca0c7691`](https://github.com/wevm/viem/commit/b2949d39ec2428775a1b5ec61dccc0b2ca0c7691) Thanks [@Resister-boy](https://github.com/Resister-boy)! - Updated Sepolia ether symbol.
+
 ## 2.8.16
 
 ### Patch Changes
