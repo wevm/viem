@@ -154,6 +154,11 @@ export type {
   GetEnsAddressReturnType,
 } from './actions/ens/getEnsAddress.js'
 export type {
+  GetEnsAvatarErrorType,
+  GetEnsAvatarParameters,
+  GetEnsAvatarReturnType,
+} from './actions/ens/getEnsAvatar.js'
+export type {
   GetEnsNameErrorType,
   GetEnsNameParameters,
   GetEnsNameReturnType,
@@ -163,6 +168,11 @@ export type {
   GetEnsResolverParameters,
   GetEnsResolverReturnType,
 } from './actions/ens/getEnsResolver.js'
+export type {
+  GetEnsTextErrorType,
+  GetEnsTextParameters,
+  GetEnsTextReturnType,
+} from './actions/ens/getEnsText.js'
 export type {
   GetFeeHistoryErrorType,
   GetFeeHistoryParameters,
@@ -422,6 +432,17 @@ export type {
   VerifyHashReturnType,
 } from './actions/public/verifyHash.js'
 export type {
+  VerifyTypedDataErrorType as VerifyTypedDataActionErrorType,
+  VerifyTypedDataParameters as VerifyTypedDataActionParameters,
+  VerifyTypedDataReturnType as VerifyTypedDataActionReturnType,
+} from './actions/public/verifyTypedData.js'
+export type {
+  VerifyMessageErrorType as VerifyMessageActionErrorType,
+  VerifyMessageParameters as VerifyMessageActionParameters,
+  VerifyMessageReturnType as VerifyMessageActionReturnType,
+} from './actions/public/verifyMessage.js'
+export type {
+  WatchContractEventOnLogsFn,
   WatchContractEventOnLogsParameter,
   WatchContractEventErrorType,
   WatchContractEventParameters,
@@ -866,8 +887,19 @@ export {
   type StateAssignmentConflictErrorType,
 } from './errors/stateOverride.js'
 export type {
+  AbiEventParameterToPrimitiveType,
+  AbiEventParametersToPrimitiveTypes,
+  AbiEventTopicToPrimitiveType,
   AbiItem,
+  AbiItemArgs,
+  AbiItemName,
+  ContractConstructorArgs,
+  ContractEventArgsFromTopics,
+  EventDefinition,
   ExtractAbiFunctionForArgs,
+  ExtractAbiItem,
+  ExtractAbiItemForArgs,
+  ExtractAbiItemNames,
   ContractErrorArgs,
   ContractErrorName,
   ContractEventArgs,
@@ -878,6 +910,9 @@ export type {
   ContractFunctionName,
   GetEventArgs,
   GetValue,
+  LogTopicType,
+  MaybeAbiEventName,
+  MaybeExtractEventArgsFromAbi,
 } from './types/contract.js'
 export type {
   AccessList,
@@ -978,7 +1013,7 @@ export type {
   FeeValuesLegacy,
   FeeValuesType,
 } from './types/fee.js'
-export type { Filter } from './types/filter.js'
+export type { Filter, FilterType } from './types/filter.js'
 export type { TypedDataDefinition } from './types/typedData.js'
 export type { GetTransportConfig, GetPollOptions } from './types/transport.js'
 export type { HDKey } from '@scure/bip32'
