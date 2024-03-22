@@ -43,394 +43,504 @@ export {
   type GetContractReturnType,
 } from './actions/getContract.js'
 export {
+  getContractEvents,
   type GetContractEventsErrorType,
   type GetContractEventsParameters,
   type GetContractEventsReturnType,
 } from './actions/public/getContractEvents.js'
 export {
+  addChain,
   type AddChainErrorType,
   type AddChainParameters,
 } from './actions/wallet/addChain.js'
 export {
+  call,
   type CallErrorType,
   type CallParameters,
   type CallReturnType,
 } from './actions/public/call.js'
-export type {
-  CreateBlockFilterErrorType,
-  CreateBlockFilterReturnType,
+export {
+  createBlockFilter,
+  type CreateBlockFilterErrorType,
+  type CreateBlockFilterReturnType,
 } from './actions/public/createBlockFilter.js'
-export type {
-  CreateContractEventFilterErrorType,
-  CreateContractEventFilterParameters,
-  CreateContractEventFilterReturnType,
+export {
+  createContractEventFilter,
+  type CreateContractEventFilterErrorType,
+  type CreateContractEventFilterParameters,
+  type CreateContractEventFilterReturnType,
 } from './actions/public/createContractEventFilter.js'
-export type {
-  CreateEventFilterErrorType,
-  CreateEventFilterParameters,
-  CreateEventFilterReturnType,
+export {
+  createEventFilter,
+  type CreateEventFilterErrorType,
+  type CreateEventFilterParameters,
+  type CreateEventFilterReturnType,
 } from './actions/public/createEventFilter.js'
-export type {
-  CreatePendingTransactionFilterErrorType,
-  CreatePendingTransactionFilterReturnType,
+export {
+  createPendingTransactionFilter,
+  type CreatePendingTransactionFilterErrorType,
+  type CreatePendingTransactionFilterReturnType,
 } from './actions/public/createPendingTransactionFilter.js'
-export type {
-  DeployContractErrorType,
-  DeployContractParameters,
-  DeployContractReturnType,
+export {
+  deployContract,
+  type DeployContractErrorType,
+  type DeployContractParameters,
+  type DeployContractReturnType,
 } from './actions/wallet/deployContract.js'
-export type {
-  DropTransactionErrorType,
-  DropTransactionParameters,
+export {
+  dropTransaction,
+  type DropTransactionErrorType,
+  type DropTransactionParameters,
 } from './actions/test/dropTransaction.js'
-export type {
-  DumpStateErrorType,
-  DumpStateReturnType,
+export {
+  dumpState,
+  type DumpStateErrorType,
+  type DumpStateReturnType,
 } from './actions/test/dumpState.js'
-export type {
-  GetAutomineErrorType,
-  GetAutomineReturnType,
+export {
+  type GetAutomineErrorType,
+  type GetAutomineReturnType,
+  getAutomine,
 } from './actions/test/getAutomine.js'
-export type {
-  EstimateContractGasErrorType,
-  EstimateContractGasParameters,
-  EstimateContractGasReturnType,
+export {
+  type EstimateContractGasErrorType,
+  type EstimateContractGasParameters,
+  type EstimateContractGasReturnType,
+  estimateContractGas,
 } from './actions/public/estimateContractGas.js'
-export type {
-  EstimateGasErrorType,
-  EstimateGasParameters,
-  EstimateGasReturnType,
+export {
+  type EstimateGasErrorType,
+  type EstimateGasParameters,
+  type EstimateGasReturnType,
+  estimateGas,
 } from './actions/public/estimateGas.js'
-export type {
-  EstimateFeesPerGasErrorType,
-  EstimateFeesPerGasParameters,
-  EstimateFeesPerGasReturnType,
+export {
+  type EstimateFeesPerGasErrorType,
+  type EstimateFeesPerGasParameters,
+  type EstimateFeesPerGasReturnType,
+  estimateFeesPerGas,
 } from './actions/public/estimateFeesPerGas.js'
-export type {
-  EstimateMaxPriorityFeePerGasErrorType,
-  EstimateMaxPriorityFeePerGasParameters,
-  EstimateMaxPriorityFeePerGasReturnType,
+export {
+  type EstimateMaxPriorityFeePerGasErrorType,
+  type EstimateMaxPriorityFeePerGasParameters,
+  type EstimateMaxPriorityFeePerGasReturnType,
+  estimateMaxPriorityFeePerGas,
 } from './actions/public/estimateMaxPriorityFeePerGas.js'
-export type {
-  GetAddressesErrorType,
-  GetAddressesReturnType,
+export {
+  type GetAddressesErrorType,
+  type GetAddressesReturnType,
+  getAddresses,
 } from './actions/wallet/getAddresses.js'
-export type {
-  GetBalanceErrorType,
-  GetBalanceParameters,
-  GetBalanceReturnType,
+export {
+  type GetBalanceErrorType,
+  type GetBalanceParameters,
+  type GetBalanceReturnType,
+  getBalance,
 } from './actions/public/getBalance.js'
-export type {
-  GetBlobBaseFeeErrorType,
-  GetBlobBaseFeeReturnType,
+export {
+  type GetBlobBaseFeeErrorType,
+  type GetBlobBaseFeeReturnType,
+  getBlobBaseFee,
 } from './actions/public/getBlobBaseFee.js'
-export type {
-  GetBlockNumberErrorType,
-  GetBlockNumberParameters,
-  GetBlockNumberReturnType,
+export {
+  type GetBlockNumberErrorType,
+  type GetBlockNumberParameters,
+  type GetBlockNumberReturnType,
+  getBlockNumber,
 } from './actions/public/getBlockNumber.js'
-export type {
-  GetBlockErrorType,
-  GetBlockParameters,
-  GetBlockReturnType,
+export {
+  type GetBlockErrorType,
+  type GetBlockParameters,
+  type GetBlockReturnType,
+  getBlock,
 } from './actions/public/getBlock.js'
-export type {
-  GetBlockTransactionCountErrorType,
-  GetBlockTransactionCountParameters,
-  GetBlockTransactionCountReturnType,
+export {
+  type GetBlockTransactionCountErrorType,
+  type GetBlockTransactionCountParameters,
+  type GetBlockTransactionCountReturnType,
+  getBlockTransactionCount,
 } from './actions/public/getBlockTransactionCount.js'
-export type {
-  GetBytecodeErrorType,
-  GetBytecodeParameters,
-  GetBytecodeReturnType,
+export {
+  type GetBytecodeErrorType,
+  type GetBytecodeParameters,
+  type GetBytecodeReturnType,
+  getBytecode,
 } from './actions/public/getBytecode.js'
-export type {
-  GetChainIdErrorType,
-  GetChainIdReturnType,
+export {
+  type GetChainIdErrorType,
+  type GetChainIdReturnType,
+  getChainId,
 } from './actions/public/getChainId.js'
-export type {
-  GetEnsAddressErrorType,
-  GetEnsAddressParameters,
-  GetEnsAddressReturnType,
+export {
+  type GetEnsAddressErrorType,
+  type GetEnsAddressParameters,
+  type GetEnsAddressReturnType,
+  getEnsAddress,
 } from './actions/ens/getEnsAddress.js'
-export type {
-  GetEnsNameErrorType,
-  GetEnsNameParameters,
-  GetEnsNameReturnType,
+export {
+  type GetEnsNameErrorType,
+  type GetEnsNameParameters,
+  type GetEnsNameReturnType,
+  getEnsName,
 } from './actions/ens/getEnsName.js'
-export type {
-  GetEnsResolverErrorType,
-  GetEnsResolverParameters,
-  GetEnsResolverReturnType,
+export {
+  type GetEnsResolverErrorType,
+  type GetEnsResolverParameters,
+  type GetEnsResolverReturnType,
+  getEnsResolver,
 } from './actions/ens/getEnsResolver.js'
-export type {
-  GetFeeHistoryErrorType,
-  GetFeeHistoryParameters,
-  GetFeeHistoryReturnType,
+export {
+  type GetEnsAvatarErrorType,
+  type GetEnsAvatarParameters,
+  type GetEnsAvatarReturnType,
+  getEnsAvatar,
+} from './actions/ens/getEnsAvatar.js'
+export {
+  type GetEnsTextErrorType,
+  type GetEnsTextParameters,
+  type GetEnsTextReturnType,
+  getEnsText,
+} from './actions/ens/getEnsText.js'
+export {
+  type GetFeeHistoryErrorType,
+  type GetFeeHistoryParameters,
+  type GetFeeHistoryReturnType,
+  getFeeHistory,
 } from './actions/public/getFeeHistory.js'
-export type {
-  GetFilterChangesErrorType,
-  GetFilterChangesParameters,
-  GetFilterChangesReturnType,
+export {
+  type GetFilterChangesErrorType,
+  type GetFilterChangesParameters,
+  type GetFilterChangesReturnType,
+  getFilterChanges,
 } from './actions/public/getFilterChanges.js'
-export type {
-  GetFilterLogsErrorType,
-  GetFilterLogsParameters,
-  GetFilterLogsReturnType,
+export {
+  type GetFilterLogsErrorType,
+  type GetFilterLogsParameters,
+  type GetFilterLogsReturnType,
+  getFilterLogs,
 } from './actions/public/getFilterLogs.js'
-export type {
-  GetGasPriceErrorType,
-  GetGasPriceReturnType,
+export {
+  type GetGasPriceErrorType,
+  type GetGasPriceReturnType,
+  getGasPrice,
 } from './actions/public/getGasPrice.js'
-export type {
-  GetLogsErrorType,
-  GetLogsParameters,
-  GetLogsReturnType,
+export {
+  type GetLogsErrorType,
+  type GetLogsParameters,
+  type GetLogsReturnType,
+  getLogs,
 } from './actions/public/getLogs.js'
-export type {
-  GetPermissionsErrorType,
-  GetPermissionsReturnType,
+export {
+  type GetPermissionsErrorType,
+  type GetPermissionsReturnType,
+  getPermissions,
 } from './actions/wallet/getPermissions.js'
-export type {
-  GetProofErrorType,
-  GetProofParameters,
-  GetProofReturnType,
+export {
+  type GetProofErrorType,
+  type GetProofParameters,
+  type GetProofReturnType,
+  getProof,
 } from './actions/public/getProof.js'
-export type {
-  GetStorageAtErrorType,
-  GetStorageAtParameters,
-  GetStorageAtReturnType,
+export {
+  type GetStorageAtErrorType,
+  type GetStorageAtParameters,
+  type GetStorageAtReturnType,
+  getStorageAt,
 } from './actions/public/getStorageAt.js'
-export type {
-  GetTransactionConfirmationsErrorType,
-  GetTransactionConfirmationsParameters,
-  GetTransactionConfirmationsReturnType,
+export {
+  type GetTransactionConfirmationsErrorType,
+  type GetTransactionConfirmationsParameters,
+  type GetTransactionConfirmationsReturnType,
+  getTransactionConfirmations,
 } from './actions/public/getTransactionConfirmations.js'
-export type {
-  GetTransactionCountErrorType,
-  GetTransactionCountParameters,
-  GetTransactionCountReturnType,
+export {
+  type GetTransactionCountErrorType,
+  type GetTransactionCountParameters,
+  type GetTransactionCountReturnType,
+  getTransactionCount,
 } from './actions/public/getTransactionCount.js'
-export type {
-  GetTransactionErrorType,
-  GetTransactionParameters,
-  GetTransactionReturnType,
+export {
+  type GetTransactionErrorType,
+  type GetTransactionParameters,
+  type GetTransactionReturnType,
+  getTransaction,
 } from './actions/public/getTransaction.js'
-export type {
-  GetTransactionReceiptErrorType,
-  GetTransactionReceiptParameters,
-  GetTransactionReceiptReturnType,
+export {
+  type GetTransactionReceiptErrorType,
+  type GetTransactionReceiptParameters,
+  type GetTransactionReceiptReturnType,
+  getTransactionReceipt,
 } from './actions/public/getTransactionReceipt.js'
-export type {
-  ImpersonateAccountErrorType,
-  ImpersonateAccountParameters,
+export {
+  type ImpersonateAccountErrorType,
+  type ImpersonateAccountParameters,
+  impersonateAccount,
 } from './actions/test/impersonateAccount.js'
-export type {
-  IncreaseTimeErrorType,
-  IncreaseTimeParameters,
+export {
+  type IncreaseTimeErrorType,
+  type IncreaseTimeParameters,
+  increaseTime,
 } from './actions/test/increaseTime.js'
-export type {
-  LoadStateErrorType,
-  LoadStateParameters,
-  LoadStateReturnType,
+export {
+  type LoadStateErrorType,
+  type LoadStateParameters,
+  type LoadStateReturnType,
+  loadState,
 } from './actions/test/loadState.js'
-export type { MineErrorType, MineParameters } from './actions/test/mine.js'
-export type {
-  MulticallErrorType,
-  MulticallParameters,
-  MulticallReturnType,
+export {
+  type MineErrorType,
+  type MineParameters,
+  mine,
+} from './actions/test/mine.js'
+export {
+  type MulticallErrorType,
+  type MulticallParameters,
+  type MulticallReturnType,
+  multicall,
 } from './actions/public/multicall.js'
-export type { SnapshotErrorType } from './actions/test/snapshot.js'
-export type {
-  OnBlock,
-  OnBlockParameter,
-  WatchBlocksErrorType,
-  WatchBlocksParameters,
-  WatchBlocksReturnType,
+export { snapshot, type SnapshotErrorType } from './actions/test/snapshot.js'
+export {
+  type OnBlock,
+  type OnBlockParameter,
+  type WatchBlocksErrorType,
+  type WatchBlocksParameters,
+  type WatchBlocksReturnType,
+  watchBlocks,
 } from './actions/public/watchBlocks.js'
-export type {
-  OnBlockNumberFn,
-  OnBlockNumberParameter,
-  WatchBlockNumberErrorType,
-  WatchBlockNumberParameters,
-  WatchBlockNumberReturnType,
+export {
+  type OnBlockNumberFn,
+  type OnBlockNumberParameter,
+  type WatchBlockNumberErrorType,
+  type WatchBlockNumberParameters,
+  type WatchBlockNumberReturnType,
+  watchBlockNumber,
 } from './actions/public/watchBlockNumber.js'
-export type {
-  WatchEventOnLogsFn,
-  WatchEventOnLogsParameter,
-  WatchEventErrorType,
-  WatchEventParameters,
-  WatchEventReturnType,
+export {
+  type WatchEventOnLogsFn,
+  type WatchEventOnLogsParameter,
+  type WatchEventErrorType,
+  type WatchEventParameters,
+  type WatchEventReturnType,
+  watchEvent,
 } from './actions/public/watchEvent.js'
-export type {
-  OnTransactionsFn,
-  OnTransactionsParameter,
-  WatchPendingTransactionsErrorType,
-  WatchPendingTransactionsParameters,
-  WatchPendingTransactionsReturnType,
+export {
+  type OnTransactionsFn,
+  type OnTransactionsParameter,
+  type WatchPendingTransactionsErrorType,
+  type WatchPendingTransactionsParameters,
+  type WatchPendingTransactionsReturnType,
+  watchPendingTransactions,
 } from './actions/public/watchPendingTransactions.js'
-export type {
-  ReadContractErrorType,
-  ReadContractParameters,
-  ReadContractReturnType,
+export {
+  type ReadContractErrorType,
+  type ReadContractParameters,
+  type ReadContractReturnType,
+  readContract,
 } from './actions/public/readContract.js'
-export type {
-  ReplacementReason,
-  ReplacementReturnType,
-  WaitForTransactionReceiptErrorType,
-  WaitForTransactionReceiptParameters,
-  WaitForTransactionReceiptReturnType,
+export {
+  type ReplacementReason,
+  type ReplacementReturnType,
+  type WaitForTransactionReceiptErrorType,
+  type WaitForTransactionReceiptParameters,
+  type WaitForTransactionReceiptReturnType,
+  waitForTransactionReceipt,
 } from './actions/public/waitForTransactionReceipt.js'
-export type {
-  RequestAddressesErrorType,
-  RequestAddressesReturnType,
+export {
+  type RequestAddressesErrorType,
+  type RequestAddressesReturnType,
+  requestAddresses,
 } from './actions/wallet/requestAddresses.js'
-export type {
-  RequestPermissionsErrorType,
-  RequestPermissionsReturnType,
-  RequestPermissionsParameters,
+export {
+  type RequestPermissionsErrorType,
+  type RequestPermissionsReturnType,
+  type RequestPermissionsParameters,
+  requestPermissions,
 } from './actions/wallet/requestPermissions.js'
-export type {
-  GetTxpoolContentErrorType,
-  GetTxpoolContentReturnType,
+export {
+  type GetTxpoolContentErrorType,
+  type GetTxpoolContentReturnType,
+  getTxpoolContent,
 } from './actions/test/getTxpoolContent.js'
-export type {
-  GetTxpoolStatusErrorType,
-  GetTxpoolStatusReturnType,
+export {
+  type GetTxpoolStatusErrorType,
+  type GetTxpoolStatusReturnType,
+  getTxpoolStatus,
 } from './actions/test/getTxpoolStatus.js'
-export type {
-  InspectTxpoolErrorType,
-  InspectTxpoolReturnType,
+export {
+  type InspectTxpoolErrorType,
+  type InspectTxpoolReturnType,
+  inspectTxpool,
 } from './actions/test/inspectTxpool.js'
-export type { RemoveBlockTimestampIntervalErrorType } from './actions/test/removeBlockTimestampInterval.js'
-export type { ResetErrorType, ResetParameters } from './actions/test/reset.js'
-export type {
-  RevertErrorType,
-  RevertParameters,
+export {
+  type RemoveBlockTimestampIntervalErrorType,
+  removeBlockTimestampInterval,
+} from './actions/test/removeBlockTimestampInterval.js'
+export {
+  type ResetErrorType,
+  type ResetParameters,
+  reset,
+} from './actions/test/reset.js'
+export {
+  type RevertErrorType,
+  type RevertParameters,
+  revert,
 } from './actions/test/revert.js'
-export type {
-  SendRawTransactionErrorType,
-  SendRawTransactionParameters,
-  SendRawTransactionReturnType,
+export {
+  type SendRawTransactionErrorType,
+  type SendRawTransactionParameters,
+  type SendRawTransactionReturnType,
+  sendRawTransaction,
 } from './actions/wallet/sendRawTransaction.js'
-export type {
-  SendTransactionErrorType,
-  SendTransactionParameters,
-  SendTransactionRequest,
-  SendTransactionReturnType,
+export {
+  type SendTransactionErrorType,
+  type SendTransactionParameters,
+  type SendTransactionRequest,
+  type SendTransactionReturnType,
+  sendTransaction,
 } from './actions/wallet/sendTransaction.js'
-export type {
-  SignTransactionErrorType,
-  SignTransactionParameters,
-  SignTransactionReturnType,
+export {
+  type SignTransactionErrorType,
+  type SignTransactionParameters,
+  type SignTransactionReturnType,
+  signTransaction,
 } from './actions/wallet/signTransaction.js'
-export type {
-  PrepareTransactionRequestErrorType,
-  PrepareTransactionRequestParameters,
-  PrepareTransactionRequestParameterType,
-  PrepareTransactionRequestRequest,
-  PrepareTransactionRequestReturnType,
+export {
+  type PrepareTransactionRequestErrorType,
+  type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestParameterType,
+  type PrepareTransactionRequestRequest,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest,
 } from './actions/wallet/prepareTransactionRequest.js'
-export type {
-  SendUnsignedTransactionErrorType,
-  SendUnsignedTransactionParameters,
-  SendUnsignedTransactionReturnType,
+export {
+  type SendUnsignedTransactionErrorType,
+  type SendUnsignedTransactionParameters,
+  type SendUnsignedTransactionReturnType,
+  sendUnsignedTransaction,
 } from './actions/test/sendUnsignedTransaction.js'
-export type { SetAutomineErrorType } from './actions/test/setAutomine.js'
-export type {
-  SetBalanceErrorType,
-  SetBalanceParameters,
+export {
+  type SetAutomineErrorType,
+  setAutomine,
+} from './actions/test/setAutomine.js'
+export {
+  type SetBalanceErrorType,
+  type SetBalanceParameters,
+  setBalance,
 } from './actions/test/setBalance.js'
-export type {
-  SetBlockGasLimitErrorType,
-  SetBlockGasLimitParameters,
+export {
+  type SetBlockGasLimitErrorType,
+  type SetBlockGasLimitParameters,
+  setBlockGasLimit,
 } from './actions/test/setBlockGasLimit.js'
-export type {
-  SetBlockTimestampIntervalErrorType,
-  SetBlockTimestampIntervalParameters,
+export {
+  type SetBlockTimestampIntervalErrorType,
+  type SetBlockTimestampIntervalParameters,
+  setBlockTimestampInterval,
 } from './actions/test/setBlockTimestampInterval.js'
-export type {
-  SetCodeErrorType,
-  SetCodeParameters,
+export {
+  type SetCodeErrorType,
+  type SetCodeParameters,
+  setCode,
 } from './actions/test/setCode.js'
-export type {
-  SetCoinbaseErrorType,
-  SetCoinbaseParameters,
+export {
+  type SetCoinbaseErrorType,
+  type SetCoinbaseParameters,
+  setCoinbase,
 } from './actions/test/setCoinbase.js'
-export type {
-  SetIntervalMiningErrorType,
-  SetIntervalMiningParameters,
+export {
+  type SetIntervalMiningErrorType,
+  type SetIntervalMiningParameters,
+  setIntervalMining,
 } from './actions/test/setIntervalMining.js'
-export type { SetLoggingEnabledErrorType } from './actions/test/setLoggingEnabled.js'
-export type {
-  SetMinGasPriceErrorType,
-  SetMinGasPriceParameters,
+export {
+  type SetLoggingEnabledErrorType,
+  setLoggingEnabled,
+} from './actions/test/setLoggingEnabled.js'
+export {
+  type SetMinGasPriceErrorType,
+  type SetMinGasPriceParameters,
+  setMinGasPrice,
 } from './actions/test/setMinGasPrice.js'
-export type {
-  SetNextBlockBaseFeePerGasErrorType,
-  SetNextBlockBaseFeePerGasParameters,
+export {
+  type SetNextBlockBaseFeePerGasErrorType,
+  type SetNextBlockBaseFeePerGasParameters,
+  setNextBlockBaseFeePerGas,
 } from './actions/test/setNextBlockBaseFeePerGas.js'
-export type {
-  SetNextBlockTimestampErrorType,
-  SetNextBlockTimestampParameters,
+export {
+  type SetNextBlockTimestampErrorType,
+  type SetNextBlockTimestampParameters,
+  setNextBlockTimestamp,
 } from './actions/test/setNextBlockTimestamp.js'
-export type {
-  SetNonceErrorType,
-  SetNonceParameters,
+export {
+  type SetNonceErrorType,
+  type SetNonceParameters,
+  setNonce,
 } from './actions/test/setNonce.js'
-export type { SetRpcUrlErrorType } from './actions/test/setRpcUrl.js'
-export type {
-  SetStorageAtErrorType,
-  SetStorageAtParameters,
+export { type SetRpcUrlErrorType, setRpcUrl } from './actions/test/setRpcUrl.js'
+export {
+  type SetStorageAtErrorType,
+  type SetStorageAtParameters,
+  setStorageAt,
 } from './actions/test/setStorageAt.js'
-export type {
-  SignMessageErrorType,
-  SignMessageParameters,
-  SignMessageReturnType,
+export {
+  type SignMessageErrorType,
+  type SignMessageParameters,
+  type SignMessageReturnType,
+  signMessage,
 } from './actions/wallet/signMessage.js'
-export type {
-  SignTypedDataErrorType,
-  SignTypedDataParameters,
-  SignTypedDataReturnType,
+export {
+  type SignTypedDataErrorType,
+  type SignTypedDataParameters,
+  type SignTypedDataReturnType,
+  signTypedData,
 } from './actions/wallet/signTypedData.js'
-export type {
-  SimulateContractErrorType,
-  SimulateContractParameters,
-  SimulateContractReturnType,
+export {
+  type SimulateContractErrorType,
+  type SimulateContractParameters,
+  type SimulateContractReturnType,
+  simulateContract,
 } from './actions/public/simulateContract.js'
-export type {
-  StopImpersonatingAccountErrorType,
-  StopImpersonatingAccountParameters,
+export {
+  type StopImpersonatingAccountErrorType,
+  type StopImpersonatingAccountParameters,
+  stopImpersonatingAccount,
 } from './actions/test/stopImpersonatingAccount.js'
-export type {
-  SwitchChainErrorType,
-  SwitchChainParameters,
+export {
+  type SwitchChainErrorType,
+  type SwitchChainParameters,
+  switchChain,
 } from './actions/wallet/switchChain.js'
-export type {
-  UninstallFilterErrorType,
-  UninstallFilterParameters,
-  UninstallFilterReturnType,
+export {
+  type UninstallFilterErrorType,
+  type UninstallFilterParameters,
+  type UninstallFilterReturnType,
+  uninstallFilter,
 } from './actions/public/uninstallFilter.js'
-export type {
-  WatchAssetErrorType,
-  WatchAssetParameters,
-  WatchAssetReturnType,
+export {
+  type WatchAssetErrorType,
+  type WatchAssetParameters,
+  type WatchAssetReturnType,
+  watchAsset,
 } from './actions/wallet/watchAsset.js'
-export type {
-  VerifyHashErrorType,
-  VerifyHashParameters,
-  VerifyHashReturnType,
+export {
+  type VerifyHashErrorType,
+  type VerifyHashParameters,
+  type VerifyHashReturnType,
+  verifyHash,
 } from './actions/public/verifyHash.js'
-export type {
-  WatchContractEventOnLogsParameter,
-  WatchContractEventErrorType,
-  WatchContractEventParameters,
-  WatchContractEventReturnType,
+export {
+  type WatchContractEventOnLogsParameter,
+  type WatchContractEventOnLogsFn,
+  type WatchContractEventErrorType,
+  type WatchContractEventParameters,
+  type WatchContractEventReturnType,
+  watchContractEvent,
 } from './actions/public/watchContractEvent.js'
-export type {
-  WriteContractErrorType,
-  WriteContractParameters,
-  WriteContractReturnType,
+export {
+  type WriteContractErrorType,
+  type WriteContractParameters,
+  type WriteContractReturnType,
+  writeContract,
 } from './actions/wallet/writeContract.js'
 export type {
   Chain,
@@ -978,7 +1088,7 @@ export type {
   FeeValuesLegacy,
   FeeValuesType,
 } from './types/fee.js'
-export type { Filter } from './types/filter.js'
+export type { Filter, FilterType } from './types/filter.js'
 export type { TypedDataDefinition } from './types/typedData.js'
 export type { GetTransportConfig, GetPollOptions } from './types/transport.js'
 export type { HDKey } from '@scure/bip32'
