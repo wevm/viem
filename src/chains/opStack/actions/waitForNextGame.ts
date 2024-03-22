@@ -54,7 +54,7 @@ export type WaitForNextGameErrorType =
   | ErrorType
 
 /**
- * Waits for the next L2 output (after the provided block number) to be submitted.
+ * Waits for the next dispute game (after the provided block number) to be submitted.
  *
  * - Docs: https://viem.sh/op-stack/actions/waitForNextGame
  *

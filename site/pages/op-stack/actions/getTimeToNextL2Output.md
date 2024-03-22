@@ -7,6 +7,12 @@ description: Builds & prepares parameters for a withdrawal to be initiated on an
 
 Returns the time until the next L2 output (after a provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
 
+:::warning
+**This Action will be deprecated in the future.**
+
+Use [`getTimeToNextGame`](/op-stack/actions/getTimeToNextGame) for OP Stack chains that have upgraded to [Fault Proofs](https://docs.optimism.io/stack/protocol/fault-proofs/overview) and have a deployed [DisputeGameFactoryProxy contract](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json).
+:::
+
 ## Usage
 
 :::code-group
