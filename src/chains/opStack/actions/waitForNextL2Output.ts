@@ -12,6 +12,7 @@ import { poll } from '../../../utils/poll.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
   type GetL2OutputErrorType,
+  type GetL2OutputParameters,
   type GetL2OutputReturnType,
   getL2Output,
 } from './getL2Output.js'
@@ -95,7 +96,7 @@ export async function waitForNextL2Output<
         try {
           const output = await getL2Output(
             client,
-            parameters as WaitForNextL2OutputParameters,
+            parameters as GetL2OutputParameters,
           )
           unpoll()
           resolve(output)
