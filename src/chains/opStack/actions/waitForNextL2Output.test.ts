@@ -1,30 +1,20 @@
 import { expect, test } from 'vitest'
-import { http, createPublicClient } from '../../../index.js'
-import { sepolia } from '../../index.js'
-import { optimismSepolia } from '../chains.js'
+import { publicClientMainnet } from '../../../../test/src/utils.js'
+import { optimism } from '../../index.js'
 import { waitForNextL2Output } from './waitForNextL2Output.js'
-
-const client_sepolia = createPublicClient({
-  chain: sepolia,
-  transport: http(),
-})
-const client_opSepolia = createPublicClient({
-  chain: optimismSepolia,
-  transport: http(),
-})
 
 // TODO: fix
 test('default', async () => {
-  const output = await waitForNextL2Output(client_sepolia, {
-    l2BlockNumber: 5270108n,
-    targetChain: client_opSepolia.chain,
+  const output = await waitForNextL2Output(publicClientMainnet, {
+    l2BlockNumber: 19494651n,
+    targetChain: optimism,
   })
   expect(output).toMatchInlineSnapshot(`
     {
-      "l2BlockNumber": 5270160n,
-      "outputIndex": 43917n,
-      "outputRoot": "0x3487d3365d47596885589f06c5144136455c509327ac04aa88db30a0cc10353a",
-      "timestamp": 1702343004n,
+      "l2BlockNumber": 105236863n,
+      "outputIndex": 0n,
+      "outputRoot": "0x21438336768f296ddf0fecd74ee1d4e56e66d937b3d9a3e964c9a5bf8eba63c3",
+      "timestamp": 1686075935n,
     }
   `)
 }, 20_000)
@@ -32,9 +22,9 @@ test('default', async () => {
 // TODO: fix
 test('error: other', async () => {
   await expect(() =>
-    waitForNextL2Output(client_sepolia, {
+    waitForNextL2Output(publicClientMainnet, {
       l2BlockNumber: -1n,
-      targetChain: client_opSepolia.chain,
+      targetChain: optimism,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [IntegerOutOfRangeError: Number "-1n" is not in safe 256-bit unsigned integer range (0n to 115792089237316195423570985008687907853269984665640564039457584007913129639935n)
