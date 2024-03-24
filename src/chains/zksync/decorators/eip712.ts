@@ -5,7 +5,7 @@ import type { WalletActions } from '../../../clients/decorators/wallet.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import {
-  type DeployContractParametersExtended,
+  type DeployContractParameters,
   type DeployContractReturnType,
   deployContract,
 } from '../actions/deployContract.js'
@@ -124,7 +124,7 @@ export type Eip712WalletActions<
    * - Docs: https://viem.sh/docs/contract/deployContract
    * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
    *
-   * @param args - {@link DeployContractParametersExtended}
+   * @param args - {@link DeployContractParameters}
    * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
    *
    * @example
@@ -151,7 +151,7 @@ export type Eip712WalletActions<
     const abi extends Abi | readonly unknown[],
     chainOverride extends ChainEIP712 | undefined,
   >(
-    args: DeployContractParametersExtended<
+    args: DeployContractParameters<
       abi,
       ChainEIP712 | undefined,
       Account | undefined,

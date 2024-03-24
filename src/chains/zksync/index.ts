@@ -24,7 +24,7 @@ export {
 } from './actions/signTransaction.js'
 export {
   type DeployContractErrorType,
-  type DeployContractParametersExtended,
+  type DeployContractParameters,
   type DeployContractReturnType,
   deployContract,
 } from './actions/deployContract.js'
