@@ -21,7 +21,7 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import { type Hex } from '../../../types/misc.js'
-import type { Prettify } from '../../../types/utils.js'
+import type { OneOf, Prettify } from '../../../types/utils.js'
 import { fromRlp } from '../../../utils/encoding/fromRlp.js'
 import { toRlp } from '../../../utils/encoding/toRlp.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
@@ -31,6 +31,7 @@ import {
   type GetWithdrawalHashStorageSlotErrorType,
   getWithdrawalHashStorageSlot,
 } from '../utils/getWithdrawalHashStorageSlot.js'
+import { type GetGameReturnType } from './getGame.js'
 import type { GetL2OutputReturnType } from './getL2Output.js'
 import type { ProveWithdrawalParameters } from './proveWithdrawal.js'
 
@@ -49,8 +50,7 @@ export type BuildProveWithdrawalParameters<
 > = GetAccountParameter<account, accountOverride, false> &
   GetChainParameter<chain, chainOverride> & {
     withdrawal: Withdrawal
-    output: GetL2OutputReturnType
-  }
+  } & OneOf<{ output: GetL2OutputReturnType } | { game: GetGameReturnType }>
 
 export type BuildProveWithdrawalReturnType<
   chain extends Chain | undefined = Chain | undefined,
@@ -116,9 +116,10 @@ export async function buildProveWithdrawal<
 ): Promise<
   BuildProveWithdrawalReturnType<chain, account, chainOverride, accountOverride>
 > {
-  const { account, chain = client.chain, output, withdrawal } = args
+  const { account, chain = client.chain, game, output, withdrawal } = args
+
   const { withdrawalHash } = withdrawal
-  const { l2BlockNumber } = output
+  const { l2BlockNumber } = game ?? output
 
   const slot = getWithdrawalHashStorageSlot({ withdrawalHash })
   const [proof, block] = await Promise.all([
@@ -134,7 +135,7 @@ export async function buildProveWithdrawal<
 
   return {
     account,
-    l2OutputIndex: output.outputIndex,
+    l2OutputIndex: game?.index ?? output?.outputIndex,
     outputRootProof: {
       latestBlockhash: block.hash,
       messagePasserStorageRoot: proof.storageHash,

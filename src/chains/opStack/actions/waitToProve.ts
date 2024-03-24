@@ -8,6 +8,7 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { TransactionReceipt } from '../../../types/transaction.js'
+import type { OneOf } from '../../../types/utils.js'
 import { ReceiptContainsNoWithdrawalsError } from '../errors/withdrawal.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
@@ -16,7 +17,17 @@ import {
   getWithdrawals,
 } from '../utils/getWithdrawals.js'
 import {
+  type GetPortalVersionParameters,
+  getPortalVersion,
+} from './getPortalVersion.js'
+import {
+  type WaitForNextGameParameters,
+  type WaitForNextGameReturnType,
+  waitForNextGame,
+} from './waitForNextGame.js'
+import {
   type WaitForNextL2OutputErrorType,
+  type WaitForNextL2OutputParameters,
   type WaitForNextL2OutputReturnType,
   waitForNextL2Output,
 } from './waitForNextL2Output.js'
@@ -26,7 +37,18 @@ export type WaitToProveParameters<
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
-  GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
+  OneOf<
+    | GetContractAddressParameter<_derivedChain, 'l2OutputOracle'>
+    | GetContractAddressParameter<
+        _derivedChain,
+        'disputeGameFactory' | 'portal'
+      >
+  > & {
+    /**
+     * Limit of games to extract.
+     * @default 100
+     */
+    gameLimit?: number | undefined
     receipt: TransactionReceipt
     /**
      * Polling frequency (in ms). Defaults to Client's pollingInterval config.
@@ -35,9 +57,11 @@ export type WaitToProveParameters<
     pollingInterval?: number | undefined
   }
 export type WaitToProveReturnType = {
-  withdrawal: Withdrawal
+  game: WaitForNextGameReturnType
   output: WaitForNextL2OutputReturnType
+  withdrawal: Withdrawal
 }
+
 export type WaitToProveErrorType =
   | GetWithdrawalsErrorType
   | WaitForNextL2OutputErrorType
@@ -81,7 +105,7 @@ export async function waitToProve<
   client: Client<Transport, chain, account>,
   parameters: WaitToProveParameters<chain, chainOverride>,
 ): Promise<WaitToProveReturnType> {
-  const { receipt } = parameters
+  const { gameLimit, receipt } = parameters
 
   const [withdrawal] = getWithdrawals(receipt)
 
@@ -90,10 +114,44 @@ export async function waitToProve<
       hash: receipt.transactionHash,
     })
 
-  const output = await waitForNextL2Output(client, {
-    ...parameters,
-    l2BlockNumber: receipt.blockNumber,
-  })
+  const portalVersion = await getPortalVersion(
+    client,
+    parameters as GetPortalVersionParameters,
+  )
 
-  return { output, withdrawal }
+  // Legacy (Portal < v3)
+  if (portalVersion.major < 3) {
+    const output = await waitForNextL2Output(client, {
+      ...parameters,
+      l2BlockNumber: receipt.blockNumber,
+    } as WaitForNextL2OutputParameters)
+    return {
+      game: {
+        extraData: '0x',
+        index: output.outputIndex,
+        l2BlockNumber: output.l2BlockNumber,
+        metadata: '0x',
+        rootClaim: output.outputRoot,
+        timestamp: output.timestamp,
+      },
+      output,
+      withdrawal,
+    }
+  }
+
+  const game = await waitForNextGame(client, {
+    ...parameters,
+    limit: gameLimit,
+    l2BlockNumber: receipt.blockNumber,
+  } as WaitForNextGameParameters)
+  return {
+    game,
+    output: {
+      l2BlockNumber: game.l2BlockNumber,
+      outputIndex: game.index,
+      outputRoot: game.rootClaim,
+      timestamp: game.timestamp,
+    },
+    withdrawal,
+  }
 }

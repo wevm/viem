@@ -8,7 +8,19 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { TransactionReceipt } from '../../../types/transaction.js'
+import type { OneOf } from '../../../types/utils.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
+import {
+  type GetPortalVersionErrorType,
+  type GetPortalVersionParameters,
+  getPortalVersion,
+} from './getPortalVersion.js'
+import {
+  type GetTimeToNextGameErrorType,
+  type GetTimeToNextGameParameters,
+  type GetTimeToNextGameReturnType,
+  getTimeToNextGame,
+} from './getTimeToNextGame.js'
 import {
   type GetTimeToNextL2OutputErrorType,
   type GetTimeToNextL2OutputParameters,
@@ -21,7 +33,13 @@ export type GetTimeToProveParameters<
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
-  GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
+  OneOf<
+    | GetContractAddressParameter<_derivedChain, 'l2OutputOracle'>
+    | GetContractAddressParameter<
+        _derivedChain,
+        'disputeGameFactory' | 'portal'
+      >
+  > & {
     /**
      * The buffer to account for discrepencies between non-deterministic time intervals.
      * @default 1.1
@@ -31,8 +49,16 @@ export type GetTimeToProveParameters<
       | undefined
     receipt: TransactionReceipt
   }
-export type GetTimeToProveReturnType = GetTimeToNextL2OutputReturnType
-export type GetTimeToProveErrorType = GetTimeToNextL2OutputErrorType | ErrorType
+
+export type GetTimeToProveReturnType =
+  | GetTimeToNextGameReturnType
+  | GetTimeToNextL2OutputReturnType
+
+export type GetTimeToProveErrorType =
+  | GetPortalVersionErrorType
+  | GetTimeToNextGameErrorType
+  | GetTimeToNextL2OutputErrorType
+  | ErrorType
 
 /**
  * Returns the time until the withdrawal transaction is ready to prove. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
@@ -74,8 +100,20 @@ export async function getTimeToProve<
 ): Promise<GetTimeToProveReturnType> {
   const { receipt } = parameters
 
-  return getTimeToNextL2Output(client, {
+  const portalVersion = await getPortalVersion(
+    client,
+    parameters as GetPortalVersionParameters,
+  )
+
+  // Legacy
+  if (portalVersion.major < 3)
+    return getTimeToNextL2Output(client, {
+      ...parameters,
+      l2BlockNumber: receipt.blockNumber,
+    } as GetTimeToNextL2OutputParameters)
+
+  return getTimeToNextGame(client, {
     ...parameters,
     l2BlockNumber: receipt.blockNumber,
-  })
+  } as GetTimeToNextGameParameters)
 }

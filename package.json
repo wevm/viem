@@ -1,5 +1,11 @@
 {
-  "workspaces": ["examples/*", "environments/*", "site", "src", "test"],
+  "workspaces": [
+    "examples/*",
+    "environments/*",
+    "site",
+    "src",
+    "test"
+  ],
   "private": true,
   "type": "module",
   "scripts": {

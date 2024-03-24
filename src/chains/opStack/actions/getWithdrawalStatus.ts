@@ -13,16 +13,32 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { TransactionReceipt } from '../../../types/transaction.js'
-import { portalAbi } from '../abis.js'
+import type { OneOf } from '../../../types/utils.js'
+import { portal2Abi, portalAbi } from '../abis.js'
 import { ReceiptContainsNoWithdrawalsError } from '../errors/withdrawal.js'
+import type { TargetChain } from '../types/chain.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
   type GetWithdrawalsErrorType,
   getWithdrawals,
 } from '../utils/getWithdrawals.js'
-import { type GetL2OutputErrorType, getL2Output } from './getL2Output.js'
+import {
+  type GetGameErrorType,
+  type GetGameParameters,
+  getGame,
+} from './getGame.js'
+import {
+  type GetL2OutputErrorType,
+  type GetL2OutputParameters,
+  getL2Output,
+} from './getL2Output.js'
+import {
+  type GetPortalVersionParameters,
+  getPortalVersion,
+} from './getPortalVersion.js'
 import {
   type GetTimeToFinalizeErrorType,
+  type GetTimeToFinalizeParameters,
   getTimeToFinalize,
 } from './getTimeToFinalize.js'
 
@@ -31,7 +47,18 @@ export type GetWithdrawalStatusParameters<
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
-  GetContractAddressParameter<_derivedChain, 'l2OutputOracle' | 'portal'> & {
+  OneOf<
+    | GetContractAddressParameter<_derivedChain, 'l2OutputOracle' | 'portal'>
+    | GetContractAddressParameter<
+        _derivedChain,
+        'disputeGameFactory' | 'portal'
+      >
+  > & {
+    /**
+     * Limit of games to extract to check withdrawal status.
+     * @default 100
+     */
+    gameLimit?: number
     receipt: TransactionReceipt
   }
 export type GetWithdrawalStatusReturnType =
@@ -85,12 +112,19 @@ export async function getWithdrawalStatus<
   client: Client<Transport, chain, account>,
   parameters: GetWithdrawalStatusParameters<chain, chainOverride>,
 ): Promise<GetWithdrawalStatusReturnType> {
-  const { chain = client.chain, receipt, targetChain } = parameters
+  const {
+    chain = client.chain,
+    gameLimit = 100,
+    receipt,
+    targetChain: targetChain_,
+  } = parameters
+
+  const targetChain = targetChain_ as unknown as TargetChain
 
   const portalAddress = (() => {
     if (parameters.portalAddress) return parameters.portalAddress
-    if (chain) return targetChain!.contracts.portal[chain.id].address
-    return Object.values(targetChain!.contracts.portal)[0].address
+    if (chain) return targetChain.contracts.portal[chain.id].address
+    return Object.values(targetChain.contracts.portal)[0].address
   })()
 
   const [withdrawal] = getWithdrawals(receipt)
@@ -100,53 +134,111 @@ export async function getWithdrawalStatus<
       hash: receipt.transactionHash,
     })
 
-  const [outputResult, proveResult, finalizedResult, timeToFinalizeResult] =
+  const portalVersion = await getPortalVersion(
+    client,
+    parameters as GetPortalVersionParameters,
+  )
+
+  // Legacy (Portal < v3)
+  if (portalVersion.major < 3) {
+    const [outputResult, proveResult, finalizedResult, timeToFinalizeResult] =
+      await Promise.allSettled([
+        getL2Output(client, {
+          ...parameters,
+          l2BlockNumber: receipt.blockNumber,
+        } as GetL2OutputParameters),
+        readContract(client, {
+          abi: portalAbi,
+          address: portalAddress,
+          functionName: 'provenWithdrawals',
+          args: [withdrawal.withdrawalHash],
+        }),
+        readContract(client, {
+          abi: portalAbi,
+          address: portalAddress,
+          functionName: 'finalizedWithdrawals',
+          args: [withdrawal.withdrawalHash],
+        }),
+        getTimeToFinalize(client, {
+          ...parameters,
+          withdrawalHash: withdrawal.withdrawalHash,
+        } as GetTimeToFinalizeParameters),
+      ])
+
+    // If the L2 Output is not processed yet (ie. the actions throws), this means
+    // that the withdrawal is not ready to prove.
+    if (outputResult.status === 'rejected') {
+      const error = outputResult.reason as GetL2OutputErrorType
+      if (
+        error.cause instanceof ContractFunctionRevertedError &&
+        error.cause.data?.args?.[0] ===
+          'L2OutputOracle: cannot get output for a block that has not been proposed'
+      )
+        return 'waiting-to-prove'
+      throw error
+    }
+    if (proveResult.status === 'rejected') throw proveResult.reason
+    if (finalizedResult.status === 'rejected') throw finalizedResult.reason
+    if (timeToFinalizeResult.status === 'rejected')
+      throw timeToFinalizeResult.reason
+
+    const [_, proveTimestamp] = proveResult.value
+    if (!proveTimestamp) return 'ready-to-prove'
+
+    const finalized = finalizedResult.value
+    if (finalized) return 'finalized'
+
+    const { seconds } = timeToFinalizeResult.value
+    return seconds > 0 ? 'waiting-to-finalize' : 'ready-to-finalize'
+  }
+
+  const [disputeGameResult, checkWithdrawalResult, finalizedResult] =
     await Promise.allSettled([
-      getL2Output(client, {
+      getGame(client, {
         ...parameters,
         l2BlockNumber: receipt.blockNumber,
-      }),
+        limit: gameLimit,
+      } as GetGameParameters),
       readContract(client, {
-        abi: portalAbi,
+        abi: portal2Abi,
         address: portalAddress,
-        functionName: 'provenWithdrawals',
+        functionName: 'checkWithdrawal',
         args: [withdrawal.withdrawalHash],
       }),
       readContract(client, {
-        abi: portalAbi,
+        abi: portal2Abi,
         address: portalAddress,
         functionName: 'finalizedWithdrawals',
         args: [withdrawal.withdrawalHash],
       }),
-      getTimeToFinalize(client, {
-        ...parameters,
-        withdrawalHash: withdrawal.withdrawalHash,
-      }),
     ])
 
-  // If the L2 Output is not processed yet (ie. the actions throws), this means
-  // that the withdrawal is not ready to prove.
-  if (outputResult.status === 'rejected') {
-    const error = outputResult.reason as GetL2OutputErrorType
-    if (
-      error.cause instanceof ContractFunctionRevertedError &&
-      error.cause.data?.args?.[0] ===
-        'L2OutputOracle: cannot get output for a block that has not been proposed'
-    )
-      return 'waiting-to-prove'
-    throw error
+  if (finalizedResult.status === 'fulfilled' && finalizedResult.value)
+    return 'finalized'
+
+  if (disputeGameResult.status === 'rejected') {
+    const error = disputeGameResult.reason as GetGameErrorType
+    if (error.name === 'GameNotFoundError') return 'waiting-to-prove'
+    throw disputeGameResult.reason
   }
-  if (proveResult.status === 'rejected') throw proveResult.reason
+  if (checkWithdrawalResult.status === 'rejected') {
+    const error = checkWithdrawalResult.reason as ReadContractErrorType
+    if (error.cause instanceof ContractFunctionRevertedError) {
+      const errorMessage = error.cause.data?.args?.[0]
+      if (errorMessage === 'OptimismPortal: withdrawal has not been proven yet')
+        return 'ready-to-prove'
+      if (
+        errorMessage ===
+          'OptimismPortal: proven withdrawal has not matured yet' ||
+        errorMessage ===
+          'OptimismPortal: output proposal has not been finalized yet' ||
+        errorMessage === 'OptimismPortal: output proposal in air-gap'
+      )
+        return 'waiting-to-finalize'
+    }
+    throw checkWithdrawalResult.reason
+  }
   if (finalizedResult.status === 'rejected') throw finalizedResult.reason
-  if (timeToFinalizeResult.status === 'rejected')
-    throw timeToFinalizeResult.reason
 
-  const [_, proveTimestamp] = proveResult.value
-  if (!proveTimestamp) return 'ready-to-prove'
-
-  const finalized = finalizedResult.value
-  if (finalized) return 'finalized'
-
-  const { seconds } = timeToFinalizeResult.value
-  return seconds > 0 ? 'waiting-to-finalize' : 'ready-to-finalize'
+  return 'ready-to-finalize'
 }

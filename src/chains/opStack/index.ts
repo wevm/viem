@@ -53,6 +53,18 @@ export {
   type EstimateL1FeeReturnType,
 } from './actions/estimateL1Fee.js'
 export {
+  getGame,
+  type GetGameErrorType,
+  type GetGameParameters,
+  type GetGameReturnType,
+} from './actions/getGame.js'
+export {
+  getGames,
+  type GetGamesErrorType,
+  type GetGamesParameters,
+  type GetGamesReturnType,
+} from './actions/getGames.js'
+export {
   getL1BaseFee,
   type GetL1BaseFeeErrorType,
   type GetL1BaseFeeParameters,
@@ -89,6 +101,18 @@ export {
   type GetL2OutputReturnType,
 } from './actions/getL2Output.js'
 export {
+  getPortalVersion,
+  type GetPortalVersionErrorType,
+  type GetPortalVersionParameters,
+  type GetPortalVersionReturnType,
+} from './actions/getPortalVersion.js'
+export {
+  getTimeToNextGame,
+  type GetTimeToNextGameErrorType,
+  type GetTimeToNextGameParameters,
+  type GetTimeToNextGameReturnType,
+} from './actions/getTimeToNextGame.js'
+export {
   getTimeToFinalize,
   type GetTimeToFinalizeErrorType,
   type GetTimeToFinalizeParameters,
@@ -124,6 +148,12 @@ export {
   type ProveWithdrawalParameters,
   type ProveWithdrawalReturnType,
 } from './actions/proveWithdrawal.js'
+export {
+  waitForNextGame,
+  type WaitForNextGameErrorType,
+  type WaitForNextGameParameters,
+  type WaitForNextGameReturnType,
+} from './actions/waitForNextGame.js'
 export {
   waitForNextL2Output,
   type WaitForNextL2OutputErrorType,

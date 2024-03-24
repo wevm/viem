@@ -1,9 +1,12 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { publicClientMainnet } from '~test/src/utils.js'
+import {
+  publicClientMainnet,
+  sepoliaClient as sepoliaClient_,
+} from '~test/src/utils.js'
 import { http, createPublicClient } from '../../../index.js'
-import { optimism } from '../chains.js'
+import { optimism, optimismSepolia } from '../chains.js'
 import { getWithdrawals } from '../index.js'
 import { publicActionsL1 } from './publicL1.js'
 
@@ -13,6 +16,8 @@ const l2Client = createPublicClient({
   transport: http(),
 })
 
+const sepoliaClient = sepoliaClient_.extend(publicActionsL1())
+
 test('default', async () => {
   expect(publicActionsL1()(publicClientMainnet)).toMatchInlineSnapshot(`
     {
@@ -20,11 +25,16 @@ test('default', async () => {
       "estimateDepositTransactionGas": [Function],
       "estimateFinalizeWithdrawalGas": [Function],
       "estimateProveWithdrawalGas": [Function],
+      "getGame": [Function],
+      "getGames": [Function],
       "getL2Output": [Function],
+      "getPortalVersion": [Function],
       "getTimeToFinalize": [Function],
+      "getTimeToNextGame": [Function],
       "getTimeToNextL2Output": [Function],
       "getTimeToProve": [Function],
       "getWithdrawalStatus": [Function],
+      "waitForNextGame": [Function],
       "waitForNextL2Output": [Function],
       "waitToFinalize": [Function],
       "waitToProve": [Function],
@@ -89,10 +99,43 @@ describe('smoke test', () => {
     expect(gas).toBeDefined()
   })
 
+  test('getGame', async () => {
+    const request = await sepoliaClient.getGame({
+      l2BlockNumber: 9510398n,
+      limit: 10,
+      targetChain: optimismSepolia,
+    })
+    expect(request).toBeDefined()
+  })
+
+  test('getGames', async () => {
+    const request = await sepoliaClient.getGames({
+      l2BlockNumber: 9510398n,
+      limit: 10,
+      targetChain: optimismSepolia,
+    })
+    expect(request).toBeDefined()
+  })
+
   test('getL2Output', async () => {
     const request = await client.getL2Output({
       l2BlockNumber: 113365018n,
       targetChain: optimism,
+    })
+    expect(request).toBeDefined()
+  })
+
+  test('getPortalVersion', async () => {
+    const request = await client.getPortalVersion({
+      targetChain: optimism,
+    })
+    expect(request).toBeDefined()
+  })
+
+  test('getTimeToNextGame', async () => {
+    const request = await sepoliaClient.getTimeToNextGame({
+      l2BlockNumber: 113365018n,
+      targetChain: optimismSepolia,
     })
     expect(request).toBeDefined()
   })
@@ -114,6 +157,19 @@ describe('smoke test', () => {
       receipt,
       targetChain: optimism,
     })
+  })
+
+  test('waitForNextGame', async () => {
+    const games = await sepoliaClient.getGames({
+      limit: 10,
+      targetChain: optimismSepolia,
+    })
+    const request = await sepoliaClient.waitForNextGame({
+      l2BlockNumber: games[0].l2BlockNumber - 10n,
+      limit: 10,
+      targetChain: optimismSepolia,
+    })
+    expect(request).toBeDefined()
   })
 
   test('waitForNextL2Output', async () => {

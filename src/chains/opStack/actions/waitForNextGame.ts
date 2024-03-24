@@ -1,6 +1,5 @@
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import { ContractFunctionRevertedError } from '../../../errors/contract.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account } from '../../../types/account.js'
 import type {
@@ -9,32 +8,38 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import { poll } from '../../../utils/poll.js'
+import { GameNotFoundError } from '../errors/withdrawal.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
-  type GetL2OutputErrorType,
-  type GetL2OutputParameters,
-  type GetL2OutputReturnType,
-  getL2Output,
-} from './getL2Output.js'
+  type GetGameErrorType,
+  type GetGameReturnType,
+  getGame,
+} from './getGame.js'
 import {
-  type GetTimeToNextL2OutputErrorType,
-  type GetTimeToNextL2OutputParameters,
-  getTimeToNextL2Output,
-} from './getTimeToNextL2Output.js'
+  type GetTimeToNextGameErrorType,
+  type GetTimeToNextGameParameters,
+  getTimeToNextGame,
+} from './getTimeToNextGame.js'
 
-export type WaitForNextL2OutputParameters<
+export type WaitForNextGameParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
-  GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
+  GetContractAddressParameter<
+    _derivedChain,
+    'portal' | 'disputeGameFactory'
+  > & {
+    /**
+     * Limit of games to extract.
+     * @default 100
+     */
+    limit?: number | undefined
     /**
      * The buffer to account for discrepencies between non-deterministic time intervals.
      * @default 1.1
      */
-    intervalBuffer?:
-      | GetTimeToNextL2OutputParameters['intervalBuffer']
-      | undefined
+    intervalBuffer?: GetTimeToNextGameParameters['intervalBuffer'] | undefined
     l2BlockNumber: bigint
     /**
      * Polling frequency (in ms). Defaults to Client's pollingInterval config.
@@ -42,26 +47,26 @@ export type WaitForNextL2OutputParameters<
      */
     pollingInterval?: number | undefined
   }
-export type WaitForNextL2OutputReturnType = GetL2OutputReturnType
-export type WaitForNextL2OutputErrorType =
-  | GetL2OutputErrorType
-  | GetTimeToNextL2OutputErrorType
+export type WaitForNextGameReturnType = GetGameReturnType
+export type WaitForNextGameErrorType =
+  | GetGameErrorType
+  | GetTimeToNextGameErrorType
   | ErrorType
 
 /**
- * Waits for the next L2 output (after the provided block number) to be submitted.
+ * Waits for the next dispute game (after the provided block number) to be submitted.
  *
- * - Docs: https://viem.sh/op-stack/actions/waitForNextL2Output
+ * - Docs: https://viem.sh/op-stack/actions/waitForNextGame
  *
  * @param client - Client to use
- * @param parameters - {@link WaitForNextL2OutputParameters}
- * @returns The L2 transaction hash. {@link WaitForNextL2OutputReturnType}
+ * @param parameters - {@link WaitForNextGameParameters}
+ * @returns The L2 transaction hash. {@link WaitForNextGameReturnType}
  *
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { getBlockNumber } from 'viem/actions'
  * import { mainnet, optimism } from 'viem/chains'
- * import { waitForNextL2Output } from 'viem/op-stack'
+ * import { waitForNextGame } from 'viem/op-stack'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,
@@ -73,36 +78,36 @@ export type WaitForNextL2OutputErrorType =
  * })
  *
  * const l2BlockNumber = await getBlockNumber(publicClientL2)
- * await waitForNextL2Output(publicClientL1, {
+ * await waitForNextGame(publicClientL1, {
  *   l2BlockNumber,
  *   targetChain: optimism
  * })
  */
-export async function waitForNextL2Output<
+export async function waitForNextGame<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: WaitForNextL2OutputParameters<chain, chainOverride>,
-): Promise<WaitForNextL2OutputReturnType> {
+  parameters: WaitForNextGameParameters<chain, chainOverride>,
+): Promise<WaitForNextGameReturnType> {
   const { pollingInterval = client.pollingInterval } = parameters
 
-  const { seconds } = await getTimeToNextL2Output(client, parameters)
+  const { seconds } = await getTimeToNextGame(client, parameters)
 
   return new Promise((resolve, reject) => {
     poll(
       async ({ unpoll }) => {
         try {
-          const output = await getL2Output(
-            client,
-            parameters as GetL2OutputParameters,
-          )
+          const game = await getGame(client, {
+            ...parameters,
+            strategy: 'random',
+          })
           unpoll()
-          resolve(output)
+          resolve(game)
         } catch (e) {
-          const error = e as GetL2OutputErrorType
-          if (!(error.cause instanceof ContractFunctionRevertedError)) {
+          const error = e as GetGameErrorType
+          if (!(error instanceof GameNotFoundError)) {
             unpoll()
             reject(e)
           }

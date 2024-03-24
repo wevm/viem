@@ -12,15 +12,34 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
+import type { OneOf } from '../../../types/utils.js'
 import { l2OutputOracleAbi } from '../abis.js'
+import type { TargetChain } from '../types/chain.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
+import { type GetGameParameters, getGame } from './getGame.js'
+import {
+  type GetPortalVersionParameters,
+  getPortalVersion,
+} from './getPortalVersion.js'
 
 export type GetL2OutputParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = GetChainParameter<chain, chainOverride> &
-  GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
+  OneOf<
+    | GetContractAddressParameter<_derivedChain, 'l2OutputOracle'>
+    | (GetContractAddressParameter<
+        _derivedChain,
+        'portal' | 'disputeGameFactory'
+      > & {
+        /**
+         * Limit of games to extract.
+         * @default 100
+         */
+        limit?: number | undefined
+      })
+  > & {
     l2BlockNumber: bigint
   }
 export type GetL2OutputReturnType = {
@@ -65,11 +84,33 @@ export async function getL2Output<
 ): Promise<GetL2OutputReturnType> {
   const { chain = client.chain, l2BlockNumber, targetChain } = parameters
 
+  const version = await getPortalVersion(
+    client,
+    parameters as GetPortalVersionParameters,
+  )
+
+  if (version.major >= 3) {
+    const game = await getGame(client, parameters as GetGameParameters)
+    return {
+      l2BlockNumber: game.l2BlockNumber,
+      outputIndex: game.index,
+      outputRoot: game.rootClaim,
+      timestamp: game.timestamp,
+    }
+  }
+
   const l2OutputOracleAddress = (() => {
     if (parameters.l2OutputOracleAddress)
       return parameters.l2OutputOracleAddress
-    if (chain) return targetChain!.contracts.l2OutputOracle[chain.id].address
-    return Object.values(targetChain!.contracts.l2OutputOracle)[0].address
+    if (chain)
+      return (targetChain as unknown as TargetChain)!.contracts.l2OutputOracle[
+        chain.id
+      ].address
+    return (
+      Object.values(
+        (targetChain as unknown as TargetChain)!.contracts.l2OutputOracle,
+      ) as any
+    )[0].address
   })()
 
   const outputIndex = await readContract(client, {

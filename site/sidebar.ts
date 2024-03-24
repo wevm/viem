@@ -1101,12 +1101,24 @@ export const sidebar = {
             link: '/op-stack/actions/estimateProveWithdrawalGas',
           },
           {
+            text: 'getGame',
+            link: '/op-stack/actions/getGame',
+          },
+          {
+            text: 'getGames',
+            link: '/op-stack/actions/getGames',
+          },
+          {
             text: 'getL2Output',
             link: '/op-stack/actions/getL2Output',
           },
           {
             text: 'getTimeToFinalize',
             link: '/op-stack/actions/getTimeToFinalize',
+          },
+          {
+            text: 'getTimeToNextGame',
+            link: '/op-stack/actions/getTimeToNextGame',
           },
           {
             text: 'getTimeToNextL2Output',
@@ -1119,6 +1131,10 @@ export const sidebar = {
           {
             text: 'getWithdrawalStatus',
             link: '/op-stack/actions/getWithdrawalStatus',
+          },
+          {
+            text: 'waitForNextGame',
+            link: '/op-stack/actions/waitForNextGame',
           },
           {
             text: 'waitForNextL2Output',

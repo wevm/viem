@@ -1,6 +1,14 @@
 import type { Address } from 'abitype'
 import type { Hex } from '../../../types/misc.js'
 
+export type Game = {
+  index: bigint
+  metadata: Hex
+  timestamp: bigint
+  rootClaim: Hex
+  extraData: Hex
+}
+
 export type WithdrawalRequest = {
   /** Encoded contract method & arguments. */
   data?: Hex | undefined
