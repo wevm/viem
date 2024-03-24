@@ -104,6 +104,32 @@ describe('ccip', () => {
 
     await server.close()
   })
+
+  test('custom offchain lookup', async () => {
+    const server = await createCcipServer()
+    const { contractAddress } = await deployOffchainLookupExample({
+      urls: [`${server.url}/{sender}/{data}`],
+    })
+
+    const calldata = encodeFunctionData({
+      abi: OffchainLookupExample.abi,
+      functionName: 'getAddress',
+      args: ['jxom.viem'],
+    })
+
+    const offchainLookup = vi.fn()
+
+    const client = publicClient.extend(() => ({ offchainLookup }))
+
+    await call(client, {
+      data: calldata,
+      to: contractAddress!,
+    })
+
+    expect(offchainLookup).toHaveBeenCalled()
+
+    await server.close()
+  })
 })
 
 test('zero data', async () => {

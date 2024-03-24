@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import { getAction } from '~viem/utils/getAction.js'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -55,6 +56,7 @@ import {
 } from '../../utils/abi/encodeFunctionData.js'
 import { isAddress } from '../../utils/address/isAddress.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { offchainLookupSignature } from '../../utils/ccip.js'
 import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
@@ -77,11 +79,11 @@ import {
   type CreateBatchSchedulerErrorType,
   createBatchScheduler,
 } from '../../utils/promise/createBatchScheduler.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import type {
   AssertRequestErrorType,
   AssertRequestParameters,
 } from '../../utils/transaction/assertRequest.js'
+import { assertRequest } from '../../utils/transaction/assertRequest.js'
 
 export type FormattedCall<
   TChain extends Chain | undefined = Chain | undefined,
@@ -230,11 +232,25 @@ export async function call<TChain extends Chain | undefined>(
     return { data: response }
   } catch (err) {
     const data = getRevertErrorData(err)
-    const { offchainLookup, offchainLookupSignature } = await import(
-      '../../utils/ccip.js'
-    )
     if (data?.slice(0, 10) === offchainLookupSignature && to) {
-      return { data: await offchainLookup(client, { data, to }) }
+      const offchainLookupAction = getAction(
+        client,
+        async (
+          _: any,
+          {
+            data,
+            to,
+          }: {
+            data: Hex
+            to: Address
+          },
+        ) => {
+          const { offchainLookup } = await import('../../utils/ccip.js')
+          return offchainLookup(client, { data, to })
+        },
+        'offchainLookup',
+      )
+      return { data: await offchainLookupAction({ data, to }) }
     }
     throw getCallError(err as ErrorType, {
       ...args,
