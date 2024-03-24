@@ -100,7 +100,7 @@ export const account = privateKeyToAccount(...)
 
 :::
 
-### Deploying with additional Factory Deps
+### Deploying with Factory Deps
 
 :::code-group
 
@@ -115,8 +115,9 @@ const hash = await walletClient.deployContract({
   args: [69420],
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   factoryDeps: [
-    '0x702040405260405161083e38038061083e833981016040819123456...', '0x102030405260405161083e38038061083e833981016040819112233...'
-    ]
+    '0x702040405260405161083e38038061083e833981016040819123456...', 
+    '0x102030405260405161083e38038061083e833981016040819112233...'
+  ]
 })
 ```
 
@@ -203,7 +204,7 @@ const hash = await walletClient.deployContract({
 })
 ```
 
-### args (if required)
+### args
 
 - **Type:** Inferred from ABI.
 

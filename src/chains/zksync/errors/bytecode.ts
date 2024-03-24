@@ -1,18 +1,18 @@
 import { BaseError } from '../../../errors/base.js'
 
-export type BytecodeLengthExceedsMaxErrorType =
-  BytecodeLengthExceedsMaxError & {
-    name: 'BytecodeLengthExceedsMaxError'
+export type BytecodeLengthExceedsMaxSizeErrorType =
+  BytecodeLengthExceedsMaxSizeError & {
+    name: 'BytecodeLengthExceedsMaxSizeError'
   }
 
-export class BytecodeLengthExceedsMaxError extends BaseError {
-  override name = 'BytecodeLengthExceedsMaxError'
+export class BytecodeLengthExceedsMaxSizeError extends BaseError {
+  override name = 'BytecodeLengthExceedsMaxSizeError'
   constructor({
     givenLength,
-    maxBytecodeLenBytes,
-  }: { givenLength: number; maxBytecodeLenBytes: bigint }) {
+    maxBytecodeSize,
+  }: { givenLength: number; maxBytecodeSize: bigint }) {
     super(
-      `Bytecode cannot be longer than ${maxBytecodeLenBytes} bytes. Given length: ${givenLength}`,
+      `Bytecode cannot be longer than ${maxBytecodeSize} bytes. Given length: ${givenLength}`,
     )
   }
 }

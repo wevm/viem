@@ -10,7 +10,7 @@ import type { Hash } from '../../../../types/misc.js'
 import type { Hex } from '../../../../types/misc.js'
 import { encodeAbiParameters } from '../../../../utils/abi/encodeAbiParameters.js'
 import {
-  type EncodeDeployDataParameters,
+  type EncodeDeployDataParameters as EncodeDeployDataParameters_,
   type EncodeDeployDataReturnType,
 } from '../../../../utils/abi/encodeDeployData.js'
 import { encodeFunctionData } from '../../../../utils/abi/encodeFunctionData.js'
@@ -22,7 +22,7 @@ import { hashBytecode } from '../hashBytecode.js'
 
 const docsPath = '/docs/contract/encodeDeployData'
 
-export type EncodeDeployDataParametersExtended<
+export type EncodeDeployDataParameters<
   abi extends Abi | readonly unknown[] = Abi,
   hasConstructor = abi extends Abi
     ? Abi extends abi
@@ -32,16 +32,16 @@ export type EncodeDeployDataParametersExtended<
         : true
     : true,
   allArgs = ContractConstructorArgs<abi>,
-> = EncodeDeployDataParameters<abi, hasConstructor, allArgs> & {
-  deploymentType?: ContractDeploymentType
-  salt?: Hash
+> = EncodeDeployDataParameters_<abi, hasConstructor, allArgs> & {
+  deploymentType?: ContractDeploymentType | undefined
+  salt?: Hash | undefined
 }
 
 export function encodeDeployData<const abi extends Abi | readonly unknown[]>(
-  parameters: EncodeDeployDataParametersExtended<abi>,
+  parameters: EncodeDeployDataParameters<abi>,
 ): EncodeDeployDataReturnType {
   const { abi, args, bytecode, deploymentType, salt } =
-    parameters as EncodeDeployDataParametersExtended
+    parameters as EncodeDeployDataParameters
 
   if (!args || args.length === 0) {
     const { functionName, argsContractDeployer } = getDeploymentDetails(
@@ -88,7 +88,7 @@ function getDeploymentDetails(
   functionName: string
   argsContractDeployer: readonly unknown[]
 } {
-  const contractDeploymentArgs = [salt ?? zeroHash, bytecodeHash, data]
+  const contractDeploymentArgs = [salt, bytecodeHash, data]
 
   const deploymentOptions = {
     create: {

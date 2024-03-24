@@ -2,4 +2,4 @@
 "viem": minor
 ---
 
-Added deployContract action to zkSync
+Added `deployContract` Action to zkSync Extensions.

@@ -59,7 +59,7 @@ test('constructor(string)', () => {
   )
 })
 
-test('deploymentType', () => {
+test('args: deploymentType', () => {
   expect(
     encodeDeployData({
       abi: [
@@ -153,7 +153,7 @@ test('deploymentType', () => {
   )
 })
 
-test('salt', () => {
+test('args: salt', () => {
   expect(
     encodeDeployData({
       abi: [

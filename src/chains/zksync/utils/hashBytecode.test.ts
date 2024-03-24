@@ -8,7 +8,16 @@ const invalidBytecodeLengthMustBeDivisibleBy32 =
 const invalidBytecodeLengthInWordsMustBeOdd =
   '0x00050000000000020000008003000039000000400030043f0000000003010019d50000000000020000008003000039000000400030043f0000000003010019d'
 
-test('invalid bytecode - length must be devisible by 32', async () => {
+test('hashed bytecode', async () => {
+  expect(hashBytecode(validBytecode)).toEqual(
+    new Uint8Array([
+      1, 0, 0, 1, 187, 37, 137, 118, 5, 213, 240, 79, 9, 123, 196, 48, 219, 199,
+      57, 127, 89, 28, 230, 254, 35, 91, 75, 211, 88, 142, 190, 70,
+    ]),
+  )
+})
+
+test('errors: length must be devisible by 32', async () => {
   expect(() =>
     hashBytecode(invalidBytecodeLengthMustBeDivisibleBy32),
   ).toThrowErrorMatchingInlineSnapshot(
@@ -20,7 +29,7 @@ test('invalid bytecode - length must be devisible by 32', async () => {
   )
 })
 
-test('invalid bytecode - length in words must be odd', async () => {
+test('errors: length in words must be odd', async () => {
   expect(() =>
     hashBytecode(invalidBytecodeLengthInWordsMustBeOdd),
   ).toThrowErrorMatchingInlineSnapshot(
@@ -29,14 +38,5 @@ test('invalid bytecode - length in words must be odd', async () => {
 
     Version: viem@1.0.2]
   `,
-  )
-})
-
-test('hashed bytecode', async () => {
-  expect(hashBytecode(validBytecode)).toEqual(
-    new Uint8Array([
-      1, 0, 0, 1, 187, 37, 137, 118, 5, 213, 240, 79, 9, 123, 196, 48, 219, 199,
-      57, 127, 89, 28, 230, 254, 35, 91, 75, 211, 88, 142, 190, 70,
-    ]),
   )
 })
