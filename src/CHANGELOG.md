@@ -1,5 +1,20 @@
 # viem
 
+## 2.9.0
+
+### Minor Changes
+
+- [#1907](https://github.com/wevm/viem/pull/1907) [`b40210f7308eb73a857692552381e06727511706`](https://github.com/wevm/viem/commit/b40210f7308eb73a857692552381e06727511706) Thanks [@mpopovac-txfusion](https://github.com/mpopovac-txfusion)! - Added `deployContract` Action to zkSync Extensions.
+
+- [#1994](https://github.com/wevm/viem/pull/1994) [`119aea616be0d1db06716709a64e8ab1966c7d4f`](https://github.com/wevm/viem/commit/119aea616be0d1db06716709a64e8ab1966c7d4f) Thanks [@jxom](https://github.com/jxom)! - Added support for [Fault Proofs on OP Stack](https://docs.optimism.io/stack/protocol/fault-proofs/overview), and new actions:
+
+  - [`getGame`](https://viem.sh/op-stack/actions/getGame) (supersedes `getL2Output`)
+  - `getGames`
+  - [`getTimeToNextGame`](https://viem.sh/op-stack/actions/getTimeToNextGame) (supersedes `getTimeToNextL2Output`)
+  - [`waitForNextGame`](https://viem.sh/op-stack/actions/waitForNextGame) (supersedes `waitForNextL2Output`)
+
+  > Note: The above actions are only compatible with OP Stack chains which have upgraded to Fault Proofs.
+
 ## 2.8.18
 
 ### Patch Changes
