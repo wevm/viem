@@ -1232,6 +1232,10 @@ export const sidebar = {
         text: 'Actions',
         items: [
           {
+            text: 'deployContract',
+            link: '/zksync/actions/deployContract',
+          },
+          {
             text: 'sendTransaction',
             link: '/zksync/actions/sendTransaction',
           },
