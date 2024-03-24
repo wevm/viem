@@ -1,6 +1,5 @@
 import type { Address } from 'abitype'
 
-import { getAction } from '~viem/utils/getAction.js'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -75,6 +74,7 @@ import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type CreateBatchSchedulerErrorType,
   createBatchScheduler,
