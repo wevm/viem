@@ -1113,10 +1113,6 @@ export const sidebar = {
             link: '/op-stack/actions/getL2Output',
           },
           {
-            text: 'getPortalVersion',
-            link: '/op-stack/actions/getPortalVersion',
-          },
-          {
             text: 'getTimeToFinalize',
             link: '/op-stack/actions/getTimeToFinalize',
           },
