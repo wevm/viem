@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Reya Network and Reya Cronos
+Added Reya Network chain.
