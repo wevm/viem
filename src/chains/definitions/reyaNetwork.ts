@@ -12,8 +12,8 @@ export const reyaNetwork = defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'ReyaNetworkExplorer',
-      url: 'https://explorer.reya.network/',
+      name: 'Reya Network Explorer',
+      url: 'https://explorer.reya.network',
     },
   },
   testnet: false,
