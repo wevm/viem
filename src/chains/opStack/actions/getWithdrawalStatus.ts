@@ -50,9 +50,9 @@ export type GetWithdrawalStatusParameters<
   OneOf<
     | GetContractAddressParameter<_derivedChain, 'l2OutputOracle' | 'portal'>
     | GetContractAddressParameter<
-        _derivedChain,
-        'disputeGameFactory' | 'portal'
-      >
+      _derivedChain,
+      'disputeGameFactory' | 'portal'
+    >
   > & {
     /**
      * Limit of games to extract to check withdrawal status.
@@ -172,7 +172,7 @@ export async function getWithdrawalStatus<
       if (
         error.cause instanceof ContractFunctionRevertedError &&
         error.cause.data?.args?.[0] ===
-          'L2OutputOracle: cannot get output for a block that has not been proposed'
+        'L2OutputOracle: cannot get output for a block that has not been proposed'
       )
         return 'waiting-to-prove'
       throw error
@@ -229,9 +229,9 @@ export async function getWithdrawalStatus<
         return 'ready-to-prove'
       if (
         errorMessage ===
-          'OptimismPortal: proven withdrawal has not matured yet' ||
+        'OptimismPortal: proven withdrawal has not matured yet' ||
         errorMessage ===
-          'OptimismPortal: output proposal has not been finalized yet' ||
+        'OptimismPortal: output proposal has not been finalized yet' ||
         errorMessage === 'OptimismPortal: output proposal in air-gap'
       )
         return 'waiting-to-finalize'

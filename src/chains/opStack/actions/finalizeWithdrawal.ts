@@ -16,7 +16,7 @@ import type {
 import type { Hash } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
-import { portalAbi } from '../abis.js'
+import { l1CrossDomainMessengerAbi, portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
@@ -24,6 +24,7 @@ import {
   type EstimateFinalizeWithdrawalGasParameters,
   estimateFinalizeWithdrawalGas,
 } from './estimateFinalizeWithdrawalGas.js'
+import { readContract } from '~viem/actions/index.js'
 
 export type FinalizeWithdrawalParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -45,7 +46,7 @@ export type FinalizeWithdrawalParameters<
 > &
   GetAccountParameter<account, Account | Address> &
   GetChainParameter<chain, chainOverride> &
-  GetContractAddressParameter<_derivedChain, 'portal'> & {
+  GetContractAddressParameter<_derivedChain, 'portal' | 'l1CrossDomainMessenger'> & {
     /**
      * Gas limit for transaction execution on the L1.
      * `null` to skip gas estimation & defer calculation to signer.
@@ -108,20 +109,52 @@ export async function finalizeWithdrawal<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
+  const l1CrossDomainMessengerAddress = (() => {
+    if (parameters.l1CrossDomainMessengerAddress)
+      return parameters.l1CrossDomainMessengerAddress
+    if (chain) return targetChain!.contracts.l1CrossDomainMessenger[chain.id].address
+    return Object.values(targetChain!.contracts.l1CrossDomainMessenger)[0].address
+  })()
+
   const gas_ =
     typeof gas !== 'number' && gas !== null
       ? await estimateFinalizeWithdrawalGas(
-          client,
-          parameters as EstimateFinalizeWithdrawalGasParameters,
-        )
+        client,
+        parameters as EstimateFinalizeWithdrawalGasParameters,
+      )
       : undefined
 
+  // in the rare case that the withdrawal has failed in past and we need to replay the message
+  // we use the l1CrossDomainMessenger to relay the message rather than the portal
+  const failedMessage = await readContract(client, {
+    abi: l1CrossDomainMessengerAbi,
+    address: l1CrossDomainMessengerAddress,
+    functionName: 'failedMessages',
+    args: [withdrawal.withdrawalHash],
+  })
+
+  // we might want to consider adding a `buildFinalizeWithdrawal` to improve ux of this for end users
+  if (failedMessage) {
+    return writeContract(client, {
+      abi: l1CrossDomainMessengerAbi,
+      address: l1CrossDomainMessengerAddress,
+      functionName: 'relayMessage',
+      account: account!,
+      chain,
+      args: [withdrawal],
+      gas: gas_,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+    } satisfies WriteContractParameters as any)
+  }
+
   return writeContract(client, {
-    account: account!,
     abi: portalAbi,
     address: portalAddress,
-    chain,
     functionName: 'finalizeWithdrawalTransaction',
+    account: account!,
+    chain,
     args: [withdrawal],
     gas: gas_,
     maxFeePerGas,
