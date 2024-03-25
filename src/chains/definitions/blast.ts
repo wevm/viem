@@ -14,8 +14,8 @@ export const blast = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.blast.io'] },
   },
   blockExplorers: {
-    default: { 
-      name: 'Blastscan', 
+    default: {
+      name: 'Blastscan',
       url: 'https://blastscan.io',
       apiUrl: 'https://api.blastscan.io/api',
     },
