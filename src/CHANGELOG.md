@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.1
+
+### Patch Changes
+
+- [#2009](https://github.com/wevm/viem/pull/2009) [`69017a9b7bab8b5a3bd9d9f2306c889ddd6ca728`](https://github.com/wevm/viem/commit/69017a9b7bab8b5a3bd9d9f2306c889ddd6ca728) Thanks [@avniculae](https://github.com/avniculae)! - Added Reya Network chain.
+
+- [#2008](https://github.com/wevm/viem/pull/2008) [`cb0ea880057252684a5540f9282fc1982ef8fb86`](https://github.com/wevm/viem/commit/cb0ea880057252684a5540f9282fc1982ef8fb86) Thanks [@ezynda3](https://github.com/ezynda3)! - Added API URLs to Blast chains.
+
 ## 2.9.0
 
 ### Minor Changes
