@@ -19,6 +19,7 @@ export const blastSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blastscan',
       url: 'https://testnet.blastscan.io',
+      apiUrl: 'https://api-sepolia.blastscan.io/api',
     },
   },
   contracts: {
