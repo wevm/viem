@@ -252,12 +252,6 @@ export async function prepareTransactionRequest<
   } = args
   const account = account_ ? parseAccount(account_) : undefined
 
-  const block = await getAction(
-    client,
-    getBlock,
-    'getBlock',
-  )({ blockTag: 'latest' })
-
   const request = { ...args, ...(account ? { from: account?.address } : {}) }
 
   if (parameters.includes('chainId')) {
@@ -276,6 +270,11 @@ export async function prepareTransactionRequest<
       blockTag: 'pending',
     })
 
+  const block = await (() => {
+    if (typeof request.type !== 'undefined') return
+    return getAction(client, getBlock, 'getBlock')({ blockTag: 'latest' })
+  })()
+
   if (
     (parameters.includes('fees') || parameters.includes('type')) &&
     typeof type === 'undefined'
@@ -287,7 +286,7 @@ export async function prepareTransactionRequest<
     } catch {
       // infer type from block
       request.type =
-        typeof block.baseFeePerGas === 'bigint' ? 'eip1559' : 'legacy'
+        typeof block?.baseFeePerGas === 'bigint' ? 'eip1559' : 'legacy'
     }
   }
 
@@ -296,24 +295,29 @@ export async function prepareTransactionRequest<
 
     if (request.type === 'eip1559' || request.type === 'eip4844') {
       // EIP-1559 fees
-      const { maxFeePerGas, maxPriorityFeePerGas } =
-        await internal_estimateFeesPerGas(client, {
-          block: block as Block,
-          chain,
-          request: request as PrepareTransactionRequestParameters,
-        })
-
       if (
-        typeof args.maxPriorityFeePerGas === 'undefined' &&
-        args.maxFeePerGas &&
-        args.maxFeePerGas < maxPriorityFeePerGas
-      )
-        throw new MaxFeePerGasTooLowError({
-          maxPriorityFeePerGas,
-        })
+        typeof request.maxFeePerGas === 'undefined' ||
+        typeof request.maxPriorityFeePerGas === 'undefined'
+      ) {
+        const { maxFeePerGas, maxPriorityFeePerGas } =
+          await internal_estimateFeesPerGas(client, {
+            block: block as Block,
+            chain,
+            request: request as PrepareTransactionRequestParameters,
+          })
 
-      request.maxPriorityFeePerGas = maxPriorityFeePerGas
-      request.maxFeePerGas = maxFeePerGas
+        if (
+          typeof args.maxPriorityFeePerGas === 'undefined' &&
+          args.maxFeePerGas &&
+          args.maxFeePerGas < maxPriorityFeePerGas
+        )
+          throw new MaxFeePerGasTooLowError({
+            maxPriorityFeePerGas,
+          })
+
+        request.maxPriorityFeePerGas = maxPriorityFeePerGas
+        request.maxFeePerGas = maxFeePerGas
+      }
     } else {
       // Legacy fees
       if (
