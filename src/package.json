@@ -34,9 +34,9 @@
       "default": "./_cjs/actions/index.js"
     },
     "./celo": {
-      "types": "./_types/chains/celo/index.d.ts",
-      "import": "./_esm/chains/celo/index.js",
-      "default": "./_cjs/chains/celo/index.js"
+      "types": "./_types/celo/index.d.ts",
+      "import": "./_esm/celo/index.js",
+      "default": "./_cjs/celo/index.js"
     },
     "./chains": {
       "types": "./_types/chains/index.d.ts",
@@ -59,9 +59,9 @@
       "default": "./_cjs/node/index.js"
     },
     "./op-stack": {
-      "types": "./_types/chains/opStack/index.d.ts",
-      "import": "./_esm/chains/opStack/index.js",
-      "default": "./_cjs/chains/opStack/index.js"
+      "types": "./_types/op-stack/index.d.ts",
+      "import": "./_esm/op-stack/index.js",
+      "default": "./_cjs/op-stack/index.js"
     },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
@@ -74,47 +74,25 @@
       "default": "./_cjs/window/index.js"
     },
     "./zksync": {
-      "types": "./_types/chains/zksync/index.d.ts",
-      "import": "./_esm/chains/zksync/index.js",
-      "default": "./_cjs/chains/zksync/index.js"
+      "types": "./_types/zksync/index.d.ts",
+      "import": "./_esm/zksync/index.js",
+      "default": "./_cjs/zksync/index.js"
     },
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
-      "accounts": [
-        "./_types/accounts/index.d.ts"
-      ],
-      "actions": [
-        "./_types/actions/index.d.ts"
-      ],
-      "celo": [
-        "./_types/chains/celo/index.d.ts"
-      ],
-      "chains": [
-        "./_types/chains/index.d.ts"
-      ],
-      "chains/utils": [
-        "./_types/chains/utils.d.ts"
-      ],
-      "ens": [
-        "./_types/ens/index.d.ts"
-      ],
-      "node": [
-        "./_types/node/index.d.ts"
-      ],
-      "op-stack": [
-        "./_types/chains/opStack/index.d.ts"
-      ],
-      "utils": [
-        "./_types/utils/index.d.ts"
-      ],
-      "window": [
-        "./_types/window/index.d.ts"
-      ],
-      "zksync": [
-        "./_types/chains/zksync/index.d.ts"
-      ]
+      "accounts": ["./_types/accounts/index.d.ts"],
+      "actions": ["./_types/actions/index.d.ts"],
+      "celo": ["./_types/celo/index.d.ts"],
+      "chains": ["./_types/chains/index.d.ts"],
+      "chains/utils": ["./_types/chains/utils.d.ts"],
+      "ens": ["./_types/ens/index.d.ts"],
+      "node": ["./_types/node/index.d.ts"],
+      "op-stack": ["./_types/op-stack/index.d.ts"],
+      "utils": ["./_types/utils/index.d.ts"],
+      "window": ["./_types/window/index.d.ts"],
+      "zksync": ["./_types/zksync/index.d.ts"]
     }
   },
   "peerDependencies": {
@@ -138,21 +116,12 @@
   "license": "MIT",
   "homepage": "https://viem.sh",
   "repository": "wevm/viem",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": [
-    "eth",
-    "ethereum",
-    "dapps",
-    "wallet",
-    "web3"
-  ]
+  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"]
 }
