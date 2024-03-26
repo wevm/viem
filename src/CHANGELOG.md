@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.2
+
+### Patch Changes
+
+- [#2006](https://github.com/wevm/viem/pull/2006) [`742d4db0e4388a211cdfe483bdbfb9f40218fe17`](https://github.com/wevm/viem/commit/742d4db0e4388a211cdfe483bdbfb9f40218fe17) Thanks [@TateB](https://github.com/TateB)! - Added ability to specify a custom offchain lookup request for CCIP Read, and ability to disable CCIP Read entirely.
+
 ## 2.9.1
 
 ### Patch Changes
