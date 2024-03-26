@@ -221,10 +221,11 @@ const publicClient = createPublicClient({
 ### ccipRead (optional)
 
 - **Type:** `(parameters: CcipRequestParameters) => Promise<CcipRequestReturnType> | false`
+- **Default:** `true`
 
 [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration.
 
-If `false`, the client will not support offchain CCIP lookups.
+CCIP Read is enabled by default, but if set to `false`, the client will not support offchain CCIP lookups.
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
