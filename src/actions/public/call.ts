@@ -233,9 +233,12 @@ export async function call<TChain extends Chain | undefined>(
     const { offchainLookup, offchainLookupSignature } = await import(
       '../../utils/ccip.js'
     )
-    if (data?.slice(0, 10) === offchainLookupSignature && to) {
+    if (
+      client.ccipRead !== false &&
+      data?.slice(0, 10) === offchainLookupSignature &&
+      to
+    )
       return { data: await offchainLookup(client, { data, to }) }
-    }
     throw getCallError(err as ErrorType, {
       ...args,
       account,

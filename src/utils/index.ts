@@ -4,9 +4,10 @@ export {
 } from './buildRequest.js'
 
 export {
-  type CcipFetchErrorType,
   type OffchainLookupErrorType,
-  ccipFetch,
+  ccipRequest,
+  /** @deprecated Use `ccipRequest`. */
+  ccipRequest as ccipFetch,
   offchainLookup,
   offchainLookupAbiItem,
   offchainLookupSignature,
