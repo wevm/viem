@@ -128,6 +128,7 @@ export function watchBlocks<
     const observerId = stringify([
       'watchBlocks',
       client.uid,
+      blockTag,
       emitMissed,
       emitOnBegin,
       includeTransactions,
