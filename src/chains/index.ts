@@ -271,13 +271,13 @@ export type {
   TransactionSerializableCIP64,
   TransactionSerializedCIP42,
   TransactionSerializedCIP64,
-} from './celo/types.js'
+} from '../celo/types.js'
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
   OpStackRpcBlock,
   OpStackRpcBlockOverrides,
-} from './opStack/types/block.js'
+} from '../op-stack/types/block.js'
 export type {
   SerializeTransactionDepositReturnType,
   SerializeTransactionErrorType,
@@ -285,7 +285,7 @@ export type {
   serializeTransaction as serializeTransactionOpStack,
   assertTransactionDeposit as assertTransactionDepositOpStack,
   serializers as serializersOpStack,
-} from './opStack/serializers.js'
+} from '../op-stack/serializers.js'
 export type {
   OpStackDepositTransaction,
   OpStackRpcDepositTransaction,
@@ -300,22 +300,22 @@ export type {
   OpStackTransactionType,
   TransactionSerializableDeposit,
   TransactionSerializedDeposit,
-} from './opStack/types/transaction.js'
+} from '../op-stack/types/transaction.js'
 export type {
   ZkSyncBlock,
   ZkSyncBlockOverrides,
   ZkSyncRpcBlock,
   ZkSyncRpcBlockOverrides,
-} from './zksync/types/block.js'
-export type { ChainEIP712 } from './zksync/types/chain.js'
-export type { ZkSyncEip712Meta } from './zksync/types/eip712.js'
-export type { ZkSyncFeeValues } from './zksync/types/fee.js'
+} from '../zksync/types/block.js'
+export type { ChainEIP712 } from '../zksync/types/chain.js'
+export type { ZkSyncEip712Meta } from '../zksync/types/eip712.js'
+export type { ZkSyncFeeValues } from '../zksync/types/fee.js'
 export type {
   ZkSyncL2ToL1Log,
   ZkSyncLog,
   ZkSyncRpcL2ToL1Log,
   ZkSyncRpcLog,
-} from './zksync/types/log.js'
+} from '../zksync/types/log.js'
 export type {
   TransactionRequestEIP712,
   ZkSyncEIP712TransactionSignable,
@@ -336,4 +336,4 @@ export type {
   ZkSyncTransactionSerialized,
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
-} from './zksync/types/transaction.js'
+} from '../zksync/types/transaction.js'
