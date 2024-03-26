@@ -316,6 +316,7 @@ test('exports', () => {
       "bytesToNumber",
       "bytesToString",
       "fromBytes",
+      "ccipRequest",
       "ccipFetch",
       "offchainLookup",
       "offchainLookupAbiItem",

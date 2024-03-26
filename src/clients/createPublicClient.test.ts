@@ -33,6 +33,7 @@ test('creates', () => {
       "batch": undefined,
       "cacheTime": 4000,
       "call": [Function],
+      "ccipRead": undefined,
       "chain": undefined,
       "createBlockFilter": [Function],
       "createContractEventFilter": [Function],
@@ -149,6 +150,7 @@ describe('transports', () => {
         "batch": undefined,
         "cacheTime": 4000,
         "call": [Function],
+        "ccipRead": undefined,
         "chain": {
           "fees": undefined,
           "formatters": undefined,
@@ -248,6 +250,7 @@ describe('transports', () => {
         "batch": undefined,
         "cacheTime": 4000,
         "call": [Function],
+        "ccipRead": undefined,
         "chain": {
           "fees": undefined,
           "formatters": undefined,
@@ -347,6 +350,7 @@ describe('transports', () => {
         "batch": undefined,
         "cacheTime": 4000,
         "call": [Function],
+        "ccipRead": undefined,
         "chain": undefined,
         "createBlockFilter": [Function],
         "createContractEventFilter": [Function],
@@ -429,6 +433,7 @@ test('extend', () => {
       "batch": undefined,
       "cacheTime": 4000,
       "call": [Function],
+      "ccipRead": undefined,
       "chain": {
         "fees": undefined,
         "formatters": undefined,
