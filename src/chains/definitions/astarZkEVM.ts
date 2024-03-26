@@ -18,7 +18,7 @@ export const astarZkEVM = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0x36eabf148272BA81A5225C6a3637972F0EE17771',
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 93528,
     },
   },
