@@ -1,5 +1,17 @@
 # viem
 
+## 2.9.3
+
+### Patch Changes
+
+- [#2018](https://github.com/wevm/viem/pull/2018) [`1fae8174b6dfd26a4bf908004bca93cf24a16261`](https://github.com/wevm/viem/commit/1fae8174b6dfd26a4bf908004bca93cf24a16261) Thanks [@saeta-eth](https://github.com/saeta-eth)! - Updated Polygon Mumbai Etherscan API URL.
+
+- [#2019](https://github.com/wevm/viem/pull/2019) [`81ddc5ec9953fc46a25d72991ca63a75cb8de27d`](https://github.com/wevm/viem/commit/81ddc5ec9953fc46a25d72991ca63a75cb8de27d) Thanks [@youPickItUp](https://github.com/youPickItUp)! - Added `blockTag` to `observerId` in `watchBlocks` to avoid id collisions.
+
+- [#2015](https://github.com/wevm/viem/pull/2015) [`b3b989fac1c42a9e1fa870610010150b94297d1f`](https://github.com/wevm/viem/commit/b3b989fac1c42a9e1fa870610010150b94297d1f) Thanks [@emrahsky](https://github.com/emrahsky)! - Added Areon chain.
+
+- [#2021](https://github.com/wevm/viem/pull/2021) [`8a173ccd302b267a5165778061e262755ace401f`](https://github.com/wevm/viem/commit/8a173ccd302b267a5165778061e262755ace401f) Thanks [@jxom](https://github.com/jxom)! - Minimized redundant requests in `prepareTransactionRequest` (addressed #2017).
+
 ## 2.9.2
 
 ### Patch Changes
