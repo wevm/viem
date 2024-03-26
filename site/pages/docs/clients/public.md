@@ -218,6 +218,45 @@ const publicClient = createPublicClient({
 })
 ```
 
+### ccipRead (optional)
+
+- **Type:** `(parameters: CcipRequestParameters) => Promise<CcipRequestReturnType> | false`
+
+[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration.
+
+If `false`, the client will not support offchain CCIP lookups.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
+  ccipRead: false, // [!code focus]
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### ccipRead.request (optional)
+
+- **Type:** `(parameters: CcipRequestParameters) => Promise<CcipRequestReturnType>`
+
+A function that will be called to make the [offchain CCIP lookup request](https://eips.ethereum.org/EIPS/eip-3668#client-lookup-protocol).
+
+```ts twoslash
+// @noErrors
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
+  ccipRead: { // [!code focus]
+    async request({ data, sender, urls }) { // [!code focus]
+      // ... // [!code focus]
+    } // [!code focus]
+  }, // [!code focus]
+  chain: mainnet,
+  transport: http(),
+})
+```
+
 ### key (optional)
 
 - **Type:** `string`

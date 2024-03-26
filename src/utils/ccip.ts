@@ -69,11 +69,17 @@ export async function offchainLookup<TChain extends Chain | undefined>(
   })
   const [sender, urls, callData, callbackSelector, extraData] = args
 
+  const { ccipRead } = client
+  const ccipRequest_ =
+    ccipRead && typeof ccipRead?.request === 'function'
+      ? ccipRead.request
+      : ccipRequest
+
   try {
     if (!isAddressEqual(to, sender))
       throw new OffchainLookupSenderMismatchError({ sender, to })
 
-    const result = await ccipFetch({ data: callData, sender, urls })
+    const result = await ccipRequest_({ data: callData, sender, urls })
 
     const { data: data_ } = await call(client, {
       blockNumber,
@@ -101,13 +107,21 @@ export async function offchainLookup<TChain extends Chain | undefined>(
   }
 }
 
-export type CcipFetchErrorType = ErrorType
+export type CcipRequestParameters = {
+  data: Hex
+  sender: Address
+  urls: readonly string[]
+}
 
-export async function ccipFetch({
+export type CcipRequestReturnType = Hex
+
+export type CcipRequestErrorType = ErrorType
+
+export async function ccipRequest({
   data,
   sender,
   urls,
-}: { data: Hex; sender: Address; urls: readonly string[] }) {
+}: CcipRequestParameters): Promise<CcipRequestReturnType> {
   let error = new Error('An unknown error occurred.')
 
   for (let i = 0; i < urls.length; i++) {

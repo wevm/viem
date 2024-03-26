@@ -27,6 +27,7 @@ export type WalletClientConfig<
     ClientConfig<transport, chain, accountOrAddress>,
     | 'account'
     | 'cacheTime'
+    | 'ccipRead'
     | 'chain'
     | 'key'
     | 'name'
