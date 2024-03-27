@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.4
+
+### Patch Changes
+
+- [#2024](https://github.com/wevm/viem/pull/2024) [`cc0142476b805ab0983b296bf129c4db04ee6c4e`](https://github.com/wevm/viem/commit/cc0142476b805ab0983b296bf129c4db04ee6c4e) Thanks [@Azleal](https://github.com/Azleal)! - Updated `zetachainAthensTestnet` Explorer URL.
+
+- [`63feaeadef67915b2029911919d966634942f744`](https://github.com/wevm/viem/commit/63feaeadef67915b2029911919d966634942f744) Thanks [@jxom](https://github.com/jxom)! - Updated `plumeTestnet` RPC URLs.
+
 ## 2.9.3
 
 ### Patch Changes
