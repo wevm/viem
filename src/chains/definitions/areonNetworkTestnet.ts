@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const areonNetwork = defineChain({
+export const areonNetworkTestnet = defineChain({
   id: 462,
   name: 'Areon Network Testnet',
   nativeCurrency: { decimals: 18, name: 'TAREA', symbol: 'TAREA' },
