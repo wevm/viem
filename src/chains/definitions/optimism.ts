@@ -6,7 +6,7 @@ const sourceId = 1 // mainnet
 export const optimism = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 10,
-  name: 'OP Mainnet',
+  name: 'Optimism Mainnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
