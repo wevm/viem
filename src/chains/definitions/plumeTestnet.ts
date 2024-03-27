@@ -19,7 +19,7 @@ export const plumeTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://testnet-explorer.plumenetwork.xyz/',
+      url: 'https://testnet-explorer.plumenetwork.xyz',
       apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api',
     },
   },
