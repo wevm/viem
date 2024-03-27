@@ -12,15 +12,15 @@ export const plumeTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://plume-testnet.rpc.caldera.xyz/http'],
-      webSocket: ['wss://plume-testnet.rpc.caldera.xyz/ws'],
+      http: ['https://testnet-rpc.plumenetwork.xyz/http'],
+      webSocket: ['wss://testnet-rpc.plumenetwork.xyz/ws'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://plume-testnet.explorer.caldera.xyz',
-      apiUrl: 'https://plume-testnet.explorer.caldera.xyz/api',
+      url: 'https://testnet-explorer.plumenetwork.xyz/',
+      apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api',
     },
   },
   testnet: true,
