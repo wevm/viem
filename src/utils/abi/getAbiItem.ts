@@ -76,7 +76,7 @@ export type GetAbiItemReturnType<
 export function getAbiItem<
   const abi extends Abi | readonly unknown[],
   name extends AbiItemName<abi>,
-  args extends AbiItemArgs<abi, name> | undefined = undefined,
+  const args extends AbiItemArgs<abi, name> | undefined = undefined,
 >(
   parameters: GetAbiItemParameters<abi, name, args>,
 ): GetAbiItemReturnType<abi, name, args> {
