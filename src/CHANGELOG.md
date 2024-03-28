@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.5
+
+### Patch Changes
+
+- [#2036](https://github.com/wevm/viem/pull/2036) [`b5acc5b7bb97b2f6702d5ea0ef280bb158eb94f4`](https://github.com/wevm/viem/commit/b5acc5b7bb97b2f6702d5ea0ef280bb158eb94f4) Thanks [@dalechyn](https://github.com/dalechyn)! - Fixed overloaded function return types.
+
+- [#2035](https://github.com/wevm/viem/pull/2035) [`46baadcff3663a20b4de4494cdd22a5b7dc21cbd`](https://github.com/wevm/viem/commit/46baadcff3663a20b4de4494cdd22a5b7dc21cbd) Thanks [@Fiddlekins](https://github.com/Fiddlekins)! - Added Sei Devnet chain.
+
 ## 2.9.4
 
 ### Patch Changes
