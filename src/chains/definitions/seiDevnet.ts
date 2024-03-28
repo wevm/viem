@@ -12,7 +12,7 @@ export const seiDevnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Seitrace',
-      url: 'https://seitrace.com/',
+      url: 'https://seitrace.com',
     },
   },
   testnet: true,
