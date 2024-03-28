@@ -41,16 +41,6 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
-```
-
 :::
 
 ### Passing Arguments
@@ -63,9 +53,8 @@ For example, the `balanceOf` function name below requires an **address** argumen
 
 :::code-group
 
-```ts [example.ts] {8}
+```ts [example.ts]
 import { encodeFunctionData } from 'viem'
-import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
 const data = encodeFunctionData({
@@ -87,16 +76,6 @@ export const wagmiAbi = [
   },
   ...
 ] as const;
-```
-
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
 ```
 
 :::
