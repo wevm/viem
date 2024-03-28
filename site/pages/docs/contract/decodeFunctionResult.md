@@ -43,16 +43,6 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
-```
-
 :::
 
 ### Without `functionName`
@@ -78,16 +68,6 @@ const value = decodeFunctionResult({
   data: '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac'
 })
 // '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
-```
-
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
 ```
 
 :::
@@ -162,16 +142,6 @@ export const wagmiAbi = [
   },
   ...
 ] as const;
-```
-
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
 ```
 
 :::
