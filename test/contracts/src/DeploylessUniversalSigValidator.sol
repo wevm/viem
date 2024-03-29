@@ -34,7 +34,7 @@ contract VerifySig {
         bytes memory _signature
     ) public returns (bool) {
         bytes memory contractCode = address(_signer).code;
-        // The order here is striclty defined in https://eips.ethereum.org/EIPS/eip-6492
+        // The order here is strict defined in https://eips.ethereum.org/EIPS/eip-6492
         // - ERC-6492 suffix check and verification first, while being permissive in case the contract is already deployed so as to not invalidate old sigs
         // - ERC-1271 verification if there's contract code
         // - finally, ecrecover
