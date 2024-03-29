@@ -16,4 +16,7 @@ const resolverAddress = await client.getEnsResolver({
   name: normalize('jxom.eth'),
 })
 
-export default [`Address: ${address}`, `Name: ${name}, Resolver: ${resolverAddress}`]
+export default [
+  `Address: ${address}`,
+  `Name: ${name}, Resolver: ${resolverAddress}`,
+]
