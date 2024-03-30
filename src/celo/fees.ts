@@ -21,9 +21,7 @@ export const fees: ChainFees<typeof formatters> = {
   estimateFeesPerGas: async (
     params: ChainEstimateFeesPerGasFnParameters<typeof formatters>,
   ) => {
-    if (!params.request?.feeCurrency) {
-      return null
-    }
+    if (!params.request?.feeCurrency) return null
 
     const [maxFeePerGas, maxPriorityFeePerGas] = await Promise.all([
       estimateFeePerGasInFeeCurrency(params.client, params.request.feeCurrency),
