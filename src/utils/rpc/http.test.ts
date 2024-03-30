@@ -329,12 +329,12 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 70,
+          "id": 74,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
         {
-          "id": 71,
+          "id": 75,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
