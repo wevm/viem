@@ -151,6 +151,32 @@ describe('request', () => {
     await server.close()
   })
 
+  test('onRequest', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const requests: Request[] = []
+    const client = getHttpRpcClient(server.url, {
+      onRequest: (request) => {
+        requests.push(request)
+      },
+    })
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+    })
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+      onRequest: (request) => {
+        requests.push(request)
+      },
+    })
+
+    expect(requests.length).toBe(2)
+
+    await server.close()
+  })
+
   test('onResponse', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))

@@ -271,7 +271,7 @@ describe('request', () => {
     await server.close()
   })
 
-  test.only('behavior: onFetchRequest', async () => {
+  test('behavior: onFetchRequest', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
