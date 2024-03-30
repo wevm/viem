@@ -32,6 +32,13 @@ describe('sendTransaction()', () => {
       return 1n
     }
 
+    if (
+      request.method === 'eth_gasPrice' &&
+      (request.params as string[])[0] === feeCurrencyAddress
+    ) {
+      return 2n
+    }
+
     if (request.method === 'eth_estimateGas') {
       return 1n
     }
@@ -92,7 +99,7 @@ describe('sendTransaction()', () => {
     expect(transportRequestMock).toHaveBeenLastCalledWith({
       method: 'eth_sendRawTransaction',
       params: [
-        '0x7cf89282a4ec8001850165a0bc0101940000000000000000000000000000000000000fee9400000000000000000000000000000000000000017b94f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c080a004389976320970e0227b20df6f79f2f35a2832d18b9732cb017d15db9f80fb44a0735b9abf965b7f38d1c659527cc93a9fc37b3a3b7bd5910d0c7db4b740be860f',
+        '0x7cf88d82a4ec80010201940000000000000000000000000000000000000fee9400000000000000000000000000000000000000017b94f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c080a049b4b40c685a0bf9e3d1cca92a9175382bfa3a5e1bbd65610abcb0bd28b4ad90a009b40f809939683763bec0943101c7a7c79ea60239fd0d73975f555e6777ee1d',
       ],
     })
   })
