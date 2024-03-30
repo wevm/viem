@@ -18,6 +18,10 @@ export const zetachain = /*#__PURE__*/ defineChain({
       name: 'ZetaScan',
       url: 'https://explorer.zetachain.com',
     },
+    blockscout: {
+      name: 'blockscout',
+      url: 'https://zetachain.blockscout.com',
+    },
   },
   testnet: false,
 })
