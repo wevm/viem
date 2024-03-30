@@ -139,9 +139,7 @@ export async function internal_estimateFeesPerGas<
       type,
     } as ChainEstimateFeesPerGasFnParameters)) as unknown as EstimateFeesPerGasReturnType<type>
 
-    if (fees !== null) {
-      return fees
-    }
+    if (fees !== null) return fees
   }
 
   if (type === 'eip1559') {
