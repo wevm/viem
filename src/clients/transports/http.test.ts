@@ -271,6 +271,27 @@ describe('request', () => {
     await server.close()
   })
 
+  test.only('behavior: onFetchRequest', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const requests: Request[] = []
+    const transport = http(server.url, {
+      key: 'mock',
+      onFetchRequest(request) {
+        requests.push(request)
+      },
+    })({ chain: localhost })
+
+    await transport.request({ method: 'eth_blockNumber' })
+
+    console.log(requests)
+    expect(requests.length).toBe(1)
+
+    await server.close()
+  })
+
   test('behavior: onFetchResponse', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))
