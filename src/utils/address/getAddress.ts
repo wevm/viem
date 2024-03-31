@@ -44,6 +44,7 @@ export type GetAddressErrorType =
   | ErrorType
 
 export function getAddress(address: string, chainId?: number): Address {
-  if (!isAddress(address)) throw new InvalidAddressError({ address })
+  if (!isAddress(address, { strict: false }))
+    throw new InvalidAddressError({ address })
   return checksumAddress(address, chainId)
 }
