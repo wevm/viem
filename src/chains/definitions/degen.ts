@@ -10,15 +10,12 @@ export const degen = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://rpc.degen.tips',
-        'https://nitrorpc-degen-mainnet-1.t.conduit.xyz',
-      ],
+      http: ['https://rpc.degen.tips'],
     },
   },
   blockExplorers: {
     default: {
-      name: 'Degen Chain explorer',
+      name: 'Degen Chain Explorer',
       url: 'https://explorer.degen.tips',
       apiUrl: 'https://explorer.degen.tips/api/v2',
     },
