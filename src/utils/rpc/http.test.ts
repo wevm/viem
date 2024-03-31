@@ -329,12 +329,12 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 74,
+          "id": 72,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
         {
-          "id": 75,
+          "id": 73,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -355,7 +355,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 72,
+          "id": 74,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -364,7 +364,7 @@ describe('http (batch)', () => {
             "code": -32602,
             "message": "Odd number of digits",
           },
-          "id": 73,
+          "id": 75,
           "jsonrpc": "2.0",
         },
       ]
@@ -381,7 +381,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 74,
+          "id": 76,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -390,7 +390,7 @@ describe('http (batch)', () => {
             "code": -32601,
             "message": "Method not found",
           },
-          "id": 75,
+          "id": 77,
           "jsonrpc": "2.0",
         },
       ]
