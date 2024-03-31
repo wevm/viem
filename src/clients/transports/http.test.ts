@@ -286,7 +286,6 @@ describe('request', () => {
 
     await transport.request({ method: 'eth_blockNumber' })
 
-    console.log(requests)
     expect(requests.length).toBe(1)
 
     await server.close()
