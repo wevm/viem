@@ -1,5 +1,17 @@
 # viem
 
+## 2.9.6
+
+### Patch Changes
+
+- [#2048](https://github.com/wevm/viem/pull/2048) [`85c3695ec917918da7ae62697ce757ade2fdb8c6`](https://github.com/wevm/viem/commit/85c3695ec917918da7ae62697ce757ade2fdb8c6) Thanks [@tmm](https://github.com/tmm)! - Added `onFetchRequest` to `http` transport.
+
+- [#2041](https://github.com/wevm/viem/pull/2041) [`29eea54b37aeaebad62296ef12e0786b598b6fdf`](https://github.com/wevm/viem/commit/29eea54b37aeaebad62296ef12e0786b598b6fdf) Thanks [@shazarre](https://github.com/shazarre)! - Added custom Celo fees estimation function for cases when feeCurrency is used to send a transaction.
+
+- [#2050](https://github.com/wevm/viem/pull/2050) [`dd0ed3efb25305d70b67a19cc13ac5ccf1d1cd64`](https://github.com/wevm/viem/commit/dd0ed3efb25305d70b67a19cc13ac5ccf1d1cd64) Thanks [@cryptoflop](https://github.com/cryptoflop)! - Added Degen chain.
+
+- [#2051](https://github.com/wevm/viem/pull/2051) [`15be6eaf21c3dddc4894220e409e4c5126c6f015`](https://github.com/wevm/viem/commit/15be6eaf21c3dddc4894220e409e4c5126c6f015) Thanks [@jxom](https://github.com/jxom)! - Fixed regression where `getAddress` threw an error for non-checksum addresses instead of converting to a valid checksum address.
+
 ## 2.9.5
 
 ### Patch Changes
