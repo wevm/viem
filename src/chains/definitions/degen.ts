@@ -21,10 +21,4 @@ export const degen = /*#__PURE__*/ defineChain({
       apiUrl: 'https://explorer.degen.tips/api/v2',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0xFBF562a98aB8584178efDcFd09755FF9A1e7E3a2',
-      blockCreated: 414273,
-    },
-  },
 })
