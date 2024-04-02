@@ -107,10 +107,15 @@ export type NetworkSync = {
   startingBlock: Quantity
 }
 
-export type WalletCapabilities<id extends string | number = Hex> = {
-  [chainId in id]: {
-    [capability: string]: any
-  }
+export type WalletCapabilities = {
+  [capability: string]: any
+}
+
+export type WalletCapabilitiesRecord<
+  capabilities extends WalletCapabilities = WalletCapabilities,
+  id extends string | number = Hex,
+> = {
+  [chainId in id]: capabilities
 }
 
 export type WalletPermissionCaveat = {
@@ -124,6 +129,22 @@ export type WalletPermission = {
   id: string
   invoker: `http://${string}` | `https://${string}`
   parentCapability: 'eth_accounts' | string
+}
+
+export type WalletSendCallsParameters<
+  capabilities extends WalletCapabilities = WalletCapabilities,
+  chainId extends Hex | number = Hex,
+  quantity extends Quantity | bigint = Quantity,
+> = {
+  version: string
+  chainId: chainId
+  from: Address
+  calls: {
+    to: Address
+    data: Hex
+    value: quantity
+  }[]
+  capabilities?: capabilities | undefined
 }
 
 export type WatchAssetParams = {
@@ -1286,7 +1307,7 @@ export type WalletRpcSchema = [
   {
     Method: 'wallet_getCapabilities'
     Parameters?: undefined
-    ReturnType: Prettify<WalletCapabilities>
+    ReturnType: Prettify<WalletCapabilitiesRecord>
   },
   /**
    * @description Gets the wallets current permissions.
@@ -1311,6 +1332,18 @@ export type WalletRpcSchema = [
     Method: 'wallet_requestPermissions'
     Parameters: [permissions: { eth_accounts: Record<string, any> }]
     ReturnType: WalletPermission[]
+  },
+  /**
+   * @description Requests the connected wallet to send a batch of calls.
+   * @link https://eips.ethereum.org/EIPS/eip-5792
+   * @example
+   * provider.request({ method: 'wallet_sendCalls' })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_sendCalls'
+    Parameters?: WalletSendCallsParameters
+    ReturnType: string
   },
   /**
    * @description Switch the wallet to the given Ethereum chain.

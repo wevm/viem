@@ -3,11 +3,16 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import type { WalletCapabilities } from '../../types/eip1193.js'
+import type {
+  WalletCapabilities,
+  WalletCapabilitiesRecord,
+} from '../../types/eip1193.js'
 import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 
-export type GetCapabilitiesReturnType = Prettify<WalletCapabilities<number>>
+export type GetCapabilitiesReturnType = Prettify<
+  WalletCapabilitiesRecord<WalletCapabilities, number>
+>
 
 export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
 
@@ -41,7 +46,10 @@ export async function getCapabilities<
     method: 'wallet_getCapabilities',
   })
 
-  const capabilities = {} as WalletCapabilities<number>
+  const capabilities = {} as WalletCapabilitiesRecord<
+    WalletCapabilities,
+    number
+  >
   for (const [key, value] of Object.entries(capabilities_raw))
     capabilities[Number(key)] = value
   return capabilities
