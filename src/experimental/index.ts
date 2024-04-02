@@ -9,3 +9,9 @@ export {
   type SendCallsReturnType,
   sendCalls,
 } from './actions/sendCalls.js'
+export {
+  type GetCallsStatusErrorType,
+  type GetCallsStatusParameters,
+  type GetCallsStatusReturnType,
+  getCallsStatus,
+} from './actions/getCallsStatus.js'
