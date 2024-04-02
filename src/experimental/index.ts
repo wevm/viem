@@ -15,3 +15,8 @@ export {
   type GetCallsStatusReturnType,
   getCallsStatus,
 } from './actions/getCallsStatus.js'
+
+export {
+  type WalletActionsEip5792,
+  walletActionsEip5792,
+} from './decorators/eip5792.js'
