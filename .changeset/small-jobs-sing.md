@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added websocket rpc and multicall contract to degen chain config
+Added WebSocket RPC URL on Degen chain.
