@@ -11,6 +11,7 @@ export const degen = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://rpc.degen.tips'],
+      webSocket: ["wss://rpc.degen.tips"],
     },
   },
   blockExplorers: {
