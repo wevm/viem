@@ -107,6 +107,12 @@ export type NetworkSync = {
   startingBlock: Quantity
 }
 
+export type WalletCapabilities<id extends string | number = Hex> = {
+  [chainId in id]: {
+    [capability: string]: any
+  }
+}
+
 export type WalletPermissionCaveat = {
   type: string
   value: any
@@ -1269,6 +1275,18 @@ export type WalletRpcSchema = [
     Method: 'wallet_addEthereumChain'
     Parameters: [chain: AddEthereumChainParameter]
     ReturnType: null
+  },
+  /**
+   * @description Gets the connected wallet's capabilities.
+   * @link https://eips.ethereum.org/EIPS/eip-5792
+   * @example
+   * provider.request({ method: 'wallet_getCapabilities' })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_getCapabilities'
+    Parameters?: undefined
+    ReturnType: Prettify<WalletCapabilities>
   },
   /**
    * @description Gets the wallets current permissions.
