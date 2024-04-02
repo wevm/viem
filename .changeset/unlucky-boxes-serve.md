@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Update zksync development chains with chainConfig
+Updated zkSync development chains with zkSync `chainConfig`.
