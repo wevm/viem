@@ -44,13 +44,13 @@ export type SendCallsReturnType = string
 export type SendCallsErrorType = RequestErrorType | ErrorType
 
 /**
- * Extract capabilities that a connected wallet supports (e.g. paymasters, session keys, etc).
+ * Requests the connected wallet to send a batch of calls.
  *
  * - Docs: https://viem.sh/eip5792/actions/sendCalls
  * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use
- * @returns The wallet's capabilities. {@link SendCallsReturnType}
+ * @returns Transaction identifier. {@link SendCallsReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
@@ -61,7 +61,19 @@ export type SendCallsErrorType = RequestErrorType | ErrorType
  *   chain: mainnet,
  *   transport: custom(window.ethereum),
  * })
- * const capabilities = await sendCalls(client)
+ * const id = await sendCalls(client, {
+ *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   calls: [
+ *     {
+ *       data: '0xdeadbeef',
+ *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *     },
+ *     {
+ *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *       value: 69420n,
+ *     },
+ *   ],
+ * })
  */
 export async function sendCalls<
   chain extends Chain | undefined,
