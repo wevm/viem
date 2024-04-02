@@ -130,7 +130,7 @@ test('default', async () => {
         "blockNumber": 16280771n,
         "gasUsed": 21000n,
         "logs": [],
-        "status": "0x1",
+        "status": "success",
         "transactionHash": "0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3",
       },
       {
@@ -138,7 +138,7 @@ test('default', async () => {
         "blockNumber": 16280771n,
         "gasUsed": 42000n,
         "logs": [],
-        "status": "0x1",
+        "status": "success",
         "transactionHash": "0x5fafca9937b154c21e7ea896c3ca23e5076ab9ca9e466085ae45edffb96c36e7",
       },
       {
@@ -146,7 +146,7 @@ test('default', async () => {
         "blockNumber": 16280771n,
         "gasUsed": 63064n,
         "logs": [],
-        "status": "0x1",
+        "status": "success",
         "transactionHash": "0x84f1d37995973fa977fc45eccf3d1ac0cdf666541a7dc2613e9cd3bc356ddfa4",
       },
     ]

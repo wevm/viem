@@ -7,11 +7,12 @@ import type { WalletGetCallsStatusReturnType } from '../../types/eip1193.js'
 import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
+import { receiptStatuses } from '../../utils/formatters/transactionReceipt.js'
 
 export type GetCallsStatusParameters = { id: string }
 
 export type GetCallsStatusReturnType = Prettify<
-  WalletGetCallsStatusReturnType<bigint>
+  WalletGetCallsStatusReturnType<bigint, 'success' | 'reverted'>
 >
 
 export type GetCallsStatusErrorType = RequestErrorType | ErrorType
@@ -55,6 +56,7 @@ export async function getCallsStatus<
         ...receipt,
         blockNumber: hexToBigInt(receipt.blockNumber),
         gasUsed: hexToBigInt(receipt.gasUsed),
+        status: receiptStatuses[receipt.status as '0x0' | '0x1'],
       })) ?? [],
   }
 }

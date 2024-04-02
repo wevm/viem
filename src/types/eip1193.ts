@@ -118,22 +118,22 @@ export type WalletCapabilitiesRecord<
   [chainId in id]: capabilities
 }
 
-export type WalletGetCallsStatusReceipt<quantity = Hex> = {
+export type WalletGetCallsStatusReceipt<quantity = Hex, status = Hex> = {
   logs: {
     address: Hex
     data: Hex
     topics: Hex[]
   }[]
-  status: Hex
+  status: status
   blockHash: Hex
   blockNumber: quantity
   gasUsed: quantity
   transactionHash: Hex
 }
 
-export type WalletGetCallsStatusReturnType<quantity = Hex> = {
+export type WalletGetCallsStatusReturnType<quantity = Hex, status = Hex> = {
   status: 'PENDING' | 'CONFIRMED'
-  receipts?: WalletGetCallsStatusReceipt<quantity>[]
+  receipts?: WalletGetCallsStatusReceipt<quantity, status>[]
 }
 
 export type WalletPermissionCaveat = {
