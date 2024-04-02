@@ -86,7 +86,7 @@ describe('smoke test', () => {
             "blockNumber": 1n,
             "gasUsed": 1n,
             "logs": [],
-            "status": "0x1",
+            "status": "success",
             "transactionHash": "0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3",
           },
         ],
