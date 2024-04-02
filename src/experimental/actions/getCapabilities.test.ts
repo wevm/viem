@@ -1,12 +1,11 @@
-import { expect, test, vi } from 'vitest'
-import { walletClient } from '../../../test/src/utils.js'
-import type { EIP1193Parameters } from '../../types/eip1193.js'
+import { expect, test } from 'vitest'
+import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { getCapabilities } from './getCapabilities.js'
 
-test('default', async () => {
-  vi.spyOn(walletClient, 'request')
-    // @ts-ignore
-    .mockImplementation(async ({ method }: EIP1193Parameters) => {
+const client = createClient({
+  transport: custom({
+    async request({ method }) {
       if (method === 'wallet_getCapabilities')
         return {
           '0x2105': {
@@ -24,9 +23,12 @@ test('default', async () => {
           },
         }
       return null
-    })
+    },
+  }),
+})
 
-  const capabilities = await getCapabilities(walletClient)
+test('default', async () => {
+  const capabilities = await getCapabilities(client)
   expect(capabilities).toMatchInlineSnapshot(`
     {
       "8453": {
