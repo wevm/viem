@@ -404,18 +404,12 @@ export function parseAccountStateOverride(
 ): RpcAccountStateOverride {
   const { balance, nonce, state, stateDiff, code } = args
   const rpcAccountStateOverride: RpcAccountStateOverride = {}
-  if (code !== undefined) {
-    rpcAccountStateOverride.code = code
-  }
-  if (balance !== undefined) {
-    rpcAccountStateOverride.balance = numberToHex(balance, { size: 32 })
-  }
-  if (nonce !== undefined) {
-    rpcAccountStateOverride.nonce = numberToHex(nonce, { size: 8 })
-  }
-  if (state !== undefined) {
+  if (code !== undefined) rpcAccountStateOverride.code = code
+  if (balance !== undefined)
+    rpcAccountStateOverride.balance = numberToHex(balance)
+  if (nonce !== undefined) rpcAccountStateOverride.nonce = numberToHex(nonce)
+  if (state !== undefined)
     rpcAccountStateOverride.state = parseStateMapping(state)
-  }
   if (stateDiff !== undefined) {
     if (rpcAccountStateOverride.state) throw new StateAssignmentConflictError()
     rpcAccountStateOverride.stateDiff = parseStateMapping(stateDiff)

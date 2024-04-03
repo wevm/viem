@@ -1105,7 +1105,7 @@ describe('parsing overrides', () => {
 
     expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
       {
-        "balance": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "balance": "0x1",
       }
     `)
 
@@ -1127,7 +1127,7 @@ describe('parsing overrides', () => {
 
     expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
       {
-        "nonce": "0x0000000000000001",
+        "nonce": "0x1",
       }
     `)
 
