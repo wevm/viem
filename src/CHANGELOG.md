@@ -1,5 +1,18 @@
 # viem
 
+## 2.9.9
+
+### Patch Changes
+
+- [`8a8fab2ace50a9d31df5d990ae6603c210a67860`](https://github.com/wevm/viem/commit/8a8fab2ace50a9d31df5d990ae6603c210a67860) Thanks [@jxom](https://github.com/jxom)! - Fixed parsing of `stateOverrides`.
+
+- [`03095724427a0662694801392d38d6a7b5dd43c7`](https://github.com/wevm/viem/commit/03095724427a0662694801392d38d6a7b5dd43c7) Thanks [@jxom](https://github.com/jxom)! - (Experimental) Renamed `getCallsStatus` to `getCallsReceipt`
+
+- [#2056](https://github.com/wevm/viem/pull/2056) [`368d8e6526fa32b4d153e78440b428ebcd577c15`](https://github.com/wevm/viem/commit/368d8e6526fa32b4d153e78440b428ebcd577c15) Thanks [@VGau](https://github.com/VGau)! - Added Linea Sepolia chain.
+  Updated Linea Goerli export name.
+
+- [#2063](https://github.com/wevm/viem/pull/2063) [`f539b0d71c590069872f31e62497570081cea144`](https://github.com/wevm/viem/commit/f539b0d71c590069872f31e62497570081cea144) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where the `transactionRequest` formatter would supply redundant properties.
+
 ## 2.9.8
 
 ### Patch Changes
