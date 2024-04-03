@@ -1037,7 +1037,7 @@ export const sidebar = {
                 link: '/experimental/actions/sendCalls',
               },
               {
-                text: 'writeContracts 🚧',
+                text: 'writeContracts',
                 link: '/experimental/actions/writeContracts',
               },
             ],
