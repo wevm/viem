@@ -20,7 +20,7 @@ export type GetCallsStatusErrorType = RequestErrorType | ErrorType
 /**
  * Returns the status of a call batch that was sent via `sendCalls`.
  *
- * - Docs: https://viem.sh/eip5792/actions/getCallsStatus
+ * - Docs: https://viem.sh/experimental/actions/getCallsStatus
  * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use

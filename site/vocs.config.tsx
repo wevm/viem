@@ -220,6 +220,10 @@ export default defineConfig({
           text: 'zkSync',
           link: '/zksync',
         },
+        {
+          text: 'Experimental',
+          link: '/experimental',
+        },
       ],
     },
     {

@@ -46,7 +46,7 @@ export type SendCallsErrorType = RequestErrorType | ErrorType
 /**
  * Requests the connected wallet to send a batch of calls.
  *
- * - Docs: https://viem.sh/eip5792/actions/sendCalls
+ * - Docs: https://viem.sh/experimental/actions/sendCalls
  * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use
@@ -93,7 +93,7 @@ export async function sendCalls<
 
   if (!account_)
     throw new AccountNotFoundError({
-      docsPath: '/eip5792/actions/sendCalls',
+      docsPath: '/experimental/actions/sendCalls',
     })
   const account = parseAccount(account_)
 

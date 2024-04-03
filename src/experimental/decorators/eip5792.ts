@@ -24,7 +24,7 @@ export type WalletActionsEip5792<
   /**
    * Returns the status of a call batch that was sent via `sendCalls`.
    *
-   * - Docs: https://viem.sh/eip5792/actions/getCallsStatus
+   * - Docs: https://viem.sh/experimental/actions/getCallsStatus
    * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
@@ -48,7 +48,7 @@ export type WalletActionsEip5792<
   /**
    * Extract capabilities that a connected wallet supports (e.g. paymasters, session keys, etc).
    *
-   * - Docs: https://viem.sh/eip5792/actions/getCapabilities
+   * - Docs: https://viem.sh/experimental/actions/getCapabilities
    * - JSON-RPC Methods: [`wallet_getCapabilities`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
@@ -70,7 +70,7 @@ export type WalletActionsEip5792<
   /**
    * Requests the connected wallet to send a batch of calls.
    *
-   * - Docs: https://viem.sh/eip5792/actions/sendCalls
+   * - Docs: https://viem.sh/experimental/actions/sendCalls
    * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
@@ -108,7 +108,7 @@ export type WalletActionsEip5792<
 /**
  * A suite of EIP-5792 Wallet Actions.
  *
- * - Docs: https://viem.sh/eip5792
+ * - Docs: https://viem.sh/experimental
  *
  * @example
  * import { createPublicClient, createWalletClient, http } from 'viem'
