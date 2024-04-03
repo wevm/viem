@@ -33,7 +33,7 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { zksync } from 'viem/chains'
@@ -81,7 +81,7 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { zksync } from 'viem/chains'
@@ -133,7 +133,7 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { zksync } from 'viem/chains'
