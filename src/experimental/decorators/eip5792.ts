@@ -16,6 +16,11 @@ import {
   type SendCallsReturnType,
   sendCalls,
 } from '../actions/sendCalls.js'
+import {
+  type WriteContractsParameters,
+  type WriteContractsReturnType,
+  writeContracts,
+} from '../actions/writeContracts.js'
 
 export type WalletActionsEip5792<
   chain extends Chain | undefined = Chain | undefined,
@@ -103,6 +108,61 @@ export type WalletActionsEip5792<
   sendCalls: <chainOverride extends Chain | undefined = undefined>(
     parameters: SendCallsParameters<chain, account, chainOverride>,
   ) => Promise<SendCallsReturnType>
+  /**
+   * Requests for the wallet to sign and broadcast a batch of write contract calls (transactions) to the network.
+   *
+   * - Docs: https://viem.sh/experimental/actions/writeContracts
+   *
+   * @param client - Client to use
+   * @param parameters - {@link WriteContractsParameters}
+   * @returns Unique identifier for the call batch. {@link WriteContractsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbi } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { writeContracts } from 'viem/experimental'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const abi = parseAbi([
+   *   'function approve(address, uint256) returns (bool)',
+   *   'function transferFrom(address, address, uint256) returns (bool)',
+   * ])
+   * const id = await client.writeContracts({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   contracts: [
+   *     {
+   *       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *       abi,
+   *       functionName: 'approve',
+   *       args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 100n],
+   *     },
+   *     {
+   *       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *       abi,
+   *       functionName: 'transferFrom',
+   *       args: [
+   *         '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+   *         '0x0000000000000000000000000000000000000000',
+   *         100n
+   *       ],
+   *     },
+   *   ],
+   * })
+   */
+  writeContracts: <
+    const contracts extends readonly unknown[],
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: WriteContractsParameters<
+      contracts,
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<WriteContractsReturnType>
 }
 
 /**
@@ -134,6 +194,7 @@ export function walletActionsEip5792() {
       getCallsStatus: (parameters) => getCallsStatus(client, parameters),
       getCapabilities: () => getCapabilities(client),
       sendCalls: (parameters) => sendCalls(client, parameters),
+      writeContracts: (parameters) => writeContracts(client, parameters),
     }
   }
 }

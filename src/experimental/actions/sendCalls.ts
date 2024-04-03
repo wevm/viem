@@ -25,8 +25,8 @@ export type SendCallsParameters<
   calls: OneOf<
     | {
         to: Hex
-        data?: Hex
-        value?: bigint
+        data?: Hex | undefined
+        value?: bigint | undefined
       }
     | {
         data: Hex

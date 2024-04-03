@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
+import { wagmiContractConfig } from '~test/src/abis.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
@@ -52,6 +53,7 @@ test('default', async () => {
       "getCallsStatus": [Function],
       "getCapabilities": [Function],
       "sendCalls": [Function],
+      "writeContracts": [Function],
     }
   `)
 })
@@ -101,6 +103,20 @@ describe('smoke test', () => {
         account: '0x0000000000000000000000000000000000000000',
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chain: mainnet,
+      }),
+    ).toMatchInlineSnapshot(`"0x1"`)
+  })
+
+  test('writeContracts', async () => {
+    expect(
+      await client.writeContracts({
+        account: '0x0000000000000000000000000000000000000000',
+        chain: mainnet,
+        contracts: [
+          { ...wagmiContractConfig, functionName: 'mint' },
+          { ...wagmiContractConfig, functionName: 'mint' },
+          { ...wagmiContractConfig, functionName: 'mint' },
+        ],
       }),
     ).toMatchInlineSnapshot(`"0x1"`)
   })

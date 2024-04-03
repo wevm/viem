@@ -15,6 +15,12 @@ export {
   type GetCallsStatusReturnType,
   getCallsStatus,
 } from './actions/getCallsStatus.js'
+export {
+  type WriteContractsErrorType,
+  type WriteContractsParameters,
+  type WriteContractsReturnType,
+  writeContracts,
+} from './actions/writeContracts.js'
 
 export {
   type WalletActionsEip5792,
