@@ -1013,34 +1013,20 @@ export const sidebar = {
         text: 'EIP-5792',
         items: [
           {
-            text: 'Public Actions',
-            items: [
-              {
-                text: 'simulateContracts 🚧',
-                link: '/experimental/actions/simulateContracts',
-              },
-            ],
+            text: 'getCallsStatus',
+            link: '/experimental/actions/getCallsStatus',
           },
           {
-            text: 'Wallet Actions',
-            items: [
-              {
-                text: 'getCallsStatus',
-                link: '/experimental/actions/getCallsStatus',
-              },
-              {
-                text: 'getCapabilities',
-                link: '/experimental/actions/getCapabilities',
-              },
-              {
-                text: 'sendCalls',
-                link: '/experimental/actions/sendCalls',
-              },
-              {
-                text: 'writeContracts',
-                link: '/experimental/actions/writeContracts',
-              },
-            ],
+            text: 'getCapabilities',
+            link: '/experimental/actions/getCapabilities',
+          },
+          {
+            text: 'sendCalls',
+            link: '/experimental/actions/sendCalls',
+          },
+          {
+            text: 'writeContracts',
+            link: '/experimental/actions/writeContracts',
           },
         ],
       },
