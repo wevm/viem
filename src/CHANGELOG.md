@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.8
+
+### Patch Changes
+
+- [`ad15cc2998305fc162698d9bb3147933e7b4e764`](https://github.com/wevm/viem/commit/ad15cc2998305fc162698d9bb3147933e7b4e764) Thanks [@jxom](https://github.com/jxom)! - Added support for experimental `writeContracts`.
+
 ## 2.9.7
 
 ### Patch Changes
