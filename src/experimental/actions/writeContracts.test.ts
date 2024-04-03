@@ -7,11 +7,11 @@ import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { RpcRequestError } from '../../errors/request.js'
-import type { WalletGetCallsStatusReceipt } from '../../types/eip1193.js'
+import type { WalletCallReceipt } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import { getHttpRpcClient } from '../../utils/index.js'
 import { uid } from '../../utils/uid.js'
-import { getCallsStatus } from './getCallsStatus.js'
+import { getCallsReceipt } from './getCallsReceipt.js'
 import { writeContracts } from './writeContracts.js'
 
 type Uid = string
@@ -28,7 +28,7 @@ const getClient = ({
 
         const rpcClient = getHttpRpcClient(localHttpUrl)
 
-        if (method === 'wallet_getCallsStatus') {
+        if (method === 'wallet_getCallsReceipt') {
           const hashes = calls.get(params)
           if (!hashes) return null
           const receipts = await Promise.all(
@@ -54,7 +54,7 @@ const getClient = ({
                 logs: result.logs,
                 status: result.status,
                 transactionHash: result.transactionHash,
-              } satisfies WalletGetCallsStatusReceipt
+              } satisfies WalletCallReceipt
             }),
           )
           return { status: 'CONFIRMED', receipts }
@@ -158,7 +158,7 @@ test('default', async () => {
 
   await mine(testClient, { blocks: 3 })
 
-  const { receipts } = await getCallsStatus(client, { id: id_ })
+  const { receipts } = await getCallsReceipt(client, { id: id_ })
 
   expect(
     receipts?.map((receipt) => ({

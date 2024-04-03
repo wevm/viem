@@ -26,7 +26,7 @@ const client = createClient({
           },
         }
       if (method === 'wallet_sendCalls') return '0x1'
-      if (method === 'wallet_getCallsStatus')
+      if (method === 'wallet_getCallsReceipt')
         return {
           status: 'CONFIRMED',
           receipts: [
@@ -50,7 +50,7 @@ const client = createClient({
 test('default', async () => {
   expect(walletActionsEip5792()(client)).toMatchInlineSnapshot(`
     {
-      "getCallsStatus": [Function],
+      "getCallsReceipt": [Function],
       "getCapabilities": [Function],
       "sendCalls": [Function],
       "writeContracts": [Function],
@@ -79,8 +79,10 @@ describe('smoke test', () => {
     `)
   })
 
-  test('getCallsStatus', async () => {
-    expect(await client.getCallsStatus({ id: '0x123' })).toMatchInlineSnapshot(`
+  test('getCallsReceipt', async () => {
+    expect(
+      await client.getCallsReceipt({ id: '0x123' }),
+    ).toMatchInlineSnapshot(`
       {
         "receipts": [
           {

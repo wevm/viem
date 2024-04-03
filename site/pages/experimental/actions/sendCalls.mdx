@@ -6,7 +6,7 @@ description: Sign and broadcast a batch of calls to the network.
 
 Requests for the wallet to sign and broadcast a batch of calls (transactions) to the network. 
 
-[Read more.](https://github.com/ethereum/EIPs/blob/1d759f24e6552a516091bb1fe3361d9ca44d085c/EIPS/eip-5792.md#wallet_sendcalls)
+[Read more.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls)
 
 :::warning[Warning]
 This is an experimental action that is not supported in most wallets. It is recommended to have a fallback mechanism if using this in production.
@@ -56,7 +56,7 @@ Notes:
 
 - `account` and `chain` are top level properties as all calls should be sent by the same account and chain.
 - Properties of `calls` items are only those shared by all transaction types (e.g. `data`, `to`, `value`). The Wallet should handle other required properties like gas & fees.
-- [Read `wallet_sendCalls` on EIP-5792.](https://github.com/ethereum/EIPs/blob/1d759f24e6552a516091bb1fe3361d9ca44d085c/EIPS/eip-5792.md#wallet_sendcalls)
+- [Read `wallet_sendCalls` on EIP-5792.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls)
 
 ### Account Hoisting
 
@@ -105,7 +105,7 @@ export const walletClient = createWalletClient({
 
 `string`
 
-The identifier can be any arbitrary string. The only requirement is that for a given session, consumers should be able to call `getCallsStatus` with this identifier to retreive a batch call status and call receipts.
+The identifier can be any arbitrary string. The only requirement is that for a given session, consumers should be able to call `getCallsReceipt` with this identifier to retreive a batch call status and call receipts.
 
 ## Parameters
 

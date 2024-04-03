@@ -3,10 +3,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import {
-  type GetCallsStatusParameters,
-  type GetCallsStatusReturnType,
-  getCallsStatus,
-} from '../actions/getCallsStatus.js'
+  type GetCallsReceiptParameters,
+  type GetCallsReceiptReturnType,
+  getCallsReceipt,
+} from '../actions/getCallsReceipt.js'
 import {
   type GetCapabilitiesReturnType,
   getCapabilities,
@@ -29,11 +29,11 @@ export type WalletActionsEip5792<
   /**
    * Returns the status of a call batch that was sent via `sendCalls`.
    *
-   * - Docs: https://viem.sh/experimental/actions/getCallsStatus
-   * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
+   * - Docs: https://viem.sh/experimental/actions/getCallsReceipt
+   * - JSON-RPC Methods: [`wallet_getCallsReceipt`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
-   * @returns Status of the calls. {@link GetCallsStatusReturnType}
+   * @returns Status of the calls. {@link GetCallsReceiptReturnType}
    *
    * @example
    * import { createWalletClient, custom } from 'viem'
@@ -45,11 +45,11 @@ export type WalletActionsEip5792<
    *   transport: custom(window.ethereum),
    * }).extend(walletActionsEip5792())
    *
-   * const { receipts, status } = await client.getCallsStatus({ id: '0xdeadbeef' })
+   * const { receipts, status } = await client.getCallsReceipt({ id: '0xdeadbeef' })
    */
-  getCallsStatus: (
-    parameters: GetCallsStatusParameters,
-  ) => Promise<GetCallsStatusReturnType>
+  getCallsReceipt: (
+    parameters: GetCallsReceiptParameters,
+  ) => Promise<GetCallsReceiptReturnType>
   /**
    * Extract capabilities that a connected wallet supports (e.g. paymasters, session keys, etc).
    *
@@ -191,7 +191,7 @@ export function walletActionsEip5792() {
     client: Client<transport, chain, account>,
   ): WalletActionsEip5792<chain, account> => {
     return {
-      getCallsStatus: (parameters) => getCallsStatus(client, parameters),
+      getCallsReceipt: (parameters) => getCallsReceipt(client, parameters),
       getCapabilities: () => getCapabilities(client),
       sendCalls: (parameters) => sendCalls(client, parameters),
       writeContracts: (parameters) => writeContracts(client, parameters),

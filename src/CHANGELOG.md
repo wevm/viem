@@ -10,7 +10,7 @@
 
 ### Patch Changes
 
-- [#2053](https://github.com/wevm/viem/pull/2053) [`e53fe120b9c15dde3e50eda794e261f320bf52bc`](https://github.com/wevm/viem/commit/e53fe120b9c15dde3e50eda794e261f320bf52bc) Thanks [@jxom](https://github.com/jxom)! - Added experimental support for [EIP-5792 `wallet_` methods](https://github.com/ethereum/EIPs/blob/1d759f24e6552a516091bb1fe3361d9ca44d085c/EIPS/eip-5792.md).
+- [#2053](https://github.com/wevm/viem/pull/2053) [`e53fe120b9c15dde3e50eda794e261f320bf52bc`](https://github.com/wevm/viem/commit/e53fe120b9c15dde3e50eda794e261f320bf52bc) Thanks [@jxom](https://github.com/jxom)! - Added experimental support for [EIP-5792 `wallet_` methods](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md).
 
 - [#2052](https://github.com/wevm/viem/pull/2052) [`445ec244c7be329eb26048102d282bac9bf23506`](https://github.com/wevm/viem/commit/445ec244c7be329eb26048102d282bac9bf23506) Thanks [@maggo](https://github.com/maggo)! - Added WebSocket RPC URL on Degen chain.
 

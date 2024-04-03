@@ -10,11 +10,11 @@ export {
   sendCalls,
 } from './actions/sendCalls.js'
 export {
-  type GetCallsStatusErrorType,
-  type GetCallsStatusParameters,
-  type GetCallsStatusReturnType,
-  getCallsStatus,
-} from './actions/getCallsStatus.js'
+  type GetCallsReceiptErrorType,
+  type GetCallsReceiptParameters,
+  type GetCallsReceiptReturnType,
+  getCallsReceipt,
+} from './actions/getCallsReceipt.js'
 export {
   type WriteContractsErrorType,
   type WriteContractsParameters,

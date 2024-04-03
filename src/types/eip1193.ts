@@ -118,7 +118,7 @@ export type WalletCapabilitiesRecord<
   [chainId in id]: capabilities
 }
 
-export type WalletGetCallsStatusReceipt<quantity = Hex, status = Hex> = {
+export type WalletCallReceipt<quantity = Hex, status = Hex> = {
   logs: {
     address: Hex
     data: Hex
@@ -131,9 +131,9 @@ export type WalletGetCallsStatusReceipt<quantity = Hex, status = Hex> = {
   transactionHash: Hex
 }
 
-export type WalletGetCallsStatusReturnType<quantity = Hex, status = Hex> = {
+export type WalletGetCallsReceiptReturnType<quantity = Hex, status = Hex> = {
   status: 'PENDING' | 'CONFIRMED'
-  receipts?: WalletGetCallsStatusReceipt<quantity, status>[] | undefined
+  receipts?: WalletCallReceipt<quantity, status>[] | undefined
 }
 
 export type WalletPermissionCaveat = {
@@ -1319,13 +1319,13 @@ export type WalletRpcSchema = [
    * @description Returns the status of a call batch that was sent via `wallet_sendCalls`.
    * @link https://eips.ethereum.org/EIPS/eip-5792
    * @example
-   * provider.request({ method: 'wallet_getCallsStatus' })
+   * provider.request({ method: 'wallet_getCallsReceipt' })
    * // => { ... }
    */
   {
-    Method: 'wallet_getCallsStatus'
+    Method: 'wallet_getCallsReceipt'
     Parameters?: string
-    ReturnType: WalletGetCallsStatusReturnType
+    ReturnType: WalletGetCallsReceiptReturnType
   },
   /**
    * @description Gets the connected wallet's capabilities.
