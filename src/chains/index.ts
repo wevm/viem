@@ -114,6 +114,8 @@ export { lightlinkPhoenix } from './definitions/lightlinkPhoenix.js'
 export { linea } from './definitions/linea.js'
 export { lineaGoerli } from './definitions/lineaGoerli.js'
 export { lineaSepolia } from './definitions/lineaSepolia.js'
+/** @deprecated Use `lineaGoerli` instead. */
+export { lineaTestnet } from './definitions/lineaTestnet.js'
 export { liskSepolia } from './definitions/liskSepolia.js'
 export { localhost } from './definitions/localhost.js'
 export { lukso } from './definitions/lukso.js'
