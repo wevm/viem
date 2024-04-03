@@ -4,7 +4,7 @@ description: Extract capabilities that a connected wallet supports.
 
 # getCapabilities
 
-Extract capabilities that a connected wallet supports (e.g. paymasters, session keys, etc).
+Extract capabilities (grouped by chain ID) that a connected wallet supports (e.g. paymasters, session keys, etc).
 
 [Read more.](https://github.com/ethereum/EIPs/blob/1d759f24e6552a516091bb1fe3361d9ca44d085c/EIPS/eip-5792.md#wallet_getcapabilities)
 
@@ -16,7 +16,7 @@ import { account, walletClient } from './config'
  
 const capabilities = await walletClient.getCapabilities() // [!code focus:99]
 // @log: {
-// @log:   '0x2105': {
+// @log:   8453: {
 // @log:      paymasterService: {
 // @log:        supported: true,
 // @log:      },
@@ -24,7 +24,7 @@ const capabilities = await walletClient.getCapabilities() // [!code focus:99]
 // @log:        supported: true,
 // @log:      },
 // @log:    },
-// @log:    '0x14A34': {
+// @log:    84532: {
 // @log:       paymasterService: {
 // @log:         supported: true,
 // @log:       },

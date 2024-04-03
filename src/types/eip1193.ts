@@ -133,7 +133,7 @@ export type WalletGetCallsStatusReceipt<quantity = Hex, status = Hex> = {
 
 export type WalletGetCallsStatusReturnType<quantity = Hex, status = Hex> = {
   status: 'PENDING' | 'CONFIRMED'
-  receipts?: WalletGetCallsStatusReceipt<quantity, status>[]
+  receipts?: WalletGetCallsStatusReceipt<quantity, status>[] | undefined
 }
 
 export type WalletPermissionCaveat = {

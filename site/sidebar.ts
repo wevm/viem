@@ -1016,7 +1016,7 @@ export const sidebar = {
             text: 'Public Actions',
             items: [
               {
-                text: 'simulateContracts',
+                text: 'simulateContracts 🚧',
                 link: '/experimental/actions/simulateContracts',
               },
             ],
@@ -1037,7 +1037,7 @@ export const sidebar = {
                 link: '/experimental/actions/sendCalls',
               },
               {
-                text: 'writeContracts',
+                text: 'writeContracts 🚧',
                 link: '/experimental/actions/writeContracts',
               },
             ],
