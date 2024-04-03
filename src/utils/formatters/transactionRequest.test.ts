@@ -151,7 +151,6 @@ test('nullish gas', () => {
     {
       "data": "0x1",
       "from": "0x1",
-      "gas": undefined,
       "nonce": "0x1",
       "to": "0x1",
       "value": "0x1",
@@ -170,7 +169,6 @@ test('nullish gasPrice', () => {
       "data": "0x1",
       "from": "0x1",
       "gas": "0x4234584",
-      "gasPrice": undefined,
       "nonce": "0x1",
       "to": "0x1",
       "value": "0x1",
@@ -189,7 +187,6 @@ test('nullish maxFeePerGas', () => {
       "data": "0x1",
       "from": "0x1",
       "gas": "0x4234584",
-      "maxFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
       "value": "0x1",
@@ -208,7 +205,6 @@ test('nullish maxPriorityFeePerGas', () => {
       "data": "0x1",
       "from": "0x1",
       "gas": "0x4234584",
-      "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
       "value": "0x1",
@@ -227,7 +223,6 @@ test('nullish nonce', () => {
       "data": "0x1",
       "from": "0x1",
       "gas": "0x4234584",
-      "nonce": undefined,
       "to": "0x1",
       "value": "0x1",
     }
@@ -247,7 +242,6 @@ test('nullish value', () => {
       "gas": "0x4234584",
       "nonce": "0x1",
       "to": "0x1",
-      "value": undefined,
     }
   `)
 })
