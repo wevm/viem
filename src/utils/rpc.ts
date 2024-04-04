@@ -147,19 +147,18 @@ export type Socket = WebSocket & {
 const sockets = /*#__PURE__*/ new Map<string, Socket>()
 
 type SocketConfig = {
-  reconnect: boolean
-  maxReconnectAttempts: number
-  reconnectTimeout: number
+  reconnect?: boolean
+  maxReconnectAttempts?: number
+  reconnectTimeout?: number
 }
 
-export async function getSocket(
-  url_: string,
-  {
-    reconnect = true,
-    maxReconnectAttempts = 5,
-    reconnectTimeout = 5000,
-  }: SocketConfig,
-) {
+export async function getSocket(url_: string, socketConfig?: SocketConfig) {
+  const { reconnect, maxReconnectAttempts, reconnectTimeout } = {
+    reconnect: true,
+    maxReconnectAttempts: 5,
+    reconnectTimeout: 5000,
+    ...socketConfig,
+  }
   const url = new URL(url_)
   const urlKey = url.toString()
   let reconnectAttempts = 0
