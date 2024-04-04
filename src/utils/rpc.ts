@@ -147,9 +147,9 @@ export type Socket = WebSocket & {
 const sockets = /*#__PURE__*/ new Map<string, Socket>()
 
 type SocketConfig = {
-  reconnect?: boolean
-  maxReconnectAttempts?: number
-  reconnectTimeout?: number
+  reconnect?: boolean | undefined
+  maxReconnectAttempts?: number | undefined
+  reconnectTimeout?: number | undefined
 }
 
 export async function getSocket(url_: string, socketConfig?: SocketConfig) {
