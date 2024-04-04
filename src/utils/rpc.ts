@@ -156,7 +156,7 @@ export async function getSocket(url_: string, socketConfig?: SocketConfig) {
   const { reconnect, maxReconnectAttempts, reconnectTimeout } = {
     reconnect: true,
     maxReconnectAttempts: 5,
-    reconnectTimeout: 5000,
+    reconnectTimeout: 5_000,
     ...socketConfig,
   }
   const url = new URL(url_)
