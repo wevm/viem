@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
 import { localWsUrl } from '../../../test/src/constants.js'
+import { wait } from '../wait.js'
 import { getSocketRpcClient } from './socket.js'
 
 test('default', async () => {
@@ -130,6 +131,116 @@ test('request', async () => {
   socketClient.close()
 })
 
+test('reconnect', async () => {
+  let active = true
+  let count = -1
+  const socketClient = await getSocketRpcClient({
+    async getSocket({ onError, onOpen, onResponse }) {
+      count++
+
+      // reopen on 3rd attempt
+      if (active || count === 3) {
+        onOpen()
+        active = true
+      } else {
+        onError(new Error('connection failed.'))
+        active = false
+      }
+
+      return {
+        close() {},
+        request({ body }) {
+          wait(100).then(() => {
+            if (!active) return
+            onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: body })
+
+            wait(100).then(() => {
+              if (count === 0) onError(new Error('connection failed.'))
+              active = false
+            })
+          })
+        },
+      }
+    },
+    reconnect: {
+      timeout: 200,
+      maxAttempts: 5,
+    },
+    url: localWsUrl,
+  })
+
+  await wait(200)
+
+  expect(
+    await new Promise((res, rej) => {
+      socketClient.request({
+        body: { method: 'test' },
+        onResponse(data) {
+          res(data)
+        },
+        onError(error) {
+          rej(error)
+        },
+      })
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "id": 1,
+        "jsonrpc": "2.0",
+        "method": "test",
+      },
+    }
+  `)
+
+  await wait(200)
+
+  await expect(
+    () =>
+      new Promise((res, rej) => {
+        socketClient.request({
+          body: { method: 'test' },
+          onResponse(data) {
+            res(data)
+          },
+          onError(error) {
+            rej(error)
+          },
+        })
+      }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: connection failed.]')
+
+  await wait(1000)
+
+  expect(
+    await new Promise((res, rej) => {
+      socketClient.request({
+        body: { method: 'test' },
+        onResponse(data) {
+          res(data)
+        },
+        onError(error) {
+          rej(error)
+        },
+      })
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "id": 3,
+      "jsonrpc": "2.0",
+      "result": {
+        "id": 3,
+        "jsonrpc": "2.0",
+        "method": "test",
+      },
+    }
+  `)
+
+  socketClient.close()
+})
+
 test('request (eth_subscribe)', async () => {
   const socketClient = await getSocketRpcClient({
     async getSocket({ onResponse }) {
@@ -153,13 +264,115 @@ test('request (eth_subscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 1,
+      "id": 4,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
   `)
 
   expect(socketClient.subscriptions.size).toBe(1)
+
+  socketClient.close()
+})
+
+test('reconnect (eth_subscribe)', async () => {
+  let active = true
+  let count = -1
+  const socketClient = await getSocketRpcClient({
+    async getSocket({ onError, onOpen, onResponse }) {
+      count++
+
+      // reopen on 3rd attempt
+      if (active || count === 3) {
+        onOpen()
+        active = true
+      } else {
+        onError(new Error('connection failed.'))
+        active = false
+      }
+
+      return {
+        close() {},
+        request({ body }) {
+          wait(100).then(() => {
+            if (!active) return
+            onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: '0xabc' })
+
+            wait(100).then(() => {
+              if (count === 0) onError(new Error('connection failed.'))
+              active = false
+            })
+          })
+        },
+      }
+    },
+    reconnect: {
+      timeout: 200,
+      maxAttempts: 5,
+    },
+    url: localWsUrl,
+  })
+
+  await wait(200)
+
+  expect(
+    await new Promise((res, rej) => {
+      socketClient.request({
+        body: { method: 'eth_subscribe' },
+        onResponse(data) {
+          res(data)
+        },
+        onError(error) {
+          rej(error)
+        },
+      })
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "id": 5,
+      "jsonrpc": "2.0",
+      "result": "0xabc",
+    }
+  `)
+
+  await wait(200)
+
+  await expect(
+    () =>
+      new Promise((res, rej) => {
+        socketClient.request({
+          body: { method: 'eth_subscribe' },
+          onResponse(data) {
+            res(data)
+          },
+          onError(error) {
+            rej(error)
+          },
+        })
+      }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: connection failed.]')
+
+  await wait(1000)
+
+  expect(
+    await new Promise((res, rej) => {
+      socketClient.request({
+        body: { method: 'eth_subscribe' },
+        onResponse(data) {
+          res(data)
+        },
+        onError(error) {
+          rej(error)
+        },
+      })
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "id": 7,
+      "jsonrpc": "2.0",
+      "result": "0xabc",
+    }
+  `)
 
   socketClient.close()
 })
@@ -187,7 +400,7 @@ test('request (eth_unsubscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 2,
+      "id": 8,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -231,7 +444,7 @@ test('request (eth_subscription)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 3,
+      "id": 9,
       "jsonrpc": "2.0",
       "method": "eth_subscription",
       "params": {
@@ -291,10 +504,10 @@ test('requestAsync', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 5,
+      "id": 11,
       "jsonrpc": "2.0",
       "result": {
-        "id": 5,
+        "id": 11,
         "jsonrpc": "2.0",
         "method": "test",
       },
