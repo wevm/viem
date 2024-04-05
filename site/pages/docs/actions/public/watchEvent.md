@@ -388,6 +388,23 @@ const unwatch = publicClient.watchEvent(
 )
 ```
 
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+The block number to start listenning for logs from.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const unwatch = publicClient.watchEvent(
+  { 
+    fromBlock: 1n, // [!code focus]
+    onLogs: logs => console.log(logs),
+  }
+)
+```
+
 ## Live Example
 
 Check out the usage of `watchEvent` in the live [Event Logs Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/logs_event-logs) below.
