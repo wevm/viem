@@ -1,5 +1,16 @@
 # viem
 
+## 2.9.10
+
+### Patch Changes
+
+- [#2071](https://github.com/wevm/viem/pull/2071) [`f257ac296c60dec31ae7d4fb551f7d04f990ff9f`](https://github.com/wevm/viem/commit/f257ac296c60dec31ae7d4fb551f7d04f990ff9f) Thanks [@0xArdy](https://github.com/0xArdy)! - Added sourceId to Mode network
+
+- [#2074](https://github.com/wevm/viem/pull/2074) [`1361adfbeadfb72cf3e4406a81479b0f00df00de`](https://github.com/wevm/viem/commit/1361adfbeadfb72cf3e4406a81479b0f00df00de) Thanks [@Destiner](https://github.com/Destiner)! - Added Polygon zkEVM Cardona chain
+  Deprecated Polygon zkEVM testnet chain
+
+- [#2079](https://github.com/wevm/viem/pull/2079) [`c78c3ff026ff3292463953e115044b266b1111b4`](https://github.com/wevm/viem/commit/c78c3ff026ff3292463953e115044b266b1111b4) Thanks [@abtestingalpha](https://github.com/abtestingalpha)! - Added multicall3 contract to dfk definition
+
 ## 2.9.9
 
 ### Patch Changes
