@@ -58,10 +58,7 @@ test('default', async () => {
 test('account on client', async () => {
   const client_2 = {
     ...client,
-    account: {
-      address: accounts[1].address,
-      type: 'json-rpc',
-    },
+    account: accounts[1].address,
   } as unknown as Client<Transport, Chain, JsonRpcAccount>
 
   const capabilities = await getCapabilities(client_2)

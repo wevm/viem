@@ -60,7 +60,11 @@ test('default', async () => {
 
 describe('smoke test', () => {
   test('getCapabilities', async () => {
-    expect(await client.getCapabilities()).toMatchInlineSnapshot(`
+    expect(
+      await client.getCapabilities({
+        account: '0x0000000000000000000000000000000000000000',
+      }),
+    ).toMatchInlineSnapshot(`
       {
         "8453": {
           "paymasterService": {
