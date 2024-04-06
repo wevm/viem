@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Adds multicall3 contract to dfk definition
+Added multicall3 contract to dfk definition
