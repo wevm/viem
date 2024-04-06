@@ -1025,6 +1025,10 @@ export const sidebar = {
             link: '/experimental/actions/sendCalls',
           },
           {
+            text: 'showCallsStatus',
+            link: '/experimental/actions/showCallsStatus',
+          },
+          {
             text: 'writeContracts',
             link: '/experimental/actions/writeContracts',
           },
