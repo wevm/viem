@@ -2,5 +2,5 @@
 "viem": patch
 ---
 
-Add Polygon zkEVM Cardona chain
-Deprecate Polygon zkEVM testnet chain
+Added Polygon zkEVM Cardona chain
+Deprecated Polygon zkEVM testnet chain
