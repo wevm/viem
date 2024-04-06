@@ -1,5 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
+const sourceId = 11_155_111 // sepolia
+
 export const modeTestnet = /*#__PURE__*/ defineChain({
   id: 919,
   name: 'Mode Testnet',
@@ -23,4 +25,5 @@ export const modeTestnet = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
+  sourceId,
 })
