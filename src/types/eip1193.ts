@@ -131,7 +131,7 @@ export type WalletCallReceipt<quantity = Hex, status = Hex> = {
   transactionHash: Hex
 }
 
-export type WalletGetCallsReceiptReturnType<quantity = Hex, status = Hex> = {
+export type WalletGetCallsStatusReturnType<quantity = Hex, status = Hex> = {
   status: 'PENDING' | 'CONFIRMED'
   receipts?: WalletCallReceipt<quantity, status>[] | undefined
 }
@@ -153,17 +153,19 @@ export type WalletSendCallsParameters<
   capabilities extends WalletCapabilities = WalletCapabilities,
   chainId extends Hex | number = Hex,
   quantity extends Quantity | bigint = Quantity,
-> = {
-  version: string
-  chainId: chainId
-  from: Address
-  calls: {
-    to: Address
-    data: Hex
-    value: quantity
-  }[]
-  capabilities?: capabilities | undefined
-}
+> = [
+  {
+    version: string
+    chainId: chainId
+    from: Address
+    calls: {
+      to: Address
+      data: Hex
+      value: quantity
+    }[]
+    capabilities?: capabilities | undefined
+  },
+]
 
 export type WatchAssetParams = {
   /** Token type. */
@@ -1319,13 +1321,13 @@ export type WalletRpcSchema = [
    * @description Returns the status of a call batch that was sent via `wallet_sendCalls`.
    * @link https://eips.ethereum.org/EIPS/eip-5792
    * @example
-   * provider.request({ method: 'wallet_getCallsReceipt' })
+   * provider.request({ method: 'wallet_getCallsStatus' })
    * // => { ... }
    */
   {
-    Method: 'wallet_getCallsReceipt'
-    Parameters?: string
-    ReturnType: WalletGetCallsReceiptReturnType
+    Method: 'wallet_getCallsStatus'
+    Parameters?: [string]
+    ReturnType: WalletGetCallsStatusReturnType
   },
   /**
    * @description Gets the connected wallet's capabilities.
@@ -1336,7 +1338,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'wallet_getCapabilities'
-    Parameters?: undefined
+    Parameters?: [Address]
     ReturnType: Prettify<WalletCapabilitiesRecord>
   },
   /**
@@ -1374,6 +1376,18 @@ export type WalletRpcSchema = [
     Method: 'wallet_sendCalls'
     Parameters?: WalletSendCallsParameters
     ReturnType: string
+  },
+  /**
+   * @description Requests for the wallet to show information about a call batch
+   * that was sent via `wallet_sendCalls`.
+   * @link https://eips.ethereum.org/EIPS/eip-5792
+   * @example
+   * provider.request({ method: 'wallet_showCallsStatus', params: ['...'] })
+   */
+  {
+    Method: 'wallet_showCallsStatus'
+    Parameters?: [string]
+    ReturnType: void
   },
   /**
    * @description Switch the wallet to the given Ethereum chain.

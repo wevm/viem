@@ -1,14 +1,23 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Account } from '../../types/account.js'
+import type {
+  GetAccountParameter,
+  JsonRpcAccount,
+} from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   WalletCapabilities,
   WalletCapabilitiesRecord,
 } from '../../types/eip1193.js'
 import type { Prettify } from '../../types/utils.js'
+import { parseAccount } from '../../utils/accounts.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+
+export type GetCapabilitiesParameters<
+  account extends JsonRpcAccount | undefined = JsonRpcAccount | undefined,
+> = GetAccountParameter<account>
 
 export type GetCapabilitiesReturnType = Prettify<
   WalletCapabilitiesRecord<WalletCapabilities, number>
@@ -38,12 +47,29 @@ export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
  */
 export async function getCapabilities<
   chain extends Chain | undefined,
-  account extends Account | undefined = undefined,
+  account extends JsonRpcAccount | undefined = undefined,
 >(
-  client: Client<Transport, chain, account>,
+  ...parameters: account extends JsonRpcAccount
+    ?
+        | [client: Client<Transport, chain, account>]
+        | [
+            client: Client<Transport, chain, account>,
+            parameters: GetCapabilitiesParameters<account>,
+          ]
+    : [
+        client: Client<Transport, chain, account>,
+        parameters: GetCapabilitiesParameters<account>,
+      ]
 ): Promise<GetCapabilitiesReturnType> {
+  const [client, args] = parameters
+  const account_raw = args?.account ?? client.account
+
+  if (!account_raw) throw new AccountNotFoundError()
+  const account = parseAccount(account_raw)
+
   const capabilities_raw = await client.request({
     method: 'wallet_getCapabilities',
+    params: [account.address],
   })
 
   const capabilities = {} as WalletCapabilitiesRecord<

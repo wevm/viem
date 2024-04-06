@@ -1013,8 +1013,8 @@ export const sidebar = {
         text: 'EIP-5792',
         items: [
           {
-            text: 'getCallsReceipt',
-            link: '/experimental/actions/getCallsReceipt',
+            text: 'getCallsStatus',
+            link: '/experimental/actions/getCallsStatus',
           },
           {
             text: 'getCapabilities',

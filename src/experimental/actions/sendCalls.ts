@@ -33,9 +33,9 @@ export type SendCallsParameters<
       }
   >[]
   capabilities?:
-    | WalletSendCallsParameters<WalletCapabilities>['capabilities']
+    | WalletSendCallsParameters<WalletCapabilities>[number]['capabilities']
     | undefined
-  version?: WalletSendCallsParameters['version'] | undefined
+  version?: WalletSendCallsParameters[number]['version'] | undefined
 } & GetAccountParameter<account> &
   GetChainParameter<chain, chainOverride>
 
@@ -103,16 +103,18 @@ export async function sendCalls<
     return await client.request(
       {
         method: 'wallet_sendCalls',
-        params: {
-          calls: calls.map((call) => ({
-            ...call,
-            value: call.value ? numberToHex(call.value) : undefined,
-          })) as any,
-          capabilities,
-          chainId: numberToHex(chain!.id),
-          from: account.address,
-          version,
-        },
+        params: [
+          {
+            calls: calls.map((call) => ({
+              ...call,
+              value: call.value ? numberToHex(call.value) : undefined,
+            })) as any,
+            capabilities,
+            chainId: numberToHex(chain!.id),
+            from: account.address,
+            version,
+          },
+        ],
       },
       { retryCount: 0 },
     )
