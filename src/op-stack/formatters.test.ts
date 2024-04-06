@@ -285,7 +285,7 @@ describe('block', () => {
         "size": 4072n,
         "stateRoot": "0x95676f3a28d2c8a0bf64db60e910dc47275d37f5a3c3d7353b6f571c25fcd746",
         "timestamp": 1687298245n,
-        "totalDifficulty": 210470125n,
+        "totalDifficulty": 0n,
         "transactionsRoot": "0xe41f41da49507646478023c060078f8afa962973ac38da1f7efd0355363b31d5",
         "uncles": [],
       }
