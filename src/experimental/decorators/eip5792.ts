@@ -1,13 +1,14 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { Account } from '../../types/account.js'
+import type { Account, JsonRpcAccount } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import {
-  type GetCallsReceiptParameters,
-  type GetCallsReceiptReturnType,
-  getCallsReceipt,
-} from '../actions/getCallsReceipt.js'
+  type GetCallsStatusParameters,
+  type GetCallsStatusReturnType,
+  getCallsStatus,
+} from '../actions/getCallsStatus.js'
 import {
+  type GetCapabilitiesParameters,
   type GetCapabilitiesReturnType,
   getCapabilities,
 } from '../actions/getCapabilities.js'
@@ -16,6 +17,11 @@ import {
   type SendCallsReturnType,
   sendCalls,
 } from '../actions/sendCalls.js'
+import {
+  type ShowCallsStatusParameters,
+  type ShowCallsStatusReturnType,
+  showCallsStatus,
+} from '../actions/showCallsStatus.js'
 import {
   type WriteContractsParameters,
   type WriteContractsReturnType,
@@ -29,11 +35,11 @@ export type WalletActionsEip5792<
   /**
    * Returns the status of a call batch that was sent via `sendCalls`.
    *
-   * - Docs: https://viem.sh/experimental/actions/getCallsReceipt
-   * - JSON-RPC Methods: [`wallet_getCallsReceipt`](https://eips.ethereum.org/EIPS/eip-5792)
+   * - Docs: https://viem.sh/experimental/actions/getCallsStatus
+   * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
-   * @returns Status of the calls. {@link GetCallsReceiptReturnType}
+   * @returns Status of the calls. {@link GetCallsStatusReturnType}
    *
    * @example
    * import { createWalletClient, custom } from 'viem'
@@ -45,11 +51,11 @@ export type WalletActionsEip5792<
    *   transport: custom(window.ethereum),
    * }).extend(walletActionsEip5792())
    *
-   * const { receipts, status } = await client.getCallsReceipt({ id: '0xdeadbeef' })
+   * const { receipts, status } = await client.getCallsStatus({ id: '0xdeadbeef' })
    */
-  getCallsReceipt: (
-    parameters: GetCallsReceiptParameters,
-  ) => Promise<GetCallsReceiptReturnType>
+  getCallsStatus: (
+    parameters: GetCallsStatusParameters,
+  ) => Promise<GetCallsStatusReturnType>
   /**
    * Extract capabilities that a connected wallet supports (e.g. paymasters, session keys, etc).
    *
@@ -69,9 +75,15 @@ export type WalletActionsEip5792<
    *   transport: custom(window.ethereum),
    * }).extend(walletActionsEip5792())
    *
-   * const capabilities = await client.getCapabilities()
+   * const capabilities = await client.getCapabilities({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
    */
-  getCapabilities: () => Promise<GetCapabilitiesReturnType>
+  getCapabilities: (
+    ...parameters: account extends JsonRpcAccount
+      ? [] | [parameters: GetCapabilitiesParameters<account>]
+      : [parameters: GetCapabilitiesParameters<undefined>]
+  ) => Promise<GetCapabilitiesReturnType>
   /**
    * Requests the connected wallet to send a batch of calls.
    *
@@ -108,6 +120,31 @@ export type WalletActionsEip5792<
   sendCalls: <chainOverride extends Chain | undefined = undefined>(
     parameters: SendCallsParameters<chain, account, chainOverride>,
   ) => Promise<SendCallsReturnType>
+  /**
+   * Requests for the wallet to show information about a call batch
+   * that was sent via `sendCalls`.
+   *
+   * - Docs: https://viem.sh/experimental/actions/showCallsStatus
+   * - JSON-RPC Methods: [`wallet_showCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @returns Displays status of the calls in wallet. {@link ShowCallsStatusReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { walletActionsEip5792 } from 'viem/experimental'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * }).extend(walletActionsEip5792())
+   *
+   * await client.showCallsStatus({ id: '0xdeadbeef' })
+   */
+  showCallsStatus: (
+    parameters: ShowCallsStatusParameters,
+  ) => Promise<ShowCallsStatusReturnType>
   /**
    * Requests for the wallet to sign and broadcast a batch of write contract calls (transactions) to the network.
    *
@@ -191,9 +228,11 @@ export function walletActionsEip5792() {
     client: Client<transport, chain, account>,
   ): WalletActionsEip5792<chain, account> => {
     return {
-      getCallsReceipt: (parameters) => getCallsReceipt(client, parameters),
-      getCapabilities: () => getCapabilities(client),
+      getCallsStatus: (parameters) => getCallsStatus(client, parameters),
+      getCapabilities: ((parameters: any) =>
+        getCapabilities(client as any, parameters)) as any,
       sendCalls: (parameters) => sendCalls(client, parameters),
+      showCallsStatus: (parameters) => showCallsStatus(client, parameters),
       writeContracts: (parameters) => writeContracts(client, parameters),
     }
   }

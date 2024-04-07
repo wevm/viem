@@ -11,7 +11,7 @@ import type { WalletCallReceipt } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import { getHttpRpcClient } from '../../utils/index.js'
 import { uid } from '../../utils/uid.js'
-import { getCallsReceipt } from './getCallsReceipt.js'
+import { getCallsStatus } from './getCallsStatus.js'
 import { writeContracts } from './writeContracts.js'
 
 type Uid = string
@@ -28,9 +28,9 @@ const getClient = ({
 
         const rpcClient = getHttpRpcClient(localHttpUrl)
 
-        if (method === 'wallet_getCallsReceipt') {
-          const hashes = calls.get(params)
-          if (!hashes) return null
+        if (method === 'wallet_getCallsStatus') {
+          const hashes = calls.get(params[0])
+          if (!hashes) return { status: 'PENDING', receipts: [] }
           const receipts = await Promise.all(
             hashes.map(async (hash) => {
               const { result, error } = await rpcClient.request({
@@ -62,11 +62,11 @@ const getClient = ({
 
         if (method === 'wallet_sendCalls') {
           const hashes = []
-          for (const call of params.calls) {
+          for (const call of params[0].calls) {
             const callResult = await rpcClient.request({
               body: {
                 method: 'eth_call',
-                params: [{ ...call, from: params.from }],
+                params: [{ ...call, from: params[0].from }],
                 id: 0,
               },
             })
@@ -75,7 +75,7 @@ const getClient = ({
             const { result, error } = await rpcClient.request({
               body: {
                 method: 'eth_sendTransaction',
-                params: [{ ...call, from: params.from }],
+                params: [{ ...call, from: params[0].from }],
                 id: 0,
               },
             })
@@ -113,12 +113,12 @@ test('default', async () => {
       {
         ...wagmiContractConfig,
         functionName: 'mint',
-        args: [69420n],
+        args: [69690n],
       },
       {
         ...wagmiContractConfig,
         functionName: 'mint',
-        args: [69421n],
+        args: [69691n],
       },
       {
         ...wagmiContractConfig,
@@ -130,35 +130,37 @@ test('default', async () => {
   expect(id_).toBeDefined()
   expect(requests).toMatchInlineSnapshot(`
     [
-      {
-        "calls": [
-          {
-            "data": "0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c",
-            "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-            "value": undefined,
-          },
-          {
-            "data": "0xa0712d680000000000000000000000000000000000000000000000000000000000010f2d",
-            "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-            "value": undefined,
-          },
-          {
-            "data": "0x1249c58b",
-            "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-            "value": undefined,
-          },
-        ],
-        "capabilities": undefined,
-        "chainId": "0x1",
-        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "version": "1.0",
-      },
+      [
+        {
+          "calls": [
+            {
+              "data": "0xa0712d68000000000000000000000000000000000000000000000000000000000001103a",
+              "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+              "value": undefined,
+            },
+            {
+              "data": "0xa0712d68000000000000000000000000000000000000000000000000000000000001103b",
+              "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+              "value": undefined,
+            },
+            {
+              "data": "0x1249c58b",
+              "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+              "value": undefined,
+            },
+          ],
+          "capabilities": undefined,
+          "chainId": "0x1",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "version": "1.0",
+        },
+      ],
     ]
   `)
 
   await mine(testClient, { blocks: 3 })
 
-  const { receipts } = await getCallsReceipt(client, { id: id_ })
+  const { receipts } = await getCallsStatus(client, { id: id_ })
 
   expect(
     receipts?.map((receipt) => ({
@@ -184,14 +186,14 @@ test('default', async () => {
               "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
               "0x0000000000000000000000000000000000000000000000000000000000000000",
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-              "0x0000000000000000000000000000000000000000000000000000000000010f2c",
+              "0x000000000000000000000000000000000000000000000000000000000001103a",
             ],
-            "transactionHash": "0xe88636585d9ce6ca15aaa480267217f1cb57dd4cec15604ca55bce6934aee3bd",
+            "transactionHash": "0x5eace8a3889dc4808e4e29a853e5324e4a93471621b84285201d1531896c7df2",
             "transactionIndex": "0x0",
           },
         ],
         "status": "success",
-        "transactionHash": "0xe88636585d9ce6ca15aaa480267217f1cb57dd4cec15604ca55bce6934aee3bd",
+        "transactionHash": "0x5eace8a3889dc4808e4e29a853e5324e4a93471621b84285201d1531896c7df2",
       },
       {
         "blockHash": undefined,
@@ -209,14 +211,14 @@ test('default', async () => {
               "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
               "0x0000000000000000000000000000000000000000000000000000000000000000",
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-              "0x0000000000000000000000000000000000000000000000000000000000010f2d",
+              "0x000000000000000000000000000000000000000000000000000000000001103b",
             ],
-            "transactionHash": "0x742e22ff1a9b835bd86e191fcd1998d4657893d9355d42fa8700b1ab5df7a890",
+            "transactionHash": "0xb74663543da1c316bcb87007d1a1b0a339cf2f6168ee95dcbbe4e52183a25867",
             "transactionIndex": "0x1",
           },
         ],
         "status": "success",
-        "transactionHash": "0x742e22ff1a9b835bd86e191fcd1998d4657893d9355d42fa8700b1ab5df7a890",
+        "transactionHash": "0xb74663543da1c316bcb87007d1a1b0a339cf2f6168ee95dcbbe4e52183a25867",
       },
       {
         "blockHash": undefined,

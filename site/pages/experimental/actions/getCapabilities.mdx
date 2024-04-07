@@ -17,10 +17,11 @@ This is an experimental action that is not supported in most wallets. It is reco
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseEther } from 'viem'
 import { account, walletClient } from './config'
  
-const capabilities = await walletClient.getCapabilities() // [!code focus:99]
+const capabilities = await walletClient.getCapabilities({
+  account,
+})
 // @log: {
 // @log:   8453: {
 // @log:      paymasterService: {
@@ -55,9 +56,56 @@ export const [account] = await walletClient.getAddresses()
 
 :::
 
+### Account Hoisting
+
+If you do not wish to pass an `account` to every `getCapabilities`, you can also hoist the Account on the Wallet Client (see `config.ts`).
+
+[Learn more](/docs/clients/wallet#account).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { walletClient } from './config'
+ 
+const capabilities = await walletClient.getCapabilities()
+```
+
+```ts [config.ts] filename="config.ts"
+import 'viem/window'
+import { createWalletClient, custom } from 'viem'
+import { walletActionsEip5792 } from 'viem/experimental'
+
+// Retrieve Account from an EIP-1193 Provider.
+const [account] = await window.ethereum!.request({ 
+  method: 'eth_requestAccounts' 
+})
+
+export const walletClient = createWalletClient({
+  account,
+  transport: custom(window.ethereum!)
+}).extend(walletActionsEip5792())
+```
+
+:::
+
 ## Returns
 
 `WalletCapabilities`
 
 Capabilities of the wallet.
 
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+The account to get capabilities for.
+
+```ts twoslash [example.ts]
+import { walletClient } from './config'
+// ---cut---
+const capabilities = await walletClient.getCapabilities({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
+})
+```

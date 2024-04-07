@@ -10,7 +10,7 @@ import type { WalletCallReceipt } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import { getHttpRpcClient, parseEther } from '../../utils/index.js'
 import { uid } from '../../utils/uid.js'
-import { getCallsReceipt } from './getCallsReceipt.js'
+import { getCallsStatus } from './getCallsStatus.js'
 import { sendCalls } from './sendCalls.js'
 
 type Uid = string
@@ -27,8 +27,8 @@ const getClient = ({
 
         const rpcClient = getHttpRpcClient(localHttpUrl)
 
-        if (method === 'wallet_getCallsReceipt') {
-          const hashes = calls.get(params)
+        if (method === 'wallet_getCallsStatus') {
+          const hashes = calls.get(params[0])
           if (!hashes) return null
           const receipts = await Promise.all(
             hashes.map(async (hash) => {
@@ -60,7 +60,7 @@ const getClient = ({
 
         if (method === 'wallet_sendCalls') {
           const hashes = []
-          for (const call of params.calls) {
+          for (const call of params[0].calls) {
             const { result, error } = await rpcClient.request({
               body: {
                 method: 'eth_sendTransaction',
@@ -118,7 +118,7 @@ test('default', async () => {
 
   await mine(testClient, { blocks: 1 })
 
-  const { status, receipts } = await getCallsReceipt(client, { id })
+  const { status, receipts } = await getCallsStatus(client, { id })
   expect(status).toMatchInlineSnapshot(`"CONFIRMED"`)
   expect(receipts![0].blockHash).toBeDefined()
   expect(
