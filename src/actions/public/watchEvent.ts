@@ -75,7 +75,7 @@ export type WatchEventParameters<
   onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
   onLogs: WatchEventOnLogsFn<TAbiEvent, TAbiEvents, TStrict, _EventName>
-  /** The block to start from */
+  /** Block to start listening from. */
   fromBlock?: BlockNumber<bigint> | undefined
 } & GetPollOptions<TTransport> &
   (

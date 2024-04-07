@@ -321,7 +321,7 @@ const unwatch = publicClient.watchContractEvent({
 
 - **Type:** `bigint`
 
-The block number to start listenning for logs from.
+The block number to start listening for logs from.
 
 ```ts
 const unwatch = publicClient.watchContractEvent({

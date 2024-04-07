@@ -392,7 +392,7 @@ const unwatch = publicClient.watchEvent(
 
 - **Type:** `bigint`
 
-The block number to start listenning for logs from.
+The block number to start listening for logs from.
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts]

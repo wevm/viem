@@ -89,7 +89,7 @@ export type WatchContractEventParameters<
    * @default false
    */
   strict?: strict | boolean | undefined
-  /** block to start listenning from */
+  /** Block to start listening from. */
   fromBlock?: BlockNumber<bigint> | undefined
 } & GetPollOptions<transport>
 
