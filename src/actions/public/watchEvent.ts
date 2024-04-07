@@ -190,7 +190,7 @@ export function watchEvent<
 
     return observe(observerId, { onLogs, onError }, (emit) => {
       let previousBlockNumber: bigint
-      if (fromBlock !== undefined) previousBlockNumber = fromBlock
+      if (fromBlock !== undefined) previousBlockNumber = fromBlock - 1n
       let filter: Filter<'event', TAbiEvents, _EventName, any>
       let initialized = false
 
