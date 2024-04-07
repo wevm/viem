@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.13
+
+### Patch Changes
+
+- [#2092](https://github.com/wevm/viem/pull/2092) [`25cd1a2d97f83de2a3a8a1eaa34e772cff13e2b6`](https://github.com/wevm/viem/commit/25cd1a2d97f83de2a3a8a1eaa34e772cff13e2b6) Thanks [@ITZSHOAIB](https://github.com/ITZSHOAIB)! - Fixed decoding of event logs when an event argument was missing a name.
+
+- [#2082](https://github.com/wevm/viem/pull/2082) [`39ccad8988b54f7cc25ad68a3170d03ec5a0fd3e`](https://github.com/wevm/viem/commit/39ccad8988b54f7cc25ad68a3170d03ec5a0fd3e) Thanks [@maxencerb](https://github.com/maxencerb)! - Added `fromBlock` parameter to `watchEvent` and `watchContractEvent`.
+
 ## 2.9.12
 
 ### Patch Changes
