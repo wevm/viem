@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added `fromBlock` to `watchEvent`, and `watchContractEvent`.
+Added `fromBlock` parameter to `watchEvent` and `watchContractEvent`.
