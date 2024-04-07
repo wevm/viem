@@ -173,7 +173,7 @@ export function watchContractEvent<
 
     return observe(observerId, { onLogs, onError }, (emit) => {
       let previousBlockNumber: bigint
-      if (fromBlock) previousBlockNumber = fromBlock
+      if (fromBlock !== undefined) previousBlockNumber = fromBlock - 1n
       let filter: Filter<'event', abi, eventName> | undefined
       let initialized = false
 
