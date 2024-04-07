@@ -1,12 +1,12 @@
 ---
-description: Returns the status and receipts of a call batch.
+description: Requests for the wallet to show information about a call batch.
 ---
 
-# getCallsReceipt
+# showCallsStatus
 
-Returns the status and receipts of a call batch that was sent via `sendCalls`.
+Requests for the wallet to show information about a call batch that was sent via `showCalls`.
 
-[Read more.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_getcallsreceipt)
+[Read more.](https://github.com/ethereum/EIPs/blob/1663ea2e7a683285f977eda51c32cec86553f585/EIPS/eip-5792.md#wallet_showcallsstatus)
 
 :::warning[Warning]
 This is an experimental action that is not supported in most wallets. It is recommended to have a fallback mechanism if using this in production.
@@ -19,7 +19,7 @@ This is an experimental action that is not supported in most wallets. It is reco
 ```ts twoslash [example.ts]
 import { walletClient } from './config'
  
-const { status, receipts } = await walletClient.getCallsReceipt({ // [!code focus:99]
+await walletClient.showCallsStatus({ // [!code focus:99]
   id: '0x1234567890abcdef',
 })
 ```
@@ -43,9 +43,7 @@ export const [account] = await walletClient.getAddresses()
 
 ## Returns
 
-`WalletGetCallsReceiptReturnType`
-
-Status and receipts of the calls.
+`void`
 
 ## Parameters
 
