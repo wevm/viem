@@ -18,7 +18,7 @@ const getClient = ({
         onRequest({ method, params })
 
         const rpcClient = getHttpRpcClient(localHttpUrl)
-        for (const call of params.calls) {
+        for (const call of params[0].calls) {
           const { error } = await rpcClient.request({
             body: {
               method: 'eth_sendTransaction',
@@ -69,27 +69,29 @@ test('default', async () => {
   expect(id_).toMatchInlineSnapshot(`"0xdeadbeef"`)
   expect(requests).toMatchInlineSnapshot(`
     [
-      {
-        "calls": [
-          {
-            "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-            "value": "0xde0b6b3a7640000",
-          },
-          {
-            "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
-            "value": undefined,
-          },
-          {
-            "data": "0xcafebabe",
-            "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
-            "value": "0x56bc75e2d63100000",
-          },
-        ],
-        "capabilities": undefined,
-        "chainId": "0x1",
-        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "version": "1.0",
-      },
+      [
+        {
+          "calls": [
+            {
+              "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "value": "0xde0b6b3a7640000",
+            },
+            {
+              "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+              "value": undefined,
+            },
+            {
+              "data": "0xcafebabe",
+              "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+              "value": "0x56bc75e2d63100000",
+            },
+          ],
+          "capabilities": undefined,
+          "chainId": "0x1",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "version": "1.0",
+        },
+      ],
     ]
   `)
 })

@@ -28,7 +28,7 @@ const getClient = ({
         const rpcClient = getHttpRpcClient(localHttpUrl)
 
         if (method === 'wallet_getCallsStatus') {
-          const hashes = calls.get(params)
+          const hashes = calls.get(params[0])
           if (!hashes) return null
           const receipts = await Promise.all(
             hashes.map(async (hash) => {
@@ -60,7 +60,7 @@ const getClient = ({
 
         if (method === 'wallet_sendCalls') {
           const hashes = []
-          for (const call of params.calls) {
+          for (const call of params[0].calls) {
             const { result, error } = await rpcClient.request({
               body: {
                 method: 'eth_sendTransaction',

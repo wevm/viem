@@ -53,6 +53,7 @@ test('default', async () => {
       "getCallsStatus": [Function],
       "getCapabilities": [Function],
       "sendCalls": [Function],
+      "showCallsStatus": [Function],
       "writeContracts": [Function],
     }
   `)
