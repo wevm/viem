@@ -1,5 +1,15 @@
 # viem
 
+## 2.9.11
+
+### Patch Changes
+
+- [#2086](https://github.com/wevm/viem/pull/2086) [`2dfa6172279543b67bc616cf1f5e2ec35a19c0a6`](https://github.com/wevm/viem/commit/2dfa6172279543b67bc616cf1f5e2ec35a19c0a6) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added `showCallsStatus`
+  **Experimental:** Renamed `getCallsReceipt` to `getCallsStatus`
+  **Experimental:** `getCapabilities` now requires an account.
+
+- [#2088](https://github.com/wevm/viem/pull/2088) [`e8531a8454dd7368bf3ad963a7902e57d1f560ce`](https://github.com/wevm/viem/commit/e8531a8454dd7368bf3ad963a7902e57d1f560ce) Thanks [@Destiner](https://github.com/Destiner)! - Added multicall3 to Polygon Amoy chain
+
 ## 2.9.10
 
 ### Patch Changes
