@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.12
+
+### Patch Changes
+
+- [#2073](https://github.com/wevm/viem/pull/2073) [`212eab2c5514444441fe298584a0d9b35c7cdee7`](https://github.com/wevm/viem/commit/212eab2c5514444441fe298584a0d9b35c7cdee7) Thanks [@jxom](https://github.com/jxom)! - Added reconnect functionality to `webSocket` & `ipc` transports.
+
 ## 2.9.11
 
 ### Patch Changes
