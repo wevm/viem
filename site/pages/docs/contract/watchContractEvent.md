@@ -317,6 +317,21 @@ const unwatch = publicClient.watchContractEvent({
 })
 ```
 
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+The block number to start listening for logs from.
+
+```ts
+const unwatch = publicClient.watchContractEvent({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  onLogs: logs => console.log(logs),
+  fromBlock: 1n // [!code focus]
+})
+```
+
 ## JSON-RPC Methods
 
 **When poll `true` and RPC Provider supports `eth_newFilter`:**

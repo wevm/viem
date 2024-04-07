@@ -451,6 +451,67 @@ describe('poll', () => {
     expect(logs[0][1].eventName).toEqual('Transfer')
   })
 
+  test('args: fromBlock', async () => {
+    const logs: WatchContractEventOnLogsParameter<
+      typeof usdcContractConfig.abi
+    >[] = []
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      account: address.vitalik,
+      functionName: 'transfer',
+      args: [address.vitalik, 1n],
+    })
+
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    const startBlock = await getBlockNumber.getBlockNumber(publicClient)
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      account: address.vitalik,
+      functionName: 'transfer',
+      args: [address.vitalik, 1n],
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    const unwatch = watchContractEvent(publicClient, {
+      abi: usdcContractConfig.abi,
+      onLogs: (logs_) => {
+        logs.push(logs_)
+      },
+      poll: true,
+      fromBlock: startBlock + 1n,
+    })
+    await wait(200)
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      account: address.vitalik,
+      functionName: 'approve',
+      args: [address.vitalik, 1n],
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
+
+    expect(logs.length).toBe(2)
+    expect(logs[0].length).toBe(1)
+    expect(logs[1].length).toBe(1)
+
+    expect(logs[0][0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[0][0].eventName).toEqual('Transfer')
+    expect(logs[1][0].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[1][0].eventName).toEqual('Approval')
+  })
+
   describe('`getLogs` fallback', () => {
     test('falls back to `getLogs` if `createContractEventFilter` throws', async () => {
       // TODO: Something weird going on where the `getFilterChanges` spy is taking
@@ -567,6 +628,72 @@ describe('poll', () => {
       expect(logs[2].length).toBe(2)
       expect(getFilterChangesSpy).toBeCalledTimes(0)
       expect(getLogsSpy).toBeCalled()
+    })
+
+    test('args: fromBlock', async () => {
+      vi.spyOn(
+        createContractEventFilter,
+        'createContractEventFilter',
+      ).mockRejectedValueOnce(new Error('foo'))
+
+      const logs: WatchContractEventOnLogsParameter<
+        typeof usdcContractConfig.abi
+      >[] = []
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      const startBlock = await getBlockNumber.getBlockNumber(publicClient)
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      const unwatch = watchContractEvent(publicClient, {
+        abi: usdcContractConfig.abi,
+        onLogs: (logs_) => {
+          logs.push(logs_)
+        },
+        poll: true,
+        fromBlock: startBlock + 1n,
+      })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'approve',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+
+      expect(logs.length).toBe(2)
+      expect(logs[0].length).toBe(1)
+      expect(logs[1].length).toBe(1)
+
+      expect(logs[0][0].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][0].eventName).toEqual('Transfer')
+      expect(logs[1][0].args).toEqual({
+        owner: getAddress(address.vitalik),
+        spender: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[1][0].eventName).toEqual('Approval')
     })
   })
 

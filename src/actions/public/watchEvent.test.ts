@@ -358,6 +358,53 @@ describe('poll', () => {
     })
   })
 
+  test('args: fromBlock', async () => {
+    const logs: WatchEventOnLogsParameter<
+      undefined,
+      [typeof event.transfer, typeof event.approval]
+    >[] = []
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 1n],
+      account: address.vitalik,
+    })
+
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+
+    const startBlock = await getBlockNumber.getBlockNumber(publicClient)
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 2n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+
+    const unwatch = watchEvent(publicClient, {
+      address: usdcContractConfig.address,
+      events: [event.transfer, event.approval],
+      onLogs: (logs_) => logs.push(logs_),
+      fromBlock: startBlock + 1n,
+    })
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 3n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
+
+    expect(logs.flat().length).toBe(2)
+  })
+
   test.todo('args: args')
 
   describe('`getLogs` fallback', () => {
@@ -472,6 +519,58 @@ describe('poll', () => {
       expect(logs[2].length).toBe(2)
       expect(getFilterChangesSpy).toBeCalledTimes(0)
       expect(getLogsSpy).toBeCalled()
+    })
+
+    test('args: fromBlock', async () => {
+      await wait(1)
+      vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
+        new Error('foo'),
+      )
+
+      const logs: WatchEventOnLogsParameter<
+        undefined,
+        [typeof event.transfer, typeof event.approval]
+      >[] = []
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'approve',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+
+      const startBlock = await getBlockNumber.getBlockNumber(publicClient)
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'approve',
+        args: [accounts[1].address, 2n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+
+      const unwatch = watchEvent(publicClient, {
+        address: usdcContractConfig.address,
+        events: [event.transfer, event.approval],
+        onLogs: (logs_) => logs.push(logs_),
+        fromBlock: startBlock + 1n,
+      })
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'approve',
+        args: [accounts[1].address, 3n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+
+      expect(logs.flat().length).toBe(2)
     })
   })
 

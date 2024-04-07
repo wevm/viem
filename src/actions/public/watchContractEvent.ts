@@ -12,6 +12,7 @@ import {
 } from '../../errors/abi.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { BlockNumber } from '../../types/block.js'
 import type {
   ContractEventArgs,
   ContractEventName,
@@ -88,6 +89,8 @@ export type WatchContractEventParameters<
    * @default false
    */
   strict?: strict | boolean | undefined
+  /** Block to start listening from. */
+  fromBlock?: BlockNumber<bigint> | undefined
 } & GetPollOptions<transport>
 
 export type WatchContractEventReturnType = () => void
@@ -148,6 +151,7 @@ export function watchContractEvent<
     poll: poll_,
     pollingInterval = client.pollingInterval,
     strict: strict_,
+    fromBlock,
   } = parameters
 
   const enablePolling =
@@ -164,10 +168,12 @@ export function watchContractEvent<
       eventName,
       pollingInterval,
       strict,
+      fromBlock,
     ])
 
     return observe(observerId, { onLogs, onError }, (emit) => {
       let previousBlockNumber: bigint
+      if (fromBlock !== undefined) previousBlockNumber = fromBlock - 1n
       let filter: Filter<'event', abi, eventName> | undefined
       let initialized = false
 
@@ -185,6 +191,7 @@ export function watchContractEvent<
                 args: args as any,
                 eventName: eventName as any,
                 strict: strict as any,
+                fromBlock,
               })) as Filter<'event', abi, eventName>
             } catch {}
             initialized = true

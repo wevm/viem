@@ -22,6 +22,7 @@ import {
 } from '../../errors/abi.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { BlockNumber } from '../../types/block.js'
 import { getAction } from '../../utils/getAction.js'
 import {
   decodeEventLog,
@@ -74,6 +75,8 @@ export type WatchEventParameters<
   onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
   onLogs: WatchEventOnLogsFn<TAbiEvent, TAbiEvents, TStrict, _EventName>
+  /** Block to start listening from. */
+  fromBlock?: BlockNumber<bigint> | undefined
 } & GetPollOptions<TTransport> &
   (
     | {
@@ -166,6 +169,7 @@ export function watchEvent<
     poll: poll_,
     pollingInterval = client.pollingInterval,
     strict: strict_,
+    fromBlock,
   }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
 ): WatchEventReturnType {
   const enablePolling =
@@ -181,10 +185,12 @@ export function watchEvent<
       client.uid,
       event,
       pollingInterval,
+      fromBlock,
     ])
 
     return observe(observerId, { onLogs, onError }, (emit) => {
       let previousBlockNumber: bigint
+      if (fromBlock !== undefined) previousBlockNumber = fromBlock - 1n
       let filter: Filter<'event', TAbiEvents, _EventName, any>
       let initialized = false
 
@@ -202,6 +208,7 @@ export function watchEvent<
                 event: event!,
                 events,
                 strict,
+                fromBlock,
               } as unknown as CreateEventFilterParameters)) as unknown as Filter<
                 'event',
                 TAbiEvents,
