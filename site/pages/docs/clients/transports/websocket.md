@@ -68,6 +68,55 @@ const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
 })
 ```
 
+### reconnect (optional)
+
+- **Type:** `boolean | { maxAttempts?: number, delay?: number }`
+- **Default:** `true`
+
+Whether or not to attempt to reconnect on socket failure.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  reconnect: false, // [!code focus]
+})
+```
+
+#### reconnect.attempts (optional)
+
+- **Type:** `number`
+- **Default:** `5`
+
+The max number of times to attempt to reconnect.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  reconnect: {
+    attempts: 10, // [!code focus]
+  }
+})
+```
+
+#### reconnect.delay (optional)
+
+- **Type:** `number`
+- **Default:** `2_000`
+
+Retry delay (in ms) between reconnect attempts.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  reconnect: {
+    delay: 1_000, // [!code focus]
+  }
+})
+```
+
 ### retryCount (optional)
 
 - **Type:** `number`

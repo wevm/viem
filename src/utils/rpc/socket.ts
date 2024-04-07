@@ -11,12 +11,12 @@ import { idCache } from './id.js'
 type Id = string | number
 type CallbackFn = {
   onResponse: (message: any) => void
-  onError?: ((error?: Error | undefined) => void) | undefined
+  onError?: ((error?: Error | Event | undefined) => void) | undefined
 }
 type CallbackMap = Map<Id, CallbackFn>
 
 export type GetSocketParameters = {
-  onError: (error?: Error | undefined) => void
+  onError: (error?: Error | Event | undefined) => void
   onOpen: () => void
   onResponse: (data: RpcResponse) => void
 }
@@ -33,7 +33,7 @@ export type SocketRpcClient<socket extends {}> = {
   socket: Socket<socket>
   request(params: {
     body: RpcRequest
-    onError?: ((error?: Error | undefined) => void) | undefined
+    onError?: ((error?: Error | Event | undefined) => void) | undefined
     onResponse: (message: RpcResponse) => void
   }): void
   requestAsync(params: {
@@ -45,7 +45,7 @@ export type SocketRpcClient<socket extends {}> = {
   url: string
 }
 
-export type GetSocketRpcClientParameters<socket extends {}> = {
+export type GetSocketRpcClientParameters<socket extends {} = {}> = {
   getSocket(params: GetSocketParameters): Promise<Socket<socket>>
   /**
    * Whether or not to attempt to reconnect on socket failure.
@@ -58,12 +58,12 @@ export type GetSocketRpcClientParameters<socket extends {}> = {
          * The maximum number of reconnection attempts.
          * @default 5
          */
-        maxAttempts?: number | undefined
+        attempts?: number | undefined
         /**
-         * The timeout (in ms) between reconnection attempts.
+         * The delay (in ms) between reconnection attempts.
          * @default 2_000
          */
-        timeout?: number | undefined
+        delay?: number | undefined
       }
     | undefined
   url: string
@@ -82,7 +82,7 @@ export async function getSocketRpcClient<socket extends {}>(
   params: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
   const { getSocket, reconnect = true, url } = params
-  const { maxAttempts = 5, timeout = 2_000 } =
+  const { attempts = 5, delay = 2_000 } =
     typeof reconnect === 'object' ? reconnect : {}
 
   let socketClient = socketClientCache.get(url)
@@ -90,7 +90,7 @@ export async function getSocketRpcClient<socket extends {}>(
   // If the socket already exists, return it.
   if (socketClient) return socketClient as {} as SocketRpcClient<socket>
 
-  let reconnectAttempts = 0
+  let reconnectCount = 0
   const { schedule } = createBatchScheduler<
     undefined,
     [SocketRpcClient<socket>]
@@ -103,7 +103,7 @@ export async function getSocketRpcClient<socket extends {}>(
       // Set up a cache for subscriptions (eth_subscribe).
       const subscriptions = new Map<Id, CallbackFn>()
 
-      let error: Error | undefined
+      let error: Error | Event | undefined
       let socket: Socket<any>
       // Set up socket implementation.
       async function setup() {
@@ -121,15 +121,15 @@ export async function getSocketRpcClient<socket extends {}>(
             subscriptions.clear()
 
             // Attempt to reconnect.
-            if (reconnect && reconnectAttempts < maxAttempts)
+            if (reconnect && reconnectCount < attempts)
               setTimeout(async () => {
-                reconnectAttempts++
+                reconnectCount++
                 socket = await setup().catch(console.error)
-              }, timeout)
+              }, delay)
           },
           onOpen() {
             error = undefined
-            reconnectAttempts = 0
+            reconnectCount = 0
           },
           onResponse(data) {
             const isSubscription = data.method === 'eth_subscription'

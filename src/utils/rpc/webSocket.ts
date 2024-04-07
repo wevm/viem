@@ -2,14 +2,23 @@ import type { MessageEvent } from 'isows'
 
 import { WebSocketRequestError } from '../../errors/request.js'
 import {
+  type GetSocketRpcClientParameters,
   type Socket,
   type SocketRpcClient,
   getSocketRpcClient,
 } from './socket.js'
 
+export type GetWebSocketRpcClientOptions = Pick<
+  GetSocketRpcClientParameters,
+  'reconnect'
+>
+
 export async function getWebSocketRpcClient(
   url: string,
+  options: GetWebSocketRpcClientOptions | undefined = {},
 ): Promise<SocketRpcClient<WebSocket>> {
+  const { reconnect } = options
+
   return getSocketRpcClient({
     async getSocket({ onError, onOpen, onResponse }) {
       const WebSocket = await import('isows').then((module) => module.WebSocket)
@@ -18,7 +27,7 @@ export async function getWebSocketRpcClient(
       function onClose() {
         socket.removeEventListener('close', onClose)
         socket.removeEventListener('message', onMessage)
-        socket.removeEventListener('error', () => onError())
+        socket.removeEventListener('error', onError)
         socket.removeEventListener('open', onOpen)
       }
       function onMessage({ data }: MessageEvent) {
@@ -28,7 +37,7 @@ export async function getWebSocketRpcClient(
       // Setup event listeners for RPC & subscription responses.
       socket.addEventListener('close', onClose)
       socket.addEventListener('message', onMessage)
-      socket.addEventListener('error', () => onError())
+      socket.addEventListener('error', onError)
       socket.addEventListener('open', onOpen)
 
       // Wait for the socket to open.
@@ -62,6 +71,7 @@ export async function getWebSocketRpcClient(
         },
       } as Socket<WebSocket>)
     },
+    reconnect,
     url,
   })
 }

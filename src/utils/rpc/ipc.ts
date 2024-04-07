@@ -1,10 +1,16 @@
 import { type Socket as NetSocket, connect } from 'node:net'
 import { WebSocketRequestError } from '../../index.js'
 import {
+  type GetSocketRpcClientParameters,
   type Socket,
   type SocketRpcClient,
   getSocketRpcClient,
 } from './socket.js'
+
+export type GetIpcRpcClientOptions = Pick<
+  GetSocketRpcClientParameters,
+  'reconnect'
+>
 
 const openingBrace = '{'.charCodeAt(0)
 const closingBrace = '}'.charCodeAt(0)
@@ -33,7 +39,12 @@ export function extractMessages(buffer: Buffer): [Buffer[], Buffer] {
 
 export type IpcRpcClient = SocketRpcClient<NetSocket>
 
-export async function getIpcRpcClient(path: string): Promise<IpcRpcClient> {
+export async function getIpcRpcClient(
+  path: string,
+  options: GetIpcRpcClientOptions = {},
+): Promise<IpcRpcClient> {
+  const { reconnect } = options
+
   return getSocketRpcClient({
     async getSocket({ onError, onOpen, onResponse }) {
       const socket = connect(path)
@@ -88,6 +99,7 @@ export async function getIpcRpcClient(path: string): Promise<IpcRpcClient> {
         },
       } as Socket<{}>)
     },
+    reconnect,
     url: path,
   })
 }

@@ -163,8 +163,8 @@ test('reconnect', async () => {
       }
     },
     reconnect: {
-      timeout: 200,
-      maxAttempts: 5,
+      delay: 200,
+      attempts: 5,
     },
     url: localWsUrl,
   })
@@ -307,8 +307,8 @@ test('reconnect (eth_subscribe)', async () => {
       }
     },
     reconnect: {
-      timeout: 200,
-      maxAttempts: 5,
+      delay: 200,
+      attempts: 5,
     },
     url: localWsUrl,
   })
