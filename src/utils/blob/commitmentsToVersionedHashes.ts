@@ -8,11 +8,13 @@ import {
 type To = 'hex' | 'bytes'
 
 export type CommitmentsToVersionedHashesParameters<
-  commitments extends Uint8Array[] | Hex[] = Uint8Array[] | Hex[],
+  commitments extends readonly Uint8Array[] | readonly Hex[] =
+    | readonly Uint8Array[]
+    | readonly Hex[],
   to extends To | undefined = undefined,
 > = {
   /** Commitments from blobs. */
-  commitments: commitments | Uint8Array[] | Hex[]
+  commitments: commitments | readonly Uint8Array[] | readonly Hex[]
   /** Return type. */
   to?: to | To | undefined
   /** Version to tag onto the hashes. */
@@ -20,8 +22,8 @@ export type CommitmentsToVersionedHashesParameters<
 }
 
 export type CommitmentsToVersionedHashesReturnType<to extends To> =
-  | (to extends 'bytes' ? ByteArray[] : never)
-  | (to extends 'hex' ? Hex[] : never)
+  | (to extends 'bytes' ? readonly ByteArray[] : never)
+  | (to extends 'hex' ? readonly Hex[] : never)
 
 export type CommitmentsToVersionedHashesErrorType =
   | CommitmentToVersionedHashErrorType
@@ -45,10 +47,10 @@ export type CommitmentsToVersionedHashesErrorType =
  * ```
  */
 export function commitmentsToVersionedHashes<
-  const commitments extends Uint8Array[] | Hex[],
+  const commitments extends readonly Uint8Array[] | readonly Hex[],
   to extends To =
-    | (commitments extends Hex[] ? 'hex' : never)
-    | (commitments extends ByteArray[] ? 'bytes' : never),
+    | (commitments extends readonly Hex[] ? 'hex' : never)
+    | (commitments extends readonly ByteArray[] ? 'bytes' : never),
 >(
   parameters: CommitmentsToVersionedHashesParameters<commitments, to>,
 ): CommitmentsToVersionedHashesReturnType<to> {
@@ -67,5 +69,5 @@ export function commitmentsToVersionedHashes<
       }) as any,
     )
   }
-  return hashes as CommitmentsToVersionedHashesReturnType<to>
+  return hashes as any
 }

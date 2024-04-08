@@ -227,13 +227,37 @@ export type TransactionRequestEIP4844<
     /** The blobs associated with this transaction. */
     blobs: readonly Hex[] | readonly ByteArray[]
     type?: TTransactionType | undefined
-  }
+  } & OneOf<
+    | { kzg: Kzg | undefined }
+    | {
+        blobVersionedHashes: readonly Hex[]
+        kzg?: Kzg | undefined
+      }
+    | {
+        kzg?: Kzg | undefined
+        sidecars: readonly BlobSidecar<Hex>[]
+      }
+  >
 export type TransactionRequest<TQuantity = bigint, TIndex = number> = OneOf<
   | TransactionRequestLegacy<TQuantity, TIndex>
   | TransactionRequestEIP2930<TQuantity, TIndex>
   | TransactionRequestEIP1559<TQuantity, TIndex>
   | TransactionRequestEIP4844<TQuantity, TIndex>
 >
+
+export type TransactionRequestGeneric<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionRequestBase<TQuantity, TIndex> & {
+  accessList?: AccessList | undefined
+  blobs?: readonly Hex[] | readonly ByteArray[] | undefined
+  blobVersionedHashes?: readonly Hex[] | undefined
+  gasPrice?: TQuantity | undefined
+  maxFeePerBlobGas?: TQuantity | undefined
+  maxFeePerGas?: TQuantity | undefined
+  maxPriorityFeePerGas?: TQuantity | undefined
+  type?: string | undefined
+}
 
 export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
@@ -300,17 +324,18 @@ export type TransactionSerializableEIP4844<
   ExactPartial<FeeValuesEIP4844<TQuantity>> & {
     accessList?: AccessList | undefined
     chainId: number
+    sidecars?: readonly BlobSidecar<Hex>[] | false | undefined
     type?: 'eip4844' | undefined
     yParity?: number | undefined
   } & OneOf<
     | {
+        blobs?: readonly Hex[] | readonly ByteArray[] | undefined
         blobVersionedHashes: readonly Hex[]
-        sidecars?: readonly BlobSidecar<Hex>[] | false | undefined
       }
     | {
         blobs: readonly Hex[] | readonly ByteArray[]
+        blobVersionedHashes?: readonly Hex[] | undefined
         kzg: Kzg
-        sidecars?: false | undefined
       }
   >
 
