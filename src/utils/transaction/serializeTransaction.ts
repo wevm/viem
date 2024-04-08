@@ -157,7 +157,11 @@ function serializeTransactionEIP4844(
   let blobVersionedHashes = transaction.blobVersionedHashes
   let sidecars = transaction.sidecars
   // If `blobs` are passed, we will need to compute the KZG commitments & proofs.
-  if (transaction.blobs) {
+  if (
+    transaction.blobs &&
+    (typeof blobVersionedHashes === 'undefined' ||
+      typeof sidecars === 'undefined')
+  ) {
     const blobs = (
       typeof transaction.blobs[0] === 'string'
         ? transaction.blobs
@@ -168,13 +172,15 @@ function serializeTransactionEIP4844(
       blobs,
       kzg,
     })
-    const proofs = blobsToProofs({ blobs, commitments, kzg })
-    blobVersionedHashes = commitmentsToVersionedHashes({
-      commitments,
-    })
 
-    if (sidecars !== false)
+    if (typeof blobVersionedHashes === 'undefined')
+      blobVersionedHashes = commitmentsToVersionedHashes({
+        commitments,
+      })
+    if (typeof sidecars === 'undefined') {
+      const proofs = blobsToProofs({ blobs, commitments, kzg })
       sidecars = toBlobSidecars({ blobs, commitments, proofs })
+    }
   }
 
   const serializedAccessList = serializeAccessList(accessList)

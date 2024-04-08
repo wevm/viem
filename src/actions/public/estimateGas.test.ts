@@ -1,12 +1,13 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts, forkBlockNumber, forkUrl } from '~test/src/constants.js'
+import { kzg } from '~test/src/kzg.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
-
 import { estimateGas } from './estimateGas.js'
 import * as getBlock from './getBlock.js'
 
@@ -125,8 +126,9 @@ test('args: blobs', async () => {
   expect(
     await estimateGas(publicClient, {
       account: accounts[0].address,
+      blobs: toBlobs({ data: '0x1234' }),
+      kzg,
       to: accounts[1].address,
-      blobs: ['0x123'],
       maxFeePerBlobGas: parseGwei('20'),
     }),
   ).toMatchInlineSnapshot('21000n')

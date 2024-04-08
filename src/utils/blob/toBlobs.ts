@@ -30,8 +30,8 @@ export type ToBlobsParameters<
 }
 
 export type ToBlobsReturnType<to extends To> =
-  | (to extends 'bytes' ? ByteArray[] : never)
-  | (to extends 'hex' ? Hex[] : never)
+  | (to extends 'bytes' ? readonly ByteArray[] : never)
+  | (to extends 'hex' ? readonly Hex[] : never)
 
 export type ToBlobsErrorType =
   | BlobSizeTooLargeErrorType
@@ -109,5 +109,5 @@ export function toBlobs<
     to === 'bytes'
       ? blobs.map((x) => x.bytes)
       : blobs.map((x) => bytesToHex(x.bytes))
-  ) as ToBlobsReturnType<to>
+  ) as any
 }

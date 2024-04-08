@@ -92,6 +92,7 @@ export type CallParameters<
 > = UnionOmit<FormattedCall<TChain>, 'from'> & {
   account?: Account | Address | undefined
   batch?: boolean | undefined
+  stateOverride?: StateOverride | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
@@ -106,9 +107,7 @@ export type CallParameters<
          */
         blockTag?: BlockTag | undefined
       }
-  ) & {
-    stateOverride?: StateOverride | undefined
-  }
+  )
 
 export type CallReturnType = { data: Hex | undefined }
 
