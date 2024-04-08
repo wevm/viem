@@ -7,11 +7,13 @@ import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 type To = 'hex' | 'bytes'
 
 export type BlobsToCommitmentsParameters<
-  blobs extends ByteArray[] | Hex[] = ByteArray[] | Hex[],
+  blobs extends readonly ByteArray[] | readonly Hex[] =
+    | readonly ByteArray[]
+    | readonly Hex[],
   to extends To | undefined = undefined,
 > = {
   /** Blobs to transform into commitments. */
-  blobs: blobs | ByteArray[] | Hex[]
+  blobs: blobs | readonly ByteArray[] | readonly Hex[]
   /** KZG implementation. */
   kzg: Pick<Kzg, 'blobToKzgCommitment'>
   /** Return type. */
@@ -19,8 +21,8 @@ export type BlobsToCommitmentsParameters<
 }
 
 export type BlobsToCommitmentsReturnType<to extends To> =
-  | (to extends 'bytes' ? ByteArray[] : never)
-  | (to extends 'hex' ? Hex[] : never)
+  | (to extends 'bytes' ? readonly ByteArray[] : never)
+  | (to extends 'hex' ? readonly Hex[] : never)
 
 export type BlobsToCommitmentsErrorType =
   | HexToBytesErrorType
@@ -40,10 +42,10 @@ export type BlobsToCommitmentsErrorType =
  * ```
  */
 export function blobsToCommitments<
-  const blobs extends ByteArray[] | Hex[],
+  const blobs extends readonly ByteArray[] | readonly Hex[],
   to extends To =
-    | (blobs extends Hex[] ? 'hex' : never)
-    | (blobs extends ByteArray[] ? 'bytes' : never),
+    | (blobs extends readonly Hex[] ? 'hex' : never)
+    | (blobs extends readonly ByteArray[] ? 'bytes' : never),
 >(
   parameters: BlobsToCommitmentsParameters<blobs, to>,
 ): BlobsToCommitmentsReturnType<to> {

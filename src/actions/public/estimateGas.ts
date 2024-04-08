@@ -107,6 +107,7 @@ export async function estimateGas<
     const {
       accessList,
       blobs,
+      blobVersionedHashes,
       blockNumber,
       blockTag,
       data,
@@ -119,13 +120,13 @@ export async function estimateGas<
       to,
       value,
       ...rest
-    } =
-      account?.type === 'local'
-        ? ((await prepareTransactionRequest(
-            client,
-            args as PrepareTransactionRequestParameters,
-          )) as EstimateGasParameters)
-        : args
+    } = (await prepareTransactionRequest(client, {
+      ...args,
+      parameters:
+        // Some RPC Providers do not compute versioned hashes from blobs. We will need
+        // to compute them.
+        account?.type === 'local' ? undefined : ['blobVersionedHashes'],
+    } as PrepareTransactionRequestParameters)) as EstimateGasParameters
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
@@ -141,6 +142,7 @@ export async function estimateGas<
       from: account?.address,
       accessList,
       blobs,
+      blobVersionedHashes,
       data,
       gas,
       gasPrice,

@@ -4,6 +4,7 @@ import { OffchainLookupExample } from '~test/contracts/generated.js'
 import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
 import { createCcipServer } from '~test/src/ccip.js'
 import { accounts, forkBlockNumber, localHttpUrl } from '~test/src/constants.js'
+import { blobData, kzg } from '~test/src/kzg.js'
 import {
   deployOffchainLookupExample,
   publicClient,
@@ -19,7 +20,6 @@ import { trim } from '../../utils/data/trim.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
-import { blobData } from '../../../test/src/kzg.js'
 import {
   http,
   type Hex,
@@ -206,6 +206,7 @@ test.skip('args: blobs', async () => {
   const { data } = await call(publicClient, {
     account: sourceAccount.address,
     blobs,
+    kzg,
     maxFeePerBlobGas: parseGwei('20'),
     to: wagmiContractAddress,
   })

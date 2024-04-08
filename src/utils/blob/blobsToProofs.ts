@@ -7,15 +7,15 @@ import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 type To = 'hex' | 'bytes'
 
 export type blobsToProofsParameters<
-  blobs extends ByteArray[] | Hex[],
-  commitments extends ByteArray[] | Hex[],
+  blobs extends readonly ByteArray[] | readonly Hex[],
+  commitments extends readonly ByteArray[] | readonly Hex[],
   to extends To =
-    | (blobs extends Hex[] ? 'hex' : never)
-    | (blobs extends ByteArray[] ? 'bytes' : never),
+    | (blobs extends readonly Hex[] ? 'hex' : never)
+    | (blobs extends readonly ByteArray[] ? 'bytes' : never),
   ///
   _blobsType =
-    | (blobs extends Hex[] ? Hex[] : never)
-    | (blobs extends ByteArray[] ? ByteArray[] : never),
+    | (blobs extends readonly Hex[] ? readonly Hex[] : never)
+    | (blobs extends readonly ByteArray[] ? readonly ByteArray[] : never),
 > = {
   /** Blobs to transform into proofs. */
   blobs: blobs
@@ -56,11 +56,11 @@ export type blobsToProofsErrorType =
  * ```
  */
 export function blobsToProofs<
-  const blobs extends ByteArray[] | Hex[],
-  const commitments extends ByteArray[] | Hex[],
+  const blobs extends readonly ByteArray[] | readonly Hex[],
+  const commitments extends readonly ByteArray[] | readonly Hex[],
   to extends To =
-    | (blobs extends Hex[] ? 'hex' : never)
-    | (blobs extends ByteArray[] ? 'bytes' : never),
+    | (blobs extends readonly Hex[] ? 'hex' : never)
+    | (blobs extends readonly ByteArray[] ? 'bytes' : never),
 >(
   parameters: blobsToProofsParameters<blobs, commitments, to>,
 ): blobsToProofsReturnType<to> {
