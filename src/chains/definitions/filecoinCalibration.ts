@@ -17,4 +17,5 @@ export const filecoinCalibration = /*#__PURE__*/ defineChain({
       url: 'https://calibration.filscan.io',
     },
   },
+  testnet: true,
 })

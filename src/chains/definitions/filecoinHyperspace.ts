@@ -17,4 +17,5 @@ export const filecoinHyperspace = /*#__PURE__*/ defineChain({
       url: 'https://hyperspace.filfox.info/en',
     },
   },
+  testnet: true,
 })
