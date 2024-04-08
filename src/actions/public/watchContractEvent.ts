@@ -74,6 +74,8 @@ export type WatchContractEventParameters<
     | undefined
   /** Contract event. */
   eventName?: eventName | ContractEventName<abi> | undefined
+  /** Block to start listening from. */
+  fromBlock?: BlockNumber<bigint> | undefined
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
@@ -89,8 +91,6 @@ export type WatchContractEventParameters<
    * @default false
    */
   strict?: strict | boolean | undefined
-  /** Block to start listening from. */
-  fromBlock?: BlockNumber<bigint> | undefined
 } & GetPollOptions<transport>
 
 export type WatchContractEventReturnType = () => void
@@ -146,16 +146,18 @@ export function watchContractEvent<
     args,
     batch = true,
     eventName,
+    fromBlock,
     onError,
     onLogs,
     poll: poll_,
     pollingInterval = client.pollingInterval,
     strict: strict_,
-    fromBlock,
   } = parameters
 
   const enablePolling =
-    typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
+    typeof poll_ !== 'undefined'
+      ? poll_
+      : client.transport.type !== 'webSocket' || typeof fromBlock === 'number'
 
   const pollContractEvent = () => {
     const strict = strict_ ?? false
