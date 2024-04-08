@@ -113,12 +113,10 @@ test('default', async () => {
       {
         ...wagmiContractConfig,
         functionName: 'mint',
-        args: [69690n],
       },
       {
         ...wagmiContractConfig,
         functionName: 'mint',
-        args: [69691n],
       },
       {
         ...wagmiContractConfig,
@@ -134,12 +132,12 @@ test('default', async () => {
         {
           "calls": [
             {
-              "data": "0xa0712d68000000000000000000000000000000000000000000000000000000000001103a",
+              "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
             },
             {
-              "data": "0xa0712d68000000000000000000000000000000000000000000000000000000000001103b",
+              "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
             },
@@ -173,7 +171,7 @@ test('default', async () => {
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 73684n,
+        "gasUsed": 78394n,
         "logs": [
           {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
@@ -186,19 +184,19 @@ test('default', async () => {
               "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
               "0x0000000000000000000000000000000000000000000000000000000000000000",
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-              "0x000000000000000000000000000000000000000000000000000000000001103a",
+              "0x0000000000000000000000000000000000000000000000000000000000000221",
             ],
-            "transactionHash": "0x5eace8a3889dc4808e4e29a853e5324e4a93471621b84285201d1531896c7df2",
+            "transactionHash": "0xb75d021cd610ec3adadadec4d54b6f560c9401dfe08957b78b529497b71c70c4",
             "transactionIndex": "0x0",
           },
         ],
         "status": "success",
-        "transactionHash": "0x5eace8a3889dc4808e4e29a853e5324e4a93471621b84285201d1531896c7df2",
+        "transactionHash": "0xb75d021cd610ec3adadadec4d54b6f560c9401dfe08957b78b529497b71c70c4",
       },
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 130268n,
+        "gasUsed": 139688n,
         "logs": [
           {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
@@ -211,19 +209,19 @@ test('default', async () => {
               "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
               "0x0000000000000000000000000000000000000000000000000000000000000000",
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-              "0x000000000000000000000000000000000000000000000000000000000001103b",
+              "0x0000000000000000000000000000000000000000000000000000000000000222",
             ],
-            "transactionHash": "0xb74663543da1c316bcb87007d1a1b0a339cf2f6168ee95dcbbe4e52183a25867",
+            "transactionHash": "0xde8a66a7ed5abe0a6109fc4f6e1cb6caa06ed65be893d907434e2726ff4ef0c9",
             "transactionIndex": "0x1",
           },
         ],
         "status": "success",
-        "transactionHash": "0xb74663543da1c316bcb87007d1a1b0a339cf2f6168ee95dcbbe4e52183a25867",
+        "transactionHash": "0xde8a66a7ed5abe0a6109fc4f6e1cb6caa06ed65be893d907434e2726ff4ef0c9",
       },
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 191562n,
+        "gasUsed": 200982n,
         "logs": [
           {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
@@ -236,7 +234,7 @@ test('default', async () => {
               "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
               "0x0000000000000000000000000000000000000000000000000000000000000000",
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-              "0x0000000000000000000000000000000000000000000000000000000000000221",
+              "0x0000000000000000000000000000000000000000000000000000000000000223",
             ],
             "transactionHash": "0x33cbd0bfa4db7902da7d119b405de9075610cd53e817329055d36ad0df85a654",
             "transactionIndex": "0x2",
