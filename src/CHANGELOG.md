@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.15
+
+### Patch Changes
+
+- [#2020](https://github.com/wevm/viem/pull/2020) [`f1e7d1e20d10fb5210a63ce27b79ea2b521e5eb5`](https://github.com/wevm/viem/commit/f1e7d1e20d10fb5210a63ce27b79ea2b521e5eb5) Thanks [@PierreOssun](https://github.com/PierreOssun)! - Removed defunkt zKatana chain & updated multicall address on Astar zkEVM mainnet
+
 ## 2.9.14
 
 ### Patch Changes
