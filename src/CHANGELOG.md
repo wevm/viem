@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.14
+
+### Patch Changes
+
+- [#2100](https://github.com/wevm/viem/pull/2100) [`d40bb40f8a027213d47d0a9eb385c164a4d4d811`](https://github.com/wevm/viem/commit/d40bb40f8a027213d47d0a9eb385c164a4d4d811) Thanks [@biga816](https://github.com/biga816)! - Added `testnet` properties to Filecoin definitions
+
+- [#2097](https://github.com/wevm/viem/pull/2097) [`1c935f19a4ed852e8c7ddd1e62ff04c712c5fba5`](https://github.com/wevm/viem/commit/1c935f19a4ed852e8c7ddd1e62ff04c712c5fba5) Thanks [@jxom](https://github.com/jxom)! - Added `blobVersionedHashes` & `sidecars` support to `prepareTransactionRequest`.
+
 ## 2.9.13
 
 ### Patch Changes
