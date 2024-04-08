@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.14
+
+### Patch Changes
+
+- [#2095](https://github.com/wevm/viem/pull/2095) [`cd72068ea7327c2cbae09772a6aa6d643c562a4e`](https://github.com/wevm/viem/commit/cd72068ea7327c2cbae09772a6aa6d643c562a4e) Thanks [@jxom](https://github.com/jxom)! - Added `blobVersionedHashes` & `sidecars` support to `prepareTransactionRequest`.
+
 ## 2.9.13
 
 ### Patch Changes
