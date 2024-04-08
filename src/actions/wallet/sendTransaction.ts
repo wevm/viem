@@ -39,6 +39,7 @@ import {
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 import {
   type PrepareTransactionRequestErrorType,
+  defaultParameters,
   prepareTransactionRequest,
 } from './prepareTransactionRequest.js'
 import {
@@ -190,6 +191,7 @@ export async function sendTransaction<
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        parameters: [...defaultParameters, 'sidecars'],
         to,
         value,
         ...rest,

@@ -34,6 +34,8 @@ export function formatTransactionRequest(
 
   if (typeof request.accessList !== 'undefined')
     rpcRequest.accessList = request.accessList
+  if (typeof request.blobVersionedHashes !== 'undefined')
+    rpcRequest.blobVersionedHashes = request.blobVersionedHashes
   if (typeof request.blobs !== 'undefined') {
     if (typeof request.blobs[0] !== 'string')
       rpcRequest.blobs = (request.blobs as ByteArray[]).map((x) =>
