@@ -29,7 +29,7 @@ export type WaitForNextL2OutputParameters<
 > = GetChainParameter<chain, chainOverride> &
   GetContractAddressParameter<_derivedChain, 'l2OutputOracle'> & {
     /**
-     * The buffer to account for discrepencies between non-deterministic time intervals.
+     * The buffer to account for discrepancies between non-deterministic time intervals.
      * @default 1.1
      */
     intervalBuffer?:

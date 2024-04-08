@@ -99,7 +99,7 @@ const game = await publicClientL1.waitForNextGame({
 - **Type:** `number`
 - **Default:** `1.1`
 
-The buffer to account for discrepencies between non-deterministic time intervals.
+The buffer to account for discrepancies between non-deterministic time intervals.
 
 ```ts
 const game = await publicClientL1.waitForNextGame({
