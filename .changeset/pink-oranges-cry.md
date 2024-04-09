@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add BEVM Mainnet
+Added BEVM Mainnet
