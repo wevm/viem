@@ -13,5 +13,5 @@ export const bevmMainnet = /*#__PURE__*/ defineChain({
       url: 'https://scan-mainnet.bevm.io',
       apiUrl: 'https://scan-mainnet-api.bevm.io/api',
     },
-  }
+  },
 })
