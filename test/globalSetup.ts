@@ -1,7 +1,17 @@
 import { startProxy } from '@viem/anvil'
 
-import { forkBlockNumber, forkUrl } from './src/constants.js'
-import { forkBlockNumberOptimism, forkUrlOptimism } from './src/opStack.js'
+import {
+  forkBlockNumber,
+  forkBlockNumberSepolia,
+  forkUrl,
+  forkUrlSepolia,
+} from './src/constants.js'
+import {
+  forkBlockNumberOptimism,
+  forkBlockNumberOptimismSepolia,
+  forkUrlOptimism,
+  forkUrlOptimismSepolia,
+} from './src/opStack.js'
 import { forkBlockNumberZkSync, forkUrlZkSync } from './src/zksync.js'
 
 export default async function () {
@@ -50,9 +60,31 @@ export default async function () {
       startTimeout: 20_000,
     },
   })
+  // TODO(fault-proofs): remove when fault proofs deployed to mainnet.
+  const shutdownSepolia = await startProxy({
+    port: Number(process.env.VITE_ANVIL_PORT_SEPOLIA || '8845'),
+    options: {
+      forkUrl: forkUrlSepolia,
+      forkBlockNumber: forkBlockNumberSepolia,
+      noMining: true,
+      startTimeout: 20_000,
+    },
+  })
+  // TODO(fault-proofs): remove when fault proofs deployed to mainnet.
+  const shutdownOptimismSepolia = await startProxy({
+    port: Number(process.env.VITE_ANVIL_PORT_OPTIMISM_SEPOLIA || '8945'),
+    options: {
+      forkUrl: forkUrlOptimismSepolia,
+      forkBlockNumber: forkBlockNumberOptimismSepolia,
+      noMining: true,
+      startTimeout: 20_000,
+    },
+  })
   return () => {
     shutdownMainnet()
     shutdownOptimism()
     shutdownZkSync()
+    shutdownSepolia()
+    shutdownOptimismSepolia()
   }
 }

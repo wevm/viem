@@ -1,5 +1,5 @@
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../opStack/chainConfig.js'
 
 const sourceId = 5 // goerli
 

@@ -996,6 +996,46 @@ export const sidebar = {
       ],
     },
   ],
+  '/experimental': {
+    backLink: true,
+    items: [
+      {
+        text: 'Experimental',
+        items: [
+          {
+            text: 'Getting Started',
+            link: '/experimental',
+          },
+          { text: 'Client', link: '/experimental/client' },
+        ],
+      },
+      {
+        text: 'EIP-5792',
+        items: [
+          {
+            text: 'getCallsStatus',
+            link: '/experimental/actions/getCallsStatus',
+          },
+          {
+            text: 'getCapabilities',
+            link: '/experimental/actions/getCapabilities',
+          },
+          {
+            text: 'sendCalls',
+            link: '/experimental/actions/sendCalls',
+          },
+          {
+            text: 'showCallsStatus',
+            link: '/experimental/actions/showCallsStatus',
+          },
+          {
+            text: 'writeContracts',
+            link: '/experimental/actions/writeContracts',
+          },
+        ],
+      },
+    ],
+  },
   '/op-stack': {
     backLink: true,
     items: [
@@ -1003,7 +1043,7 @@ export const sidebar = {
         text: 'OP Stack',
         items: [
           {
-            text: 'Getting started',
+            text: 'Getting Started',
             link: '/op-stack',
           },
           { text: 'Client', link: '/op-stack/client' },
@@ -1101,12 +1141,24 @@ export const sidebar = {
             link: '/op-stack/actions/estimateProveWithdrawalGas',
           },
           {
+            text: 'getGame',
+            link: '/op-stack/actions/getGame',
+          },
+          {
+            text: 'getGames',
+            link: '/op-stack/actions/getGames',
+          },
+          {
             text: 'getL2Output',
             link: '/op-stack/actions/getL2Output',
           },
           {
             text: 'getTimeToFinalize',
             link: '/op-stack/actions/getTimeToFinalize',
+          },
+          {
+            text: 'getTimeToNextGame',
+            link: '/op-stack/actions/getTimeToNextGame',
           },
           {
             text: 'getTimeToNextL2Output',
@@ -1119,6 +1171,10 @@ export const sidebar = {
           {
             text: 'getWithdrawalStatus',
             link: '/op-stack/actions/getWithdrawalStatus',
+          },
+          {
+            text: 'waitForNextGame',
+            link: '/op-stack/actions/waitForNextGame',
           },
           {
             text: 'waitForNextL2Output',
@@ -1205,7 +1261,7 @@ export const sidebar = {
         text: 'zkSync',
         items: [
           {
-            text: 'Getting started',
+            text: 'Getting Started',
             link: '/zksync',
           },
           { text: 'Client', link: '/zksync/client' },
@@ -1215,6 +1271,10 @@ export const sidebar = {
       {
         text: 'Actions',
         items: [
+          {
+            text: 'deployContract',
+            link: '/zksync/actions/deployContract',
+          },
           {
             text: 'sendTransaction',
             link: '/zksync/actions/sendTransaction',

@@ -184,10 +184,8 @@ test('overloads', async () => {
     functionName: 'foo',
     args: ['0x'],
   })
-  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   assertType<string>(res2.result)
   expectTypeOf(res2.request.abi).toEqualTypeOf(
-    // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
     parseAbi(['function foo(address) returns (string)']),
   )
 
@@ -200,10 +198,8 @@ test('overloads', async () => {
   assertType<{
     foo: `0x${string}`
     bar: `0x${string}`
-    // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   }>(res3.result)
   expectTypeOf(res3.request.abi).toEqualTypeOf(
-    // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
     parseAbi([
       'function foo(address, address) returns ((address foo, address bar))',
     ]),

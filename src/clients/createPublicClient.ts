@@ -19,6 +19,7 @@ export type PublicClientConfig<
     ClientConfig<transport, chain>,
     | 'batch'
     | 'cacheTime'
+    | 'ccipRead'
     | 'chain'
     | 'key'
     | 'name'

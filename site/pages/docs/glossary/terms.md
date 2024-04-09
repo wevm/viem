@@ -48,7 +48,7 @@ A Legacy Transaction in Ethereum refers to a transaction that was created using 
 
 A non-conforming log is a log where its `topics` & `data` do not match the **indexed** & **non-indexed** arguments on the `event`. `topics` correspond to **indexed** arguments, while `data` corresponds to **non-indexed** arguments.
 
-For example, here is an event definition that has 2 indexed arguments & 2 non-indexed arguments:
+For example, here is an event definition that has 3 indexed arguments & 1 non-indexed arguments:
 
 ```solidity
 event Transfer(

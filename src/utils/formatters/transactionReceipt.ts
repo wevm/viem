@@ -20,7 +20,7 @@ export type FormattedTransactionReceipt<
   TransactionReceipt
 >
 
-const statuses = {
+export const receiptStatuses = {
   '0x0': 'reverted',
   '0x1': 'success',
 } as const
@@ -55,7 +55,7 @@ export function formatTransactionReceipt(
       ? hexToNumber(transactionReceipt.transactionIndex)
       : null,
     status: transactionReceipt.status
-      ? statuses[transactionReceipt.status]
+      ? receiptStatuses[transactionReceipt.status]
       : null,
     type: transactionReceipt.type
       ? transactionType[

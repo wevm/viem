@@ -3,7 +3,11 @@ import { type UrlRequiredErrorType } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcResponse } from '../../types/rpc.js'
-import { type IpcRpcClient, getIpcRpcClient } from '../../utils/rpc/ipc.js'
+import {
+  type GetIpcRpcClientOptions,
+  type IpcRpcClient,
+  getIpcRpcClient,
+} from '../../utils/rpc/ipc.js'
 import {
   type CreateTransportErrorType,
   type Transport,
@@ -38,6 +42,11 @@ export type IpcTransportConfig = {
   key?: TransportConfig['key'] | undefined
   /** The name of the Ipc transport. */
   name?: TransportConfig['name'] | undefined
+  /**
+   * Whether or not to attempt to reconnect on socket failure.
+   * @default true
+   */
+  reconnect?: GetIpcRpcClientOptions['reconnect'] | undefined
   /** The max number of times to retry. */
   retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
@@ -66,7 +75,7 @@ export function ipc(
   path: string,
   config: IpcTransportConfig = {},
 ): IpcTransport {
-  const { key = 'ipc', name = 'IPC JSON-RPC', retryDelay } = config
+  const { key = 'ipc', name = 'IPC JSON-RPC', reconnect, retryDelay } = config
   return ({ retryCount: retryCount_, timeout: timeout_ }) => {
     const retryCount = config.retryCount ?? retryCount_
     const timeout = timeout_ ?? config.timeout ?? 10_000
@@ -76,7 +85,7 @@ export function ipc(
         name,
         async request({ method, params }) {
           const body = { method, params }
-          const rpcClient = await getIpcRpcClient(path)
+          const rpcClient = await getIpcRpcClient(path, { reconnect })
           const { error, result } = await rpcClient.requestAsync({
             body,
             timeout,

@@ -12,7 +12,8 @@ export { astar } from './definitions/astar.js'
 export { astarZkEVM } from './definitions/astarZkEVM.js'
 export { astarZkyoto } from './definitions/astarZkyoto.js'
 export { arbitrumSepolia } from './definitions/arbitrumSepolia.js'
-export { astarZkatana } from './definitions/astarZkatana.js'
+export { areonNetwork } from './definitions/areonNetwork.js'
+export { areonNetworkTestnet } from './definitions/areonNetworkTestnet.js'
 export { aurora } from './definitions/aurora.js'
 export { auroraTestnet } from './definitions/auroraTestnet.js'
 export { auroria } from './definitions/auroria.js'
@@ -27,6 +28,7 @@ export { beamTestnet } from './definitions/beamTestnet.js'
 export { bearNetworkChainMainnet } from './definitions/bearNetworkChainMainnet.js'
 export { bearNetworkChainTestnet } from './definitions/bearNetworkChainTestnet.js'
 export { berachainTestnet } from './definitions/berachainTestnet.js'
+export { bevmMainnet } from './definitions/bevmMainnet.js'
 export { bitTorrent } from './definitions/bitTorrent.js'
 export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js'
 export { blast } from './definitions/blast.js'
@@ -52,6 +54,7 @@ export { cronosTestnet } from './definitions/cronosTestnet.js'
 export { crossbell } from './definitions/crossbell.js'
 export { defichainEvm } from './definitions/defichainEvm.js'
 export { defichainEvmTestnet } from './definitions/defichainEvmTestnet.js'
+export { degen } from './definitions/degen.js'
 export { dfk } from './definitions/dfk.js'
 export { dogechain } from './definitions/dogechain.js'
 export { edgeware } from './definitions/edgeware.js'
@@ -111,6 +114,9 @@ export { kromaSepolia } from './definitions/kromaSepolia.js'
 export { lightlinkPegasus } from './definitions/lightlinkPegasus.js'
 export { lightlinkPhoenix } from './definitions/lightlinkPhoenix.js'
 export { linea } from './definitions/linea.js'
+export { lineaGoerli } from './definitions/lineaGoerli.js'
+export { lineaSepolia } from './definitions/lineaSepolia.js'
+/** @deprecated Use `lineaGoerli` instead. */
 export { lineaTestnet } from './definitions/lineaTestnet.js'
 export { liskSepolia } from './definitions/liskSepolia.js'
 export { localhost } from './definitions/localhost.js'
@@ -162,12 +168,15 @@ export { plumeTestnet } from './definitions/plumeTestnet.js'
 export { polygon } from './definitions/polygon.js'
 export { polygonAmoy } from './definitions/polygonAmoy.js'
 export { polygonMumbai } from './definitions/polygonMumbai.js'
-export { polygonZkEvmTestnet } from './definitions/polygonZkEvmTestnet.js'
 export { polygonZkEvm } from './definitions/polygonZkEvm.js'
+export { polygonZkEvmCardona } from './definitions/polygonZkEvmCardona.js'
+/** @deprecated Use `polygonZkEvmCardona` instead. */
+export { polygonZkEvmTestnet } from './definitions/polygonZkEvmTestnet.js'
 export { pulsechain } from './definitions/pulsechain.js'
 export { pulsechainV4 } from './definitions/pulsechainV4.js'
 export { qMainnet } from './definitions/qMainnet.js'
 export { qTestnet } from './definitions/qTestnet.js'
+export { reyaNetwork } from './definitions/reyaNetwork.js'
 export { rollux } from './definitions/rollux.js'
 export { rolluxTestnet } from './definitions/rolluxTestnet.js'
 export { ronin } from './definitions/ronin.js'
@@ -180,6 +189,7 @@ export { sapphireTestnet } from './definitions/sapphireTestnet.js'
 export { scroll } from './definitions/scroll.js'
 export { scrollSepolia } from './definitions/scrollSepolia.js'
 export { scrollTestnet } from './definitions/scrollTestnet.js'
+export { seiDevnet } from './definitions/seiDevnet.js'
 export { sepolia } from './definitions/sepolia.js'
 export { shimmer } from './definitions/shimmer.js'
 export { shimmerTestnet } from './definitions/shimmerTestnet.js'
@@ -272,13 +282,13 @@ export type {
   TransactionSerializableCIP64,
   TransactionSerializedCIP42,
   TransactionSerializedCIP64,
-} from './celo/types.js'
+} from '../celo/types.js'
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
   OpStackRpcBlock,
   OpStackRpcBlockOverrides,
-} from './opStack/types/block.js'
+} from '../op-stack/types/block.js'
 export type {
   SerializeTransactionDepositReturnType,
   SerializeTransactionErrorType,
@@ -286,7 +296,7 @@ export type {
   serializeTransaction as serializeTransactionOpStack,
   assertTransactionDeposit as assertTransactionDepositOpStack,
   serializers as serializersOpStack,
-} from './opStack/serializers.js'
+} from '../op-stack/serializers.js'
 export type {
   OpStackDepositTransaction,
   OpStackRpcDepositTransaction,
@@ -301,22 +311,22 @@ export type {
   OpStackTransactionType,
   TransactionSerializableDeposit,
   TransactionSerializedDeposit,
-} from './opStack/types/transaction.js'
+} from '../op-stack/types/transaction.js'
 export type {
   ZkSyncBlock,
   ZkSyncBlockOverrides,
   ZkSyncRpcBlock,
   ZkSyncRpcBlockOverrides,
-} from './zksync/types/block.js'
-export type { ChainEIP712 } from './zksync/types/chain.js'
-export type { ZkSyncEip712Meta } from './zksync/types/eip712.js'
-export type { ZkSyncFeeValues } from './zksync/types/fee.js'
+} from '../zksync/types/block.js'
+export type { ChainEIP712 } from '../zksync/types/chain.js'
+export type { ZkSyncEip712Meta } from '../zksync/types/eip712.js'
+export type { ZkSyncFeeValues } from '../zksync/types/fee.js'
 export type {
   ZkSyncL2ToL1Log,
   ZkSyncLog,
   ZkSyncRpcL2ToL1Log,
   ZkSyncRpcLog,
-} from './zksync/types/log.js'
+} from '../zksync/types/log.js'
 export type {
   TransactionRequestEIP712,
   ZkSyncEIP712TransactionSignable,
@@ -337,4 +347,4 @@ export type {
   ZkSyncTransactionSerialized,
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
-} from './zksync/types/transaction.js'
+} from '../zksync/types/transaction.js'

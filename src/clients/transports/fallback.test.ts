@@ -496,6 +496,7 @@ describe('client', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": undefined,
         "extend": [Function],
         "key": "base",

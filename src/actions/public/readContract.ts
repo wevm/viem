@@ -96,7 +96,7 @@ export async function readContract<
   chain extends Chain | undefined,
   const abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
-  args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  const args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
 >(
   client: Client<Transport, chain>,
   parameters: ReadContractParameters<abi, functionName, args>,
