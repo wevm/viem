@@ -139,7 +139,7 @@ export function decodeEventLog<
         abiItem,
         param: param as AbiParameter & { indexed: boolean },
       })
-    args[param.name || i] = decodeTopic({ param, value: topic })
+    args[isUnnamed ? i : param.name || i] = decodeTopic({ param, value: topic })
   }
 
   // Decode data (non-indexed args).

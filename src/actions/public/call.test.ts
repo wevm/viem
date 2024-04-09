@@ -3,7 +3,8 @@ import { describe, expect, test, vi } from 'vitest'
 import { OffchainLookupExample } from '~test/contracts/generated.js'
 import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
 import { createCcipServer } from '~test/src/ccip.js'
-import { accounts, forkBlockNumber } from '~test/src/constants.js'
+import { accounts, forkBlockNumber, localHttpUrl } from '~test/src/constants.js'
+import { blobData, kzg } from '~test/src/kzg.js'
 import {
   deployOffchainLookupExample,
   publicClient,
@@ -19,11 +20,12 @@ import { trim } from '../../utils/data/trim.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
-import { blobData } from '../../../test/src/kzg.js'
 import {
+  http,
   type Hex,
   type StateMapping,
   type StateOverride,
+  createClient,
   encodeAbiParameters,
   pad,
   parseEther,
@@ -79,6 +81,42 @@ describe('ccip', () => {
     })
 
     expect(trim(data!)).toEqual(accounts[0].address)
+
+    await server.close()
+  })
+
+  test('ccip disabled', async () => {
+    const server = await createCcipServer()
+    const { contractAddress } = await deployOffchainLookupExample({
+      urls: [`${server.url}/{sender}/{data}`],
+    })
+
+    const calldata = encodeFunctionData({
+      abi: OffchainLookupExample.abi,
+      functionName: 'getAddress',
+      args: ['jxom.viem'],
+    })
+
+    const client = createClient({
+      ccipRead: false,
+      transport: http(localHttpUrl),
+    })
+
+    await expect(() =>
+      call(client, {
+        data: calldata,
+        to: contractAddress!,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [CallExecutionError: Execution reverted with reason: custom error 556f1830:000000000000000000000000124ddf9b…00000000000000000000000000000000 (576 bytes).
+
+      Raw Call Arguments:
+        to:    0x124ddf9bdd2ddad012ef1d5bbd77c00f05c610da
+        data:  0xbf40fac1000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000096a786f6d2e7669656d0000000000000000000000000000000000000000000000
+
+      Details: execution reverted: custom error 556f1830:000000000000000000000000124ddf9b…00000000000000000000000000000000 (576 bytes)
+      Version: viem@1.0.2]
+    `)
 
     await server.close()
   })
@@ -168,6 +206,7 @@ test.skip('args: blobs', async () => {
   const { data } = await call(publicClient, {
     account: sourceAccount.address,
     blobs,
+    kzg,
     maxFeePerBlobGas: parseGwei('20'),
     to: wagmiContractAddress,
   })
@@ -1067,7 +1106,7 @@ describe('parsing overrides', () => {
 
     expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
       {
-        "balance": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "balance": "0x1",
       }
     `)
 
@@ -1089,7 +1128,7 @@ describe('parsing overrides', () => {
 
     expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
       {
-        "nonce": "0x0000000000000001",
+        "nonce": "0x1",
       }
     `)
 

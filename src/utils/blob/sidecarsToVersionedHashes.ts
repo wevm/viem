@@ -21,8 +21,8 @@ export type SidecarsToVersionedHashesParameters<
 }
 
 export type SidecarsToVersionedHashesReturnType<to extends To> =
-  | (to extends 'bytes' ? ByteArray[] : never)
-  | (to extends 'hex' ? Hex[] : never)
+  | (to extends 'bytes' ? readonly ByteArray[] : never)
+  | (to extends 'hex' ? readonly Hex[] : never)
 
 export type SidecarsToVersionedHashesErrorType =
   | CommitmentToVersionedHashErrorType
@@ -62,5 +62,5 @@ export function sidecarsToVersionedHashes<
       }) as any,
     )
   }
-  return hashes as SidecarsToVersionedHashesReturnType<to>
+  return hashes as any
 }

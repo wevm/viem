@@ -14,7 +14,11 @@ export const blast = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.blast.io'] },
   },
   blockExplorers: {
-    default: { name: 'Blastscan', url: 'https://blastscan.io' },
+    default: {
+      name: 'Blastscan',
+      url: 'https://blastscan.io',
+      apiUrl: 'https://api.blastscan.io/api',
+    },
   },
   contracts: {
     multicall3: {

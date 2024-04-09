@@ -9,10 +9,10 @@ import type {
   FeeValuesLegacy,
 } from '../../index.js'
 import type {
-  TransactionRequest,
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
+  TransactionRequestGeneric,
   TransactionRequestLegacy,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
@@ -79,7 +79,7 @@ type EIP4844Properties = Assign<
 
 export type GetTransactionType<
   transaction extends OneOf<
-    TransactionSerializableGeneric | TransactionRequest
+    TransactionSerializableGeneric | TransactionRequestGeneric
   > = TransactionSerializableGeneric,
   result =
     | (transaction extends
@@ -115,7 +115,7 @@ export type GetTransationTypeErrorType =
 
 export function getTransactionType<
   const transaction extends OneOf<
-    TransactionSerializableGeneric | TransactionRequest
+    TransactionSerializableGeneric | TransactionRequestGeneric
   >,
 >(transaction: transaction): GetTransactionType<transaction> {
   if (transaction.type)

@@ -129,12 +129,16 @@ export type ChainFees<
    * Overrides the return value in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas).
    */
   estimateFeesPerGas?:
-    | ((
-        args: ChainEstimateFeesPerGasFnParameters<formatters>,
-      ) => Promise<EstimateFeesPerGasReturnType>)
+    | ChainEstimateFeesPerGasFn<formatters>
     | bigint
     | undefined
 }
+
+export type ChainEstimateFeesPerGasFn<
+  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+> = (
+  args: ChainEstimateFeesPerGasFnParameters<formatters>,
+) => Promise<EstimateFeesPerGasReturnType | null>
 
 export type ChainFormatters = {
   /** Modifies how the Block structure is formatted & typed. */

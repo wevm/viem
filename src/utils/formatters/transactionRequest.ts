@@ -30,13 +30,21 @@ export type FormatTransactionRequestErrorType = ErrorType
 export function formatTransactionRequest(
   request: ExactPartial<TransactionRequest>,
 ) {
-  const rpcRequest = { ...request } as RpcTransactionRequest
+  const rpcRequest = {} as RpcTransactionRequest
 
-  if (
-    typeof request.blobs !== 'undefined' &&
-    typeof request.blobs[0] !== 'string'
-  )
-    rpcRequest.blobs = (request.blobs as ByteArray[]).map((x) => bytesToHex(x))
+  if (typeof request.accessList !== 'undefined')
+    rpcRequest.accessList = request.accessList
+  if (typeof request.blobVersionedHashes !== 'undefined')
+    rpcRequest.blobVersionedHashes = request.blobVersionedHashes
+  if (typeof request.blobs !== 'undefined') {
+    if (typeof request.blobs[0] !== 'string')
+      rpcRequest.blobs = (request.blobs as ByteArray[]).map((x) =>
+        bytesToHex(x),
+      )
+    else rpcRequest.blobs = request.blobs
+  }
+  if (typeof request.data !== 'undefined') rpcRequest.data = request.data
+  if (typeof request.from !== 'undefined') rpcRequest.from = request.from
   if (typeof request.gas !== 'undefined')
     rpcRequest.gas = numberToHex(request.gas)
   if (typeof request.gasPrice !== 'undefined')
@@ -49,6 +57,7 @@ export function formatTransactionRequest(
     rpcRequest.maxPriorityFeePerGas = numberToHex(request.maxPriorityFeePerGas)
   if (typeof request.nonce !== 'undefined')
     rpcRequest.nonce = numberToHex(request.nonce)
+  if (typeof request.to !== 'undefined') rpcRequest.to = request.to
   if (typeof request.type !== 'undefined')
     rpcRequest.type = rpcTransactionType[request.type]
   if (typeof request.value !== 'undefined')

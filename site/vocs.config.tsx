@@ -191,6 +191,12 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg',
           },
+          {
+            name: 'Syndicate',
+            link: 'https://syndicate.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/syndicate-light.svg',
+          },
         ],
       ],
     },
@@ -213,6 +219,10 @@ export default defineConfig({
         {
           text: 'zkSync',
           link: '/zksync',
+        },
+        {
+          text: 'Experimental',
+          link: '/experimental',
         },
       ],
     },

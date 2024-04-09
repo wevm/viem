@@ -287,6 +287,46 @@ const client = createWalletClient({
 })
 ```
 
+### ccipRead (optional)
+
+- **Type:** `(parameters: CcipRequestParameters) => Promise<CcipRequestReturnType> | false`
+- **Default:** `true`
+
+[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration.
+
+CCIP Read is enabled by default, but if set to `false`, the client will not support offchain CCIP lookups.
+
+```ts twoslash
+import 'viem/window'
+import { createWalletClient, custom } from 'viem'
+// ---cut---
+const client = createWalletClient({
+  ccipRead: false, // [!code focus]
+  transport: custom(window.ethereum!)
+})
+```
+
+### ccipRead.request (optional)
+
+- **Type:** `(parameters: CcipRequestParameters) => Promise<CcipRequestReturnType>`
+
+A function that will be called to make the [offchain CCIP lookup request](https://eips.ethereum.org/EIPS/eip-3668#client-lookup-protocol).
+
+```ts twoslash
+// @noErrors
+import 'viem/window'
+import { createWalletClient, custom } from 'viem'
+// ---cut---
+const client = createWalletClient({
+  ccipRead: { // [!code focus]
+    async request({ data, sender, urls }) { // [!code focus]
+      // ... // [!code focus]
+    } // [!code focus]
+  }, // [!code focus]
+  transport: custom(window.ethereum!)
+})
+```
+
 ### key (optional)
 
 - **Type:** `string`

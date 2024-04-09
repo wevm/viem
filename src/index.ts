@@ -999,10 +999,15 @@ export type {
   RpcSchema,
   RpcSchemaOverride,
   TestRpcSchema,
-  WatchAssetParams,
+  WalletCapabilities,
+  WalletCapabilitiesRecord,
+  WalletCallReceipt,
+  WalletGetCallsStatusReturnType,
+  WalletSendCallsParameters,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,
+  WatchAssetParams,
 } from './types/eip1193.js'
 export type { BlobSidecar, BlobSidecars } from './types/eip4844.js'
 export type {
@@ -1335,8 +1340,11 @@ export {
   fromBytes,
 } from './utils/encoding/fromBytes.js'
 export {
-  type CcipFetchErrorType,
-  ccipFetch,
+  type CcipRequestParameters,
+  type CcipRequestErrorType,
+  ccipRequest,
+  /** @deprecated Use `ccipRequest`. */
+  ccipRequest as ccipFetch,
   type OffchainLookupErrorType,
   offchainLookup,
   offchainLookupAbiItem,

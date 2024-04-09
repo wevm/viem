@@ -1,5 +1,5 @@
+import { formatters } from '../../op-stack/formatters.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formatters } from '../opStack/formatters.js'
 
 const sourceId = 1 // mainnet
 

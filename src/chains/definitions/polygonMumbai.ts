@@ -13,7 +13,7 @@ export const polygonMumbai = /*#__PURE__*/ defineChain({
     default: {
       name: 'PolygonScan',
       url: 'https://mumbai.polygonscan.com',
-      apiUrl: 'https://mumbai.polygonscan.com/api',
+      apiUrl: 'https://api-testnet.polygonscan.com/api',
     },
   },
   contracts: {

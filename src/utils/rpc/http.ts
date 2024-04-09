@@ -14,24 +14,28 @@ import { stringify } from '../stringify.js'
 import { idCache } from './id.js'
 
 export type HttpRpcClientOptions = {
-  // Request configuration to pass to `fetch`.
+  /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
-  // A callback to handle the response.
+  /** A callback to handle the request. */
+  onRequest?: ((request: Request) => Promise<void> | void) | undefined
+  /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
-  // The timeout (in ms) for the request.
+  /** The timeout (in ms) for the request. */
   timeout?: number | undefined
 }
 
 export type HttpRequestParameters<
   TBody extends RpcRequest | RpcRequest[] = RpcRequest,
 > = {
-  // The RPC request body.
+  /** The RPC request body. */
   body: TBody
-  // Request configuration to pass to `fetch`.
+  /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
-  // A callback to handle the response.
+  /** A callback to handle the response. */
+  onRequest?: ((request: Request) => Promise<void> | void) | undefined
+  /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
-  // The timeout (in ms) for the request.
+  /** The timeout (in ms) for the request. */
   timeout?: HttpRpcClientOptions['timeout'] | undefined
 }
 
@@ -60,6 +64,7 @@ export function getHttpRpcClient(
       const {
         body,
         fetchOptions = {},
+        onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
       } = params
@@ -72,7 +77,7 @@ export function getHttpRpcClient(
       try {
         const response = await withTimeout(
           async ({ signal }) => {
-            const response = await fetch(url, {
+            const request = new Request(url, {
               ...fetchOptions,
               body: Array.isArray(body)
                 ? stringify(
@@ -94,6 +99,8 @@ export function getHttpRpcClient(
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),
             })
+            if (onRequest) await onRequest(request)
+            const response = await fetch(request)
             return response
           },
           {
@@ -108,11 +115,9 @@ export function getHttpRpcClient(
         let data: any
         if (
           response.headers.get('Content-Type')?.startsWith('application/json')
-        ) {
+        )
           data = await response.json()
-        } else {
-          data = await response.text()
-        }
+        else data = await response.text()
 
         if (!response.ok) {
           throw new HttpRequestError({
