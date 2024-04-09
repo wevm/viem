@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, localHttpUrl } from '../../../test/src/constants.js'
-import { testClient } from '../../../test/src/utils.js'
+import { setBlockNumber, testClient } from '../../../test/src/utils.js'
 import { mine } from '../../actions/index.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
@@ -105,6 +105,8 @@ test('default', async () => {
       requests.push(params)
     },
   })
+
+  await setBlockNumber(16280770n)
 
   const id_ = await writeContracts(client, {
     account: accounts[0].address,
