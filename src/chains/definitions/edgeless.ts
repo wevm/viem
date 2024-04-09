@@ -17,7 +17,7 @@ export const edgeless = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Edgeless Explorer',
-      url: 'https://explorer.edgeless.network/',
+      url: 'https://explorer.edgeless.network',
     },
   },
 })

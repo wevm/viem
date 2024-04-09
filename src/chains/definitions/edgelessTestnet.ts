@@ -17,7 +17,7 @@ export const edgelessTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Edgeless Testnet Explorer',
-      url: 'https://testnet.explorer.edgeless.network/',
+      url: 'https://testnet.explorer.edgeless.network',
     },
   },
 })
