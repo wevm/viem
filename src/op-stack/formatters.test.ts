@@ -6,6 +6,8 @@ import { getBlock } from '../actions/public/getBlock.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.js'
 import { optimism } from '../chains/index.js'
+import { createClient } from '../clients/createClient.js'
+import { http } from '../clients/transports/http.js'
 
 describe('block', () => {
   test('formatter', async () => {
@@ -575,7 +577,12 @@ describe('transaction receipt', async () => {
   })
 
   test('action', async () => {
-    const transaction = await getTransactionReceipt(optimismClient, {
+    const client = createClient({
+      chain: optimism,
+      transport: http(),
+    })
+
+    const transaction = await getTransactionReceipt(client, {
       hash: '0x4d8f0ebd260ea5ac2e11886cdd0af8cba982b21d9f9c1efad808212c6d6a65d3',
     })
 
