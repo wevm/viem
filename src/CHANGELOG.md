@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.16
+
+### Patch Changes
+
+- [#2108](https://github.com/wevm/viem/pull/2108) [`b22a928ee699e7b441d590b388f28d2c3abba639`](https://github.com/wevm/viem/commit/b22a928ee699e7b441d590b388f28d2c3abba639) Thanks [@Gary20001016](https://github.com/Gary20001016)! - Added BEVM Mainnet
+
+- [#2111](https://github.com/wevm/viem/pull/2111) [`6d37191e877c24ef25226d2233acd4d8afa1c529`](https://github.com/wevm/viem/commit/6d37191e877c24ef25226d2233acd4d8afa1c529) Thanks [@edgeless-network](https://github.com/edgeless-network)! - Added Edgeless Network and Edgeless Testnet.
+
 ## 2.9.15
 
 ### Patch Changes
