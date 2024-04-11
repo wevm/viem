@@ -179,6 +179,7 @@ test('default', async () => {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
+            "blockTimestamp": "0x63abc18c",
             "data": "0x",
             "logIndex": "0x0",
             "removed": false,
@@ -198,12 +199,13 @@ test('default', async () => {
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 139688n,
+        "gasUsed": 61294n,
         "logs": [
           {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
+            "blockTimestamp": "0x63abc18c",
             "data": "0x",
             "logIndex": "0x1",
             "removed": false,
@@ -223,12 +225,13 @@ test('default', async () => {
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 200982n,
+        "gasUsed": 61294n,
         "logs": [
           {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
+            "blockTimestamp": "0x63abc18c",
             "data": "0x",
             "logIndex": "0x2",
             "removed": false,
