@@ -1348,6 +1348,24 @@ export const sidebar = {
           },
         ],
       },
+      {
+        text: 'Utilities',
+        items: [
+          {
+            text: 'Paymaster',
+            items: [
+              {
+                text: 'getApprovalBasedPaymasterInput',
+                link: '/zksync/utilities/paymaster/getApprovalBasedPaymasterInput',
+              },
+              {
+                text: 'getGeneralPaymasterInput',
+                link: '/zksync/utilities/paymaster/getGeneralPaymasterInput',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
 } as const satisfies Sidebar
