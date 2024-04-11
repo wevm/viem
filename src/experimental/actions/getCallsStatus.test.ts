@@ -136,7 +136,7 @@ test('default', async () => {
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 42000n,
+        "gasUsed": 21000n,
         "logs": [],
         "status": "success",
         "transactionHash": "0x5fafca9937b154c21e7ea896c3ca23e5076ab9ca9e466085ae45edffb96c36e7",
@@ -144,7 +144,7 @@ test('default', async () => {
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 63064n,
+        "gasUsed": 21064n,
         "logs": [],
         "status": "success",
         "transactionHash": "0x84f1d37995973fa977fc45eccf3d1ac0cdf666541a7dc2613e9cd3bc356ddfa4",

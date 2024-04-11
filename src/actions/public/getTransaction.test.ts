@@ -261,7 +261,7 @@ describe('args: hash', () => {
       URL: http://localhost
       Request body: {"method":"eth_getTransactionByHash","params":["0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d"]}
 
-      Details: Fork Error: DeserError { err: Error("invalid type: null, expected struct Transaction", line: 1, column: 4), text: "null" }
+      Details: Fork Error: DeserError { err: Error("invalid type: null, expected struct WithOtherFieldsHelper", line: 1, column: 4), text: "null" }
       Version: viem@1.0.2]
     `)
   })
