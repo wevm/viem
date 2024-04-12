@@ -20,8 +20,10 @@ export type IsAddressErrorType = ErrorType
 
 export function isAddress(
   address: string,
-  { strict = true }: IsAddressOptions = {},
+  options?: IsAddressOptions | undefined,
 ): address is Address {
+  const { strict = true } = options ?? {}
+
   if (isAddressCache.has(address)) return isAddressCache.get(address)!
 
   const result = (() => {

@@ -171,6 +171,22 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 })
 ```
 
+### onFetchRequest (optional)
+
+- **Type:** `(request: Request) => void`
+
+A callback to handle the fetch request. Useful for logging or debugging.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+  onFetchRequest(request) {
+    console.log(request) // [!code focus]
+  }
+})
+```
+
 ### onFetchResponse (optional)
 
 - **Type:** `(response: Response) => void`

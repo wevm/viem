@@ -1,10 +1,16 @@
 import { type Socket as NetSocket, connect } from 'node:net'
 import { WebSocketRequestError } from '../../index.js'
 import {
+  type GetSocketRpcClientParameters,
   type Socket,
   type SocketRpcClient,
   getSocketRpcClient,
 } from './socket.js'
+
+export type GetIpcRpcClientOptions = Pick<
+  GetSocketRpcClientParameters,
+  'reconnect'
+>
 
 const openingBrace = '{'.charCodeAt(0)
 const closingBrace = '}'.charCodeAt(0)
@@ -33,14 +39,21 @@ export function extractMessages(buffer: Buffer): [Buffer[], Buffer] {
 
 export type IpcRpcClient = SocketRpcClient<NetSocket>
 
-export async function getIpcRpcClient(path: string): Promise<IpcRpcClient> {
+export async function getIpcRpcClient(
+  path: string,
+  options: GetIpcRpcClientOptions = {},
+): Promise<IpcRpcClient> {
+  const { reconnect } = options
+
   return getSocketRpcClient({
-    async getSocket({ onResponse }) {
+    async getSocket({ onError, onOpen, onResponse }) {
       const socket = connect(path)
 
       function onClose() {
         socket.off('close', onClose)
         socket.off('message', onData)
+        socket.off('error', onError)
+        socket.off('connect', onOpen)
       }
 
       let lastRemaining = Buffer.alloc(0)
@@ -57,6 +70,8 @@ export async function getIpcRpcClient(path: string): Promise<IpcRpcClient> {
 
       socket.on('close', onClose)
       socket.on('data', onData)
+      socket.on('error', onError)
+      socket.on('connect', onOpen)
 
       // Wait for the socket to open.
       await new Promise<void>((resolve, reject) => {
@@ -84,6 +99,7 @@ export async function getIpcRpcClient(path: string): Promise<IpcRpcClient> {
         },
       } as Socket<{}>)
     },
+    reconnect,
     url: path,
   })
 }

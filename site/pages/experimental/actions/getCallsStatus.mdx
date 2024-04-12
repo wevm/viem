@@ -1,0 +1,57 @@
+---
+description: Returns the status and receipts of a call batch.
+---
+
+# getCallsStatus
+
+Returns the status and receipts of a call batch that was sent via `sendCalls`.
+
+[Read more.](https://github.com/ethereum/EIPs/blob/1663ea2e7a683285f977eda51c32cec86553f585/EIPS/eip-5792.md#wallet_getcallsstatus)
+
+:::warning[Warning]
+This is an experimental action that is not supported in most wallets. It is recommended to have a fallback mechanism if using this in production.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { walletClient } from './config'
+ 
+const { status, receipts } = await walletClient.getCallsStatus({ // [!code focus:99]
+  id: '0x1234567890abcdef',
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import 'viem/window'
+// ---cut---
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+import { walletActionsEip5792 } from 'viem/experimental'
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActionsEip5792())
+
+export const [account] = await walletClient.getAddresses()
+```
+
+:::
+
+## Returns
+
+`WalletGetCallsStatusReturnType`
+
+Status and receipts of the calls.
+
+## Parameters
+
+### id
+
+- **Type:** `string`
+
+Identifier of the call batch.
+

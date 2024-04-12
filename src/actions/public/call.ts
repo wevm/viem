@@ -92,6 +92,7 @@ export type CallParameters<
 > = UnionOmit<FormattedCall<TChain>, 'from'> & {
   account?: Account | Address | undefined
   batch?: boolean | undefined
+  stateOverride?: StateOverride | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
@@ -106,9 +107,7 @@ export type CallParameters<
          */
         blockTag?: BlockTag | undefined
       }
-  ) & {
-    stateOverride?: StateOverride | undefined
-  }
+  )
 
 export type CallReturnType = { data: Hex | undefined }
 
@@ -404,18 +403,12 @@ export function parseAccountStateOverride(
 ): RpcAccountStateOverride {
   const { balance, nonce, state, stateDiff, code } = args
   const rpcAccountStateOverride: RpcAccountStateOverride = {}
-  if (code !== undefined) {
-    rpcAccountStateOverride.code = code
-  }
-  if (balance !== undefined) {
-    rpcAccountStateOverride.balance = numberToHex(balance, { size: 32 })
-  }
-  if (nonce !== undefined) {
-    rpcAccountStateOverride.nonce = numberToHex(nonce, { size: 8 })
-  }
-  if (state !== undefined) {
+  if (code !== undefined) rpcAccountStateOverride.code = code
+  if (balance !== undefined)
+    rpcAccountStateOverride.balance = numberToHex(balance)
+  if (nonce !== undefined) rpcAccountStateOverride.nonce = numberToHex(nonce)
+  if (state !== undefined)
     rpcAccountStateOverride.state = parseStateMapping(state)
-  }
   if (stateDiff !== undefined) {
     if (rpcAccountStateOverride.state) throw new StateAssignmentConflictError()
     rpcAccountStateOverride.stateDiff = parseStateMapping(stateDiff)

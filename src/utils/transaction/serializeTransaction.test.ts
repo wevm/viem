@@ -120,10 +120,30 @@ describe('eip4844', () => {
     })
   })
 
+  test('network wrapper (blobs + blobVersionedHashes + sidecars)', () => {
+    const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
+    const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
+    const transaction = {
+      ...baseEip4844,
+      blobVersionedHashes,
+      sidecars,
+    } satisfies TransactionSerializableEIP4844
+    const serialized = serializeTransaction({
+      ...transaction,
+      blobs: toBlobs({ data: stringToHex('abcd') }),
+    } as unknown as TransactionSerializableEIP4844)
+    expect(serialized).toMatchSnapshot()
+    expect(parseTransaction(serialized)).toEqual({
+      ...transaction,
+      type: 'eip4844',
+    })
+  })
+
   test('network wrapper (blobs + kzg)', () => {
     const transaction = {
       ...baseEip4844,
       blobVersionedHashes: undefined,
+      sidecars: undefined,
       blobs: toBlobs({ data: stringToHex(blobData) }),
       kzg,
     } satisfies TransactionSerializableEIP4844

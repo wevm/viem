@@ -12,6 +12,7 @@ import {
 } from '../../errors/abi.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { BlockNumber } from '../../types/block.js'
 import type {
   ContractEventArgs,
   ContractEventName,
@@ -73,6 +74,8 @@ export type WatchContractEventParameters<
     | undefined
   /** Contract event. */
   eventName?: eventName | ContractEventName<abi> | undefined
+  /** Block to start listening from. */
+  fromBlock?: BlockNumber<bigint> | undefined
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
@@ -143,6 +146,7 @@ export function watchContractEvent<
     args,
     batch = true,
     eventName,
+    fromBlock,
     onError,
     onLogs,
     poll: poll_,
@@ -151,7 +155,9 @@ export function watchContractEvent<
   } = parameters
 
   const enablePolling =
-    typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
+    typeof poll_ !== 'undefined'
+      ? poll_
+      : client.transport.type !== 'webSocket' || typeof fromBlock === 'number'
 
   const pollContractEvent = () => {
     const strict = strict_ ?? false
@@ -164,10 +170,12 @@ export function watchContractEvent<
       eventName,
       pollingInterval,
       strict,
+      fromBlock,
     ])
 
     return observe(observerId, { onLogs, onError }, (emit) => {
       let previousBlockNumber: bigint
+      if (fromBlock !== undefined) previousBlockNumber = fromBlock - 1n
       let filter: Filter<'event', abi, eventName> | undefined
       let initialized = false
 
@@ -185,6 +193,7 @@ export function watchContractEvent<
                 args: args as any,
                 eventName: eventName as any,
                 strict: strict as any,
+                fromBlock,
               })) as Filter<'event', abi, eventName>
             } catch {}
             initialized = true

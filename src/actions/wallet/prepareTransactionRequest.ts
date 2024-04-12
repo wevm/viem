@@ -15,7 +15,7 @@ import {
 } from '../../actions/public/estimateGas.js'
 import {
   type GetBlockErrorType,
-  getBlock,
+  getBlock as getBlock_,
 } from '../../actions/public/getBlock.js'
 import {
   type GetTransactionCountErrorType,
@@ -28,8 +28,8 @@ import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
-import type { Block, GetTransactionType } from '../../index.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
+import type { Block } from '../../types/block.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { GetChainParameter } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
@@ -48,21 +48,39 @@ import type {
   UnionOmit,
   UnionRequiredBy,
 } from '../../types/utils.js'
+import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
+import { blobsToProofs } from '../../utils/blob/blobsToProofs.js'
+import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVersionedHashes.js'
+import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
-import type {
-  AssertRequestErrorType,
-  AssertRequestParameters,
+import {
+  type AssertRequestErrorType,
+  type AssertRequestParameters,
+  assertRequest,
 } from '../../utils/transaction/assertRequest.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
-import { getTransactionType } from '../../utils/transaction/getTransactionType.js'
+import {
+  type GetTransactionType,
+  getTransactionType,
+} from '../../utils/transaction/getTransactionType.js'
 import { getChainId } from '../public/getChainId.js'
 
+export const defaultParameters = [
+  'blobVersionedHashes',
+  'chainId',
+  'fees',
+  'gas',
+  'nonce',
+  'type',
+] as const
+
 export type PrepareTransactionRequestParameterType =
+  | 'blobVersionedHashes'
   | 'chainId'
   | 'fees'
   | 'gas'
   | 'nonce'
+  | 'sidecars'
   | 'type'
 type ParameterTypeToParameters<
   parameterType extends PrepareTransactionRequestParameterType,
@@ -77,7 +95,7 @@ export type PrepareTransactionRequestRequest<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
   GetTransactionRequestKzgParameter & {
-    parameters?: PrepareTransactionRequestParameterType[] | undefined
+    parameters?: readonly PrepareTransactionRequestParameterType[] | undefined
   }
 
 export type PrepareTransactionRequestParameters<
@@ -135,7 +153,7 @@ export type PrepareTransactionRequestReturnType<
     accountOverride
   >,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
-  _transactionType = request['type'] extends string
+  _transactionType = request['type'] extends string | undefined
     ? request['type']
     : GetTransactionType<request> extends 'legacy'
       ? unknown
@@ -160,9 +178,9 @@ export type PrepareTransactionRequestReturnType<
         : ExactPartial<_transactionRequest>
     > & { chainId?: number | undefined },
     ParameterTypeToParameters<
-      request['parameters'] extends PrepareTransactionRequestParameterType[]
+      request['parameters'] extends readonly PrepareTransactionRequestParameterType[]
         ? request['parameters'][number]
-        : PrepareTransactionRequestParameterType
+        : (typeof defaultParameters)[number]
     >
   > &
     (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>)
@@ -243,16 +261,56 @@ export async function prepareTransactionRequest<
 > {
   const {
     account: account_ = client.account,
+    blobs,
     chain,
     chainId,
     gas,
+    kzg,
     nonce,
-    parameters = ['chainId', 'fees', 'gas', 'nonce', 'type'],
+    parameters = defaultParameters,
     type,
   } = args
   const account = account_ ? parseAccount(account_) : undefined
 
   const request = { ...args, ...(account ? { from: account?.address } : {}) }
+
+  let block: Block | undefined
+  async function getBlock(): Promise<Block> {
+    if (block) return block
+    block = await getAction(
+      client,
+      getBlock_,
+      'getBlock',
+    )({ blockTag: 'latest' })
+    return block
+  }
+
+  if (
+    (parameters.includes('blobVersionedHashes') ||
+      parameters.includes('sidecars')) &&
+    blobs &&
+    kzg
+  ) {
+    const commitments = blobsToCommitments({ blobs, kzg })
+
+    if (parameters.includes('blobVersionedHashes')) {
+      const versionedHashes = commitmentsToVersionedHashes({
+        commitments,
+        to: 'hex',
+      })
+      request.blobVersionedHashes = versionedHashes
+    }
+    if (parameters.includes('sidecars')) {
+      const proofs = blobsToProofs({ blobs, commitments, kzg })
+      const sidecars = toBlobSidecars({
+        blobs,
+        commitments,
+        proofs,
+        to: 'hex',
+      })
+      request.sidecars = sidecars
+    }
+  }
 
   if (parameters.includes('chainId')) {
     if (chain) request.chainId = chain.id
@@ -270,11 +328,6 @@ export async function prepareTransactionRequest<
       blockTag: 'pending',
     })
 
-  const block = await (() => {
-    if (typeof request.type !== 'undefined') return
-    return getAction(client, getBlock, 'getBlock')({ blockTag: 'latest' })
-  })()
-
   if (
     (parameters.includes('fees') || parameters.includes('type')) &&
     typeof type === 'undefined'
@@ -285,6 +338,7 @@ export async function prepareTransactionRequest<
       ) as any
     } catch {
       // infer type from block
+      const block = await getBlock()
       request.type =
         typeof block?.baseFeePerGas === 'bigint' ? 'eip1559' : 'legacy'
     }
@@ -299,6 +353,7 @@ export async function prepareTransactionRequest<
         typeof request.maxFeePerGas === 'undefined' ||
         typeof request.maxPriorityFeePerGas === 'undefined'
       ) {
+        const block = await getBlock()
         const { maxFeePerGas, maxPriorityFeePerGas } =
           await internal_estimateFeesPerGas(client, {
             block: block as Block,
@@ -326,6 +381,7 @@ export async function prepareTransactionRequest<
       )
         throw new Eip1559FeesNotSupportedError()
 
+      const block = await getBlock()
       const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
         client,
         {

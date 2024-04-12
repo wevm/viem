@@ -139,6 +139,30 @@ test('eip4844 transaction', () => {
       "value": "0x1",
     }
   `)
+
+  expect(
+    formatTransactionRequest({
+      ...base,
+      blobs: [Uint8Array.from([0xab, 0xc])],
+      from: '0x0000000000000000000000000000000000000000',
+      maxFeePerBlobGas: 69n,
+      type: 'eip4844',
+    } as TransactionRequestEIP4844),
+  ).toMatchInlineSnapshot(`
+    {
+      "blobs": [
+        "0xab0c",
+      ],
+      "data": "0x1",
+      "from": "0x0000000000000000000000000000000000000000",
+      "gas": "0x4234584",
+      "maxFeePerBlobGas": "0x45",
+      "nonce": "0x1",
+      "to": "0x1",
+      "type": "0x3",
+      "value": "0x1",
+    }
+  `)
 })
 
 test('nullish gas', () => {
@@ -151,7 +175,6 @@ test('nullish gas', () => {
     {
       "data": "0x1",
       "from": "0x1",
-      "gas": undefined,
       "nonce": "0x1",
       "to": "0x1",
       "value": "0x1",
@@ -170,7 +193,6 @@ test('nullish gasPrice', () => {
       "data": "0x1",
       "from": "0x1",
       "gas": "0x4234584",
-      "gasPrice": undefined,
       "nonce": "0x1",
       "to": "0x1",
       "value": "0x1",
@@ -189,7 +211,6 @@ test('nullish maxFeePerGas', () => {
       "data": "0x1",
       "from": "0x1",
       "gas": "0x4234584",
-      "maxFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
       "value": "0x1",
@@ -208,7 +229,6 @@ test('nullish maxPriorityFeePerGas', () => {
       "data": "0x1",
       "from": "0x1",
       "gas": "0x4234584",
-      "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
       "value": "0x1",
@@ -227,7 +247,6 @@ test('nullish nonce', () => {
       "data": "0x1",
       "from": "0x1",
       "gas": "0x4234584",
-      "nonce": undefined,
       "to": "0x1",
       "value": "0x1",
     }
@@ -247,7 +266,6 @@ test('nullish value', () => {
       "gas": "0x4234584",
       "nonce": "0x1",
       "to": "0x1",
-      "value": undefined,
     }
   `)
 })

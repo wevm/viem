@@ -102,16 +102,10 @@ test('error: insufficient funds', async () => {
       gas: 69n,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+    [ContractFunctionExecutionError: Transaction creation failed.
 
-    This error could arise when the account does not have enough funds to:
-     - pay for the total gas fee,
-     - pay for the value to send.
-     
-    The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
-     - \`gas\` is the amount of gas needed for transaction to execute,
-     - \`gas fee\` is the gas fee,
-     - \`value\` is the amount of ether to send to the recipient.
+    URL: http://localhost
+    Request body: {"method":"eth_estimateGas","params":[{"data":"0xc2b3e5ac000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000520800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004deadbeef00000000000000000000000000000000000000000000000000000000","from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","gas":"0x45","to":"0x4200000000000000000000000000000000000016","value":"0x43c33c1937564800000"}]}
      
     Estimate Gas Arguments:
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -127,7 +121,7 @@ test('error: insufficient funds', async () => {
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Docs: https://viem.sh/docs/contract/estimateContractGas
-    Details: Insufficient funds for gas * price + value
+    Details: Out of gas: gas required exceeds allowance: 69
     Version: viem@1.0.2]
   `)
 })
@@ -148,7 +142,7 @@ test('error: small gas', async () => {
     [ContractFunctionExecutionError: Transaction creation failed.
 
     URL: http://localhost
-    Request body: {"method":"eth_estimateGas","params":[{"from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","data":"0xc2b3e5ac000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000520800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004deadbeef00000000000000000000000000000000000000000000000000000000","gas":"0x45","to":"0x4200000000000000000000000000000000000016","value":"0xde0b6b3a7640000"}]}
+    Request body: {"method":"eth_estimateGas","params":[{"data":"0xc2b3e5ac000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000520800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004deadbeef00000000000000000000000000000000000000000000000000000000","from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","gas":"0x45","to":"0x4200000000000000000000000000000000000016","value":"0xde0b6b3a7640000"}]}
      
     Estimate Gas Arguments:
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -164,7 +158,7 @@ test('error: small gas', async () => {
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Docs: https://viem.sh/docs/contract/estimateContractGas
-    Details: Out of gas: gas required exceeds allowance: 0x0000000000000000000000000000000000000000000000000000000000000045_U256
+    Details: Out of gas: gas required exceeds allowance: 69
     Version: viem@1.0.2]
   `)
 })

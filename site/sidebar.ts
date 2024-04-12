@@ -996,6 +996,46 @@ export const sidebar = {
       ],
     },
   ],
+  '/experimental': {
+    backLink: true,
+    items: [
+      {
+        text: 'Experimental',
+        items: [
+          {
+            text: 'Getting Started',
+            link: '/experimental',
+          },
+          { text: 'Client', link: '/experimental/client' },
+        ],
+      },
+      {
+        text: 'EIP-5792',
+        items: [
+          {
+            text: 'getCallsStatus',
+            link: '/experimental/actions/getCallsStatus',
+          },
+          {
+            text: 'getCapabilities',
+            link: '/experimental/actions/getCapabilities',
+          },
+          {
+            text: 'sendCalls',
+            link: '/experimental/actions/sendCalls',
+          },
+          {
+            text: 'showCallsStatus',
+            link: '/experimental/actions/showCallsStatus',
+          },
+          {
+            text: 'writeContracts',
+            link: '/experimental/actions/writeContracts',
+          },
+        ],
+      },
+    ],
+  },
   '/op-stack': {
     backLink: true,
     items: [
@@ -1003,7 +1043,7 @@ export const sidebar = {
         text: 'OP Stack',
         items: [
           {
-            text: 'Getting started',
+            text: 'Getting Started',
             link: '/op-stack',
           },
           { text: 'Client', link: '/op-stack/client' },
@@ -1221,7 +1261,7 @@ export const sidebar = {
         text: 'zkSync',
         items: [
           {
-            text: 'Getting started',
+            text: 'Getting Started',
             link: '/zksync',
           },
           { text: 'Client', link: '/zksync/client' },

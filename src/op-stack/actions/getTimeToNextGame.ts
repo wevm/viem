@@ -20,7 +20,7 @@ export type GetTimeToNextGameParameters<
     'portal' | 'disputeGameFactory'
   > & {
     /**
-     * The buffer to account for discrepencies between non-deterministic time intervals.
+     * The buffer to account for discrepancies between non-deterministic time intervals.
      * @default 1.1
      */
     intervalBuffer?: number | undefined

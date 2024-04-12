@@ -36,7 +36,7 @@ export type WaitForNextGameParameters<
      */
     limit?: number | undefined
     /**
-     * The buffer to account for discrepencies between non-deterministic time intervals.
+     * The buffer to account for discrepancies between non-deterministic time intervals.
      * @default 1.1
      */
     intervalBuffer?: GetTimeToNextGameParameters['intervalBuffer'] | undefined

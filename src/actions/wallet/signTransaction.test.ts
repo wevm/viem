@@ -33,6 +33,7 @@ describe('eip4844', () => {
   const baseEip4844 = {
     ...base,
     blobs: toBlobs({ data: stringToHex(blobData) }),
+    kzg,
     maxFeePerBlobGas: parseGwei('20'),
     to: '0x0000000000000000000000000000000000000000',
     type: 'eip4844',
@@ -43,7 +44,6 @@ describe('eip4844', () => {
   test('default: local', async () => {
     const signature = await signTransaction(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
-      kzg,
       ...baseEip4844,
     })
     expect(signature).toMatchSnapshot()
@@ -52,7 +52,6 @@ describe('eip4844', () => {
   test('w/ prepareTransactionRequest', async () => {
     const request = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
-      kzg,
       ...baseEip4844,
     })
     const signature = await signTransaction(walletClient, request)

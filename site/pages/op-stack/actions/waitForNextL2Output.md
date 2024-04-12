@@ -85,7 +85,7 @@ const output = await publicClientL1.waitForNextL2Output({
 - **Type:** `number`
 - **Default:** `1.1`
 
-The buffer to account for discrepencies between non-deterministic time intervals.
+The buffer to account for discrepancies between non-deterministic time intervals.
 
 ```ts
 const output = await publicClientL1.waitForNextL2Output({

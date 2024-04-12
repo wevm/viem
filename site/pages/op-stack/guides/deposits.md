@@ -28,12 +28,12 @@ import { account, publicClientL1, publicClientL2, walletClientL1 } from './confi
 
 // Build parameters for the transaction on the L2.
 const args = await publicClientL2.buildDepositTransaction({
-  mint: parseEther('1')
+  mint: parseEther('1'),
   to: account.address,
 })
  
 // Execute the deposit transaction on the L1.
-const hash = await walletClientL1.depositTransacton(args)
+const hash = await walletClientL1.depositTransaction(args)
 
 // Wait for the L1 transaction to be processed.
 const receipt = await publicClientL1.waitForTransactionReceipt({ hash })
@@ -270,7 +270,7 @@ const args = await publicClientL2.buildDepositTransaction({
 })
 
 // Execute the deposit transaction on the L1. // [!code focus]
-const hash = await walletClientL1.depositTransacton(args) // [!code focus]
+const hash = await walletClientL1.depositTransaction(args) // [!code focus]
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
@@ -355,7 +355,7 @@ const args = await publicClientL2.buildDepositTransaction({
 })
 
 // Execute the deposit transaction on the L1. 
-const hash = await walletClientL1.depositTransacton(args) 
+const hash = await walletClientL1.depositTransaction(args) 
 
 // Wait for the L1 transaction to be processed. // [!code focus]
 const receipt = await publicClientL1.waitForTransactionReceipt({ hash }) // [!code focus]
@@ -437,7 +437,7 @@ const args = await publicClientL2.buildDepositTransaction({
 })
 
 // Execute the deposit transaction on the L1. 
-const hash = await walletClientL1.depositTransacton(args) 
+const hash = await walletClientL1.depositTransaction(args) 
 
 // Wait for the L1 transaction to be processed. 
 const receipt = await publicClientL1.waitForTransactionReceipt({ hash }) 
@@ -524,7 +524,7 @@ const args = await publicClientL2.buildDepositTransaction({
 })
 
 // Execute the deposit transaction on the L1. 
-const hash = await walletClientL1.depositTransacton(args) 
+const hash = await walletClientL1.depositTransaction(args) 
 
 // Wait for the L1 transaction to be processed. 
 const receipt = await publicClientL1.waitForTransactionReceipt({ hash }) 

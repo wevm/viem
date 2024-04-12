@@ -999,10 +999,15 @@ export type {
   RpcSchema,
   RpcSchemaOverride,
   TestRpcSchema,
-  WatchAssetParams,
+  WalletCapabilities,
+  WalletCapabilitiesRecord,
+  WalletCallReceipt,
+  WalletGetCallsStatusReturnType,
+  WalletSendCallsParameters,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,
+  WatchAssetParams,
 } from './types/eip1193.js'
 export type { BlobSidecar, BlobSidecars } from './types/eip4844.js'
 export type {

@@ -9,10 +9,15 @@ import { withTimeout } from '../promise/withTimeout.js'
 import { idCache } from './id.js'
 
 type Id = string | number
-type CallbackFn = (message: any) => void
+type CallbackFn = {
+  onResponse: (message: any) => void
+  onError?: ((error?: Error | Event | undefined) => void) | undefined
+}
 type CallbackMap = Map<Id, CallbackFn>
 
 export type GetSocketParameters = {
+  onError: (error?: Error | Event | undefined) => void
+  onOpen: () => void
   onResponse: (data: RpcResponse) => void
 }
 
@@ -28,7 +33,7 @@ export type SocketRpcClient<socket extends {}> = {
   socket: Socket<socket>
   request(params: {
     body: RpcRequest
-    onError?: ((error: Error) => void) | undefined
+    onError?: ((error?: Error | Event | undefined) => void) | undefined
     onResponse: (message: RpcResponse) => void
   }): void
   requestAsync(params: {
@@ -40,9 +45,28 @@ export type SocketRpcClient<socket extends {}> = {
   url: string
 }
 
-export type GetSocketRpcClientParameters<socket extends {}> = {
-  url: string
+export type GetSocketRpcClientParameters<socket extends {} = {}> = {
   getSocket(params: GetSocketParameters): Promise<Socket<socket>>
+  /**
+   * Whether or not to attempt to reconnect on socket failure.
+   * @default true
+   */
+  reconnect?:
+    | boolean
+    | {
+        /**
+         * The maximum number of reconnection attempts.
+         * @default 5
+         */
+        attempts?: number | undefined
+        /**
+         * The delay (in ms) between reconnection attempts.
+         * @default 2_000
+         */
+        delay?: number | undefined
+      }
+    | undefined
+  url: string
 }
 
 export type GetSocketRpcClientErrorType =
@@ -57,13 +81,16 @@ export const socketClientCache = /*#__PURE__*/ new Map<
 export async function getSocketRpcClient<socket extends {}>(
   params: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
-  const { getSocket, url } = params
+  const { getSocket, reconnect = true, url } = params
+  const { attempts = 5, delay = 2_000 } =
+    typeof reconnect === 'object' ? reconnect : {}
 
   let socketClient = socketClientCache.get(url)
 
   // If the socket already exists, return it.
   if (socketClient) return socketClient as {} as SocketRpcClient<socket>
 
+  let reconnectCount = 0
   const { schedule } = createBatchScheduler<
     undefined,
     [SocketRpcClient<socket>]
@@ -76,17 +103,46 @@ export async function getSocketRpcClient<socket extends {}>(
       // Set up a cache for subscriptions (eth_subscribe).
       const subscriptions = new Map<Id, CallbackFn>()
 
+      let error: Error | Event | undefined
+      let socket: Socket<any>
       // Set up socket implementation.
-      const socket = await getSocket({
-        onResponse(data) {
-          const isSubscription = data.method === 'eth_subscription'
-          const id = isSubscription ? data.params.subscription : data.id
-          const cache = isSubscription ? subscriptions : requests
-          const callback = cache.get(id)
-          if (callback) callback(data)
-          if (!isSubscription) cache.delete(id)
-        },
-      })
+      async function setup() {
+        return getSocket({
+          onError(error_) {
+            error = error_
+
+            // Notify all requests and subscriptions of the error.
+            for (const request of requests.values()) request.onError?.(error)
+            for (const subscription of subscriptions.values())
+              subscription.onError?.(error)
+
+            // Clear all requests and subscriptions.
+            requests.clear()
+            subscriptions.clear()
+
+            // Attempt to reconnect.
+            if (reconnect && reconnectCount < attempts)
+              setTimeout(async () => {
+                reconnectCount++
+                socket = await setup().catch(console.error)
+              }, delay)
+          },
+          onOpen() {
+            error = undefined
+            reconnectCount = 0
+          },
+          onResponse(data) {
+            const isSubscription = data.method === 'eth_subscription'
+            const id = isSubscription ? data.params.subscription : data.id
+            const cache = isSubscription ? subscriptions : requests
+            const callback = cache.get(id)
+            if (callback) callback.onResponse(data)
+            if (!isSubscription) cache.delete(id)
+          },
+        })
+      }
+      socket = await setup()
+      error = undefined
 
       // Create a new socket instance.
       socketClient = {
@@ -96,6 +152,8 @@ export async function getSocketRpcClient<socket extends {}>(
         },
         socket,
         request({ body, onError, onResponse }) {
+          if (error && onError) onError(error)
+
           const id = body.id ?? idCache.take()
 
           const callback = (response: RpcResponse) => {
@@ -107,18 +165,19 @@ export async function getSocketRpcClient<socket extends {}>(
               body.method === 'eth_subscribe' &&
               typeof response.result === 'string'
             )
-              subscriptions.set(response.result, callback)
+              subscriptions.set(response.result, {
+                onResponse: callback,
+                onError,
+              })
 
             // If we are unsubscribing from a topic, we want to remove the listener.
             if (body.method === 'eth_unsubscribe')
               subscriptions.delete(body.params?.[0])
 
             onResponse(response)
-
-            // TODO: delete request?
           }
 
-          requests.set(id, callback)
+          requests.set(id, { onResponse: callback, onError })
           try {
             socket.request({
               body: {

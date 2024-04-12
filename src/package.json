@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.9.5",
+  "version": "2.9.16",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -53,6 +53,11 @@
       "import": "./_esm/ens/index.js",
       "default": "./_cjs/ens/index.js"
     },
+    "./experimental": {
+      "types": "./_types/experimental/index.d.ts",
+      "import": "./_esm/experimental/index.js",
+      "default": "./_cjs/experimental/index.js"
+    },
     "./node": {
       "types": "./_types/node/index.d.ts",
       "import": "./_esm/node/index.js",
@@ -99,6 +104,9 @@
       ],
       "ens": [
         "./_types/ens/index.d.ts"
+      ],
+      "experimental": [
+        "./_types/experimental/index.d.ts"
       ],
       "node": [
         "./_types/node/index.d.ts"

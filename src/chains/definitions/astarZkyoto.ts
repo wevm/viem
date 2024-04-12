@@ -13,7 +13,7 @@ export const astarZkyoto = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'zKyoto Explorer',
-      url: 'https://astar-zkyoto.blockscout.com',
+      url: 'https://zkyoto.explorer.startale.com',
     },
   },
   contracts: {

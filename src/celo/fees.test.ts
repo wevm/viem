@@ -29,13 +29,11 @@ describe('celo/fees', () => {
 
   test('calls the client when feeCurrency is provided', async () => {
     const requestMock = vi.spyOn(client, 'request')
+    // @ts-ignore
     requestMock.mockImplementation((request) => {
-      switch (request.method) {
-        case 'eth_gasPrice':
-          return '11619349802'
-        case 'eth_maxPriorityFeePerGas':
-          return '2323869960'
-      }
+      if (request.method === 'eth_gasPrice') return '11619349802'
+      if (request.method === 'eth_maxPriorityFeePerGas') return '2323869960'
+      return
     })
 
     expect(celo.fees.estimateFeesPerGas).toBeTypeOf('function')
