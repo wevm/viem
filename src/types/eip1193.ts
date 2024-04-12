@@ -1,5 +1,12 @@
 import type { Address } from 'abitype'
 
+import type { ZksGetAllBalancesReturnType } from '~viem/zksync/actions/getAllBalances.js'
+import type { BlockDetails } from '~viem/zksync/actions/getBlockDetails.js'
+import type { ZksBridgeContractsReturnType } from '~viem/zksync/actions/getBridgeContracts.js'
+import type { BatchDetails } from '~viem/zksync/actions/getL1BatchDetails.js'
+import type { MessageProof } from '~viem/zksync/actions/getLogProof.js'
+import type { RawBlockTransaction } from '~viem/zksync/actions/getRawBlockTransaction.js'
+import type { TransactionDetails } from '~viem/zksync/actions/getTransactionDetails.js'
 import type { BlockTag } from './block.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
 import type { RpcStateOverride } from './rpc.js'
@@ -28,6 +35,74 @@ export type EIP1193Provider = Prettify<
     request: EIP1193RequestFn<EIP1474Methods>
   }
 >
+
+export type ZksyncPublicZksRpcSchema = [
+  {
+    Method: 'zks_getBridgeContracts'
+    Parameters?: undefined
+    ReturnType: ZksBridgeContractsReturnType
+  },
+  {
+    Method: 'zks_getAllAccountBalances'
+    Parameters: [Hash]
+    ReturnType: ZksGetAllBalancesReturnType
+  },
+  {
+    Method: 'zks_getTestnetPaymaster'
+    Parameters: undefined
+    ReturnType: Address
+  },
+  {
+    Method: 'zks_L1ChainId'
+    Parameters: undefined
+    ReturnType: number
+  },
+  {
+    Method: 'zks_getMainContract'
+    Parameters: undefined
+    ReturnType: Address
+  },
+  {
+    Method: 'zks_L1BatchNumber'
+    Parameters: undefined
+    ReturnType: number
+  },
+  {
+    Method: 'zks_getL2ToL1LogProof'
+    Parameters: [Hash, number | undefined]
+    ReturnType: MessageProof
+  },
+  {
+    Method: 'zks_getL1BatchBlockRange'
+    Parameters: [number]
+    ReturnType: [number, number]
+  },
+  {
+    Method: 'zks_getL1BatchDetails'
+    Parameters: [number]
+    ReturnType: BatchDetails
+  },
+  {
+    Method: 'zks_getRawBlockTransactions'
+    Parameters: [number]
+    ReturnType: RawBlockTransaction
+  },
+  {
+    Method: 'zks_getBlockDetails'
+    Parameters: [number]
+    ReturnType: BlockDetails
+  },
+  {
+    Method: 'zks_getTransactionDetails'
+    Parameters: [Hash]
+    ReturnType: TransactionDetails
+  },
+  {
+    Method: 'zks_getBridgehubContract'
+    Parameters: undefined
+    ReturnType: Address
+  },
+]
 
 //////////////////////////////////////////////////
 // Errors
@@ -1412,6 +1487,71 @@ export type WalletRpcSchema = [
     Method: 'wallet_watchAsset'
     Parameters: WatchAssetParams
     ReturnType: boolean
+  },
+  {
+    Method: 'zks_getBridgeContracts'
+    Parameters?: undefined
+    ReturnType: ZksBridgeContractsReturnType
+  },
+  {
+    Method: 'zks_getAllAccountBalances'
+    Parameters: [Hash]
+    ReturnType: ZksGetAllBalancesReturnType
+  },
+  {
+    Method: 'zks_getTestnetPaymaster'
+    Parameters: undefined
+    ReturnType: Address
+  },
+  {
+    Method: 'zks_L1ChainId'
+    Parameters: undefined
+    ReturnType: number
+  },
+  {
+    Method: 'zks_getMainContract'
+    Parameters: undefined
+    ReturnType: Address
+  },
+  {
+    Method: 'zks_L1BatchNumber'
+    Parameters: undefined
+    ReturnType: number
+  },
+  {
+    Method: 'zks_getL2ToL1LogProof'
+    Parameters: [Hash, number | undefined]
+    ReturnType: MessageProof
+  },
+  {
+    Method: 'zks_getL1BatchBlockRange'
+    Parameters: [number]
+    ReturnType: [number, number]
+  },
+  {
+    Method: 'zks_getL1BatchDetails'
+    Parameters: [number]
+    ReturnType: BatchDetails
+  },
+  {
+    Method: 'zks_getRawBlockTransactions'
+    Parameters: [number]
+    ReturnType: RawBlockTransaction
+  },
+  {
+    Method: 'zks_getBlockDetails'
+    Parameters: [number]
+    ReturnType: BlockDetails
+  },
+  {
+    Method: 'zks_getTransactionDetails'
+    Parameters: [Hash]
+    ReturnType: TransactionDetails
+  },
+  {
+    Method: 'zks_getBridgehubContract'
+    Parameters: undefined
+    ReturnType: Address
   },
 ]
 

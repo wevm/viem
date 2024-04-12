@@ -44,6 +44,11 @@ export {
 
 export { serializeTransaction } from './serializers.js'
 
+export {
+  publicActionsL2,
+  type PublicActionsL2,
+} from './decorators/publicL2.js'
+
 export type {
   ZkSyncBlock,
   ZkSyncBlockOverrides,
