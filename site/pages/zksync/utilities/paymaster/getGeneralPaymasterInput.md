@@ -1,10 +1,10 @@
 ---
-description: Encoded correctly formatted general-based paymaster params.
+description: Returns encoded formatted general-based paymaster params.
 ---
 
 # getGeneralPaymasterInput
 
-Encoded correctly formatted general-based paymaster params.
+Returns encoded formatted general-based paymaster params.
 
 ## Import
 ```ts
