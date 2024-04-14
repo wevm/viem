@@ -25,7 +25,7 @@ test('default', async () => {
 test.skip('4844', async () => {
   const client = createClient({
     chain: sepolia,
-    transport: http('https://ethereum-sepolia.publicnode.com'),
+    transport: http('https://ethereum-sepolia-rpc.publicnode.com'),
   })
 
   const privateKey = '0x'
