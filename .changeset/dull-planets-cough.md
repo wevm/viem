@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Change boba native currency from boba to eth
+Updated Boba native currency from BOBA to ETH.
