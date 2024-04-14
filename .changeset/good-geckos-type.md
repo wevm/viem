@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updated publicnode rpc urls to new format
+Updated Publicnode RPC URLs to new format.
