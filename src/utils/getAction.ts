@@ -15,12 +15,12 @@ export function getAction<params extends {}, returnType extends {}>(
   // not work.
   name: string,
 ) {
+  type DecoratedClient = Client & {
+    [key: string]: (params: params) => returnType
+  }
+
   return (params: params): returnType =>
-    (client as Client & { [key: string]: (params: params) => returnType })[
-      action.name
-    ]?.(params) ??
-    (client as Client & { [key: string]: (params: params) => returnType })[
-      name
-    ]?.(params) ??
+    (client as DecoratedClient)[action.name]?.(params) ??
+    (client as DecoratedClient)[name]?.(params) ??
     action(client, params)
 }
