@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.18
+
+### Patch Changes
+
+- [`2158c1d76b7d1a18936c8718faf987a35ea2a14f`](https://github.com/wevm/viem/commit/2158c1d76b7d1a18936c8718faf987a35ea2a14f) Thanks [@jxom](https://github.com/jxom)! - Added ability to override `RpcSchema` type on Client.
+
+- [#2135](https://github.com/wevm/viem/pull/2135) [`f722ff7e207f64cd75c25a512fda31117e8d934e`](https://github.com/wevm/viem/commit/f722ff7e207f64cd75c25a512fda31117e8d934e) Thanks [@hamidroohi71](https://github.com/hamidroohi71)! - Added Darwinia chain
+
 ## 2.9.17
 
 ### Patch Changes
