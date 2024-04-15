@@ -52,6 +52,7 @@ export { coreDao } from './definitions/coreDao.js'
 export { cronos } from './definitions/cronos.js'
 export { cronosTestnet } from './definitions/cronosTestnet.js'
 export { crossbell } from './definitions/crossbell.js'
+export { darwinia } from './definitions/darwinia.js'
 export { defichainEvm } from './definitions/defichainEvm.js'
 export { defichainEvmTestnet } from './definitions/defichainEvmTestnet.js'
 export { degen } from './definitions/degen.js'
@@ -250,7 +251,6 @@ export { zkSyncTestnet } from './definitions/zkSyncTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
-export { darwinia } from './definitions/darwinia.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".
