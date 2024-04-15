@@ -10,7 +10,9 @@ export const mantaSepoliaTestnet = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: { http: ['https://pacific-rpc.sepolia-testnet.manta.network/http'] },
+    default: {
+      http: ['https://pacific-rpc.sepolia-testnet.manta.network/http'],
+    },
   },
   blockExplorers: {
     default: {
