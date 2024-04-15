@@ -25,6 +25,7 @@ test('exports', () => {
       "parseAbiParameters",
       "getContract",
       "createClient",
+      "rpcSchema",
       "custom",
       "fallback",
       "http",

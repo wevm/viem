@@ -474,6 +474,7 @@ export {
   type CreateClientErrorType,
   type MulticallBatchOptions,
   createClient,
+  rpcSchema,
 } from './clients/createClient.js'
 export {
   type CustomTransport,

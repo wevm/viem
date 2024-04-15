@@ -309,6 +309,38 @@ const publicClient = createPublicClient({
 })
 ```
 
+### rpcSchema (optional)
+
+- **Type:** `RpcSchema`
+- **Default:** `PublicRpcSchema`
+
+Typed JSON-RPC schema for the client.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// @noErrors
+// ---cut---
+import { rpcSchema } from 'viem'
+
+type CustomRpcSchema = [{ // [!code focus]
+  Method: 'eth_wagmi', // [!code focus]
+  Parameters: [string] // [!code focus]
+  ReturnType: string // [!code focus]
+}] // [!code focus]
+
+const publicClient = createPublicClient({
+  chain: mainnet,
+  rpcSchema: rpcSchema<CustomRpcSchema>(), // [!code focus]
+  transport: http(),
+})
+
+const result = await publicClient.request({ // [!code focus]
+  method: 'eth_wa // [!code focus] 
+//               ^|
+  params: ['hello'], // [!code focus]
+}) // [!code focus]
+```
+
 ## Live Example
 
 Check out the usage of `createPublicClient` in the live [Public Client Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients_public-client) below.
