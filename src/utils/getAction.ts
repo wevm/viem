@@ -10,14 +10,17 @@ import type { Client } from '../clients/createClient.js'
 export function getAction<params extends {}, returnType extends {}>(
   client: Client,
   action: (_: any, params: params) => returnType,
-  // Some minifiers drop `Function.prototype.name`, meaning that `action.name`
-  // will not work. For that case, the consumer needs to pass the name explicitly.
+  // Some minifiers drop `Function.prototype.name` or can change function
+  // names so that getting the name by reflection through `action.name` will
+  // not work.
   name: string,
 ) {
+  type DecoratedClient = Client & {
+    [key: string]: (params: params) => returnType
+  }
+
   return (params: params): returnType =>
-    (
-      client as Client & {
-        [key: string]: (params: params) => returnType
-      }
-    )[action.name || name]?.(params) ?? action(client, params)
+    (client as DecoratedClient)[action.name]?.(params) ??
+    (client as DecoratedClient)[name]?.(params) ??
+    action(client, params)
 }

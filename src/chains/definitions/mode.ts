@@ -13,8 +13,8 @@ export const mode = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Mode Explorer',
-      url: 'https://explorer.mode.network',
+      name: 'Modescan',
+      url: 'https://modescan.io',
     },
   },
   contracts: {

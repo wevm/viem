@@ -13,11 +13,11 @@ export const spicy = /*#__PURE__*/ defineChain({
     default: {
       http: [
         'https://spicy-rpc.chiliz.com',
-        'https://chiliz-spicy.publicnode.com',
+        'https://chiliz-spicy-rpc.publicnode.com',
       ],
       webSocket: [
         'wss://spicy-rpc-ws.chiliz.com',
-        'wss://chiliz-spicy.publicnode.com',
+        'wss://chiliz-spicy-rpc.publicnode.com',
       ],
     },
   },
