@@ -1,5 +1,21 @@
 # viem
 
+## 2.9.17
+
+### Patch Changes
+
+- [#2128](https://github.com/wevm/viem/pull/2128) [`90fdf8cb7e8dc66552a978061f59e7932b980d1b`](https://github.com/wevm/viem/commit/90fdf8cb7e8dc66552a978061f59e7932b980d1b) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated Mode block explorer URL.
+
+- [#2122](https://github.com/wevm/viem/pull/2122) [`f020b48b6107855e62d09c2e3768f348c4c3af28`](https://github.com/wevm/viem/commit/f020b48b6107855e62d09c2e3768f348c4c3af28) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Updated Boba native currency from BOBA to ETH.
+
+- [#2119](https://github.com/wevm/viem/pull/2119) [`4db7c996ee68f7d3fdeeac1227655692a3febb13`](https://github.com/wevm/viem/commit/4db7c996ee68f7d3fdeeac1227655692a3febb13) Thanks [@Imti](https://github.com/Imti)! - Updated Publicnode RPC URLs to new format.
+
+- [#2124](https://github.com/wevm/viem/pull/2124) [`d2f93e726df1ab1ff86098d68a4406f6fae315b8`](https://github.com/wevm/viem/commit/d2f93e726df1ab1ff86098d68a4406f6fae315b8) Thanks [@ITZSHOAIB](https://github.com/ITZSHOAIB)! - Exported EON chain.
+
+- [#2132](https://github.com/wevm/viem/pull/2132) [`8c3eb6a5c13f550dfde4fee6edd1e898bebf9f2e`](https://github.com/wevm/viem/commit/8c3eb6a5c13f550dfde4fee6edd1e898bebf9f2e) Thanks [@acedward](https://github.com/acedward)! - Fixed `getAction` for cases where the bundler could change function names.
+
+- [#2129](https://github.com/wevm/viem/pull/2129) [`d8345478fb469f43745e35e1e645f5d4c9ee40e8`](https://github.com/wevm/viem/commit/d8345478fb469f43745e35e1e645f5d4c9ee40e8) Thanks [@hungdoansy](https://github.com/hungdoansy)! - Added Manta Pacific Sepolia Testnet chain.
+
 ## 2.9.16
 
 ### Patch Changes
