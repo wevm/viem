@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add mantle sepolia testnet
+Added Mantle Sepolia chain.
