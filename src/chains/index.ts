@@ -130,6 +130,7 @@ export { manta } from './definitions/manta.js'
 export { mantaSepoliaTestnet } from './definitions/mantaSepoliaTestnet.js'
 export { mantaTestnet } from './definitions/mantaTestnet.js'
 export { mantle } from './definitions/mantle.js'
+export { mantleSepoliaTestnet } from './definitions/mantleSepoliaTestnet.js';
 export { mantleTestnet } from './definitions/mantleTestnet.js'
 export { merlin } from './definitions/merlin.js'
 export { metachain } from './definitions/metachain.js'
