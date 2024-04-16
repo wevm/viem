@@ -9,8 +9,9 @@ test('default', async () => {
     address: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
   })
 
-  Object.entries(balances).forEach(([key, value]) => {
+  const entries = Object.entries(balances)
+  for (const [key, value] of entries) {
     expect(typeof key).toBe('string')
     expect(typeof value).toBe('bigint')
-  })
+  }
 })
