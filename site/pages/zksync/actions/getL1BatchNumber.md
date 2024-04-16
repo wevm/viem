@@ -18,7 +18,11 @@ const client = createPublicClient({
   transport: http(),
 }).extend(publicActionsL2())
 
-const latestNumber = await client.getL1BatchNumber({number:1});
-
+const latestNumber = await client.getL1BatchNumber();
 ```
 
+## Returns 
+
+`number`
+
+Latest L1 batch number. 

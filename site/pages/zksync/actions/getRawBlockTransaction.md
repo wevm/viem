@@ -18,7 +18,32 @@ const client = createPublicClient({
   transport: http(),
 }).extend(publicActionsL2())
 
-const rawTx = await client.getRawBlockTransaction({number:1});
-
+const rawTx = await client.getRawBlockTransaction({
+  number:1
+});
 ```
 
+## Returns 
+
+`RawBlockTransaction`
+
+Data of transactions in a block.
+
+## Parameters
+
+`GetRawBlockTransactionParameters`
+
+### number
+
+Block number.
+
+```ts
+const client = createPublicClient({
+  chain: zkSyncLocalNode,
+  transport: http(),
+}).extend(publicActionsL2())
+
+const rawTx = await client.getRawBlockTransaction({
+  number:1  // [!code focus]
+});
+```

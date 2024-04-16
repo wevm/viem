@@ -13,8 +13,8 @@ export type GetTransactionDetailsParameters = {
 export interface TransactionDetails {
   isL1Originated: boolean
   status: string
-  fee: BigInt
-  gasPerPubdata: BigInt
+  fee: bigint
+  gasPerPubdata: bigint
   initiatorAddress: Address
   receivedAt: Date
   ethCommitTxHash?: string

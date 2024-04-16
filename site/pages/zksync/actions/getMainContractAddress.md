@@ -19,6 +19,9 @@ const client = createPublicClient({
 }).extend(publicActionsL2())
 
 const address = await client.getMainContractAddress();
-
 ```
+## Returns 
 
+`Address`
+
+Main zkSync Era smart contract address.

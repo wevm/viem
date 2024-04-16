@@ -9,7 +9,7 @@ export type GetAllBalancesParameters = {
   address: Hash
 }
 
-export type GetAllBalancesReturnType = { [key: string]: BigInt }
+export type GetAllBalancesReturnType = { [key: string]: bigint }
 
 export type ZksGetAllBalancesReturnType = { [key: string]: string }
 

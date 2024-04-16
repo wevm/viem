@@ -8,7 +8,7 @@ export type GetL1BatchDetailsParameters = {
   number: number
 }
 
-export interface BatchDetails {
+export type BatchDetails = {
   number: number
   timestamp: number
   l1TxCount: number

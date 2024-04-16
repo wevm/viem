@@ -18,7 +18,32 @@ const client = createPublicClient({
   transport: http(),
 }).extend(publicActionsL2())
 
-const balances = await client.getAllBalances({address:"0x36615Cf349d7F6344891B1e7CA7C72883F5dc049"});
-
+const balances = await client.getAllBalances({
+  address:"0x36615Cf349d7F6344891B1e7CA7C72883F5dc049"
+});
 ```
 
+## Returns
+
+`GetAllBalancesReturnType`
+
+Array of all known balances for an address.
+
+## Parameters
+
+### address
+
+Address for which all balances is requested.
+
+- **Type** `Address`
+
+```ts
+const client = createPublicClient({
+  chain: zkSyncLocalNode,
+  transport: http(),
+}).extend(publicActionsL2())
+
+const balances = await client.getAllBalances({
+  address:"0x36615Cf349d7F6344891B1e7CA7C72883F5dc049"  // [!code focus]
+});
+```
