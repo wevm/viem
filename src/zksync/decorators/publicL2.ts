@@ -1,19 +1,47 @@
 import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { Chain } from '../../types/chain.js'
 import type { Account } from '../../types/account.js'
-import { getTestnetPaymasterAddress } from '../actions/getTestnetPaymasterAddress.js'
-import { getL1ChainId } from '../actions/getL1ChainId.js'
-import { getMainContractAddress } from '../actions/getMainContractAddress.js'
-import { getAllBalances, type GetAllBalancesParameters, type GetAllBalancesReturnType } from '../actions/getAllBalances.js'
-import { getRawBlockTransaction, type GetRawBlockTransactionParameters, type RawBlockTransaction } from '../actions/getRawBlockTransaction.js'
-import { getBlockDetails, type BlockDetails, type GetBlockDetailsParameters } from '../actions/getBlockDetails.js'
-import { getL1BatchDetails, type BatchDetails, type GetL1BatchDetailsParameters } from '../actions/getL1BatchDetails.js'
-import { getL1BatchBlockRange, type GetL1BatchBlockRangeParameters, type GetL1BatchBlockRangeReturnParameters } from '../actions/getL1BatchBlockRange.js'
+import type { Chain } from '../../types/chain.js'
+import {
+  type GetAllBalancesParameters,
+  type GetAllBalancesReturnType,
+  getAllBalances,
+} from '../actions/getAllBalances.js'
+import {
+  type BlockDetails,
+  type GetBlockDetailsParameters,
+  getBlockDetails,
+} from '../actions/getBlockDetails.js'
+import {
+  type GetL1BatchBlockRangeParameters,
+  type GetL1BatchBlockRangeReturnParameters,
+  getL1BatchBlockRange,
+} from '../actions/getL1BatchBlockRange.js'
+import {
+  type BatchDetails,
+  type GetL1BatchDetailsParameters,
+  getL1BatchDetails,
+} from '../actions/getL1BatchDetails.js'
 import { getL1BatchNumber } from '../actions/getL1BatchNumber.js'
-import { getLogProof, type GetLogProofParameters, type MessageProof } from '../actions/getLogProof.js'
-import { getTransactionDetails, type GetTransactionDetailsParameters, type TransactionDetails } from '../actions/getTransactionDetails.js'
+import { getL1ChainId } from '../actions/getL1ChainId.js'
+import {
+  type GetLogProofParameters,
+  type MessageProof,
+  getLogProof,
+} from '../actions/getLogProof.js'
+import { getMainContractAddress } from '../actions/getMainContractAddress.js'
+import {
+  type GetRawBlockTransactionParameters,
+  type RawBlockTransaction,
+  getRawBlockTransaction,
+} from '../actions/getRawBlockTransaction.js'
+import { getTestnetPaymasterAddress } from '../actions/getTestnetPaymasterAddress.js'
+import {
+  type GetTransactionDetailsParameters,
+  type TransactionDetails,
+  getTransactionDetails,
+} from '../actions/getTransactionDetails.js'
 
 export type PublicActionsL2 = {
   /**
@@ -201,8 +229,7 @@ export type PublicActionsL2 = {
    */
   getL1BatchNumber: () => Promise<number>
 
-
-    /**
+  /**
    * Given a transaction hash, and an index of the L2 to L1 log produced within the transaction, it returns the proof for the corresponding L2 to L1 log.
    *
    * @returns the proof for the corresponding L2 to L1 log.
@@ -219,8 +246,7 @@ export type PublicActionsL2 = {
    *
    * const proof = await client.getLogProof({txHash:"0x...",index:1});
    */
-    getLogProof: (args:GetLogProofParameters) => Promise<MessageProof | null>
-
+  getLogProof: (args: GetLogProofParameters) => Promise<MessageProof | null>
 
   /**
    * Returns data from a specific transaction given by the transaction hash
@@ -239,7 +265,9 @@ export type PublicActionsL2 = {
    *
    * const details = await client.getTransactionDetails({txHash:"0x..."});
    */
-  getTransactionDetails: (args:GetTransactionDetailsParameters) => Promise<TransactionDetails>
+  getTransactionDetails: (
+    args: GetTransactionDetailsParameters,
+  ) => Promise<TransactionDetails>
 }
 
 export function publicActionsL2() {
@@ -251,17 +279,17 @@ export function publicActionsL2() {
     client: Client<TTransport, TChain, TAccount>,
   ): PublicActionsL2 => {
     return {
-      getTestnetPaymasterAddress:()=>getTestnetPaymasterAddress(client), 
-      getL1ChainId:()=>getL1ChainId(client), 
-      getMainContractAddress:()=>getMainContractAddress(client), 
-      getAllBalances:(args)=>getAllBalances(client,args), 
-      getRawBlockTransaction:(args)=>getRawBlockTransaction(client,args), 
-      getBlockDetails:(args)=>getBlockDetails(client,args), 
-      getL1BatchDetails:(args)=>getL1BatchDetails(client,args),  
-      getL1BatchBlockRange:(args)=>getL1BatchBlockRange(client,args), 
-      getL1BatchNumber:()=>getL1BatchNumber(client), 
-      getLogProof:(args)=>getLogProof(client,args), 
-      getTransactionDetails:(args)=>getTransactionDetails(client,args) 
+      getTestnetPaymasterAddress: () => getTestnetPaymasterAddress(client),
+      getL1ChainId: () => getL1ChainId(client),
+      getMainContractAddress: () => getMainContractAddress(client),
+      getAllBalances: (args) => getAllBalances(client, args),
+      getRawBlockTransaction: (args) => getRawBlockTransaction(client, args),
+      getBlockDetails: (args) => getBlockDetails(client, args),
+      getL1BatchDetails: (args) => getL1BatchDetails(client, args),
+      getL1BatchBlockRange: (args) => getL1BatchBlockRange(client, args),
+      getL1BatchNumber: () => getL1BatchNumber(client),
+      getLogProof: (args) => getLogProof(client, args),
+      getTransactionDetails: (args) => getTransactionDetails(client, args),
     }
   }
 }

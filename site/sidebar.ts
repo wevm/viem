@@ -1370,47 +1370,47 @@ export const sidebar = {
           },
           {
             text: 'getTestnetPaymasterAddress',
-            link: '/zksync/actions/getTestnetPaymasterAddress'
+            link: '/zksync/actions/getTestnetPaymasterAddress',
           },
           {
             text: 'getL1ChainId',
-            link: '/zksync/actions/getL1ChainId'
+            link: '/zksync/actions/getL1ChainId',
           },
           {
             text: 'getAllBalances',
-            link: '/zksync/actions/getAllBalances'
+            link: '/zksync/actions/getAllBalances',
           },
           {
             text: 'getLogProof',
-            link: '/zksync/actions/getLogProof'
+            link: '/zksync/actions/getLogProof',
           },
           {
             text: 'getMainContractAddress',
-            link: '/zksync/actions/getMainContractAddress'
+            link: '/zksync/actions/getMainContractAddress',
           },
           {
             text: 'getTransactionDetails',
-            link: '/zksync/actions/getTransactionDetails'
+            link: '/zksync/actions/getTransactionDetails',
           },
           {
             text: 'getRawBlockTransaction',
-            link: '/zksync/actions/getRawBlockTransaction'
+            link: '/zksync/actions/getRawBlockTransaction',
           },
           {
             text: 'getBlockDetails',
-            link: '/zksync/actions/getBlockDetails'
+            link: '/zksync/actions/getBlockDetails',
           },
           {
             text: 'getL1BatchDetails',
-            link: '/zksync/actions/getL1BatchDetails'
+            link: '/zksync/actions/getL1BatchDetails',
           },
           {
             text: 'getL1BatchBlockRange',
-            link: '/zksync/actions/getL1BatchBlockRange'
+            link: '/zksync/actions/getL1BatchBlockRange',
           },
           {
             text: 'getL1BatchNumber',
-            link: '/zksync/actions/getL1BatchNumber'
+            link: '/zksync/actions/getL1BatchNumber',
           },
         ],
       },
