@@ -1,8 +1,8 @@
-import type { Account } from '../../types/account.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { ChainEIP712 } from '../types/chain.js'
+import type { Account } from '../../types/account.js'
 import type { PublicZkSyncRpcSchema } from '../../types/eip1193.js'
+import type { ChainEIP712 } from '../types/chain.js'
 
 export type GetL1BatchDetailsParameters = {
   number: number
@@ -29,8 +29,9 @@ export interface BatchDetails {
   }
 }
 
-export async function getL1BatchDetails<chain extends ChainEIP712 | undefined,
-account extends Account | undefined,
+export async function getL1BatchDetails<
+  chain extends ChainEIP712 | undefined,
+  account extends Account | undefined,
 >(
   client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
   parameters: GetL1BatchDetailsParameters,
