@@ -19,6 +19,12 @@ const client = createPublicClient({
 }).extend(publicActionsL2())
 
 const chainId = await client.getL1ChainId();
-
 ```
 
+## Returns 
+
+### number
+
+L1 Chain Id number
+
+- **Type** `number`

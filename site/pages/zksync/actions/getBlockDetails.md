@@ -18,7 +18,33 @@ const client = createPublicClient({
   transport: http(),
 }).extend(publicActionsL2())
 
-const blockDetails = await client.getBlockDetails({number:1});
-
+const blockDetails = await client.getBlockDetails({
+  number:1
+});
 ```
 
+## Returns 
+
+`BlockDetails`
+
+Structure that represent zkSync-specific information about L2 block.
+
+
+## Parameters
+
+### number
+
+Block Number
+
+- **Type** `number`
+
+```ts
+const client = createPublicClient({
+  chain: zkSyncLocalNode,
+  transport: http(),
+}).extend(publicActionsL2())
+
+const blockDetails = await client.getBlockDetails({
+  number:1 // [!code focus]
+}); 
+```

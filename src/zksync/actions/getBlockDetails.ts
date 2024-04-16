@@ -8,7 +8,7 @@ export type GetBlockDetailsParameters = {
   number: number
 }
 
-export interface BlockDetails {
+export type BlockDetails = {
   number: number
   timestamp: number
   l1BatchNumber: number

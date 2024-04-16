@@ -10,15 +10,15 @@ export type GetRawBlockTransactionParameters = {
   number: number
 }
 
-export interface RawBlockTransaction {
+export type RawBlockTransaction = {
   common_data: {
     L2: {
       nonce: number
       fee: {
-        gas_limit: BigInt
-        max_fee_per_gas: BigInt
-        max_priority_fee_per_gas: BigInt
-        gas_per_pubdata_limit: BigInt
+        gas_limit: bigint
+        max_fee_per_gas: bigint
+        max_priority_fee_per_gas: bigint
+        gas_per_pubdata_limit: bigint
       }
       initiatorAddress: Address
       signature: Uint8Array
@@ -37,7 +37,7 @@ export interface RawBlockTransaction {
     calldata: string
     contractAddress: Address
     factoryDeps: Hash
-    value: BigInt
+    value: bigint
   }
   received_timestamp_ms: number
   raw_bytes: string

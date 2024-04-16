@@ -18,7 +18,33 @@ const client = createPublicClient({
   transport: http(),
 }).extend(publicActionsL2())
 
-const details = await client.getTransactionDetails({txHash:"0x..."});
-
+const details = await client.getTransactionDetails({
+  txHash:"0x..."
+});
 ```
 
+## Returns 
+
+`TransactionDetails`
+
+Data from a specific transaction given by the transaction hash.
+
+## Parameters
+
+`GetTransactionDetailsParameters`
+
+### hash
+
+Transaction hash
+
+```ts
+
+const client = createPublicClient({
+  chain: zkSyncLocalNode,
+  transport: http(),
+}).extend(publicActionsL2())
+
+const details = await client.getTransactionDetails({
+  txHash:"0x..." // [!code focus]
+});
+```

@@ -6,12 +6,6 @@ description: Returns the address of a Paymaster on a Testnet.
 
 Returns the address of a Paymaster on a Testnet.
 
-## Import
-
-```ts
-import { getTestnetPaymasterAddress } from 'viem/zksync'
-```
-
 ## Usage
 
 ```ts
@@ -26,6 +20,10 @@ const client = createPublicClient({
 }).extend(publicActionsL2())
 
 const address = await client.getTestnetPaymasterAddress();
-
 ```
 
+## Returns 
+
+`Address`
+
+Testnet paymaster address if available, or `null`.

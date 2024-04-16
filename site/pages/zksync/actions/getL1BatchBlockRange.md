@@ -19,6 +19,29 @@ const client = createPublicClient({
 }).extend(publicActionsL2())
 
 const batchBlockRange = await client.getL1BatchBlockRange({number:1});
-
 ```
 
+## Returns 
+
+`GetL1BatchBlockRangeReturnParameters`
+
+Array of two elements representing the range of blocks within a batch.
+
+## Parameters
+
+### number
+
+L1 Batch Number
+
+- **Type** `number`
+
+```ts
+const client = createPublicClient({
+  chain: zkSyncLocalNode,
+  transport: http(),
+}).extend(publicActionsL2())
+
+const batchBlockRange = await client.getL1BatchBlockRange({
+  number:1  // [!code focus]
+});
+```
