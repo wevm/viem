@@ -1,41 +1,21 @@
 import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import {
-  type GetAllBalancesParameters,
-  type GetAllBalancesReturnType,
-  getAllBalances,
-} from '../actions/getAllBalances.js'
-import {
-  type BlockDetails,
-  type GetBlockDetailsParameters,
-  getBlockDetails,
-} from '../actions/getBlockDetails.js'
-import {
-  type BridgeContractsReturnType,
-  getDefaultBridgeAddresses,
-} from '../actions/getBridgeContracts.js'
-import {
-  type GetL1BatchBlockRangeParameters,
-  type GetL1BatchBlockRangeReturnParameters,
-  getL1BatchBlockRange,
-} from '../actions/getL1BatchBlockRange.js'
-import {
-  type BatchDetails,
-  type GetL1BatchDetailsParameters,
-  getL1BatchDetails,
-} from '../actions/getL1BatchDetails.js'
-import { getL1BatchNumber } from '../actions/getL1BatchNumber.js'
+import type { Chain } from '../../types/chain.js'
+import type { Account } from '../../types/account.js'
+import { getTestnetPaymasterAddress } from '../actions/getTestnetPaymasterAddress.js'
 import { getL1ChainId } from '../actions/getL1ChainId.js'
 import { getMainContractAddress } from '../actions/getMainContractAddress.js'
-import {
-  type GetRawBlockTransactionParameters,
-  type RawBlockTransaction,
-  getRawBlockTransaction,
-} from '../actions/getRawBlockTransaction.js'
-import { getTestnetPaymasterAddress } from '../actions/getTestnetPaymasterAddress.js'
+import { getAllBalances, type GetAllBalancesParameters, type GetAllBalancesReturnType } from '../actions/getAllBalances.js'
+import { getRawBlockTransaction, type GetRawBlockTransactionParameters, type RawBlockTransaction } from '../actions/getRawBlockTransaction.js'
+import { getBlockDetails, type BlockDetails, type GetBlockDetailsParameters } from '../actions/getBlockDetails.js'
+import { getL1BatchDetails, type BatchDetails, type GetL1BatchDetailsParameters } from '../actions/getL1BatchDetails.js'
+import { getL1BatchBlockRange, type GetL1BatchBlockRangeParameters, type GetL1BatchBlockRangeReturnParameters } from '../actions/getL1BatchBlockRange.js'
+import { getL1BatchNumber } from '../actions/getL1BatchNumber.js'
+import { getLogProof, type GetLogProofParameters, type MessageProof } from '../actions/getLogProof.js'
+import { getTransactionDetails, type GetTransactionDetailsParameters, type TransactionDetails } from '../actions/getTransactionDetails.js'
 
-export type PublicActionsL2<> = {
+export type PublicActionsL2 = {
   /**
    * Returns Testnet Paymaster Address.
    *
@@ -93,25 +73,6 @@ export type PublicActionsL2<> = {
    * const address = await client.getMainContractAddress();
    */
   getMainContractAddress: () => Promise<Address>
-
-  /**
-   * Returns the address of a Main zkSync Contract.
-   *
-   * @returns The Addresses of L1/L2 default bridges. {@link BridgeContractsReturnType}
-   *
-   * @example
-   * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/zksync'
-   *
-   * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
-   *   transport: http(),
-   * }).extend(publicActionsL2())
-   *
-   * const addresses = await client.getDefaultBridgeAddresses();
-   */
-  getDefaultBridgeAddresses: () => Promise<BridgeContractsReturnType>
 
   /**
    * Returns all known balances for a given account.
@@ -239,23 +200,68 @@ export type PublicActionsL2<> = {
    * const latestNumber = await client.getL1BatchNumber({number:1});
    */
   getL1BatchNumber: () => Promise<number>
+
+
+    /**
+   * Given a transaction hash, and an index of the L2 to L1 log produced within the transaction, it returns the proof for the corresponding L2 to L1 log.
+   *
+   * @returns the proof for the corresponding L2 to L1 log.
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const proof = await client.getLogProof({txHash:"0x...",index:1});
+   */
+    getLogProof: (args:GetLogProofParameters) => Promise<MessageProof | null>
+
+
+  /**
+   * Returns data from a specific transaction given by the transaction hash
+   *
+   * @returns data from a specific transaction given by the transaction hash
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const details = await client.getTransactionDetails({txHash:"0x..."});
+   */
+  getTransactionDetails: (args:GetTransactionDetailsParameters) => Promise<TransactionDetails>
 }
 
 export function publicActionsL2() {
-  return <TTransport extends Transport>(
-    client: Client<TTransport>,
+  return <
+    TTransport extends Transport,
+    TChain extends Chain | undefined = Chain | undefined,
+    TAccount extends Account | undefined = Account | undefined,
+  >(
+    client: Client<TTransport, TChain, TAccount>,
   ): PublicActionsL2 => {
     return {
-      getTestnetPaymasterAddress: () => getTestnetPaymasterAddress(client),
-      getL1ChainId: () => getL1ChainId(client),
-      getMainContractAddress: () => getMainContractAddress(client),
-      getDefaultBridgeAddresses: () => getDefaultBridgeAddresses(client),
-      getAllBalances: (args) => getAllBalances(client, args),
-      getRawBlockTransaction: (args) => getRawBlockTransaction(client, args),
-      getBlockDetails: (args) => getBlockDetails(client, args),
-      getL1BatchDetails: (args) => getL1BatchDetails(client, args),
-      getL1BatchBlockRange: (args) => getL1BatchBlockRange(client, args),
-      getL1BatchNumber: () => getL1BatchNumber(client),
+      getTestnetPaymasterAddress:()=>getTestnetPaymasterAddress(client), 
+      getL1ChainId:()=>getL1ChainId(client), 
+      getMainContractAddress:()=>getMainContractAddress(client), 
+      getAllBalances:(args)=>getAllBalances(client,args), 
+      getRawBlockTransaction:(args)=>getRawBlockTransaction(client,args), 
+      getBlockDetails:(args)=>getBlockDetails(client,args), 
+      getL1BatchDetails:(args)=>getL1BatchDetails(client,args),  
+      getL1BatchBlockRange:(args)=>getL1BatchBlockRange(client,args), 
+      getL1BatchNumber:()=>getL1BatchNumber(client), 
+      getLogProof:(args)=>getLogProof(client,args), 
+      getTransactionDetails:(args)=>getTransactionDetails(client,args) 
     }
   }
 }
