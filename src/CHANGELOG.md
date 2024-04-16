@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.19
+
+### Patch Changes
+
+- [#2139](https://github.com/wevm/viem/pull/2139) [`ee55a4e3ba632476d3249a7f85f687f6ff5110cb`](https://github.com/wevm/viem/commit/ee55a4e3ba632476d3249a7f85f687f6ff5110cb) Thanks [@michecode](https://github.com/michecode)! - Added Mantle Sepolia chain.
+
+- [`581dc93fb5216ee910ac741af617f0c45edf582b`](https://github.com/wevm/viem/commit/581dc93fb5216ee910ac741af617f0c45edf582b) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where a request `dispatcher` wasn't being propagated to `fetch`.
+
 ## 2.9.18
 
 ### Patch Changes
