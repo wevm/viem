@@ -6,6 +6,7 @@ import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 
 import { localHttpUrl } from '~test/src/constants.js'
+import { createTestClient } from '~viem/index.js'
 import {
   estimateFeesPerGas,
   internal_estimateFeesPerGas,
@@ -29,6 +30,28 @@ test('legacy', async () => {
     getGasPrice(publicClient),
   ])
   expect(gasPrice).toBe((gasPrice_! * 120n) / 100n)
+})
+
+test('args: chain `estimateFeesPerGas` override (when null returned)', async () => {
+  const client = createTestClient({
+    transport: http(localHttpUrl),
+    mode: 'anvil',
+  })
+
+  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
+    client,
+    {
+      chain: {
+        ...anvilChain,
+        fees: {
+          estimateFeesPerGas: async () => null,
+        },
+      },
+    },
+  )
+
+  expect(maxFeePerGas).toBeTypeOf('bigint')
+  expect(maxPriorityFeePerGas).toBeTypeOf('bigint')
 })
 
 test('args: chain `estimateFeesPerGas` override', async () => {

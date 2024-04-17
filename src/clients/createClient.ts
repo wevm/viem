@@ -10,8 +10,12 @@ import type {
   EIP1474Methods,
   RpcSchema,
 } from '../types/eip1193.js'
-import type { Prettify } from '../types/utils.js'
+import type { ExactPartial, Prettify } from '../types/utils.js'
 import { parseAccount } from '../utils/accounts.js'
+import type {
+  CcipRequestParameters,
+  CcipRequestReturnType,
+} from '../utils/ccip.js'
 import { uid } from '../utils/uid.js'
 import type { PublicActions } from './decorators/public.js'
 import type { WalletActions } from './decorators/wallet.js'
@@ -24,6 +28,7 @@ export type ClientConfig<
     | Account
     | Address
     | undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 > = {
   /** The Account to use for the Client. This will be used for Actions that require an account as an argument. */
   account?: accountOrAddress | Account | Address | undefined
@@ -39,6 +44,22 @@ export type ClientConfig<
    * @default 4_000
    */
   cacheTime?: number | undefined
+  /**
+   * [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration.
+   * If `false`, the client will not support offchain CCIP lookups.
+   */
+  ccipRead?:
+    | {
+        /**
+         * A function that will be called to make the offchain CCIP lookup request.
+         * @see https://eips.ethereum.org/EIPS/eip-3668#client-lookup-protocol
+         */
+        request?: (
+          parameters: CcipRequestParameters,
+        ) => Promise<CcipRequestReturnType>
+      }
+    | false
+    | undefined
   /** Chain for the client. */
   chain?: Chain | undefined | chain
   /** A key for the client. */
@@ -50,6 +71,10 @@ export type ClientConfig<
    * @default 4_000
    */
   pollingInterval?: number | undefined
+  /**
+   * Typed JSON-RPC schema for the client.
+   */
+  rpcSchema?: rpcSchema | undefined
   /** The RPC transport */
   transport: transport
   /** The type of client. */
@@ -104,7 +129,7 @@ export type Client<
   (extended extends Extended ? extended : unknown) & {
     extend: <
       const client extends Extended &
-        Partial<ExtendableProtectedActions<transport, chain, account>>,
+        ExactPartial<ExtendableProtectedActions<transport, chain, account>>,
     >(
       fn: (
         client: Client<transport, chain, account, rpcSchema, extended>,
@@ -130,6 +155,8 @@ type Client_Base<
   batch?: ClientConfig['batch'] | undefined
   /** Time (in ms) that cached data will remain in memory. */
   cacheTime: number
+  /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. */
+  ccipRead?: ClientConfig['ccipRead'] | undefined
   /** Chain for the client. */
   chain: chain
   /** A key for the client. */
@@ -166,22 +193,21 @@ export type MulticallBatchOptions = {
 
 export type CreateClientErrorType = ParseAccountErrorType | ErrorType
 
-/**
- * Creates a base client with the given transport.
- */
 export function createClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 >(
-  parameters: ClientConfig<transport, chain, accountOrAddress>,
+  parameters: ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
 ): Prettify<
   Client<
     transport,
     chain,
     accountOrAddress extends Address
       ? Prettify<JsonRpcAccount<accountOrAddress>>
-      : accountOrAddress
+      : accountOrAddress,
+    rpcSchema
   >
 >
 
@@ -189,6 +215,7 @@ export function createClient(parameters: ClientConfig): Client {
   const {
     batch,
     cacheTime = parameters.pollingInterval ?? 4_000,
+    ccipRead,
     key = 'base',
     name = 'Base Client',
     pollingInterval = 4_000,
@@ -209,6 +236,7 @@ export function createClient(parameters: ClientConfig): Client {
     account,
     batch,
     cacheTime,
+    ccipRead,
     chain,
     key,
     name,
@@ -225,9 +253,17 @@ export function createClient(parameters: ClientConfig): Client {
       const extended = extendFn(base) as Extended
       for (const key in client) delete extended[key]
       const combined = { ...base, ...extended }
-      return Object.assign(combined, { extend: extend(combined) })
+      return Object.assign(combined, { extend: extend(combined as any) })
     }
   }
 
   return Object.assign(client, { extend: extend(client) as any })
+}
+
+/**
+ * Defines a typed JSON-RPC schema for the client.
+ * Note: This is a runtime noop function.
+ */
+export function rpcSchema<rpcSchema extends RpcSchema>(): rpcSchema {
+  return null as any
 }

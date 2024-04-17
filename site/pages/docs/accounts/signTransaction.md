@@ -86,6 +86,26 @@ const signature = await account.signTransaction({
 })
 ```
 
+### blobs (optional)
+
+- **Type:** `Hex[]`
+
+Blobs for [Blob Transactions](/docs/guides/blob-transactions). 
+
+```ts
+import * as kzg from 'c-kzg'
+import { toBlobs, stringToHex } from 'viem'
+import { mainnetTrustedSetupPath } from 'viem/node'
+
+const kzg = setupKzg(cKzg, mainnetTrustedSetupPath) 
+
+const hash = await account.signTransaction({
+  blobs: toBlobs({ data: stringToHex('blobby blob!') }), // [!code focus]
+  kzg,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
+})
+```
+
 ### chainId (optional)
 
 - **Type:** `number`
@@ -144,6 +164,28 @@ const account = privateKeyToAccount('0x...')
 // ---cut---
 const signature = await account.signTransaction({
   gasPrice: parseGwei('20'), // [!code focus]
+})
+```
+
+### kzg (optional)
+
+- **Type:** `KZG`
+
+KZG implementation for [Blob Transactions](/docs/guides/blob-transactions). 
+
+See [`setupKzg`](/docs/utilities/setupKzg) for more information.
+
+```ts
+import * as kzg from 'c-kzg'
+import { toBlobs, stringToHex } from 'viem'
+import { mainnetTrustedSetupPath } from 'viem/node'
+
+const kzg = setupKzg(cKzg, mainnetTrustedSetupPath) // [!code focus]
+
+const signature = await account.signTransaction({
+  blobs: toBlobs({ data: stringToHex('blobby blob!') }), // [!code focus]
+  kzg, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
 })
 ```
 

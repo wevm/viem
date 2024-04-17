@@ -21,10 +21,10 @@ export type GetTransactionConfirmationsParameters<
   | {
       /** The transaction hash. */
       hash: Hash
-      transactionReceipt?: never
+      transactionReceipt?: never | undefined
     }
   | {
-      hash?: never
+      hash?: never | undefined
       /** The transaction receipt. */
       transactionReceipt: FormattedTransactionReceipt<TChain>
     }

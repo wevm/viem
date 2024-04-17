@@ -5,7 +5,7 @@ export type IsHexErrorType = ErrorType
 
 export function isHex(
   value: unknown,
-  { strict = true }: { strict?: boolean } = {},
+  { strict = true }: { strict?: boolean | undefined } = {},
 ): value is Hex {
   if (!value) return false
   if (typeof value !== 'string') return false

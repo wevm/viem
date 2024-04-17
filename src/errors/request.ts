@@ -9,9 +9,9 @@ export type HttpRequestErrorType = HttpRequestError & {
 export class HttpRequestError extends BaseError {
   override name = 'HttpRequestError'
 
-  body?: { [x: string]: unknown } | { [y: string]: unknown }[]
-  headers?: Headers
-  status?: number
+  body?: { [x: string]: unknown } | { [y: string]: unknown }[] | undefined
+  headers?: Headers | undefined
+  status?: number | undefined
   url: string
 
   constructor({
@@ -21,10 +21,10 @@ export class HttpRequestError extends BaseError {
     status,
     url,
   }: {
-    body?: { [x: string]: unknown } | { [y: string]: unknown }[]
-    details?: string
-    headers?: Headers
-    status?: number
+    body?: { [x: string]: unknown } | { [y: string]: unknown }[] | undefined
+    details?: string | undefined
+    headers?: Headers | undefined
+    status?: number | undefined
     url: string
   }) {
     super('HTTP request failed.', {

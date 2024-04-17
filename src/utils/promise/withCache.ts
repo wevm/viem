@@ -32,7 +32,7 @@ export type WithCacheParameters = {
   /** The key to cache the data against. */
   cacheKey: string
   /** The time that cached data will remain in memory. Default: Infinity (no expiry) */
-  cacheTime?: number
+  cacheTime?: number | undefined
 }
 
 /**

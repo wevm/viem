@@ -32,6 +32,7 @@ test('creates', () => {
       "account": undefined,
       "batch": undefined,
       "cacheTime": 4000,
+      "ccipRead": undefined,
       "chain": {
         "fees": undefined,
         "formatters": undefined,
@@ -115,6 +116,7 @@ describe('transports', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": {
           "fees": undefined,
           "formatters": undefined,
@@ -199,6 +201,7 @@ describe('transports', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": {
           "fees": undefined,
           "formatters": undefined,
@@ -292,6 +295,7 @@ test('extend', () => {
       "batch": undefined,
       "cacheTime": 4000,
       "call": [Function],
+      "ccipRead": undefined,
       "chain": {
         "fees": undefined,
         "formatters": undefined,
@@ -326,6 +330,7 @@ test('extend', () => {
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],
+      "getBlobBaseFee": [Function],
       "getBlock": [Function],
       "getBlockNumber": [Function],
       "getBlockTransactionCount": [Function],

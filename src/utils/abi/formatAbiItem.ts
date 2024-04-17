@@ -14,7 +14,7 @@ export type FormatAbiItemErrorType =
 
 export function formatAbiItem(
   abiItem: AbiItem,
-  { includeName = false }: { includeName?: boolean } = {},
+  { includeName = false }: { includeName?: boolean | undefined } = {},
 ) {
   if (
     abiItem.type !== 'function' &&
@@ -30,7 +30,7 @@ export type FormatAbiParamsErrorType = ErrorType
 
 export function formatAbiParams(
   params: readonly AbiParameter[] | undefined,
-  { includeName = false }: { includeName?: boolean } = {},
+  { includeName = false }: { includeName?: boolean | undefined } = {},
 ): string {
   if (!params) return ''
   return params

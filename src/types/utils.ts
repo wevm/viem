@@ -1,3 +1,18 @@
+declare const symbol: unique symbol
+
+/**
+ * Creates a branded type of {@link T} with the brand {@link U}.
+ *
+ * @param T - Type to brand
+ * @param U - Label
+ * @returns Branded type
+ *
+ * @example
+ * type Result = Branded<string, 'foo'>
+ * //   ^? type Result = string & { [symbol]: 'foo' }
+ */
+export type Branded<T, U> = T & { [symbol]: U }
+
 /**
  * Filters out all members of {@link T} that are not {@link P}
  *
@@ -43,6 +58,21 @@ export type IsNarrowable<T, U> = IsNever<
 export type IsNever<T> = [T] extends [never] ? true : false
 
 /**
+ * @description Returns type {@link T} if it is an opaque type of {@link U}
+ * @param T - Type to check
+ * @param U - Type to against
+ *
+ * @example
+ * type Result = Opaque<string, 'foo'>
+ * //   ^? never
+ *
+ * @example
+ * type Result = Opaque<string, string>
+ * //   ^? string
+ */
+export type Opaque<T, U> = IsNarrowable<T, U> extends true ? T : never
+
+/**
  * @description Evaluates boolean "or" condition for {@link T} properties.
  * @param T - Type to check
  *
@@ -85,7 +115,7 @@ export type MaybePromise<T> = T | Promise<T>
  * => { a: string, b?: number }
  */
 export type MaybeRequired<T, TRequired extends boolean> = TRequired extends true
-  ? Required<T>
+  ? ExactRequired<T>
   : T
 
 /**
@@ -136,7 +166,8 @@ export type Omit<type, keys extends keyof type> = Pick<
  * PartialBy<{ a: string, b: number }, 'a'>
  * => { a?: string, b: number }
  */
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+export type PartialBy<T, K extends keyof T> = Omit<T, K> &
+  ExactPartial<Pick<T, K>>
 
 /**
  * @description Combines members of an intersection into a readable type.
@@ -157,7 +188,8 @@ export type Prettify<T> = {
  * RequiredBy<{ a?: string, b: number }, 'a'>
  * => { a: string, b: number }
  */
-export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
+  ExactRequired<Pick<T, K>>
 
 /**
  * @description Creates a type that extracts the values of T.
@@ -201,12 +233,24 @@ export type ExactPartial<type> = {
   [key in keyof type]?: type[key] | undefined
 }
 
+export type ExactRequired<type> = {
+  [P in keyof type]-?: Exclude<type[P], undefined>
+}
+
 export type OneOf<
   union extends object,
+  fallback extends object | undefined = undefined,
   ///
   keys extends KeyofUnion<union> = KeyofUnion<union>,
 > = union extends infer Item
-  ? Prettify<Item & { [_K in Exclude<keys, keyof Item>]?: undefined }>
+  ? Prettify<
+      Item & {
+        [_K in Exclude<keys, keyof Item>]?: fallback extends object
+          ? // @ts-ignore
+            fallback[_K]
+          : undefined
+      }
+    >
   : never
 type KeyofUnion<type> = type extends type ? keyof type : never
 
@@ -236,6 +280,16 @@ export type UnionLooseOmit<type, keys extends string> = type extends any
  */
 export type UnionOmit<type, keys extends keyof type> = type extends any
   ? Omit<type, keys>
+  : never
+
+/**
+ * @description Construct a type with the properties of union type T except for those in type K.
+ * @example
+ * type Result = UnionOmit<{ a: string, b: number } | { a: string, b: undefined, c: number }, 'a'>
+ * => { b: number } | { b: undefined, c: number }
+ */
+export type UnionPick<type, keys extends keyof type> = type extends any
+  ? Pick<type, keys>
   : never
 
 /**

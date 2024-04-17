@@ -27,20 +27,13 @@ test('checksums address', () => {
   expect(
     getAddress('0x3599689e6292b81b2d85451025146515070129bb', 30),
   ).toMatchInlineSnapshot('"0x3599689E6292B81B2D85451025146515070129Bb"')
+  expect(
+    getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac'),
+  ).toMatchInlineSnapshot(`"0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC"`)
 })
 
 describe('errors', () => {
   test('invalid address', () => {
-    expect(() =>
-      getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac'),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [InvalidAddressError: Address "0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac" is invalid.
-
-      - Address must be a hex value of 20 bytes (40 hex characters).
-      - Address must match its checksum counterpart.
-
-      Version: viem@1.0.2]
-    `)
     expect(() =>
       getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az'),
     ).toThrowErrorMatchingInlineSnapshot(`

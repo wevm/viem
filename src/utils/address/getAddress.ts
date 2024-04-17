@@ -14,7 +14,10 @@ export type ChecksumAddressErrorType =
   | StringToBytesErrorType
   | ErrorType
 
-export function checksumAddress(address_: Address, chainId?: number): Address {
+export function checksumAddress(
+  address_: Address,
+  chainId?: number | undefined,
+): Address {
   const hexAddress = chainId
     ? `${chainId}${address_.toLowerCase()}`
     : address_.substring(2).toLowerCase()
@@ -41,6 +44,7 @@ export type GetAddressErrorType =
   | ErrorType
 
 export function getAddress(address: string, chainId?: number): Address {
-  if (!isAddress(address)) throw new InvalidAddressError({ address })
+  if (!isAddress(address, { strict: false }))
+    throw new InvalidAddressError({ address })
   return checksumAddress(address, chainId)
 }

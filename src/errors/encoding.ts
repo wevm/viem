@@ -14,10 +14,10 @@ export class IntegerOutOfRangeError extends BaseError {
     size,
     value,
   }: {
-    max?: string
+    max?: string | undefined
     min: string
-    signed?: boolean
-    size?: number
+    signed?: boolean | undefined
+    size?: number | undefined
     value: string
   }) {
     super(

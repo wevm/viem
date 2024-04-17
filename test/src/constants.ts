@@ -69,12 +69,36 @@ if (process.env.VITE_ANVIL_BLOCK_NUMBER) {
   )
 }
 
+// TODO(fault-proofs): remove when fault proofs deployed to mainnet.
+export let forkBlockNumberSepolia: bigint
+if (process.env.VITE_ANVIL_BLOCK_NUMBER_SEPOLIA) {
+  forkBlockNumberSepolia = BigInt(
+    Number(process.env.VITE_ANVIL_BLOCK_NUMBER_SEPOLIA),
+  )
+} else {
+  forkBlockNumberSepolia = 5528803n
+  warn(
+    `\`VITE_ANVIL_BLOCK_NUMBER_SEPOLIA\` not found. Falling back to \`${forkBlockNumber}\`.`,
+  )
+}
+
 export let forkUrl: string
 if (process.env.VITE_ANVIL_FORK_URL) {
   forkUrl = process.env.VITE_ANVIL_FORK_URL
 } else {
   forkUrl = 'https://cloudflare-eth.com'
   warn(`\`VITE_ANVIL_FORK_URL\` not found. Falling back to \`${forkUrl}\`.`)
+}
+
+// TODO(fault-proofs): remove when fault proofs deployed to mainnet.
+export let forkUrlSepolia: string
+if (process.env.VITE_ANVIL_FORK_URL_SEPOLIA) {
+  forkUrlSepolia = process.env.VITE_ANVIL_FORK_URL_SEPOLIA
+} else {
+  forkUrlSepolia = 'https://rpc.sepolia.org'
+  warn(
+    `\`VITE_ANVIL_FORK_URL_SEPOLIA\` not found. Falling back to \`${forkUrlSepolia}\`.`,
+  )
 }
 
 export let blockTime: number
@@ -93,8 +117,18 @@ if (process.env.VITE_ANVIL_PORT) {
   warn(`\`VITE_ANVIL_PORT\` not found. Falling back to \`${anvilPort}\`.`)
 }
 
+// TODO(fault-proofs): remove when fault proofs deployed to mainnet.
+export let anvilPortSepolia: number
+if (process.env.VITE_ANVIL_PORT_SEPOLIA) {
+  anvilPortSepolia = Number(process.env.VITE_ANVIL_PORT_SEPOLIA)
+} else {
+  anvilPortSepolia = 8845
+  warn(`\`VITE_ANVIL_PORT\` not found. Falling back to \`${anvilPort}\`.`)
+}
+
 export const poolId = Number(process.env.VITEST_POOL_ID ?? 1)
 export const localHttpUrl = `http://127.0.0.1:${anvilPort}/${poolId}`
+export const localHttpUrlSepolia = `http://127.0.0.1:${anvilPortSepolia}/${poolId}`
 export const localWsUrl = `ws://127.0.0.1:${anvilPort}/${poolId}`
 export const localIpcPath = `/tmp/anvil-${poolId}.ipc`
 

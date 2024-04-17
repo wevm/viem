@@ -1,5 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
+const sourceId = 1 // mainnet
+
 export const mode = /*#__PURE__*/ defineChain({
   id: 34443,
   name: 'Mode Mainnet',
@@ -11,8 +13,8 @@ export const mode = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Mode Explorer',
-      url: 'https://explorer.mode.network',
+      name: 'Modescan',
+      url: 'https://modescan.io',
     },
   },
   contracts: {
@@ -21,4 +23,5 @@ export const mode = /*#__PURE__*/ defineChain({
       blockCreated: 2465882,
     },
   },
+  sourceId,
 })

@@ -65,6 +65,55 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
+### reconnect (optional)
+
+- **Type:** `boolean | { maxAttempts?: number, delay?: number }`
+- **Default:** `true`
+
+Whether or not to attempt to reconnect on socket failure.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  reconnect: false, // [!code focus]
+})
+```
+
+#### reconnect.attempts (optional)
+
+- **Type:** `number`
+- **Default:** `5`
+
+The max number of times to attempt to reconnect.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  reconnect: {
+    attempts: 10, // [!code focus]
+  }
+})
+```
+
+#### reconnect.delay (optional)
+
+- **Type:** `number`
+- **Default:** `2_000`
+
+Retry delay (in ms) between reconnect attempts.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  reconnect: {
+    delay: 1_000, // [!code focus]
+  }
+})
+```
+
 ### retryCount (optional)
 
 - **Type:** `number`

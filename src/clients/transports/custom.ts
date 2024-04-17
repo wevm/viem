@@ -10,13 +10,13 @@ type EthereumProvider = { request(...args: any): Promise<any> }
 
 export type CustomTransportConfig = {
   /** The key of the transport. */
-  key?: TransportConfig['key']
+  key?: TransportConfig['key'] | undefined
   /** The name of the transport. */
-  name?: TransportConfig['name']
+  name?: TransportConfig['name'] | undefined
   /** The max number of times to retry. */
-  retryCount?: TransportConfig['retryCount']
+  retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
-  retryDelay?: TransportConfig['retryDelay']
+  retryDelay?: TransportConfig['retryDelay'] | undefined
 }
 
 export type CustomTransport = Transport<

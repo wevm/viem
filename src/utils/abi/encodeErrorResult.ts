@@ -50,9 +50,9 @@ export type EncodeErrorResultParameters<
 } & UnionEvaluate<
   IsNarrowable<abi, Abi> extends true
     ? abi['length'] extends 1
-      ? { errorName?: errorName | allErrorNames }
+      ? { errorName?: errorName | allErrorNames | undefined }
       : { errorName: errorName | allErrorNames }
-    : { errorName?: errorName | allErrorNames }
+    : { errorName?: errorName | allErrorNames | undefined }
 > &
   (hasErrors extends true ? unknown : never)
 

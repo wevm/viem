@@ -41,16 +41,6 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
-```
-
 :::
 
 ### Passing Arguments
@@ -63,9 +53,8 @@ For example, the `balanceOf` function name below requires an **address** argumen
 
 :::code-group
 
-```ts [example.ts] {8}
+```ts [example.ts]
 import { encodeFunctionData } from 'viem'
-import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
 const data = encodeFunctionData({
@@ -87,16 +76,6 @@ export const wagmiAbi = [
   },
   ...
 ] as const;
-```
-
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
 ```
 
 :::
@@ -121,6 +100,26 @@ const data = encodeFunctionData({
   functionName: 'balanceOf', // [!code --]
   args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
 })
+```
+
+### Preparation (Performance Optimization)
+
+If you are calling the same function multiple times, you can prepare the function selector once and reuse it.
+
+```ts
+import { prepareEncodeFunctionData, encodeFunctionData } from 'viem'
+
+const transfer = prepareEncodeFunctionData({
+  abi: erc20Abi,
+  functionName: 'transfer',
+})
+
+for (const address of addresses) {
+  const data = encodeFunctionData({
+    ...transfer,
+    args: [address, 69420n],
+  })
+}
 ```
 
 ## Return Value

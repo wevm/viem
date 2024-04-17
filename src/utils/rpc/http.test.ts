@@ -151,6 +151,58 @@ describe('request', () => {
     await server.close()
   })
 
+  test('onRequest', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const requests: Request[] = []
+    const client = getHttpRpcClient(server.url, {
+      onRequest: (request) => {
+        requests.push(request)
+      },
+    })
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+    })
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+      onRequest: (request) => {
+        requests.push(request)
+      },
+    })
+
+    expect(requests.length).toBe(2)
+
+    await server.close()
+  })
+
+  test('onResponse', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const responses: Response[] = []
+    const client = getHttpRpcClient(server.url, {
+      onResponse: (response) => {
+        responses.push(response)
+      },
+    })
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+    })
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+      onResponse: (response) => {
+        responses.push(response)
+      },
+    })
+
+    expect(responses.length).toBe(2)
+
+    await server.close()
+  })
+
   test('http error', async () => {
     const server = await createHttpServer((_req, res) => {
       res.writeHead(500, {
@@ -277,12 +329,12 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 68,
+          "id": 72,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
         {
-          "id": 69,
+          "id": 73,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -303,7 +355,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 70,
+          "id": 74,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -312,7 +364,7 @@ describe('http (batch)', () => {
             "code": -32602,
             "message": "Odd number of digits",
           },
-          "id": 71,
+          "id": 75,
           "jsonrpc": "2.0",
         },
       ]
@@ -329,7 +381,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 72,
+          "id": 76,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -338,7 +390,7 @@ describe('http (batch)', () => {
             "code": -32601,
             "message": "Method not found",
           },
-          "id": 73,
+          "id": 77,
           "jsonrpc": "2.0",
         },
       ]

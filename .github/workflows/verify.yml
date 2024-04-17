@@ -102,9 +102,13 @@ jobs:
           command: bun run test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
+          VITE_ANVIL_BLOCK_NUMBER_SEPOLIA: ${{ vars.VITE_ANVIL_BLOCK_NUMBER_SEPOLIA }}
+          VITE_ANVIL_BLOCK_NUMBER_OPTIMISM_SEPOLIA: ${{ vars.VITE_ANVIL_BLOCK_NUMBER_OPTIMISM_SEPOLIA }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_ANVIL_FORK_URL_OPTIMISM: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM }}
+          VITE_ANVIL_FORK_URL_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_SEPOLIA }}
+          VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA }}
           VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
 
@@ -149,6 +153,8 @@ jobs:
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
         uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.0.30
 
       - name: Set up Node
         if: ${{ matrix.node-version }}
@@ -193,7 +199,8 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        typescript-version: ['5.0.4', '5.1.6', '5.2.2', 'latest']
+        # TODO: Add 'latest' once https://github.com/wevm/viem/issues/1916 resolved
+        typescript-version: ['5.0.4', '5.1.6', '5.2.2', '5.3.2']
 
     steps:
       - name: Clone repository

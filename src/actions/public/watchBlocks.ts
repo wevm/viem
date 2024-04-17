@@ -128,6 +128,7 @@ export function watchBlocks<
     const observerId = stringify([
       'watchBlocks',
       client.uid,
+      blockTag,
       emitMissed,
       emitOnBegin,
       includeTransactions,
@@ -218,7 +219,7 @@ export function watchBlocks<
         onError?.(err as Error)
       }
     })()
-    return unsubscribe
+    return () => unsubscribe()
   }
 
   return enablePolling ? pollBlocks() : subscribeBlocks()

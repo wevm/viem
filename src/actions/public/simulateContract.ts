@@ -54,10 +54,10 @@ export type SimulateContractParameters<
   ///
   derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
-  account?: accountOverride
-  chain?: chainOverride
+  account?: accountOverride | undefined
+  chain?: chainOverride | undefined
   /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
-  dataSuffix?: Hex
+  dataSuffix?: Hex | undefined
 } & ContractFunctionParameters<
   abi,
   'nonpayable' | 'payable',
@@ -184,7 +184,7 @@ export async function simulateContract<
   account extends Account | undefined,
   const abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
-  args extends ContractFunctionArgs<
+  const args extends ContractFunctionArgs<
     abi,
     'nonpayable' | 'payable',
     functionName

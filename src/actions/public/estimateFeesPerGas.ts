@@ -12,8 +12,8 @@ import type {
   Chain,
   ChainEstimateFeesPerGasFnParameters,
   ChainFeesFnParameters,
+  GetChainParameter,
 } from '../../types/chain.js'
-import type { GetChainParameter } from '../../types/chain.js'
 import type {
   FeeValuesEIP1559,
   FeeValuesLegacy,
@@ -41,7 +41,7 @@ export type EstimateFeesPerGasParameters<
    *
    * @default 'eip1559'
    */
-  type?: type | FeeValuesType
+  type?: type | FeeValuesType | undefined
 } & GetChainParameter<chain, chainOverride>
 
 export type EstimateFeesPerGasReturnType<
@@ -86,7 +86,7 @@ export async function estimateFeesPerGas<
   type extends FeeValuesType = 'eip1559',
 >(
   client: Client<Transport, chain>,
-  args?: EstimateFeesPerGasParameters<chain, chainOverride, type>,
+  args?: EstimateFeesPerGasParameters<chain, chainOverride, type> | undefined,
 ): Promise<EstimateFeesPerGasReturnType<type>> {
   return internal_estimateFeesPerGas(client, args as any)
 }
@@ -98,8 +98,8 @@ export async function internal_estimateFeesPerGas<
 >(
   client: Client<Transport, chain>,
   args: EstimateFeesPerGasParameters<chain, chainOverride, type> & {
-    block?: Block
-    request?: PrepareTransactionRequestParameters
+    block?: Block | undefined
+    request?: PrepareTransactionRequestParameters | undefined
   },
 ): Promise<EstimateFeesPerGasReturnType<type>> {
   const {
@@ -130,14 +130,17 @@ export async function internal_estimateFeesPerGas<
     ? block_
     : await getAction(client, getBlock, 'getBlock')({})
 
-  if (typeof chain?.fees?.estimateFeesPerGas === 'function')
-    return chain.fees.estimateFeesPerGas({
+  if (typeof chain?.fees?.estimateFeesPerGas === 'function') {
+    const fees = (await chain.fees.estimateFeesPerGas({
       block: block_ as Block,
       client,
       multiply,
       request,
       type,
-    } as ChainEstimateFeesPerGasFnParameters) as unknown as EstimateFeesPerGasReturnType<type>
+    } as ChainEstimateFeesPerGasFnParameters)) as unknown as EstimateFeesPerGasReturnType<type>
+
+    if (fees !== null) return fees
+  }
 
   if (type === 'eip1559') {
     if (typeof block.baseFeePerGas !== 'bigint')

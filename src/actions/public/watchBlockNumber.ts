@@ -26,7 +26,7 @@ export type WatchBlockNumberParameters<
   /** The callback to call when a new block number is received. */
   onBlockNumber: OnBlockNumberFn
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: ((error: Error) => void) | undefined
 } & (
   | (GetTransportConfig<TTransport>['type'] extends 'webSocket'
       ? {
@@ -149,29 +149,39 @@ export function watchBlockNumber<
   }
 
   const subscribeBlockNumber = () => {
-    let active = true
-    let unsubscribe = () => (active = false)
-    ;(async () => {
-      try {
-        const { unsubscribe: unsubscribe_ } = await client.transport.subscribe({
-          params: ['newHeads'],
-          onData(data: any) {
-            if (!active) return
-            const blockNumber = hexToBigInt(data.result?.number)
-            onBlockNumber(blockNumber, prevBlockNumber)
-            prevBlockNumber = blockNumber
-          },
-          onError(error: Error) {
-            onError?.(error)
-          },
-        })
-        unsubscribe = unsubscribe_
-        if (!active) unsubscribe()
-      } catch (err) {
-        onError?.(err as Error)
-      }
-    })()
-    return unsubscribe
+    const observerId = stringify([
+      'watchBlockNumber',
+      client.uid,
+      emitOnBegin,
+      emitMissed,
+    ])
+
+    return observe(observerId, { onBlockNumber, onError }, (emit) => {
+      let active = true
+      let unsubscribe = () => (active = false)
+      ;(async () => {
+        try {
+          const { unsubscribe: unsubscribe_ } =
+            await client.transport.subscribe({
+              params: ['newHeads'],
+              onData(data: any) {
+                if (!active) return
+                const blockNumber = hexToBigInt(data.result?.number)
+                emit.onBlockNumber(blockNumber, prevBlockNumber)
+                prevBlockNumber = blockNumber
+              },
+              onError(error: Error) {
+                emit.onError?.(error)
+              },
+            })
+          unsubscribe = unsubscribe_
+          if (!active) unsubscribe()
+        } catch (err) {
+          onError?.(err as Error)
+        }
+      })()
+      return () => unsubscribe()
+    })
   }
 
   return enablePolling ? pollBlockNumber() : subscribeBlockNumber()

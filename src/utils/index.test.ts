@@ -22,6 +22,7 @@ test('exports utils', () => {
       "bytesToNumber": [Function],
       "bytesToString": [Function],
       "ccipFetch": [Function],
+      "ccipRequest": [Function],
       "concat": [Function],
       "concatBytes": [Function],
       "concatHex": [Function],

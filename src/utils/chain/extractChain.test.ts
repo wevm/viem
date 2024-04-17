@@ -58,7 +58,7 @@ test('default', async () => {
     {
       "blockExplorers": {
         "default": {
-          "apiUrl": "https://api-optimistic.etherscan.io",
+          "apiUrl": "https://api-optimistic.etherscan.io/api",
           "name": "Optimism Explorer",
           "url": "https://optimistic.etherscan.io",
         },

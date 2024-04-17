@@ -7,7 +7,7 @@ import type {
 } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
-import type { Prettify } from '../../types/utils.js'
+import type { ExactPartial, Prettify } from '../../types/utils.js'
 
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 import { type FormattedTransaction, formatTransaction } from './transaction.js'
@@ -40,7 +40,7 @@ export type FormattedBlock<
 
 export type FormatBlockErrorType = ErrorType
 
-export function formatBlock(block: Partial<RpcBlock>) {
+export function formatBlock(block: ExactPartial<RpcBlock>) {
   const transactions = block.transactions?.map((transaction) => {
     if (typeof transaction === 'string') return transaction
     return formatTransaction(transaction)

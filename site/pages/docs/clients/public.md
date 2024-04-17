@@ -218,6 +218,46 @@ const publicClient = createPublicClient({
 })
 ```
 
+### ccipRead (optional)
+
+- **Type:** `(parameters: CcipRequestParameters) => Promise<CcipRequestReturnType> | false`
+- **Default:** `true`
+
+[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration.
+
+CCIP Read is enabled by default, but if set to `false`, the client will not support offchain CCIP lookups.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
+  ccipRead: false, // [!code focus]
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### ccipRead.request (optional)
+
+- **Type:** `(parameters: CcipRequestParameters) => Promise<CcipRequestReturnType>`
+
+A function that will be called to make the [offchain CCIP lookup request](https://eips.ethereum.org/EIPS/eip-3668#client-lookup-protocol).
+
+```ts twoslash
+// @noErrors
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
+  ccipRead: { // [!code focus]
+    async request({ data, sender, urls }) { // [!code focus]
+      // ... // [!code focus]
+    } // [!code focus]
+  }, // [!code focus]
+  chain: mainnet,
+  transport: http(),
+})
+```
+
 ### key (optional)
 
 - **Type:** `string`
@@ -267,6 +307,38 @@ const publicClient = createPublicClient({
   pollingInterval: 10_000, // [!code focus]
   transport: http(),
 })
+```
+
+### rpcSchema (optional)
+
+- **Type:** `RpcSchema`
+- **Default:** `PublicRpcSchema`
+
+Typed JSON-RPC schema for the client.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// @noErrors
+// ---cut---
+import { rpcSchema } from 'viem'
+
+type CustomRpcSchema = [{ // [!code focus]
+  Method: 'eth_wagmi', // [!code focus]
+  Parameters: [string] // [!code focus]
+  ReturnType: string // [!code focus]
+}] // [!code focus]
+
+const publicClient = createPublicClient({
+  chain: mainnet,
+  rpcSchema: rpcSchema<CustomRpcSchema>(), // [!code focus]
+  transport: http(),
+})
+
+const result = await publicClient.request({ // [!code focus]
+  method: 'eth_wa // [!code focus] 
+//               ^|
+  params: ['hello'], // [!code focus]
+}) // [!code focus]
 ```
 
 ## Live Example

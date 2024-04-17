@@ -13,6 +13,7 @@ export type Cursor = {
   positionReadCount: Map<number, number>
   recursiveReadCount: number
   recursiveReadLimit: number
+  remaining: number
   assertReadLimit(position?: number): void
   assertPosition(position: number): void
   decrementPosition(offset: number): void
@@ -196,6 +197,9 @@ const staticCursor: Cursor = {
     this.position += 4
     return value
   },
+  get remaining() {
+    return this.bytes.length - this.position
+  },
   setPosition(position) {
     const oldPosition = this.position
     this.assertPosition(position)
@@ -210,7 +214,7 @@ const staticCursor: Cursor = {
   },
 }
 
-type CursorConfig = { recursiveReadLimit?: number }
+type CursorConfig = { recursiveReadLimit?: number | undefined }
 
 export function createCursor(
   bytes: ByteArray,

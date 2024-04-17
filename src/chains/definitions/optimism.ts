@@ -1,5 +1,5 @@
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../opStack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
@@ -17,7 +17,7 @@ export const optimism = /*#__PURE__*/ defineChain({
     default: {
       name: 'Optimism Explorer',
       url: 'https://optimistic.etherscan.io',
-      apiUrl: 'https://api-optimistic.etherscan.io',
+      apiUrl: 'https://api-optimistic.etherscan.io/api',
     },
   },
   contracts: {

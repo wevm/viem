@@ -30,6 +30,7 @@ test('creates', () => {
       "account": undefined,
       "batch": undefined,
       "cacheTime": 4000,
+      "ccipRead": undefined,
       "chain": undefined,
       "extend": [Function],
       "key": "base",
@@ -63,6 +64,7 @@ describe('transports', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": {
           "fees": undefined,
           "formatters": undefined,
@@ -115,6 +117,7 @@ describe('transports', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": {
           "fees": undefined,
           "formatters": undefined,
@@ -167,6 +170,7 @@ describe('transports', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -208,6 +212,53 @@ describe('config', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 10000,
+        "ccipRead": undefined,
+        "chain": undefined,
+        "extend": [Function],
+        "key": "base",
+        "name": "Base Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
+          "key": "mock",
+          "name": "Mock Transport",
+          "request": [MockFunction spy],
+          "retryCount": 3,
+          "retryDelay": 150,
+          "timeout": undefined,
+          "type": "mock",
+        },
+        "type": "base",
+      }
+    `)
+  })
+
+  test('ccipRead', () => {
+    const mockTransport = () =>
+      createTransport({
+        key: 'mock',
+        name: 'Mock Transport',
+        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
+        type: 'mock',
+      })
+    const { uid, ...client } = createClient({
+      ccipRead: {
+        async request(_parameters) {
+          return '0x' as const
+        },
+      },
+      transport: mockTransport,
+    })
+
+    expect(uid).toBeDefined()
+    expect(client).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "batch": undefined,
+        "cacheTime": 4000,
+        "ccipRead": {
+          "request": [Function],
+        },
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -248,6 +299,7 @@ describe('config', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": undefined,
         "extend": [Function],
         "key": "bar",
@@ -288,6 +340,7 @@ describe('config', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -328,6 +381,7 @@ describe('config', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 10000,
+        "ccipRead": undefined,
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -368,6 +422,7 @@ describe('config', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -413,6 +468,7 @@ describe('extends', () => {
         "batch": undefined,
         "cacheTime": 4000,
         "call": [Function],
+        "ccipRead": undefined,
         "chain": {
           "fees": undefined,
           "formatters": undefined,
@@ -442,6 +498,7 @@ describe('extends', () => {
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
         "getBalance": [Function],
+        "getBlobBaseFee": [Function],
         "getBlock": [Function],
         "getBlockNumber": [Function],
         "getBlockTransactionCount": [Function],

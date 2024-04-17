@@ -11,8 +11,8 @@ export class BlockNotFoundError extends BaseError {
     blockHash,
     blockNumber,
   }: {
-    blockHash?: Hash
-    blockNumber?: bigint
+    blockHash?: Hash | undefined
+    blockNumber?: bigint | undefined
   }) {
     let identifier = 'Block'
     if (blockHash) identifier = `Block at hash "${blockHash}"`

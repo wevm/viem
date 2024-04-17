@@ -3,9 +3,13 @@ import { describe, expectTypeOf, test } from 'vitest'
 
 import type { Account, JsonRpcAccount } from '../accounts/types.js'
 import { localhost, optimism } from '../chains/index.js'
-import { publicActions } from '../index.js'
+import {
+  type EIP1193RequestFn,
+  createPublicClient,
+  publicActions,
+} from '../index.js'
 import { type Chain } from '../types/chain.js'
-import { type Client, createClient } from './createClient.js'
+import { type Client, createClient, rpcSchema } from './createClient.js'
 import { walletActions } from './decorators/wallet.js'
 import { http } from './transports/http.js'
 
@@ -124,5 +128,30 @@ describe('extend', () => {
       return client.extend(walletActions)
     }
     getClient(localhost)
+  })
+})
+
+test('custom rpc schema', () => {
+  type MockRpcSchema = [
+    {
+      Method: 'wallet_wagmi'
+      Parameters: [string]
+      ReturnType: string
+    },
+  ]
+
+  const client = createClient({
+    rpcSchema: rpcSchema<MockRpcSchema>(),
+    transport: http(),
+  })
+
+  expectTypeOf(client).toMatchTypeOf<Client>()
+  expectTypeOf(client.request).toEqualTypeOf<EIP1193RequestFn<MockRpcSchema>>()
+})
+
+test('https://github.com/wevm/viem/issues/1955', () => {
+  createPublicClient({
+    chain: optimism,
+    transport: http(),
   })
 })

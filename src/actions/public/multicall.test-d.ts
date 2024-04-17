@@ -341,6 +341,7 @@ test('MulticallParameters', async () => {
       | readonly [`0x${string}`]
       | readonly [`0x${string}`, `0x${string}`]
       | undefined
+    value?: undefined
   }>()
 })
 

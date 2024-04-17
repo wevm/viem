@@ -1,12 +1,16 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { Log } from '../../types/log.js'
 import type { RpcLog } from '../../types/rpc.js'
+import type { ExactPartial } from '../../types/utils.js'
 
 export type FormatLogErrorType = ErrorType
 
 export function formatLog(
-  log: Partial<RpcLog>,
-  { args, eventName }: { args?: unknown; eventName?: string } = {},
+  log: ExactPartial<RpcLog>,
+  {
+    args,
+    eventName,
+  }: { args?: unknown | undefined; eventName?: string | undefined } = {},
 ) {
   return {
     ...log,

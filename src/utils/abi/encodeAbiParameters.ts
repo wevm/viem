@@ -20,6 +20,7 @@ import {
   InvalidAddressError,
   type InvalidAddressErrorType,
 } from '../../errors/address.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
@@ -90,12 +91,12 @@ export function encodeAbiParameters<
   if (params.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
       expectedLength: params.length as number,
-      givenLength: values.length,
+      givenLength: values.length as any,
     })
   // Prepare the parameters to determine dynamic types to encode.
   const preparedParams = prepareParams({
     params: params as readonly AbiParameter[],
-    values,
+    values: values as any,
   })
   const data = encodeParams(preparedParams)
   if (data.length === 0) return '0x'
@@ -311,6 +312,10 @@ export type EncodeBoolErrorType =
   | ErrorType
 
 function encodeBool(value: boolean): PreparedParam {
+  if (typeof value !== 'boolean')
+    throw new BaseError(
+      `Invalid boolean value: "${value}" (type: ${typeof value}). Expected: \`true\` or \`false\`.`,
+    )
   return { dynamic: false, encoded: padHex(boolToHex(value)) }
 }
 

@@ -2,6 +2,7 @@ export {
   type Abi,
   type AbiFunction,
   type AbiParameter,
+  type AbiEvent,
   type AbiStateMutability,
   type AbiParameterKind,
   type AbiParameterToPrimitiveType,
@@ -120,6 +121,10 @@ export type {
   GetBalanceReturnType,
 } from './actions/public/getBalance.js'
 export type {
+  GetBlobBaseFeeErrorType,
+  GetBlobBaseFeeReturnType,
+} from './actions/public/getBlobBaseFee.js'
+export type {
   GetBlockNumberErrorType,
   GetBlockNumberParameters,
   GetBlockNumberReturnType,
@@ -149,6 +154,11 @@ export type {
   GetEnsAddressReturnType,
 } from './actions/ens/getEnsAddress.js'
 export type {
+  GetEnsAvatarErrorType,
+  GetEnsAvatarParameters,
+  GetEnsAvatarReturnType,
+} from './actions/ens/getEnsAvatar.js'
+export type {
   GetEnsNameErrorType,
   GetEnsNameParameters,
   GetEnsNameReturnType,
@@ -158,6 +168,11 @@ export type {
   GetEnsResolverParameters,
   GetEnsResolverReturnType,
 } from './actions/ens/getEnsResolver.js'
+export type {
+  GetEnsTextErrorType,
+  GetEnsTextParameters,
+  GetEnsTextReturnType,
+} from './actions/ens/getEnsText.js'
 export type {
   GetFeeHistoryErrorType,
   GetFeeHistoryParameters,
@@ -311,6 +326,7 @@ export type {
 export type {
   SendTransactionErrorType,
   SendTransactionParameters,
+  SendTransactionRequest,
   SendTransactionReturnType,
 } from './actions/wallet/sendTransaction.js'
 export type {
@@ -322,6 +338,7 @@ export type {
   PrepareTransactionRequestErrorType,
   PrepareTransactionRequestParameters,
   PrepareTransactionRequestParameterType,
+  PrepareTransactionRequestRequest,
   PrepareTransactionRequestReturnType,
 } from './actions/wallet/prepareTransactionRequest.js'
 export type {
@@ -415,6 +432,17 @@ export type {
   VerifyHashReturnType,
 } from './actions/public/verifyHash.js'
 export type {
+  VerifyTypedDataErrorType as VerifyTypedDataActionErrorType,
+  VerifyTypedDataParameters as VerifyTypedDataActionParameters,
+  VerifyTypedDataReturnType as VerifyTypedDataActionReturnType,
+} from './actions/public/verifyTypedData.js'
+export type {
+  VerifyMessageErrorType as VerifyMessageActionErrorType,
+  VerifyMessageParameters as VerifyMessageActionParameters,
+  VerifyMessageReturnType as VerifyMessageActionReturnType,
+} from './actions/public/verifyMessage.js'
+export type {
+  WatchContractEventOnLogsFn,
   WatchContractEventOnLogsParameter,
   WatchContractEventErrorType,
   WatchContractEventParameters,
@@ -440,12 +468,14 @@ export type {
   ExtractChainFormatterParameters,
   ExtractChainFormatterReturnType,
 } from './types/chain.js'
+export type { GetTransactionRequestKzgParameter, Kzg } from './types/kzg.js'
 export {
   type Client,
   type ClientConfig,
   type CreateClientErrorType,
   type MulticallBatchOptions,
   createClient,
+  rpcSchema,
 } from './clients/createClient.js'
 export {
   type CustomTransport,
@@ -859,8 +889,19 @@ export {
   type StateAssignmentConflictErrorType,
 } from './errors/stateOverride.js'
 export type {
+  AbiEventParameterToPrimitiveType,
+  AbiEventParametersToPrimitiveTypes,
+  AbiEventTopicToPrimitiveType,
   AbiItem,
+  AbiItemArgs,
+  AbiItemName,
+  ContractConstructorArgs,
+  ContractEventArgsFromTopics,
+  EventDefinition,
   ExtractAbiFunctionForArgs,
+  ExtractAbiItem,
+  ExtractAbiItemForArgs,
+  ExtractAbiItemNames,
   ContractErrorArgs,
   ContractErrorName,
   ContractEventArgs,
@@ -871,6 +912,9 @@ export type {
   ContractFunctionName,
   GetEventArgs,
   GetValue,
+  LogTopicType,
+  MaybeAbiEventName,
+  MaybeExtractEventArgsFromAbi,
 } from './types/contract.js'
 export type {
   AccessList,
@@ -890,13 +934,30 @@ export type {
   TransactionSerializableBase,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
+  TransactionSerializableEIP4844,
+  TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
+  TransactionSerializedEIP4844,
+  TransactionSerializedGeneric,
   TransactionSerializedLegacy,
   TransactionType,
+  TransactionRequestEIP4844,
 } from './types/transaction.js'
+export type {
+  ExactPartial,
+  ExactRequired,
+  IsNever,
+  OneOf,
+  Opaque,
+  UnionOmit,
+  UnionPartialBy,
+  UnionPick,
+  UnionRequiredBy,
+  UnionToTuple,
+} from './types/utils.js'
 export type {
   Account,
   AccountSource,
@@ -940,11 +1001,17 @@ export type {
   RpcSchema,
   RpcSchemaOverride,
   TestRpcSchema,
-  WatchAssetParams,
+  WalletCapabilities,
+  WalletCapabilitiesRecord,
+  WalletCallReceipt,
+  WalletGetCallsStatusReturnType,
+  WalletSendCallsParameters,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,
+  WatchAssetParams,
 } from './types/eip1193.js'
+export type { BlobSidecar, BlobSidecars } from './types/eip4844.js'
 export type {
   FeeHistory,
   FeeValues,
@@ -953,7 +1020,7 @@ export type {
   FeeValuesLegacy,
   FeeValuesType,
 } from './types/fee.js'
-export type { Filter } from './types/filter.js'
+export type { Filter, FilterType } from './types/filter.js'
 export type { TypedDataDefinition } from './types/typedData.js'
 export type { GetTransportConfig, GetPollOptions } from './types/transport.js'
 export type { HDKey } from '@scure/bip32'
@@ -963,7 +1030,10 @@ export type {
   MulticallResponse,
   MulticallResults,
 } from './types/multicall.js'
-export type { ParseAccount } from './types/account.js'
+export type {
+  ParseAccount,
+  DeriveAccount,
+} from './types/account.js'
 export type {
   Index,
   Quantity,
@@ -1060,6 +1130,12 @@ export {
   type EncodeFunctionDataReturnType,
   encodeFunctionData,
 } from './utils/abi/encodeFunctionData.js'
+export {
+  type PrepareEncodeFunctionDataErrorType,
+  type PrepareEncodeFunctionDataParameters,
+  type PrepareEncodeFunctionDataReturnType,
+  prepareEncodeFunctionData,
+} from './utils/abi/prepareEncodeFunctionData.js'
 export {
   type EncodeFunctionResultErrorType,
   type EncodeFunctionResultParameters,
@@ -1158,6 +1234,12 @@ export {
   type RecoverPublicKeyReturnType,
   recoverPublicKey,
 } from './utils/signature/recoverPublicKey.js'
+export {
+  type RecoverTransactionAddressErrorType,
+  type RecoverTransactionAddressParameters,
+  type RecoverTransactionAddressReturnType,
+  recoverTransactionAddress,
+} from './utils/signature/recoverTransactionAddress.js'
 export {
   type RecoverTypedDataAddressErrorType,
   type RecoverTypedDataAddressParameters,
@@ -1260,13 +1342,76 @@ export {
   fromBytes,
 } from './utils/encoding/fromBytes.js'
 export {
-  type CcipFetchErrorType,
-  ccipFetch,
+  type CcipRequestParameters,
+  type CcipRequestErrorType,
+  ccipRequest,
+  /** @deprecated Use `ccipRequest`. */
+  ccipRequest as ccipFetch,
   type OffchainLookupErrorType,
   offchainLookup,
   offchainLookupAbiItem,
   offchainLookupSignature,
 } from './utils/ccip.js'
+export {
+  type BlobsToCommitmentsErrorType,
+  type BlobsToCommitmentsParameters,
+  type BlobsToCommitmentsReturnType,
+  blobsToCommitments,
+} from './utils/blob/blobsToCommitments.js'
+export {
+  type CommitmentToVersionedHashErrorType,
+  type CommitmentToVersionedHashParameters,
+  type CommitmentToVersionedHashReturnType,
+  commitmentToVersionedHash,
+} from './utils/blob/commitmentToVersionedHash.js'
+export {
+  type CommitmentsToVersionedHashesErrorType,
+  type CommitmentsToVersionedHashesParameters,
+  type CommitmentsToVersionedHashesReturnType,
+  commitmentsToVersionedHashes,
+} from './utils/blob/commitmentsToVersionedHashes.js'
+export {
+  type SidecarsToVersionedHashesErrorType,
+  type SidecarsToVersionedHashesParameters,
+  type SidecarsToVersionedHashesReturnType,
+  sidecarsToVersionedHashes,
+} from './utils/blob/sidecarsToVersionedHashes.js'
+export {
+  type blobsToProofsErrorType,
+  type blobsToProofsParameters,
+  type blobsToProofsReturnType,
+  blobsToProofs,
+} from './utils/blob/blobsToProofs.js'
+export {
+  type FromBlobsErrorType,
+  type FromBlobsParameters,
+  type FromBlobsReturnType,
+  fromBlobs,
+} from './utils/blob/fromBlobs.js'
+export {
+  type ToBlobSidecarsErrorType,
+  type ToBlobSidecarsParameters,
+  type ToBlobSidecarsReturnType,
+  toBlobSidecars,
+} from './utils/blob/toBlobSidecars.js'
+export {
+  type ToBlobsErrorType,
+  type ToBlobsParameters,
+  type ToBlobsReturnType,
+  toBlobs,
+} from './utils/blob/toBlobs.js'
+export {
+  type DefineKzgErrorType,
+  type DefineKzgParameters,
+  type DefineKzgReturnType,
+  defineKzg,
+} from './utils/kzg/defineKzg.js'
+export {
+  type SetupKzgErrorType,
+  type SetupKzgParameters,
+  type SetupKzgReturnType,
+  setupKzg,
+} from './utils/kzg/setupKzg.js'
 export {
   type ConcatBytesErrorType,
   type ConcatErrorType,

@@ -9,6 +9,7 @@ import type { FeeValuesType } from '../types/fee.js'
 import type {
   TransactionSerializable,
   TransactionSerializableGeneric,
+  TransactionSerializedGeneric,
 } from '../types/transaction.js'
 import type { IsNarrowable, IsUndefined, Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
@@ -59,7 +60,7 @@ export type Chain<
   testnet?: boolean | undefined
 
   /** Custom chain data. */
-  custom?: custom
+  custom?: custom | undefined
   /**
    * Modifies how chain data structures (ie. Blocks, Transactions, etc)
    * are formatted & typed.
@@ -128,12 +129,16 @@ export type ChainFees<
    * Overrides the return value in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas).
    */
   estimateFeesPerGas?:
-    | ((
-        args: ChainEstimateFeesPerGasFnParameters<formatters>,
-      ) => Promise<EstimateFeesPerGasReturnType>)
+    | ChainEstimateFeesPerGasFn<formatters>
     | bigint
     | undefined
 }
+
+export type ChainEstimateFeesPerGasFn<
+  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+> = (
+  args: ChainEstimateFeesPerGasFnParameters<formatters>,
+) => Promise<EstimateFeesPerGasReturnType | null>
 
 export type ChainFormatters = {
   /** Modifies how the Block structure is formatted & typed. */
@@ -162,7 +167,8 @@ export type ChainSerializers<
             ? TransactionSerializableGeneric &
                 Parameters<formatters['transactionRequest']['format']>[0]
             : TransactionSerializable
-          : TransactionSerializable
+          : TransactionSerializable,
+        TransactionSerializedGeneric
       >
     | undefined
 }

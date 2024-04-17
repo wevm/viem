@@ -7,12 +7,18 @@ export const sidebar = {
       items: [
         { text: 'Why viem', link: '/docs/introduction' },
         { text: 'Getting Started', link: '/docs/getting-started' },
+        { text: 'Platform Compatibility', link: '/docs/compatibility' },
+        { text: 'FAQ', link: '/docs/faq' },
+      ],
+    },
+    {
+      text: 'Guides',
+      items: [
         { text: 'Migration Guide', link: '/docs/migration-guide' },
         { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
         { text: 'TypeScript', link: '/docs/typescript' },
         { text: 'Error Handling', link: '/docs/error-handling' },
-        { text: 'Platform Compatibility', link: '/docs/compatibility' },
-        { text: 'FAQ', link: '/docs/faq' },
+        { text: 'Blob Transactions', link: '/docs/guides/blob-transactions' },
       ],
     },
     {
@@ -110,6 +116,10 @@ export const sidebar = {
             {
               text: 'estimateMaxPriorityFeePerGas',
               link: '/docs/actions/public/estimateMaxPriorityFeePerGas',
+            },
+            {
+              text: 'getBlobBaseFee',
+              link: '/docs/actions/public/getBlobBaseFee',
             },
             {
               text: 'getFeeHistory',
@@ -696,6 +706,43 @@ export const sidebar = {
           ],
         },
         {
+          text: 'Blob',
+          items: [
+            {
+              text: 'blobsToProofs',
+              link: '/docs/utilities/blobsToProofs',
+            },
+            {
+              text: 'blobsToCommitments',
+              link: '/docs/utilities/blobsToCommitments',
+            },
+            {
+              text: 'commitmentsToVersionedHashes',
+              link: '/docs/utilities/commitmentsToVersionedHashes',
+            },
+            {
+              text: 'commitmentToVersionedHash',
+              link: '/docs/utilities/commitmentToVersionedHash',
+            },
+            {
+              text: 'fromBlobs',
+              link: '/docs/utilities/fromBlobs',
+            },
+            {
+              text: 'sidecarsToVersionedHashes',
+              link: '/docs/utilities/sidecarsToVersionedHashes',
+            },
+            {
+              text: 'toBlobs',
+              link: '/docs/utilities/toBlobs',
+            },
+            {
+              text: 'toBlobSidecars',
+              link: '/docs/utilities/toBlobSidecars',
+            },
+          ],
+        },
+        {
           text: 'Chain',
           items: [
             {
@@ -808,6 +855,15 @@ export const sidebar = {
           ],
         },
         {
+          text: 'KZG',
+          items: [
+            {
+              text: 'setupKzg',
+              link: '/docs/utilities/setupKzg',
+            },
+          ],
+        },
+        {
           text: 'Signature',
           items: [
             {
@@ -845,6 +901,10 @@ export const sidebar = {
             {
               text: 'recoverPublicKey',
               link: '/docs/utilities/recoverPublicKey',
+            },
+            {
+              text: 'recoverTransactionAddress',
+              link: '/docs/utilities/recoverTransactionAddress',
             },
             {
               text: 'recoverTypedDataAddress',
@@ -936,6 +996,46 @@ export const sidebar = {
       ],
     },
   ],
+  '/experimental': {
+    backLink: true,
+    items: [
+      {
+        text: 'Experimental',
+        items: [
+          {
+            text: 'Getting Started',
+            link: '/experimental',
+          },
+          { text: 'Client', link: '/experimental/client' },
+        ],
+      },
+      {
+        text: 'EIP-5792',
+        items: [
+          {
+            text: 'getCallsStatus',
+            link: '/experimental/actions/getCallsStatus',
+          },
+          {
+            text: 'getCapabilities',
+            link: '/experimental/actions/getCapabilities',
+          },
+          {
+            text: 'sendCalls',
+            link: '/experimental/actions/sendCalls',
+          },
+          {
+            text: 'showCallsStatus',
+            link: '/experimental/actions/showCallsStatus',
+          },
+          {
+            text: 'writeContracts',
+            link: '/experimental/actions/writeContracts',
+          },
+        ],
+      },
+    ],
+  },
   '/op-stack': {
     backLink: true,
     items: [
@@ -943,7 +1043,7 @@ export const sidebar = {
         text: 'OP Stack',
         items: [
           {
-            text: 'Getting started',
+            text: 'Getting Started',
             link: '/op-stack',
           },
           { text: 'Client', link: '/op-stack/client' },
@@ -1041,12 +1141,24 @@ export const sidebar = {
             link: '/op-stack/actions/estimateProveWithdrawalGas',
           },
           {
+            text: 'getGame',
+            link: '/op-stack/actions/getGame',
+          },
+          {
+            text: 'getGames',
+            link: '/op-stack/actions/getGames',
+          },
+          {
             text: 'getL2Output',
             link: '/op-stack/actions/getL2Output',
           },
           {
             text: 'getTimeToFinalize',
             link: '/op-stack/actions/getTimeToFinalize',
+          },
+          {
+            text: 'getTimeToNextGame',
+            link: '/op-stack/actions/getTimeToNextGame',
           },
           {
             text: 'getTimeToNextL2Output',
@@ -1059,6 +1171,10 @@ export const sidebar = {
           {
             text: 'getWithdrawalStatus',
             link: '/op-stack/actions/getWithdrawalStatus',
+          },
+          {
+            text: 'waitForNextGame',
+            link: '/op-stack/actions/waitForNextGame',
           },
           {
             text: 'waitForNextL2Output',
@@ -1145,7 +1261,7 @@ export const sidebar = {
         text: 'zkSync',
         items: [
           {
-            text: 'Getting started',
+            text: 'Getting Started',
             link: '/zksync',
           },
           { text: 'Client', link: '/zksync/client' },
@@ -1155,6 +1271,10 @@ export const sidebar = {
       {
         text: 'Actions',
         items: [
+          {
+            text: 'deployContract',
+            link: '/zksync/actions/deployContract',
+          },
           {
             text: 'sendTransaction',
             link: '/zksync/actions/sendTransaction',

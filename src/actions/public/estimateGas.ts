@@ -42,20 +42,20 @@ export type FormattedEstimateGas<
 export type EstimateGasParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedEstimateGas<TChain>, 'from'> & {
-  account?: Account | Address
+  account?: Account | Address | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
-        blockNumber?: bigint
-        blockTag?: never
+        blockNumber?: bigint | undefined
+        blockTag?: never | undefined
       }
     | {
-        blockNumber?: never
+        blockNumber?: never | undefined
         /**
          * The balance of the account at a block tag.
          * @default 'latest'
          */
-        blockTag?: BlockTag
+        blockTag?: BlockTag | undefined
       }
   )
 
@@ -106,24 +106,27 @@ export async function estimateGas<
   try {
     const {
       accessList,
+      blobs,
+      blobVersionedHashes,
       blockNumber,
       blockTag,
       data,
       gas,
       gasPrice,
+      maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
       to,
       value,
       ...rest
-    } =
-      account?.type === 'local'
-        ? ((await prepareTransactionRequest(
-            client,
-            args as PrepareTransactionRequestParameters,
-          )) as EstimateGasParameters)
-        : args
+    } = (await prepareTransactionRequest(client, {
+      ...args,
+      parameters:
+        // Some RPC Providers do not compute versioned hashes from blobs. We will need
+        // to compute them.
+        account?.type === 'local' ? undefined : ['blobVersionedHashes'],
+    } as PrepareTransactionRequestParameters)) as EstimateGasParameters
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
@@ -138,9 +141,12 @@ export async function estimateGas<
       ...extract(rest, { format: chainFormat }),
       from: account?.address,
       accessList,
+      blobs,
+      blobVersionedHashes,
       data,
       gas,
       gasPrice,
+      maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,

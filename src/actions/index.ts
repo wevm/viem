@@ -103,6 +103,11 @@ export {
   getBalance,
 } from './public/getBalance.js'
 export {
+  type GetBlobBaseFeeErrorType,
+  type GetBlobBaseFeeReturnType,
+  getBlobBaseFee,
+} from './public/getBlobBaseFee.js'
+export {
   type GetBlockErrorType,
   type GetBlockParameters,
   type GetBlockReturnType,
@@ -338,6 +343,7 @@ export {
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestReturnType,
   prepareTransactionRequest,
+  defaultParameters as defaultPrepareTransactionRequestParameters,
 } from './wallet/prepareTransactionRequest.js'
 export {
   type SendTransactionErrorType,

@@ -156,12 +156,6 @@ Check out the following places for more viem-related content:
     <img alt="Stripe logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg" width="auto" height="50">
   </picture>
 </a>
-<a href="https://bitkeep.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/bitkeep-dark.svg">
-    <img alt="BitKeep logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/bitkeep-light.svg" width="auto" height="50">
-  </picture>
-</a>
 <a href="https://privy.io">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/privy-dark.svg">
@@ -216,10 +210,10 @@ Check out the following places for more viem-related content:
     <img alt="supa logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg" width="auto" height="50">
   </picture>
 </a>
-<a href="https://blocto.io/">
+<a href="https://syndicate.io">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/blocto-dark.svg">
-    <img alt="blocto logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/blocto-light.svg" width="auto" height="50">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/syndicate-dark.svg">
+    <img alt="syndicate logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/syndicate-light.svg" width="auto" height="50">
   </picture>
 </a>
 

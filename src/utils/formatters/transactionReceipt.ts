@@ -5,6 +5,7 @@ import type {
 } from '../../types/chain.js'
 import type { RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
+import type { ExactPartial } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
@@ -19,7 +20,7 @@ export type FormattedTransactionReceipt<
   TransactionReceipt
 >
 
-const statuses = {
+export const receiptStatuses = {
   '0x0': 'reverted',
   '0x1': 'success',
 } as const
@@ -27,7 +28,7 @@ const statuses = {
 export type FormatTransactionReceiptErrorType = ErrorType
 
 export function formatTransactionReceipt(
-  transactionReceipt: Partial<RpcTransactionReceipt>,
+  transactionReceipt: ExactPartial<RpcTransactionReceipt>,
 ) {
   const receipt = {
     ...transactionReceipt,
@@ -54,7 +55,7 @@ export function formatTransactionReceipt(
       ? hexToNumber(transactionReceipt.transactionIndex)
       : null,
     status: transactionReceipt.status
-      ? statuses[transactionReceipt.status]
+      ? receiptStatuses[transactionReceipt.status]
       : null,
     type: transactionReceipt.type
       ? transactionType[

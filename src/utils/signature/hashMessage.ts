@@ -25,7 +25,7 @@ export type HashMessageErrorType =
 
 export function hashMessage<TTo extends To = 'hex'>(
   message: SignableMessage,
-  to_?: TTo,
+  to_?: TTo | undefined,
 ): HashMessage<TTo> {
   const messageBytes = (() => {
     if (typeof message === 'string') return stringToBytes(message)

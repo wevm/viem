@@ -6,8 +6,8 @@ type Resolved<TReturnType extends readonly unknown[] = any> = [
 ]
 
 type PendingPromise<TReturnType extends readonly unknown[] = any> = {
-  resolve?: (data: Resolved<TReturnType>) => void
-  reject?: (reason?: unknown) => void
+  resolve?: ((data: Resolved<TReturnType>) => void) | undefined
+  reject?: ((reason?: unknown) => void) | undefined
 }
 
 type SchedulerItem = { args: unknown; pendingPromise: PendingPromise }
@@ -23,9 +23,9 @@ export type CreateBatchSchedulerArguments<
 > = {
   fn: (args: TParameters[]) => Promise<TReturnType>
   id: number | string
-  shouldSplitBatch?: (args: TParameters[]) => boolean
-  wait?: number
-  sort?: BatchResultsCompareFn<TReturnType[number]>
+  shouldSplitBatch?: ((args: TParameters[]) => boolean) | undefined
+  wait?: number | undefined
+  sort?: BatchResultsCompareFn<TReturnType[number]> | undefined
 }
 
 export type CreateBatchSchedulerReturnType<
@@ -34,7 +34,7 @@ export type CreateBatchSchedulerReturnType<
 > = {
   flush: () => void
   schedule: TParameters extends undefined
-    ? (args?: TParameters) => Promise<Resolved<TReturnType>>
+    ? (args?: TParameters | undefined) => Promise<Resolved<TReturnType>>
     : (args: TParameters) => Promise<Resolved<TReturnType>>
 }
 

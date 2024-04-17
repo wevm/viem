@@ -19,7 +19,7 @@ export type FromBytesParameters<
   | TTo
   | {
       /** Size of the bytes. */
-      size?: number
+      size?: number | undefined
       /** Type to convert to. */
       to: TTo
     }
@@ -89,9 +89,9 @@ export function fromBytes<
 
 export type BytesToBigIntOpts = {
   /** Whether or not the number of a signed representation. */
-  signed?: boolean
+  signed?: boolean | undefined
   /** Size of the bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 export type BytesToBigIntErrorType =
@@ -124,7 +124,7 @@ export function bytesToBigInt(
 
 export type BytesToBoolOpts = {
   /** Size of the bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 export type BytesToBoolErrorType =
@@ -192,7 +192,7 @@ export function bytesToNumber(
 
 export type BytesToStringOpts = {
   /** Size of the bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 export type BytesToStringErrorType =

@@ -46,7 +46,7 @@ export type DecodeEventLogParameters<
 > = {
   abi: abi
   data?: data | undefined
-  eventName?: eventName | ContractEventName<abi>
+  eventName?: eventName | ContractEventName<abi> | undefined
   strict?: strict | boolean | undefined
   topics: [signature: Hex, ...args: topics] | []
 }
@@ -139,7 +139,7 @@ export function decodeEventLog<
         abiItem,
         param: param as AbiParameter & { indexed: boolean },
       })
-    args[param.name || i] = decodeTopic({ param, value: topic })
+    args[isUnnamed ? i : param.name || i] = decodeTopic({ param, value: topic })
   }
 
   // Decode data (non-indexed args).
