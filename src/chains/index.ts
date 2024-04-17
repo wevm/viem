@@ -235,8 +235,12 @@ export { wanchain } from './definitions/wanchain.js'
 export { wanchainTestnet } from './definitions/wanchainTestnet.js'
 export { wemix } from './definitions/wemix.js'
 export { wemixTestnet } from './definitions/wemixTestnet.js'
-export { xLayerTestnet, x1Testnet } from './definitions/xLayerTestnet.js'
-export { xLayer, x1 } from './definitions/xLayerTestnet.js'
+export {
+  xLayerTestnet,
+  /** @deprecated Use `xLayerTestnet` */
+  x1Testnet,
+} from './definitions/xLayerTestnet.js'
+export { xLayer } from './definitions/xLayerTestnet.js'
 export { xdc } from './definitions/xdc.js'
 export { xdcTestnet } from './definitions/xdcTestnet.js'
 export { zetachain } from './definitions/zetachain.js'
