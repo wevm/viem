@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const flowTestnet = /*#__PURE__*/ defineChain({
   id: 545,
-  name: 'Testnet',
+  name: 'FlowEVM Testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'Flow',
