@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
-import { zkSyncClientZksync } from '~test/src/zksync.js'
+import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
 import { getTransactionDetails } from './getTransactionDetails.js'
 
-const client = { ...zkSyncClientZksync }
+const client = { ...zkSyncClientLocalNode }
 
 test('default', async () => {
   //TODO: Should probably implement proper test, instead of this.

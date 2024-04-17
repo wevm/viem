@@ -64,7 +64,7 @@ export const zkSyncClientWithAccount = createClient({
   transport: http(),
 })
 
-export const zkSyncClientZksync = createClient({
+export const zkSyncClientLocalNode = createClient({
   chain: zkSyncLocalNode,
   transport: http(),
 })

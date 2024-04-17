@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
-import { zkSyncClientZksync } from '~test/src/zksync.js'
+import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
 import { getL1BatchBlockRange } from './getL1BatchBlockRange.js'
 
-const client = { ...zkSyncClientZksync }
+const client = { ...zkSyncClientLocalNode }
 
 test('default', async () => {
   const blockRange = await getL1BatchBlockRange(client, { l1BatchNumber: 0 })
