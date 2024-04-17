@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest'
-import { zkSyncClientZksync } from '~test/src/zksync.js'
 import { getBlockNumber } from '~viem/actions/index.js'
+import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
 import { getRawBlockTransaction } from './getRawBlockTransaction.js'
 
-const client = { ...zkSyncClientZksync }
+const client = { ...zkSyncClientLocalNode }
 
 test('default', async () => {
   const blockNumber = await getBlockNumber(client)

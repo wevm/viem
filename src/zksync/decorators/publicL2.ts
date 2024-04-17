@@ -14,6 +14,10 @@ import {
   getBlockDetails,
 } from '../actions/getBlockDetails.js'
 import {
+  type BridgeContractsReturnType,
+  getDefaultBridgeAddresses,
+} from '../actions/getDefaultBridgeAddress.js'
+import {
   type GetL1BatchBlockRangeParameters,
   type GetL1BatchBlockRangeReturnParameters,
   getL1BatchBlockRange,
@@ -44,6 +48,25 @@ import {
 } from '../actions/getTransactionDetails.js'
 
 export type PublicActionsL2 = {
+  /**
+   * Returns the addresses of the default zkSync Era bridge contracts on both L1 and L2.
+   *
+   * @returns The Address of the default zkSync Era bridge contracts on both L1 and L2. {@link BridgeContractsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const addresses = await client.getDefaultBridgeAddresses();
+   */
+  getDefaultBridgeAddresses: () => Promise<BridgeContractsReturnType>
+
   /**
    * Returns Testnet Paymaster Address.
    *
@@ -279,6 +302,7 @@ export function publicActionsL2() {
     client: Client<TTransport, TChain, TAccount>,
   ): PublicActionsL2 => {
     return {
+      getDefaultBridgeAddresses: () => getDefaultBridgeAddresses(client),
       getTestnetPaymasterAddress: () => getTestnetPaymasterAddress(client),
       getL1ChainId: () => getL1ChainId(client),
       getMainContractAddress: () => getMainContractAddress(client),

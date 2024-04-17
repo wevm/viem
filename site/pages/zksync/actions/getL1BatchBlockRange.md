@@ -18,7 +18,9 @@ const client = createPublicClient({
   transport: http(),
 }).extend(publicActionsL2())
 
-const batchBlockRange = await client.getL1BatchBlockRange({number:1});
+const batchBlockRange = await client.getL1BatchBlockRange({
+  number:1
+});
 ```
 
 ## Returns 

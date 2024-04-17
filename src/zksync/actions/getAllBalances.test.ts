@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
-import { zkSyncClientZksync } from '~test/src/zksync.js'
+import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
 import { getAllBalances } from './getAllBalances.js'
 
-const client = { ...zkSyncClientZksync }
+const client = { ...zkSyncClientLocalNode }
 
 test('default', async () => {
   const balances = await getAllBalances(client, {

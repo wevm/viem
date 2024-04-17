@@ -1369,8 +1369,12 @@ export const sidebar = {
             link: '/zksync/actions/writeContract',
           },
           {
-            text:"L2 Public Actions",
-            items:[
+            text: 'L2 Public Actions',
+            items: [
+              {
+                text: 'getDefaultBridgeAddress',
+                link: '/zksync/actions/getDefaultBridgeAddress',
+              },
               {
                 text: 'getTestnetPaymasterAddress',
                 link: '/zksync/actions/getTestnetPaymasterAddress',
@@ -1415,7 +1419,7 @@ export const sidebar = {
                 text: 'getL1BatchNumber',
                 link: '/zksync/actions/getL1BatchNumber',
               },
-            ]
+            ],
           },
         ],
       },
