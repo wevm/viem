@@ -16,7 +16,7 @@ export const xLayer = /*#__PURE__*/ defineChain({
       name: 'OKLink',
       url: 'https://www.oklink.com/xlayer',
     },
-  }
+  },
 })
 
 export { xLayer as x1 }
