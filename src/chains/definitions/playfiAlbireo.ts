@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../zksync/chainConfig.js'
+import { chainConfig } from '../../zksync/chainConfig.js'
 
-export const playFiAlbireo = /*#__PURE__*/ defineChain({
+export const playfiAlbireo = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 1_612_127,
   name: 'PlayFi Albireo Testnet',
