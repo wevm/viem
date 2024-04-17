@@ -7,11 +7,11 @@ import {
   type AllowanceL1Parameters,
   getAllowanceL1,
 } from '../actions/getAllowanceL1.js'
+import { getBalanceL1 } from '../actions/getBalanceL1.js'
 import {
   type BalanceOfTokenL1Parameters,
   getBalanceOfTokenL1,
 } from '../actions/getBalanceOfTokenL1.js'
-import { getBalanceL1 } from '../actions/getBalanceL1.js'
 
 export type PublicActionsL1<
   TAccount extends Account | undefined = Account | undefined,
@@ -105,7 +105,7 @@ export type PublicActionsL1<
    */
   getBalanceOfTokenL1: <
     TToken extends Address | undefined = Address | undefined,
-  > (
+  >(
     parameters: BalanceOfTokenL1Parameters<TAccount, TToken, true>,
   ) => Promise<bigint>
   /**
@@ -130,7 +130,7 @@ export type PublicActionsL1<
    * const data = await client.getBalanceL1({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
    * })
-   * 
+   *
    * const data = await client.getBalanceL1({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
    *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
@@ -150,14 +150,12 @@ export type PublicActionsL1<
    * }).extend(publicActionsL1())
    *
    * const data = await client.getBalanceL1()
-   * 
+   *
    * const data = await client.getBalanceL1({
    *  token: '0x5C221E77624690fff6dd741493D735a17716c26B'
    * })
    */
-  getBalanceL1: <
-    TToken extends Address | undefined = Address | undefined,
-  > (
+  getBalanceL1: <TToken extends Address | undefined = Address | undefined>(
     parameters: BalanceOfTokenL1Parameters<TAccount, TToken, false>,
   ) => Promise<bigint>
 }

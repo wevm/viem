@@ -1,11 +1,11 @@
 export const contractDeployerAddress =
   '0x0000000000000000000000000000000000008006' as const
 
-export const LEGACY_ETH_ADDRESS =
+export const legacyETHAddress =
   '0x0000000000000000000000000000000000000000' as const
 
-export const ETH_ADDRESS_IN_CONTRACTS =
+export const ETHAddressInContracts =
   '0x0000000000000000000000000000000000000001' as const
 
-export const L2_BASE_TOKEN_ADDRESS =
+export const L2BaseTokenAddress =
   '0x000000000000000000000000000000000000800a' as const
