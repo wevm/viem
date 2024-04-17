@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.20
+
+### Patch Changes
+
+- [#2140](https://github.com/wevm/viem/pull/2140) [`461f99755889239f2c59b5e88baf9b81c60be49f`](https://github.com/wevm/viem/commit/461f99755889239f2c59b5e88baf9b81c60be49f) Thanks [@therealdannzor](https://github.com/therealdannzor)! - Added PlayFi Albireo chain.
+
+- [`7d96364f3426adae99f66dad9203c7d6007b3122`](https://github.com/wevm/viem/commit/7d96364f3426adae99f66dad9203c7d6007b3122) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
 ## 2.9.19
 
 ### Patch Changes
