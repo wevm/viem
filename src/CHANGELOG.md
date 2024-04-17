@@ -1,5 +1,13 @@
 # viem
 
+## 2.9.21
+
+### Patch Changes
+
+- [#2144](https://github.com/wevm/viem/pull/2144) [`424e583e20c4754dffdff61f533133d8b674024f`](https://github.com/wevm/viem/commit/424e583e20c4754dffdff61f533133d8b674024f) Thanks [@bthaile](https://github.com/bthaile)! - Added Flow testnet.
+
+- [#2142](https://github.com/wevm/viem/pull/2142) [`c4047dc5b7cd85bf86694dcde46105ee28433f43`](https://github.com/wevm/viem/commit/c4047dc5b7cd85bf86694dcde46105ee28433f43) Thanks [@UncleBill](https://github.com/UncleBill)! - Added X Layer chain.
+
 ## 2.9.20
 
 ### Patch Changes
