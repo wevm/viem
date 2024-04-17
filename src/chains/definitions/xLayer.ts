@@ -18,5 +18,3 @@ export const xLayer = /*#__PURE__*/ defineChain({
     },
   },
 })
-
-export { xLayer as x1 }

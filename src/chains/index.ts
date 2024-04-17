@@ -241,7 +241,7 @@ export {
   /** @deprecated Use `xLayerTestnet` */
   x1Testnet,
 } from './definitions/xLayerTestnet.js'
-export { xLayer } from './definitions/xLayerTestnet.js'
+export { xLayer } from './definitions/xLayer.js'
 export { xdc } from './definitions/xdc.js'
 export { xdcTestnet } from './definitions/xdcTestnet.js'
 export { zetachain } from './definitions/zetachain.js'
