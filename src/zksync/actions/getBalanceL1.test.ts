@@ -8,7 +8,7 @@ import { sepolia } from '../../chains/index.js'
 import { erc20Abi } from '../../constants/abis.js'
 import { http, createClient, createPublicClient } from '../../index.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
-import { getBalanceOfTokenL1 } from './getBalanceOfTokenL1.js'
+import { getBalanceL1 } from './getBalanceL1.js'
 
 const sourceAccount = accounts[0]
 const tokenL1 = '0x5C221E77624690fff6dd741493D735a17716c26B'
@@ -19,7 +19,7 @@ afterAll(() => {
   spy.mockRestore()
 })
 
-test('default with account hoisting', async () => {
+test('default with account hoisting and token', async () => {
   const client = createClient({
     chain: sepolia,
     transport: http(),
@@ -27,7 +27,7 @@ test('default with account hoisting', async () => {
   }).extend(publicActionsL1())
 
   expect(
-    await getBalanceOfTokenL1(client, {
+    await getBalanceL1(client, {
       token: tokenL1,
     }),
   ).toBe(170n)
@@ -39,6 +39,86 @@ test('default with account hoisting', async () => {
     args: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
     blockTag: undefined,
   })
+})
+
+test('args: blockTag with account hoisting and token', async () => {
+  const client = createClient({
+    chain: sepolia,
+    transport: http(),
+    account,
+  }).extend(publicActionsL1())
+
+  expect(
+    await getBalanceL1(client, {
+      token: tokenL1,
+      blockTag: 'finalized',
+    }),
+  ).toBe(170n)
+
+  expect(spy).toHaveBeenCalledWith(client, {
+    abi: erc20Abi,
+    address: tokenL1,
+    functionName: 'balanceOf',
+    args: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
+    blockTag: 'finalized',
+  })
+})
+
+test('default with account provided to the method and token', async () => {
+  const client = createPublicClient({
+    chain: sepolia,
+    transport: http(),
+  }).extend(publicActionsL1())
+
+  expect(
+    await getBalanceL1(client, {
+      token: tokenL1,
+      account,
+    }),
+  ).toBe(170n)
+
+  expect(spy).toHaveBeenCalledWith(client, {
+    abi: erc20Abi,
+    address: tokenL1,
+    functionName: 'balanceOf',
+    args: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
+    blockTag: undefined,
+  })
+})
+
+test('args: blockTag with account provided to the method and token', async () => {
+  const client = createPublicClient({
+    chain: sepolia,
+    transport: http(),
+  }).extend(publicActionsL1())
+
+  expect(
+    await getBalanceL1(client, {
+      token: tokenL1,
+      account,
+      blockTag: 'finalized',
+    }),
+  ).toBe(170n)
+
+  expect(spy).toHaveBeenCalledWith(client, {
+    abi: erc20Abi,
+    address: tokenL1,
+    functionName: 'balanceOf',
+    args: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
+    blockTag: 'finalized',
+  })
+})
+
+test('default with account hoisting', async () => {
+  const client = createClient({
+    chain: sepolia,
+    transport: http(),
+    account,
+  }).extend(publicActionsL1())
+
+  expect(
+    await getBalanceL1(client, {}),
+  ).toBe(8n)
 })
 
 test('args: blockTag with account hoisting', async () => {
@@ -49,19 +129,10 @@ test('args: blockTag with account hoisting', async () => {
   }).extend(publicActionsL1())
 
   expect(
-    await getBalanceOfTokenL1(client, {
-      token: tokenL1,
+    await getBalanceL1(client, {
       blockTag: 'finalized',
     }),
-  ).toBe(170n)
-
-  expect(spy).toHaveBeenCalledWith(client, {
-    abi: erc20Abi,
-    address: tokenL1,
-    functionName: 'balanceOf',
-    args: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
-    blockTag: 'finalized',
-  })
+  ).toBe(8n)
 })
 
 test('default with account provided to the method', async () => {
@@ -71,19 +142,10 @@ test('default with account provided to the method', async () => {
   }).extend(publicActionsL1())
 
   expect(
-    await getBalanceOfTokenL1(client, {
-      token: tokenL1,
+    await getBalanceL1(client, {
       account,
     }),
-  ).toBe(170n)
-
-  expect(spy).toHaveBeenCalledWith(client, {
-    abi: erc20Abi,
-    address: tokenL1,
-    functionName: 'balanceOf',
-    args: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
-    blockTag: undefined,
-  })
+  ).toBe(8n)
 })
 
 test('args: blockTag with account provided to the method', async () => {
@@ -93,18 +155,9 @@ test('args: blockTag with account provided to the method', async () => {
   }).extend(publicActionsL1())
 
   expect(
-    await getBalanceOfTokenL1(client, {
-      token: tokenL1,
+    await getBalanceL1(client, {
       account,
       blockTag: 'finalized',
     }),
-  ).toBe(170n)
-
-  expect(spy).toHaveBeenCalledWith(client, {
-    abi: erc20Abi,
-    address: tokenL1,
-    functionName: 'balanceOf',
-    args: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
-    blockTag: 'finalized',
-  })
+  ).toBe(8n)
 })

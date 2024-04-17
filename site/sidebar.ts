@@ -1269,7 +1269,7 @@ export const sidebar = {
         ],
       },
       {
-        text: "EIP 712 Actions",
+        text: 'EIP 712 Actions',
         items: [
           {
             text: 'deployContract',
@@ -1292,6 +1292,10 @@ export const sidebar = {
       {
         text: 'L1 Public Actions',
         items: [
+          {
+            text: 'getBalanceL1',
+            link: '/zksync/actions/getBalanceL1',
+          },
           {
             text: 'getBalanceOfTokenL1',
             link: '/zksync/actions/getBalanceOfTokenL1',
