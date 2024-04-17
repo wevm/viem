@@ -1,9 +1,9 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../zksync/chainConfig.js'
 
-export const albireo = /*#__PURE__*/ defineChain({
+export const playFiAlbireo = /*#__PURE__*/ defineChain({
   ...chainConfig,
-  id: 1612127,
+  id: 1_612_127,
   name: 'PlayFi Albireo Testnet',
   network: 'albireo',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -16,7 +16,7 @@ export const albireo = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'PlayFi Albireo Explorer',
-      url: 'https://albireo-explorer.playfi.ai/',
+      url: 'https://albireo-explorer.playfi.ai',
     },
   },
   contracts: {
