@@ -1,7 +1,7 @@
-import type { Client } from '../../clients/createClient.js'
-import type { Transport } from '../../clients/transports/createTransport.js'
-import type { Account, JsonRpcAccount } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
+import type { Client } from '../../../clients/createClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { Account, JsonRpcAccount } from '../../../types/account.js'
+import type { Chain } from '../../../types/chain.js'
 import {
   type GetCallsStatusParameters,
   type GetCallsStatusReturnType,

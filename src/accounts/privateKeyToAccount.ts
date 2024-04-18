@@ -4,6 +4,7 @@ import type { Hex } from '../types/misc.js'
 import { type ToHexErrorType, toHex } from '../utils/encoding/toHex.js'
 
 import type { ErrorType } from '../errors/utils.js'
+import { signAuthMessage } from '../experimental/eip3074/utils/signAuthMessage.js'
 import { type ToAccountErrorType, toAccount } from './toAccount.js'
 import type { PrivateKeyAccount } from './types.js'
 import {
@@ -40,6 +41,9 @@ export function privateKeyToAccount(privateKey: Hex): PrivateKeyAccount {
 
   const account = toAccount({
     address,
+    async experimental_signAuthMessage(parameters) {
+      return signAuthMessage({ ...parameters, privateKey })
+    },
     async signMessage({ message }) {
       return signMessage({ message, privateKey })
     },
@@ -55,5 +59,5 @@ export function privateKeyToAccount(privateKey: Hex): PrivateKeyAccount {
     ...account,
     publicKey,
     source: 'privateKey',
-  }
+  } as PrivateKeyAccount
 }

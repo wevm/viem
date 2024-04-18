@@ -1010,27 +1010,36 @@ export const sidebar = {
         ],
       },
       {
+        text: 'EIP-3074',
+        items: [
+          {
+            text: 'signAuthMessage',
+            link: '/experimental/eip3074/signAuthMessage',
+          },
+        ],
+      },
+      {
         text: 'EIP-5792',
         items: [
           {
             text: 'getCallsStatus',
-            link: '/experimental/actions/getCallsStatus',
+            link: '/experimental/eip5792/getCallsStatus',
           },
           {
             text: 'getCapabilities',
-            link: '/experimental/actions/getCapabilities',
+            link: '/experimental/eip5792/getCapabilities',
           },
           {
             text: 'sendCalls',
-            link: '/experimental/actions/sendCalls',
+            link: '/experimental/eip5792/sendCalls',
           },
           {
             text: 'showCallsStatus',
-            link: '/experimental/actions/showCallsStatus',
+            link: '/experimental/eip5792/showCallsStatus',
           },
           {
             text: 'writeContracts',
-            link: '/experimental/actions/writeContracts',
+            link: '/experimental/eip5792/writeContracts',
           },
         ],
       },

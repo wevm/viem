@@ -1,19 +1,19 @@
-import type { Client } from '../../clients/createClient.js'
-import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
-import type { ErrorType } from '../../errors/utils.js'
+import type { Client } from '../../../clients/createClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../../errors/account.js'
+import type { ErrorType } from '../../../errors/utils.js'
 import type {
   GetAccountParameter,
   JsonRpcAccount,
-} from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
+} from '../../../types/account.js'
+import type { Chain } from '../../../types/chain.js'
 import type {
   WalletCapabilities,
   WalletCapabilitiesRecord,
-} from '../../types/eip1193.js'
-import type { Prettify } from '../../types/utils.js'
-import { parseAccount } from '../../utils/accounts.js'
-import type { RequestErrorType } from '../../utils/buildRequest.js'
+} from '../../../types/eip1193.js'
+import type { Prettify } from '../../../types/utils.js'
+import { parseAccount } from '../../../utils/accounts.js'
+import type { RequestErrorType } from '../../../utils/buildRequest.js'
 
 export type GetCapabilitiesParameters<
   account extends JsonRpcAccount | undefined = JsonRpcAccount | undefined,

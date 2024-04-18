@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
-import { accounts, localHttpUrl } from '../../../test/src/constants.js'
-import { mainnet } from '../../chains/index.js'
-import { createClient } from '../../clients/createClient.js'
-import { custom } from '../../clients/transports/custom.js'
-import { RpcRequestError } from '../../errors/request.js'
-import { getHttpRpcClient, parseEther } from '../../utils/index.js'
+import { accounts, localHttpUrl } from '../../../../test/src/constants.js'
+import { mainnet } from '../../../chains/index.js'
+import { createClient } from '../../../clients/createClient.js'
+import { custom } from '../../../clients/transports/custom.js'
+import { RpcRequestError } from '../../../errors/request.js'
+import { getHttpRpcClient, parseEther } from '../../../utils/index.js'
 import { sendCalls } from './sendCalls.js'
 
 const getClient = ({
