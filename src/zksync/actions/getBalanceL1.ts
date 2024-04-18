@@ -2,6 +2,8 @@ import type { Address } from '../../accounts/index.js'
 import { getBalance } from '../../actions/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { AccountNotFoundError } from '../../errors/account.js'
+import type { BaseError } from '../../errors/base.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -26,6 +28,10 @@ export type BalanceL1Parameters<
     : { token?: TToken | Address }) & {
     blockTag?: BlockTag | undefined
   }
+
+export type BalanceL1ReturnType = bigint
+
+export type BalanceL1ErrorType = AccountNotFoundError | BaseError
 
 export async function getBalanceL1<
   TChain extends Chain | undefined,

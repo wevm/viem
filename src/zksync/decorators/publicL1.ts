@@ -6,10 +6,15 @@ import type { Account } from '../../types/account.js'
 import {
   type AllowanceL1Parameters,
   getAllowanceL1,
+  type getAllowanceL1ReturnType,
 } from '../actions/getAllowanceL1.js'
-import { getBalanceL1 } from '../actions/getBalanceL1.js'
+import {
+  type BalanceL1ReturnType,
+  getBalanceL1,
+} from '../actions/getBalanceL1.js'
 import {
   type BalanceOfTokenL1Parameters,
+  type BalanceOfTokenL1ReturnType,
   getBalanceOfTokenL1,
 } from '../actions/getBalanceOfTokenL1.js'
 
@@ -23,7 +28,7 @@ export type PublicActionsL1<
    *
    * @param client - Client to use
    * @param parameters - {@link AllowanceL1Parameters}
-   * @returns The amount of approved tokens for a specific L1 bridge. {@link bigint}
+   * @returns The amount of approved tokens for a specific L1 bridge. {@link getAllowanceL1ReturnType}
    *
    * @example
    * import { createPublicClient, custom, parseEther } from 'viem'
@@ -61,7 +66,7 @@ export type PublicActionsL1<
    */
   getAllowanceL1: (
     parameters: AllowanceL1Parameters<TAccount>,
-  ) => Promise<bigint>
+  ) => Promise<getAllowanceL1ReturnType>
   /**
    * Returns the amount of the ERC20 token the client has on specific address.
    *
@@ -69,7 +74,7 @@ export type PublicActionsL1<
    *
    * @param client - Client to use
    * @param parameters - {@link BalanceOfTokenL1Parameters}
-   * @returns The amount of the ERC20 token the client has on specific addresse. {@link bigint}
+   * @returns The amount of the ERC20 token the client has on specific addresse. {@link BalanceOfTokenL1ReturnType}
    *
    * @example
    * import { createPublicClient, custom, parseEther } from 'viem'
@@ -107,7 +112,7 @@ export type PublicActionsL1<
     TToken extends Address | undefined = Address | undefined,
   >(
     parameters: BalanceOfTokenL1Parameters<TAccount, TToken, true>,
-  ) => Promise<bigint>
+  ) => Promise<BalanceOfTokenL1ReturnType>
   /**
    * Returns the amount of the token held by the account on the L1 network.
    *
@@ -115,7 +120,7 @@ export type PublicActionsL1<
    *
    * @param client - Client to use
    * @param parameters - {@link BalanceL1Parameters}
-   * @returns Returns the amount of the token held by the account on the L1 network. {@link bigint}
+   * @returns Returns the amount of the token held by the account on the L1 network. {@link BalanceL1ReturnType}
    *
    * @example
    * import { createPublicClient, custom, parseEther } from 'viem'
@@ -149,7 +154,7 @@ export type PublicActionsL1<
    *   transport: http(),
    * }).extend(publicActionsL1())
    *
-   * const data = await client.getBalanceL1()
+   * const data = await client.getBalanceL1({})
    *
    * const data = await client.getBalanceL1({
    *  token: '0x5C221E77624690fff6dd741493D735a17716c26B'
@@ -157,7 +162,7 @@ export type PublicActionsL1<
    */
   getBalanceL1: <TToken extends Address | undefined = Address | undefined>(
     parameters: BalanceOfTokenL1Parameters<TAccount, TToken, false>,
-  ) => Promise<bigint>
+  ) => Promise<BalanceL1ReturnType>
 }
 
 export function publicActionsL1() {

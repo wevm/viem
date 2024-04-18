@@ -7,6 +7,11 @@ import * as readContract from '../../actions/public/readContract.js'
 import { sepolia } from '../../chains/index.js'
 import { erc20Abi } from '../../constants/abis.js'
 import { http, createClient, createPublicClient } from '../../index.js'
+import {
+  ETHAddressInContracts,
+  L2BaseTokenAddress,
+  legacyETHAddress,
+} from '../constants/address.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
 import { getBalanceOfTokenL1 } from './getBalanceOfTokenL1.js'
 
@@ -107,4 +112,59 @@ test('args: blockTag with account provided to the method', async () => {
     args: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
     blockTag: 'finalized',
   })
+})
+
+test('provided token is ETH', async () => {
+  const client = createPublicClient({
+    chain: sepolia,
+    transport: http(),
+  }).extend(publicActionsL1())
+
+  await expect(() =>
+    getBalanceOfTokenL1(client, {
+      token: ETHAddressInContracts,
+      account,
+      blockTag: 'finalized',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `
+      [TokenIsETHError: Token is an ETH token.
+
+      ETH token can't be retrived!
+      
+      Version: viem@1.0.2]
+  `,
+  )
+
+  await expect(() =>
+    getBalanceOfTokenL1(client, {
+      token: legacyETHAddress,
+      account,
+      blockTag: 'finalized',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `
+      [TokenIsETHError: Token is an ETH token.
+
+      ETH token can't be retrived!
+      
+      Version: viem@1.0.2]
+  `,
+  )
+
+  await expect(() =>
+    getBalanceOfTokenL1(client, {
+      token: L2BaseTokenAddress,
+      account,
+      blockTag: 'finalized',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `
+      [TokenIsETHError: Token is an ETH token.
+
+      ETH token can't be retrived!
+      
+      Version: viem@1.0.2]
+  `,
+  )
 })

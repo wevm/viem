@@ -3,9 +3,13 @@ import { readContract } from '../../actions/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
+import type { AccountNotFoundError } from '../../errors/account.js'
+import type { BaseError } from '../../errors/base.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { parseAccount } from '../../utils/accounts.js'
+import { TokenIsETHError } from '../errors/token-is-eth.js'
+import { isETH } from '../utils/isETH.js'
 import type { BalanceL1Parameters } from './getBalanceL1.js'
 
 export type BalanceOfTokenL1Parameters<
@@ -14,6 +18,13 @@ export type BalanceOfTokenL1Parameters<
   TRequired extends boolean = true,
 > = BalanceL1Parameters<TAccount, TToken, TRequired>
 
+export type BalanceOfTokenL1ReturnType = bigint
+
+export type BalanceOfTokenL1ErrorType =
+  | AccountNotFoundError
+  | BaseError
+  | TokenIsETHError
+
 export async function getBalanceOfTokenL1<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
@@ -21,12 +32,16 @@ export async function getBalanceOfTokenL1<
 >(
   client: Client<Transport, TChain, TAccount>,
   parameters: BalanceOfTokenL1Parameters<TAccount, TToken, true>,
-): Promise<bigint> {
+): Promise<BalanceOfTokenL1ReturnType> {
   const {
     token,
     blockTag,
     account: account_,
   } = parameters as BalanceOfTokenL1Parameters<TAccount>
+
+  if (isETH(token!)) {
+    throw new TokenIsETHError()
+  }
 
   const account = account_ ? parseAccount(account_) : client.account
 
