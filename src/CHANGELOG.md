@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.22
+
+### Patch Changes
+
+- [`e5121a3055233a7cda8a46435bcdee674f1b1313`](https://github.com/wevm/viem/commit/e5121a3055233a7cda8a46435bcdee674f1b1313) Thanks [@jxom](https://github.com/jxom)! - Fixed `getContract` function generics.
+
 ## 2.9.21
 
 ### Patch Changes
