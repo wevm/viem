@@ -76,5 +76,8 @@ test('getBalanceL1', async () => {
     }),
   ).toBe(170n)
 
-  expect(await clientWithAccount.getBalanceL1({})).toBe(8n)
+  expect(
+    await clientWithAccount.getBalanceL1({
+    }),
+  ).toBe(8n)
 })

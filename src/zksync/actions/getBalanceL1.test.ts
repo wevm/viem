@@ -116,7 +116,9 @@ test('default with account hoisting', async () => {
     account,
   }).extend(publicActionsL1())
 
-  expect(await getBalanceL1(client, {})).toBe(8n)
+  expect(
+    await getBalanceL1(client, {}),
+  ).toBe(8n)
 })
 
 test('args: blockTag with account hoisting', async () => {

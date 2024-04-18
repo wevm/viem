@@ -21,11 +21,11 @@ export type BalanceL1Parameters<
 > = GetAccountParameter<TAccount> &
   (IsUndefined<TToken> extends true
     ? TRequired extends false
-    ? { token?: TToken | Address }
-    : { token: TToken | Address }
+      ? { token?: TToken | Address }
+      : { token: TToken | Address }
     : { token?: TToken | Address }) & {
-      blockTag?: BlockTag | undefined
-    }
+    blockTag?: BlockTag | undefined
+  }
 
 export async function getBalanceL1<
   TChain extends Chain | undefined,
