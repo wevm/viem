@@ -468,12 +468,14 @@ export type {
   ExtractChainFormatterParameters,
   ExtractChainFormatterReturnType,
 } from './types/chain.js'
+export type { GetTransactionRequestKzgParameter, Kzg } from './types/kzg.js'
 export {
   type Client,
   type ClientConfig,
   type CreateClientErrorType,
   type MulticallBatchOptions,
   createClient,
+  rpcSchema,
 } from './clients/createClient.js'
 export {
   type CustomTransport,

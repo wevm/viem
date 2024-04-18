@@ -268,3 +268,36 @@ const client = createClient({
   transport: http(),
 })
 ```
+
+### rpcSchema (optional)
+
+- **Type:** `RpcSchema`
+- **Default:** `WalletRpcSchema`
+
+Typed JSON-RPC schema for the client.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// @noErrors
+// ---cut---
+import { rpcSchema } from 'viem'
+
+type CustomRpcSchema = [{ // [!code focus]
+  Method: 'eth_wagmi', // [!code focus]
+  Parameters: [string] // [!code focus]
+  ReturnType: string // [!code focus]
+}] // [!code focus]
+
+const client = createClient({
+  chain: mainnet,
+  rpcSchema: rpcSchema<CustomRpcSchema>(), // [!code focus]
+  transport: http()
+})
+
+const result = await client.request({ // [!code focus]
+  method: 'eth_wa // [!code focus] 
+//               ^|
+  params: ['hello'], // [!code focus]
+}) // [!code focus]
+```

@@ -1,5 +1,37 @@
 # viem
 
+## 2.9.21
+
+### Patch Changes
+
+- [#2144](https://github.com/wevm/viem/pull/2144) [`424e583e20c4754dffdff61f533133d8b674024f`](https://github.com/wevm/viem/commit/424e583e20c4754dffdff61f533133d8b674024f) Thanks [@bthaile](https://github.com/bthaile)! - Added Flow testnet.
+
+- [#2142](https://github.com/wevm/viem/pull/2142) [`c4047dc5b7cd85bf86694dcde46105ee28433f43`](https://github.com/wevm/viem/commit/c4047dc5b7cd85bf86694dcde46105ee28433f43) Thanks [@UncleBill](https://github.com/UncleBill)! - Added X Layer chain.
+
+## 2.9.20
+
+### Patch Changes
+
+- [#2140](https://github.com/wevm/viem/pull/2140) [`461f99755889239f2c59b5e88baf9b81c60be49f`](https://github.com/wevm/viem/commit/461f99755889239f2c59b5e88baf9b81c60be49f) Thanks [@therealdannzor](https://github.com/therealdannzor)! - Added PlayFi Albireo chain.
+
+- [`7d96364f3426adae99f66dad9203c7d6007b3122`](https://github.com/wevm/viem/commit/7d96364f3426adae99f66dad9203c7d6007b3122) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
+## 2.9.19
+
+### Patch Changes
+
+- [#2139](https://github.com/wevm/viem/pull/2139) [`ee55a4e3ba632476d3249a7f85f687f6ff5110cb`](https://github.com/wevm/viem/commit/ee55a4e3ba632476d3249a7f85f687f6ff5110cb) Thanks [@michecode](https://github.com/michecode)! - Added Mantle Sepolia chain.
+
+- [`581dc93fb5216ee910ac741af617f0c45edf582b`](https://github.com/wevm/viem/commit/581dc93fb5216ee910ac741af617f0c45edf582b) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where a request `dispatcher` wasn't being propagated to `fetch`.
+
+## 2.9.18
+
+### Patch Changes
+
+- [`2158c1d76b7d1a18936c8718faf987a35ea2a14f`](https://github.com/wevm/viem/commit/2158c1d76b7d1a18936c8718faf987a35ea2a14f) Thanks [@jxom](https://github.com/jxom)! - Added ability to override `RpcSchema` type on Client.
+
+- [#2135](https://github.com/wevm/viem/pull/2135) [`f722ff7e207f64cd75c25a512fda31117e8d934e`](https://github.com/wevm/viem/commit/f722ff7e207f64cd75c25a512fda31117e8d934e) Thanks [@hamidroohi71](https://github.com/hamidroohi71)! - Added Darwinia chain
+
 ## 2.9.17
 
 ### Patch Changes

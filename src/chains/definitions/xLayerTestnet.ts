@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const x1Testnet = /*#__PURE__*/ defineChain({
+export const xLayerTestnet = /*#__PURE__*/ defineChain({
   id: 195,
   name: 'X1 Testnet',
   nativeCurrency: {
@@ -25,3 +25,5 @@ export const x1Testnet = /*#__PURE__*/ defineChain({
   },
   testnet: true,
 })
+
+export { xLayerTestnet as x1Testnet }
