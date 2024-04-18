@@ -1,10 +1,17 @@
 import { expect, test } from 'vitest'
 import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
+import { mockTestnetPaymasterAddress } from '../../../test/src/zksyncMockData.js'
+import type { EIP1193RequestFn } from '../../_types/index.js'
 import { getTestnetPaymasterAddress } from './getTestnetPaymasterAddress.js'
 
 const client = { ...zkSyncClientLocalNode }
 
+client.request = (async ({ method, params }) => {
+  if (method === 'zks_getTestnetPaymaster') return mockTestnetPaymasterAddress
+  return zkSyncClientLocalNode.request({ method, params } as any)
+}) as EIP1193RequestFn
+
 test('default', async () => {
   const address = await getTestnetPaymasterAddress(client)
-  expect(address).to.equal('0x59067204f2789ffcb6eadb6be6c7cbb7be9fdc7c')
+  expect(address).to.equal(mockTestnetPaymasterAddress)
 })

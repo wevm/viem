@@ -8,24 +8,31 @@ Returns additional zkSync-specific information about the L2 block.
 
 ## Usage
 
-```ts
-import { createPublicClient, http } from 'viem'
-import { zkSyncLocalNode } from 'viem/chains'
-import { publicActionsL2 } from 'viem/zksync'
+:::code-group
 
-const client = createPublicClient({
-  chain: zkSyncLocalNode,
-  transport: http(),
-}).extend(publicActionsL2())
+```ts [example.ts]
+import { client } from './config'
 
 const blockDetails = await client.getBlockDetails({
   number:1
 });
 ```
 
+```ts [config.ts]
+import { createPublicClient, http } from 'viem'
+import { zkSyncLocalNode } from 'viem/chains'
+import { publicActionsL2 } from 'viem/zksync'
+
+export const client = createPublicClient({
+  chain: zkSyncLocalNode,
+  transport: http(),
+}).extend(publicActionsL2())
+```
+:::
+
 ## Returns 
 
-`BlockDetails`
+`BaseBlockDetails`
 
 Structure that represent zkSync-specific information about L2 block.
 
@@ -39,11 +46,6 @@ Block Number
 - **Type** `number`
 
 ```ts
-const client = createPublicClient({
-  chain: zkSyncLocalNode,
-  transport: http(),
-}).extend(publicActionsL2())
-
 const blockDetails = await client.getBlockDetails({
   number:1 // [!code focus]
 }); 

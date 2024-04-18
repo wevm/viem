@@ -1,10 +1,10 @@
 ---
-description: Returns data pertaining to a given batch.
+description: Returns an estimated Fee for requested transaction.
 ---
 
-# getL1BatchDetails
+# estimateFee
 
-Returns data pertaining to a given batch.
+Returns an estimated Fee for requested transaction.
 
 ## Usage
 
@@ -13,8 +13,10 @@ Returns data pertaining to a given batch.
 ```ts [example.ts]
 import { client } from './config'
 
-const batchDetails = await client.getL1BatchDetails({
-  number:1
+const fee = await client.estimateFee({
+  transactionRequest: {
+    from:'0x636A122e48079f750d44d13E5b39804227E1467e'
+  }
 });
 ```
 
@@ -32,20 +34,16 @@ export const client = createPublicClient({
 
 ## Returns 
 
-`BatchDetails`
-
-Data concerning given batch.
+`TransactionRequest`
 
 ## Parameters
 
-### number
+`EstimateFeeParameters`
 
-L1 Batch Number
-
-- **Type** `number`
+### transactionRequest
 
 ```ts
-const batchDetails = await client.getL1BatchDetails({
-  number:1  // [!code focus]
-});
+const fee = await client.estimateFee({
+  transactionRequest: { ... }// [!code focus]
+})
 ```
