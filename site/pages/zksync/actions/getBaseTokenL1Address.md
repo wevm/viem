@@ -1,10 +1,10 @@
 ---
-description: Returns the Chain Id of underlying L1 network.
+description: Returns the base token L1  address.
 ---
 
-# getL1ChainId
+# getBaseTokenL1Address
 
-Returns the Chain Id of underlying L1 network.
+Returns the address of the base L1 token.
 
 ## Usage
 
@@ -13,7 +13,7 @@ Returns the Chain Id of underlying L1 network.
 ```ts [example.ts]
 import { client } from './config'
 
-const chainId = await client.getL1ChainId();
+const address = await client.getBaseTokenL1Address();
 ```
 
 ```ts [config.ts]
@@ -30,8 +30,6 @@ export const client = createPublicClient({
 
 ## Returns 
 
-### number
+`Address`
 
-L1 Chain Id number
-
-- **Type** `number`
+Base Token L1 address.

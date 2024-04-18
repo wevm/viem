@@ -8,21 +8,28 @@ Returns the proof for the corresponding L2 to L1 log.
 
 ## Usage
 
-```ts
-import { createPublicClient, http } from 'viem'
-import { zkSyncLocalNode } from 'viem/chains'
-import { publicActionsL2 } from 'viem/zksync'
+:::code-group
 
-const client = createPublicClient({
-  chain: zkSyncLocalNode,
-  transport: http(),
-}).extend(publicActionsL2())
+```ts [example.ts]
+import { client } from './config'
 
 const proof = await client.getLogProof({
   txHash:"0x...",
   index:1
 });
 ```
+
+```ts [config.ts]
+import { createPublicClient, http } from 'viem'
+import { zkSyncLocalNode } from 'viem/chains'
+import { publicActionsL2 } from 'viem/zksync'
+
+export const client = createPublicClient({
+  chain: zkSyncLocalNode,
+  transport: http(),
+}).extend(publicActionsL2())
+```
+:::
 
 ## Returns 
 
@@ -39,11 +46,6 @@ Proof of the corresponding L2 to L1 log
 Hash of the L2 transaction the L2 to L1 log was produced within.
 
 ```ts
-const client = createPublicClient({
-  chain: zkSyncLocalNode,
-  transport: http(),
-}).extend(publicActionsL2())
-
 const proof = await client.getLogProof({
   txHash:"0x...", // [!code focus]
   index:1
@@ -55,11 +57,6 @@ const proof = await client.getLogProof({
 The index of the L2 to L1 log in the transaction (optional).
 
 ```ts
-const client = createPublicClient({
-  chain: zkSyncLocalNode,
-  transport: http(),
-}).extend(publicActionsL2())
-
 const proof = await client.getLogProof({
   txHash:"0x...", 
   index:1 // [!code focus]

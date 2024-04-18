@@ -89,3 +89,59 @@ export type {
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
 } from './types/transaction.js'
+
+export {
+  type Fee,
+  type EstimateFeeParameters,
+  type TransactionRequest,
+  estimateFee,
+} from './actions/estimateFee.js'
+
+export {
+  type GetAllBalancesParameters,
+  type GetAllBalancesReturnType,
+  type ZksGetAllBalancesReturnType,
+  getAllBalances,
+} from './actions/getAllBalances.js'
+
+export {
+  type GetBlockDetailsParameters,
+  type BaseBlockDetails,
+  getBlockDetails,
+} from './actions/getBlockDetails.js'
+
+export {
+  type BridgeContractsReturnType,
+  type ZksBridgeContractsReturnType,
+  getDefaultBridgeAddresses,
+} from './actions/getDefaultBridgeAddress.js'
+
+export {
+  type GetL1BatchBlockRangeParameters,
+  type GetL1BatchBlockRangeReturnParameters,
+  getL1BatchBlockRange,
+} from './actions/getL1BatchBlockRange.js'
+
+export {
+  type GetL1BatchDetailsParameters,
+  type BatchDetails,
+  getL1BatchDetails,
+} from './actions/getL1BatchDetails.js'
+
+export {
+  type MessageProof,
+  type GetLogProofParameters,
+  getLogProof,
+} from './actions/getLogProof.js'
+
+export {
+  type GetRawBlockTransactionParameters,
+  type RawBlockTransactions,
+  getRawBlockTransactions,
+} from './actions/getRawBlockTransaction.js'
+
+export {
+  type GetTransactionDetailsParameters,
+  type TransactionDetails,
+  getTransactionDetails,
+} from './actions/getTransactionDetails.js'

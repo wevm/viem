@@ -8,18 +8,25 @@ Returns the addresses of the default zkSync Era bridge contracts on both L1 and 
 
 ## Usage
 
-```ts
+:::code-group
+
+```ts [example.ts]
+import { client } from './config'
+
+const addresses = await client.getDefaultBridgeAddresses();
+```
+
+```ts [config.ts]
 import { createPublicClient, http } from 'viem'
 import { zkSyncLocalNode } from 'viem/chains'
 import { publicActionsL2 } from 'viem/zksync'
 
-const client = createPublicClient({
+export const client = createPublicClient({
   chain: zkSyncLocalNode,
   transport: http(),
 }).extend(publicActionsL2())
-
-const addresses = await client.getDefaultBridgeAddresses();
 ```
+:::
 
 ## Returns 
 

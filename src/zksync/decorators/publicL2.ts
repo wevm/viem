@@ -3,16 +3,20 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import { type Fee, estimateFee } from '../actions/estimateFee.js'
+import type { EstimateFeeParameters } from '../actions/estimateFee.js'
 import {
   type GetAllBalancesParameters,
   type GetAllBalancesReturnType,
   getAllBalances,
 } from '../actions/getAllBalances.js'
+import { getBaseTokenL1Address } from '../actions/getBaseTokenL1Address.js'
 import {
-  type BlockDetails,
+  type BaseBlockDetails,
   type GetBlockDetailsParameters,
   getBlockDetails,
 } from '../actions/getBlockDetails.js'
+import { getBridgehubContractAddress } from '../actions/getBridgehubContractAddress.js'
 import {
   type BridgeContractsReturnType,
   getDefaultBridgeAddresses,
@@ -37,8 +41,8 @@ import {
 import { getMainContractAddress } from '../actions/getMainContractAddress.js'
 import {
   type GetRawBlockTransactionParameters,
-  type RawBlockTransaction,
-  getRawBlockTransaction,
+  type RawBlockTransactions,
+  getRawBlockTransactions,
 } from '../actions/getRawBlockTransaction.js'
 import { getTestnetPaymasterAddress } from '../actions/getTestnetPaymasterAddress.js'
 import {
@@ -150,7 +154,7 @@ export type PublicActionsL2 = {
   /**
    * Returns data of transactions in a block.
    *
-   * @returns data of transactions {@link RawBlockTransaction}
+   * @returns data of transactions {@link RawBlockTransactions}
    * @param args - {@link GetRawBlockTransactionParameters}
    *
    * @example
@@ -167,12 +171,12 @@ export type PublicActionsL2 = {
    */
   getRawBlockTransaction: (
     args: GetRawBlockTransactionParameters,
-  ) => Promise<RawBlockTransaction>
+  ) => Promise<RawBlockTransactions>
 
   /**
    * Returns additional zkSync-specific information about the L2 block.
    *
-   * @returns zkSync-specific information about the L2 block {@link BlockDetails}
+   * @returns zkSync-specific information about the L2 block {@link BaseBlockDetails}
    * @param args - {@link GetBlockDetailsParameters}
    *
    * @example
@@ -187,7 +191,9 @@ export type PublicActionsL2 = {
    *
    * const blockDetails = await client.getBlockDetails({number:1});
    */
-  getBlockDetails: (args: GetBlockDetailsParameters) => Promise<BlockDetails>
+  getBlockDetails: (
+    args: GetBlockDetailsParameters,
+  ) => Promise<BaseBlockDetails>
 
   /**
    * Returns data pertaining to a given batch.
@@ -276,6 +282,7 @@ export type PublicActionsL2 = {
    *
    * @returns data from a specific transaction given by the transaction hash
    *
+   *
    * @example
    * import { createPublicClient, http } from 'viem'
    * import { zkSyncLocalNode } from 'viem/chains'
@@ -291,11 +298,71 @@ export type PublicActionsL2 = {
   getTransactionDetails: (
     args: GetTransactionDetailsParameters,
   ) => Promise<TransactionDetails>
+
+  /**
+   * Returns an estimated Fee for requested transaction.
+   *
+   * @returns an estimated {@link Fee} for requested transaction.
+   * @param args - {@link ZkSyncTransactionRequest}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const details = await client.estimateFee({transactionRequest:{...}}});
+   */
+  estimateFee: (args: EstimateFeeParameters) => Promise<Fee>
+
+  /**
+   * Returns the Bridgehub smart contract address.
+   *
+   * @returns address of the Bridgehub smart contract address.
+   *
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const address = await client.getBridgehubContractAddress();
+   */
+  getBridgehubContractAddress: () => Promise<Address>
+
+  /**
+   * Returns the address of the base L1 token.
+   *
+   * @returns address of the base L1 token.
+   *
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const address = await client.getBaseTokenL1Address();
+   */
+  getBaseTokenL1Address: () => Promise<Address>
 }
 
 export function publicActionsL2() {
   return <
-    TTransport extends Transport,
+    TTransport extends Transport = Transport,
     TChain extends Chain | undefined = Chain | undefined,
     TAccount extends Account | undefined = Account | undefined,
   >(
@@ -307,13 +374,16 @@ export function publicActionsL2() {
       getL1ChainId: () => getL1ChainId(client),
       getMainContractAddress: () => getMainContractAddress(client),
       getAllBalances: (args) => getAllBalances(client, args),
-      getRawBlockTransaction: (args) => getRawBlockTransaction(client, args),
+      getRawBlockTransaction: (args) => getRawBlockTransactions(client, args),
       getBlockDetails: (args) => getBlockDetails(client, args),
       getL1BatchDetails: (args) => getL1BatchDetails(client, args),
       getL1BatchBlockRange: (args) => getL1BatchBlockRange(client, args),
       getL1BatchNumber: () => getL1BatchNumber(client),
       getLogProof: (args) => getLogProof(client, args),
       getTransactionDetails: (args) => getTransactionDetails(client, args),
+      estimateFee: (args) => estimateFee(client, args),
+      getBridgehubContractAddress: () => getBridgehubContractAddress(client),
+      getBaseTokenL1Address: () => getBaseTokenL1Address(client),
     }
   }
 }

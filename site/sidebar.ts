@@ -1320,7 +1320,7 @@ export const sidebar = {
               },
               {
                 text: 'getRawBlockTransaction',
-                link: '/zksync/actions/getRawBlockTransaction',
+                link: '/zksync/actions/getRawBlockTransactions',
               },
               {
                 text: 'getBlockDetails',
@@ -1337,6 +1337,18 @@ export const sidebar = {
               {
                 text: 'getL1BatchNumber',
                 link: '/zksync/actions/getL1BatchNumber',
+              },
+              {
+                text: 'estimateFee',
+                link: '/zksync/actions/estimateFee',
+              },
+              {
+                text: 'getBridgehubContractAddress',
+                link: '/zksync/actions/getBridgehubContractAddress',
+              },
+              {
+                text: 'getBaseTokenL1Address',
+                link: '/zksync/actions/getBaseTokenL1Address',
               },
             ],
           },

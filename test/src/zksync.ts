@@ -1,6 +1,6 @@
 import { zkSync, zkSyncLocalNode } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
-import { http, type Chain } from '~viem/index.js'
+import { http, type Chain, EIP1193Provider } from '~viem/index.js'
 import { accounts, warn } from './constants.js'
 
 export let anvilPortZkSync: number
@@ -68,3 +68,17 @@ export const zkSyncClientLocalNode = createClient({
   chain: zkSyncLocalNode,
   transport: http(),
 })
+
+export function getZksyncMockProvider(
+  request: ({
+    method,
+    params,
+  }: { method: string; params?: unknown }) => Promise<any>,
+): EIP1193Provider {
+  return {
+    on: () => null,
+    removeListener: () => null,
+    request: ({ method: string, params: any }) =>
+      request({ method: string, params: any }) as any,
+  }
+}

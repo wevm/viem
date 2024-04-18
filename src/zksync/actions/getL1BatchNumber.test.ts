@@ -6,5 +6,5 @@ const client = { ...zkSyncClientLocalNode }
 
 test('default', async () => {
   const number = await getL1BatchNumber(client)
-  expect(Number(number)).to.be.greaterThanOrEqual(0)
+  expect(number).to.be.greaterThanOrEqual(0)
 })

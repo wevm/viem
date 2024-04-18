@@ -8,20 +8,27 @@ Returns data from a specific transaction given by the transaction hash.
 
 ## Usage
 
-```ts
-import { createPublicClient, http } from 'viem'
-import { zkSyncLocalNode } from 'viem/chains'
-import { publicActionsL2 } from 'viem/zksync'
+:::code-group
 
-const client = createPublicClient({
-  chain: zkSyncLocalNode,
-  transport: http(),
-}).extend(publicActionsL2())
+```ts [example.ts]
+import { client } from './config'
 
 const details = await client.getTransactionDetails({
   txHash:"0x..."
 });
 ```
+
+```ts [config.ts]
+import { createPublicClient, http } from 'viem'
+import { zkSyncLocalNode } from 'viem/chains'
+import { publicActionsL2 } from 'viem/zksync'
+
+export const client = createPublicClient({
+  chain: zkSyncLocalNode,
+  transport: http(),
+}).extend(publicActionsL2())
+```
+:::
 
 ## Returns 
 
@@ -38,12 +45,6 @@ Data from a specific transaction given by the transaction hash.
 Transaction hash
 
 ```ts
-
-const client = createPublicClient({
-  chain: zkSyncLocalNode,
-  transport: http(),
-}).extend(publicActionsL2())
-
 const details = await client.getTransactionDetails({
   txHash:"0x..." // [!code focus]
 });

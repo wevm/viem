@@ -1,10 +1,10 @@
 ---
-description: Returns the Chain Id of underlying L1 network.
+description: Returns the Bridgehub smart contract address.
 ---
 
-# getL1ChainId
+# getBridgehubContractAddress
 
-Returns the Chain Id of underlying L1 network.
+Returns the Bridgehub smart contract address.
 
 ## Usage
 
@@ -13,7 +13,7 @@ Returns the Chain Id of underlying L1 network.
 ```ts [example.ts]
 import { client } from './config'
 
-const chainId = await client.getL1ChainId();
+const address = await client.getBridgehubContractAddress();
 ```
 
 ```ts [config.ts]
@@ -30,8 +30,6 @@ export const client = createPublicClient({
 
 ## Returns 
 
-### number
+`Address`
 
-L1 Chain Id number
-
-- **Type** `number`
+Bridgehub smart contract address.

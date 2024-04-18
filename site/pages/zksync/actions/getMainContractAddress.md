@@ -8,18 +8,26 @@ Returns the address of a Main zkSync Contract.
 
 ## Usage
 
-```ts
+:::code-group
+
+```ts [example.ts]
+import { client } from './config'
+
+const address = await client.getMainContractAddress();
+```
+
+```ts [config.ts]
 import { createPublicClient, http } from 'viem'
 import { zkSyncLocalNode } from 'viem/chains'
 import { publicActionsL2 } from 'viem/zksync'
 
-const client = createPublicClient({
+export const client = createPublicClient({
   chain: zkSyncLocalNode,
   transport: http(),
 }).extend(publicActionsL2())
-
-const address = await client.getMainContractAddress();
 ```
+:::
+
 ## Returns 
 
 `Address`
