@@ -921,4 +921,20 @@ test('chain w/ formatter', () => {
   expectTypeOf<keyof typeof contract_wallet>().toEqualTypeOf<
     'estimateGas' | 'write' | 'address' | 'abi'
   >()
+
+  contract.estimateGas.mint([1n], {
+    feeCurrency: '0x',
+    gatewayFeeRecipient: '0x',
+    gatewayFee: 1n,
+  })
+  contract.simulate.mint([1n], {
+    feeCurrency: '0x',
+    gatewayFeeRecipient: '0x',
+    gatewayFee: 1n,
+  })
+  contract.write.mint([1n], {
+    feeCurrency: '0x',
+    gatewayFeeRecipient: '0x',
+    gatewayFee: 1n,
+  })
 })

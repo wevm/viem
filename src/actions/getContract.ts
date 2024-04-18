@@ -915,7 +915,7 @@ type GetSimulateFunction<
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
 > = Narrowable extends true
   ? <
-      TChainOverride extends Chain | undefined,
+      TChainOverride extends Chain | undefined = undefined,
       TAccountOverride extends Account | Address | undefined = undefined,
     >(
       ...parameters: Args extends readonly []
@@ -958,7 +958,7 @@ type GetSimulateFunction<
       >
     >
   : <
-      TChainOverride extends Chain | undefined,
+      TChainOverride extends Chain | undefined = undefined,
       TAccountOverride extends Account | Address | undefined = undefined,
     >(
       ...parameters:
