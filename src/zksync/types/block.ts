@@ -33,6 +33,6 @@ export type ZkSyncRpcBlock<
 > &
   ZkSyncRpcBlockOverrides
 
-export type ZkSyncBlockNumber = {
+export type ZkSyncNumberParameter = {
   number: number
 }

@@ -11,8 +11,6 @@ export type GetAllBalancesParameters<
 
 export type GetAllBalancesReturnType = { [key: string]: bigint }
 
-export type ZksGetAllBalancesReturnType = { [key: string]: string }
-
 export async function getAllBalances<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,

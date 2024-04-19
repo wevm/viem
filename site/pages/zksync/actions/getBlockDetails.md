@@ -14,7 +14,7 @@ Returns additional zkSync-specific information about the L2 block.
 import { client } from './config'
 
 const blockDetails = await client.getBlockDetails({
-  number:1
+  number: 1
 });
 ```
 
@@ -47,6 +47,6 @@ Block Number
 
 ```ts
 const blockDetails = await client.getBlockDetails({
-  number:1 // [!code focus]
+  number: 1 // [!code focus]
 }); 
 ```

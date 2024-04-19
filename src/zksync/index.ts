@@ -99,7 +99,6 @@ export {
 export {
   type GetAllBalancesParameters,
   type GetAllBalancesReturnType,
-  type ZksGetAllBalancesReturnType,
   getAllBalances,
 } from './actions/getAllBalances.js'
 
@@ -111,7 +110,6 @@ export {
 
 export {
   type DefaultBridgeAddressesReturnType as BridgeContractsReturnType,
-  type ZksDefaultBridgeAddressesReturnType as ZksBridgeContractsReturnType,
   getDefaultBridgeAddresses,
 } from './actions/getDefaultBridgeAddresses.js'
 

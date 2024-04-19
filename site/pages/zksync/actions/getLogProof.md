@@ -14,8 +14,8 @@ Returns the proof for the corresponding L2 to L1 log.
 import { client } from './config'
 
 const proof = await client.getLogProof({
-  txHash:"0x...",
-  index:1
+  txHash: "0x...",
+  index: 1
 });
 ```
 
@@ -47,8 +47,8 @@ Hash of the L2 transaction the L2 to L1 log was produced within.
 
 ```ts
 const proof = await client.getLogProof({
-  txHash:"0x...", // [!code focus]
-  index:1
+  txHash: "0x...", // [!code focus]
+  index: 1
 });
 ```
 
@@ -58,8 +58,8 @@ The index of the L2 to L1 log in the transaction.
 
 ```ts
 const proof = await client.getLogProof({
-  txHash:"0x...", 
-  index:1 // [!code focus]
+  txHash: "0x...", 
+  index: 1 // [!code focus]
 });
 
 ```

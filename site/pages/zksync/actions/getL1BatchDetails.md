@@ -14,7 +14,7 @@ Returns data pertaining to a given batch.
 import { client } from './config'
 
 const batchDetails = await client.getL1BatchDetails({
-  number:1
+  number: 1
 });
 ```
 
@@ -46,6 +46,6 @@ L1 Batch Number
 
 ```ts
 const batchDetails = await client.getL1BatchDetails({
-  number:1  // [!code focus]
+  number: 1  // [!code focus]
 });
 ```

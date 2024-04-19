@@ -15,7 +15,7 @@ import { client } from './config'
 
 
 const rawTx = await client.getRawBlockTransaction({
-  number:1
+  number: 1
 });
 ```
 
@@ -47,6 +47,6 @@ Block number.
 
 ```ts
 const rawTx = await client.getRawBlockTransaction({
-  number:1  // [!code focus]
+  number: 1  // [!code focus]
 });
 ```

@@ -11,15 +11,6 @@ export type DefaultBridgeAddressesReturnType = {
   sharedL2: Address
 }
 
-export type ZksDefaultBridgeAddressesReturnType = {
-  l1Erc20DefaultBridge: Address
-  l2Erc20DefaultBridge: Address
-  l1WethBridge: Address
-  l2WethBridge: Address
-  l1SharedDefaultBridge: Address
-  l2SharedDefaultBridge: Address
-}
-
 export async function getDefaultBridgeAddresses<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
