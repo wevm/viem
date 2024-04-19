@@ -17,10 +17,10 @@ export type GetLogProofParameters = {
 }
 
 export async function getLogProof<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
 >(
-  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
+  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
   parameters: GetLogProofParameters,
 ): Promise<MessageProof | null> {
   const result = await client.request({

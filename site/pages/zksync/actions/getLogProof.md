@@ -52,9 +52,9 @@ const proof = await client.getLogProof({
 });
 ```
 
-### index 
+### index (optional)
 
-The index of the L2 to L1 log in the transaction (optional).
+The index of the L2 to L1 log in the transaction.
 
 ```ts
 const proof = await client.getLogProof({

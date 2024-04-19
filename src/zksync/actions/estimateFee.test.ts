@@ -1,15 +1,14 @@
 import { expect, test } from 'vitest'
 import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
-import { mockFeeValues } from '../../../test/src/zksyncMockData.js'
-import type { EIP1193RequestFn } from '../../types/eip1193.js'
+import {
+  mockClientPublicActionsL2,
+  mockFeeValues,
+} from '../../../test/src/zksyncPublicActionsL2MockData.js'
 import { estimateFee } from './estimateFee.js'
 
 const client = { ...zkSyncClientLocalNode }
 
-client.request = (async ({ method, params }) => {
-  if (method === 'zks_estimateFee') return mockFeeValues
-  return zkSyncClientLocalNode.request({ method, params } as any)
-}) as EIP1193RequestFn
+mockClientPublicActionsL2(client)
 
 test('default', async () => {
   const fee = await estimateFee(client, {

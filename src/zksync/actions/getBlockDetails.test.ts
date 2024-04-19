@@ -1,9 +1,14 @@
 import { expect, test } from 'vitest'
 import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
-import { mockBlockDetails } from '../../../test/src/zksyncMockData.js'
+import {
+  mockBlockDetails,
+  mockClientPublicActionsL2,
+} from '../../../test/src/zksyncPublicActionsL2MockData.js'
 import { getBlockDetails } from './getBlockDetails.js'
 
 const client = { ...zkSyncClientLocalNode }
+
+mockClientPublicActionsL2(client)
 
 test('default', async () => {
   const details = await getBlockDetails(client, { number: 0 })

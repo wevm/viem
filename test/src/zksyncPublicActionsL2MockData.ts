@@ -1,9 +1,10 @@
 import { Address } from 'abitype'
+import { EIP1193RequestFn } from '~viem/index.js'
 import { TransactionDetails } from '~viem/zksync/actions/getTransactionDetails.js'
 import type { Fee } from '../../src/zksync/actions/estimateFee.js'
 import { ZksGetAllBalancesReturnType } from '../../src/zksync/actions/getAllBalances.js'
 import { BaseBlockDetails } from '../../src/zksync/actions/getBlockDetails.js'
-import { ZksBridgeContractsReturnType } from '../../src/zksync/actions/getDefaultBridgeAddress.js'
+import { ZksDefaultBridgeAddressesReturnType } from '../../src/zksync/actions/getDefaultBridgeAddresses.js'
 import { GetL1BatchBlockRangeReturnParameters } from '../../src/zksync/actions/getL1BatchBlockRange.js'
 import { BatchDetails } from '../../src/zksync/actions/getL1BatchDetails.js'
 import { MessageProof } from '../../src/zksync/actions/getLogProof.js'
@@ -42,7 +43,7 @@ export const mockBlockDetails: BaseBlockDetails = {
 
 export const mockAddress: Address = '0x173999892363ba18c9dc60f8c57152fc914bce89'
 
-export const mockAddresses: ZksBridgeContractsReturnType = {
+export const mockAddresses: ZksDefaultBridgeAddressesReturnType = {
   l1SharedDefaultBridge: '0x648afeaf09a3db988ac41b786001235bbdbc7640',
   l2SharedDefaultBridge: '0xfd61c893b903fa133908ce83dfef67c4c2350dd8',
   l1Erc20DefaultBridge: '0xbe270c78209cfda84310230aaa82e18936310b2e',
@@ -127,4 +128,29 @@ export const mockTransactionDetails: TransactionDetails = {
   gasPerPubdata: 50000n,
   initiatorAddress: '0x000000000000000000000000000000000000800b',
   receivedAt: new Date(1713436617435),
+}
+
+export const mockRequestReturnData = async (method: string) => {
+  if (method === 'zks_L1ChainId') return mockChainId
+  if (method === 'zks_estimateFee') return mockFeeValues
+  if (method === 'zks_getAllAccountBalances') return mockAccountBalances
+  if (method === 'zks_getBaseTokenL1Address') return mockBaseTokenL1Address
+  if (method === 'zks_getBlockDetails') return mockBlockDetails
+  if (method === 'zks_getBridgehubContract') return mockAddress
+  if (method === 'zks_getBridgeContracts') return mockAddresses
+  if (method === 'zks_getL1BatchBlockRange') return mockRange
+  if (method === 'zks_getL1BatchDetails') return mockDetails
+  if (method === 'zks_L1BatchNumber') return 1
+  if (method === 'zks_getL2ToL1LogProof') return mockProofValues
+  if (method === 'zks_getMainContract') return mockMainContractAddress
+  if (method === 'zks_getRawBlockTransactions') return mockRawBlockTransaction
+  if (method === 'zks_getTestnetPaymaster') return mockTestnetPaymasterAddress
+  if (method === 'zks_getTransactionDetails') return mockTransactionDetails
+  return undefined
+}
+
+export function mockClientPublicActionsL2(client) {
+  client.request = (async ({ method }) => {
+    return mockRequestReturnData(method)
+  }) as EIP1193RequestFn
 }

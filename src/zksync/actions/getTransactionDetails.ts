@@ -10,7 +10,7 @@ export type GetTransactionDetailsParameters = {
   txHash: Hash
 }
 
-export interface TransactionDetails {
+export type TransactionDetails = {
   isL1Originated: boolean
   status: string
   fee: bigint
@@ -23,10 +23,10 @@ export interface TransactionDetails {
 }
 
 export async function getTransactionDetails<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
 >(
-  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
+  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
   parameters: GetTransactionDetailsParameters,
 ): Promise<TransactionDetails> {
   const result = await client.request({
