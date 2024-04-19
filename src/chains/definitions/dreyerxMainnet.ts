@@ -2,7 +2,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const dreyerxMainnet = /*#__PURE__*/ defineChain({
   id: 23451,
-  network: 'dreyerx-mainnet',
   name: 'DreyerX Mainnet',
   nativeCurrency: {
     name: 'DreyerX',
@@ -11,7 +10,7 @@ export const dreyerxMainnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.dreyerx.com', 'https://23451.rpc.thirdweb.com'],
+      http: ['https://rpc.dreyerx.com'],
     },
   },
   blockExplorers: {
