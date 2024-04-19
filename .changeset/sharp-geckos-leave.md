@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added DreyerX Mainnt chain.
+Added DreyerX Mainnet chain.
