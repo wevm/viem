@@ -93,7 +93,6 @@ export type {
 export {
   type Fee,
   type EstimateFeeParameters,
-  type TransactionRequest,
   estimateFee,
 } from './actions/estimateFee.js'
 

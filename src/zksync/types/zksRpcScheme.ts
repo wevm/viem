@@ -1,7 +1,8 @@
 import type { Address } from 'abitype'
+import type { Account } from '../../types/account.js'
 import type { Hash } from '../../types/misc.js'
-import type { ZkSyncTransactionRequest } from '../../zksync/index.js'
-import type { Fee } from '../actions/estimateFee.js'
+import type { ChainEIP712 } from '../../zksync/index.js'
+import type { EstimateFeeParameters, Fee } from '../actions/estimateFee.js'
 import type { ZksGetAllBalancesReturnType } from '../actions/getAllBalances.js'
 import type { BaseBlockDetails } from '../actions/getBlockDetails.js'
 import type { ZksDefaultBridgeAddressesReturnType } from '../actions/getDefaultBridgeAddresses.js'
@@ -10,7 +11,15 @@ import type { MessageProof } from '../actions/getLogProof.js'
 import type { RawBlockTransactions } from '../actions/getRawBlockTransaction.js'
 import type { TransactionDetails } from '../actions/getTransactionDetails.js'
 
-export type PublicZkSyncRpcSchema = [
+export type PublicZkSyncRpcSchema<
+  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+> = [
+  {
+    Method: 'zks_estimateFee'
+    Parameters: [EstimateFeeParameters<TChain, TAccount>]
+    ReturnType: Fee
+  },
   {
     Method: 'zks_getBridgeContracts'
     Parameters?: undefined
@@ -75,11 +84,6 @@ export type PublicZkSyncRpcSchema = [
     Method: 'zks_getBridgehubContract'
     Parameters: undefined
     ReturnType: Address
-  },
-  {
-    Method: 'zks_estimateFee'
-    Parameters: [ZkSyncTransactionRequest]
-    ReturnType: Fee
   },
   {
     Method: 'zks_getBaseTokenL1Address'

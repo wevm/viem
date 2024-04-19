@@ -11,10 +11,10 @@ import { MessageProof } from '../../src/zksync/actions/getLogProof.js'
 import { RawBlockTransactions } from '../../src/zksync/actions/getRawBlockTransaction.js'
 
 export const mockFeeValues: Fee = {
-  gasLimit: 10n,
-  gasPerPubdataLimit: 20n,
-  maxPriorityFeePerGas: 30n,
-  maxFeePerGas: 30n,
+  gas_limit: '0x2803d',
+  gas_per_pubdata_limit: '0x42',
+  max_fee_per_gas: '0xee6b280',
+  max_priority_fee_per_gas: '0x0',
 }
 
 export const mockAccountBalances: ZksGetAllBalancesReturnType = {

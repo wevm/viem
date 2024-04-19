@@ -2,7 +2,6 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
 import { type Fee, estimateFee } from '../actions/estimateFee.js'
 import type { EstimateFeeParameters } from '../actions/estimateFee.js'
 import {
@@ -50,8 +49,12 @@ import {
   type TransactionDetails,
   getTransactionDetails,
 } from '../actions/getTransactionDetails.js'
+import type { ChainEIP712 } from '../types/chain.js'
 
-export type PublicActionsL2 = {
+export type PublicActionsL2<
+  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+> = {
   /**
    * Returns the addresses of the default zkSync Era bridge contracts on both L1 and L2.
    *
@@ -317,7 +320,7 @@ export type PublicActionsL2 = {
    *
    * const details = await client.estimateFee({transactionRequest:{...}}});
    */
-  estimateFee: (args: EstimateFeeParameters) => Promise<Fee>
+  estimateFee: (args: EstimateFeeParameters<TChain, TAccount>) => Promise<Fee>
 
   /**
    * Returns the Bridgehub smart contract address.
@@ -363,11 +366,11 @@ export type PublicActionsL2 = {
 export function publicActionsL2() {
   return <
     TTransport extends Transport = Transport,
-    TChain extends Chain | undefined = Chain | undefined,
+    TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
     TAccount extends Account | undefined = Account | undefined,
   >(
     client: Client<TTransport, TChain, TAccount>,
-  ): PublicActionsL2 => {
+  ): PublicActionsL2<TChain, TAccount> => {
     return {
       getDefaultBridgeAddresses: () => getDefaultBridgeAddresses(client),
       getTestnetPaymasterAddress: () => getTestnetPaymasterAddress(client),

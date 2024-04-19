@@ -12,7 +12,7 @@ mockClientPublicActionsL2(client)
 
 test('default', async () => {
   const fee = await estimateFee(client, {
-    from: '0x',
+    account: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
   })
 
   expect(fee).to.deep.equal(mockFeeValues)
