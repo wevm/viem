@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
 import { mockFeeValues } from '../../../test/src/zksyncMockData.js'
-import type { EIP1193RequestFn } from '../../_types/index.js'
+import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { estimateFee } from './estimateFee.js'
 
 const client = { ...zkSyncClientLocalNode }
@@ -13,9 +13,7 @@ client.request = (async ({ method, params }) => {
 
 test('default', async () => {
   const fee = await estimateFee(client, {
-    transactionRequest: {
-      from: '0x',
-    },
+    from: '0x',
   })
 
   expect(fee).to.deep.equal(mockFeeValues)
