@@ -111,10 +111,10 @@ export {
 } from './actions/getBlockDetails.js'
 
 export {
-  type BridgeContractsReturnType,
-  type ZksBridgeContractsReturnType,
+  type DefaultBridgeAddressesReturnType as BridgeContractsReturnType,
+  type ZksDefaultBridgeAddressesReturnType as ZksBridgeContractsReturnType,
   getDefaultBridgeAddresses,
-} from './actions/getDefaultBridgeAddress.js'
+} from './actions/getDefaultBridgeAddresses.js'
 
 export {
   type GetL1BatchBlockRangeParameters,

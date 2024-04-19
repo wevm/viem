@@ -18,9 +18,9 @@ import {
 } from '../actions/getBlockDetails.js'
 import { getBridgehubContractAddress } from '../actions/getBridgehubContractAddress.js'
 import {
-  type BridgeContractsReturnType,
+  type DefaultBridgeAddressesReturnType,
   getDefaultBridgeAddresses,
-} from '../actions/getDefaultBridgeAddress.js'
+} from '../actions/getDefaultBridgeAddresses.js'
 import {
   type GetL1BatchBlockRangeParameters,
   type GetL1BatchBlockRangeReturnParameters,
@@ -55,7 +55,7 @@ export type PublicActionsL2 = {
   /**
    * Returns the addresses of the default zkSync Era bridge contracts on both L1 and L2.
    *
-   * @returns The Address of the default zkSync Era bridge contracts on both L1 and L2. {@link BridgeContractsReturnType}
+   * @returns The Address of the default zkSync Era bridge contracts on both L1 and L2. {@link DefaultBridgeAddressesReturnType}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
@@ -69,7 +69,7 @@ export type PublicActionsL2 = {
    *
    * const addresses = await client.getDefaultBridgeAddresses();
    */
-  getDefaultBridgeAddresses: () => Promise<BridgeContractsReturnType>
+  getDefaultBridgeAddresses: () => Promise<DefaultBridgeAddressesReturnType>
 
   /**
    * Returns Testnet Paymaster Address.
@@ -88,7 +88,7 @@ export type PublicActionsL2 = {
    *
    * const address = await client.getTestnetPaymasterAddress();
    */
-  getTestnetPaymasterAddress: () => Promise<Address>
+  getTestnetPaymasterAddress: () => Promise<Address | null>
 
   /**
    * Returns the Chain Id of underlying L1 network.

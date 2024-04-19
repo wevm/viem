@@ -4,7 +4,7 @@ import type { ZkSyncTransactionRequest } from '../../zksync/index.js'
 import type { Fee } from '../actions/estimateFee.js'
 import type { ZksGetAllBalancesReturnType } from '../actions/getAllBalances.js'
 import type { BaseBlockDetails } from '../actions/getBlockDetails.js'
-import type { ZksBridgeContractsReturnType } from '../actions/getDefaultBridgeAddress.js'
+import type { ZksDefaultBridgeAddressesReturnType } from '../actions/getDefaultBridgeAddresses.js'
 import type { BatchDetails } from '../actions/getL1BatchDetails.js'
 import type { MessageProof } from '../actions/getLogProof.js'
 import type { RawBlockTransactions } from '../actions/getRawBlockTransaction.js'
@@ -14,7 +14,7 @@ export type PublicZkSyncRpcSchema = [
   {
     Method: 'zks_getBridgeContracts'
     Parameters?: undefined
-    ReturnType: ZksBridgeContractsReturnType
+    ReturnType: ZksDefaultBridgeAddressesReturnType
   },
   {
     Method: 'zks_getAllAccountBalances'

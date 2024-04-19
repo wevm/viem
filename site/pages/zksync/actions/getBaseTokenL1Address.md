@@ -1,5 +1,5 @@
 ---
-description: Returns the base token L1  address.
+description: Returns the base token L1 address.
 ---
 
 # getBaseTokenL1Address

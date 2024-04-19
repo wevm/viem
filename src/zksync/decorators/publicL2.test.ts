@@ -7,7 +7,7 @@ import {
 import { createPublicClient } from '~viem/clients/createPublicClient.js'
 import { custom } from '~viem/clients/transports/custom.js'
 import type { EIP1193RequestFn } from '~viem/types/eip1193.js'
-import * as mockData from '../../../test/src/zksyncMockData.js'
+import { mockRequestReturnData } from '../../../test/src/zksyncPublicActionsL2MockData.js'
 import { type Fee, estimateFee } from '../actions/estimateFee.js'
 import { type MessageProof, getLogProof } from '../actions/getLogProof.js'
 import {
@@ -18,33 +18,9 @@ import { publicActionsL2 } from './publicL2.js'
 
 const zkSyncClient_ = zkSyncClientLocalNode.extend(publicActionsL2())
 
-const mockReturnData = async (method: string) => {
-  if (method === 'zks_L1ChainId') return mockData.mockChainId
-  if (method === 'zks_estimateFee') return mockData.mockFeeValues
-  if (method === 'zks_getAllAccountBalances')
-    return mockData.mockAccountBalances
-  if (method === 'zks_getBaseTokenL1Address')
-    return mockData.mockBaseTokenL1Address
-  if (method === 'zks_getBlockDetails') return mockData.mockBlockDetails
-  if (method === 'zks_getBridgehubContract') return mockData.mockAddress
-  if (method === 'zks_getBridgeContracts') return mockData.mockAddresses
-  if (method === 'zks_getL1BatchBlockRange') return mockData.mockRange
-  if (method === 'zks_getL1BatchDetails') return mockData.mockDetails
-  if (method === 'zks_L1BatchNumber') return 1
-  if (method === 'zks_getL2ToL1LogProof') return mockData.mockProofValues
-  if (method === 'zks_getMainContract') return mockData.mockMainContractAddress
-  if (method === 'zks_getRawBlockTransactions')
-    return mockData.mockRawBlockTransaction
-  if (method === 'zks_getTestnetPaymaster')
-    return mockData.mockTestnetPaymasterAddress
-  if (method === 'zks_getTransactionDetails')
-    return mockData.mockTransactionDetails
-  return undefined
-}
-
 const theClient = createPublicClient({
   transport: custom(
-    getZksyncMockProvider(async ({ method }) => mockReturnData(method)),
+    getZksyncMockProvider(async ({ method }) => mockRequestReturnData(method)),
   ),
 }).extend(publicActionsL2())
 
@@ -70,7 +46,7 @@ test('getMainContractAddress', async () => {
 
 test('getAllBalances', async () => {
   const balances = await zkSyncClient_.getAllBalances({
-    address: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
+    account: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
   })
 
   const entries = Object.entries(balances)

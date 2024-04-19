@@ -32,3 +32,7 @@ export type ZkSyncRpcBlock<
   ZkSyncRpcTransaction<TBlockTag extends 'pending' ? true : false>
 > &
   ZkSyncRpcBlockOverrides
+
+export type ZkSyncBlockNumber = {
+  number: number
+}

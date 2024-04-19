@@ -2,14 +2,10 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import type { TransactionRequest as ViemTransactionRequest } from '../../types/transaction.js'
-import type { ZkSyncEip712Meta } from '../types/eip712.js'
+import type { ZkSyncTransactionRequest } from '../types/transaction.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 
-export type TransactionRequest = ViemTransactionRequest & {
-  /** The custom data for EIP712 transaction metadata. */
-  customData?: null | ZkSyncEip712Meta
-}
+export type TransactionRequest = ZkSyncTransactionRequest
 
 export type EstimateFeeParameters = TransactionRequest
 
@@ -26,10 +22,10 @@ export type Fee = {
 }
 
 export async function estimateFee<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
 >(
-  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
+  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
   parameters: EstimateFeeParameters,
 ): Promise<Fee> {
   const result = await client.request({

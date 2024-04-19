@@ -30,6 +30,6 @@ export const client = createPublicClient({
 
 ## Returns 
 
-`BridgeContractsReturnType`
+`DefaultBridgeAddressesReturnType`
 
 Addresses of the default zkSync Era bridge contracts on both L1 and L2.

@@ -5,13 +5,13 @@ import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 
-export type BridgeContractsReturnType = {
+export type DefaultBridgeAddressesReturnType = {
   erc20L1: Address
   sharedL1: Address
   sharedL2: Address
 }
 
-export type ZksBridgeContractsReturnType = {
+export type ZksDefaultBridgeAddressesReturnType = {
   l1Erc20DefaultBridge: Address
   l2Erc20DefaultBridge: Address
   l1WethBridge: Address
@@ -21,11 +21,11 @@ export type ZksBridgeContractsReturnType = {
 }
 
 export async function getDefaultBridgeAddresses<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
 >(
-  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
-): Promise<BridgeContractsReturnType> {
+  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+): Promise<DefaultBridgeAddressesReturnType> {
   const addresses = await client.request({ method: 'zks_getBridgeContracts' })
   return {
     erc20L1: addresses.l1Erc20DefaultBridge,

@@ -1,15 +1,14 @@
 import { expect, test } from 'vitest'
 import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
-import { mockAddresses } from '../../../test/src/zksyncMockData.js'
-import type { EIP1193RequestFn } from '../../types/eip1193.js'
-import { getDefaultBridgeAddresses } from './getDefaultBridgeAddress.js'
+import {
+  mockAddresses,
+  mockClientPublicActionsL2,
+} from '../../../test/src/zksyncPublicActionsL2MockData.js'
+import { getDefaultBridgeAddresses } from './getDefaultBridgeAddresses.js'
 
 const client = { ...zkSyncClientLocalNode }
 
-client.request = (({ method, params }: { method: string; params: unknown }) => {
-  if (method === 'zks_getBridgeContracts') return mockAddresses
-  return zkSyncClientLocalNode.request({ method, params } as any)
-}) as EIP1193RequestFn
+mockClientPublicActionsL2(client)
 
 test('default', async () => {
   const addresses = await getDefaultBridgeAddresses(client)

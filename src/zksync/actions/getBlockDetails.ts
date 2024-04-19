@@ -2,11 +2,10 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { ZkSyncBlockNumber } from '../types/block.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 
-export type GetBlockDetailsParameters = {
-  number: number
-}
+export type GetBlockDetailsParameters = ZkSyncBlockNumber
 
 export type BaseBlockDetails = {
   number: number
@@ -29,10 +28,10 @@ export type BaseBlockDetails = {
 }
 
 export async function getBlockDetails<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
 >(
-  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
+  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
   parameters: GetBlockDetailsParameters,
 ): Promise<BaseBlockDetails> {
   const result = await client.request({

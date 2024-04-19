@@ -4,11 +4,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
+import type { ZkSyncBlockNumber } from '../types/block.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 
-export type GetRawBlockTransactionParameters = {
-  number: number
-}
+export type GetRawBlockTransactionParameters = ZkSyncBlockNumber
 
 export type RawBlockTransactions = {
   common_data: {
@@ -44,10 +43,10 @@ export type RawBlockTransactions = {
 }[]
 
 export async function getRawBlockTransactions<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
 >(
-  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
+  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
   parameters: GetRawBlockTransactionParameters,
 ): Promise<RawBlockTransactions> {
   const result = await client.request({

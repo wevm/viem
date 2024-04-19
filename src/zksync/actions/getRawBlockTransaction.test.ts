@@ -1,15 +1,14 @@
 import { expect, test } from 'vitest'
 import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
-import { mockRawBlockTransaction } from '../../../test/src/zksyncMockData.js'
-import type { EIP1193RequestFn } from '../../types/eip1193.js'
+import {
+  mockClientPublicActionsL2,
+  mockRawBlockTransaction,
+} from '../../../test/src/zksyncPublicActionsL2MockData.js'
 import { getRawBlockTransactions } from './getRawBlockTransaction.js'
 
 const client = { ...zkSyncClientLocalNode }
 
-client.request = (async ({ method, params }) => {
-  if (method === 'zks_getRawBlockTransactions') return mockRawBlockTransaction
-  return zkSyncClientLocalNode.request({ method, params } as any)
-}) as EIP1193RequestFn
+mockClientPublicActionsL2(client)
 
 test('default', async () => {
   const transactions = await getRawBlockTransactions(client, {
