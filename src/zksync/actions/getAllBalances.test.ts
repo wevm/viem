@@ -16,7 +16,6 @@ mockClientPublicActionsL2(client)
 mockClientPublicActionsL2(clientWithAccount)
 
 test('default with account hoisting', async () => {
-  const clientWithAccount = zkSyncClientWithAccount
   const balances = await getAllBalances(clientWithAccount, {})
 
   const entries = Object.entries(balances)
@@ -37,8 +36,7 @@ test('default with account hoisting', async () => {
 })
 
 test('default without account hoisting', async () => {
-  const clientWithAccount = client
-  const balances = await getAllBalances(clientWithAccount, {
+  const balances = await getAllBalances(client, {
     account: mockAddress,
   })
 

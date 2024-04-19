@@ -17,9 +17,9 @@ export type TransactionDetails = {
   gasPerPubdata: bigint
   initiatorAddress: Address
   receivedAt: Date
-  ethCommitTxHash?: string
-  ethProveTxHash?: string
-  ethExecuteTxHash?: string
+  ethCommitTxHash?: Hash
+  ethProveTxHash?: Hash
+  ethExecuteTxHash?: Hash
 }
 
 export async function getTransactionDetails<

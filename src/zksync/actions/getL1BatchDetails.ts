@@ -2,11 +2,11 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import type { ZkSyncBlockNumber } from '../types/block.js'
+import type { ZkSyncNumberParameter } from '../types/block.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 import type { BaseBlockDetails } from './getBlockDetails.js'
 
-export type GetL1BatchDetailsParameters = ZkSyncBlockNumber
+export type GetL1BatchDetailsParameters = ZkSyncNumberParameter
 
 export type BatchDetails = BaseBlockDetails & {
   l1GasPrice: number

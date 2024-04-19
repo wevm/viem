@@ -14,7 +14,7 @@ Returns data from a specific transaction given by the transaction hash.
 import { client } from './config'
 
 const details = await client.getTransactionDetails({
-  txHash:"0x..."
+  txHash: "0x..."
 });
 ```
 
@@ -46,6 +46,6 @@ Transaction hash
 
 ```ts
 const details = await client.getTransactionDetails({
-  txHash:"0x..." // [!code focus]
+  txHash: "0x..." // [!code focus]
 });
 ```

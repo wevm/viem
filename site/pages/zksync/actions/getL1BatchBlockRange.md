@@ -14,7 +14,7 @@ Returns the range of blocks contained within a batch given by batch number.
 import { client } from './config'
 
 const batchBlockRange = await client.getL1BatchBlockRange({
-  number:1
+  number: 1
 });
 ```
 
@@ -46,6 +46,6 @@ L1 Batch Number
 
 ```ts
 const batchBlockRange = await client.getL1BatchBlockRange({
-  number:1  // [!code focus]
+  number: 1  // [!code focus]
 });
 ```

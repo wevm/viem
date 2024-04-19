@@ -4,10 +4,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
-import type { ZkSyncBlockNumber } from '../types/block.js'
+import type { ZkSyncNumberParameter } from '../types/block.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 
-export type GetRawBlockTransactionParameters = ZkSyncBlockNumber
+export type GetRawBlockTransactionParameters = ZkSyncNumberParameter
 
 export type RawBlockTransactions = {
   common_data: {
@@ -23,7 +23,7 @@ export type RawBlockTransactions = {
       signature: Uint8Array
       transactionType: string
       input: {
-        hash: string
+        hash: Hash
         data: Uint8Array
       }
       paymasterParams: {
@@ -33,7 +33,7 @@ export type RawBlockTransactions = {
     }
   }
   execute: {
-    calldata: string
+    calldata: Hash
     contractAddress: Address
     factoryDeps: Hash
     value: bigint

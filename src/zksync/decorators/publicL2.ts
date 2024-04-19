@@ -58,7 +58,7 @@ export type PublicActionsL2<
   /**
    * Returns the addresses of the default zkSync Era bridge contracts on both L1 and L2.
    *
-   * @returns The Address of the default zkSync Era bridge contracts on both L1 and L2. {@link DefaultBridgeAddressesReturnType}
+   * @returns The Addresses of the default zkSync Era bridge contracts on both L1 and L2. {@link DefaultBridgeAddressesReturnType}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
@@ -148,7 +148,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const balances = await client.getAllBalances({address:"0x36615Cf349d7F6344891B1e7CA7C72883F5dc049"});
+   * const balances = await client.getAllBalances({account: "0x36615Cf349d7F6344891B1e7CA7C72883F5dc049"});
    */
   getAllBalances: (
     args: GetAllBalancesParameters,
@@ -170,7 +170,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const rawTx = await client.getRawBlockTransaction({number:1});
+   * const rawTx = await client.getRawBlockTransaction({number: 1});
    */
   getRawBlockTransaction: (
     args: GetRawBlockTransactionParameters,
@@ -192,7 +192,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const blockDetails = await client.getBlockDetails({number:1});
+   * const blockDetails = await client.getBlockDetails({number: 1});
    */
   getBlockDetails: (
     args: GetBlockDetailsParameters,
@@ -214,7 +214,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const batchDetails = await client.getL1BatchDetails({number:1});
+   * const batchDetails = await client.getL1BatchDetails({number: 1});
    */
   getL1BatchDetails: (
     args: GetL1BatchDetailsParameters,
@@ -236,7 +236,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const batchBlockRange = await client.getL1BatchBlockRange({number:1});
+   * const batchBlockRange = await client.getL1BatchBlockRange({number: 1});
    */
   getL1BatchBlockRange: (
     args: GetL1BatchBlockRangeParameters,
@@ -257,7 +257,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const latestNumber = await client.getL1BatchNumber({number:1});
+   * const latestNumber = await client.getL1BatchNumber({number: 1});
    */
   getL1BatchNumber: () => Promise<number>
 
@@ -276,7 +276,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const proof = await client.getLogProof({txHash:"0x...",index:1});
+   * const proof = await client.getLogProof({txHash: "0x...",index:1});
    */
   getLogProof: (args: GetLogProofParameters) => Promise<MessageProof | null>
 
@@ -296,7 +296,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const details = await client.getTransactionDetails({txHash:"0x..."});
+   * const details = await client.getTransactionDetails({txHash: "0x..."});
    */
   getTransactionDetails: (
     args: GetTransactionDetailsParameters,
@@ -318,7 +318,7 @@ export type PublicActionsL2<
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
-   * const details = await client.estimateFee({transactionRequest:{...}}});
+   * const details = await client.estimateFee({transactionRequest: {...}}});
    */
   estimateFee: (args: EstimateFeeParameters<TChain, TAccount>) => Promise<Fee>
 

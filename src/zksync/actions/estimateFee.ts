@@ -8,8 +8,8 @@ import { type ZkSyncTransactionRequestParameters } from '../types/transaction.js
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 
 export type EstimateFeeParameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712,
-  TAccount extends Account | undefined = Account,
+  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  TAccount extends Account | undefined = Account | undefined,
 > = ZkSyncTransactionRequestParameters<TChain, TAccount>
 
 /** Represents the transaction fee parameters. */

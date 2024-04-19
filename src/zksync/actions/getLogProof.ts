@@ -7,8 +7,8 @@ import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 
 export type MessageProof = {
   id: number
-  proof: string[]
-  root: string
+  proof: Hash[]
+  root: Hash
 }
 
 export type GetLogProofParameters = {

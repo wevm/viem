@@ -1,15 +1,27 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../types/account.js'
 import type { Hash } from '../../types/misc.js'
-import type { ChainEIP712 } from '../../zksync/index.js'
+import type {
+  ChainEIP712,
+  GetL1BatchBlockRangeReturnParameters,
+} from '../../zksync/index.js'
 import type { EstimateFeeParameters, Fee } from '../actions/estimateFee.js'
-import type { ZksGetAllBalancesReturnType } from '../actions/getAllBalances.js'
 import type { BaseBlockDetails } from '../actions/getBlockDetails.js'
-import type { ZksDefaultBridgeAddressesReturnType } from '../actions/getDefaultBridgeAddresses.js'
 import type { BatchDetails } from '../actions/getL1BatchDetails.js'
 import type { MessageProof } from '../actions/getLogProof.js'
 import type { RawBlockTransactions } from '../actions/getRawBlockTransaction.js'
 import type { TransactionDetails } from '../actions/getTransactionDetails.js'
+
+type ZksGetAllBalancesReturnType = { [key: string]: string }
+
+type ZksDefaultBridgeAddressesReturnType = {
+  l1Erc20DefaultBridge: Address
+  l2Erc20DefaultBridge: Address
+  l1WethBridge: Address
+  l2WethBridge: Address
+  l1SharedDefaultBridge: Address
+  l2SharedDefaultBridge: Address
+}
 
 export type PublicZkSyncRpcSchema<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
@@ -27,7 +39,7 @@ export type PublicZkSyncRpcSchema<
   },
   {
     Method: 'zks_getAllAccountBalances'
-    Parameters: [Hash]
+    Parameters: [Address]
     ReturnType: ZksGetAllBalancesReturnType
   },
   {
@@ -58,7 +70,7 @@ export type PublicZkSyncRpcSchema<
   {
     Method: 'zks_getL1BatchBlockRange'
     Parameters: [number]
-    ReturnType: [number, number]
+    ReturnType: GetL1BatchBlockRangeReturnParameters
   },
   {
     Method: 'zks_getL1BatchDetails'
