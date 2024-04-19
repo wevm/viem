@@ -1,4 +1,9 @@
 import type { Address } from 'abitype'
+import type { Account, GetAccountParameter } from '../../types/account.js'
+import type {
+  ExtractChainFormatterParameters,
+  GetChainParameter,
+} from '../../types/chain.js'
 import type { FeeValuesEIP1559 } from '../../types/fee.js'
 import type { Hex } from '../../types/misc.js'
 import type {
@@ -21,6 +26,7 @@ import type {
   Transaction as Transaction_,
 } from '../../types/transaction.js'
 import type { ExactPartial, OneOf, UnionOmit } from '../../types/utils.js'
+import type { ChainEIP712 } from './chain.js'
 import type { ZkSyncEip712Meta } from './eip712.js'
 import type { ZkSyncFeeValues } from './fee.js'
 import type {
@@ -243,3 +249,23 @@ export type TransactionRequestEIP712<
     customSignature?: Hex | undefined
     type?: TTransactionType | undefined
   }
+
+type FormattedZkSyncTransactionRequest<
+  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+> = ExtractChainFormatterParameters<
+  TChain,
+  'transactionRequest',
+  ZkSyncTransactionRequest
+>
+export type ZkSyncTransactionRequestParameters<
+  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+> = UnionOmit<
+  FormattedZkSyncTransactionRequest<
+    TChainOverride extends ChainEIP712 ? TChainOverride : TChain
+  >,
+  'from'
+> &
+  GetAccountParameter<TAccount> &
+  GetChainParameter<TChain, TChainOverride>
