@@ -6,14 +6,12 @@ import type { TransactionRequest as ViemTransactionRequest } from '../../types/t
 import type { ZkSyncEip712Meta } from '../types/eip712.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 
-export type EstimateFeeParameters = {
-  transactionRequest: TransactionRequest
-}
-
 export type TransactionRequest = ViemTransactionRequest & {
   /** The custom data for EIP712 transaction metadata. */
   customData?: null | ZkSyncEip712Meta
 }
+
+export type EstimateFeeParameters = TransactionRequest
 
 /** Represents the transaction fee parameters. */
 export type Fee = {
@@ -36,7 +34,7 @@ export async function estimateFee<
 ): Promise<Fee> {
   const result = await client.request({
     method: 'zks_estimateFee',
-    params: [parameters.transactionRequest],
+    params: [parameters],
   })
   return result
 }

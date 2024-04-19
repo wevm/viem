@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
 import { mockTestnetPaymasterAddress } from '../../../test/src/zksyncMockData.js'
-import type { EIP1193RequestFn } from '../../_types/index.js'
+import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { getTestnetPaymasterAddress } from './getTestnetPaymasterAddress.js'
 
 const client = { ...zkSyncClientLocalNode }

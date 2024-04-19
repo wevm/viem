@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
 import { mockRange } from '../../../test/src/zksyncMockData.js'
-import type { EIP1193RequestFn } from '../../_types/index.js'
+import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { getL1BatchBlockRange } from './getL1BatchBlockRange.js'
 
 const client = { ...zkSyncClientLocalNode }

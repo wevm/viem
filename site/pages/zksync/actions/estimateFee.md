@@ -40,10 +40,10 @@ export const client = createPublicClient({
 
 `EstimateFeeParameters`
 
-### transactionRequest
-
 ```ts
 const fee = await client.estimateFee({
-  transactionRequest: { ... }// [!code focus]
+  from:"0x..."
+  gas:50n
+  ...
 })
 ```

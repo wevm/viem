@@ -134,9 +134,7 @@ test('estimateFee', async () => {
   }) as EIP1193RequestFn
 
   const fee = await estimateFee(zkSyncClient_, {
-    transactionRequest: {
-      from: '0x',
-    },
+    from: '0x',
   })
 
   expect(fee).to.deep.equal(mockFeeValues)
