@@ -1,21 +1,21 @@
-import type { Client } from '../../clients/createClient.js'
-import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
-import type { BaseError } from '../../errors/base.js'
-import { ChainNotFoundError } from '../../errors/chain.js'
-import type { ErrorType } from '../../errors/utils.js'
-import type { Account, GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChainParameter } from '../../types/chain.js'
+import type { Client } from '../../../clients/createClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../../errors/account.js'
+import type { BaseError } from '../../../errors/base.js'
+import { ChainNotFoundError } from '../../../errors/chain.js'
+import type { ErrorType } from '../../../errors/utils.js'
+import type { Account, GetAccountParameter } from '../../../types/account.js'
+import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import type {
   WalletCapabilities,
   WalletSendCallsParameters,
-} from '../../types/eip1193.js'
-import type { Hex } from '../../types/misc.js'
-import type { OneOf } from '../../types/utils.js'
-import { parseAccount } from '../../utils/accounts.js'
-import type { RequestErrorType } from '../../utils/buildRequest.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
-import { getTransactionError } from '../../utils/index.js'
+} from '../../../types/eip1193.js'
+import type { Hex } from '../../../types/misc.js'
+import type { OneOf } from '../../../types/utils.js'
+import { parseAccount } from '../../../utils/accounts.js'
+import type { RequestErrorType } from '../../../utils/buildRequest.js'
+import { numberToHex } from '../../../utils/encoding/toHex.js'
+import { getTransactionError } from '../../../utils/index.js'
 
 export type SendCallsParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -46,7 +46,7 @@ export type SendCallsErrorType = RequestErrorType | ErrorType
 /**
  * Requests the connected wallet to send a batch of calls.
  *
- * - Docs: https://viem.sh/experimental/actions/sendCalls
+ * - Docs: https://viem.sh/experimental/eip5792/sendCalls
  * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use
@@ -93,7 +93,7 @@ export async function sendCalls<
 
   if (!account_)
     throw new AccountNotFoundError({
-      docsPath: '/experimental/actions/sendCalls',
+      docsPath: '/experimental/eip5792/sendCalls',
     })
   const account = parseAccount(account_)
 

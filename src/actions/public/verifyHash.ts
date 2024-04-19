@@ -42,7 +42,7 @@ export type VerifyHashErrorType =
   | ErrorType
 
 /**
- * Verifies a message hash on chain using ERC-6492.
+ * Verifies a message hash onchain using ERC-6492.
  *
  * @param client - Client to use.
  * @param parameters - {@link VerifyHashParameters}

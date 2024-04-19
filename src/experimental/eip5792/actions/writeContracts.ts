@@ -1,16 +1,16 @@
 import type { AbiStateMutability, Narrow } from 'abitype'
 
-import type { Client } from '../../clients/createClient.js'
-import type { Transport } from '../../clients/transports/createTransport.js'
-import type { ErrorType } from '../../errors/utils.js'
-import type { Account, GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChainParameter } from '../../types/chain.js'
-import type { ContractFunctionParameters } from '../../types/contract.js'
-import type { MulticallContracts } from '../../types/multicall.js'
+import type { Client } from '../../../clients/createClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../../errors/utils.js'
+import type { Account, GetAccountParameter } from '../../../types/account.js'
+import type { Chain, GetChainParameter } from '../../../types/chain.js'
+import type { ContractFunctionParameters } from '../../../types/contract.js'
+import type { MulticallContracts } from '../../../types/multicall.js'
 import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
-} from '../../utils/abi/encodeFunctionData.js'
+} from '../../../utils/abi/encodeFunctionData.js'
 import {
   type SendCallsErrorType,
   type SendCallsParameters,
@@ -44,7 +44,7 @@ export type WriteContractsErrorType =
 /**
  * Requests for the wallet to sign and broadcast a batch of write contract calls (transactions) to the network.
  *
- * - Docs: https://viem.sh/experimental/actions/writeContracts
+ * - Docs: https://viem.sh/experimental/eip5792/writeContracts
  *
  * @param client - Client to use
  * @param parameters - {@link WriteContractsParameters}
