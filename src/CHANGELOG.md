@@ -1,5 +1,17 @@
 # viem
 
+## 2.9.23
+
+### Patch Changes
+
+- [#2153](https://github.com/wevm/viem/pull/2153) [`71a17c0a2abcd81963e23cb76a3e8a792abbd7b6`](https://github.com/wevm/viem/commit/71a17c0a2abcd81963e23cb76a3e8a792abbd7b6) Thanks [@billalxcode](https://github.com/billalxcode)! - Added DreyerX Mainnet chain.
+
+- [#2155](https://github.com/wevm/viem/pull/2155) [`803fa0de429942b800172f87c93c41fa69f9c030`](https://github.com/wevm/viem/commit/803fa0de429942b800172f87c93c41fa69f9c030) Thanks [@jxom](https://github.com/jxom)! - Added experimental 3074 utilties:
+
+  - `signAuthMessage`
+  - `recoverAuthMessageAddress`
+  - `verifyAuthMessage`
+
 ## 2.9.22
 
 ### Patch Changes
