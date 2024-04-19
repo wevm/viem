@@ -28,7 +28,7 @@ export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
 /**
  * Extract capabilities that a connected wallet supports (e.g. paymasters, session keys, etc).
  *
- * - Docs: https://viem.sh/experimental/actions/getCapabilities
+ * - Docs: https://viem.sh/experimental/eip5792/getCapabilities
  * - JSON-RPC Methods: [`wallet_getCapabilities`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use

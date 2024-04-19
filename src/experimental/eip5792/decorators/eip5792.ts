@@ -35,7 +35,7 @@ export type WalletActionsEip5792<
   /**
    * Returns the status of a call batch that was sent via `sendCalls`.
    *
-   * - Docs: https://viem.sh/experimental/actions/getCallsStatus
+   * - Docs: https://viem.sh/experimental/eip5792/getCallsStatus
    * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
@@ -59,7 +59,7 @@ export type WalletActionsEip5792<
   /**
    * Extract capabilities that a connected wallet supports (e.g. paymasters, session keys, etc).
    *
-   * - Docs: https://viem.sh/experimental/actions/getCapabilities
+   * - Docs: https://viem.sh/experimental/eip5792/getCapabilities
    * - JSON-RPC Methods: [`wallet_getCapabilities`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
@@ -87,7 +87,7 @@ export type WalletActionsEip5792<
   /**
    * Requests the connected wallet to send a batch of calls.
    *
-   * - Docs: https://viem.sh/experimental/actions/sendCalls
+   * - Docs: https://viem.sh/experimental/eip5792/sendCalls
    * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
@@ -124,7 +124,7 @@ export type WalletActionsEip5792<
    * Requests for the wallet to show information about a call batch
    * that was sent via `sendCalls`.
    *
-   * - Docs: https://viem.sh/experimental/actions/showCallsStatus
+   * - Docs: https://viem.sh/experimental/eip5792/showCallsStatus
    * - JSON-RPC Methods: [`wallet_showCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
@@ -148,7 +148,7 @@ export type WalletActionsEip5792<
   /**
    * Requests for the wallet to sign and broadcast a batch of write contract calls (transactions) to the network.
    *
-   * - Docs: https://viem.sh/experimental/actions/writeContracts
+   * - Docs: https://viem.sh/experimental/eip5792/writeContracts
    *
    * @param client - Client to use
    * @param parameters - {@link WriteContractsParameters}

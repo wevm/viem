@@ -15,7 +15,7 @@ export type ShowCallsStatusErrorType = RequestErrorType | ErrorType
  * Requests for the wallet to show information about a call batch
  * that was sent via `sendCalls`.
  *
- * - Docs: https://viem.sh/experimental/actions/showCallsStatus
+ * - Docs: https://viem.sh/experimental/eip5792/showCallsStatus
  * - JSON-RPC Methods: [`wallet_showCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use

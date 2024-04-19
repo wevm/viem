@@ -70,7 +70,7 @@ export const [account] = await walletClient.getAddresses()
 
 Notes:
 
-- Internally calls [`sendCalls`](/experimental/actions/writeContracts)
+- Internally calls [`sendCalls`](/experimental/eip5792/writeContracts)
 - `account` and `chain` are top level properties as all calls should be sent by the same account and chain.
 - [Read `wallet_sendCalls` on EIP-5792.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls)
 

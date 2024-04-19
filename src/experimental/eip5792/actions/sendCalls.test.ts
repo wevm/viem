@@ -166,7 +166,7 @@ test('error: no account', async () => {
     [AccountNotFoundError: Could not find an Account to execute with this Action.
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
 
-    Docs: https://viem.sh/experimental/actions/sendCalls#account
+    Docs: https://viem.sh/experimental/eip5792/sendCalls#account
     Version: viem@1.0.2]
   `)
 })

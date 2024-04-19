@@ -30,7 +30,7 @@ export type VerifyAuthMessageErrorType =
   | ErrorType
 
 /**
- * Verify that a hash was signed by the provided address.
+ * Verify that a auth message was signed by the provided address.
  *
  * @param parameters - {@link VerifyAuthMessageParameters}
  * @returns Whether or not the signature is valid. {@link VerifyAuthMessageReturnType}

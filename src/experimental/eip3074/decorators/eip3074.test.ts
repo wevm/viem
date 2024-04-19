@@ -34,6 +34,8 @@ describe('smoke test', () => {
         invokerAddress: '0x0000000000000000000000000000000000000000',
         nonce: 69,
       }),
-    ).toMatchInlineSnapshot(`"0xfcd6431fe0dadb937bf232178cf20663c4704ba2a545775723d6c9267d5e40162f2264c10f76c6df7608ab02c453721c841b03525a30b0bc99ebdbdb0e160f351c"`)
+    ).toMatchInlineSnapshot(
+      `"0xfcd6431fe0dadb937bf232178cf20663c4704ba2a545775723d6c9267d5e40162f2264c10f76c6df7608ab02c453721c841b03525a30b0bc99ebdbdb0e160f351c"`,
+    )
   })
 })

@@ -44,7 +44,7 @@ export type WriteContractsErrorType =
 /**
  * Requests for the wallet to sign and broadcast a batch of write contract calls (transactions) to the network.
  *
- * - Docs: https://viem.sh/experimental/actions/writeContracts
+ * - Docs: https://viem.sh/experimental/eip5792/writeContracts
  *
  * @param client - Client to use
  * @param parameters - {@link WriteContractsParameters}

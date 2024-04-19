@@ -1013,8 +1013,16 @@ export const sidebar = {
         text: 'EIP-3074',
         items: [
           {
+            text: 'recoverAuthMessageAddress',
+            link: '/experimental/eip3074/recoverAuthMessageAddress',
+          },
+          {
             text: 'signAuthMessage',
             link: '/experimental/eip3074/signAuthMessage',
+          },
+          {
+            text: 'verifyAuthMessage',
+            link: '/experimental/eip3074/verifyAuthMessage',
           },
         ],
       },
