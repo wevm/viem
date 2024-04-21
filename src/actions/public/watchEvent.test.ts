@@ -4,7 +4,9 @@ import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
 import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import {
+  anvilChain,
   deployErc20InvalidTransferEvent,
+  httpClient,
   publicClient,
   testClient,
   walletClient,
@@ -12,7 +14,14 @@ import {
 } from '~test/src/utils.js'
 
 import type { PublicClient } from '../../index.js'
-import { InvalidInputRpcError, RpcRequestError } from '../../index.js'
+import {
+  http,
+  InvalidInputRpcError,
+  RpcRequestError,
+  createClient,
+  fallback,
+  webSocket,
+} from '../../index.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { wait } from '../../utils/wait.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
@@ -406,6 +415,88 @@ describe('poll', () => {
   })
 
   test.todo('args: args')
+
+  describe('transports', () => {
+    test('http', async () => {
+      const logs: WatchEventOnLogsParameter[] = []
+
+      const unwatch = watchEvent(httpClient, {
+        onLogs: (logs_) => logs.push(logs_),
+      })
+
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+
+      expect(logs.length).toBe(2)
+      expect(logs[0].length).toBe(2)
+      expect(logs[1].length).toBe(1)
+    })
+
+    test('fallback', async () => {
+      const logs: WatchEventOnLogsParameter[] = []
+
+      const client = createClient({
+        chain: anvilChain,
+        transport: fallback([http(), webSocket()]),
+        pollingInterval: 200,
+      })
+
+      const unwatch = watchEvent(client, {
+        onLogs: (logs_) => logs.push(logs_),
+      })
+
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+
+      expect(logs.length).toBe(2)
+      expect(logs[0].length).toBe(2)
+      expect(logs[1].length).toBe(1)
+    })
+  })
 
   describe('`getLogs` fallback', () => {
     test('falls back to `getLogs` if `createEventFilter` throws', async () => {
@@ -835,6 +926,77 @@ describe('subscribe', () => {
     },
     { timeout: 10_000 },
   )
+
+  test('fallback transport', async () => {
+    const logs: WatchEventOnLogsParameter[] = []
+
+    const client = createClient({
+      chain: anvilChain,
+      transport: fallback([webSocket(), http()]),
+      pollingInterval: 200,
+    })
+
+    const unwatch = watchEvent(client, {
+      onLogs: (logs_) => logs.push(logs_),
+    })
+
+    await wait(100)
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[1].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
+
+    expect(logs.length).toBe(2)
+  })
+
+  test('fallback transport (poll: false)', async () => {
+    const logs: WatchEventOnLogsParameter[] = []
+
+    const client = createClient({
+      chain: anvilChain,
+      transport: fallback([http(), webSocket()]),
+      pollingInterval: 200,
+    })
+
+    const unwatch = watchEvent(client, {
+      poll: false,
+      onLogs: (logs_) => logs.push(logs_),
+    })
+
+    await wait(100)
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[1].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
+
+    expect(logs.length).toBe(2)
+  })
 
   describe('errors', () => {
     test('handles error thrown on init', async () => {

@@ -2,6 +2,8 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts, localHttpUrl } from '~test/src/constants.js'
 import {
+  anvilChain,
+  httpClient,
   publicClient,
   testClient,
   walletClient,
@@ -20,6 +22,9 @@ import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { createClient } from '../../clients/createClient.js'
+import { fallback } from '../../clients/transports/fallback.js'
+import { webSocket } from '../../clients/transports/webSocket.js'
 import * as getBlock from './getBlock.js'
 import { type OnBlockParameter, watchBlocks } from './watchBlocks.js'
 
@@ -154,6 +159,63 @@ describe('poll', () => {
 
     unwatch()
     expect(block.randomness).toBeDefined()
+  })
+
+  describe('transports', () => {
+    test('http transport', async () => {
+      const blocks: OnBlockParameter[] = []
+      const prevBlocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(httpClient, {
+        onBlock: (block, prevBlock) => {
+          blocks.push(block)
+          prevBlock && block !== prevBlock && prevBlocks.push(prevBlock)
+        },
+        pollingInterval: 100,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+      expect(blocks.length).toBe(4)
+      expect(prevBlocks.length).toBe(3)
+    })
+
+    test('fallback transport', async () => {
+      const client = createClient({
+        chain: anvilChain,
+        transport: fallback([http(), webSocket()]),
+        pollingInterval: 200,
+      })
+
+      const blocks: OnBlockParameter[] = []
+      const prevBlocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(client, {
+        onBlock: (block, prevBlock) => {
+          blocks.push(block)
+          prevBlock && block !== prevBlock && prevBlocks.push(prevBlock)
+        },
+      })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+      expect(blocks.length).toBe(5)
+      expect(prevBlocks.length).toBe(4)
+      expect(typeof blocks[0].number).toBe('bigint')
+    })
   })
 
   describe('behavior', () => {
@@ -697,6 +759,71 @@ describe('subscribe', () => {
       await wait(1000)
       expect(blocks.length).toBe(0)
     })
+  })
+
+  test('fallback transport', async () => {
+    const client = createClient({
+      chain: anvilChain,
+      transport: fallback([webSocket(), http()]),
+      pollingInterval: 200,
+    })
+
+    const blocks: OnBlockParameter[] = []
+    const prevBlocks: OnBlockParameter[] = []
+    const unwatch = watchBlocks(client, {
+      onBlock: (block, prevBlock) => {
+        blocks.push(block)
+        prevBlock && block !== prevBlock && prevBlocks.push(prevBlock)
+      },
+    })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
+    expect(blocks.length).toBe(5)
+    expect(prevBlocks.length).toBe(4)
+    expect(typeof blocks[0].number).toBe('bigint')
+  })
+
+  test('fallback transport (poll: false)', async () => {
+    const client = createClient({
+      chain: anvilChain,
+      transport: fallback([http(), webSocket()]),
+      pollingInterval: 200,
+    })
+
+    const blocks: OnBlockParameter[] = []
+    const prevBlocks: OnBlockParameter[] = []
+    const unwatch = watchBlocks(client, {
+      poll: false,
+      onBlock: (block, prevBlock) => {
+        blocks.push(block)
+        prevBlock && block !== prevBlock && prevBlocks.push(prevBlock)
+      },
+    })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
+    expect(blocks.length).toBe(5)
+    expect(prevBlocks.length).toBe(4)
+    expect(typeof blocks[0].number).toBe('bigint')
   })
 
   describe('errors', () => {

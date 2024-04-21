@@ -172,10 +172,17 @@ export function watchEvent<
     strict: strict_,
   }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
 ): WatchEventReturnType {
-  const enablePolling =
-    typeof poll_ !== 'undefined'
-      ? poll_
-      : client.transport.type !== 'webSocket' || typeof fromBlock === 'bigint'
+  const enablePolling = (() => {
+    if (typeof poll_ !== 'undefined') return poll_
+    if (typeof fromBlock === 'bigint') return true
+    if (client.transport.type === 'webSocket') return false
+    if (
+      client.transport.type === 'fallback' &&
+      client.transport.transports[0].config.type === 'webSocket'
+    )
+      return false
+    return true
+  })()
   const strict = strict_ ?? false
 
   const pollEvent = () => {
@@ -296,6 +303,18 @@ export function watchEvent<
     let unsubscribe = () => (active = false)
     ;(async () => {
       try {
+        const transport = (() => {
+          if (client.transport.type === 'fallback') {
+            const transport = client.transport.transports.find(
+              (transport: ReturnType<Transport>) =>
+                transport.config.type === 'webSocket',
+            )
+            if (!transport) return client.transport
+            return transport.value
+          }
+          return client.transport
+        })()
+
         const events_ = events ?? (event ? [event] : undefined)
         let topics: LogTopic[] = []
         if (events_) {
@@ -311,7 +330,7 @@ export function watchEvent<
           if (event) topics = topics[0] as LogTopic[]
         }
 
-        const { unsubscribe: unsubscribe_ } = await client.transport.subscribe({
+        const { unsubscribe: unsubscribe_ } = await transport.subscribe({
           params: ['logs', { address, topics }],
           onData(data: any) {
             if (!active) return
