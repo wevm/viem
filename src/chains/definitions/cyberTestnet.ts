@@ -1,12 +1,12 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const cyberTestnet = /*#__PURE__*/ defineChain({
-  id: 111557560,
+  id: 111_557_560,
   name: 'Cyber Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://cyber-testnet.alt.technology/'],
+      http: ['https://cyber-testnet.alt.technology'],
     },
   },
   blockExplorers: {
