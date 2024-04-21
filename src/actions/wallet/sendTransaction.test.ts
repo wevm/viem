@@ -1,11 +1,12 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { accounts, forkBlockNumber, localHttpUrl } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
   anvilChain,
   holeskyClient,
   publicClient,
+  setBlockNumber,
   testClient,
   walletClient,
   walletClientWithAccount,
@@ -120,6 +121,8 @@ test('sends transaction (w/ formatter)', async () => {
 test('sends transaction (w/ serializer)', async () => {
   await setup()
 
+  await setBlockNumber(forkBlockNumber)
+
   const serializer = vi.fn(
     (
       txn: TransactionSerializable & {
@@ -173,7 +176,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f301820179843b9aca00850306dc4200825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f301820177843b9aca008503cda9ac11825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
