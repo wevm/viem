@@ -12,7 +12,6 @@ mockClientPublicActionsL2(client)
 
 test('default', async () => {
   const details = await getL1BatchDetails(client, { number: 0 })
-  console.info(details)
   expect(details).toBeDefined()
   expect(details).to.equal(mockDetails)
 })
