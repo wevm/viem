@@ -31,15 +31,16 @@ export type GetPollOptions<transport extends Transport> =
       pollingInterval?: number | undefined
     }
 
-export type HasTransportType<transport extends Transport, type extends string> =
-  | (GetTransportConfig<transport>['type'] extends type ? true : never)
-  | (transport extends FallbackTransport<infer transports extends Transport[]>
-      ? Some<
-          {
-            [key in keyof transports]: GetTransportConfig<
-              transports[key]
-            >['type']
-          },
-          type
-        >
-      : false)
+export type HasTransportType<
+  transport extends Transport,
+  type extends string,
+> = GetTransportConfig<transport>['type'] extends type
+  ? true
+  : transport extends FallbackTransport<infer transports extends Transport[]>
+    ? Some<
+        {
+          [key in keyof transports]: GetTransportConfig<transports[key]>['type']
+        },
+        type
+      >
+    : false
