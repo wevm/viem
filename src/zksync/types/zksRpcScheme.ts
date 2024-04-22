@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../types/account.js'
-import type { Hash } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type {
   ChainEIP712,
   GetL1BatchBlockRangeReturnParameters,
@@ -50,7 +50,7 @@ export type PublicZkSyncRpcSchema<
   {
     Method: 'zks_L1ChainId'
     Parameters: undefined
-    ReturnType: number
+    ReturnType: Hex
   },
   {
     Method: 'zks_getMainContract'
@@ -60,7 +60,7 @@ export type PublicZkSyncRpcSchema<
   {
     Method: 'zks_L1BatchNumber'
     Parameters: undefined
-    ReturnType: number
+    ReturnType: Hex
   },
   {
     Method: 'zks_getL2ToL1LogProof'

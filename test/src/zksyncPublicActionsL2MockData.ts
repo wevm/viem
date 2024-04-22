@@ -1,12 +1,13 @@
 import { Address } from 'abitype'
-import { EIP1193RequestFn } from '~viem/index.js'
-import { TransactionDetails } from '~viem/zksync/actions/getTransactionDetails.js'
 import type { Fee } from '../../src/zksync/actions/estimateFee.js'
 import { BaseBlockDetails } from '../../src/zksync/actions/getBlockDetails.js'
 import { GetL1BatchBlockRangeReturnParameters } from '../../src/zksync/actions/getL1BatchBlockRange.js'
 import { BatchDetails } from '../../src/zksync/actions/getL1BatchDetails.js'
 import { MessageProof } from '../../src/zksync/actions/getLogProof.js'
 import { RawBlockTransactions } from '../../src/zksync/actions/getRawBlockTransaction.js'
+import { TransactionDetails } from '../../src/zksync/actions/getTransactionDetails.js'
+
+export const mockedL1BatchNumber = '0x2012'
 
 export const mockFeeValues: Fee = {
   gas_limit: '0x2803d',
@@ -37,6 +38,8 @@ export const mockBlockDetails: BaseBlockDetails = {
     default_aa:
       '0x010008bb22aea1e22373cb8d807b15c67eedd65523e9cba4cc556adfa504f7b8',
   },
+  operatorAddress: '0xde03a0b5963f75f1c8485b355ff6d30f3093bde7',
+  protocolVersion: 'Version19',
 }
 
 export const mockAddress: Address = '0x173999892363ba18c9dc60f8c57152fc914bce89'
@@ -95,13 +98,32 @@ export const mockMainContractAddress =
 export const mockRawBlockTransaction: RawBlockTransactions = [
   {
     common_data: {
+      L1: {
+        sender: '0xde03a0b5963f75f1c8485b355ff6d30f3093bde7',
+        serialId: 0,
+        deadlineBlock: 0,
+        layer2TipFee: '0x0',
+        fullFee: '0x0',
+        maxFeePerGas: '0x1dcd6500',
+        gasLimit: '0x44aa200',
+        gasPerPubdataLimit: '0x320',
+        opProcessingType: 'Common',
+        priorityQueueType: 'Deque',
+        ethHash:
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+        ethBlock: 125,
+        canonicalTxHash:
+          '0x9376f805ccd40186a73672a4d0db064060956e70c4ae486ab205291986439343',
+        toMint: '0x7fe5cf2bea0000',
+        refundRecipient: '0xde03a0b5963f75f1c8485b355ff6d30f3093bde7',
+      },
       L2: {
         nonce: 0,
         fee: {
-          gas_limit: BigInt(21000),
-          max_fee_per_gas: BigInt(50),
-          max_priority_fee_per_gas: BigInt(10),
-          gas_per_pubdata_limit: BigInt(1000),
+          gas_limit: '0x2803d',
+          gas_per_pubdata_limit: '0x42',
+          max_fee_per_gas: '0xee6b280',
+          max_priority_fee_per_gas: '0x0',
         },
         initiatorAddress: '0x000000000000000000000000000000000000800b',
         signature: new Uint8Array(),
@@ -150,17 +172,17 @@ export const mockRequestReturnData = async (method: string) => {
   if (method === 'zks_getBridgeContracts') return mockAddresses
   if (method === 'zks_getL1BatchBlockRange') return mockRange
   if (method === 'zks_getL1BatchDetails') return mockDetails
-  if (method === 'zks_L1BatchNumber') return 1
   if (method === 'zks_getL2ToL1LogProof') return mockProofValues
   if (method === 'zks_getMainContract') return mockMainContractAddress
   if (method === 'zks_getRawBlockTransactions') return mockRawBlockTransaction
   if (method === 'zks_getTestnetPaymaster') return mockTestnetPaymasterAddress
   if (method === 'zks_getTransactionDetails') return mockTransactionDetails
+  if (method === 'zks_L1BatchNumber') return mockedL1BatchNumber
   return undefined
 }
 
 export function mockClientPublicActionsL2(client) {
-  client.request = (async ({ method }) => {
+  client.request = async ({ method }) => {
     return mockRequestReturnData(method)
-  }) as EIP1193RequestFn
+  }
 }

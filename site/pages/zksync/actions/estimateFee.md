@@ -14,9 +14,9 @@ Returns an estimated Fee for requested transaction.
 import { client } from './config'
 
 const fee = await client.estimateFee({
-  transactionRequest: {
-    from:'0x636A122e48079f750d44d13E5b39804227E1467e'
-  }
+  account: '0x636A122e48079f750d44d13E5b39804227E1467e',
+  to: "0xa61464658AfeAf65CccaaFD3a512b69A83B77618",
+  value: 0n
 });
 ```
 
@@ -42,8 +42,8 @@ export const client = createPublicClient({
 
 ```ts
 const fee = await client.estimateFee({
-  from:"0x..."
-  gas:50n
-  ...
+  account: "0x636A122e48079f750d44d13E5b39804227E1467e",
+  to: "0xa61464658AfeAf65CccaaFD3a512b69A83B77618",
+  value: 0n
 })
 ```

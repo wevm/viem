@@ -36,7 +36,6 @@ export const client = createPublicClient({
 
 Structure that represent zkSync-specific information about L2 block.
 
-
 ## Parameters
 
 ### number

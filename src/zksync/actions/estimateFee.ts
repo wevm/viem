@@ -12,15 +12,10 @@ export type EstimateFeeParameters<
   TAccount extends Account | undefined = Account | undefined,
 > = ZkSyncTransactionRequestParameters<TChain, TAccount>
 
-/** Represents the transaction fee parameters. */
 export type Fee = {
-  /** The maximum amount of gas allowed for the transaction. */
   gas_limit: Hex
-  /** The maximum amount of gas the user is willing to pay for a single byte of pubdata. */
   gas_per_pubdata_limit: Hex
-  /** The EIP1559 tip per gas. */
   max_priority_fee_per_gas: Hex
-  /** The EIP1559 fee cap per gas. */
   max_fee_per_gas: Hex
 }
 

@@ -1,157 +1,138 @@
 import { expect, test } from 'vitest'
 
+import { zkSyncLocalNode } from '../../../src/chains/index.js'
+import { getZksyncMockProvider } from '../../../test/src/zksync.js'
 import {
-  getZksyncMockProvider,
-  zkSyncClientLocalNode,
-} from '~test/src/zksync.js'
-import { createPublicClient } from '~viem/clients/createPublicClient.js'
-import { custom } from '~viem/clients/transports/custom.js'
-import type { EIP1193RequestFn } from '~viem/types/eip1193.js'
-import { mockRequestReturnData } from '../../../test/src/zksyncPublicActionsL2MockData.js'
-import { type Fee, estimateFee } from '../actions/estimateFee.js'
-import { type MessageProof, getLogProof } from '../actions/getLogProof.js'
-import {
-  type TransactionDetails,
-  getTransactionDetails,
-} from '../actions/getTransactionDetails.js'
+  mockAccountBalances,
+  mockAddress,
+  mockBaseTokenL1Address,
+  mockDetails,
+  mockFeeValues,
+  mockMainContractAddress,
+  mockProofValues,
+  mockRange,
+  mockRawBlockTransaction,
+  mockRequestReturnData,
+  mockTestnetPaymasterAddress,
+  mockTransactionDetails,
+  mockedL1BatchNumber,
+} from '../../../test/src/zksyncPublicActionsL2MockData.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { custom } from '../../clients/transports/custom.js'
+import { estimateFee } from '../actions/estimateFee.js'
+import type { GetAllBalancesReturnType } from '../actions/getAllBalances.js'
+import { getLogProof } from '../actions/getLogProof.js'
+import { getTransactionDetails } from '../actions/getTransactionDetails.js'
 import { publicActionsL2 } from './publicL2.js'
 
-const zkSyncClient_ = zkSyncClientLocalNode.extend(publicActionsL2())
-
-const theClient = createPublicClient({
+const mockedZksyncClient = createPublicClient({
   transport: custom(
     getZksyncMockProvider(async ({ method }) => mockRequestReturnData(method)),
   ),
+  chain: zkSyncLocalNode,
 }).extend(publicActionsL2())
 
 test('getL1ChainId', async () => {
-  const chainId = await theClient.getL1ChainId()
-  expect(chainId).toBeDefined()
+  const chainId = await mockedZksyncClient.getL1ChainId()
+  expect(chainId).to.be.equal('0x9')
 })
 
 test('getDefaultBridgeAddresses', async () => {
-  const addresses = await zkSyncClient_.getDefaultBridgeAddresses()
-  expect(addresses).toBeDefined()
+  const addresses = await mockedZksyncClient.getDefaultBridgeAddresses()
+
+  const returnedAddresses = {
+    erc20L1: '0xbe270c78209cfda84310230aaa82e18936310b2e',
+    sharedL1: '0x648afeaf09a3db988ac41b786001235bbdbc7640',
+    sharedL2: '0xfd61c893b903fa133908ce83dfef67c4c2350dd8',
+  }
+
+  expect(addresses).to.deep.equal(returnedAddresses)
 })
 
 test('getTestnetPaymasterAddress', async () => {
-  const address = await zkSyncClient_.getTestnetPaymasterAddress()
-  expect(address).toBeDefined()
+  const address = await mockedZksyncClient.getTestnetPaymasterAddress()
+  expect(address).to.equal(mockTestnetPaymasterAddress)
 })
 
 test('getMainContractAddress', async () => {
-  const mainContractAddress = await zkSyncClient_.getMainContractAddress()
-  expect(mainContractAddress).toBeDefined()
+  const mainContractAddress = await mockedZksyncClient.getMainContractAddress()
+  expect(mainContractAddress).to.equal(mockMainContractAddress)
 })
 
 test('getAllBalances', async () => {
-  const balances = await zkSyncClient_.getAllBalances({
-    account: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
+  const balances = await mockedZksyncClient.getAllBalances({
+    account: mockAddress,
   })
 
-  const entries = Object.entries(balances)
+  const mockAccountBalancesBigInt: GetAllBalancesReturnType = {}
+  const entries = Object.entries(mockAccountBalances)
   for (const [key, value] of entries) {
-    expect(typeof key).toBe('string')
-    expect(typeof value).toBe('bigint')
+    mockAccountBalancesBigInt[key] = BigInt(value)
   }
+
+  expect(balances).to.deep.equal(mockAccountBalancesBigInt)
 })
 
 test('getRawBlockTransaction', async () => {
-  const result = await zkSyncClient_.getRawBlockTransaction({
+  const result = await mockedZksyncClient.getRawBlockTransaction({
     number: 1,
   })
-  expect(result).toBeDefined()
+  expect(result).to.equal(mockRawBlockTransaction)
 })
 
 test('getL1BatchDetails', async () => {
-  const details = await zkSyncClient_.getL1BatchDetails({
+  const details = await mockedZksyncClient.getL1BatchDetails({
     number: 0,
   })
-  expect(details).to.not.be.undefined
-  expect(details.baseSystemContractsHashes.bootloader).toBeDefined()
-  expect(details.baseSystemContractsHashes.default_aa).toBeDefined()
+  expect(details).to.equal(mockDetails)
 })
 
 test('getL1BatchBlockRange', async () => {
-  const blockRange = await zkSyncClient_.getL1BatchBlockRange({
+  const blockRange = await mockedZksyncClient.getL1BatchBlockRange({
     l1BatchNumber: 0,
   })
   expect(blockRange).toBeDefined()
   expect(blockRange.length === 2)
+  expect(blockRange).to.equal(mockRange)
 })
 
 test('getL1BatchNumber', async () => {
-  const number = await zkSyncClient_.getL1BatchNumber()
-  expect(number).toBeDefined()
+  const number = await mockedZksyncClient.getL1BatchNumber()
+  expect(number).to.be.equal(mockedL1BatchNumber)
 })
 
 test('getBridgehubContract', async () => {
   const bridgeHubContractAddress =
-    await zkSyncClient_.getBridgehubContractAddress()
-  expect(bridgeHubContractAddress).toBeDefined()
+    await mockedZksyncClient.getBridgehubContractAddress()
+  expect(bridgeHubContractAddress).to.equal(mockAddress)
 })
 
 test('getBaseTokenL1Address', async () => {
-  const address = await zkSyncClient_.getBaseTokenL1Address()
-  expect(address).toBeDefined()
+  const address = await mockedZksyncClient.getBaseTokenL1Address()
+  expect(address).to.equal(mockBaseTokenL1Address)
 })
 
 test('estimateFee', async () => {
-  const mockFeeValues: Fee = {
-    gasLimit: 10n,
-    gasPerPubdataLimit: 20n,
-    maxPriorityFeePerGas: 30n,
-    maxFeePerGas: 30n,
-  }
-
-  zkSyncClient_.request = (async ({ method, params }) => {
-    if (method === 'zks_estimateFee') return mockFeeValues
-    return zkSyncClientLocalNode.request({ method, params } as any)
-  }) as EIP1193RequestFn
-
-  const fee = await estimateFee(zkSyncClient_, {
-    from: '0x',
+  const fee = await estimateFee(mockedZksyncClient, {
+    account: mockAddress,
   })
 
   expect(fee).to.deep.equal(mockFeeValues)
 })
 
 test('getTransactionDetails', async () => {
-  const mockDetails: TransactionDetails = {
-    isL1Originated: true,
-    status: 'validated',
-    fee: 10n,
-    gasPerPubdata: 50000n,
-    initiatorAddress: '0x000000000000000000000000000000000000800b',
-    receivedAt: new Date(1713436617435),
-  }
-  zkSyncClient_.request = (async ({ method, params }) => {
-    if (method === 'zks_getTransactionDetails') return mockDetails
-    return zkSyncClientLocalNode.request({ method, params } as any)
-  }) as EIP1193RequestFn
-  const details = await getTransactionDetails(zkSyncClient_, {
+  const details = await getTransactionDetails(mockedZksyncClient, {
     txHash:
       '0xcf89f4076eae08127daa1b2b9bab94a910d232b4a78b116554f7b29af19e35a4',
   })
-  expect(details).to.equal(mockDetails)
+  expect(details).to.equal(mockTransactionDetails)
 })
 
 test('getLogProof', async () => {
-  const proofValues: MessageProof = {
-    id: 112,
-    proof: ['mock-proof1,mock-proof2'],
-    root: 'mock-root',
-  }
-
-  zkSyncClient_.request = (async ({ method, params }) => {
-    if (method === 'zks_getL2ToL1LogProof') return proofValues
-    return zkSyncClientLocalNode.request({ method, params } as any)
-  }) as EIP1193RequestFn
-
-  const fee = await getLogProof(zkSyncClient_, {
+  const fee = await getLogProof(mockedZksyncClient, {
     txHash: '0x',
     index: 5,
   })
 
-  expect(fee).to.deep.equal(proofValues)
+  expect(fee).to.deep.equal(mockProofValues)
 })
