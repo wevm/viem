@@ -1,6 +1,6 @@
-import { Chain, zkSync, zkSyncLocalNode } from '../../src/chains/index.js'
-import { createClient } from '../../src/clients/createClient.js'
-import { http } from '../../src/clients/transports/http.js'
+import { Chain, zkSync, zkSyncLocalNode } from '~viem/chains/index.js'
+import { createClient } from '~viem/clients/createClient.js'
+import { http } from '~viem/clients/transports/http.js'
 import { accounts, warn } from './constants.js'
 
 export let anvilPortZkSync: number
