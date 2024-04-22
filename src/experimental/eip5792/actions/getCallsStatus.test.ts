@@ -1,15 +1,15 @@
 import { expect, test } from 'vitest'
-import { accounts, localHttpUrl } from '../../../test/src/constants.js'
-import { testClient } from '../../../test/src/utils.js'
-import { mine } from '../../actions/index.js'
-import { mainnet } from '../../chains/index.js'
-import { createClient } from '../../clients/createClient.js'
-import { custom } from '../../clients/transports/custom.js'
-import { RpcRequestError } from '../../errors/request.js'
-import type { WalletCallReceipt } from '../../types/eip1193.js'
-import type { Hex } from '../../types/misc.js'
-import { getHttpRpcClient, parseEther } from '../../utils/index.js'
-import { uid } from '../../utils/uid.js'
+import { accounts, localHttpUrl } from '../../../../test/src/constants.js'
+import { testClient } from '../../../../test/src/utils.js'
+import { mine } from '../../../actions/index.js'
+import { mainnet } from '../../../chains/index.js'
+import { createClient } from '../../../clients/createClient.js'
+import { custom } from '../../../clients/transports/custom.js'
+import { RpcRequestError } from '../../../errors/request.js'
+import type { WalletCallReceipt } from '../../../types/eip1193.js'
+import type { Hex } from '../../../types/misc.js'
+import { getHttpRpcClient, parseEther } from '../../../utils/index.js'
+import { uid } from '../../../utils/uid.js'
 import { getCallsStatus } from './getCallsStatus.js'
 import { sendCalls } from './sendCalls.js'
 
@@ -136,7 +136,7 @@ test('default', async () => {
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 42000n,
+        "gasUsed": 21000n,
         "logs": [],
         "status": "success",
         "transactionHash": "0x5fafca9937b154c21e7ea896c3ca23e5076ab9ca9e466085ae45edffb96c36e7",
@@ -144,7 +144,7 @@ test('default', async () => {
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 63064n,
+        "gasUsed": 21064n,
         "logs": [],
         "status": "success",
         "transactionHash": "0x84f1d37995973fa977fc45eccf3d1ac0cdf666541a7dc2613e9cd3bc356ddfa4",

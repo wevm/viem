@@ -1,5 +1,85 @@
 # viem
 
+## 2.9.25
+
+### Patch Changes
+
+- [`1593cac27556a83bf111529fc2bc799d9bb9db02`](https://github.com/wevm/viem/commit/1593cac27556a83bf111529fc2bc799d9bb9db02) Thanks [@jxom](https://github.com/jxom)! - Fixed `HasTransportType` type.
+
+## 2.9.24
+
+### Patch Changes
+
+- [`0b0df527f7e8ff3fde8b15db93eae06653b8da86`](https://github.com/wevm/viem/commit/0b0df527f7e8ff3fde8b15db93eae06653b8da86) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where fallback transports with a webSocket transport would not utilize `eth_subscribe` in watcher actions.
+
+- [#2161](https://github.com/wevm/viem/pull/2161) [`601ed60d6c570bba0e88d9d26a322db4f8e605d6`](https://github.com/wevm/viem/commit/601ed60d6c570bba0e88d9d26a322db4f8e605d6) Thanks [@PengDeng-Cyber](https://github.com/PengDeng-Cyber)! - Added Cyber testnet.
+
+## 2.9.23
+
+### Patch Changes
+
+- [#2153](https://github.com/wevm/viem/pull/2153) [`71a17c0a2abcd81963e23cb76a3e8a792abbd7b6`](https://github.com/wevm/viem/commit/71a17c0a2abcd81963e23cb76a3e8a792abbd7b6) Thanks [@billalxcode](https://github.com/billalxcode)! - Added DreyerX Mainnet chain.
+
+- [#2155](https://github.com/wevm/viem/pull/2155) [`803fa0de429942b800172f87c93c41fa69f9c030`](https://github.com/wevm/viem/commit/803fa0de429942b800172f87c93c41fa69f9c030) Thanks [@jxom](https://github.com/jxom)! - Added experimental 3074 utilties:
+
+  - `signAuthMessage`
+  - `recoverAuthMessageAddress`
+  - `verifyAuthMessage`
+
+## 2.9.22
+
+### Patch Changes
+
+- [`e5121a3055233a7cda8a46435bcdee674f1b1313`](https://github.com/wevm/viem/commit/e5121a3055233a7cda8a46435bcdee674f1b1313) Thanks [@jxom](https://github.com/jxom)! - Fixed `getContract` function generics.
+
+## 2.9.21
+
+### Patch Changes
+
+- [#2144](https://github.com/wevm/viem/pull/2144) [`424e583e20c4754dffdff61f533133d8b674024f`](https://github.com/wevm/viem/commit/424e583e20c4754dffdff61f533133d8b674024f) Thanks [@bthaile](https://github.com/bthaile)! - Added Flow testnet.
+
+- [#2142](https://github.com/wevm/viem/pull/2142) [`c4047dc5b7cd85bf86694dcde46105ee28433f43`](https://github.com/wevm/viem/commit/c4047dc5b7cd85bf86694dcde46105ee28433f43) Thanks [@UncleBill](https://github.com/UncleBill)! - Added X Layer chain.
+
+## 2.9.20
+
+### Patch Changes
+
+- [#2140](https://github.com/wevm/viem/pull/2140) [`461f99755889239f2c59b5e88baf9b81c60be49f`](https://github.com/wevm/viem/commit/461f99755889239f2c59b5e88baf9b81c60be49f) Thanks [@therealdannzor](https://github.com/therealdannzor)! - Added PlayFi Albireo chain.
+
+- [`7d96364f3426adae99f66dad9203c7d6007b3122`](https://github.com/wevm/viem/commit/7d96364f3426adae99f66dad9203c7d6007b3122) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
+## 2.9.19
+
+### Patch Changes
+
+- [#2139](https://github.com/wevm/viem/pull/2139) [`ee55a4e3ba632476d3249a7f85f687f6ff5110cb`](https://github.com/wevm/viem/commit/ee55a4e3ba632476d3249a7f85f687f6ff5110cb) Thanks [@michecode](https://github.com/michecode)! - Added Mantle Sepolia chain.
+
+- [`581dc93fb5216ee910ac741af617f0c45edf582b`](https://github.com/wevm/viem/commit/581dc93fb5216ee910ac741af617f0c45edf582b) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where a request `dispatcher` wasn't being propagated to `fetch`.
+
+## 2.9.18
+
+### Patch Changes
+
+- [`2158c1d76b7d1a18936c8718faf987a35ea2a14f`](https://github.com/wevm/viem/commit/2158c1d76b7d1a18936c8718faf987a35ea2a14f) Thanks [@jxom](https://github.com/jxom)! - Added ability to override `RpcSchema` type on Client.
+
+- [#2135](https://github.com/wevm/viem/pull/2135) [`f722ff7e207f64cd75c25a512fda31117e8d934e`](https://github.com/wevm/viem/commit/f722ff7e207f64cd75c25a512fda31117e8d934e) Thanks [@hamidroohi71](https://github.com/hamidroohi71)! - Added Darwinia chain
+
+## 2.9.17
+
+### Patch Changes
+
+- [#2128](https://github.com/wevm/viem/pull/2128) [`90fdf8cb7e8dc66552a978061f59e7932b980d1b`](https://github.com/wevm/viem/commit/90fdf8cb7e8dc66552a978061f59e7932b980d1b) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated Mode block explorer URL.
+
+- [#2122](https://github.com/wevm/viem/pull/2122) [`f020b48b6107855e62d09c2e3768f348c4c3af28`](https://github.com/wevm/viem/commit/f020b48b6107855e62d09c2e3768f348c4c3af28) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Updated Boba native currency from BOBA to ETH.
+
+- [#2119](https://github.com/wevm/viem/pull/2119) [`4db7c996ee68f7d3fdeeac1227655692a3febb13`](https://github.com/wevm/viem/commit/4db7c996ee68f7d3fdeeac1227655692a3febb13) Thanks [@Imti](https://github.com/Imti)! - Updated Publicnode RPC URLs to new format.
+
+- [#2124](https://github.com/wevm/viem/pull/2124) [`d2f93e726df1ab1ff86098d68a4406f6fae315b8`](https://github.com/wevm/viem/commit/d2f93e726df1ab1ff86098d68a4406f6fae315b8) Thanks [@ITZSHOAIB](https://github.com/ITZSHOAIB)! - Exported EON chain.
+
+- [#2132](https://github.com/wevm/viem/pull/2132) [`8c3eb6a5c13f550dfde4fee6edd1e898bebf9f2e`](https://github.com/wevm/viem/commit/8c3eb6a5c13f550dfde4fee6edd1e898bebf9f2e) Thanks [@acedward](https://github.com/acedward)! - Fixed `getAction` for cases where the bundler could change function names.
+
+- [#2129](https://github.com/wevm/viem/pull/2129) [`d8345478fb469f43745e35e1e645f5d4c9ee40e8`](https://github.com/wevm/viem/commit/d8345478fb469f43745e35e1e645f5d4c9ee40e8) Thanks [@hungdoansy](https://github.com/hungdoansy)! - Added Manta Pacific Sepolia Testnet chain.
+
 ## 2.9.16
 
 ### Patch Changes

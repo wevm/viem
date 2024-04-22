@@ -77,7 +77,7 @@ export function getHttpRpcClient(
       try {
         const response = await withTimeout(
           async ({ signal }) => {
-            const request = new Request(url, {
+            const init: RequestInit = {
               ...fetchOptions,
               body: Array.isArray(body)
                 ? stringify(
@@ -98,9 +98,10 @@ export function getHttpRpcClient(
               },
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),
-            })
+            }
+            const request = new Request(url, init)
             if (onRequest) await onRequest(request)
-            const response = await fetch(request)
+            const response = await fetch(url, init)
             return response
           },
           {

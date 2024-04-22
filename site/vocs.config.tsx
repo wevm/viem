@@ -9,6 +9,10 @@ export default defineConfig({
   titleTemplate: '%s · Viem',
   description:
     'Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.',
+  editLink: {
+    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path',
+    text: 'Suggest changes to this page',
+  },
   head() {
     return (
       <>

@@ -1,13 +1,13 @@
-import type { Client } from '../../clients/createClient.js'
-import type { Transport } from '../../clients/transports/createTransport.js'
-import type { ErrorType } from '../../errors/utils.js'
-import type { Account } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
-import type { WalletGetCallsStatusReturnType } from '../../types/eip1193.js'
-import type { Prettify } from '../../types/utils.js'
-import type { RequestErrorType } from '../../utils/buildRequest.js'
-import { hexToBigInt } from '../../utils/encoding/fromHex.js'
-import { receiptStatuses } from '../../utils/formatters/transactionReceipt.js'
+import type { Client } from '../../../clients/createClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../../errors/utils.js'
+import type { Account } from '../../../types/account.js'
+import type { Chain } from '../../../types/chain.js'
+import type { WalletGetCallsStatusReturnType } from '../../../types/eip1193.js'
+import type { Prettify } from '../../../types/utils.js'
+import type { RequestErrorType } from '../../../utils/buildRequest.js'
+import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
+import { receiptStatuses } from '../../../utils/formatters/transactionReceipt.js'
 
 export type GetCallsStatusParameters = { id: string }
 
@@ -20,7 +20,7 @@ export type GetCallsStatusErrorType = RequestErrorType | ErrorType
 /**
  * Returns the status of a call batch that was sent via `sendCalls`.
  *
- * - Docs: https://viem.sh/experimental/actions/getCallsStatus
+ * - Docs: https://viem.sh/experimental/eip5792/getCallsStatus
  * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use

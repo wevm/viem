@@ -1,16 +1,16 @@
 import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, localHttpUrl } from '../../../test/src/constants.js'
-import { setBlockNumber, testClient } from '../../../test/src/utils.js'
-import { mine } from '../../actions/index.js'
-import { mainnet } from '../../chains/index.js'
-import { createClient } from '../../clients/createClient.js'
-import { custom } from '../../clients/transports/custom.js'
-import { RpcRequestError } from '../../errors/request.js'
-import type { WalletCallReceipt } from '../../types/eip1193.js'
-import type { Hex } from '../../types/misc.js'
-import { getHttpRpcClient } from '../../utils/index.js'
-import { uid } from '../../utils/uid.js'
+import { accounts, localHttpUrl } from '../../../../test/src/constants.js'
+import { setBlockNumber, testClient } from '../../../../test/src/utils.js'
+import { mine } from '../../../actions/index.js'
+import { mainnet } from '../../../chains/index.js'
+import { createClient } from '../../../clients/createClient.js'
+import { custom } from '../../../clients/transports/custom.js'
+import { RpcRequestError } from '../../../errors/request.js'
+import type { WalletCallReceipt } from '../../../types/eip1193.js'
+import type { Hex } from '../../../types/misc.js'
+import { getHttpRpcClient } from '../../../utils/index.js'
+import { uid } from '../../../utils/uid.js'
 import { getCallsStatus } from './getCallsStatus.js'
 import { writeContracts } from './writeContracts.js'
 
@@ -179,6 +179,7 @@ test('default', async () => {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
+            "blockTimestamp": "0x63abc18c",
             "data": "0x",
             "logIndex": "0x0",
             "removed": false,
@@ -198,12 +199,13 @@ test('default', async () => {
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 139688n,
+        "gasUsed": 61294n,
         "logs": [
           {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
+            "blockTimestamp": "0x63abc18c",
             "data": "0x",
             "logIndex": "0x1",
             "removed": false,
@@ -223,12 +225,13 @@ test('default', async () => {
       {
         "blockHash": undefined,
         "blockNumber": 16280771n,
-        "gasUsed": 200982n,
+        "gasUsed": 61294n,
         "logs": [
           {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
+            "blockTimestamp": "0x63abc18c",
             "data": "0x",
             "logIndex": "0x2",
             "removed": false,

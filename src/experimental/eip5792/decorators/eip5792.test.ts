@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { mainnet } from '../../chains/index.js'
-import { createClient } from '../../clients/createClient.js'
-import { custom } from '../../clients/transports/custom.js'
+import { mainnet } from '../../../chains/index.js'
+import { createClient } from '../../../clients/createClient.js'
+import { custom } from '../../../clients/transports/custom.js'
 import { walletActionsEip5792 } from './eip5792.js'
 
 const client = createClient({

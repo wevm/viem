@@ -4,7 +4,9 @@ import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import {
+  anvilChain,
   deployErc20InvalidTransferEvent,
+  httpClient,
   publicClient,
   testClient,
   walletClient,
@@ -19,7 +21,14 @@ import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
-import { InvalidInputRpcError, RpcRequestError } from '../../index.js'
+import {
+  http,
+  InvalidInputRpcError,
+  RpcRequestError,
+  createClient,
+  fallback,
+  webSocket,
+} from '../../index.js'
 import * as createContractEventFilter from './createContractEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
@@ -697,6 +706,154 @@ describe('poll', () => {
     })
   })
 
+  describe('transports', () => {
+    test('http', async () => {
+      const logs: WatchContractEventOnLogsParameter<
+        typeof usdcContractConfig.abi
+      >[] = []
+
+      const unwatch = watchContractEvent(httpClient, {
+        abi: usdcContractConfig.abi,
+        onLogs: (logs_) => {
+          assertType<(typeof logs_)[0]['args']>({
+            owner: '0x',
+            spender: '0x',
+            value: 0n,
+          })
+          assertType<(typeof logs_)[0]['args']>({
+            from: '0x',
+            to: '0x',
+            value: 0n,
+          })
+          logs.push(logs_)
+        },
+      })
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'approve',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+
+      expect(logs.length).toBe(2)
+      expect(logs[0].length).toBe(2)
+      expect(logs[1].length).toBe(1)
+
+      expect(logs[0][0].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][0].eventName).toEqual('Transfer')
+      expect(logs[0][1].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][1].eventName).toEqual('Transfer')
+      expect(logs[1][0].args).toEqual({
+        owner: getAddress(address.vitalik),
+        spender: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[1][0].eventName).toEqual('Approval')
+    })
+
+    test('fallback', async () => {
+      const logs: WatchContractEventOnLogsParameter<
+        typeof usdcContractConfig.abi
+      >[] = []
+
+      const client = createClient({
+        chain: anvilChain,
+        transport: fallback([http(), webSocket()]),
+        pollingInterval: 200,
+      })
+
+      const unwatch = watchContractEvent(client, {
+        abi: usdcContractConfig.abi,
+        onLogs: (logs_) => {
+          assertType<(typeof logs_)[0]['args']>({
+            owner: '0x',
+            spender: '0x',
+            value: 0n,
+          })
+          assertType<(typeof logs_)[0]['args']>({
+            from: '0x',
+            to: '0x',
+            value: 0n,
+          })
+          logs.push(logs_)
+        },
+      })
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'approve',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+
+      expect(logs.length).toBe(2)
+      expect(logs[0].length).toBe(2)
+      expect(logs[1].length).toBe(1)
+
+      expect(logs[0][0].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][0].eventName).toEqual('Transfer')
+      expect(logs[0][1].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][1].eventName).toEqual('Transfer')
+      expect(logs[1][0].args).toEqual({
+        owner: getAddress(address.vitalik),
+        spender: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[1][0].eventName).toEqual('Approval')
+    })
+  })
+
   describe('errors', () => {
     test('handles error thrown from creating filter', async () => {
       vi.spyOn(getBlockNumber, 'getBlockNumber').mockRejectedValueOnce(
@@ -1116,6 +1273,145 @@ describe('subscribe', () => {
     ])
     expect(logs[1][0].eventName).toEqual('Transfer')
   })
+
+  test(
+    'fallback transport',
+    async () => {
+      const logs: WatchContractEventOnLogsParameter<
+        typeof usdcContractConfig.abi
+      >[] = []
+
+      const client = createClient({
+        chain: anvilChain,
+        transport: fallback([webSocket(), http()]),
+        pollingInterval: 200,
+      })
+
+      const unwatch = watchContractEvent(client, {
+        ...usdcContractConfig,
+        onLogs: (logs_) => {
+          assertType<(typeof logs_)[0]['args']>({
+            owner: '0x',
+            spender: '0x',
+            value: 0n,
+          })
+          assertType<(typeof logs_)[0]['args']>({
+            from: '0x',
+            to: '0x',
+            value: 0n,
+          })
+          logs.push(logs_)
+        },
+      })
+
+      await wait(100)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'approve',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+
+      unwatch()
+
+      expect(logs.length).toBe(2)
+
+      expect(logs[0][0].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][0].eventName).toEqual('Transfer')
+
+      expect(logs[1][0].args).toEqual({
+        owner: getAddress(address.vitalik),
+        spender: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[1][0].eventName).toEqual('Approval')
+    },
+    { timeout: 10_000 },
+  )
+
+  test(
+    'fallback transport (poll: false)',
+    async () => {
+      const logs: WatchContractEventOnLogsParameter<
+        typeof usdcContractConfig.abi
+      >[] = []
+
+      const client = createClient({
+        chain: anvilChain,
+        transport: fallback([http(), webSocket()]),
+        pollingInterval: 200,
+      })
+
+      const unwatch = watchContractEvent(client, {
+        ...usdcContractConfig,
+        poll: false,
+        onLogs: (logs_) => {
+          assertType<(typeof logs_)[0]['args']>({
+            owner: '0x',
+            spender: '0x',
+            value: 0n,
+          })
+          assertType<(typeof logs_)[0]['args']>({
+            from: '0x',
+            to: '0x',
+            value: 0n,
+          })
+          logs.push(logs_)
+        },
+      })
+
+      await wait(100)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'approve',
+        args: [address.vitalik, 1n],
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+
+      unwatch()
+
+      expect(logs.length).toBe(2)
+
+      expect(logs[0][0].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][0].eventName).toEqual('Transfer')
+
+      expect(logs[1][0].args).toEqual({
+        owner: getAddress(address.vitalik),
+        spender: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[1][0].eventName).toEqual('Approval')
+    },
+    { timeout: 10_000 },
+  )
 
   describe('args: strict', () => {
     test('indexed params mismatch', async () => {

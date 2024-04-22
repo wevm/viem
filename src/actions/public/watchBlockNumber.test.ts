@@ -1,7 +1,13 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { localHttpUrl } from '~test/src/constants.js'
-import { publicClient, testClient, webSocketClient } from '~test/src/utils.js'
+import {
+  anvilChain,
+  httpClient,
+  publicClient,
+  testClient,
+  webSocketClient,
+} from '~test/src/utils.js'
 import { localhost } from '../../chains/index.js'
 import {
   type PublicClient,
@@ -11,6 +17,9 @@ import { http } from '../../clients/transports/http.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 
+import { createClient } from '../../clients/createClient.js'
+import { fallback } from '../../clients/transports/fallback.js'
+import { webSocket } from '../../clients/transports/webSocket.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import {
   type OnBlockNumberParameter,
@@ -97,6 +106,51 @@ describe('poll', () => {
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(2)
+    })
+  })
+
+  describe('transports', () => {
+    test('http transport', async () => {
+      const blockNumbers: OnBlockNumberParameter[] = []
+      const unwatch = watchBlockNumber(httpClient, {
+        onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
+        pollingInterval: 100,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+      expect(blockNumbers.length).toBe(4)
+    })
+
+    test('fallback transport', async () => {
+      const client = createClient({
+        chain: anvilChain,
+        transport: fallback([http(), webSocket()]),
+        pollingInterval: 200,
+      })
+
+      const blockNumbers: OnBlockNumberParameter[] = []
+      const unwatch = watchBlockNumber(client, {
+        onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
+        poll: true,
+        pollingInterval: 100,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+      expect(blockNumbers.length).toBe(4)
     })
   })
 
@@ -356,6 +410,59 @@ describe('subscribe', () => {
   test('watches for new block numbers', async () => {
     const blockNumbers: OnBlockNumberParameter[] = []
     const unwatch = watchBlockNumber(webSocketClient, {
+      onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
+    })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
+    expect(blockNumbers.length).toBe(5)
+  })
+
+  test('fallback transport', async () => {
+    const client = createClient({
+      chain: anvilChain,
+      transport: fallback([webSocket(), http()]),
+      pollingInterval: 200,
+    })
+
+    const blockNumbers: OnBlockNumberParameter[] = []
+    const unwatch = watchBlockNumber(client, {
+      onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
+    })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
+    expect(blockNumbers.length).toBe(5)
+  })
+
+  test('fallback transport (poll: false)', async () => {
+    const client = createClient({
+      chain: anvilChain,
+      transport: fallback([http(), webSocket()]),
+      pollingInterval: 200,
+    })
+
+    const blockNumbers: OnBlockNumberParameter[] = []
+    const unwatch = watchBlockNumber(client, {
+      poll: false,
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
     })
     await wait(200)
