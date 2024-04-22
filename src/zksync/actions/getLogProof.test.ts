@@ -11,20 +11,20 @@ const client = { ...zkSyncClientLocalNode }
 mockClientPublicActionsL2(client)
 
 test('default', async () => {
-  const fee = await getLogProof(client, {
+  const proof = await getLogProof(client, {
     txHash:
       '0x1f698500b32c325f46f008eda30df9057d54619f0d92b703952c333847a21ded',
   })
 
-  expect(fee).to.deep.equal(mockProofValues)
+  expect(proof).to.deep.equal(mockProofValues)
 })
 
 test('args: index', async () => {
-  const fee = await getLogProof(client, {
+  const proof = await getLogProof(client, {
     txHash:
       '0x1f698500b32c325f46f008eda30df9057d54619f0d92b703952c333847a21ded',
     index: 5,
   })
 
-  expect(fee).to.deep.equal(mockProofValues)
+  expect(proof).to.deep.equal(mockProofValues)
 })

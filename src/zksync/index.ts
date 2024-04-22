@@ -113,6 +113,8 @@ export {
   getDefaultBridgeAddresses,
 } from './actions/getDefaultBridgeAddresses.js'
 
+export { getBridgehubContractAddress } from './actions/getBridgehubContractAddress.js'
+
 export {
   type GetL1BatchBlockRangeParameters,
   type GetL1BatchBlockRangeReturnParameters,
@@ -125,17 +127,25 @@ export {
   getL1BatchDetails,
 } from './actions/getL1BatchDetails.js'
 
+export { getL1BatchNumber } from './actions/getL1BatchNumber.js'
+
+export { getL1ChainId } from './actions/getL1ChainId.js'
+
 export {
   type MessageProof,
   type GetLogProofParameters,
   getLogProof,
 } from './actions/getLogProof.js'
 
+export { getMainContractAddress } from './actions/getMainContractAddress.js'
+
 export {
   type GetRawBlockTransactionParameters,
   type RawBlockTransactions,
   getRawBlockTransactions,
 } from './actions/getRawBlockTransaction.js'
+
+export { getTestnetPaymasterAddress } from './actions/getTestnetPaymasterAddress.js'
 
 export {
   type GetTransactionDetailsParameters,

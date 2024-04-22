@@ -34,7 +34,7 @@ export const client = createPublicClient({
 
 ## Returns 
 
-`TransactionRequest`
+`Fee`
 
 ## Parameters
 
