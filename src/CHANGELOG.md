@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.25
+
+### Patch Changes
+
+- [`1593cac27556a83bf111529fc2bc799d9bb9db02`](https://github.com/wevm/viem/commit/1593cac27556a83bf111529fc2bc799d9bb9db02) Thanks [@jxom](https://github.com/jxom)! - Fixed `HasTransportType` type.
+
 ## 2.9.24
 
 ### Patch Changes
