@@ -27,7 +27,6 @@ export const client = createPublicClient({
 ```
 :::
 
-
 ## Returns 
 
 `Hex`

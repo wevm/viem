@@ -35,11 +35,10 @@ export async function estimateFee<
   const account = account_ ? parseAccount(account_) : client.account
 
   const formatters = client.chain?.formatters
-  const formatted =
-    formatters?.transactionRequest?.format({
-      ...request,
-      from: account?.address,
-    }) ?? parameters
+  const formatted = formatters?.transactionRequest?.format({
+    ...request,
+    from: account?.address,
+  })
 
   const result = await client.request({
     method: 'zks_estimateFee',
