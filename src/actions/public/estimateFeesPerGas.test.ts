@@ -1,11 +1,11 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { anvilChain, publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 
-import { localHttpUrl } from '~test/src/constants.js'
 import { createTestClient } from '~viem/index.js'
 import {
   estimateFeesPerGas,
@@ -34,7 +34,7 @@ test('legacy', async () => {
 
 test('args: chain `estimateFeesPerGas` override (when null returned)', async () => {
   const client = createTestClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
     mode: 'anvil',
   })
 
@@ -56,7 +56,7 @@ test('args: chain `estimateFeesPerGas` override (when null returned)', async () 
 
 test('args: chain `estimateFeesPerGas` override', async () => {
   const client = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
     client,
@@ -79,7 +79,7 @@ test('args: chain `baseFeeMultiplier` override (value)', async () => {
   const block = await getBlock.getBlock(publicClient)
 
   const client = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   const feesPerGas_1 = await estimateFeesPerGas(client, {
     chain: {
@@ -125,7 +125,7 @@ test('args: chain `baseFeeMultiplier` override (sync fn)', async () => {
   const block = await getBlock.getBlock(publicClient)
 
   const client = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
     client,
@@ -150,7 +150,7 @@ test('args: chain `baseFeeMultiplier` override (async fn)', async () => {
   const block = await getBlock.getBlock(publicClient)
 
   const client = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
     client,
@@ -173,7 +173,7 @@ test('args: chain `baseFeeMultiplier` override (async fn)', async () => {
 
 test('args: chain `baseFeeMultiplier` override < 1', async () => {
   const client = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   await expect(() =>
     estimateFeesPerGas(client, {

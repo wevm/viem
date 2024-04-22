@@ -1,6 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { localHttpUrl } from '~test/src/constants.js'
 import {
   anvilChain,
   httpClient,
@@ -8,6 +7,7 @@ import {
   testClient,
   webSocketClient,
 } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { localhost } from '../../chains/index.js'
 import {
   type PublicClient,
@@ -91,7 +91,7 @@ describe('poll', () => {
     test('watches for new block numbers', async () => {
       const client = createPublicClient({
         chain: localhost,
-        transport: http(localHttpUrl),
+        transport: http(anvilMainnet.rpcUrl.http),
         pollingInterval: 100,
       })
 

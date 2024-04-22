@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { OffchainLookupExample } from '~test/contracts/generated.js'
 import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
 import { createCcipServer } from '~test/src/ccip.js'
-import { accounts, forkBlockNumber, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
   deployOffchainLookupExample,
@@ -20,6 +20,7 @@ import { trim } from '../../utils/data/trim.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import {
   http,
   type Hex,
@@ -99,7 +100,7 @@ describe('ccip', () => {
 
     const client = createClient({
       ccipRead: false,
-      transport: http(localHttpUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     await expect(() =>
@@ -663,14 +664,14 @@ describe('batch call', () => {
       call(publicClient, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
       }),
     )
     p.push(
       call(publicClient, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: forkBlockNumber + 1n,
+        blockNumber: anvilMainnet.forkBlockNumber + 1n,
       }),
     )
     p.push(
@@ -684,7 +685,7 @@ describe('batch call', () => {
       call(publicClient, {
         data: name4bytes,
         to: baycContractConfig.address,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
       }),
     )
     await wait(1)

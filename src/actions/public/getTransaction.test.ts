@@ -1,7 +1,8 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { accounts, forkBlockNumber } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { celo, holesky } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -299,7 +300,7 @@ describe('args: blockHash', () => {
 
   test('blockHash: throws if transaction not found', async () => {
     const { hash: blockHash } = await getBlock(publicClient, {
-      blockNumber: forkBlockNumber - 69n,
+      blockNumber: anvilMainnet.forkBlockNumber - 69n,
     })
     if (!blockHash) throw new Error('no block hash found')
 

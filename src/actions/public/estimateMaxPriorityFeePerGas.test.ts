@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { localHttpUrl } from '~test/src/constants.js'
 import { anvilChain, publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -32,7 +32,7 @@ test('fallback', async () => {
 test('args: chain `defaultPriorityFee` override', async () => {
   // value
   const client_1 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_1, {
@@ -47,7 +47,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
 
   // sync fn
   const client_2 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_2, {
@@ -62,7 +62,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
 
   // async fn
   const client_3 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_3, {
@@ -77,7 +77,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
 
   // zero base fee
   const client_4 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_4, {
@@ -92,7 +92,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
 
   // async zero base fee
   const client_5 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_5, {

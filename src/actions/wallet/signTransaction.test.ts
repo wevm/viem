@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { testClient, walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { blobData, kzg } from '../../../test/src/kzg.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
@@ -381,7 +382,7 @@ describe('legacy', () => {
 describe('custom (cip64)', () => {
   const walletClient = createWalletClient({
     chain: celo,
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
 
   test('default', async () => {
@@ -403,7 +404,7 @@ describe('custom (cip64)', () => {
 describe('custom (cip42)', () => {
   const walletClient = createWalletClient({
     chain: celo,
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   const tx = {
     account: privateKeyToAccount(sourceAccount.privateKey),

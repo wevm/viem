@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { forkBlockNumber } from '~test/src/constants.js'
 import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getBytecode } from './getBytecode.js'
 
@@ -20,7 +20,7 @@ test('default', async () => {
   expect(
     await getBytecode(publicClient, {
       address: wagmiContractConfig.address,
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
     }),
   ).toBeDefined()
 })

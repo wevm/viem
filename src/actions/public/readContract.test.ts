@@ -8,9 +8,10 @@ import { describe, expect, test } from 'vitest'
 
 import { ErrorsExample } from '~test/contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { address, forkBlockNumber } from '~test/src/constants.js'
+import { address } from '~test/src/constants.js'
 import { deployErrorExample, publicClient } from '~test/src/utils.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import type { Hex } from '../../types/misc.js'
 import { pad } from '../../utils/data/pad.js'
 import { toHex } from '../../utils/encoding/toHex.js'
@@ -80,7 +81,7 @@ describe('wagmi', () => {
     expect(
       await readContract(publicClient, {
         ...wagmiContractConfig,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         functionName: 'totalSupply',
       }),
     ).toEqual(558n)

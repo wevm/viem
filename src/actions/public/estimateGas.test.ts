@@ -1,8 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, forkBlockNumber, forkUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { kzg } from '~test/src/kzg.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -44,12 +45,12 @@ test('args: account', async () => {
 
 test('args: blockNumber', async () => {
   await reset(testClient, {
-    blockNumber: forkBlockNumber,
-    jsonRpcUrl: forkUrl,
+    blockNumber: anvilMainnet.forkBlockNumber,
+    jsonRpcUrl: anvilMainnet.forkUrl,
   })
   expect(
     await estimateGas(publicClient, {
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),

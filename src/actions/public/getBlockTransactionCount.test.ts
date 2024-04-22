@@ -1,7 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { accounts, forkBlockNumber } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
@@ -16,14 +17,14 @@ test('default', async () => {
 test('args: blockNumber', async () => {
   expect(
     await getBlockTransactionCount(publicClient, {
-      blockNumber: forkBlockNumber - 1n,
+      blockNumber: anvilMainnet.forkBlockNumber - 1n,
     }),
   ).toBe(120)
 })
 
 test('args: blockHash', async () => {
   const block = await getBlock(publicClient, {
-    blockNumber: forkBlockNumber - 1n,
+    blockNumber: anvilMainnet.forkBlockNumber - 1n,
   })
   expect(
     await getBlockTransactionCount(publicClient, {

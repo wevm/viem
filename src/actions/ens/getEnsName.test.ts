@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { address, localHttpUrl } from '~test/src/constants.js'
+import { address } from '~test/src/constants.js'
 import {
   createHttpServer,
   publicClient,
@@ -8,6 +8,7 @@ import {
   setVitalikName,
   setVitalikResolver,
 } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -247,7 +248,7 @@ test('chain not provided', async () => {
   await expect(
     getEnsName(
       createPublicClient({
-        transport: http(localHttpUrl),
+        transport: http(anvilMainnet.rpcUrl.http),
       }),
       { address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e' },
     ),

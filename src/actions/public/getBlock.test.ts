@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { forkBlockNumber } from '~test/src/constants.js'
 import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -106,7 +106,7 @@ test('chain w/ custom block type', async () => {
 describe('args: blockNumber', () => {
   test('gets block by block number', async () => {
     const block = await getBlock(publicClient, {
-      blockNumber: forkBlockNumber - 1n,
+      blockNumber: anvilMainnet.forkBlockNumber - 1n,
     })
     expect(block).toMatchInlineSnapshot(`
       {
@@ -366,7 +366,7 @@ describe('args: blockTag', () => {
 describe('args: hash', () => {
   test('gets block by block hash', async () => {
     const initialBlock = await getBlock(publicClient, {
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
     })
     const block = await getBlock(publicClient, {
       blockHash: initialBlock!.hash!,
@@ -535,7 +535,7 @@ describe('args: hash', () => {
 
   test('args: includeTransactions', async () => {
     const block = await getBlock(publicClient, {
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       includeTransactions: true,
     })
     expect(typeof block.transactions[0] === 'object').toBe(true)

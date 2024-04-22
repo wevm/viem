@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { OffchainLookupExample } from '~test/contracts/generated.js'
 import { createCcipServer } from '~test/src/ccip.js'
-import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import {
   createHttpServer,
   deployOffchainLookupExample,
@@ -11,6 +11,7 @@ import {
 import { getUrl } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
 
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { createClient } from '../clients/createClient.js'
 import { http } from '../clients/transports/http.js'
 import { encodeErrorResult } from './abi/encodeErrorResult.js'
@@ -81,7 +82,7 @@ describe('offchainLookup', () => {
           return ccipRequest({ data, sender, urls })
         },
       },
-      transport: http(localHttpUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     const result = await offchainLookup(client, {

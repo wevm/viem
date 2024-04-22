@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { forkBlockNumber } from '~test/src/constants.js'
 import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getFeeHistory } from './getFeeHistory.js'
 
@@ -9,7 +9,7 @@ test('default', async () => {
   expect(
     await getFeeHistory(publicClient, {
       blockCount: 4,
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       rewardPercentiles: [0, 50, 100],
     }),
   ).toMatchInlineSnapshot(`
@@ -68,7 +68,7 @@ test('args: blockCount', async () => {
   expect(
     await getFeeHistory(publicClient, {
       blockCount: 2,
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       rewardPercentiles: [0, 50, 100],
     }),
   ).toMatchInlineSnapshot(`
@@ -103,7 +103,7 @@ test('args: rewardPercentiles', async () => {
   expect(
     await getFeeHistory(publicClient, {
       blockCount: 2,
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       rewardPercentiles: [0, 25, 50, 75, 100],
     }),
   ).toMatchInlineSnapshot(`

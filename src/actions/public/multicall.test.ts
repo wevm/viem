@@ -11,18 +11,14 @@ import {
   usdcContractConfig,
   wagmiContractConfig,
 } from '~test/src/abis.js'
-import {
-  accounts,
-  address,
-  forkBlockNumber,
-  localHttpUrl,
-} from '~test/src/constants.js'
+import { accounts, address } from '~test/src/constants.js'
 import {
   anvilChain,
   deploy,
   deployErrorExample,
   publicClient,
 } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -36,7 +32,7 @@ test('default', async () => {
   const spy = vi.spyOn(readContract, 'readContract')
   expect(
     await multicall(publicClient, {
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -76,7 +72,7 @@ test('args: allowFailure', async () => {
   expect(
     await multicall(publicClient, {
       allowFailure: false,
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -107,7 +103,7 @@ test('args: batchSize', async () => {
   expect(
     await multicall(publicClient, {
       batchSize: 64,
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -203,7 +199,7 @@ test('args: batchSize', async () => {
   const spy_2 = vi.spyOn(readContract, 'readContract')
   await multicall(publicClient, {
     batchSize: 32,
-    blockNumber: forkBlockNumber,
+    blockNumber: anvilMainnet.forkBlockNumber,
     contracts: [
       {
         ...usdcContractConfig,
@@ -225,7 +221,7 @@ test('args: batchSize', async () => {
   const spy_3 = vi.spyOn(readContract, 'readContract')
   await multicall(publicClient, {
     batchSize: 0,
-    blockNumber: forkBlockNumber,
+    blockNumber: anvilMainnet.forkBlockNumber,
     contracts: [
       {
         ...usdcContractConfig,
@@ -248,7 +244,7 @@ test('args: batchSize', async () => {
 test('args: multicallAddress', async () => {
   expect(
     await multicall(publicClient, {
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -351,7 +347,7 @@ describe('errors', async () => {
   describe('allowFailure is truthy', async () => {
     test('function not found', async () => {
       const res = await multicall(publicClient, {
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -401,7 +397,7 @@ describe('errors', async () => {
 
     test('invalid params', async () => {
       const res = await multicall(publicClient, {
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -455,7 +451,7 @@ describe('errors', async () => {
     test('invalid contract address', async () => {
       expect(
         await multicall(publicClient, {
-          blockNumber: forkBlockNumber,
+          blockNumber: anvilMainnet.forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -508,7 +504,7 @@ describe('errors', async () => {
 
     test('contract revert', async () => {
       const res = await multicall(publicClient, {
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -591,7 +587,7 @@ describe('errors', async () => {
 
       expect(
         await multicall(publicClient, {
-          blockNumber: forkBlockNumber,
+          blockNumber: anvilMainnet.forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -673,7 +669,7 @@ describe('errors', async () => {
       expect(
         await multicall(publicClient, {
           batchSize: 72,
-          blockNumber: forkBlockNumber,
+          blockNumber: anvilMainnet.forkBlockNumber,
           contracts: [
             {
               ...baycContractConfig,
@@ -960,7 +956,7 @@ describe('errors', async () => {
     await expect(() =>
       multicall(publicClient, {
         allowFailure: false,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -1016,7 +1012,7 @@ describe('errors', async () => {
       multicall(publicClient, {
         allowFailure: false,
         batchSize: 72,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...baycContractConfig,
@@ -1065,10 +1061,10 @@ test('chain not provided', async () => {
   await expect(() =>
     multicall(
       createPublicClient({
-        transport: http(localHttpUrl),
+        transport: http(anvilMainnet.rpcUrl.http),
       }),
       {
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -1099,10 +1095,10 @@ test('multicall contract not configured for chain', async () => {
           ...mainnet,
           contracts: {},
         },
-        transport: http(localHttpUrl),
+        transport: http(anvilMainnet.rpcUrl.http),
       }),
       {
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -1195,7 +1191,7 @@ describe('GitHub repros', () => {
     expect(
       await multicall(publicClient, {
         allowFailure: false,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             abi: GH434.abi,

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { localWsUrl } from '../../../test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { wait } from '../wait.js'
 import { getSocketRpcClient } from './socket.js'
 
@@ -14,7 +14,7 @@ test('default', async () => {
         request() {},
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
   expect(socketClient.socket.active).toBeTruthy()
 
@@ -34,7 +34,7 @@ test('parallel invocations of same url returns identical client', async () => {
           request() {},
         }
       },
-      url: localWsUrl,
+      url: anvilMainnet.rpcUrl.ws,
     })
 
   const [client1, client2, client3, client4] = await Promise.all([
@@ -72,7 +72,7 @@ test('sequential invocations of same url returns identical client', async () => 
           request() {},
         }
       },
-      url: localWsUrl,
+      url: anvilMainnet.rpcUrl.ws,
     })
 
   const client1 = await socketClient()
@@ -105,7 +105,7 @@ test('request', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -166,7 +166,7 @@ test('reconnect', async () => {
       delay: 200,
       attempts: 5,
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   await wait(200)
@@ -251,7 +251,7 @@ test('request (eth_subscribe)', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -310,7 +310,7 @@ test('reconnect (eth_subscribe)', async () => {
       delay: 200,
       attempts: 5,
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   await wait(200)
@@ -387,7 +387,7 @@ test('request (eth_unsubscribe)', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -430,7 +430,7 @@ test('request (eth_subscription)', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -469,7 +469,7 @@ test('request (error)', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -496,7 +496,7 @@ test('requestAsync', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await socketClient.requestAsync({

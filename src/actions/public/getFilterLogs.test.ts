@@ -10,7 +10,7 @@ import {
 
 import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
-import { accounts, address, forkBlockNumber } from '~test/src/constants.js'
+import { accounts, address } from '~test/src/constants.js'
 import {
   deployErc20InvalidTransferEvent,
   publicClient,
@@ -25,6 +25,7 @@ import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'
 import { getFilterLogs } from './getFilterLogs.js'
@@ -275,8 +276,8 @@ describe('contract events', () => {
     const filter = await createContractEventFilter(publicClient, {
       abi: usdcContractConfig.abi,
       eventName: 'Transfer',
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
 
     const logs = await getFilterLogs(publicClient, { filter })
@@ -298,8 +299,8 @@ describe('contract events', () => {
     const filter = await createContractEventFilter(publicClient, {
       abi: usdcContractConfig.abi,
       eventName: 'Transfer',
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
       strict: true,
     })
 
@@ -719,8 +720,8 @@ describe('raw events', () => {
   test('args: fromBlock/toBlock', async () => {
     const filter = await createEventFilter(publicClient, {
       event: event.default,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
 
     const logs = await getFilterLogs(publicClient, { filter })
@@ -731,8 +732,8 @@ describe('raw events', () => {
   test('args: strict = true (named)', async () => {
     const filter = await createEventFilter(publicClient, {
       event: event.default,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
       strict: true,
     })
 
@@ -759,8 +760,8 @@ describe('raw events', () => {
   test('args: strict = false (named)', async () => {
     const filter = await createEventFilter(publicClient, {
       event: event.default,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
 
     const logs = await getFilterLogs(publicClient, { filter })
@@ -788,8 +789,8 @@ describe('raw events', () => {
   test('args: strict = true (unnamed)', async () => {
     const filter = await createEventFilter(publicClient, {
       event: event.unnamed,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
       strict: true,
     })
 
@@ -814,8 +815,8 @@ describe('raw events', () => {
   test('args: strict = false (unnamed)', async () => {
     const filter = await createEventFilter(publicClient, {
       event: event.unnamed,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
 
     const logs = await getFilterLogs(publicClient, { filter })

@@ -1,7 +1,7 @@
 import { beforeAll, expect, test } from 'vitest'
 
-import { localHttpUrl } from '~test/src/constants.js'
 import { publicClient, setBlockNumber } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -40,7 +40,7 @@ test('chain not provided', async () => {
   await expect(
     getEnsResolver(
       createPublicClient({
-        transport: http(localHttpUrl),
+        transport: http(anvilMainnet.rpcUrl.http),
       }),
       { name: 'awkweb.eth' },
     ),

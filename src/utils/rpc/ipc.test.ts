@@ -1,8 +1,7 @@
 import { createAnvil } from '@viem/anvil'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { forkBlockNumber, forkUrl, localIpcPath } from '~test/src/constants.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { anvilChain } from '../../../test/src/utils.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
 import { http, createClient } from '../../index.js'
@@ -18,9 +17,9 @@ const client = createClient({
 
 const anvil = createAnvil({
   port: 6969,
-  ipc: localIpcPath,
-  forkBlockNumber,
-  forkUrl,
+  ipc: anvilMainnet.rpcUrl.ipc,
+  forkBlockNumber: anvilMainnet.forkBlockNumber,
+  forkUrl: anvilMainnet.forkUrl,
 })
 
 beforeAll(async () => {
@@ -33,7 +32,7 @@ afterAll(async () => {
 
 describe('getIpcRpcClient', () => {
   test('creates IPC instance', async () => {
-    const rpcClient = await getIpcRpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     expect(rpcClient).toBeDefined()
     expect(rpcClient.socket.readyState).toEqual('open')
     rpcClient.close()
@@ -41,10 +40,10 @@ describe('getIpcRpcClient', () => {
 
   test('multiple invocations on a url only opens one socket', async () => {
     const [client1, client2, client3, client4] = await Promise.all([
-      getIpcRpcClient(localIpcPath),
-      getIpcRpcClient(localIpcPath),
-      getIpcRpcClient(localIpcPath),
-      getIpcRpcClient(localIpcPath),
+      getIpcRpcClient(anvilMainnet.rpcUrl.ipc),
+      getIpcRpcClient(anvilMainnet.rpcUrl.ipc),
+      getIpcRpcClient(anvilMainnet.rpcUrl.ipc),
+      getIpcRpcClient(anvilMainnet.rpcUrl.ipc),
     ])
     expect(client1).toEqual(client2)
     expect(client1).toEqual(client3)
@@ -55,7 +54,7 @@ describe('getIpcRpcClient', () => {
 
 describe('request', () => {
   test('valid request', async () => {
-    const rpcClient = await getIpcRpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     const { id, ...version } = await new Promise<any>((resolve) =>
       rpcClient.request({
         body: { method: 'web3_clientVersion' },
@@ -74,12 +73,12 @@ describe('request', () => {
   })
 
   test('valid request', async () => {
-    const rpcClient = await getIpcRpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     const { id, ...block } = await new Promise<any>((resolve) =>
       rpcClient.request({
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(forkBlockNumber), false],
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
         },
         onResponse: resolve,
       }),
@@ -251,7 +250,7 @@ describe('request', () => {
   })
 
   test('invalid request', async () => {
-    const rpcClient = await getIpcRpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     await expect(
       new Promise<any>((resolve, reject) =>
         rpcClient.request({
@@ -278,7 +277,7 @@ describe('request', () => {
   })
 
   test('invalid request (closing socket)', async () => {
-    const rpcClient = await getIpcRpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     await wait(1000)
     rpcClient.close()
     await expect(
@@ -307,7 +306,7 @@ describe('request', () => {
   })
 
   test('invalid request (closed socket)', async () => {
-    const rpcClient = await getIpcRpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     rpcClient.close()
     await wait(1000)
     await expect(
@@ -337,7 +336,7 @@ describe('request', () => {
 
 describe('request (subscription)', () => {
   test('basic', async () => {
-    const rpcClient = await getIpcRpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     const data_: RpcResponse[] = []
     rpcClient.request({
       body: {
@@ -370,7 +369,7 @@ describe('request (subscription)', () => {
   })
 
   test('multiple', async () => {
-    const rpcClient = await getIpcRpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     const s1: RpcResponse[] = []
     rpcClient.request({
       body: {
@@ -443,7 +442,7 @@ describe('request (subscription)', () => {
   })
 
   test('invalid subscription', async () => {
-    const client = await getIpcRpcClient(localIpcPath)
+    const client = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     let err_: RpcResponse | undefined
     client.request({
       body: {
@@ -470,7 +469,7 @@ describe('request (subscription)', () => {
 
 describe('requestAsync', () => {
   test('valid request', async () => {
-    const client = await getIpcRpcClient(localIpcPath)
+    const client = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     const { id, ...version } = await client.requestAsync({
       body: { method: 'web3_clientVersion' },
     })
@@ -485,11 +484,11 @@ describe('requestAsync', () => {
   })
 
   test('valid request', async () => {
-    const client = await getIpcRpcClient(localIpcPath)
+    const client = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     const { id, ...block } = await client.requestAsync({
       body: {
         method: 'eth_getBlockByNumber',
-        params: [numberToHex(forkBlockNumber), false],
+        params: [numberToHex(anvilMainnet.forkBlockNumber), false],
       },
     })
     expect(id).toBeDefined()
@@ -658,21 +657,24 @@ describe('requestAsync', () => {
   })
 
   test('serial requests', async () => {
-    const client = await getIpcRpcClient(localIpcPath)
+    const client = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
         await client.requestAsync({
           body: {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(forkBlockNumber - BigInt(i)), false],
+            params: [
+              numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
+              false,
+            ],
           },
         }),
       )
     }
     expect(response.map((r: any) => r.result.number)).toEqual(
       Array.from({ length: 10 }).map((_, i) =>
-        numberToHex(forkBlockNumber - BigInt(i)),
+        numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
       ),
     )
     expect(client.requests.size).toBe(0)
@@ -684,7 +686,7 @@ describe('requestAsync', () => {
     await mine(client, { blocks: 100 })
     const blockNumber = await getBlockNumber(client)
 
-    const rpcClient = await getIpcRpcClient(localIpcPath)
+    const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     const response = await Promise.all(
       Array.from({ length: 100 }).map(async (_, i) => {
         return await rpcClient.requestAsync({
@@ -705,7 +707,7 @@ describe('requestAsync', () => {
   }, 30_000)
 
   test('invalid request', async () => {
-    const client = await getIpcRpcClient(localIpcPath)
+    const client = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
     await expect(
       client.requestAsync({
         body: {
@@ -727,7 +729,7 @@ describe('requestAsync', () => {
   })
 
   test.skip('timeout', async () => {
-    const client = await getIpcRpcClient(localIpcPath)
+    const client = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
 
     await expect(() =>
       client.requestAsync({

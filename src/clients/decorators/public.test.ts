@@ -5,12 +5,7 @@ import {
   usdcContractConfig,
   wagmiContractConfig,
 } from '~test/src/abis.js'
-import {
-  accounts,
-  address,
-  forkBlockNumber,
-  typedData,
-} from '~test/src/constants.js'
+import { accounts, address, typedData } from '~test/src/constants.js'
 import {
   publicClient,
   setBlockNumber,
@@ -20,6 +15,7 @@ import {
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { base } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
@@ -146,7 +142,9 @@ describe('smoke test', () => {
 
   test('getBlock', async () => {
     expect(
-      await publicClient.getBlock({ blockNumber: forkBlockNumber }),
+      await publicClient.getBlock({
+        blockNumber: anvilMainnet.forkBlockNumber,
+      }),
     ).toBeDefined()
   })
 
@@ -243,7 +241,7 @@ describe('smoke test', () => {
     expect(
       await publicClient.getFeeHistory({
         blockCount: 4,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         rewardPercentiles: [0, 50, 100],
       }),
     ).toBeDefined()
@@ -353,7 +351,7 @@ describe('smoke test', () => {
   test('multicall', async () => {
     expect(
       await publicClient.multicall({
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,

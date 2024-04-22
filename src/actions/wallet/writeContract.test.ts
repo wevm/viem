@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Payable } from '~test/contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import {
   anvilChain,
   deployPayable,
@@ -11,6 +11,7 @@ import {
   walletClient,
   walletClientWithAccount,
 } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -42,7 +43,7 @@ test('inferred account', async () => {
 test('client chain mismatch', async () => {
   const walletClient = createWalletClient({
     chain: optimism,
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   await expect(() =>
     writeContract(walletClient, {
@@ -67,7 +68,7 @@ test('client chain mismatch', async () => {
 
 test('no chain', async () => {
   const walletClient = createWalletClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   await expect(() =>
     // @ts-expect-error
@@ -92,7 +93,7 @@ test('no chain', async () => {
 describe('args: chain', () => {
   test('default', async () => {
     const walletClient = createWalletClient({
-      transport: http(localHttpUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(
@@ -257,7 +258,7 @@ test('w/ simulateContract (args chain mismatch)', async () => {
 test('w/ simulateContract (client chain mismatch)', async () => {
   const walletClient = createWalletClient({
     chain: optimism,
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   const { request } = await simulateContract(publicClient, {
     ...wagmiContractConfig,

@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, forkBlockNumber, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
   anvilChain,
@@ -11,6 +11,7 @@ import {
   walletClient,
   walletClientWithAccount,
 } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
@@ -121,7 +122,7 @@ test('sends transaction (w/ formatter)', async () => {
 test('sends transaction (w/ serializer)', async () => {
   await setup()
 
-  await setBlockNumber(forkBlockNumber)
+  await setBlockNumber(anvilMainnet.forkBlockNumber)
 
   const serializer = vi.fn(
     (
@@ -211,7 +212,7 @@ test.skip('sends transaction w/ no value', async () => {
 test('client chain mismatch', async () => {
   const walletClient = createWalletClient({
     chain: celo,
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   await expect(() =>
     sendTransaction(walletClient, {
@@ -248,7 +249,7 @@ test('inferred account', async () => {
 
 test('no chain', async () => {
   const walletClient = createWalletClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   await expect(() =>
     // @ts-expect-error

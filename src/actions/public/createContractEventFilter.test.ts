@@ -1,8 +1,9 @@
 import { assertType, expect, test } from 'vitest'
 
 import { usdcContractConfig } from '~test/src/abis.js'
-import { accounts, forkBlockNumber } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { createHttpServer, publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
@@ -101,7 +102,7 @@ test('args: fromBlock', async () => {
         address: usdcContractConfig.address,
         abi: usdcContractConfig.abi,
         eventName: 'Transfer',
-        fromBlock: forkBlockNumber,
+        fromBlock: anvilMainnet.forkBlockNumber,
       })
     ).id,
   ).toBeDefined()
@@ -124,7 +125,7 @@ test('args: toBlock', async () => {
         address: usdcContractConfig.address,
         abi: usdcContractConfig.abi,
         eventName: 'Transfer',
-        toBlock: forkBlockNumber,
+        toBlock: anvilMainnet.forkBlockNumber,
       })
     ).id,
   ).toBeDefined()

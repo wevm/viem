@@ -1,15 +1,11 @@
 import { describe, expect, test } from 'vitest'
 
-import {
-  accounts,
-  address,
-  forkBlockNumber,
-  forkUrl,
-} from '~test/src/constants.js'
+import { accounts, address } from '~test/src/constants.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { testActions } from './test.js'
 
 const bytecode =
@@ -107,7 +103,7 @@ describe('smoke test', () => {
 
   test('reset', async () => {
     expect(
-      await testClient.reset({ blockNumber: forkBlockNumber }),
+      await testClient.reset({ blockNumber: anvilMainnet.forkBlockNumber }),
     ).toBeUndefined()
   })
 
@@ -213,7 +209,7 @@ describe('smoke test', () => {
   })
 
   test('setRpcUrl', async () => {
-    await testClient.setRpcUrl(forkUrl)
+    await testClient.setRpcUrl(anvilMainnet.forkUrl)
   })
 
   test('setStorageAt', async () => {

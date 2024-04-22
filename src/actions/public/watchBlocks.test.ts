@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import {
   anvilChain,
   httpClient,
@@ -22,6 +22,7 @@ import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { createClient } from '../../clients/createClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { webSocket } from '../../clients/transports/webSocket.js'
@@ -121,7 +122,7 @@ describe('poll', () => {
     test('watches for new blocks', async () => {
       const client = createPublicClient({
         chain: localhost,
-        transport: http(localHttpUrl),
+        transport: http(anvilMainnet.rpcUrl.http),
         pollingInterval: 100,
       })
       const blocks: OnBlockParameter[] = []

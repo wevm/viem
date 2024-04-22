@@ -1,7 +1,8 @@
 import { assertType, describe, expect, it, test } from 'vitest'
 
-import { accounts, forkBlockNumber } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { publicClient, testClient, walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { holesky, zkSync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -20,7 +21,7 @@ import { getTransactionReceipt } from './getTransactionReceipt.js'
 
 test('gets transaction receipt', async () => {
   const transaction = await getTransaction(publicClient, {
-    blockNumber: forkBlockNumber - 1n,
+    blockNumber: anvilMainnet.forkBlockNumber - 1n,
     index: 0,
   })
   const receipt = await getTransactionReceipt(publicClient, {

@@ -10,8 +10,8 @@ import {
 import { expectTypeOf, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { localHttpUrl } from '~test/src/constants.js'
 import { anvilChain, publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import type { Account } from '../accounts/types.js'
 import { celo } from '../chains/index.js'
 import { createPublicClient } from '../clients/createPublicClient.js'
@@ -24,15 +24,15 @@ import { getContract } from './getContract.js'
 const walletClient = createWalletClient({
   account: '0x',
   chain: anvilChain,
-  transport: http(localHttpUrl),
+  transport: http(anvilMainnet.rpcUrl.http),
 })
 const walletClientWithoutAccount = createWalletClient({
   chain: anvilChain,
-  transport: http(localHttpUrl),
+  transport: http(anvilMainnet.rpcUrl.http),
 })
 const walletClientWithoutChain = createWalletClient({
   account: '0x',
-  transport: http(localHttpUrl),
+  transport: http(anvilMainnet.rpcUrl.http),
 })
 
 test('generic client', () => {

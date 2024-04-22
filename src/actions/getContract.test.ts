@@ -3,13 +3,14 @@ import type { AbiEvent } from 'abitype'
 import { describe, expect, test } from 'vitest'
 
 import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, address, forkBlockNumber } from '~test/src/constants.js'
+import { accounts, address } from '~test/src/constants.js'
 import {
   publicClient,
   testClient,
   walletClient,
   walletClientWithAccount,
 } from '~test/src/utils.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 
 import {
   getContract,
@@ -50,7 +51,7 @@ test('createEventFilter', async () => {
         from: accounts[0].address,
       },
       {
-        fromBlock: forkBlockNumber - 5n,
+        fromBlock: anvilMainnet.forkBlockNumber - 5n,
       },
     ),
   ).resolves.toBeDefined()

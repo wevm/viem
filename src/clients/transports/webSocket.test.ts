@@ -2,8 +2,8 @@ import { WebSocket } from 'isows'
 
 import { assertType, describe, expect, test } from 'vitest'
 
-import { localWsUrl } from '~test/src/constants.js'
 import { testClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
@@ -11,7 +11,7 @@ import { wait } from '../../utils/wait.js'
 import { type WebSocketTransport, webSocket } from './webSocket.js'
 
 test('default', () => {
-  const transport = webSocket(localWsUrl)
+  const transport = webSocket(anvilMainnet.rpcUrl.ws)
 
   assertType<WebSocketTransport>(transport)
   assertType<'webSocket'>(transport({}).config.type)
@@ -21,7 +21,7 @@ test('default', () => {
 
 describe('config', () => {
   test('key', () => {
-    const transport = webSocket(localWsUrl, {
+    const transport = webSocket(anvilMainnet.rpcUrl.ws, {
       key: 'mock',
     })
 
@@ -47,7 +47,7 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const transport = webSocket(localWsUrl, {
+    const transport = webSocket(anvilMainnet.rpcUrl.ws, {
       name: 'Mock Transport',
     })
 
@@ -98,14 +98,14 @@ describe('config', () => {
 })
 
 test('getSocket', async () => {
-  const transport = webSocket(localWsUrl)
+  const transport = webSocket(anvilMainnet.rpcUrl.ws)
   const socket = await transport({}).value?.getSocket()
   expect(socket).toBeDefined()
   expect(socket?.readyState).toBe(WebSocket.OPEN)
 })
 
 test('getRpcClient', async () => {
-  const transport = webSocket(localWsUrl)
+  const transport = webSocket(anvilMainnet.rpcUrl.ws)
   const socket = await transport({}).value?.getRpcClient()
   expect(socket).toBeDefined()
 })
@@ -121,7 +121,10 @@ test('request', async () => {
       chain: {
         ...localhost,
         rpcUrls: {
-          default: { http: [localWsUrl], webSocket: [localWsUrl] },
+          default: {
+            http: [anvilMainnet.rpcUrl.ws],
+            webSocket: [anvilMainnet.rpcUrl.ws],
+          },
         },
       },
     }).config.request({
@@ -131,7 +134,7 @@ test('request', async () => {
 })
 
 test('errors: rpc error', async () => {
-  const transport = webSocket(localWsUrl, {
+  const transport = webSocket(anvilMainnet.rpcUrl.ws, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })({ chain: localhost })
@@ -151,7 +154,7 @@ test('errors: rpc error', async () => {
 })
 
 test('subscribe', async () => {
-  const transport = webSocket(localWsUrl, {
+  const transport = webSocket(anvilMainnet.rpcUrl.ws, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })({})
@@ -182,7 +185,7 @@ test('subscribe', async () => {
 })
 
 test('throws on bogus subscription', async () => {
-  const transport = webSocket(localWsUrl, {
+  const transport = webSocket(anvilMainnet.rpcUrl.ws, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })

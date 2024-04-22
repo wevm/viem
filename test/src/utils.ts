@@ -40,15 +40,8 @@ import {
   ensRegistryConfig,
   ensReverseRegistrarConfig,
 } from './abis.js'
-import {
-  accounts,
-  address,
-  forkUrl,
-  localHttpUrl,
-  localHttpUrlSepolia,
-  localIpcPath,
-  localWsUrl,
-} from './constants.js'
+import { anvilMainnet, anvilSepolia } from './anvil.js'
+import { accounts, address } from './constants.js'
 
 export const anvilChain = {
   ...localhost,
@@ -56,8 +49,8 @@ export const anvilChain = {
   contracts: mainnet.contracts,
   rpcUrls: {
     default: {
-      http: [localHttpUrl],
-      webSocket: [localWsUrl],
+      http: [anvilMainnet.rpcUrl.http],
+      webSocket: [anvilMainnet.rpcUrl.ws],
     },
   },
 } as const satisfies Chain
@@ -109,7 +102,7 @@ const provider: EIP1193Provider = {
         },
       ]
 
-    const rpcClient = getHttpRpcClient(localHttpUrl)
+    const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
     const { error, result } = await rpcClient.request({
       body: {
         method,
@@ -121,7 +114,7 @@ const provider: EIP1193Provider = {
       throw new RpcRequestError({
         body: { method, params },
         error,
-        url: localHttpUrl,
+        url: anvilMainnet.rpcUrl.http,
       })
     return result
   },
@@ -133,7 +126,7 @@ export const httpClient = createPublicClient({
   },
   chain: anvilChain,
   pollingInterval: 100,
-  transport: http(localHttpUrl, {
+  transport: http(anvilMainnet.rpcUrl.http, {
     batch: process.env.VITE_BATCH_JSON_RPC === 'true',
   }),
 })
@@ -144,7 +137,7 @@ export const ipcClient = createPublicClient({
   },
   chain: anvilChain,
   pollingInterval: 100,
-  transport: ipc(localIpcPath),
+  transport: ipc(anvilMainnet.rpcUrl.ipc),
 })
 
 export const webSocketClient = createPublicClient({
@@ -153,7 +146,7 @@ export const webSocketClient = createPublicClient({
   },
   chain: anvilChain,
   pollingInterval: 100,
-  transport: webSocket(localWsUrl),
+  transport: webSocket(anvilMainnet.rpcUrl.ws),
 })
 
 export const publicClient = (() => {
@@ -186,7 +179,7 @@ export const walletClientWithoutChain = createWalletClient({
 // TODO(fault-proofs): remove when fault proofs deployed to mainnet.
 export const sepoliaClient = createClient({
   chain: sepolia,
-  transport: http(localHttpUrlSepolia),
+  transport: http(anvilSepolia.rpcUrl.http),
 }).extend(() => ({ mode: 'anvil' }))
 
 export const holeskyClient = createClient({
@@ -287,7 +280,7 @@ export async function deployPayable() {
 export async function setBlockNumber(blockNumber: bigint) {
   await reset(testClient, {
     blockNumber,
-    jsonRpcUrl: forkUrl,
+    jsonRpcUrl: anvilMainnet.forkUrl,
   })
 }
 

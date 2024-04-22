@@ -9,7 +9,7 @@ import {
 
 import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
-import { accounts, address, forkBlockNumber } from '~test/src/constants.js'
+import { accounts, address } from '~test/src/constants.js'
 import {
   deployErc20InvalidTransferEvent,
   publicClient,
@@ -24,6 +24,7 @@ import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlock } from './getBlock.js'
 import { getLogs } from './getLogs.js'
 
@@ -241,8 +242,8 @@ describe('events', () => {
   test('args: fromBlock/toBlock', async () => {
     const logs = await getLogs(publicClient, {
       event: event.default,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
@@ -256,7 +257,7 @@ describe('events', () => {
 
   test('args: blockHash', async () => {
     const block = await getBlock(publicClient, {
-      blockNumber: forkBlockNumber - 1n,
+      blockNumber: anvilMainnet.forkBlockNumber - 1n,
     })
     const logs = await getLogs(publicClient, {
       event: event.default,
@@ -275,8 +276,8 @@ describe('events', () => {
   test('args: strict = true (named)', async () => {
     const logs = await getLogs(publicClient, {
       event: event.default,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
       strict: true,
     })
 
@@ -301,8 +302,8 @@ describe('events', () => {
   test('args: strict = false (named)', async () => {
     const logs = await getLogs(publicClient, {
       event: event.default,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
 
     assertType<Log<bigint, number, boolean, typeof event.default, false>[]>(
@@ -328,8 +329,8 @@ describe('events', () => {
   test('args: strict = true (unnamed)', async () => {
     const logs = await getLogs(publicClient, {
       event: event.unnamed,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
       strict: true,
     })
 
@@ -352,8 +353,8 @@ describe('events', () => {
   test('args: strict = false (unnamed)', async () => {
     const logs = await getLogs(publicClient, {
       event: event.unnamed,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
 
     assertType<Log<bigint, number, boolean, typeof event.unnamed, false>[]>(
