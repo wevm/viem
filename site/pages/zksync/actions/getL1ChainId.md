@@ -30,8 +30,6 @@ export const client = createPublicClient({
 
 ## Returns 
 
-### number
+`Hex`
 
-L1 Chain Id number
-
-- **Type** `number`
+L1 Chain Id number.

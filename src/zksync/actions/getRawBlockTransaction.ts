@@ -3,26 +3,42 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import type { Hash } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type { ZkSyncNumberParameter } from '../types/block.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
+import type { Fee } from './estimateFee.js'
 
 export type GetRawBlockTransactionParameters = ZkSyncNumberParameter
 
+export type CommonDataRawBlockTransaction = {
+  sender: Address
+  maxFeePerGas: Hex
+  gasLimit: Hex
+  gasPerPubdataLimit: Hex
+  ethHash: Hash
+  ethBlock: number
+  canonicalTxHash: Hash
+  toMint: Hex
+  refundRecipient: Address
+}
+
 export type RawBlockTransactions = {
   common_data: {
-    L2: {
+    L1?: {
+      serialId: number
+      deadlineBlock: number
+      layer2TipFee: Hex
+      fullFee: Hex
+      opProcessingType: string
+      priorityQueueType: string
+    } & CommonDataRawBlockTransaction
+    L2?: {
       nonce: number
-      fee: {
-        gas_limit: bigint
-        max_fee_per_gas: bigint
-        max_priority_fee_per_gas: bigint
-        gas_per_pubdata_limit: bigint
-      }
+      fee: Fee
       initiatorAddress: Address
       signature: Uint8Array
       transactionType: string
-      input: {
+      input?: {
         hash: Hash
         data: Uint8Array
       }
@@ -31,15 +47,18 @@ export type RawBlockTransactions = {
         paymasterInput: Uint8Array
       }
     }
+    ProtocolUpgrade?: {
+      upgradeId: string
+    } & CommonDataRawBlockTransaction
   }
   execute: {
     calldata: Hash
     contractAddress: Address
-    factoryDeps: Hash
+    factoryDeps?: Hash
     value: bigint
   }
   received_timestamp_ms: number
-  raw_bytes: string
+  raw_bytes?: string
 }[]
 
 export async function getRawBlockTransactions<

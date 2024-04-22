@@ -50,6 +50,7 @@ import {
   getTransactionDetails,
 } from '../actions/getTransactionDetails.js'
 import type { ChainEIP712 } from '../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 
 export type PublicActionsL2<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
@@ -111,7 +112,7 @@ export type PublicActionsL2<
    * const chainId = await client.getL1ChainId();
    */
 
-  getL1ChainId: () => Promise<number>
+  getL1ChainId: () => Promise<Hex>
 
   /**
    * Returns the address of a Main zkSync Contract.
@@ -259,7 +260,7 @@ export type PublicActionsL2<
    *
    * const latestNumber = await client.getL1BatchNumber({number: 1});
    */
-  getL1BatchNumber: () => Promise<number>
+  getL1BatchNumber: () => Promise<Hex>
 
   /**
    * Given a transaction hash, and an index of the L2 to L1 log produced within the transaction, it returns the proof for the corresponding L2 to L1 log.

@@ -54,6 +54,6 @@ Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local A
 
 ```ts
 const balances = await client.getAllBalances({
-  account:"0x36615Cf349d7F6344891B1e7CA7C72883F5dc049"  // [!code focus]
+  account: "0x36615Cf349d7F6344891B1e7CA7C72883F5dc049"  // [!code focus]
 });
 ```

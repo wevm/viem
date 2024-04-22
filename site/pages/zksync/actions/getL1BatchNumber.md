@@ -30,6 +30,6 @@ export const client = createPublicClient({
 
 ## Returns 
 
-`number`
+`Hex`
 
 Latest L1 batch number. 

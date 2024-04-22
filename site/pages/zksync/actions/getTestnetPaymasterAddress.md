@@ -29,6 +29,6 @@ export const client = createPublicClient({
 
 ## Returns 
 
-`Address`
+`Address | null`
 
 Testnet paymaster address if available, or `null`.

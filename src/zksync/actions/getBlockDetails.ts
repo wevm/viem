@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
@@ -26,6 +27,8 @@ export type BaseBlockDetails = {
     bootloader: Hash
     default_aa: Hash
   }
+  operatorAddress: Address
+  protocolVersion?: string
 }
 
 export async function getBlockDetails<

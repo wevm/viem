@@ -8,7 +8,10 @@ import type { BaseBlockDetails } from './getBlockDetails.js'
 
 export type GetL1BatchDetailsParameters = ZkSyncNumberParameter
 
-export type BatchDetails = BaseBlockDetails & {
+export type BatchDetails = Omit<
+  BaseBlockDetails,
+  'operatorAddress' | 'protocolVersion'
+> & {
   l1GasPrice: number
   l2FairGasPrice: number
 }
