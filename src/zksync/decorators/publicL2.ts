@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
+import type { Hex } from '../../types/misc.js'
 import { type Fee, estimateFee } from '../actions/estimateFee.js'
 import type { EstimateFeeParameters } from '../actions/estimateFee.js'
 import {
@@ -50,7 +51,6 @@ import {
   getTransactionDetails,
 } from '../actions/getTransactionDetails.js'
 import type { ChainEIP712 } from '../types/chain.js'
-import type { Hex } from '../../types/misc.js'
 
 export type PublicActionsL2<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
