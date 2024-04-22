@@ -4,7 +4,6 @@ import { Payable } from '~test/contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import {
-  anvilChain,
   deployPayable,
   publicClient,
   testClient,
@@ -101,7 +100,7 @@ describe('args: chain', () => {
         ...wagmiContractConfig,
         account: accounts[0].address,
         functionName: 'mint',
-        chain: anvilChain,
+        chain: anvilMainnet.chain,
       }),
     ).toBeDefined()
   })

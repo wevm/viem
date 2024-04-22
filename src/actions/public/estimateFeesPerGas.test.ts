@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { anvilChain, publicClient } from '~test/src/utils.js'
+import { publicClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -42,7 +42,7 @@ test('args: chain `estimateFeesPerGas` override (when null returned)', async () 
     client,
     {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           estimateFeesPerGas: async () => null,
         },
@@ -62,7 +62,7 @@ test('args: chain `estimateFeesPerGas` override', async () => {
     client,
     {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           async estimateFeesPerGas() {
             return { maxFeePerGas: 2n, maxPriorityFeePerGas: 1n }
@@ -83,7 +83,7 @@ test('args: chain `baseFeeMultiplier` override (value)', async () => {
   })
   const feesPerGas_1 = await estimateFeesPerGas(client, {
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         baseFeeMultiplier: 1.5,
       },
@@ -96,7 +96,7 @@ test('args: chain `baseFeeMultiplier` override (value)', async () => {
 
   const feesPerGas_2 = await estimateFeesPerGas(client, {
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         baseFeeMultiplier: 2,
       },
@@ -109,7 +109,7 @@ test('args: chain `baseFeeMultiplier` override (value)', async () => {
 
   const feesPerGas_3 = await estimateFeesPerGas(client, {
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         baseFeeMultiplier: 2.01,
       },
@@ -131,7 +131,7 @@ test('args: chain `baseFeeMultiplier` override (sync fn)', async () => {
     client,
     {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           baseFeeMultiplier() {
             return 1.5
@@ -156,7 +156,7 @@ test('args: chain `baseFeeMultiplier` override (async fn)', async () => {
     client,
     {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           async baseFeeMultiplier() {
             return 1.5
@@ -178,7 +178,7 @@ test('args: chain `baseFeeMultiplier` override < 1', async () => {
   await expect(() =>
     estimateFeesPerGas(client, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           baseFeeMultiplier: 0.8,
         },
@@ -194,7 +194,7 @@ test('args: chain `baseFeeMultiplier` override < 1', async () => {
 test('client: chain `estimateFeesPerGas` override', async () => {
   const client = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         async estimateFeesPerGas() {
           return { maxFeePerGas: 2n, maxPriorityFeePerGas: 1n }
@@ -214,7 +214,7 @@ test('client: chain `baseFeeMultiplier` override', async () => {
 
   const client = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         baseFeeMultiplier: 1.5,
       },

@@ -3,7 +3,6 @@ import { describe, expect, test, vi } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
-  anvilChain,
   holeskyClient,
   publicClient,
   setBlockNumber,
@@ -549,7 +548,7 @@ describe('args: chain', async () => {
   test('default', async () => {
     expect(
       await sendTransaction(walletClient, {
-        chain: anvilChain,
+        chain: anvilMainnet.chain,
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),

@@ -2,7 +2,6 @@ import { createAnvil } from '@viem/anvil'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { anvilChain } from '../../../test/src/utils.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
 import { http, createClient } from '../../index.js'
 import type { RpcResponse } from '../../types/rpc.js'
@@ -11,7 +10,7 @@ import { wait } from '../wait.js'
 import { extractMessages, getIpcRpcClient } from './ipc.js'
 
 const client = createClient({
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   transport: http('http://127.0.0.1:6969'),
 }).extend(() => ({ mode: 'anvil' }))
 

@@ -10,7 +10,7 @@ import {
 import { expectTypeOf, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { anvilChain, publicClient } from '~test/src/utils.js'
+import { publicClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../test/src/anvil.js'
 import type { Account } from '../accounts/types.js'
 import { celo } from '../chains/index.js'
@@ -23,11 +23,11 @@ import { getContract } from './getContract.js'
 
 const walletClient = createWalletClient({
   account: '0x',
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   transport: http(anvilMainnet.rpcUrl.http),
 })
 const walletClientWithoutAccount = createWalletClient({
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   transport: http(anvilMainnet.rpcUrl.http),
 })
 const walletClientWithoutChain = createWalletClient({

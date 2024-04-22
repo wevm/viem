@@ -12,12 +12,7 @@ import {
   wagmiContractConfig,
 } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
-import {
-  anvilChain,
-  deploy,
-  deployErrorExample,
-  publicClient,
-} from '~test/src/utils.js'
+import { deploy, deployErrorExample, publicClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -1147,7 +1142,7 @@ test('multicall contract deployed on later block', async () => {
       ],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ChainDoesNotSupportContract: Chain "Localhost" does not support contract "multicall3".
+    [ChainDoesNotSupportContract: Chain "Ethereum (Local)" does not support contract "multicall3".
 
     This could be due to any of the following:
     - The contract "multicall3" was not deployed until block 14353601 (current block 69420).
@@ -1163,7 +1158,7 @@ test('batchSize on client', async () => {
         batchSize: 1024,
       },
     },
-    chain: anvilChain,
+    chain: anvilMainnet.chain,
     transport: http(),
   })
 

@@ -1,7 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { anvilChain, walletClient } from '~test/src/utils.js'
+import { walletClient } from '~test/src/utils.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { createClient } from '../../clients/createClient.js'
@@ -30,7 +31,7 @@ test('default', async () => {
 test('local account', async () => {
   const client = createClient({
     account: privateKeyToAccount(accounts[0].privateKey),
-    chain: anvilChain,
+    chain: anvilMainnet.chain,
     transport: http(),
   })
   expect(await getAddresses(client)).toMatchInlineSnapshot(`

@@ -1,7 +1,7 @@
 import { expectTypeOf, test } from 'vitest'
 import { kzg } from '~test/src/kzg.js'
+import type { anvilMainnet } from '../../../test/src/anvil.js'
 import {
-  anvilChain,
   walletClient,
   walletClientWithAccount,
   walletClientWithoutChain,
@@ -17,7 +17,7 @@ import {
 test('default', async () => {
   const result_1 = await prepareTransactionRequest(walletClient, {})
   expectTypeOf(result_1.account).toEqualTypeOf<undefined>()
-  expectTypeOf(result_1.chain).toEqualTypeOf<typeof anvilChain>()
+  expectTypeOf(result_1.chain).toEqualTypeOf<typeof anvilMainnet.chain>()
   expectTypeOf(result_1.gas).toEqualTypeOf<bigint>()
   expectTypeOf(result_1.nonce).toEqualTypeOf<number>()
   expectTypeOf(result_1.type).toEqualTypeOf<

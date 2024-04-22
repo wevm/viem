@@ -1,21 +1,11 @@
-import { type Chain, optimism, optimismSepolia } from '~viem/chains/index.js'
+import { optimismSepolia } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { http } from '~viem/clients/transports/http.js'
 import { anvilOptimism, anvilOptimismSepolia } from './anvil.js'
 import { accounts } from './constants.js'
 
-export const optimismAnvilChain = {
-  ...optimism,
-  rpcUrls: {
-    default: {
-      http: [anvilOptimism.rpcUrl.http],
-      webSocket: [anvilOptimism.rpcUrl.ws],
-    },
-  },
-} as const satisfies Chain
-
 export const optimismClient = createClient({
-  chain: optimismAnvilChain,
+  chain: anvilOptimism.chain,
   transport: http(),
 }).extend(() => ({ mode: 'anvil' }))
 
@@ -26,7 +16,7 @@ export const optimismSepoliaClient = createClient({
 
 export const optimismClientWithAccount = createClient({
   account: accounts[0].address,
-  chain: optimismAnvilChain,
+  chain: anvilOptimism.chain,
   transport: http(),
 })
 

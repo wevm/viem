@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { anvilChain, publicClient } from '~test/src/utils.js'
+import { publicClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -37,7 +37,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
   expect(
     await estimateMaxPriorityFeePerGas(client_1, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: 69420n,
         },
@@ -52,7 +52,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
   expect(
     await estimateMaxPriorityFeePerGas(client_2, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: () => 69420n,
         },
@@ -67,7 +67,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
   expect(
     await estimateMaxPriorityFeePerGas(client_3, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => 69420n,
         },
@@ -82,7 +82,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
   expect(
     await estimateMaxPriorityFeePerGas(client_4, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: 0n,
         },
@@ -97,7 +97,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
   expect(
     await estimateMaxPriorityFeePerGas(client_5, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => 0n,
         },
@@ -110,7 +110,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // value
   const client_1 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: 69420n,
       },
@@ -122,7 +122,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // sync fn
   const client_2 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: () => 69420n,
       },
@@ -134,7 +134,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // async fn
   const client_3 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: async () => 69420n,
       },
@@ -146,7 +146,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // zero base fee
   const client_4 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: 0n,
       },
@@ -158,7 +158,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // async zero base fee
   const client_5 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: async () => 0n,
       },

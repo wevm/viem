@@ -1,8 +1,6 @@
 import { createAnvil } from '@viem/anvil'
 import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 
-import { anvilChain } from '~test/src/utils.js'
-
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
@@ -13,7 +11,7 @@ import { http } from './http.js'
 import { type IpcTransport, ipc } from './ipc.js'
 
 const client = createClient({
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   transport: http('http://127.0.0.1:6969'),
 }).extend(() => ({ mode: 'anvil' }))
 

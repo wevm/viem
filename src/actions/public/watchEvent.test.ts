@@ -4,7 +4,6 @@ import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
 import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import {
-  anvilChain,
   deployErc20InvalidTransferEvent,
   httpClient,
   publicClient,
@@ -12,6 +11,7 @@ import {
   walletClient,
   webSocketClient,
 } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import type { PublicClient } from '../../index.js'
 import {
@@ -458,7 +458,7 @@ describe('poll', () => {
       const logs: WatchEventOnLogsParameter[] = []
 
       const client = createClient({
-        chain: anvilChain,
+        chain: anvilMainnet.chain,
         transport: fallback([http(), webSocket()]),
         pollingInterval: 200,
       })
@@ -931,7 +931,7 @@ describe('subscribe', () => {
     const logs: WatchEventOnLogsParameter[] = []
 
     const client = createClient({
-      chain: anvilChain,
+      chain: anvilMainnet.chain,
       transport: fallback([webSocket(), http()]),
       pollingInterval: 200,
     })
@@ -966,7 +966,7 @@ describe('subscribe', () => {
     const logs: WatchEventOnLogsParameter[] = []
 
     const client = createClient({
-      chain: anvilChain,
+      chain: anvilMainnet.chain,
       transport: fallback([http(), webSocket()]),
       pollingInterval: 200,
     })

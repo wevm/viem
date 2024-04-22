@@ -11,7 +11,7 @@ import {
   deployContract,
 } from '~viem/actions/wallet/deployContract.js'
 import { writeContract } from '~viem/actions/wallet/writeContract.js'
-import { holesky, localhost, mainnet, sepolia } from '~viem/chains/index.js'
+import { holesky, mainnet, sepolia } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { createPublicClient } from '~viem/clients/createPublicClient.js'
 import { createTestClient } from '~viem/clients/createTestClient.js'
@@ -21,7 +21,6 @@ import { http } from '~viem/clients/transports/http.js'
 import { ipc } from '~viem/clients/transports/ipc.js'
 import { webSocket } from '~viem/clients/transports/webSocket.js'
 import { RpcRequestError } from '~viem/errors/request.js'
-import type { Chain } from '~viem/types/chain.js'
 import { type EIP1193Provider, ProviderRpcError } from '~viem/types/eip1193.js'
 import { namehash } from '~viem/utils/ens/namehash.js'
 import { getHttpRpcClient } from '~viem/utils/rpc/http.js'
@@ -42,18 +41,6 @@ import {
 } from './abis.js'
 import { anvilMainnet, anvilSepolia } from './anvil.js'
 import { accounts, address } from './constants.js'
-
-export const anvilChain = {
-  ...localhost,
-  id: 1,
-  contracts: mainnet.contracts,
-  rpcUrls: {
-    default: {
-      http: [anvilMainnet.rpcUrl.http],
-      webSocket: [anvilMainnet.rpcUrl.ws],
-    },
-  },
-} as const satisfies Chain
 
 let id = 0
 
@@ -124,7 +111,7 @@ export const httpClient = createPublicClient({
   batch: {
     multicall: process.env.VITE_BATCH_MULTICALL === 'true',
   },
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   pollingInterval: 100,
   transport: http(anvilMainnet.rpcUrl.http, {
     batch: process.env.VITE_BATCH_JSON_RPC === 'true',
@@ -135,7 +122,7 @@ export const ipcClient = createPublicClient({
   batch: {
     multicall: process.env.VITE_BATCH_MULTICALL === 'true',
   },
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   pollingInterval: 100,
   transport: ipc(anvilMainnet.rpcUrl.ipc),
 })
@@ -144,7 +131,7 @@ export const webSocketClient = createPublicClient({
   batch: {
     multicall: process.env.VITE_BATCH_MULTICALL === 'true',
   },
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   pollingInterval: 100,
   transport: webSocket(anvilMainnet.rpcUrl.ws),
 })
@@ -162,13 +149,13 @@ export const publicClientMainnet = createPublicClient({
 })
 
 export const walletClient = createWalletClient({
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   transport: custom(provider),
 })
 
 export const walletClientWithAccount = createWalletClient({
   account: accounts[0].address,
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   transport: custom(provider),
 })
 
@@ -188,7 +175,7 @@ export const holeskyClient = createClient({
 })
 
 export const testClient = createTestClient({
-  chain: anvilChain,
+  chain: anvilMainnet.chain,
   mode: 'anvil',
   transport: custom(provider),
 })

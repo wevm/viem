@@ -4,7 +4,6 @@ import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import {
-  anvilChain,
   deployErc20InvalidTransferEvent,
   httpClient,
   publicClient,
@@ -21,6 +20,7 @@ import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import {
   http,
   InvalidInputRpcError,
@@ -783,7 +783,7 @@ describe('poll', () => {
       >[] = []
 
       const client = createClient({
-        chain: anvilChain,
+        chain: anvilMainnet.chain,
         transport: fallback([http(), webSocket()]),
         pollingInterval: 200,
       })
@@ -1282,7 +1282,7 @@ describe('subscribe', () => {
       >[] = []
 
       const client = createClient({
-        chain: anvilChain,
+        chain: anvilMainnet.chain,
         transport: fallback([webSocket(), http()]),
         pollingInterval: 200,
       })
@@ -1351,7 +1351,7 @@ describe('subscribe', () => {
       >[] = []
 
       const client = createClient({
-        chain: anvilChain,
+        chain: anvilMainnet.chain,
         transport: fallback([http(), webSocket()]),
         pollingInterval: 200,
       })

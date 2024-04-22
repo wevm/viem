@@ -2,7 +2,6 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import {
-  anvilChain,
   httpClient,
   publicClient,
   testClient,
@@ -188,7 +187,7 @@ describe('poll', () => {
 
     test('fallback transport', async () => {
       const client = createClient({
-        chain: anvilChain,
+        chain: anvilMainnet.chain,
         transport: fallback([http(), webSocket()]),
         pollingInterval: 200,
       })
@@ -764,7 +763,7 @@ describe('subscribe', () => {
 
   test('fallback transport', async () => {
     const client = createClient({
-      chain: anvilChain,
+      chain: anvilMainnet.chain,
       transport: fallback([webSocket(), http()]),
       pollingInterval: 200,
     })
@@ -796,7 +795,7 @@ describe('subscribe', () => {
 
   test('fallback transport (poll: false)', async () => {
     const client = createClient({
-      chain: anvilChain,
+      chain: anvilMainnet.chain,
       transport: fallback([http(), webSocket()]),
       pollingInterval: 200,
     })

@@ -2,12 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { kzg } from '~test/src/kzg.js'
-import {
-  anvilChain,
-  publicClient,
-  testClient,
-  walletClient,
-} from '~test/src/utils.js'
+import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
@@ -16,6 +11,7 @@ import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFe
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { http, createWalletClient, toBlobs } from '../../index.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
 
@@ -808,7 +804,7 @@ describe('prepareTransactionRequest', () => {
     // client chain
     const client_1 = createWalletClient({
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: () => parseGwei('69'),
         },
@@ -827,7 +823,7 @@ describe('prepareTransactionRequest', () => {
     // client chain (async)
     const client_2 = createWalletClient({
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => parseGwei('69'),
         },
@@ -846,7 +842,7 @@ describe('prepareTransactionRequest', () => {
     // client chain (bigint)
     const client_3 = createWalletClient({
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: parseGwei('69'),
         },
@@ -866,7 +862,7 @@ describe('prepareTransactionRequest', () => {
     const request_4 = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: () => parseGwei('69'),
         },
@@ -882,7 +878,7 @@ describe('prepareTransactionRequest', () => {
     const request_5 = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => parseGwei('69'),
         },
@@ -898,7 +894,7 @@ describe('prepareTransactionRequest', () => {
     const request_6 = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: parseGwei('69'),
         },
@@ -914,7 +910,7 @@ describe('prepareTransactionRequest', () => {
     const request_7 = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: 0n,
         },
@@ -928,7 +924,7 @@ describe('prepareTransactionRequest', () => {
     const request_8 = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => 0n,
         },
