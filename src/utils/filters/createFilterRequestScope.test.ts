@@ -1,19 +1,23 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer, publicClient } from '~test/src/utils.js'
+import { createHttpServer } from '~test/src/utils.js'
 import { createBlockFilter } from '../../actions/public/createBlockFilter.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import { createFilterRequestScope } from './createFilterRequestScope.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  const getRequest = createFilterRequestScope(publicClient, {
+  const getRequest = createFilterRequestScope(client, {
     method: 'eth_newBlockFilter',
   })
-  const { id } = await createBlockFilter(publicClient)
-  expect(getRequest(id)).toEqual(publicClient.request)
+  const { id } = await createBlockFilter(client)
+  expect(getRequest(id)).toEqual(client.request)
 })
 
 test('fallback transport', async () => {

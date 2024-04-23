@@ -2,12 +2,6 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { kzg } from '~test/src/kzg.js'
-import {
-  anvilChain,
-  publicClient,
-  testClient,
-  walletClient,
-} from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
@@ -16,38 +10,41 @@ import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFe
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 
-import { http, createWalletClient, toBlobs } from '../../index.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { http, createClient, toBlobs } from '../../index.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
+
+const client = anvilMainnet.getClient()
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 async function setup() {
-  await setBalance(testClient, {
+  await setBalance(client, {
     address: sourceAccount.address,
     value: sourceAccount.balance,
   })
-  await setBalance(testClient, {
+  await setBalance(client, {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
-  await setNextBlockBaseFeePerGas(testClient, {
+  await setNextBlockBaseFeePerGas(client, {
     baseFeePerGas: parseGwei('10'),
   })
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 }
 
 describe('prepareTransactionRequest', () => {
   test('default', async () => {
     await setup()
 
-    const block = await getBlock.getBlock(publicClient)
+    const block = await getBlock.getBlock(client)
     const {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce: _nonce,
       ...rest
-    } = await prepareTransactionRequest(walletClient, {
+    } = await prepareTransactionRequest(client, {
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -73,7 +70,7 @@ describe('prepareTransactionRequest', () => {
     } as any)
 
     const { nonce: _nonce, ...request } = await prepareTransactionRequest(
-      walletClient,
+      client,
       {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
@@ -110,7 +107,7 @@ describe('prepareTransactionRequest', () => {
       maxFeePerGas: _maxFeePerGas,
       nonce: _nonce,
       ...rest
-    } = await prepareTransactionRequest(walletClient, {
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
@@ -145,7 +142,7 @@ describe('prepareTransactionRequest', () => {
       maxFeePerGas: _maxFeePerGas,
       nonce: _nonce,
       ...rest
-    } = await prepareTransactionRequest(walletClient, {
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
@@ -180,7 +177,7 @@ describe('prepareTransactionRequest', () => {
       maxFeePerGas: _maxFeePerGas,
       nonce: _nonce,
       ...rest
-    } = await prepareTransactionRequest(walletClient, {
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chainId: 69,
       to: targetAccount.address,
@@ -213,7 +210,7 @@ describe('prepareTransactionRequest', () => {
     await setup()
 
     const { maxFeePerGas: _maxFeePerGas, ...rest } =
-      await prepareTransactionRequest(walletClient, {
+      await prepareTransactionRequest(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         nonce: 5,
@@ -249,7 +246,7 @@ describe('prepareTransactionRequest', () => {
     vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({} as any)
 
     const { nonce: _nonce, ...request } = await prepareTransactionRequest(
-      walletClient,
+      client,
       {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
@@ -284,7 +281,7 @@ describe('prepareTransactionRequest', () => {
     await setup()
 
     const { nonce: _nonce, ...request } = await prepareTransactionRequest(
-      walletClient,
+      client,
       {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
@@ -318,15 +315,12 @@ describe('prepareTransactionRequest', () => {
   test('args: maxFeePerGas', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(
-      walletClient,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        maxFeePerGas: parseGwei('100'),
-        value: parseEther('1'),
-      },
-    )
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      maxFeePerGas: parseGwei('100'),
+      value: parseEther('1'),
+    })
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -355,7 +349,7 @@ describe('prepareTransactionRequest', () => {
     await setup()
 
     await expect(() =>
-      prepareTransactionRequest(walletClient, {
+      prepareTransactionRequest(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('0.1'),
@@ -376,7 +370,7 @@ describe('prepareTransactionRequest', () => {
     } as any)
 
     await expect(() =>
-      prepareTransactionRequest(walletClient, {
+      prepareTransactionRequest(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('10'),
@@ -392,15 +386,12 @@ describe('prepareTransactionRequest', () => {
   test('args: maxPriorityFeePerGas', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(
-      walletClient,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        maxPriorityFeePerGas: parseGwei('5'),
-        value: parseEther('1'),
-      },
-    )
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      maxPriorityFeePerGas: parseGwei('5'),
+      value: parseEther('1'),
+    })
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -428,15 +419,12 @@ describe('prepareTransactionRequest', () => {
   test('args: maxPriorityFeePerGas === 0', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(
-      walletClient,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        maxPriorityFeePerGas: 0n,
-        value: parseEther('1'),
-      },
-    )
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      maxPriorityFeePerGas: 0n,
+      value: parseEther('1'),
+    })
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -469,7 +457,7 @@ describe('prepareTransactionRequest', () => {
     } as any)
 
     await expect(() =>
-      prepareTransactionRequest(walletClient, {
+      prepareTransactionRequest(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('5'),
@@ -485,16 +473,13 @@ describe('prepareTransactionRequest', () => {
   test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(
-      walletClient,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        maxFeePerGas: parseGwei('10'),
-        maxPriorityFeePerGas: parseGwei('5'),
-        value: parseEther('1'),
-      },
-    )
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      maxFeePerGas: parseGwei('10'),
+      maxPriorityFeePerGas: parseGwei('5'),
+      value: parseEther('1'),
+    })
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -524,7 +509,7 @@ describe('prepareTransactionRequest', () => {
 
     await expect(() =>
       // @ts-expect-error
-      prepareTransactionRequest(walletClient, {
+      prepareTransactionRequest(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         gasPrice: parseGwei('10'),
@@ -541,7 +526,7 @@ describe('prepareTransactionRequest', () => {
 
     await expect(() =>
       // @ts-expect-error
-      prepareTransactionRequest(walletClient, {
+      prepareTransactionRequest(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         gasPrice: parseGwei('10'),
@@ -559,15 +544,12 @@ describe('prepareTransactionRequest', () => {
   test('args: type', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(
-      walletClient,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        type: 'eip1559',
-        value: parseEther('1'),
-      },
-    )
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    })
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -599,7 +581,7 @@ describe('prepareTransactionRequest', () => {
       blobs: _blobs,
       nonce: _nonce,
       ...rest
-    } = await prepareTransactionRequest(walletClient, {
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       blobs: toBlobs({ data: '0x1234' }),
       kzg,
@@ -642,7 +624,7 @@ describe('prepareTransactionRequest', () => {
   test('args: parameters', async () => {
     await setup()
 
-    const result = await prepareTransactionRequest(walletClient, {
+    const result = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: ['gas'],
       to: targetAccount.address,
@@ -667,7 +649,7 @@ describe('prepareTransactionRequest', () => {
       }
     `)
 
-    const result2 = await prepareTransactionRequest(walletClient, {
+    const result2 = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: ['gas', 'fees'],
       to: targetAccount.address,
@@ -695,7 +677,7 @@ describe('prepareTransactionRequest', () => {
       }
     `)
 
-    const result3 = await prepareTransactionRequest(walletClient, {
+    const result3 = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: ['gas', 'fees', 'nonce'],
       to: targetAccount.address,
@@ -724,7 +706,7 @@ describe('prepareTransactionRequest', () => {
       }
     `)
 
-    const result4 = await prepareTransactionRequest(walletClient, {
+    const result4 = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: ['gas', 'fees', 'nonce', 'type'],
       to: targetAccount.address,
@@ -757,7 +739,7 @@ describe('prepareTransactionRequest', () => {
       blobs: _blobs,
       sidecars,
       ...result5
-    } = await prepareTransactionRequest(walletClient, {
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       blobs: toBlobs({ data: '0x1234' }),
       kzg,
@@ -803,12 +785,12 @@ describe('prepareTransactionRequest', () => {
   test('chain default priority fee', async () => {
     await setup()
 
-    const block = await getBlock.getBlock(publicClient)
+    const block = await getBlock.getBlock(client)
 
     // client chain
-    const client_1 = createWalletClient({
+    const client_1 = createClient({
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: () => parseGwei('69'),
         },
@@ -825,9 +807,9 @@ describe('prepareTransactionRequest', () => {
     )
 
     // client chain (async)
-    const client_2 = createWalletClient({
+    const client_2 = createClient({
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => parseGwei('69'),
         },
@@ -844,9 +826,9 @@ describe('prepareTransactionRequest', () => {
     )
 
     // client chain (bigint)
-    const client_3 = createWalletClient({
+    const client_3 = createClient({
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: parseGwei('69'),
         },
@@ -863,10 +845,10 @@ describe('prepareTransactionRequest', () => {
     )
 
     // chain override (bigint)
-    const request_4 = await prepareTransactionRequest(walletClient, {
+    const request_4 = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: () => parseGwei('69'),
         },
@@ -879,10 +861,10 @@ describe('prepareTransactionRequest', () => {
     )
 
     // chain override (async)
-    const request_5 = await prepareTransactionRequest(walletClient, {
+    const request_5 = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => parseGwei('69'),
         },
@@ -895,10 +877,10 @@ describe('prepareTransactionRequest', () => {
     )
 
     // chain override (bigint)
-    const request_6 = await prepareTransactionRequest(walletClient, {
+    const request_6 = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: parseGwei('69'),
         },
@@ -911,10 +893,10 @@ describe('prepareTransactionRequest', () => {
     )
 
     // chain override (bigint zero base fee)
-    const request_7 = await prepareTransactionRequest(walletClient, {
+    const request_7 = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: 0n,
         },
@@ -925,10 +907,10 @@ describe('prepareTransactionRequest', () => {
     expect(request_7.maxPriorityFeePerGas).toEqual(0n)
 
     // chain override (async zero base fee)
-    const request_8 = await prepareTransactionRequest(walletClient, {
+    const request_8 = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => 0n,
         },

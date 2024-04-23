@@ -1,19 +1,20 @@
 import { WebSocket } from 'isows'
 import { describe, expect, test } from 'vitest'
 
-import { forkBlockNumber, localWsUrl } from '~test/src/constants.js'
-import { publicClient, testClient } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { mine } from '../../actions/test/mine.js'
+
 import type { RpcResponse } from '../../types/rpc.js'
 import { numberToHex } from '../encoding/toHex.js'
 import { wait } from '../wait.js'
 import { getWebSocketRpcClient } from './webSocket.js'
 
+const client = anvilMainnet.getClient()
+
 describe('getWebSocketRpcClient', () => {
   test('creates WebSocket instance', async () => {
-    const socketClient = await getWebSocketRpcClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     expect(socketClient).toBeDefined()
     expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
   })
@@ -34,7 +35,7 @@ describe('getWebSocketRpcClient', () => {
 
 describe('request', () => {
   test('valid request', async () => {
-    const socketClient = await getWebSocketRpcClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     const { id, ...version } = await new Promise<any>((resolve) =>
       socketClient.request({
         body: { method: 'web3_clientVersion' },
@@ -52,12 +53,12 @@ describe('request', () => {
   })
 
   test('valid request', async () => {
-    const socketClient = await getWebSocketRpcClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     const { id, ...block } = await new Promise<any>((resolve) =>
       socketClient.request({
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(forkBlockNumber), false],
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
         },
         onResponse: resolve,
       }),
@@ -228,7 +229,7 @@ describe('request', () => {
   })
 
   test('invalid request', async () => {
-    const socketClient = await getWebSocketRpcClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     await expect(
       new Promise<any>((resolve, reject) =>
         socketClient.request({
@@ -246,7 +247,7 @@ describe('request', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 2,
+        "id": 7,
         "jsonrpc": "2.0",
       }
     `,
@@ -255,7 +256,7 @@ describe('request', () => {
   })
 
   test('invalid request (closing socket)', async () => {
-    const socketClient = await getWebSocketRpcClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     await wait(1000)
     socketClient.close()
     await expect(
@@ -274,7 +275,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":3,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":9,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@1.0.2]
@@ -284,7 +285,7 @@ describe('request', () => {
   })
 
   test('invalid request (closed socket)', async () => {
-    const socketClient = await getWebSocketRpcClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     socketClient.close()
     await wait(1000)
     await expect(
@@ -303,7 +304,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":4,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@1.0.2]
@@ -314,7 +315,7 @@ describe('request', () => {
 
 describe('request (subscription)', () => {
   test('basic', async () => {
-    const socketClient = await getWebSocketRpcClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     const data_: RpcResponse[] = []
     socketClient.request({
       body: {
@@ -324,9 +325,9 @@ describe('request (subscription)', () => {
       onResponse: (data) => data_.push(data),
     })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
     expect(socketClient.subscriptions.size).toBe(1)
     expect(data_.length).toBe(3)
@@ -337,18 +338,18 @@ describe('request (subscription)', () => {
       },
     })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
     expect(socketClient.subscriptions.size).toBe(0)
     expect(data_.length).toBe(3)
   })
 
   test('multiple', async () => {
-    const client = await getWebSocketRpcClient(localWsUrl)
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     const s1: RpcResponse[] = []
-    client.request({
+    socketClient.request({
       body: {
         method: 'eth_subscribe',
         params: ['newHeads'],
@@ -356,7 +357,7 @@ describe('request (subscription)', () => {
       onResponse: (data) => s1.push(data),
     })
     const s2: RpcResponse[] = []
-    client.request({
+    socketClient.request({
       body: {
         method: 'eth_subscribe',
         params: ['newHeads'],
@@ -364,7 +365,7 @@ describe('request (subscription)', () => {
       onResponse: (data) => s2.push(data),
     })
     const s3: RpcResponse[] = []
-    client.request({
+    socketClient.request({
       body: {
         method: 'eth_subscribe',
         params: ['newPendingTransactions'],
@@ -372,53 +373,53 @@ describe('request (subscription)', () => {
       onResponse: (data) => s3.push(data),
     })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    expect(client.requests.size).toBe(0)
-    expect(client.subscriptions.size).toBe(3)
+    expect(socketClient.requests.size).toBe(0)
+    expect(socketClient.subscriptions.size).toBe(3)
     expect(s1.length).toBe(3)
     expect(s2.length).toBe(3)
     expect(s3.length).toBe(1)
-    await client.requestAsync({
+    await socketClient.requestAsync({
       body: {
         method: 'eth_unsubscribe',
         params: [(s1[0] as any).result],
       },
     })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(100)
-    expect(client.requests.size).toBe(0)
-    expect(client.subscriptions.size).toBe(2)
+    expect(socketClient.requests.size).toBe(0)
+    expect(socketClient.subscriptions.size).toBe(2)
     expect(s1.length).toBe(3)
     expect(s2.length).toBe(5)
     expect(s3.length).toBe(1)
-    await client.requestAsync({
+    await socketClient.requestAsync({
       body: {
         method: 'eth_unsubscribe',
         params: [(s2[0] as any).result],
       },
     })
-    await client.requestAsync({
+    await socketClient.requestAsync({
       body: {
         method: 'eth_unsubscribe',
         params: [(s3[0] as any).result],
       },
     })
     await wait(2000)
-    expect(client.requests.size).toBe(0)
-    expect(client.subscriptions.size).toBe(0)
+    expect(socketClient.requests.size).toBe(0)
+    expect(socketClient.subscriptions.size).toBe(0)
     expect(s1.length).toBe(3)
     expect(s2.length).toBe(5)
     expect(s3.length).toBe(1)
   })
 
   test('invalid subscription', async () => {
-    const client = await getWebSocketRpcClient(localWsUrl)
+    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     let err_: RpcResponse | undefined
     client.request({
       body: {
@@ -436,7 +437,7 @@ describe('request (subscription)', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 13,
+        "id": 31,
         "jsonrpc": "2.0",
       }
     `)
@@ -445,7 +446,7 @@ describe('request (subscription)', () => {
 
 describe('requestAsync', () => {
   test('valid request', async () => {
-    const client = await getWebSocketRpcClient(localWsUrl)
+    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     const { id, ...version } = await client.requestAsync({
       body: { method: 'web3_clientVersion' },
     })
@@ -460,11 +461,11 @@ describe('requestAsync', () => {
   })
 
   test('valid request', async () => {
-    const client = await getWebSocketRpcClient(localWsUrl)
+    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     const { id, ...block } = await client.requestAsync({
       body: {
         method: 'eth_getBlockByNumber',
-        params: [numberToHex(forkBlockNumber), false],
+        params: [numberToHex(anvilMainnet.forkBlockNumber), false],
       },
     })
     expect(id).toBeDefined()
@@ -633,21 +634,24 @@ describe('requestAsync', () => {
   })
 
   test('serial requests', async () => {
-    const client = await getWebSocketRpcClient(localWsUrl)
+    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
         await client.requestAsync({
           body: {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(forkBlockNumber - BigInt(i)), false],
+            params: [
+              numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
+              false,
+            ],
           },
         }),
       )
     }
     expect(response.map((r: any) => r.result.number)).toEqual(
       Array.from({ length: 10 }).map((_, i) =>
-        numberToHex(forkBlockNumber - BigInt(i)),
+        numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
       ),
     )
     expect(client.requests.size).toBe(0)
@@ -656,13 +660,13 @@ describe('requestAsync', () => {
   test('parallel requests', async () => {
     await wait(500)
 
-    await mine(testClient, { blocks: 100 })
-    const blockNumber = await getBlockNumber(publicClient)
+    await mine(client, { blocks: 100 })
+    const blockNumber = await getBlockNumber(client)
 
-    const client = await getWebSocketRpcClient(localWsUrl)
+    const client_2 = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     const response = await Promise.all(
       Array.from({ length: 100 }).map(async (_, i) => {
-        return await client.requestAsync({
+        return await client_2.requestAsync({
           body: {
             method: 'eth_getBlockByNumber',
             params: [numberToHex(blockNumber - BigInt(i)), false],
@@ -675,12 +679,12 @@ describe('requestAsync', () => {
         numberToHex(blockNumber - BigInt(i)),
       ),
     )
-    expect(client.requests.size).toBe(0)
+    expect(client_2.requests.size).toBe(0)
     await wait(500)
   }, 30_000)
 
   test('invalid request', async () => {
-    const client = await getWebSocketRpcClient(localWsUrl)
+    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
     await expect(
       client.requestAsync({
         body: {
@@ -694,7 +698,7 @@ describe('requestAsync', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 127,
+        "id": 151,
         "jsonrpc": "2.0",
       }
     `,
@@ -702,7 +706,7 @@ describe('requestAsync', () => {
   })
 
   test.skip('timeout', async () => {
-    const client = await getWebSocketRpcClient(localWsUrl)
+    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
 
     await expect(() =>
       client.requestAsync({

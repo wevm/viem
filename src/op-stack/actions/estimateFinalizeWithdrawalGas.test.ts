@@ -1,8 +1,11 @@
 import { expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { publicClient } from '../../../test/src/utils.js'
+
 import { optimism } from '../chains.js'
 import { estimateFinalizeWithdrawalGas } from './estimateFinalizeWithdrawalGas.js'
+
+const client = anvilMainnet.getClient()
 
 const withdrawal = {
   nonce:
@@ -17,7 +20,7 @@ const withdrawal = {
 } as const
 
 test('default', async () => {
-  const gas = await estimateFinalizeWithdrawalGas(publicClient, {
+  const gas = await estimateFinalizeWithdrawalGas(client, {
     account: accounts[0].address,
     targetChain: optimism,
     withdrawal,

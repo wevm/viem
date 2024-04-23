@@ -2,10 +2,13 @@ import { describe, expect, test } from 'vitest'
 
 import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import type { Hex } from '../../types/misc.js'
 import { hashMessage, toBytes } from '../../utils/index.js'
 import { verifyHash } from './verifyHash.js'
+
+const client = anvilMainnet.getClient()
 
 describe('verifyHash', async () => {
   test.each([
@@ -54,7 +57,7 @@ describe('verifyHash', async () => {
     expectedResult: boolean
   }[])('$_name', async ({ address, hash, signature, expectedResult }) => {
     expect(
-      await verifyHash(publicClient, {
+      await verifyHash(client, {
         address,
         hash,
         signature,
@@ -64,7 +67,7 @@ describe('verifyHash', async () => {
 
   test('unexpected errors still get thrown', async () => {
     await expect(
-      verifyHash(publicClient, {
+      verifyHash(client, {
         address: '0x0', // invalid address
         hash: hashMessage('0xdead'),
         signature: '0xdead',
@@ -74,7 +77,7 @@ describe('verifyHash', async () => {
 
   test('accept signature as byte array', async () => {
     expect(
-      await verifyHash(publicClient, {
+      await verifyHash(client, {
         address: smartAccountConfig.address,
         hash: hashMessage('This is a test message for viem!'),
         signature: toBytes(

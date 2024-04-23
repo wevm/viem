@@ -1,20 +1,24 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 import {
-  optimismClient,
-  optimismSepoliaClient,
-} from '../../../test/src/opStack.js'
-import {
-  publicClient,
-  sepoliaClient,
-  setBlockNumber,
-} from '../../../test/src/utils.js'
+  anvilMainnet,
+  anvilOptimism,
+  anvilOptimismSepolia,
+  anvilSepolia,
+} from '../../../test/src/anvil.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
+
 import { getWithdrawalStatus } from './getWithdrawalStatus.js'
 
-// TODO(fault-proofs): convert to `publicClient` & `optimismClient` when fault proofs deployed to mainnet.
+const client = anvilMainnet.getClient()
+const sepoliaClient = anvilSepolia.getClient()
+const optimismClient = anvilOptimism.getClient()
+const optimismSepoliaClient = anvilOptimismSepolia.getClient()
+
+// TODO(fault-proofs): convert to `client` & `optimismClient` when fault proofs deployed to mainnet.
 test('waiting-to-prove', async () => {
   await reset(sepoliaClient, {
     blockNumber: 5527000n,
+    jsonRpcUrl: anvilSepolia.forkUrl,
   })
 
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
@@ -32,6 +36,7 @@ test('waiting-to-prove', async () => {
 test('ready-to-prove', async () => {
   await reset(sepoliaClient, {
     blockNumber: 5528129n,
+    jsonRpcUrl: anvilSepolia.forkUrl,
   })
 
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
@@ -49,6 +54,7 @@ test('ready-to-prove', async () => {
 test('waiting-to-finalize', async () => {
   await reset(sepoliaClient, {
     blockNumber: 5533180n,
+    jsonRpcUrl: anvilSepolia.forkUrl,
   })
 
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
@@ -96,7 +102,7 @@ test('error: non-withdrawal tx', async () => {
   })
 
   await expect(() =>
-    getWithdrawalStatus(publicClient, {
+    getWithdrawalStatus(client, {
       receipt,
       targetChain: optimismClient.chain,
     }),
@@ -108,13 +114,16 @@ test('error: non-withdrawal tx', async () => {
 })
 
 test('error: portal contract non-existent (old block)', async () => {
-  await setBlockNumber(15772363n)
+  await reset(client, {
+    blockNumber: 15772363n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
   const receipt = await getTransactionReceipt(optimismClient, {
     hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
   })
 
   await expect(() =>
-    getWithdrawalStatus(publicClient, {
+    getWithdrawalStatus(client, {
       receipt,
       targetChain: optimismClient.chain,
     }),
@@ -137,7 +146,10 @@ test('error: portal contract non-existent (old block)', async () => {
 
 describe('legacy (portal v2)', () => {
   beforeAll(async () => {
-    await setBlockNumber(18772363n)
+    await reset(client, {
+      blockNumber: 18772363n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
   })
 
   test('ready-to-prove', async () => {
@@ -146,7 +158,7 @@ describe('legacy (portal v2)', () => {
       hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
     })
 
-    const status = await getWithdrawalStatus(publicClient, {
+    const status = await getWithdrawalStatus(client, {
       receipt,
       targetChain: optimismClient.chain,
     })
@@ -158,7 +170,7 @@ describe('legacy (portal v2)', () => {
       hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
     })
 
-    const status = await getWithdrawalStatus(publicClient, {
+    const status = await getWithdrawalStatus(client, {
       receipt: {
         ...receipt,
         blockNumber: 99999999999999n,
@@ -169,7 +181,10 @@ describe('legacy (portal v2)', () => {
   })
 
   test('waiting-to-finalize', async () => {
-    await setBlockNumber(18804700n)
+    await reset(client, {
+      blockNumber: 18804700n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
     vi.setSystemTime(new Date(1702805347000))
 
     // https://etherscan.io/tx/0x281675c625ee73af6f83ae0c760c87efd312a71f406922ac9e4e467b1bf5a8bb
@@ -178,7 +193,7 @@ describe('legacy (portal v2)', () => {
       hash: '0x8f6cb1878adad369d6fc8f6cd4f8cd0ea17d3a76e58947b93bc41ab65717da18',
     })
 
-    const status = await getWithdrawalStatus(publicClient, {
+    const status = await getWithdrawalStatus(client, {
       receipt,
       targetChain: optimismClient.chain,
     })
@@ -188,14 +203,17 @@ describe('legacy (portal v2)', () => {
   }, 20_000)
 
   test('ready-to-finalize', async () => {
-    await setBlockNumber(18803790n)
+    await reset(client, {
+      blockNumber: 18803790n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
     // https://etherscan.io/tx/0xec7d0380be9c64daf725369fc3bb6ebe2b0b5ed01291661130f6322696d9f1d7
     // https://optimistic.etherscan.io/tx/0x80c06f76d42e94a6427672e99e83bc487fde29570d1cf59844cad2d43fdf2ab4
     const receipt = await getTransactionReceipt(optimismClient, {
       hash: '0x80c06f76d42e94a6427672e99e83bc487fde29570d1cf59844cad2d43fdf2ab4',
     })
 
-    const status = await getWithdrawalStatus(publicClient, {
+    const status = await getWithdrawalStatus(client, {
       receipt,
       targetChain: optimismClient.chain,
     })

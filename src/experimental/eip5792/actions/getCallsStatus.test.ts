@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { accounts, localHttpUrl } from '../../../../test/src/constants.js'
-import { testClient } from '../../../../test/src/utils.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { accounts } from '../../../../test/src/constants.js'
 import { mine } from '../../../actions/index.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
@@ -12,6 +12,8 @@ import { getHttpRpcClient, parseEther } from '../../../utils/index.js'
 import { uid } from '../../../utils/uid.js'
 import { getCallsStatus } from './getCallsStatus.js'
 import { sendCalls } from './sendCalls.js'
+
+const testClient = anvilMainnet.getClient()
 
 type Uid = string
 type TxHashes = Hex[]
@@ -25,7 +27,7 @@ const getClient = ({
       async request({ method, params }) {
         onRequest({ method, params })
 
-        const rpcClient = getHttpRpcClient(localHttpUrl)
+        const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
         if (method === 'wallet_getCallsStatus') {
           const hashes = calls.get(params[0])
@@ -43,7 +45,7 @@ const getClient = ({
                 throw new RpcRequestError({
                   body: { method, params },
                   error,
-                  url: localHttpUrl,
+                  url: anvilMainnet.rpcUrl.http,
                 })
               return {
                 blockHash: result.blockHash,
@@ -72,7 +74,7 @@ const getClient = ({
               throw new RpcRequestError({
                 body: { method, params },
                 error,
-                url: localHttpUrl,
+                url: anvilMainnet.rpcUrl.http,
               })
             hashes.push(result)
           }

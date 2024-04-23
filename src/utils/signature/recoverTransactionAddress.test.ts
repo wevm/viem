@@ -1,15 +1,20 @@
 import { expect, test } from 'vitest'
-import { accounts, forkBlockNumber } from '../../../test/src/constants.js'
-import { publicClient, walletClient } from '../../../test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
 import {
   privateKeyToAccount,
   sign,
   signTransaction,
   signatureToHex,
 } from '../../accounts/index.js'
+import { getTransaction } from '../../actions/index.js'
+import { walletActions } from '../../clients/decorators/wallet.js'
+
 import type { TransactionSerializable } from '../../types/transaction.js'
 import { hexToBytes, keccak256, serializeTransaction } from '../index.js'
 import { recoverTransactionAddress } from './recoverTransactionAddress.js'
+
+const client = anvilMainnet.getClient().extend(walletActions)
 
 const transaction: TransactionSerializable = {
   chainId: 1,
@@ -56,7 +61,7 @@ test('signature (bytes)', async () => {
 })
 
 test('via `walletClient.signTransaction`', async () => {
-  const serializedTransaction = await walletClient.signTransaction({
+  const serializedTransaction = await client.signTransaction({
     account: privateKeyToAccount(accounts[0].privateKey),
     to: '0x0000000000000000000000000000000000000000',
     value: 1n,
@@ -80,8 +85,8 @@ test('via account `signTransaction`', async () => {
 })
 
 test('via `getTransaction`', async () => {
-  const transaction = await publicClient.getTransaction({
-    blockNumber: forkBlockNumber - 10n,
+  const transaction = await getTransaction(client, {
+    blockNumber: anvilMainnet.forkBlockNumber - 10n,
     index: 0,
   })
   const serializedTransaction = serializeTransaction(transaction)

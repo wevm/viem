@@ -1,10 +1,15 @@
 import { test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { walletClient, walletClientWithAccount } from '~test/src/utils.js'
 
 import { type Abi, parseAbi } from 'abitype'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { deployContract } from './deployContract.js'
+
+const client = anvilMainnet.getClient()
+const clientWithAccount = anvilMainnet.getClient({
+  account: true,
+})
 
 const args = {
   ...wagmiContractConfig,
@@ -13,13 +18,13 @@ const args = {
 } as const
 
 test('type: legacy', () => {
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -27,7 +32,7 @@ test('type: legacy', () => {
   })
 
   // @ts-expect-error
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -35,7 +40,7 @@ test('type: legacy', () => {
     type: 'legacy',
   })
   // @ts-expect-error
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
@@ -44,14 +49,14 @@ test('type: legacy', () => {
 })
 
 test('type: eip1559', () => {
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
   })
 
   // @ts-expect-error
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -59,7 +64,7 @@ test('type: eip1559', () => {
   })
 
   // @ts-expect-error
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -67,7 +72,7 @@ test('type: eip1559', () => {
     type: 'eip1559',
   })
   // @ts-expect-error
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     gasPrice: 0n,
     type: 'eip1559',
@@ -75,13 +80,13 @@ test('type: eip1559', () => {
 })
 
 test('type: eip2930', () => {
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -89,7 +94,7 @@ test('type: eip2930', () => {
   })
 
   // @ts-expect-error
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -97,7 +102,7 @@ test('type: eip2930', () => {
     type: 'eip2930',
   })
   // @ts-expect-error
-  deployContract(walletClient, {
+  deployContract(client, {
     ...args,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
@@ -106,7 +111,7 @@ test('type: eip2930', () => {
 })
 
 test('default', () => {
-  deployContract(walletClientWithAccount, {
+  deployContract(clientWithAccount, {
     abi: parseAbi(['constructor(address to, uint256 tokenId)']),
     bytecode: '0x',
     args: ['0x', 123n],
@@ -114,7 +119,7 @@ test('default', () => {
 })
 
 test('defined inline', () => {
-  deployContract(walletClientWithAccount, {
+  deployContract(clientWithAccount, {
     abi: [
       {
         type: 'constructor',
@@ -137,13 +142,13 @@ test('defined inline', () => {
 })
 
 test('declared as Abi', () => {
-  deployContract(walletClientWithAccount, {
+  deployContract(clientWithAccount, {
     abi: wagmiContractConfig.abi as Abi,
     bytecode: '0x',
     args: ['0x'],
   })
 
-  deployContract(walletClientWithAccount, {
+  deployContract(clientWithAccount, {
     abi: wagmiContractConfig.abi as Abi,
     bytecode: '0x',
   })
@@ -162,13 +167,13 @@ test('no const assertion', () => {
       type: 'function',
     },
   ]
-  deployContract(walletClientWithAccount, {
+  deployContract(clientWithAccount, {
     abi,
     bytecode: '0x',
     args: ['0x'],
   })
 
-  deployContract(walletClientWithAccount, {
+  deployContract(clientWithAccount, {
     abi,
     bytecode: '0x',
   })

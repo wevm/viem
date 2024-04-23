@@ -1,10 +1,13 @@
 import { expect, test } from 'vitest'
-import { publicClientMainnet, sepoliaClient } from '../../../test/src/utils.js'
+import { anvilSepolia } from '../../../test/src/anvil.js'
+import { mainnetClient } from '../../../test/src/utils.js'
 import { base, optimismSepolia } from '../../op-stack/chains.js'
 import { getPortalVersion } from './getPortalVersion.js'
 
+const sepoliaClient = anvilSepolia.getClient()
+
 test('default', async () => {
-  const version = await getPortalVersion(publicClientMainnet, {
+  const version = await getPortalVersion(mainnetClient, {
     targetChain: base,
   })
   expect(version).toMatchInlineSnapshot(`

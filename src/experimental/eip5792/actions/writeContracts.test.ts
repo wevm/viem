@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, localHttpUrl } from '../../../../test/src/constants.js'
-import { setBlockNumber, testClient } from '../../../../test/src/utils.js'
-import { mine } from '../../../actions/index.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { accounts } from '../../../../test/src/constants.js'
+import { mine, reset } from '../../../actions/index.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
@@ -18,6 +18,8 @@ type Uid = string
 type TxHashes = Hex[]
 const calls = new Map<Uid, TxHashes[]>()
 
+const testClient = anvilMainnet.getClient()
+
 const getClient = ({
   onRequest,
 }: { onRequest({ method, params }: any): void }) =>
@@ -26,7 +28,7 @@ const getClient = ({
       async request({ method, params }) {
         onRequest({ method, params })
 
-        const rpcClient = getHttpRpcClient(localHttpUrl)
+        const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
         if (method === 'wallet_getCallsStatus') {
           const hashes = calls.get(params[0])
@@ -44,7 +46,7 @@ const getClient = ({
                 throw new RpcRequestError({
                   body: { method, params },
                   error,
-                  url: localHttpUrl,
+                  url: anvilMainnet.rpcUrl.http,
                 })
               if (!result) throw new Error('receipt not found')
               return {
@@ -83,7 +85,7 @@ const getClient = ({
               throw new RpcRequestError({
                 body: { method, params },
                 error,
-                url: localHttpUrl,
+                url: anvilMainnet.rpcUrl.http,
               })
             hashes.push(result)
           }
@@ -106,7 +108,10 @@ test('default', async () => {
     },
   })
 
-  await setBlockNumber(16280770n)
+  await reset(testClient, {
+    blockNumber: 16280770n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 
   const id_ = await writeContracts(client, {
     account: accounts[0].address,

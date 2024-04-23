@@ -1,6 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { accounts, localWsUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { JsonRpcAccount, PrivateKeyAccount } from '../accounts/types.js'
 import { localhost } from '../chains/index.js'
@@ -291,7 +292,7 @@ describe('args: transport', () => {
   test('webSocket', () => {
     const { uid, ...client } = createWalletClient({
       chain: localhost,
-      transport: webSocket(localWsUrl),
+      transport: webSocket(anvilMainnet.rpcUrl.ws),
     })
 
     expect(uid).toBeDefined()

@@ -1,15 +1,17 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 
 import { setMinGasPrice } from './setMinGasPrice.js'
+
+const client = anvilMainnet.getClient()
 
 test.todo('set min gas price')
 
 test('errors when eip-1559 is not enabled', async () => {
   await expect(
-    setMinGasPrice(testClient, {
+    setMinGasPrice(client, {
       gasPrice: parseGwei('20'),
     }),
   ).rejects.toMatchInlineSnapshot(`

@@ -2,17 +2,12 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Payable } from '~test/contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, localHttpUrl } from '~test/src/constants.js'
-import {
-  anvilChain,
-  deployPayable,
-  publicClient,
-  testClient,
-  walletClient,
-  walletClientWithAccount,
-} from '~test/src/utils.js'
+import { accounts } from '~test/src/constants.js'
+import { deployPayable } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
+import { walletActions } from '../../clients/decorators/wallet.js'
 import { http } from '../../clients/transports/http.js'
 import { getTransaction } from '../public/getTransaction.js'
 import { simulateContract } from '../public/simulateContract.js'
@@ -20,9 +15,14 @@ import { mine } from '../test/mine.js'
 
 import { writeContract } from './writeContract.js'
 
+const client = anvilMainnet.getClient().extend(walletActions)
+const clientWithAccount = anvilMainnet.getClient({
+  account: accounts[0].address,
+})
+
 test('default', async () => {
   expect(
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...wagmiContractConfig,
       account: accounts[0].address,
       functionName: 'mint',
@@ -32,7 +32,7 @@ test('default', async () => {
 
 test('inferred account', async () => {
   expect(
-    await writeContract(walletClientWithAccount, {
+    await writeContract(clientWithAccount, {
       ...wagmiContractConfig,
       functionName: 'mint',
     }),
@@ -40,12 +40,12 @@ test('inferred account', async () => {
 })
 
 test('client chain mismatch', async () => {
-  const walletClient = createWalletClient({
+  const client = createWalletClient({
     chain: optimism,
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   await expect(() =>
-    writeContract(walletClient, {
+    writeContract(client, {
       ...wagmiContractConfig,
       account: accounts[0].address,
       functionName: 'mint',
@@ -66,12 +66,12 @@ test('client chain mismatch', async () => {
 })
 
 test('no chain', async () => {
-  const walletClient = createWalletClient({
-    transport: http(localHttpUrl),
+  const client = createWalletClient({
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   await expect(() =>
     // @ts-expect-error
-    writeContract(walletClient, {
+    writeContract(client, {
       ...wagmiContractConfig,
       account: accounts[0].address,
       functionName: 'mint',
@@ -91,23 +91,23 @@ test('no chain', async () => {
 
 describe('args: chain', () => {
   test('default', async () => {
-    const walletClient = createWalletClient({
-      transport: http(localHttpUrl),
+    const client = createWalletClient({
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...wagmiContractConfig,
         account: accounts[0].address,
         functionName: 'mint',
-        chain: anvilChain,
+        chain: anvilMainnet.chain,
       }),
     ).toBeDefined()
   })
 
   test('chain mismatch', async () => {
     await expect(() =>
-      writeContract(walletClient, {
+      writeContract(client, {
         ...wagmiContractConfig,
         account: accounts[0].address,
         functionName: 'mint',
@@ -131,8 +131,8 @@ describe('args: chain', () => {
 })
 
 test('args: dataSuffix', async () => {
-  const spy = vi.spyOn(walletClient, 'sendTransaction')
-  await writeContract(walletClient, {
+  const spy = vi.spyOn(client, 'sendTransaction')
+  await writeContract(client, {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
@@ -148,25 +148,25 @@ test('args: dataSuffix', async () => {
 test('args: value', async () => {
   const { contractAddress } = await deployPayable()
 
-  const hash_1 = await writeContract(walletClientWithAccount, {
+  const hash_1 = await writeContract(clientWithAccount, {
     abi: Payable.abi,
     address: contractAddress!,
     functionName: 'pay',
   })
-  const hash_2 = await writeContract(walletClientWithAccount, {
+  const hash_2 = await writeContract(clientWithAccount, {
     abi: Payable.abi,
     address: contractAddress!,
     functionName: 'pay',
     value: 1n,
   })
 
-  expect((await getTransaction(publicClient, { hash: hash_1 })).value).toBe(0n)
-  expect((await getTransaction(publicClient, { hash: hash_2 })).value).toBe(1n)
+  expect((await getTransaction(client, { hash: hash_1 })).value).toBe(0n)
+  expect((await getTransaction(client, { hash: hash_2 })).value).toBe(1n)
 })
 
 test('overloaded function', async () => {
   expect(
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...wagmiContractConfig,
       account: accounts[0].address,
       functionName: 'mint',
@@ -176,18 +176,18 @@ test('overloaded function', async () => {
 })
 
 test('w/ simulateContract', async () => {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
     args: [],
   })
-  expect(await writeContract(walletClient, request)).toBeDefined()
+  expect(await writeContract(client, request)).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
   expect(
-    await simulateContract(publicClient, {
+    await simulateContract(client, {
       ...wagmiContractConfig,
       account: accounts[0].address,
       functionName: 'mint',
@@ -196,18 +196,18 @@ test('w/ simulateContract', async () => {
 })
 
 test('w/ simulateContract (overloaded)', async () => {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
     args: [69421n],
   })
-  expect(await writeContract(walletClient, request)).toBeDefined()
+  expect(await writeContract(client, request)).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
   await expect(() =>
-    simulateContract(publicClient, {
+    simulateContract(client, {
       ...wagmiContractConfig,
       account: accounts[0].address,
       functionName: 'mint',
@@ -229,7 +229,7 @@ test('w/ simulateContract (overloaded)', async () => {
 })
 
 test('w/ simulateContract (args chain mismatch)', async () => {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
@@ -237,7 +237,7 @@ test('w/ simulateContract (args chain mismatch)', async () => {
     chain: optimism,
   })
   await expect(() =>
-    writeContract(walletClient, request),
+    writeContract(client, request),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
@@ -255,18 +255,18 @@ test('w/ simulateContract (args chain mismatch)', async () => {
 })
 
 test('w/ simulateContract (client chain mismatch)', async () => {
-  const walletClient = createWalletClient({
+  const client = createWalletClient({
     chain: optimism,
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
     args: [],
   })
   await expect(() =>
-    writeContract(walletClient, request),
+    writeContract(client, request),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 

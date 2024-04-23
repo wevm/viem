@@ -1,16 +1,18 @@
 import { test } from 'vitest'
 
-import { walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { avalanche } from '../../chains/index.js'
 
 import { addChain } from './addChain.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  await addChain(walletClient!, { chain: avalanche })
+  await addChain(client!, { chain: avalanche })
 })
 
 test('no block explorer', async () => {
-  await addChain(walletClient!, {
+  await addChain(client!, {
     chain: { ...avalanche, blockExplorers: undefined },
   })
 })

@@ -2,13 +2,13 @@ import { describe, expect, test } from 'vitest'
 
 import { smartAccountConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
-import { publicClientMainnet } from '~test/src/utils.js'
+import { mainnetClient } from '~test/src/utils.js'
 import { verifyMessage } from './verifyMessage.js'
 
 describe('verifyMessage', () => {
   test('valid signature', async () => {
     expect(
-      await verifyMessage(publicClientMainnet, {
+      await verifyMessage(mainnetClient, {
         address: smartAccountConfig.address,
         message: 'This is a test message for viem!',
         signature:
@@ -19,7 +19,7 @@ describe('verifyMessage', () => {
 
   test('invalid signature', async () => {
     expect(
-      await verifyMessage(publicClientMainnet, {
+      await verifyMessage(mainnetClient, {
         address: smartAccountConfig.address,
         message: 'This is a test message for viem!',
         signature: '0xdead',
@@ -29,7 +29,7 @@ describe('verifyMessage', () => {
 
   test('account not deployed', async () => {
     expect(
-      await verifyMessage(publicClientMainnet, {
+      await verifyMessage(mainnetClient, {
         address: address.notDeployed,
         message: 'This is a test message for viem!',
         signature:
@@ -40,7 +40,7 @@ describe('verifyMessage', () => {
 
   test('raw message', async () => {
     expect(
-      await verifyMessage(publicClientMainnet, {
+      await verifyMessage(mainnetClient, {
         address: accounts[0].address,
         message: { raw: '0x68656c6c6f20776f726c64' },
         signature:

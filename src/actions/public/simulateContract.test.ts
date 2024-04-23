@@ -15,23 +15,30 @@ import { accounts } from '~test/src/constants.js'
 import {
   deployBAYC,
   deployErrorExample,
-  publicClient,
-  publicClientMainnet,
-  testClient,
-  walletClient,
-  walletClientWithAccount,
+  mainnetClient,
 } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { publicActions } from '../../clients/decorators/public.js'
+import { walletActions } from '../../clients/decorators/wallet.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 
 import { simulateContract } from './simulateContract.js'
 
+const client = anvilMainnet
+  .getClient()
+  .extend(publicActions)
+  .extend(walletActions)
+const clientWithAccount = anvilMainnet.getClient({
+  account: accounts[0].address,
+})
+
 describe('wagmi', () => {
   test('default', async () => {
     expect(
       (
-        await simulateContract(publicClient, {
+        await simulateContract(client, {
           ...wagmiContractConfig,
           account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
           functionName: 'mint',
@@ -41,7 +48,7 @@ describe('wagmi', () => {
     ).toEqual(undefined)
     expect(
       (
-        await simulateContract(publicClient, {
+        await simulateContract(client, {
           ...wagmiContractConfig,
           functionName: 'safeTransferFrom',
           account: '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
@@ -58,7 +65,7 @@ describe('wagmi', () => {
   test('overloaded function', async () => {
     expect(
       (
-        await simulateContract(publicClient, {
+        await simulateContract(client, {
           ...wagmiContractConfig,
           account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
           functionName: 'mint',
@@ -68,20 +75,17 @@ describe('wagmi', () => {
   })
 
   test('client account', async () => {
-    const { request, result } = await simulateContract(
-      walletClientWithAccount,
-      {
-        ...wagmiContractConfig,
-        functionName: 'mint',
-      },
-    )
+    const { request, result } = await simulateContract(clientWithAccount, {
+      ...wagmiContractConfig,
+      functionName: 'mint',
+    })
     expect(result).toEqual(undefined)
-    expect(request.account).toEqual(walletClientWithAccount.account)
+    expect(request.account).toEqual(clientWithAccount.account)
   })
 
   test('no account', async () => {
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         ...wagmiContractConfig,
         functionName: 'mint',
         args: [69420n],
@@ -102,7 +106,7 @@ describe('wagmi', () => {
 
   test('revert', async () => {
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         ...wagmiContractConfig,
         functionName: 'approve',
         args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 420n],
@@ -122,7 +126,7 @@ describe('wagmi', () => {
       Version: viem@1.0.2]
     `)
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         ...wagmiContractConfig,
         functionName: 'mint',
         args: [1n],
@@ -142,7 +146,7 @@ describe('wagmi', () => {
       Version: viem@1.0.2]
     `)
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         ...wagmiContractConfig,
         functionName: 'safeTransferFrom',
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -169,8 +173,8 @@ describe('wagmi', () => {
 })
 
 test('args: dataSuffix', async () => {
-  const spy = vi.spyOn(publicClient, 'call')
-  const { request } = await simulateContract(publicClient, {
+  const spy = vi.spyOn(client, 'call')
+  const { request } = await simulateContract(client, {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
@@ -191,18 +195,18 @@ describe('BAYC', () => {
       const { contractAddress } = await deployBAYC()
 
       // Set sale state to active
-      await walletClient.writeContract({
+      await client.writeContract({
         address: contractAddress!,
         abi: baycContractConfig.abi,
         functionName: 'flipSaleState',
         account: accounts[0].address,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
       // Mint an Ape!
       expect(
         (
-          await simulateContract(publicClient, {
+          await simulateContract(client, {
             abi: baycContractConfig.abi,
             address: contractAddress!,
             functionName: 'mintApe',
@@ -220,7 +224,7 @@ describe('BAYC', () => {
       // Reserve apes
       expect(
         (
-          await simulateContract(publicClient, {
+          await simulateContract(client, {
             abi: baycContractConfig.abi,
             address: contractAddress!,
             functionName: 'reserveApes',
@@ -236,17 +240,17 @@ describe('BAYC', () => {
       const { contractAddress } = await deployBAYC()
 
       // Set sale state to active
-      await walletClient.writeContract({
+      await client.writeContract({
         address: contractAddress!,
         abi: baycContractConfig.abi,
         functionName: 'flipSaleState',
         account: accounts[0].address,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
       // Mint an Ape!
       await expect(
-        simulateContract(publicClient, {
+        simulateContract(client, {
           abi: baycContractConfig.abi,
           address: contractAddress!,
           functionName: 'mintApe',
@@ -271,18 +275,18 @@ describe('BAYC', () => {
       const { contractAddress } = await deployBAYC()
 
       // Set sale state to active
-      await walletClient.writeContract({
+      await client.writeContract({
         address: contractAddress!,
         abi: baycContractConfig.abi,
         functionName: 'flipSaleState',
         account: accounts[0].address,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
       // Mint an Ape!
       expect(
         (
-          await simulateContract(walletClientWithAccount, {
+          await simulateContract(clientWithAccount, {
             abi: baycContractConfig.abi,
             address: contractAddress!,
             functionName: 'mintApe',
@@ -300,7 +304,7 @@ describe('BAYC', () => {
 
       // Expect mint to fail.
       await expect(() =>
-        simulateContract(publicClient, {
+        simulateContract(client, {
           abi: baycContractConfig.abi,
           address: contractAddress!,
           functionName: 'mintApe',
@@ -330,7 +334,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'revertWrite',
@@ -354,7 +358,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'assertWrite',
@@ -378,7 +382,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'overflowWrite',
@@ -402,7 +406,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'divideByZeroWrite',
@@ -426,7 +430,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'requireWrite',
@@ -449,7 +453,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'simpleCustomWrite',
@@ -475,7 +479,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'complexCustomWrite',
@@ -500,7 +504,7 @@ describe('contract errors', () => {
 
 test('fake contract address', async () => {
   await expect(() =>
-    simulateContract(publicClient, {
+    simulateContract(client, {
       abi: [
         {
           name: 'mint',
@@ -535,7 +539,7 @@ test('fake contract address', async () => {
 describe('node errors', () => {
   test('fee cap too high', async () => {
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -566,7 +570,7 @@ describe('node errors', () => {
   //        This test will fail when Anvil is fixed.
   test('gas too low', async () => {
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -594,7 +598,7 @@ describe('node errors', () => {
     `)
 
     await expect(() =>
-      simulateContract(publicClientMainnet, {
+      simulateContract(mainnetClient, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -608,7 +612,7 @@ describe('node errors', () => {
   //        This test will fail when Anvil is fixed.
   test('gas too high', async () => {
     expect(
-      await simulateContract(publicClient, {
+      await simulateContract(client, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -622,7 +626,7 @@ describe('node errors', () => {
   //        This test will fail when Anvil is fixed.
   test('fee cap too low', async () => {
     expect(
-      await simulateContract(publicClient, {
+      await simulateContract(client, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -632,7 +636,7 @@ describe('node errors', () => {
     ).toBeDefined()
 
     await expect(() =>
-      simulateContract(publicClientMainnet, {
+      simulateContract(mainnetClient, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -644,7 +648,7 @@ describe('node errors', () => {
 
   test('nonce too low', async () => {
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -675,7 +679,7 @@ describe('node errors', () => {
 
   test('insufficient funds', async () => {
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -713,7 +717,7 @@ describe('node errors', () => {
     `)
 
     await expect(() =>
-      simulateContract(publicClientMainnet, {
+      simulateContract(mainnetClient, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -726,7 +730,7 @@ describe('node errors', () => {
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
     await expect(() =>
-      simulateContract(publicClient, {
+      simulateContract(client, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
