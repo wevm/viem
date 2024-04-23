@@ -11,8 +11,9 @@ export const polygonAmoy = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'OK LINK',
-      url: 'https://www.oklink.com/amoy',
+      name: 'PolygonScan',
+      url: 'https://amoy.polygonscan.com/',
+      apiUrl: 'https://api-amoy.polygonscan.com/api',
     },
   },
   contracts: {
