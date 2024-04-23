@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { optimismClient } from '../../../test/src/opStack.js'
 
 import { estimateProveWithdrawalGas } from './estimateProveWithdrawalGas.js'
 
 const client = anvilMainnet.getClient()
+const optimismClient = anvilOptimism.getClient()
 
 const args = {
   l2OutputIndex: 4529n,

@@ -25,7 +25,7 @@ import { accounts, poolId } from './constants.js'
 
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
-  forkUrl: ['VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'],
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
   forkBlockNumber: 16280770n,
   noMining: true,
   port: 8545,
@@ -33,7 +33,7 @@ export const anvilMainnet = defineAnvil({
 
 export const anvilSepolia = defineAnvil({
   chain: sepolia,
-  forkUrl: ['VITE_ANVIL_FORK_URL_SEPOLIA', 'https://rpc.sepolia.org'],
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL_SEPOLIA', 'https://rpc.sepolia.org'),
   forkBlockNumber: 5528904n,
   noMining: true,
   port: 8845,
@@ -41,17 +41,20 @@ export const anvilSepolia = defineAnvil({
 
 export const anvilOptimism = defineAnvil({
   chain: optimism,
-  forkUrl: ['VITE_ANVIL_FORK_URL_OPTIMISM', 'https://mainnet.optimism.io'],
+  forkUrl: getEnv(
+    'VITE_ANVIL_FORK_URL_OPTIMISM',
+    'https://mainnet.optimism.io',
+  ),
   forkBlockNumber: 113624777n,
   port: 8645,
 })
 
 export const anvilOptimismSepolia = defineAnvil({
   chain: optimismSepolia,
-  forkUrl: [
+  forkUrl: getEnv(
     'VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA',
     'https://sepolia.optimism.io',
-  ],
+  ),
   forkBlockNumber: 9596779n,
   noMining: true,
   port: 8945,
@@ -59,15 +62,16 @@ export const anvilOptimismSepolia = defineAnvil({
 
 export const anvilZkSync = defineAnvil({
   chain: zkSync,
-  forkUrl: ['VITE_ANVIL_FORK_URL_ZKSYNC', 'https://mainnet.era.zksync.io'],
+  forkUrl: getEnv(
+    'VITE_ANVIL_FORK_URL_ZKSYNC',
+    'https://mainnet.era.zksync.io',
+  ),
   forkBlockNumber: 25734n,
   port: 8745,
 })
 
-////////////////////////////////////////////////
-
-type EnvKey = string
-type EnvEntry<fallback> = [EnvKey, fallback]
+////////////////////////////////////////////////////////////
+// Utilities
 
 type DefineAnvilParameters<chain extends Chain> = Omit<
   CreateAnvilOptions,
@@ -75,7 +79,7 @@ type DefineAnvilParameters<chain extends Chain> = Omit<
 > & {
   chain: chain
   forkBlockNumber: bigint
-  forkUrl: EnvEntry<string>
+  forkUrl: string
   port: number
 }
 
@@ -126,6 +130,7 @@ function defineAnvil<const chain extends Chain>({
     ipc: `/tmp/anvil-${poolId}.ipc`,
     ws: `ws://127.0.0.1:${port}/${poolId}`,
   } as const
+
   const chain = {
     ...chain_,
     name: `${chain_.name} (Local)`,
@@ -136,6 +141,7 @@ function defineAnvil<const chain extends Chain>({
       },
     },
   } as const satisfies Chain
+
   const clientConfig = {
     batch: {
       multicall: process.env.VITE_BATCH_MULTICALL === 'true',
@@ -205,7 +211,7 @@ function defineAnvil<const chain extends Chain>({
     chain,
     clientConfig,
     forkBlockNumber,
-    forkUrl: getEnv(forkUrl)!,
+    forkUrl,
     getClient(config) {
       return (
         createClient({
@@ -225,7 +231,7 @@ function defineAnvil<const chain extends Chain>({
         options: {
           ...options,
           timeout: 60_000,
-          forkUrl: getEnv(forkUrl),
+          forkUrl,
           forkBlockNumber,
           startTimeout: 20_000,
         },
@@ -242,7 +248,7 @@ function warn(message: string) {
   }
 }
 
-function getEnv([key, fallback]: [EnvKey, string]) {
+function getEnv(key: string, fallback: string) {
   if (process.env[key]) return process.env[key]
   warn(`\`process.env.${key}\` not found. Falling back to \`${fallback}\`.`)
   return fallback

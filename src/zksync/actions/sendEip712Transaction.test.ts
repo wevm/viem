@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { zkSyncClient } from '~test/src/zksync.js'
 
+import { anvilZkSync } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import type { EIP1193RequestFn } from '../../index.js'
 import type { ZkSyncTransactionRequestEIP712 } from '../../zksync/index.js'
@@ -10,13 +10,13 @@ import { sendEip712Transaction } from './sendEip712Transaction.js'
 
 const sourceAccount = accounts[0]
 
-const client = { ...zkSyncClient }
+const client = anvilZkSync.getClient()
 
 client.request = (async ({ method, params }) => {
   if (method === 'eth_sendRawTransaction')
     return '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
   if (method === 'eth_estimateGas') return 158774n
-  return zkSyncClient.request({ method, params } as any)
+  return anvilZkSync.getClient().request({ method, params } as any)
 }) as EIP1193RequestFn
 
 const base: ZkSyncTransactionRequestEIP712 = {

@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import { ensPublicResolverConfig } from '~test/src/abis.js'
 import { address } from '~test/src/constants.js'
-import { deployEnsAvatarTokenUri, setBlockNumber } from '~test/src/utils.js'
+import { deployEnsAvatarTokenUri } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { namehash } from '../../utils/ens/namehash.js'
@@ -11,6 +11,7 @@ import { mine } from '../test/mine.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
+import { reset } from '../test/reset.js'
 import { getEnsAvatar } from './getEnsAvatar.js'
 
 const client = anvilMainnet.getClient()
@@ -19,7 +20,10 @@ beforeAll(async () => {
   await impersonateAccount(client, {
     address: address.vitalik,
   })
-  await setBlockNumber(client, 19_258_213n)
+  await reset(client, {
+    blockNumber: 19_258_213n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 
   return async () => {
     await stopImpersonatingAccount(client, {

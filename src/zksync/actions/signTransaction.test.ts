@@ -1,14 +1,16 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { zkSyncClient } from '~test/src/zksync.js'
 
+import { anvilZkSync } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import type { TransactionRequest } from '../../index.js'
 import type { ZkSyncTransactionRequestEIP712 } from '../../zksync/index.js'
 import { signTransaction } from './signTransaction.js'
 
 const sourceAccount = accounts[0]
+
+const client = anvilZkSync.getClient()
 
 const base: TransactionRequest = {
   from: '0x0000000000000000000000000000000000000000',
@@ -23,7 +25,7 @@ const eip712: ZkSyncTransactionRequestEIP712 = {
 
 test('eip712', async () => {
   expect(
-    await signTransaction(zkSyncClient, {
+    await signTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       ...eip712,
     }),
@@ -34,7 +36,7 @@ test('eip712', async () => {
 
 test('other', async () => {
   expect(
-    await signTransaction(zkSyncClient, {
+    await signTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       ...base,
     }),

@@ -1,16 +1,19 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
-import { anvilMainnet } from '../../../test/src/anvil.js'
 import {
-  optimismClient,
-  optimismSepoliaClient,
-} from '../../../test/src/opStack.js'
-import { sepoliaClient, setBlockNumber } from '../../../test/src/utils.js'
-import { getTransactionReceipt } from '../../actions/index.js'
+  anvilMainnet,
+  anvilOptimism,
+  anvilOptimismSepolia,
+  anvilSepolia,
+} from '../../../test/src/anvil.js'
+import { getTransactionReceipt, reset } from '../../actions/index.js'
 
 import { getWithdrawals, optimism } from '../../op-stack/index.js'
 import { getTimeToFinalize } from './getTimeToFinalize.js'
 
 const client = anvilMainnet.getClient()
+const sepoliaClient = anvilSepolia.getClient()
+const optimismClient = anvilOptimism.getClient()
+const optimismSepoliaClient = anvilOptimismSepolia.getClient()
 
 // TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
 test('default', async () => {
@@ -66,7 +69,10 @@ test('ready to finalize', async () => {
 
 describe('legacy (portal v2)', () => {
   beforeAll(async () => {
-    await setBlockNumber(client, 18770525n)
+    await reset(client, {
+      blockNumber: 18770525n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
   })
 
   test('default', async () => {

@@ -1,15 +1,19 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { deployEnsAvatarTokenUri, setBlockNumber } from '~test/src/utils.js'
+import { deployEnsAvatarTokenUri } from '~test/src/utils.js'
 
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 
+import { reset } from '../../../actions/index.js'
 import { parseAvatarRecord } from './parseAvatarRecord.js'
 
 const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
-  await setBlockNumber(client, 19_258_213n)
+  await reset(client, {
+    blockNumber: 19_258_213n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 })
 
 test('default', async () => {

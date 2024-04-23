@@ -1,16 +1,18 @@
 import { beforeAll, test, vi } from 'vitest'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { optimismClient } from '../../../test/src/opStack.js'
-import { setBlockNumber } from '../../../test/src/utils.js'
-import { getTransactionReceipt } from '../../actions/index.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
+import { getTransactionReceipt, reset } from '../../actions/index.js'
 
 import { getWithdrawals, optimism } from '../../op-stack/index.js'
 import { waitToFinalize } from './waitToFinalize.js'
 
 const client = anvilMainnet.getClient()
+const optimismClient = anvilOptimism.getClient()
 
 beforeAll(async () => {
-  await setBlockNumber(client, 18770525n)
+  await reset(client, {
+    blockNumber: 18770525n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 })
 
 test('default', async () => {

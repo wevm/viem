@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
-import { holeskyClient, setBlockNumber } from '~test/src/utils.js'
+import { holeskyClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
@@ -24,6 +24,7 @@ import { getBalance } from '../public/getBalance.js'
 import { getBlock } from '../public/getBlock.js'
 import { getTransaction } from '../public/getTransaction.js'
 import { mine } from '../test/mine.js'
+import { reset } from '../test/reset.js'
 import { setBalance } from '../test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
 import { sendTransaction } from './sendTransaction.js'
@@ -120,7 +121,10 @@ test('sends transaction (w/ formatter)', async () => {
 test('sends transaction (w/ serializer)', async () => {
   await setup()
 
-  await setBlockNumber(client, anvilMainnet.forkBlockNumber)
+  await reset(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 
   const serializer = vi.fn(
     (

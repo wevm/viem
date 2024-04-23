@@ -3,7 +3,6 @@ import { beforeAll, describe, expect, test } from 'vitest'
 import { address } from '~test/src/constants.js'
 import {
   createHttpServer,
-  setBlockNumber,
   setVitalikName,
   setVitalikResolver,
 } from '~test/src/utils.js'
@@ -17,12 +16,16 @@ import { optimism } from '../../chains/index.js'
 import { http } from '../../clients/transports/http.js'
 
 import { parseAbi } from 'abitype'
+import { reset } from '../test/reset.js'
 import { getEnsName } from './getEnsName.js'
 
 const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
-  await setBlockNumber(client, 19_258_213n)
+  await reset(client, {
+    blockNumber: 19_258_213n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
   await setVitalikResolver()
 })
 

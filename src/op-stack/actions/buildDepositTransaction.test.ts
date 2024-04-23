@@ -1,12 +1,8 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import {
-  optimismClient,
-  optimismClientWithoutChain,
-} from '~test/src/opStack.js'
 import { baycContractConfig } from '../../../test/src/abis.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
 import { parseEther } from '../../index.js'
 import { base } from '../chains.js'
 import { buildDepositTransaction } from './buildDepositTransaction.js'
@@ -15,6 +11,11 @@ import { depositTransaction } from './depositTransaction.js'
 const client = anvilMainnet.getClient()
 const clientWithAccount = anvilMainnet.getClient({
   account: accounts[0].address,
+})
+
+const optimismClient = anvilOptimism.getClient()
+const optimismClientWithoutChain = anvilOptimism.getClient({
+  chain: false,
 })
 
 test('default', async () => {

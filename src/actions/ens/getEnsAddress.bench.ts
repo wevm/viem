@@ -1,16 +1,19 @@
 import { beforeAll, bench, describe } from 'vitest'
 
 import { ethersProvider } from '~test/src/bench.js'
-import { setBlockNumber } from '~test/src/utils.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
+import { reset } from '../test/reset.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
 const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
-  await setBlockNumber(client, 16773780n)
+  await reset(client, {
+    blockNumber: 16773780n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 })
 
 describe('Get ENS Name', () => {

@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { setBlockNumber, setVitalikResolver } from '~test/src/utils.js'
+import { setVitalikResolver } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
 import { http } from '../../clients/transports/http.js'
@@ -12,12 +12,16 @@ import {
   encodeFunctionResult,
   parseAbi,
 } from '~viem/index.js'
+import { reset } from '../test/reset.js'
 import { getEnsText } from './getEnsText.js'
 
 const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
-  await setBlockNumber(client, 19_258_213n)
+  await reset(client, {
+    blockNumber: 19_258_213n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
   await setVitalikResolver()
 })
 

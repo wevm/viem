@@ -4,20 +4,24 @@ import type { Abi } from 'abitype'
 import { getTransactionReceipt } from '~viem/actions/public/getTransactionReceipt.js'
 import { impersonateAccount } from '~viem/actions/test/impersonateAccount.js'
 import { mine } from '~viem/actions/test/mine.js'
-import { reset } from '~viem/actions/test/reset.js'
 import { stopImpersonatingAccount } from '~viem/actions/test/stopImpersonatingAccount.js'
 import {
   type DeployContractParameters,
   deployContract,
 } from '~viem/actions/wallet/deployContract.js'
 import { writeContract } from '~viem/actions/wallet/writeContract.js'
-import { holesky, mainnet, sepolia } from '~viem/chains/index.js'
+import { holesky, mainnet } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
-import { createPublicClient } from '~viem/clients/createPublicClient.js'
 import { http } from '~viem/clients/transports/http.js'
 import { namehash } from '~viem/utils/ens/namehash.js'
 import type { TestClientMode } from '../../src/clients/createTestClient.js'
-import type { Account, Chain, TestClient, Transport } from '../../src/index.js'
+import {
+  type Account,
+  type Chain,
+  type TestClient,
+  type Transport,
+  publicActions,
+} from '../../src/index.js'
 
 import { type RequestListener, createServer } from 'http'
 import type { AddressInfo } from 'net'
@@ -33,26 +37,20 @@ import {
   ensRegistryConfig,
   ensReverseRegistrarConfig,
 } from './abis.js'
-import { anvilMainnet, anvilSepolia } from './anvil.js'
+import { anvilMainnet } from './anvil.js'
 import { accounts, address } from './constants.js'
 
 const client = anvilMainnet.getClient({ account: true })
 
-export const publicClientMainnet = createPublicClient({
+export const mainnetClient = createClient({
   chain: mainnet,
-  transport: http(process.env.VITE_ANVIL_FORK_URL),
-})
-
-// TODO(fault-proofs): remove when fault proofs deployed to mainnet.
-export const sepoliaClient = createClient({
-  chain: sepolia,
-  transport: http(anvilSepolia.rpcUrl.http),
-}).extend(() => ({ mode: 'anvil' }))
+  transport: http(anvilMainnet.forkUrl),
+}).extend(publicActions)
 
 export const holeskyClient = createClient({
   chain: holesky,
   transport: http(),
-})
+}).extend(publicActions)
 
 export function createHttpServer(
   handler: RequestListener,
@@ -142,22 +140,6 @@ export async function deployPayable() {
     abi: Payable.abi,
     bytecode: Payable.bytecode.object,
     account: accounts[0].address,
-  })
-}
-
-export async function setBlockNumber(
-  client: TestClient<
-    TestClientMode,
-    Transport,
-    Chain | undefined,
-    Account | undefined,
-    false
-  >,
-  blockNumber: bigint,
-) {
-  await reset(client, {
-    blockNumber,
-    jsonRpcUrl: anvilMainnet.forkUrl,
   })
 }
 

@@ -1,13 +1,15 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { zkSyncClient } from '~test/src/zksync.js'
 
+import { anvilZkSync } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import type { ZkSyncTransactionRequestEIP712 } from '../../zksync/index.js'
 import { signTransaction } from './signTransaction.js'
 
 const sourceAccount = accounts[0]
+
+const client = anvilZkSync.getClient()
 
 const base: ZkSyncTransactionRequestEIP712 = {
   from: '0x0000000000000000000000000000000000000000',
@@ -18,7 +20,7 @@ const base: ZkSyncTransactionRequestEIP712 = {
 
 test('default', async () => {
   expect(
-    await signTransaction(zkSyncClient, {
+    await signTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       ...base,
     }),
@@ -29,9 +31,9 @@ test('default', async () => {
 
 test('errors: no eip712 domain fn', async () => {
   await expect(() =>
-    signTransaction(zkSyncClient, {
+    signTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
-      chain: { ...zkSyncClient.chain, custom: {} },
+      chain: { ...client.chain, custom: {} },
       ...base,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -45,9 +47,9 @@ test('errors: no eip712 domain fn', async () => {
 
 test('errors: no serializer fn', async () => {
   await expect(() =>
-    signTransaction(zkSyncClient, {
+    signTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
-      chain: { ...zkSyncClient.chain, serializers: {} },
+      chain: { ...client.chain, serializers: {} },
       ...base,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -62,7 +64,7 @@ test('errors: no serializer fn', async () => {
 test('errors: no account', async () => {
   await expect(
     // @ts-expect-error
-    () => signTransaction(zkSyncClient, base),
+    () => signTransaction(client, base),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
     [AccountNotFoundError: Could not find an Account to execute with this Action.

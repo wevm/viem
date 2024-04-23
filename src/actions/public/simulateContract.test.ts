@@ -15,7 +15,7 @@ import { accounts } from '~test/src/constants.js'
 import {
   deployBAYC,
   deployErrorExample,
-  publicClientMainnet,
+  mainnetClient,
 } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { publicActions } from '../../clients/decorators/public.js'
@@ -598,7 +598,7 @@ describe('node errors', () => {
     `)
 
     await expect(() =>
-      simulateContract(publicClientMainnet, {
+      simulateContract(mainnetClient, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -636,7 +636,7 @@ describe('node errors', () => {
     ).toBeDefined()
 
     await expect(() =>
-      simulateContract(publicClientMainnet, {
+      simulateContract(mainnetClient, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -717,7 +717,7 @@ describe('node errors', () => {
     `)
 
     await expect(() =>
-      simulateContract(publicClientMainnet, {
+      simulateContract(mainnetClient, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',

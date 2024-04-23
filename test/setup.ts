@@ -7,9 +7,9 @@ import { cleanupCache, listenersCache } from '~viem/utils/observe.js'
 import { promiseCache, responseCache } from '~viem/utils/promise/withCache.js'
 import { socketClientCache } from '~viem/utils/rpc/socket.js'
 
+import { reset } from '../src/actions/test/reset.js'
 import { anvilMainnet } from './src/anvil.js'
 import { poolId } from './src/constants.js'
-import { setBlockNumber } from './src/utils.js'
 
 const client = anvilMainnet.getClient()
 
@@ -39,7 +39,10 @@ afterAll(async () => {
 
   if (process.env.SKIP_GLOBAL_SETUP) return
   // Reset the anvil instance to the same state it was in before the tests started.
-  await setBlockNumber(client, anvilMainnet.forkBlockNumber)
+  await reset(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 })
 
 afterEach((context) => {

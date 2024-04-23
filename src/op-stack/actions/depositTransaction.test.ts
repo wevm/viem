@@ -1,12 +1,12 @@
 import { beforeAll, expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
-import { setBlockNumber } from '~test/src/utils.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
   getTransactionReceipt,
   mine,
+  reset,
   setBalance,
   waitForTransactionReceipt,
 } from '../../actions/index.js'
@@ -29,7 +29,10 @@ const clientWithoutChain = anvilMainnet.getClient({
 })
 
 beforeAll(async () => {
-  await setBlockNumber(client, 18136086n)
+  await reset(client, {
+    blockNumber: 18136086n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
   await setBalance(client, {
     address: accounts[0].address,
     value: parseEther('10000'),

@@ -1,14 +1,17 @@
 import { beforeAll, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { setBlockNumber } from '../../../test/src/utils.js'
 
+import { reset } from '../../actions/index.js'
 import { optimism } from '../../op-stack/chains.js'
 import { getTimeToNextL2Output } from './getTimeToNextL2Output.js'
 
 const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
-  await setBlockNumber(client, 18772363n)
+  await reset(client, {
+    blockNumber: 18772363n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 })
 
 test('default', async () => {

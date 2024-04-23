@@ -1,7 +1,9 @@
 import { expect, test } from 'vitest'
-import { sepoliaClient } from '../../../test/src/utils.js'
+import { anvilSepolia } from '../../../test/src/anvil.js'
 import { optimismSepolia } from '../../op-stack/chains.js'
 import { getGame } from './getGame.js'
+
+const sepoliaClient = anvilSepolia.getClient()
 
 // TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
 test('default', async () => {

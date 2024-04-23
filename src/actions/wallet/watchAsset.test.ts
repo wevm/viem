@@ -31,5 +31,7 @@ test('errors: unsupported type', async () => {
         image: 'https://foo.io/token-image.svg',
       },
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: Token type ERC721 not supported.]`)
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    '[Error: Token type ERC721 not supported.]',
+  )
 })

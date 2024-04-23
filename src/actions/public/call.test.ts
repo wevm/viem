@@ -5,10 +5,7 @@ import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
 import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
-import {
-  deployOffchainLookupExample,
-  publicClientMainnet,
-} from '~test/src/utils.js'
+import { deployOffchainLookupExample, mainnetClient } from '~test/src/utils.js'
 
 import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
@@ -288,7 +285,7 @@ describe('errors', () => {
     `)
 
     await expect(() =>
-      call(publicClientMainnet, {
+      call(mainnetClient, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
         account: sourceAccount.address,
         to: wagmiContractAddress,
@@ -323,7 +320,7 @@ describe('errors', () => {
     ).toBeDefined()
 
     await expect(() =>
-      call(publicClientMainnet, {
+      call(mainnetClient, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
@@ -384,7 +381,7 @@ describe('errors', () => {
     `)
 
     await expect(() =>
-      call(publicClientMainnet, {
+      call(mainnetClient, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: parseEther('100000'),
