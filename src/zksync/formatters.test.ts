@@ -1535,6 +1535,7 @@ describe('transactionRequest', () => {
               205,
             ],
           ],
+          "gasPerPubdata": "0xc350",
         },
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x32c8",
@@ -1560,6 +1561,7 @@ describe('transactionRequest', () => {
             18,
             52,
           ],
+          "gasPerPubdata": "0xc350",
         },
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x32c8",
@@ -1583,6 +1585,7 @@ describe('transactionRequest', () => {
     ).toMatchInlineSnapshot(`
       {
         "eip712Meta": {
+          "gasPerPubdata": "0xc350",
           "paymasterParams": {
             "paymaster": "0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021",
             "paymasterInput": [

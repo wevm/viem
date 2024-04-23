@@ -95,7 +95,7 @@ export async function sendEip712Transaction<
     // Prepare the request for signing (assign appropriate fees, etc.)
     const request = await prepareTransactionRequest(client, {
       ...args,
-      parameters: ['gas', 'nonce'],
+      parameters: ['gas', 'nonce', 'fees'],
     } as any)
 
     let chainId: number | undefined
