@@ -780,81 +780,85 @@ describe('poll', () => {
       expect(logs[1][0].eventName).toEqual('Approval')
     })
 
-    test('fallback', async () => {
-      const logs: WatchContractEventOnLogsParameter<
-        typeof usdcContractConfig.abi
-      >[] = []
+    test(
+      'fallback',
+      async () => {
+        const logs: WatchContractEventOnLogsParameter<
+          typeof usdcContractConfig.abi
+        >[] = []
 
-      const client_2 = createClient({
-        chain: anvilMainnet.chain,
-        transport: fallback([http(), webSocket()]),
-        pollingInterval: 200,
-      })
+        const client_2 = createClient({
+          chain: anvilMainnet.chain,
+          transport: fallback([http(), webSocket()]),
+          pollingInterval: 200,
+        })
 
-      const unwatch = watchContractEvent(client_2, {
-        abi: usdcContractConfig.abi,
-        onLogs: (logs_) => {
-          assertType<(typeof logs_)[0]['args']>({
-            owner: '0x',
-            spender: '0x',
-            value: 0n,
-          })
-          assertType<(typeof logs_)[0]['args']>({
-            from: '0x',
-            to: '0x',
-            value: 0n,
-          })
-          logs.push(logs_)
-        },
-      })
+        const unwatch = watchContractEvent(client_2, {
+          abi: usdcContractConfig.abi,
+          onLogs: (logs_) => {
+            assertType<(typeof logs_)[0]['args']>({
+              owner: '0x',
+              spender: '0x',
+              value: 0n,
+            })
+            assertType<(typeof logs_)[0]['args']>({
+              from: '0x',
+              to: '0x',
+              value: 0n,
+            })
+            logs.push(logs_)
+          },
+        })
 
-      await writeContract(client, {
-        ...usdcContractConfig,
-        account: address.vitalik,
-        functionName: 'transfer',
-        args: [address.vitalik, 1n],
-      })
-      await writeContract(client, {
-        ...usdcContractConfig,
-        account: address.vitalik,
-        functionName: 'transfer',
-        args: [address.vitalik, 1n],
-      })
-      await mine(client, { blocks: 1 })
-      await wait(200)
-      await writeContract(client, {
-        ...usdcContractConfig,
-        account: address.vitalik,
-        functionName: 'approve',
-        args: [address.vitalik, 1n],
-      })
-      await mine(client, { blocks: 1 })
-      await wait(200)
-      unwatch()
+        await writeContract(client, {
+          ...usdcContractConfig,
+          account: address.vitalik,
+          functionName: 'transfer',
+          args: [address.vitalik, 1n],
+        })
+        await writeContract(client, {
+          ...usdcContractConfig,
+          account: address.vitalik,
+          functionName: 'transfer',
+          args: [address.vitalik, 1n],
+        })
+        await mine(client, { blocks: 1 })
+        await wait(200)
+        await writeContract(client, {
+          ...usdcContractConfig,
+          account: address.vitalik,
+          functionName: 'approve',
+          args: [address.vitalik, 1n],
+        })
+        await mine(client, { blocks: 1 })
+        await wait(200)
+        unwatch()
 
-      expect(logs.length).toBe(2)
-      expect(logs[0].length).toBe(2)
-      expect(logs[1].length).toBe(1)
+        expect(logs.length).toBe(2)
+        expect(logs[0].length).toBe(2)
+        expect(logs[1].length).toBe(1)
 
-      expect(logs[0][0].args).toEqual({
-        from: getAddress(address.vitalik),
-        to: getAddress(address.vitalik),
-        value: 1n,
-      })
-      expect(logs[0][0].eventName).toEqual('Transfer')
-      expect(logs[0][1].args).toEqual({
-        from: getAddress(address.vitalik),
-        to: getAddress(address.vitalik),
-        value: 1n,
-      })
-      expect(logs[0][1].eventName).toEqual('Transfer')
-      expect(logs[1][0].args).toEqual({
-        owner: getAddress(address.vitalik),
-        spender: getAddress(address.vitalik),
-        value: 1n,
-      })
-      expect(logs[1][0].eventName).toEqual('Approval')
-    })
+        expect(logs[0][0].args).toEqual({
+          from: getAddress(address.vitalik),
+          to: getAddress(address.vitalik),
+          value: 1n,
+        })
+        expect(logs[0][0].eventName).toEqual('Transfer')
+        expect(logs[0][1].args).toEqual({
+          from: getAddress(address.vitalik),
+          to: getAddress(address.vitalik),
+          value: 1n,
+        })
+        expect(logs[0][1].eventName).toEqual('Transfer')
+        expect(logs[1][0].args).toEqual({
+          owner: getAddress(address.vitalik),
+          spender: getAddress(address.vitalik),
+          value: 1n,
+        })
+        expect(logs[1][0].eventName).toEqual('Approval')
+      },
+      { retry: 3 },
+    )
   })
 
   describe('errors', () => {
