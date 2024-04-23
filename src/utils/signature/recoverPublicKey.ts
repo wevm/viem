@@ -1,9 +1,9 @@
+import { secp256k1 } from '@noble/curves/secp256k1'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
 import { type HexToNumberErrorType, hexToNumber } from '../encoding/fromHex.js'
 import { toHex } from '../encoding/toHex.js'
-import { secp256k1 } from '@noble/curves/secp256k1';
 
 export type RecoverPublicKeyParameters = {
   hash: Hex | ByteArray
