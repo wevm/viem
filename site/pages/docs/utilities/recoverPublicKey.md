@@ -11,7 +11,7 @@ Recovers the original signing 64-byte public key from a hash & signature.
 ```ts [example.ts]
 import { recoverPublicKey } from 'viem'
  
-const address = await recoverPublicKey({
+const address = recoverPublicKey({
   hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
   signature: '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c'
 })
@@ -33,7 +33,7 @@ The signing public key.
 The hash that was signed.
 
 ```ts
-const publicKey = await recoverPublicKey({ 
+const publicKey = recoverPublicKey({ 
   hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68', // [!code focus]
   signature: '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c'
 })
@@ -46,7 +46,7 @@ const publicKey = await recoverPublicKey({
 The signature of the hash.
 
 ```ts
-const publicKey = await recoverPublicKey({ 
+const publicKey = recoverPublicKey({ 
   hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
   signature: '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c' // [!code focus]
 })

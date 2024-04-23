@@ -3,6 +3,7 @@ import type { ByteArray, Hex } from '../../types/misc.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
 import { type HexToNumberErrorType, hexToNumber } from '../encoding/fromHex.js'
 import { toHex } from '../encoding/toHex.js'
+import { secp256k1 } from '@noble/curves/secp256k1';
 
 export type RecoverPublicKeyParameters = {
   hash: Hex | ByteArray
@@ -16,10 +17,10 @@ export type RecoverPublicKeyErrorType =
   | IsHexErrorType
   | ErrorType
 
-export async function recoverPublicKey({
+export function recoverPublicKey({
   hash,
   signature,
-}: RecoverPublicKeyParameters): Promise<RecoverPublicKeyReturnType> {
+}: RecoverPublicKeyParameters): RecoverPublicKeyReturnType {
   const signatureHex = isHex(signature) ? signature : toHex(signature)
   const hashHex = isHex(hash) ? hash : toHex(hash)
 
@@ -28,7 +29,6 @@ export async function recoverPublicKey({
   let v = hexToNumber(`0x${signatureHex.slice(130)}`)
   if (v === 0 || v === 1) v += 27
 
-  const { secp256k1 } = await import('@noble/curves/secp256k1')
   const publicKey = secp256k1.Signature.fromCompact(
     signatureHex.substring(2, 130),
   )
