@@ -22,7 +22,6 @@ import {
 } from '../../src/index.js'
 import { ProviderRpcError } from '../../src/types/eip1193.js'
 import { accounts, poolId } from './constants.js'
-import { getEnv } from './utils.js'
 
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
@@ -73,6 +72,14 @@ export const anvilZkSync = defineAnvil({
 
 ////////////////////////////////////////////////////////////
 // Utilities
+
+function getEnv(key: string, fallback: string): string {
+  if (typeof process.env[key] === 'string') return process.env[key] as string
+  console.warn(
+    `\`process.env.${key}\` not found. Falling back to \`${fallback}\`.`,
+  )
+  return fallback
+}
 
 type DefineAnvilParameters<chain extends Chain> = Omit<
   CreateAnvilOptions,
