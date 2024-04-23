@@ -118,7 +118,10 @@ export function getHttpRpcClient(
           response.headers.get('Content-Type')?.startsWith('application/json')
         )
           data = await response.json()
-        else data = await response.text()
+        else {
+          data = await response.text()
+          data = JSON.parse(data || '{}')
+        }
 
         if (!response.ok) {
           throw new HttpRequestError({

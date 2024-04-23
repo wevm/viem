@@ -132,6 +132,42 @@ describe('request', () => {
     await wait(500)
   })
 
+  test('no application/json header', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    expect(
+      await client.request({
+        body: { method: 'web3_clientVersion' },
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "result": "0x1",
+      }
+    `)
+    await server.close()
+
+    const server2 = await createHttpServer((_, res) => {
+      res.end('bogus')
+    })
+    const client2 = getHttpRpcClient(server2.url)
+    await expect(() =>
+      client2.request({
+        body: { method: 'web3_clientVersion' },
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [HttpRequestError: HTTP request failed.
+
+      URL: http://localhost
+      Request body: {"method":"web3_clientVersion"}
+
+      Details: Unexpected token 'b', "bogus" is not valid JSON
+      Version: viem@1.0.2]
+    `)
+    await server2.close()
+  })
+
   test('fetchOptions', async () => {
     let headers: IncomingHttpHeaders = {}
     const server = await createHttpServer((req, res) => {
@@ -335,12 +371,12 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 86,
+          "id": 89,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
         {
-          "id": 87,
+          "id": 90,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -361,7 +397,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 89,
+          "id": 92,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -370,7 +406,7 @@ describe('http (batch)', () => {
             "code": -32602,
             "message": "Odd number of digits",
           },
-          "id": 90,
+          "id": 93,
           "jsonrpc": "2.0",
         },
       ]
@@ -387,7 +423,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 92,
+          "id": 95,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -396,7 +432,7 @@ describe('http (batch)', () => {
             "code": -32601,
             "message": "Method not found",
           },
-          "id": 93,
+          "id": 96,
           "jsonrpc": "2.0",
         },
       ]
