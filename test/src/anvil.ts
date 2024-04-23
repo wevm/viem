@@ -22,6 +22,7 @@ import {
 } from '../../src/index.js'
 import { ProviderRpcError } from '../../src/types/eip1193.js'
 import { accounts, poolId } from './constants.js'
+import { getEnv } from './utils.js'
 
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
@@ -238,18 +239,4 @@ function defineAnvil<const chain extends Chain>({
       })
     },
   } as const
-}
-
-const messages = new Map()
-function warn(message: string) {
-  if (!messages.has(message)) {
-    messages.set(message, true)
-    console.warn(message)
-  }
-}
-
-function getEnv(key: string, fallback: string) {
-  if (process.env[key]) return process.env[key]
-  warn(`\`process.env.${key}\` not found. Falling back to \`${fallback}\`.`)
-  return fallback
 }

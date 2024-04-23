@@ -42,6 +42,20 @@ import { accounts, address } from './constants.js'
 
 const client = anvilMainnet.getClient({ account: true })
 
+const messages = new Map()
+function warn(message: string) {
+  if (!messages.has(message)) {
+    messages.set(message, true)
+    console.warn(message)
+  }
+}
+
+export function getEnv(key: string, fallback: string) {
+  if (process.env[key]) return process.env[key]
+  warn(`\`process.env.${key}\` not found. Falling back to \`${fallback}\`.`)
+  return fallback
+}
+
 export const mainnetClient = createClient({
   chain: mainnet,
   transport: http(anvilMainnet.forkUrl),
