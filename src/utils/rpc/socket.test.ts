@@ -6,6 +6,7 @@ import { getSocketRpcClient } from './socket.js'
 test('default', async () => {
   let active = false
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket() {
       active = true
       return {
@@ -26,6 +27,7 @@ test('parallel invocations of same url returns identical client', async () => {
 
   const socketClient = async () =>
     getSocketRpcClient({
+      key: 'test-socket',
       async getSocket() {
         count++
         return {
@@ -64,6 +66,7 @@ test('sequential invocations of same url returns identical client', async () => 
 
   const socketClient = async () =>
     getSocketRpcClient({
+      key: 'test-socket',
       async getSocket() {
         count++
         return {
@@ -97,6 +100,7 @@ test('sequential invocations of same url returns identical client', async () => 
 
 test('request', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -135,6 +139,7 @@ test('reconnect', async () => {
   let active = true
   let count = -1
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onError, onOpen, onResponse }) {
       count++
 
@@ -243,6 +248,7 @@ test('reconnect', async () => {
 
 test('request (eth_subscribe)', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -279,6 +285,7 @@ test('reconnect (eth_subscribe)', async () => {
   let active = true
   let count = -1
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onError, onOpen, onResponse }) {
       count++
 
@@ -379,6 +386,7 @@ test('reconnect (eth_subscribe)', async () => {
 
 test('request (eth_unsubscribe)', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -413,6 +421,7 @@ test('request (eth_unsubscribe)', async () => {
 
 test('request (eth_subscription)', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -461,6 +470,7 @@ test('request (eth_subscription)', async () => {
 
 test('request (error)', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket() {
       return {
         close() {},
@@ -488,6 +498,7 @@ test('request (error)', async () => {
 
 test('requestAsync', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
