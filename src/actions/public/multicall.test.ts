@@ -1183,7 +1183,6 @@ describe('GitHub repros', () => {
     const { contractAddress } = await deploy(client, {
       abi: GH434.abi,
       bytecode: GH434.bytecode.object,
-      account: accounts[0].address,
     })
 
     expect(

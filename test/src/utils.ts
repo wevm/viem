@@ -78,13 +78,12 @@ export async function deploy<const TAbi extends Abi | readonly unknown[]>(
     Account | undefined,
     false
   >,
-  args: DeployContractParameters<
-    TAbi,
-    (typeof client)['chain'],
-    (typeof client)['account']
-  >,
+  args: DeployContractParameters<TAbi, (typeof client)['chain'], Account>,
 ) {
-  const hash = await deployContract(client, args)
+  const hash = await deployContract(client, {
+    account: accounts[0].address,
+    ...args,
+  } as any)
   await mine(client, { blocks: 1 })
   const { contractAddress } = await getTransactionReceipt(client, {
     hash,
@@ -96,7 +95,6 @@ export async function deployBAYC() {
   return deploy(client, {
     ...baycContractConfig,
     args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
-    account: accounts[0].address,
   })
 }
 
@@ -104,7 +102,6 @@ export async function deployErrorExample() {
   return deploy(client, {
     abi: ErrorsExample.abi,
     bytecode: ErrorsExample.bytecode.object,
-    account: accounts[0].address,
   })
 }
 
@@ -112,7 +109,6 @@ export async function deployEnsAvatarTokenUri() {
   return deploy(client, {
     abi: EnsAvatarTokenUri.abi,
     bytecode: EnsAvatarTokenUri.bytecode.object,
-    account: accounts[0].address,
   })
 }
 
@@ -120,7 +116,6 @@ export async function deployErc20InvalidTransferEvent() {
   return deploy(client, {
     abi: ERC20InvalidTransferEvent.abi,
     bytecode: ERC20InvalidTransferEvent.bytecode.object,
-    account: accounts[0].address,
   })
 }
 
@@ -130,7 +125,6 @@ export async function deployOffchainLookupExample({
   return deploy(client, {
     abi: OffchainLookupExample.abi,
     bytecode: OffchainLookupExample.bytecode.object,
-    account: accounts[0].address,
     args: [urls],
   })
 }
@@ -139,7 +133,6 @@ export async function deployPayable() {
   return deploy(client, {
     abi: Payable.abi,
     bytecode: Payable.bytecode.object,
-    account: accounts[0].address,
   })
 }
 
