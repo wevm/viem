@@ -3,7 +3,7 @@ import { sepoliaClient } from '../../../test/src/utils.js'
 import { optimismSepolia } from '../../op-stack/chains.js'
 import { getGame } from './getGame.js'
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+// TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
 test('default', async () => {
   const game = await getGame(sepoliaClient, {
     targetChain: optimismSepolia,

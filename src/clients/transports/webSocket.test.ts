@@ -2,13 +2,14 @@ import { WebSocket } from 'isows'
 
 import { assertType, describe, expect, test } from 'vitest'
 
-import { testClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
 import { type WebSocketTransport, webSocket } from './webSocket.js'
+
+const client = anvilMainnet.getClient()
 
 test('default', () => {
   const transport = webSocket(anvilMainnet.rpcUrl.ws)
@@ -170,7 +171,7 @@ test('subscribe', async () => {
   expect(subscriptionId).toBeDefined()
 
   // Make sure we are receiving blocks.
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
   await wait(200)
   expect(blocks.length).toBe(1)
 
@@ -179,7 +180,7 @@ test('subscribe', async () => {
   expect(result).toBeDefined()
 
   // Make sure we are no longer receiving blocks.
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
   await wait(200)
   expect(blocks.length).toBe(1)
 })

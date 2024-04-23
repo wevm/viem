@@ -1,7 +1,6 @@
 import { assertType, describe, expect, it, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { holesky, zkSync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -19,12 +18,14 @@ import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
 
+const client = anvilMainnet.getClient()
+
 test('gets transaction receipt', async () => {
-  const transaction = await getTransaction(publicClient, {
+  const transaction = await getTransaction(client, {
     blockNumber: anvilMainnet.forkBlockNumber - 1n,
     index: 0,
   })
-  const receipt = await getTransactionReceipt(publicClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash: transaction.hash,
   })
   assertType<TransactionReceipt>(receipt)
@@ -309,12 +310,12 @@ describe('e2e', () => {
   const targetAccount = accounts[1]
 
   it('gets transaction receipt', async () => {
-    const block = await getBlock(publicClient)
+    const block = await getBlock(client)
 
     const maxFeePerGas = block.baseFeePerGas! + parseGwei('10')
     const maxPriorityFeePerGas = parseGwei('10')
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -322,13 +323,13 @@ describe('e2e', () => {
       maxPriorityFeePerGas,
     })
 
-    expect(await getTransaction(publicClient, { hash })).toBeDefined()
+    expect(await getTransaction(client, { hash })).toBeDefined()
     await expect(() =>
-      getTransactionReceipt(publicClient, {
+      getTransactionReceipt(client, {
         hash,
       }),
     ).rejects.toThrowError('Transaction receipt with hash')
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(500)
 
     const {
@@ -337,7 +338,7 @@ describe('e2e', () => {
       effectiveGasPrice,
       transactionHash,
       ...receipt
-    } = await getTransactionReceipt(publicClient, {
+    } = await getTransactionReceipt(client, {
       hash,
     })
 
@@ -365,7 +366,7 @@ describe('e2e', () => {
 
 test('throws if transaction not found', async () => {
   await expect(
-    getTransactionReceipt(publicClient, {
+    getTransactionReceipt(client, {
       hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`

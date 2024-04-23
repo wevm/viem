@@ -11,11 +11,11 @@ import { extractMessages, getIpcRpcClient } from './ipc.js'
 
 const client = createClient({
   chain: anvilMainnet.chain,
-  transport: http('http://127.0.0.1:6969'),
+  transport: http('http://127.0.0.1:6968'),
 }).extend(() => ({ mode: 'anvil' }))
 
 const anvil = createAnvil({
-  port: 6969,
+  port: 6968,
   ipc: anvilMainnet.rpcUrl.ipc,
   forkBlockNumber: anvilMainnet.forkBlockNumber,
   forkUrl: anvilMainnet.forkUrl,
@@ -267,7 +267,7 @@ describe('request', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 2,
+        "id": 7,
         "jsonrpc": "2.0",
       }
     `,
@@ -295,7 +295,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":3,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":9,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@1.0.2]
@@ -324,7 +324,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":4,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@1.0.2]
@@ -459,7 +459,7 @@ describe('request (subscription)', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 21,
+        "id": 31,
         "jsonrpc": "2.0",
       }
     `)
@@ -720,7 +720,7 @@ describe('requestAsync', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 136,
+        "id": 151,
         "jsonrpc": "2.0",
       }
     `,

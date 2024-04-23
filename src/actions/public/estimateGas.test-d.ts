@@ -1,17 +1,19 @@
 import { test } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { estimateGas } from './estimateGas.js'
 
+const client = anvilMainnet.getClient()
+
 test('legacy', () => {
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -19,7 +21,7 @@ test('legacy', () => {
   })
 
   // @ts-expect-error
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -27,7 +29,7 @@ test('legacy', () => {
     type: 'legacy',
   })
   // @ts-expect-error
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
@@ -36,14 +38,14 @@ test('legacy', () => {
 })
 
 test('eip1559', () => {
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
   })
 
   // @ts-expect-error
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -51,7 +53,7 @@ test('eip1559', () => {
   })
 
   // @ts-expect-error
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -59,7 +61,7 @@ test('eip1559', () => {
     type: 'eip1559',
   })
   // @ts-expect-error
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     gasPrice: 0n,
     type: 'eip1559',
@@ -67,14 +69,14 @@ test('eip1559', () => {
 })
 
 test('eip2930', () => {
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     accessList: [],
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     accessList: [],
     gasPrice: 0n,
@@ -83,7 +85,7 @@ test('eip2930', () => {
   })
 
   // @ts-expect-error
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     accessList: [],
     gasPrice: 0n,
@@ -92,7 +94,7 @@ test('eip2930', () => {
     type: 'eip2930',
   })
   // @ts-expect-error
-  estimateGas(publicClient, {
+  estimateGas(client, {
     account: '0x',
     accessList: [],
     maxFeePerGas: 0n,

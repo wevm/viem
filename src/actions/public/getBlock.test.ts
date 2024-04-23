@@ -1,15 +1,17 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { celo } from '../../chains/index.js'
+
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Block } from '../../types/block.js'
 import { getBlock } from './getBlock.js'
 
+const client = anvilMainnet.getClient()
+
 test('gets latest block', async () => {
-  const block = await getBlock(publicClient)
+  const block = await getBlock(client)
   assertType<Block>(block)
   expect(block).toBeDefined()
   expect(Object.keys(block!)).toMatchInlineSnapshot(`
@@ -105,7 +107,7 @@ test('chain w/ custom block type', async () => {
 
 describe('args: blockNumber', () => {
   test('gets block by block number', async () => {
-    const block = await getBlock(publicClient, {
+    const block = await getBlock(client, {
       blockNumber: anvilMainnet.forkBlockNumber - 1n,
     })
     expect(block).toMatchInlineSnapshot(`
@@ -261,7 +263,7 @@ describe('args: blockNumber', () => {
 
 describe('args: blockTag', () => {
   test('gets block by block time (latest)', async () => {
-    const block = await getBlock(publicClient, {
+    const block = await getBlock(client, {
       blockTag: 'latest',
     })
     expect(block).toBeDefined()
@@ -295,7 +297,7 @@ describe('args: blockTag', () => {
   })
 
   test('gets block by block time (pending)', async () => {
-    const block = await getBlock(publicClient, {
+    const block = await getBlock(client, {
       blockTag: 'pending',
     })
     expect(block).toBeDefined()
@@ -329,7 +331,7 @@ describe('args: blockTag', () => {
   })
 
   test('gets block by block time (earliest)', async () => {
-    const block = await getBlock(publicClient, {
+    const block = await getBlock(client, {
       blockTag: 'earliest',
     })
     expect(block).toBeDefined()
@@ -365,10 +367,10 @@ describe('args: blockTag', () => {
 
 describe('args: hash', () => {
   test('gets block by block hash', async () => {
-    const initialBlock = await getBlock(publicClient, {
+    const initialBlock = await getBlock(client, {
       blockNumber: anvilMainnet.forkBlockNumber,
     })
-    const block = await getBlock(publicClient, {
+    const block = await getBlock(client, {
       blockHash: initialBlock!.hash!,
     })
     expect(block).toMatchInlineSnapshot(`
@@ -534,7 +536,7 @@ describe('args: hash', () => {
   })
 
   test('args: includeTransactions', async () => {
-    const block = await getBlock(publicClient, {
+    const block = await getBlock(client, {
       blockNumber: anvilMainnet.forkBlockNumber,
       includeTransactions: true,
     })
@@ -544,7 +546,7 @@ describe('args: hash', () => {
 
 test('non-existent block: throws if block number does not exist', async () => {
   await expect(
-    getBlock(publicClient, {
+    getBlock(client, {
       blockNumber: 69420694206942n,
     }),
   ).rejects.toMatchInlineSnapshot(`
@@ -556,7 +558,7 @@ test('non-existent block: throws if block number does not exist', async () => {
 
 test('non-existent block: throws if block hash does not exist', async () => {
   await expect(
-    getBlock(publicClient, {
+    getBlock(client, {
       blockHash:
         '0xd4a8cf1bf4d05f44480ae4a513d09cddb273880ed249168bf2c523ee9e5c7722',
     }),

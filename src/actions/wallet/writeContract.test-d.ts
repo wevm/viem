@@ -4,12 +4,16 @@ import { assertType, expectTypeOf, test } from 'vitest'
 import { type Address, parseAbi } from 'abitype'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
-import { walletClientWithAccount } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/definitions/mainnet.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { http } from '../../clients/transports/http.js'
 import { type WriteContractParameters, writeContract } from './writeContract.js'
+
+const clientWithAccount = anvilMainnet.getClient({
+  account: true,
+})
 
 test('WriteContractParameters', async () => {
   type Result = WriteContractParameters<typeof seaportAbi, 'cancel'>
@@ -133,20 +137,20 @@ test('with and without chain', () => {
   })
   // @ts-expect-error `chain` is required
   writeContract(client, { ...args })
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     chain: undefined,
   })
 })
 
 test('type: legacy', () => {
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -154,7 +158,7 @@ test('type: legacy', () => {
   })
 
   // @ts-expect-error
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -162,7 +166,7 @@ test('type: legacy', () => {
     type: 'legacy',
   })
   // @ts-expect-error
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
@@ -171,14 +175,14 @@ test('type: legacy', () => {
 })
 
 test('type: eip1559', () => {
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
   })
 
   // @ts-expect-error
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -186,7 +190,7 @@ test('type: eip1559', () => {
   })
 
   // @ts-expect-error
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -194,7 +198,7 @@ test('type: eip1559', () => {
     type: 'eip1559',
   })
   // @ts-expect-error
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     gasPrice: 0n,
     type: 'eip1559',
@@ -202,14 +206,14 @@ test('type: eip1559', () => {
 })
 
 test('type: eip2930', () => {
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     accessList: [],
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     accessList: [],
     gasPrice: 0n,
@@ -218,7 +222,7 @@ test('type: eip2930', () => {
   })
 
   // @ts-expect-error
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     accessList: [],
     gasPrice: 0n,
@@ -227,7 +231,7 @@ test('type: eip2930', () => {
     type: 'eip2930',
   })
   // @ts-expect-error
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     ...args,
     accessList: [],
     maxFeePerGas: 0n,
@@ -238,7 +242,7 @@ test('type: eip2930', () => {
 
 test('args: value', () => {
   // payable function
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     abi: baycContractConfig.abi,
     address: '0x',
     functionName: 'mintApe',
@@ -247,7 +251,7 @@ test('args: value', () => {
   })
 
   // payable function (undefined)
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     abi: baycContractConfig.abi,
     address: '0x',
     functionName: 'mintApe',
@@ -255,7 +259,7 @@ test('args: value', () => {
   })
 
   // nonpayable function
-  writeContract(walletClientWithAccount, {
+  writeContract(clientWithAccount, {
     abi: baycContractConfig.abi,
     address: '0x',
     functionName: 'approve',

@@ -1,25 +1,28 @@
 import { beforeAll, expect, test } from 'vitest'
 
-import { publicClient, setBlockNumber } from '~test/src/utils.js'
+import { setBlockNumber } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
+
 import { http } from '../../clients/transports/http.js'
 
+import { createClient } from '../../clients/createClient.js'
 import { getEnsResolver } from './getEnsResolver.js'
 
+const client = anvilMainnet.getClient()
+
 beforeAll(async () => {
-  await setBlockNumber(19_258_213n)
+  await setBlockNumber(client, 19_258_213n)
 })
 
 test('default', async () => {
   expect(
-    await getEnsResolver(publicClient, {
+    await getEnsResolver(client, {
       name: 'jxom.eth',
     }),
   ).toMatchInlineSnapshot('"0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41"')
   expect(
-    await getEnsResolver(publicClient, {
+    await getEnsResolver(client, {
       name: 'test.eth',
     }),
   ).toMatchInlineSnapshot('"0x226159d592E2b063810a10Ebf6dcbADA94Ed68b8"')
@@ -27,7 +30,7 @@ test('default', async () => {
 
 test('custom universal resolver address', async () => {
   await expect(
-    getEnsResolver(publicClient, {
+    getEnsResolver(client, {
       name: 'awkweb.eth',
       universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
     }),
@@ -39,7 +42,7 @@ test('custom universal resolver address', async () => {
 test('chain not provided', async () => {
   await expect(
     getEnsResolver(
-      createPublicClient({
+      createClient({
         transport: http(anvilMainnet.rpcUrl.http),
       }),
       { name: 'awkweb.eth' },
@@ -52,7 +55,7 @@ test('chain not provided', async () => {
 test('universal resolver contract not configured for chain', async () => {
   await expect(
     getEnsResolver(
-      createPublicClient({
+      createClient({
         chain: optimism,
         transport: http(),
       }),
@@ -72,7 +75,7 @@ test('universal resolver contract not configured for chain', async () => {
 
 test('universal resolver contract deployed on later block', async () => {
   await expect(
-    getEnsResolver(publicClient, {
+    getEnsResolver(client, {
       name: 'jxom.eth',
       blockNumber: 14353601n,
     }),
@@ -88,7 +91,7 @@ test('universal resolver contract deployed on later block', async () => {
 
 test('invalid universal resolver address', async () => {
   await expect(
-    getEnsResolver(publicClient, {
+    getEnsResolver(client, {
       name: 'jxom.eth',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),

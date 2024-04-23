@@ -1,17 +1,14 @@
 import { keccak256 } from 'ethers'
 import { beforeAll, describe, expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
 import {
   optimismClient,
   optimismSepoliaClient,
 } from '../../../test/src/opStack.js'
-import {
-  publicClient,
-  sepoliaClient,
-  setBlockNumber,
-  walletClient,
-} from '../../../test/src/utils.js'
+import { sepoliaClient, setBlockNumber } from '../../../test/src/utils.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
+
 import { getL2Output, getWithdrawals, proveWithdrawal } from '../index.js'
 import {
   buildProveWithdrawal,
@@ -19,11 +16,13 @@ import {
 } from './buildProveWithdrawal.js'
 import { getGame } from './getGame.js'
 
+const client = anvilMainnet.getClient()
+
 beforeAll(async () => {
-  await setBlockNumber(18772363n)
+  await setBlockNumber(client, 18772363n)
 })
 
-// TODO(fault-proofs): convert to `publicClient` & `optimismClient` when fault proofs deployed to mainnet.
+// TODO(fault-proofs): convert to `client` & `optimismClient` when fault proofs deployed to mainnet.
 test('default', async () => {
   await reset(sepoliaClient, {
     blockNumber: 5528129n,
@@ -86,7 +85,7 @@ test('args: output (legacy)', async () => {
   })
 
   const [withdrawal] = getWithdrawals(receipt)
-  const output = await getL2Output(publicClient, {
+  const output = await getL2Output(client, {
     l2BlockNumber: receipt.blockNumber,
     targetChain: optimismClient.chain,
   })
@@ -127,7 +126,7 @@ test('args: output (legacy)', async () => {
     }
   `)
 
-  const hash = await proveWithdrawal(walletClient, request)
+  const hash = await proveWithdrawal(client, request)
   expect(hash).toBeDefined()
 }, 20_000)
 
@@ -163,7 +162,7 @@ describe('proof nodes', () => {
     })
 
     const [withdrawal] = getWithdrawals(receipt)
-    const output = await getL2Output(publicClient, {
+    const output = await getL2Output(client, {
       l2BlockNumber: receipt.blockNumber,
       targetChain: optimismClient.chain,
     })

@@ -4,15 +4,17 @@ import { bench, describe } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { ethersProvider } from '~test/src/bench.js'
-import { publicClient } from '~test/src/utils.js'
 
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { getContract } from './getContract.js'
+
+const client = anvilMainnet.getClient()
 
 describe('Create contract instance', () => {
   bench('viem: `getContract`', async () => {
     getContract({
       ...wagmiContractConfig,
-      client: { public: publicClient },
+      client,
     })
   })
 
@@ -27,7 +29,7 @@ describe('Create contract instance', () => {
 
 const viemContract = getContract({
   ...wagmiContractConfig,
-  client: { public: publicClient },
+  client,
 })
 const ethersContract = new Contract(
   wagmiContractConfig.address,

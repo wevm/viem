@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/index.js'
+
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import { MethodNotSupportedRpcError } from '../../errors/rpc.js'
@@ -13,20 +13,22 @@ import {
 } from './estimateMaxPriorityFeePerGas.js'
 import * as getBlock from './getBlock.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  expect(await estimateMaxPriorityFeePerGas(publicClient)).toBeDefined()
+  expect(await estimateMaxPriorityFeePerGas(client)).toBeDefined()
 })
 
 test('fallback', async () => {
-  const client = publicClient
-  client.request = buildRequest(({ method, params }) => {
+  const client_1 = client
+  client_1.request = buildRequest(({ method, params }) => {
     if (method === 'eth_maxPriorityFeePerGas')
       throw new MethodNotSupportedRpcError(new Error('unsupported'))
 
     return client.transport.request({ method, params })
   })
 
-  expect(await estimateMaxPriorityFeePerGas(client)).toBeDefined()
+  expect(await estimateMaxPriorityFeePerGas(client_1)).toBeDefined()
 })
 
 test('args: chain `defaultPriorityFee` override', async () => {
@@ -174,7 +176,7 @@ test('chain does not support eip1559', async () => {
   } as any)
 
   await expect(() =>
-    estimateMaxPriorityFeePerGas(publicClient),
+    estimateMaxPriorityFeePerGas(client),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
@@ -187,7 +189,7 @@ test('maxPriorityFeePerGas < 0', async () => {
     baseFeePerGas: 999999999999999999999n,
   } as any)
 
-  expect(await estimateMaxPriorityFeePerGas(publicClient)).toBe(0n)
+  expect(await estimateMaxPriorityFeePerGas(client)).toBe(0n)
 })
 
 describe('mainnet smoke', () => {
@@ -211,9 +213,9 @@ describe('mainnet smoke', () => {
 
 describe('internal_estimateMaxPriorityFeePerGas', () => {
   test('args: block', async () => {
-    const block = await getBlock.getBlock(publicClient)
+    const block = await getBlock.getBlock(client)
     const maxPriorityFeePerGas = await internal_estimateMaxPriorityFeePerGas(
-      publicClient,
+      client,
       {
         block,
       },

@@ -1,8 +1,11 @@
 import { expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
 import { optimismClient } from '../../../test/src/opStack.js'
-import { publicClient } from '../../../test/src/utils.js'
+
 import { estimateProveWithdrawalGas } from './estimateProveWithdrawalGas.js'
+
+const client = anvilMainnet.getClient()
 
 const args = {
   l2OutputIndex: 4529n,
@@ -35,7 +38,7 @@ const args = {
 } as const
 
 test('default', async () => {
-  const gas = await estimateProveWithdrawalGas(publicClient, {
+  const gas = await estimateProveWithdrawalGas(client, {
     account: accounts[0].address,
     targetChain: optimismClient.chain,
     ...args,

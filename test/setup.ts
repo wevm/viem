@@ -9,7 +9,9 @@ import { socketClientCache } from '~viem/utils/rpc/socket.js'
 
 import { anvilMainnet } from './src/anvil.js'
 import { poolId } from './src/constants.js'
-import { setBlockNumber, testClient } from './src/utils.js'
+import { setBlockNumber } from './src/utils.js'
+
+const client = anvilMainnet.getClient()
 
 beforeAll(() => {
   vi.mock('../src/errors/utils.ts', () => ({
@@ -29,7 +31,7 @@ beforeEach(async () => {
   socketClientCache.clear()
 
   if (process.env.SKIP_GLOBAL_SETUP) return
-  await setIntervalMining(testClient, { interval: 0 })
+  await setIntervalMining(client, { interval: 0 })
 }, 20_000)
 
 afterAll(async () => {
@@ -37,7 +39,7 @@ afterAll(async () => {
 
   if (process.env.SKIP_GLOBAL_SETUP) return
   // Reset the anvil instance to the same state it was in before the tests started.
-  await setBlockNumber(anvilMainnet.forkBlockNumber)
+  await setBlockNumber(client, anvilMainnet.forkBlockNumber)
 })
 
 afterEach((context) => {

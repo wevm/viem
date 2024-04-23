@@ -1,20 +1,21 @@
 import { expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { publicClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getStorageAt } from './getStorageAt.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
   expect(
-    await getStorageAt(publicClient, {
+    await getStorageAt(client, {
       address: wagmiContractConfig.address,
       slot: '0x0',
     }),
   ).toBe('0x7761676d6900000000000000000000000000000000000000000000000000000a')
   expect(
-    await getStorageAt(publicClient, {
+    await getStorageAt(client, {
       address: wagmiContractConfig.address,
       slot: '0x1',
     }),
@@ -23,7 +24,7 @@ test('default', async () => {
 
 test('args: blockNumber', async () => {
   expect(
-    await getStorageAt(publicClient, {
+    await getStorageAt(client, {
       address: wagmiContractConfig.address,
       slot: '0x0',
       blockNumber: anvilMainnet.forkBlockNumber,

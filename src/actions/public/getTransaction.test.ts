@@ -1,7 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { celo, holesky } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -16,11 +15,13 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 
+const client = anvilMainnet.getClient()
+
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 test('gets transaction', async () => {
-  const transaction = await getTransaction(publicClient, {
+  const transaction = await getTransaction(client, {
     blockNumber: 15131999n,
     index: 69,
   })
@@ -53,7 +54,7 @@ test('gets transaction', async () => {
 })
 
 test('gets transaction (legacy)', async () => {
-  const transaction = await getTransaction(publicClient, {
+  const transaction = await getTransaction(client, {
     blockNumber: 15131999n,
     index: 0,
   })
@@ -81,14 +82,14 @@ test('gets transaction (legacy)', async () => {
 })
 
 test('gets transaction (eip2930)', async () => {
-  const block = await getBlock(publicClient)
+  const block = await getBlock(client)
 
-  await setBalance(testClient, {
+  await setBalance(client, {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
 
-  const hash = await sendTransaction(walletClient, {
+  const hash = await sendTransaction(client, {
     accessList: [{ address: targetAccount.address, storageKeys: [] }],
     account: sourceAccount.address,
     to: targetAccount.address,
@@ -96,7 +97,7 @@ test('gets transaction (eip2930)', async () => {
     gasPrice: BigInt((block.baseFeePerGas ?? 0n) * 2n),
   })
 
-  const transaction = await getTransaction(publicClient, {
+  const transaction = await getTransaction(client, {
     hash,
   })
   expect(Object.keys(transaction)).toMatchInlineSnapshot(`
@@ -213,7 +214,7 @@ test('chain w/ custom block type', async () => {
 
 describe('args: hash', () => {
   test('gets transaction by hash', async () => {
-    const transaction = await getTransaction(publicClient, {
+    const transaction = await getTransaction(client, {
       hash: '0x886df53066105ebe390f3efcb4a523d7178597da84dfaa1bbc524e2b20b5650c',
     })
     expect(transaction).toMatchInlineSnapshot(`
@@ -245,7 +246,7 @@ describe('args: hash', () => {
 
   test('throws if transaction not found', async () => {
     // await expect(
-    //   getTransaction(publicClient, {
+    //   getTransaction(client, {
     //     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
     //   }),
     // ).rejects.toThrowError(
@@ -253,7 +254,7 @@ describe('args: hash', () => {
     // )
     // TODO: file foundry issue
     await expect(
-      getTransaction(publicClient, {
+      getTransaction(client, {
         hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -270,7 +271,7 @@ describe('args: hash', () => {
 
 describe('args: blockHash', () => {
   test('blockHash: gets transaction by block hash & index', async () => {
-    const transaction = await getTransaction(publicClient, {
+    const transaction = await getTransaction(client, {
       blockHash:
         '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
       index: 5,
@@ -299,13 +300,13 @@ describe('args: blockHash', () => {
   }, 10000)
 
   test('blockHash: throws if transaction not found', async () => {
-    const { hash: blockHash } = await getBlock(publicClient, {
+    const { hash: blockHash } = await getBlock(client, {
       blockNumber: anvilMainnet.forkBlockNumber - 69n,
     })
     if (!blockHash) throw new Error('no block hash found')
 
     await expect(
-      getTransaction(publicClient, {
+      getTransaction(client, {
         blockHash,
         index: 420,
       }),
@@ -315,7 +316,7 @@ describe('args: blockHash', () => {
 
 describe('args: blockNumber', () => {
   test('gets transaction by block number & index', async () => {
-    const transaction = await getTransaction(publicClient, {
+    const transaction = await getTransaction(client, {
       blockNumber: 15131999n,
       index: 5,
     })
@@ -344,7 +345,7 @@ describe('args: blockNumber', () => {
 
   test('throws if transaction not found', async () => {
     await expect(
-      getTransaction(publicClient, {
+      getTransaction(client, {
         blockNumber: 15131999n,
         index: 420,
       }),
@@ -356,16 +357,16 @@ describe('args: blockNumber', () => {
 
 describe('args: blockTag', () => {
   test('gets transaction by block tag & index', async () => {
-    await sendTransaction(walletClient, {
+    await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
     })
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
 
-    const transaction = await getTransaction(publicClient, {
+    const transaction = await getTransaction(client, {
       blockTag: 'latest',
       index: 0,
     })

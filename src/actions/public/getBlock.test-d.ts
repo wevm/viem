@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
 import { http, createPublicClient } from '../../index.js'
 import type { Hash, Hex } from '../../types/misc.js'
@@ -8,23 +8,25 @@ import type { Transaction } from '../../types/transaction.js'
 import type { Prettify } from '../../types/utils.js'
 import { getBlock } from './getBlock.js'
 
+const client = anvilMainnet.getClient()
+
 test('includeTransactions = false', async () => {
-  const block_1 = await getBlock(publicClient)
+  const block_1 = await getBlock(client)
   expectTypeOf(block_1.transactions).toEqualTypeOf<Hash[]>()
 
-  const block_2 = await getBlock(publicClient, { includeTransactions: false })
+  const block_2 = await getBlock(client, { includeTransactions: false })
   expectTypeOf(block_2.transactions).toEqualTypeOf<Hash[]>()
 })
 
 test('includeTransactions = true', async () => {
-  const block = await getBlock(publicClient, { includeTransactions: true })
+  const block = await getBlock(client, { includeTransactions: true })
   expectTypeOf(block.transactions).toEqualTypeOf<
     Prettify<Transaction<bigint, number, false>>[]
   >()
 })
 
 test('blockTag = "latest" & includeTransactions = true', async () => {
-  const block = await getBlock(publicClient, { includeTransactions: true })
+  const block = await getBlock(client, { includeTransactions: true })
   expectTypeOf(block.hash).toEqualTypeOf<Hex>()
   expectTypeOf(block.logsBloom).toEqualTypeOf<Hex>()
   expectTypeOf(block.nonce).toEqualTypeOf<Hex>()
@@ -35,7 +37,7 @@ test('blockTag = "latest" & includeTransactions = true', async () => {
 })
 
 test('blockTag = "pending" & includeTransactions = true', async () => {
-  const block = await getBlock(publicClient, {
+  const block = await getBlock(client, {
     blockTag: 'pending',
     includeTransactions: true,
   })

@@ -1,20 +1,20 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import {
-  deployEnsAvatarTokenUri,
-  publicClient,
-  setBlockNumber,
-} from '~test/src/utils.js'
+import { deployEnsAvatarTokenUri, setBlockNumber } from '~test/src/utils.js'
+
+import { anvilMainnet } from '../../../../test/src/anvil.js'
 
 import { parseAvatarRecord } from './parseAvatarRecord.js'
 
+const client = anvilMainnet.getClient()
+
 beforeAll(async () => {
-  await setBlockNumber(19_258_213n)
+  await setBlockNumber(client, 19_258_213n)
 })
 
 test('default', async () => {
   expect(
-    await parseAvatarRecord(publicClient, {
+    await parseAvatarRecord(client, {
       record:
         'https://images2.minutemediacdn.com/image/upload/c_fill,w_1440,ar_16:9,f_auto,q_auto,g_auto/shape/cover/sport/62455-shout-factory1-869b74b647b88045caac956956bd1ff8.jpg',
     }),
@@ -27,7 +27,7 @@ describe('nft', () => {
   test('default ({id} template)', async () => {
     const { contractAddress } = await deployEnsAvatarTokenUri()
     expect(
-      await parseAvatarRecord(publicClient, {
+      await parseAvatarRecord(client, {
         record: `eip155:1/erc721:${contractAddress}/69`,
       }),
     ).toMatchInlineSnapshot(
@@ -38,7 +38,7 @@ describe('nft', () => {
   test('onchain (encoded json)', async () => {
     const { contractAddress } = await deployEnsAvatarTokenUri()
     expect(
-      await parseAvatarRecord(publicClient, {
+      await parseAvatarRecord(client, {
         record: `eip155:1/erc721:${contractAddress}/100`,
       }),
     ).toMatchInlineSnapshot(
@@ -49,7 +49,7 @@ describe('nft', () => {
   test('onchain (raw json)', async () => {
     const { contractAddress } = await deployEnsAvatarTokenUri()
     expect(
-      await parseAvatarRecord(publicClient, {
+      await parseAvatarRecord(client, {
         record: `eip155:1/erc721:${contractAddress}/108`,
       }),
     ).toMatchInlineSnapshot(
@@ -59,7 +59,7 @@ describe('nft', () => {
 
   test('erc 1155', async () => {
     expect(
-      await parseAvatarRecord(publicClient, {
+      await parseAvatarRecord(client, {
         record:
           'eip155:1/erc1155:0xb32979486938aa9694bfc898f35dbed459f44424/10063',
       }),

@@ -11,7 +11,7 @@ const games = await getGames(sepoliaClient, {
 const [game] = games
 const l2BlockNumber = game.l2BlockNumber
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+// TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
 test('default', async () => {
   const { interval, seconds, timestamp } = await getTimeToNextGame(
     sepoliaClient,

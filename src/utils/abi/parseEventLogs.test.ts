@@ -1,10 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
-
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getLogs } from '../../actions/public/getLogs.js'
+
 import { parseEventLogs } from './parseEventLogs.js'
+
+const client = anvilMainnet.getClient()
 
 const abi = [
   {
@@ -52,7 +53,7 @@ const abi = [
 ] as const
 
 test('default', async () => {
-  const logs = await getLogs(publicClient, {
+  const logs = await getLogs(client, {
     fromBlock: anvilMainnet.forkBlockNumber - 5n,
     toBlock: anvilMainnet.forkBlockNumber,
   })
@@ -88,7 +89,7 @@ test('default', async () => {
 })
 
 test('args: eventName', async () => {
-  const logs = await getLogs(publicClient, {
+  const logs = await getLogs(client, {
     fromBlock: anvilMainnet.forkBlockNumber - 5n,
     toBlock: anvilMainnet.forkBlockNumber,
   })
@@ -185,7 +186,7 @@ test('args: eventName', async () => {
 })
 
 test('args: strict', async () => {
-  const logs = await getLogs(publicClient, {
+  const logs = await getLogs(client, {
     fromBlock: anvilMainnet.forkBlockNumber - 5n,
     toBlock: anvilMainnet.forkBlockNumber,
   })

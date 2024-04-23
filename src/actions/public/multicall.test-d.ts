@@ -4,13 +4,16 @@ import { expectTypeOf, test } from 'vitest'
 
 import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
 import { address } from '~test/src/constants.js'
-import { publicClient } from '~test/src/utils.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import type { MulticallResponse } from '../../types/multicall.js'
 import { multicall } from './multicall.js'
 
+const client = anvilMainnet.getClient()
+
 test('single result', async () => {
-  const res = await multicall(publicClient, {
+  const res = await multicall(client, {
     allowFailure: false,
     contracts: [
       {
@@ -38,12 +41,12 @@ test('const asserted', async () => {
       functionName: 'name',
     },
   ] as const
-  const res = await multicall(publicClient, { allowFailure: false, contracts })
+  const res = await multicall(client, { allowFailure: false, contracts })
   expectTypeOf(res).toEqualTypeOf<[bigint, bigint, string]>()
 })
 
 test('all known', async () => {
-  const res = await multicall(publicClient, {
+  const res = await multicall(client, {
     allowFailure: false,
     contracts: [
       {
@@ -65,7 +68,7 @@ test('all known', async () => {
 })
 
 test('mixed', async () => {
-  const res = await multicall(publicClient, {
+  const res = await multicall(client, {
     allowFailure: false,
     contracts: [
       {
@@ -92,7 +95,7 @@ test('mixed', async () => {
 })
 
 test('dynamic', async () => {
-  const res = await multicall(publicClient, {
+  const res = await multicall(client, {
     allowFailure: false,
     contracts: [
       {
@@ -114,7 +117,7 @@ test('dynamic', async () => {
     (string | number | bigint | boolean | void)[]
   >()
 
-  const res2 = await multicall(publicClient, {
+  const res2 = await multicall(client, {
     allowFailure: false,
     contracts: (
       [
@@ -155,7 +158,7 @@ test('with unknown', async () => {
     },
   ]
 
-  const res = await multicall(publicClient, {
+  const res = await multicall(client, {
     allowFailure: false,
     contracts: [
       {
@@ -200,7 +203,7 @@ test('many contracts of differing types', async () => {
     },
   ]
 
-  const res = await multicall(publicClient, {
+  const res = await multicall(client, {
     allowFailure: false,
     contracts: [
       {
@@ -284,7 +287,7 @@ test('overloads', async () => {
     'function bar() view returns (int8)',
   ])
 
-  const res = await multicall(publicClient, {
+  const res = await multicall(client, {
     allowFailure: false,
     contracts: [
       {
@@ -329,7 +332,7 @@ test('MulticallParameters', async () => {
           functionName: 'foo'
         },
       ],
-      typeof publicClient.chain
+      typeof client.chain
     >
   >[1]['contracts'][0]
   expectTypeOf<Result>().toEqualTypeOf<{
@@ -346,7 +349,7 @@ test('MulticallParameters', async () => {
 })
 
 test('allowFailure: true', async () => {
-  const res = await multicall(publicClient, {
+  const res = await multicall(client, {
     allowFailure: true,
     contracts: [
       {

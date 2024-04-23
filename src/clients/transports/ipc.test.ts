@@ -12,11 +12,11 @@ import { type IpcTransport, ipc } from './ipc.js'
 
 const client = createClient({
   chain: anvilMainnet.chain,
-  transport: http('http://127.0.0.1:6969'),
+  transport: http('http://127.0.0.1:6967'),
 }).extend(() => ({ mode: 'anvil' }))
 
 const anvil = createAnvil({
-  port: 6969,
+  port: 6967,
   ipc: anvilMainnet.rpcUrl.ipc,
   forkBlockNumber: anvilMainnet.forkBlockNumber,
   forkUrl: anvilMainnet.forkUrl,

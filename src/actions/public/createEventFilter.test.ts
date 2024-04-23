@@ -1,13 +1,16 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { createHttpServer, publicClient } from '~test/src/utils.js'
+import { createHttpServer } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { createEventFilter } from './createEventFilter.js'
+
+const client = anvilMainnet.getClient()
 
 const event = {
   default: {
@@ -76,7 +79,7 @@ const request = (() => {}) as unknown as EIP1193RequestFn
 
 describe('default', () => {
   test('no args', async () => {
-    const filter = await createEventFilter(publicClient)
+    const filter = await createEventFilter(client)
     assertType<typeof filter>({
       id: '0x',
       request,
@@ -90,13 +93,13 @@ describe('default', () => {
   })
 
   test('args: address', async () => {
-    await createEventFilter(publicClient, {
+    await createEventFilter(client, {
       address: accounts[0].address,
     })
   })
 
   test('args: event', async () => {
-    const filter = await createEventFilter(publicClient, {
+    const filter = await createEventFilter(client, {
       event: event.default,
     })
     assertType<typeof filter>({
@@ -113,7 +116,7 @@ describe('default', () => {
   })
 
   test('args: events', async () => {
-    const filter = await createEventFilter(publicClient, {
+    const filter = await createEventFilter(client, {
       events: [event.default, event.approve],
     })
     assertType<typeof filter>({
@@ -130,7 +133,7 @@ describe('default', () => {
   })
 
   test('args: args (named)', async () => {
-    const filter = await createEventFilter(publicClient, {
+    const filter = await createEventFilter(client, {
       event: event.default,
       args: {
         from: accounts[0].address,
@@ -156,7 +159,7 @@ describe('default', () => {
     expect(filter.abi).toEqual([event.default])
     expect(filter.eventName).toEqual('Transfer')
 
-    const filter2 = await createEventFilter(publicClient, {
+    const filter2 = await createEventFilter(client, {
       event: event.default,
       args: {
         from: accounts[0].address,
@@ -179,7 +182,7 @@ describe('default', () => {
     expect(filter2.abi).toEqual([event.default])
     expect(filter2.eventName).toEqual('Transfer')
 
-    const filter3 = await createEventFilter(publicClient, {
+    const filter3 = await createEventFilter(client, {
       event: event.default,
       args: {
         to: [accounts[0].address, accounts[1].address],
@@ -204,7 +207,7 @@ describe('default', () => {
   })
 
   test('args: args (unnamed)', async () => {
-    const filter1 = await createEventFilter(publicClient, {
+    const filter1 = await createEventFilter(client, {
       event: event.unnamed,
       args: [accounts[0].address, accounts[1].address],
     })
@@ -221,7 +224,7 @@ describe('default', () => {
     expect(filter1.abi).toEqual([event.unnamed])
     expect(filter1.eventName).toEqual('Transfer')
 
-    const filter2 = await createEventFilter(publicClient, {
+    const filter2 = await createEventFilter(client, {
       event: event.unnamed,
       args: [[accounts[0].address, accounts[1].address]],
     })
@@ -238,7 +241,7 @@ describe('default', () => {
     expect(filter2.abi).toEqual([event.unnamed])
     expect(filter2.eventName).toEqual('Transfer')
 
-    const filter3 = await createEventFilter(publicClient, {
+    const filter3 = await createEventFilter(client, {
       event: event.unnamed,
       args: [null, accounts[0].address],
     })
@@ -257,22 +260,22 @@ describe('default', () => {
   })
 
   test('args: fromBlock', async () => {
-    await createEventFilter(publicClient, {
+    await createEventFilter(client, {
       event: event.default,
       fromBlock: anvilMainnet.forkBlockNumber,
     })
-    await createEventFilter(publicClient, {
+    await createEventFilter(client, {
       event: event.default,
       fromBlock: 'latest',
     })
   })
 
   test('args: toBlock', async () => {
-    await createEventFilter(publicClient, {
+    await createEventFilter(client, {
       event: event.default,
       toBlock: anvilMainnet.forkBlockNumber,
     })
-    await createEventFilter(publicClient, {
+    await createEventFilter(client, {
       event: event.default,
       toBlock: 'latest',
     })

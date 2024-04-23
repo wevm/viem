@@ -2,17 +2,11 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
-import {
-  holeskyClient,
-  publicClient,
-  setBlockNumber,
-  testClient,
-  walletClient,
-  walletClientWithAccount,
-} from '~test/src/utils.js'
+import { holeskyClient, setBlockNumber } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
+
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { type Hex } from '../../types/misc.js'
@@ -34,49 +28,54 @@ import { setBalance } from '../test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
 import { sendTransaction } from './sendTransaction.js'
 
+const client = anvilMainnet.getClient()
+const clientWithAccount = anvilMainnet.getClient({
+  account: accounts[0].address,
+})
+
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 async function setup() {
-  await setBalance(testClient, {
+  await setBalance(client, {
     address: sourceAccount.address,
     value: sourceAccount.balance,
   })
-  await setBalance(testClient, {
+  await setBalance(client, {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
-  await setNextBlockBaseFeePerGas(testClient, {
+  await setNextBlockBaseFeePerGas(client, {
     baseFeePerGas: parseGwei('10'),
   })
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 }
 
 test('sends transaction', async () => {
   await setup()
 
   expect(
-    await getBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(client, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await getBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(client, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
   expect(
-    await sendTransaction(walletClient, {
+    await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
     }),
   ).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
   expect(
-    await getBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(client, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
-    await getBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(client, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
 })
 
@@ -93,14 +92,14 @@ test('sends transaction (w/ formatter)', async () => {
   })
 
   expect(
-    await getBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(client, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await getBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(client, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
   expect(
-    await sendTransaction(walletClient, {
+    await sendTransaction(client, {
       chain,
       account: sourceAccount.address,
       to: targetAccount.address,
@@ -108,20 +107,20 @@ test('sends transaction (w/ formatter)', async () => {
     }),
   ).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
   expect(
-    await getBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(client, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
-    await getBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(client, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
 })
 
 test('sends transaction (w/ serializer)', async () => {
   await setup()
 
-  await setBlockNumber(anvilMainnet.forkBlockNumber)
+  await setBlockNumber(client, anvilMainnet.forkBlockNumber)
 
   const serializer = vi.fn(
     (
@@ -167,7 +166,7 @@ test('sends transaction (w/ serializer)', async () => {
   })
 
   await expect(() =>
-    sendTransaction(walletClient, {
+    sendTransaction(client, {
       chain,
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
@@ -185,36 +184,36 @@ test.skip('sends transaction w/ no value', async () => {
   await setup()
 
   expect(
-    await getBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(client, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await getBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(client, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
   expect(
-    await sendTransaction(walletClient, {
+    await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
     }),
   ).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
   expect(
-    await getBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(client, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await getBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(client, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
 })
 
 test('client chain mismatch', async () => {
-  const walletClient = createWalletClient({
+  const client = createWalletClient({
     chain: celo,
     transport: http(anvilMainnet.rpcUrl.http),
   })
   await expect(() =>
-    sendTransaction(walletClient, {
+    sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -238,7 +237,7 @@ test('inferred account', async () => {
   await setup()
 
   expect(
-    await sendTransaction(walletClientWithAccount, {
+    await sendTransaction(clientWithAccount, {
       to: targetAccount.address,
       value: parseEther('1'),
       gas: 1_000_000n,
@@ -247,12 +246,12 @@ test('inferred account', async () => {
 })
 
 test('no chain', async () => {
-  const walletClient = createWalletClient({
+  const client = createWalletClient({
     transport: http(anvilMainnet.rpcUrl.http),
   })
   await expect(() =>
     // @ts-expect-error
-    sendTransaction(walletClient, {
+    sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -275,14 +274,14 @@ describe('args: gas', () => {
     await setup()
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -290,13 +289,13 @@ describe('args: gas', () => {
       }),
     ).toBeDefined()
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 })
@@ -305,17 +304,17 @@ describe('args: gasPrice', () => {
   test('sends transaction', async () => {
     await setup()
 
-    const block = await getBlock(publicClient)
+    const block = await getBlock(client)
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -323,23 +322,23 @@ describe('args: gasPrice', () => {
       }),
     ).toBeDefined()
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
   test('errors when account has insufficient funds', async () => {
     await setup()
 
-    const block = await getBlock(publicClient)
+    const block = await getBlock(client)
 
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -375,16 +374,16 @@ describe('args: maxFeePerGas', () => {
   test('sends transaction', async () => {
     await setup()
 
-    const block = await getBlock(publicClient)
+    const block = await getBlock(client)
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -392,16 +391,16 @@ describe('args: maxFeePerGas', () => {
     })
     expect(hash).toBeDefined()
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
 
-    const transaction = await getTransaction(publicClient, { hash })
+    const transaction = await getTransaction(client, { hash })
     expect(transaction.maxFeePerGas).toBe(
       BigInt((block.baseFeePerGas ?? 0n) * 2n),
     )
@@ -410,10 +409,10 @@ describe('args: maxFeePerGas', () => {
   test('errors when account has insufficient funds', async () => {
     await setup()
 
-    const block = await getBlock(publicClient)
+    const block = await getBlock(client)
 
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -450,14 +449,14 @@ describe('args: maxPriorityFeePerGas', () => {
     await setup()
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -465,30 +464,30 @@ describe('args: maxPriorityFeePerGas', () => {
       }),
     ).toBeDefined()
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
   test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
     await setup()
 
-    const block = await getBlock(publicClient)
+    const block = await getBlock(client)
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -497,13 +496,13 @@ describe('args: maxPriorityFeePerGas', () => {
       }),
     ).toBeDefined()
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 })
@@ -512,20 +511,20 @@ describe('args: nonce', () => {
   test('sends transaction', async () => {
     await setup()
 
-    const transactionCount = (await publicClient.request({
+    const transactionCount = (await client.request({
       method: 'eth_getTransactionCount',
       params: [sourceAccount.address, 'latest'],
     }))!
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -533,13 +532,13 @@ describe('args: nonce', () => {
       }),
     ).toBeDefined()
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 })
@@ -547,7 +546,7 @@ describe('args: nonce', () => {
 describe('args: chain', async () => {
   test('default', async () => {
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         chain: anvilMainnet.chain,
         account: sourceAccount.address,
         to: targetAccount.address,
@@ -558,7 +557,7 @@ describe('args: chain', async () => {
 
   test('nullish', async () => {
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         chain: null,
         account: sourceAccount.address,
         to: targetAccount.address,
@@ -569,7 +568,7 @@ describe('args: chain', async () => {
 
   test('chain mismatch', async () => {
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         chain: optimism,
         account: sourceAccount.address,
         to: targetAccount.address,
@@ -596,32 +595,32 @@ describe('local account', () => {
   test('default', async () => {
     await setup()
 
-    const fees = await estimateFeesPerGas(publicClient)
+    const fees = await estimateFeesPerGas(client)
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
     expect(hash).toBeDefined()
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
 
-    const transaction = await getTransaction(publicClient, { hash })
+    const transaction = await getTransaction(client, { hash })
     expect(transaction.maxFeePerGas).toBe(fees.maxFeePerGas)
     expect(transaction.maxPriorityFeePerGas).toBe(fees.maxPriorityFeePerGas)
     expect(transaction.gas).toBe(21000n)
@@ -631,33 +630,33 @@ describe('local account', () => {
     await setup()
 
     expect(
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
       }),
     ).toBeDefined()
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
   test('args: gas', async () => {
     await setup()
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
@@ -665,22 +664,22 @@ describe('local account', () => {
     })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
 
-    const transaction = await getTransaction(publicClient, { hash })
+    const transaction = await getTransaction(client, { hash })
     expect(transaction.gas).toBe(1_000_000n)
   })
 
@@ -688,29 +687,29 @@ describe('local account', () => {
     await setup()
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: mainnet,
       to: targetAccount.address,
       value: parseEther('1'),
     })
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
 
-    const transaction = await getTransaction(publicClient, { hash })
+    const transaction = await getTransaction(client, { hash })
     expect(transaction.chainId).toBe(1)
   })
 
@@ -718,29 +717,29 @@ describe('local account', () => {
     await setup()
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: null,
       to: targetAccount.address,
       value: parseEther('1'),
     })
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
     expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await getBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(client, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
 
-    const transaction = await getTransaction(publicClient, { hash })
+    const transaction = await getTransaction(client, { hash })
     expect(transaction.chainId).toBe(1)
   })
 
@@ -748,16 +747,16 @@ describe('local account', () => {
     test('sends transaction', async () => {
       await setup()
 
-      const fees = await estimateFeesPerGas(publicClient)
+      const fees = await estimateFeesPerGas(client)
 
       expect(
-        await getBalance(publicClient, { address: targetAccount.address }),
+        await getBalance(client, { address: targetAccount.address }),
       ).toMatchInlineSnapshot('10000000000000000000000n')
       expect(
-        await getBalance(publicClient, { address: sourceAccount.address }),
+        await getBalance(client, { address: sourceAccount.address }),
       ).toMatchInlineSnapshot('10000000000000000000000n')
 
-      const hash = await sendTransaction(walletClient, {
+      const hash = await sendTransaction(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
@@ -765,26 +764,26 @@ describe('local account', () => {
       })
       expect(hash).toBeDefined()
 
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
       expect(
-        await getBalance(publicClient, { address: targetAccount.address }),
+        await getBalance(client, { address: targetAccount.address }),
       ).toMatchInlineSnapshot('10001000000000000000000n')
       expect(
-        await getBalance(publicClient, { address: sourceAccount.address }),
+        await getBalance(client, { address: sourceAccount.address }),
       ).toBeLessThan(sourceAccount.balance)
 
-      const transaction = await getTransaction(publicClient, { hash })
+      const transaction = await getTransaction(client, { hash })
       expect(transaction.maxFeePerGas).toBe(fees.maxFeePerGas)
     })
 
     test('errors when account has insufficient funds', async () => {
       await setup()
 
-      const block = await getBlock(publicClient)
+      const block = await getBlock(client)
 
       await expect(() =>
-        sendTransaction(walletClient, {
+        sendTransaction(client, {
           account: privateKeyToAccount(sourceAccount.privateKey),
           to: targetAccount.address,
           value: parseEther('1'),
@@ -838,13 +837,13 @@ describe('local account', () => {
       await setup()
 
       expect(
-        await getBalance(publicClient, { address: targetAccount.address }),
+        await getBalance(client, { address: targetAccount.address }),
       ).toMatchInlineSnapshot('10000000000000000000000n')
       expect(
-        await getBalance(publicClient, { address: sourceAccount.address }),
+        await getBalance(client, { address: sourceAccount.address }),
       ).toMatchInlineSnapshot('10000000000000000000000n')
 
-      const hash = await sendTransaction(walletClient, {
+      const hash = await sendTransaction(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
@@ -852,32 +851,32 @@ describe('local account', () => {
       })
       expect(hash).toBeDefined()
 
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
       expect(
-        await getBalance(publicClient, { address: targetAccount.address }),
+        await getBalance(client, { address: targetAccount.address }),
       ).toMatchInlineSnapshot('10001000000000000000000n')
       expect(
-        await getBalance(publicClient, { address: sourceAccount.address }),
+        await getBalance(client, { address: sourceAccount.address }),
       ).toBeLessThan(sourceAccount.balance)
 
-      const transaction = await getTransaction(publicClient, { hash })
+      const transaction = await getTransaction(client, { hash })
       expect(transaction.maxPriorityFeePerGas).toBe(parseGwei('5'))
     })
 
     test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
       await setup()
 
-      const block = await getBlock(publicClient)
+      const block = await getBlock(client)
 
       expect(
-        await getBalance(publicClient, { address: targetAccount.address }),
+        await getBalance(client, { address: targetAccount.address }),
       ).toMatchInlineSnapshot('10000000000000000000000n')
       expect(
-        await getBalance(publicClient, { address: sourceAccount.address }),
+        await getBalance(client, { address: sourceAccount.address }),
       ).toMatchInlineSnapshot('10000000000000000000000n')
 
-      const hash = await sendTransaction(walletClient, {
+      const hash = await sendTransaction(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
@@ -886,16 +885,16 @@ describe('local account', () => {
       })
       expect(hash).toBeDefined()
 
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
       expect(
-        await getBalance(publicClient, { address: targetAccount.address }),
+        await getBalance(client, { address: targetAccount.address }),
       ).toMatchInlineSnapshot('10001000000000000000000n')
       expect(
-        await getBalance(publicClient, { address: sourceAccount.address }),
+        await getBalance(client, { address: sourceAccount.address }),
       ).toBeLessThan(sourceAccount.balance)
 
-      const transaction = await getTransaction(publicClient, { hash })
+      const transaction = await getTransaction(client, { hash })
       expect(transaction.maxPriorityFeePerGas).toBe(parseGwei('10'))
       expect(transaction.maxFeePerGas).toBe(
         BigInt(block.baseFeePerGas ?? 0) + parseGwei('10'),
@@ -907,19 +906,19 @@ describe('local account', () => {
     test('sends transaction', async () => {
       await setup()
 
-      const transactionCount = (await publicClient.request({
+      const transactionCount = (await client.request({
         method: 'eth_getTransactionCount',
         params: [sourceAccount.address, 'pending'],
       }))!
 
       expect(
-        await getBalance(publicClient, { address: targetAccount.address }),
+        await getBalance(client, { address: targetAccount.address }),
       ).toMatchInlineSnapshot('10000000000000000000000n')
       expect(
-        await getBalance(publicClient, { address: sourceAccount.address }),
+        await getBalance(client, { address: sourceAccount.address }),
       ).toMatchInlineSnapshot('10000000000000000000000n')
 
-      const hash = await sendTransaction(walletClient, {
+      const hash = await sendTransaction(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
@@ -927,16 +926,16 @@ describe('local account', () => {
       })
       expect(hash).toBeDefined()
 
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
       expect(
-        await getBalance(publicClient, { address: targetAccount.address }),
+        await getBalance(client, { address: targetAccount.address }),
       ).toMatchInlineSnapshot('10001000000000000000000n')
       expect(
-        await getBalance(publicClient, { address: sourceAccount.address }),
+        await getBalance(client, { address: sourceAccount.address }),
       ).toBeLessThan(sourceAccount.balance)
 
-      const transaction = await getTransaction(publicClient, { hash })
+      const transaction = await getTransaction(client, { hash })
       expect(transaction.nonce).toBe(hexToNumber(transactionCount))
     })
   })
@@ -946,7 +945,7 @@ describe('errors', () => {
   test('no account', async () => {
     await expect(() =>
       // @ts-expect-error
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         to: targetAccount.address,
         value: parseEther('1'),
         maxFeePerGas: 2n ** 256n - 1n + 1n,
@@ -964,7 +963,7 @@ describe('errors', () => {
     await setup()
 
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -987,7 +986,7 @@ describe('errors', () => {
     await setup()
 
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -1011,7 +1010,7 @@ describe('errors', () => {
     await setup()
 
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -1035,7 +1034,7 @@ describe('errors', () => {
     await setup()
 
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -1059,7 +1058,7 @@ describe('errors', () => {
 
   test('nonce too low', async () => {
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
@@ -1084,7 +1083,7 @@ describe('errors', () => {
     await setup()
 
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('100000'),
@@ -1113,7 +1112,7 @@ describe('errors', () => {
 
   test('tip higher than fee cap', async () => {
     await expect(() =>
-      sendTransaction(walletClient, {
+      sendTransaction(client, {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),

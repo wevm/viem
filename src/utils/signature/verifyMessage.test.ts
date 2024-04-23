@@ -1,13 +1,15 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { walletClient } from '~test/src/utils.js'
 import { signMessage } from '../../actions/wallet/signMessage.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { verifyMessage } from './verifyMessage.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  let signature = await signMessage(walletClient!, {
+  let signature = await signMessage(client!, {
     account: accounts[0].address,
     message: 'hello world',
   })
@@ -19,7 +21,7 @@ test('default', async () => {
     }),
   ).toBeTruthy()
 
-  signature = await signMessage(walletClient!, {
+  signature = await signMessage(client!, {
     account: accounts[0].address,
     message: 'wagmi 🥵',
   })

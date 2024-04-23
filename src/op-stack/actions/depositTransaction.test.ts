@@ -1,12 +1,8 @@
 import { beforeAll, expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
-import {
-  setBlockNumber,
-  testClient,
-  walletClient,
-  walletClientWithoutChain,
-} from '~test/src/utils.js'
+import { setBlockNumber } from '~test/src/utils.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
   getTransactionReceipt,
@@ -27,25 +23,30 @@ import { getL2TransactionHashes } from '../index.js'
 import { buildDepositTransaction } from './buildDepositTransaction.js'
 import { depositTransaction } from './depositTransaction.js'
 
+const client = anvilMainnet.getClient()
+const clientWithoutChain = anvilMainnet.getClient({
+  chain: false,
+})
+
 beforeAll(async () => {
-  await setBlockNumber(18136086n)
-  await setBalance(testClient, {
+  await setBlockNumber(client, 18136086n)
+  await setBalance(client, {
     address: accounts[0].address,
     value: parseEther('10000'),
   })
 })
 
 test('default', async () => {
-  const hash = await depositTransaction(walletClient, {
+  const hash = await depositTransaction(client, {
     account: accounts[0].address,
     request: { gas: 21000n, to: accounts[0].address },
     targetChain: base,
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   const log = decodeEventLog({
@@ -62,16 +63,16 @@ test('default', async () => {
 })
 
 test('args: data', async () => {
-  const hash = await depositTransaction(walletClient, {
+  const hash = await depositTransaction(client, {
     account: accounts[0].address,
     request: { data: '0xdeadbeef', gas: 21100n, to: accounts[0].address },
     targetChain: base,
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   const log = decodeEventLog({
@@ -88,7 +89,7 @@ test('args: data', async () => {
 })
 
 test('args: gas', async () => {
-  const hash = await depositTransaction(walletClient, {
+  const hash = await depositTransaction(client, {
     account: accounts[0].address,
     request: {
       gas: 69420n,
@@ -98,9 +99,9 @@ test('args: gas', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   const log = decodeEventLog({
@@ -117,7 +118,7 @@ test('args: gas', async () => {
 })
 
 test('args: isCreation', async () => {
-  const hash = await depositTransaction(walletClient, {
+  const hash = await depositTransaction(client, {
     account: accounts[0].address,
     request: {
       data: '0xdeadbeef',
@@ -128,9 +129,9 @@ test('args: isCreation', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   const log = decodeEventLog({
@@ -147,7 +148,7 @@ test('args: isCreation', async () => {
 })
 
 test('args: gas', async () => {
-  const hash = await depositTransaction(walletClient, {
+  const hash = await depositTransaction(client, {
     account: accounts[0].address,
     request: {
       gas: 21000n,
@@ -161,7 +162,7 @@ test('args: gas', async () => {
 })
 
 test('args: gas (nullish)', async () => {
-  const hash = await depositTransaction(walletClient, {
+  const hash = await depositTransaction(client, {
     account: accounts[0].address,
     request: {
       gas: 21000n,
@@ -175,7 +176,7 @@ test('args: gas (nullish)', async () => {
 })
 
 test('args: mint', async () => {
-  const hash = await depositTransaction(walletClient, {
+  const hash = await depositTransaction(client, {
     account: accounts[0].address,
     request: {
       gas: 21000n,
@@ -186,9 +187,9 @@ test('args: mint', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   const log = decodeEventLog({
@@ -205,7 +206,7 @@ test('args: mint', async () => {
 })
 
 test('args: portalAddress', async () => {
-  const hash = await depositTransaction(walletClient, {
+  const hash = await depositTransaction(client, {
     account: accounts[0].address,
     request: {
       gas: 21000n,
@@ -217,7 +218,7 @@ test('args: portalAddress', async () => {
 })
 
 test('args: value', async () => {
-  const hash = await depositTransaction(walletClient, {
+  const hash = await depositTransaction(client, {
     account: accounts[0].address,
     request: {
       gas: 21000n,
@@ -228,9 +229,9 @@ test('args: value', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   const log = decodeEventLog({
@@ -247,7 +248,7 @@ test('args: value', async () => {
 })
 
 test('args: nullish chain', async () => {
-  const hash = await depositTransaction(walletClientWithoutChain, {
+  const hash = await depositTransaction(clientWithoutChain, {
     account: accounts[0].address,
     request: { gas: 21000n, to: accounts[0].address },
     chain: null,
@@ -258,7 +259,7 @@ test('args: nullish chain', async () => {
 
 test('error: insufficient funds', async () => {
   await expect(() =>
-    depositTransaction(walletClient, {
+    depositTransaction(client, {
       account: accounts[0].address,
       request: {
         gas: 21000n,
@@ -299,7 +300,7 @@ test('error: insufficient funds', async () => {
 
 test('error: small gas', async () => {
   await expect(() =>
-    depositTransaction(walletClient, {
+    depositTransaction(client, {
       account: accounts[0].address,
       request: {
         gas: 21000n,

@@ -2,12 +2,14 @@ import { expect, test, vi } from 'vitest'
 
 import { wagmiContractConfig } from '../../test/src/abis.js'
 import { anvilMainnet } from '../../test/src/anvil.js'
-import { publicClient } from '../../test/src/utils.js'
 import * as getChainId from '../actions/public/getChainId.js'
 import { readContract } from '../actions/public/readContract.js'
+
 import { createClient } from '../clients/createClient.js'
 import { http } from '../clients/transports/http.js'
 import { getAction } from './getAction.js'
+
+const client = anvilMainnet.getClient()
 
 test('uses tree-shakable action', async () => {
   const client = createClient({ chain: anvilMainnet.chain, transport: http() })
@@ -31,7 +33,7 @@ test('uses client action', async () => {
 })
 
 test('e2e', async () => {
-  const client = publicClient.extend(() => ({
+  const client_2 = client.extend(() => ({
     async call() {
       return {
         data: '0x0000000000000000000000000000000000000000000000000000000000000045',
@@ -39,7 +41,7 @@ test('e2e', async () => {
     },
   }))
   expect(
-    await readContract(client, {
+    await readContract(client_2, {
       ...wagmiContractConfig,
       functionName: 'balanceOf',
       args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],

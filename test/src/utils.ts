@@ -14,16 +14,10 @@ import { writeContract } from '~viem/actions/wallet/writeContract.js'
 import { holesky, mainnet, sepolia } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { createPublicClient } from '~viem/clients/createPublicClient.js'
-import { createTestClient } from '~viem/clients/createTestClient.js'
-import { createWalletClient } from '~viem/clients/createWalletClient.js'
-import { custom } from '~viem/clients/transports/custom.js'
 import { http } from '~viem/clients/transports/http.js'
-import { ipc } from '~viem/clients/transports/ipc.js'
-import { webSocket } from '~viem/clients/transports/webSocket.js'
-import { RpcRequestError } from '~viem/errors/request.js'
-import { type EIP1193Provider, ProviderRpcError } from '~viem/types/eip1193.js'
 import { namehash } from '~viem/utils/ens/namehash.js'
-import { getHttpRpcClient } from '~viem/utils/rpc/http.js'
+import type { TestClientMode } from '../../src/clients/createTestClient.js'
+import type { Account, Chain, TestClient, Transport } from '../../src/index.js'
 
 import { type RequestListener, createServer } from 'http'
 import type { AddressInfo } from 'net'
@@ -42,125 +36,11 @@ import {
 import { anvilMainnet, anvilSepolia } from './anvil.js'
 import { accounts, address } from './constants.js'
 
-let id = 0
-
-const provider: EIP1193Provider = {
-  on: (message, listener) => {
-    if (message === 'accountsChanged') {
-      listener([accounts[0].address] as any)
-    }
-  },
-  removeListener: () => null,
-  request: async ({ method, params }: any) => {
-    if (method === 'eth_requestAccounts') {
-      return [accounts[0].address]
-    }
-    if (method === 'personal_sign') {
-      method = 'eth_sign'
-      params = [params[1], params[0]]
-    }
-    if (method === 'wallet_watchAsset') {
-      if (params.type === 'ERC721') {
-        throw new ProviderRpcError(-32602, 'Token type ERC721 not supported.')
-      }
-      return true
-    }
-    if (method === 'wallet_addEthereumChain') return null
-    if (method === 'wallet_switchEthereumChain') {
-      if (params[0].chainId === '0xfa') {
-        throw new ProviderRpcError(-4902, 'Unrecognized chain.')
-      }
-      return null
-    }
-    if (
-      method === 'wallet_getPermissions' ||
-      method === 'wallet_requestPermissions'
-    )
-      return [
-        {
-          invoker: 'https://example.com',
-          parentCapability: 'eth_accounts',
-          caveats: [
-            {
-              type: 'filterResponse',
-              value: ['0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb'],
-            },
-          ],
-        },
-      ]
-
-    const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
-    const { error, result } = await rpcClient.request({
-      body: {
-        method,
-        params,
-        id: id++,
-      },
-    })
-    if (error)
-      throw new RpcRequestError({
-        body: { method, params },
-        error,
-        url: anvilMainnet.rpcUrl.http,
-      })
-    return result
-  },
-}
-
-export const httpClient = createPublicClient({
-  batch: {
-    multicall: process.env.VITE_BATCH_MULTICALL === 'true',
-  },
-  chain: anvilMainnet.chain,
-  pollingInterval: 100,
-  transport: http(anvilMainnet.rpcUrl.http, {
-    batch: process.env.VITE_BATCH_JSON_RPC === 'true',
-  }),
-})
-
-export const ipcClient = createPublicClient({
-  batch: {
-    multicall: process.env.VITE_BATCH_MULTICALL === 'true',
-  },
-  chain: anvilMainnet.chain,
-  pollingInterval: 100,
-  transport: ipc(anvilMainnet.rpcUrl.ipc),
-})
-
-export const webSocketClient = createPublicClient({
-  batch: {
-    multicall: process.env.VITE_BATCH_MULTICALL === 'true',
-  },
-  chain: anvilMainnet.chain,
-  pollingInterval: 100,
-  transport: webSocket(anvilMainnet.rpcUrl.ws),
-})
-
-export const publicClient = (() => {
-  if (process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')
-    return webSocketClient
-  if (process.env.VITE_NETWORK_TRANSPORT_MODE === 'ipc') return ipcClient
-  return httpClient
-})() as typeof httpClient
+const client = anvilMainnet.getClient({ account: true })
 
 export const publicClientMainnet = createPublicClient({
   chain: mainnet,
   transport: http(process.env.VITE_ANVIL_FORK_URL),
-})
-
-export const walletClient = createWalletClient({
-  chain: anvilMainnet.chain,
-  transport: custom(provider),
-})
-
-export const walletClientWithAccount = createWalletClient({
-  account: accounts[0].address,
-  chain: anvilMainnet.chain,
-  transport: custom(provider),
-})
-
-export const walletClientWithoutChain = createWalletClient({
-  transport: custom(provider),
 })
 
 // TODO(fault-proofs): remove when fault proofs deployed to mainnet.
@@ -172,12 +52,6 @@ export const sepoliaClient = createClient({
 export const holeskyClient = createClient({
   chain: holesky,
   transport: http(),
-})
-
-export const testClient = createTestClient({
-  chain: anvilMainnet.chain,
-  mode: 'anvil',
-  transport: custom(provider),
 })
 
 export function createHttpServer(
@@ -199,22 +73,29 @@ export function createHttpServer(
 }
 
 export async function deploy<const TAbi extends Abi | readonly unknown[]>(
+  client: TestClient<
+    TestClientMode,
+    Transport,
+    Chain,
+    Account | undefined,
+    false
+  >,
   args: DeployContractParameters<
     TAbi,
-    (typeof walletClientWithAccount)['chain'],
-    (typeof walletClientWithAccount)['account']
+    (typeof client)['chain'],
+    (typeof client)['account']
   >,
 ) {
-  const hash = await deployContract(walletClientWithAccount, args)
-  await mine(testClient, { blocks: 1 })
-  const { contractAddress } = await getTransactionReceipt(publicClient, {
+  const hash = await deployContract(client, args)
+  await mine(client, { blocks: 1 })
+  const { contractAddress } = await getTransactionReceipt(client, {
     hash,
   })
   return { contractAddress }
 }
 
 export async function deployBAYC() {
-  return deploy({
+  return deploy(client, {
     ...baycContractConfig,
     args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
     account: accounts[0].address,
@@ -222,7 +103,7 @@ export async function deployBAYC() {
 }
 
 export async function deployErrorExample() {
-  return deploy({
+  return deploy(client, {
     abi: ErrorsExample.abi,
     bytecode: ErrorsExample.bytecode.object,
     account: accounts[0].address,
@@ -230,7 +111,7 @@ export async function deployErrorExample() {
 }
 
 export async function deployEnsAvatarTokenUri() {
-  return deploy({
+  return deploy(client, {
     abi: EnsAvatarTokenUri.abi,
     bytecode: EnsAvatarTokenUri.bytecode.object,
     account: accounts[0].address,
@@ -238,7 +119,7 @@ export async function deployEnsAvatarTokenUri() {
 }
 
 export async function deployErc20InvalidTransferEvent() {
-  return deploy({
+  return deploy(client, {
     abi: ERC20InvalidTransferEvent.abi,
     bytecode: ERC20InvalidTransferEvent.bytecode.object,
     account: accounts[0].address,
@@ -248,7 +129,7 @@ export async function deployErc20InvalidTransferEvent() {
 export async function deployOffchainLookupExample({
   urls,
 }: { urls: string[] }) {
-  return deploy({
+  return deploy(client, {
     abi: OffchainLookupExample.abi,
     bytecode: OffchainLookupExample.bytecode.object,
     account: accounts[0].address,
@@ -257,58 +138,67 @@ export async function deployOffchainLookupExample({
 }
 
 export async function deployPayable() {
-  return deploy({
+  return deploy(client, {
     abi: Payable.abi,
     bytecode: Payable.bytecode.object,
     account: accounts[0].address,
   })
 }
 
-export async function setBlockNumber(blockNumber: bigint) {
-  await reset(testClient, {
+export async function setBlockNumber(
+  client: TestClient<
+    TestClientMode,
+    Transport,
+    Chain | undefined,
+    Account | undefined,
+    false
+  >,
+  blockNumber: bigint,
+) {
+  await reset(client, {
     blockNumber,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 }
 
 export async function setVitalikResolver() {
-  await impersonateAccount(testClient, {
+  await impersonateAccount(client, {
     address: address.vitalik,
   })
-  await writeContract(walletClient, {
+  await writeContract(client, {
     ...ensRegistryConfig,
     account: address.vitalik,
     functionName: 'setResolver',
     args: [namehash('vitalik.eth'), ensRegistryConfig.address],
   })
 
-  await writeContract(walletClient, {
+  await writeContract(client, {
     ...ensRegistryConfig,
     account: address.vitalik,
     functionName: 'setResolver',
     args: [namehash('vbuterin.eth'), address.vitalik],
   })
 
-  await mine(testClient, { blocks: 1 })
-  await stopImpersonatingAccount(testClient, {
+  await mine(client, { blocks: 1 })
+  await stopImpersonatingAccount(client, {
     address: address.vitalik,
   })
 }
 
 export async function setVitalikName(name: string) {
-  await impersonateAccount(testClient, {
+  await impersonateAccount(client, {
     address: address.vitalik,
   })
 
-  await writeContract(walletClient, {
+  await writeContract(client, {
     ...ensReverseRegistrarConfig,
     account: address.vitalik,
     functionName: 'setName',
     args: [name],
   })
 
-  await mine(testClient, { blocks: 1 })
-  await stopImpersonatingAccount(testClient, {
+  await mine(client, { blocks: 1 })
+  await stopImpersonatingAccount(client, {
     address: address.vitalik,
   })
 }

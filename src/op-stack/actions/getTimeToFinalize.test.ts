@@ -1,18 +1,18 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import {
   optimismClient,
   optimismSepoliaClient,
 } from '../../../test/src/opStack.js'
-import {
-  publicClient,
-  sepoliaClient,
-  setBlockNumber,
-} from '../../../test/src/utils.js'
+import { sepoliaClient, setBlockNumber } from '../../../test/src/utils.js'
 import { getTransactionReceipt } from '../../actions/index.js'
+
 import { getWithdrawals, optimism } from '../../op-stack/index.js'
 import { getTimeToFinalize } from './getTimeToFinalize.js'
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+const client = anvilMainnet.getClient()
+
+// TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
 test('default', async () => {
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
     hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
@@ -38,7 +38,7 @@ test('default', async () => {
   `)
 })
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+// TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
 test('ready to finalize', async () => {
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
     hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
@@ -66,7 +66,7 @@ test('ready to finalize', async () => {
 
 describe('legacy (portal v2)', () => {
   beforeAll(async () => {
-    await setBlockNumber(18770525n)
+    await setBlockNumber(client, 18770525n)
   })
 
   test('default', async () => {
@@ -78,7 +78,7 @@ describe('legacy (portal v2)', () => {
 
     vi.setSystemTime(new Date(1702399191000))
 
-    const time = await getTimeToFinalize(publicClient, {
+    const time = await getTimeToFinalize(client, {
       ...withdrawal!,
       targetChain: optimism,
     })
@@ -103,7 +103,7 @@ describe('legacy (portal v2)', () => {
 
     vi.setSystemTime(new Date(1702994990587))
 
-    const time = await getTimeToFinalize(publicClient, {
+    const time = await getTimeToFinalize(client, {
       ...withdrawal!,
       targetChain: optimism,
     })

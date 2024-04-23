@@ -1,9 +1,11 @@
 import { expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { testClient, walletClient } from '../../../test/src/utils.js'
 import { getTransactionReceipt, mine } from '../../actions/index.js'
 import { optimism } from '../../op-stack/chains.js'
 import { finalizeWithdrawal } from './finalizeWithdrawal.js'
+
+const client = anvilMainnet.getClient()
 
 const withdrawal = {
   nonce:
@@ -18,23 +20,23 @@ const withdrawal = {
 } as const
 
 test('default', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     targetChain: optimism,
     withdrawal,
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
 })
 
 test('args: chain (nullish)', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     chain: null,
     targetChain: optimism,
@@ -43,16 +45,16 @@ test('args: chain (nullish)', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
 })
 
 test('args: gas', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     targetChain: optimism,
     withdrawal,
@@ -60,16 +62,16 @@ test('args: gas', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
 })
 
 test('args: gas (nullish)', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     targetChain: optimism,
     withdrawal,
@@ -77,16 +79,16 @@ test('args: gas (nullish)', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
 })
 
 test('args: portal address', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     withdrawal,
     gas: 420_000n,
@@ -94,9 +96,9 @@ test('args: portal address', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
@@ -104,7 +106,7 @@ test('args: portal address', async () => {
 
 test('error: small gas', async () => {
   await expect(() =>
-    finalizeWithdrawal(walletClient, {
+    finalizeWithdrawal(client, {
       account: accounts[0].address,
       targetChain: optimism,
       withdrawal,

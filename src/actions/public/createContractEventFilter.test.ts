@@ -2,8 +2,9 @@ import { assertType, expect, test } from 'vitest'
 
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
-import { createHttpServer, publicClient } from '~test/src/utils.js'
+import { createHttpServer } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
@@ -12,8 +13,10 @@ import { createContractEventFilter } from './createContractEventFilter.js'
 
 const request = (() => {}) as unknown as EIP1193RequestFn
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  const filter = await createContractEventFilter(publicClient, {
+  const filter = await createContractEventFilter(client, {
     abi: usdcContractConfig.abi,
   })
   assertType<typeof filter>({
@@ -32,7 +35,7 @@ test('default', async () => {
 })
 
 test('args: address', async () => {
-  const filter = await createContractEventFilter(publicClient, {
+  const filter = await createContractEventFilter(client, {
     address: usdcContractConfig.address,
     abi: usdcContractConfig.abi,
   })
@@ -40,7 +43,7 @@ test('args: address', async () => {
 })
 
 test('args: args', async () => {
-  const filter = await createContractEventFilter(publicClient, {
+  const filter = await createContractEventFilter(client, {
     address: usdcContractConfig.address,
     abi: usdcContractConfig.abi,
     eventName: 'Transfer',
@@ -56,7 +59,7 @@ test('args: args', async () => {
   })
   expect(filter.eventName).toEqual('Transfer')
 
-  const filter2 = await createContractEventFilter(publicClient, {
+  const filter2 = await createContractEventFilter(client, {
     address: usdcContractConfig.address,
     abi: usdcContractConfig.abi,
     eventName: 'Transfer',
@@ -70,7 +73,7 @@ test('args: args', async () => {
   })
   expect(filter.eventName).toEqual('Transfer')
 
-  const filter3 = await createContractEventFilter(publicClient, {
+  const filter3 = await createContractEventFilter(client, {
     address: usdcContractConfig.address,
     abi: usdcContractConfig.abi,
     eventName: 'Transfer',
@@ -88,7 +91,7 @@ test('args: args', async () => {
 test('args: fromBlock', async () => {
   expect(
     (
-      await createContractEventFilter(publicClient, {
+      await createContractEventFilter(client, {
         address: usdcContractConfig.address,
         abi: usdcContractConfig.abi,
         eventName: 'Transfer',
@@ -98,7 +101,7 @@ test('args: fromBlock', async () => {
   ).toBeDefined()
   expect(
     (
-      await createContractEventFilter(publicClient, {
+      await createContractEventFilter(client, {
         address: usdcContractConfig.address,
         abi: usdcContractConfig.abi,
         eventName: 'Transfer',
@@ -111,7 +114,7 @@ test('args: fromBlock', async () => {
 test('args: toBlock', async () => {
   expect(
     (
-      await createContractEventFilter(publicClient, {
+      await createContractEventFilter(client, {
         address: usdcContractConfig.address,
         abi: usdcContractConfig.abi,
         eventName: 'Transfer',
@@ -121,7 +124,7 @@ test('args: toBlock', async () => {
   ).toBeDefined()
   expect(
     (
-      await createContractEventFilter(publicClient, {
+      await createContractEventFilter(client, {
         address: usdcContractConfig.address,
         abi: usdcContractConfig.abi,
         eventName: 'Transfer',

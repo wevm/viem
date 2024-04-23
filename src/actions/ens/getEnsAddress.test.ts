@@ -2,25 +2,27 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import {
   createHttpServer,
-  publicClient,
   setBlockNumber,
   setVitalikResolver,
 } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet, optimism } from '../../chains/index.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
+
 import { http } from '../../clients/transports/http.js'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { createClient } from '../../clients/createClient.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
+const client = anvilMainnet.getClient()
+
 beforeAll(async () => {
-  await setBlockNumber(19_258_213n)
+  await setBlockNumber(client, 19_258_213n)
   await setVitalikResolver()
 })
 
 test('gets address for name', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'awkweb.eth' }),
+    getEnsAddress(client, { name: 'awkweb.eth' }),
   ).resolves.toMatchInlineSnapshot(
     '"0xA0Cf798816D4b9b9866b5330EEa46a18382f251e"',
   )
@@ -34,7 +36,7 @@ test('gatewayUrls provided', async () => {
     res.end()
   })
 
-  await getEnsAddress(publicClient, {
+  await getEnsAddress(client, {
     name: '1.offchainexample.eth',
     gatewayUrls: [server.url],
   }).catch(() => {})
@@ -44,7 +46,7 @@ test('gatewayUrls provided', async () => {
 
 test('gets address that starts with 0s for name', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'skeith.eth' }),
+    getEnsAddress(client, { name: 'skeith.eth' }),
   ).resolves.toMatchInlineSnapshot(
     '"0x00A59Ec1F4BF9718EeE07078141b540272BAB807"',
   )
@@ -52,7 +54,7 @@ test('gets address that starts with 0s for name', async () => {
 
 test('gets address for name with coinType', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'awkweb.eth', coinType: 60 }),
+    getEnsAddress(client, { name: 'awkweb.eth', coinType: 60 }),
   ).resolves.toMatchInlineSnapshot(
     '"0xa0cf798816d4b9b9866b5330eea46a18382f251e"',
   )
@@ -60,25 +62,25 @@ test('gets address for name with coinType', async () => {
 
 test('name without address with coinType', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'awkweb.eth', coinType: 61 }),
+    getEnsAddress(client, { name: 'awkweb.eth', coinType: 61 }),
   ).resolves.toBeNull()
 })
 
 test('name without address', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'another-unregistered-name.eth' }),
+    getEnsAddress(client, { name: 'another-unregistered-name.eth' }),
   ).resolves.toBeNull()
 })
 
 test('name with resolver that does not support addr', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'vitalik.eth' }),
+    getEnsAddress(client, { name: 'vitalik.eth' }),
   ).resolves.toBeNull()
 })
 
 test('name with resolver that does not support addr - strict', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'vitalik.eth', strict: true }),
+    getEnsAddress(client, { name: 'vitalik.eth', strict: true }),
   ).rejects.toMatchInlineSnapshot(`
     [ContractFunctionExecutionError: The contract function "resolve" reverted.
 
@@ -97,12 +99,12 @@ test('name with resolver that does not support addr - strict', async () => {
 
 test('name that looks like a hex', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: '0xyoshi.eth' }),
+    getEnsAddress(client, { name: '0xyoshi.eth' }),
   ).resolves.toMatchInlineSnapshot(
     '"0xE332de3c84C305698675A73F366061941C78e3b4"',
   )
   await expect(
-    getEnsAddress(publicClient, { name: '0xdeadbeef.eth' }),
+    getEnsAddress(client, { name: '0xdeadbeef.eth' }),
   ).resolves.toMatchInlineSnapshot(
     '"0xA8cc612Ecb2E853d3A882b0F9cf5357C2D892aDb"',
   )
@@ -110,7 +112,7 @@ test('name that looks like a hex', async () => {
 
 test('name with a label larger than 255 bytes', async () => {
   await expect(
-    getEnsAddress(publicClient, {
+    getEnsAddress(client, {
       name: `${'9'.repeat(291)}.eth`,
       universalResolverAddress: '0xc0497e381f536be9ce14b0dd3817cbcae57d2f62',
     }),
@@ -121,7 +123,7 @@ test('name with a label larger than 255 bytes', async () => {
 
 test('offchain: gets address for name', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: '1.offchainexample.eth' }),
+    getEnsAddress(client, { name: '1.offchainexample.eth' }),
   ).resolves.toMatchInlineSnapshot(
     `"0x41563129cDbbD0c5D3e1c86cf9563926b243834d"`,
   )
@@ -129,14 +131,14 @@ test('offchain: gets address for name', async () => {
 
 test('offchain: name without address', async () => {
   await expect(
-    getEnsAddress(publicClient, {
+    getEnsAddress(client, {
       name: 'loalsdsladasdhjasgdhasjdghasgdjgasjdasd.cb.id',
     }),
   ).resolves.toMatchInlineSnapshot('null')
 })
 
 test('offchain: aggregated', async () => {
-  const client = createPublicClient({
+  const client = createClient({
     chain: mainnet,
     batch: { multicall: true },
     transport: http(process.env.VITE_ANVIL_FORK_URL),
@@ -163,7 +165,7 @@ test('offchain: aggregated', async () => {
 
 test('custom universal resolver address', async () => {
   await expect(
-    getEnsAddress(publicClient, {
+    getEnsAddress(client, {
       name: 'awkweb.eth',
       universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
     }),
@@ -175,7 +177,7 @@ test('custom universal resolver address', async () => {
 describe('universal resolver with custom errors', () => {
   test('name without resolver', async () => {
     await expect(
-      getEnsAddress(publicClient, {
+      getEnsAddress(client, {
         name: 'random123.zzz',
         universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
       }),
@@ -183,7 +185,7 @@ describe('universal resolver with custom errors', () => {
   })
   test('name with invalid wildcard resolver', async () => {
     await expect(
-      getEnsAddress(publicClient, {
+      getEnsAddress(client, {
         name: 'another-unregistered-name.eth',
         universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
       }),
@@ -194,7 +196,7 @@ describe('universal resolver with custom errors', () => {
 test('chain not provided', async () => {
   await expect(
     getEnsAddress(
-      createPublicClient({
+      createClient({
         transport: http(anvilMainnet.rpcUrl.http),
       }),
       { name: 'awkweb.eth' },
@@ -207,7 +209,7 @@ test('chain not provided', async () => {
 test('universal resolver contract not configured for chain', async () => {
   await expect(
     getEnsAddress(
-      createPublicClient({
+      createClient({
         chain: optimism,
         transport: http(),
       }),
@@ -225,7 +227,7 @@ test('universal resolver contract not configured for chain', async () => {
 
 test('universal resolver contract deployed on later block', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'awkweb.eth', blockNumber: 14353601n }),
+    getEnsAddress(client, { name: 'awkweb.eth', blockNumber: 14353601n }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ChainDoesNotSupportContract: Chain "Ethereum (Local)" does not support contract "ensUniversalResolver".
 
@@ -238,7 +240,7 @@ test('universal resolver contract deployed on later block', async () => {
 
 test('invalid universal resolver address', async () => {
   await expect(
-    getEnsAddress(publicClient, {
+    getEnsAddress(client, {
       name: 'awkweb.eth',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),

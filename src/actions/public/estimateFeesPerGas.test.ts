@@ -1,6 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -14,10 +13,12 @@ import {
 import * as getBlock from './getBlock.js'
 import { getGasPrice } from './getGasPrice.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  const block = await getBlock.getBlock(publicClient)
+  const block = await getBlock.getBlock(client)
   const { maxFeePerGas, maxPriorityFeePerGas } =
-    await estimateFeesPerGas(publicClient)
+    await estimateFeesPerGas(client)
   expect(maxFeePerGas).toBe(
     (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas,
   )
@@ -26,8 +27,8 @@ test('default', async () => {
 
 test('legacy', async () => {
   const [{ gasPrice }, gasPrice_] = await Promise.all([
-    estimateFeesPerGas(publicClient, { type: 'legacy' }),
-    getGasPrice(publicClient),
+    estimateFeesPerGas(client, { type: 'legacy' }),
+    getGasPrice(client),
   ])
   expect(gasPrice).toBe((gasPrice_! * 120n) / 100n)
 })
@@ -76,12 +77,12 @@ test('args: chain `estimateFeesPerGas` override', async () => {
 })
 
 test('args: chain `baseFeeMultiplier` override (value)', async () => {
-  const block = await getBlock.getBlock(publicClient)
+  const block = await getBlock.getBlock(client)
 
-  const client = createPublicClient({
+  const client_2 = createPublicClient({
     transport: http(anvilMainnet.rpcUrl.http),
   })
-  const feesPerGas_1 = await estimateFeesPerGas(client, {
+  const feesPerGas_1 = await estimateFeesPerGas(client_2, {
     chain: {
       ...anvilMainnet.chain,
       fees: {
@@ -122,13 +123,13 @@ test('args: chain `baseFeeMultiplier` override (value)', async () => {
 })
 
 test('args: chain `baseFeeMultiplier` override (sync fn)', async () => {
-  const block = await getBlock.getBlock(publicClient)
+  const block = await getBlock.getBlock(client)
 
-  const client = createPublicClient({
+  const client_2 = createPublicClient({
     transport: http(anvilMainnet.rpcUrl.http),
   })
   const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-    client,
+    client_2,
     {
       chain: {
         ...anvilMainnet.chain,
@@ -147,13 +148,13 @@ test('args: chain `baseFeeMultiplier` override (sync fn)', async () => {
 })
 
 test('args: chain `baseFeeMultiplier` override (async fn)', async () => {
-  const block = await getBlock.getBlock(publicClient)
+  const block = await getBlock.getBlock(client)
 
-  const client = createPublicClient({
+  const client_2 = createPublicClient({
     transport: http(anvilMainnet.rpcUrl.http),
   })
   const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-    client,
+    client_2,
     {
       chain: {
         ...anvilMainnet.chain,
@@ -210,9 +211,9 @@ test('client: chain `estimateFeesPerGas` override', async () => {
 })
 
 test('client: chain `baseFeeMultiplier` override', async () => {
-  const block = await getBlock.getBlock(publicClient)
+  const block = await getBlock.getBlock(client)
 
-  const client = createPublicClient({
+  const client_2 = createPublicClient({
     chain: {
       ...anvilMainnet.chain,
       fees: {
@@ -222,7 +223,7 @@ test('client: chain `baseFeeMultiplier` override', async () => {
     transport: http(),
   })
   const { maxFeePerGas, maxPriorityFeePerGas } =
-    await estimateFeesPerGas(client)
+    await estimateFeesPerGas(client_2)
   expect(maxFeePerGas).toBe(
     (block.baseFeePerGas! * 150n) / 100n + maxPriorityFeePerGas,
   )
@@ -235,7 +236,7 @@ test('chain does not support eip1559', async () => {
   } as any)
 
   await expect(() =>
-    estimateFeesPerGas(publicClient),
+    estimateFeesPerGas(client),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
@@ -263,7 +264,7 @@ describe('internal_estimateFeesPerGas', () => {
   test('maxPriorityFeePerGas request/block args', async () => {
     const baseFeePerGas = 420n
     const maxPriorityFeePerGas = 69n
-    const { maxFeePerGas } = await internal_estimateFeesPerGas(publicClient, {
+    const { maxFeePerGas } = await internal_estimateFeesPerGas(client, {
       block: { baseFeePerGas } as any,
       request: { maxPriorityFeePerGas } as any,
     })
@@ -274,7 +275,7 @@ describe('internal_estimateFeesPerGas', () => {
 
   test('maxFeePerGas request args', async () => {
     const maxFeePerGas_ = 69n
-    const { maxFeePerGas } = await internal_estimateFeesPerGas(publicClient, {
+    const { maxFeePerGas } = await internal_estimateFeesPerGas(client, {
       request: { maxFeePerGas: maxFeePerGas_ } as any,
     })
     expect(maxFeePerGas).toBe(maxFeePerGas_)
@@ -282,7 +283,7 @@ describe('internal_estimateFeesPerGas', () => {
 
   test('gasPrice request args', async () => {
     const gasPrice_ = 69n
-    const { gasPrice } = await internal_estimateFeesPerGas(publicClient, {
+    const { gasPrice } = await internal_estimateFeesPerGas(client, {
       request: { gasPrice: gasPrice_ } as any,
       type: 'legacy',
     })

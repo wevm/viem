@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts } from '../../../../test/src/constants.js'
-import { setBlockNumber, testClient } from '../../../../test/src/utils.js'
+import { setBlockNumber } from '../../../../test/src/utils.js'
 import { mine } from '../../../actions/index.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
@@ -18,6 +18,8 @@ import { writeContracts } from './writeContracts.js'
 type Uid = string
 type TxHashes = Hex[]
 const calls = new Map<Uid, TxHashes[]>()
+
+const testClient = anvilMainnet.getClient()
 
 const getClient = ({
   onRequest,
@@ -107,7 +109,7 @@ test('default', async () => {
     },
   })
 
-  await setBlockNumber(16280770n)
+  await setBlockNumber(testClient, 16280770n)
 
   const id_ = await writeContracts(client, {
     account: accounts[0].address,

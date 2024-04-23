@@ -1,15 +1,15 @@
 import { expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import {
   optimismClient,
   optimismSepoliaClient,
 } from '../../../test/src/opStack.js'
-import {
-  publicClient,
-  sepoliaClient,
-  setBlockNumber,
-} from '../../../test/src/utils.js'
+import { sepoliaClient, setBlockNumber } from '../../../test/src/utils.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
+
 import { getTimeToProve } from './getTimeToProve.js'
+
+const client = anvilMainnet.getClient()
 
 test('default', async () => {
   await reset(sepoliaClient, {
@@ -31,14 +31,14 @@ test('default', async () => {
 })
 
 test('legacy (portal v2)', async () => {
-  await setBlockNumber(18772363n)
+  await setBlockNumber(client, 18772363n)
 
   // https://optimistic.etherscan.io/tx/0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147
   const receipt = await getTransactionReceipt(optimismClient, {
     hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
   })
 
-  const time = await getTimeToProve(publicClient, {
+  const time = await getTimeToProve(client, {
     receipt,
     targetChain: optimismClient.chain,
   })

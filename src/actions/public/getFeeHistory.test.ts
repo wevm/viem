@@ -1,13 +1,14 @@
 import { expect, test } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getFeeHistory } from './getFeeHistory.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
   expect(
-    await getFeeHistory(publicClient, {
+    await getFeeHistory(client, {
       blockCount: 4,
       blockNumber: anvilMainnet.forkBlockNumber,
       rewardPercentiles: [0, 50, 100],
@@ -56,7 +57,7 @@ test('default', async () => {
 
 test('args: blockTag', async () => {
   expect(
-    await getFeeHistory(publicClient, {
+    await getFeeHistory(client, {
       blockCount: 4,
       blockTag: 'safe',
       rewardPercentiles: [0, 50, 100],
@@ -66,7 +67,7 @@ test('args: blockTag', async () => {
 
 test('args: blockCount', async () => {
   expect(
-    await getFeeHistory(publicClient, {
+    await getFeeHistory(client, {
       blockCount: 2,
       blockNumber: anvilMainnet.forkBlockNumber,
       rewardPercentiles: [0, 50, 100],
@@ -101,7 +102,7 @@ test('args: blockCount', async () => {
 
 test('args: rewardPercentiles', async () => {
   expect(
-    await getFeeHistory(publicClient, {
+    await getFeeHistory(client, {
       blockCount: 2,
       blockNumber: anvilMainnet.forkBlockNumber,
       rewardPercentiles: [0, 25, 50, 75, 100],

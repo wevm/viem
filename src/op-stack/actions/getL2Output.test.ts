@@ -18,7 +18,7 @@ test('default', async () => {
   `)
 })
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+// TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
 test('portal v3', async () => {
   const game = await getL2Output(sepoliaClient, {
     targetChain: optimismSepolia,

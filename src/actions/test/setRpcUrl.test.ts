@@ -1,12 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '~test/src/utils.js'
 import { setRpcUrl } from './setRpcUrl.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
+const client = anvilMainnet.getClient()
+
 test('sets the rpc url', async () => {
-  await expect(
-    setRpcUrl(testClient, anvilMainnet.forkUrl),
-  ).resolves.toBeUndefined()
+  await expect(setRpcUrl(client, anvilMainnet.forkUrl)).resolves.toBeUndefined()
 })
