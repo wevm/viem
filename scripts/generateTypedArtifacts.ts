@@ -9,20 +9,27 @@ const writer = generated.writer()
 
 const paths = await globby([
   join(import.meta.dir, '../test/contracts/out/**/*.json'),
+  join(import.meta.dir, '../test/invoker/out/**/*.json'),
 ])
 
-await Promise.all(
-  paths.map(async (path) => {
-    const fileName = path.split('/').pop()?.replace('.json', '')
-    const json = await Bun.file(path, { type: 'application/json' }).json()
-    writer.write(
-      `export const ${fileName} = ${JSON.stringify(
-        json,
-        null,
-        2,
-      )} as const;\n\n`,
-    )
-  }),
-)
+const fileNames = []
+
+for (const path of paths) {
+  const fileName = path.split('/').pop()?.replace('.json', '')
+  if (fileNames.includes(fileName)) continue
+
+  const { abi, bytecode } = await Bun.file(path, {
+    type: 'application/json',
+  }).json()
+  fileNames.push(fileName)
+
+  writer.write(
+    `export const ${fileName} = ${JSON.stringify(
+      { abi, bytecode },
+      null,
+      2,
+    )} as const;\n\n`,
+  )
+}
 
 writer.end()

@@ -1,4 +1,5 @@
 import {
+  anvil3074,
   anvilMainnet,
   anvilOptimism,
   anvilOptimismSepolia,
@@ -30,6 +31,7 @@ export default async function () {
   const shutdownMainnet = await anvilMainnet.start()
   const shutdownOptimism = await anvilOptimism.start()
   const shutdownZkSync = await anvilZkSync.start()
+  const shutdown3074 = await anvil3074.start()
 
   // TODO(fault-proofs): remove when fault proofs deployed to mainnet.
   const shutdownSepolia = await anvilSepolia.start()
@@ -37,6 +39,7 @@ export default async function () {
   const shutdownOptimismSepolia = await anvilOptimismSepolia.start()
 
   return () => {
+    shutdown3074()
     shutdownMainnet()
     shutdownOptimism()
     shutdownZkSync()

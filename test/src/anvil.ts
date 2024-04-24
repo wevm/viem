@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { type CreateAnvilOptions, startProxy } from '@viem/anvil'
 import {
   mainnet,
@@ -68,6 +69,16 @@ export const anvilZkSync = defineAnvil({
   ),
   forkBlockNumber: 25734n,
   port: 8745,
+})
+
+export const anvil3074 = defineAnvil({
+  anvilBinary: resolve(import.meta.dirname, '../invoker/bin/anvil'),
+  chain: mainnet,
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
+  forkBlockNumber: 16280770n,
+  // @ts-expect-error
+  hardfork: 'prague',
+  port: 9045,
 })
 
 ////////////////////////////////////////////////////////////
