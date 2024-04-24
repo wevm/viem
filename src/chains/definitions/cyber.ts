@@ -21,6 +21,5 @@ export const cyber = /*#__PURE__*/ defineChain({
       address: '0xd1A3cb95E97Abc83777Ced3d474CCdD1AC948F0E',
       blockCreated: 43798,
     },
-  },
-  testnet: true,
+  }
 })
