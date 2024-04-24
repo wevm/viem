@@ -1,5 +1,19 @@
 # viem
 
+## 2.9.26
+
+### Patch Changes
+
+- [#2180](https://github.com/wevm/viem/pull/2180) [`27bc03e886bed6e7d9e7e2cb19f5e8c64ed1ca29`](https://github.com/wevm/viem/commit/27bc03e886bed6e7d9e7e2cb19f5e8c64ed1ca29) Thanks [@PengDeng-Cyber](https://github.com/PengDeng-Cyber)! - Added Cyber Mainnet chain.
+
+- [#2173](https://github.com/wevm/viem/pull/2173) [`7aa8ba3e0d49988d67cf542a7a2eebe4f9fbf9f7`](https://github.com/wevm/viem/commit/7aa8ba3e0d49988d67cf542a7a2eebe4f9fbf9f7) Thanks [@saeta-eth](https://github.com/saeta-eth)! - Updated Polygon Amoy explorer URL.
+
+- [#2168](https://github.com/wevm/viem/pull/2168) [`1c550fa73cfdacfcd07201ef2224689bc03ee5da`](https://github.com/wevm/viem/commit/1c550fa73cfdacfcd07201ef2224689bc03ee5da) Thanks [@kiriyaga-txfusion](https://github.com/kiriyaga-txfusion)! - Fixed default fee values for zkSync eip712 transactions.
+
+- [`cfff94c807c35a2b97e05e43aa4b464a6b5ceac5`](https://github.com/wevm/viem/commit/cfff94c807c35a2b97e05e43aa4b464a6b5ceac5) Thanks [@jxom](https://github.com/jxom)! - Added workaround to parse a raw text response into JSON if an RPC provider does not set `Content-Type: application/json` as a response header.
+
+- [#2177](https://github.com/wevm/viem/pull/2177) [`ba856bab9a5651dde48eb3e73e0e04bc52f2d3bf`](https://github.com/wevm/viem/commit/ba856bab9a5651dde48eb3e73e0e04bc52f2d3bf) Thanks [@TheGreatAxios](https://github.com/TheGreatAxios)! - Fixed SKALE Crypto Colloseum Chain Id
+
 ## 2.9.25
 
 ### Patch Changes
