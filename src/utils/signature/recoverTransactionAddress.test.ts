@@ -92,7 +92,7 @@ test('4844 tx', async () => {
 
   const address = await recoverTransactionAddress({
     serializedTransaction,
-    signature: signatureToHex(signature),
+    signature,
   })
   expect(address.toLowerCase()).toBe(accounts[0].address)
 })

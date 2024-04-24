@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 
-import type { ByteArray, Hex } from '../../../types/misc.js'
+import type { ByteArray, Hex, Signature } from '../../../types/misc.js'
 
 import type { ErrorType } from '../../../errors/utils.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
@@ -11,7 +11,7 @@ import {
 import { type ToAuthMessageParameters, toAuthMessage } from './toAuthMessage.js'
 
 export type RecoverAuthMessageAddressParameters = ToAuthMessageParameters & {
-  signature: Hex | ByteArray
+  signature: Hex | ByteArray | Signature
 }
 
 export type RecoverAuthMessageAddressReturnType = Address

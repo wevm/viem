@@ -21,11 +21,24 @@ export type HexToSignatureErrorType = NumberToHexErrorType | ErrorType
  */
 export function hexToSignature(signatureHex: Hex) {
   const { r, s } = secp256k1.Signature.fromCompact(signatureHex.slice(2, 130))
-  const v = BigInt(`0x${signatureHex.slice(130)}`)
+  const yParityOrV = Number(`0x${signatureHex.slice(130)}`)
+  const [v, yParity] = (() => {
+    if (yParityOrV === 0 || yParityOrV === 1) return [undefined, yParityOrV]
+    if (yParityOrV === 27) return [BigInt(yParityOrV), 0]
+    if (yParityOrV === 28) return [BigInt(yParityOrV), 1]
+    throw new Error('Invalid yParityOrV value')
+  })()
+
+  if (typeof v !== 'undefined')
+    return {
+      r: numberToHex(r, { size: 32 }),
+      s: numberToHex(s, { size: 32 }),
+      v,
+      yParity,
+    } satisfies Signature
   return {
     r: numberToHex(r, { size: 32 }),
     s: numberToHex(s, { size: 32 }),
-    v,
-    yParity: v === 28n ? 1 : 0,
+    yParity,
   } satisfies Signature
 }
