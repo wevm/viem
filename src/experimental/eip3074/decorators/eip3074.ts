@@ -1,6 +1,6 @@
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import type { Account, PrivateKeyAccount } from '../../../types/account.js'
+import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import {
   type SignAuthMessageParameters,
@@ -9,11 +9,18 @@ import {
 } from '../actions/signAuthMessage.js'
 
 export type WalletActionsEip3074<
+  chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
-  signAuthMessage: (
+  signAuthMessage: <
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | undefined = undefined,
+  >(
     parameters: SignAuthMessageParameters<
-      account extends PrivateKeyAccount ? account : undefined
+      chain,
+      account,
+      chainOverride,
+      accountOverride
     >,
   ) => Promise<SignAuthMessageReturnType>
 }
@@ -42,7 +49,7 @@ export function walletActionsEip3074() {
     account extends Account | undefined = Account | undefined,
   >(
     client: Client<transport, chain, account>,
-  ): WalletActionsEip3074<account> => {
+  ): WalletActionsEip3074<chain, account> => {
     return {
       signAuthMessage: (parameters) =>
         signAuthMessage(client as any, parameters),

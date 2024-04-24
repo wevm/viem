@@ -1,22 +1,51 @@
+import type { Address } from 'abitype'
+import { getTransactionCount } from '../../../actions/public/getTransactionCount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Account, PrivateKeyAccount } from '../../../types/account.js'
-import type { Chain } from '../../../types/chain.js'
-import type { Hex } from '../../../types/misc.js'
+import type {
+  Account,
+  DeriveAccount,
+  PrivateKeyAccount,
+} from '../../../types/account.js'
+import type { Chain, GetChainParameter } from '../../../types/chain.js'
+import type { Hash, Hex } from '../../../types/misc.js'
 import type { IsUndefined } from '../../../types/utils.js'
-import type { ToAuthMessageParameters } from '../utils/toAuthMessage.js'
+import { getAction } from '../../../utils/getAction.js'
+
+// TODO: Use `GetAccountParameter` from `types/utils.ts` when JSON-RPC method for sign auth message exists.
+type GetAccountParameter<
+  account extends Account | undefined = Account | undefined,
+  accountOverride extends Account | Address | undefined = Account | Address,
+> = IsUndefined<account> extends true
+  ? { account: accountOverride | PrivateKeyAccount }
+  : account extends PrivateKeyAccount
+    ? {
+        account?: accountOverride | PrivateKeyAccount | undefined
+      }
+    : { account: accountOverride | PrivateKeyAccount }
+
+type GetNonceParameter<account extends Account | Address | undefined> =
+  account extends Address | Account
+    ? {
+        nonce?: number | undefined
+      }
+    : {
+        nonce: number
+      }
 
 export type SignAuthMessageParameters<
+  chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-> = ToAuthMessageParameters &
-  // TODO: Use `GetAccountParameter` when JSON-RPC method for sign auth message exists.
-  (IsUndefined<account> extends true
-    ? { account: PrivateKeyAccount }
-    : account extends PrivateKeyAccount
-      ? { account?: PrivateKeyAccount | undefined }
-      : { account: PrivateKeyAccount })
+  chainOverride extends Chain | undefined = Chain | undefined,
+  accountOverride extends Account | Address | undefined = Account | Address,
+> = {
+  commit: Hash
+  invokerAddress: Address
+} & GetAccountParameter<account, accountOverride> &
+  GetChainParameter<chain, chainOverride> &
+  GetNonceParameter<DeriveAccount<account, accountOverride>>
 
 export type SignAuthMessageReturnType = Hex
 
@@ -77,25 +106,44 @@ export type SignAuthMessageErrorType = ErrorType
  */
 export async function signAuthMessage<
   chain extends Chain | undefined,
-  // TODO: Use `Account` when JSON-RPC method for sign auth message exists.
   account extends Account | undefined,
+  chainOverride extends Chain | undefined = undefined,
+  accountOverride extends Account | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  {
-    // @ts-expect-error – TODO: Remove when JSON-RPC method for sign auth message exists.
+  parameters: SignAuthMessageParameters<
+    chain,
+    account,
+    chainOverride,
+    accountOverride
+  >,
+): Promise<SignAuthMessageReturnType> {
+  const {
     account = client.account,
-    chainId,
+    chain = client.chain,
     commit,
     invokerAddress,
-    nonce,
-  }: SignAuthMessageParameters<account>,
-): Promise<SignAuthMessageReturnType> {
+  } = parameters
+
   if (!account)
     throw new AccountNotFoundError({
       docsPath: '/experimental/eip5792/signAuthMessage',
     })
-  return account.experimental_signAuthMessage({
-    chainId,
+
+  const nonce = await (() => {
+    if (typeof parameters.nonce === 'number') return parameters.nonce
+    return getAction(
+      client,
+      getTransactionCount,
+      'getTransactionCount',
+    )({
+      address: account.address,
+      blockTag: 'pending',
+    })
+  })()
+
+  return account.experimental_signAuthMessage!({
+    chainId: chain!.id,
     commit,
     invokerAddress,
     nonce,
