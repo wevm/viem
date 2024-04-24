@@ -10,19 +10,30 @@ import {
 import { getTransaction } from '../../actions/index.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 
-import type { TransactionSerializable } from '../../types/transaction.js'
-import { hexToBytes, keccak256, serializeTransaction } from '../index.js'
+import { kzg } from '../../../test/src/kzg.js'
+import type {
+  TransactionSerializable,
+  TransactionSerializableEIP4844,
+} from '../../types/transaction.js'
+import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
+import { toBlobSidecars } from '../blob/toBlobSidecars.js'
+import {
+  hexToBytes,
+  keccak256,
+  serializeTransaction,
+  stringToHex,
+} from '../index.js'
 import { recoverTransactionAddress } from './recoverTransactionAddress.js'
 
 const client = anvilMainnet.getClient().extend(walletActions)
 
-const transaction: TransactionSerializable = {
+const transaction = {
   chainId: 1,
   maxFeePerGas: 2n,
   maxPriorityFeePerGas: 1n,
   to: '0x0000000000000000000000000000000000000000',
   value: 1n,
-}
+} as const satisfies TransactionSerializable
 
 test('default', async () => {
   const address = await recoverTransactionAddress({
@@ -56,6 +67,32 @@ test('signature (bytes)', async () => {
   const address = await recoverTransactionAddress({
     serializedTransaction,
     signature: hexToBytes(signatureToHex(signature)),
+  })
+  expect(address.toLowerCase()).toBe(accounts[0].address)
+})
+
+test('4844 tx', async () => {
+  const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
+  const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
+  const transaction4844 = {
+    ...transaction,
+    blobVersionedHashes,
+    sidecars,
+  } satisfies TransactionSerializableEIP4844
+
+  const signableTransaction = serializeTransaction({
+    ...transaction4844,
+    sidecars: false,
+  })
+  const signature = await sign({
+    hash: keccak256(signableTransaction),
+    privateKey: accounts[0].privateKey,
+  })
+  const serializedTransaction = serializeTransaction(transaction4844, signature)
+
+  const address = await recoverTransactionAddress({
+    serializedTransaction,
+    signature: signatureToHex(signature),
   })
   expect(address.toLowerCase()).toBe(accounts[0].address)
 })

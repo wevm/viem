@@ -53,6 +53,7 @@ export async function recoverTransactionAddress(
     s: undefined,
     v: undefined,
     yParity: undefined,
+    sidecars: undefined,
   })
 
   return await recoverAddress({
