@@ -12,8 +12,8 @@ export const cyberTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://cyber-testnet-explorer.alt.technology',
-      apiUrl: 'https://cyber-testnet-explorer.alt.technology/api',
+      url: 'https://testnet.cyberscan.co',
+      apiUrl: 'https://testnet.cyberscan.co/api',
     },
   },
   contracts: {
