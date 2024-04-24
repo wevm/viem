@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Add yooldo verse testnet & mainnet setting
+Added yooldo verse chains.
