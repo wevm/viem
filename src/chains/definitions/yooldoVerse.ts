@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const yooldoVerse = /*#__PURE__*/ defineChain({
   id: 50_005,
   name: 'Yooldo Verse',
-  network: 'yooldoVerse',
   nativeCurrency: { name: 'OAS', symbol: 'OAS', decimals: 18 },
   rpcUrls: {
     default: {
