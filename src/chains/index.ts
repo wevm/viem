@@ -246,6 +246,8 @@ export {
 } from './definitions/xLayerTestnet.js'
 export { xLayer } from './definitions/xLayer.js'
 export { xdc } from './definitions/xdc.js'
+export { yooldoVerse } from './definitions/yooldoVerse.js'
+export { yooldoVerseTestnet } from './definitions/yooldoVerseTestnet.js'
 export { xdcTestnet } from './definitions/xdcTestnet.js'
 export { zetachain } from './definitions/zetachain.js'
 export { zetachainAthensTestnet } from './definitions/zetachainAthensTestnet.js'
