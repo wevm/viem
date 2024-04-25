@@ -1,5 +1,17 @@
 # viem
 
+## 2.9.27
+
+### Patch Changes
+
+- [#2181](https://github.com/wevm/viem/pull/2181) [`0fcc91804893ec75c6f6888900ec58b3410c0180`](https://github.com/wevm/viem/commit/0fcc91804893ec75c6f6888900ec58b3410c0180) Thanks [@PengDeng-Cyber](https://github.com/PengDeng-Cyber)! - Removed `testnet` tag for Cyber Mainnet chain.
+
+- [`5e8a249c3886a09a3a40b5748484fbf5d57f2fa6`](https://github.com/wevm/viem/commit/5e8a249c3886a09a3a40b5748484fbf5d57f2fa6) Thanks [@jxom](https://github.com/jxom)! - Added `Signature` as a valid input type to `signature` parameters.
+
+- [`735726cac2f7136d8ce82ec5911fd8dde78a1339`](https://github.com/wevm/viem/commit/735726cac2f7136d8ce82ec5911fd8dde78a1339) Thanks [@jxom](https://github.com/jxom)! - Fixed `recoverTransactionAddress` for 4844 transactions.
+
+- [#2172](https://github.com/wevm/viem/pull/2172) [`892f028204e1952500f132ac14f73cdc9ac99f81`](https://github.com/wevm/viem/commit/892f028204e1952500f132ac14f73cdc9ac99f81) Thanks [@aiiiden](https://github.com/aiiiden)! - Added yooldo verse chains.
+
 ## 2.9.26
 
 ### Patch Changes
