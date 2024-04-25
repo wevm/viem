@@ -84,3 +84,16 @@ export type {
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
 } from './types/transaction.js'
+export { toSmartAccount } from './accounts/toSmartAccount.js'
+export type {
+  SmartAccount,
+  SmartAccountParams,
+} from './accounts/types.js'
+export {
+  type ECDSASmartAccountParams,
+  generateECDSASmartAccountParams,
+} from './utils/ECDSASmartAccount.js'
+export {
+  type MultisigECDSASmartAccount,
+  generateMultisigECDSASmartAccountParams,
+} from './utils/MultisigECDSASmartAccount.js'
