@@ -6,8 +6,14 @@ export type SmartAccount = LocalAccount<'smartAccount'> & {
   addressAccount: Address
 }
 
-export type SmartAccountParams<TSignReturnType extends Object = Hash> = {
+export type SmartAccountAddressesParams = {
   address: Address
   addressAccount?: Address
-  sign: (payload: Hash) => Promise<TSignReturnType>
+}
+
+export type SmartAccountParams<
+  TSignPayloadType extends Object = Hash,
+  TSignReturnType extends Object = Hash,
+> = SmartAccountAddressesParams & {
+  sign: (payload: TSignPayloadType) => Promise<TSignReturnType>
 }

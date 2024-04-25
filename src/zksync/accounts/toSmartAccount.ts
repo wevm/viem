@@ -26,8 +26,7 @@ export function toSmartAccount({
       return await sign(hashMessage(message))
     },
     async signTransaction(transaction, { serializer } = {}) {
-      const hash = keccak256(serializer!(transaction))
-      return await sign(hash)
+      return await sign(keccak256(serializer!(transaction)))
     },
     async signTypedData(typedData) {
       return await sign(hashTypedData(typedData))

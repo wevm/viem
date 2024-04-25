@@ -1,11 +1,12 @@
-import type { Address } from 'abitype'
-import { signMessage } from '../../accounts/index.js'
+import { signatureToHex } from '../../accounts/index.js'
+import { sign } from '../../accounts/utils/sign.js'
 import type { Hex } from '../../types/misc.js'
-import type { SmartAccountParams } from '../accounts/types.js'
+import type {
+  SmartAccountAddressesParams,
+  SmartAccountParams,
+} from '../accounts/types.js'
 
-export type ECDSASmartAccountParams = {
-  address: Address
-  addressAccount?: Address
+export type ECDSASmartAccountParams = SmartAccountAddressesParams & {
   secretKey: Hex
 }
 
@@ -13,12 +14,14 @@ export function generateECDSASmartAccountParams({
   address,
   addressAccount,
   secretKey,
-}: ECDSASmartAccountParams): SmartAccountParams<Hex> {
+}: ECDSASmartAccountParams): SmartAccountParams {
   return {
     address,
     addressAccount: addressAccount ?? address,
     async sign(payload: Hex) {
-      return await signMessage({ message: payload, privateKey: secretKey })
+      return signatureToHex(
+        await sign({ hash: payload, privateKey: secretKey }),
+      )
     },
   }
 }
