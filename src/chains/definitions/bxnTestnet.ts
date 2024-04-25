@@ -20,4 +20,5 @@ export const bxnTestnet = /*#__PURE__*/ defineChain({
       apiUrl: 'https://testnet-explorer.blackfort.network/api',
     },
   },
+  testnet: true,
 })
