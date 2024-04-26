@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.28
+
+### Patch Changes
+
+- [`e8c45db48277af8dfc7e3061482bcdc4b17679fb`](https://github.com/wevm/viem/commit/e8c45db48277af8dfc7e3061482bcdc4b17679fb) Thanks [@jxom](https://github.com/jxom)! - Tweaked imports and added `/*#__PURE__*/` annotations for better tree-shaking.
+
 ## 2.9.27
 
 ### Patch Changes
