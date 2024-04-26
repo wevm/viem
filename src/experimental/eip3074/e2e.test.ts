@@ -32,7 +32,7 @@ test('execute', async () => {
   ] as const satisfies InvokerArgs<typeof invoker>
 
   // Authority to execute calls on behalf of.
-  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const authority = privateKeyToAccount(accounts[0].privateKey)
 
   // Sign the auth message of `args`.
   const signature = await invoker.sign({

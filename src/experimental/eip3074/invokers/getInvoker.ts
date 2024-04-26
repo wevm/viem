@@ -11,6 +11,7 @@ import type {
 import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { parseAccount } from '../../../utils/accounts.js'
+import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
 import { getAction } from '../../../utils/getAction.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
 import { hexToSignature } from '../../../utils/signature/hexToSignature.js'
@@ -31,13 +32,15 @@ export type InvokerExecuteParameters<
   GetChainParameter<chain, chainOverride>
 
 export type InvokerSignParameters<
+  account extends Account | undefined = Account | undefined,
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   args = unknown,
-> = { args: args; authority: PrivateKeyAccount } & GetChainParameter<
-  chain,
-  chainOverride
->
+> = {
+  args: args
+  authority: PrivateKeyAccount
+} & GetAccountParameter<account, Account | Address, false> &
+  GetChainParameter<chain, chainOverride>
 
 export type Invoker<
   account extends Account | undefined = Account | undefined,
@@ -49,7 +52,7 @@ export type Invoker<
     parameters: InvokerExecuteParameters<account, chain, chainOverride, args>,
   ): Promise<Hex>
   sign<chainOverride extends Chain | undefined = undefined>(
-    parameters: InvokerSignParameters<chain, chainOverride, args>,
+    parameters: InvokerSignParameters<account, chain, chainOverride, args>,
   ): Promise<Hex>
 }
 
@@ -107,7 +110,13 @@ export function getInvoker<
       })
     },
     async sign(parameters) {
-      const { args, authority, chain = client.chain } = parameters
+      const {
+        account: account_ = client.account,
+        args,
+        authority,
+        chain = client.chain,
+      } = parameters
+      const account = parseAccount(account_!)
       const [execData, nonce] = await Promise.all([
         await coder.toExecData(args, {
           authority: authority.address,
@@ -132,7 +141,9 @@ export function getInvoker<
         chain,
         commit: keccak256(execData),
         invokerAddress: address,
-        nonce,
+        nonce: isAddressEqual(authority.address, account.address)
+          ? nonce + 1
+          : nonce,
       })
       return signature
     },
