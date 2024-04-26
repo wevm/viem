@@ -104,9 +104,6 @@ test('gets transaction (eip2930)', async () => {
     [
       "hash",
       "nonce",
-      "blockHash",
-      "blockNumber",
-      "transactionIndex",
       "from",
       "to",
       "value",
@@ -120,6 +117,9 @@ test('gets transaction (eip2930)', async () => {
       "chainId",
       "accessList",
       "type",
+      "blockHash",
+      "blockNumber",
+      "transactionIndex",
       "typeHex",
     ]
   `)
