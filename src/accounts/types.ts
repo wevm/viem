@@ -43,7 +43,7 @@ export type CustomSource = {
       : Hash
   >
   signTypedData: <
-    const typedData extends TypedData | Record<string, unknown>,
+    typedData extends TypedData | Record<string, unknown>,
     primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   >(
     typedDataDefinition: TypedDataDefinition<typedData, primaryType>,
