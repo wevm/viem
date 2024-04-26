@@ -29,6 +29,8 @@ export {
   deployContract,
 } from './actions/deployContract.js'
 
+export { prepareTransactionRequest } from './actions/prepareTransactionRequest.js'
+
 export {
   zkSync,
   zkSyncTestnet,
@@ -84,16 +86,16 @@ export type {
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
 } from './types/transaction.js'
-export { toSmartAccount } from './accounts/toSmartAccount.js'
-export type {
-  SmartAccount,
-  SmartAccountParams,
-} from './accounts/types.js'
 export {
-  type ECDSASmartAccountParams,
-  generateECDSASmartAccountParams,
-} from './utils/ECDSASmartAccount.js'
+  toSmartAccount,
+  type SmartAccount,
+  type SmartAccountParams,
+} from './accounts/toSmartAccount.js'
 export {
-  type MultisigECDSASmartAccount,
-  generateMultisigECDSASmartAccountParams,
-} from './utils/MultisigECDSASmartAccount.js'
+  type GenerateSmartAccountParams,
+  generateSmartAccountParams,
+} from './utils/generateSmartAccountParams.js'
+export {
+  type GenerateMultisigSmartAccountParams,
+  generateMultisigSmartAccountParams,
+} from './utils/generateMultisigSmartAccountParams.js'

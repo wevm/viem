@@ -10,12 +10,12 @@ import { prepareTransactionRequest as prepareTransactionRequest_ } from '../../a
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { parseAccount } from '../../utils/accounts.js'
-import type { SmartAccount } from '../accounts/types.js'
+import type { SmartAccount } from '../accounts/toSmartAccount.js'
 import type { ChainEIP712 } from '../types/chain.js'
 import { isSmartAccount } from '../utils/isSmartAccount.js'
 
 /**
- * Prepares a transaction request for signing with optional estimate gas parameter where real wallet is used for estimation for account apstraction.
+ * Prepares a transaction request for signing with optional estimate gas parameter where real wallet is used for estimation for account abstraction.
  *
  * @param args - {@link PrepareTransactionRequestParameters}
  * @returns The transaction request. {@link PrepareTransactionRequestReturnType}
@@ -96,7 +96,7 @@ export async function prepareTransactionRequest<
     const smartAccount = account as SmartAccount
     args.gas = await estimateGas(client, {
       ...(args as EstimateGasParameters),
-      account: smartAccount.addressAccount,
+      account: smartAccount.walletAccount,
     })
   }
 
