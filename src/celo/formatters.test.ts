@@ -568,12 +568,13 @@ describe('transaction', () => {
 describe('transactionRequest', () => {
   const { transactionRequest } = celo.formatters!
 
-  test('formatter cip42', () => {
+  test('formatter CIP-42 (removed, should produce CIP-64 when feeCurrency specified, EIP-1559 otherwise)', () => {
     expect(
       transactionRequest.format({
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
+        // @ts-ignore
         gatewayFee: 4n,
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
@@ -586,12 +587,10 @@ describe('transactionRequest', () => {
         "feeCurrency": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x1",
-        "gatewayFee": "0x4",
-        "gatewayFeeRecipient": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x1",
         "nonce": "0x1",
-        "type": "0x7c",
+        "type": "0x7b",
         "value": "0x1",
       }
     `)
@@ -601,6 +600,7 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
+        // @ts-ignore
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
         maxPriorityFeePerGas: 1n,
@@ -612,12 +612,10 @@ describe('transactionRequest', () => {
         "feeCurrency": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x1",
-        "gatewayFee": undefined,
-        "gatewayFeeRecipient": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x1",
         "nonce": "0x1",
-        "type": "0x7c",
+        "type": "0x7b",
         "value": "0x1",
       }
     `)
@@ -627,6 +625,7 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
+        // @ts-ignore
         gatewayFee: 4n,
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
@@ -639,12 +638,10 @@ describe('transactionRequest', () => {
         "feeCurrency": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x1",
-        "gatewayFee": "0x4",
-        "gatewayFeeRecipient": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x1",
         "nonce": "0x1",
-        "type": "0x7c",
+        "type": "0x7b",
         "value": "0x1",
       }
     `)
@@ -654,6 +651,7 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
+        // @ts-ignore
         gatewayFee: 4n,
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
@@ -666,12 +664,10 @@ describe('transactionRequest', () => {
         "feeCurrency": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x1",
-        "gatewayFee": "0x4",
-        "gatewayFeeRecipient": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x1",
         "nonce": "0x1",
-        "type": "0x7c",
+        "type": "0x7b",
         "value": "0x1",
       }
     `)
@@ -681,6 +677,7 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
+        // @ts-ignore
         gatewayFee: 4n,
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
@@ -693,12 +690,10 @@ describe('transactionRequest', () => {
         "feeCurrency": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x1",
-        "gatewayFee": "0x4",
-        "gatewayFeeRecipient": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x4",
         "nonce": "0x1",
-        "type": "0x7c",
+        "type": "0x7b",
         "value": "0x1",
       }
     `)
