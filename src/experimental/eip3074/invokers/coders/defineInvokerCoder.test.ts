@@ -5,14 +5,14 @@ import { defineInvokerCoder } from './defineInvokerCoder.js'
 
 const client = anvil3074.getClient()
 
-test('default', () => {
+test('default', async () => {
   const coder = defineInvokerCoder({
     async toExecData(args: string) {
       return encodePacked(['string'], [args])
     },
   })
   expect(
-    coder.toExecData('hello world', {
+    await coder.toExecData('hello world', {
       authority: '0x0000000000000000000000000000000000000000',
       client,
       invokerAddress: '0x0000000000000000000000000000000000000000',
