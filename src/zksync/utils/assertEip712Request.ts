@@ -1,6 +1,9 @@
 import type { ErrorType } from '../../errors/utils.js'
-import { type AssertRequestErrorType, assertRequest } from '../../index.js'
 import type { ExactPartial } from '../../types/utils.js'
+import {
+  type AssertRequestErrorType,
+  assertRequest,
+} from '../../utils/transaction/assertRequest.js'
 import type { zkSync } from '../../zksync/chains.js'
 import type { SendTransactionParameters } from '../actions/sendTransaction.js'
 import { InvalidEip712TransactionError } from '../errors/transaction.js'

@@ -1,13 +1,13 @@
 import type { Abi } from 'abitype'
-import type { ErrorType } from '../../errors/utils.js'
 import {
   AbiEventSignatureNotFoundError,
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
-  type RpcLog,
-} from '../../index.js'
+} from '../../errors/abi.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { ContractEventName } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
+import type { RpcLog } from '../../types/rpc.js'
 import {
   type DecodeEventLogErrorType,
   decodeEventLog,

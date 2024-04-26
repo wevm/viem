@@ -10,7 +10,7 @@ import type {
   SignableMessage,
   Signature,
 } from '../../types/misc.js'
-import { hashMessage } from '../../utils/index.js'
+import { hashMessage } from '../../utils/signature/hashMessage.js'
 import type { HashMessageErrorType } from '../../utils/signature/hashMessage.js'
 import {
   type VerifyHashErrorType,

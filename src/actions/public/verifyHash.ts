@@ -1,6 +1,5 @@
 import type { Address } from 'abitype'
 
-import { signatureToHex } from '../../accounts/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { universalSignatureValidatorAbi } from '../../constants/abis.js'
@@ -20,6 +19,7 @@ import {
 import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
 import { type ToHexErrorType, bytesToHex } from '../../utils/encoding/toHex.js'
 import { getAction } from '../../utils/getAction.js'
+import { signatureToHex } from '../../utils/signature/signatureToHex.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type VerifyHashParameters = Pick<

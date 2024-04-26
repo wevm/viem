@@ -11,7 +11,10 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
-import type { EncodeEventTopicsParameters } from '../../utils/index.js'
+import {
+  type EncodeEventTopicsParameters,
+  encodeEventTopics,
+} from '../../utils/abi/encodeEventTopics.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
@@ -23,12 +26,9 @@ import {
 import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber } from '../../types/block.js'
+import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
+import { formatLog } from '../../utils/formatters/log.js'
 import { getAction } from '../../utils/getAction.js'
-import {
-  decodeEventLog,
-  encodeEventTopics,
-  formatLog,
-} from '../../utils/index.js'
 import {
   type CreateEventFilterParameters,
   createEventFilter,

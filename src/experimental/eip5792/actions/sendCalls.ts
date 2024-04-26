@@ -15,7 +15,7 @@ import type { OneOf } from '../../../types/utils.js'
 import { parseAccount } from '../../../utils/accounts.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
-import { getTransactionError } from '../../../utils/index.js'
+import { getTransactionError } from '../../../utils/errors/getTransactionError.js'
 
 export type SendCallsParameters<
   chain extends Chain | undefined = Chain | undefined,
