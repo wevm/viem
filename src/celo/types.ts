@@ -76,7 +76,6 @@ export type CeloRpcTransaction<TPending extends boolean = boolean> =
 
 export type CeloRpcTransactionRequest =
   | RpcTransactionRequest
-  | RpcTransactionRequestCIP42
   | RpcTransactionRequestCIP64
 
 export type CeloTransaction<TPending extends boolean = boolean> =
@@ -86,13 +85,10 @@ export type CeloTransaction<TPending extends boolean = boolean> =
 
 export type CeloTransactionRequest =
   | TransactionRequest
-  | TransactionRequestCIP42
   | TransactionRequestCIP64
 
 export type CeloTransactionSerializable = OneOf<
-  | TransactionSerializable
-  | TransactionSerializableCIP42
-  | TransactionSerializableCIP64
+  TransactionSerializable | TransactionSerializableCIP64
 >
 
 export type CeloTransactionSerialized<
@@ -113,8 +109,6 @@ type RpcTransaction<TPending extends boolean = boolean> =
 
 type RpcTransactionRequest = RpcTransactionRequest_ & {
   feeCurrency?: Address | undefined
-  gatewayFee?: Hex | undefined
-  gatewayFeeRecipient?: Address | undefined
 }
 
 export type RpcTransactionCIP42<TPending extends boolean = boolean> = Omit<
@@ -139,18 +133,6 @@ export type RpcTransactionCIP64<TPending extends boolean = boolean> = Omit<
     type: '0x7b'
   }
 
-export type RpcTransactionRequestCIP42 = TransactionRequestBase<
-  Quantity,
-  Index
-> &
-  ExactPartial<FeeValuesEIP1559<Quantity>> & {
-    accessList?: AccessList | undefined
-    feeCurrency?: Address | undefined
-    gatewayFee?: Hex | undefined
-    gatewayFeeRecipient?: Address | undefined
-    type?: '0x7c' | undefined
-  }
-
 export type RpcTransactionRequestCIP64 = TransactionRequestBase<
   Quantity,
   Index
@@ -158,8 +140,6 @@ export type RpcTransactionRequestCIP64 = TransactionRequestBase<
   ExactPartial<FeeValuesEIP1559<Quantity>> & {
     accessList?: AccessList | undefined
     feeCurrency?: Address | undefined
-    gatewayFee?: undefined
-    gatewayFeeRecipient?: undefined
     type?: '0x7b' | undefined
   }
 
@@ -169,8 +149,8 @@ type Transaction<TPending extends boolean = boolean> = Transaction_<
   TPending
 > & {
   feeCurrency: Address | null
-  gatewayFee: bigint | null
-  gatewayFeeRecipient: Address | null
+  gatewayFee?: undefined
+  gatewayFeeRecipient?: undefined
 }
 
 export type TransactionCIP42<TPending extends boolean = boolean> =
@@ -193,25 +173,12 @@ export type TransactionCIP64<TPending extends boolean = boolean> =
 
 type TransactionRequest = TransactionRequest_ & {
   feeCurrency?: Address | undefined
-  gatewayFee?: bigint | undefined
-  gatewayFeeRecipient?: Address | undefined
 }
-
-export type TransactionRequestCIP42 = TransactionRequestBase &
-  ExactPartial<FeeValuesEIP1559> & {
-    accessList?: AccessList | undefined
-    feeCurrency?: Address | undefined
-    gatewayFee?: bigint | undefined
-    gatewayFeeRecipient?: Address | undefined
-    type?: 'cip42' | undefined
-  }
 
 export type TransactionRequestCIP64 = TransactionRequestBase &
   ExactPartial<FeeValuesEIP1559> & {
     accessList?: AccessList | undefined
     feeCurrency?: Address | undefined
-    gatewayFee?: undefined
-    gatewayFeeRecipient?: undefined
     type?: 'cip64' | undefined
   }
 
@@ -235,8 +202,6 @@ export type TransactionSerializableCIP64<
   ExactPartial<FeeValuesEIP1559<TQuantity>> & {
     accessList?: AccessList | undefined
     feeCurrency?: Address | undefined
-    gatewayFee?: undefined
-    gatewayFeeRecipient?: undefined
     chainId: number
     type?: 'cip64' | undefined
   }

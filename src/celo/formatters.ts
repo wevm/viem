@@ -2,7 +2,6 @@ import { type ChainFormatters } from '../types/chain.js'
 import type { Hash } from '../types/misc.js'
 import type { RpcTransaction } from '../types/rpc.js'
 import { hexToBigInt } from '../utils/encoding/fromHex.js'
-import { numberToHex } from '../utils/encoding/toHex.js'
 import { defineBlock } from '../utils/formatters/block.js'
 import {
   defineTransaction,
@@ -16,7 +15,7 @@ import type {
   CeloTransaction,
   CeloTransactionRequest,
 } from './types.js'
-import { isCIP42, isCIP64 } from './utils.js'
+import { isCIP64 } from './utils.js'
 
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({
@@ -73,15 +72,8 @@ export const formatters = {
         feeCurrency: args.feeCurrency,
       } as CeloRpcTransactionRequest
 
-      if (isCIP64(args)) request.type = '0x7b'
-      else {
-        if (isCIP42(args)) request.type = '0x7c'
-
-        request.gatewayFee =
-          typeof args.gatewayFee !== 'undefined'
-            ? numberToHex(args.gatewayFee)
-            : undefined
-        request.gatewayFeeRecipient = args.gatewayFeeRecipient
+      if (isCIP64(args)) {
+        request.type = '0x7b'
       }
 
       return request
