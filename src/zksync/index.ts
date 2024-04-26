@@ -29,8 +29,6 @@ export {
   deployContract,
 } from './actions/deployContract.js'
 
-export { prepareTransactionRequest } from './actions/prepareTransactionRequest.js'
-
 export {
   zkSync,
   zkSyncTestnet,
@@ -92,9 +90,17 @@ export {
   type SmartAccountParams,
 } from './accounts/toSmartAccount.js'
 export {
-  type GenerateSmartAccountParams,
-  generateSmartAccountParams,
-} from './utils/generateSmartAccountParams.js'
+  type SinglesigSmartAccountParams,
+  singlesigToSmartAccount,
+} from './accounts/singlesigToSmartAccount.js'
+export {
+  type MultisigToSmartAccountParams,
+  multisigToSmartAccount,
+} from './accounts/multisigToSmartAccount.js'
+export {
+  type GenerateSinglesigSmartAccountParams,
+  generateSinglesigSmartAccountParams,
+} from './utils/generateSinglesigSmartAccountParams.js'
 export {
   type GenerateMultisigSmartAccountParams,
   generateMultisigSmartAccountParams,

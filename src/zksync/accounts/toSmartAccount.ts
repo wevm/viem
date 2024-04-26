@@ -4,32 +4,19 @@ import { type SignMessageErrorType } from '../../accounts/utils/signMessage.js'
 import { type SignTransactionErrorType } from '../../accounts/utils/signTransaction.js'
 import { type SignTypedDataErrorType } from '../../accounts/utils/signTypedData.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type {
-  Account,
-  GetAccountParameter,
-  LocalAccount,
-} from '../../types/account.js'
+import type { LocalAccount } from '../../types/account.js'
 import type { Hash } from '../../types/misc.js'
 import type { ToHexErrorType } from '../../utils/encoding/toHex.js'
 import {
-  type ParseAccountErrorType,
   hashMessage,
   hashTypedData,
   keccak256,
-  parseAccount,
   serializeTransaction,
 } from '../../utils/index.js'
 
-export type SmartAccount<
-  TWalletAccount extends Account | undefined = Account | undefined,
-> = LocalAccount<'zkSyncSmartAccount'> & {
-  walletAccount?: TWalletAccount
-}
+export type SmartAccount = LocalAccount<'zkSyncSmartAccount'>
 
-export type ToSmartAccountParams<
-  TWalletAccount extends Account | undefined = Account | undefined,
-  TAccountRequired extends boolean = false,
-> = GetAccountParameter<TWalletAccount, undefined, TAccountRequired> & {
+export type ToSmartAccountParams = {
   address: Address
 }
 
@@ -37,12 +24,11 @@ export type SmartAccountParams<
   TSignPayloadType extends Object = Hash,
   TSignReturnType extends Object = Hash,
 > = ToSmartAccountParams & {
-  sign: (payload: TSignPayloadType) => Promise<TSignReturnType>
+  signPayload: (payload: TSignPayloadType) => Promise<TSignReturnType>
 }
 
 export type ToSmartAccountErrorType =
   | ToAccountErrorType
-  | ParseAccountErrorType
   | ToHexErrorType
   | SignMessageErrorType
   | SignTransactionErrorType
@@ -51,16 +37,15 @@ export type ToSmartAccountErrorType =
 
 export function toSmartAccount({
   address,
-  account: account_,
-  sign,
+  signPayload,
 }: SmartAccountParams): SmartAccount {
   const account = toAccount({
     address,
     async signMessage({ message }) {
-      return await sign(hashMessage(message))
+      return await signPayload(hashMessage(message))
     },
     async signTransaction(transaction, { serializer } = {}) {
-      return await sign(
+      return await signPayload(
         keccak256(
           serializer
             ? serializer(transaction)
@@ -69,15 +54,12 @@ export function toSmartAccount({
       )
     },
     async signTypedData(typedData) {
-      return await sign(hashTypedData(typedData))
+      return await signPayload(hashTypedData(typedData))
     },
   })
 
-  const walletAccount = account_ ? parseAccount(account_) : undefined
-
   return {
     ...account,
-    walletAccount,
     source: 'zkSyncSmartAccount',
   }
 }

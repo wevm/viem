@@ -1,6 +1,7 @@
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { getChainId } from '../../actions/public/getChainId.js'
+import { prepareTransactionRequest } from '../../actions/wallet/prepareTransactionRequest.js'
 import { sendRawTransaction } from '../../actions/wallet/sendRawTransaction.js'
 import type {
   SendTransactionErrorType,
@@ -20,7 +21,6 @@ import {
 import { getAction } from '../../utils/getAction.js'
 import { type ChainEIP712 } from '../types/chain.js'
 import { assertEip712Request } from '../utils/assertEip712Request.js'
-import { prepareTransactionRequest } from './prepareTransactionRequest.js'
 import { signTransaction } from './signTransaction.js'
 
 export type SendEip712TransactionParameters<

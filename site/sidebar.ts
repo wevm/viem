@@ -1269,6 +1269,19 @@ export const sidebar = {
         ],
       },
       {
+        text: 'Accounts',
+        items: [
+          {
+            text: 'multisigToSmartAccount',
+            link: '/zksync/accounts/multisigToSmartAccount',
+          },
+          {
+            text: 'singlesigToSmartAccount',
+            link: '/zksync/accounts/singlesigToSmartAccount',
+          },
+        ],
+      },
+      {
         text: 'Actions',
         items: [
           {
