@@ -1,6 +1,6 @@
 [submodule "contracts/lib/forge-std"]
 	path = contracts/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
-[submodule "test/invoker"]
-	path = test/invoker
-	url = git@github.com:wevm/invoker.git
+[submodule "test/invokers"]
+	path = test/invokers
+	url = git@github.com:anton-rs/3074-invokers.git

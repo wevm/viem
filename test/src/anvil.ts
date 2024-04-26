@@ -72,7 +72,7 @@ export const anvilZkSync = defineAnvil({
 })
 
 export const anvil3074 = defineAnvil({
-  anvilBinary: resolve(import.meta.dirname, '../invoker/bin/anvil'),
+  anvilBinary: resolve(import.meta.dirname, '../invokers/bin/anvil'),
   chain: mainnet,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
   forkBlockNumber: 16280770n,

@@ -9,7 +9,7 @@ const writer = generated.writer()
 
 const paths = await globby([
   join(import.meta.dir, '../test/contracts/out/**/*.json'),
-  join(import.meta.dir, '../test/invoker/out/**/*.json'),
+  join(import.meta.dir, '../test/invokers/out/**/*.json'),
 ])
 
 const fileNames = []

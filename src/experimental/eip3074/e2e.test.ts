@@ -1,62 +1,51 @@
 import { expect, test } from 'vitest'
-import { Invoker } from '../../../test/contracts/generated.js'
+import { BatchInvoker } from '../../../test/contracts/generated.js'
 import { anvil3074 } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
 import { deploy } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/index.js'
-import { getContract } from '../../actions/getContract.js'
 import { getTransactionReceipt, mine } from '../../actions/index.js'
-import { concat, encodePacked, parseEther } from '../../utils/index.js'
-import { hexToSignature } from '../../utils/signature/hexToSignature.js'
-import { signAuthMessage } from './actions/signAuthMessage.js'
+import { parseEther } from '../../utils/index.js'
+import { batchInvokerCoder } from './invokers/coders/batchInvokerCoder.js'
+import { type InvokerArgs, getInvoker } from './invokers/getInvoker.js'
 
 const client = anvil3074.getClient({ account: true })
-const authorityClient = anvil3074.getClient({
-  account: privateKeyToAccount(accounts[1].privateKey),
-})
 
 test('execute', async () => {
   const { contractAddress: invokerAddress } = await deploy(client, {
-    abi: Invoker.abi,
-    bytecode: Invoker.bytecode.object,
+    abi: BatchInvoker.abi,
+    bytecode: BatchInvoker.bytecode.object,
   })
 
-  const contract = getContract({
-    abi: Invoker.abi,
+  // Initialize an invoker with it's contract address & `args` coder.
+  const invoker = getInvoker({
     address: invokerAddress!,
     client,
+    coder: batchInvokerCoder(),
   })
 
-  const calls = concat([
-    encodePacked(
-      ['uint8', 'address', 'uint256', 'uint256', 'bytes'],
-      [2, accounts[2].address, parseEther('1'), 0n, '0x'],
-    ),
-    encodePacked(
-      ['uint8', 'address', 'uint256', 'uint256', 'bytes'],
-      [2, accounts[2].address, parseEther('2'), 0n, '0x'],
-    ),
-    encodePacked(
-      ['uint8', 'address', 'uint256', 'uint256', 'bytes'],
-      [2, accounts[2].address, parseEther('3'), 0n, '0x'],
-    ),
-  ])
+  // Construct `args` as defined by shape of `batchInvokerCoder`.
+  const args = [
+    { to: accounts[2].address, value: parseEther('1') },
+    { to: accounts[2].address, value: parseEther('2') },
+    { to: accounts[2].address, value: parseEther('3') },
+  ] as const satisfies InvokerArgs<typeof invoker>
 
-  const commit = await contract.read.getCommit([
-    calls,
-    authorityClient.account.address,
-  ])
+  // Authority to execute calls on behalf of.
+  const authority = privateKeyToAccount(accounts[1].privateKey)
 
-  const signature = await signAuthMessage(authorityClient, {
-    commit,
-    invokerAddress: invokerAddress!,
+  // Sign the auth message of `args`.
+  const signature = await invoker.sign({
+    authority,
+    args,
   })
 
-  const hash = await contract.write.execute([
-    calls,
-    authorityClient.account.address,
-    hexToSignature(signature!),
-  ])
+  // Execute `args` with the signature.
+  const hash = await invoker.execute({
+    authority,
+    args,
+    signature,
+  })
 
   await mine(client, { blocks: 1 })
 
