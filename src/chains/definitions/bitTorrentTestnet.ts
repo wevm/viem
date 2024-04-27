@@ -1,13 +1,13 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const bitTorrentTestnet = /*#__PURE__*/ defineChain({
-  id: 1028,
+  id: 1029,
   name: 'BitTorrent Chain Testnet',
   network: 'bittorrent-chain-testnet',
   nativeCurrency: { name: 'BitTorrent', symbol: 'BTT', decimals: 18 },
   rpcUrls: {
-    default: { http: ['https://testrpc.bittorrentchain.io'] },
-    public: { http: ['https://testrpc.bittorrentchain.io'] },
+    default: { http: ['https://pre-rpc.bt.io'] },
+    public: { http: ['https://pre-rpc.bt.io'] },
   },
   blockExplorers: {
     default: {
