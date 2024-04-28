@@ -1,5 +1,15 @@
 # viem
 
+## 2.9.29
+
+### Patch Changes
+
+- [#2195](https://github.com/wevm/viem/pull/2195) [`79ec577f6108c3b9fecf98f1c2d579ad30659184`](https://github.com/wevm/viem/commit/79ec577f6108c3b9fecf98f1c2d579ad30659184) Thanks [@jxom](https://github.com/jxom)! - Fixed legacy transaction address recovery.
+
+- [#2193](https://github.com/wevm/viem/pull/2193) [`5fe7494b8f34c304f9ad17297cfbb3a79e4e0f6a`](https://github.com/wevm/viem/commit/5fe7494b8f34c304f9ad17297cfbb3a79e4e0f6a) Thanks [@mlshv](https://github.com/mlshv)! - Fixed `fetchOptions` declaration on HTTP RPC.
+
+- [#2196](https://github.com/wevm/viem/pull/2196) [`2ca18817ecbe069698924ed337f628ab6e52e397`](https://github.com/wevm/viem/commit/2ca18817ecbe069698924ed337f628ab6e52e397) Thanks [@PengDeng-Cyber](https://github.com/PengDeng-Cyber)! - Updated Cyber chain multicall address.
+
 ## 2.9.28
 
 ### Patch Changes
