@@ -18,8 +18,8 @@ export const cyber = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0xd1A3cb95E97Abc83777Ced3d474CCdD1AC948F0E',
-      blockCreated: 43798,
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 0,
     },
   },
 })
