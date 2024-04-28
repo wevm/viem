@@ -73,11 +73,7 @@ export function getHttpRpcClient(
         ...(params.fetchOptions ?? {}),
       }
 
-      const {
-        headers,
-        method,
-        signal: signal_,
-      } = fetchOptions
+      const { headers, method, signal: signal_ } = fetchOptions
 
       try {
         const response = await withTimeout(
