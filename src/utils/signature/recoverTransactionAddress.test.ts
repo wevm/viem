@@ -14,6 +14,7 @@ import { kzg } from '../../../test/src/kzg.js'
 import type {
   TransactionSerializable,
   TransactionSerializableEIP4844,
+  TransactionSerializedLegacy,
 } from '../../types/transaction.js'
 import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
@@ -131,4 +132,13 @@ test('via `getTransaction`', async () => {
     serializedTransaction,
   })
   expect(address.toLowerCase()).toBe(transaction.from)
+})
+
+test('legacy', async () => {
+  expect(
+    await recoverTransactionAddress({
+      serializedTransaction:
+        '0xf8a90c8507558bdb0082d57a948813f5bcbe6c7071d8bd32d2a4f07599bb5797b080b844a9059cbb00000000000000000000000068674fb6a9ee3749d5d8f71eeed5f254a75ffeea0000000000000000000000000000000000000000000001894b59bd5cd2fc000026a00d39b9cb3369c546185f4ddd6ee6908052c39fe856642726fa93f9a2a83db755a06a8c3928a80275ecef8a0ff00486483f8db6274b5ffd44fbcb8765418e9bec26' as TransactionSerializedLegacy,
+    }),
+  ).toMatchInlineSnapshot(`"0xb03B8ffAB1f3Ac3CabE4A0B2ED441fDFd3C96C8E"`)
 })
