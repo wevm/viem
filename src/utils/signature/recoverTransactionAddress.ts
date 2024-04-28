@@ -12,10 +12,7 @@ import {
   type RecoverAddressErrorType,
   recoverAddress,
 } from './recoverAddress.js'
-import {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from './signatureToHex.js'
+import type { SignatureToHexErrorType } from './signatureToHex.js'
 
 export type RecoverTransactionAddressParameters = {
   serializedTransaction: TransactionSerialized
@@ -38,14 +35,12 @@ export async function recoverTransactionAddress(
 
   const transaction = parseTransaction(serializedTransaction)
 
-  const signature =
-    signature_ ??
-    signatureToHex({
-      r: transaction.r!,
-      s: transaction.s!,
-      v: transaction.v!,
-      yParity: transaction.yParity!,
-    })
+  const signature = signature_ ?? {
+    r: transaction.r!,
+    s: transaction.s!,
+    v: transaction.v!,
+    yParity: transaction.yParity!,
+  }
 
   const serialized = serializeTransaction({
     ...transaction,

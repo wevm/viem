@@ -6,7 +6,7 @@ import {
   type HexToBigIntErrorType,
   hexToBigInt,
 } from '../../utils/encoding/fromHex.js'
-import { type ToHexErrorType } from '../../utils/encoding/toHex.js'
+import type { ToHexErrorType } from '../../utils/encoding/toHex.js'
 
 export type SignatureToHexErrorType =
   | HexToBigIntErrorType
@@ -28,13 +28,13 @@ export type SignatureToHexErrorType =
  * // "0x6e100a352ec6ad1b70802290e18aeed190704973570f3b8ed42cb9808e2ea6bf4a90a229a244495b41890987806fcbd2d5d23fc0dbe5f5256c2613c039d76db81c"
  */
 export function signatureToHex({ r, s, v, yParity }: Signature): Hex {
-  const vHex = (() => {
-    if (v === 27n || yParity === 0) return '1b'
-    if (v === 28n || yParity === 1) return '1c'
-    throw new Error('Invalid v value')
+  const yParity_ = (() => {
+    if (yParity === 0 || yParity === 1) return yParity
+    if (v && (v === 27n || v === 28n || v >= 35n)) return v % 2n === 0n ? 1 : 0
+    throw new Error('Invalid `v` or `yParity` value')
   })()
   return `0x${new secp256k1.Signature(
     hexToBigInt(r),
     hexToBigInt(s),
-  ).toCompactHex()}${vHex}`
+  ).toCompactHex()}${yParity_ === 0 ? '1b' : '1c'}`
 }
