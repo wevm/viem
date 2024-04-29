@@ -22,7 +22,7 @@
     "format": "biome format . --write",
     "lint": "biome check .",
     "lint:fix": "bun run lint --apply",
-    "postinstall": "bun run contracts:build",
+    "postinstall": "git submodule init && git submodule update --recursive && bun run contracts:build",
     "prepare": "bun x simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
