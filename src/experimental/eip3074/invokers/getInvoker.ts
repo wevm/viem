@@ -96,6 +96,7 @@ export function getInvoker<
         invokerAddress: address,
       })
 
+      const { r, s, yParity } = hexToSignature(signature)
       return getAction(
         client,
         writeContract,
@@ -106,7 +107,7 @@ export function getInvoker<
         account,
         chain,
         functionName: 'execute',
-        args: [execData, authority.address, hexToSignature(signature)],
+        args: [execData, { signer: authority.address, r, s, yParity }],
       })
     },
     async sign(parameters) {

@@ -25,7 +25,7 @@ export function batchInvokerCoder() {
       const nonce = await readContract(client, {
         abi: invokerAbi,
         address: invokerAddress,
-        functionName: 'nonce',
+        functionName: 'nextNonce',
         args: [authority],
       })
 

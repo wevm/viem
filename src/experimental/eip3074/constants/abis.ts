@@ -9,15 +9,15 @@ export const invokerAbi = [
         internalType: 'bytes',
       },
       {
-        name: 'authority',
-        type: 'address',
-        internalType: 'address',
-      },
-      {
         name: 'signature',
         type: 'tuple',
         internalType: 'struct Auth.Signature',
         components: [
+          {
+            name: 'signer',
+            type: 'address',
+            internalType: 'address',
+          },
           {
             name: 'yParity',
             type: 'uint8',
@@ -37,7 +37,7 @@ export const invokerAbi = [
       },
     ],
     outputs: [],
-    stateMutability: 'payable',
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -65,7 +65,20 @@ export const invokerAbi = [
   },
   {
     type: 'function',
-    name: 'nonce',
+    name: 'multiSend',
+    inputs: [
+      {
+        name: 'transactions',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    name: 'nextNonce',
     inputs: [
       {
         name: '',
