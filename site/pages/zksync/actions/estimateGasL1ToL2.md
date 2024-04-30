@@ -1,19 +1,18 @@
 ---
-description: Returns an estimated Fee for requested transaction.
+description: Returns an estimated gas for L1 to L2 execution.
 ---
 
-# estimateFee
+# estimateGasL1ToL2
 
-Returns an estimated Fee for requested transaction.
+Returns an estimated gas for L1 to L2 execution
 
 ## Usage
 
 :::code-group
-
 ```ts [example.ts]
 import { client } from './config'
 
-const fee = await client.estimateFee({
+const gas = await client.estimateGasL1ToL2({
   account: '0x636A122e48079f750d44d13E5b39804227E1467e',
   to: "0xa61464658AfeAf65CccaaFD3a512b69A83B77618",
   value: 0n
@@ -34,8 +33,8 @@ export const client = createPublicClient({
 
 ## Returns 
 
-`Fee`
+`bigint` number that represents the gas required.
 
 ## Parameters
 
-`EstimateFeeParameters`
+`EstimateGasL1ToL2Parameters`
