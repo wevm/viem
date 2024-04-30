@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const socialTestnet = /*#__PURE__*/ defineChain({
-  id: 149,
+  id: 749,
   name: 'Social Testnet',
   nativeCurrency: {
     decimals: 18,
