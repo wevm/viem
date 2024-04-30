@@ -13,6 +13,7 @@
       "cache",
       "test/contracts",
       "test/chains",
+      "test/invokers",
       "test/kzg/*.json",
       "test/kzg/*.txt",
       "coverage",
