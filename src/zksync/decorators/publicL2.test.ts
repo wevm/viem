@@ -15,11 +15,13 @@ import {
   mockRequestReturnData,
   mockTestnetPaymasterAddress,
   mockTransactionDetails,
+  mockedGasEstimation,
   mockedL1BatchNumber,
 } from '../../../test/src/zksyncPublicActionsL2MockData.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { estimateFee } from '../actions/estimateFee.js'
+import { estimateGasL1ToL2 } from '../actions/estimateGasL1ToL2.js'
 import type { GetAllBalancesReturnType } from '../actions/getAllBalances.js'
 import { getLogProof } from '../actions/getLogProof.js'
 import { getTransactionDetails } from '../actions/getTransactionDetails.js'
@@ -118,6 +120,16 @@ test('estimateFee', async () => {
   })
 
   expect(fee).to.deep.equal(mockFeeValues)
+})
+
+test('estimateGasL1ToL2', async () => {
+  const gas = await estimateGasL1ToL2(mockedZksyncClient, {
+    account: mockAddress,
+    to: '0xa61464658AfeAf65CccaaFD3a512b69A83B77618',
+    value: 70n,
+  })
+
+  expect(gas).to.deep.equal(mockedGasEstimation)
 })
 
 test('getTransactionDetails', async () => {

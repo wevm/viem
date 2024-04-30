@@ -162,6 +162,8 @@ export const mockTransactionDetails: TransactionDetails = {
   receivedAt: new Date(1713436617435),
 }
 
+export const mockedGasEstimation = 123456789n
+
 export const mockRequestReturnData = async (method: string) => {
   if (method === 'zks_L1ChainId') return mockChainId
   if (method === 'zks_estimateFee') return mockFeeValues
@@ -178,6 +180,7 @@ export const mockRequestReturnData = async (method: string) => {
   if (method === 'zks_getTestnetPaymaster') return mockTestnetPaymasterAddress
   if (method === 'zks_getTransactionDetails') return mockTransactionDetails
   if (method === 'zks_L1BatchNumber') return mockedL1BatchNumber
+  if (method === 'zks_estimateGasL1ToL2') return mockedGasEstimation
   return undefined
 }
 

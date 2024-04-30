@@ -1343,6 +1343,10 @@ export const sidebar = {
                 link: '/zksync/actions/estimateFee',
               },
               {
+                text: 'estimateGasL1ToL2',
+                link: '/zksync/actions/estimateGasL1ToL2',
+              },
+              {
                 text: 'getBridgehubContractAddress',
                 link: '/zksync/actions/getBridgehubContractAddress',
               },

@@ -11,6 +11,7 @@ import type { BatchDetails } from '../actions/getL1BatchDetails.js'
 import type { MessageProof } from '../actions/getLogProof.js'
 import type { RawBlockTransactions } from '../actions/getRawBlockTransaction.js'
 import type { TransactionDetails } from '../actions/getTransactionDetails.js'
+import type { ZkSyncTransactionRequestParameters } from './transaction.js'
 
 type ZksGetAllBalancesReturnType = { [key: string]: string }
 
@@ -31,6 +32,11 @@ export type PublicZkSyncRpcSchema<
     Method: 'zks_estimateFee'
     Parameters: [EstimateFeeParameters<TChain, TAccount>]
     ReturnType: Fee
+  },
+  {
+    Method: 'zks_estimateGasL1ToL2'
+    Parameters: [ZkSyncTransactionRequestParameters<TChain, TAccount>]
+    ReturnType: bigint
   },
   {
     Method: 'zks_getBridgeContracts'

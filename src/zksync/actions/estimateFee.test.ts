@@ -30,7 +30,6 @@ mockClientPublicActionsL2(clientWithAccount)
 test('default with account', async () => {
   const fee = await estimateFee(clientWithAccount, {
     to: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
-    account: '0xa61464658AfeAf65CccaaFD3a512b69A83B77618',
     value: 0n,
   })
 

@@ -6,6 +6,10 @@ import type { Hex } from '../../types/misc.js'
 import { type Fee, estimateFee } from '../actions/estimateFee.js'
 import type { EstimateFeeParameters } from '../actions/estimateFee.js'
 import {
+  type EstimateGasL1ToL2Parameters,
+  estimateGasL1ToL2,
+} from '../actions/estimateGasL1ToL2.js'
+import {
   type GetAllBalancesParameters,
   type GetAllBalancesReturnType,
   getAllBalances,
@@ -307,7 +311,7 @@ export type PublicActionsL2<
    * Returns an estimated Fee for requested transaction.
    *
    * @returns an estimated {@link Fee} for requested transaction.
-   * @param args - {@link ZkSyncTransactionRequest}
+   * @param args - {@link EstimateFeeParameters}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
@@ -322,6 +326,28 @@ export type PublicActionsL2<
    * const details = await client.estimateFee({transactionRequest: {...}}});
    */
   estimateFee: (args: EstimateFeeParameters<TChain, TAccount>) => Promise<Fee>
+
+  /**
+   * Returns an estimated gas for L1 to L2 execution.
+   *
+   * @returns an estimated gas.
+   * @param args - {@link EstimateGasL1ToL2Parameters}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const details = await client.estimateGasL1ToL2({transactionRequest: {...}}});
+   */
+  estimateGasL1ToL2: (
+    args: EstimateGasL1ToL2Parameters<TChain, TAccount>,
+  ) => Promise<bigint>
 
   /**
    * Returns the Bridgehub smart contract address.
@@ -373,6 +399,7 @@ export function publicActionsL2() {
     client: Client<TTransport, TChain, TAccount>,
   ): PublicActionsL2<TChain, TAccount> => {
     return {
+      estimateGasL1ToL2: (args) => estimateGasL1ToL2(client, args),
       getDefaultBridgeAddresses: () => getDefaultBridgeAddresses(client),
       getTestnetPaymasterAddress: () => getTestnetPaymasterAddress(client),
       getL1ChainId: () => getL1ChainId(client),
