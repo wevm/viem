@@ -31,6 +31,8 @@ export default async function () {
   const shutdownMainnet = await anvilMainnet.start()
   const shutdownOptimism = await anvilOptimism.start()
   const shutdownZkSync = await anvilZkSync.start()
+
+  // TODO(3074): remove when 3074 supported natively in Anvil.
   const shutdown3074 = await anvil3074.start()
 
   // TODO(fault-proofs): remove when fault proofs deployed to mainnet.

@@ -1,4 +1,3 @@
-import { resolve } from 'node:path'
 import { type CreateAnvilOptions, startProxy } from '@viem/anvil'
 import {
   mainnet,
@@ -72,12 +71,39 @@ export const anvilZkSync = defineAnvil({
 })
 
 export const anvil3074 = defineAnvil({
-  anvilBinary: resolve(import.meta.dirname, '../invokers/bin/anvil'),
+  execArgs(defaultArgs) {
+    const [_, args_, options] = defaultArgs
+
+    const args = [...args_]
+
+    const hostIndex = args.findIndex((arg) => arg === '--host')
+    if (hostIndex !== -1) args.splice(hostIndex, 2)
+
+    const portIndex = args.findIndex((arg) => arg === '--port')
+    const port = args[portIndex + 1]
+    if (portIndex !== -1) args.splice(portIndex, 2)
+
+    return [
+      'docker',
+      [
+        'run',
+        '-p',
+        `${port}:8545`,
+        '--rm',
+        '-v',
+        `${process.cwd()}:/app/foundry`,
+        '-u',
+        `${process.getuid()}:${process.getgid()}`,
+        'ghcr.io/jxom/foundry-alphanet:latest',
+        '--foundry-command',
+        `anvil ${args.join(' ')}`,
+      ],
+      options,
+    ]
+  },
   chain: mainnet,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
   forkBlockNumber: 16280770n,
-  // @ts-expect-error
-  hardfork: 'prague',
   port: 9045,
 })
 

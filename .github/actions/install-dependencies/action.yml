@@ -14,8 +14,12 @@ runs:
       with:
         node-version: 21
 
-    - name: Set up foundry
+    - name: Set up Foundry
       uses: foundry-rs/foundry-toolchain@v1
+
+      # TODO(3074): Remove this when 3074 supported natively in Anvil.
+    - name: Set up Docker
+      uses: docker-practice/actions-setup-docker@master
 
     - name: Install dependencies
       shell: bash
