@@ -104,6 +104,7 @@ export const anvil3074 = defineAnvil({
   chain: mainnet,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
   forkBlockNumber: 16280770n,
+  startTimeout: 60_000,
   port: 9045,
 })
 
@@ -274,11 +275,11 @@ function defineAnvil<const chain extends Chain>({
       return await startProxy({
         port,
         options: {
-          ...options,
           timeout: 60_000,
           forkUrl,
           forkBlockNumber,
           startTimeout: 20_000,
+          ...options,
         },
       })
     },
