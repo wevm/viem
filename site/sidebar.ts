@@ -1010,19 +1010,55 @@ export const sidebar = {
         ],
       },
       {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Using EIP-3074 Invokers',
+            link: '/experimental/interacting-with-3074-invokers',
+          },
+        ],
+      },
+      {
         text: 'EIP-3074',
         items: [
           {
-            text: 'recoverAuthMessageAddress',
-            link: '/experimental/eip3074/recoverAuthMessageAddress',
+            text: 'Actions',
+            items: [
+              {
+                text: 'signAuthMessage',
+                link: '/experimental/eip3074/signAuthMessage',
+              },
+            ],
           },
           {
-            text: 'signAuthMessage',
-            link: '/experimental/eip3074/signAuthMessage',
+            text: 'Invoker Instances',
+            items: [
+              {
+                text: 'getInvoker',
+                link: '/experimental/eip3074/getInvoker',
+              },
+              {
+                text: 'execute',
+                link: '/experimental/eip3074/execute',
+              },
+              {
+                text: 'sign',
+                link: '/experimental/eip3074/sign',
+              },
+            ],
           },
           {
-            text: 'verifyAuthMessage',
-            link: '/experimental/eip3074/verifyAuthMessage',
+            text: 'Utilities',
+            items: [
+              {
+                text: 'recoverAuthMessageAddress',
+                link: '/experimental/eip3074/recoverAuthMessageAddress',
+              },
+              {
+                text: 'verifyAuthMessage',
+                link: '/experimental/eip3074/verifyAuthMessage',
+              },
+            ],
           },
         ],
       },
@@ -1030,24 +1066,29 @@ export const sidebar = {
         text: 'EIP-5792',
         items: [
           {
-            text: 'getCallsStatus',
-            link: '/experimental/eip5792/getCallsStatus',
-          },
-          {
-            text: 'getCapabilities',
-            link: '/experimental/eip5792/getCapabilities',
-          },
-          {
-            text: 'sendCalls',
-            link: '/experimental/eip5792/sendCalls',
-          },
-          {
-            text: 'showCallsStatus',
-            link: '/experimental/eip5792/showCallsStatus',
-          },
-          {
-            text: 'writeContracts',
-            link: '/experimental/eip5792/writeContracts',
+            text: 'Actions',
+            items: [
+              {
+                text: 'getCallsStatus',
+                link: '/experimental/eip5792/getCallsStatus',
+              },
+              {
+                text: 'getCapabilities',
+                link: '/experimental/eip5792/getCapabilities',
+              },
+              {
+                text: 'sendCalls',
+                link: '/experimental/eip5792/sendCalls',
+              },
+              {
+                text: 'showCallsStatus',
+                link: '/experimental/eip5792/showCallsStatus',
+              },
+              {
+                text: 'writeContracts',
+                link: '/experimental/eip5792/writeContracts',
+              },
+            ],
           },
         ],
       },
