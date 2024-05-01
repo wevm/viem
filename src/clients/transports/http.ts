@@ -50,6 +50,9 @@ export type HttpTransportConfig = {
   retryDelay?: TransportConfig['retryDelay'] | undefined
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
   timeout?: TransportConfig['timeout'] | undefined
+  /** statless config */
+  minimumRequiredAttestations?: HttpRpcClientOptions['minimumRequiredAttestations'] | undefined
+	identities?: HttpRpcClientOptions['identities'] | undefined
 }
 
 export type HttpTransport = Transport<
@@ -81,6 +84,8 @@ export function http(
     onFetchRequest,
     onFetchResponse,
     retryDelay,
+    minimumRequiredAttestations,
+    identities,
   } = config
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
     const { batchSize = 1000, wait = 0 } =
@@ -95,6 +100,8 @@ export function http(
       onRequest: onFetchRequest,
       onResponse: onFetchResponse,
       timeout,
+      minimumRequiredAttestations,
+      identities,
     })
 
     return createTransport(
