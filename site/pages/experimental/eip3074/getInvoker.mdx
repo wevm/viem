@@ -2,43 +2,9 @@
 description: Interface for interacting with EIP-3074 "invoker" contracts. 
 ---
 
-# Invoker Instances
+# getInvoker
 
-An Invoker Instance is an interface for interacting with contracts that implement the [3074-invokers `BaseInvoker`](https://github.com/anton-rs/3074-invokers/blob/05cc5b8532c0b52c9741658f59d1106fd8ced6f2/src/BaseInvoker.sol) interface.  
-
-## Preface
-
-The purpose of an [EIP-3074](https://eips.ethereum.org/EIPS/eip-3074) Invoker is to provide a way to validate and execute call(s) on behalf of an Externally Owned Account (EOA) – 
-it is useful for use cases such as batch calls, gas sponsorship, expirations, and more.
-
-A smart contract can become an invoker by inheriting the [`BaseInvoker`](https://github.com/anton-rs/3074-invokers/blob/main/src/BaseInvoker.sol) and implementing the [`exec` function](https://github.com/anton-rs/3074-invokers/blob/05cc5b8532c0b52c9741658f59d1106fd8ced6f2/src/BaseInvoker.sol#L34):
-
-```solidity
-// [!code word:BaseInvoker]
-contract ExampleInvoker is BaseInvoker {
-    /// @param execData   Arbitrary bytes containing invoker-specific 
-    ///                   dependencies (such as calls, nonce, expiry, etc)
-    ///                   for `exec` to decode.
-    /// @param signature  Signature of the auth message that includes 
-    ///                   `execData` – computed by the authority account.
-    function exec(bytes memory execData, Signature memory signature) internal override { // [!code hl]
-        // ...
-        authcall(/* ... */)
-    }
-}
-```
-
-:::note
-Any smart contract can inherit `BaseInvoker`, whether the goal is to create a [standalone invoker contract](https://github.com/anton-rs/3074-invokers/blob/main/src/BatchInvoker.sol) or [extend a Smart Contract Account (SCA)](https://x.com/WilsonCusack/status/1781424058707345915) to become an invoker.
-
-A popular invoker implementation is the [3074-invokers `BatchInvoker`](https://github.com/anton-rs/3074-invokers/blob/main/src/BatchInvoker.sol) (a standalone invoker), 
-which provides an abstraction to execute multiple calls on behalf of an Externally Owned Account (EOA), with replay protection.
-:::
-
-This `exec` function internally invokes the EIP-3074 `AUTHCALL` opcode to execute call(s) defined within `execData` on behalf of the Externally Owned Account (EOA) that computed the `signature`. 
-The `execData` can also include data other than calls to validate the operation such as: a nonce, expiration, and more. It is up to the `exec` function to validate this data. 
-
-Anyone can invoke the `exec` function provided that the `signature` is correct.
+The `getInvoker` function creates an **Invoker Instance** to interface for interacting with contracts that implement the [3074-invokers `BaseInvoker`](https://github.com/anton-rs/3074-invokers/blob/05cc5b8532c0b52c9741658f59d1106fd8ced6f2/src/BaseInvoker.sol) interface. [Learn more.](/experimental/eip3074/invoker-instances)
 
 ## Import
 
@@ -48,6 +14,8 @@ import { getInvoker } from 'viem/experimental'
 
 ## Usage
 
+The `getInvoker` function accepts a contract which inherits [`BaseInvoker`](https://github.com/anton-rs/3074-invokers/blob/05cc5b8532c0b52c9741658f59d1106fd8ced6f2/src/BaseInvoker.sol):
+
 :::code-group
 
 ```ts twoslash [example.ts] 
@@ -55,11 +23,11 @@ import { getInvoker } from 'viem/experimental'
 import { getInvoker, batchInvokerCoder, type InvokerArgs } from 'viem/experimental'
 import { client } from './config.js'
 
-const invoker = getInvoker({ 
-  address: '0x0000000000000000000000000000000000000000', 
-  client, 
-  coder: batchInvokerCoder(), 
-}) 
+const invoker = getInvoker({ // [!code hl]
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', // [!code hl]
+  client, // [!code hl]
+  coder: batchInvokerCoder(), // [!code hl]
+}) // [!code hl]
 ```
 
 ```ts twoslash [example.ts (Full)] 
@@ -71,7 +39,7 @@ import { client } from './config.js'
 
 // 1. Initialize an invoker with it's contract address & `args` coder. // [!code hl]
 const invoker = getInvoker({ // [!code hl]
-  address: '0x0000000000000000000000000000000000000000', // [!code hl]
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', // [!code hl]
   client, // [!code hl]
   coder: batchInvokerCoder(), // [!code hl]
 }) // [!code hl]
@@ -111,3 +79,67 @@ export const client = createWalletClient({
 ```
 
 :::
+
+## Return Type
+
+`Invoker`
+
+The Invoker Instance.
+
+## Parameters
+
+### address
+
+- **Type:** [`Address`](/docs/glossary/types#address)
+
+The Invoker contract address.
+
+```ts twoslash
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js'
+
+const invoker = getInvoker({
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', // [!code focus]
+  client,
+  coder: batchInvokerCoder(),
+})
+```
+
+### client
+
+- **Type:** `Client`
+
+The Client used for performing invoker actions (ie. `sign` & `execute`).
+
+```ts twoslash
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js' // [!code focus]
+
+const invoker = getInvoker({
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
+  client, // [!code focus]
+  coder: batchInvokerCoder(),
+})
+```
+
+### coder
+
+- **Type:** `InvokerCoder`
+
+Coder for encoding execution data (`args`).
+
+```ts twoslash
+import { getInvoker, batchInvokerCoder } from 'viem/experimental' // [!code focus]
+import { client } from './config.js'
+
+const invoker = getInvoker({
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
+  client, 
+  coder: batchInvokerCoder(), // [!code focus]
+})
+```
+
+Available coders:
+
+- `batchInvokerCoder`: Coder for the [`BatchInvoker`](https://github.com/anton-rs/3074-invokers/blob/main/src/BatchInvoker.sol) contract.
+

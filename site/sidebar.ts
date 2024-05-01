@@ -1032,6 +1032,7 @@ export const sidebar = {
           },
           {
             text: 'Invoker Instances',
+            link: '/experimental/eip3074/invoker-instances',
             items: [
               {
                 text: 'getInvoker',

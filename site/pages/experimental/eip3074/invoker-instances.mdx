@@ -1,0 +1,49 @@
+# Invoker Instances
+
+## Preface
+
+The purpose of an [EIP-3074](https://eips.ethereum.org/EIPS/eip-3074) Invoker is to provide a way to validate and execute call(s) on behalf of an Externally Owned Account (EOA).  
+It is useful for use cases such as batch calls, gas sponsorship, expirations, and more.
+
+A smart contract can become an invoker by inheriting the [`BaseInvoker`](https://github.com/anton-rs/3074-invokers/blob/main/src/BaseInvoker.sol) and implementing the [`exec` function](https://github.com/anton-rs/3074-invokers/blob/05cc5b8532c0b52c9741658f59d1106fd8ced6f2/src/BaseInvoker.sol#L34):
+
+```solidity
+// [!code word:BaseInvoker]
+contract ExampleInvoker is BaseInvoker {
+    /// @param execData   Arbitrary bytes containing invoker-specific 
+    ///                   dependencies (such as calls, nonce, expiry, etc)
+    ///                   for `exec` to decode.
+    /// @param signature  Signature of the auth message that includes 
+    ///                   `execData` – computed by the authority account.
+    function exec(bytes memory execData, Signature memory signature) internal override { // [!code hl]
+        // ...
+        authcall(/* ... */)
+    }
+}
+```
+
+:::note
+A popular invoker implementation is the [3074-invokers `BatchInvoker`](https://github.com/anton-rs/3074-invokers/blob/main/src/BatchInvoker.sol) (a standalone invoker), 
+which provides an abstraction to execute multiple calls on behalf of an Externally Owned Account (EOA), with replay protection.
+:::
+
+This `exec` function internally invokes the EIP-3074 `AUTHCALL` opcode to execute call(s) defined within `execData` on behalf of the Externally Owned Account (EOA) that computed the `signature`. 
+The `execData` can also include data other than calls to validate the operation such as: a nonce, expiration, and more. It is up to the `exec` function to validate this data. 
+
+Anyone can invoke the `exec` function provided that the `signature` is correct.
+
+## Invoker Implementations
+
+The following contracts implement the [`BaseInvoker`](https://github.com/anton-rs/3074-invokers/blob/main/src/BaseInvoker.sol):
+
+| Implementation | Description | 
+| ------------- | ----------- |
+| [`BatchInvoker`](https://github.com/anton-rs/3074-invokers/blob/main/src/BatchInvoker.sol) | Standalone invoker with batch call support and replay protection. |
+
+## Deployed Invokers
+
+Below are addresses for deployed Invoker contracts.
+
+| Network | Implementation | Address | Links | 
+| ------------- | ----------- | ---- | ---- |
+| 3074 Devnet   | [`BatchInvoker`](https://github.com/anton-rs/3074-invokers/blob/main/src/BatchInvoker.sol) | `0x610178dA211FEF7D417bC0e6FeD39F05609AD788` | [Otim Docs](https://docs.otim.xyz/#network-information) |
