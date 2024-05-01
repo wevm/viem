@@ -15,7 +15,7 @@
     "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/updateVersion.ts",
     "clean": "rimraf src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./test/foundry.toml && bun run contracts:build:invoker && bun ./scripts/generateTypedArtifacts.ts",
-    "contracts:build:invoker": "cd test/invokers && docker run --rm -v $(pwd):/app/foundry -u $(id -u):$(id -g) ghcr.io/jxom/foundry-alphanet:latest --foundry-directory /app/foundry --foundry-command 'forge build'",
+    "contracts:build:invoker": "cd test/invokers && docker run --rm -v $(pwd):/app/foundry -u $(id -u):$(id -g) ghcr.io/paradigmxyz/foundry-alphanet:latest --foundry-directory /app/foundry --foundry-command 'forge build'",
     "docs:dev": "cd site && bun run dev",
     "docs:build": "cd site && bun run build",
     "docs:preview": "cd site && bun run preview",

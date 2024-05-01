@@ -94,7 +94,7 @@ export const anvil3074 = defineAnvil({
         `${process.cwd()}:/app/foundry`,
         '-u',
         `${process.getuid()}:${process.getgid()}`,
-        'ghcr.io/jxom/foundry-alphanet:latest',
+        'ghcr.io/paradigmxyz/foundry-alphanet:latest',
         '--foundry-command',
         `anvil ${args.join(' ')}`,
       ],
