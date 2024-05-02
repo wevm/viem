@@ -1,18 +1,37 @@
 import type { Address } from 'abitype'
-import { getTransactionCount } from '../../../actions/public/getTransactionCount.js'
-import { writeContract } from '../../../actions/wallet/writeContract.js'
+import {
+  type GetTransactionCountErrorType,
+  getTransactionCount,
+} from '../../../actions/public/getTransactionCount.js'
+import {
+  type WriteContractErrorType,
+  writeContract,
+} from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, LocalAccount } from '../../../types/account.js'
 import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { IsUndefined } from '../../../types/utils.js'
 import { parseAccount } from '../../../utils/accounts.js'
-import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
+import {
+  type IsAddressEqualErrorType,
+  isAddressEqual,
+} from '../../../utils/address/isAddressEqual.js'
 import { getAction } from '../../../utils/getAction.js'
-import { keccak256 } from '../../../utils/hash/keccak256.js'
-import { hexToSignature } from '../../../utils/signature/hexToSignature.js'
-import { signAuthMessage } from '../actions/signAuthMessage.js'
+import {
+  type Keccak256ErrorType,
+  keccak256,
+} from '../../../utils/hash/keccak256.js'
+import {
+  type HexToSignatureErrorType,
+  hexToSignature,
+} from '../../../utils/signature/hexToSignature.js'
+import {
+  type SignAuthMessageErrorType,
+  signAuthMessage,
+} from '../actions/signAuthMessage.js'
 import { invokerAbi } from '../constants/abis.js'
 import type { InvokerCoder } from './coders/defineInvokerCoder.js'
 
@@ -38,6 +57,11 @@ export type InvokerExecuteParameters<
 } & GetExecutorParameter<account> &
   GetChainParameter<chain, chainOverride>
 
+export type InvokerExecuteErrorType =
+  | WriteContractErrorType
+  | HexToSignatureErrorType
+  | ErrorType
+
 export type InvokerSignParameters<
   account extends Account | undefined = Account | undefined,
   chain extends Chain | undefined = Chain | undefined,
@@ -48,6 +72,13 @@ export type InvokerSignParameters<
   authority: LocalAccount
 } & GetExecutorParameter<account, Account | Address, false> &
   GetChainParameter<chain, chainOverride>
+
+export type InvokerSignErrorType =
+  | GetTransactionCountErrorType
+  | SignAuthMessageErrorType
+  | Keccak256ErrorType
+  | IsAddressEqualErrorType
+  | ErrorType
 
 export type Invoker<
   account extends Account | undefined = Account | undefined,
@@ -72,6 +103,8 @@ export type GetInvokerParameters<
   client: Client<Transport, chain, account>
   coder: InvokerCoder<args>
 }
+
+export type GetInvokerErrorType = ErrorType
 
 export type InvokerArgs<invoker extends Invoker<any, any, any> = Invoker> =
   invoker extends Invoker<any, any, infer args> ? args : unknown

@@ -21,10 +21,13 @@ export {
   walletActionsEip3074,
 } from './eip3074/decorators/eip3074.js'
 export {
+  type GetInvokerErrorType,
   type GetInvokerParameters,
   type Invoker,
   type InvokerArgs,
+  type InvokerExecuteErrorType,
   type InvokerExecuteParameters,
+  type InvokerSignErrorType,
   type InvokerSignParameters,
   getInvoker,
 } from './eip3074/invokers/getInvoker.js'
