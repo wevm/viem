@@ -36,4 +36,4 @@ jobs:
       - name: Publish to npm
         run: cd src && npm publish --tag $(git describe --tags --abbrev=0 | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//')
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_SECRET }}
