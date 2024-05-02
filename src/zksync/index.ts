@@ -86,11 +86,12 @@ export type {
 } from './types/transaction.js'
 
 export {
-  type ApprovalBasedPaymasterInput,
+  type GetApprovalBasedPaymasterInputParameters,
+  type GetApprovalBasedPaymasterInputReturnType,
   getApprovalBasedPaymasterInput,
 } from './utils/paymaster/getApprovalBasedPaymasterInput.js'
-
 export {
-  type GeneralPaymasterInput,
+  type GetGeneralPaymasterInputParameters,
+  type GetGeneralPaymasterInputReturnType,
   getGeneralPaymasterInput,
 } from './utils/paymaster/getGeneralPaymasterInput.js'
