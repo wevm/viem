@@ -1,7 +1,7 @@
 name: Release (Canary)
 on:
   push:
-    branches: [main]
+    branches: [release]
   workflow_dispatch:
 
 jobs:
@@ -27,13 +27,13 @@ jobs:
           jq --arg prop "workspaces" 'del(.[$prop])' package.json > package.tmp.json && rm package.json && cp package.tmp.json package.json && rm package.tmp.json
           cd src
           npm --no-git-tag-version version 0.0.0
-          npm --no-git-tag-version version $(npm pkg get version | sed 's/"//g')-$(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//').$(date +'%Y%m%dT%H%M%S')
+          npm --no-git-tag-version version $(npm pkg get version | sed 's/"//g')-$(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//').$("-stateless")
           bun ../scripts/updateVersion.ts
 
       - name: Build
         run: bun run build
 
       - name: Publish to npm
-        run: cd src && npm publish --tag $(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//')
+        run: cd src && npm publish --tag $(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//').$("-stateless")
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
