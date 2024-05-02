@@ -23,5 +23,8 @@ export const avalanche = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 11907934,
     },
+    ensUniversalresolver: {
+      address: '0x24DFa1455A75f64800BFdB2447958D2B632b94f6'
+    }
   },
 })
