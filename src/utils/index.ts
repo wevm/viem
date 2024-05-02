@@ -486,5 +486,8 @@ export { type FormatUnitsErrorType, formatUnits } from './unit/formatUnits.js'
 export { type ParseUnitsErrorType, parseUnits } from './unit/parseUnits.js'
 export { type ParseEtherErrorType, parseEther } from './unit/parseEther.js'
 export { type ParseGweiErrorType, parseGwei } from './unit/parseGwei.js'
-export { type ParseERC6492SignatureReturnType, parseERC6492Signature } from './signature/parseERC6492Signature.js'
+export {
+  type ParseERC6492SignatureReturnType,
+  parseERC6492Signature,
+} from './signature/parseERC6492Signature.js'
 export { isERC6492Signature } from './signature/isERC6492Signature.js'

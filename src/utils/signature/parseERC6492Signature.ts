@@ -9,7 +9,9 @@ export type ParseERC6492SignatureReturnType = {
   factoryCalldata?: Hex
 }
 
-export function parseERC6492Signature(signature: Hex): ParseERC6492SignatureReturnType {
+export function parseERC6492Signature(
+  signature: Hex,
+): ParseERC6492SignatureReturnType {
   if (!isERC6492Signature(signature)) return { sigToValidate: signature }
 
   const [factory, factoryCalldata, sigToValidate] = decodeAbiParameters(
