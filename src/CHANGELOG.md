@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.31
+
+### Patch Changes
+
+- [`8a2fb73e06073af2f0cb3e21f4a964b59dc13ba2`](https://github.com/wevm/viem/commit/8a2fb73e06073af2f0cb3e21f4a964b59dc13ba2) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Fixed `getCapabilities` parameter type.
+
 ## 2.9.30
 
 ### Patch Changes
