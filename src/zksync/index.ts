@@ -84,3 +84,14 @@ export type {
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
 } from './types/transaction.js'
+
+export {
+  type GetApprovalBasedPaymasterInputParameters,
+  type GetApprovalBasedPaymasterInputReturnType,
+  getApprovalBasedPaymasterInput,
+} from './utils/paymaster/getApprovalBasedPaymasterInput.js'
+export {
+  type GetGeneralPaymasterInputParameters,
+  type GetGeneralPaymasterInputReturnType,
+  getGeneralPaymasterInput,
+} from './utils/paymaster/getGeneralPaymasterInput.js'
