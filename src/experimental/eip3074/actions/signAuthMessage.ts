@@ -7,7 +7,7 @@ import type { ErrorType } from '../../../errors/utils.js'
 import type {
   Account,
   DeriveAccount,
-  PrivateKeyAccount,
+  LocalAccount,
 } from '../../../types/account.js'
 import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import type { Hash, Hex } from '../../../types/misc.js'
@@ -19,12 +19,12 @@ type GetAccountParameter<
   account extends Account | undefined = Account | undefined,
   accountOverride extends Account | Address | undefined = Account | Address,
 > = IsUndefined<account> extends true
-  ? { account: accountOverride | PrivateKeyAccount }
-  : account extends PrivateKeyAccount
+  ? { account: accountOverride | LocalAccount }
+  : account extends LocalAccount
     ? {
-        account?: accountOverride | PrivateKeyAccount | undefined
+        account?: accountOverride | LocalAccount | undefined
       }
-    : { account: accountOverride | PrivateKeyAccount }
+    : { account: accountOverride | LocalAccount }
 
 type GetNonceParameter<account extends Account | Address | undefined> =
   account extends Address | Account

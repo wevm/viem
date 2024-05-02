@@ -56,7 +56,7 @@ export type JsonRpcAccount<TAddress extends Address = Address> = {
 }
 
 export type LocalAccount<
-  TSource extends string = 'custom',
+  TSource extends string = string,
   TAddress extends Address = Address,
 > = CustomSource & {
   address: TAddress
