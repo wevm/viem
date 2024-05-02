@@ -67,15 +67,14 @@ describe('eip1559', () => {
     type: 'eip1559',
   } as const satisfies TransactionRequestEIP1559
 
-  // TODO: Anvil seems to be broken with JSON-RPC signing. This test will fail when
-  // it is fixed upstream.
   test('default: json-rpc', async () => {
-    await expect(() =>
-      signTransaction(client, {
-        account: sourceAccount.address,
-        ...baseEip1559,
-      }),
-    ).rejects.toThrowError()
+    const signature = await signTransaction(client, {
+      account: sourceAccount.address,
+      ...baseEip1559,
+    })
+    expect(signature).toMatchInlineSnapshot(
+      `"0x02f855018203118085034e37ce4d825208808080c025a0f0d996c2e2c414a9c57b58e69adc4dc433f4c10c68c52625ea4152f56d3b7efba04370eee9a560a69bb5db87a3d4851c8fbfd429eb6b9e6a6d9699c451f97f356c"`,
+    )
   })
 
   test('default: local', async () => {
