@@ -85,7 +85,6 @@ export type {
   ZkSyncTransactionType,
 } from './types/transaction.js'
 
-
 export {
   type ApprovalBasedPaymasterInput,
   getApprovalBasedPaymasterInput,
