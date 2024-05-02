@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.30
+
+### Patch Changes
+
+- [#2171](https://github.com/wevm/viem/pull/2171) [`6311259458f4f6aac550df8e4c862db5313c4428`](https://github.com/wevm/viem/commit/6311259458f4f6aac550df8e4c862db5313c4428) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added EIP-3074 Invoker Instances API.
+
 ## 2.9.29
 
 ### Patch Changes
