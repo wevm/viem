@@ -43,6 +43,7 @@ export {
 } from './eip3074/invokers/coders/defineInvokerCoder.js'
 
 export {
+  type GetCapabilitiesParameters,
   type GetCapabilitiesErrorType,
   type GetCapabilitiesReturnType,
   getCapabilities,
