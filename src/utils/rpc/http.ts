@@ -12,6 +12,7 @@ import {
 } from '../promise/withTimeout.js'
 import { stringify } from '../stringify.js'
 import { idCache } from './id.js'
+import { handleAttestations, handleAndBlockNumberReqs } from './stateless.js'
 
 export type HttpRpcClientOptions = {
   /** Request configuration to pass to `fetch`. */
@@ -22,6 +23,9 @@ export type HttpRpcClientOptions = {
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
   /** The timeout (in ms) for the request. */
   timeout?: number | undefined
+  /** stateless config */
+  minimumRequiredAttestations?: number | undefined
+	identities?: string[] | undefined
 }
 
 export type HttpRequestParameters<
@@ -37,6 +41,9 @@ export type HttpRequestParameters<
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
   /** The timeout (in ms) for the request. */
   timeout?: HttpRpcClientOptions['timeout'] | undefined
+  /** stateless config */
+  minimumRequiredAttestations?: number | undefined
+	identities?: string[] | undefined
 }
 
 export type HttpRequestReturnType<
@@ -66,6 +73,8 @@ export function getHttpRpcClient(
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
+        minimumRequiredAttestations = options.minimumRequiredAttestations,
+        identities = options.identities,
       } = params
 
       const fetchOptions = {
@@ -123,6 +132,10 @@ export function getHttpRpcClient(
           data = await response.text()
           data = JSON.parse(data || '{}')
         }
+
+        if (minimumRequiredAttestations != undefined) await handleAttestations(data, minimumRequiredAttestations, identities)
+        
+        data = await handleAndBlockNumberReqs(data)
 
         if (!response.ok) {
           throw new HttpRequestError({

@@ -68,5 +68,9 @@
   "trustedDependencies": ["c-kzg"],
   "simple-git-hooks": {
     "pre-commit": "bun run format && bun run lint:fix"
+  },
+  "dependencies": {
+    "@types/sshpk": "^1.17.4",
+    "sshpk": "^1.18.0"
   }
 }
