@@ -7,6 +7,7 @@ description: Returns encoded formatted approval-based paymaster params.
 Returns encoded formatted approval-based paymaster params.
 
 ## Import
+
 ```ts
 import { getApprovalBasedPaymasterInput } from 'viem/zksync'
 ```
@@ -17,10 +18,10 @@ import { getApprovalBasedPaymasterInput } from 'viem/zksync'
 import { getApprovalBasedPaymasterInput } from 'viem/zksync'
 
 const data = getApprovalBasedPaymasterInput({
-      token: "0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964",
-      minimalAllowance: 1n,
-      innerInput: new Uint8Array(),
-    })
+  innerInput: '0x',
+  minAllowance: 1n,
+  token: "0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964",
+})
 ```
 
 ## Returns
@@ -33,50 +34,42 @@ The `Hex` value of the provided approval-based paymaster inputs.
 
 ### token
 
-token address
-
 - **Type:** `Address`
 
+The token address.
+
 ```ts
 const data = getApprovalBasedPaymasterInput({
-      token: "0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964", // [!code focus]
-      minimalAllowance: 1n,
-      innerInput: new Uint8Array(),
-    })
+  innerInput: '0x',
+  minAllowance: 1n,
+  token: "0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964", // [!code focus]
+})
 ```
 
-### minimalAllowance
+### minAllowance
 
-minimal allowance of token that can be sent towards the paymaster
+- **Type:** `bigint`
 
-- **Type:** `bigInt`
+Minimum allowance (in wei) of token that can be sent towards the paymaster.
 
 ```ts
 const data = getApprovalBasedPaymasterInput({
-      token: "0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964",
-      minimalAllowance: 1n, // [!code focus]
-      innerInput: new Uint8Array(),
-    })
+  innerInput: new Uint8Array(),
+  minAllowance: 1n, // [!code focus]
+  token: "0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964",
+})
 ```
 
 ### innerInput
 
-additional payload that can be sent to the paymaster to implement any logic 
+- **Type:** `Hex | ByteArray`
 
-- **Type:** `Hex` or `ByteArray`
-
-```ts
-const data = getApprovalBasedPaymasterInput({
-      token: "0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964",
-      minimalAllowance: 1n, 
-      innerInput: new Uint8Array([0, 1, 2, 3, 4, 5]), // [!code focus]
-    })
-```
+Additional payload that can be sent to the paymaster to implement any logic .
 
 ```ts
 const data = getApprovalBasedPaymasterInput({
-      token: "0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964",
-      minimalAllowance: 1n, 
-      innerInput: "0x0005040302010", // [!code focus]
-    })
+  innerInput: "0x0005040302010", // [!code focus]
+  minAllowance: 1n, 
+  token: "0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964",
+})
 ```

@@ -423,42 +423,41 @@ export const contractDeployerAbi = [
   },
 ]
 
-
 export const paymasterAbi = [
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
       },
       {
-        "internalType": "uint256",
-        "name": "_minAllowance",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: '_minAllowance',
+        type: 'uint256',
       },
       {
-        "internalType": "bytes",
-        "name": "_innerInput",
-        "type": "bytes"
-      }
+        internalType: 'bytes',
+        name: '_innerInput',
+        type: 'bytes',
+      },
     ],
-    "name": "approvalBased",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: 'approvalBased',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "bytes",
-        "name": "input",
-        "type": "bytes"
-      }
+        internalType: 'bytes',
+        name: 'input',
+        type: 'bytes',
+      },
     ],
-    "name": "general",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
+    name: 'general',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
 ]

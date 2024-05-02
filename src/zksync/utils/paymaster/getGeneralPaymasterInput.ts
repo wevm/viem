@@ -3,16 +3,18 @@ import type { EncodeFunctionDataReturnType } from '../../../utils/abi/encodeFunc
 import { bytesToHex, encodeFunctionData } from '../../../utils/index.js'
 import { paymasterAbi } from '../../constants/abis.js'
 
-export type GeneralPaymasterInput = {
+export type GetGeneralPaymasterInputParameters = {
   innerInput: Hex | ByteArray
 }
 
-export function getGeneralPaymasterInput(
-  parameters: GeneralPaymasterInput,
-): EncodeFunctionDataReturnType {
-  const { innerInput } = parameters as GeneralPaymasterInput
+export type GetGeneralPaymasterInputReturnType = EncodeFunctionDataReturnType
 
-  const innerInputHex: Hex =
+export function getGeneralPaymasterInput(
+  parameters: GetGeneralPaymasterInputParameters,
+): GetGeneralPaymasterInputReturnType {
+  const { innerInput } = parameters
+
+  const innerInputHex =
     typeof innerInput === 'string' ? innerInput : bytesToHex(innerInput)
 
   return encodeFunctionData({

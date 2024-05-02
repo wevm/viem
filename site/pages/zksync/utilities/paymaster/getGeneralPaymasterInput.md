@@ -17,8 +17,8 @@ import { getGeneralPaymasterInput } from 'viem/zksync'
 import { getGeneralPaymasterInput } from 'viem/zksync'
 
 const data = getGeneralPaymasterInput({
-      innerInput: new Uint8Array(),
-    })
+  innerInput: '0x',
+})
 ```
 
 ## Returns
@@ -31,7 +31,7 @@ The `Hex` value of the provided general-based paymaster inputs.
 
 ### innerInput
 
-additional payload that can be sent to the paymaster to implement any logic 
+Additional payload that can be sent to the paymaster to implement any logic 
 
 - **Type:** `Hex` or `ByteArray`
 

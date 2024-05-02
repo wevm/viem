@@ -2,11 +2,11 @@ import { expect, test } from 'vitest'
 
 import { getApprovalBasedPaymasterInput } from './getApprovalBasedPaymasterInput.js'
 
-test('args: token, minimalAllowance and innerInput as hex', () => {
+test('args: token, minAllowance and innerInput as hex', () => {
   expect(
     getApprovalBasedPaymasterInput({
       innerInput: '0x',
-      minimalAllowance: 1n,
+      minAllowance: 1n,
       token: '0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964',
     }),
   ).toEqual(
@@ -16,7 +16,7 @@ test('args: token, minimalAllowance and innerInput as hex', () => {
   expect(
     getApprovalBasedPaymasterInput({
       innerInput: '0x000102030405',
-      minimalAllowance: 2n,
+      minAllowance: 2n,
       token: '0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964',
     }),
   ).toEqual(
@@ -24,11 +24,11 @@ test('args: token, minimalAllowance and innerInput as hex', () => {
   )
 })
 
-test('args: token, minimalAllowance and innerInput as byte array', () => {
+test('args: token, minAllowance and innerInput as byte array', () => {
   expect(
     getApprovalBasedPaymasterInput({
       innerInput: new Uint8Array(),
-      minimalAllowance: 1n,
+      minAllowance: 1n,
       token: '0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964',
     }),
   ).toEqual(
@@ -38,7 +38,7 @@ test('args: token, minimalAllowance and innerInput as byte array', () => {
   expect(
     getApprovalBasedPaymasterInput({
       innerInput: new Uint8Array([0, 1, 2, 3, 4, 5]),
-      minimalAllowance: 2n,
+      minAllowance: 2n,
       token: '0x65C899B5fb8Eb9ae4da51D67E1fc417c7CB7e964',
     }),
   ).toEqual(
