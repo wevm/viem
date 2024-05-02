@@ -20,7 +20,7 @@ The `getInvoker` function accepts a contract which inherits [`BaseInvoker`](http
 
 ```ts twoslash [example.ts] 
 // @noErrors
-import { getInvoker, batchInvokerCoder, type InvokerArgs } from 'viem/experimental'
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
 import { client } from './config.js'
 
 const invoker = getInvoker({ // [!code hl]
@@ -45,25 +45,30 @@ const invoker = getInvoker({ // [!code hl]
 }) // [!code hl]
 
 // 2. Construct calls (`args`) as defined by shape of `batchInvokerCoder`.
-const args: InvokerArgs<typeof invoker> = [
-  { to: accounts[2].address, value: parseEther('1') },
-  { to: accounts[2].address, value: parseEther('2') },
-  { to: accounts[2].address, value: parseEther('3') },
+const calls: InvokerArgs<typeof invoker> = [
+  { to: '0x...', value: parseEther('1') },
+  { to: '0x...', value: parseEther('2') },
+  { to: '0x...', value: parseEther('3') },
 ]
 
-// 3. Create an authority account to execute the calls on behalf of.
+// 3. Import an authority (source) account for the calls.
 const authority = privateKeyToAccount('0x...')
 
-// 4. Sign the auth message of the calls (`args`) with the authority account.
+// 4. Import an exector account to execute the calls.
+const executor = privateKeyToAccount('0x...')
+
+// 5. Sign the auth message of the calls (`args`) with the authority account.
 const signature = await invoker.sign({
+  args: calls,
   authority,
-  args,
+  executor,
 })
 
-// 5. Execute the calls (`args`) on behalf of the authority account.
+// 6. Execute the calls (`args`) on behalf of the authority account.
 const hash = await invoker.execute({
+  args: calls,
   authority,
-  args,
+  executor,
   signature,
 })
 ```

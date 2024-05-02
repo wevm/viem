@@ -3,13 +3,10 @@ import { getTransactionCount } from '../../../actions/public/getTransactionCount
 import { writeContract } from '../../../actions/wallet/writeContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import type {
-  Account,
-  GetAccountParameter,
-  PrivateKeyAccount,
-} from '../../../types/account.js'
+import type { Account, LocalAccount } from '../../../types/account.js'
 import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
+import type { IsUndefined } from '../../../types/utils.js'
 import { parseAccount } from '../../../utils/accounts.js'
 import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
 import { getAction } from '../../../utils/getAction.js'
@@ -18,6 +15,16 @@ import { hexToSignature } from '../../../utils/signature/hexToSignature.js'
 import { signAuthMessage } from '../actions/signAuthMessage.js'
 import { invokerAbi } from '../constants/abis.js'
 import type { InvokerCoder } from './coders/defineInvokerCoder.js'
+
+type GetExecutorParameter<
+  TAccount extends Account | undefined = Account | undefined,
+  TAccountOverride extends Account | Address | undefined = Account | Address,
+  TRequired extends boolean = true,
+> = IsUndefined<TAccount> extends true
+  ? TRequired extends true
+    ? { executor: TAccountOverride | Account | Address }
+    : { executor?: TAccountOverride | Account | Address | undefined }
+  : { executor?: TAccountOverride | Account | Address | undefined }
 
 export type InvokerExecuteParameters<
   account extends Account | undefined = Account | undefined,
@@ -28,7 +35,7 @@ export type InvokerExecuteParameters<
   args: args
   authority: Account | Address
   signature: Hex
-} & GetAccountParameter<account> &
+} & GetExecutorParameter<account> &
   GetChainParameter<chain, chainOverride>
 
 export type InvokerSignParameters<
@@ -38,8 +45,8 @@ export type InvokerSignParameters<
   args = unknown,
 > = {
   args: args
-  authority: PrivateKeyAccount
-} & GetAccountParameter<account, Account | Address, false> &
+  authority: LocalAccount
+} & GetExecutorParameter<account, Account | Address, false> &
   GetChainParameter<chain, chainOverride>
 
 export type Invoker<
@@ -81,14 +88,14 @@ export function getInvoker<
     address,
     async execute(parameters) {
       const {
-        account: account_ = client.account,
+        executor: executor_ = client.account,
         authority: authority_,
         args,
         chain = client.chain,
         signature,
       } = parameters
-      const account = parseAccount(account_!)
       const authority = parseAccount(authority_!)
+      const executor = parseAccount(executor_!)
 
       const execData = await coder.toExecData(args, {
         authority: authority.address,
@@ -104,7 +111,7 @@ export function getInvoker<
       )({
         abi: invokerAbi,
         address,
-        account,
+        account: executor,
         chain,
         functionName: 'execute',
         args: [execData, { signer: authority.address, r, s, yParity }],
@@ -112,12 +119,12 @@ export function getInvoker<
     },
     async sign(parameters) {
       const {
-        account: account_ = client.account,
         args,
         authority,
+        executor: executor_ = client.account,
         chain = client.chain,
       } = parameters
-      const account = parseAccount(account_!)
+      const executor = parseAccount(executor_!)
       const [execData, nonce] = await Promise.all([
         await coder.toExecData(args, {
           authority: authority.address,
@@ -142,7 +149,7 @@ export function getInvoker<
         chain,
         commit: keccak256(execData),
         invokerAddress: address,
-        nonce: isAddressEqual(authority.address, account.address)
+        nonce: isAddressEqual(authority.address, executor.address)
           ? nonce + 1
           : nonce,
       })

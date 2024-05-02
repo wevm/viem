@@ -1013,8 +1013,8 @@ export const sidebar = {
         text: 'Guides',
         items: [
           {
-            text: 'Using EIP-3074 Invokers',
-            link: '/experimental/interacting-with-3074-invokers',
+            text: 'Using Invokers (EIP-3074)',
+            link: '/experimental/eip3074/using-invokers',
           },
         ],
       },
