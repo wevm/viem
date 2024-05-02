@@ -1,6 +1,6 @@
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import type { Account, JsonRpcAccount } from '../../../types/account.js'
+import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import {
   type GetCallsStatusParameters,
@@ -80,7 +80,7 @@ export type WalletActionsEip5792<
    * })
    */
   getCapabilities: (
-    ...parameters: account extends JsonRpcAccount
+    ...parameters: account extends Account
       ? [] | [parameters: GetCapabilitiesParameters<account>]
       : [parameters: GetCapabilitiesParameters<undefined>]
   ) => Promise<GetCapabilitiesReturnType>
