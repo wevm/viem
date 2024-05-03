@@ -19,6 +19,13 @@ export type PacketToBytesErrorType =
 
 /*
  * @description Encodes a DNS packet into a ByteArray containing a UDP payload.
+ *
+ * @example
+ * packetToBytes('awkweb.eth')
+ * '0x0661776b7765620365746800'
+ *
+ * @see https://docs.ens.domains/resolution/names#dns
+ *
  */
 export function packetToBytes(packet: string): ByteArray {
   // strip leading and trailing `.`
