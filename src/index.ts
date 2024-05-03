@@ -1058,6 +1058,7 @@ export type {
   StateMapping,
   StateOverride,
 } from './types/stateOverride.js'
+export { normalize, type NormalizeErrorType } from './utils/ens/normalize.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
 export { namehash, type NamehashErrorType } from './utils/ens/namehash.js'
 export {
