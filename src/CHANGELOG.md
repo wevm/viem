@@ -1,5 +1,11 @@
 # viem
 
+## 2.9.32
+
+### Patch Changes
+
+- [#2214](https://github.com/wevm/viem/pull/2214) [`a43649970aab6a8d4dcbe2912443cc2fbce1d1dd`](https://github.com/wevm/viem/commit/a43649970aab6a8d4dcbe2912443cc2fbce1d1dd) Thanks [@wottpal](https://github.com/wottpal)! - Exported ENS-related utility functions `packetToBytes` and `parseAvatarRecord`.`
+
 ## 2.9.31
 
 ### Patch Changes
