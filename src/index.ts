@@ -1058,17 +1058,8 @@ export type {
   StateMapping,
   StateOverride,
 } from './types/stateOverride.js'
-export { normalize, type NormalizeErrorType } from './utils/ens/normalize.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
 export { namehash, type NamehashErrorType } from './utils/ens/namehash.js'
-export {
-  packetToBytes,
-  type PacketToBytesErrorType,
-} from './utils/ens/packetToBytes.js'
-export {
-  parseAvatarRecord,
-  type ParseAvatarRecordErrorType,
-} from './utils/ens/avatar/parseAvatarRecord.js'
 export {
   type FormattedBlock,
   defineBlock,
