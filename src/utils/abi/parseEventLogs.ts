@@ -1,3 +1,5 @@
+// TODO(v3): checksum address.
+
 import type { Abi } from 'abitype'
 import {
   AbiEventSignatureNotFoundError,
