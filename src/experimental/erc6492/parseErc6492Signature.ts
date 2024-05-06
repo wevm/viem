@@ -5,7 +5,7 @@ import type { OneOf, Prettify } from '../../types/utils.js'
 import {
   type DecodeAbiParametersErrorType,
   decodeAbiParameters,
-} from '../abi/decodeAbiParameters.js'
+} from '../../utils/abi/decodeAbiParameters.js'
 import {
   type IsErc6492SignatureErrorType,
   isErc6492Signature,
@@ -17,15 +17,15 @@ export type ParseErc6492SignatureReturnType = Prettify<
   OneOf<
     | {
         /**
-         * The ERC-4337 Account Factory address to use for counterfactual verification.
+         * The ERC-4337 Account Factory or preparation address to use for counterfactual verification.
          * `undefined` if the signature is not in ERC-6492 format.
          */
-        factoryAddress: Address
+        address: Address
         /**
          * Calldata to pass to deploy account (if not deployed) for counterfactual verification.
          * `undefined` if the signature is not in ERC-6492 format.
          */
-        factoryData: Hex
+        data: Hex
         /** The original signature. */
         signature: Hex
       }
@@ -57,9 +57,9 @@ export function parseErc6492Signature(
 ): ParseErc6492SignatureReturnType {
   if (!isErc6492Signature(signature)) return { signature }
 
-  const [factoryAddress, factoryData, signature_] = decodeAbiParameters(
+  const [address, data, signature_] = decodeAbiParameters(
     [{ type: 'address' }, { type: 'bytes' }, { type: 'bytes' }],
     signature,
   )
-  return { factoryAddress, factoryData, signature: signature_ }
+  return { address, data, signature: signature_ }
 }

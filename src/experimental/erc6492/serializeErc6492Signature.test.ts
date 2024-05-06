@@ -11,8 +11,8 @@ test('default', async () => {
 
   expect(
     serializeErc6492Signature({
-      factoryAddress: '0xcafebabecafebabecafebabecafebabecafebabe',
-      factoryData: '0xdeadbeef',
+      address: '0xcafebabecafebabecafebabecafebabecafebabe',
+      data: '0xdeadbeef',
       signature,
     }),
   ).toMatchInlineSnapshot(

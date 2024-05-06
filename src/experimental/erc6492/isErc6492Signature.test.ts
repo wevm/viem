@@ -13,8 +13,8 @@ test('default', async () => {
   expect(isErc6492Signature(signature)).toBe(false)
 
   const erc6492Signature = serializeErc6492Signature({
-    factoryAddress: '0xcafebabecafebabecafebabecafebabecafebabe',
-    factoryData: '0xdeadbeef',
+    address: '0xcafebabecafebabecafebabecafebabecafebabe',
+    data: '0xdeadbeef',
     signature,
   })
   expect(isErc6492Signature(erc6492Signature)).toBe(true)

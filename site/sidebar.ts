@@ -879,16 +879,8 @@ export const sidebar = {
               link: '/docs/utilities/hashTypedData',
             },
             {
-              text: 'isErc6492Signature',
-              link: '/docs/utilities/isErc6492Signature',
-            },
-            {
               text: 'parseCompactSignature',
               link: '/docs/utilities/parseCompactSignature',
-            },
-            {
-              text: 'parseErc6492Signature',
-              link: '/docs/utilities/parseErc6492Signature',
             },
             {
               text: 'parseSignature',
@@ -917,10 +909,6 @@ export const sidebar = {
             {
               text: 'serializeCompactSignature',
               link: '/docs/utilities/serializeCompactSignature',
-            },
-            {
-              text: 'serializeErc6492Signature',
-              link: '/docs/utilities/serializeErc6492Signature',
             },
             {
               text: 'serializeSignature',
@@ -1100,6 +1088,28 @@ export const sidebar = {
               {
                 text: 'writeContracts',
                 link: '/experimental/eip5792/writeContracts',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'ERC-6492',
+        items: [
+          {
+            text: 'Utilities',
+            items: [
+              {
+                text: 'parseErc6492Signature',
+                link: '/experimental/erc6492/parseErc6492Signature',
+              },
+              {
+                text: 'isErc6492Signature',
+                link: '/experimental/erc6492/isErc6492Signature',
+              },
+              {
+                text: 'serializeErc6492Signature',
+                link: '/experimental/erc6492/serializeErc6492Signature',
               },
             ],
           },
