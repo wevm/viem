@@ -16,7 +16,7 @@ import type {
   RpcTransactionRequest as TransactionRequest,
   RpcUncle as Uncle,
 } from './rpc.js'
-import type { ExactPartial, Prettify } from './utils.js'
+import type { ExactPartial, OneOf, Prettify } from './utils.js'
 
 //////////////////////////////////////////////////
 // Provider
@@ -155,15 +155,20 @@ export type WalletSendCallsParameters<
   quantity extends Quantity | bigint = Quantity,
 > = [
   {
-    version: string
+    calls: OneOf<
+      | {
+          to: Address
+          data?: Hex | undefined
+          value?: quantity | undefined
+        }
+      | {
+          data: Hex
+        }
+    >[]
+    capabilities?: capabilities | undefined
     chainId: chainId
     from: Address
-    calls: {
-      to: Address
-      data: Hex
-      value: quantity
-    }[]
-    capabilities?: capabilities | undefined
+    version: string
   },
 ]
 

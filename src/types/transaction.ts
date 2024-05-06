@@ -157,7 +157,7 @@ export type TransactionEIP4844<
     /** EIP-2930 Access List. */
     accessList: AccessList
     /** List of versioned blob hashes associated with the transaction's blobs. */
-    blobVersionedHashes: Hex[]
+    blobVersionedHashes: readonly Hex[]
     /** Chain ID that this transaction is valid on. */
     chainId: TIndex
     type: TType
