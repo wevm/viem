@@ -2,17 +2,20 @@ import type { Abi, AbiEvent, Address } from 'abitype'
 import { describe, expectTypeOf, test } from 'vitest'
 
 import { usdcContractConfig } from '~test/src/abis.js'
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import type { Log } from '../../types/log.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'
 import { getFilterLogs } from './getFilterLogs.js'
 
+const client = anvilMainnet.getClient()
+
 describe('createEventFilter', () => {
   test('default', async () => {
-    const filter = await createEventFilter(publicClient)
-    const logs = await getFilterLogs(publicClient, {
+    const filter = await createEventFilter(client)
+    const logs = await getFilterLogs(client, {
       filter,
     })
     expectTypeOf(logs[0].topics).toEqualTypeOf<
@@ -23,8 +26,8 @@ describe('createEventFilter', () => {
   })
 
   test('non-pending logs', async () => {
-    const filter = await createEventFilter(publicClient)
-    const logs = await getFilterLogs(publicClient, {
+    const filter = await createEventFilter(client)
+    const logs = await getFilterLogs(client, {
       filter,
     })
     expectTypeOf(logs[0].blockHash).toEqualTypeOf<Hex>()
@@ -35,10 +38,10 @@ describe('createEventFilter', () => {
   })
 
   test('pending logs', async () => {
-    const filter_fromPending = await createEventFilter(publicClient, {
+    const filter_fromPending = await createEventFilter(client, {
       fromBlock: 'pending',
     })
-    const logs_fromPending = await getFilterLogs(publicClient, {
+    const logs_fromPending = await getFilterLogs(client, {
       filter: filter_fromPending,
     })
     expectTypeOf(logs_fromPending[0].blockHash).toEqualTypeOf<Hex | null>()
@@ -51,10 +54,10 @@ describe('createEventFilter', () => {
       number | null
     >()
 
-    const filter_toPending = await createEventFilter(publicClient, {
+    const filter_toPending = await createEventFilter(client, {
       toBlock: 'pending',
     })
-    const logs_toPending = await getFilterLogs(publicClient, {
+    const logs_toPending = await getFilterLogs(client, {
       filter: filter_toPending,
     })
     expectTypeOf(logs_toPending[0].blockHash).toEqualTypeOf<Hex | null>()
@@ -65,11 +68,11 @@ describe('createEventFilter', () => {
       number | null
     >()
 
-    const filter_bothPending = await createEventFilter(publicClient, {
+    const filter_bothPending = await createEventFilter(client, {
       fromBlock: 'pending',
       toBlock: 'pending',
     })
-    const logs_bothPending = await getFilterLogs(publicClient, {
+    const logs_bothPending = await getFilterLogs(client, {
       filter: filter_bothPending,
     })
     expectTypeOf(logs_bothPending[0].blockHash).toEqualTypeOf<null>()
@@ -80,7 +83,7 @@ describe('createEventFilter', () => {
   })
 
   test('args: event: defined inline', async () => {
-    const filter = await createEventFilter(publicClient, {
+    const filter = await createEventFilter(client, {
       event: {
         type: 'event',
         name: 'Foo',
@@ -113,7 +116,7 @@ describe('createEventFilter', () => {
         ],
       },
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
     expectTypeOf(logs[0].topics).toEqualTypeOf<
@@ -161,10 +164,10 @@ describe('createEventFilter', () => {
         },
       ],
     } as const
-    const filter = await createEventFilter(publicClient, {
+    const filter = await createEventFilter(client, {
       event,
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
     expectTypeOf(logs[0].topics).toEqualTypeOf<
@@ -212,10 +215,10 @@ describe('createEventFilter', () => {
         },
       ],
     }
-    const filter = await createEventFilter(publicClient, {
+    const filter = await createEventFilter(client, {
       event,
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
     expectTypeOf(logs[0].topics).toEqualTypeOf<
@@ -228,7 +231,7 @@ describe('createEventFilter', () => {
   })
 
   test('args: events', async () => {
-    const filter = await createEventFilter(publicClient, {
+    const filter = await createEventFilter(client, {
       events: [
         {
           inputs: [
@@ -274,7 +277,7 @@ describe('createEventFilter', () => {
         },
       ],
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
     expectTypeOf(logs[0].topics).toEqualTypeOf<
@@ -317,7 +320,7 @@ describe('createEventFilter', () => {
   })
 
   test('strict: named', async () => {
-    const filter = await createEventFilter(publicClient, {
+    const filter = await createEventFilter(client, {
       event: {
         inputs: [
           {
@@ -351,7 +354,7 @@ describe('createEventFilter', () => {
       },
       strict: true,
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
     expectTypeOf(logs[0].args).toEqualTypeOf<{
@@ -364,7 +367,7 @@ describe('createEventFilter', () => {
   })
 
   test('strict: unnamed', async () => {
-    const filter = await createEventFilter(publicClient, {
+    const filter = await createEventFilter(client, {
       event: {
         inputs: [
           {
@@ -393,7 +396,7 @@ describe('createEventFilter', () => {
       },
       strict: true,
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
     expectTypeOf(logs[0].args).toEqualTypeOf<
@@ -439,10 +442,10 @@ describe('createContractEventFilter', () => {
   ] as const
 
   test('default', async () => {
-    const filter = await createContractEventFilter(publicClient, {
+    const filter = await createContractEventFilter(client, {
       abi,
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
 
@@ -478,10 +481,10 @@ describe('createContractEventFilter', () => {
   })
 
   test('non-pending logs', async () => {
-    const filter = await createContractEventFilter(publicClient, {
+    const filter = await createContractEventFilter(client, {
       abi,
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
     expectTypeOf(logs[0].blockHash).toEqualTypeOf<Hex>()
@@ -492,11 +495,11 @@ describe('createContractEventFilter', () => {
   })
 
   test('pending logs', async () => {
-    const filter_fromPending = await createContractEventFilter(publicClient, {
+    const filter_fromPending = await createContractEventFilter(client, {
       abi,
       fromBlock: 'pending',
     })
-    const logs_fromPending = await getFilterLogs(publicClient, {
+    const logs_fromPending = await getFilterLogs(client, {
       filter: filter_fromPending,
     })
     expectTypeOf(logs_fromPending[0].blockHash).toEqualTypeOf<Hex | null>()
@@ -509,11 +512,11 @@ describe('createContractEventFilter', () => {
       number | null
     >()
 
-    const filter_toPending = await createContractEventFilter(publicClient, {
+    const filter_toPending = await createContractEventFilter(client, {
       abi,
       toBlock: 'pending',
     })
-    const logs_toPending = await getFilterLogs(publicClient, {
+    const logs_toPending = await getFilterLogs(client, {
       filter: filter_toPending,
     })
     expectTypeOf(logs_toPending[0].blockHash).toEqualTypeOf<Hex | null>()
@@ -524,12 +527,12 @@ describe('createContractEventFilter', () => {
       number | null
     >()
 
-    const filter_bothPending = await createContractEventFilter(publicClient, {
+    const filter_bothPending = await createContractEventFilter(client, {
       abi,
       fromBlock: 'pending',
       toBlock: 'pending',
     })
-    const logs_bothPending = await getFilterLogs(publicClient, {
+    const logs_bothPending = await getFilterLogs(client, {
       filter: filter_bothPending,
     })
     expectTypeOf(logs_bothPending[0].blockHash).toEqualTypeOf<null>()
@@ -540,11 +543,11 @@ describe('createContractEventFilter', () => {
   })
 
   test('args: eventName', async () => {
-    const filter = await createContractEventFilter(publicClient, {
+    const filter = await createContractEventFilter(client, {
       abi,
       eventName: 'Foo',
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
 
@@ -562,7 +565,7 @@ describe('createContractEventFilter', () => {
   })
 
   test('args: abi: defined inline', async () => {
-    const filter = await createContractEventFilter(publicClient, {
+    const filter = await createContractEventFilter(client, {
       abi: [
         {
           type: 'event',
@@ -597,7 +600,7 @@ describe('createContractEventFilter', () => {
         },
       ],
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
 
@@ -648,10 +651,10 @@ describe('createContractEventFilter', () => {
         ],
       },
     ]
-    const filter = await createContractEventFilter(publicClient, {
+    const filter = await createContractEventFilter(client, {
       abi,
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
 
@@ -665,11 +668,11 @@ describe('createContractEventFilter', () => {
   })
 
   test('strict', async () => {
-    const filter = await createContractEventFilter(publicClient, {
+    const filter = await createContractEventFilter(client, {
       abi,
       strict: true,
     })
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(client, {
       filter,
     })
 

@@ -1,25 +1,23 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import {
-  publicClientMainnet,
-  sepoliaClient as sepoliaClient_,
-} from '~test/src/utils.js'
+import { mainnetClient } from '~test/src/utils.js'
+import { anvilSepolia } from '../../../test/src/anvil.js'
 import { http, createPublicClient } from '../../index.js'
 import { optimism, optimismSepolia } from '../../op-stack/chains.js'
 import { getWithdrawals } from '../../op-stack/index.js'
 import { publicActionsL1 } from './publicL1.js'
 
-const client = publicClientMainnet.extend(publicActionsL1())
+const client = mainnetClient.extend(publicActionsL1())
 const l2Client = createPublicClient({
   chain: optimism,
   transport: http(),
 })
 
-const sepoliaClient = sepoliaClient_.extend(publicActionsL1())
+const sepoliaClient = anvilSepolia.getClient().extend(publicActionsL1())
 
 test('default', async () => {
-  expect(publicActionsL1()(publicClientMainnet)).toMatchInlineSnapshot(`
+  expect(publicActionsL1()(mainnetClient)).toMatchInlineSnapshot(`
     {
       "buildInitiateWithdrawal": [Function],
       "estimateDepositTransactionGas": [Function],

@@ -1,12 +1,11 @@
 import { expect, test } from 'vitest'
 
-import {
-  optimismClient,
-  optimismClientWithAccount,
-  optimismClientWithoutChain,
-} from '~test/src/opStack.js'
-
+import { anvilOptimism } from '../../../test/src/anvil.js'
 import { getL1BaseFee } from './getL1BaseFee.js'
+
+const optimismClient = anvilOptimism.getClient()
+const optimismClientWithAccount = anvilOptimism.getClient({ account: true })
+const optimismClientWithoutChain = anvilOptimism.getClient({ chain: false })
 
 test('default', async () => {
   const baseFee = await getL1BaseFee(optimismClient)

@@ -1,7 +1,8 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
+
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'
@@ -15,8 +16,10 @@ import type {
 import type { Prettify } from '../../types/utils.js'
 import { getTransaction } from './getTransaction.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  const transaction = await getTransaction(publicClient, {
+  const transaction = await getTransaction(client, {
     hash: '0x',
   })
   expectTypeOf(transaction).toEqualTypeOf<Transaction<bigint, number, false>>()
@@ -39,7 +42,7 @@ test('default', async () => {
 })
 
 test('blockTag = "latest"', async () => {
-  const transaction = await getTransaction(publicClient, {
+  const transaction = await getTransaction(client, {
     hash: '0x',
   })
   expectTypeOf(transaction.blockHash).toEqualTypeOf<Hex>()
@@ -48,7 +51,7 @@ test('blockTag = "latest"', async () => {
 })
 
 test('blockTag = "pending"', async () => {
-  const transaction = await getTransaction(publicClient, {
+  const transaction = await getTransaction(client, {
     blockTag: 'pending',
     index: 0,
   })

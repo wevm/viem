@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
-import { walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { sepolia } from '../../chains/index.js'
 import { http, createClient, parseGwei, stringToHex } from '../../index.js'
@@ -11,14 +11,16 @@ import { prepareTransactionRequest } from './prepareTransactionRequest.js'
 import { sendRawTransaction } from './sendRawTransaction.js'
 import { signTransaction } from './signTransaction.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  const request = await prepareTransactionRequest(walletClient, {
+  const request = await prepareTransactionRequest(client, {
     account: privateKeyToAccount(accounts[0].privateKey),
     to: accounts[1].address,
     value: 1n,
   })
-  const serializedTransaction = await signTransaction(walletClient, request)
-  const hash = await sendRawTransaction(walletClient, { serializedTransaction })
+  const serializedTransaction = await signTransaction(client, request)
+  const hash = await sendRawTransaction(client, { serializedTransaction })
   expect(hash).toBeDefined()
 })
 

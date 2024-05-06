@@ -1,10 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { setLoggingEnabled } from './setLoggingEnabled.js'
 
+const client = anvilMainnet.getClient()
+
 test('sets logging', async () => {
-  await expect(setLoggingEnabled(testClient, false)).resolves.toBeUndefined()
-  await setLoggingEnabled(testClient, true)
+  await expect(setLoggingEnabled(client, false)).resolves.toBeUndefined()
+  await setLoggingEnabled(client, true)
 })

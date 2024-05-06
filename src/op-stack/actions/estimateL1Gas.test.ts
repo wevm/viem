@@ -1,15 +1,14 @@
 import { expect, test } from 'vitest'
 
-import {
-  optimismClient,
-  optimismClientWithAccount,
-  optimismClientWithoutChain,
-} from '~test/src/opStack.js'
-
 import { accounts } from '~test/src/constants.js'
+import { anvilOptimism } from '../../../test/src/anvil.js'
 import { type TransactionRequestEIP1559, parseGwei } from '../../index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { estimateL1Gas } from './estimateL1Gas.js'
+
+const optimismClient = anvilOptimism.getClient()
+const optimismClientWithAccount = anvilOptimism.getClient({ account: true })
+const optimismClientWithoutChain = anvilOptimism.getClient({ chain: false })
 
 const baseTransaction = {
   maxFeePerGas: parseGwei('100'),

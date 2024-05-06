@@ -9,32 +9,30 @@ import { describe, expect, test } from 'vitest'
 import { ErrorsExample } from '~test/contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
-import {
-  deployBAYC,
-  deployErrorExample,
-  publicClient,
-  testClient,
-  walletClient,
-} from '~test/src/utils.js'
+import { deployBAYC, deployErrorExample } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import { estimateContractGas } from './estimateContractGas.js'
+
+const client = anvilMainnet.getClient()
 
 describe('wagmi', () => {
   test('default', async () => {
     expect(
-      await estimateContractGas(publicClient, {
+      await estimateContractGas(client, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
       }),
     ).toBeDefined()
     expect(
-      await estimateContractGas(publicClient, {
+      await estimateContractGas(client, {
         ...wagmiContractConfig,
         account: '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
         functionName: 'safeTransferFrom',
@@ -49,7 +47,7 @@ describe('wagmi', () => {
 
   test('overloaded function', async () => {
     expect(
-      await estimateContractGas(publicClient, {
+      await estimateContractGas(client, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -59,7 +57,7 @@ describe('wagmi', () => {
 
   test('revert', async () => {
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         ...wagmiContractConfig,
         functionName: 'approve',
         args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 420n],
@@ -79,7 +77,7 @@ describe('wagmi', () => {
       Version: viem@1.0.2]
     `)
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         ...wagmiContractConfig,
         functionName: 'mint',
         args: [1n],
@@ -99,7 +97,7 @@ describe('wagmi', () => {
       Version: viem@1.0.2]
     `)
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         ...wagmiContractConfig,
         functionName: 'safeTransferFrom',
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -132,7 +130,7 @@ describe('BAYC', () => {
 
       // Set sale state to active
       // TODO: replace w/ writeContract
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         data: encodeFunctionData({
           abi: baycContractConfig.abi,
           functionName: 'flipSaleState',
@@ -140,11 +138,11 @@ describe('BAYC', () => {
         account: accounts[0].address,
         to: contractAddress!,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
       // Mint an Ape!
       expect(
-        await estimateContractGas(publicClient, {
+        await estimateContractGas(client, {
           abi: baycContractConfig.abi,
           address: contractAddress!,
           functionName: 'mintApe',
@@ -160,7 +158,7 @@ describe('BAYC', () => {
 
       // Reserve apes
       expect(
-        await estimateContractGas(publicClient, {
+        await estimateContractGas(client, {
           abi: baycContractConfig.abi,
           address: contractAddress!,
           functionName: 'reserveApes',
@@ -176,7 +174,7 @@ describe('BAYC', () => {
 
       // Expect mint to fail.
       await expect(() =>
-        estimateContractGas(publicClient, {
+        estimateContractGas(client, {
           abi: baycContractConfig.abi,
           address: contractAddress!,
           functionName: 'mintApe',
@@ -204,11 +202,11 @@ describe('BAYC', () => {
 describe('local account', () => {
   test('default', async () => {
     expect(
-      await estimateContractGas(publicClient, {
+      await estimateContractGas(client, {
         ...wagmiContractConfig,
         account: privateKeyToAccount(accounts[0].privateKey),
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
       }),
     ).toBeDefined()
   })
@@ -219,7 +217,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'revertWrite',
@@ -243,7 +241,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'assertWrite',
@@ -267,7 +265,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'overflowWrite',
@@ -291,7 +289,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'divideByZeroWrite',
@@ -315,7 +313,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'requireWrite',
@@ -338,7 +336,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'simpleCustomWrite',
@@ -364,7 +362,7 @@ describe('contract errors', () => {
     const { contractAddress } = await deployErrorExample()
 
     await expect(() =>
-      estimateContractGas(publicClient, {
+      estimateContractGas(client, {
         abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'complexCustomWrite',

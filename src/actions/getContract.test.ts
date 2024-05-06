@@ -3,13 +3,8 @@ import type { AbiEvent } from 'abitype'
 import { describe, expect, test } from 'vitest'
 
 import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, address, forkBlockNumber } from '~test/src/constants.js'
-import {
-  publicClient,
-  testClient,
-  walletClient,
-  walletClientWithAccount,
-} from '~test/src/utils.js'
+import { accounts, address } from '~test/src/constants.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 
 import {
   getContract,
@@ -23,6 +18,12 @@ import {
   stopImpersonatingAccount,
   writeContract,
 } from './index.js'
+
+const publicClient = anvilMainnet.getClient()
+const walletClient = anvilMainnet.getClient()
+const walletClientWithAccount = anvilMainnet.getClient({
+  account: accounts[0].address,
+})
 
 const contract = getContract({
   ...wagmiContractConfig,
@@ -50,7 +51,7 @@ test('createEventFilter', async () => {
         from: accounts[0].address,
       },
       {
-        fromBlock: forkBlockNumber - 5n,
+        fromBlock: anvilMainnet.forkBlockNumber - 5n,
       },
     ),
   ).resolves.toBeDefined()
@@ -174,10 +175,10 @@ test('simulate', async () => {
 })
 
 test('getEvents', async () => {
-  await impersonateAccount(testClient, {
+  await impersonateAccount(publicClient, {
     address: address.usdcHolder,
   })
-  await setBalance(testClient, {
+  await setBalance(publicClient, {
     address: address.usdcHolder,
     value: 10000000000000000000000n,
   })
@@ -194,7 +195,7 @@ test('getEvents', async () => {
     args: [accounts[1].address, 1n],
     account: address.usdcHolder,
   })
-  await mine(testClient, { blocks: 1 })
+  await mine(publicClient, { blocks: 1 })
 
   const contract = getContract({
     ...usdcContractConfig,
@@ -206,7 +207,7 @@ test('getEvents', async () => {
 
   expect(logs.length).toBe(1)
 
-  await stopImpersonatingAccount(testClient, {
+  await stopImpersonatingAccount(publicClient, {
     address: address.usdcHolder,
   })
 })

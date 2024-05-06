@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest'
-import { publicClientMainnet } from '~test/src/utils.js'
+import { mainnetClient } from '~test/src/utils.js'
 import { getL2TransactionHashes } from './getL2TransactionHashes.js'
 
 test('default', async () => {
-  const receipt = await publicClientMainnet.getTransactionReceipt({
+  const receipt = await mainnetClient.getTransactionReceipt({
     hash: '0x11fcc5e645f504064fd4e45120f6543115149449dfb44b7887000f3ed18b738a',
   })
 

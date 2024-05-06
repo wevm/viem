@@ -1,10 +1,13 @@
 import { expect, test } from 'vitest'
-import { publicClientMainnet, sepoliaClient } from '../../../test/src/utils.js'
+import { anvilSepolia } from '../../../test/src/anvil.js'
+import { mainnetClient } from '../../../test/src/utils.js'
 import { base, optimismSepolia } from '../../op-stack/chains.js'
 import { getL2Output } from './getL2Output.js'
 
+const sepoliaClient = anvilSepolia.getClient()
+
 test('default', async () => {
-  const output = await getL2Output(publicClientMainnet, {
+  const output = await getL2Output(mainnetClient, {
     l2BlockNumber: 2725977n,
     targetChain: base,
   })
@@ -18,7 +21,7 @@ test('default', async () => {
   `)
 })
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+// TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
 test('portal v3', async () => {
   const game = await getL2Output(sepoliaClient, {
     targetChain: optimismSepolia,

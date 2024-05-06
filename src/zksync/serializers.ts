@@ -5,6 +5,7 @@ import { concatHex } from '../utils/data/concat.js'
 import { toHex } from '../utils/encoding/toHex.js'
 import { toRlp } from '../utils/encoding/toRlp.js'
 import { serializeTransaction as serializeTransaction_ } from '../utils/transaction/serializeTransaction.js'
+import { gasPerPubdataDefault } from './constants/number.js'
 import type {
   ZkSyncTransactionSerializable,
   ZkSyncTransactionSerializableEIP712,
@@ -69,7 +70,7 @@ function serializeTransactionEIP712(
     toHex(''),
     toHex(chainId),
     from ?? '0x',
-    gasPerPubdata ? toHex(gasPerPubdata) : '0x',
+    gasPerPubdata ? toHex(gasPerPubdata) : toHex(gasPerPubdataDefault),
     factoryDeps ?? [],
     customSignature ?? '0x', // EIP712 signature
     paymaster && paymasterInput ? [paymaster, paymasterInput] : [],

@@ -1,9 +1,11 @@
 import { expect, test } from 'vitest'
-import { sepoliaClient } from '../../../test/src/utils.js'
+import { anvilSepolia } from '../../../test/src/anvil.js'
 import { optimismSepolia } from '../../op-stack/chains.js'
 import { getGames } from './getGames.js'
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+const sepoliaClient = anvilSepolia.getClient()
+
+// TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
 test('default', async () => {
   const games = await getGames(sepoliaClient, {
     targetChain: optimismSepolia,
