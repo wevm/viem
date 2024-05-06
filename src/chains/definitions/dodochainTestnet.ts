@@ -13,7 +13,7 @@ export const dodochainTestnet = defineChain({
   blockExplorers: {
     default: {
       name: 'DODOchain Testnet (Sepolia) Explorer',
-      url: 'https://dodochain-testnet-explorer.alt.technology/',
+      url: 'https://dodochain-testnet-explorer.alt.technology',
     },
   },
   testnet: true,
