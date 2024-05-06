@@ -28,6 +28,10 @@ const client = createWalletClient({
 })
 ```
 
+:::warning
+When using smart account during the any action that invloves send transaction process for a deployed contract address, gas estimation needs to be provided in the transaction request and cannot be automatically calculated. It must be manually calculated using the real wallet address.
+:::
+
 ## Returns
 
 `SmartAccount`
