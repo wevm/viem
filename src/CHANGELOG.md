@@ -1,5 +1,11 @@
 # viem
 
+## 2.10.1
+
+### Patch Changes
+
+- [`6e28131a8b9ab53ad1330c61df64d3b7fb799652`](https://github.com/wevm/viem/commit/6e28131a8b9ab53ad1330c61df64d3b7fb799652) Thanks [@jxom](https://github.com/jxom)! - Fixed types for `wallet_sendCalls`.
+
 ## 2.10.0
 
 ### Minor Changes
