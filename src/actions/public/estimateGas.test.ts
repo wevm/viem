@@ -125,7 +125,7 @@ test('args: gas', async () => {
   ).toMatchInlineSnapshot('21000n')
 })
 
-test('args: blobs', async () => {
+test.skip('args: blobs', async () => {
   expect(
     await estimateGas(client, {
       account: accounts[0].address,

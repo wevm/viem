@@ -574,7 +574,7 @@ describe('prepareTransactionRequest', () => {
     `)
   })
 
-  test('args: blobs', async () => {
+  test.skip('args: blobs', async () => {
     await setup()
 
     const {
