@@ -1,5 +1,22 @@
 # viem
 
+## 2.10.0
+
+### Minor Changes
+
+- [#2209](https://github.com/wevm/viem/pull/2209) [`76a92bb97de9adede6d6d60c3aad2961d493045e`](https://github.com/wevm/viem/commit/76a92bb97de9adede6d6d60c3aad2961d493045e) Thanks [@wilsoncusack](https://github.com/wilsoncusack)! - **Experimental:** Added [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492) signature utilities:
+
+  - `isErc6492Signature`
+  - `parseErc6492Signature`
+  - `serializeErc6492Signature`
+
+- [#2209](https://github.com/wevm/viem/pull/2209) [`76a92bb97de9adede6d6d60c3aad2961d493045e`](https://github.com/wevm/viem/commit/76a92bb97de9adede6d6d60c3aad2961d493045e) Thanks [@wilsoncusack](https://github.com/wilsoncusack)! - Deprecated utilities (will be removed in v3):
+
+  - `hexToSignature` – use `parseSignature` instead.
+  - `hexToCompactSignature` – use `parseCompactSignature` instead.
+  - `compactSignatureToHex` – use `serializeCompactSignature` instead.
+  - `signatureToHex` – use `serializeSignature` instead.
+
 ## 2.9.32
 
 ### Patch Changes
