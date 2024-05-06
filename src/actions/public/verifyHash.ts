@@ -19,7 +19,7 @@ import {
 import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
 import { type ToHexErrorType, bytesToHex } from '../../utils/encoding/toHex.js'
 import { getAction } from '../../utils/getAction.js'
-import { signatureToHex } from '../../utils/signature/signatureToHex.js'
+import { serializeSignature } from '../../utils/signature/serializeSignature.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type VerifyHashParameters = Pick<
@@ -58,7 +58,7 @@ export async function verifyHash<TChain extends Chain | undefined>(
   const signatureHex = (() => {
     if (isHex(signature)) return signature
     if (typeof signature === 'object' && 'r' in signature && 's' in signature)
-      return signatureToHex(signature)
+      return serializeSignature(signature)
     return bytesToHex(signature)
   })()
 

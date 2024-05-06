@@ -3,6 +3,22 @@
     {
       "source": "/:match*.html",
       "destination": "/:match"
+    },
+    {
+      "source": "/:match/hexToSignature",
+      "destination": "/:match/parseSignature"
+    },
+    {
+      "source": "/:match/hexToCompactSignature",
+      "destination": "/:match/parseCompactSignature"
+    },
+    {
+      "source": "/:match/signatureToHex",
+      "destination": "/:match/serializeSignature"
+    },
+    {
+      "source": "/:match/compactSignatureToHex",
+      "destination": "/:match/serializeCompactSignature"
     }
   ]
 }

@@ -25,9 +25,9 @@ import {
   keccak256,
 } from '../../../utils/hash/keccak256.js'
 import {
-  type HexToSignatureErrorType,
-  hexToSignature,
-} from '../../../utils/signature/hexToSignature.js'
+  type ParseSignatureErrorType,
+  parseSignature,
+} from '../../../utils/signature/parseSignature.js'
 import {
   type SignAuthMessageErrorType,
   signAuthMessage,
@@ -59,7 +59,7 @@ export type InvokerExecuteParameters<
 
 export type InvokerExecuteErrorType =
   | WriteContractErrorType
-  | HexToSignatureErrorType
+  | ParseSignatureErrorType
   | ErrorType
 
 export type InvokerSignParameters<
@@ -136,7 +136,7 @@ export function getInvoker<
         invokerAddress: address,
       })
 
-      const { r, s, yParity } = hexToSignature(signature)
+      const { r, s, yParity } = parseSignature(signature)
       return getAction(
         client,
         writeContract,

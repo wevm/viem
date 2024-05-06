@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { toHex } from '../../utils/encoding/toHex.js'
+import { toHex } from '../encoding/toHex.js'
 
-import { signatureToHex } from './signatureToHex.js'
+import { serializeSignature } from './serializeSignature.js'
 
 test('default', () => {
   expect(
-    signatureToHex({
+    serializeSignature({
       r: toHex(
         49782753348462494199823712700004552394425719014458918871452329774910450607807n,
       ),
@@ -20,7 +20,7 @@ test('default', () => {
   )
 
   expect(
-    signatureToHex({
+    serializeSignature({
       r: toHex(
         49782753348462494199823712700004552394425719014458918871452329774910450607807n,
       ),
@@ -34,7 +34,7 @@ test('default', () => {
   )
 
   expect(
-    signatureToHex({
+    serializeSignature({
       r: toHex(
         49782753348462494199823712700004552394425719014458918871452329774910450607807n,
       ),
@@ -48,7 +48,7 @@ test('default', () => {
   )
 
   expect(
-    signatureToHex({
+    serializeSignature({
       r: toHex(
         49782753348462494199823712700004552394425719014458918871452329774910450607807n,
       ),
@@ -62,7 +62,7 @@ test('default', () => {
   )
 
   expect(
-    signatureToHex({
+    serializeSignature({
       r: toHex(
         49782753348462494199823712700004552394425719014458918871452329774910450607807n,
       ),

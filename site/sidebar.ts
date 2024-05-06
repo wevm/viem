@@ -867,10 +867,6 @@ export const sidebar = {
           text: 'Signature',
           items: [
             {
-              text: 'compactSignatureToHex',
-              link: '/docs/utilities/compactSignatureToHex',
-            },
-            {
               text: 'compactSignatureToSignature',
               link: '/docs/utilities/compactSignatureToSignature',
             },
@@ -883,12 +879,20 @@ export const sidebar = {
               link: '/docs/utilities/hashTypedData',
             },
             {
-              text: 'hexToCompactSignature',
-              link: '/docs/utilities/hexToCompactSignature',
+              text: 'isErc6492Signature',
+              link: '/docs/utilities/isErc6492Signature',
             },
             {
-              text: 'hexToSignature',
-              link: '/docs/utilities/hexToSignature',
+              text: 'parseCompactSignature',
+              link: '/docs/utilities/parseCompactSignature',
+            },
+            {
+              text: 'parseErc6492Signature',
+              link: '/docs/utilities/parseErc6492Signature',
+            },
+            {
+              text: 'parseSignature',
+              link: '/docs/utilities/parseSignature',
             },
             {
               text: 'recoverAddress',
@@ -911,12 +915,20 @@ export const sidebar = {
               link: '/docs/utilities/recoverTypedDataAddress',
             },
             {
-              text: 'signatureToCompactSignature',
-              link: '/docs/utilities/signatureToCompactSignature',
+              text: 'serializeCompactSignature',
+              link: '/docs/utilities/serializeCompactSignature',
             },
             {
-              text: 'signatureToHex',
-              link: '/docs/utilities/signatureToHex',
+              text: 'serializeErc6492Signature',
+              link: '/docs/utilities/serializeErc6492Signature',
+            },
+            {
+              text: 'serializeSignature',
+              link: '/docs/utilities/serializeSignature',
+            },
+            {
+              text: 'signatureToCompactSignature',
+              link: '/docs/utilities/signatureToCompactSignature',
             },
             {
               text: 'verifyMessage',
