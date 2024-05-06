@@ -3,9 +3,9 @@ import type { ErrorType } from '../../../errors/utils.js'
 import type { Hex } from '../../../types/misc.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
 import {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from '../../../utils/signature/signatureToHex.js'
+  type SerializeSignatureErrorType,
+  serializeSignature,
+} from '../../../utils/signature/serializeSignature.js'
 import {
   type ToAuthMessageErrorType,
   type ToAuthMessageParameters,
@@ -22,7 +22,7 @@ export type SignAuthMessageReturnType = Hex
 export type SignAuthMessageErrorType =
   | SignErrorType
   | ToAuthMessageErrorType
-  | SignatureToHexErrorType
+  | SerializeSignatureErrorType
   | ErrorType
 
 /**
@@ -36,5 +36,5 @@ export async function signAuthMessage(
     hash: keccak256(toAuthMessage(parameters)),
     privateKey,
   })
-  return signatureToHex(signature)
+  return serializeSignature(signature)
 }

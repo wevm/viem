@@ -3,9 +3,9 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
 import {
   privateKeyToAccount,
+  serializeSignature,
   sign,
   signTransaction,
-  signatureToHex,
 } from '../../accounts/index.js'
 import { getTransaction } from '../../actions/index.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
@@ -54,7 +54,7 @@ test('signature (hex)', async () => {
   })
   const address = await recoverTransactionAddress({
     serializedTransaction,
-    signature: signatureToHex(signature),
+    signature: serializeSignature(signature),
   })
   expect(address.toLowerCase()).toBe(accounts[0].address)
 })
@@ -67,7 +67,7 @@ test('signature (bytes)', async () => {
   })
   const address = await recoverTransactionAddress({
     serializedTransaction,
-    signature: hexToBytes(signatureToHex(signature)),
+    signature: hexToBytes(serializeSignature(signature)),
   })
   expect(address.toLowerCase()).toBe(accounts[0].address)
 })

@@ -12,7 +12,7 @@ import {
   type RecoverAddressErrorType,
   recoverAddress,
 } from './recoverAddress.js'
-import type { SignatureToHexErrorType } from './signatureToHex.js'
+import type { SerializeSignatureErrorType } from './serializeSignature.js'
 
 export type RecoverTransactionAddressParameters = {
   serializedTransaction: TransactionSerialized
@@ -25,7 +25,7 @@ export type RecoverTransactionAddressErrorType =
   | SerializeTransactionErrorType
   | RecoverAddressErrorType
   | Keccak256ErrorType
-  | SignatureToHexErrorType
+  | SerializeSignatureErrorType
   | ErrorType
 
 export async function recoverTransactionAddress(

@@ -2,22 +2,22 @@
 description: Parses a hex formatted compact signature into a structured compact signature.
 ---
 
-# hexToCompactSignature
+# parseCompactSignature
 
 Parses a hex formatted compact signature into a structured ("split") compact signature.
 
 ## Import
 
 ```ts
-import { hexToCompactSignature } from 'viem'
+import { parseCompactSignature } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { hexToCompactSignature } from 'viem'
+import { parseCompactSignature } from 'viem'
 
-hexToCompactSignature('0x9328da16089fcba9bececa81663203989f2df5fe1faa6291a45381c81bd17f76939c6d6b623b42da56557e5e734a43dc83345ddfadec52cbe24d0cc64f550793') // [!code focus:7]
+parseCompactSignature('0x9328da16089fcba9bececa81663203989f2df5fe1faa6291a45381c81bd17f76939c6d6b623b42da56557e5e734a43dc83345ddfadec52cbe24d0cc64f550793') // [!code focus:7]
 /**
  * {
  *   r: '0x9328da16089fcba9bececa81663203989f2df5fe1faa6291a45381c81bd17f76',

@@ -5,9 +5,9 @@ import {
   hashMessage,
 } from '../../utils/signature/hashMessage.js'
 import {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from '../../utils/signature/signatureToHex.js'
+  type SerializeSignatureErrorType,
+  serializeSignature,
+} from '../../utils/signature/serializeSignature.js'
 
 import { type SignErrorType, sign } from './sign.js'
 
@@ -23,7 +23,7 @@ export type SignMessageReturnType = Hex
 export type SignMessageErrorType =
   | SignErrorType
   | HashMessageErrorType
-  | SignatureToHexErrorType
+  | SerializeSignatureErrorType
   | ErrorType
 
 /**
@@ -37,5 +37,5 @@ export async function signMessage({
   privateKey,
 }: SignMessageParameters): Promise<SignMessageReturnType> {
   const signature = await sign({ hash: hashMessage(message), privateKey })
-  return signatureToHex(signature)
+  return serializeSignature(signature)
 }
