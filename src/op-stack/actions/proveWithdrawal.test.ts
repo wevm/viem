@@ -1,7 +1,7 @@
-import { expect, test } from 'vitest'
+import { beforeEach, expect, test } from 'vitest'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { getTransactionReceipt, mine } from '../../actions/index.js'
+import { getTransactionReceipt, mine, reset } from '../../actions/index.js'
 import { optimism } from '../../op-stack/chains.js'
 import { proveWithdrawal } from './proveWithdrawal.js'
 
@@ -36,6 +36,13 @@ const args = {
     value: 13000000000000000n,
   },
 } as const
+
+beforeEach(async () => {
+  await reset(client, {
+    blockNumber: 16280770n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+})
 
 test('default', async () => {
   const hash = await proveWithdrawal(client, {

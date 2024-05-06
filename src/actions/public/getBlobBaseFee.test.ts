@@ -5,8 +5,7 @@ import { getBlobBaseFee } from './getBlobBaseFee.js'
 
 const client = anvilMainnet.getClient()
 
-// TODO: Don't skip once implemented on nodes.
-test.skip('default', async () => {
+test('default', async () => {
   const baseFee = await getBlobBaseFee(client)
-  expect(baseFee).toMatchInlineSnapshot()
+  expect(baseFee).toMatchInlineSnapshot('1n')
 })

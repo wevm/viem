@@ -28,7 +28,7 @@ describe('wagmi', () => {
         functionName: 'balanceOf',
         args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
       }),
-    ).toEqual(3n)
+    ).toEqual(4n)
     expect(
       await readContract(client, {
         ...wagmiContractConfig,
@@ -87,7 +87,7 @@ describe('wagmi', () => {
         blockNumber: anvilMainnet.forkBlockNumber,
         functionName: 'totalSupply',
       }),
-    ).toEqual(558n)
+    ).toEqual(631n)
   })
 
   test('overloaded function', async () => {
@@ -107,7 +107,7 @@ describe('wagmi', () => {
         functionName: 'balanceOf',
         args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
       }),
-    ).toEqual(3n)
+    ).toEqual(4n)
   })
 
   test('args: stateOverride', async () => {

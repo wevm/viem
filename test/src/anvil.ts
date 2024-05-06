@@ -26,7 +26,7 @@ import { accounts, poolId } from './constants.js'
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
-  forkBlockNumber: 16280770n,
+  forkBlockNumber: 19808250n,
   noMining: true,
   port: 8545,
 })

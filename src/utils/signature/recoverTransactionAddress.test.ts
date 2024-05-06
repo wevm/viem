@@ -127,7 +127,10 @@ test('via `getTransaction`', async () => {
     blockNumber: anvilMainnet.forkBlockNumber - 10n,
     index: 0,
   })
-  const serializedTransaction = serializeTransaction(transaction)
+  const serializedTransaction = serializeTransaction({
+    ...transaction,
+    data: transaction.input,
+  })
   const address = await recoverTransactionAddress({
     serializedTransaction,
   })

@@ -29,7 +29,7 @@ describe('smoke test', () => {
         invokerAddress: '0x0000000000000000000000000000000000000000',
       }),
     ).toMatchInlineSnapshot(
-      `"0x7d46f161b04dec4b71a566ef613e01caed7d8f9aa299229b4339e08de9697efa52e0badad53bfab07a71d39ba307298f6f312b52dd5c28a49875d55fbf6474711c"`,
+      `"0x917c175db3bc31c095bd3a1f64b1302ca2582383ef68183fc998f61cc950660d4cb3d20b8bdcf32d8a3b6dcbe2a79a8f98bc683bdb97e3841aed288fc91661ff1c"`,
     )
   })
 })

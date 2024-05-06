@@ -288,7 +288,7 @@ describe('contract events', () => {
         'Transfer'
       >[]
     >(logs)
-    expect(logs.length).toBe(1056)
+    expect(logs.length).toBe(881)
   })
 
   test('args: strict', async () => {
@@ -312,7 +312,7 @@ describe('contract events', () => {
         'Transfer'
       >[]
     >(logs)
-    expect(logs.length).toBe(783)
+    expect(logs.length).toBe(698)
   })
 
   test('args: singular `from`', async () => {
@@ -722,7 +722,7 @@ describe('raw events', () => {
 
     const logs = await getFilterLogs(client, { filter })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
-    expect(logs.length).toBe(1056)
+    expect(logs.length).toBe(881)
   })
 
   test('args: strict = true (named)', async () => {
@@ -737,7 +737,7 @@ describe('raw events', () => {
 
     assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
 
-    expect(logs.length).toBe(783)
+    expect(logs.length).toBe(698)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from: Address
@@ -745,9 +745,9 @@ describe('raw events', () => {
       value: bigint
     }>()
     expect(logs[0].args).toEqual({
-      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
-      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
-      value: 1162592016924672n,
+      from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+      to: '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
+      value: 100000000000000000n,
     })
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
@@ -766,7 +766,7 @@ describe('raw events', () => {
       logs,
     )
 
-    expect(logs.length).toBe(1056)
+    expect(logs.length).toBe(881)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from?: Address
@@ -774,9 +774,9 @@ describe('raw events', () => {
       value?: bigint
     }>()
     expect(logs[0].args).toEqual({
-      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
-      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
-      value: 1162592016924672n,
+      from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+      to: '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
+      value: 100000000000000000n,
     })
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
@@ -794,15 +794,15 @@ describe('raw events', () => {
 
     assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
 
-    expect(logs.length).toBe(783)
+    expect(logs.length).toBe(698)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       readonly [`0x${string}`, `0x${string}`, bigint]
     >()
     expect(logs[0].args).toEqual([
-      '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
-      '0x393ADf60012809316659Af13A3117ec22D093a38',
-      1162592016924672n,
+      '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+      '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
+      100000000000000000n,
     ])
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
@@ -821,7 +821,7 @@ describe('raw events', () => {
       logs,
     )
 
-    expect(logs.length).toBe(1056)
+    expect(logs.length).toBe(881)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | readonly []
@@ -830,9 +830,9 @@ describe('raw events', () => {
       | readonly [`0x${string}`]
     >()
     expect(logs[0].args).toEqual([
-      '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
-      '0x393ADf60012809316659Af13A3117ec22D093a38',
-      1162592016924672n,
+      '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+      '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
+      100000000000000000n,
     ])
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')

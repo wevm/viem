@@ -170,7 +170,7 @@ test('overloaded function', async () => {
       ...wagmiContractConfig,
       account: accounts[0].address,
       functionName: 'mint',
-      args: [69420n],
+      args: [13371337n],
     }),
   ).toBeDefined()
 })

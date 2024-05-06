@@ -58,7 +58,7 @@ describe('eip4844', async () => {
     expect(signature).toMatchSnapshot()
   })
 
-  test.skip('w/ prepareTransactionRequest', async () => {
+  test('w/ prepareTransactionRequest', async () => {
     const blobs = toBlobs({ data: stringToHex(blobData) })
     const request = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(accounts[0].privateKey),

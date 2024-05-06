@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { reset } from '../../actions/index.js'
 import { base } from '../../op-stack/chains.js'
 import { walletActionsL1 } from './walletL1.js'
 
@@ -32,6 +33,11 @@ describe('smoke test', () => {
   })
 
   test('proveWithdrawal', async () => {
+    await reset(client, {
+      blockNumber: 16280770n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+
     const args = {
       l2OutputIndex: 4529n,
       outputRootProof: {

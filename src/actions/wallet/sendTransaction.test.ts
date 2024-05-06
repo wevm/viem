@@ -2,7 +2,6 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
-import { holeskyClient } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
@@ -179,7 +178,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f301820177843b9aca008503cda9ac11825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f30182028f843b9aca008501a786b06a825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -819,15 +818,12 @@ describe('local account', () => {
     })
   })
 
-  test.skip('args: blobs', async () => {
-    // TODO: migrate to Anvil once 4844 supported.
+  test('args: blobs', async () => {
     const blobs = toBlobs({
       data: stringToHex(blobData),
     })
-    const hash = await sendTransaction(holeskyClient, {
-      account: privateKeyToAccount(
-        process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
-      ),
+    const hash = await sendTransaction(client, {
+      account: privateKeyToAccount(accounts[0].privateKey),
       blobs,
       kzg,
       maxFeePerBlobGas: parseGwei('30'),
@@ -839,13 +835,6 @@ describe('local account', () => {
   describe('args: maxPriorityFeePerGas', () => {
     test('sends transaction', async () => {
       await setup()
-
-      expect(
-        await getBalance(client, { address: targetAccount.address }),
-      ).toMatchInlineSnapshot('10000000000000000000000n')
-      expect(
-        await getBalance(client, { address: sourceAccount.address }),
-      ).toMatchInlineSnapshot('10000000000000000000000n')
 
       const hash = await sendTransaction(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),

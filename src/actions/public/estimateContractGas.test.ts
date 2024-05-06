@@ -28,7 +28,7 @@ describe('wagmi', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
       }),
     ).toBeDefined()
     expect(
@@ -206,7 +206,7 @@ describe('local account', () => {
         ...wagmiContractConfig,
         account: privateKeyToAccount(accounts[0].privateKey),
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
       }),
     ).toBeDefined()
   })

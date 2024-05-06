@@ -42,7 +42,7 @@ describe('wagmi', () => {
           ...wagmiContractConfig,
           account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
           functionName: 'mint',
-          args: [69420n],
+          args: [13371337n],
         })
       ).result,
     ).toEqual(undefined)
@@ -88,7 +88,7 @@ describe('wagmi', () => {
       simulateContract(client, {
         ...wagmiContractConfig,
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
@@ -97,7 +97,7 @@ describe('wagmi', () => {
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
-        args:          (69420)
+        args:          (13371337)
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2]
@@ -543,7 +543,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         maxFeePerGas: 2n ** 256n - 1n + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -552,13 +552,13 @@ describe('node errors', () => {
       Raw Call Arguments:
         from:          0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
         to:            0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-        data:          0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
+        data:          0xa0712d680000000000000000000000000000000000000000000000000000000000cc07c9
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
-        args:          (69420)
+        args:          (13371337)
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract
@@ -574,7 +574,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         gas: 100n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -583,13 +583,13 @@ describe('node errors', () => {
       Raw Call Arguments:
         from:  0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-        data:  0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
+        data:  0xa0712d680000000000000000000000000000000000000000000000000000000000cc07c9
         gas:   100
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
-        args:          (69420)
+        args:          (13371337)
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract
@@ -602,7 +602,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         gas: 100n,
       }),
     ).rejects.toThrowError('intrinsic gas too low')
@@ -616,7 +616,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         gas: 100_000_000_000_000_000n,
       }),
     ).toBeDefined()
@@ -630,7 +630,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         maxFeePerGas: 1n,
       }),
     ).toBeDefined()
@@ -640,7 +640,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         maxFeePerGas: 1n,
       }),
     ).rejects.toThrowError('cannot be lower than the block base fee')
@@ -652,7 +652,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         nonce: 0,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -662,13 +662,13 @@ describe('node errors', () => {
       Raw Call Arguments:
         from:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
         to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-        data:   0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
+        data:   0xa0712d680000000000000000000000000000000000000000000000000000000000cc07c9
         nonce:  0
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
-        args:          (69420)
+        args:          (13371337)
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract
@@ -683,7 +683,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         // @ts-expect-error
         value: parseEther('100000'),
       }),
@@ -703,12 +703,12 @@ describe('node errors', () => {
         from:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
         to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         value:  100000 ETH
-        data:   0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
+        data:   0xa0712d680000000000000000000000000000000000000000000000000000000000cc07c9
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
-        args:          (69420)
+        args:          (13371337)
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract
@@ -721,7 +721,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         // @ts-expect-error
         value: parseEther('100000'),
       }),
@@ -734,7 +734,7 @@ describe('node errors', () => {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
-        args: [69420n],
+        args: [13371337n],
         maxFeePerGas: parseGwei('20'),
         maxPriorityFeePerGas: parseGwei('22'),
       }),
@@ -744,14 +744,14 @@ describe('node errors', () => {
       Raw Call Arguments:
         from:                  0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
         to:                    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-        data:                  0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
+        data:                  0xa0712d680000000000000000000000000000000000000000000000000000000000cc07c9
         maxFeePerGas:          20 gwei
         maxPriorityFeePerGas:  22 gwei
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
-        args:          (69420)
+        args:          (13371337)
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract

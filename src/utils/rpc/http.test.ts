@@ -267,7 +267,7 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
       Details: "ngmi"
       Version: viem@1.0.2]
@@ -295,7 +295,7 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
       Details: Internal Server Error
       Version: viem@1.0.2]
@@ -347,7 +347,7 @@ describe('request', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
       Details: foo
       Version: viem@1.0.2]
@@ -464,7 +464,7 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
 
       Details: "ngmi"
       Version: viem@1.0.2]
@@ -495,7 +495,7 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
 
       Details: Internal Server Error
       Version: viem@1.0.2]
@@ -525,7 +525,7 @@ describe('http (batch)', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
 
       Details: foo
       Version: viem@1.0.2]

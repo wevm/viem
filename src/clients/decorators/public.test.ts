@@ -138,7 +138,7 @@ describe('smoke test', () => {
     )
   })
 
-  test.skip('getBlobBaseFee', async () => {
+  test('getBlobBaseFee', async () => {
     expect(await client.getBlobBaseFee()).toBeDefined()
   })
 

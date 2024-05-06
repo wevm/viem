@@ -125,7 +125,7 @@ test('args: gas', async () => {
   ).toMatchInlineSnapshot('21000n')
 })
 
-test.skip('args: blobs', async () => {
+test('args: blobs', async () => {
   expect(
     await estimateGas(client, {
       account: accounts[0].address,
@@ -134,7 +134,7 @@ test.skip('args: blobs', async () => {
       to: accounts[1].address,
       maxFeePerBlobGas: parseGwei('20'),
     }),
-  ).toMatchInlineSnapshot('21000n')
+  ).toMatchInlineSnapshot('53001n')
 })
 
 describe('local account', () => {

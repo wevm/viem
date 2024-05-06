@@ -42,7 +42,7 @@ test('HttpRequestError', () => {
 
     Status: 500
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
     Details: Some error
     Version: viem@1.0.2]
@@ -62,7 +62,7 @@ test('WebSocketRequestError', () => {
     [WebSocketRequestError: WebSocket request failed.
 
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
     Details: Some error
     Version: viem@1.0.2]
@@ -81,7 +81,7 @@ test('TimeoutError', () => {
     [TimeoutError: The request took too long to respond.
 
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
     Details: The request timed out.
     Version: viem@1.0.2]
