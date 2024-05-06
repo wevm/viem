@@ -1,9 +1,4 @@
-import type { Abi, Address } from 'abitype'
-import type {
-  PrepareTransactionRequestParameters,
-  PrepareTransactionRequestRequest,
-  PrepareTransactionRequestReturnType,
-} from '../../actions/wallet/prepareTransactionRequest.js'
+import type { Abi } from 'abitype'
 import { writeContract } from '../../actions/wallet/writeContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { WalletActions } from '../../clients/decorators/wallet.js'
@@ -14,7 +9,6 @@ import {
   type DeployContractReturnType,
   deployContract,
 } from '../actions/deployContract.js'
-import { prepareTransactionRequest } from '../actions/prepareTransactionRequest.js'
 import {
   type SendTransactionParameters,
   type SendTransactionReturnType,
@@ -215,70 +209,6 @@ export type Eip712WalletActions<
    * const hash = await client.writeContract(request)
    */
   writeContract: WalletActions<chain, account>['writeContract']
-
-  /**
-   * Prepares a transaction request for signing with optional estimate gas parameter where real wallet is used for estimation for account abstraction.
-   *
-   * @param args - {@link PrepareTransactionRequestParameters}
-   * @returns The transaction request. {@link PrepareTransactionRequestReturnType}
-   *
-   * @example
-   * import { createWalletClient, custom } from 'viem'
-   * import { mainnet } from 'viem/chains'
-   * import { prepareTransactionRequest } from 'viem/zksync'
-   *
-   * const client = createWalletClient({
-   *   chain: zkSync,
-   *   transport: custom(window.ethereum),
-   * })
-   * const request = await prepareTransactionRequest(client, {
-   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-   *   to: '0x0000000000000000000000000000000000000000',
-   *   value: 1n,
-   * })
-   *
-   * @example
-   * // Account Hoisting
-   * import { createWalletClient, http } from 'viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   * import { mainnet } from 'viem/chains'
-   * import { prepareTransactionRequest } from 'viem/zksync'
-   *
-   * const client = createWalletClient({
-   *   account: privateKeyToAccount('0x…'),
-   *   chain: zkSync,
-   *   transport: custom(window.ethereum),
-   * })
-   * const request = await prepareTransactionRequest(client, {
-   *   to: '0x0000000000000000000000000000000000000000',
-   *   value: 1n,
-   * })
-   */
-  prepareTransactionRequest: <
-    const request extends PrepareTransactionRequestRequest<
-      chain,
-      chainOverride
-    >,
-    chainOverride extends ChainEIP712 | undefined = undefined,
-    accountOverride extends Account | Address | undefined = undefined,
-  >(
-    args: PrepareTransactionRequestParameters<
-      chain,
-      account,
-      chainOverride,
-      accountOverride,
-      request
-    >,
-  ) => Promise<
-    PrepareTransactionRequestReturnType<
-      ChainEIP712,
-      account,
-      chainOverride,
-      accountOverride,
-      // @ts-expect-error
-      request
-    >
-  >
 }
 
 export function eip712WalletActions() {
@@ -299,7 +229,5 @@ export function eip712WalletActions() {
         }),
         args,
       ),
-    prepareTransactionRequest: (args) =>
-      prepareTransactionRequest(client, args as any),
   })
 }

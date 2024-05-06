@@ -1279,6 +1279,10 @@ export const sidebar = {
             text: 'singlesigToSmartAccount',
             link: '/zksync/accounts/singlesigToSmartAccount',
           },
+          {
+            text: 'toSmartAccount',
+            link: '/zksync/accounts/toSmartAccount',
+          },
         ],
       },
       {
