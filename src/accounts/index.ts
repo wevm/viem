@@ -48,9 +48,13 @@ export {
   sign,
 } from './utils/sign.js'
 export {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from '../utils/signature/signatureToHex.js'
+  /** @deprecated Use `SignatureToHexErrorType` instead. */
+  type SerializeSignatureErrorType as SignatureToHexErrorType,
+  /** @deprecated Use `serializeSignature` instead. */
+  serializeSignature as signatureToHex,
+  type SerializeSignatureErrorType,
+  serializeSignature,
+} from '../utils/signature/serializeSignature.js'
 export {
   type SignMessageErrorType,
   type SignMessageParameters,

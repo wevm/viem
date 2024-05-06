@@ -1,6 +1,6 @@
 import type { Address, TypedData } from 'abitype'
 
-import type { ByteArray, Hex } from '../../types/misc.js'
+import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 
 import type { ErrorType } from '../../errors/utils.js'
@@ -14,7 +14,7 @@ export type RecoverTypedDataAddressParameters<
   typedData extends TypedData | Record<string, unknown> = TypedData,
   primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
 > = TypedDataDefinition<typedData, primaryType> & {
-  signature: Hex | ByteArray
+  signature: Hex | ByteArray | Signature
 }
 
 export type RecoverTypedDataAddressReturnType = Address

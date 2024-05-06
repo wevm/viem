@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
+import { anvilOptimism } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { optimismClient } from '../../../test/src/opStack.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
   getTransactionReceipt,
@@ -22,6 +22,8 @@ import { initiateWithdrawal } from './initiateWithdrawal.js'
 import { proveWithdrawal } from './proveWithdrawal.js'
 import { waitToFinalize } from './waitToFinalize.js'
 import { waitToProve } from './waitToProve.js'
+
+const optimismClient = anvilOptimism.getClient()
 
 test('default', async () => {
   const hash = await initiateWithdrawal(optimismClient, {

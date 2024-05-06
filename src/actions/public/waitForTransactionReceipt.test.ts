@@ -1,7 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -10,26 +9,30 @@ import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import { setIntervalMining } from '../index.js'
 import * as getBlock from './getBlock.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
+
+const client = anvilMainnet.getClient()
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 async function setup() {
-  await setIntervalMining(testClient, { interval: 1 })
+  await setIntervalMining(client, { interval: 1 })
 }
 
 test('waits for transaction (send -> wait -> mine)', async () => {
   setup()
 
-  const hash = await sendTransaction(walletClient, {
+  const hash = await sendTransaction(client, {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
   })
-  const { status } = await waitForTransactionReceipt(publicClient, {
+  const { status } = await waitForTransactionReceipt(client, {
     hash,
   })
   expect(status).toBe('success')
@@ -38,13 +41,13 @@ test('waits for transaction (send -> wait -> mine)', async () => {
 test('waits for transaction (send -> mine -> wait)', async () => {
   setup()
 
-  const hash = await sendTransaction(walletClient, {
+  const hash = await sendTransaction(client, {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
   })
-  await mine(testClient, { blocks: 1 })
-  const { status } = await waitForTransactionReceipt(publicClient, {
+  await mine(client, { blocks: 1 })
+  const { status } = await waitForTransactionReceipt(client, {
     hash,
   })
   expect(status).toBe('success')
@@ -53,21 +56,21 @@ test('waits for transaction (send -> mine -> wait)', async () => {
 test('waits for transaction (multiple waterfall)', async () => {
   setup()
 
-  const hash = await sendTransaction(walletClient, {
+  const hash = await sendTransaction(client, {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
   })
-  const receipt_1 = await waitForTransactionReceipt(publicClient, {
+  const receipt_1 = await waitForTransactionReceipt(client, {
     hash,
   })
-  const receipt_2 = await waitForTransactionReceipt(publicClient, {
+  const receipt_2 = await waitForTransactionReceipt(client, {
     hash,
   })
-  const receipt_3 = await waitForTransactionReceipt(publicClient, {
+  const receipt_3 = await waitForTransactionReceipt(client, {
     hash,
   })
-  const receipt_4 = await waitForTransactionReceipt(publicClient, {
+  const receipt_4 = await waitForTransactionReceipt(client, {
     hash,
   })
   expect(receipt_1).toEqual(receipt_2)
@@ -78,22 +81,22 @@ test('waits for transaction (multiple waterfall)', async () => {
 test('waits for transaction (multiple parallel)', async () => {
   setup()
 
-  const hash = await sendTransaction(walletClient, {
+  const hash = await sendTransaction(client, {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
   })
   const [receipt_1, receipt_2, receipt_3, receipt_4] = await Promise.all([
-    waitForTransactionReceipt(publicClient, {
+    waitForTransactionReceipt(client, {
       hash,
     }),
-    waitForTransactionReceipt(publicClient, {
+    waitForTransactionReceipt(client, {
       hash,
     }),
-    waitForTransactionReceipt(publicClient, {
+    waitForTransactionReceipt(client, {
       hash,
     }),
-    waitForTransactionReceipt(publicClient, {
+    waitForTransactionReceipt(client, {
       hash,
     }),
   ])
@@ -106,16 +109,16 @@ describe('replaced transactions', () => {
   test('repriced', async () => {
     setup()
 
-    await mine(testClient, { blocks: 10 })
+    await mine(client, { blocks: 10 })
 
     const nonce = hexToNumber(
-      (await publicClient.request({
+      (await client.request({
         method: 'eth_getTransactionCount',
         params: [sourceAccount.address, 'latest'],
       })) ?? '0x0',
     )
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -125,7 +128,7 @@ describe('replaced transactions', () => {
 
     let replacement: any
     const [receipt] = await Promise.all([
-      waitForTransactionReceipt(publicClient, {
+      waitForTransactionReceipt(client, {
         hash,
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
@@ -133,7 +136,7 @@ describe('replaced transactions', () => {
         await wait(100)
 
         // speed up
-        await sendTransaction(walletClient, {
+        await sendTransaction(client, {
           account: sourceAccount.address,
           to: targetAccount.address,
           value: parseEther('1'),
@@ -153,16 +156,16 @@ describe('replaced transactions', () => {
   test('repriced (skipped blocks)', async () => {
     setup()
 
-    await mine(testClient, { blocks: 10 })
+    await mine(client, { blocks: 10 })
 
     const nonce = hexToNumber(
-      (await publicClient.request({
+      (await client.request({
         method: 'eth_getTransactionCount',
         params: [sourceAccount.address, 'latest'],
       })) ?? '0x0',
     )
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -171,14 +174,14 @@ describe('replaced transactions', () => {
     })
 
     const [receipt] = await Promise.all([
-      waitForTransactionReceipt(publicClient, {
+      waitForTransactionReceipt(client, {
         hash,
       }),
       (async () => {
         await wait(100)
 
         // speed up
-        await sendTransaction(walletClient, {
+        await sendTransaction(client, {
           account: sourceAccount.address,
           to: targetAccount.address,
           value: parseEther('1'),
@@ -187,7 +190,7 @@ describe('replaced transactions', () => {
         })
 
         await wait(1000)
-        await mine(testClient, { blocks: 5 })
+        await mine(client, { blocks: 5 })
       })(),
     ])
 
@@ -197,16 +200,16 @@ describe('replaced transactions', () => {
   test('cancelled', async () => {
     setup()
 
-    await mine(testClient, { blocks: 10 })
+    await mine(client, { blocks: 10 })
 
     const nonce = hexToNumber(
-      (await publicClient.request({
+      (await client.request({
         method: 'eth_getTransactionCount',
         params: [sourceAccount.address, 'latest'],
       })) ?? '0x0',
     )
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -216,7 +219,7 @@ describe('replaced transactions', () => {
 
     let replacement: any
     const [receipt] = await Promise.all([
-      waitForTransactionReceipt(publicClient, {
+      waitForTransactionReceipt(client, {
         hash,
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
@@ -224,7 +227,7 @@ describe('replaced transactions', () => {
         await wait(100)
 
         // speed up
-        await sendTransaction(walletClient, {
+        await sendTransaction(client, {
           account: sourceAccount.address,
           to: sourceAccount.address,
           value: parseEther('0'),
@@ -244,16 +247,16 @@ describe('replaced transactions', () => {
   test('replaced', async () => {
     setup()
 
-    await mine(testClient, { blocks: 10 })
+    await mine(client, { blocks: 10 })
 
     const nonce = hexToNumber(
-      (await publicClient.request({
+      (await client.request({
         method: 'eth_getTransactionCount',
         params: [sourceAccount.address, 'latest'],
       })) ?? '0x0',
     )
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -263,7 +266,7 @@ describe('replaced transactions', () => {
 
     let replacement: any
     const [receipt] = await Promise.all([
-      waitForTransactionReceipt(publicClient, {
+      waitForTransactionReceipt(client, {
         hash,
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
@@ -271,7 +274,7 @@ describe('replaced transactions', () => {
         await wait(100)
 
         // speed up
-        await sendTransaction(walletClient, {
+        await sendTransaction(client, {
           account: sourceAccount.address,
           to: targetAccount.address,
           value: parseEther('2'),
@@ -293,7 +296,7 @@ describe('args: confirmations', () => {
   test('waits for confirmations', async () => {
     setup()
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -301,7 +304,7 @@ describe('args: confirmations', () => {
     })
 
     const start = Date.now()
-    const receipt = await waitForTransactionReceipt(publicClient, {
+    const receipt = await waitForTransactionReceipt(client, {
       hash,
       confirmations: 3,
     })
@@ -315,16 +318,16 @@ describe('args: confirmations', () => {
   test('waits for confirmations (replaced)', async () => {
     setup()
 
-    await mine(testClient, { blocks: 10 })
+    await mine(client, { blocks: 10 })
 
     const nonce = hexToNumber(
-      (await publicClient.request({
+      (await client.request({
         method: 'eth_getTransactionCount',
         params: [sourceAccount.address, 'latest'],
       })) ?? '0x0',
     )
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -333,7 +336,7 @@ describe('args: confirmations', () => {
     })
 
     const [receipt] = await Promise.all([
-      waitForTransactionReceipt(publicClient, {
+      waitForTransactionReceipt(client, {
         confirmations: 3,
         hash,
       }),
@@ -341,7 +344,7 @@ describe('args: confirmations', () => {
         await wait(100)
 
         // speed up
-        await sendTransaction(walletClient, {
+        await sendTransaction(client, {
           account: sourceAccount.address,
           to: targetAccount.address,
           value: parseEther('1'),
@@ -360,13 +363,13 @@ describe('args: confirmations', () => {
 test('args: timeout', async () => {
   setup()
 
-  const hash = await sendTransaction(walletClient, {
+  const hash = await sendTransaction(client, {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
   })
   await expect(() =>
-    waitForTransactionReceipt(publicClient, {
+    waitForTransactionReceipt(client, {
       hash,
       timeout: 500,
     }),
@@ -379,16 +382,16 @@ describe('errors', () => {
 
     vi.spyOn(getBlock, 'getBlock').mockRejectedValueOnce(new Error('foo'))
 
-    await mine(testClient, { blocks: 10 })
+    await mine(client, { blocks: 10 })
 
     const nonce = hexToNumber(
-      (await publicClient.request({
+      (await client.request({
         method: 'eth_getTransactionCount',
         params: [sourceAccount.address, 'latest'],
       })) ?? '0x0',
     )
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -398,14 +401,14 @@ describe('errors', () => {
 
     await expect(() =>
       Promise.all([
-        waitForTransactionReceipt(publicClient, {
+        waitForTransactionReceipt(client, {
           hash,
         }),
         (async () => {
           await wait(100)
 
           // speed up
-          await sendTransaction(walletClient, {
+          await sendTransaction(client, {
             account: sourceAccount.address,
             to: targetAccount.address,
             value: parseEther('2'),

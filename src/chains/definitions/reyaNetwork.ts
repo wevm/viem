@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const reyaNetwork = defineChain({
+export const reyaNetwork = /*#__PURE__*/ defineChain({
   id: 1729,
   name: 'Reya Network',
   nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },

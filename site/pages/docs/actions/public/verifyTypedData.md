@@ -324,7 +324,7 @@ const valid = await publicClient.verifyTypedData({
 
 ### signature
 
-- **Type:** `Hex | ByteArray`
+- **Type:** `Hex | ByteArray | Signature`
 
 The signature of the typed data.
 

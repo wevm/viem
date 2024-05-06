@@ -80,20 +80,23 @@ export type FallbackTransportConfig = {
   retryDelay?: TransportConfig['retryDelay'] | undefined
 }
 
-export type FallbackTransport = Transport<
-  'fallback',
-  {
-    onResponse: (fn: OnResponseFn) => void
-    transports: ReturnType<Transport>[]
-  }
->
+export type FallbackTransport<transports extends Transport[] = Transport[]> =
+  Transport<
+    'fallback',
+    {
+      onResponse: (fn: OnResponseFn) => void
+      transports: {
+        [key in keyof transports]: ReturnType<transports[key]>
+      }
+    }
+  >
 
 export type FallbackTransportErrorType = CreateTransportErrorType | ErrorType
 
-export function fallback(
-  transports_: Transport[],
+export function fallback<const transports extends Transport[]>(
+  transports_: transports,
   config: FallbackTransportConfig = {},
-): FallbackTransport {
+): FallbackTransport<transports> {
   const {
     key = 'fallback',
     name = 'Fallback',
@@ -101,7 +104,7 @@ export function fallback(
     retryCount,
     retryDelay,
   } = config
-  return ({ chain, pollingInterval = 4_000, timeout, ...rest }) => {
+  return (({ chain, pollingInterval = 4_000, timeout, ...rest }) => {
     let transports = transports_
 
     let onResponse: OnResponseFn = () => {}
@@ -168,7 +171,7 @@ export function fallback(
       rankTransports({
         chain,
         interval: rankOptions.interval ?? pollingInterval,
-        onTransports: (transports_) => (transports = transports_),
+        onTransports: (transports_) => (transports = transports_ as transports),
         sampleCount: rankOptions.sampleCount,
         timeout: rankOptions.timeout,
         transports,
@@ -176,7 +179,7 @@ export function fallback(
       })
     }
     return transport
-  }
+  }) as FallbackTransport<transports>
 }
 
 function shouldThrow(error: Error) {

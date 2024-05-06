@@ -117,7 +117,7 @@ describe('request', () => {
 
     let transport = fallback([http(server1.url), http(server3.url)])({
       chain: localhost,
-    })
+    }) as ReturnType<FallbackTransport>
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
 
     // ensure `retryCount` on transport is adhered

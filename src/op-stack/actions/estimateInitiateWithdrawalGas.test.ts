@@ -1,7 +1,9 @@
 import { expect, test } from 'vitest'
+import { anvilOptimism } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { optimismClient } from '../../../test/src/opStack.js'
 import { estimateInitiateWithdrawalGas } from './estimateInitiateWithdrawalGas.js'
+
+const optimismClient = anvilOptimism.getClient()
 
 test('default', async () => {
   const gas = await estimateInitiateWithdrawalGas(optimismClient, {

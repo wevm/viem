@@ -867,10 +867,6 @@ export const sidebar = {
           text: 'Signature',
           items: [
             {
-              text: 'compactSignatureToHex',
-              link: '/docs/utilities/compactSignatureToHex',
-            },
-            {
               text: 'compactSignatureToSignature',
               link: '/docs/utilities/compactSignatureToSignature',
             },
@@ -883,12 +879,20 @@ export const sidebar = {
               link: '/docs/utilities/hashTypedData',
             },
             {
-              text: 'hexToCompactSignature',
-              link: '/docs/utilities/hexToCompactSignature',
+              text: 'isErc6492Signature',
+              link: '/docs/utilities/isErc6492Signature',
             },
             {
-              text: 'hexToSignature',
-              link: '/docs/utilities/hexToSignature',
+              text: 'parseCompactSignature',
+              link: '/docs/utilities/parseCompactSignature',
+            },
+            {
+              text: 'parseErc6492Signature',
+              link: '/docs/utilities/parseErc6492Signature',
+            },
+            {
+              text: 'parseSignature',
+              link: '/docs/utilities/parseSignature',
             },
             {
               text: 'recoverAddress',
@@ -911,12 +915,20 @@ export const sidebar = {
               link: '/docs/utilities/recoverTypedDataAddress',
             },
             {
-              text: 'signatureToCompactSignature',
-              link: '/docs/utilities/signatureToCompactSignature',
+              text: 'serializeCompactSignature',
+              link: '/docs/utilities/serializeCompactSignature',
             },
             {
-              text: 'signatureToHex',
-              link: '/docs/utilities/signatureToHex',
+              text: 'serializeErc6492Signature',
+              link: '/docs/utilities/serializeErc6492Signature',
+            },
+            {
+              text: 'serializeSignature',
+              link: '/docs/utilities/serializeSignature',
+            },
+            {
+              text: 'signatureToCompactSignature',
+              link: '/docs/utilities/signatureToCompactSignature',
             },
             {
               text: 'verifyMessage',
@@ -1010,27 +1022,86 @@ export const sidebar = {
         ],
       },
       {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Using Invokers (EIP-3074)',
+            link: '/experimental/eip3074/using-invokers',
+          },
+        ],
+      },
+      {
+        text: 'EIP-3074',
+        items: [
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'signAuthMessage',
+                link: '/experimental/eip3074/signAuthMessage',
+              },
+            ],
+          },
+          {
+            text: 'Invoker Instances',
+            link: '/experimental/eip3074/invoker-instances',
+            items: [
+              {
+                text: 'getInvoker',
+                link: '/experimental/eip3074/getInvoker',
+              },
+              {
+                text: 'execute',
+                link: '/experimental/eip3074/execute',
+              },
+              {
+                text: 'sign',
+                link: '/experimental/eip3074/sign',
+              },
+            ],
+          },
+          {
+            text: 'Utilities',
+            items: [
+              {
+                text: 'recoverAuthMessageAddress',
+                link: '/experimental/eip3074/recoverAuthMessageAddress',
+              },
+              {
+                text: 'verifyAuthMessage',
+                link: '/experimental/eip3074/verifyAuthMessage',
+              },
+            ],
+          },
+        ],
+      },
+      {
         text: 'EIP-5792',
         items: [
           {
-            text: 'getCallsStatus',
-            link: '/experimental/actions/getCallsStatus',
-          },
-          {
-            text: 'getCapabilities',
-            link: '/experimental/actions/getCapabilities',
-          },
-          {
-            text: 'sendCalls',
-            link: '/experimental/actions/sendCalls',
-          },
-          {
-            text: 'showCallsStatus',
-            link: '/experimental/actions/showCallsStatus',
-          },
-          {
-            text: 'writeContracts',
-            link: '/experimental/actions/writeContracts',
+            text: 'Actions',
+            items: [
+              {
+                text: 'getCallsStatus',
+                link: '/experimental/eip5792/getCallsStatus',
+              },
+              {
+                text: 'getCapabilities',
+                link: '/experimental/eip5792/getCapabilities',
+              },
+              {
+                text: 'sendCalls',
+                link: '/experimental/eip5792/sendCalls',
+              },
+              {
+                text: 'showCallsStatus',
+                link: '/experimental/eip5792/showCallsStatus',
+              },
+              {
+                text: 'writeContracts',
+                link: '/experimental/eip5792/writeContracts',
+              },
+            ],
           },
         ],
       },
@@ -1286,6 +1357,24 @@ export const sidebar = {
           {
             text: 'writeContract',
             link: '/zksync/actions/writeContract',
+          },
+        ],
+      },
+      {
+        text: 'Utilities',
+        items: [
+          {
+            text: 'Paymaster',
+            items: [
+              {
+                text: 'getApprovalBasedPaymasterInput',
+                link: '/zksync/utilities/paymaster/getApprovalBasedPaymasterInput',
+              },
+              {
+                text: 'getGeneralPaymasterInput',
+                link: '/zksync/utilities/paymaster/getGeneralPaymasterInput',
+              },
+            ],
           },
         ],
       },

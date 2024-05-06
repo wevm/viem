@@ -1,14 +1,16 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { reset } from '../../actions/index.js'
 import { base } from '../../op-stack/chains.js'
 import { walletActionsL1 } from './walletL1.js'
 
-const opStackClient = walletClient.extend(walletActionsL1())
+const client = anvilMainnet.getClient()
+const opStackClient = client.extend(walletActionsL1())
 
 test('default', async () => {
-  expect(walletActionsL1()(walletClient)).toMatchInlineSnapshot(`
+  expect(walletActionsL1()(client)).toMatchInlineSnapshot(`
     {
       "depositTransaction": [Function],
       "finalizeWithdrawal": [Function],
@@ -31,6 +33,11 @@ describe('smoke test', () => {
   })
 
   test('proveWithdrawal', async () => {
+    await reset(client, {
+      blockNumber: 16280770n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+
     const args = {
       l2OutputIndex: 4529n,
       outputRootProof: {

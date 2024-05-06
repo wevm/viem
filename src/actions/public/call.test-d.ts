@@ -1,30 +1,32 @@
 import { test } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { call } from './call.js'
 
+const client = anvilMainnet.getClient()
+
 test('legacy', () => {
-  call(publicClient, {
+  call(client, {
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  call(publicClient, {
+  call(client, {
     gasPrice: 0n,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
   })
 
   // @ts-expect-error
-  call(publicClient, {
+  call(client, {
     gasPrice: 0n,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
     type: 'legacy',
   })
   // @ts-expect-error
-  call(publicClient, {
+  call(client, {
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
     type: 'legacy',
@@ -32,40 +34,40 @@ test('legacy', () => {
 })
 
 test('eip1559', () => {
-  call(publicClient, {
+  call(client, {
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
   })
 
   // @ts-expect-error
-  call(publicClient, {
+  call(client, {
     gasPrice: 0n,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
   })
 
   // @ts-expect-error
-  call(publicClient, {
+  call(client, {
     gasPrice: 0n,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
     type: 'eip1559',
   })
   // @ts-expect-error
-  call(publicClient, {
+  call(client, {
     gasPrice: 0n,
     type: 'eip1559',
   })
 })
 
 test('eip2930', () => {
-  call(publicClient, {
+  call(client, {
     accessList: [],
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  call(publicClient, {
+  call(client, {
     accessList: [],
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -73,7 +75,7 @@ test('eip2930', () => {
   })
 
   // @ts-expect-error
-  call(publicClient, {
+  call(client, {
     accessList: [],
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -81,7 +83,7 @@ test('eip2930', () => {
     type: 'eip2930',
   })
   // @ts-expect-error
-  call(publicClient, {
+  call(client, {
     accessList: [],
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,

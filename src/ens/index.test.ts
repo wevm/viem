@@ -13,6 +13,8 @@ test('exports ens', () => {
       "labelhash": [Function],
       "namehash": [Function],
       "normalize": [Function],
+      "packetToBytes": [Function],
+      "parseAvatarRecord": [Function],
     }
   `)
 })

@@ -43,7 +43,7 @@
   {
     "name": "viem/chains",
     "path": "./src/_esm/chains/index.js",
-    "limit": "17.3 kB",
+    "limit": "28 kB",
     "import": "*"
   },
   {
