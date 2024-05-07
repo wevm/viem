@@ -13,9 +13,13 @@ export const sapphire = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
+      name: 'Oasis Explorer',
+      url: 'https://explorer.oasis.io/mainnet/sapphire',
+    },
+    blockscout: {
       name: 'Oasis Sapphire Explorer',
-      url: 'https://explorer.sapphire.oasis.io',
-      apiUrl: 'https://explorer.sapphire.oasis.io/api',
+      url: 'https://old-explorer.sapphire.oasis.io',
+      apiUrl: 'https://old-explorer.sapphire.oasis.io/api',
     },
   },
   contracts: {
