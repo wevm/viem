@@ -23,7 +23,7 @@ test('formats', () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "address": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
+      "address": "0x15D4c048F83bd7e37d49eA4C83a07267Ec4203dA",
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
       "data": "0x0000000000000000000000000000000000000000000000000000002b3b6fb3d0",
@@ -59,7 +59,7 @@ test('nullish values', () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "address": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
+      "address": "0x15D4c048F83bd7e37d49eA4C83a07267Ec4203dA",
       "blockHash": null,
       "blockNumber": null,
       "data": "0x0000000000000000000000000000000000000000000000000000002b3b6fb3d0",
