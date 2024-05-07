@@ -2,6 +2,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Log } from '../../types/log.js'
 import type { RpcLog } from '../../types/rpc.js'
 import type { ExactPartial } from '../../types/utils.js'
+import { getAddress } from '../index.js'
 
 export type FormatLogErrorType = ErrorType
 
@@ -14,6 +15,7 @@ export function formatLog(
 ) {
   return {
     ...log,
+    address: log.address ? getAddress(log.address) : null,
     blockHash: log.blockHash ? log.blockHash : null,
     blockNumber: log.blockNumber ? BigInt(log.blockNumber) : null,
     logIndex: log.logIndex ? Number(log.logIndex) : null,
