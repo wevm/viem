@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const dodochainTestnet = defineChain({
   id: 53457,
   name: 'DODOchain Testnet',
-  nativeCurrency: { decimals: 18, name: 'Berd', symbol: 'BERD' },
+  nativeCurrency: { decimals: 18, name: 'DODO', symbol: 'DODO' },
   rpcUrls: {
     default: {
       http: ['https://dodochain-testnet.alt.technology'],
@@ -13,7 +13,7 @@ export const dodochainTestnet = defineChain({
   blockExplorers: {
     default: {
       name: 'DODOchain Testnet (Sepolia) Explorer',
-      url: 'https://dodochain-testnet-explorer.alt.technology',
+      url: 'https://testnet-scan.dodochain.com',
     },
   },
   testnet: true,
