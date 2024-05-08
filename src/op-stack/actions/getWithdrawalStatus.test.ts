@@ -17,12 +17,12 @@ const optimismSepoliaClient = anvilOptimismSepolia.getClient()
 // TODO(fault-proofs): convert to `client` & `optimismClient` when fault proofs deployed to mainnet.
 test('waiting-to-prove', async () => {
   await reset(sepoliaClient, {
-    blockNumber: 5527000n,
+    blockNumber: 5857892n,
     jsonRpcUrl: anvilSepolia.forkUrl,
   })
 
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
   })
 
   const status = await getWithdrawalStatus(sepoliaClient, {
@@ -35,12 +35,12 @@ test('waiting-to-prove', async () => {
 
 test('ready-to-prove', async () => {
   await reset(sepoliaClient, {
-    blockNumber: 5528129n,
+    blockNumber: 5857991n,
     jsonRpcUrl: anvilSepolia.forkUrl,
   })
 
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
   })
 
   const status = await getWithdrawalStatus(sepoliaClient, {
@@ -53,12 +53,12 @@ test('ready-to-prove', async () => {
 
 test('waiting-to-finalize', async () => {
   await reset(sepoliaClient, {
-    blockNumber: 5533180n,
+    blockNumber: 5857993n,
     jsonRpcUrl: anvilSepolia.forkUrl,
   })
 
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
   })
 
   const status = await getWithdrawalStatus(sepoliaClient, {
