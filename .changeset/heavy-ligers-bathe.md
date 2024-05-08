@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added inEvm chain
+Added inEVM chain

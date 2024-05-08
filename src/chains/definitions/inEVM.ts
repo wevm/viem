@@ -1,6 +1,6 @@
 import { defineChain } from "../../utils/chain/defineChain.js";
 
-export const inEvm = /*#__PURE__*/ defineChain({
+export const inEVM = /*#__PURE__*/ defineChain({
 	id: 2525,
 	name: "inEVM Mainnet",
 	nativeCurrency: {
