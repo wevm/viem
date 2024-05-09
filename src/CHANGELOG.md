@@ -1,5 +1,11 @@
 # viem
 
+## 2.10.4
+
+### Patch Changes
+
+- [#2231](https://github.com/wevm/viem/pull/2231) [`e097b26027393d46e1a00d3ace0b911ca6a47341`](https://github.com/wevm/viem/commit/e097b26027393d46e1a00d3ace0b911ca6a47341) Thanks [@pro-wh](https://github.com/pro-wh)! - Updated Sapphire and Sapphire Testnet chains.
+
 ## 2.10.3
 
 ### Patch Changes
