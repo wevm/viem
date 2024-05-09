@@ -26,7 +26,7 @@ test('sepolia', async () => {
   expect(version).toMatchInlineSnapshot(`
     {
       "major": 3,
-      "minor": 3,
+      "minor": 8,
       "patch": 0,
     }
   `)
@@ -38,9 +38,9 @@ test('args: portalAddress', async () => {
   })
   expect(version).toMatchInlineSnapshot(`
     {
-      "major": 1,
-      "minor": 7,
-      "patch": 2,
+      "major": 2,
+      "minor": 5,
+      "patch": 0,
     }
   `)
 })

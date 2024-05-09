@@ -1,5 +1,40 @@
 # viem
 
+## 2.10.2
+
+### Patch Changes
+
+- [#2227](https://github.com/wevm/viem/pull/2227) [`0f7541c04dfe637c8e2cc4153ac7c086985bf168`](https://github.com/wevm/viem/commit/0f7541c04dfe637c8e2cc4153ac7c086985bf168) Thanks [@jxom](https://github.com/jxom)! - Updated to latest `OptimismPortal2` contract.
+
+- [`1a0731f6b888d59f74cfd2f62c001f780d0e6b2e`](https://github.com/wevm/viem/commit/1a0731f6b888d59f74cfd2f62c001f780d0e6b2e) Thanks [@jxom](https://github.com/jxom)! - Updated Otim Devnet `BatchInvoker` contract address.
+
+- [#2221](https://github.com/wevm/viem/pull/2221) [`8d9731c0b65cb99d95d5f220c88be050513b0a66`](https://github.com/wevm/viem/commit/8d9731c0b65cb99d95d5f220c88be050513b0a66) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated Celo explorer URL.
+
+- [#2220](https://github.com/wevm/viem/pull/2220) [`302c355b5661e478d3f9c3c4ae42d9f2061d6d81`](https://github.com/wevm/viem/commit/302c355b5661e478d3f9c3c4ae42d9f2061d6d81) Thanks [@lbk3530](https://github.com/lbk3530)! - Added DODOchain testnet.
+
+## 2.10.1
+
+### Patch Changes
+
+- [`6e28131a8b9ab53ad1330c61df64d3b7fb799652`](https://github.com/wevm/viem/commit/6e28131a8b9ab53ad1330c61df64d3b7fb799652) Thanks [@jxom](https://github.com/jxom)! - Fixed types for `wallet_sendCalls`.
+
+## 2.10.0
+
+### Minor Changes
+
+- [#2209](https://github.com/wevm/viem/pull/2209) [`76a92bb97de9adede6d6d60c3aad2961d493045e`](https://github.com/wevm/viem/commit/76a92bb97de9adede6d6d60c3aad2961d493045e) Thanks [@wilsoncusack](https://github.com/wilsoncusack)! - **Experimental:** Added [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492) signature utilities:
+
+  - `isErc6492Signature`
+  - `parseErc6492Signature`
+  - `serializeErc6492Signature`
+
+- [#2209](https://github.com/wevm/viem/pull/2209) [`76a92bb97de9adede6d6d60c3aad2961d493045e`](https://github.com/wevm/viem/commit/76a92bb97de9adede6d6d60c3aad2961d493045e) Thanks [@wilsoncusack](https://github.com/wilsoncusack)! - Deprecated utilities (will be removed in v3):
+
+  - `hexToSignature` – use `parseSignature` instead.
+  - `hexToCompactSignature` – use `parseCompactSignature` instead.
+  - `compactSignatureToHex` – use `serializeCompactSignature` instead.
+  - `signatureToHex` – use `serializeSignature` instead.
+
 ## 2.9.32
 
 ### Patch Changes

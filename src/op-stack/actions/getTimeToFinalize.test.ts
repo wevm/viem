@@ -18,7 +18,7 @@ const optimismSepoliaClient = anvilOptimismSepolia.getClient()
 // TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
 test('default', async () => {
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
   })
 
   const [withdrawal] = getWithdrawals(receipt)
@@ -35,8 +35,8 @@ test('default', async () => {
   expect(time).toMatchInlineSnapshot(`
     {
       "period": 604800,
-      "seconds": 583844,
-      "timestamp": 1711591989099,
+      "seconds": 4723292,
+      "timestamp": 1715731437099,
     }
   `)
 })
@@ -44,12 +44,12 @@ test('default', async () => {
 // TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
 test('ready to finalize', async () => {
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
   })
 
   const [withdrawal] = getWithdrawals(receipt)
 
-  vi.setSystemTime(new Date(1711591989099))
+  vi.setSystemTime(new Date(1715731437099))
 
   const time = await getTimeToFinalize(sepoliaClient, {
     ...withdrawal!,
@@ -62,7 +62,7 @@ test('ready to finalize', async () => {
     {
       "period": 604800,
       "seconds": 0,
-      "timestamp": 1711591989099,
+      "timestamp": 1715731437099,
     }
   `)
 })

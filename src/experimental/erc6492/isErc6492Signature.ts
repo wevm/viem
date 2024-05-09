@@ -1,7 +1,7 @@
 import { erc6492MagicBytes } from '../../constants/bytes.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
-import { type SliceHexErrorType, sliceHex } from '../data/slice.js'
+import { type SliceHexErrorType, sliceHex } from '../../utils/data/slice.js'
 
 export type IsErc6492SignatureParameters = Hex
 export type IsErc6492SignatureReturnType = boolean

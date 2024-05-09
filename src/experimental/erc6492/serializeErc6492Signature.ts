@@ -2,14 +2,14 @@ import type { Address } from 'abitype'
 import { erc6492MagicBytes } from '../../constants/bytes.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
-import { encodeAbiParameters } from '../abi/encodeAbiParameters.js'
-import { concatHex } from '../data/concat.js'
+import { encodeAbiParameters } from '../../utils/abi/encodeAbiParameters.js'
+import { concatHex } from '../../utils/data/concat.js'
 
 export type SerializeErc6492SignatureParameters = {
   /** The ERC-4337 Account Factory address to use for counterfactual verification. */
-  factoryAddress: Address
+  address: Address
   /** Calldata to pass to deploy account (if not deployed) for counterfactual verification. */
-  factoryData: Hex
+  data: Hex
   /** The original signature. */
   signature: Hex
 }
@@ -31,11 +31,11 @@ export type SerializeErc6492SignatureErrorType = ErrorType
 export function serializeErc6492Signature(
   parameters: SerializeErc6492SignatureParameters,
 ): SerializeErc6492SignatureReturnType {
-  const { factoryAddress, factoryData, signature } = parameters
+  const { address, data, signature } = parameters
   return concatHex([
     encodeAbiParameters(
       [{ type: 'address' }, { type: 'bytes' }, { type: 'bytes' }],
-      [factoryAddress, factoryData, signature],
+      [address, data, signature],
     ),
     erc6492MagicBytes,
   ])

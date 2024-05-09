@@ -1217,24 +1217,6 @@ export {
   parseCompactSignature,
 } from './utils/signature/parseCompactSignature.js'
 export {
-  type ParseErc6492SignatureErrorType,
-  type ParseErc6492SignatureParameters,
-  type ParseErc6492SignatureReturnType,
-  parseErc6492Signature,
-} from './utils/signature/parseErc6492Signature.js'
-export {
-  type IsErc6492SignatureErrorType,
-  type IsErc6492SignatureParameters,
-  type IsErc6492SignatureReturnType,
-  isErc6492Signature,
-} from './utils/signature/isErc6492Signature.js'
-export {
-  type SerializeErc6492SignatureErrorType,
-  type SerializeErc6492SignatureParameters,
-  type SerializeErc6492SignatureReturnType,
-  serializeErc6492Signature,
-} from './utils/signature/serializeErc6492Signature.js'
-export {
   /** @deprecated Use `ParseSignatureErrorType`. */
   type ParseSignatureErrorType as HexToSignatureErrorType,
   /** @deprecated Use `parseSignature`. */

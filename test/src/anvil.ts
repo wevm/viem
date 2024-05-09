@@ -34,7 +34,7 @@ export const anvilMainnet = defineAnvil({
 export const anvilSepolia = defineAnvil({
   chain: sepolia,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL_SEPOLIA', 'https://rpc.sepolia.org'),
-  forkBlockNumber: 5528904n,
+  forkBlockNumber: 5858117n,
   noMining: true,
   port: 8845,
 })
@@ -55,7 +55,7 @@ export const anvilOptimismSepolia = defineAnvil({
     'VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA',
     'https://sepolia.optimism.io',
   ),
-  forkBlockNumber: 9596779n,
+  forkBlockNumber: 11662275n,
   noMining: true,
   port: 8945,
 })
