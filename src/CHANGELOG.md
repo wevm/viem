@@ -1,5 +1,13 @@
 # viem
 
+## 2.10.3
+
+### Patch Changes
+
+- [`477ca530fa2f669614f0a65170cddfe4cb5b4dff`](https://github.com/wevm/viem/commit/477ca530fa2f669614f0a65170cddfe4cb5b4dff) Thanks [@tmm](https://github.com/tmm)! - Added `wallet_revokePermissions` to EIP-1193 types.
+
+- [#2237](https://github.com/wevm/viem/pull/2237) [`eecb23060329f0b8958aacab77442cc3af6cb59e`](https://github.com/wevm/viem/commit/eecb23060329f0b8958aacab77442cc3af6cb59e) Thanks [@tmm](https://github.com/tmm)! - Added inEVM chain
+
 ## 2.10.2
 
 ### Patch Changes
