@@ -15,13 +15,14 @@ Internally performs a contract write to the [`proveWithdrawalTransaction` functi
 
 ```ts [example.ts]
 import { account, publicClientL2, walletClientL1 } from './config'
+import { getL2Output, getWithdrawals } from 'viem/op-stack';
 
 const receipt = await getTransactionReceipt(publicClientL2, {
   hash: '0xbbdd0957a82a057a76b5f093de251635ac4ddc6e2d0c4aa7fbf82d73e4e11039',
 })
 
 const [withdrawal] = getWithdrawals(receipt)
-const output = await walletClientL1.getL2Output({
+const output = await getL2Output({
   l2BlockNumber: receipt.blockNumber,
   targetChain: publicClientL2.chain,
 })
