@@ -17,7 +17,7 @@ Internally performs a contract write to the [`depositTransaction` function](http
 import { base } from 'viem/chains'
 import { account, walletClientL1 } from './config'
  
-const hash = await walletClientL1.depositTransacton({
+const hash = await walletClientL1.depositTransaction({
   account,
   request: {
     gas: 21_000n,
@@ -73,7 +73,7 @@ const args = await publicClientL2.buildDepositTransaction({
 })
  
 // Execute the deposit transaction on the L1.
-const hash = await walletClientL1.depositTransacton(args)
+const hash = await walletClientL1.depositTransaction(args)
 ```
 
 ```ts [config.ts]
@@ -121,7 +121,7 @@ const args = await publicClientL2.buildDepositTransaction({
 })
  
 // Initiate the deposit transaction on the L1.
-const hash = await walletClientL1.depositTransacton(args)
+const hash = await walletClientL1.depositTransaction(args)
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
@@ -182,7 +182,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   request: {
     gas: 21_000n,
@@ -200,7 +200,7 @@ const hash = await client.depositTransacton({
 Contract deployment bytecode or encoded contract method & arguments.
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     data: '0x...', // [!code focus]
@@ -219,7 +219,7 @@ const hash = await client.depositTransacton({
 Gas limit for transaction execution on the L2.
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n, // [!code focus]
@@ -237,7 +237,7 @@ const hash = await client.depositTransacton({
 Whether or not this is a contract deployment transaction.
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     data: '0x...',
@@ -255,7 +255,7 @@ const hash = await client.depositTransacton({
 Value in wei to mint (deposit) on the L2. Debited from the caller's L1 balance.
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n,
@@ -273,7 +273,7 @@ const hash = await client.depositTransacton({
 L2 Transaction recipient.
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n,
@@ -291,7 +291,7 @@ const hash = await client.depositTransacton({
 Value in wei sent with this transaction on the L2. Debited from the caller's L2 balance.
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n,
@@ -311,7 +311,7 @@ The L2 chain to execute the transaction on.
 ```ts
 import { mainnet } from 'viem/chains'
 
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n,
@@ -333,7 +333,7 @@ The L1 chain. If there is a mismatch between the wallet's current chain & this c
 ```ts
 import { mainnet } from 'viem/chains'
 
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n,
@@ -352,7 +352,7 @@ const hash = await client.depositTransacton({
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. 
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n,
@@ -371,7 +371,7 @@ const hash = await client.depositTransacton({
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n,
@@ -391,7 +391,7 @@ const hash = await client.depositTransacton({
 Unique number identifying this transaction.
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n,
@@ -413,7 +413,7 @@ The address of the [Optimism Portal contract](https://github.com/ethereum-optimi
 If a `portalAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const hash = await client.depositTransacton({
+const hash = await client.depositTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   request: {
     gas: 21_000n,
