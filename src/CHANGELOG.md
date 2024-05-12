@@ -1,5 +1,17 @@
 # viem
 
+## 2.10.5
+
+### Patch Changes
+
+- [`351a076a15725837429fb21f3aba62cf33c86fc9`](https://github.com/wevm/viem/commit/351a076a15725837429fb21f3aba62cf33c86fc9) Thanks [@jxom](https://github.com/jxom)! - Added note on EIP-1191 checksum.
+
+- [#2241](https://github.com/wevm/viem/pull/2241) [`88c0226fc355b24a4a7b01eb572c98b7c4a686ec`](https://github.com/wevm/viem/commit/88c0226fc355b24a4a7b01eb572c98b7c4a686ec) Thanks [@nidz-the-fact](https://github.com/nidz-the-fact)! - Added jbcTestnet chain.
+
+- [#2240](https://github.com/wevm/viem/pull/2240) [`50deaedcdf3c62ec121b48a87f43d59e072bf200`](https://github.com/wevm/viem/commit/50deaedcdf3c62ec121b48a87f43d59e072bf200) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated Mantle block explorer.
+
+- [`351a076a15725837429fb21f3aba62cf33c86fc9`](https://github.com/wevm/viem/commit/351a076a15725837429fb21f3aba62cf33c86fc9) Thanks [@jxom](https://github.com/jxom)! - Added LRU cache for `checksumAddress`.
+
 ## 2.10.4
 
 ### Patch Changes
