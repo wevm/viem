@@ -85,4 +85,4 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Publish to JSR
-        run: pnpx jsr publish
+        run: bunx jsr publish
