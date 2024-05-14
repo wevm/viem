@@ -4,14 +4,17 @@ export const btrTestnet = /*#__PURE__*/ defineChain({
   id: 200810,
   name: 'Bitlayer Testnet',
   nativeCurrency: {
-    name: "Ether",
-    symbol: "ETH",
-    decimals: 18
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
   },
-   rpcUrls: {
+  rpcUrls: {
     default: {
       http: ['https://testnet-rpc.bitlayer.org'],
-      webSocket: ['wss://testnet-ws.bitlayer.org','wss://testnet-ws.bitlayer-rpc.com'],
+      webSocket: [
+        'wss://testnet-ws.bitlayer.org',
+        'wss://testnet-ws.bitlayer-rpc.com',
+      ],
     },
   },
   blockExplorers: {
