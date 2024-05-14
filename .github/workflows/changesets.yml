@@ -1,7 +1,7 @@
 name: Changesets
 on:
   push:
-    branches: [main, rc]
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -67,3 +67,22 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           # https://docs.npmjs.com/generating-provenance-statements
           NPM_CONFIG_PROVENANCE: true
+
+  jsr:
+    name: JSR
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Publish to JSR
+        run: bunx jsr publish

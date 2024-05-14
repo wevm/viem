@@ -1371,6 +1371,18 @@ export type WalletRpcSchema = [
     ReturnType: WalletPermission[]
   },
   /**
+   * @description Revokes the given permissions from the user.
+   * @link https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-2.md
+   * @example
+   * provider.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_revokePermissions'
+    Parameters: [permissions: { eth_accounts: Record<string, any> }]
+    ReturnType: null
+  },
+  /**
    * @description Requests the connected wallet to send a batch of calls.
    * @link https://eips.ethereum.org/EIPS/eip-5792
    * @example
