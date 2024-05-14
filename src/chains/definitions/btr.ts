@@ -17,7 +17,7 @@ export const btr = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'btrscan',
-      url: 'https://www.btrscan.com/',
+      url: 'https://www.btrscan.com',
       apiUrl: 'https://www.btrscan.com/apis',
     },
   },
