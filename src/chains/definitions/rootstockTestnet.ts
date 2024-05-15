@@ -17,5 +17,5 @@ export const rootstockTestnet = /*#__PURE__*/ defineChain({
       name: 'RSK Explorer',
       url: 'https://explorer.testnet.rootstock.io',
     },
-  }
+  },
 })
