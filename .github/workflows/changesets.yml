@@ -85,4 +85,4 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Publish to JSR
-        run: bun ./scripts/updateVersion.ts && cd src && bunx jsr publish --allow-slow-types
+        run: bun ./scripts/updateVersion.ts && cd src && bunx jsr publish --allow-slow-types --allow-dirty
