@@ -1,5 +1,11 @@
 # viem
 
+## 2.10.6
+
+### Patch Changes
+
+- [#2252](https://github.com/wevm/viem/pull/2252) [`35667f0644dac2450c217d2b4aa10b5ebb31d906`](https://github.com/wevm/viem/commit/35667f0644dac2450c217d2b4aa10b5ebb31d906) Thanks [@jsmjsm](https://github.com/jsmjsm)! - Added Bitlayer chain and Bitlayer Testnet chain.
+
 ## 2.10.5
 
 ### Patch Changes
