@@ -298,9 +298,9 @@ function encodeBytes<const TParam extends AbiParameter>(
       encoded: concat([padHex(numberToHex(bytesSize, { size: 32 })), value_]),
     }
   }
-  if (bytesSize !== parseInt(paramSize))
+  if (bytesSize !== Number.parseInt(paramSize))
     throw new AbiEncodingBytesSizeMismatchError({
-      expectedSize: parseInt(paramSize),
+      expectedSize: Number.parseInt(paramSize),
       value,
     })
   return { dynamic: false, encoded: padHex(value, { dir: 'right' }) }

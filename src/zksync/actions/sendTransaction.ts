@@ -7,7 +7,7 @@ import type {
 } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { type ChainEIP712 } from '../types/chain.js'
+import type { ChainEIP712 } from '../types/chain.js'
 import { isEIP712Transaction } from '../utils/isEip712Transaction.js'
 import { sendEip712Transaction } from './sendEip712Transaction.js'
 

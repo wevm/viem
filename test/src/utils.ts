@@ -23,8 +23,8 @@ import {
   publicActions,
 } from '../../src/index.js'
 
-import { type RequestListener, createServer } from 'http'
-import type { AddressInfo } from 'net'
+import { type RequestListener, createServer } from 'node:http'
+import type { AddressInfo } from 'node:net'
 import {
   ERC20InvalidTransferEvent,
   EnsAvatarTokenUri,

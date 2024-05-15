@@ -675,7 +675,7 @@ describe('readUint32', () => {
 describe('args: recursiveReadLimit', () => {
   test('default', () => {
     const cursor = createCursor(new Uint8Array(generateBytes(420)), {
-      recursiveReadLimit: Infinity,
+      recursiveReadLimit: Number.POSITIVE_INFINITY,
     })
 
     cursor.readBytes(10)

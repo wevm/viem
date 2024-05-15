@@ -1,8 +1,8 @@
 import { expectTypeOf, test } from 'vitest'
 
-import { mainnet } from '../chains/definitions/mainnet.js'
-import { optimism } from '../chains/definitions/optimism.js'
-import { type Chain, type DeriveChain } from './chain.js'
+import type { mainnet } from '../chains/definitions/mainnet.js'
+import type { optimism } from '../chains/definitions/optimism.js'
+import type { Chain, DeriveChain } from './chain.js'
 
 test('DeriveChain', () => {
   type Result = DeriveChain<Chain | undefined, Chain | undefined>

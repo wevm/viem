@@ -13,14 +13,14 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
-import { type Chain, type GetChainParameter } from '../../types/chain.js'
+import type { Chain, GetChainParameter } from '../../types/chain.js'
 import type {
   TransactionRequestEIP1559,
   TransactionSerializable,
 } from '../../types/transaction.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { getChainContractAddress } from '../../utils/chain/getChainContractAddress.js'
-import { type HexToNumberErrorType } from '../../utils/encoding/fromHex.js'
+import type { HexToNumberErrorType } from '../../utils/encoding/fromHex.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,

@@ -1,4 +1,4 @@
-import { type Address } from 'abitype'
+import type { Address } from 'abitype'
 import type { ByteArray, Hex } from '../../../types/misc.js'
 import type { EncodeFunctionDataReturnType } from '../../../utils/abi/encodeFunctionData.js'
 import { bytesToHex, encodeFunctionData } from '../../../utils/index.js'

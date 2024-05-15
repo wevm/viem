@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import type { IncomingHttpHeaders } from 'http'
+import type { IncomingHttpHeaders } from 'node:http'
 
 import { createHttpServer } from '~test/src/utils.js'
 

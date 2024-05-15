@@ -145,7 +145,7 @@ test('delay: fn', async () => {
         retryCount: 1,
         delay: ({ error }) => {
           const retryAfter = (error as any).headers.get('Retry-After')
-          if (retryAfter?.match(/\d/)) return parseInt(retryAfter) * 1000
+          if (retryAfter?.match(/\d/)) return Number.parseInt(retryAfter) * 1000
           return 100
         },
       },
