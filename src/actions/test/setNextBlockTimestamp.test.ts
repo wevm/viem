@@ -1,26 +1,28 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '~test/src/utils.js'
-
 import { getBlock } from '../public/getBlock.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { mine } from './mine.js'
 import { setNextBlockTimestamp } from './setNextBlockTimestamp.js'
 
-test('sets block timestamp interval', async () => {
-  await mine(testClient, { blocks: 1 })
+const client = anvilMainnet.getClient()
 
-  const block1 = await getBlock(publicClient, {
+test('sets block timestamp interval', async () => {
+  await mine(client, { blocks: 1 })
+
+  const block1 = await getBlock(client, {
     blockTag: 'latest',
   })
   await expect(
-    setNextBlockTimestamp(testClient, {
+    setNextBlockTimestamp(client, {
       timestamp: block1.timestamp + 86400n,
     }),
   ).resolves.toBeUndefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const block2 = await getBlock(publicClient, { blockTag: 'latest' })
+  const block2 = await getBlock(client, { blockTag: 'latest' })
   expect(block2.timestamp).toEqual(block1.timestamp + 86400n)
 })

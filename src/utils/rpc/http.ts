@@ -63,21 +63,22 @@ export function getHttpRpcClient(
     async request(params) {
       const {
         body,
-        fetchOptions = {},
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
       } = params
-      const {
-        headers,
-        method,
-        signal: signal_,
-      } = { ...options.fetchOptions, ...fetchOptions }
+
+      const fetchOptions = {
+        ...(options.fetchOptions ?? {}),
+        ...(params.fetchOptions ?? {}),
+      }
+
+      const { headers, method, signal: signal_ } = fetchOptions
 
       try {
         const response = await withTimeout(
           async ({ signal }) => {
-            const request = new Request(url, {
+            const init: RequestInit = {
               ...fetchOptions,
               body: Array.isArray(body)
                 ? stringify(
@@ -98,9 +99,10 @@ export function getHttpRpcClient(
               },
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),
-            })
+            }
+            const request = new Request(url, init)
             if (onRequest) await onRequest(request)
-            const response = await fetch(request)
+            const response = await fetch(url, init)
             return response
           },
           {
@@ -117,7 +119,10 @@ export function getHttpRpcClient(
           response.headers.get('Content-Type')?.startsWith('application/json')
         )
           data = await response.json()
-        else data = await response.text()
+        else {
+          data = await response.text()
+          data = JSON.parse(data || '{}')
+        }
 
         if (!response.ok) {
           throw new HttpRequestError({

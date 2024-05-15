@@ -1,13 +1,14 @@
 import { describe, expect, test } from 'vitest'
 
-import { optimismClient } from '~test/src/opStack.js'
-
+import { anvilOptimism } from '../../test/src/anvil.js'
 import { getBlock } from '../actions/public/getBlock.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.js'
 import { optimism } from '../chains/index.js'
 import { createClient } from '../clients/createClient.js'
 import { http } from '../clients/transports/http.js'
+
+const optimismClient = anvilOptimism.getClient()
 
 describe('block', () => {
   test('formatter', async () => {

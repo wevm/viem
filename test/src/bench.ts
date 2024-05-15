@@ -1,5 +1,4 @@
 import { JsonRpcProvider } from 'ethers'
+import { anvilMainnet } from './anvil.js'
 
-import { localHttpUrl } from './constants.js'
-
-export const ethersProvider = new JsonRpcProvider(localHttpUrl)
+export const ethersProvider = new JsonRpcProvider(anvilMainnet.rpcUrl.http)

@@ -1,9 +1,10 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, forkBlockNumber, forkUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { kzg } from '~test/src/kzg.js'
-import { publicClient, testClient, walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
@@ -13,9 +14,11 @@ import * as getBlock from './getBlock.js'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
+const client = anvilMainnet.getClient()
+
 test('estimates gas', async () => {
   expect(
-    await estimateGas(publicClient, {
+    await estimateGas(client, {
       to: accounts[1].address,
       value: parseEther('1'),
     }),
@@ -24,7 +27,7 @@ test('estimates gas', async () => {
 
 test('falls back to wallet client account', async () => {
   expect(
-    await estimateGas(walletClient, {
+    await estimateGas(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
@@ -34,7 +37,7 @@ test('falls back to wallet client account', async () => {
 
 test('args: account', async () => {
   expect(
-    await estimateGas(publicClient, {
+    await estimateGas(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
@@ -43,13 +46,13 @@ test('args: account', async () => {
 })
 
 test('args: blockNumber', async () => {
-  await reset(testClient, {
-    blockNumber: forkBlockNumber,
-    jsonRpcUrl: forkUrl,
+  await reset(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+    jsonRpcUrl: anvilMainnet.forkUrl,
   })
   expect(
-    await estimateGas(publicClient, {
-      blockNumber: forkBlockNumber,
+    await estimateGas(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
@@ -59,7 +62,7 @@ test('args: blockNumber', async () => {
 
 test('args: data', async () => {
   expect(
-    await estimateGas(publicClient, {
+    await estimateGas(client, {
       data: '0x00000000000000000000000000000000000000000000000004fefa17b7240000',
       account: accounts[0].address,
       to: wethContractAddress,
@@ -69,7 +72,7 @@ test('args: data', async () => {
 
 test('args: gasPrice', async () => {
   expect(
-    await estimateGas(publicClient, {
+    await estimateGas(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       gasPrice: parseGwei('33'),
@@ -80,7 +83,7 @@ test('args: gasPrice', async () => {
 
 test('args: nonce', async () => {
   expect(
-    await estimateGas(publicClient, {
+    await estimateGas(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       nonce: 69,
@@ -91,7 +94,7 @@ test('args: nonce', async () => {
 
 test('args: maxFeePerGas', async () => {
   expect(
-    await estimateGas(publicClient, {
+    await estimateGas(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       maxFeePerGas: parseGwei('33'),
@@ -102,7 +105,7 @@ test('args: maxFeePerGas', async () => {
 
 test('args: maxPriorityFeePerGas', async () => {
   expect(
-    await estimateGas(publicClient, {
+    await estimateGas(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       maxPriorityFeePerGas: parseGwei('2'),
@@ -113,7 +116,7 @@ test('args: maxPriorityFeePerGas', async () => {
 
 test('args: gas', async () => {
   expect(
-    await estimateGas(publicClient, {
+    await estimateGas(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       gas: parseGwei('2'),
@@ -124,20 +127,20 @@ test('args: gas', async () => {
 
 test('args: blobs', async () => {
   expect(
-    await estimateGas(publicClient, {
+    await estimateGas(client, {
       account: accounts[0].address,
       blobs: toBlobs({ data: '0x1234' }),
       kzg,
       to: accounts[1].address,
       maxFeePerBlobGas: parseGwei('20'),
     }),
-  ).toMatchInlineSnapshot('21000n')
+  ).toMatchInlineSnapshot('53001n')
 })
 
 describe('local account', () => {
   test('default', async () => {
     expect(
-      await estimateGas(publicClient, {
+      await estimateGas(client, {
         account: privateKeyToAccount(accounts[0].privateKey),
         to: accounts[1].address,
         value: parseEther('1'),
@@ -147,7 +150,7 @@ describe('local account', () => {
 
   test('args: data', async () => {
     expect(
-      await estimateGas(publicClient, {
+      await estimateGas(client, {
         data: '0x00000000000000000000000000000000000000000000000004fefa17b7240000',
         account: privateKeyToAccount(accounts[0].privateKey),
         to: wethContractAddress,
@@ -157,7 +160,7 @@ describe('local account', () => {
 
   test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     expect(
-      await estimateGas(publicClient, {
+      await estimateGas(client, {
         account: privateKeyToAccount(accounts[0].privateKey),
         to: accounts[1].address,
         gasPrice: parseGwei('33'),
@@ -172,7 +175,7 @@ describe('local account', () => {
     } as any)
 
     expect(
-      await estimateGas(publicClient, {
+      await estimateGas(client, {
         account: privateKeyToAccount(accounts[0].privateKey),
         to: accounts[1].address,
         gasPrice: parseGwei('33'),
@@ -183,7 +186,7 @@ describe('local account', () => {
 
   test('args: maxFeePerGas (on eip1559)', async () => {
     expect(
-      await estimateGas(publicClient, {
+      await estimateGas(client, {
         account: privateKeyToAccount(accounts[0].privateKey),
         to: accounts[1].address,
         maxFeePerGas: parseGwei('33'),
@@ -198,7 +201,7 @@ describe('local account', () => {
     } as any)
 
     await expect(() =>
-      estimateGas(publicClient, {
+      estimateGas(client, {
         account: privateKeyToAccount(accounts[0].privateKey),
         to: accounts[1].address,
         maxFeePerGas: parseGwei('33'),
@@ -219,7 +222,7 @@ describe('local account', () => {
 
   test('args: gas', async () => {
     expect(
-      await estimateGas(publicClient, {
+      await estimateGas(client, {
         account: privateKeyToAccount(accounts[0].privateKey),
         to: accounts[1].address,
         gas: parseGwei('2'),
@@ -232,7 +235,7 @@ describe('local account', () => {
 describe('errors', () => {
   test('fee cap too high', async () => {
     await expect(() =>
-      estimateGas(publicClient, {
+      estimateGas(client, {
         account: accounts[0].address,
         to: accounts[1].address,
         value: parseEther('1'),
@@ -253,7 +256,7 @@ describe('errors', () => {
 
   test('tip higher than fee cap', async () => {
     await expect(() =>
-      estimateGas(publicClient, {
+      estimateGas(client, {
         account: accounts[0].address,
         to: accounts[1].address,
         value: parseEther('1'),

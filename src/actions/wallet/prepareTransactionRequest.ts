@@ -347,7 +347,7 @@ export async function prepareTransactionRequest<
   if (parameters.includes('fees')) {
     // TODO(4844): derive blob base fees once https://github.com/ethereum/execution-apis/pull/486 is merged.
 
-    if (request.type === 'eip1559' || request.type === 'eip4844') {
+    if (request.type !== 'legacy' && request.type !== 'eip2930') {
       // EIP-1559 fees
       if (
         typeof request.maxFeePerGas === 'undefined' ||

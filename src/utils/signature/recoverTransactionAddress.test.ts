@@ -1,23 +1,40 @@
 import { expect, test } from 'vitest'
-import { accounts, forkBlockNumber } from '../../../test/src/constants.js'
-import { publicClient, walletClient } from '../../../test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
 import {
   privateKeyToAccount,
+  serializeSignature,
   sign,
   signTransaction,
-  signatureToHex,
 } from '../../accounts/index.js'
-import type { TransactionSerializable } from '../../types/transaction.js'
-import { hexToBytes, keccak256, serializeTransaction } from '../index.js'
+import { getTransaction } from '../../actions/index.js'
+import { walletActions } from '../../clients/decorators/wallet.js'
+
+import { kzg } from '../../../test/src/kzg.js'
+import type {
+  TransactionSerializable,
+  TransactionSerializableEIP4844,
+  TransactionSerializedLegacy,
+} from '../../types/transaction.js'
+import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
+import { toBlobSidecars } from '../blob/toBlobSidecars.js'
+import {
+  hexToBytes,
+  keccak256,
+  serializeTransaction,
+  stringToHex,
+} from '../index.js'
 import { recoverTransactionAddress } from './recoverTransactionAddress.js'
 
-const transaction: TransactionSerializable = {
+const client = anvilMainnet.getClient().extend(walletActions)
+
+const transaction = {
   chainId: 1,
   maxFeePerGas: 2n,
   maxPriorityFeePerGas: 1n,
   to: '0x0000000000000000000000000000000000000000',
   value: 1n,
-}
+} as const satisfies TransactionSerializable
 
 test('default', async () => {
   const address = await recoverTransactionAddress({
@@ -37,7 +54,7 @@ test('signature (hex)', async () => {
   })
   const address = await recoverTransactionAddress({
     serializedTransaction,
-    signature: signatureToHex(signature),
+    signature: serializeSignature(signature),
   })
   expect(address.toLowerCase()).toBe(accounts[0].address)
 })
@@ -50,13 +67,39 @@ test('signature (bytes)', async () => {
   })
   const address = await recoverTransactionAddress({
     serializedTransaction,
-    signature: hexToBytes(signatureToHex(signature)),
+    signature: hexToBytes(serializeSignature(signature)),
+  })
+  expect(address.toLowerCase()).toBe(accounts[0].address)
+})
+
+test('4844 tx', async () => {
+  const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
+  const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
+  const transaction4844 = {
+    ...transaction,
+    blobVersionedHashes,
+    sidecars,
+  } satisfies TransactionSerializableEIP4844
+
+  const signableTransaction = serializeTransaction({
+    ...transaction4844,
+    sidecars: false,
+  })
+  const signature = await sign({
+    hash: keccak256(signableTransaction),
+    privateKey: accounts[0].privateKey,
+  })
+  const serializedTransaction = serializeTransaction(transaction4844, signature)
+
+  const address = await recoverTransactionAddress({
+    serializedTransaction,
+    signature,
   })
   expect(address.toLowerCase()).toBe(accounts[0].address)
 })
 
 test('via `walletClient.signTransaction`', async () => {
-  const serializedTransaction = await walletClient.signTransaction({
+  const serializedTransaction = await client.signTransaction({
     account: privateKeyToAccount(accounts[0].privateKey),
     to: '0x0000000000000000000000000000000000000000',
     value: 1n,
@@ -80,13 +123,25 @@ test('via account `signTransaction`', async () => {
 })
 
 test('via `getTransaction`', async () => {
-  const transaction = await publicClient.getTransaction({
-    blockNumber: forkBlockNumber - 10n,
+  const transaction = await getTransaction(client, {
+    blockNumber: anvilMainnet.forkBlockNumber - 10n,
     index: 0,
   })
-  const serializedTransaction = serializeTransaction(transaction)
+  const serializedTransaction = serializeTransaction({
+    ...transaction,
+    data: transaction.input,
+  })
   const address = await recoverTransactionAddress({
     serializedTransaction,
   })
   expect(address.toLowerCase()).toBe(transaction.from)
+})
+
+test('legacy', async () => {
+  expect(
+    await recoverTransactionAddress({
+      serializedTransaction:
+        '0xf8a90c8507558bdb0082d57a948813f5bcbe6c7071d8bd32d2a4f07599bb5797b080b844a9059cbb00000000000000000000000068674fb6a9ee3749d5d8f71eeed5f254a75ffeea0000000000000000000000000000000000000000000001894b59bd5cd2fc000026a00d39b9cb3369c546185f4ddd6ee6908052c39fe856642726fa93f9a2a83db755a06a8c3928a80275ecef8a0ff00486483f8db6274b5ffd44fbcb8765418e9bec26' as TransactionSerializedLegacy,
+    }),
+  ).toMatchInlineSnapshot(`"0xb03B8ffAB1f3Ac3CabE4A0B2ED441fDFd3C96C8E"`)
 })

@@ -1,30 +1,33 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '~test/src/utils.js'
 import { wait } from '../../utils/wait.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { mine } from './mine.js'
 import { setIntervalMining } from './setIntervalMining.js'
 
-test('sets mining interval', async () => {
-  await mine(testClient, { blocks: 1 })
+const client = anvilMainnet.getClient()
 
-  const blockNumber1 = await getBlockNumber(publicClient, { cacheTime: 0 })
+test('sets mining interval', async () => {
+  await mine(client, { blocks: 1 })
+
+  const blockNumber1 = await getBlockNumber(client, { cacheTime: 0 })
   await expect(
-    setIntervalMining(testClient, { interval: 1 }),
+    setIntervalMining(client, { interval: 1 }),
   ).resolves.toBeUndefined()
   await wait(2000)
-  const blockNumber2 = await getBlockNumber(publicClient, { cacheTime: 0 })
+  const blockNumber2 = await getBlockNumber(client, { cacheTime: 0 })
   expect(blockNumber2 - blockNumber1).toBe(2n)
 
-  await setIntervalMining(testClient, { interval: 2 })
+  await setIntervalMining(client, { interval: 2 })
   await wait(2000)
-  const blockNumber3 = await getBlockNumber(publicClient, { cacheTime: 0 })
+  const blockNumber3 = await getBlockNumber(client, { cacheTime: 0 })
   expect(blockNumber3 - blockNumber2).toBe(1n)
 
-  await setIntervalMining(testClient, { interval: 0 })
+  await setIntervalMining(client, { interval: 0 })
   await wait(2000)
-  const blockNumber4 = await getBlockNumber(publicClient, { cacheTime: 0 })
+  const blockNumber4 = await getBlockNumber(client, { cacheTime: 0 })
   expect(blockNumber4 - blockNumber3).toBe(0n)
 })

@@ -76,7 +76,7 @@ const address = await recoverMessageAddress({
 
 ### signature
 
-- **Type:** `Hex | ByteArray`
+- **Type:** `Hex | ByteArray | Signature`
 
 The signature of the message.
 

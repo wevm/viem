@@ -4,7 +4,7 @@ import type { Account } from '../accounts/types.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
-import type { TestRpcSchema } from '../types/eip1193.js'
+import type { RpcSchema, TestRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import {
   type Client,
@@ -25,15 +25,17 @@ export type TestClientConfig<
     | Account
     | Address
     | undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
   Pick<
-    ClientConfig<transport, chain, accountOrAddress>,
+    ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
     | 'account'
     | 'cacheTime'
     | 'chain'
     | 'key'
     | 'name'
     | 'pollingInterval'
+    | 'rpcSchema'
     | 'transport'
   > & {
     /** Mode of the test client. */
@@ -42,18 +44,21 @@ export type TestClientConfig<
 >
 
 export type TestClient<
-  TMode extends TestClientMode = TestClientMode,
+  mode extends TestClientMode = TestClientMode,
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TIncludeActions extends boolean = true,
+  account extends Account | undefined = Account | undefined,
+  includeActions extends boolean = true,
+  rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
-  { mode: TMode } & Client<
+  { mode: mode } & Client<
     transport,
     chain,
-    TAccount,
-    TestRpcSchema<TMode>,
-    TIncludeActions extends true ? TestActions : Record<string, unknown>
+    account,
+    rpcSchema extends RpcSchema
+      ? [...TestRpcSchema<mode>, ...rpcSchema]
+      : TestRpcSchema<mode>,
+    includeActions extends true ? TestActions : Record<string, unknown>
   >
 >
 
@@ -87,9 +92,23 @@ export function createTestClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 >(
-  parameters: TestClientConfig<mode, transport, chain, accountOrAddress>,
-): TestClient<mode, transport, chain, ParseAccount<accountOrAddress>>
+  parameters: TestClientConfig<
+    mode,
+    transport,
+    chain,
+    accountOrAddress,
+    rpcSchema
+  >,
+): TestClient<
+  mode,
+  transport,
+  chain,
+  ParseAccount<accountOrAddress>,
+  true,
+  rpcSchema
+>
 
 export function createTestClient(parameters: TestClientConfig): TestClient {
   const { key = 'test', name = 'Test Client', mode } = parameters

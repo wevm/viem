@@ -1,11 +1,12 @@
 import { expect, test } from 'vitest'
-import { localWsUrl } from '../../../test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { wait } from '../wait.js'
 import { getSocketRpcClient } from './socket.js'
 
 test('default', async () => {
   let active = false
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket() {
       active = true
       return {
@@ -14,7 +15,7 @@ test('default', async () => {
         request() {},
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
   expect(socketClient.socket.active).toBeTruthy()
 
@@ -26,6 +27,7 @@ test('parallel invocations of same url returns identical client', async () => {
 
   const socketClient = async () =>
     getSocketRpcClient({
+      key: 'test-socket',
       async getSocket() {
         count++
         return {
@@ -34,7 +36,7 @@ test('parallel invocations of same url returns identical client', async () => {
           request() {},
         }
       },
-      url: localWsUrl,
+      url: anvilMainnet.rpcUrl.ws,
     })
 
   const [client1, client2, client3, client4] = await Promise.all([
@@ -64,6 +66,7 @@ test('sequential invocations of same url returns identical client', async () => 
 
   const socketClient = async () =>
     getSocketRpcClient({
+      key: 'test-socket',
       async getSocket() {
         count++
         return {
@@ -72,7 +75,7 @@ test('sequential invocations of same url returns identical client', async () => 
           request() {},
         }
       },
-      url: localWsUrl,
+      url: anvilMainnet.rpcUrl.ws,
     })
 
   const client1 = await socketClient()
@@ -97,6 +100,7 @@ test('sequential invocations of same url returns identical client', async () => 
 
 test('request', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -105,7 +109,7 @@ test('request', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -118,10 +122,10 @@ test('request', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 0,
+      "id": 4,
       "jsonrpc": "2.0",
       "result": {
-        "id": 0,
+        "id": 4,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -135,6 +139,7 @@ test('reconnect', async () => {
   let active = true
   let count = -1
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onError, onOpen, onResponse }) {
       count++
 
@@ -166,7 +171,7 @@ test('reconnect', async () => {
       delay: 200,
       attempts: 5,
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   await wait(200)
@@ -185,10 +190,10 @@ test('reconnect', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 1,
+      "id": 6,
       "jsonrpc": "2.0",
       "result": {
-        "id": 1,
+        "id": 6,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -228,10 +233,10 @@ test('reconnect', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 3,
+      "id": 8,
       "jsonrpc": "2.0",
       "result": {
-        "id": 3,
+        "id": 8,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -243,6 +248,7 @@ test('reconnect', async () => {
 
 test('request (eth_subscribe)', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -251,7 +257,7 @@ test('request (eth_subscribe)', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -264,7 +270,7 @@ test('request (eth_subscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 4,
+      "id": 10,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -279,6 +285,7 @@ test('reconnect (eth_subscribe)', async () => {
   let active = true
   let count = -1
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onError, onOpen, onResponse }) {
       count++
 
@@ -310,7 +317,7 @@ test('reconnect (eth_subscribe)', async () => {
       delay: 200,
       attempts: 5,
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   await wait(200)
@@ -329,7 +336,7 @@ test('reconnect (eth_subscribe)', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 5,
+      "id": 12,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -368,7 +375,7 @@ test('reconnect (eth_subscribe)', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 7,
+      "id": 14,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -379,6 +386,7 @@ test('reconnect (eth_subscribe)', async () => {
 
 test('request (eth_unsubscribe)', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -387,7 +395,7 @@ test('request (eth_unsubscribe)', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -400,7 +408,7 @@ test('request (eth_unsubscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 8,
+      "id": 16,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -413,6 +421,7 @@ test('request (eth_unsubscribe)', async () => {
 
 test('request (eth_subscription)', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -430,7 +439,7 @@ test('request (eth_subscription)', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -444,7 +453,7 @@ test('request (eth_subscription)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 9,
+      "id": 18,
       "jsonrpc": "2.0",
       "method": "eth_subscription",
       "params": {
@@ -461,6 +470,7 @@ test('request (eth_subscription)', async () => {
 
 test('request (error)', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket() {
       return {
         close() {},
@@ -469,7 +479,7 @@ test('request (error)', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await new Promise((res) => {
@@ -488,6 +498,7 @@ test('request (error)', async () => {
 
 test('requestAsync', async () => {
   const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
     async getSocket({ onResponse }) {
       return {
         close() {},
@@ -496,7 +507,7 @@ test('requestAsync', async () => {
         },
       }
     },
-    url: localWsUrl,
+    url: anvilMainnet.rpcUrl.ws,
   })
 
   const response = await socketClient.requestAsync({
@@ -504,10 +515,10 @@ test('requestAsync', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 11,
+      "id": 22,
       "jsonrpc": "2.0",
       "result": {
-        "id": 11,
+        "id": 22,
         "jsonrpc": "2.0",
         "method": "test",
       },

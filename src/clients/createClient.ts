@@ -28,6 +28,7 @@ export type ClientConfig<
     | Account
     | Address
     | undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 > = {
   /** The Account to use for the Client. This will be used for Actions that require an account as an argument. */
   account?: accountOrAddress | Account | Address | undefined
@@ -70,6 +71,10 @@ export type ClientConfig<
    * @default 4_000
    */
   pollingInterval?: number | undefined
+  /**
+   * Typed JSON-RPC schema for the client.
+   */
+  rpcSchema?: rpcSchema | undefined
   /** The RPC transport */
   transport: transport
   /** The type of client. */
@@ -188,22 +193,21 @@ export type MulticallBatchOptions = {
 
 export type CreateClientErrorType = ParseAccountErrorType | ErrorType
 
-/**
- * Creates a base client with the given transport.
- */
 export function createClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 >(
-  parameters: ClientConfig<transport, chain, accountOrAddress>,
+  parameters: ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
 ): Prettify<
   Client<
     transport,
     chain,
     accountOrAddress extends Address
       ? Prettify<JsonRpcAccount<accountOrAddress>>
-      : accountOrAddress
+      : accountOrAddress,
+    rpcSchema
   >
 >
 
@@ -254,4 +258,12 @@ export function createClient(parameters: ClientConfig): Client {
   }
 
   return Object.assign(client, { extend: extend(client) as any })
+}
+
+/**
+ * Defines a typed JSON-RPC schema for the client.
+ * Note: This is a runtime noop function.
+ */
+export function rpcSchema<rpcSchema extends RpcSchema>(): rpcSchema {
+  return null as any
 }

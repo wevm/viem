@@ -1,8 +1,10 @@
 import { expect, test } from 'vitest'
 import { usdcContractConfig } from '~test/src/abis.js'
-import { optimismClient } from '~test/src/opStack.js'
+import { anvilOptimism } from '../../../test/src/anvil.js'
 
 import { estimateContractTotalGas } from './estimateContractTotalGas.js'
+
+const optimismClient = anvilOptimism.getClient()
 
 test('default', async () => {
   expect(

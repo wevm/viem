@@ -152,3 +152,14 @@ export {
   type TransactionDetails,
   getTransactionDetails,
 } from './actions/getTransactionDetails.js'
+
+export {
+  type GetApprovalBasedPaymasterInputParameters,
+  type GetApprovalBasedPaymasterInputReturnType,
+  getApprovalBasedPaymasterInput,
+} from './utils/paymaster/getApprovalBasedPaymasterInput.js'
+export {
+  type GetGeneralPaymasterInputParameters,
+  type GetGeneralPaymasterInputReturnType,
+  getGeneralPaymasterInput,
+} from './utils/paymaster/getGeneralPaymasterInput.js'

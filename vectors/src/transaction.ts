@@ -241,7 +241,7 @@ export async function generateTransactionVectors() {
 
     const privateKey = generatePrivateKey()
     const serializedSigned = await signTransaction({ privateKey, transaction })
-    const { r, s, v } = parseTransaction(serializedSigned)
+    const { r, s, v, yParity } = parseTransaction(serializedSigned)
 
     writer.write(
       stringify(
@@ -251,7 +251,7 @@ export async function generateTransactionVectors() {
           transaction,
           serialized,
           serializedSigned,
-          signature: { r, s, v },
+          signature: { r, s, v, yParity },
         },
         null,
         2,

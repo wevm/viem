@@ -1,12 +1,13 @@
 import { expect, test } from 'vitest'
 
-import { walletClient } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { requestPermissions } from './requestPermissions.js'
+
+const client = anvilMainnet.getClient()
 
 test('default', async () => {
   expect(
-    await requestPermissions(walletClient!, { eth_accounts: {} }),
+    await requestPermissions(client!, { eth_accounts: {} }),
   ).toMatchInlineSnapshot(`
     [
       {

@@ -192,6 +192,22 @@ export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
   ExactRequired<Pick<T, K>>
 
 /**
+ * @description Returns truthy if `array` contains `value`.
+ *
+ * @example
+ * Some<[1, 2, 3], 2>
+ * => true
+ */
+export type Some<array extends unknown[], value> = array extends [
+  value,
+  ...unknown[],
+]
+  ? true
+  : array extends [unknown, ...infer rest]
+    ? Some<rest, value>
+    : false
+
+/**
  * @description Creates a type that extracts the values of T.
  *
  * @example

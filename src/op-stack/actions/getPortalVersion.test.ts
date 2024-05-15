@@ -1,10 +1,13 @@
 import { expect, test } from 'vitest'
-import { publicClientMainnet, sepoliaClient } from '../../../test/src/utils.js'
+import { anvilSepolia } from '../../../test/src/anvil.js'
+import { mainnetClient } from '../../../test/src/utils.js'
 import { base, optimismSepolia } from '../../op-stack/chains.js'
 import { getPortalVersion } from './getPortalVersion.js'
 
+const sepoliaClient = anvilSepolia.getClient()
+
 test('default', async () => {
-  const version = await getPortalVersion(publicClientMainnet, {
+  const version = await getPortalVersion(mainnetClient, {
     targetChain: base,
   })
   expect(version).toMatchInlineSnapshot(`
@@ -23,7 +26,7 @@ test('sepolia', async () => {
   expect(version).toMatchInlineSnapshot(`
     {
       "major": 3,
-      "minor": 3,
+      "minor": 8,
       "patch": 0,
     }
   `)
@@ -35,9 +38,9 @@ test('args: portalAddress', async () => {
   })
   expect(version).toMatchInlineSnapshot(`
     {
-      "major": 1,
-      "minor": 7,
-      "patch": 2,
+      "major": 2,
+      "minor": 5,
+      "patch": 0,
     }
   `)
 })

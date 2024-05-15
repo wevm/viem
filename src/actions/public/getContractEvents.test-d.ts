@@ -1,7 +1,10 @@
 import { expectTypeOf, test } from 'vitest'
 
-import { publicClient } from '../../../test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import { getContractEvents } from './getContractEvents.js'
+
+const client = anvilMainnet.getClient()
 
 const abi = [
   {
@@ -69,7 +72,7 @@ const abi = [
 ] as const
 
 test('args: abi', async () => {
-  const logs = await getContractEvents(publicClient, {
+  const logs = await getContractEvents(client, {
     abi: abi,
     args: {},
     strict: true,
@@ -92,7 +95,7 @@ test('args: abi', async () => {
 })
 
 test('args: abi, eventName', async () => {
-  const logs = await getContractEvents(publicClient, {
+  const logs = await getContractEvents(client, {
     abi,
     eventName: 'Transfer',
     args: {

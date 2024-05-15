@@ -1,16 +1,18 @@
 import { expect, test } from 'vitest'
 
 import { accounts, address } from '~test/src/constants.js'
-import { testClient, walletClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import { impersonateAccount } from './impersonateAccount.js'
 import { stopImpersonatingAccount } from './stopImpersonatingAccount.js'
 
+const client = anvilMainnet.getClient()
+
 test('impersonates account', async () => {
   await expect(
-    sendTransaction(walletClient, {
+    sendTransaction(client, {
       account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),
@@ -18,16 +20,16 @@ test('impersonates account', async () => {
   ).rejects.toThrowError('No Signer available')
 
   await expect(
-    impersonateAccount(testClient, { address: address.vitalik }),
+    impersonateAccount(client, { address: address.vitalik }),
   ).resolves.toBeUndefined()
 
   expect(
-    await sendTransaction(walletClient, {
+    await sendTransaction(client, {
       account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),
     }),
   ).toBeDefined()
 
-  await stopImpersonatingAccount(testClient, { address: address.vitalik })
+  await stopImpersonatingAccount(client, { address: address.vitalik })
 })

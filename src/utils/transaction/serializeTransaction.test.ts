@@ -705,7 +705,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
       ...signature,
-      yParity: undefined,
+      yParity: 1,
       type: 'legacy',
     })
   })
@@ -755,7 +755,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...args,
       ...signature,
-      yParity: undefined,
+      yParity: 0,
       type: 'legacy',
       v: 173n,
     })

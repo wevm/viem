@@ -193,3 +193,36 @@ const client = createTestClient({
   transport: http(),
 })
 ```
+
+### rpcSchema (optional)
+
+- **Type:** `RpcSchema`
+- **Default:** `TestRpcSchema`
+
+Typed JSON-RPC schema for the client.
+
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+// @noErrors
+// ---cut---
+import { rpcSchema } from 'viem'
+
+type CustomRpcSchema = [{ // [!code focus]
+  Method: 'eth_wagmi', // [!code focus]
+  Parameters: [string] // [!code focus]
+  ReturnType: string // [!code focus]
+}] // [!code focus]
+
+const client = createTestClient({
+  chain: foundry,
+  rpcSchema: rpcSchema<CustomRpcSchema>(), // [!code focus]
+  transport: http()
+})
+
+const result = await client.request({ // [!code focus]
+  method: 'eth_wa // [!code focus] 
+//               ^|
+  params: ['hello'], // [!code focus]
+}) // [!code focus]
+```

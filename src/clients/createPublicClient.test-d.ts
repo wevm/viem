@@ -7,6 +7,7 @@ import type {
   TransactionReceipt,
   Transport,
 } from '../index.js'
+import { rpcSchema } from './createClient.js'
 import { type PublicClient, createPublicClient } from './createPublicClient.js'
 import { http } from './transports/http.js'
 
@@ -51,4 +52,27 @@ test('widened (w/ Chain)', async () => {
 
   const transaction = await client.getTransaction({ hash: '0x' })
   expectTypeOf(transaction).toEqualTypeOf<GetTransactionReturnType>()
+})
+
+test('with custom rpc schema', async () => {
+  type MockRpcSchema = [
+    {
+      Method: 'eth_wagmi'
+      Parameters: [string]
+      ReturnType: string
+    },
+  ]
+
+  const client = createPublicClient({
+    rpcSchema: rpcSchema<MockRpcSchema>(),
+    transport: http(),
+  })
+
+  expectTypeOf(client).toMatchTypeOf<PublicClient>()
+
+  const result = await client.request({
+    method: 'eth_wagmi',
+    params: ['hello'],
+  })
+  expectTypeOf(result).toEqualTypeOf<string>()
 })

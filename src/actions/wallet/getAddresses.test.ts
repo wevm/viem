@@ -1,17 +1,17 @@
 import { expect, test } from 'vitest'
 
-import { anvilChain, walletClient } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import { getAddresses } from './getAddresses.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  expect(
-    (await getAddresses(walletClient!)).slice(0, 10),
-  ).toMatchInlineSnapshot(`
+  expect((await getAddresses(client!)).slice(0, 10)).toMatchInlineSnapshot(`
     [
       "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
@@ -30,7 +30,7 @@ test('default', async () => {
 test('local account', async () => {
   const client = createClient({
     account: privateKeyToAccount(accounts[0].privateKey),
-    chain: anvilChain,
+    chain: anvilMainnet.chain,
     transport: http(),
   })
   expect(await getAddresses(client)).toMatchInlineSnapshot(`

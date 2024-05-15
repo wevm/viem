@@ -1,21 +1,24 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 import {
-  optimismClient,
-  optimismSepoliaClient,
-} from '../../../test/src/opStack.js'
-import {
-  publicClient,
-  sepoliaClient,
-  setBlockNumber,
-} from '../../../test/src/utils.js'
-import { getTransactionReceipt } from '../../actions/index.js'
+  anvilMainnet,
+  anvilOptimism,
+  anvilOptimismSepolia,
+  anvilSepolia,
+} from '../../../test/src/anvil.js'
+import { getTransactionReceipt, reset } from '../../actions/index.js'
+
 import { getWithdrawals, optimism } from '../../op-stack/index.js'
 import { getTimeToFinalize } from './getTimeToFinalize.js'
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+const client = anvilMainnet.getClient()
+const sepoliaClient = anvilSepolia.getClient()
+const optimismClient = anvilOptimism.getClient()
+const optimismSepoliaClient = anvilOptimismSepolia.getClient()
+
+// TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
 test('default', async () => {
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
   })
 
   const [withdrawal] = getWithdrawals(receipt)
@@ -32,21 +35,21 @@ test('default', async () => {
   expect(time).toMatchInlineSnapshot(`
     {
       "period": 604800,
-      "seconds": 583844,
-      "timestamp": 1711591989099,
+      "seconds": 4723292,
+      "timestamp": 1715731437099,
     }
   `)
 })
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+// TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
 test('ready to finalize', async () => {
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
   })
 
   const [withdrawal] = getWithdrawals(receipt)
 
-  vi.setSystemTime(new Date(1711591989099))
+  vi.setSystemTime(new Date(1715731437099))
 
   const time = await getTimeToFinalize(sepoliaClient, {
     ...withdrawal!,
@@ -59,14 +62,17 @@ test('ready to finalize', async () => {
     {
       "period": 604800,
       "seconds": 0,
-      "timestamp": 1711591989099,
+      "timestamp": 1715731437099,
     }
   `)
 })
 
 describe('legacy (portal v2)', () => {
   beforeAll(async () => {
-    await setBlockNumber(18770525n)
+    await reset(client, {
+      blockNumber: 18770525n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
   })
 
   test('default', async () => {
@@ -78,7 +84,7 @@ describe('legacy (portal v2)', () => {
 
     vi.setSystemTime(new Date(1702399191000))
 
-    const time = await getTimeToFinalize(publicClient, {
+    const time = await getTimeToFinalize(client, {
       ...withdrawal!,
       targetChain: optimism,
     })
@@ -103,7 +109,7 @@ describe('legacy (portal v2)', () => {
 
     vi.setSystemTime(new Date(1702994990587))
 
-    const time = await getTimeToFinalize(publicClient, {
+    const time = await getTimeToFinalize(client, {
       ...withdrawal!,
       targetChain: optimism,
     })
