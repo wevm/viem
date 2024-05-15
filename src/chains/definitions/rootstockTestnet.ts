@@ -15,13 +15,7 @@ export const rootstockTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'RSK Explorer',
-      url: 'https://explorer.testnet.rootstock.io/',
+      url: 'https://explorer.testnet.rootstock.io',
     },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xCa1167915584462449EE5B4EA51C37FE81ECdCCd',
-      blockCreated: 5108224,
-    },
-  },
+  }
 })
