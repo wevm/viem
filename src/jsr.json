@@ -17,13 +17,7 @@
     "./zksync": "./zksync/index.ts"
   },
   "publish": {
-    "include": [
-      "**/*.ts"
-    ],
-    "exclude": [
-      "**/*.bench.ts",
-      "**/*.test.ts",
-      "**/*.test-d.ts"
-    ]
+    "include": ["**/*.ts"],
+    "exclude": ["**/*.bench.ts", "**/*.test.ts", "**/*.test-d.ts"]
   }
 }
