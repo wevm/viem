@@ -1,5 +1,0 @@
----
-"viem": patch
----
-
-Updated `isows`.

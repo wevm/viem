@@ -1,5 +1,11 @@
 # viem
 
+## 2.10.8
+
+### Patch Changes
+
+- [#2261](https://github.com/wevm/viem/pull/2261) [`8e337255dda6ce303ccfe556011b1071b7b74b1e`](https://github.com/wevm/viem/commit/8e337255dda6ce303ccfe556011b1071b7b74b1e) Thanks [@jnsdls](https://github.com/jnsdls)! - Updated `isows`.
+
 ## 2.10.7
 
 ### Patch Changes
