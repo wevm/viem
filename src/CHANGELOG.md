@@ -1,5 +1,13 @@
 # viem
 
+## 2.10.7
+
+### Patch Changes
+
+- [#2256](https://github.com/wevm/viem/pull/2256) [`f9ffcf8413c06634bbcfe09517a57e75f784b969`](https://github.com/wevm/viem/commit/f9ffcf8413c06634bbcfe09517a57e75f784b969) Thanks [@LeTamanoir](https://github.com/LeTamanoir)! - Fixed batch scheduler id in http transport
+
+- [#2257](https://github.com/wevm/viem/pull/2257) [`4382bb519b663fb678a519733f5c6c68d8f705c1`](https://github.com/wevm/viem/commit/4382bb519b663fb678a519733f5c6c68d8f705c1) Thanks [@jonathansmirnoff](https://github.com/jonathansmirnoff)! - Added Rootstock Testnet chain.
+
 ## 2.10.6
 
 ### Patch Changes
