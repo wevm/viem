@@ -2,6 +2,7 @@
 import { createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
+// biome-ignore lint/correctness/noUnusedVariables:
 const promise = getBlockNumber()
 async function getBlockNumber() {
   const client = createPublicClient({
