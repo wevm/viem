@@ -7,19 +7,19 @@ import type {
   Index,
   Quantity,
   RpcBlock,
-  RpcTransaction as RpcTransaction_,
   RpcTransactionRequest as RpcTransactionRequest_,
+  RpcTransaction as RpcTransaction_,
   TransactionType,
 } from '../types/rpc.js'
 import type {
   AccessList,
-  Transaction as Transaction_,
   TransactionBase,
-  TransactionRequest as TransactionRequest_,
   TransactionRequestBase,
+  TransactionRequest as TransactionRequest_,
   TransactionSerializable,
   TransactionSerializableBase,
   TransactionSerialized,
+  Transaction as Transaction_,
 } from '../types/transaction.js'
 import type { ExactPartial, NeverBy, OneOf } from '../types/utils.js'
 
