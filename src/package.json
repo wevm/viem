@@ -69,6 +69,11 @@
       "import": "./_esm/op-stack/index.js",
       "default": "./_cjs/op-stack/index.js"
     },
+    "./siwe": {
+      "types": "./_types/siwe/index.d.ts",
+      "import": "./_esm/siwe/index.js",
+      "default": "./_cjs/siwe/index.js"
+    },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
       "import": "./_esm/utils/index.js",
@@ -97,6 +102,7 @@
       "experimental": ["./_types/experimental/index.d.ts"],
       "node": ["./_types/node/index.d.ts"],
       "op-stack": ["./_types/op-stack/index.d.ts"],
+      "siwe": ["./_types/siwe/index.d.ts"],
       "utils": ["./_types/utils/index.d.ts"],
       "window": ["./_types/window/index.d.ts"],
       "zksync": ["./_types/zksync/index.d.ts"]
