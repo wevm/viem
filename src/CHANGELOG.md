@@ -1,5 +1,11 @@
 # viem
 
+## 2.10.9
+
+### Patch Changes
+
+- [#2254](https://github.com/wevm/viem/pull/2254) [`444978d9eef09348e94de55fd1f74eb2ad5f861c`](https://github.com/wevm/viem/commit/444978d9eef09348e94de55fd1f74eb2ad5f861c) Thanks [@aarifkhamdi](https://github.com/aarifkhamdi)! - Added Nautilus chain.
+
 ## 2.10.8
 
 ### Patch Changes
