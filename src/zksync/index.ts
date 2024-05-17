@@ -65,6 +65,11 @@ export {
 } from './actions/sharedBridge.js'
 
 export {
+  type ApproveErc20L1Parameters,
+  approveErc20L1,
+} from './actions/approveErc20TokenL1.js'
+
+export {
   zkSync,
   zkSyncTestnet,
   zkSyncSepoliaTestnet,
