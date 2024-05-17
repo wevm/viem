@@ -3,7 +3,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import { parseAccount } from '../../utils/index.js'
 import type { ChainEIP712 } from '../types/chain.js'
-import { type ZkSyncTransactionRequestParameters } from '../types/transaction.js'
+import type { ZkSyncTransactionRequestParameters } from '../types/transaction.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
 
 export type EstimateGasL1ToL2Parameters<

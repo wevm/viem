@@ -1,11 +1,11 @@
-import { Address } from 'abitype'
+import type { Address } from 'abitype'
 import type { Fee } from '../../src/zksync/actions/estimateFee.js'
-import { BaseBlockDetails } from '../../src/zksync/actions/getBlockDetails.js'
-import { GetL1BatchBlockRangeReturnParameters } from '../../src/zksync/actions/getL1BatchBlockRange.js'
-import { BatchDetails } from '../../src/zksync/actions/getL1BatchDetails.js'
-import { MessageProof } from '../../src/zksync/actions/getLogProof.js'
-import { RawBlockTransactions } from '../../src/zksync/actions/getRawBlockTransaction.js'
-import { TransactionDetails } from '../../src/zksync/actions/getTransactionDetails.js'
+import type { BaseBlockDetails } from '../../src/zksync/actions/getBlockDetails.js'
+import type { GetL1BatchBlockRangeReturnParameters } from '../../src/zksync/actions/getL1BatchBlockRange.js'
+import type { BatchDetails } from '../../src/zksync/actions/getL1BatchDetails.js'
+import type { MessageProof } from '../../src/zksync/actions/getLogProof.js'
+import type { RawBlockTransactions } from '../../src/zksync/actions/getRawBlockTransaction.js'
+import type { TransactionDetails } from '../../src/zksync/actions/getTransactionDetails.js'
 
 export const mockedL1BatchNumber = '0x2012'
 
