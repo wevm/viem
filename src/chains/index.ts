@@ -88,6 +88,7 @@ export { flareTestnet } from './definitions/flareTestnet.js'
 export { flowPreviewnet } from './definitions/flowPreviewnet.js'
 export { flowMainnet } from './definitions/flowMainnet.js'
 export { flowTestnet } from './definitions/flowTestnet.js'
+export { funkiSepolia } from './definitions/funkiSepolia.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
 export { fraxtal } from './definitions/fraxtal.js'
