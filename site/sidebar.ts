@@ -1384,8 +1384,8 @@ export const sidebar = {
           {
             text: 'getAllowanceL1',
             link: '/zksync/actions/getAllowanceL1',
-          }
-        ]
+          },
+        ],
       },
       {
         text: 'Utilities',
