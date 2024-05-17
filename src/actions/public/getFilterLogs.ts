@@ -8,7 +8,7 @@ import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
-import { type DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
+import type { DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {

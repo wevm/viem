@@ -15,7 +15,7 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import { type RpcTransactionRequest } from '../../types/rpc.js'
+import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
   TransactionSerializable,

@@ -1,5 +1,31 @@
 # viem
 
+## 2.10.9
+
+### Patch Changes
+
+- [#2254](https://github.com/wevm/viem/pull/2254) [`444978d9eef09348e94de55fd1f74eb2ad5f861c`](https://github.com/wevm/viem/commit/444978d9eef09348e94de55fd1f74eb2ad5f861c) Thanks [@aarifkhamdi](https://github.com/aarifkhamdi)! - Added Nautilus chain.
+
+## 2.10.8
+
+### Patch Changes
+
+- [#2261](https://github.com/wevm/viem/pull/2261) [`8e337255dda6ce303ccfe556011b1071b7b74b1e`](https://github.com/wevm/viem/commit/8e337255dda6ce303ccfe556011b1071b7b74b1e) Thanks [@jnsdls](https://github.com/jnsdls)! - Updated `isows`.
+
+## 2.10.7
+
+### Patch Changes
+
+- [#2256](https://github.com/wevm/viem/pull/2256) [`f9ffcf8413c06634bbcfe09517a57e75f784b969`](https://github.com/wevm/viem/commit/f9ffcf8413c06634bbcfe09517a57e75f784b969) Thanks [@LeTamanoir](https://github.com/LeTamanoir)! - Fixed batch scheduler id in http transport
+
+- [#2257](https://github.com/wevm/viem/pull/2257) [`4382bb519b663fb678a519733f5c6c68d8f705c1`](https://github.com/wevm/viem/commit/4382bb519b663fb678a519733f5c6c68d8f705c1) Thanks [@jonathansmirnoff](https://github.com/jonathansmirnoff)! - Added Rootstock Testnet chain.
+
+## 2.10.6
+
+### Patch Changes
+
+- [#2252](https://github.com/wevm/viem/pull/2252) [`35667f0644dac2450c217d2b4aa10b5ebb31d906`](https://github.com/wevm/viem/commit/35667f0644dac2450c217d2b4aa10b5ebb31d906) Thanks [@jsmjsm](https://github.com/jsmjsm)! - Added Bitlayer chain and Bitlayer Testnet chain.
+
 ## 2.10.5
 
 ### Patch Changes

@@ -107,7 +107,7 @@ describe('rlp list: prefix === 0xf8 (recursive)', () => {
   })
 })
 
-describe.only('rlp: tx (2048kB - prefix: 0xfa)', () => {
+describe.skip('rlp: tx (2048kB - prefix: 0xfa)', () => {
   const list = [
     generateBytes(1),
     generateBytes(4),

@@ -1,16 +1,19 @@
 <script>
-  import { createPublicClient, webSocket } from 'viem'
-  import { mainnet } from 'viem/chains'
+import { createPublicClient, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
 
-  let promise = getBlockNumber()
-  async function getBlockNumber() {
-    const client = createPublicClient({
-      chain: mainnet,
-      transport: webSocket('wss://eth-mainnet.g.alchemy.com/v2/4iIl6mDHqX3GFrpzmfj2Soirf3MPoAcH'),
-    })
-  
-    await client.getBlockNumber()
-  }
+// biome-ignore lint/correctness/noUnusedVariables:
+const promise = getBlockNumber()
+async function getBlockNumber() {
+  const client = createPublicClient({
+    chain: mainnet,
+    transport: webSocket(
+      'wss://eth-mainnet.g.alchemy.com/v2/4iIl6mDHqX3GFrpzmfj2Soirf3MPoAcH',
+    ),
+  })
+
+  await client.getBlockNumber()
+}
 </script>
 
 <div>server: success</div>

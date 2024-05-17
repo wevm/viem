@@ -4,7 +4,7 @@ import { createHttpServer } from '~test/src/utils.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
-import type { IncomingHttpHeaders } from 'http'
+import type { IncomingHttpHeaders } from 'node:http'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { http, type HttpTransport } from './http.js'
 

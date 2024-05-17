@@ -1,4 +1,4 @@
-import { type ChainFormatters } from '../types/chain.js'
+import type { ChainFormatters } from '../types/chain.js'
 import type { Hash } from '../types/misc.js'
 import { hexToBigInt, hexToNumber } from '../utils/encoding/fromHex.js'
 import { hexToBytes } from '../utils/encoding/toBytes.js'

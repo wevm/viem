@@ -47,7 +47,7 @@ export function validateTypedData<
         // and will throw.
         numberToHex(value, {
           signed: base === 'int',
-          size: parseInt(size_) / 8,
+          size: Number.parseInt(size_) / 8,
         })
       }
 
@@ -57,9 +57,9 @@ export function validateTypedData<
       const bytesMatch = type.match(bytesRegex)
       if (bytesMatch) {
         const [_type, size_] = bytesMatch
-        if (size_ && size(value as Hex) !== parseInt(size_))
+        if (size_ && size(value as Hex) !== Number.parseInt(size_))
           throw new BytesSizeMismatchError({
-            expectedSize: parseInt(size_),
+            expectedSize: Number.parseInt(size_),
             givenSize: size(value as Hex),
           })
       }

@@ -61,7 +61,7 @@ const staticCursor: Cursor = {
   position: 0,
   positionReadCount: new Map(),
   recursiveReadCount: 0,
-  recursiveReadLimit: Infinity,
+  recursiveReadLimit: Number.POSITIVE_INFINITY,
   assertReadLimit() {
     if (this.recursiveReadCount >= this.recursiveReadLimit)
       throw new RecursiveReadLimitExceededError({
@@ -207,7 +207,7 @@ const staticCursor: Cursor = {
     return () => (this.position = oldPosition)
   },
   _touch() {
-    if (this.recursiveReadLimit === Infinity) return
+    if (this.recursiveReadLimit === Number.POSITIVE_INFINITY) return
     const count = this.getReadCount()
     this.positionReadCount.set(this.position, count + 1)
     if (count > 0) this.recursiveReadCount++

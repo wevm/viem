@@ -12,18 +12,18 @@ import type {
   RpcTransactionRequest as RpcTransactionRequest_,
 } from '../../types/rpc.js'
 import type {
-  Transaction as Transaction_,
   TransactionBase,
   TransactionEIP1559 as TransactionEIP1559_,
   TransactionEIP2930 as TransactionEIP2930_,
   TransactionLegacy as TransactionLegacy_,
   TransactionReceipt,
-  TransactionRequest as TransactionRequest_,
   TransactionRequestBase,
+  TransactionRequest as TransactionRequest_,
   TransactionSerializable,
   TransactionSerializableEIP1559,
   TransactionSerialized,
   TransactionType,
+  Transaction as Transaction_,
 } from '../../types/transaction.js'
 import type { ExactPartial, OneOf, UnionOmit } from '../../types/utils.js'
 import type { ChainEIP712 } from './chain.js'

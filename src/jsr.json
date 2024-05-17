@@ -1,0 +1,22 @@
+{
+  "name": "@wevm/viem",
+  "version": "2.10.9",
+  "exports": {
+    ".": "./index.ts",
+    "./accounts": "./accounts/index.ts",
+    "./actions": "./actions/index.ts",
+    "./celo": "./celo/index.ts",
+    "./chains": "./chains/index.ts",
+    "./chains/utils": "./chains/utils.ts",
+    "./ens": "./ens/index.ts",
+    "./experimental": "./experimental/index.ts",
+    "./node": "./node/index.ts",
+    "./op-stack": "./op-stack/index.ts",
+    "./utils": "./utils/index.ts",
+    "./zksync": "./zksync/index.ts"
+  },
+  "publish": {
+    "include": ["LICENSE", "README.md", "**/*.ts"],
+    "exclude": ["**/*.bench.ts", "**/*.test.ts", "**/*.test-d.ts"]
+  }
+}
