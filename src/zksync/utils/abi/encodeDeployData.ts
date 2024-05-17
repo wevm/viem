@@ -9,9 +9,9 @@ import type { ContractConstructorArgs } from '../../../types/contract.js'
 import type { Hash } from '../../../types/misc.js'
 import type { Hex } from '../../../types/misc.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
-import {
-  type EncodeDeployDataParameters as EncodeDeployDataParameters_,
-  type EncodeDeployDataReturnType,
+import type {
+  EncodeDeployDataParameters as EncodeDeployDataParameters_,
+  EncodeDeployDataReturnType,
 } from '../../../utils/abi/encodeDeployData.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { toHex } from '../../../utils/encoding/toHex.js'

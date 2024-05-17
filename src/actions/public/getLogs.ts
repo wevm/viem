@@ -12,7 +12,7 @@ import type {
 import type { Log } from '../../types/log.js'
 import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
-import { type DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
+import type { DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
 import {
   type EncodeEventTopicsErrorType,
   type EncodeEventTopicsParameters,

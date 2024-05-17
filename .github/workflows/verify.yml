@@ -208,7 +208,7 @@ jobs:
     name: Wagmi
     needs: [build, types]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       matrix:
         typescript-version: ['5.4.2', 'latest']

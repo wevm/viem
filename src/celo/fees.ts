@@ -6,7 +6,7 @@ import type {
   Hex,
 } from '../index.js'
 
-import { formatters } from './formatters.js'
+import type { formatters } from './formatters.js'
 
 export const fees: ChainFees<typeof formatters> = {
   /*

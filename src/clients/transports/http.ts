@@ -105,7 +105,7 @@ export function http(
           const body = { method, params }
 
           const { schedule } = createBatchScheduler({
-            id: `${url}`,
+            id: url_,
             wait,
             shouldSplitBatch(requests) {
               return requests.length > batchSize

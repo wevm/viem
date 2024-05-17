@@ -1,4 +1,4 @@
-import { randomBytes } from 'crypto'
+import { randomBytes } from 'node:crypto'
 import type { Address } from 'abitype'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { isCIP42, isCIP64, isEIP1559, isEmpty, isPresent } from './utils.js'

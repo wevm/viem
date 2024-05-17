@@ -41,7 +41,7 @@ export type WithCacheParameters = {
  */
 export async function withCache<TData>(
   fn: () => Promise<TData>,
-  { cacheKey, cacheTime = Infinity }: WithCacheParameters,
+  { cacheKey, cacheTime = Number.POSITIVE_INFINITY }: WithCacheParameters,
 ) {
   const cache = getCache<TData>(cacheKey)
 
