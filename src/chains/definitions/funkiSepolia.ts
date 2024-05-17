@@ -6,7 +6,7 @@ const sourceId = 11_155_111 // sepolia
 export const funkiSepolia = defineChain({
   ...chainConfig,
   id: 3397901,
-  network: 'funkisepolia',
+  network: 'funkiSepolia',
   name: "Funki Sepolia Sandbox",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: {
