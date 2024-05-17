@@ -1,6 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { createHttpServer, publicClient } from '~test/src/utils.js'
+import { createHttpServer } from '~test/src/utils.js'
+
+import { anvilMainnet } from '../../../../test/src/anvil.js'
 
 import {
   getGateway,
@@ -12,6 +14,8 @@ import {
   parseNftUri,
   resolveAvatarUri,
 } from './utils.js'
+
+const client = anvilMainnet.getClient()
 
 describe('isImageUri', () => {
   test('is image', async () => {
@@ -525,21 +529,21 @@ describe('parseNftUri', () => {
 describe('getNftTokenUri', () => {
   test('erc721', async () => {
     await expect(
-      getNftTokenUri(publicClient, {
+      getNftTokenUri(client, {
         nft: {
           chainID: 1,
-          contractAddress: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
-          tokenID: '7816',
+          contractAddress: '0x8ec9c306d203fe7e2fa596d1b19790a9db05ccd2',
+          tokenID: '2257',
           namespace: 'erc721',
         },
       }),
     ).resolves.toMatchInlineSnapshot(
-      '"https://wrappedpunks.com:3000/api/punks/metadata/7816"',
+      `"https://creature.mypinata.cloud/ipfs/QmZ5gZzY3zt5c1WEeLVXxtGB6rfaJSFJMWL5MiTFUkAa1b/2257"`,
     )
   })
   test('erc1155', async () => {
     await expect(
-      getNftTokenUri(publicClient, {
+      getNftTokenUri(client, {
         nft: {
           chainID: 1,
           contractAddress: '0x495f947276749Ce646f68AC8c248420045cb7b5e',
@@ -554,7 +558,7 @@ describe('getNftTokenUri', () => {
   })
   test('other', async () => {
     await expect(() =>
-      getNftTokenUri(publicClient, {
+      getNftTokenUri(client, {
         nft: {
           chainID: 1,
           contractAddress: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',

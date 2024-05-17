@@ -1,0 +1,229 @@
+---
+description: Function to sign the auth message of the provided arguments.
+---
+
+# sign
+
+Function on an [Invoker Instance](/experimental/eip3074/getInvoker) to [sign the auth message](/experimental/eip3074/signAuthMessage) of the provided `args` dependency, and returns a signature to be used by the executor to execute the `args`.
+
+## Import
+
+```ts twoslash
+import { getInvoker } from 'viem/experimental'
+```
+
+## Usage
+
+The example usage below demonstrates how to sign an auth message of [`BatchInvoker`-flavored](https://github.com/anton-rs/3074-invokers/blob/main/src/BatchInvoker.sol) `args`.
+
+:::code-group
+
+```ts twoslash [example.ts] 
+// @noErrors
+import { privateKeyToAccount } from 'viem'
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js'
+
+const invoker = getInvoker({ 
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', 
+  client, 
+  coder: batchInvokerCoder(), 
+}) 
+
+const authority = privateKeyToAccount('0x...')
+
+const signature = await invoker.sign({ // [!code hl]
+  authority, // [!code hl]
+  args: [ // [!code hl]
+    { to: '0x...', value: parseEther('1') }, // [!code hl] 
+    { to: '0x...', value: parseEther('2') }, // [!code hl]
+    { to: '0x...', value: parseEther('3') }, // [!code hl]
+  ], // [!code hl]
+}) // [!code hl]
+```
+
+```ts twoslash [example.ts (Full)] 
+// @noErrors
+import { parseEther } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js'
+
+// 1. Initialize an invoker with it's contract address & `args` coder. 
+const invoker = getInvoker({ 
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', 
+  client, 
+  coder: batchInvokerCoder(), 
+}) 
+
+// 2. Construct calls (`args`) as defined by shape of `batchInvokerCoder`. // [!code hl]
+const calls: InvokerArgs<typeof invoker> = [ // [!code hl]
+  { to: '0x...', value: parseEther('1') }, // [!code hl]
+  { to: '0x...', value: parseEther('2') }, // [!code hl]
+  { to: '0x...', value: parseEther('3') }, // [!code hl]
+] // [!code hl]
+
+// 3. Import an authority (source) account for the calls.
+const authority = privateKeyToAccount('0x...')
+
+// 4. Import an executor account to execute the calls.
+const executor = privateKeyToAccount('0x...')
+
+// 5. Sign the auth message of the calls (`args`) with the authority account. // [!code hl]
+const signature = await invoker.sign({ // [!code hl]
+  args: calls, // [!code hl]
+  authority, // [!code hl]
+  executor, // [!code hl]
+}) // [!code hl]
+
+// 6. Execute the calls (`args`) on behalf of the authority account.
+const hash = await invoker.execute({
+  args: calls,
+  authority,
+  executor,
+  signature,
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createWalletClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createWalletClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
+## Return Type
+
+`Hex`
+
+The signature of the auth message, signed by the `authority`.
+
+## Parameters
+
+### args
+
+- **Type:** `InvokerArgs<typeof invoker>`
+
+The `args` to authorize and sign for execution.
+
+```ts twoslash
+// @noErrors
+import { privateKeyToAccount } from 'viem'
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js'
+
+const invoker = getInvoker({ 
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', 
+  client, 
+  coder: batchInvokerCoder(), 
+}) 
+
+// ---cut---
+const signature = await invoker.sign({
+  args: [ // [!code focus]
+    { to: '0x...', value: parseEther('1') }, // [!code focus]
+    { to: '0x...', value: parseEther('2') }, // [!code focus]
+    { to: '0x...', value: parseEther('3') }, // [!code focus]
+  ], // [!code focus]
+  authority: privateKeyToAccount('0x...'),
+  executor: privateKeyToAccount('0x...'),
+})
+```
+
+### authority
+
+- **Type:** `LocalAccount`
+
+The authority (source) account for the calls.
+
+```ts twoslash
+// @noErrors
+import { privateKeyToAccount } from 'viem'
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js'
+
+const invoker = getInvoker({ 
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', 
+  client, 
+  coder: batchInvokerCoder(), 
+}) 
+
+// ---cut---
+const signature = await invoker.sign({
+  args: [
+    { to: '0x...', value: parseEther('1') },
+    { to: '0x...', value: parseEther('2') },
+    { to: '0x...', value: parseEther('3') },
+  ],
+  authority: privateKeyToAccount('0x...'), // [!code focus]
+  executor: privateKeyToAccount('0x...'),
+})
+```
+
+### chain
+
+- **Type:** `Chain`
+
+The chain to execute the calls on. Optional if the `chain` is hoisted on the `client`.
+
+```ts twoslash
+// @noErrors
+import { privateKeyToAccount } from 'viem'
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js'
+
+const invoker = getInvoker({ 
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', 
+  client, 
+  coder: batchInvokerCoder(), 
+}) 
+
+// ---cut---
+import { mainnet } from 'viem/chains'
+
+const signature = await invoker.sign({
+  args: [
+    { to: '0x...', value: parseEther('1') },
+    { to: '0x...', value: parseEther('2') },
+    { to: '0x...', value: parseEther('3') },
+  ],
+  authority: privateKeyToAccount('0x...'),
+  chain: mainnet, // [!code focus]
+  executor: privateKeyToAccount('0x...'),
+})
+```
+
+### executor (optional)
+
+- **Type:** `Address | Account`
+
+The account to execute the calls.
+
+```ts twoslash
+// @noErrors
+import { privateKeyToAccount } from 'viem'
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js'
+
+const invoker = getInvoker({ 
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', 
+  client, 
+  coder: batchInvokerCoder(), 
+}) 
+
+// ---cut---
+const signature = await invoker.sign({
+  args: [
+    { to: '0x...', value: parseEther('1') },
+    { to: '0x...', value: parseEther('2') },
+    { to: '0x...', value: parseEther('3') },
+  ],
+  authority: privateKeyToAccount('0x...'),
+  executor: privateKeyToAccount('0x...'), // [!code focus]
+})
+```

@@ -10,10 +10,10 @@ import {
 import { expectTypeOf, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { localHttpUrl } from '~test/src/constants.js'
-import { anvilChain, publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import type { Account } from '../accounts/types.js'
 import { celo } from '../chains/index.js'
+
 import { createPublicClient } from '../clients/createPublicClient.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'
@@ -21,18 +21,19 @@ import type { Chain } from '../types/chain.js'
 
 import { getContract } from './getContract.js'
 
+const publicClient = anvilMainnet.getClient()
 const walletClient = createWalletClient({
   account: '0x',
-  chain: anvilChain,
-  transport: http(localHttpUrl),
+  chain: anvilMainnet.chain,
+  transport: http(anvilMainnet.rpcUrl.http),
 })
 const walletClientWithoutAccount = createWalletClient({
-  chain: anvilChain,
-  transport: http(localHttpUrl),
+  chain: anvilMainnet.chain,
+  transport: http(anvilMainnet.rpcUrl.http),
 })
 const walletClientWithoutChain = createWalletClient({
   account: '0x',
-  transport: http(localHttpUrl),
+  transport: http(anvilMainnet.rpcUrl.http),
 })
 
 test('generic client', () => {
@@ -921,4 +922,20 @@ test('chain w/ formatter', () => {
   expectTypeOf<keyof typeof contract_wallet>().toEqualTypeOf<
     'estimateGas' | 'write' | 'address' | 'abi'
   >()
+
+  contract.estimateGas.mint([1n], {
+    feeCurrency: '0x',
+    gatewayFeeRecipient: '0x',
+    gatewayFee: 1n,
+  })
+  contract.simulate.mint([1n], {
+    feeCurrency: '0x',
+    gatewayFeeRecipient: '0x',
+    gatewayFee: 1n,
+  })
+  contract.write.mint([1n], {
+    feeCurrency: '0x',
+    gatewayFeeRecipient: '0x',
+    gatewayFee: 1n,
+  })
 })

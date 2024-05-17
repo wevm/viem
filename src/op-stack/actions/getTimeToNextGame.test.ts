@@ -1,8 +1,10 @@
 import { expect, test, vi } from 'vitest'
-import { sepoliaClient } from '../../../test/src/utils.js'
+import { anvilSepolia } from '../../../test/src/anvil.js'
 import { optimismSepolia } from '../../op-stack/chains.js'
 import { getGames } from './getGames.js'
 import { getTimeToNextGame } from './getTimeToNextGame.js'
+
+const sepoliaClient = anvilSepolia.getClient()
 
 const games = await getGames(sepoliaClient, {
   limit: 10,
@@ -11,7 +13,7 @@ const games = await getGames(sepoliaClient, {
 const [game] = games
 const l2BlockNumber = game.l2BlockNumber
 
-// TODO(fault-proofs): use `publicClient` when fault proofs deployed to mainnet.
+// TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
 test('default', async () => {
   const { interval, seconds, timestamp } = await getTimeToNextGame(
     sepoliaClient,

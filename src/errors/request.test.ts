@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { forkBlockNumber } from '~test/src/constants.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { numberToHex } from '../utils/encoding/toHex.js'
 
 import {
@@ -32,7 +32,7 @@ test('HttpRequestError', () => {
     url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
-      params: [numberToHex(forkBlockNumber), false],
+      params: [numberToHex(anvilMainnet.forkBlockNumber), false],
     },
     status: 500,
     details: 'Some error',
@@ -42,7 +42,7 @@ test('HttpRequestError', () => {
 
     Status: 500
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
     Details: Some error
     Version: viem@1.0.2]
@@ -54,7 +54,7 @@ test('WebSocketRequestError', () => {
     url: 'ws://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
-      params: [numberToHex(forkBlockNumber), false],
+      params: [numberToHex(anvilMainnet.forkBlockNumber), false],
     },
     details: 'Some error',
   })
@@ -62,7 +62,7 @@ test('WebSocketRequestError', () => {
     [WebSocketRequestError: WebSocket request failed.
 
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
     Details: Some error
     Version: viem@1.0.2]
@@ -74,14 +74,14 @@ test('TimeoutError', () => {
     url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
-      params: [numberToHex(forkBlockNumber), false],
+      params: [numberToHex(anvilMainnet.forkBlockNumber), false],
     },
   })
   expect(err).toMatchInlineSnapshot(`
     [TimeoutError: The request took too long to respond.
 
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
     Details: The request timed out.
     Version: viem@1.0.2]

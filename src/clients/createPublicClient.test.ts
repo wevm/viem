@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { localWsUrl } from '~test/src/constants.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { localhost } from '../chains/index.js'
 import { type EIP1193RequestFn, type PublicRpcSchema } from '../index.js'
 import { createPublicClient } from './createPublicClient.js'
@@ -240,7 +240,7 @@ describe('transports', () => {
   test('webSocket', () => {
     const { uid, ...client } = createPublicClient({
       chain: localhost,
-      transport: webSocket(localWsUrl),
+      transport: webSocket(anvilMainnet.rpcUrl.ws),
     })
 
     expect(uid).toBeDefined()

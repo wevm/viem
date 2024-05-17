@@ -1,11 +1,13 @@
 import { bench, describe } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { createBlockFilter } from './createBlockFilter.js'
 
+const client = anvilMainnet.getClient()
+
 describe.skip('Create Block Filter', () => {
   bench('viem: `createBlockFilter`', async () => {
-    await createBlockFilter(publicClient)
+    await createBlockFilter(client)
   })
 })

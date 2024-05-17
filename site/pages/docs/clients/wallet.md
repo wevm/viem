@@ -377,3 +377,35 @@ const client = createWalletClient({
   transport: custom(window.ethereum!)
 })
 ```
+
+### rpcSchema (optional)
+
+- **Type:** `RpcSchema`
+- **Default:** `WalletRpcSchema`
+
+Typed JSON-RPC schema for the client.
+
+```ts twoslash
+import 'viem/window'
+import { createWalletClient, custom } from 'viem'
+// @noErrors
+// ---cut---
+import { rpcSchema } from 'viem'
+
+type CustomRpcSchema = [{ // [!code focus]
+  Method: 'eth_wagmi', // [!code focus]
+  Parameters: [string] // [!code focus]
+  ReturnType: string // [!code focus]
+}] // [!code focus]
+
+const client = createWalletClient({
+  rpcSchema: rpcSchema<CustomRpcSchema>(), // [!code focus]
+  transport: custom(window.ethereum!)
+})
+
+const result = await client.request({ // [!code focus]
+  method: 'eth_wa // [!code focus] 
+//               ^|
+  params: ['hello'], // [!code focus]
+}) // [!code focus]
+```

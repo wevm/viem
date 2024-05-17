@@ -1,19 +1,24 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/src/constants.js'
-import { walletClient, walletClientWithAccount } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { recoverTypedDataAddress } from '../../utils/signature/recoverTypedDataAddress.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { signTypedData } from './signTypedData.js'
 
 const localAccount = privateKeyToAccount(accounts[0].privateKey)
 const jsonRpcAccount = accounts[0].address
 
+const client = anvilMainnet.getClient()
+const clientWithAccount = anvilMainnet.getClient({
+  account: jsonRpcAccount,
+})
+
 describe('default', async () => {
   test('json-rpc account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.basic,
       account: jsonRpcAccount,
       primaryType: 'Mail',
@@ -31,7 +36,7 @@ describe('default', async () => {
   })
 
   test('local account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.basic,
       account: localAccount,
       primaryType: 'Mail',
@@ -50,7 +55,7 @@ describe('default', async () => {
 })
 
 test('inferred account', async () => {
-  const signature = await signTypedData(walletClientWithAccount, {
+  const signature = await signTypedData(clientWithAccount, {
     ...typedData.basic,
     primaryType: 'Mail',
   })
@@ -63,12 +68,12 @@ test('inferred account', async () => {
       primaryType: 'Mail',
       signature,
     }),
-  ).toEqual(getAddress(walletClientWithAccount.account.address))
+  ).toEqual(getAddress(clientWithAccount.account.address))
 })
 
 describe('minimal', () => {
   test('json-rpc account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       types: {
         EIP712Domain: [],
       },
@@ -96,7 +101,7 @@ describe('minimal', () => {
   })
 
   test('local account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       types: {
         EIP712Domain: [],
       },
@@ -124,7 +129,7 @@ describe('minimal', () => {
 
 describe('complex', async () => {
   test('json-rpc account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       account: jsonRpcAccount,
       primaryType: 'Mail',
@@ -142,7 +147,7 @@ describe('complex', async () => {
   })
 
   test('local account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       account: localAccount,
       primaryType: 'Mail',
@@ -162,7 +167,7 @@ describe('complex', async () => {
 
 describe('args: domain: empty', () => {
   test('json-rpc account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: undefined,
       account: jsonRpcAccount,
@@ -182,7 +187,7 @@ describe('args: domain: empty', () => {
   })
 
   test('local account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: undefined,
       account: localAccount,
@@ -204,7 +209,7 @@ describe('args: domain: empty', () => {
 
 describe('args: domain: chainId', () => {
   test('zeroish chainId', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         chainId: 0,
@@ -228,7 +233,7 @@ describe('args: domain: chainId', () => {
   })
 
   test('json-rpc account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         chainId: 1,
@@ -252,7 +257,7 @@ describe('args: domain: chainId', () => {
   })
 
   test('local account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         chainId: 1,
@@ -278,7 +283,7 @@ describe('args: domain: chainId', () => {
 
 describe('args: domain: name', () => {
   test('empty name', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         name: '',
@@ -302,7 +307,7 @@ describe('args: domain: name', () => {
   })
 
   test('json-rpc account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         name: 'Ether!',
@@ -326,7 +331,7 @@ describe('args: domain: name', () => {
   })
 
   test('local account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         name: 'Ether!',
@@ -352,7 +357,7 @@ describe('args: domain: name', () => {
 
 describe('args: domain: verifyingContract', () => {
   test('json-rpc account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
@@ -376,7 +381,7 @@ describe('args: domain: verifyingContract', () => {
   })
 
   test('local account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
@@ -403,7 +408,7 @@ describe('args: domain: verifyingContract', () => {
 describe('args: domain: salt', () => {
   // TODO: Anvil has issues with hex bytes.
   test.skip('json-rpc account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         salt: '0x123512315aaaa1231313b1231b23b13b123aa12312211b1b1b111bbbb1affafa',
@@ -427,7 +432,7 @@ describe('args: domain: salt', () => {
   })
 
   test('local account', async () => {
-    const signature = await signTypedData(walletClient, {
+    const signature = await signTypedData(client, {
       ...typedData.complex,
       domain: {
         salt: '0x123512315aaaa1231313b1231b23b13b123aa12312211b1b1b111bbbb1affafa',
@@ -454,7 +459,7 @@ describe('args: domain: salt', () => {
 test('no account', async () => {
   await expect(() =>
     // @ts-expect-error
-    signTypedData(walletClient, {
+    signTypedData(client, {
       ...typedData.basic,
       primaryType: 'Mail',
     }),

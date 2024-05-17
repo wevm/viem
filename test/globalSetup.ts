@@ -1,18 +1,11 @@
-import { startProxy } from '@viem/anvil'
-
 import {
-  forkBlockNumber,
-  forkBlockNumberSepolia,
-  forkUrl,
-  forkUrlSepolia,
-} from './src/constants.js'
-import {
-  forkBlockNumberOptimism,
-  forkBlockNumberOptimismSepolia,
-  forkUrlOptimism,
-  forkUrlOptimismSepolia,
-} from './src/opStack.js'
-import { forkBlockNumberZkSync, forkUrlZkSync } from './src/zksync.js'
+  anvil3074,
+  anvilMainnet,
+  anvilOptimism,
+  anvilOptimismSepolia,
+  anvilSepolia,
+  anvilZkSync,
+} from './src/anvil.js'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) return
@@ -35,52 +28,20 @@ export default async function () {
   // We still need to remember to reset the anvil instance between test files. This is generally
   // handled in `setup.ts` but may require additional resetting (e.g. via `afterAll`), in case of
   // any custom per-test adjustments that persist beyond `anvil_reset`.
-  const shutdownMainnet = await startProxy({
-    port: Number(process.env.VITE_ANVIL_PORT || '8545'),
-    options: {
-      forkUrl,
-      forkBlockNumber,
-      noMining: true,
-      startTimeout: 20_000,
-    },
-  })
-  const shutdownOptimism = await startProxy({
-    port: Number(process.env.VITE_ANVIL_PORT_OPTIMISM || '8645'),
-    options: {
-      forkUrl: forkUrlOptimism,
-      forkBlockNumber: forkBlockNumberOptimism,
-      startTimeout: 20_000,
-    },
-  })
-  const shutdownZkSync = await startProxy({
-    port: Number(process.env.VITE_ANVIL_PORT_ZKSYNC || '8745'),
-    options: {
-      forkUrl: forkUrlZkSync,
-      forkBlockNumber: forkBlockNumberZkSync,
-      startTimeout: 20_000,
-    },
-  })
+  const shutdownMainnet = await anvilMainnet.start()
+  const shutdownOptimism = await anvilOptimism.start()
+  const shutdownZkSync = await anvilZkSync.start()
+
+  // TODO(3074): remove when 3074 supported natively in Anvil.
+  const shutdown3074 = await anvil3074.start()
+
   // TODO(fault-proofs): remove when fault proofs deployed to mainnet.
-  const shutdownSepolia = await startProxy({
-    port: Number(process.env.VITE_ANVIL_PORT_SEPOLIA || '8845'),
-    options: {
-      forkUrl: forkUrlSepolia,
-      forkBlockNumber: forkBlockNumberSepolia,
-      noMining: true,
-      startTimeout: 20_000,
-    },
-  })
+  const shutdownSepolia = await anvilSepolia.start()
   // TODO(fault-proofs): remove when fault proofs deployed to mainnet.
-  const shutdownOptimismSepolia = await startProxy({
-    port: Number(process.env.VITE_ANVIL_PORT_OPTIMISM_SEPOLIA || '8945'),
-    options: {
-      forkUrl: forkUrlOptimismSepolia,
-      forkBlockNumber: forkBlockNumberOptimismSepolia,
-      noMining: true,
-      startTimeout: 20_000,
-    },
-  })
+  const shutdownOptimismSepolia = await anvilOptimismSepolia.start()
+
   return () => {
+    shutdown3074()
     shutdownMainnet()
     shutdownOptimism()
     shutdownZkSync()

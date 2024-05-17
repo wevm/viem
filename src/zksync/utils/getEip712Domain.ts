@@ -1,4 +1,5 @@
 import { toHex } from '../../utils/encoding/toHex.js'
+import { gasPerPubdataDefault } from '../constants/number.js'
 import type { EIP712DomainFn } from '../types/eip712.js'
 import type {
   ZkSyncEIP712TransactionSignable,
@@ -72,7 +73,7 @@ function transactionToMessage(
     from: BigInt(from),
     to: to ? BigInt(to) : 0n,
     gasLimit: gas ?? 0n,
-    gasPerPubdataByteLimit: gasPerPubdata ?? 0n,
+    gasPerPubdataByteLimit: gasPerPubdata ?? gasPerPubdataDefault,
     maxFeePerGas: maxFeePerGas ?? 0n,
     maxPriorityFeePerGas: maxPriorityFeePerGas ?? 0n,
     paymaster: paymaster ? BigInt(paymaster) : 0n,

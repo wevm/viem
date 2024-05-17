@@ -1,0 +1,150 @@
+---
+description: Interface for interacting with EIP-3074 "invoker" contracts. 
+---
+
+# getInvoker
+
+The `getInvoker` function creates an **Invoker Instance** to interface for interacting with contracts that implement the [3074-invokers `BaseInvoker`](https://github.com/anton-rs/3074-invokers/blob/05cc5b8532c0b52c9741658f59d1106fd8ced6f2/src/BaseInvoker.sol) interface. [Learn more.](/experimental/eip3074/invoker-instances)
+
+## Import
+
+```ts twoslash
+import { getInvoker } from 'viem/experimental'
+```
+
+## Usage
+
+The `getInvoker` function accepts a contract which inherits [`BaseInvoker`](https://github.com/anton-rs/3074-invokers/blob/05cc5b8532c0b52c9741658f59d1106fd8ced6f2/src/BaseInvoker.sol):
+
+:::code-group
+
+```ts twoslash [example.ts] 
+// @noErrors
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js'
+
+const invoker = getInvoker({ // [!code hl]
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', // [!code hl]
+  client, // [!code hl]
+  coder: batchInvokerCoder(), // [!code hl]
+}) // [!code hl]
+```
+
+```ts twoslash [example.ts (Full)] 
+// @noErrors
+import { parseEther } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { getInvoker, batchInvokerCoder, type InvokerArgs } from 'viem/experimental'
+import { client } from './config.js'
+
+// 1. Initialize an invoker with it's contract address & `args` coder. // [!code hl]
+const invoker = getInvoker({ // [!code hl]
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', // [!code hl]
+  client, // [!code hl]
+  coder: batchInvokerCoder(), // [!code hl]
+}) // [!code hl]
+
+// 2. Construct calls (`args`) as defined by shape of `batchInvokerCoder`.
+const calls: InvokerArgs<typeof invoker> = [
+  { to: '0x...', value: parseEther('1') },
+  { to: '0x...', value: parseEther('2') },
+  { to: '0x...', value: parseEther('3') },
+]
+
+// 3. Import an authority (source) account for the calls.
+const authority = privateKeyToAccount('0x...')
+
+// 4. Import an exector account to execute the calls.
+const executor = privateKeyToAccount('0x...')
+
+// 5. Sign the auth message of the calls (`args`) with the authority account.
+const signature = await invoker.sign({
+  args: calls,
+  authority,
+  executor,
+})
+
+// 6. Execute the calls (`args`) on behalf of the authority account.
+const hash = await invoker.execute({
+  args: calls,
+  authority,
+  executor,
+  signature,
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createWalletClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createWalletClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
+## Return Type
+
+`Invoker`
+
+The Invoker Instance.
+
+## Parameters
+
+### address
+
+- **Type:** [`Address`](/docs/glossary/types#address)
+
+The Invoker contract address.
+
+```ts twoslash
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js'
+
+const invoker = getInvoker({
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', // [!code focus]
+  client,
+  coder: batchInvokerCoder(),
+})
+```
+
+### client
+
+- **Type:** `Client`
+
+The Client used for performing invoker actions (ie. `sign` & `execute`).
+
+```ts twoslash
+import { getInvoker, batchInvokerCoder } from 'viem/experimental'
+import { client } from './config.js' // [!code focus]
+
+const invoker = getInvoker({
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
+  client, // [!code focus]
+  coder: batchInvokerCoder(),
+})
+```
+
+### coder
+
+- **Type:** `InvokerCoder`
+
+Coder for encoding execution data (`args`).
+
+```ts twoslash
+import { getInvoker, batchInvokerCoder } from 'viem/experimental' // [!code focus]
+import { client } from './config.js'
+
+const invoker = getInvoker({
+  address: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
+  client, 
+  coder: batchInvokerCoder(), // [!code focus]
+})
+```
+
+Available coders:
+
+- `batchInvokerCoder`: Coder for the [`BatchInvoker`](https://github.com/anton-rs/3074-invokers/blob/main/src/BatchInvoker.sol) contract.
+
