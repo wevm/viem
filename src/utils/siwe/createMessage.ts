@@ -1,16 +1,16 @@
-import type { ErrorType } from '../../errors/utils.js'
 import {
   SiweInvalidDomainError,
-  SiweInvalidISO8601Error,
-  SiweInvalidNonceError,
-  SiweInvalidUriError,
-  SiweInvalidVersionError,
   type SiweInvalidDomainErrorType,
+  SiweInvalidISO8601Error,
   type SiweInvalidISO8601ErrorType,
+  SiweInvalidNonceError,
   type SiweInvalidNonceErrorType,
+  SiweInvalidUriError,
   type SiweInvalidUriErrorType,
+  SiweInvalidVersionError,
 } from '../../errors/siwe.js'
-import { getAddress, type GetAddressErrorType } from '../address/getAddress.js'
+import type { ErrorType } from '../../errors/utils.js'
+import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import type { Message } from './types.js'
 import { isISO8601, isUri } from './utils.js'
 
@@ -58,13 +58,7 @@ export function createMessage(
     uri,
     version,
   } = parameters
-  const address = getAddress(parameters.address)
 
-  ////////////////////////////////////////////////////////////////////////////////
-  // Validate fields
-  ////////////////////////////////////////////////////////////////////////////////
-
-  // TODO: Custom errors
   if (!domainRegex.test(domain)) throw new SiweInvalidDomainError({ domain })
   if (!nonceRegex.test(nonce)) throw new SiweInvalidNonceError({ nonce })
   if (!isUri(uri)) throw new SiweInvalidUriError({ uri })
@@ -75,43 +69,21 @@ export function createMessage(
   // TODO: Check that statement doesn't contain '\n'
   // if (statement && ) throw new Error('Invalid statement')
 
-  ////////////////////////////////////////////////////////////////////////////////
-  // Construct message
-  ////////////////////////////////////////////////////////////////////////////////
-
-  /**
-  ${scheme}://${domain} wants you to sign in with your Ethereum account:
-  ${address}
-
-  ${statement}
-
-  URI: ${uri}
-  Version: ${version}
-  Chain ID: ${chainId}
-  Nonce: ${nonce}
-  Issued At: ${issuedAt}
-  Expiration Time: ${expirationTime}
-  Not Before: ${notBefore}
-  Request ID: ${requestId}
-  Resources:
-  - ${resources[0]}
-  - ${resources[1]}
-  ...
-  - ${resources[n]}
-  */
-
+  const address = getAddress(parameters.address)
   const origin = (() => {
     if (scheme) return `${scheme}://${domain}`
     return domain
   })()
-  const statementSeparator = parameters.statement ? '\n' : ''
-  const statement = `${statementSeparator}${
-    parameters.statement ?? ''
-  }${statementSeparator}`
+  const statement = (() => {
+    if (!parameters.statement) return ''
+    const separator = parameters.statement ? '\n' : ''
+    return `${separator}${parameters.statement}${separator}`
+  })()
   const prefix = `${origin} wants you to sign in with your Ethereum account:\n${address}\n${statement}`
 
-  let suffix = `URI: ${uri}\nVersion: ${version}\nChain ID: ${chainId}\nNonce: ${nonce}`
-  suffix += `\nIssued At: ${issuedAt ?? new Date().toISOString()}`
+  let suffix = `URI: ${uri}\nVersion: ${version}\nChain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${
+    issuedAt ?? new Date().toISOString()
+  }`
 
   if (expirationTime) {
     if (!isISO8601(expirationTime))
@@ -135,6 +107,27 @@ export function createMessage(
 
   return `${prefix}\n${suffix}`
 }
+
+/**
+  ${scheme}://${domain} wants you to sign in with your Ethereum account:
+  ${address}
+
+  ${statement}
+
+  URI: ${uri}
+  Version: ${version}
+  Chain ID: ${chainId}
+  Nonce: ${nonce}
+  Issued At: ${issuedAt}
+  Expiration Time: ${expirationTime}
+  Not Before: ${notBefore}
+  Request ID: ${requestId}
+  Resources:
+  - ${resources[0]}
+  - ${resources[1]}
+  ...
+  - ${resources[n]}
+  */
 
 const domainRegex = /^(?:(?:(?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$/
 const nonceRegex = /^[a-zA-Z0-9]{8,}$/

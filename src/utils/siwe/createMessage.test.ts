@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest'
 
-import { mainnet } from '../chains/index.js'
+import { mainnet } from '../../chains/definitions/mainnet.js'
 import { createMessage } from './createMessage.js'
 import type { Message } from './types.js'
 
@@ -71,6 +71,11 @@ test('parameters: issuedAt', () => {
   `)
 })
 
+test.todo('parameters: expirationTime')
+test.todo('parameters: notBefore')
+test.todo('parameters: requestId')
+test.todo('parameters: resources')
+
 test('behavior: invalid address', () => {
   expect(() =>
     createMessage({ ...message, address: '0xfoobarbaz' }),
@@ -84,7 +89,7 @@ test('behavior: invalid address', () => {
   `)
 })
 
-test('behavior: invalid address', () => {
+test('behavior: invalid domain', () => {
   expect(() =>
     createMessage({ ...message, domain: '#foo' }),
   ).toThrowErrorMatchingInlineSnapshot(`
@@ -139,6 +144,8 @@ test('behavior: invalid issuedAt', () => {
     Version: viem@1.0.2]
   `)
 })
+
+test.todo('behavior: invalid statement')
 
 test('behavior: invalid expirationTime', () => {
   expect(() =>
