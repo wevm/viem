@@ -176,7 +176,8 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
           // If we find a Retry-After header, let's retry after the given time.
           if (error && error instanceof HttpRequestError) {
             const retryAfter = error?.headers?.get('Retry-After')
-            if (retryAfter?.match(/\d/)) return parseInt(retryAfter) * 1000
+            if (retryAfter?.match(/\d/))
+              return Number.parseInt(retryAfter) * 1000
           }
 
           // Otherwise, let's retry with an exponential backoff.

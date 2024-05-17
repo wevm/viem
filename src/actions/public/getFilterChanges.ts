@@ -9,7 +9,7 @@ import type { Chain } from '../../types/chain.js'
 import type { Filter, FilterType } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
-import { type DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
+import type { DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {

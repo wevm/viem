@@ -20,7 +20,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
-import { type Hex } from '../../types/misc.js'
+import type { Hex } from '../../types/misc.js'
 import type { OneOf, Prettify } from '../../types/utils.js'
 import { fromRlp } from '../../utils/encoding/fromRlp.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
@@ -31,7 +31,7 @@ import {
   type GetWithdrawalHashStorageSlotErrorType,
   getWithdrawalHashStorageSlot,
 } from '../utils/getWithdrawalHashStorageSlot.js'
-import { type GetGameReturnType } from './getGame.js'
+import type { GetGameReturnType } from './getGame.js'
 import type { GetL2OutputReturnType } from './getL2Output.js'
 import type { ProveWithdrawalParameters } from './proveWithdrawal.js'
 

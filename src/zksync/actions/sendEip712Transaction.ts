@@ -11,7 +11,7 @@ import type {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
-import { BaseError } from '../../errors/base.js'
+import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import { assertCurrentChain } from '../../utils/chain/assertCurrentChain.js'
 import {
@@ -19,7 +19,7 @@ import {
   getTransactionError,
 } from '../../utils/errors/getTransactionError.js'
 import { getAction } from '../../utils/getAction.js'
-import { type ChainEIP712 } from '../types/chain.js'
+import type { ChainEIP712 } from '../types/chain.js'
 import { assertEip712Request } from '../utils/assertEip712Request.js'
 import { signTransaction } from './signTransaction.js'
 

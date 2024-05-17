@@ -1,4 +1,4 @@
-import { type Abi, type AbiParameter, type Address } from 'abitype'
+import type { Abi, AbiParameter, Address } from 'abitype'
 
 import { AbiItemAmbiguityError } from '../../errors/abi.js'
 import type { ErrorType } from '../../errors/utils.js'

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
   http,
-  Address,
-  Hash,
-  TransactionReceipt,
+  type Address,
+  type Hash,
+  type TransactionReceipt,
   createPublicClient,
   createWalletClient,
   custom,
@@ -84,7 +84,7 @@ function Example() {
       setL2Receipt(receipt)
       setState('success')
     })()
-  }, [l1Receipt, publicClientL2])
+  }, [l1Receipt])
 
   if (account)
     return (

@@ -249,7 +249,7 @@ function decodeBytes(
     return [bytesToHex(data), 32]
   }
 
-  const value = bytesToHex(cursor.readBytes(parseInt(size), 32))
+  const value = bytesToHex(cursor.readBytes(Number.parseInt(size), 32))
   return [value, 32]
 }
 
@@ -260,7 +260,7 @@ type DecodeNumberErrorType =
 
 function decodeNumber(cursor: Cursor, param: AbiParameter) {
   const signed = param.type.startsWith('int')
-  const size = parseInt(param.type.split('int')[1] || '256')
+  const size = Number.parseInt(param.type.split('int')[1] || '256')
   const value = cursor.readBytes(32)
   return [
     size > 48

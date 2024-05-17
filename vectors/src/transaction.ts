@@ -4,8 +4,8 @@ import { join } from 'node:path'
 
 import { generatePrivateKey } from '../../src/accounts/generatePrivateKey.js'
 import { signTransaction } from '../../src/accounts/utils/signTransaction.js'
-import { Hex, parseTransaction } from '../../src/index.js'
-import {
+import { type Hex, parseTransaction } from '../../src/index.js'
+import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,

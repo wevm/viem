@@ -2,7 +2,7 @@ import type { Abi, Address } from 'abitype'
 
 import { type CallParameters, call } from '../actions/public/call.js'
 import type { Transport } from '../clients/transports/createTransport.js'
-import { type BaseError } from '../errors/base.js'
+import type { BaseError } from '../errors/base.js'
 import {
   OffchainLookupError,
   OffchainLookupResponseMalformedError,
