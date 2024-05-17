@@ -1,5 +1,16 @@
-import type { ErrorType } from '../errors/utils.js'
-import { isAddress } from '../utils/address/isAddress.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  SiweInvalidDomainError,
+  SiweInvalidISO8601Error,
+  SiweInvalidNonceError,
+  SiweInvalidUriError,
+  SiweInvalidVersionError,
+  type SiweInvalidDomainErrorType,
+  type SiweInvalidISO8601ErrorType,
+  type SiweInvalidNonceErrorType,
+  type SiweInvalidUriErrorType,
+} from '../../errors/siwe.js'
+import { getAddress, type GetAddressErrorType } from '../address/getAddress.js'
 import type { Message } from './types.js'
 import { isISO8601, isUri } from './utils.js'
 
@@ -7,16 +18,34 @@ export type CreateMessageParameters = Message
 
 export type CreateMessageReturnType = string
 
-export type CreateMessageErrorType = ErrorType
+export type CreateMessageErrorType =
+  | GetAddressErrorType
+  | SiweInvalidDomainErrorType
+  | SiweInvalidNonceErrorType
+  | SiweInvalidUriErrorType
+  | SiweInvalidVersionError
+  | SiweInvalidISO8601ErrorType
+  | ErrorType
 
 /**
- * https://eips.ethereum.org/EIPS/eip-4361
+ * @description Creates EIP-4361 formated message.
+ *
+ * @example
+ * const message = createMessage({
+ *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   chainId: 1,
+ *   domain: 'example.com',
+ *   nonce: 'foobarbaz',
+ *   uri: 'https://example.com/path',
+ *   version: '1',
+ * })
+ *
+ * @see https://eips.ethereum.org/EIPS/eip-4361
  */
 export function createMessage(
   parameters: CreateMessageParameters,
 ): CreateMessageReturnType {
   const {
-    address,
     chainId,
     domain,
     expirationTime,
@@ -29,19 +58,20 @@ export function createMessage(
     uri,
     version,
   } = parameters
+  const address = getAddress(parameters.address)
 
   ////////////////////////////////////////////////////////////////////////////////
   // Validate fields
   ////////////////////////////////////////////////////////////////////////////////
 
   // TODO: Custom errors
-  if (!isAddress(address)) throw new Error('Invalid address')
-  if (!domainRegex.test(domain)) throw new Error('Invalid domain')
-  if (!nonceRegex.test(nonce)) throw new Error('Invalid nonce')
-  if (uri && !isUri(uri)) throw new Error('Invalid uri')
-  if (version !== '1') throw new Error('Invalid version')
+  if (!domainRegex.test(domain)) throw new SiweInvalidDomainError({ domain })
+  if (!nonceRegex.test(nonce)) throw new SiweInvalidNonceError({ nonce })
+  if (!isUri(uri)) throw new SiweInvalidUriError({ uri })
+  if (version !== '1') throw new SiweInvalidVersionError({ version })
 
-  if (issuedAt && !isISO8601(issuedAt)) throw new Error('Invalid issuedAt')
+  if (issuedAt && !isISO8601(issuedAt))
+    throw new SiweInvalidISO8601Error({ name: 'issuedAt', value: issuedAt })
   // TODO: Check that statement doesn't contain '\n'
   // if (statement && ) throw new Error('Invalid statement')
 
@@ -50,7 +80,7 @@ export function createMessage(
   ////////////////////////////////////////////////////////////////////////////////
 
   /**
-  ${scheme}:// ${domain} wants you to sign in with your Ethereum account:
+  ${scheme}://${domain} wants you to sign in with your Ethereum account:
   ${address}
 
   ${statement}
@@ -84,11 +114,16 @@ export function createMessage(
   suffix += `\nIssued At: ${issuedAt ?? new Date().toISOString()}`
 
   if (expirationTime) {
-    if (!isISO8601(expirationTime)) throw new Error('Invalid expirationTime')
+    if (!isISO8601(expirationTime))
+      throw new SiweInvalidISO8601Error({
+        name: 'expirationTime',
+        value: expirationTime,
+      })
     suffix += `\nExpiration Time: ${expirationTime}`
   }
   if (notBefore) {
-    if (!isISO8601(notBefore)) throw new Error('Invalid notBefore')
+    if (!isISO8601(notBefore))
+      throw new SiweInvalidISO8601Error({ name: 'notBefore', value: notBefore })
     suffix += `\nNot Before: ${notBefore}`
   }
   if (requestId) suffix += `\nRequest ID: ${requestId}`

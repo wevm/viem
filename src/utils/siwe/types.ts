@@ -1,16 +1,21 @@
-// TODO: Link specs
-// TODO: examples
+import type { Address } from 'abitype'
+
+/**
+ * @description EIP-4361 message fields
+ *
+ * @see https://eips.ethereum.org/EIPS/eip-4361
+ */
 export type Message = {
   /**
    * Ethereum address performing the signing conformant to capitalization encoded checksum specified in EIP-55 where applicable.
    */
-  address: string
+  address: Address
   /**
    * EIP-155 Chain ID to which the session is bound, and the network where Contract Accounts must be resolved.
    */
   chainId: number
   /**
-   * RFC 4501 dns authority that is requesting the signing.
+   * RFC 4501 DNS authority that is requesting the signing.
    */
   domain: string
   /**
