@@ -1385,6 +1385,34 @@ export const sidebar = {
             text: 'getAllowanceL1',
             link: '/zksync/actions/getAllowanceL1',
           },
+          {
+            text: 'getBaseToken',
+            link: '/zksync/actions/getBaseToken',
+          },
+          {
+            text: 'getErc20ContractValue',
+            link: '/zksync/actions/getErc20ContractValue',
+          },
+          {
+            text: 'getL2BridgeAddress',
+            link: '/zksync/actions/getL2BridgeAddress',
+          },
+          {
+            text: 'l2TransactionBaseCost',
+            link: '/zksync/actions/l2TransactionBaseCost',
+          },
+          {
+            text: 'requestL2TransactionDirect',
+            link: '/zksync/actions/requestL2TransactionDirect',
+          },
+          {
+            text: 'requestL2TransactionTwoBridges',
+            link: '/zksync/actions/requestL2TransactionTwoBridges',
+          },
+          {
+            text: 'sharedBridge',
+            link: '/zksync/actions/sharedBridge',
+          },
         ],
       },
       {

@@ -30,6 +30,41 @@ export {
 } from './actions/deployContract.js'
 
 export {
+  type GetBaseTokenParameters,
+  getBaseToken,
+} from './actions/getBaseToken.js'
+
+export {
+  type GetErc20ContractValueParameters,
+  getErc20ContractValue,
+} from './actions/getErc20ContractValue.js'
+
+export {
+  type GetL2BridgeAddressParameters,
+  getL2BridgeAddress,
+} from './actions/getL2BridgeAddress.js'
+
+export {
+  type GetL2TransactionBaseCostParameters,
+  getL2TransactionBaseCost,
+} from './actions/getL2TransactionBaseCost.js'
+
+export {
+  type L2TransactionRequestDirectParameters,
+  requestL2TransactionDirect,
+} from './actions/requestL2TransactionDirect.js'
+
+export {
+  type L2TransactionRequestTwoBridgesParameters,
+  requestL2TransactionTwoBridges,
+} from './actions/requestL2TransactionTwoBridges.js'
+
+export {
+  type SharedBridgeParameters,
+  sharedBridge,
+} from './actions/sharedBridge.js'
+
+export {
   zkSync,
   zkSyncTestnet,
   zkSyncSepoliaTestnet,
