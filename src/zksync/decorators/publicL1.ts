@@ -5,6 +5,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Hash } from '../../types/misc.js'
 import {
+  type ApproveErc20L1Parameters,
+  approveErc20L1,
+} from '../actions/approveErc20TokenL1.js'
+import {
   type AllowanceL1Parameters,
   getAllowanceL1,
   type getAllowanceL1ReturnType,
@@ -49,7 +53,35 @@ import {
 
 export type PublicActionsL1<
   TAccount extends Account | undefined = Account | undefined,
+  TChain extends Chain | undefined = Chain | undefined,
 > = {
+  /**
+   * Approves spending a specified token amount.
+   *
+   * @param client - Client to use
+   * @param parameters - {@link ApproveErc20L1Parameters}
+   * @returns Transaction Hash
+   *
+   * @example
+   * import { createPublicClient } from 'viem'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   *
+   * const hash = await client.approveErc20L1({
+   *   amount: 100000n,
+   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
+   * })
+   *
+   */
+  approveErc20L1: (
+    parameters: ApproveErc20L1Parameters<TChain, TAccount>,
+  ) => Promise<Hash>
+
   /**
    * Returns the amount of approved tokens for a specific L1 bridge.
    *
@@ -410,6 +442,7 @@ export function publicActionsL1() {
   >(
     client: Client<Transport, TChain, TAccount>,
   ): PublicActionsL1<TAccount> => ({
+    approveErc20L1: (args) => approveErc20L1(client, args),
     getAllowanceL1: (args) => getAllowanceL1(client, args),
     getBalanceOfTokenL1: (args) => getBalanceOfTokenL1(client, args),
     getBalanceL1: (args) => getBalanceL1(client, args),

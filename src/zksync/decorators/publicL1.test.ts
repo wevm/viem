@@ -4,6 +4,7 @@ import type { Address } from 'abitype'
 import { accounts } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as readContract from '../../actions/public/readContract.js'
+import * as writeContract from '../../actions/wallet/writeContract.js'
 import { sepolia } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
@@ -23,15 +24,16 @@ const clientWithAccount = createWalletClient({
   account: privateKeyToAccount(accounts[0].privateKey),
 }).extend(publicActionsL1())
 
-const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
+const readSpy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
 
 afterAll(() => {
-  spy.mockRestore()
+  readSpy.mockRestore()
 })
 
 test('default', async () => {
   expect(publicActionsL1()(client)).toMatchInlineSnapshot(`
     {
+      "approveErc20L1": [Function],
       "getAllowanceL1": [Function],
       "getBalanceL1": [Function],
       "getBalanceOfTokenL1": [Function],
@@ -162,4 +164,23 @@ test('requestL2TransactionTwoBriges', async () => {
     secondBridgeCalldata: '0x',
   }
   expect(await client.requestL2TransactionTwoBridges(parameters)).toBe(170n)
+})
+
+test('approveErc20', async () => {
+  const writeSpy = vi
+    .spyOn(writeContract, 'writeContract')
+    .mockResolvedValue(
+      '0x5254a0e1d200d0900920b9bc810caf2d26814426db0719da05a1b14bc3e4032d',
+    )
+
+  try {
+    expect(
+      await clientWithAccount.approveErc20L1({
+        token: '0x5C221E77624690fff6dd741493D735a17716c26B',
+        amount: 10000n,
+      }),
+    ).toBe('0x5254a0e1d200d0900920b9bc810caf2d26814426db0719da05a1b14bc3e4032d')
+  } finally {
+    writeSpy.mockRestore()
+  }
 })
