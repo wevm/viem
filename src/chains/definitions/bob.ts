@@ -10,8 +10,8 @@ export const bob = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [`https://rpc.gobob.xyz`],
-      webSocket: [`wss://rpc.gobob.xyz`],
+      http: ['https://rpc.gobob.xyz'],
+      webSocket: ['wss://rpc.gobob.xyz'],
     },
   },
   blockExplorers: {
