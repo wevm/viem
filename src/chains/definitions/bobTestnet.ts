@@ -10,10 +10,6 @@ export const bobTestnet = defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    public: {
-      http: ['https://testnet.rpc.gobob.xyz/'],
-      webSocket: ['wss://testnet.rpc.gobob.xyz'],
-    },
     default: {
       http: [`https://testnet.rpc.gobob.xyz/`],
       webSocket: [`wss://testnet.rpc.gobob.xyz`],
@@ -21,10 +17,6 @@ export const bobTestnet = defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Blockscout',
-      url: 'https://testnet-explorer.gobob.xyz/',
-    },
-    etherscan: {
       name: 'Blockscout',
       url: 'https://testnet-explorer.gobob.xyz/',
     },
