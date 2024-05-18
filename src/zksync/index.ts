@@ -84,6 +84,11 @@ export {
 
 export { serializeTransaction } from './serializers.js'
 
+export {
+  publicActionsL2,
+  type PublicActionsL2,
+} from './decorators/publicL2.js'
+
 export type {
   ZkSyncBlock,
   ZkSyncBlockOverrides,
@@ -124,6 +129,69 @@ export type {
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
 } from './types/transaction.js'
+
+export {
+  type Fee,
+  type EstimateFeeParameters,
+  estimateFee,
+} from './actions/estimateFee.js'
+
+export {
+  type GetAllBalancesParameters,
+  type GetAllBalancesReturnType,
+  getAllBalances,
+} from './actions/getAllBalances.js'
+
+export {
+  type GetBlockDetailsParameters,
+  type BaseBlockDetails,
+  getBlockDetails,
+} from './actions/getBlockDetails.js'
+
+export {
+  type DefaultBridgeAddressesReturnType as BridgeContractsReturnType,
+  getDefaultBridgeAddresses,
+} from './actions/getDefaultBridgeAddresses.js'
+
+export { getBridgehubContractAddress } from './actions/getBridgehubContractAddress.js'
+
+export {
+  type GetL1BatchBlockRangeParameters,
+  type GetL1BatchBlockRangeReturnParameters,
+  getL1BatchBlockRange,
+} from './actions/getL1BatchBlockRange.js'
+
+export {
+  type GetL1BatchDetailsParameters,
+  type BatchDetails,
+  getL1BatchDetails,
+} from './actions/getL1BatchDetails.js'
+
+export { getL1BatchNumber } from './actions/getL1BatchNumber.js'
+
+export { getL1ChainId } from './actions/getL1ChainId.js'
+
+export {
+  type MessageProof,
+  type GetLogProofParameters,
+  getLogProof,
+} from './actions/getLogProof.js'
+
+export { getMainContractAddress } from './actions/getMainContractAddress.js'
+
+export {
+  type GetRawBlockTransactionParameters,
+  type RawBlockTransactions,
+  getRawBlockTransactions,
+} from './actions/getRawBlockTransaction.js'
+
+export { getTestnetPaymasterAddress } from './actions/getTestnetPaymasterAddress.js'
+
+export {
+  type GetTransactionDetailsParameters,
+  type TransactionDetails,
+  getTransactionDetails,
+} from './actions/getTransactionDetails.js'
 
 export {
   type GetApprovalBasedPaymasterInputParameters,

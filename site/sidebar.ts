@@ -1368,6 +1368,75 @@ export const sidebar = {
             text: 'writeContract',
             link: '/zksync/actions/writeContract',
           },
+          {
+            text: 'L2 Public Actions',
+            items: [
+              {
+                text: 'getDefaultBridgeAddress',
+                link: '/zksync/actions/getDefaultBridgeAddress',
+              },
+              {
+                text: 'getTestnetPaymasterAddress',
+                link: '/zksync/actions/getTestnetPaymasterAddress',
+              },
+              {
+                text: 'getL1ChainId',
+                link: '/zksync/actions/getL1ChainId',
+              },
+              {
+                text: 'getAllBalances',
+                link: '/zksync/actions/getAllBalances',
+              },
+              {
+                text: 'getLogProof',
+                link: '/zksync/actions/getLogProof',
+              },
+              {
+                text: 'getMainContractAddress',
+                link: '/zksync/actions/getMainContractAddress',
+              },
+              {
+                text: 'getTransactionDetails',
+                link: '/zksync/actions/getTransactionDetails',
+              },
+              {
+                text: 'getRawBlockTransaction',
+                link: '/zksync/actions/getRawBlockTransactions',
+              },
+              {
+                text: 'getBlockDetails',
+                link: '/zksync/actions/getBlockDetails',
+              },
+              {
+                text: 'getL1BatchDetails',
+                link: '/zksync/actions/getL1BatchDetails',
+              },
+              {
+                text: 'getL1BatchBlockRange',
+                link: '/zksync/actions/getL1BatchBlockRange',
+              },
+              {
+                text: 'getL1BatchNumber',
+                link: '/zksync/actions/getL1BatchNumber',
+              },
+              {
+                text: 'estimateFee',
+                link: '/zksync/actions/estimateFee',
+              },
+              {
+                text: 'estimateGasL1ToL2',
+                link: '/zksync/actions/estimateGasL1ToL2',
+              },
+              {
+                text: 'getBridgehubContractAddress',
+                link: '/zksync/actions/getBridgehubContractAddress',
+              },
+              {
+                text: 'getBaseTokenL1Address',
+                link: '/zksync/actions/getBaseTokenL1Address',
+              },
+            ],
+          },
         ],
       },
       {
