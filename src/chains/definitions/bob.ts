@@ -27,4 +27,4 @@ export const bob = defineChain({
     },
   },
   testnet: false,
-});
+})
