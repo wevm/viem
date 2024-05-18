@@ -3,17 +3,12 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const bob = defineChain({
   id: 60808,
   name: 'BOB',
-  network: 'bob',
   nativeCurrency: {
     decimals: 18,
     name: 'ETH',
     symbol: 'ETH',
   },
   rpcUrls: {
-    public: {
-      http: ['https://rpc.gobob.xyz'],
-      webSocket: ['wss://rpc.gobob.xyz'],
-    },
     default: {
       http: [`https://rpc.gobob.xyz`],
       webSocket: [`wss://rpc.gobob.xyz`],
@@ -21,10 +16,6 @@ export const bob = defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Blockscout',
-      url: 'https://explorer.gobob.xyz',
-    },
-    etherscan: {
       name: 'Blockscout',
       url: 'https://explorer.gobob.xyz',
     },
