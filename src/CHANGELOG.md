@@ -1,5 +1,17 @@
 # viem
 
+## 2.10.10
+
+### Patch Changes
+
+- [#2270](https://github.com/wevm/viem/pull/2270) [`601dbb436fcc855e3c2925baa9096bc841e28fef`](https://github.com/wevm/viem/commit/601dbb436fcc855e3c2925baa9096bc841e28fef) Thanks [@metallicusdev](https://github.com/metallicusdev)! - Added Metal L2 chain.
+
+- [#2267](https://github.com/wevm/viem/pull/2267) [`7cf9c70bef8cf4543c930ab9a62fc547eb25a24e`](https://github.com/wevm/viem/commit/7cf9c70bef8cf4543c930ab9a62fc547eb25a24e) Thanks [@hoangtan282](https://github.com/hoangtan282)! - Add Funki Sepolia Testnet
+
+- [#2272](https://github.com/wevm/viem/pull/2272) [`5de7e542c53471a44723d304f35212202f4f1c80`](https://github.com/wevm/viem/commit/5de7e542c53471a44723d304f35212202f4f1c80) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Lisk mainnet
+
+- [#2271](https://github.com/wevm/viem/pull/2271) [`b04fc38b0da655857477ac90517c72f4c58c5f65`](https://github.com/wevm/viem/commit/b04fc38b0da655857477ac90517c72f4c58c5f65) Thanks [@derrekcoleman](https://github.com/derrekcoleman)! - Added BOB chain.
+
 ## 2.10.9
 
 ### Patch Changes
