@@ -163,8 +163,10 @@ export async function estimateGas<
     const balance = await client.request({
       method: 'eth_estimateGas',
       params: rpcStateOverride
-        ? [request, block || 'latest', rpcStateOverride]
-        : [request, block || 'latest'],
+        ? [request, block ?? 'latest', rpcStateOverride]
+        : block
+          ? [request, block]
+          : [request],
     })
     return BigInt(balance)
   } catch (err) {
