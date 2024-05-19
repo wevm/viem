@@ -1,5 +1,11 @@
 # viem
 
+## 2.10.11
+
+### Patch Changes
+
+- [#2275](https://github.com/wevm/viem/pull/2275) [`190268595d94d7d9ade07605754dcae6be3765cf`](https://github.com/wevm/viem/commit/190268595d94d7d9ade07605754dcae6be3765cf) Thanks [@jxom](https://github.com/jxom)! - Added `stateOverride` on `estimateGas`.
+
 ## 2.10.10
 
 ### Patch Changes
