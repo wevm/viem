@@ -3,8 +3,11 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Hex } from '../../types/misc.js'
-import { type Fee, estimateFee } from '../actions/estimateFee.js'
-import type { EstimateFeeParameters } from '../actions/estimateFee.js'
+import { estimateFee } from '../actions/estimateFee.js'
+import type {
+  EstimateFeeParameters,
+  EstimateFeeReturnType,
+} from '../actions/estimateFee.js'
 import {
   type EstimateGasL1ToL2Parameters,
   estimateGasL1ToL2,
@@ -16,13 +19,13 @@ import {
 } from '../actions/getAllBalances.js'
 import { getBaseTokenL1Address } from '../actions/getBaseTokenL1Address.js'
 import {
-  type BaseBlockDetails,
   type GetBlockDetailsParameters,
+  type GetBlockDetailsReturnType,
   getBlockDetails,
 } from '../actions/getBlockDetails.js'
 import { getBridgehubContractAddress } from '../actions/getBridgehubContractAddress.js'
 import {
-  type DefaultBridgeAddressesReturnType,
+  type GetDefaultBridgeAddressesReturnType,
   getDefaultBridgeAddresses,
 } from '../actions/getDefaultBridgeAddresses.js'
 import {
@@ -31,27 +34,27 @@ import {
   getL1BatchBlockRange,
 } from '../actions/getL1BatchBlockRange.js'
 import {
-  type BatchDetails,
   type GetL1BatchDetailsParameters,
+  type GetL1BatchDetailsReturnType,
   getL1BatchDetails,
 } from '../actions/getL1BatchDetails.js'
 import { getL1BatchNumber } from '../actions/getL1BatchNumber.js'
 import { getL1ChainId } from '../actions/getL1ChainId.js'
 import {
   type GetLogProofParameters,
-  type MessageProof,
+  type GetLogProofReturnType,
   getLogProof,
 } from '../actions/getLogProof.js'
 import { getMainContractAddress } from '../actions/getMainContractAddress.js'
 import {
   type GetRawBlockTransactionParameters,
-  type RawBlockTransactions,
+  type GetRawBlockTransactionReturnType,
   getRawBlockTransactions,
 } from '../actions/getRawBlockTransaction.js'
 import { getTestnetPaymasterAddress } from '../actions/getTestnetPaymasterAddress.js'
 import {
   type GetTransactionDetailsParameters,
-  type TransactionDetails,
+  type GetTransactionDetailsReturnType,
   getTransactionDetails,
 } from '../actions/getTransactionDetails.js'
 import type { ChainEIP712 } from '../types/chain.js'
@@ -77,7 +80,7 @@ export type PublicActionsL2<
    *
    * const addresses = await client.getDefaultBridgeAddresses();
    */
-  getDefaultBridgeAddresses: () => Promise<DefaultBridgeAddressesReturnType>
+  getDefaultBridgeAddresses: () => Promise<GetDefaultBridgeAddressesReturnType>
 
   /**
    * Returns Testnet Paymaster Address.
@@ -179,7 +182,7 @@ export type PublicActionsL2<
    */
   getRawBlockTransaction: (
     args: GetRawBlockTransactionParameters,
-  ) => Promise<RawBlockTransactions>
+  ) => Promise<GetRawBlockTransactionReturnType>
 
   /**
    * Returns additional zkSync-specific information about the L2 block.
@@ -201,7 +204,7 @@ export type PublicActionsL2<
    */
   getBlockDetails: (
     args: GetBlockDetailsParameters,
-  ) => Promise<BaseBlockDetails>
+  ) => Promise<GetBlockDetailsReturnType>
 
   /**
    * Returns data pertaining to a given batch.
@@ -223,7 +226,7 @@ export type PublicActionsL2<
    */
   getL1BatchDetails: (
     args: GetL1BatchDetailsParameters,
-  ) => Promise<BatchDetails>
+  ) => Promise<GetL1BatchDetailsReturnType>
 
   /**
    * Returns the range of blocks contained within a batch given by batch number.
@@ -283,7 +286,7 @@ export type PublicActionsL2<
    *
    * const proof = await client.getLogProof({txHash: "0x...",index:1});
    */
-  getLogProof: (args: GetLogProofParameters) => Promise<MessageProof | null>
+  getLogProof: (args: GetLogProofParameters) => Promise<GetLogProofReturnType>
 
   /**
    * Returns data from a specific transaction given by the transaction hash
@@ -305,7 +308,7 @@ export type PublicActionsL2<
    */
   getTransactionDetails: (
     args: GetTransactionDetailsParameters,
-  ) => Promise<TransactionDetails>
+  ) => Promise<GetTransactionDetailsReturnType>
 
   /**
    * Returns an estimated Fee for requested transaction.
@@ -325,7 +328,9 @@ export type PublicActionsL2<
    *
    * const details = await client.estimateFee({transactionRequest: {...}}});
    */
-  estimateFee: (args: EstimateFeeParameters<TChain, TAccount>) => Promise<Fee>
+  estimateFee: (
+    args: EstimateFeeParameters<TChain, TAccount>,
+  ) => Promise<EstimateFeeReturnType>
 
   /**
    * Returns an estimated gas for L1 to L2 execution.

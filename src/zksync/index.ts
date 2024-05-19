@@ -1,4 +1,59 @@
 export {
+  type DeployContractErrorType,
+  type DeployContractParameters,
+  type DeployContractReturnType,
+  deployContract,
+} from './actions/deployContract.js'
+export {
+  type EstimateFeeParameters,
+  type EstimateFeeReturnType,
+  estimateFee,
+} from './actions/estimateFee.js'
+export {
+  type GetAllBalancesParameters,
+  type GetAllBalancesReturnType,
+  getAllBalances,
+} from './actions/getAllBalances.js'
+export {
+  type GetBlockDetailsParameters,
+  type GetBlockDetailsReturnType,
+  getBlockDetails,
+} from './actions/getBlockDetails.js'
+export {
+  type GetDefaultBridgeAddressesReturnType,
+  getDefaultBridgeAddresses,
+} from './actions/getDefaultBridgeAddresses.js'
+export { getBridgehubContractAddress } from './actions/getBridgehubContractAddress.js'
+export {
+  type GetL1BatchBlockRangeParameters,
+  type GetL1BatchBlockRangeReturnParameters,
+  getL1BatchBlockRange,
+} from './actions/getL1BatchBlockRange.js'
+export {
+  type GetL1BatchDetailsParameters,
+  type GetL1BatchDetailsReturnType,
+  getL1BatchDetails,
+} from './actions/getL1BatchDetails.js'
+export { getL1BatchNumber } from './actions/getL1BatchNumber.js'
+export { getL1ChainId } from './actions/getL1ChainId.js'
+export {
+  type GetLogProofReturnType,
+  type GetLogProofParameters,
+  getLogProof,
+} from './actions/getLogProof.js'
+export { getMainContractAddress } from './actions/getMainContractAddress.js'
+export {
+  type GetRawBlockTransactionParameters,
+  type GetRawBlockTransactionReturnType,
+  getRawBlockTransactions,
+} from './actions/getRawBlockTransaction.js'
+export { getTestnetPaymasterAddress } from './actions/getTestnetPaymasterAddress.js'
+export {
+  type GetTransactionDetailsParameters,
+  type GetTransactionDetailsReturnType,
+  getTransactionDetails,
+} from './actions/getTransactionDetails.js'
+export {
   type SendTransactionErrorType,
   type SendTransactionParameters,
   type SendTransactionReturnType,
@@ -22,12 +77,6 @@ export {
   type SignTransactionReturnType,
   signTransaction,
 } from './actions/signTransaction.js'
-export {
-  type DeployContractErrorType,
-  type DeployContractParameters,
-  type DeployContractReturnType,
-  deployContract,
-} from './actions/deployContract.js'
 
 export {
   zkSync,
@@ -71,6 +120,7 @@ export type {
 export type {
   TransactionRequestEIP712,
   ZkSyncEIP712TransactionSignable,
+  ZkSyncRawBlockTransactions,
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionEIP712,
   ZkSyncRpcTransactionPriority,
@@ -88,6 +138,7 @@ export type {
   ZkSyncTransactionSerialized,
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
+  ZkSyncTransactionDetails,
 } from './types/transaction.js'
 
 export {
@@ -100,66 +151,3 @@ export {
   type GetGeneralPaymasterInputReturnType,
   getGeneralPaymasterInput,
 } from './utils/paymaster/getGeneralPaymasterInput.js'
-
-export {
-  type Fee,
-  type EstimateFeeParameters,
-  estimateFee,
-} from './actions/estimateFee.js'
-
-export {
-  type GetAllBalancesParameters,
-  type GetAllBalancesReturnType,
-  getAllBalances,
-} from './actions/getAllBalances.js'
-
-export {
-  type GetBlockDetailsParameters,
-  type BaseBlockDetails,
-  getBlockDetails,
-} from './actions/getBlockDetails.js'
-
-export {
-  type DefaultBridgeAddressesReturnType as BridgeContractsReturnType,
-  getDefaultBridgeAddresses,
-} from './actions/getDefaultBridgeAddresses.js'
-
-export { getBridgehubContractAddress } from './actions/getBridgehubContractAddress.js'
-
-export {
-  type GetL1BatchBlockRangeParameters,
-  type GetL1BatchBlockRangeReturnParameters,
-  getL1BatchBlockRange,
-} from './actions/getL1BatchBlockRange.js'
-
-export {
-  type GetL1BatchDetailsParameters,
-  type BatchDetails,
-  getL1BatchDetails,
-} from './actions/getL1BatchDetails.js'
-
-export { getL1BatchNumber } from './actions/getL1BatchNumber.js'
-
-export { getL1ChainId } from './actions/getL1ChainId.js'
-
-export {
-  type MessageProof,
-  type GetLogProofParameters,
-  getLogProof,
-} from './actions/getLogProof.js'
-
-export { getMainContractAddress } from './actions/getMainContractAddress.js'
-
-export {
-  type GetRawBlockTransactionParameters,
-  type RawBlockTransactions,
-  getRawBlockTransactions,
-} from './actions/getRawBlockTransaction.js'
-
-export { getTestnetPaymasterAddress } from './actions/getTestnetPaymasterAddress.js'
-
-export {
-  type GetTransactionDetailsParameters,
-  type TransactionDetails,
-  getTransactionDetails,
-} from './actions/getTransactionDetails.js'

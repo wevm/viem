@@ -1353,59 +1353,56 @@ export const sidebar = {
         text: 'Actions',
         items: [
           {
-            text: 'deployContract',
-            link: '/zksync/actions/deployContract',
-          },
-          {
-            text: 'sendTransaction',
-            link: '/zksync/actions/sendTransaction',
-          },
-          {
-            text: 'signTransaction',
-            link: '/zksync/actions/signTransaction',
-          },
-          {
-            text: 'writeContract',
-            link: '/zksync/actions/writeContract',
+            text: 'EIP-712 Actions',
+            items: [
+              {
+                text: 'deployContract',
+                link: '/zksync/actions/deployContract',
+              },
+              {
+                text: 'sendTransaction',
+                link: '/zksync/actions/sendTransaction',
+              },
+              {
+                text: 'signTransaction',
+                link: '/zksync/actions/signTransaction',
+              },
+              {
+                text: 'writeContract',
+                link: '/zksync/actions/writeContract',
+              },
+            ],
           },
           {
             text: 'L2 Public Actions',
             items: [
               {
-                text: 'getDefaultBridgeAddress',
-                link: '/zksync/actions/getDefaultBridgeAddress',
+                text: 'estimateFee',
+                link: '/zksync/actions/estimateFee',
               },
               {
-                text: 'getTestnetPaymasterAddress',
-                link: '/zksync/actions/getTestnetPaymasterAddress',
-              },
-              {
-                text: 'getL1ChainId',
-                link: '/zksync/actions/getL1ChainId',
+                text: 'estimateGasL1ToL2',
+                link: '/zksync/actions/estimateGasL1ToL2',
               },
               {
                 text: 'getAllBalances',
                 link: '/zksync/actions/getAllBalances',
               },
               {
-                text: 'getLogProof',
-                link: '/zksync/actions/getLogProof',
-              },
-              {
-                text: 'getMainContractAddress',
-                link: '/zksync/actions/getMainContractAddress',
-              },
-              {
-                text: 'getTransactionDetails',
-                link: '/zksync/actions/getTransactionDetails',
-              },
-              {
-                text: 'getRawBlockTransaction',
-                link: '/zksync/actions/getRawBlockTransactions',
+                text: 'getBaseTokenL1Address',
+                link: '/zksync/actions/getBaseTokenL1Address',
               },
               {
                 text: 'getBlockDetails',
                 link: '/zksync/actions/getBlockDetails',
+              },
+              {
+                text: 'getBridgehubContractAddress',
+                link: '/zksync/actions/getBridgehubContractAddress',
+              },
+              {
+                text: 'getDefaultBridgeAddress',
+                link: '/zksync/actions/getDefaultBridgeAddress',
               },
               {
                 text: 'getL1BatchDetails',
@@ -1420,20 +1417,28 @@ export const sidebar = {
                 link: '/zksync/actions/getL1BatchNumber',
               },
               {
-                text: 'estimateFee',
-                link: '/zksync/actions/estimateFee',
+                text: 'getL1ChainId',
+                link: '/zksync/actions/getL1ChainId',
               },
               {
-                text: 'estimateGasL1ToL2',
-                link: '/zksync/actions/estimateGasL1ToL2',
+                text: 'getLogProof',
+                link: '/zksync/actions/getLogProof',
               },
               {
-                text: 'getBridgehubContractAddress',
-                link: '/zksync/actions/getBridgehubContractAddress',
+                text: 'getMainContractAddress',
+                link: '/zksync/actions/getMainContractAddress',
               },
               {
-                text: 'getBaseTokenL1Address',
-                link: '/zksync/actions/getBaseTokenL1Address',
+                text: 'getRawBlockTransaction',
+                link: '/zksync/actions/getRawBlockTransactions',
+              },
+              {
+                text: 'getTestnetPaymasterAddress',
+                link: '/zksync/actions/getTestnetPaymasterAddress',
+              },
+              {
+                text: 'getTransactionDetails',
+                link: '/zksync/actions/getTransactionDetails',
               },
             ],
           },

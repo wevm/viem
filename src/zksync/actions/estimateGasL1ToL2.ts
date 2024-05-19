@@ -1,28 +1,25 @@
+import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
-import { parseAccount } from '../../utils/index.js'
+import { parseAccount } from '../../utils/accounts.js'
 import type { ChainEIP712 } from '../types/chain.js'
-import type { ZkSyncTransactionRequestParameters } from '../types/transaction.js'
-import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
+import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
 
 export type EstimateGasL1ToL2Parameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-> = ZkSyncTransactionRequestParameters<TChain, TAccount>
+  chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  account extends Account | undefined = Account | undefined,
+> = SendTransactionParameters<chain, account>
+
+export type EstimateGasL1ToL2ReturnType = bigint
 
 export async function estimateGasL1ToL2<
-  TChain extends ChainEIP712 | undefined,
-  TAccount extends Account | undefined,
+  chain extends ChainEIP712 | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<
-    Transport,
-    TChain,
-    TAccount,
-    PublicZkSyncRpcSchema<TChain, TAccount>
-  >,
-  parameters: EstimateGasL1ToL2Parameters<TChain, TAccount>,
-): Promise<bigint> {
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
+  parameters: EstimateGasL1ToL2Parameters<chain, account>,
+): Promise<EstimateGasL1ToL2ReturnType> {
   const { account: account_, ...request } = parameters
   const account = account_ ? parseAccount(account_) : client.account
 

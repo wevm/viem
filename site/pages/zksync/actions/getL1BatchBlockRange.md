@@ -20,11 +20,11 @@ const batchBlockRange = await client.getL1BatchBlockRange({
 
 ```ts [config.ts]
 import { createPublicClient, http } from 'viem'
-import { zkSyncLocalNode } from 'viem/chains'
+import { zkSync } from 'viem/chains'
 import { publicActionsL2 } from 'viem/zksync'
 
 export const client = createPublicClient({
-  chain: zkSyncLocalNode,
+  chain: zkSync,
   transport: http(),
 }).extend(publicActionsL2())
 ```
@@ -32,7 +32,7 @@ export const client = createPublicClient({
 
 ## Returns 
 
-`GetL1BatchBlockRangeReturnParameters`
+`GetL1BatchBlockRangeReturnType`
 
 Array of two elements representing the range of blocks within a batch.
 

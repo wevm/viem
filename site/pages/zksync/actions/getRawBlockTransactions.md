@@ -21,11 +21,11 @@ const rawTx = await client.getRawBlockTransaction({
 
 ```ts [config.ts]
 import { createPublicClient, http } from 'viem'
-import { zkSyncLocalNode } from 'viem/chains'
+import { zkSync } from 'viem/chains'
 import { publicActionsL2 } from 'viem/zksync'
 
 export const client = createPublicClient({
-  chain: zkSyncLocalNode,
+  chain: zkSync,
   transport: http(),
 }).extend(publicActionsL2())
 ```
@@ -38,8 +38,6 @@ export const client = createPublicClient({
 Data of transactions in a block.
 
 ## Parameters
-
-`GetRawBlockTransactionParameters`
 
 ### number
 
