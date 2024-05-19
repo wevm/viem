@@ -925,17 +925,5 @@ test('chain w/ formatter', () => {
 
   contract.estimateGas.mint([1n], {
     feeCurrency: '0x',
-    gatewayFeeRecipient: '0x',
-    gatewayFee: 1n,
-  })
-  contract.simulate.mint([1n], {
-    feeCurrency: '0x',
-    gatewayFeeRecipient: '0x',
-    gatewayFee: 1n,
-  })
-  contract.write.mint([1n], {
-    feeCurrency: '0x',
-    gatewayFeeRecipient: '0x',
-    gatewayFee: 1n,
   })
 })

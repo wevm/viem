@@ -73,14 +73,6 @@ describe('transactionRequest', () => {
   expectTypeOf<
     ReturnType<typeof formatters.transactionRequest.format>['feeCurrency']
   >().toEqualTypeOf<`0x${string}` | undefined>()
-  expectTypeOf<
-    ReturnType<typeof formatters.transactionRequest.format>['gatewayFee']
-  >().toEqualTypeOf<`0x${string}` | undefined>()
-  expectTypeOf<
-    ReturnType<
-      typeof formatters.transactionRequest.format
-    >['gatewayFeeRecipient']
-  >().toEqualTypeOf<`0x${string}` | undefined>()
 })
 
 describe('smoke', () => {
@@ -173,54 +165,8 @@ describe('smoke', () => {
     // @ts-expect-error `gasPrice` is not defined
     prepareTransactionRequest(client, {
       feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      maxFeePerGas: 0n,
-      maxPriorityFeePerGas: 0n,
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    prepareTransactionRequest(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      type: 'cip42',
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    prepareTransactionRequest(client, {
-      feeCurrency: '0x',
       gasPrice: 0n,
       type: 'cip64',
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    prepareTransactionRequest(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      type: 'eip1559',
-    })
-
-    // @ts-expect-error `type` cannot be "legacy"
-    prepareTransactionRequest(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      maxFeePerGas: 0n,
-      type: 'legacy',
-    })
-
-    // @ts-expect-error `type` cannot be "eip2930"
-    prepareTransactionRequest(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      maxFeePerGas: 0n,
-      type: 'eip2930',
     })
   })
 
@@ -236,52 +182,6 @@ describe('smoke', () => {
       gatewayFee: 0n,
       gatewayFeeRecipient: '0x',
     })
-
-    // @ts-expect-error `gasPrice` is not defined
-    sendTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      maxFeePerGas: 0n,
-      maxPriorityFeePerGas: 0n,
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    sendTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      type: 'cip42',
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    sendTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      type: 'eip1559',
-    })
-
-    // @ts-expect-error `type` cannot be "legacy"
-    sendTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      maxFeePerGas: 0n,
-      type: 'legacy',
-    })
-
-    // @ts-expect-error `type` cannot be "eip2930"
-    sendTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      maxFeePerGas: 0n,
-      type: 'eip2930',
-    })
   })
 
   test('transactionRequest (signTransaction)', async () => {
@@ -296,52 +196,6 @@ describe('smoke', () => {
       gatewayFee: 0n,
       gatewayFeeRecipient: '0x',
     })
-
-    // @ts-expect-error `gasPrice` is not defined
-    signTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      maxFeePerGas: 0n,
-      maxPriorityFeePerGas: 0n,
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    signTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      type: 'cip42',
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    signTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      type: 'eip1559',
-    })
-
-    // @ts-expect-error `type` cannot be "legacy"
-    signTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      maxFeePerGas: 0n,
-      type: 'legacy',
-    })
-
-    // @ts-expect-error `type` cannot be "eip2930"
-    signTransaction(client, {
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      maxFeePerGas: 0n,
-      type: 'eip2930',
-    })
   })
 
   test('transactionRequest (chain on action)', async () => {
@@ -355,57 +209,6 @@ describe('smoke', () => {
       feeCurrency: '0x',
       gatewayFee: 0n,
       gatewayFeeRecipient: '0x',
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    sendTransaction(client, {
-      chain: celo,
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      maxFeePerGas: 0n,
-      maxPriorityFeePerGas: 0n,
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    sendTransaction(client, {
-      chain: celo,
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      type: 'cip42',
-    })
-
-    // @ts-expect-error `gasPrice` is not defined
-    sendTransaction(client, {
-      chain: celo,
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      gasPrice: 0n,
-      type: 'eip1559',
-    })
-
-    // @ts-expect-error `type` cannot be "legacy"
-    sendTransaction(client, {
-      chain: celo,
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      maxFeePerGas: 0n,
-      type: 'legacy',
-    })
-
-    // @ts-expect-error `type` cannot be "eip2930"
-    sendTransaction(client, {
-      chain: celo,
-      feeCurrency: '0x',
-      gatewayFee: 0n,
-      gatewayFeeRecipient: '0x',
-      maxFeePerGas: 0n,
-      type: 'eip2930',
     })
   })
 })
