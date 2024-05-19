@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Implement stateOverride on `estimateGas` action
+Added `stateOverride` on `estimateGas`.
