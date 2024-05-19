@@ -215,6 +215,32 @@ const gas = await publicClient.estimateGas({
 })
 ```
 
+### stateOverride (optional)
+
+- **Type:** [`StateOverride`](/docs/glossary/types#stateoverride)
+
+The state override set is an optional address-to-state mapping, where each entry specifies some state to be ephemerally overridden prior to executing the call.
+
+```ts
+const data = await publicClient.estimateGas({
+  account,
+  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  stateOverride: [ // [!code focus]
+    { // [!code focus]
+      address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
+      balance: parseEther('1'), // [!code focus]
+      stateDiff: [ // [!code focus]
+        { // [!code focus]
+          slot: '0x3ea2f1d0abf3fc66cf29eebb70cbd4e7fe762ef8a09bcc06c8edf641230afec0', // [!code focus]
+          value: '0x00000000000000000000000000000000000000000000000000000000000001a4', // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    } // [!code focus]
+  ], // [!code focus]
+})
+```
+
 ## JSON-RPC Methods
 
 [`eth_estimateGas`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_estimategas)

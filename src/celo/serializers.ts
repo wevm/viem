@@ -17,10 +17,9 @@ import type {
   CeloTransactionSerializable,
   TransactionSerializableCIP42,
   TransactionSerializableCIP64,
-  TransactionSerializedCIP42,
   TransactionSerializedCIP64,
 } from './types.js'
-import { isCIP42, isCIP64, isEmpty, isPresent } from './utils.js'
+import { isCIP64, isEmpty, isPresent } from './utils.js'
 
 export function serializeTransaction(
   transaction: CeloTransactionSerializable,
@@ -28,8 +27,7 @@ export function serializeTransaction(
 ) {
   if (isCIP64(transaction))
     return serializeTransactionCIP64(transaction, signature)
-  if (isCIP42(transaction))
-    return serializeTransactionCIP42(transaction, signature)
+
   return serializeTransaction_(transaction, signature)
 }
 
@@ -40,53 +38,7 @@ export const serializers = {
 //////////////////////////////////////////////////////////////////////////////
 // Serializers
 
-export type SerializeTransactionCIP42ReturnType = TransactionSerializedCIP42
 export type SerializeTransactionCIP64ReturnType = TransactionSerializedCIP64
-
-// There shall be a typed transaction with the code 0x7c that has the following format:
-// 0x7c || rlp([chain_id, nonce, max_priority_fee_per_gas, max_fee_per_gas, gas_limit, feecurrency, gatewayFeeRecipient, gatewayfee, destination, amount, data, access_list, signature_y_parity, signature_r, signature_s]).
-// This will be in addition to the type 0x02 transaction as specified in EIP-1559.
-function serializeTransactionCIP42(
-  transaction: TransactionSerializableCIP42,
-  signature?: Signature | undefined,
-): SerializeTransactionCIP42ReturnType {
-  assertTransactionCIP42(transaction)
-  const {
-    chainId,
-    gas,
-    nonce,
-    to,
-    value,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    accessList,
-    feeCurrency,
-    gatewayFeeRecipient,
-    gatewayFee,
-    data,
-  } = transaction
-
-  const serializedTransaction = [
-    toHex(chainId),
-    nonce ? toHex(nonce) : '0x',
-    maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
-    maxFeePerGas ? toHex(maxFeePerGas) : '0x',
-    gas ? toHex(gas) : '0x',
-    feeCurrency ?? '0x',
-    gatewayFeeRecipient ?? '0x',
-    gatewayFee ? toHex(gatewayFee) : '0x',
-    to ?? '0x',
-    value ? toHex(value) : '0x',
-    data ?? '0x',
-    serializeAccessList(accessList),
-    ...toYParitySignatureArray(transaction, signature),
-  ]
-
-  return concatHex([
-    '0x7c',
-    toRlp(serializedTransaction),
-  ]) as SerializeTransactionCIP42ReturnType
-}
 
 function serializeTransactionCIP64(
   transaction: TransactionSerializableCIP64,

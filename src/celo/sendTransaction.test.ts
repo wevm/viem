@@ -86,7 +86,7 @@ describe('sendTransaction()', () => {
     })
   })
 
-  test('provides valid transaction params to sign for eth_sendRawTransaction (local account) for CIP-42', async () => {
+  test('provides valid transaction params to sign for eth_sendRawTransaction (local account) for CIP-42 - sending as CIP-64', async () => {
     const hash = await client.sendTransaction({
       value: 1n,
       to: toAddress,
@@ -99,7 +99,7 @@ describe('sendTransaction()', () => {
     expect(transportRequestMock).toHaveBeenLastCalledWith({
       method: 'eth_sendRawTransaction',
       params: [
-        '0x7cf88d82a4ec80010201940000000000000000000000000000000000000fee9400000000000000000000000000000000000000017b94f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c080a049b4b40c685a0bf9e3d1cca92a9175382bfa3a5e1bbd65610abcb0bd28b4ad90a009b40f809939683763bec0943101c7a7c79ea60239fd0d73975f555e6777ee1d',
+        '0x7bf87782a4ec8001020194f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c0940000000000000000000000000000000000000fee80a0a3163f9ff91200f4c8000f0217d85d16c329c2f38d48a7b4b70119989e475e57a0555fd5b2a6eac95426e33cd07ca5fec121ad46194611a013001f76bbc4b33136',
       ],
     })
   })

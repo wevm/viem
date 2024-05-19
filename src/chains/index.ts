@@ -33,6 +33,7 @@ export { bitTorrent } from './definitions/bitTorrent.js'
 export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js'
 export { blast } from './definitions/blast.js'
 export { blastSepolia } from './definitions/blastSepolia.js'
+export { bob } from './definitions/bob.js'
 export { boba } from './definitions/boba.js'
 export { bronos } from './definitions/bronos.js'
 export { bronosTestnet } from './definitions/bronosTestnet.js'
@@ -92,6 +93,7 @@ export { flowTestnet } from './definitions/flowTestnet.js'
 export { foundry } from './definitions/foundry.js'
 export { fraxtal } from './definitions/fraxtal.js'
 export { fraxtalTestnet } from './definitions/fraxtalTestnet.js'
+export { funkiSepolia } from './definitions/funkiSepolia.js'
 export { fuse } from './definitions/fuse.js'
 export { fuseSparknet } from './definitions/fuseSparknet.js'
 export { iotex } from './definitions/iotex.js'
@@ -129,6 +131,7 @@ export { lineaGoerli } from './definitions/lineaGoerli.js'
 export { lineaSepolia } from './definitions/lineaSepolia.js'
 /** @deprecated Use `lineaGoerli` instead. */
 export { lineaTestnet } from './definitions/lineaTestnet.js'
+export { lisk } from './definitions/lisk.js'
 export { liskSepolia } from './definitions/liskSepolia.js'
 export { localhost } from './definitions/localhost.js'
 export { lukso } from './definitions/lukso.js'
@@ -144,6 +147,7 @@ export { mantleTestnet } from './definitions/mantleTestnet.js'
 export { merlin } from './definitions/merlin.js'
 export { metachain } from './definitions/metachain.js'
 export { metachainIstanbul } from './definitions/metachainIstanbul.js'
+export { metalL2 } from './definitions/metalL2.js'
 export { meter } from './definitions/meter.js'
 export { meterTestnet } from './definitions/meterTestnet.js'
 export { metis } from './definitions/metis.js'
@@ -298,11 +302,9 @@ export type {
   CeloTransactionSerialized,
   RpcTransactionCIP42,
   RpcTransactionCIP64,
-  RpcTransactionRequestCIP42,
   RpcTransactionRequestCIP64,
   TransactionCIP42,
   TransactionCIP64,
-  TransactionRequestCIP42,
   TransactionRequestCIP64,
   TransactionSerializableCIP42,
   TransactionSerializableCIP64,
