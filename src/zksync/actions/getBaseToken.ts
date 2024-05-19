@@ -8,19 +8,20 @@ import { bridgehubAbi } from '../constants/abis.js'
 
 export type GetBaseTokenParameters = {
   bridgehubContractAddress: Address
+  l2ChainId: bigint
 }
 
 export async function getBaseToken<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
+  clientL1: Client<Transport, TChain, TAccount>,
   parameters: GetBaseTokenParameters,
 ): Promise<Address> {
-  return (await readContract(client, {
+  return (await readContract(clientL1, {
     abi: bridgehubAbi,
     functionName: 'baseToken',
-    args: [BigInt(client.chain!.id)],
+    args: [parameters.l2ChainId],
     address: parameters.bridgehubContractAddress,
   })) as Address
 }

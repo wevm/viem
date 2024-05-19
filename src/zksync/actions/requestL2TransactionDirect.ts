@@ -17,6 +17,7 @@ export type L2TransactionRequestDirectParameters = {
   factoryDeps: Hex[]
   refundRecipient: Address
   bridgehubContractAddress: Address
+  l2ChainId: bigint
 }
 
 export async function requestL2TransactionDirect<
@@ -27,12 +28,13 @@ export async function requestL2TransactionDirect<
   parameters: L2TransactionRequestDirectParameters,
 ): Promise<Hash> {
   return (await readContract(client, {
+    value: parameters.mintValue,
     abi: bridgehubAbi,
     functionName: 'requestL2TransactionDirect',
     address: parameters.bridgehubContractAddress,
     args: [
       {
-        chainId: BigInt(client.chain!.id),
+        chainId: parameters.l2ChainId,
         mintValue: parameters.mintValue,
         l2Contract: parameters.l2Contract,
         l2Value: parameters.l2Value,

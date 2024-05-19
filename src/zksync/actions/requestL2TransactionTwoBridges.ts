@@ -17,6 +17,7 @@ export type L2TransactionRequestTwoBridgesParameters = {
   secondBridgeValue: bigint
   secondBridgeCalldata: Hex
   bridgehubContractAddress: Address
+  l2ChainId: bigint
 }
 
 export async function requestL2TransactionTwoBridges<
@@ -32,7 +33,7 @@ export async function requestL2TransactionTwoBridges<
     address: parameters.bridgehubContractAddress,
     args: [
       {
-        chainId: BigInt(client.chain!.id),
+        chainId: parameters.l2ChainId,
         mintValue: parameters.mintValue,
         l2Value: parameters.l2Value,
         l2GasLimit: parameters.l2GasLimit,

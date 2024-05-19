@@ -28,7 +28,7 @@ export const anvilMainnet = defineAnvil({
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
   forkBlockNumber: 19808250n,
   noMining: true,
-  port: 8545,
+  port: 8541,
 })
 
 export const anvilSepolia = defineAnvil({

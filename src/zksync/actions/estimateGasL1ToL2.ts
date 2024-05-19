@@ -5,6 +5,7 @@ import { parseAccount } from '../../utils/index.js'
 import type { ChainEIP712 } from '../types/chain.js'
 import type { ZkSyncTransactionRequestParameters } from '../types/transaction.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
+import { applyL1ToL2Alias } from '../utils/applyL1ToL2Alias.js'
 
 export type EstimateGasL1ToL2Parameters<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
@@ -29,7 +30,7 @@ export async function estimateGasL1ToL2<
   const formatters = client.chain?.formatters
   const formatted = formatters?.transactionRequest?.format({
     ...request,
-    from: account?.address,
+    from: applyL1ToL2Alias(account!.address),
   })
 
   const result = await client.request({
