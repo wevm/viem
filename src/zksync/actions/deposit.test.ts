@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { test } from 'vitest'
+import { expect, test } from 'vitest'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
   getBalance,
@@ -106,8 +106,6 @@ test('depositETHToETHBasedChain', async () => {
 
   const hash = await sendTransaction(walletL1, result)
 
-  await new Promise((resolve) => setTimeout(resolve, 5000))
-
   const balanceAfterDepositL1 = await getBalance(clientL1, {
     address: clientL1.account.address,
   })
@@ -123,10 +121,10 @@ test('depositETHToETHBasedChain', async () => {
     l1TransactionReceipt: l1TxReceipt,
   })
 
-  console.info(balanceAfterDepositL1 < balanceBeforeDepositL1)
-  console.info(balanceAfterDepositL2 > balanceBeforeDepositL2)
-  console.info(balanceAfterDepositL2 - balanceBeforeDepositL2 >= amount)
-  console.info(balanceBeforeDepositL1 - balanceAfterDepositL1 >= amount)
+  expect(balanceAfterDepositL1 < balanceBeforeDepositL1)
+  expect(balanceAfterDepositL2 > balanceBeforeDepositL2)
+  expect(balanceAfterDepositL2 - balanceBeforeDepositL2 >= amount)
+  expect(balanceBeforeDepositL1 - balanceAfterDepositL1 >= amount)
 
-  console.info(finalTx)
+  expect(finalTx).toBeDefined()
 })
