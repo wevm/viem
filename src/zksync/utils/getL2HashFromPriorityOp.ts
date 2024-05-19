@@ -30,7 +30,7 @@ export async function getL2HashFromPriorityOp(
           break // Exit the loop early if txHash is found
         }
       } catch {
-        // Skip 
+        // Skip
       }
     }
   }

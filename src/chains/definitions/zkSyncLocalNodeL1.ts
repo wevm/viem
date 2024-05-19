@@ -1,4 +1,4 @@
-import { chainConfig } from '~viem/op-stack/chainConfig.js'
+import { chainConfig } from '~viem/zksync/chainConfig.js'
 import { defineChain } from '../utils.js'
 
 export const zkSyncLocalNodeL1 = /*#__PURE__*/ defineChain({
