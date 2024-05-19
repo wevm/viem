@@ -184,8 +184,8 @@ export const mockRequestReturnData = async (method: string) => {
   return undefined
 }
 
-export function mockClientPublicActionsL2(client) {
-  client.request = async ({ method }) => {
+export function mockClientPublicActionsL2(client: any) {
+  client.request = async ({ method }: any) => {
     return mockRequestReturnData(method)
   }
 }

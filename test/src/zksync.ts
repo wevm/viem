@@ -23,7 +23,6 @@ export function getZksyncMockProvider(
   return {
     on: () => null,
     removeListener: () => null,
-    request: ({ method: string, params: any }) =>
-      request({ method: string, params: any }) as any,
+    request: ({ method, params }: any) => request({ method, params }),
   }
 }
