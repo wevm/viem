@@ -16,15 +16,7 @@
     "./zksync": "./zksync/index.ts"
   },
   "publish": {
-    "include": [
-      "LICENSE",
-      "README.md",
-      "**/*.ts"
-    ],
-    "exclude": [
-      "**/*.bench.ts",
-      "**/*.test.ts",
-      "**/*.test-d.ts"
-    ]
+    "include": ["LICENSE", "README.md", "**/*.ts"],
+    "exclude": ["**/*.bench.ts", "**/*.test.ts", "**/*.test-d.ts"]
   }
 }
