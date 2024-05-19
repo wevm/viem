@@ -2,6 +2,4 @@
 "viem": minor
 ---
 
-Removed CIP-42 support.
-
-Any transactions with feeCurrency field will be treated as CIP-64.
+**Celo Extension (Breaking):** Removed CIP-42 support. Any transactions with a `feeCurrency` property will be treated as a CIP-64 transaction.
