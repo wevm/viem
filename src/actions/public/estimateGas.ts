@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-import { parseStateOverride } from '~viem/actions/public/call.js'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -27,6 +26,7 @@ import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
+import { serializeStateOverride } from '../../utils/stateOverride.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -135,7 +135,7 @@ export async function estimateGas<
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
-    const rpcStateOverride = parseStateOverride(stateOverride)
+    const rpcStateOverride = serializeStateOverride(stateOverride)
 
     assertRequest(args as AssertRequestParameters)
 
