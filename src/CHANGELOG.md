@@ -1,5 +1,15 @@
 # viem
 
+## 2.11.0
+
+### Minor Changes
+
+- [#2190](https://github.com/wevm/viem/pull/2190) [`698f922299755910bc031a4c0d4cc7bd6f6ef052`](https://github.com/wevm/viem/commit/698f922299755910bc031a4c0d4cc7bd6f6ef052) Thanks [@kiriyaga-txfusion](https://github.com/kiriyaga-txfusion)! - **zkSync Extension:** Added L1 Public Actions.
+
+- [#2277](https://github.com/wevm/viem/pull/2277) [`5336e65c52d87edddc53164904ad3fb2ab25c026`](https://github.com/wevm/viem/commit/5336e65c52d87edddc53164904ad3fb2ab25c026) Thanks [@jxom](https://github.com/jxom)! - **Celo Extension (Breaking):** Removed CIP-42 support. Any transactions with a `feeCurrency` property will be treated as a CIP-64 transaction.
+
+- [#2167](https://github.com/wevm/viem/pull/2167) [`c2c079143e065ac157a92c64c1aed58ee8435450`](https://github.com/wevm/viem/commit/c2c079143e065ac157a92c64c1aed58ee8435450) Thanks [@nikola-bozin-txfusion](https://github.com/nikola-bozin-txfusion)! - **zkSync Extension:** Added support for `zks_` namespace + actions.
+
 ## 2.10.11
 
 ### Patch Changes

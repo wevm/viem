@@ -1,6 +1,6 @@
 {
   "name": "@wevm/viem",
-  "version": "2.10.10",
+  "version": "2.11.0",
   "exports": {
     ".": "./index.ts",
     "./accounts": "./accounts/index.ts",
@@ -16,7 +16,15 @@
     "./zksync": "./zksync/index.ts"
   },
   "publish": {
-    "include": ["LICENSE", "README.md", "**/*.ts"],
-    "exclude": ["**/*.bench.ts", "**/*.test.ts", "**/*.test-d.ts"]
+    "include": [
+      "LICENSE",
+      "README.md",
+      "**/*.ts"
+    ],
+    "exclude": [
+      "**/*.bench.ts",
+      "**/*.test.ts",
+      "**/*.test-d.ts"
+    ]
   }
 }
