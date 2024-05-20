@@ -1,18 +1,19 @@
 import type { Address } from 'abitype'
 
+import type { ExactPartial } from '../../types/utils.js'
 import type { Message } from './types.js'
 
 /**
  * @description Parses EIP-4361 formated message into message fields object.
  */
-export function parseMessage(message: string): Message {
+export function parseMessage(message: string): ExactPartial<Message> {
   const prefix = (message.match(prefixRegex)?.groups ?? {}) as {
     address: Address
     domain: string
     scheme?: string
     statement?: string
   }
-  const suffix = (message.match(suffixRegex)?.groups ?? {}) as {
+  const { chainId, ...suffix } = (message.match(suffixRegex)?.groups ?? {}) as {
     chainId: string
     expirationTime?: string
     issuedAt?: string
@@ -22,12 +23,13 @@ export function parseMessage(message: string): Message {
     uri: string
     version: '1'
   }
+  // TODO: Speed up
+  const resources = message.split('Resources:')[1]?.split('\n- ').slice(1)
   return {
     ...prefix,
     ...suffix,
-    chainId: Number(suffix.chainId),
-    // TODO: Speed up
-    resources: message.split('Resources:')[1]?.split('\n- ').slice(1),
+    ...(chainId ? { chainId: Number(chainId) } : {}),
+    ...(resources ? { resources } : {}),
   }
 }
 

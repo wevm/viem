@@ -52,6 +52,7 @@ export async function verifyMessage(
 
   const parsed = parseMessage(message)
 
+  if (!parsed.address) return false
   if (address && isAddressEqual(parsed.address, address)) return false
   if (domain && parsed.domain !== domain) return false
   if (nonce && parsed.nonce !== nonce) return false

@@ -162,8 +162,7 @@ export function createMessage(
   })()
   const statement = (() => {
     if (!parameters.statement) return ''
-    const separator = parameters.statement ? '\n' : ''
-    return `${separator}${parameters.statement}${separator}`
+    return `\n${parameters.statement}\n`
   })()
   const prefix = `${origin} wants you to sign in with your Ethereum account:\n${address}\n${statement}`
 

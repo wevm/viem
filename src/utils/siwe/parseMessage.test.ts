@@ -24,7 +24,6 @@ Issued At: 2023-02-01T00:00:00.000Z`
       "nonce": "foobarbaz",
       "notBefore": undefined,
       "requestId": undefined,
-      "resources": undefined,
       "scheme": undefined,
       "statement": "I accept the ExampleOrg Terms of Service: https://example.com/tos",
       "uri": "https://example.com/path",
@@ -130,4 +129,48 @@ Resources:
       "https://example.com/baz",
     ]
   `)
+})
+
+test('behavior: no suffix', () => {
+  const message = `https://example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+`
+  const parsed = parseMessage(message)
+  expect(parsed).toMatchInlineSnapshot(`
+    {
+      "address": "0xA0Cf798816D4b9b9866b5330EEa46a18382f251e",
+      "domain": "example.com",
+      "scheme": "https",
+      "statement": undefined,
+    }
+  `)
+})
+
+test('behavior: no prefix', () => {
+  const message = `URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z
+Request ID: 123e4567-e89b-12d3-a456-426614174000`
+  const parsed = parseMessage(message)
+  expect(parsed).toMatchInlineSnapshot(`
+    {
+      "chainId": 1,
+      "expirationTime": undefined,
+      "issuedAt": "2023-02-01T00:00:00.000Z",
+      "nonce": "foobarbaz",
+      "notBefore": undefined,
+      "requestId": "123e4567-e89b-12d3-a456-426614174000",
+      "uri": "https://example.com/path",
+      "version": "1",
+    }
+  `)
+})
+
+test('behavior: bogus message', () => {
+  const message = 'foobarbaz'
+  const parsed = parseMessage(message)
+  expect(parsed).toMatchInlineSnapshot('{}')
 })
