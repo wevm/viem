@@ -25,6 +25,18 @@ export {
 } from './actions/getDefaultBridgeAddresses.js'
 export { getBridgehubContractAddress } from './actions/getBridgehubContractAddress.js'
 export {
+  type GetL1AllowanceErrorType,
+  type GetL1AllowanceParameters,
+  type GetL1AllowanceReturnType,
+  getL1Allowance,
+} from './actions/getL1Allowance.js'
+export {
+  type GetL1BalanceErrorType,
+  type GetL1BalanceParameters,
+  type GetL1BalanceReturnType,
+  getL1Balance,
+} from './actions/getL1Balance.js'
+export {
   type GetL1BatchBlockRangeParameters,
   type GetL1BatchBlockRangeReturnParameters,
   getL1BatchBlockRange,
@@ -37,16 +49,22 @@ export {
 export { getL1BatchNumber } from './actions/getL1BatchNumber.js'
 export { getL1ChainId } from './actions/getL1ChainId.js'
 export {
+  type GetL1TokenBalanceErrorType,
+  type GetL1TokenBalanceParameters,
+  type GetL1TokenBalanceReturnType,
+  getL1TokenBalance,
+} from './actions/getL1TokenBalance.js'
+export {
   type GetLogProofReturnType,
   type GetLogProofParameters,
   getLogProof,
 } from './actions/getLogProof.js'
 export { getMainContractAddress } from './actions/getMainContractAddress.js'
 export {
-  type GetRawBlockTransactionParameters,
-  type GetRawBlockTransactionReturnType,
+  type GetRawBlockTransactionsParameters,
+  type GetRawBlockTransactionsReturnType,
   getRawBlockTransactions,
-} from './actions/getRawBlockTransaction.js'
+} from './actions/getRawBlockTransactions.js'
 export { getTestnetPaymasterAddress } from './actions/getTestnetPaymasterAddress.js'
 export {
   type GetTransactionDetailsParameters,
@@ -91,12 +109,17 @@ export {
   type Eip712WalletActions,
 } from './decorators/eip712.js'
 
-export { serializeTransaction } from './serializers.js'
+export {
+  publicActionsL1,
+  type PublicActionsL1,
+} from './decorators/publicL1.js'
 
 export {
   publicActionsL2,
   type PublicActionsL2,
 } from './decorators/publicL2.js'
+
+export { serializeTransaction } from './serializers.js'
 
 export type {
   ZkSyncBlock,

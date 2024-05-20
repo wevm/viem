@@ -2,7 +2,6 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
-import type { Hex } from '../../types/misc.js'
 import { estimateFee } from '../actions/estimateFee.js'
 import type {
   EstimateFeeParameters,
@@ -10,6 +9,7 @@ import type {
 } from '../actions/estimateFee.js'
 import {
   type EstimateGasL1ToL2Parameters,
+  type EstimateGasL1ToL2ReturnType,
   estimateGasL1ToL2,
 } from '../actions/estimateGasL1ToL2.js'
 import {
@@ -17,13 +17,19 @@ import {
   type GetAllBalancesReturnType,
   getAllBalances,
 } from '../actions/getAllBalances.js'
-import { getBaseTokenL1Address } from '../actions/getBaseTokenL1Address.js'
+import {
+  type GetBaseTokenL1AddressReturnType,
+  getBaseTokenL1Address,
+} from '../actions/getBaseTokenL1Address.js'
 import {
   type GetBlockDetailsParameters,
   type GetBlockDetailsReturnType,
   getBlockDetails,
 } from '../actions/getBlockDetails.js'
-import { getBridgehubContractAddress } from '../actions/getBridgehubContractAddress.js'
+import {
+  type GetBridgehubContractAddressReturnType,
+  getBridgehubContractAddress,
+} from '../actions/getBridgehubContractAddress.js'
 import {
   type GetDefaultBridgeAddressesReturnType,
   getDefaultBridgeAddresses,
@@ -38,20 +44,32 @@ import {
   type GetL1BatchDetailsReturnType,
   getL1BatchDetails,
 } from '../actions/getL1BatchDetails.js'
-import { getL1BatchNumber } from '../actions/getL1BatchNumber.js'
-import { getL1ChainId } from '../actions/getL1ChainId.js'
+import {
+  type GetL1BatchNumberReturnType,
+  getL1BatchNumber,
+} from '../actions/getL1BatchNumber.js'
+import {
+  type GetL1ChainIdReturnType,
+  getL1ChainId,
+} from '../actions/getL1ChainId.js'
 import {
   type GetLogProofParameters,
   type GetLogProofReturnType,
   getLogProof,
 } from '../actions/getLogProof.js'
-import { getMainContractAddress } from '../actions/getMainContractAddress.js'
 import {
-  type GetRawBlockTransactionParameters,
-  type GetRawBlockTransactionReturnType,
+  type GetMainContractAddressReturnType,
+  getMainContractAddress,
+} from '../actions/getMainContractAddress.js'
+import {
+  type GetRawBlockTransactionsParameters,
+  type GetRawBlockTransactionsReturnType,
   getRawBlockTransactions,
-} from '../actions/getRawBlockTransaction.js'
-import { getTestnetPaymasterAddress } from '../actions/getTestnetPaymasterAddress.js'
+} from '../actions/getRawBlockTransactions.js'
+import {
+  type GetTestnetPaymasterAddressReturnType,
+  getTestnetPaymasterAddress,
+} from '../actions/getTestnetPaymasterAddress.js'
 import {
   type GetTransactionDetailsParameters,
   type GetTransactionDetailsReturnType,
@@ -99,7 +117,7 @@ export type PublicActionsL2<
    *
    * const address = await client.getTestnetPaymasterAddress();
    */
-  getTestnetPaymasterAddress: () => Promise<Address | null>
+  getTestnetPaymasterAddress: () => Promise<GetTestnetPaymasterAddressReturnType>
 
   /**
    * Returns the Chain Id of underlying L1 network.
@@ -119,7 +137,7 @@ export type PublicActionsL2<
    * const chainId = await client.getL1ChainId();
    */
 
-  getL1ChainId: () => Promise<Hex>
+  getL1ChainId: () => Promise<GetL1ChainIdReturnType>
 
   /**
    * Returns the address of a Main zkSync Contract.
@@ -138,7 +156,7 @@ export type PublicActionsL2<
    *
    * const address = await client.getMainContractAddress();
    */
-  getMainContractAddress: () => Promise<Address>
+  getMainContractAddress: () => Promise<GetMainContractAddressReturnType>
 
   /**
    * Returns all known balances for a given account.
@@ -166,7 +184,7 @@ export type PublicActionsL2<
    * Returns data of transactions in a block.
    *
    * @returns data of transactions {@link RawBlockTransactions}
-   * @param args - {@link GetRawBlockTransactionParameters}
+   * @param args - {@link GetRawBlockTransactionsParameters}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
@@ -181,8 +199,8 @@ export type PublicActionsL2<
    * const rawTx = await client.getRawBlockTransaction({number: 1});
    */
   getRawBlockTransaction: (
-    args: GetRawBlockTransactionParameters,
-  ) => Promise<GetRawBlockTransactionReturnType>
+    args: GetRawBlockTransactionsParameters,
+  ) => Promise<GetRawBlockTransactionsReturnType>
 
   /**
    * Returns additional zkSync-specific information about the L2 block.
@@ -267,7 +285,7 @@ export type PublicActionsL2<
    *
    * const latestNumber = await client.getL1BatchNumber({number: 1});
    */
-  getL1BatchNumber: () => Promise<Hex>
+  getL1BatchNumber: () => Promise<GetL1BatchNumberReturnType>
 
   /**
    * Given a transaction hash, and an index of the L2 to L1 log produced within the transaction, it returns the proof for the corresponding L2 to L1 log.
@@ -352,7 +370,7 @@ export type PublicActionsL2<
    */
   estimateGasL1ToL2: (
     args: EstimateGasL1ToL2Parameters<TChain, TAccount>,
-  ) => Promise<bigint>
+  ) => Promise<EstimateGasL1ToL2ReturnType>
 
   /**
    * Returns the Bridgehub smart contract address.
@@ -372,7 +390,7 @@ export type PublicActionsL2<
    *
    * const address = await client.getBridgehubContractAddress();
    */
-  getBridgehubContractAddress: () => Promise<Address>
+  getBridgehubContractAddress: () => Promise<GetBridgehubContractAddressReturnType>
 
   /**
    * Returns the address of the base L1 token.
@@ -392,7 +410,7 @@ export type PublicActionsL2<
    *
    * const address = await client.getBaseTokenL1Address();
    */
-  getBaseTokenL1Address: () => Promise<Address>
+  getBaseTokenL1Address: () => Promise<GetBaseTokenL1AddressReturnType>
 }
 
 export function publicActionsL2() {

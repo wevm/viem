@@ -3,7 +3,7 @@ import {
   mockClientPublicActionsL2,
   zkSyncClientLocalNode,
 } from '../../../test/src/zksync.js'
-import { getRawBlockTransactions } from './getRawBlockTransaction.js'
+import { getRawBlockTransactions } from './getRawBlockTransactions.js'
 
 const client = { ...zkSyncClientLocalNode }
 
