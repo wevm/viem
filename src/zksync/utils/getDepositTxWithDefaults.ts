@@ -27,8 +27,8 @@ export async function getDepositTxWithDefaults<
   })
   // TODO:
   // https://github.com/wevm/viem/discussions/239
-  tx.overrides.maxFeePerGas = 1500000001n
-  tx.overrides.maxPriorityFeePerGas = 1500000000n
+  tx.overrides.maxFeePerGas = 150000000100n
+  tx.overrides.maxPriorityFeePerGas = 150000000000n
 
   return tx
 }

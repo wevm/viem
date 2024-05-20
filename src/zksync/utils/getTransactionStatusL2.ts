@@ -19,16 +19,20 @@ export async function getTransactionStatusL2<
   clientL2: Client<Transport, TChain, TAccount>,
   txHash: Hash,
 ): Promise<TransactionStatus> {
-  const tx = await getTransaction(clientL2, { hash: txHash })
-  if (!tx) {
+  try {
+    const tx = await getTransaction(clientL2, { hash: txHash })
+    if (!tx) {
+      return TransactionStatus.NotFound
+    }
+    if (!tx.blockNumber) {
+      return TransactionStatus.Processing
+    }
+    const verifiedBlock = await getBlock(clientL2, { blockTag: 'finalized' })
+    if (tx.blockNumber <= verifiedBlock.number) {
+      return TransactionStatus.Finalized
+    }
+  } catch (_) {
     return TransactionStatus.NotFound
-  }
-  if (!tx.blockNumber) {
-    return TransactionStatus.Processing
-  }
-  const verifiedBlock = await getBlock(clientL2, { blockTag: 'finalized' })
-  if (tx.blockNumber <= verifiedBlock.number) {
-    return TransactionStatus.Finalized
   }
   return TransactionStatus.Committed
 }

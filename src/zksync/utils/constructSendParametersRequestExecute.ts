@@ -21,7 +21,7 @@ export type ConstructSendParametersRequestExecuteParameters = Omit<
   l2Value: bigint
 }
 
-export async function constructSendParametersRequestExecute<
+export async function constructRequestL2TransactionDirectParameters<
   TChain extends Chain | undefined,
 >(
   clientL1: Client<Transport, TChain, Account>,
@@ -84,7 +84,7 @@ export async function constructSendParametersRequestExecute<
   })
 
   return {
-    maxFeePerGas: parameters.overrides!.maxFeePerBlobGas,
+    maxFeePerGas: parameters.overrides!.maxFeePerGas,
     maxPriorityFeePerGas: parameters.overrides!.maxPriorityFeePerGas,
     value: parameters.mintValue,
     to: parameters.bridgehubContractAddress,

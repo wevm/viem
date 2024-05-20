@@ -7,6 +7,7 @@ import { sepolia } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
+import type { Overrides } from '../types/deposit.js'
 import { approveErc20L1 } from './approveErc20TokenL1.js'
 
 const sourceAccount = accounts[0]
@@ -30,9 +31,14 @@ test('default', async () => {
     account,
   }).extend(publicActionsL1())
 
-  expect(await approveErc20L1(client, { token, amount: 222n })).toBe(
-    '0x5254a0e1d200d0900920b9bc810caf2d26814426db0719da05a1b14bc3e4032d',
-  )
+  expect(
+    await approveErc20L1(client, {
+      token,
+      amount: 222n,
+      sharedL1Address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      overrides: {} as Overrides,
+    }),
+  ).toBe('0x5254a0e1d200d0900920b9bc810caf2d26814426db0719da05a1b14bc3e4032d')
 
   expect(spy).toHaveBeenCalledWith(client, {
     abi: erc20Abi,

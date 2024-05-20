@@ -35,6 +35,7 @@ export async function estimateL1ToL2Execute<TChain extends Chain | undefined>(
   return await estimateGasL1ToL2(clientL2, {
     data: parameters.calldata,
     to: parameters.contractAddress,
+    account: parameters.caller,
     value: parameters.l2Value || 0n,
     factoryDeps: parameters.factoryDeps ?? [],
     gasPerPubdata: parameters.gasPerPubdataByte,
