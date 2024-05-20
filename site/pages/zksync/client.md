@@ -68,7 +68,7 @@ const hash = await walletClient.writeContract(request)
 
 ### `publicActionsL1`
 
-A suite of [Public Actions](/zksync/actions/getAllowanceL1) suited for development with **Layer 1** chains. These actions provide functionalities specific to public clients operating at the Layer 1 level, enabling them to interact seamlessly with Layer 2 protocols.
+A suite of [Public Actions](/zksync/actions/getL1Allowance) suited for development with **Layer 1** chains. These actions provide functionalities specific to public clients operating at the Layer 1 level, enabling them to interact seamlessly with Layer 2 protocols.
 
 ```ts
 import { publicActionsL1 } from 'viem/zksync'

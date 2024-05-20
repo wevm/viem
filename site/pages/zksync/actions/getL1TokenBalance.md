@@ -2,7 +2,7 @@
 description: Retrieve the token balance held by the contract on L1.
 ---
 
-# getBalanceOfTokenL1
+# getL1TokenBalance
 
 Retrieve the token balance held by the contract on L1.
 
@@ -13,9 +13,9 @@ Retrieve the token balance held by the contract on L1.
 ```ts [example.ts]
 import { account, publicClient } from './config'
 
-const balance = await publicClient.getBalanceOfTokenL1({
-    token: '0x5C221E77624690fff6dd741493D735a17716c26B',
-    account
+const balance = await publicClient.getL1TokenBalance({
+  account
+  token: '0x5C221E77624690fff6dd741493D735a17716c26B',
 })
 ```
 
@@ -46,20 +46,6 @@ Returns the amount of the tokens.
 
 ## Parameters
 
-### token
-
-- **Type:** `Address`
-
-The address of the token.
-
-```ts
-const balance = await publicClient.getBalanceOfTokenL1({
-    token: '0x5C221E77624690fff6dd741493D735a17716c26B', // [!code focus]
-    account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-    blockTag: 'latest',
-})
-```
-
 ### account
 
 - **Type:** `Account | Address`
@@ -69,10 +55,10 @@ The Account used for check.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const balance = await publicClient.getBalanceOfTokenL1({
-    token: '0x5C221E77624690fff6dd741493D735a17716c26B',
-    account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' // [!code focus]
-    blockTag: 'latest',
+const balance = await publicClient.getL1TokenBalance({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' // [!code focus]
+  blockTag: 'latest',
+  token: '0x5C221E77624690fff6dd741493D735a17716c26B',
 })
 ```
 
@@ -83,9 +69,23 @@ const balance = await publicClient.getBalanceOfTokenL1({
 In which block an balance should be checked on. The latest processed one is the default option.
 
 ```ts
-const balance = await publicClient.getBalanceOfTokenL1({
-    token: '0x5C221E77624690fff6dd741493D735a17716c26B',
-    account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-    blockTag: 'latest', // [!code focus]
+const balance = await publicClient.getL1TokenBalance({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+  blockTag: 'latest', // [!code focus]
+  token: '0x5C221E77624690fff6dd741493D735a17716c26B',
+})
+```
+
+### token
+
+- **Type:** `Address`
+
+The address of the token.
+
+```ts
+const balance = await publicClient.getL1TokenBalance({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  blockTag: 'latest',
+  token: '0x5C221E77624690fff6dd741493D735a17716c26B', // [!code focus]
 })
 ```

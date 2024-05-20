@@ -8,12 +8,11 @@ import { sepolia } from '../../chains/index.js'
 import { erc20Abi } from '../../constants/abis.js'
 import { http, createClient, createPublicClient } from '../../index.js'
 import {
-  ETHAddressInContracts,
-  L2BaseTokenAddress,
-  legacyETHAddress,
+  ethAddressInContracts,
+  l2BaseTokenAddress,
+  legacyEthAddress,
 } from '../constants/address.js'
-import { publicActionsL1 } from '../decorators/publicL1.js'
-import { getBalanceOfTokenL1 } from './getBalanceOfTokenL1.js'
+import { getL1TokenBalance } from './getL1TokenBalance.js'
 
 const sourceAccount = accounts[0]
 const tokenL1 = '0x5C221E77624690fff6dd741493D735a17716c26B'
@@ -29,10 +28,10 @@ test('default with account hoisting', async () => {
     chain: sepolia,
     transport: http(),
     account,
-  }).extend(publicActionsL1())
+  })
 
   expect(
-    await getBalanceOfTokenL1(client, {
+    await getL1TokenBalance(client, {
       token: tokenL1,
     }),
   ).toBe(170n)
@@ -51,10 +50,10 @@ test('args: blockTag with account hoisting', async () => {
     chain: sepolia,
     transport: http(),
     account,
-  }).extend(publicActionsL1())
+  })
 
   expect(
-    await getBalanceOfTokenL1(client, {
+    await getL1TokenBalance(client, {
       token: tokenL1,
       blockTag: 'finalized',
     }),
@@ -73,10 +72,10 @@ test('default with account provided to the method', async () => {
   const client = createPublicClient({
     chain: sepolia,
     transport: http(),
-  }).extend(publicActionsL1())
+  })
 
   expect(
-    await getBalanceOfTokenL1(client, {
+    await getL1TokenBalance(client, {
       token: tokenL1,
       account,
     }),
@@ -95,10 +94,10 @@ test('args: blockTag with account provided to the method', async () => {
   const client = createPublicClient({
     chain: sepolia,
     transport: http(),
-  }).extend(publicActionsL1())
+  })
 
   expect(
-    await getBalanceOfTokenL1(client, {
+    await getL1TokenBalance(client, {
       token: tokenL1,
       account,
       blockTag: 'finalized',
@@ -118,53 +117,53 @@ test('provided token is ETH', async () => {
   const client = createPublicClient({
     chain: sepolia,
     transport: http(),
-  }).extend(publicActionsL1())
+  })
 
   await expect(() =>
-    getBalanceOfTokenL1(client, {
-      token: ETHAddressInContracts,
+    getL1TokenBalance(client, {
+      token: ethAddressInContracts,
       account,
       blockTag: 'finalized',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
-      [TokenIsETHError: Token is an ETH token.
+    [TokenIsEthError: Token is an ETH token.
 
-      ETH token can't be retrived!
-      
-      Version: viem@1.0.2]
+    ETH token cannot be retrived.
+
+    Version: viem@1.0.2]
   `,
   )
 
   await expect(() =>
-    getBalanceOfTokenL1(client, {
-      token: legacyETHAddress,
+    getL1TokenBalance(client, {
+      token: legacyEthAddress,
       account,
       blockTag: 'finalized',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
-      [TokenIsETHError: Token is an ETH token.
+    [TokenIsEthError: Token is an ETH token.
 
-      ETH token can't be retrived!
-      
-      Version: viem@1.0.2]
+    ETH token cannot be retrived.
+
+    Version: viem@1.0.2]
   `,
   )
 
   await expect(() =>
-    getBalanceOfTokenL1(client, {
-      token: L2BaseTokenAddress,
+    getL1TokenBalance(client, {
+      token: l2BaseTokenAddress,
       account,
       blockTag: 'finalized',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
-      [TokenIsETHError: Token is an ETH token.
+    [TokenIsEthError: Token is an ETH token.
 
-      ETH token can't be retrived!
-      
-      Version: viem@1.0.2]
+    ETH token cannot be retrived.
+
+    Version: viem@1.0.2]
   `,
   )
 })

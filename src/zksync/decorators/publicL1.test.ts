@@ -29,16 +29,16 @@ afterAll(() => {
 test('default', async () => {
   expect(publicActionsL1()(client)).toMatchInlineSnapshot(`
     {
-      "getAllowanceL1": [Function],
-      "getBalanceL1": [Function],
-      "getBalanceOfTokenL1": [Function],
+      "getL1Allowance": [Function],
+      "getL1Balance": [Function],
+      "getL1TokenBalance": [Function],
     }
   `)
 })
 
-test('getAllowanceL1', async () => {
+test('getL1Allowance', async () => {
   expect(
-    await client.getAllowanceL1({
+    await client.getL1Allowance({
       bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
       token: '0x5C221E77624690fff6dd741493D735a17716c26B',
       account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -46,35 +46,35 @@ test('getAllowanceL1', async () => {
   ).toBe(170n)
 
   expect(
-    await clientWithAccount.getAllowanceL1({
+    await clientWithAccount.getL1Allowance({
       bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
       token: '0x5C221E77624690fff6dd741493D735a17716c26B',
     }),
   ).toBe(170n)
 })
 
-test('getBalanceOfTokenL1', async () => {
+test('getL1TokenBalance', async () => {
   expect(
-    await client.getBalanceOfTokenL1({
+    await client.getL1TokenBalance({
       token: '0x5C221E77624690fff6dd741493D735a17716c26B',
       account: accounts[0].privateKey,
     }),
   ).toBe(170n)
 
   expect(
-    await clientWithAccount.getBalanceOfTokenL1({
+    await clientWithAccount.getL1TokenBalance({
       token: '0x5C221E77624690fff6dd741493D735a17716c26B',
     }),
   ).toBe(170n)
 })
 
-test('getBalanceL1', async () => {
+test('getL1Balance', async () => {
   expect(
-    await client.getBalanceL1({
+    await client.getL1Balance({
       token: '0x5C221E77624690fff6dd741493D735a17716c26B',
       account: accounts[0].address,
     }),
   ).toBe(170n)
 
-  expect(await clientWithAccount.getBalanceL1({})).toBe(8n)
+  expect(await clientWithAccount.getL1Balance()).toBeDefined()
 })

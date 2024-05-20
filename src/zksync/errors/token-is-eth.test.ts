@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
-import { TokenIsETHError } from './token-is-eth.js'
+import { TokenIsEthError } from './token-is-eth.js'
 
-test('TokenIsETHError', () => {
-  expect(new TokenIsETHError()).toMatchInlineSnapshot(`
-      [TokenIsETHError: Token is an ETH token.
+test('TokenIsEthError', () => {
+  expect(new TokenIsEthError()).toMatchInlineSnapshot(`
+    [TokenIsEthError: Token is an ETH token.
 
-      ETH token can't be retrived!
-      
-      Version: viem@1.0.2]
+    ETH token cannot be retrived.
+
+    Version: viem@1.0.2]
   `)
 })

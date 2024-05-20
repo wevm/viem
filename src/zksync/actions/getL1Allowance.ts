@@ -1,5 +1,5 @@
-import type { Address } from '../../accounts/index.js'
-import { readContract } from '../../actions/index.js'
+import type { Address } from 'abitype'
+import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
@@ -10,31 +10,26 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import { parseAccount } from '../../utils/accounts.js'
 
-export type AllowanceL1Parameters<
+export type GetL1AllowanceParameters<
   TAccount extends Account | undefined = Account | undefined,
 > = GetAccountParameter<TAccount> & {
-  token: Address
   bridgeAddress: Address
   blockTag?: BlockTag
+  token: Address
 }
 
-export type getAllowanceL1ReturnType = bigint
+export type GetL1AllowanceReturnType = bigint
 
-export type getAllowanceL1L1ErrorType = AccountNotFoundError | BaseError
+export type GetL1AllowanceErrorType = AccountNotFoundError | BaseError
 
-export async function getAllowanceL1<
+export async function getL1Allowance<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
-  parameters: AllowanceL1Parameters<TAccount>,
-): Promise<getAllowanceL1ReturnType> {
-  const {
-    token,
-    bridgeAddress,
-    blockTag,
-    account: account_,
-  } = parameters as AllowanceL1Parameters<TAccount>
+  parameters: GetL1AllowanceParameters<TAccount>,
+): Promise<GetL1AllowanceReturnType> {
+  const { token, bridgeAddress, blockTag, account: account_ } = parameters
 
   const account = account_ ? parseAccount(account_) : client.account
 

@@ -13,7 +13,7 @@ import {
   createWalletClient,
 } from '../../index.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
-import { getAllowanceL1 } from './getAllowanceL1.js'
+import { getL1Allowance } from './getL1Allowance.js'
 
 const sourceAccount = accounts[0]
 const tokenL1 = '0x5C221E77624690fff6dd741493D735a17716c26B'
@@ -32,7 +32,7 @@ test('default with account hoisting', async () => {
   }).extend(publicActionsL1())
 
   expect(
-    await getAllowanceL1(client, {
+    await getL1Allowance(client, {
       token: tokenL1,
       bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
     }),
@@ -58,7 +58,7 @@ test('args: blockTag with account hoisting', async () => {
   }).extend(publicActionsL1())
 
   expect(
-    await getAllowanceL1(client, {
+    await getL1Allowance(client, {
       token: tokenL1,
       bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
       blockTag: 'finalized',
@@ -84,7 +84,7 @@ test('default with account provided to the method', async () => {
   }).extend(publicActionsL1())
 
   expect(
-    await getAllowanceL1(client, {
+    await getL1Allowance(client, {
       token: tokenL1,
       bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
       account,
@@ -110,7 +110,7 @@ test('args: blockTag with account provided to the method', async () => {
   }).extend(publicActionsL1())
 
   expect(
-    await getAllowanceL1(client, {
+    await getL1Allowance(client, {
       token: tokenL1,
       bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
       account,
