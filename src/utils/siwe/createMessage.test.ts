@@ -374,4 +374,3 @@ test('behavior: invalid resources', () => {
     Version: viem@1.0.2]
   `)
 })
-
