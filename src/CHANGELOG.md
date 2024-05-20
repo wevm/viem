@@ -1,5 +1,11 @@
 # viem
 
+## 2.11.1
+
+### Patch Changes
+
+- [`438ecffac0fd2ee3c1a774152efafa2a810fd5cf`](https://github.com/wevm/viem/commit/438ecffac0fd2ee3c1a774152efafa2a810fd5cf) Thanks [@jxom](https://github.com/jxom)! - Fixed hanging `waitForTransactionReceipt`
+
 ## 2.11.0
 
 ### Minor Changes
