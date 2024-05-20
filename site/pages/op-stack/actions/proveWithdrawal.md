@@ -14,14 +14,14 @@ Internally performs a contract write to the [`proveWithdrawalTransaction` functi
 :::code-group
 
 ```ts [example.ts]
-import { account, publicClientL2, walletClientL1 } from './config'
+import { account, publicClientL1, publicClientL2, walletClientL1 } from './config'
 
 const receipt = await getTransactionReceipt(publicClientL2, {
   hash: '0xbbdd0957a82a057a76b5f093de251635ac4ddc6e2d0c4aa7fbf82d73e4e11039',
 })
 
 const [withdrawal] = getWithdrawals(receipt)
-const output = await walletClientL1.getL2Output({
+const output = await publicClientL1.getL2Output({
   l2BlockNumber: receipt.blockNumber,
   targetChain: publicClientL2.chain,
 })
@@ -39,7 +39,12 @@ const hash = await walletClientL1.proveWithdrawal(args) // [!code hl]
 import { createPublicClient, createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, optimism } from 'viem/chains'
-import { publicActionsL2, walletActionsL1 } from 'viem/op-stack'
+import { publicActionsL1, publicActionsL2, walletActionsL1 } from 'viem/op-stack'
+
+export const publicClientL1 = createPublicClient({
+  chain: optimism,
+  transport: http()
+}).extend(publicActionsL1())
 
 export const walletClientL1 = createWalletClient({
   chain: mainnet,
