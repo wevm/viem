@@ -1,13 +1,6 @@
 import {
-  SiweInvalidDomainError,
-  type SiweInvalidDomainErrorType,
-  SiweInvalidISO8601Error,
-  type SiweInvalidISO8601ErrorType,
-  SiweInvalidNonceError,
-  type SiweInvalidNonceErrorType,
-  SiweInvalidUriError,
-  type SiweInvalidUriErrorType,
-  SiweInvalidVersionError,
+  SiweInvalidMessageFieldError,
+  type SiweInvalidMessageFieldErrorType,
 } from '../../errors/siwe.js'
 import type { ErrorType } from '../../errors/utils.js'
 import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
@@ -20,11 +13,7 @@ export type CreateMessageReturnType = string
 
 export type CreateMessageErrorType =
   | GetAddressErrorType
-  | SiweInvalidDomainErrorType
-  | SiweInvalidNonceErrorType
-  | SiweInvalidUriErrorType
-  | SiweInvalidVersionError
-  | SiweInvalidISO8601ErrorType
+  | SiweInvalidMessageFieldErrorType
   | ErrorType
 
 /**
@@ -59,16 +48,113 @@ export function createMessage(
     version,
   } = parameters
 
-  if (!domainRegex.test(domain)) throw new SiweInvalidDomainError({ domain })
-  if (!nonceRegex.test(nonce)) throw new SiweInvalidNonceError({ nonce })
-  if (!isUri(uri)) throw new SiweInvalidUriError({ uri })
-  if (version !== '1') throw new SiweInvalidVersionError({ version })
+  // Validate fields
+  {
+    // Required fields
+    if (chainId !== Math.floor(chainId))
+      throw new SiweInvalidMessageFieldError({
+        field: 'chainId',
+        metaMessages: [
+          '- Chain ID must be a EIP-155 chain ID.',
+          '- See https://eips.ethereum.org/EIPS/eip-155',
+          '',
+          `Provided value: ${chainId}`,
+        ],
+      })
+    if (!domainRegex.test(domain))
+      throw new SiweInvalidMessageFieldError({
+        field: 'domain',
+        metaMessages: [
+          '- Domain must be an RFC 3986 authority.',
+          '- See https://www.rfc-editor.org/rfc/rfc3986',
+          '',
+          `Provided value: ${domain}`,
+        ],
+      })
+    if (!nonceRegex.test(nonce))
+      throw new SiweInvalidMessageFieldError({
+        field: 'nonce',
+        metaMessages: [
+          '- Nonce must be at least 8 characters.',
+          '- Nonce must be alphanumeric.',
+          '',
+          `Provided value: ${nonce}`,
+        ],
+      })
+    if (!isUri(uri))
+      throw new SiweInvalidMessageFieldError({
+        field: 'uri',
+        metaMessages: [
+          '- URI must be a RFC 3986 URI referring to the resource that is the subject of the signing.',
+          '- See https://www.rfc-editor.org/rfc/rfc3986',
+          '',
+          `Provided value: ${uri}`,
+        ],
+      })
+    if (version !== '1')
+      throw new SiweInvalidMessageFieldError({
+        field: 'version',
+        metaMessages: [
+          "- Version must be '1'.",
+          '',
+          `Provided value: ${version}`,
+        ],
+      })
 
-  if (issuedAt && !isISO8601(issuedAt))
-    throw new SiweInvalidISO8601Error({ name: 'issuedAt', value: issuedAt })
-  // TODO: Check that statement doesn't contain '\n'
-  // if (statement && ) throw new Error('Invalid statement')
+    // Optional fields
+    if (scheme && !schemeRegex.test(scheme))
+      throw new SiweInvalidMessageFieldError({
+        field: 'scheme',
+        metaMessages: [
+          '- Scheme must be an RFC 3986 URI scheme.',
+          '- See https://www.rfc-editor.org/rfc/rfc3986#section-3.1',
+          '',
+          `Provided value: ${scheme}`,
+        ],
+      })
+    if (issuedAt && !isISO8601(issuedAt))
+      throw new SiweInvalidMessageFieldError({
+        field: 'issuedAt',
+        metaMessages: [
+          '- Issued At must be an ISO 8601 datetime string.',
+          '- See https://www.iso.org/iso-8601-date-and-time-format.html',
+          '',
+          `Provided value: ${issuedAt}`,
+        ],
+      })
+    if (expirationTime && !isISO8601(expirationTime))
+      throw new SiweInvalidMessageFieldError({
+        field: 'expirationTime',
+        metaMessages: [
+          '- Expiration Time must be an ISO 8601 datetime string.',
+          '- See https://www.iso.org/iso-8601-date-and-time-format.html',
+          '',
+          `Provided value: ${expirationTime}`,
+        ],
+      })
+    if (notBefore && !isISO8601(notBefore))
+      throw new SiweInvalidMessageFieldError({
+        field: 'notBefore',
+        metaMessages: [
+          '- Not Before must be an ISO 8601 datetime string.',
+          '- See https://www.iso.org/iso-8601-date-and-time-format.html',
+          '',
+          `Provided value: ${notBefore}`,
+        ],
+      })
+    const statement = parameters.statement
+    if (statement?.includes('\n'))
+      throw new SiweInvalidMessageFieldError({
+        field: 'statement',
+        metaMessages: [
+          "- Statement must not include '\\n'.",
+          '',
+          `Provided value: ${statement}`,
+        ],
+      })
+  }
 
+  // Construct message
   const address = getAddress(parameters.address)
   const origin = (() => {
     if (scheme) return `${scheme}://${domain}`
@@ -85,49 +171,30 @@ export function createMessage(
     issuedAt ?? new Date().toISOString()
   }`
 
-  if (expirationTime) {
-    if (!isISO8601(expirationTime))
-      throw new SiweInvalidISO8601Error({
-        name: 'expirationTime',
-        value: expirationTime,
-      })
-    suffix += `\nExpiration Time: ${expirationTime}`
-  }
-  if (notBefore) {
-    if (!isISO8601(notBefore))
-      throw new SiweInvalidISO8601Error({ name: 'notBefore', value: notBefore })
-    suffix += `\nNot Before: ${notBefore}`
-  }
+  if (expirationTime) suffix += `\nExpiration Time: ${expirationTime}`
+  if (notBefore) suffix += `\nNot Before: ${notBefore}`
   if (requestId) suffix += `\nRequest ID: ${requestId}`
   if (resources) {
     let content = '\nResources:'
-    for (const resource of resources) content += `\n- ${resource}`
+    for (const resource of resources) {
+      if (!isUri(resource))
+        throw new SiweInvalidMessageFieldError({
+          field: 'resources',
+          metaMessages: [
+            '- Every resource must be a RFC 3986 URI.',
+            '- See https://www.rfc-editor.org/rfc/rfc3986',
+            '',
+            `Provided value: ${resource}`,
+          ],
+        })
+      content += `\n- ${resource}`
+    }
     suffix += content
   }
 
   return `${prefix}\n${suffix}`
 }
 
-/**
-  ${scheme}://${domain} wants you to sign in with your Ethereum account:
-  ${address}
-
-  ${statement}
-
-  URI: ${uri}
-  Version: ${version}
-  Chain ID: ${chainId}
-  Nonce: ${nonce}
-  Issued At: ${issuedAt}
-  Expiration Time: ${expirationTime}
-  Not Before: ${notBefore}
-  Request ID: ${requestId}
-  Resources:
-  - ${resources[0]}
-  - ${resources[1]}
-  ...
-  - ${resources[n]}
-  */
-
 const domainRegex = /^(?:(?:(?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$/
 const nonceRegex = /^[a-zA-Z0-9]{8,}$/
+const schemeRegex = /^([a-zA-Z][a-zA-Z0-9+-.]*)$/

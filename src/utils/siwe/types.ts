@@ -7,55 +7,55 @@ import type { Address } from 'abitype'
  */
 export type Message = {
   /**
-   * Ethereum address performing the signing conformant to capitalization encoded checksum specified in EIP-55 where applicable.
+   * The Ethereum address performing the signing.
    */
   address: Address
   /**
-   * EIP-155 Chain ID to which the session is bound, and the network where Contract Accounts must be resolved.
+   * The [EIP-155](https://eips.ethereum.org/EIPS/eip-155) Chain ID to which the session is bound,
    */
   chainId: number
   /**
-   * RFC 4501 DNS authority that is requesting the signing.
+   * [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986) authority that is requesting the signing.
    */
   domain: string
   /**
-   * ISO 8601 datetime string that, if present, indicates when the signed authentication message is no longer valid.
+   * The [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) datetime string when the signed authentication message is no longer valid.
    */
   expirationTime?: string | undefined
   /**
-   * ISO 8601 datetime string of the current time.
+   * The [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) datetime string when the message was generated, typically the current time.
    */
   issuedAt?: string | undefined
   /**
-   * Randomized token used to prevent replay attacks, at least 8 alphanumeric characters.
+   * A random string typically chosen by the relying party and used to prevent replay attacks.
    */
   nonce: string
   /**
-   * ISO 8601 datetime string that, if present, indicates when the signed authentication message will become valid.
+   * The [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) datetime string when the signed authentication message will become valid.
    */
   notBefore?: string | undefined
   /**
-   * System-specific identifier that may be used to uniquely refer to the sign-in request.
+   * A system-specific identifier that may be used to uniquely refer to the sign-in request.
    */
   requestId?: string | undefined
   /**
-   * List of information or references to information the user wishes to have resolved as part of authentication by the relying party. They are expressed as RFC 3986 URIs separated by `\n- `.
+   * A list of information or references to information the user wishes to have resolved as part of authentication by the relying party.
    */
   resources?: string[] | undefined
   /**
-   * RFC 3986 URI scheme for the authority that is requesting the signing.
+   * [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986#section-3.1) URI scheme of the origin of the request.
    */
   scheme?: string | undefined
   /**
-   * Human-readable ASCII assertion that the user will sign, and it must not contain `\n`.
+   * A human-readable ASCII assertion that the user will sign.
    */
   statement?: string | undefined
   /**
-   * RFC 3986 URI referring to the resource that is the subject of the signing (as in the __subject__ of a claim).
+   * [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986) URI referring to the resource that is the subject of the signing (as in the subject of a claim).
    */
   uri: string
   /**
-   * Current version of the message.
+   * The current version of the SIWE Message.
    */
   version: '1'
 }
