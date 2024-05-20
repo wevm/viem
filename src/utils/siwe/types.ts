@@ -19,21 +19,21 @@ export type Message = {
    */
   domain: string
   /**
-   * The [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) datetime string when the signed authentication message is no longer valid.
+   * Time when the signed authentication message is no longer valid.
    */
-  expirationTime?: string | undefined
+  expirationTime?: Date | undefined
   /**
-   * The [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) datetime string when the message was generated, typically the current time.
+   * Time when the message was generated, typically the current time.
    */
-  issuedAt?: string | undefined
+  issuedAt?: Date | undefined
   /**
    * A random string typically chosen by the relying party and used to prevent replay attacks.
    */
   nonce: string
   /**
-   * The [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) datetime string when the signed authentication message will become valid.
+   * Time when the signed authentication message will become valid.
    */
-  notBefore?: string | undefined
+  notBefore?: Date | undefined
   /**
    * A system-specific identifier that may be used to uniquely refer to the sign-in request.
    */

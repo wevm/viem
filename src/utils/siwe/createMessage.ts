@@ -5,7 +5,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import type { Message } from './types.js'
-import { isISO8601, isUri } from './utils.js'
+import { isUri } from './utils.js'
 
 export type CreateMessageParameters = Message
 
@@ -38,7 +38,7 @@ export function createMessage(
     chainId,
     domain,
     expirationTime,
-    issuedAt,
+    issuedAt = new Date(),
     nonce,
     notBefore,
     requestId,
@@ -112,36 +112,6 @@ export function createMessage(
           `Provided value: ${scheme}`,
         ],
       })
-    if (issuedAt && !isISO8601(issuedAt))
-      throw new SiweInvalidMessageFieldError({
-        field: 'issuedAt',
-        metaMessages: [
-          '- Issued At must be an ISO 8601 datetime string.',
-          '- See https://www.iso.org/iso-8601-date-and-time-format.html',
-          '',
-          `Provided value: ${issuedAt}`,
-        ],
-      })
-    if (expirationTime && !isISO8601(expirationTime))
-      throw new SiweInvalidMessageFieldError({
-        field: 'expirationTime',
-        metaMessages: [
-          '- Expiration Time must be an ISO 8601 datetime string.',
-          '- See https://www.iso.org/iso-8601-date-and-time-format.html',
-          '',
-          `Provided value: ${expirationTime}`,
-        ],
-      })
-    if (notBefore && !isISO8601(notBefore))
-      throw new SiweInvalidMessageFieldError({
-        field: 'notBefore',
-        metaMessages: [
-          '- Not Before must be an ISO 8601 datetime string.',
-          '- See https://www.iso.org/iso-8601-date-and-time-format.html',
-          '',
-          `Provided value: ${notBefore}`,
-        ],
-      })
     const statement = parameters.statement
     if (statement?.includes('\n'))
       throw new SiweInvalidMessageFieldError({
@@ -166,12 +136,11 @@ export function createMessage(
   })()
   const prefix = `${origin} wants you to sign in with your Ethereum account:\n${address}\n${statement}`
 
-  let suffix = `URI: ${uri}\nVersion: ${version}\nChain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${
-    issuedAt ?? new Date().toISOString()
-  }`
+  let suffix = `URI: ${uri}\nVersion: ${version}\nChain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${issuedAt.toISOString()}`
 
-  if (expirationTime) suffix += `\nExpiration Time: ${expirationTime}`
-  if (notBefore) suffix += `\nNot Before: ${notBefore}`
+  if (expirationTime)
+    suffix += `\nExpiration Time: ${expirationTime.toISOString()}`
+  if (notBefore) suffix += `\nNot Before: ${notBefore.toISOString()}`
   if (requestId) suffix += `\nRequest ID: ${requestId}`
   if (resources) {
     let content = '\nResources:'

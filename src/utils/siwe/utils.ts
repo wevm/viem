@@ -1,8 +1,3 @@
-export function isISO8601(value: string) {
-  const date = new Date(value)
-  return date.toISOString() === value
-}
-
 export function isUri(value: string) {
   // based on https://github.com/ogt/valid-url
 

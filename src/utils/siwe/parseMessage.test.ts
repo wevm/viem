@@ -19,12 +19,8 @@ Issued At: 2023-02-01T00:00:00.000Z`
       "address": "0xA0Cf798816D4b9b9866b5330EEa46a18382f251e",
       "chainId": 1,
       "domain": "example.com",
-      "expirationTime": undefined,
-      "issuedAt": "2023-02-01T00:00:00.000Z",
+      "issuedAt": 2023-02-01T00:00:00.000Z,
       "nonce": "foobarbaz",
-      "notBefore": undefined,
-      "requestId": undefined,
-      "scheme": undefined,
       "statement": "I accept the ExampleOrg Terms of Service: https://example.com/tos",
       "uri": "https://example.com/path",
       "version": "1",
@@ -74,7 +70,7 @@ Issued At: 2023-02-01T00:00:00.000Z
 Expiration Time: 2022-02-04T00:00:00.000Z`
   const parsed = parseMessage(message)
   expect(parsed.expirationTime).toMatchInlineSnapshot(
-    `"2022-02-04T00:00:00.000Z"`,
+    '2022-02-04T00:00:00.000Z',
   )
 })
 
@@ -89,7 +85,7 @@ Nonce: foobarbaz
 Issued At: 2023-02-01T00:00:00.000Z
 Not Before: 2022-02-04T00:00:00.000Z`
   const parsed = parseMessage(message)
-  expect(parsed.notBefore).toMatchInlineSnapshot(`"2022-02-04T00:00:00.000Z"`)
+  expect(parsed.notBefore).toMatchInlineSnapshot('2022-02-04T00:00:00.000Z')
 })
 
 test('behavior: with requestId', () => {
@@ -142,7 +138,6 @@ test('behavior: no suffix', () => {
       "address": "0xA0Cf798816D4b9b9866b5330EEa46a18382f251e",
       "domain": "example.com",
       "scheme": "https",
-      "statement": undefined,
     }
   `)
 })
@@ -158,10 +153,8 @@ Request ID: 123e4567-e89b-12d3-a456-426614174000`
   expect(parsed).toMatchInlineSnapshot(`
     {
       "chainId": 1,
-      "expirationTime": undefined,
-      "issuedAt": "2023-02-01T00:00:00.000Z",
+      "issuedAt": 2023-02-01T00:00:00.000Z,
       "nonce": "foobarbaz",
-      "notBefore": undefined,
       "requestId": "123e4567-e89b-12d3-a456-426614174000",
       "uri": "https://example.com/path",
       "version": "1",

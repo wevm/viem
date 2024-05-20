@@ -81,7 +81,7 @@ test('parameters: statement', () => {
 })
 
 test('parameters: issuedAt', () => {
-  const issuedAt = new Date(Date.UTC(2022, 1, 4)).toISOString()
+  const issuedAt = new Date(Date.UTC(2022, 1, 4))
   expect(createMessage({ ...message, issuedAt })).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
@@ -101,7 +101,7 @@ test('parameters: expirationTime', () => {
   expect(
     createMessage({
       ...message,
-      expirationTime: new Date(Date.UTC(2022, 1, 4)).toISOString(),
+      expirationTime: new Date(Date.UTC(2022, 1, 4)),
     }),
   ).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
@@ -125,7 +125,7 @@ test('parameters: notBefore', () => {
   expect(
     createMessage({
       ...message,
-      notBefore: new Date(Date.UTC(2022, 1, 4)).toISOString(),
+      notBefore: new Date(Date.UTC(2022, 1, 4)),
     }),
   ).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
@@ -295,51 +295,6 @@ test('behavior: invalid scheme', () => {
     - See https://www.rfc-editor.org/rfc/rfc3986#section-3.1
 
     Provided value: foo_bar
-
-    Version: viem@1.0.2]
-  `)
-})
-
-test('behavior: invalid issuedAt', () => {
-  expect(() =>
-    createMessage({ ...message, issuedAt: '01/04/2022' }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "issuedAt".
-
-    - Issued At must be an ISO 8601 datetime string.
-    - See https://www.iso.org/iso-8601-date-and-time-format.html
-
-    Provided value: 01/04/2022
-
-    Version: viem@1.0.2]
-  `)
-})
-
-test('behavior: invalid expirationTime', () => {
-  expect(() =>
-    createMessage({ ...message, expirationTime: '01/04/2022' }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "expirationTime".
-
-    - Expiration Time must be an ISO 8601 datetime string.
-    - See https://www.iso.org/iso-8601-date-and-time-format.html
-
-    Provided value: 01/04/2022
-
-    Version: viem@1.0.2]
-  `)
-})
-
-test('behavior: invalid notBefore', () => {
-  expect(() =>
-    createMessage({ ...message, notBefore: '01/04/2022' }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "notBefore".
-
-    - Not Before must be an ISO 8601 datetime string.
-    - See https://www.iso.org/iso-8601-date-and-time-format.html
-
-    Provided value: 01/04/2022
 
     Version: viem@1.0.2]
   `)

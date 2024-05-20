@@ -20,7 +20,6 @@ export type VerifyMessageParameters = {
   nonce?: string | undefined
   scheme?: string | undefined
   signature: Hex
-  // TODO: `Date` or `string`?
   time?: Date | undefined
 }
 
@@ -58,9 +57,8 @@ export async function verifyMessage(
   if (nonce && parsed.nonce !== nonce) return false
   if (scheme && parsed.scheme !== scheme) return false
 
-  if (parsed.expirationTime && time >= new Date(parsed.expirationTime))
-    return false
-  if (parsed.notBefore && time < new Date(parsed.notBefore)) return false
+  if (parsed.expirationTime && time >= parsed.expirationTime) return false
+  if (parsed.notBefore && time < parsed.notBefore) return false
 
   return isAddressEqual(
     getAddress(parsed.address),

@@ -7,29 +7,37 @@ import type { Message } from './types.js'
  * @description Parses EIP-4361 formated message into message fields object.
  */
 export function parseMessage(message: string): ExactPartial<Message> {
-  const prefix = (message.match(prefixRegex)?.groups ?? {}) as {
+  const { scheme, statement, ...prefix } = (message.match(prefixRegex)
+    ?.groups ?? {}) as {
     address: Address
     domain: string
     scheme?: string
     statement?: string
   }
-  const { chainId, ...suffix } = (message.match(suffixRegex)?.groups ?? {}) as {
-    chainId: string
-    expirationTime?: string
-    issuedAt?: string
-    nonce: string
-    notBefore?: string
-    requestId?: string
-    uri: string
-    version: '1'
-  }
+  const { chainId, expirationTime, issuedAt, notBefore, requestId, ...suffix } =
+    (message.match(suffixRegex)?.groups ?? {}) as {
+      chainId: string
+      expirationTime?: string
+      issuedAt?: string
+      nonce: string
+      notBefore?: string
+      requestId?: string
+      uri: string
+      version: '1'
+    }
   // TODO: Speed up
   const resources = message.split('Resources:')[1]?.split('\n- ').slice(1)
   return {
     ...prefix,
     ...suffix,
     ...(chainId ? { chainId: Number(chainId) } : {}),
+    ...(expirationTime ? { expirationTime: new Date(expirationTime) } : {}),
+    ...(issuedAt ? { issuedAt: new Date(issuedAt) } : {}),
+    ...(notBefore ? { notBefore: new Date(notBefore) } : {}),
+    ...(requestId ? { requestId } : {}),
     ...(resources ? { resources } : {}),
+    ...(scheme ? { scheme } : {}),
+    ...(statement ? { statement } : {}),
   }
 }
 

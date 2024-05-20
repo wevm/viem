@@ -1,11 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { isISO8601, isUri } from './utils.js'
-
-test('isISO8601', () => {
-  expect(isISO8601(new Date().toISOString())).toMatchInlineSnapshot('true')
-  expect(isISO8601(new Date().toString())).toMatchInlineSnapshot('false')
-})
+import { isUri } from './utils.js'
 
 test('isUri - behavior: check for illegal characters', () => {
   expect(isUri(';')).toMatchInlineSnapshot('false')
@@ -22,4 +17,8 @@ test('isUri - behavior: no split value', () => {
 
 test('isUri - behavior: no scheme', () => {
   expect(isUri('example.com')).toMatchInlineSnapshot('false')
+})
+
+test('isUri - behavior: scheme does not begin with letter', () => {
+  expect(isUri('$https://example.com')).toMatchInlineSnapshot('false')
 })
