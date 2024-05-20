@@ -8,9 +8,9 @@ import {
   getL1Allowance,
 } from '../actions/getL1Allowance.js'
 import {
+  type GetL1BalanceParameters,
   type GetL1BalanceReturnType,
   getL1Balance,
-  type GetL1BalanceParameters,
 } from '../actions/getL1Balance.js'
 import {
   type GetL1TokenBalanceParameters,
