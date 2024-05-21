@@ -1,4 +1,3 @@
-import type { Address } from 'abitype'
 import { expect, test } from 'vitest'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
@@ -9,23 +8,14 @@ import { zkSyncLocalNode, zkSyncLocalNodeL1 } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
-import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
-import {
-  ETH_ADDRESS_IN_CONTRACTS,
-  LEGACY_ETH_ADDRESS,
-} from '../constants/number.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
 import { publicActionsL2 } from '../decorators/publicL2.js'
-import { constructSendParametersRequestExecute } from '../utils/constructSendParametersRequestExecute.js'
-import {
-  type DepositETHOnETHBasedChainTxReturnType,
-  getDepositETHOnETHBasedChainTx,
-} from '../utils/getDepositETHOnETHBasedChainTx.js'
+import { constructDepositSpecification } from '../utils/constructDepositParams.js'
+import { constructRequestL2TransactionDirectParameters } from '../utils/constructRequestL2TransactionDirectParameters.js'
+import { getDepositETHOnETHBasedChainTx } from '../utils/getDepositETHOnETHBasedChainTx.js'
 import { getDepositTxWithDefaults } from '../utils/getDepositTxWithDefaults.js'
-import { getERC20DefaultBridgeData } from '../utils/getERC20DefaultBridgeData.js'
 import { getL2TransactionFromPriorityOp } from '../utils/getL2TransactionFromPriorityOp.js'
 import { getRequestExecuteTxDefaults } from '../utils/getRequestExecuteTxDefaults.js'
-import { getBridgehubContractAddress } from './getBridgehubContractAddress.js'
 import { sendTransaction } from './sendTransaction.js'
 
 const account = privateKeyToAccount(
@@ -51,29 +41,18 @@ const walletL1 = createWalletClient({
 })
 
 test('depositETHToETHBasedChain', async () => {
-  const bridgehubContractAddress = await getBridgehubContractAddress(clientL2)
+  const token = '0x0000000000000000000000000000000000000000'
+  const amount = 1n
 
-  const l2ChainId = BigInt(clientL2.chain.id)
-
-  let token = '0x0000000000000000000000000000000000000000' as Address
-
-  if (isAddressEqualLite(token, LEGACY_ETH_ADDRESS)) {
-    token = ETH_ADDRESS_IN_CONTRACTS
-  }
-  const amount = 7_000_000_000n
-
-  const depositParams = {
-    token: token as Address,
-    amount: amount,
-    bridgehubContractAddress,
-    l2ChainId,
-    eRC20DefaultBridgeData: await getERC20DefaultBridgeData(clientL1, token),
+  const depositSpecification = await constructDepositSpecification(clientL1, {
+    token,
+    amount,
     refundRecipient: account.address,
-  }
+  })
 
   const depositTxWithDefaults = await getDepositTxWithDefaults(
     clientL2,
-    depositParams,
+    depositSpecification,
   )
 
   const baseCost = await clientL1.getL2TransactionBaseCost(
@@ -84,23 +63,28 @@ test('depositETHToETHBasedChain', async () => {
     ...depositTxWithDefaults,
     baseCost,
   }
-  const depositTx: DepositETHOnETHBasedChainTxReturnType =
-    getDepositETHOnETHBasedChainTx(getDepositETHOnETHBasedChainTxParams)
 
-  const requestExecuteTxDefauls: DepositETHOnETHBasedChainTxReturnType =
-    await getRequestExecuteTxDefaults(clientL2, depositTx)
-
-  requestExecuteTxDefauls.overrides!.maxFeePerGas = 1500000001n
-  requestExecuteTxDefauls.overrides!.maxPriorityFeePerGas = 1500000000n
-
-  const result = await constructSendParametersRequestExecute(
-    clientL1,
-    requestExecuteTxDefauls,
+  const depositTx = getDepositETHOnETHBasedChainTx(
+    getDepositETHOnETHBasedChainTxParams,
   )
 
-  const hash = await sendTransaction(walletL1, result)
+  const requestExecuteTxDefauls = await getRequestExecuteTxDefaults(
+    clientL2,
+    depositTx,
+  )
 
-  await waitForTransactionReceipt(clientL1, { hash: hash })
+  const requestL2TransactionDirectParameters =
+    await constructRequestL2TransactionDirectParameters(
+      clientL1,
+      requestExecuteTxDefauls,
+    )
+
+  const hash = await sendTransaction(
+    walletL1,
+    requestL2TransactionDirectParameters,
+  )
+
+  await waitForTransactionReceipt(clientL1, { hash })
 
   const l1TxReceipt = await getTransactionReceipt(clientL1, { hash })
 

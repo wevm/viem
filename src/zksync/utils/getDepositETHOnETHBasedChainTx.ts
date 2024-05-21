@@ -1,22 +1,11 @@
 import type { Address } from 'abitype'
 import type { Hex } from '../../types/misc.js'
-import type { Overrides } from '../types/deposit.js'
+import type { GetDepositTxWithDefaultsReturnType } from './getDepositTxWithDefaults.js'
 
-export type GetDepositETHOnETHBasedChainTxParamters = {
-  token: Address
-  amount: bigint
-  to?: Address
-  operatorTip?: bigint
-  bridgeAddress?: Address
-  l2GasLimit?: bigint
-  gasPerPubdataByte?: bigint
-  customBridgeData?: Hex
-  refundRecipient?: Address
-  overrides?: Overrides
-  baseCost: bigint
-  bridgehubContractAddress: Address
-  l2ChainId: bigint
-}
+export type GetDepositETHOnETHBasedChainTxParamters =
+  GetDepositTxWithDefaultsReturnType & {
+    baseCost: bigint
+  }
 
 export type DepositETHOnETHBasedChainTxReturnType =
   GetDepositETHOnETHBasedChainTxParamters & {

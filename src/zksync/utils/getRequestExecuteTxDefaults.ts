@@ -7,14 +7,13 @@ import type { Overrides } from '../types/deposit.js'
 import { estimateL1ToL2Execute } from './estimateL1ToL2Execute.js'
 import type { DepositETHOnETHBasedChainTxReturnType } from './getDepositETHOnETHBasedChainTx.js'
 
-export type GetDepositTxWithDefaultsParameters =
-  DepositETHOnETHBasedChainTxReturnType
+export type GetRequestExecuteTxDefaults = DepositETHOnETHBasedChainTxReturnType
 
 export async function getRequestExecuteTxDefaults<
   TChain extends Chain | undefined,
 >(
   clientL2: Client<Transport, TChain, Account>,
-  parameters: GetDepositTxWithDefaultsParameters,
+  parameters: GetRequestExecuteTxDefaults,
 ): Promise<DepositETHOnETHBasedChainTxReturnType> {
   const { ...tx } = parameters
   tx.l2Value ??= 0n
@@ -26,6 +25,10 @@ export async function getRequestExecuteTxDefaults<
   tx.gasPerPubdataByte ??= REQUIRED_L1_TO_L2_GAS_PER_PUBDATA_LIMIT
   tx.refundRecipient ??= clientL2.account.address
   tx.l2GasLimit = await estimateL1ToL2Execute(clientL2, parameters)
+  // TODO:
+  // https://github.com/wevm/viem/discussions/239
+  tx.overrides!.maxFeePerGas = 150000000100n
+  tx.overrides!.maxPriorityFeePerGas = 150000000000n
 
   return tx
 }
