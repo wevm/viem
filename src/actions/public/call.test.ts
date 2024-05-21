@@ -19,8 +19,6 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import {
   http,
   type Hex,
-  type StateMapping,
-  type StateOverride,
   createClient,
   encodeAbiParameters,
   pad,
@@ -29,12 +27,7 @@ import {
   toBlobs,
   toHex,
 } from '../../index.js'
-import {
-  call,
-  getRevertErrorData,
-  parseAccountStateOverride,
-  parseStateMapping,
-} from './call.js'
+import { call, getRevertErrorData } from './call.js'
 
 const client = anvilMainnet.getClient({ account: accounts[0].address })
 
@@ -1028,126 +1021,5 @@ describe('getRevertErrorData', () => {
         }),
       ),
     ).toBe('0x556f1830')
-  })
-})
-
-describe('parsing overrides', () => {
-  test('state mapping', () => {
-    const stateMapping: StateMapping = [
-      {
-        slot: `0x${fourTwenty}`,
-        value: `0x${fourTwenty}`,
-      },
-    ]
-    expect(parseStateMapping(stateMapping)).toMatchInlineSnapshot(`
-      {
-        "0x${fourTwenty}": "0x${fourTwenty}",
-      }
-    `)
-  })
-
-  test('state mapping: undefined', () => {
-    expect(parseStateMapping(undefined)).toMatchInlineSnapshot('undefined')
-  })
-
-  test('state mapping: invalid key', () => {
-    const stateMapping: StateMapping = [
-      {
-        // invalid bytes length
-        slot: `0x${fourTwenty.slice(0, -1)}`,
-        value: `0x${fourTwenty}`,
-      },
-    ]
-
-    expect(() =>
-      parseStateMapping(stateMapping),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
-
-      Version: viem@1.0.2]
-    `)
-  })
-
-  test('state mapping: invalid value', () => {
-    const stateMapping: StateMapping = [
-      {
-        slot: `0x${fourTwenty}`,
-        value: `0x${fourTwenty.slice(0, -1)}`,
-      },
-    ]
-
-    expect(() =>
-      parseStateMapping(stateMapping),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
-
-      Version: viem@1.0.2]
-    `)
-  })
-
-  test('args: code', () => {
-    const stateOverride: Omit<StateOverride[number], 'address'> = {
-      code: `0x${fourTwenty}`,
-    }
-
-    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
-      {
-        "code": "0x${fourTwenty}",
-      }
-    `)
-
-    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
-      code: undefined,
-    }
-
-    expect(
-      parseAccountStateOverride(emptyStateOverride),
-    ).toMatchInlineSnapshot(`
-      {}
-    `)
-  })
-
-  test('args: balance', () => {
-    const stateOverride: Omit<StateOverride[number], 'address'> = {
-      balance: 1n,
-    }
-
-    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
-      {
-        "balance": "0x1",
-      }
-    `)
-
-    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
-      balance: undefined,
-    }
-
-    expect(
-      parseAccountStateOverride(emptyStateOverride),
-    ).toMatchInlineSnapshot(`
-      {}
-    `)
-  })
-
-  test('args: nonce', () => {
-    const stateOverride: Omit<StateOverride[number], 'address'> = {
-      nonce: 1,
-    }
-
-    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
-      {
-        "nonce": "0x1",
-      }
-    `)
-
-    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
-      nonce: undefined,
-    }
-
-    expect(
-      parseAccountStateOverride(emptyStateOverride),
-    ).toMatchInlineSnapshot(`
-      {}
-    `)
   })
 })

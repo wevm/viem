@@ -10,10 +10,7 @@ import {
 } from '../index.js'
 import { parseTransaction } from './parsers.js'
 import { serializeTransaction } from './serializers.js'
-import type {
-  TransactionSerializableCIP42,
-  TransactionSerializableCIP64,
-} from './types.js'
+import type { TransactionSerializableCIP64 } from './types.js'
 
 test('should be able to parse a cip42 transaction', () => {
   const signedTransaction =
@@ -49,17 +46,12 @@ test('should return same result as standard parser when not CIP42 or CIP64', () 
 })
 
 describe('should parse a CIP42 transaction', () => {
-  const transactionWithGatewayFee = {
-    ...transaction,
-    chainId: 42270,
-    gatewayFee: parseEther('0.1'),
-    gatewayFeeRecipient: accounts[1].address,
-  }
-
   test('with gatewayFee', () => {
-    const serialized = serializeTransaction(transactionWithGatewayFee)
-
-    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+    expect(
+      parseTransaction(
+        '0x7cf85282a51e82031184773594008477359400825209809470997970c51812dc3a010c7d01b50e0d17dc79c888016345785d8a00009490f79bf6eb2c4f870365e785982e1f101e93b906880de0b6b3a764000080c0',
+      ),
+    ).toMatchInlineSnapshot(`
         {
           "chainId": 42270,
           "gas": 21001n,
@@ -74,23 +66,13 @@ describe('should parse a CIP42 transaction', () => {
         }
       `)
   })
+
   test('with access list', () => {
-    const transactionWithAccessList: TransactionSerializableCIP42 = {
-      ...transactionWithGatewayFee,
-      accessList: [
-        {
-          address: '0x0000000000000000000000000000000000000000',
-          storageKeys: [
-            '0x0000000000000000000000000000000000000000000000000000000000000001',
-            '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-          ],
-        },
-      ],
-    }
-
-    const serialized = serializeTransaction(transactionWithAccessList)
-
-    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+    expect(
+      parseTransaction(
+        '0x7cf8ae82a51e82031184773594008477359400825209809470997970c51812dc3a010c7d01b50e0d17dc79c888016345785d8a00009490f79bf6eb2c4f870365e785982e1f101e93b906880de0b6b3a764000080f85bf859940000000000000000000000000000000000000000f842a00000000000000000000000000000000000000000000000000000000000000001a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+      ),
+    ).toMatchInlineSnapshot(`
         {
           "accessList": [
             {
@@ -114,15 +96,13 @@ describe('should parse a CIP42 transaction', () => {
         }
       `)
   })
+
   test('with data as 0x', () => {
-    const transactionWithData: TransactionSerializableCIP42 = {
-      ...transactionWithGatewayFee,
-      data: '0x',
-    }
-
-    const serialized = serializeTransaction(transactionWithData)
-
-    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+    expect(
+      parseTransaction(
+        '0x7cf85282a51e82031184773594008477359400825209809470997970c51812dc3a010c7d01b50e0d17dc79c888016345785d8a00009490f79bf6eb2c4f870365e785982e1f101e93b906880de0b6b3a764000080c0',
+      ),
+    ).toMatchInlineSnapshot(`
         {
           "chainId": 42270,
           "gas": 21001n,
@@ -137,15 +117,13 @@ describe('should parse a CIP42 transaction', () => {
         }
       `)
   })
+
   test('with data', () => {
-    const transactionWithData: TransactionSerializableCIP42 = {
-      ...transactionWithGatewayFee,
-      data: '0x1234',
-    }
-
-    const serialized = serializeTransaction(transactionWithData)
-
-    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+    expect(
+      parseTransaction(
+        '0x7cf85482a51e82031184773594008477359400825209809470997970c51812dc3a010c7d01b50e0d17dc79c888016345785d8a00009490f79bf6eb2c4f870365e785982e1f101e93b906880de0b6b3a7640000821234c0',
+      ),
+    ).toMatchInlineSnapshot(`
         {
           "chainId": 42270,
           "data": "0x1234",

@@ -4,8 +4,10 @@ import { accounts } from '~test/src/constants.js'
 import { kzg } from '~test/src/kzg.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { maxUint256 } from '../../constants/number.js'
 
 import { toBlobs } from '../../utils/blob/toBlobs.js'
+import { toHex } from '../../utils/encoding/toHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
@@ -135,6 +137,32 @@ test('args: blobs', async () => {
       maxFeePerBlobGas: parseGwei('20'),
     }),
   ).toMatchInlineSnapshot('53001n')
+})
+
+test('args: override', async () => {
+  const transferData =
+    '0xa9059cbb00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000de0b6b3a7640000'
+  const balanceSlot =
+    '0xc651ee22c6951bb8b5bd29e8210fb394645a94315fe10eff2cc73de1aa75c137'
+
+  expect(
+    await estimateGas(client, {
+      data: transferData,
+      account: accounts[0].address,
+      to: wethContractAddress,
+      stateOverride: [
+        {
+          address: wethContractAddress,
+          stateDiff: [
+            {
+              slot: balanceSlot,
+              value: toHex(maxUint256),
+            },
+          ],
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot('51594n')
 })
 
 describe('local account', () => {

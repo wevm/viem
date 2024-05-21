@@ -294,7 +294,7 @@ describe('eip2930', () => {
 
 describe('with custom EIP2718 serializer', () => {
   type ExampleTransaction = Omit<TransactionSerializableGeneric, 'type'> & {
-    type: 'cip42'
+    type: 'cip64'
     chainId: number
     additionalField: `0x${string}`
   }
@@ -333,7 +333,7 @@ describe('with custom EIP2718 serializer', () => {
 
     const example2718Transaction: ExampleTransaction = {
       ...base,
-      type: 'cip42',
+      type: 'cip64',
       additionalField: '0x0000',
       chainId: 42240,
     }
