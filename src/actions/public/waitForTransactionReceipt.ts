@@ -141,6 +141,7 @@ export async function waitForTransactionReceipt<
 ): Promise<WaitForTransactionReceiptReturnType<TChain>> {
   const observerId = stringify(['waitForTransactionReceipt', client.uid, hash])
 
+  let count = 0
   let transaction: GetTransactionReturnType<TChain> | undefined
   let replacedTransaction: GetTransactionReturnType<TChain> | undefined
   let receipt: GetTransactionReceiptReturnType<TChain>
@@ -167,15 +168,21 @@ export async function waitForTransactionReceipt<
           poll: true,
           pollingInterval,
           async onBlockNumber(blockNumber_) {
-            if (retrying) return
-
-            let blockNumber = blockNumber_
-
             const done = (fn: () => void) => {
               _unwatch()
               fn()
               _unobserve()
             }
+
+            let blockNumber = blockNumber_
+
+            if (retrying) return
+            if (count > retryCount)
+              done(() =>
+                emit.reject(
+                  new WaitForTransactionReceiptTimeoutError({ hash }),
+                ),
+              )
 
             try {
               // If we already have a valid receipt, let's check if we have enough
@@ -325,6 +332,8 @@ export async function waitForTransactionReceipt<
               } else {
                 done(() => emit.reject(err))
               }
+            } finally {
+              count++
             }
           },
         })

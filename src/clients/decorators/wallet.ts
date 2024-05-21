@@ -78,9 +78,9 @@ import {
   writeContract,
 } from '../../actions/wallet/writeContract.js'
 import type { Chain } from '../../types/chain.js'
-import {
-  type ContractFunctionArgs,
-  type ContractFunctionName,
+import type {
+  ContractFunctionArgs,
+  ContractFunctionName,
 } from '../../types/contract.js'
 import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'

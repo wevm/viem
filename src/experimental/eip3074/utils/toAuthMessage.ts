@@ -10,7 +10,7 @@ import {
   type NumberToHexErrorType,
   numberToHex,
 } from '../../../utils/encoding/toHex.js'
-import { type Keccak256ErrorType } from '../../../utils/hash/keccak256.js'
+import type { Keccak256ErrorType } from '../../../utils/hash/keccak256.js'
 
 export type ToAuthMessageParameters = {
   chainId: number

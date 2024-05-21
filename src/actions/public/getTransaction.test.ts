@@ -104,6 +104,9 @@ test('gets transaction (eip2930)', async () => {
     [
       "hash",
       "nonce",
+      "blockHash",
+      "blockNumber",
+      "transactionIndex",
       "from",
       "to",
       "value",
@@ -117,9 +120,6 @@ test('gets transaction (eip2930)', async () => {
       "chainId",
       "accessList",
       "type",
-      "blockHash",
-      "blockNumber",
-      "transactionIndex",
       "typeHex",
     ]
   `)
@@ -245,25 +245,13 @@ describe('args: hash', () => {
   })
 
   test('throws if transaction not found', async () => {
-    // await expect(
-    //   getTransaction(client, {
-    //     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-    //   }),
-    // ).rejects.toThrowError(
-    //   'Transaction with hash "0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d" could not be found.',
-    // )
-    // TODO: file foundry issue
     await expect(
       getTransaction(client, {
         hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [InternalRpcError: An internal error was received.
+      [TransactionNotFoundError: Transaction with hash "0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d" could not be found.
 
-      URL: http://localhost
-      Request body: {"method":"eth_getTransactionByHash","params":["0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d"]}
-
-      Details: Fork Error: DeserError { err: Error("invalid type: null, expected struct WithOtherFieldsHelper", line: 1, column: 4), text: "null" }
       Version: viem@1.0.2]
     `)
   })

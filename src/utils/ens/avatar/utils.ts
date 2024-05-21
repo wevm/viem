@@ -244,7 +244,7 @@ export function parseNftUri(uri_: string): ParsedNft {
     throw new EnsAvatarInvalidNftUriError({ reason: 'ERC namespace not found' })
 
   return {
-    chainID: parseInt(chainID),
+    chainID: Number.parseInt(chainID),
     namespace: erc_namespace.toLowerCase(),
     contractAddress: contractAddress as Address,
     tokenID,

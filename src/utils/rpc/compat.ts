@@ -2,15 +2,15 @@
 // These APIs will be removed in v3.
 
 /* c8 ignore start */
-import {
-  type TimeoutErrorType,
+import type {
+  TimeoutErrorType,
   WebSocketRequestError,
 } from '../../errors/request.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { RpcResponse } from '../../types/rpc.js'
-import { type WithTimeoutErrorType } from '../promise/withTimeout.js'
+import type { WithTimeoutErrorType } from '../promise/withTimeout.js'
 import { type HttpRequestParameters, getHttpRpcClient } from './http.js'
-import { type SocketRpcClient } from './socket.js'
+import type { SocketRpcClient } from './socket.js'
 import { getWebSocketRpcClient } from './webSocket.js'
 
 export type WebSocketOptions = Parameters<

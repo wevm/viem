@@ -1,5 +1,77 @@
 # viem
 
+## 2.11.1
+
+### Patch Changes
+
+- [`438ecffac0fd2ee3c1a774152efafa2a810fd5cf`](https://github.com/wevm/viem/commit/438ecffac0fd2ee3c1a774152efafa2a810fd5cf) Thanks [@jxom](https://github.com/jxom)! - Fixed hanging `waitForTransactionReceipt`
+
+## 2.11.0
+
+### Minor Changes
+
+- [#2190](https://github.com/wevm/viem/pull/2190) [`698f922299755910bc031a4c0d4cc7bd6f6ef052`](https://github.com/wevm/viem/commit/698f922299755910bc031a4c0d4cc7bd6f6ef052) Thanks [@kiriyaga-txfusion](https://github.com/kiriyaga-txfusion)! - **zkSync Extension:** Added L1 Public Actions.
+
+- [#2277](https://github.com/wevm/viem/pull/2277) [`5336e65c52d87edddc53164904ad3fb2ab25c026`](https://github.com/wevm/viem/commit/5336e65c52d87edddc53164904ad3fb2ab25c026) Thanks [@jxom](https://github.com/jxom)! - **Celo Extension (Breaking):** Removed CIP-42 support. Any transactions with a `feeCurrency` property will be treated as a CIP-64 transaction.
+
+- [#2167](https://github.com/wevm/viem/pull/2167) [`c2c079143e065ac157a92c64c1aed58ee8435450`](https://github.com/wevm/viem/commit/c2c079143e065ac157a92c64c1aed58ee8435450) Thanks [@nikola-bozin-txfusion](https://github.com/nikola-bozin-txfusion)! - **zkSync Extension:** Added support for `zks_` namespace + actions.
+
+## 2.10.11
+
+### Patch Changes
+
+- [#2275](https://github.com/wevm/viem/pull/2275) [`190268595d94d7d9ade07605754dcae6be3765cf`](https://github.com/wevm/viem/commit/190268595d94d7d9ade07605754dcae6be3765cf) Thanks [@jxom](https://github.com/jxom)! - Added `stateOverride` on `estimateGas`.
+
+## 2.10.10
+
+### Patch Changes
+
+- [#2270](https://github.com/wevm/viem/pull/2270) [`601dbb436fcc855e3c2925baa9096bc841e28fef`](https://github.com/wevm/viem/commit/601dbb436fcc855e3c2925baa9096bc841e28fef) Thanks [@metallicusdev](https://github.com/metallicusdev)! - Added Metal L2 chain.
+
+- [#2267](https://github.com/wevm/viem/pull/2267) [`7cf9c70bef8cf4543c930ab9a62fc547eb25a24e`](https://github.com/wevm/viem/commit/7cf9c70bef8cf4543c930ab9a62fc547eb25a24e) Thanks [@hoangtan282](https://github.com/hoangtan282)! - Add Funki Sepolia Testnet
+
+- [#2272](https://github.com/wevm/viem/pull/2272) [`5de7e542c53471a44723d304f35212202f4f1c80`](https://github.com/wevm/viem/commit/5de7e542c53471a44723d304f35212202f4f1c80) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Lisk mainnet
+
+- [#2271](https://github.com/wevm/viem/pull/2271) [`b04fc38b0da655857477ac90517c72f4c58c5f65`](https://github.com/wevm/viem/commit/b04fc38b0da655857477ac90517c72f4c58c5f65) Thanks [@derrekcoleman](https://github.com/derrekcoleman)! - Added BOB chain.
+
+## 2.10.9
+
+### Patch Changes
+
+- [#2254](https://github.com/wevm/viem/pull/2254) [`444978d9eef09348e94de55fd1f74eb2ad5f861c`](https://github.com/wevm/viem/commit/444978d9eef09348e94de55fd1f74eb2ad5f861c) Thanks [@aarifkhamdi](https://github.com/aarifkhamdi)! - Added Nautilus chain.
+
+## 2.10.8
+
+### Patch Changes
+
+- [#2261](https://github.com/wevm/viem/pull/2261) [`8e337255dda6ce303ccfe556011b1071b7b74b1e`](https://github.com/wevm/viem/commit/8e337255dda6ce303ccfe556011b1071b7b74b1e) Thanks [@jnsdls](https://github.com/jnsdls)! - Updated `isows`.
+
+## 2.10.7
+
+### Patch Changes
+
+- [#2256](https://github.com/wevm/viem/pull/2256) [`f9ffcf8413c06634bbcfe09517a57e75f784b969`](https://github.com/wevm/viem/commit/f9ffcf8413c06634bbcfe09517a57e75f784b969) Thanks [@LeTamanoir](https://github.com/LeTamanoir)! - Fixed batch scheduler id in http transport
+
+- [#2257](https://github.com/wevm/viem/pull/2257) [`4382bb519b663fb678a519733f5c6c68d8f705c1`](https://github.com/wevm/viem/commit/4382bb519b663fb678a519733f5c6c68d8f705c1) Thanks [@jonathansmirnoff](https://github.com/jonathansmirnoff)! - Added Rootstock Testnet chain.
+
+## 2.10.6
+
+### Patch Changes
+
+- [#2252](https://github.com/wevm/viem/pull/2252) [`35667f0644dac2450c217d2b4aa10b5ebb31d906`](https://github.com/wevm/viem/commit/35667f0644dac2450c217d2b4aa10b5ebb31d906) Thanks [@jsmjsm](https://github.com/jsmjsm)! - Added Bitlayer chain and Bitlayer Testnet chain.
+
+## 2.10.5
+
+### Patch Changes
+
+- [`351a076a15725837429fb21f3aba62cf33c86fc9`](https://github.com/wevm/viem/commit/351a076a15725837429fb21f3aba62cf33c86fc9) Thanks [@jxom](https://github.com/jxom)! - Added note on EIP-1191 checksum.
+
+- [#2241](https://github.com/wevm/viem/pull/2241) [`88c0226fc355b24a4a7b01eb572c98b7c4a686ec`](https://github.com/wevm/viem/commit/88c0226fc355b24a4a7b01eb572c98b7c4a686ec) Thanks [@nidz-the-fact](https://github.com/nidz-the-fact)! - Added jbcTestnet chain.
+
+- [#2240](https://github.com/wevm/viem/pull/2240) [`50deaedcdf3c62ec121b48a87f43d59e072bf200`](https://github.com/wevm/viem/commit/50deaedcdf3c62ec121b48a87f43d59e072bf200) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated Mantle block explorer.
+
+- [`351a076a15725837429fb21f3aba62cf33c86fc9`](https://github.com/wevm/viem/commit/351a076a15725837429fb21f3aba62cf33c86fc9) Thanks [@jxom](https://github.com/jxom)! - Added LRU cache for `checksumAddress`.
+
 ## 2.10.4
 
 ### Patch Changes
