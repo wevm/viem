@@ -73,4 +73,4 @@ Random string to check against.
 - **Type:** `Date`
 - **Default:** `new Date()`
 
-Current time to check optional `expirationTime` and `notBefore` fields.
+Current time to check optional [`expirationTime`](http://localhost:5173/docs/siwe/utilities/createSiweMessage#expirationtime-optional) and [`notBefore`](/docs/siwe/utilities/createSiweMessage#notbefore-optional) message fields.
