@@ -4,14 +4,14 @@ import {
 } from '../../errors/siwe.js'
 import type { ErrorType } from '../../errors/utils.js'
 import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
-import type { Message } from './types.js'
+import type { SiweMessage } from './types.js'
 import { isUri } from './utils.js'
 
-export type CreateMessageParameters = Message
+export type CreateSiweMessageParameters = SiweMessage
 
-export type CreateMessageReturnType = string
+export type CreateSiweMessageReturnType = string
 
-export type CreateMessageErrorType =
+export type CreateSiweMessageErrorType =
   | GetAddressErrorType
   | SiweInvalidMessageFieldErrorType
   | ErrorType
@@ -31,9 +31,9 @@ export type CreateMessageErrorType =
  *
  * @see https://eips.ethereum.org/EIPS/eip-4361
  */
-export function createMessage(
-  parameters: CreateMessageParameters,
-): CreateMessageReturnType {
+export function createSiweMessage(
+  parameters: CreateSiweMessageParameters,
+): CreateSiweMessageReturnType {
   const {
     chainId,
     domain,

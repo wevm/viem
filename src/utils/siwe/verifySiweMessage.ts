@@ -11,21 +11,44 @@ import {
   type RecoverMessageAddressErrorType,
   recoverMessageAddress,
 } from '../signature/recoverMessageAddress.js'
-import { parseMessage } from './parseMessage.js'
+import { parseSiweMessage } from './parseSiweMessage.js'
 
-export type VerifyMessageParameters = {
+export type VerifySiweMessageParameters = {
+  /**
+   * Ethereum address to check against.
+   */
   address?: Address | undefined
+  /**
+   * [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986) authority to check against.
+   */
   domain?: string | undefined
+  /**
+   * EIP-4361 formated message.
+   */
   message: string
+  /**
+   * Random string to check against.
+   */
   nonce?: string | undefined
+  /**
+   * [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986#section-3.1) URI scheme to check against.
+   */
   scheme?: string | undefined
+  /**
+   * Signature to check against.
+   */
   signature: Hex
+  /**
+   * Current time to check optional `expirationTime` and `notBefore` fields.
+   *
+   * @default new Date()
+   */
   time?: Date | undefined
 }
 
-export type VerifyMessageReturnType = boolean
+export type VerifySiweMessageReturnType = boolean
 
-export type VerifyMessageErrorType =
+export type VerifySiweMessageErrorType =
   | IsAddressEqualErrorType
   | GetAddressErrorType
   | RecoverMessageAddressErrorType
@@ -35,10 +58,12 @@ export type VerifyMessageErrorType =
  * @description Verifies EIP-4361 formated message.
  *
  * @see https://eips.ethereum.org/EIPS/eip-4361
+ *
+ * @returns Whether the message is valid.
  */
-export async function verifyMessage(
-  parameters: VerifyMessageParameters,
-): Promise<VerifyMessageReturnType> {
+export async function verifySiweMessage(
+  parameters: VerifySiweMessageParameters,
+): Promise<VerifySiweMessageReturnType> {
   const {
     address,
     domain,
@@ -49,10 +74,10 @@ export async function verifyMessage(
     time = new Date(),
   } = parameters
 
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
 
   if (!parsed.address) return false
-  if (address && isAddressEqual(parsed.address, address)) return false
+  if (address && !isAddressEqual(parsed.address, address)) return false
   if (domain && parsed.domain !== domain) return false
   if (nonce && parsed.nonce !== nonce) return false
   if (scheme && parsed.scheme !== scheme) return false

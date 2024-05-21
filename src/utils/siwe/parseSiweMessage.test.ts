@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { parseMessage } from './parseMessage.js'
+import { parseSiweMessage } from './parseSiweMessage.js'
 
 test('default', () => {
   const message = `example.com wants you to sign in with your Ethereum account:
@@ -13,7 +13,7 @@ Version: 1
 Chain ID: 1
 Nonce: foobarbaz
 Issued At: 2023-02-01T00:00:00.000Z`
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed).toMatchInlineSnapshot(`
     {
       "address": "0xA0Cf798816D4b9b9866b5330EEa46a18382f251e",
@@ -37,7 +37,7 @@ Version: 1
 Chain ID: 1
 Nonce: foobarbaz
 Issued At: 2023-02-01T00:00:00.000Z`
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed.scheme).toMatchInlineSnapshot(`"https"`)
 })
 
@@ -52,7 +52,7 @@ Version: 1
 Chain ID: 1
 Nonce: foobarbaz
 Issued At: 2023-02-01T00:00:00.000Z`
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed.statement).toMatchInlineSnapshot(
     `"I accept the ExampleOrg Terms of Service: https://example.com/tos"`,
   )
@@ -68,7 +68,7 @@ Chain ID: 1
 Nonce: foobarbaz
 Issued At: 2023-02-01T00:00:00.000Z
 Expiration Time: 2022-02-04T00:00:00.000Z`
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed.expirationTime).toMatchInlineSnapshot(
     '2022-02-04T00:00:00.000Z',
   )
@@ -84,7 +84,7 @@ Chain ID: 1
 Nonce: foobarbaz
 Issued At: 2023-02-01T00:00:00.000Z
 Not Before: 2022-02-04T00:00:00.000Z`
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed.notBefore).toMatchInlineSnapshot('2022-02-04T00:00:00.000Z')
 })
 
@@ -98,7 +98,7 @@ Chain ID: 1
 Nonce: foobarbaz
 Issued At: 2023-02-01T00:00:00.000Z
 Request ID: 123e4567-e89b-12d3-a456-426614174000`
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed.requestId).toMatchInlineSnapshot(
     `"123e4567-e89b-12d3-a456-426614174000"`,
   )
@@ -117,7 +117,7 @@ Resources:
 - https://example.com/foo
 - https://example.com/bar
 - https://example.com/baz`
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed.resources).toMatchInlineSnapshot(`
     [
       "https://example.com/foo",
@@ -132,7 +132,7 @@ test('behavior: no suffix', () => {
 0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
 `
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed).toMatchInlineSnapshot(`
     {
       "address": "0xA0Cf798816D4b9b9866b5330EEa46a18382f251e",
@@ -149,7 +149,7 @@ Chain ID: 1
 Nonce: foobarbaz
 Issued At: 2023-02-01T00:00:00.000Z
 Request ID: 123e4567-e89b-12d3-a456-426614174000`
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed).toMatchInlineSnapshot(`
     {
       "chainId": 1,
@@ -164,6 +164,6 @@ Request ID: 123e4567-e89b-12d3-a456-426614174000`
 
 test('behavior: bogus message', () => {
   const message = 'foobarbaz'
-  const parsed = parseMessage(message)
+  const parsed = parseSiweMessage(message)
   expect(parsed).toMatchInlineSnapshot('{}')
 })

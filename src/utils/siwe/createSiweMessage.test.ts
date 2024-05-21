@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest'
 
 import { mainnet } from '../../chains/definitions/mainnet.js'
-import { createMessage } from './createMessage.js'
-import type { Message } from './types.js'
+import { createSiweMessage } from './createSiweMessage.js'
+import type { SiweMessage } from './types.js'
 
 const message = {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -11,13 +11,13 @@ const message = {
   nonce: 'foobarbaz',
   uri: 'https://example.com/path',
   version: '1',
-} satisfies Message
+} satisfies SiweMessage
 
 test('default', () => {
   vi.useFakeTimers()
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
 
-  expect(createMessage(message)).toMatchInlineSnapshot(`
+  expect(createSiweMessage(message)).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
@@ -36,7 +36,7 @@ test('parameters: scheme', () => {
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
 
   expect(
-    createMessage({
+    createSiweMessage({
       ...message,
       scheme: 'https',
     }),
@@ -59,7 +59,7 @@ test('parameters: statement', () => {
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
 
   expect(
-    createMessage({
+    createSiweMessage({
       ...message,
       statement:
         'I accept the ExampleOrg Terms of Service: https://example.com/tos',
@@ -82,7 +82,7 @@ test('parameters: statement', () => {
 
 test('parameters: issuedAt', () => {
   const issuedAt = new Date(Date.UTC(2022, 1, 4))
-  expect(createMessage({ ...message, issuedAt })).toMatchInlineSnapshot(`
+  expect(createSiweMessage({ ...message, issuedAt })).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
@@ -99,7 +99,7 @@ test('parameters: expirationTime', () => {
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
 
   expect(
-    createMessage({
+    createSiweMessage({
       ...message,
       expirationTime: new Date(Date.UTC(2022, 1, 4)),
     }),
@@ -123,7 +123,7 @@ test('parameters: notBefore', () => {
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
 
   expect(
-    createMessage({
+    createSiweMessage({
       ...message,
       notBefore: new Date(Date.UTC(2022, 1, 4)),
     }),
@@ -147,7 +147,7 @@ test('parameters: requestId', () => {
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
 
   expect(
-    createMessage({
+    createSiweMessage({
       ...message,
       requestId: '123e4567-e89b-12d3-a456-426614174000',
     }),
@@ -171,7 +171,7 @@ test('parameters: resources', () => {
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
 
   expect(
-    createMessage({
+    createSiweMessage({
       ...message,
       resources: [
         'https://example.com/foo',
@@ -199,7 +199,7 @@ test('parameters: resources', () => {
 
 test('behavior: invalid address', () => {
   expect(() =>
-    createMessage({ ...message, address: '0xfoobarbaz' }),
+    createSiweMessage({ ...message, address: '0xfoobarbaz' }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0xfoobarbaz" is invalid.
 
@@ -212,7 +212,7 @@ test('behavior: invalid address', () => {
 
 test('behavior: invalid chainId', () => {
   expect(() =>
-    createMessage({ ...message, chainId: 1.1 }),
+    createSiweMessage({ ...message, chainId: 1.1 }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "chainId".
 
@@ -227,7 +227,7 @@ test('behavior: invalid chainId', () => {
 
 test('behavior: invalid domain', () => {
   expect(() =>
-    createMessage({ ...message, domain: '#foo' }),
+    createSiweMessage({ ...message, domain: '#foo' }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "domain".
 
@@ -242,7 +242,7 @@ test('behavior: invalid domain', () => {
 
 test('behavior: invalid nonce', () => {
   expect(() =>
-    createMessage({ ...message, nonce: '#foo' }),
+    createSiweMessage({ ...message, nonce: '#foo' }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "nonce".
 
@@ -257,7 +257,7 @@ test('behavior: invalid nonce', () => {
 
 test('behavior: invalid uri', () => {
   expect(() =>
-    createMessage({ ...message, uri: '#foo' }),
+    createSiweMessage({ ...message, uri: '#foo' }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "uri".
 
@@ -273,7 +273,7 @@ test('behavior: invalid uri', () => {
 test('behavior: invalid version', () => {
   expect(() =>
     // @ts-expect-error
-    createMessage({ ...message, version: '2' }),
+    createSiweMessage({ ...message, version: '2' }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "version".
 
@@ -287,7 +287,7 @@ test('behavior: invalid version', () => {
 
 test('behavior: invalid scheme', () => {
   expect(() =>
-    createMessage({ ...message, scheme: 'foo_bar' }),
+    createSiweMessage({ ...message, scheme: 'foo_bar' }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "scheme".
 
@@ -302,7 +302,7 @@ test('behavior: invalid scheme', () => {
 
 test('behavior: invalid statement', () => {
   expect(() =>
-    createMessage({ ...message, statement: 'foo\nbar' }),
+    createSiweMessage({ ...message, statement: 'foo\nbar' }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "statement".
 
@@ -317,7 +317,10 @@ test('behavior: invalid statement', () => {
 
 test('behavior: invalid resources', () => {
   expect(() =>
-    createMessage({ ...message, resources: ['https://example.com', 'foo'] }),
+    createSiweMessage({
+      ...message,
+      resources: ['https://example.com', 'foo'],
+    }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "resources".
 

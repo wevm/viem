@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { generateNonce } from './generateNonce.js'
+import { generateSiweNonce } from './generateSiweNonce.js'
 
 test('default', () => {
-  const nonce = generateNonce()
+  const nonce = generateSiweNonce()
   expect(nonce.length).toMatchInlineSnapshot('96')
 })

@@ -1,12 +1,16 @@
 import type { Address } from 'abitype'
 
 import type { ExactPartial } from '../../types/utils.js'
-import type { Message } from './types.js'
+import type { SiweMessage } from './types.js'
 
 /**
  * @description Parses EIP-4361 formated message into message fields object.
+ *
+ * @see https://eips.ethereum.org/EIPS/eip-4361
+ *
+ * @returns EIP-4361 fields object
  */
-export function parseMessage(message: string): ExactPartial<Message> {
+export function parseSiweMessage(message: string): ExactPartial<SiweMessage> {
   const { scheme, statement, ...prefix } = (message.match(prefixRegex)
     ?.groups ?? {}) as {
     address: Address
@@ -25,7 +29,6 @@ export function parseMessage(message: string): ExactPartial<Message> {
       uri: string
       version: '1'
     }
-  // TODO: Speed up
   const resources = message.split('Resources:')[1]?.split('\n- ').slice(1)
   return {
     ...prefix,
