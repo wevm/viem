@@ -60,7 +60,7 @@
 - First-class support for [Anvil](https://book.getfoundry.sh/), [Hardhat](https://hardhat.org/) & [Ganache](https://trufflesuite.com/ganache/)
 - Test suite running against [forked](https://ethereum.org/en/glossary/#fork) Ethereum network
 
-... and a lot lot more.
+... and a lot more.
 
 ## Overview
 
