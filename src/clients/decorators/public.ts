@@ -186,11 +186,6 @@ import {
   verifyMessage,
 } from '../../actions/public/verifyMessage.js'
 import {
-  type VerifySiweMessageParameters,
-  type VerifySiweMessageReturnType,
-  verifySiweMessage,
-} from '../../actions/siwe/verifySiweMessage.js'
-import {
   type VerifyTypedDataParameters,
   type VerifyTypedDataReturnType,
   verifyTypedData,
@@ -225,6 +220,11 @@ import {
   type WatchPendingTransactionsReturnType,
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
+import {
+  type VerifySiweMessageParameters,
+  type VerifySiweMessageReturnType,
+  verifySiweMessage,
+} from '../../actions/siwe/verifySiweMessage.js'
 import {
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestRequest,

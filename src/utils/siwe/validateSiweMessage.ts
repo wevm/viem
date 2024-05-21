@@ -1,8 +1,8 @@
 import type { Address } from 'abitype'
 
-import type { SiweMessage } from './types.js'
-import { isAddressEqual } from '../address/isAddressEqual.js'
 import type { ExactPartial } from '../../types/utils.js'
+import { isAddressEqual } from '../address/isAddressEqual.js'
+import type { SiweMessage } from './types.js'
 
 export type ValidateSiweMessageParameters = {
   /**
