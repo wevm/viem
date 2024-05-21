@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 
-import type { ExactPartial } from '../../types/utils.js'
+import type { ExactPartial, Prettify } from '../../types/utils.js'
 import type { SiweMessage } from './types.js'
 
 /**
@@ -10,7 +10,9 @@ import type { SiweMessage } from './types.js'
  *
  * @returns EIP-4361 fields object
  */
-export function parseSiweMessage(message: string): ExactPartial<SiweMessage> {
+export function parseSiweMessage(
+  message: string,
+): Prettify<ExactPartial<SiweMessage>> {
   const { scheme, statement, ...prefix } = (message.match(prefixRegex)
     ?.groups ?? {}) as {
     address: Address

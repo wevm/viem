@@ -8,14 +8,14 @@ import { hashMessage } from '../../utils/signature/hashMessage.js'
 import type { HashMessageErrorType } from '../../utils/signature/hashMessage.js'
 import { parseSiweMessage } from '../../utils/siwe/parseSiweMessage.js'
 import {
+  type ValidateSiweMessageParameters,
+  validateSiweMessage,
+} from '../../utils/siwe/validateSiweMessage.js'
+import {
   type VerifyHashErrorType,
   type VerifyHashParameters,
   verifyHash,
 } from '../public/verifyHash.js'
-import {
-  validateSiweMessage,
-  type ValidateSiweMessageParameters,
-} from '../../utils/siwe/validateSiweMessage.js'
 
 export type VerifySiweMessageParameters = Prettify<
   Pick<VerifyHashParameters, 'blockNumber' | 'blockTag'> &

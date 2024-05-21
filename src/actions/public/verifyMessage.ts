@@ -10,6 +10,7 @@ import type {
   SignableMessage,
   Signature,
 } from '../../types/misc.js'
+import type { Prettify } from '../../types/utils.js'
 import { hashMessage } from '../../utils/signature/hashMessage.js'
 import type { HashMessageErrorType } from '../../utils/signature/hashMessage.js'
 import {
@@ -17,7 +18,6 @@ import {
   type VerifyHashParameters,
   verifyHash,
 } from './verifyHash.js'
-import type { Prettify } from '../../types/utils.js'
 
 export type VerifyMessageParameters = Prettify<
   Omit<VerifyHashParameters, 'hash'> & {

@@ -6,6 +6,8 @@ description: Verifies EIP-4361 formatted message was signed.
 
 Verifies [EIP-4361](https://eips.ethereum.org/EIPS/eip-4361) formatted message was signed.
 
+See [`createSiweMessage`](/docs/siwe/utilities/createSiweMessage) for info on how to create a EIP-4361 formatted message.
+
 ## Usage
 
 :::code-group
@@ -67,7 +69,7 @@ export const message = createSiweMessage({
 
 `boolean`
 
-Wheather the signed message is valid for the given address.
+Whether the signed message is valid for the given address.
 
 ## Parameters
 
@@ -160,7 +162,7 @@ Only used when verifying a message that was signed by a Smart Contract Account. 
 declare const message: string
 // ---cut---
 const valid = await publicClient.verifySiweMessage({
-  blockNumber: 'safe', // [!code focus:1]
+  blockTag: 'safe', // [!code focus:1]
   message,
   signature:
     '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c',
@@ -227,7 +229,7 @@ const valid = await publicClient.verifySiweMessage({
 - **Type:** `Date`
 - **Default:** `new Date()`
 
-Current time to check optional `expirationTime` and `notBefore` message fields.
+Current time to check optional [`expirationTime`](http://localhost:5173/docs/siwe/utilities/createSiweMessage#expirationtime-optional) and [`notBefore`](/docs/siwe/utilities/createSiweMessage#notbefore-optional) message fields.
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts]

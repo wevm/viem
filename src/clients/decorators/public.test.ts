@@ -22,6 +22,8 @@ import { wait } from '../../utils/wait.js'
 import { createPublicClient } from '../createPublicClient.js'
 import { http } from '../transports/http.js'
 import { publicActions } from './public.js'
+import { signMessage } from '../../accounts/utils/signMessage.js'
+import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'
 
 const client = anvilMainnet.getClient().extend(publicActions)
 
@@ -68,6 +70,7 @@ test('default', async () => {
       "simulateContract": [Function],
       "uninstallFilter": [Function],
       "verifyMessage": [Function],
+      "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
       "waitForTransactionReceipt": [Function],
       "watchBlockNumber": [Function],
@@ -446,6 +449,29 @@ describe('smoke test', () => {
         message: 'This is a test message for viem!',
         signature:
           '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
+      }),
+    ).toBe(true)
+  })
+
+  test('verifySiweMessage', async () => {
+    const account = accounts[0]
+    const message = createSiweMessage({
+      address: account.address,
+      chainId: 1,
+      domain: 'example.com',
+      nonce: 'foobarbaz',
+      uri: 'https://example.com/path',
+      version: '1',
+    })
+    const signature = await signMessage({
+      message,
+      privateKey: account.privateKey,
+    })
+
+    expect(
+      await client.verifySiweMessage({
+        message,
+        signature,
       }),
     ).toBe(true)
   })
