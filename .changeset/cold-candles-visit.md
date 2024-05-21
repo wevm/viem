@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add L3X Protocol
+Added L3X Protocol chain.
