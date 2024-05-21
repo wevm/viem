@@ -20,10 +20,30 @@ test('default', () => {
   ).toBeTruthy()
 })
 
+test('behavior: invalid address', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        address: undefined,
+      },
+    }),
+  ).toBeFalsy()
+})
+
 test('behavior: address mismatch', () => {
   expect(
     validateSiweMessage({
       address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+      message,
+    }),
+  ).toBeFalsy()
+})
+
+test('behavior: invalid address', () => {
+  expect(
+    validateSiweMessage({
+      address: '0xfoobarbaz',
       message,
     }),
   ).toBeFalsy()
@@ -62,11 +82,11 @@ test('behavior: scheme mismatch', () => {
 test('behavior: time is after expirationTime', () => {
   expect(
     validateSiweMessage({
-      scheme: 'http',
       message: {
         ...message,
         expirationTime: new Date(Date.UTC(2024, 1, 1)),
       },
+      time: new Date(Date.UTC(2025, 1, 1)),
     }),
   ).toBeFalsy()
 })
@@ -77,11 +97,11 @@ test('behavior: time is before notBefore', () => {
 
   expect(
     validateSiweMessage({
-      scheme: 'http',
       message: {
         ...message,
         notBefore: new Date(Date.UTC(2024, 1, 1)),
       },
+      time: new Date(Date.UTC(2023, 1, 1)),
     }),
   ).toBeFalsy()
 
