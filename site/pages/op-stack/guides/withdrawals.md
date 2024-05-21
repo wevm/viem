@@ -591,7 +591,7 @@ export const walletClientL2 = createWalletClient({
 :::
 
 :::tip
-You can utilize the [`getTimeToFinalize`](/op-stack/actions/getTimeToFinalize) Action if you want to extract the estimated time left to prove the withdrawal from the `waitToFinalize` method and display it to the user or store in a database.
+You can utilize the [`getTimeToFinalize`](/op-stack/actions/getTimeToFinalize) Action if you want to extract the estimated time left to finalize the withdrawal from the `waitToFinalize` method and display it to the user or store in a database.
 
 ```ts
 const { seconds, timestamp } = await publicClientL1.getTimeToFinalize({
