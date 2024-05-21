@@ -602,7 +602,7 @@ const { seconds, timestamp } = await publicClientL1.getTimeToFinalize({
 :::
 
 :::warning
-If you aren't using the `waitToFinalize` Action, it is highly recommended to check if the withdrawal is ready to be proved by using the [`getWithdrawalStatus`](/op-stack/actions/getWithdrawalStatus) Action. This will prevent you from proving a withdrawal that isn't ready yet.
+If you aren't using the `waitToFinalize` Action, it is highly recommended to check if the withdrawal is ready to be finalized by using the [`getWithdrawalStatus`](/op-stack/actions/getWithdrawalStatus) Action. This will prevent you from finalizing a withdrawal that isn't ready yet.
 
 ```ts
 const status = await publicClientL1.getWithdrawalStatus({
