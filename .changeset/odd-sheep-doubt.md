@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added jbcTestnet chain.
+Added thaiChain chain.
