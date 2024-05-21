@@ -3,8 +3,8 @@
 <p align="center">
   <a href="https://viem.sh">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://github.com/wevm/viem/blob/main/.github/gh-logo-dark.svg">
-        <img alt="viem logo" src="https://github.com/wevm/viem/blob/main/.github/gh-logo-light.svg" width="auto" height="60">
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/viem/main/.github/gh-logo-dark.svg">
+        <img alt="viem logo" src="https://raw.githubusercontent.com/wevm/viem/main/.github/gh-logo-light.svg" width="auto" height="60">
       </picture>
 </a>
 </p>
