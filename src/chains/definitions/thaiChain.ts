@@ -3,20 +3,16 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const thaiChain = /*#__PURE__*/ defineChain({
   id: 7,
   name: 'ThaiChain',
-  network: 'thaiChain',
   nativeCurrency: { name: 'TCH', symbol: 'TCH', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['hhttps://rpc.thaichain.org'],
     },
-    public: {
-      http: ['https://rpc.thaichain.org'],
-    },
   },
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://exp.thaichain.org/',
+      url: 'https://exp.thaichain.org',
       apiUrl: 'https://exp.thaichain.org/api',
     },
   },
