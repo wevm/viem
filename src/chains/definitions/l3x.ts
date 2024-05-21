@@ -17,11 +17,5 @@ export const l3x = /*#__PURE__*/ defineChain({
       apiUrl: 'https://explorer.l3x.com/api/v2',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0xA9cfB51510b18300cf056d7e0b96925a1D11f424',
-      blockCreated: 0,
-    },
-  },
   testnet: false,
 })
