@@ -1,17 +1,5 @@
 # viem
 
-## 2.11.2
-
-### Patch Changes
-
-- [#2281](https://github.com/wevm/viem/pull/2281) [`f4b0f7a3009faee9b116bd2d947322b85ecd81f3`](https://github.com/wevm/viem/commit/f4b0f7a3009faee9b116bd2d947322b85ecd81f3) Thanks [@michaelotis](https://github.com/michaelotis)! - Added L3X Protocol chain.
-
-- [#2287](https://github.com/wevm/viem/pull/2287) [`8525dfcd8f482d55925bebfe57043fb70db6687d`](https://github.com/wevm/viem/commit/8525dfcd8f482d55925bebfe57043fb70db6687d) Thanks [@nialexsan](https://github.com/nialexsan)! - Added multilcall3 contract to Flow Previewnet.
-
-- [#2283](https://github.com/wevm/viem/pull/2283) [`d7eee1da79648975df06e2f46a011b2d224ef78a`](https://github.com/wevm/viem/commit/d7eee1da79648975df06e2f46a011b2d224ef78a) Thanks [@nidz-the-fact](https://github.com/nidz-the-fact)! - Added thaiChain chain.
-
-- [#2284](https://github.com/wevm/viem/pull/2284) [`86bd2a7dbfca7d1cd118a9feaac07a69a8da0d19`](https://github.com/wevm/viem/commit/86bd2a7dbfca7d1cd118a9feaac07a69a8da0d19) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated Metis Explorer Definitions
-
 ## 2.11.1
 
 ### Patch Changes
