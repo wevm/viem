@@ -11,6 +11,7 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { signMessage } from '../../accounts/utils/signMessage.js'
 import {
   mine,
   reset,
@@ -18,12 +19,11 @@ import {
   signTransaction,
 } from '../../actions/index.js'
 import { base } from '../../chains/index.js'
+import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'
 import { wait } from '../../utils/wait.js'
 import { createPublicClient } from '../createPublicClient.js'
 import { http } from '../transports/http.js'
 import { publicActions } from './public.js'
-import { signMessage } from '../../accounts/utils/signMessage.js'
-import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'
 
 const client = anvilMainnet.getClient().extend(publicActions)
 
