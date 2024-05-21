@@ -1,4 +1,11 @@
 export {
+  verifySiweMessage,
+  type VerifySiweMessageParameters,
+  type VerifySiweMessageReturnType,
+  type VerifySiweMessageErrorType,
+} from '../actions/siwe/verifySiweMessage.js'
+
+export {
   createSiweMessage,
   type CreateSiweMessageParameters,
   type CreateSiweMessageReturnType,
@@ -9,11 +16,10 @@ export { generateSiweNonce } from '../utils/siwe/generateSiweNonce.js'
 export { parseSiweMessage } from '../utils/siwe/parseSiweMessage.js'
 
 export {
-  verifySiweMessage,
-  type VerifySiweMessageParameters,
-  type VerifySiweMessageReturnType,
-  type VerifySiweMessageErrorType,
-} from '../utils/siwe/verifySiweMessage.js'
+  validateSiweMessage,
+  type ValidateSiweMessageParameters,
+  type ValidateSiweMessageReturnType,
+} from '../utils/siwe/validateSiweMessage.js'
 
 export type { SiweMessage } from '../utils/siwe/types.js'
 

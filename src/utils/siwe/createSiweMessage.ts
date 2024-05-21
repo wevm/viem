@@ -17,7 +17,7 @@ export type CreateSiweMessageErrorType =
   | ErrorType
 
 /**
- * @description Creates EIP-4361 formated message.
+ * @description Creates EIP-4361 formatted message.
  *
  * @example
  * const message = createMessage({

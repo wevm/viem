@@ -186,6 +186,11 @@ import {
   verifyMessage,
 } from '../../actions/public/verifyMessage.js'
 import {
+  type VerifySiweMessageParameters,
+  type VerifySiweMessageReturnType,
+  verifySiweMessage,
+} from '../../actions/siwe/verifySiweMessage.js'
+import {
   type VerifyTypedDataParameters,
   type VerifyTypedDataReturnType,
   verifyTypedData,
@@ -1511,9 +1516,40 @@ export type PublicActions<
       accountOverride
     >
   >
+  /**
+   * Verify that a message was signed by the provided address.
+   *
+   * Compatible with Smart Contract Accounts & Externally Owned Accounts via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492).
+   *
+   * - Docs {@link https://viem.sh/docs/actions/public/verifyMessage}
+   *
+   * @param parameters - {@link VerifyMessageParameters}
+   * @returns Whether or not the signature is valid. {@link VerifyMessageReturnType}
+   */
   verifyMessage: (
     args: VerifyMessageParameters,
   ) => Promise<VerifyMessageReturnType>
+  /**
+   * Verifies [EIP-4361](https://eips.ethereum.org/EIPS/eip-4361) formatted message was signed.
+   *
+   * Compatible with Smart Contract Accounts & Externally Owned Accounts via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492).
+   *
+   * - Docs {@link https://viem.sh/docs/siwe/actions/verifySiweMessage}
+   *
+   * @param parameters - {@link VerifySiweMessageParameters}
+   * @returns Whether or not the signature is valid. {@link VerifySiweMessageReturnType}
+   */
+  verifySiweMessage: (
+    args: VerifySiweMessageParameters,
+  ) => Promise<VerifySiweMessageReturnType>
+  /**
+   * Verify that typed data was signed by the provided address.
+   *
+   * - Docs {@link https://viem.sh/docs/actions/public/verifyTypedData}
+   *
+   * @param parameters - {@link VerifyTypedDataParameters}
+   * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
+   */
   verifyTypedData: (
     args: VerifyTypedDataParameters,
   ) => Promise<VerifyTypedDataReturnType>
@@ -1807,6 +1843,7 @@ export function publicActions<
     sendRawTransaction: (args) => sendRawTransaction(client, args),
     simulateContract: (args) => simulateContract(client, args),
     verifyMessage: (args) => verifyMessage(client, args),
+    verifySiweMessage: (args) => verifySiweMessage(client, args),
     verifyTypedData: (args) => verifyTypedData(client, args),
     uninstallFilter: (args) => uninstallFilter(client, args),
     waitForTransactionReceipt: (args) =>

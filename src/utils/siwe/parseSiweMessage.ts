@@ -4,7 +4,7 @@ import type { ExactPartial } from '../../types/utils.js'
 import type { SiweMessage } from './types.js'
 
 /**
- * @description Parses EIP-4361 formated message into message fields object.
+ * @description Parses EIP-4361 formatted message into message fields object.
  *
  * @see https://eips.ethereum.org/EIPS/eip-4361
  *
