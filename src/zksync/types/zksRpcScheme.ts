@@ -1,17 +1,20 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../types/account.js'
+import type { FeeValues } from '../../types/fee.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type {
   ChainEIP712,
+  GetBlockDetailsReturnType,
   GetL1BatchBlockRangeReturnParameters,
+  GetTransactionDetailsReturnType,
 } from '../../zksync/index.js'
-import type { EstimateFeeParameters, Fee } from '../actions/estimateFee.js'
-import type { BaseBlockDetails } from '../actions/getBlockDetails.js'
-import type { BatchDetails } from '../actions/getL1BatchDetails.js'
-import type { MessageProof } from '../actions/getLogProof.js'
+import type { EstimateFeeParameters } from '../actions/estimateFee.js'
+import type { EstimateGasL1ToL2Parameters } from '../actions/estimateGasL1ToL2.js'
+import type { GetBaseTokenL1AddressReturnType } from '../actions/getBaseTokenL1Address.js'
+import type { GetBridgehubContractAddressReturnType } from '../actions/getBridgehubContractAddress.js'
 import type { RawBlockTransactions } from '../actions/getRawBlockTransaction.js'
-import type { TransactionDetails } from '../actions/getTransactionDetails.js'
-import type { ZkSyncTransactionRequestParameters } from './transaction.js'
+import type { ZkSyncBatchDetails } from './block.js'
+import type { MessageProof } from './proof.js'
 
 type ZksGetAllBalancesReturnType = { [key: string]: string }
 
@@ -31,11 +34,11 @@ export type PublicZkSyncRpcSchema<
   {
     Method: 'zks_estimateFee'
     Parameters: [EstimateFeeParameters<TChain, TAccount>]
-    ReturnType: Fee
+    ReturnType: FeeValues
   },
   {
     Method: 'zks_estimateGasL1ToL2'
-    Parameters: [ZkSyncTransactionRequestParameters<TChain, TAccount>]
+    Parameters: [EstimateGasL1ToL2Parameters<TChain, TAccount>]
     ReturnType: bigint
   },
   {
@@ -81,7 +84,7 @@ export type PublicZkSyncRpcSchema<
   {
     Method: 'zks_getL1BatchDetails'
     Parameters: [number]
-    ReturnType: BatchDetails
+    ReturnType: ZkSyncBatchDetails
   },
   {
     Method: 'zks_getRawBlockTransactions'
@@ -91,21 +94,21 @@ export type PublicZkSyncRpcSchema<
   {
     Method: 'zks_getBlockDetails'
     Parameters: [number]
-    ReturnType: BaseBlockDetails
+    ReturnType: GetBlockDetailsReturnType
   },
   {
     Method: 'zks_getTransactionDetails'
     Parameters: [Hash]
-    ReturnType: TransactionDetails
+    ReturnType: GetTransactionDetailsReturnType
   },
   {
     Method: 'zks_getBridgehubContract'
     Parameters: undefined
-    ReturnType: Address
+    ReturnType: GetBridgehubContractAddressReturnType
   },
   {
     Method: 'zks_getBaseTokenL1Address'
     Parameters: undefined
-    ReturnType: Address
+    ReturnType: GetBaseTokenL1AddressReturnType
   },
 ]

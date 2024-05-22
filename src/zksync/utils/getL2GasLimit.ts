@@ -23,7 +23,7 @@ export async function getL2GasLimit<TChain extends Chain | undefined>(
     })
   }
   return await estimateDefaultBridgeDepositL2Gas(clientL2, {
-    token: parameters.depositTransaction.token,
+    token: parameters.depositTransaction.token!,
     amount: parameters.depositTransaction.amount,
     to: parameters.depositTransaction.to!,
     gasPerPubdataByte: parameters.depositTransaction.gasPerPubdataByte!,

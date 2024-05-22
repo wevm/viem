@@ -3,10 +3,10 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { FeeValues } from '../../types/fee.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { ZkSyncNumberParameter } from '../types/block.js'
 import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
-import type { Fee } from './estimateFee.js'
 
 export type GetRawBlockTransactionParameters = ZkSyncNumberParameter
 
@@ -34,7 +34,7 @@ export type RawBlockTransactions = {
     } & CommonDataRawBlockTransaction
     L2?: {
       nonce: number
-      fee: Fee
+      fee: FeeValues
       initiatorAddress: Address
       signature: Uint8Array
       transactionType: string

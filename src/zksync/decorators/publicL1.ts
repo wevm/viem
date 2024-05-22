@@ -7,7 +7,7 @@ import type { Hash } from '../../types/misc.js'
 import {
   type ApproveErc20L1Parameters,
   approveErc20L1,
-} from '../actions/approveErc20TokenL1.js'
+} from '../actions/approveL1Erc20Token.js'
 import {
   type GetBaseTokenParameters,
   getBaseToken,

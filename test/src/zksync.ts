@@ -1,4 +1,4 @@
-import { zkSyncLocalNode } from '~viem/chains/index.js'
+import { zkSyncLocalNode, zkSyncLocalNodeL1 } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { http } from '~viem/index.js'
 import { accounts } from './constants.js'
@@ -11,6 +11,17 @@ export const zkSyncClientLocalNode = createClient({
 export const zkSyncClientLocalNodeWithAccount = createClient({
   account: accounts[0].address,
   chain: zkSyncLocalNode,
+  transport: http(),
+})
+
+export const zkSyncClientLocalNodeL1 = createClient({
+  chain: zkSyncLocalNodeL1,
+  transport: http(),
+})
+
+export const zkSyncClientLocalNodeWithAccountL1 = createClient({
+  account: accounts[0].address,
+  chain: zkSyncLocalNodeL1,
   transport: http(),
 })
 
@@ -41,6 +52,9 @@ export const mockAccountBalances = {
   '0x0000000000000000000000000000000000000001': '2000000000000000000',
   '0x0000000000000000000000000000000000000002': '3500000000000000000',
 }
+
+export const mockHash =
+  '0x46e8467700e3f3b96120864cdef76a01e50839434843a9e5d56d57a7f9460b53'
 
 export const mockBaseTokenL1Address =
   '0x0000000000000000000000000000000000000000'

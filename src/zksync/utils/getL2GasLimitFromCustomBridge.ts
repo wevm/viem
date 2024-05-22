@@ -29,7 +29,7 @@ export async function getL2GasLimitFromCustomBridge<
   return await estimateCustomBridgeDepositL2Gas(clientL2, {
     l1BridgeAddress: parameters.depositTransaction.bridgeAddress!,
     l2BridgeAddress: l2Address,
-    token: parameters.depositTransaction.token,
+    token: parameters.depositTransaction.token!,
     amount: parameters.depositTransaction.amount,
     to: parameters.depositTransaction.to!,
     bridgeData: customBridgeData,

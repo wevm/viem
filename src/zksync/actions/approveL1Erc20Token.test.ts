@@ -8,7 +8,7 @@ import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
 import type { Overrides } from '../types/deposit.js'
-import { approveErc20L1 } from './approveErc20TokenL1.js'
+import { approveErc20L1 } from './approveL1Erc20Token.js'
 
 const sourceAccount = accounts[0]
 const token = '0x70a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55'

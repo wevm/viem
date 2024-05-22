@@ -29,7 +29,7 @@ export async function getDepositTxWithDefaults<
   const bridgeAddresses = await getDefaultBridgeAddresses(clientL2)
   const l2ChainId = BigInt(clientL2.chain!.id)
 
-  const { ...tx } = parameters as DepositTransactionExtended
+  const { ...tx } = parameters as GetDepositTxWithDefaultsReturnType
   tx.to = tx.to ?? clientL2.account.address
   tx.operatorTip ??= 0n
   tx.overrides ??= {} as Overrides

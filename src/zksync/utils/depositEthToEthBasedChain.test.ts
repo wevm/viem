@@ -8,15 +8,11 @@ import { zkSyncLocalNode, zkSyncLocalNodeL1 } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
+import { sendTransaction } from '../actions/sendTransaction.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
 import { publicActionsL2 } from '../decorators/publicL2.js'
-import { constructDepositSpecification } from '../utils/constructDepositParams.js'
-import { constructRequestL2TransactionDirectParameters } from '../utils/constructRequestL2TransactionDirectParameters.js'
-import { getDepositETHOnETHBasedChainTx } from '../utils/getDepositETHOnETHBasedChainTx.js'
-import { getDepositTxWithDefaults } from '../utils/getDepositTxWithDefaults.js'
+import { depositEthToEthBasedChain } from '../utils/depositEthToEthBasedChain.js'
 import { getL2TransactionFromPriorityOp } from '../utils/getL2TransactionFromPriorityOp.js'
-import { getRequestExecuteTxDefaults } from '../utils/getRequestExecuteTxDefaults.js'
-import { sendTransaction } from './sendTransaction.js'
 
 const account = privateKeyToAccount(
   '0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110',
@@ -41,48 +37,13 @@ const walletL1 = createWalletClient({
 })
 
 test('depositETHToETHBasedChain', async () => {
-  const token = '0x0000000000000000000000000000000000000000'
   const amount = 1n
 
-  const depositSpecification = await constructDepositSpecification(clientL1, {
-    token,
+  const depositArgs = await depositEthToEthBasedChain(clientL1, clientL2, {
     amount,
     refundRecipient: account.address,
   })
-
-  const depositTxWithDefaults = await getDepositTxWithDefaults(
-    clientL2,
-    depositSpecification,
-  )
-
-  const baseCost = await clientL1.getL2TransactionBaseCost(
-    depositTxWithDefaults,
-  )
-
-  const getDepositETHOnETHBasedChainTxParams = {
-    ...depositTxWithDefaults,
-    baseCost,
-  }
-
-  const depositTx = getDepositETHOnETHBasedChainTx(
-    getDepositETHOnETHBasedChainTxParams,
-  )
-
-  const requestExecuteTxDefauls = await getRequestExecuteTxDefaults(
-    clientL2,
-    depositTx,
-  )
-
-  const requestL2TransactionDirectParameters =
-    await constructRequestL2TransactionDirectParameters(
-      clientL1,
-      requestExecuteTxDefauls,
-    )
-
-  const hash = await sendTransaction(
-    walletL1,
-    requestL2TransactionDirectParameters,
-  )
+  const hash = await sendTransaction(walletL1, depositArgs)
 
   await waitForTransactionReceipt(clientL1, { hash })
 
