@@ -7,7 +7,7 @@ describe('checkBaseCost', () => {
     const value = BigInt(50)
 
     await expect(checkBaseCost(baseCost, value)).rejects.toThrow(
-      'The base cost of performing the priority operation is higher than the provided value.',
+      'The base cost of performing the priority operation is higher than the provided value parameter for the transaction: baseCost: 100, provided value: 50!',
     )
   })
 

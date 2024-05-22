@@ -8,8 +8,8 @@ import type { BaseError } from '../../errors/base.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { parseAccount } from '../../utils/accounts.js'
-import { TokenIsETHError } from '../errors/token-is-eth.js'
-import { isETH } from '../utils/isETH.js'
+import { TokenIsEthError } from '../errors/token-is-eth.js'
+import { isEth } from '../utils/isEth.js'
 import type { BalanceL1Parameters } from './getBalanceL1.js'
 
 export type BalanceOfTokenL1Parameters<
@@ -23,7 +23,7 @@ export type BalanceOfTokenL1ReturnType = bigint
 export type BalanceOfTokenL1ErrorType =
   | AccountNotFoundError
   | BaseError
-  | TokenIsETHError
+  | TokenIsEthError
 
 export async function getBalanceOfTokenL1<
   TChain extends Chain | undefined,
@@ -39,8 +39,8 @@ export async function getBalanceOfTokenL1<
     account: account_,
   } = parameters as BalanceOfTokenL1Parameters<TAccount>
 
-  if (isETH(token!)) {
-    throw new TokenIsETHError()
+  if (isEth(token!)) {
+    throw new TokenIsEthError()
   }
 
   const account = account_ ? parseAccount(account_) : client.account

@@ -45,6 +45,7 @@ test('default with account hoisting and token', async () => {
     secondBridgeAddress: accountAddress,
     secondBridgeValue: 0n,
     secondBridgeCalldata: '0x',
+    l2ChainId: BigInt(client.chain.id),
   }
 
   expect(await requestL2TransactionTwoBridges(client, parameters)).toBe(
@@ -57,7 +58,7 @@ test('default with account hoisting and token', async () => {
     functionName: 'requestL2TransactionTwoBridges',
     args: [
       {
-        chainId: 11155111n,
+        chainId: BigInt(client.chain.id),
         l2GasLimit: parameters.l2GasLimit,
         l2GasPerPubdataByteLimit: parameters.l2GasPerPubdataByteLimit,
         l2Value: parameters.l2Value,

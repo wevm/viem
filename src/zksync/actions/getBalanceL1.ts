@@ -9,8 +9,8 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { IsUndefined } from '../../types/utils.js'
 import { parseAccount } from '../../utils/accounts.js'
-import { legacyETHAddress } from '../constants/address.js'
-import { isETH } from '../utils/isETH.js'
+import { legacyEthAddress } from '../constants/address.js'
+import { isEth } from '../utils/isEth.js'
 import {
   type BalanceOfTokenL1Parameters,
   getBalanceOfTokenL1,
@@ -48,9 +48,9 @@ export async function getBalanceL1<
   } = parameters as BalanceL1Parameters<TAccount>
 
   const account = account_ ? parseAccount(account_) : client.account
-  const token = token_ ?? legacyETHAddress
+  const token = token_ ?? legacyEthAddress
 
-  if (isETH(token)) {
+  if (isEth(token)) {
     return await getBalance(client, {
       address: account!.address,
       blockTag: blockTag,

@@ -9,20 +9,6 @@ import {
   approveErc20L1,
 } from '../actions/approveErc20TokenL1.js'
 import {
-  type AllowanceL1Parameters,
-  getAllowanceL1,
-  type getAllowanceL1ReturnType,
-} from '../actions/getAllowanceL1.js'
-import {
-  type BalanceL1ReturnType,
-  getBalanceL1,
-} from '../actions/getBalanceL1.js'
-import {
-  type BalanceOfTokenL1Parameters,
-  type BalanceOfTokenL1ReturnType,
-  getBalanceOfTokenL1,
-} from '../actions/getBalanceOfTokenL1.js'
-import {
   type GetBaseTokenParameters,
   getBaseToken,
 } from '../actions/getBaseToken.js'
@@ -30,6 +16,21 @@ import {
   type GetErc20ContractValueParameters,
   getErc20ContractValue,
 } from '../actions/getErc20ContractValue.js'
+import {
+  type GetL1AllowanceParameters,
+  type GetL1AllowanceReturnType,
+  getL1Allowance,
+} from '../actions/getL1Allowance.js'
+import {
+  type GetL1BalanceParameters,
+  type GetL1BalanceReturnType,
+  getL1Balance,
+} from '../actions/getL1Balance.js'
+import {
+  type GetL1TokenBalanceParameters,
+  type GetL1TokenBalanceReturnType,
+  getL1TokenBalance,
+} from '../actions/getL1TokenBalance.js'
 import {
   type GetL2BridgeAddressParameters,
   getL2BridgeAddress,
@@ -56,6 +57,148 @@ export type PublicActionsL1<
   TChain extends Chain | undefined = Chain | undefined,
 > = {
   /**
+   * Returns the amount of approved tokens for a specific L1 bridge.
+   *
+   * - Docs: https://viem.sh/zksync/actions/getL1Allowance
+   *
+   * @param client - Client to use
+   * @param parameters - {@link AllowanceL1Parameters}
+   * @returns The amount of approved tokens for a specific L1 bridge. {@link GetL1AllowanceReturnType}
+   *
+   * @example
+   * import { createPublicClient, custom, parseEther } from 'viem'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * }).extend(publicActionsL1())
+   *
+   * const data = await client.getL1Allowance({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
+   *   bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/zksync'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   *
+   * const data = await client.getL1Allowance({
+   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
+   *   bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
+   * })
+   */
+  getL1Allowance: (
+    parameters: GetL1AllowanceParameters<TAccount>,
+  ) => Promise<GetL1AllowanceReturnType>
+  /**
+   * Returns the amount of the ERC20 token the client has on specific address.
+   *
+   * - Docs: https://viem.sh/zksync/actions/getL1TokenBalance
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetL1TokenBalanceParameters}
+   * @returns The amount of the ERC20 token the client has on specific addresse. {@link GetL1TokenBalanceReturnType}
+   *
+   * @example
+   * import { createPublicClient, custom, parseEther } from 'viem'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * }).extend(publicActionsL1())
+   *
+   * const data = await client.getL1TokenBalance({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/zksync'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   *
+   * const data = await client.getL1TokenBalance({
+   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
+   * })
+   */
+  getL1TokenBalance: (
+    parameters: GetL1TokenBalanceParameters<TAccount>,
+  ) => Promise<GetL1TokenBalanceReturnType>
+  /**
+   * Returns the amount of the token held by the account on the L1 network.
+   *
+   * - Docs: https://viem.sh/zksync/actions/getL1TokenBalance
+   *
+   * @param client - Client to use
+   * @param parameters - {@link BalanceL1Parameters}
+   * @returns Returns the amount of the token held by the account on the L1 network. {@link GetL1BalanceReturnType}
+   *
+   * @example
+   * import { createPublicClient, custom, parseEther } from 'viem'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * }).extend(publicActionsL1())
+   *
+   * const data = await client.getL1Balance({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+   * })
+   *
+   * const data = await client.getL1Balance({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { base, mainnet } from 'viem/chains'
+   * import { publicActionsL1 } from 'viem/zksync'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   *
+   * const data = await client.getL1Balance({})
+   *
+   * const data = await client.getL1Balance({
+   *  token: '0x5C221E77624690fff6dd741493D735a17716c26B'
+   * })
+   */
+  getL1Balance: (
+    ...parameters: TAccount extends undefined
+      ? [GetL1BalanceParameters<TAccount>]
+      : [GetL1BalanceParameters<TAccount>] | []
+  ) => Promise<GetL1BalanceReturnType>
+  /**
    * Approves spending a specified token amount.
    *
    * @param client - Client to use
@@ -81,99 +224,6 @@ export type PublicActionsL1<
   approveErc20L1: (
     parameters: ApproveErc20L1Parameters<TChain, TAccount>,
   ) => Promise<Hash>
-
-  /**
-   * Returns the amount of approved tokens for a specific L1 bridge.
-   *
-   * - Docs: https://viem.sh/zksync/actions/getAllowanceL1
-   *
-   * @param client - Client to use
-   * @param parameters - {@link AllowanceL1Parameters}
-   * @returns The amount of approved tokens for a specific L1 bridge. {@link getAllowanceL1ReturnType}
-   *
-   * @example
-   * import { createPublicClient, custom, parseEther } from 'viem'
-   * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/zksync'
-   *
-   * const client = createPublicClient({
-   *   chain: mainnet,
-   *   transport: custom(window.ethereum),
-   * }).extend(publicActionsL1())
-   *
-   * const data = await client.getAllowanceL1({
-   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
-   *   bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
-   * })
-   *
-   * @example
-   * // Account Hoisting
-   * import { createWalletClient, http } from 'viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/zksync'
-   *
-   * const client = createWalletClient({
-   *   account: privateKeyToAccount('0x…'),
-   *   chain: mainnet,
-   *   transport: http(),
-   * }).extend(publicActionsL1())
-   *
-   * const data = await client.getAllowanceL1({
-   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
-   *   bridgeAddress: '0x84DbCC0B82124bee38e3Ce9a92CdE2f943bab60D',
-   * })
-   */
-  getAllowanceL1: (
-    parameters: AllowanceL1Parameters<TAccount>,
-  ) => Promise<getAllowanceL1ReturnType>
-  /**
-   * Returns the amount of the ERC20 token the client has on specific address.
-   *
-   * - Docs: https://viem.sh/zksync/actions/getBalanceOfTokenL1
-   *
-   * @param client - Client to use
-   * @param parameters - {@link BalanceOfTokenL1Parameters}
-   * @returns The amount of the ERC20 token the client has on specific addresse. {@link BalanceOfTokenL1ReturnType}
-   *
-   * @example
-   * import { createPublicClient, custom, parseEther } from 'viem'
-   * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/zksync'
-   *
-   * const client = createPublicClient({
-   *   chain: mainnet,
-   *   transport: custom(window.ethereum),
-   * }).extend(publicActionsL1())
-   *
-   * const data = await client.getBalanceOfTokenL1({
-   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
-   * })
-   *
-   * @example
-   * // Account Hoisting
-   * import { createWalletClient, http } from 'viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/zksync'
-   *
-   * const client = createWalletClient({
-   *   account: privateKeyToAccount('0x…'),
-   *   chain: mainnet,
-   *   transport: http(),
-   * }).extend(publicActionsL1())
-   *
-   * const data = await client.getBalanceOfTokenL1({
-   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
-   * })
-   */
-  getBalanceOfTokenL1: <
-    TToken extends Address | undefined = Address | undefined,
-  >(
-    parameters: BalanceOfTokenL1Parameters<TAccount, TToken, true>,
-  ) => Promise<BalanceOfTokenL1ReturnType>
   /**
    * Returns the address of the baseToken contract.
    *
@@ -382,57 +432,6 @@ export type PublicActionsL1<
   requestL2TransactionTwoBridges: (
     parameters: L2TransactionRequestTwoBridgesParameters,
   ) => Promise<Hash>
-
-  /**
-   * Returns the amount of the token held by the account on the L1 network.
-   *
-   * - Docs: https://viem.sh/zksync/actions/getBalanceOfTokenL1
-   *
-   * @param client - Client to use
-   * @param parameters - {@link BalanceL1Parameters}
-   * @returns Returns the amount of the token held by the account on the L1 network. {@link BalanceL1ReturnType}
-   *
-   * @example
-   * import { createPublicClient, custom, parseEther } from 'viem'
-   * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/zksync'
-   *
-   * const client = createPublicClient({
-   *   chain: mainnet,
-   *   transport: custom(window.ethereum),
-   * }).extend(publicActionsL1())
-   *
-   * const data = await client.getBalanceL1({
-   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
-   * })
-   *
-   * const data = await client.getBalanceL1({
-   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-   *   token: '0x5C221E77624690fff6dd741493D735a17716c26B'
-   * })
-   *
-   * @example
-   * // Account Hoisting
-   * import { createWalletClient, http } from 'viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/zksync'
-   *
-   * const client = createWalletClient({
-   *   account: privateKeyToAccount('0x…'),
-   *   chain: mainnet,
-   *   transport: http(),
-   * }).extend(publicActionsL1())
-   *
-   * const data = await client.getBalanceL1({})
-   *
-   * const data = await client.getBalanceL1({
-   *  token: '0x5C221E77624690fff6dd741493D735a17716c26B'
-   * })
-   */
-  getBalanceL1: <TToken extends Address | undefined = Address | undefined>(
-    parameters: BalanceOfTokenL1Parameters<TAccount, TToken, false>,
-  ) => Promise<BalanceL1ReturnType>
 }
 
 export function publicActionsL1() {
@@ -443,9 +442,10 @@ export function publicActionsL1() {
     client: Client<Transport, TChain, TAccount>,
   ): PublicActionsL1<TAccount> => ({
     approveErc20L1: (args) => approveErc20L1(client, args),
-    getAllowanceL1: (args) => getAllowanceL1(client, args),
-    getBalanceOfTokenL1: (args) => getBalanceOfTokenL1(client, args),
-    getBalanceL1: (args) => getBalanceL1(client, args),
+    getL1Allowance: (args) => getL1Allowance(client, args),
+    getL1TokenBalance: (args) => getL1TokenBalance(client, args),
+    // @ts-expect-error
+    getL1Balance: (args) => getL1Balance(client, args),
     getBaseToken: (args) => getBaseToken(client, args),
     sharedBridge: (args) => sharedBridge(client, args),
     getErc20ContractValue: (args) => getErc20ContractValue(client, args),

@@ -45,6 +45,7 @@ test('default with account hoisting and token', async () => {
     l2GasPerPubdataByteLimit: BigInt(REQUIRED_L2_GAS_PRICE_PER_PUBDATA),
     factoryDeps: [],
     refundRecipient: accountAddress,
+    l2ChainId: BigInt(client.chain.id),
   }
 
   expect(await requestL2TransactionDirect(client, parameters)).toBe(
@@ -52,12 +53,13 @@ test('default with account hoisting and token', async () => {
   )
 
   expect(spy).toHaveBeenCalledWith(client, {
+    value: 800000000000000000000n,
     abi: bridgehubAbi,
     address: parameters.bridgehubContractAddress,
     functionName: 'requestL2TransactionDirect',
     args: [
       {
-        chainId: 11155111n,
+        chainId: BigInt(client.chain.id),
         factoryDeps: parameters.factoryDeps,
         l2Calldata: parameters.l2Calldata,
         l2Contract: parameters.l2Contract,

@@ -23,7 +23,12 @@ test('default', async () => {
     transport: http(),
   }).extend(publicActionsL1())
 
-  expect(await getBaseToken(client, { bridgehubContractAddress })).toBe(100n)
+  expect(
+    await getBaseToken(client, {
+      bridgehubContractAddress,
+      l2ChainId: BigInt(client.chain.id),
+    }),
+  ).toBe(100n)
 
   expect(spy).toHaveBeenCalledWith(client, {
     abi: bridgehubAbi,

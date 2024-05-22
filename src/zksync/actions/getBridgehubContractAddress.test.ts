@@ -1,9 +1,8 @@
 import { expect, test } from 'vitest'
-import { zkSyncClientLocalNode } from '../../../test/src/zksync.js'
 import {
-  mockAddress,
   mockClientPublicActionsL2,
-} from '../../../test/src/zksyncPublicActionsL2MockData.js'
+  zkSyncClientLocalNode,
+} from '../../../test/src/zksync.js'
 import { getBridgehubContractAddress } from './getBridgehubContractAddress.js'
 
 const client = { ...zkSyncClientLocalNode }
@@ -12,5 +11,7 @@ mockClientPublicActionsL2(client)
 
 test('default', async () => {
   const bridgeHubContractAddress = await getBridgehubContractAddress(client)
-  expect(bridgeHubContractAddress).to.equal(mockAddress)
+  expect(bridgeHubContractAddress).toMatchInlineSnapshot(
+    `"0x173999892363ba18c9dc60f8c57152fc914bce89"`,
+  )
 })

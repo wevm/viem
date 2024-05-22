@@ -1,36 +1,28 @@
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
-import type { Hex } from '../../types/misc.js'
+import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import type { ChainEIP712 } from '../types/chain.js'
-import type { ZkSyncTransactionRequestParameters } from '../types/transaction.js'
-import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
+import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
+import type { ZkSyncFee } from '../types/fee.js'
 
 export type EstimateFeeParameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-> = ZkSyncTransactionRequestParameters<TChain, TAccount>
+  chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+> = SendTransactionParameters<chain, account, chainOverride>
 
-export type Fee = {
-  gas_limit: Hex
-  gas_per_pubdata_limit: Hex
-  max_priority_fee_per_gas: Hex
-  max_fee_per_gas: Hex
-}
+export type EstimateFeeReturnType = ZkSyncFee
 
 export async function estimateFee<
-  TChain extends ChainEIP712 | undefined,
-  TAccount extends Account | undefined,
+  chain extends ChainEIP712 | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<
-    Transport,
-    TChain,
-    TAccount,
-    PublicZkSyncRpcSchema<TChain, TAccount>
-  >,
-  parameters: EstimateFeeParameters<TChain, TAccount>,
-): Promise<Fee> {
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
+  parameters: EstimateFeeParameters<chain, account>,
+): Promise<EstimateFeeReturnType> {
   const { account: account_, ...request } = parameters
   const account = account_ ? parseAccount(account_) : client.account
 
@@ -45,5 +37,10 @@ export async function estimateFee<
     params: [formatted],
   })
 
-  return result
+  return {
+    gasLimit: hexToBigInt(result.gas_limit),
+    gasPerPubdataLimit: hexToBigInt(result.gas_per_pubdata_limit),
+    maxPriorityFeePerGas: hexToBigInt(result.max_priority_fee_per_gas),
+    maxFeePerGas: hexToBigInt(result.max_fee_per_gas),
+  }
 }

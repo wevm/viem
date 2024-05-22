@@ -6,6 +6,7 @@ import { http } from '../../clients/transports/http.js'
 import { bridgehubAbi } from '../constants/abis.js'
 import { REQUIRED_L2_GAS_PRICE_PER_PUBDATA } from '../constants/number.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
+import type { Overrides } from '../types/deposit.js'
 import { getL2TransactionBaseCost } from './getL2TransactionBaseCost.js'
 
 const bridgehubContractAddress = '0x05b30BE4e32E6dD6eEe2171E0746e987BeCc9b36'
@@ -28,10 +29,11 @@ test('default', async () => {
 
   expect(
     await getL2TransactionBaseCost(client, {
-      gasPriceForEstimation,
+      overrides: { maxFeePerGas: gasPriceForEstimation } as Overrides,
       l2GasLimit: depositL2GasLimit,
       gasPerPubdataByte: BigInt(REQUIRED_L2_GAS_PRICE_PER_PUBDATA),
       bridgehubContractAddress,
+      l2ChainId: BigInt(client.chain.id),
     }),
   ).toBe(100n)
 

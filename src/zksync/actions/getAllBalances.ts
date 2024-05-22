@@ -1,15 +1,17 @@
+import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { parseAccount } from '../../utils/accounts.js'
-import type { PublicZkSyncRpcSchema } from '../types/zksRpcScheme.js'
+import { hexToBigInt } from '../../utils/encoding/fromHex.js'
+import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
 
 export type GetAllBalancesParameters<
   TAccount extends Account | undefined = Account | undefined,
 > = GetAccountParameter<TAccount>
 
-export type GetAllBalancesReturnType = { [key: string]: bigint }
+export type GetAllBalancesReturnType = { [key: Address]: bigint }
 
 export async function getAllBalances<
   TChain extends Chain | undefined,
@@ -25,8 +27,7 @@ export async function getAllBalances<
     params: [account!.address],
   })
   const convertedBalances: GetAllBalancesReturnType = {}
-  for (const token in balances) {
-    convertedBalances[token] = BigInt(balances[token])
-  }
+  for (const token in balances)
+    (convertedBalances as any)[token] = hexToBigInt((balances as any)[token])
   return convertedBalances
 }

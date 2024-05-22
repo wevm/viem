@@ -1,11 +1,6 @@
 import type { Address } from 'abitype'
-import type { Account, GetAccountParameter } from '../../types/account.js'
-import type {
-  ExtractChainFormatterParameters,
-  GetChainParameter,
-} from '../../types/chain.js'
 import type { FeeValuesEIP1559 } from '../../types/fee.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type {
   Index,
   Quantity,
@@ -26,9 +21,8 @@ import type {
   Transaction as Transaction_,
 } from '../../types/transaction.js'
 import type { ExactPartial, OneOf, UnionOmit } from '../../types/utils.js'
-import type { ChainEIP712 } from './chain.js'
 import type { ZkSyncEip712Meta } from './eip712.js'
-import type { ZkSyncFeeValues } from './fee.js'
+import type { ZkSyncFee, ZkSyncFeeValues } from './fee.js'
 import type {
   ZkSyncL2ToL1Log,
   ZkSyncLog,
@@ -123,7 +117,10 @@ export type ZkSyncRpcTransaction<TPending extends boolean = boolean> =
 // Transaction Request
 // https://era.zksync.io/docs/reference/concepts/transactions
 
-type TransactionRequest = TransactionRequest_ & {
+export type TransactionRequest<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionRequest_<TQuantity, TIndex> & {
   gasPerPubdata?: undefined
   customSignature?: undefined
   paymaster?: undefined
@@ -131,10 +128,10 @@ type TransactionRequest = TransactionRequest_ & {
   factoryDeps?: undefined
 }
 
-export type ZkSyncTransactionRequestEIP712 = Omit<
-  TransactionRequestBase,
-  'type'
-> &
+export type ZkSyncTransactionRequestEIP712<
+  TQuantity = bigint,
+  TIndex = number,
+> = Omit<TransactionRequestBase<TQuantity, TIndex>, 'type'> &
   ExactPartial<FeeValuesEIP1559> & {
     gasPerPubdata?: bigint | undefined
     customSignature?: Hex | undefined
@@ -145,9 +142,9 @@ export type ZkSyncTransactionRequestEIP712 = Omit<
     | { paymaster?: undefined; paymasterInput?: undefined }
   )
 
-export type ZkSyncTransactionRequest =
-  | TransactionRequest
-  | ZkSyncTransactionRequestEIP712
+export type ZkSyncTransactionRequest<TQuantity = bigint, TIndex = number> =
+  | TransactionRequest<TQuantity, TIndex>
+  | ZkSyncTransactionRequestEIP712<TQuantity, TIndex>
 
 type RpcTransactionRequest = RpcTransactionRequest_ & { eip712Meta?: undefined }
 
@@ -250,22 +247,73 @@ export type TransactionRequestEIP712<
     type?: TTransactionType | undefined
   }
 
-type FormattedZkSyncTransactionRequest<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-> = ExtractChainFormatterParameters<
-  TChain,
-  'transactionRequest',
-  ZkSyncTransactionRequest
->
-export type ZkSyncTransactionRequestParameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-> = UnionOmit<
-  FormattedZkSyncTransactionRequest<
-    TChainOverride extends ChainEIP712 ? TChainOverride : TChain
-  >,
-  'from'
-> &
-  GetAccountParameter<TAccount> &
-  GetChainParameter<TChain, TChainOverride>
+type CommonDataRawBlockTransaction = {
+  sender: Address
+  maxFeePerGas: Hex
+  gasLimit: Hex
+  gasPerPubdataLimit: Hex
+  ethHash: Hash
+  ethBlock: number
+  canonicalTxHash: Hash
+  toMint: Hex
+  refundRecipient: Address
+}
+
+export type ZkSyncRawBlockTransactions = {
+  commonData: {
+    L1?:
+      | ({
+          serialId: number
+          deadlineBlock: number
+          layer2TipFee: Hex
+          fullFee: Hex
+          opProcessingType: string
+          priorityQueueType: string
+        } & CommonDataRawBlockTransaction)
+      | undefined
+    L2?:
+      | {
+          nonce: number
+          fee: ZkSyncFee<Hex>
+          initiatorAddress: Address
+          signature: Uint8Array
+          transactionType: string
+          input?:
+            | {
+                hash: Hash
+                data: Uint8Array
+              }
+            | undefined
+          paymasterParams: {
+            paymaster: Address
+            paymasterInput: Uint8Array
+          }
+        }
+      | undefined
+    ProtocolUpgrade?:
+      | ({
+          upgradeId: string
+        } & CommonDataRawBlockTransaction)
+      | undefined
+  }
+  execute: {
+    calldata: Hash
+    contractAddress: Address
+    factoryDeps?: Hash
+    value: bigint
+  }
+  receivedTimestampMs: number
+  rawBytes?: string | undefined
+}[]
+
+export type ZkSyncTransactionDetails = {
+  isL1Originated: boolean
+  status: string
+  fee: bigint
+  gasPerPubdata: bigint
+  initiatorAddress: Address
+  receivedAt: Date
+  ethCommitTxHash?: Hash | undefined
+  ethProveTxHash?: Hash | undefined
+  ethExecuteTxHash?: Hash | undefined
+}

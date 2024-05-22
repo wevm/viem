@@ -14,17 +14,17 @@ Returns data from a specific transaction given by the transaction hash.
 import { client } from './config'
 
 const details = await client.getTransactionDetails({
-  txHash: "0x..."
+  txHash: '0x...'
 });
 ```
 
 ```ts [config.ts]
 import { createPublicClient, http } from 'viem'
-import { zkSyncLocalNode } from 'viem/chains'
+import { zkSync } from 'viem/chains'
 import { publicActionsL2 } from 'viem/zksync'
 
 export const client = createPublicClient({
-  chain: zkSyncLocalNode,
+  chain: zkSync,
   transport: http(),
 }).extend(publicActionsL2())
 ```
@@ -46,6 +46,6 @@ Transaction hash
 
 ```ts
 const details = await client.getTransactionDetails({
-  txHash: "0x..." // [!code focus]
+  txHash: '0x...' // [!code focus]
 });
 ```

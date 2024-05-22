@@ -1,14 +1,16 @@
 import { BaseError } from '../../errors/base.js'
 
-export type TokenIsETHErrorType = TokenIsETHError & {
-  name: 'TokenIsETHError'
+export type TokenIsEthErrorType = TokenIsEthError & {
+  name: 'TokenIsEthError'
 }
-export class TokenIsETHError extends BaseError {
-  override name = 'TokenIsETHError'
+export class TokenIsEthError extends BaseError {
+  override name = 'TokenIsEthError'
 
   constructor() {
     super(
-      ['Token is an ETH token.', '', "ETH token can't be retrived!"].join('\n'),
+      ['Token is an ETH token.', '', 'ETH token cannot be retrived.'].join(
+        '\n',
+      ),
     )
   }
 }
