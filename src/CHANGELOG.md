@@ -1,5 +1,21 @@
 # viem
 
+## 2.12.0
+
+### Minor Changes
+
+- [`b06c56fd6ace6f6cadbeac6da359d650ff037cc1`](https://github.com/wevm/viem/commit/b06c56fd6ace6f6cadbeac6da359d650ff037cc1) Thanks [@tmm](https://github.com/tmm)! - Added Sign-In with Ethereum support.
+
+### Patch Changes
+
+- [#2290](https://github.com/wevm/viem/pull/2290) [`507533bbab2dc38a94de19e89950780fb9033fde`](https://github.com/wevm/viem/commit/507533bbab2dc38a94de19e89950780fb9033fde) Thanks [@tmm](https://github.com/tmm)! - Added L3X Protocol chain.
+
+- [#2290](https://github.com/wevm/viem/pull/2290) [`507533bbab2dc38a94de19e89950780fb9033fde`](https://github.com/wevm/viem/commit/507533bbab2dc38a94de19e89950780fb9033fde) Thanks [@tmm](https://github.com/tmm)! - Added multilcall3 contract to Flow Previewnet.
+
+- [#2290](https://github.com/wevm/viem/pull/2290) [`507533bbab2dc38a94de19e89950780fb9033fde`](https://github.com/wevm/viem/commit/507533bbab2dc38a94de19e89950780fb9033fde) Thanks [@tmm](https://github.com/tmm)! - Added thaiChain chain.
+
+- [#2290](https://github.com/wevm/viem/pull/2290) [`507533bbab2dc38a94de19e89950780fb9033fde`](https://github.com/wevm/viem/commit/507533bbab2dc38a94de19e89950780fb9033fde) Thanks [@tmm](https://github.com/tmm)! - Updated Metis Explorer Definitions
+
 ## 2.11.1
 
 ### Patch Changes

@@ -643,6 +643,42 @@ export const sidebar = {
       ],
     },
     {
+      text: 'SIWE',
+      collapsed: true,
+      items: [
+        {
+          text: 'Actions',
+          items: [
+            {
+              text: 'verifySiweMessage',
+              link: '/docs/siwe/actions/verifySiweMessage',
+            },
+          ],
+        },
+        {
+          text: 'Utilities',
+          items: [
+            {
+              text: 'createSiweMessage',
+              link: '/docs/siwe/utilities/createSiweMessage',
+            },
+            {
+              text: 'generateSiweNonce',
+              link: '/docs/siwe/utilities/generateSiweNonce',
+            },
+            {
+              text: 'parseSiweMessage',
+              link: '/docs/siwe/utilities/parseSiweMessage',
+            },
+            {
+              text: 'validateSiweMessage',
+              link: '/docs/siwe/utilities/validateSiweMessage',
+            },
+          ],
+        },
+      ],
+    },
+    {
       text: 'ABI',
       collapsed: true,
       items: [

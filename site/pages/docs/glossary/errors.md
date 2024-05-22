@@ -137,6 +137,12 @@ When address is invalid.
 ### `UnsupportedProviderMethodError`
 ### `UserRejectedRequestError`
 
+## SIWE
+
+### CreateSiweMessageErrorType
+### SiweInvalidMessageFieldErrorType
+### VerifySiweMessageErrorType
+
 ## Transaction
 
 ### `FeeConflictError`

@@ -3,13 +3,9 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const jbcTestnet = /*#__PURE__*/ defineChain({
   id: 88991,
   name: 'Jibchain Testnet',
-  network: 'jbcTestnet',
   nativeCurrency: { name: 'tJBC', symbol: 'tJBC', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.testnet.jibchain.net'],
-    },
-    public: {
       http: ['https://rpc.testnet.jibchain.net'],
     },
   },
