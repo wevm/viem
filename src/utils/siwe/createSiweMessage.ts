@@ -61,7 +61,13 @@ export function createSiweMessage(
           `Provided value: ${chainId}`,
         ],
       })
-    if (!domainRegex.test(domain))
+    if (
+      !(
+        domainRegex.test(domain) ||
+        ipRegex.test(domain) ||
+        localhostRegex.test(domain)
+      )
+    )
       throw new SiweInvalidMessageFieldError({
         field: 'domain',
         metaMessages: [
@@ -163,6 +169,10 @@ export function createSiweMessage(
   return `${prefix}\n${suffix}`
 }
 
-const domainRegex = /^(?:(?:(?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$/
+const domainRegex =
+  /^([a-zA-Z0-9][-a-zA-Z0-9]{0,61}[a-zA-Z0-9])\.[a-zA-Z]{2,}(:[0-9]{1,5})?$/
+const ipRegex =
+  /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$/
+const localhostRegex = /^localhost(:[0-9]{1,5})?$/
 const nonceRegex = /^[a-zA-Z0-9]{8,}$/
 const schemeRegex = /^([a-zA-Z][a-zA-Z0-9+-.]*)$/

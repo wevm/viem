@@ -332,3 +332,37 @@ test('behavior: invalid resources', () => {
     Version: viem@1.0.2]
   `)
 })
+
+test.each([
+  'example.com',
+  'localhost',
+  '127.0.0.1',
+  'example.com:3000',
+  'localhost:3000',
+  '127.0.0.1:3000',
+])('valid domain `%s`', (domain) => {
+  expect(
+    createSiweMessage({
+      ...message,
+      domain,
+    }),
+  ).toBeTypeOf('string')
+})
+
+test.each([
+  'http://example.com',
+  'http://localhost',
+  'http://127.0.0.1',
+  'http://example.com:3000',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'foobarbaz',
+  '-example.com',
+])('invalid domain `%s`', (domain) => {
+  expect(() =>
+    createSiweMessage({
+      ...message,
+      domain,
+    }),
+  ).toThrowError()
+})
