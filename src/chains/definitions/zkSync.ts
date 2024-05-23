@@ -23,6 +23,10 @@ export const zkSync = /*#__PURE__*/ defineChain({
       url: 'https://era.zksync.network/',
       apiUrl: 'https://api-era.zksync.network/api',
     },
+    native: {
+      name: 'zkSync Explorer',
+      url: 'https://explorer.zksync.io/',
+    },
   },
   contracts: {
     multicall3: {
