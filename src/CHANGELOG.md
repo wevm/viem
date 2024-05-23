@@ -1,5 +1,19 @@
 # viem
 
+## 2.12.1
+
+### Patch Changes
+
+- [#2299](https://github.com/wevm/viem/pull/2299) [`144d90e09231cdbb105c95b0b52332cd1a97bbbb`](https://github.com/wevm/viem/commit/144d90e09231cdbb105c95b0b52332cd1a97bbbb) Thanks [@tmm](https://github.com/tmm)! - Fixed `createSiweMessage` `domain` validation.
+
+- [#2292](https://github.com/wevm/viem/pull/2292) [`176a9e7bae90285401878cfeb54c09a7f7d8881b`](https://github.com/wevm/viem/commit/176a9e7bae90285401878cfeb54c09a7f7d8881b) Thanks [@nidz-the-fact](https://github.com/nidz-the-fact)! - Fixed `thaiChain` RPC URL.
+
+- [#2298](https://github.com/wevm/viem/pull/2298) [`601cb741f7ba526c5441ab3fe6a485d283b85fd1`](https://github.com/wevm/viem/commit/601cb741f7ba526c5441ab3fe6a485d283b85fd1) Thanks [@tmm](https://github.com/tmm)! - Fixed support for ESM for 4337 trusted setups.
+
+- [#2301](https://github.com/wevm/viem/pull/2301) [`36c55da99111714bfda5b55d5e855cc8c4a121d9`](https://github.com/wevm/viem/commit/36c55da99111714bfda5b55d5e855cc8c4a121d9) Thanks [@jxom](https://github.com/jxom)! - Fixed `isAddress` cache.
+
+- [#2296](https://github.com/wevm/viem/pull/2296) [`efb77bf2dd201caad6d538767cd04790f42892a0`](https://github.com/wevm/viem/commit/efb77bf2dd201caad6d538767cd04790f42892a0) Thanks [@JackHamer09](https://github.com/JackHamer09)! - Added `native` explorers for zkSync and zkSync Sepolia Testnet chains.
+
 ## 2.12.0
 
 ### Minor Changes
