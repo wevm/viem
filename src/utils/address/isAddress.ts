@@ -23,8 +23,9 @@ export function isAddress(
   options?: IsAddressOptions | undefined,
 ): address is Address {
   const { strict = true } = options ?? {}
+  const cacheKey = `${address}.${strict}`
 
-  if (isAddressCache.has(address)) return isAddressCache.get(address)!
+  if (isAddressCache.has(cacheKey)) return isAddressCache.get(cacheKey)!
 
   const result = (() => {
     if (!addressRegex.test(address)) return false
@@ -32,6 +33,6 @@ export function isAddress(
     if (strict) return checksumAddress(address as Address) === address
     return true
   })()
-  isAddressCache.set(address, result)
+  isAddressCache.set(cacheKey, result)
   return result
 }
