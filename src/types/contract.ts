@@ -313,7 +313,7 @@ export type GetValue<
     : TAbiFunction['payable'] extends true
       ? { value?: NoInfer<TValueType> | undefined }
       : { value?: undefined }
-  : { value?: TValueType | undefined }
+  : { value?: NoInfer<TValueType> | undefined }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
