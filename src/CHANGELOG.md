@@ -1,5 +1,13 @@
 # viem
 
+## 2.12.2
+
+### Patch Changes
+
+- [#2307](https://github.com/wevm/viem/pull/2307) [`15d40229ff4f0624f7edf11b9f37f9b0a135647f`](https://github.com/wevm/viem/commit/15d40229ff4f0624f7edf11b9f37f9b0a135647f) Thanks [@tmm](https://github.com/tmm)! - Fixed type inference for payable `value` property.
+
+- [#2303](https://github.com/wevm/viem/pull/2303) [`271893feb0cf26a4fb1ad4a04a16e5186542fdce`](https://github.com/wevm/viem/commit/271893feb0cf26a4fb1ad4a04a16e5186542fdce) Thanks [@hbriese](https://github.com/hbriese)! - Fixed parsing SIWE message containing domain with port
+
 ## 2.12.1
 
 ### Patch Changes
