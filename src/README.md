@@ -87,7 +87,7 @@ const blockNumber = await client.getBlockNumber();
 
 Check out the following places for more viem-related content:
 
-- Follow [@wagmi_sh](https://twitter.com/wagmi_sh), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
+- Follow [@wevm_dev](https://twitter.com/wevm_dev), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
 - Join the [discussions on GitHub](https://github.com/wevm/viem/discussions)
 - [Share your project/organization](https://github.com/wevm/viem/discussions/104) that uses viem
 
