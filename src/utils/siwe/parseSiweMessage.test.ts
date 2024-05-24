@@ -51,7 +51,7 @@ Chain ID: 1
 Nonce: foobarbaz
 Issued At: 2023-02-01T00:00:00.000Z`
   const parsed = parseSiweMessage(message)
-  expect(parsed.domain).toMatchInlineSnapshot('example.com:8080')
+  expect(parsed.domain).toMatchInlineSnapshot(`"example.com:8080"`)
 })
 
 test('behavior: with statement', () => {
