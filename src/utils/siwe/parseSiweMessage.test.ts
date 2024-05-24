@@ -41,6 +41,19 @@ Issued At: 2023-02-01T00:00:00.000Z`
   expect(parsed.scheme).toMatchInlineSnapshot(`"https"`)
 })
 
+test('behavior: domain with port', () => {
+  const message = `example.com:8080 wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z`
+  const parsed = parseSiweMessage(message)
+  expect(parsed.domain).toMatchInlineSnapshot('example.com:8080')
+})
+
 test('behavior: with statement', () => {
   const message = `example.com wants you to sign in with your Ethereum account:
 0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
