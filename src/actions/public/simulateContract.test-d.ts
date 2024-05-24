@@ -1,7 +1,7 @@
 import { parseAbi } from 'abitype'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import { wagmiContractConfig } from '~test/src/abis.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { celo } from '../../chains/definitions/celo.js'
@@ -65,6 +65,34 @@ test('args: account - with client account, with account arg', async () => {
       type: 'json-rpc'
     }
   }>()
+})
+
+test('args: value', () => {
+  // payable function
+  simulateContract(clientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'mintApe',
+    args: [69n],
+    value: 5n,
+  })
+
+  // payable function (undefined)
+  simulateContract(clientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'mintApe',
+    args: [69n],
+  })
+
+  // nonpayable function
+  simulateContract(clientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'approve',
+    // @ts-expect-error
+    value: 5n,
+  })
 })
 
 test('args: legacy txn', () => {

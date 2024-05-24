@@ -23,7 +23,7 @@ import type {
   IsNarrowable,
   IsUnion,
   MaybeRequired,
-  NoUndefined,
+  NoInfer,
   Prettify,
   UnionToTuple,
 } from './utils.js'
@@ -309,10 +309,10 @@ export type GetValue<
   _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
 > = _Narrowable extends true
   ? TAbiFunction['stateMutability'] extends 'payable'
-    ? { value?: NoUndefined<TValueType> | undefined }
+    ? { value?: NoInfer<TValueType> | undefined }
     : TAbiFunction['payable'] extends true
-      ? { value?: NoUndefined<TValueType> | undefined }
-      : { value?: never | undefined }
+      ? { value?: NoInfer<TValueType> | undefined }
+      : { value?: undefined }
   : { value?: TValueType | undefined }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
