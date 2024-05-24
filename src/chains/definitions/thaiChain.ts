@@ -6,7 +6,7 @@ export const thaiChain = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'TCH', symbol: 'TCH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['hhttps://rpc.thaichain.org'],
+      http: ['https://rpc.thaichain.org'],
     },
   },
   blockExplorers: {

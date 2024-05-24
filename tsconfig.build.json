@@ -5,7 +5,8 @@
   "exclude": [
     "src/**/*.test.ts",
     "src/**/*.test-d.ts",
-    "src/**/*.bench.ts"
+    "src/**/*.bench.ts",
+    "src/node/trustedSetups_esm.ts"
   ],
   "compilerOptions": {
     "moduleResolution": "node",

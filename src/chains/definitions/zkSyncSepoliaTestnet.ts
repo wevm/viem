@@ -15,7 +15,11 @@ export const zkSyncSepoliaTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'zkExplorer',
+      name: 'Etherscan',
+      url: 'https://sepolia-era.zksync.network/',
+    },
+    native: {
+      name: 'zkSync Explorer',
       url: 'https://sepolia.explorer.zksync.io/',
     },
   },

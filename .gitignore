@@ -11,6 +11,7 @@ coverage
 node_modules
 tsconfig*.tsbuildinfo
 wagmi
+src/node/trustedSetups_esm.ts
 **/trusted-setups/**/*.txt
 .idea
 
