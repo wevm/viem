@@ -1,12 +1,10 @@
+import type { Address } from 'abitype'
 import { expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/src/constants.js'
 
-import type { Address } from 'abitype'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { signTypedData } from '../../actions/index.js'
-import { getAddress } from '../address/getAddress.js'
-import { recoverTypedDataAddress } from './recoverTypedDataAddress.js'
 import { verifyTypedData } from './verifyTypedData.js'
 
 const client = anvilMainnet.getClient()
