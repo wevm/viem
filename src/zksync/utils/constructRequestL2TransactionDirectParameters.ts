@@ -1,7 +1,9 @@
+import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import { getBaseToken } from '../actions/getBaseToken.js'
@@ -21,12 +23,20 @@ export type ConstructSendParametersRequestExecuteParameters = Omit<
   l2Value: bigint
 }
 
+export type ConstructSendParametersRequestExecuteParametersReturnType = {
+  maxFeePerGas: bigint
+  maxPriorityFeePerGas: bigint
+  value: bigint
+  to: Address
+  data: Hex
+}
+
 export async function constructRequestL2TransactionDirectParameters<
   TChain extends Chain | undefined,
 >(
   clientL1: Client<Transport, TChain, Account>,
   parameters: ConstructSendParametersRequestExecuteParameters,
-) {
+): Promise<ConstructSendParametersRequestExecuteParametersReturnType> {
   const isETHBaseToken = isAddressEqualLite(
     await getBaseToken(clientL1, {
       bridgehubContractAddress: parameters.bridgehubContractAddress,
@@ -50,7 +60,7 @@ export async function constructRequestL2TransactionDirectParameters<
     if (isETHBaseToken) parameters.overrides!.value = providedValue
   }
 
-  await checkBaseCost(baseCost, providedValue)
+  await checkBaseCost({ baseCost, value: providedValue })
 
   const requestL2TxDirectParams = {
     l2ChainId: parameters.l2ChainId,
@@ -84,8 +94,8 @@ export async function constructRequestL2TransactionDirectParameters<
   })
 
   return {
-    maxFeePerGas: parameters.overrides!.maxFeePerGas,
-    maxPriorityFeePerGas: parameters.overrides!.maxPriorityFeePerGas,
+    maxFeePerGas: parameters.overrides!.maxFeePerGas!,
+    maxPriorityFeePerGas: parameters.overrides!.maxPriorityFeePerGas!,
     value: parameters.mintValue,
     to: parameters.bridgehubContractAddress,
     data: data,

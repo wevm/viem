@@ -22,7 +22,7 @@ export async function constructDepositSpecification<
 >(
   clientL1: Client<Transport, TChain, Account>,
   parameters: ConstructDepositSpecificationParameters,
-) {
+): Promise<ConstructDepositSpecificationReturnType> {
   if (!parameters.token) {
     parameters.token = ETH_ADDRESS_IN_CONTRACTS
   }

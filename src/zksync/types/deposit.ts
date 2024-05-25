@@ -4,8 +4,8 @@ import type { GetDefaultBridgeAddressesReturnType } from '../actions/getDefaultB
 import type { ZkSyncTransactionRequest } from './transaction.js'
 
 export type DepositTransaction = {
-  token?: Address
   amount: bigint
+  token?: Address
   to?: Address
   operatorTip?: bigint
   bridgeAddress?: Address

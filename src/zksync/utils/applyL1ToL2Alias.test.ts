@@ -6,7 +6,7 @@ describe('applyL1ToL2Alias', () => {
     const address = '0x1234567890123456789012345678901234567890'
     const expectedAlias = '0x23455678901234567890123456789012345689a1'
 
-    const result = applyL1ToL2Alias(address)
+    const result = applyL1ToL2Alias({ address })
 
     expect(result).toBe(expectedAlias)
   })
@@ -15,7 +15,7 @@ describe('applyL1ToL2Alias', () => {
     const address = '0x1111000000000000000000000000000000001111'
     const expectedAlias = '0x2222000000000000000000000000000000002222'
 
-    const result = applyL1ToL2Alias(address)
+    const result = applyL1ToL2Alias({ address })
 
     expect(result).toBe(expectedAlias)
   })

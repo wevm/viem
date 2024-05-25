@@ -214,3 +214,8 @@ export {
   type SharedBridgeParameters,
   sharedBridge,
 } from './actions/sharedBridge.js'
+
+export {
+  type GetL2GasLimitParameters,
+  getL2GasLimit,
+} from './utils/getL2GasLimit.js'

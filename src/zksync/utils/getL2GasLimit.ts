@@ -12,10 +12,12 @@ export type GetL2GasLimitParameters = {
   erc20DefaultBridgeData: Hex
 }
 
+export type GetL2GasLimitReturnType = bigint
+
 export async function getL2GasLimit<TChain extends Chain | undefined>(
   clientL2: Client<Transport, TChain, Account>,
   parameters: GetL2GasLimitParameters,
-): Promise<bigint> {
+): Promise<GetL2GasLimitReturnType> {
   if (parameters.depositTransaction.bridgeAddress) {
     return await getL2GasLimitFromCustomBridge(clientL2, {
       depositTransaction: parameters.depositTransaction,

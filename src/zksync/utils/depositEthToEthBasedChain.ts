@@ -5,10 +5,18 @@ import type { Chain } from '../../types/chain.js'
 import { getL2TransactionBaseCost } from '../actions/getL2TransactionBaseCost.js'
 import type { DepositTransaction } from '../types/deposit.js'
 import { constructDepositSpecification } from './constructDepositSpecification.js'
-import { constructRequestL2TransactionDirectParameters } from './constructRequestL2TransactionDirectParameters.js'
+import {
+  type ConstructSendParametersRequestExecuteParametersReturnType,
+  constructRequestL2TransactionDirectParameters,
+} from './constructRequestL2TransactionDirectParameters.js'
 import { getDepositETHOnETHBasedChainTx } from './getDepositETHOnETHBasedChainTx.js'
 import { getDepositTxWithDefaults } from './getDepositTxWithDefaults.js'
 import { getRequestExecuteTxDefaults } from './getRequestExecuteTxDefaults.js'
+
+export type DepositEthToEthBasedChainParameters = DepositTransaction
+
+export type DepositEthToEthBasedChainReturnType =
+  ConstructSendParametersRequestExecuteParametersReturnType
 
 export async function depositEthToEthBasedChain<
   TChainL1 extends Chain | undefined,
@@ -16,8 +24,8 @@ export async function depositEthToEthBasedChain<
 >(
   clientL1: Client<Transport, TChainL1, Account>,
   clientL2: Client<Transport, TChainL2, Account>,
-  parameters: DepositTransaction,
-) {
+  parameters: DepositEthToEthBasedChainParameters,
+): Promise<DepositEthToEthBasedChainReturnType> {
   const depositSpecification = await constructDepositSpecification(
     clientL1,
     parameters,

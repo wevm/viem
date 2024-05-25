@@ -4,7 +4,6 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
-import { applyL1ToL2Alias } from './applyL1ToL2Alias.js'
 import { estimateL1ToL2Execute } from './estimateL1ToL2Execute.js'
 import { getERC20BridgeCalldata } from './getErc20BridgeCalldata.js'
 
@@ -20,22 +19,24 @@ export type EstimateCustomBridgeDepositL2GasParameters = {
   l2Value?: bigint
 }
 
+export type EstimateCustomBridgeDepositL2GasReturnType = bigint
+
 export async function estimateCustomBridgeDepositL2Gas<
   TChain extends Chain | undefined,
 >(
   clientL2: Client<Transport, TChain, Account>,
   parameters: EstimateCustomBridgeDepositL2GasParameters,
-): Promise<bigint> {
-  const calldata = await getERC20BridgeCalldata(
-    parameters.token,
-    parameters.from,
-    parameters.to,
-    parameters.amount,
-    parameters.bridgeData,
-  )
+): Promise<EstimateCustomBridgeDepositL2GasReturnType> {
+  const calldata = await getERC20BridgeCalldata({
+    l1TokenAddress: parameters.token,
+    l1Sender: parameters.from,
+    l2Receiver: parameters.to,
+    amount: parameters.amount,
+    bridgeData: parameters.bridgeData,
+  })
 
   return await estimateL1ToL2Execute(clientL2, {
-    caller: applyL1ToL2Alias(parameters.l1BridgeAddress),
+    caller: parameters.l1BridgeAddress,
     contractAddress: parameters.l2BridgeAddress,
     gasPerPubdataByte: parameters.gasPerPubdataByte!,
     calldata: calldata,

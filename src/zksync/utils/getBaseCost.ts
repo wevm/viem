@@ -8,10 +8,14 @@ import {
 } from '../actions/getL2TransactionBaseCost.js'
 import { layer1TxDefaults } from './layer1TxDefaults.js'
 
+export type GetBaseCostParameters = GetL2TransactionBaseCostParameters
+
+export type GetBaseCostReturnType = bigint
+
 export async function getBaseCost<TChain extends Chain | undefined>(
   clientL1: Client<Transport, TChain, Account>,
-  params: GetL2TransactionBaseCostParameters,
-) {
+  params: GetBaseCostParameters,
+): Promise<GetBaseCostReturnType> {
   const parameters = { ...layer1TxDefaults(), ...params }
 
   return await getL2TransactionBaseCost(clientL1, parameters)

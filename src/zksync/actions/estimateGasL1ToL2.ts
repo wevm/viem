@@ -27,7 +27,7 @@ export async function estimateGasL1ToL2<
   const formatters = client.chain?.formatters
   const formatted = formatters?.transactionRequest?.format({
     ...request,
-    from: applyL1ToL2Alias(account!.address),
+    from: applyL1ToL2Alias({ address: account!.address }),
   })
 
   const result = await client.request({

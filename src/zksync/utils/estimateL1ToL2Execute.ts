@@ -17,10 +17,12 @@ export type EstimateL1ToL2ExecuteParameters = {
   gasPerPubdataByte?: bigint
 }
 
+export type EstimateL1ToL2ExecuteReturnType = bigint
+
 export async function estimateL1ToL2Execute<TChain extends Chain | undefined>(
   clientL2: Client<Transport, TChain, Account>,
   parameters: EstimateL1ToL2ExecuteParameters,
-): Promise<bigint> {
+): Promise<EstimateL1ToL2ExecuteReturnType> {
   parameters.gasPerPubdataByte ??= REQUIRED_L1_TO_L2_GAS_PER_PUBDATA_LIMIT
   parameters.caller ??= createRandomAddress()
 
