@@ -23,7 +23,7 @@ import type {
   IsNarrowable,
   IsUnion,
   MaybeRequired,
-  NoUndefined,
+  NoInfer,
   Prettify,
   UnionToTuple,
 } from './utils.js'
@@ -210,6 +210,7 @@ export type ContractFunctionParameters<
     | (functionName extends allFunctionNames ? functionName : never) // infer value
   args?: (abi extends Abi ? UnionWiden<args> : never) | allArgs | undefined
 } & (readonly [] extends allArgs ? {} : { args: Widen<args> }) &
+  // TODO: Remove `GetValue` from here (should be applied to top-level type as separate utility)
   GetValue<abi, functionName>
 
 export type ContractFunctionReturnType<
@@ -309,11 +310,11 @@ export type GetValue<
   _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
 > = _Narrowable extends true
   ? TAbiFunction['stateMutability'] extends 'payable'
-    ? { value?: NoUndefined<TValueType> | undefined }
+    ? { value?: NoInfer<TValueType> | undefined }
     : TAbiFunction['payable'] extends true
-      ? { value?: NoUndefined<TValueType> | undefined }
-      : { value?: never | undefined }
-  : { value?: TValueType | undefined }
+      ? { value?: NoInfer<TValueType> | undefined }
+      : { value?: undefined }
+  : { value?: NoInfer<TValueType> | undefined }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

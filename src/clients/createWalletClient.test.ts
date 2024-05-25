@@ -495,6 +495,7 @@ test('extend', () => {
       "type": "walletClient",
       "uninstallFilter": [Function],
       "verifyMessage": [Function],
+      "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
       "waitForTransactionReceipt": [Function],
       "watchAsset": [Function],

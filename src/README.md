@@ -3,8 +3,8 @@
 <p align="center">
   <a href="https://viem.sh">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://github.com/wevm/viem/blob/main/.github/gh-logo-dark.svg">
-        <img alt="viem logo" src="https://github.com/wevm/viem/blob/main/.github/gh-logo-light.svg" width="auto" height="60">
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/viem/main/.github/gh-logo-dark.svg">
+        <img alt="viem logo" src="https://raw.githubusercontent.com/wevm/viem/main/.github/gh-logo-light.svg" width="auto" height="60">
       </picture>
 </a>
 </p>
@@ -60,7 +60,7 @@
 - First-class support for [Anvil](https://book.getfoundry.sh/), [Hardhat](https://hardhat.org/) & [Ganache](https://trufflesuite.com/ganache/)
 - Test suite running against [forked](https://ethereum.org/en/glossary/#fork) Ethereum network
 
-... and a lot lot more.
+... and a lot more.
 
 ## Overview
 
@@ -87,7 +87,7 @@ const blockNumber = await client.getBlockNumber();
 
 Check out the following places for more viem-related content:
 
-- Follow [@wagmi_sh](https://twitter.com/wagmi_sh), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
+- Follow [@wevm_dev](https://twitter.com/wevm_dev), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
 - Join the [discussions on GitHub](https://github.com/wevm/viem/discussions)
 - [Share your project/organization](https://github.com/wevm/viem/discussions/104) that uses viem
 

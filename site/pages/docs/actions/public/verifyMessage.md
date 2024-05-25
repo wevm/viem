@@ -60,7 +60,7 @@ export const [account] = await walletClient.getAddresses()
 
 `boolean`
 
-Wheather the signed message is valid for the given address.
+Whether the signed message is valid for the given address.
 
 ## Parameters
 

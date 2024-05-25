@@ -1,5 +1,49 @@
 # viem
 
+## 2.12.2
+
+### Patch Changes
+
+- [#2307](https://github.com/wevm/viem/pull/2307) [`15d40229ff4f0624f7edf11b9f37f9b0a135647f`](https://github.com/wevm/viem/commit/15d40229ff4f0624f7edf11b9f37f9b0a135647f) Thanks [@tmm](https://github.com/tmm)! - Fixed type inference for payable `value` property.
+
+- [#2303](https://github.com/wevm/viem/pull/2303) [`271893feb0cf26a4fb1ad4a04a16e5186542fdce`](https://github.com/wevm/viem/commit/271893feb0cf26a4fb1ad4a04a16e5186542fdce) Thanks [@hbriese](https://github.com/hbriese)! - Fixed parsing SIWE message containing domain with port
+
+## 2.12.1
+
+### Patch Changes
+
+- [#2299](https://github.com/wevm/viem/pull/2299) [`144d90e09231cdbb105c95b0b52332cd1a97bbbb`](https://github.com/wevm/viem/commit/144d90e09231cdbb105c95b0b52332cd1a97bbbb) Thanks [@tmm](https://github.com/tmm)! - Fixed `createSiweMessage` `domain` validation.
+
+- [#2292](https://github.com/wevm/viem/pull/2292) [`176a9e7bae90285401878cfeb54c09a7f7d8881b`](https://github.com/wevm/viem/commit/176a9e7bae90285401878cfeb54c09a7f7d8881b) Thanks [@nidz-the-fact](https://github.com/nidz-the-fact)! - Fixed `thaiChain` RPC URL.
+
+- [#2298](https://github.com/wevm/viem/pull/2298) [`601cb741f7ba526c5441ab3fe6a485d283b85fd1`](https://github.com/wevm/viem/commit/601cb741f7ba526c5441ab3fe6a485d283b85fd1) Thanks [@tmm](https://github.com/tmm)! - Fixed support for ESM for 4337 trusted setups.
+
+- [#2301](https://github.com/wevm/viem/pull/2301) [`36c55da99111714bfda5b55d5e855cc8c4a121d9`](https://github.com/wevm/viem/commit/36c55da99111714bfda5b55d5e855cc8c4a121d9) Thanks [@jxom](https://github.com/jxom)! - Fixed `isAddress` cache.
+
+- [#2296](https://github.com/wevm/viem/pull/2296) [`efb77bf2dd201caad6d538767cd04790f42892a0`](https://github.com/wevm/viem/commit/efb77bf2dd201caad6d538767cd04790f42892a0) Thanks [@JackHamer09](https://github.com/JackHamer09)! - Added `native` explorers for zkSync and zkSync Sepolia Testnet chains.
+
+## 2.12.0
+
+### Minor Changes
+
+- [`b06c56fd6ace6f6cadbeac6da359d650ff037cc1`](https://github.com/wevm/viem/commit/b06c56fd6ace6f6cadbeac6da359d650ff037cc1) Thanks [@tmm](https://github.com/tmm)! - Added Sign-In with Ethereum support.
+
+### Patch Changes
+
+- [#2290](https://github.com/wevm/viem/pull/2290) [`507533bbab2dc38a94de19e89950780fb9033fde`](https://github.com/wevm/viem/commit/507533bbab2dc38a94de19e89950780fb9033fde) Thanks [@tmm](https://github.com/tmm)! - Added L3X Protocol chain.
+
+- [#2290](https://github.com/wevm/viem/pull/2290) [`507533bbab2dc38a94de19e89950780fb9033fde`](https://github.com/wevm/viem/commit/507533bbab2dc38a94de19e89950780fb9033fde) Thanks [@tmm](https://github.com/tmm)! - Added multilcall3 contract to Flow Previewnet.
+
+- [#2290](https://github.com/wevm/viem/pull/2290) [`507533bbab2dc38a94de19e89950780fb9033fde`](https://github.com/wevm/viem/commit/507533bbab2dc38a94de19e89950780fb9033fde) Thanks [@tmm](https://github.com/tmm)! - Added thaiChain chain.
+
+- [#2290](https://github.com/wevm/viem/pull/2290) [`507533bbab2dc38a94de19e89950780fb9033fde`](https://github.com/wevm/viem/commit/507533bbab2dc38a94de19e89950780fb9033fde) Thanks [@tmm](https://github.com/tmm)! - Updated Metis Explorer Definitions
+
+## 2.11.1
+
+### Patch Changes
+
+- [`438ecffac0fd2ee3c1a774152efafa2a810fd5cf`](https://github.com/wevm/viem/commit/438ecffac0fd2ee3c1a774152efafa2a810fd5cf) Thanks [@jxom](https://github.com/jxom)! - Fixed hanging `waitForTransactionReceipt`
+
 ## 2.11.0
 
 ### Minor Changes

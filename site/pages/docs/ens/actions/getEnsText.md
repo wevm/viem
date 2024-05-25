@@ -20,7 +20,7 @@ const ensText = await publicClient.getEnsText({
   name: normalize('wevm.eth'),
   key: 'com.twitter',
 })
-// 'wagmi_sh'
+// 'wevm_dev'
 ```
 
 ```ts [client.ts]

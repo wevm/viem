@@ -544,6 +544,7 @@ describe('extends', () => {
         "type": "base",
         "uninstallFilter": [Function],
         "verifyMessage": [Function],
+        "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
         "waitForTransactionReceipt": [Function],
         "watchBlockNumber": [Function],

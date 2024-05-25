@@ -145,6 +145,9 @@ export type NeverBy<T, K extends keyof T> = {
   [U in keyof T]: U extends K ? never : T[U]
 }
 
+// TODO: Remove when peer dep `typescript@>=4.5` (NoInfer is native)
+export type NoInfer<type> = [type][type extends any ? 0 : never]
+
 /**
  * @description Constructs a type by excluding `undefined` from `T`.
  *
