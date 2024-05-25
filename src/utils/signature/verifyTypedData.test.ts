@@ -33,7 +33,7 @@ test('default', async () => {
   ).toBeTruthy()
 })
 
-test.only('https://github.com/wevm/viem/issues/2306', async () => {
+test('https://github.com/wevm/viem/issues/2306', async () => {
   const typedData = (address: Address) =>
     ({
       types: {
