@@ -849,7 +849,7 @@ export type PublicActions<
    *   name: normalize('wevm.eth'),
    *   key: 'com.twitter',
    * })
-   * // 'wagmi_sh'
+   * // 'wevm_dev'
    */
   getEnsText: (args: GetEnsTextParameters) => Promise<GetEnsTextReturnType>
   /**
