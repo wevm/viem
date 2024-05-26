@@ -4,14 +4,12 @@ import { accounts, typedData } from '~test/src/constants.js'
 import { parseEther } from '../utils/unit/parseEther.js'
 import { parseGwei } from '../utils/unit/parseGwei.js'
 
-import { keccak256 } from '../utils/index.js'
 import { privateKeyToAccount } from './privateKeyToAccount.js'
 
 test('default', () => {
   expect(privateKeyToAccount(accounts[0].privateKey)).toMatchInlineSnapshot(`
     {
       "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-      "experimental_signAuthMessage": [Function],
       "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
       "signMessage": [Function],
       "signTransaction": [Function],
@@ -20,20 +18,6 @@ test('default', () => {
       "type": "local",
     }
   `)
-})
-
-test('sign auth message', async () => {
-  const account = privateKeyToAccount(accounts[0].privateKey)
-  expect(
-    await account.experimental_signAuthMessage({
-      chainId: 1,
-      commit: keccak256('0x1234'),
-      invokerAddress: '0x0000000000000000000000000000000000000000',
-      nonce: 69,
-    }),
-  ).toMatchInlineSnapshot(
-    `"0xfcd6431fe0dadb937bf232178cf20663c4704ba2a545775723d6c9267d5e40162f2264c10f76c6df7608ab02c453721c841b03525a30b0bc99ebdbdb0e160f351c"`,
-  )
 })
 
 test('sign message', async () => {
