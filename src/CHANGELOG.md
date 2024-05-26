@@ -1,5 +1,11 @@
 # viem
 
+## 2.12.5
+
+### Patch Changes
+
+- [`41b48d47eb326de497773ba73ea89be41f980add`](https://github.com/wevm/viem/commit/41b48d47eb326de497773ba73ea89be41f980add) Thanks [@tmm](https://github.com/tmm)! - Removed console log
+
 ## 2.12.4
 
 ### Patch Changes
