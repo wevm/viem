@@ -1,5 +1,11 @@
 # viem
 
+## 2.12.3
+
+### Patch Changes
+
+- [#2305](https://github.com/wevm/viem/pull/2305) [`36da346561767c5aecccf09b36d3f7a9f99e6844`](https://github.com/wevm/viem/commit/36da346561767c5aecccf09b36d3f7a9f99e6844) Thanks [@JuoCode](https://github.com/JuoCode)! - Removed trailing slash from polygonAmoy explorer URL.
+
 ## 2.12.2
 
 ### Patch Changes
