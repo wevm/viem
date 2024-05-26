@@ -1,5 +1,11 @@
 # viem
 
+## 2.12.4
+
+### Patch Changes
+
+- [`ddfce938e4760f60be54ee97802d819cc2b052d8`](https://github.com/wevm/viem/commit/ddfce938e4760f60be54ee97802d819cc2b052d8) Thanks [@jxom](https://github.com/jxom)! - Resolved issue where hex-like strings were incorrectly being lowercased in `signTypedData`.
+
 ## 2.12.3
 
 ### Patch Changes
