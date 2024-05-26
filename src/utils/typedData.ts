@@ -57,8 +57,6 @@ export function serializeTypedData<
     return normalizeData(types[primaryType], message_)
   })()
 
-  console.log(message)
-
   return stringify({ domain, message, primaryType, types })
 }
 
