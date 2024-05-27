@@ -1,112 +1,98 @@
-import { expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 
-import * as chains from '~viem/chains/index.js'
-import type { Chain } from '~viem/types/chain.js'
-import { withTimeout } from '~viem/utils/promise/withTimeout.js'
-import { request as httpRequest } from '~viem/utils/rpc/http.js'
-import { getWebSocketRpcClient } from '~viem/utils/rpc/webSocket.js'
+import { getHttpRpcClient } from '../../src/utils/rpc/http.js'
+import { getWebSocketRpcClient } from '../../src/utils/rpc/webSocket.js'
+import { withTimeout } from '../../src/utils/promise/withTimeout.js'
+import * as allChains from '../../src/chains/index.js'
 
 const defaultTimeout = 10_000
 
-const chains_ = Object.values(chains) as readonly Chain[]
-chains_.forEach((chain) => {
-  const httpRpcUrls = chain.rpcUrls.default.http
-  if (httpRpcUrls)
-    test(
-      `${chain.name}: check http urls`,
-      async () => {
-        await assertHttpRpcUrls(chain.id, httpRpcUrls)
-      },
-      { timeout: defaultTimeout },
-    )
+const chains = Object.values(allChains).map(
+  (x) => [x.name, x as allChains.Chain] as const,
+)
 
-  const webSocketRpcUrls = chain.rpcUrls.default.webSocket
-  if (webSocketRpcUrls)
-    test(
-      `${chain.name}: check web socket urls`,
-      async () => {
-        await assertWebSocketRpcUrls(chain.id, webSocketRpcUrls)
-      },
-      { timeout: defaultTimeout },
-    )
+describe.each(chains)('%s', (_name, chain) => {
+  const rpcUrls = chain.rpcUrls
+  const blockExplorer = chain.blockExplorers?.default
 
-  const explorerUrl = chain.blockExplorers?.default.url
-  if (explorerUrl)
-    test(
-      `${chain.name}: check block explorer`,
-      async () => {
-        await assertExplorerUrl(explorerUrl)
-      },
-      { timeout: defaultTimeout },
-    )
+  test.concurrent(
+    'http',
+    async () => {
+      for (const url of rpcUrls.default.http) {
+        if (isLocalNetwork(url)) continue
 
-  const explorerApiUrl = chain.blockExplorers?.default.apiUrl
-  if (explorerApiUrl)
-    test(
-      `${chain.name}: check block explorer API`,
-      async () => {
-        await assertExplorerApiUrl(explorerApiUrl)
-      },
-      { timeout: defaultTimeout },
-    )
+        const client = getHttpRpcClient(url, {
+          fetchOptions: { headers: { 'Content-Type': 'application/json' } },
+          timeout: defaultTimeout,
+        })
+        const chainId = await client
+          .request({
+            body: { method: 'eth_chainId' },
+          })
+          .then((r) => Number(r.result))
+
+        expect(chainId).toBe(chain.id)
+      }
+    },
+    defaultTimeout,
+  )
+
+  test.concurrent(
+    'webSocket',
+    async () => {
+      for (const url of rpcUrls.default.webSocket ?? []) {
+        if (isLocalNetwork(url)) continue
+
+        const client = await withTimeout(() => getWebSocketRpcClient(url), {
+          timeout: defaultTimeout,
+        })
+        const chainId = await client
+          .requestAsync({
+            body: { method: 'eth_chainId' },
+          })
+          .then((r) => Number(r.result))
+        client.close()
+
+        expect(chainId).toBe(chain.id)
+      }
+    },
+    defaultTimeout,
+  )
+
+  test.concurrent(
+    'blockExplorer.url',
+    async () => {
+      if (!blockExplorer) return
+      await fetch(blockExplorer.url, { method: 'HEAD' })
+    },
+    defaultTimeout,
+  )
+
+  test.concurrent(
+    'blockExplorer.apiUrl',
+    async () => {
+      if (!blockExplorer?.apiUrl) return
+
+      const response = await fetch(
+        `${
+          blockExplorer.apiUrl
+        }?module=block&action=getblocknobytime&closest=before&timestamp=${Math.floor(
+          Date.now() / 1000,
+        )}`,
+      )
+      const data = await response.json()
+      expect(data).toMatchObject({
+        status: '1',
+        message: expect.stringContaining('OK'),
+      })
+    },
+    defaultTimeout,
+  )
 })
 
 function isLocalNetwork(url: string): boolean {
-  const u = new URL(url)
+  const { hostname } = new URL(url)
   const localNetworkRegex =
     /^(127\.|10\.|172\.1[6-9]\.|172\.2[0-9]\.|172\.3[0-1]\.|192\.168\.)/
-
-  return localNetworkRegex.test(u.hostname) || u.hostname === 'localhost'
-}
-
-async function assertHttpRpcUrls(
-  chainId: number,
-  rpcUrls: readonly string[],
-): Promise<void> {
-  for (const url of rpcUrls) {
-    if (isLocalNetwork(url)) continue
-    const response = await httpRequest(url, {
-      body: { method: 'eth_chainId' },
-      fetchOptions: { headers: { 'Content-Type': 'application/json' } },
-      timeout: defaultTimeout,
-    }).then((r) => r.result)
-    expect(BigInt(response)).toBe(BigInt(chainId))
-  }
-}
-
-async function assertWebSocketRpcUrls(
-  chainId: number,
-  rpcUrls: readonly string[],
-): Promise<void> {
-  for (const url of rpcUrls) {
-    if (isLocalNetwork(url)) continue
-
-    const client = await withTimeout(() => getWebSocketRpcClient(url), {
-      timeout: defaultTimeout,
-    })
-    const response = await client
-      .requestAsync({
-        body: { method: 'eth_chainId' },
-        timeout: defaultTimeout,
-      })
-      .then((r) => r.result)
-    client.close()
-    expect(BigInt(response)).toBe(BigInt(chainId))
-  }
-}
-
-async function assertExplorerUrl(explorerUrl: string): Promise<void> {
-  await fetch(explorerUrl, { method: 'HEAD' })
-}
-
-async function assertExplorerApiUrl(explorerApiUrl: string): Promise<void> {
-  const url = `${explorerApiUrl}?module=block&action=getblocknobytime&closest=before&timestamp=${Math.floor(
-    Date.now() / 1000,
-  )}`
-  const response = await fetch(url)
-  const data = await response.json()
-  expect(data).toMatchObject({
-    status: '1',
-    message: expect.stringContaining('OK'),
-  })
+  return localNetworkRegex.test(hostname) || hostname === 'localhost'
 }
