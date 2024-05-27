@@ -1,5 +1,11 @@
 # viem
 
+## 2.13.0
+
+### Minor Changes
+
+- [#2313](https://github.com/wevm/viem/pull/2313) [`175d0ae2345a36f7923b19676fc8adb5e820e262`](https://github.com/wevm/viem/commit/175d0ae2345a36f7923b19676fc8adb5e820e262) Thanks [@jxom](https://github.com/jxom)! - **Breaking (Experimental):** Removed EIP-3074 support.
+
 ## 2.12.5
 
 ### Patch Changes
