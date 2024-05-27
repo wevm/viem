@@ -131,6 +131,38 @@ export type WalletCallReceipt<quantity = Hex, status = Hex> = {
   transactionHash: Hex
 }
 
+export type WalletIssuePermissionsParameters = {
+  signer?:
+    | {
+        type: string
+        data: unknown
+      }
+    | undefined
+  permissions: readonly {
+    type: string
+    data: unknown
+    required: boolean
+  }[]
+  expiry: number
+}
+
+export type WalletIssuePermissionsReturnType = {
+  expiry: number
+  factory?: `0x${string}` | undefined
+  factoryData?: string | undefined
+  grantedPermissions: readonly {
+    type: string
+    data: any
+  }[]
+  permissionsContext: string
+  signerData?:
+    | {
+        userOpBuilder?: `0x${string}` | undefined
+        submitToAddress?: `0x${string}` | undefined
+      }
+    | undefined
+}
+
 export type WalletGetCallsStatusReturnType<quantity = Hex, status = Hex> = {
   status: 'PENDING' | 'CONFIRMED'
   receipts?: WalletCallReceipt<quantity, status>[] | undefined
@@ -1367,6 +1399,18 @@ export type WalletRpcSchema = [
     Method: 'wallet_getPermissions'
     Parameters?: undefined
     ReturnType: WalletPermission[]
+  },
+  /**
+   * @description Requests permissions from a wallet
+   * @link https://eips.ethereum.org/EIPS/eip-7715
+   * @example
+   * provider.request({ method: 'wallet_issuePermissions', params: [{ ... }] })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_issuePermissions'
+    Parameters?: [WalletIssuePermissionsParameters]
+    ReturnType: Prettify<WalletIssuePermissionsReturnType>
   },
   /**
    * @description Requests the given permissions from the user.

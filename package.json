@@ -12,7 +12,7 @@
     "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
     "changeset": "changeset",
-    "changeset:prepublish": "bun run version:update && bun scripts/prepublishOnly && bun run build",
+    "changeset:prepublish": "bun run version:update && bun scripts/prepublishOnly.ts && bun run build",
     "changeset:publish": "bun run changeset:prepublish && changeset publish",
     "changeset:version": "changeset version && bun install --lockfile-only && bun version:update",
     "clean": "rimraf src/_esm src/_cjs src/_types",

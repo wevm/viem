@@ -52,3 +52,13 @@ export {
   type SerializeErc6492SignatureReturnType,
   serializeErc6492Signature,
 } from './erc6492/serializeErc6492Signature.js'
+
+export {
+  type IssuePermissionsParameters,
+  type IssuePermissionsReturnType,
+  issuePermissions,
+} from './erc7115/actions/issuePermissions.js'
+export {
+  type WalletActionsErc7115,
+  walletActionsErc7115,
+} from './erc7115/decorators/erc7115.js'

@@ -1006,6 +1006,8 @@ export type {
   WalletCapabilitiesRecord,
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
+  WalletIssuePermissionsParameters,
+  WalletIssuePermissionsReturnType,
   WalletSendCallsParameters,
   WalletPermissionCaveat,
   WalletPermission,
