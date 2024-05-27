@@ -1098,6 +1098,20 @@ export const sidebar = {
           },
         ],
       },
+      {
+        text: 'ERC-7115',
+        items: [
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'issuePermissions',
+                link: '/experimental/erc7115/issuePermissions',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   '/op-stack': {
