@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.12.5",
+  "version": "2.13.0",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -93,19 +93,45 @@
   },
   "typesVersions": {
     "*": {
-      "accounts": ["./_types/accounts/index.d.ts"],
-      "actions": ["./_types/actions/index.d.ts"],
-      "celo": ["./_types/celo/index.d.ts"],
-      "chains": ["./_types/chains/index.d.ts"],
-      "chains/utils": ["./_types/chains/utils.d.ts"],
-      "ens": ["./_types/ens/index.d.ts"],
-      "experimental": ["./_types/experimental/index.d.ts"],
-      "node": ["./_types/node/index.d.ts"],
-      "op-stack": ["./_types/op-stack/index.d.ts"],
-      "siwe": ["./_types/siwe/index.d.ts"],
-      "utils": ["./_types/utils/index.d.ts"],
-      "window": ["./_types/window/index.d.ts"],
-      "zksync": ["./_types/zksync/index.d.ts"]
+      "accounts": [
+        "./_types/accounts/index.d.ts"
+      ],
+      "actions": [
+        "./_types/actions/index.d.ts"
+      ],
+      "celo": [
+        "./_types/celo/index.d.ts"
+      ],
+      "chains": [
+        "./_types/chains/index.d.ts"
+      ],
+      "chains/utils": [
+        "./_types/chains/utils.d.ts"
+      ],
+      "ens": [
+        "./_types/ens/index.d.ts"
+      ],
+      "experimental": [
+        "./_types/experimental/index.d.ts"
+      ],
+      "node": [
+        "./_types/node/index.d.ts"
+      ],
+      "op-stack": [
+        "./_types/op-stack/index.d.ts"
+      ],
+      "siwe": [
+        "./_types/siwe/index.d.ts"
+      ],
+      "utils": [
+        "./_types/utils/index.d.ts"
+      ],
+      "window": [
+        "./_types/window/index.d.ts"
+      ],
+      "zksync": [
+        "./_types/zksync/index.d.ts"
+      ]
     }
   },
   "peerDependencies": {
@@ -129,12 +155,21 @@
   "license": "MIT",
   "homepage": "https://viem.sh",
   "repository": "wevm/viem",
-  "authors": ["awkweb.eth", "jxom.eth"],
+  "authors": [
+    "awkweb.eth",
+    "jxom.eth"
+  ],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"]
+  "keywords": [
+    "eth",
+    "ethereum",
+    "dapps",
+    "wallet",
+    "web3"
+  ]
 }
