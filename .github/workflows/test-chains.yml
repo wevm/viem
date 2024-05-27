@@ -1,13 +1,13 @@
-name: Check chains
+name: Test chains
 on:
   workflow_dispatch:
   workflow_call:
   pull_request:
     paths:
-      - src/chains/**
+      - src/chains/definitions/**
 
 jobs:
-  chaincheck:
+  test:
     name: Check chains
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -20,7 +20,7 @@ jobs:
           submodules: 'recursive'
 
       - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
+        uses: wevm/actions/.github/actions/bun@main
 
       - name: Check chain
-        run: bun run chaincheck
+        run: bun run test:chains

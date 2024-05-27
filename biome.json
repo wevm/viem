@@ -12,7 +12,6 @@
       "CHANGELOG.md",
       "cache",
       "test/contracts",
-      "test/chains",
       "test/kzg/*.json",
       "test/kzg/*.txt",
       "coverage",
