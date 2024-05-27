@@ -1,47 +1,4 @@
-export {
-  type SignAuthMessageErrorType,
-  type SignAuthMessageParameters,
-  type SignAuthMessageReturnType,
-  signAuthMessage,
-} from './eip3074/actions/signAuthMessage.js'
-export {
-  type RecoverAuthMessageAddressParameters,
-  type RecoverAuthMessageAddressReturnType,
-  type RecoverAuthMessageAddressErrorType,
-  recoverAuthMessageAddress,
-} from './eip3074/utils/recoverAuthMessageAddress.js'
-export {
-  type VerifyAuthMessageParameters,
-  type VerifyAuthMessageReturnType,
-  type VerifyAuthMessageErrorType,
-  verifyAuthMessage,
-} from './eip3074/utils/verifyAuthMessage.js'
-export {
-  type WalletActionsEip3074,
-  walletActionsEip3074,
-} from './eip3074/decorators/eip3074.js'
-export {
-  type GetInvokerErrorType,
-  type GetInvokerParameters,
-  type Invoker,
-  type InvokerArgs,
-  type InvokerExecuteErrorType,
-  type InvokerExecuteParameters,
-  type InvokerSignErrorType,
-  type InvokerSignParameters,
-  getInvoker,
-} from './eip3074/invokers/getInvoker.js'
-export {
-  type BatchInvokerArgs,
-  batchInvokerCoder,
-} from './eip3074/invokers/coders/batchInvokerCoder.js'
-export {
-  type DefineInvokerCoderParameters,
-  type DefineInvokerCoderReturnType,
-  type InvokerCoder,
-  defineInvokerCoder,
-} from './eip3074/invokers/coders/defineInvokerCoder.js'
-
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
   type GetCapabilitiesParameters,
   type GetCapabilitiesErrorType,
