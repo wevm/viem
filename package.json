@@ -25,7 +25,7 @@
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
     "test": "vitest -c ./test/vitest.config.ts dev",
-    "test:chains": "vitest test/chains/check.test.ts",
+    "test:chains": "vitest test/chains.test.ts",
     "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1 --pool=forks",
     "test:cov": "vitest dev -c ./test/vitest.config.ts --coverage",
     "test:env": "bun run test:env:bun && bun run test:env:next && bun run test:env:node && bun run test:env:vite && bun run test:env:sveltekit",

@@ -1,4 +1,4 @@
-name: Test chains
+name: Test Chains
 on:
   workflow_dispatch:
   workflow_call:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Check chains
+    name: Test
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 10
@@ -19,8 +19,11 @@ jobs:
         with: 
           submodules: 'recursive'
 
+      - name: Set up foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
       - name: Install dependencies
         uses: wevm/actions/.github/actions/bun@main
 
-      - name: Check chain
+      - name: Run tests
         run: bun run test:chains

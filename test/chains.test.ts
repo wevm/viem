@@ -1,17 +1,15 @@
 import { describe, expect, test } from 'vitest'
 
-import * as allChains from '../../src/chains/index.js'
-import { withTimeout } from '../../src/utils/promise/withTimeout.js'
-import { getHttpRpcClient } from '../../src/utils/rpc/http.js'
-import { getWebSocketRpcClient } from '../../src/utils/rpc/webSocket.js'
+import * as allChains from '../src/chains/index.js'
+import { withTimeout } from '../src/utils/promise/withTimeout.js'
+import { getHttpRpcClient } from '../src/utils/rpc/http.js'
+import { getWebSocketRpcClient } from '../src/utils/rpc/webSocket.js'
 
 const defaultTimeout = 10_000
 
-const chains = Object.values(allChains).map(
-  (x) => [x.name, x as allChains.Chain] as const,
-)
+const chains = Object.values(allChains) as readonly allChains.Chain[]
 
-describe.each(chains)('%s', (_name, chain) => {
+describe.each(chains)('$name', ({ name, ...chain }) => {
   const rpcUrls = chain.rpcUrls
   const blockExplorer = chain.blockExplorers?.default
 
@@ -79,6 +77,9 @@ describe.each(chains)('%s', (_name, chain) => {
         }?module=block&action=getblocknobytime&closest=before&timestamp=${Math.floor(
           Date.now() / 1000,
         )}`,
+        {
+          headers: { 'Content-Type': 'application/json' },
+        },
       )
       const data = await response.json()
       expect(data).toMatchObject({
