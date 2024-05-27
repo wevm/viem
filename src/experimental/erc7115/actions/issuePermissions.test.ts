@@ -181,12 +181,6 @@ test('args: account as signer', async () => {
               "type": "native-token-limit",
             },
           ],
-          "signer": {
-            "data": {
-              "id": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-            },
-            "type": "account",
-          },
         },
       ],
     ]
@@ -262,12 +256,6 @@ test('args: address as signer', async () => {
               "type": "native-token-limit",
             },
           ],
-          "signer": {
-            "data": {
-              "id": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-            },
-            "type": "account",
-          },
         },
       ],
     ]
