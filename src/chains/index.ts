@@ -199,6 +199,7 @@ export { pulsechain } from './definitions/pulsechain.js'
 export { pulsechainV4 } from './definitions/pulsechainV4.js'
 export { qMainnet } from './definitions/qMainnet.js'
 export { qTestnet } from './definitions/qTestnet.js'
+export { redstone } from './definitions/redstone.js';
 export { reyaNetwork } from './definitions/reyaNetwork.js'
 export { rollux } from './definitions/rollux.js'
 export { rolluxTestnet } from './definitions/rolluxTestnet.js'
