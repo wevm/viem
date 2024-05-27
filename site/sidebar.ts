@@ -5,7 +5,8 @@ export const sidebar = {
     {
       text: 'Introduction',
       items: [
-        { text: 'Why viem', link: '/docs/introduction' },
+        { text: 'Why Viem', link: '/docs/introduction' },
+        { text: 'Installation', link: '/docs/installation' },
         { text: 'Getting Started', link: '/docs/getting-started' },
         { text: 'Platform Compatibility', link: '/docs/compatibility' },
         { text: 'FAQ', link: '/docs/faq' },
