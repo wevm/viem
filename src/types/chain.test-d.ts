@@ -1,8 +1,15 @@
 import { expectTypeOf, test } from 'vitest'
 
+import type { base } from '~viem/chains/index.js'
+import type { celo } from '../chains/definitions/celo.js'
 import type { mainnet } from '../chains/definitions/mainnet.js'
 import type { optimism } from '../chains/definitions/optimism.js'
-import type { Chain, DeriveChain } from './chain.js'
+import type {
+  Chain,
+  DeriveChain,
+  ExtractChainFormatterParameters,
+} from './chain.js'
+import type { TransactionRequest } from './transaction.js'
 
 test('DeriveChain', () => {
   type Result = DeriveChain<Chain | undefined, Chain | undefined>
@@ -19,4 +26,24 @@ test('DeriveChain', () => {
 
   type Result5 = DeriveChain<Chain | undefined, Chain>
   expectTypeOf<Result5>().toEqualTypeOf<Chain>()
+})
+
+test('ExtractChainFormatterParameters', () => {
+  type Result = ExtractChainFormatterParameters<
+    typeof mainnet,
+    'transactionRequest',
+    TransactionRequest
+  >
+
+  type Result2 = ExtractChainFormatterParameters<
+    typeof base,
+    'transactionRequest',
+    TransactionRequest
+  >
+
+  type Result3 = ExtractChainFormatterParameters<
+    typeof celo,
+    'transactionRequest',
+    TransactionRequest
+  >
 })

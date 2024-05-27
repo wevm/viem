@@ -157,6 +157,7 @@ export type NoInfer<type> = [type][type extends any ? 0 : never]
  */
 export type NoUndefined<T> = T extends undefined ? never : T
 
+/** Strict version of built-in Omit type */
 export type Omit<type, keys extends keyof type> = Pick<
   type,
   Exclude<keyof type, keys>
@@ -181,6 +182,9 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> &
  * => { a: string, b: string, c: number, d: bigint }
  */
 export type Prettify<T> = {
+  [K in keyof T]: T[K]
+} & {}
+export type Evaluate<T> = {
   [K in keyof T]: T[K]
 } & {}
 
