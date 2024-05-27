@@ -45,6 +45,8 @@
         "noUnusedVariables": "error"
       },
       "performance": {
+        "noBarrelFile": "error",
+        "noReExportAll": "error",
         "noDelete": "off"
       },
       "style": {
