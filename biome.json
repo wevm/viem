@@ -55,6 +55,7 @@
         "noArrayIndexKey": "off",
         "noAssignInExpressions": "off",
         "noConfusingVoidType": "off",
+        "noConsoleLog": "error",
         "noExplicitAny": "off",
         "noRedeclare": "off"
       }

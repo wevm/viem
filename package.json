@@ -20,9 +20,7 @@
     "docs:dev": "cd site && bun run dev",
     "docs:build": "cd site && bun run build",
     "docs:preview": "cd site && bun run preview",
-    "format": "biome format . --write",
-    "lint": "biome check .",
-    "lint:fix": "bun run lint --apply",
+    "lint": "biome check . --apply",
     "postinstall": "git submodule update --init --recursive && bun run contracts:build",
     "prepare": "bun x simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
@@ -69,6 +67,6 @@
   },
   "trustedDependencies": ["c-kzg"],
   "simple-git-hooks": {
-    "pre-commit": "bun run format && bun run lint:fix"
+    "pre-commit": "bun run lint"
   }
 }
