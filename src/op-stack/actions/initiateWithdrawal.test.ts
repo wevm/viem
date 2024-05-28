@@ -199,6 +199,7 @@ describe.skip('e2e', () => {
       targetChain: client_opSepolia.chain,
     })
 
+    // biome-ignore lint/suspicious/noConsoleLog:
     console.log('seconds to prove:', proveTime.seconds)
 
     const { game, withdrawal } = await waitToProve(client_sepolia, {
@@ -222,6 +223,7 @@ describe.skip('e2e', () => {
       withdrawalHash: withdrawal.withdrawalHash,
     })
 
+    // biome-ignore lint/suspicious/noConsoleLog:
     console.log('seconds to finalize:', finalizeTime.seconds)
 
     await waitToFinalize(client_sepolia, {
@@ -258,6 +260,7 @@ describe.skip('e2e', () => {
 
     const proveHash = await proveWithdrawal(client_sepolia, proveArgs)
 
+    // biome-ignore lint/suspicious/noConsoleLog:
     console.log('proveHash', proveHash)
   })
 })

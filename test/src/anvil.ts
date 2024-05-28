@@ -70,44 +70,6 @@ export const anvilZkSync = defineAnvil({
   port: 8745,
 })
 
-export const anvil3074 = defineAnvil({
-  execArgs(defaultArgs) {
-    const [_, args_, options] = defaultArgs
-
-    const args = [...args_]
-
-    const hostIndex = args.findIndex((arg) => arg === '--host')
-    if (hostIndex !== -1) args.splice(hostIndex, 2)
-
-    const portIndex = args.findIndex((arg) => arg === '--port')
-    const port = args[portIndex + 1]
-    if (portIndex !== -1) args.splice(portIndex, 2)
-
-    return [
-      'docker',
-      [
-        'run',
-        '-p',
-        `${port}:8545`,
-        '--rm',
-        '-v',
-        `${process.cwd()}:/app/foundry`,
-        '-u',
-        `${process.getuid!()}:${process.getgid!()}`,
-        'ghcr.io/paradigmxyz/foundry-alphanet:latest',
-        '--foundry-command',
-        `anvil ${args.join(' ')}`,
-      ],
-      options!,
-    ]
-  },
-  chain: mainnet,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
-  forkBlockNumber: 16280770n,
-  startTimeout: 60_000,
-  port: 9045,
-})
-
 ////////////////////////////////////////////////////////////
 // Utilities
 

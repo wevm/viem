@@ -12,8 +12,6 @@
       "CHANGELOG.md",
       "cache",
       "test/contracts",
-      "test/chains",
-      "test/invokers",
       "test/kzg/*.json",
       "test/kzg/*.txt",
       "coverage",
@@ -46,6 +44,8 @@
         "noUnusedVariables": "error"
       },
       "performance": {
+        "noBarrelFile": "error",
+        "noReExportAll": "error",
         "noDelete": "off"
       },
       "style": {
@@ -56,6 +56,7 @@
         "noArrayIndexKey": "off",
         "noAssignInExpressions": "off",
         "noConfusingVoidType": "off",
+        "noConsoleLog": "error",
         "noExplicitAny": "off",
         "noRedeclare": "off"
       }

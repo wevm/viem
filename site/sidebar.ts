@@ -5,7 +5,8 @@ export const sidebar = {
     {
       text: 'Introduction',
       items: [
-        { text: 'Why viem', link: '/docs/introduction' },
+        { text: 'Why Viem', link: '/docs/introduction' },
+        { text: 'Installation', link: '/docs/installation' },
         { text: 'Getting Started', link: '/docs/getting-started' },
         { text: 'Platform Compatibility', link: '/docs/compatibility' },
         { text: 'FAQ', link: '/docs/faq' },
@@ -1046,60 +1047,6 @@ export const sidebar = {
         ],
       },
       {
-        text: 'Guides',
-        items: [
-          {
-            text: 'Using Invokers (EIP-3074)',
-            link: '/experimental/eip3074/using-invokers',
-          },
-        ],
-      },
-      {
-        text: 'EIP-3074',
-        items: [
-          {
-            text: 'Actions',
-            items: [
-              {
-                text: 'signAuthMessage',
-                link: '/experimental/eip3074/signAuthMessage',
-              },
-            ],
-          },
-          {
-            text: 'Invoker Instances',
-            link: '/experimental/eip3074/invoker-instances',
-            items: [
-              {
-                text: 'getInvoker',
-                link: '/experimental/eip3074/getInvoker',
-              },
-              {
-                text: 'execute',
-                link: '/experimental/eip3074/execute',
-              },
-              {
-                text: 'sign',
-                link: '/experimental/eip3074/sign',
-              },
-            ],
-          },
-          {
-            text: 'Utilities',
-            items: [
-              {
-                text: 'recoverAuthMessageAddress',
-                link: '/experimental/eip3074/recoverAuthMessageAddress',
-              },
-              {
-                text: 'verifyAuthMessage',
-                link: '/experimental/eip3074/verifyAuthMessage',
-              },
-            ],
-          },
-        ],
-      },
-      {
         text: 'EIP-5792',
         items: [
           {
@@ -1146,6 +1093,20 @@ export const sidebar = {
               {
                 text: 'serializeErc6492Signature',
                 link: '/experimental/erc6492/serializeErc6492Signature',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'ERC-7715',
+        items: [
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'issuePermissions',
+                link: '/experimental/erc7715/issuePermissions',
               },
             ],
           },

@@ -19,7 +19,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Lint code
-        run: bun format && bun lint:fix
+        run: bun run lint
       
       - uses: stefanzweifel/git-auto-commit-action@v5
         env:
