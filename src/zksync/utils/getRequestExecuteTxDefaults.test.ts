@@ -2,8 +2,6 @@ import { expect, test } from 'vitest'
 import { mockAddress } from '~test/src/zksyncPublicActionsL2MockData.js'
 import {
   mockClientPublicActionsL2,
-  mockHash,
-  zkSyncClientLocalNode,
   zkSyncClientLocalNodeWithAccount,
 } from '../../../test/src/zksync.js'
 import { getRequestExecuteTxDefaults } from './getRequestExecuteTxDefaults.js'

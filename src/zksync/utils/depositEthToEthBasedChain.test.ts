@@ -6,7 +6,6 @@ import {
 } from '../../actions/index.js'
 import { zkSyncLocalNode, zkSyncLocalNodeL1 } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
-import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { sendTransaction } from '../actions/sendTransaction.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
@@ -30,12 +29,6 @@ const clientL2 = createClient({
   account,
 }).extend(publicActionsL2())
 
-const walletL1 = createWalletClient({
-  chain: zkSyncLocalNodeL1,
-  transport: http(),
-  account,
-})
-
 test('depositETHToETHBasedChain', async () => {
   const amount = 1n
 
@@ -43,7 +36,7 @@ test('depositETHToETHBasedChain', async () => {
     amount,
     refundRecipient: account.address,
   })
-  const hash = await sendTransaction(walletL1, depositArgs)
+  const hash = await sendTransaction(clientL1, depositArgs)
 
   await waitForTransactionReceipt(clientL1, { hash })
 

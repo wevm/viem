@@ -30,7 +30,7 @@ export async function estimateDefaultBridgeDepositL2Gas<
   parameters: EstimateDefaultBridgeDepositL2GasParameters,
 ): Promise<bigint> {
   const from = clientL2.account.address ?? createRandomAddress()
-  const isBase = await isBaseToken(clientL2, parameters.token)
+  const isBase = await isBaseToken(clientL2, { token: parameters.token })
 
   if (isBase) {
     return await estimateL1ToL2Execute(clientL2, {

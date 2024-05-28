@@ -7,15 +7,23 @@ import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
 import { getBaseTokenL1Address } from '../actions/getBaseTokenL1Address.js'
 import { L2_BASE_TOKEN_ADDRESS } from '../constants/number.js'
 
+export type IsBaseTokenParameters = {
+  token: Address
+}
+
+export type IsBaseTokenReturnType = boolean
+
 export async function isBaseToken<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
   clientL2: Client<Transport, TChain, TAccount>,
-  token: Address,
-): Promise<boolean> {
+  parameters: IsBaseTokenParameters,
+): Promise<IsBaseTokenReturnType> {
   return (
-    isAddressEqualLite(token, await getBaseTokenL1Address(clientL2)) ||
-    isAddressEqualLite(token, L2_BASE_TOKEN_ADDRESS)
+    isAddressEqualLite(
+      parameters.token,
+      await getBaseTokenL1Address(clientL2),
+    ) || isAddressEqualLite(parameters.token, L2_BASE_TOKEN_ADDRESS)
   )
 }
