@@ -17,10 +17,10 @@ export async function l2TokenAddress<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
-  clientL1: Client<Transport, TChain, TAccount>,
+  clientL2: Client<Transport, TChain, TAccount>,
   parameters: GetL2TokenAddressParameters,
 ): Promise<GetL2TokenAddressReturnType> {
-  return (await readContract(clientL1, {
+  return (await readContract(clientL2, {
     abi: l2BridgeAbi,
     functionName: 'l2TokenAddress',
     address: parameters.sharedL2,

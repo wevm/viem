@@ -23,20 +23,13 @@ export async function constructDepositSpecification<
   clientL1: Client<Transport, TChain, Account>,
   parameters: ConstructDepositSpecificationParameters,
 ): Promise<ConstructDepositSpecificationReturnType> {
-  if (!parameters.token) {
-    parameters.token = ETH_ADDRESS_IN_CONTRACTS
-  }
-  if (isAddressEqualLite(parameters.token, LEGACY_ETH_ADDRESS)) {
-    parameters.token = ETH_ADDRESS_IN_CONTRACTS
-  }
-
   return {
     ...parameters,
     approveOverrides: parameters.approveOverrides ?? ({} as Overrides),
     approveBaseOverrides: parameters.approveBaseOverrides ?? ({} as Overrides),
     eRC20DefaultBridgeData: await getERC20DefaultBridgeData(
       clientL1,
-      parameters.token,
+      parameters.token!,
     ),
   }
 }

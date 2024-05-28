@@ -7,24 +7,25 @@ import type {
 } from '../types/deposit.js'
 import { checkBaseCost } from './checkBaseCost.js'
 
-export type GetDepositTokenOnEthBasedChainTxParameters =
+export type GetDepositNonBaseTokenOnNonETHBasedChain =
   DepositTransactionExtended & { baseCost: bigint }
 
-export type GetDepositTokenOnEthBasedChainTxReturnType =
-  GetDepositTokenOnEthBasedChainTxParameters & {
+export type GetDepositNonBaseTokenOnNonETHBasedChainReturnType =
+  GetDepositNonBaseTokenOnNonETHBasedChain & {
     contractAddress: Address
     calldata: Hex
   } & DepositTypeValues & { secondBridgeEncodeData: SecondBridgeEncodeData }
 
-export async function getDepositTokenOnEthBasedChainTx(
-  parameters: GetDepositTokenOnEthBasedChainTxParameters,
-): Promise<GetDepositTokenOnEthBasedChainTxReturnType> {
+export async function getDepositNonBaseTokenToNonEthBasedChainTx(
+  parameters: GetDepositNonBaseTokenOnNonETHBasedChain,
+): Promise<GetDepositNonBaseTokenOnNonETHBasedChainReturnType> {
   const tx = parameters
 
   const { operatorTip, overrides, to } = tx
   const mintValue = parameters.baseCost + BigInt(operatorTip || 0n)
-  overrides!.value ??= mintValue
   await checkBaseCost({ baseCost: parameters.baseCost, value: mintValue })
+
+  overrides!.value ??= 0n
 
   return {
     contractAddress: to!,
@@ -38,6 +39,6 @@ export async function getDepositTokenOnEthBasedChainTx(
       amount: parameters.amount,
       to: to!,
     },
-    txValue: mintValue,
+    txValue: 0n,
   }
 }

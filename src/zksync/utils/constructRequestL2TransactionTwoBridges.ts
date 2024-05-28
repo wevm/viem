@@ -35,6 +35,7 @@ export function constructRequestL2TransactionTwoBridges(
       ],
     )
   }
+
   const data = encodeFunctionData({
     abi: bridgehubAbi,
     functionName: 'requestL2TransactionTwoBridges',
@@ -54,9 +55,9 @@ export function constructRequestL2TransactionTwoBridges(
   })
 
   return {
-    maxFeePerGas: parameters.overrides!.maxFeePerGas,
-    maxPriorityFeePerGas: parameters.overrides!.maxPriorityFeePerGas,
-    value: parameters.mintValue,
+    maxFeePerGas: parameters.overrides!.maxFeePerGas!,
+    maxPriorityFeePerGas: parameters.overrides!.maxPriorityFeePerGas!,
+    value: parameters.txValue,
     to: parameters.bridgehubContractAddress,
     data: data,
   }

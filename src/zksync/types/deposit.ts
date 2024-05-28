@@ -35,6 +35,7 @@ export interface Overrides
 export type DepositTypeValues = {
   mintValue: bigint
   l2Value: bigint
+  txValue: bigint
 }
 
 export type SecondBridgeEncodeData = {
