@@ -48,7 +48,7 @@ export type IssuePermissionsReturnType = {
 /**
  * Request permissions from a wallet to perform actions on behalf of a user.
  *
- * - Docs: https://viem.sh/experimental/erc7115/issuePermissions
+ * - Docs: https://viem.sh/experimental/erc7715/issuePermissions
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
@@ -116,7 +116,7 @@ function parseParameters(parameters: IssuePermissionsParameters) {
       }
     }
 
-    // ERC-7115 Signer as signer.
+    // ERC-7715 Signer as signer.
     return signer_
   })()
 

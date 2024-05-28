@@ -1099,14 +1099,14 @@ export const sidebar = {
         ],
       },
       {
-        text: 'ERC-7115',
+        text: 'ERC-7715',
         items: [
           {
             text: 'Actions',
             items: [
               {
                 text: 'issuePermissions',
-                link: '/experimental/erc7115/issuePermissions',
+                link: '/experimental/erc7715/issuePermissions',
               },
             ],
           },
