@@ -10,6 +10,7 @@
       ".vercel",
       "**/node_modules",
       "CHANGELOG.md",
+      "bun.lockb",
       "cache",
       "test/contracts",
       "test/kzg/*.json",
