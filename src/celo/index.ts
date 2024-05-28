@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { chainConfig } from './chainConfig.js'
 
 export { parseTransaction } from './parsers.js'

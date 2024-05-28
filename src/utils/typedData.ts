@@ -14,6 +14,51 @@ import {
   type HashDomainErrorType,
   hashDomain,
 } from './signature/hashTypedData.js'
+import { stringify } from './stringify.js'
+
+export type SerializeTypedDataErrorType =
+  | HashDomainErrorType
+  | IsAddressErrorType
+  | NumberToHexErrorType
+  | SizeErrorType
+  | ErrorType
+
+export function serializeTypedData<
+  const typedData extends TypedData | Record<string, unknown>,
+  primaryType extends keyof typedData | 'EIP712Domain',
+>(parameters: TypedDataDefinition<typedData, primaryType>) {
+  const {
+    domain: domain_,
+    message: message_,
+    primaryType,
+    types,
+  } = parameters as unknown as TypedDataDefinition
+
+  const normalizeData = (
+    struct: readonly TypedDataParameter[],
+    data_: Record<string, unknown>,
+  ) => {
+    const data = { ...data_ }
+    for (const param of struct) {
+      const { name, type } = param
+      if (type === 'address') data[name] = (data[name] as string).toLowerCase()
+    }
+    return data
+  }
+
+  const domain = (() => {
+    if (!types.EIP712Domain) return {}
+    if (!domain_) return {}
+    return normalizeData(types.EIP712Domain, domain_)
+  })()
+
+  const message = (() => {
+    if (primaryType === 'EIP712Domain') return undefined
+    return normalizeData(types[primaryType], message_)
+  })()
+
+  return stringify({ domain, message, primaryType, types })
+}
 
 export type ValidateTypedDataErrorType =
   | HashDomainErrorType
@@ -72,11 +117,8 @@ export function validateTypedData<
   // Validate domain types.
   if (types.EIP712Domain && domain) validateData(types.EIP712Domain, domain)
 
-  if (primaryType !== 'EIP712Domain') {
-    // Validate message types.
-    const type = types[primaryType]
-    validateData(type, message)
-  }
+  // Validate message types.
+  if (primaryType !== 'EIP712Domain') validateData(types[primaryType], message)
 }
 
 export type GetTypesForEIP712DomainErrorType = ErrorType
