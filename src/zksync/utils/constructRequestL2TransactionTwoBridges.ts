@@ -54,8 +54,8 @@ export function constructRequestL2TransactionTwoBridges(
   })
 
   return {
-    maxFeePerGas: parameters.overrides!.maxFeePerGas,
-    maxPriorityFeePerGas: parameters.overrides!.maxPriorityFeePerGas,
+    maxFeePerGas: parameters.overrides!.maxFeePerGas!,
+    maxPriorityFeePerGas: parameters.overrides!.maxPriorityFeePerGas!,
     value: parameters.mintValue,
     to: parameters.bridgehubContractAddress,
     data: data,
