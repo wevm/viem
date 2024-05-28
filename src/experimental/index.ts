@@ -57,8 +57,8 @@ export {
   type IssuePermissionsParameters,
   type IssuePermissionsReturnType,
   issuePermissions,
-} from './erc7115/actions/issuePermissions.js'
+} from './erc7715/actions/issuePermissions.js'
 export {
-  type WalletActionsErc7115,
-  walletActionsErc7115,
-} from './erc7115/decorators/erc7115.js'
+  type WalletActionsErc7715,
+  walletActionsErc7715,
+} from './erc7715/decorators/erc7715.js'

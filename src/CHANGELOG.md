@@ -12,7 +12,7 @@
 
 ### Minor Changes
 
-- [#2317](https://github.com/wevm/viem/pull/2317) [`3135a0cbd70cd168369fd2d478025d6192d2d852`](https://github.com/wevm/viem/commit/3135a0cbd70cd168369fd2d478025d6192d2d852) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added ERC-7115 extension.
+- [#2317](https://github.com/wevm/viem/pull/2317) [`3135a0cbd70cd168369fd2d478025d6192d2d852`](https://github.com/wevm/viem/commit/3135a0cbd70cd168369fd2d478025d6192d2d852) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added ERC-7715 extension.
 
 - [#2313](https://github.com/wevm/viem/pull/2313) [`175d0ae2345a36f7923b19676fc8adb5e820e262`](https://github.com/wevm/viem/commit/175d0ae2345a36f7923b19676fc8adb5e820e262) Thanks [@jxom](https://github.com/jxom)! - **Breaking (Experimental):** Removed EIP-3074 support.
 
