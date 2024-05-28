@@ -15,7 +15,7 @@ export const avalancheFuji = /*#__PURE__*/ defineChain({
     default: {
       name: 'SnowTrace',
       url: 'https://testnet.snowtrace.io/',
-      apiUrl: 'https://api.routescan.io/', //https://api.routescan.io/v2/network/testnet/..
+      apiUrl: 'https://api.snowtrace.io/', //https://api.snowtrace.io/v2/network/testnet/..
     },
   },
   contracts: {
