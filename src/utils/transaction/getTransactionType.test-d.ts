@@ -73,7 +73,14 @@ test('const: eip1559 attributes', () => {
 
 test('const: eip2930 attributes', () => {
   expectTypeOf(
-    getTransactionType({ accessList: [] }),
+    getTransactionType({
+      accessList: [
+        {
+          address: '0x',
+          storageKeys: ['0x'],
+        },
+      ],
+    }),
   ).toEqualTypeOf<'eip2930'>()
   expectTypeOf(
     getTransactionType({ accessList: [], maxFeePerGas: undefined }),

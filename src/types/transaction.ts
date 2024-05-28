@@ -17,7 +17,10 @@ import type {
   RequiredBy,
 } from './utils.js'
 
-export type AccessList = { address: Address; storageKeys: Hex[] }[]
+export type AccessList = readonly {
+  address: Address
+  storageKeys: readonly Hex[]
+}[]
 
 export type TransactionType =
   | 'legacy'
