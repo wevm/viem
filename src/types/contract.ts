@@ -209,9 +209,7 @@ export type ContractFunctionParameters<
     | allFunctionNames // show all options
     | (functionName extends allFunctionNames ? functionName : never) // infer value
   args?: (abi extends Abi ? UnionWiden<args> : never) | allArgs | undefined
-} & (readonly [] extends allArgs ? {} : { args: Widen<args> }) &
-  // TODO: Remove `GetValue` from here (should be applied to top-level type as separate utility)
-  GetValue<abi, functionName>
+} & (readonly [] extends allArgs ? {} : { args: Widen<args> })
 
 export type ContractFunctionReturnType<
   abi extends Abi | readonly unknown[] = Abi,
