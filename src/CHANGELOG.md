@@ -1,5 +1,13 @@
 # viem
 
+## 2.13.1
+
+### Patch Changes
+
+- [#2316](https://github.com/wevm/viem/pull/2316) [`c61219784aa823d1d2c060a3fb2ee88b3cc2c098`](https://github.com/wevm/viem/commit/c61219784aa823d1d2c060a3fb2ee88b3cc2c098) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added taiko mainnet
+
+- [#2315](https://github.com/wevm/viem/pull/2315) [`4f15896031a5b2ec6f40b4a10508b85233d1a154`](https://github.com/wevm/viem/commit/4f15896031a5b2ec6f40b4a10508b85233d1a154) Thanks [@Pfed-prog](https://github.com/Pfed-prog)! - Added Redstone chain.
+
 ## 2.13.0
 
 ### Minor Changes
