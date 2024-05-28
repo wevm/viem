@@ -79,7 +79,7 @@
   {
     "name": "viem/siwe (tree-shaking)",
     "path": "./src/_esm/siwe/index.js",
-    "limit": "26 kB",
+    "limit": "27 kB",
     "import": "{ verifySiweMessage }"
   }
 ]

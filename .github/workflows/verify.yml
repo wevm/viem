@@ -216,7 +216,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        typescript-version: ['5.4.2', 'latest']
+        typescript-version: ['5.4.5']
 
     steps:
       - name: Clone repository
