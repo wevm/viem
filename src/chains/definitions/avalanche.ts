@@ -15,7 +15,7 @@ export const avalanche = /*#__PURE__*/ defineChain({
     default: {
       name: 'SnowTrace',
       url: 'https://snowtrace.io/',
-      apiUrl: 'https://api.routescan.io/',
+      apiUrl: 'https://api.snowtrace.io/',
     },
   },
   contracts: {
