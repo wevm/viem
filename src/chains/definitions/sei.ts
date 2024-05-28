@@ -7,6 +7,7 @@ export const sei = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ["https://evm-rpc.sei-apis.com/"],
+      webSocket: ["wss://evm-ws.sei-apis.com/"],
     },
   },
   blockExplorers: {
