@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const taiko = /*#__PURE__*/ defineChain({
   id: 167000,
   name: 'Taiko Mainnet',
-  network: 'taiko',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -18,7 +17,7 @@ export const taiko = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Taikoscan',
-      url: 'https://taikoscan.network/',
+      url: 'https://taikoscan.network',
       apiUrl: 'https://taikoscan.network/api',
     },
   },
