@@ -31,3 +31,15 @@ export interface Overrides
   extends Omit<ZkSyncTransactionRequest, 'to' | 'data'> {
   gasLimit: bigint
 }
+
+export type DepositTypeValues = {
+  mintValue: bigint
+  l2Value: bigint
+}
+
+export type SecondBridgeEncodeData = {
+  secondBridgeValue: bigint
+  token: Address
+  amount: bigint
+  to: Address
+}
