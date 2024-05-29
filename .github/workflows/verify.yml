@@ -54,7 +54,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        typescript-version: ['5.3.2', 'latest']
+        version: ['5.3.3', '5.4.5']
 
     steps:
       - name: Clone repository
@@ -65,7 +65,7 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - run: bun i -d typescript@${{ matrix.typescript-version }}
+      - run: bun i -d typescript@${{ matrix.version }}
 
       - name: Build contracts
         shell: bash
@@ -74,10 +74,15 @@ jobs:
       - name: Check types
         run: bun run typecheck
 
-      - name: Test types
-        run: bun run test:typecheck
-        env:
-          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
+      - name: Bench types
+        run: bun run typebench
+
+      # Redundant with `pnpm typecheck`
+      # If Vitest adds special features in the future, e.g. type coverage, can add this back!
+      # - name: Test types
+      #   run: bun run test:typecheck
+      #   env:
+      #     VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
 
   test:
     name: Test
@@ -211,7 +216,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        typescript-version: ['5.4.2', 'latest']
+        typescript-version: ['5.4.5']
 
     steps:
       - name: Clone repository
