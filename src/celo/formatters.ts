@@ -34,7 +34,7 @@ export const formatters = {
         return {
           ...formatted,
           feeCurrency: transaction.feeCurrency,
-          ...(transaction.type === '0x7c'
+          ...(transaction.type !== '0x7b' // this should be changed to === 0x7c because that is the only type that uses the fields. there is nothing special about 7b
             ? {
                 gatewayFee: transaction.gatewayFee
                   ? hexToBigInt(transaction.gatewayFee)

@@ -524,6 +524,60 @@ describe('transaction', () => {
         "yParity": 1,
       }
     `)
+
+    expect(
+      transaction.format({
+        accessList: [],
+        blockHash:
+          '0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574',
+        blockNumber: '0x1',
+        chainId: '0x1',
+        from: '0xacd03d601e5bb1b275bb94076ff46ed9d753435a',
+        gas: '0x69',
+        hash: '0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822',
+        input: '0x',
+        maxFeePerGas: '0x1',
+        maxPriorityFeePerGas: '0x2',
+        nonce: '0x3',
+        r: '0xf5272819865bb23110822bedd12b4f14a9b89ca113e280d40ec06c83d126090e',
+        s: '0xaaa4249c6b174d714cd6d1eaf1a15a9549769addfcc6d846524f1f8ce38178a',
+        sourceHash: '0x',
+        to: '0xeb610a69341aace81ed810ed42428249512378cd',
+        transactionIndex: '0x4',
+        type: '0x7e',
+        v: '0x1',
+        value: '0x69',
+        yParity: '0x1',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "blockHash": "0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574",
+        "blockNumber": 1n,
+        "chainId": 1,
+        "from": "0xacd03d601e5bb1b275bb94076ff46ed9d753435a",
+        "gas": 105n,
+        "gasPrice": undefined,
+        "hash": "0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822",
+        "input": "0x",
+        "isSystemTx": undefined,
+        "maxFeePerBlobGas": undefined,
+        "maxFeePerGas": 1n,
+        "maxPriorityFeePerGas": 2n,
+        "mint": undefined,
+        "nonce": 3,
+        "r": "0xf5272819865bb23110822bedd12b4f14a9b89ca113e280d40ec06c83d126090e",
+        "s": "0xaaa4249c6b174d714cd6d1eaf1a15a9549769addfcc6d846524f1f8ce38178a",
+        "sourceHash": "0x",
+        "to": "0xeb610a69341aace81ed810ed42428249512378cd",
+        "transactionIndex": 4,
+        "type": "deposit",
+        "typeHex": "0x7e",
+        "v": 1n,
+        "value": 105n,
+        "yParity": 1,
+      }
+    `)
   })
 
   test('action', async () => {
