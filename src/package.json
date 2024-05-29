@@ -10,11 +10,12 @@
   "sideEffects": false,
   "files": [
     "*",
-    "!**/*.tsbuildinfo",
+    "!**/*.bench.ts",
+    "!**/*.bench-d.ts",
     "!**/*.test.ts",
     "!**/*.test.ts.snap",
     "!**/*.test-d.ts",
-    "!**/*.bench.ts",
+    "!**/*.tsbuildinfo",
     "!tsconfig.build.json",
     "!jsr.json"
   ],
