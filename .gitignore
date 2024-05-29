@@ -3,6 +3,7 @@ _esm
 _types
 *.local
 .DS_Store
+.attest
 .eslintcache
 .next
 bench
