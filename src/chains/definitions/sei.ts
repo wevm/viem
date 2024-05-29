@@ -18,7 +18,7 @@ export const sei = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0xcb2436774C3e191c85056d248EF4260ce5f27A9D',
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
     },
   },
 })
