@@ -27,6 +27,7 @@ export {
   type WriteContractsErrorType,
   type WriteContractsParameters,
   type WriteContractsReturnType,
+  type WriteContractFunctionParameters,
   writeContracts,
 } from './eip5792/actions/writeContracts.js'
 export {
