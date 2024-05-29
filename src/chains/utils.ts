@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
   type AssertCurrentChainErrorType,
   type AssertCurrentChainParameters,

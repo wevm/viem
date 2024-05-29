@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
   type Abi,
   type AbiFunction,
@@ -1005,6 +1006,8 @@ export type {
   WalletCapabilitiesRecord,
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
+  WalletIssuePermissionsParameters,
+  WalletIssuePermissionsReturnType,
   WalletSendCallsParameters,
   WalletPermissionCaveat,
   WalletPermission,
@@ -1094,6 +1097,7 @@ export {
 export {
   type DecodeFunctionDataErrorType,
   type DecodeFunctionDataParameters,
+  type DecodeFunctionDataReturnType,
   decodeFunctionData,
 } from './utils/abi/decodeFunctionData.js'
 export {

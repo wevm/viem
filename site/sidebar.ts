@@ -5,7 +5,8 @@ export const sidebar = {
     {
       text: 'Introduction',
       items: [
-        { text: 'Why viem', link: '/docs/introduction' },
+        { text: 'Why Viem', link: '/docs/introduction' },
+        { text: 'Installation', link: '/docs/installation' },
         { text: 'Getting Started', link: '/docs/getting-started' },
         { text: 'Platform Compatibility', link: '/docs/compatibility' },
         { text: 'FAQ', link: '/docs/faq' },
@@ -1092,6 +1093,20 @@ export const sidebar = {
               {
                 text: 'serializeErc6492Signature',
                 link: '/experimental/erc6492/serializeErc6492Signature',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'ERC-7715',
+        items: [
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'issuePermissions',
+                link: '/experimental/erc7715/issuePermissions',
               },
             ],
           },

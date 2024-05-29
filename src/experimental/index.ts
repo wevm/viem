@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
   type GetCapabilitiesParameters,
   type GetCapabilitiesErrorType,
@@ -26,6 +27,7 @@ export {
   type WriteContractsErrorType,
   type WriteContractsParameters,
   type WriteContractsReturnType,
+  type WriteContractFunctionParameters,
   writeContracts,
 } from './eip5792/actions/writeContracts.js'
 export {
@@ -51,3 +53,13 @@ export {
   type SerializeErc6492SignatureReturnType,
   serializeErc6492Signature,
 } from './erc6492/serializeErc6492Signature.js'
+
+export {
+  type IssuePermissionsParameters,
+  type IssuePermissionsReturnType,
+  issuePermissions,
+} from './erc7715/actions/issuePermissions.js'
+export {
+  type WalletActionsErc7715,
+  walletActionsErc7715,
+} from './erc7715/decorators/erc7715.js'

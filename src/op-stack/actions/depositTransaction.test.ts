@@ -361,15 +361,11 @@ test.skip(
     const hash = await depositTransaction(client_sepolia, request)
     expect(hash).toBeDefined()
 
-    console.log('l1 hash', hash)
-
     const receipt = await waitForTransactionReceipt(client_sepolia, {
       hash,
     })
 
     const [l2Hash] = getL2TransactionHashes(receipt)
-
-    console.log('l2 hash', l2Hash)
 
     await waitForTransactionReceipt(client_opSepolia, {
       hash: l2Hash,

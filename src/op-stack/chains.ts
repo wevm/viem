@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { ancient8 } from '../chains/definitions/ancient8.js'
 export { ancient8Sepolia } from '../chains/definitions/ancient8Sepolia.js'
 export { base } from '../chains/definitions/base.js'

@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { type NormalizeErrorType, normalize } from '../utils/ens/normalize.js'
 export {
   type GetEnsAddressErrorType,

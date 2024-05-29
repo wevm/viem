@@ -1,4 +1,6 @@
 export type { Address } from 'abitype'
+
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { HDKey } from '@scure/bip32'
 export { wordlist as czech } from '@scure/bip39/wordlists/czech'
 export { wordlist as english } from '@scure/bip39/wordlists/english'
