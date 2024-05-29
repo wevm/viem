@@ -18,6 +18,8 @@ import type {
   TransactionSerializableCIP64,
 } from './types.js'
 
+import type { TransactionSerializableDeposit } from '~viem/op-stack/types/transaction.js'
+
 const commonBaseTx = {
   to: accounts[0].address,
   chainId: 42220,
@@ -342,5 +344,22 @@ describe('not cip42', () => {
       value: parseEther('1'),
       type: 'eip1559',
     })
+  })
+})
+
+describe('op-stack based transactions', () => {
+  test('serializes deposit transactions', () => {
+    const opDepositTransaction = {
+      from: '0x977f82a600a1414e583f7f13623f1ac5d58b1c0b',
+      sourceHash:
+        '0x18040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d7104319',
+      type: 'deposit',
+    } as const satisfies TransactionSerializableDeposit
+
+    const serialized = serializeTransaction(opDepositTransaction)
+    expect(serialized.startsWith('0x7e')).toBe(true)
+    expect(serialized).toEqual(
+      '0x7ef83ca018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808080808080',
+    )
   })
 })

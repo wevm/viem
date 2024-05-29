@@ -23,6 +23,8 @@ import type {
 } from '../types/transaction.js'
 import type { ExactPartial, NeverBy, OneOf } from '../types/utils.js'
 
+import type { TransactionSerializableDeposit } from '~viem/op-stack/types/transaction.js'
+
 type CeloBlockExclude =
   | 'difficulty'
   | 'gasLimit'
@@ -89,7 +91,9 @@ export type CeloTransactionRequest =
   | TransactionRequestCIP64
 
 export type CeloTransactionSerializable = OneOf<
-  TransactionSerializable | TransactionSerializableCIP64
+  | TransactionSerializable
+  | TransactionSerializableCIP64
+  | TransactionSerializableDeposit
 >
 
 export type CeloTransactionSerialized<

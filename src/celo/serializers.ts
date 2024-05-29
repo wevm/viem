@@ -1,3 +1,4 @@
+import { serializeTransaction as serializeTransaction_op } from '~viem/op-stack/serializers.js'
 import { InvalidAddressError } from '../errors/address.js'
 import { BaseError } from '../errors/base.js'
 import { InvalidChainIdError } from '../errors/chain.js'
@@ -9,10 +10,7 @@ import { concatHex } from '../utils/data/concat.js'
 import { toHex } from '../utils/encoding/toHex.js'
 import { toRlp } from '../utils/encoding/toRlp.js'
 import { serializeAccessList } from '../utils/transaction/serializeAccessList.js'
-import {
-  serializeTransaction as serializeTransaction_,
-  toYParitySignatureArray,
-} from '../utils/transaction/serializeTransaction.js'
+import { toYParitySignatureArray } from '../utils/transaction/serializeTransaction.js'
 import type {
   CeloTransactionSerializable,
   TransactionSerializableCIP42,
@@ -27,7 +25,7 @@ export function serializeTransaction(
 ) {
   if (isCIP64(transaction))
     return serializeTransactionCIP64(transaction, signature)
-  return serializeTransaction_(transaction, signature)
+  return serializeTransaction_op(transaction, signature)
 }
 
 export const serializers = {
