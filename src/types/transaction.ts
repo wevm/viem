@@ -17,6 +17,7 @@ import type {
   RequiredBy,
 } from './utils.js'
 
+// TODO: Refactor to single item type without list attached
 export type AccessList = readonly {
   address: Address
   storageKeys: readonly Hex[]
