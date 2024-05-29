@@ -24,7 +24,8 @@ import type {
 import type { ExactPartial, NeverBy, OneOf } from '../types/utils.js'
 
 import type {
-  OpStackTransactionSerialized,
+  OpStackDepositTransaction,
+  OpStackRpcTransaction,
   TransactionSerializableDeposit,
   TransactionSerializedDeposit,
 } from '~viem/op-stack/types/transaction.js'
@@ -36,11 +37,14 @@ type CeloBlockExclude =
   | 'nonce'
   | 'uncles'
 
+// L2 blocks do not have randomness
 export type CeloBlockOverrides = {
-  randomness: {
-    committed: Hex
-    revealed: Hex
-  }
+  randomness?:
+    | {
+        committed: Hex
+        revealed: Hex
+      }
+    | undefined
 }
 
 export type CeloBlock<
@@ -58,7 +62,7 @@ export type CeloBlock<
   CeloBlockOverrides
 
 export type CeloRpcBlockOverrides = {
-  randomness: {
+  randomness?: {
     committed: Hex
     revealed: Hex
   }
@@ -80,6 +84,7 @@ export type CeloRpcTransaction<isPending extends boolean = boolean> =
   | RpcTransaction<isPending>
   | RpcTransactionCIP42<isPending>
   | RpcTransactionCIP64<isPending>
+  | (OpStackRpcTransaction<isPending> & CeloNegativeFields)
 
 export type CeloRpcTransactionRequest =
   | RpcTransactionRequest
@@ -89,6 +94,7 @@ export type CeloTransaction<isPending extends boolean = boolean> =
   | Transaction<isPending>
   | TransactionCIP42<isPending>
   | TransactionCIP64<isPending>
+  | (OpStackDepositTransaction<isPending> & CeloNegativeFields)
 
 export type CeloTransactionRequest =
   | TransactionRequest
@@ -150,6 +156,18 @@ export type RpcTransactionRequestCIP64 = TransactionRequestBase<
   type?: '0x7b' | undefined
 } & ExactPartial<FeeValuesEIP1559<Quantity>>
 
+type OpTxNegativeFields = {
+  isSystemTx?: undefined
+  mint?: undefined
+  sourceHash?: undefined
+}
+
+type CeloNegativeFields = {
+  feeCurrency?: undefined
+  gatewayFee?: undefined
+  gatewayFeeRecipient?: undefined
+}
+
 type Transaction<isPending extends boolean = boolean> = core_Transaction<
   bigint,
   number,
@@ -158,23 +176,27 @@ type Transaction<isPending extends boolean = boolean> = core_Transaction<
   feeCurrency: Address | null
   gatewayFee?: undefined
   gatewayFeeRecipient?: undefined
-}
+} & OpTxNegativeFields
 
 export type TransactionCIP42<isPending extends boolean = boolean> =
-  TransactionBase<bigint, number, isPending> & {
-    feeCurrency: Address | null
-    gatewayFee: bigint | null
-    gatewayFeeRecipient: Address | null
-    type: 'cip42'
-  } & FeeValuesEIP1559
+  TransactionBase<bigint, number, isPending> &
+    FeeValuesEIP1559 &
+    OpTxNegativeFields & {
+      feeCurrency: Address | null
+      gatewayFee: bigint | null
+      gatewayFeeRecipient: Address | null
+      type: 'cip42'
+    }
 
 export type TransactionCIP64<isPending extends boolean = boolean> =
-  TransactionBase<bigint, number, isPending> & {
-    feeCurrency: Address | null
-    gatewayFee?: undefined
-    gatewayFeeRecipient?: undefined
-    type: 'cip64'
-  } & FeeValuesEIP1559
+  TransactionBase<bigint, number, isPending> &
+    FeeValuesEIP1559 &
+    OpTxNegativeFields & {
+      feeCurrency: Address | null
+      gatewayFee?: undefined
+      gatewayFeeRecipient?: undefined
+      type: 'cip64'
+    }
 
 type TransactionRequest = core_TransactionRequest & {
   feeCurrency?: Address | undefined

@@ -29,10 +29,12 @@ export const formatters = {
     } {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
+        const formatted = formatTransaction(transaction as RpcTransaction)
+
         return {
-          ...formatTransaction(transaction as RpcTransaction),
+          ...formatted,
           feeCurrency: transaction.feeCurrency,
-          ...(transaction.type !== '0x7b'
+          ...(transaction.type === '0x7c'
             ? {
                 gatewayFee: transaction.gatewayFee
                   ? hexToBigInt(transaction.gatewayFee)
@@ -50,6 +52,15 @@ export const formatters = {
   }),
   transaction: /*#__PURE__*/ defineTransaction({
     format(args: CeloRpcTransaction): CeloTransaction {
+      // it is an OP deposit transaction
+      if (args.type === '0x7e')
+        return {
+          isSystemTx: args.isSystemTx,
+          mint: args.mint ? hexToBigInt(args.mint) : undefined,
+          sourceHash: args.sourceHash,
+          type: 'deposit',
+        } as CeloTransaction
+
       const transaction = { feeCurrency: args.feeCurrency } as CeloTransaction
 
       if (args.type === '0x7b') transaction.type = 'cip64'
