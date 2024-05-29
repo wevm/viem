@@ -14,22 +14,14 @@ export const mainnet = /*#__PURE__*/ defineChain({
       name: 'Blockscout Explorer',
       url: 'https://blockscout.defi-oracle.io',
     },
-    blockscout: {
-        name: 'Quorum Explorer',
-        url: 'https://explorer.defi-oracle.io',
-      },
   },
   contracts: {
     ensRegistry: {
-      address: '0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85',
+      address: '0x34eCe27C724291C7233dC8114f76C1169f0863C8',             
     },
     ensUniversalResolver: {
-      address: 'tbd',
-      blockCreated: tbd,
-    },
-    multicall3: {
-      address: 'tbd',
-      blockCreated: tbd,
+      address: '0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63',
+      blockCreated: 19_971_461,
     },
   },
 })
