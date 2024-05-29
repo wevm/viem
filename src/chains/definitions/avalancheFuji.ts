@@ -14,7 +14,7 @@ export const avalancheFuji = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'SnowTrace',
-      url: 'https://testnet.snowtrace.io/',
+      url: 'https://testnet.snowtrace.io',
       apiUrl: 'https://api-testnet.snowtrace.io',
     },
   },
