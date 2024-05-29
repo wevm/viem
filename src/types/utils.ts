@@ -57,6 +57,11 @@ export type IsNarrowable<T, U> = IsNever<
  */
 export type IsNever<T> = [T] extends [never] ? true : false
 
+/** Removes `readonly` from all properties of an object. */
+export type Mutable<type extends object> = {
+  -readonly [key in keyof type]: type[key]
+}
+
 /**
  * @description Returns type {@link T} if it is an opaque type of {@link U}
  * @param T - Type to check
@@ -201,12 +206,12 @@ export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
  * Some<[1, 2, 3], 2>
  * => true
  */
-export type Some<array extends unknown[], value> = array extends [
+export type Some<
+  array extends readonly unknown[],
   value,
-  ...unknown[],
-]
+> = array extends readonly [value, ...unknown[]]
   ? true
-  : array extends [unknown, ...infer rest]
+  : array extends readonly [unknown, ...infer rest]
     ? Some<rest, value>
     : false
 
