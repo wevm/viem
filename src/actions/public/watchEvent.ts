@@ -158,9 +158,7 @@ export function watchEvent<
   _EventName extends string | undefined = undefined,
 >(
   client: Client<TTransport, TChain>,
-  parameters: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
-): WatchEventReturnType {
-  const {
+  {
     address,
     args,
     batch = true,
@@ -172,7 +170,8 @@ export function watchEvent<
     poll: poll_,
     pollingInterval = client.pollingInterval,
     strict: strict_,
-  } = parameters
+  }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
+): WatchEventReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
     if (typeof fromBlock === 'bigint') return true

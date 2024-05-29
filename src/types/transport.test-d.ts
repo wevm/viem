@@ -1,7 +1,7 @@
 import { expectTypeOf, test } from 'vitest'
 
-import { http } from '../clients/transports/http.js'
 import { fallback } from '../clients/transports/fallback.js'
+import { http } from '../clients/transports/http.js'
 import { webSocket } from '../clients/transports/webSocket.js'
 import type { HasTransportType } from './transport.js'
 
