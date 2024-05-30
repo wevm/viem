@@ -1,5 +1,5 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { Chain, ExtractChain } from '../../types/chain.js'
+import type { Chain } from '../../types/chain.js'
 
 export type ExtractChainParameters<
   chains extends readonly Chain[],
@@ -12,7 +12,7 @@ export type ExtractChainParameters<
 export type ExtractChainReturnType<
   chains extends readonly Chain[],
   chainId extends chains[number]['id'],
-> = ExtractChain<chains, chainId>
+> = Extract<chains[number], { id: chainId }>
 
 export type ExtractChainErrorType = ErrorType
 

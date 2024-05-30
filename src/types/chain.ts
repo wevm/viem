@@ -61,41 +61,15 @@ export type Chain<
 
   /** Custom chain data. */
   custom?: custom | undefined
+  /** Modifies how fees are derived. */
+  fees?: ChainFees<formatters | undefined> | undefined
   /**
-   * Modifies how chain data structures (ie. Blocks, Transactions, etc)
-   * are formatted & typed.
+   * Modifies how chain data structures are formatted and typed,
+   * blocks and transactions.
    */
   formatters?: formatters | undefined
   /** Modifies how data (ie. Transactions) is serialized. */
   serializers?: ChainSerializers<formatters> | undefined
-  /** Modifies how fees are derived. */
-  fees?: ChainFees<formatters | undefined> | undefined
-}
-
-/////////////////////////////////////////////////////////////////////
-// Constants
-
-type ChainBlockExplorer = {
-  name: string
-  url: string
-  apiUrl?: string | undefined
-}
-
-export type ChainContract = {
-  address: Address
-  blockCreated?: number | undefined
-}
-
-type ChainNativeCurrency = {
-  name: string
-  /** 2-6 characters long */
-  symbol: string
-  decimals: number
-}
-
-type ChainRpcUrls = {
-  http: readonly string[]
-  webSocket?: readonly string[] | undefined
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -129,16 +103,12 @@ export type ChainFees<
    * Overrides the return value in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas).
    */
   estimateFeesPerGas?:
-    | ChainEstimateFeesPerGasFn<formatters>
     | bigint
+    | ((
+        args: ChainEstimateFeesPerGasFnParameters<formatters>,
+      ) => Promise<EstimateFeesPerGasReturnType | null>)
     | undefined
 }
-
-export type ChainEstimateFeesPerGasFn<
-  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-> = (
-  args: ChainEstimateFeesPerGasFnParameters<formatters>,
-) => Promise<EstimateFeesPerGasReturnType | null>
 
 export type ChainFormatters = {
   /** Modifies how the Block structure is formatted & typed. */
@@ -158,18 +128,18 @@ export type ChainFormatter<type extends string = string> = {
 
 export type ChainSerializers<
   formatters extends ChainFormatters | undefined = undefined,
+  ///
+  transaction extends
+    TransactionSerializableGeneric = formatters extends ChainFormatters
+    ? formatters['transactionRequest'] extends ChainFormatter
+      ? TransactionSerializableGeneric &
+          Parameters<formatters['transactionRequest']['format']>[0]
+      : TransactionSerializable
+    : TransactionSerializable,
 > = {
   /** Modifies how Transactions are serialized. */
   transaction?:
-    | SerializeTransactionFn<
-        formatters extends ChainFormatters
-          ? formatters['transactionRequest'] extends ChainFormatter
-            ? TransactionSerializableGeneric &
-                Parameters<formatters['transactionRequest']['format']>[0]
-            : TransactionSerializable
-          : TransactionSerializable,
-        TransactionSerializedGeneric
-      >
+    | SerializeTransactionFn<transaction, TransactionSerializedGeneric>
     | undefined
 }
 
@@ -201,30 +171,21 @@ export type ChainFeesFnParameters<
 export type ChainEstimateFeesPerGasFnParameters<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
-  /**
-   * A function to multiply the base fee based on the `baseFeeMultiplier` value.
-   */
-  multiply(x: bigint): bigint
-  /**
-   * The type of fees to return.
-   */
+  /** Function to multiply the base fee based on the `baseFeeMultiplier` value. */
+  multiply: (x: bigint) => bigint
+  /** Type of fees to return. */
   type: FeeValuesType
 } & ChainFeesFnParameters<formatters>
 
 /////////////////////////////////////////////////////////////////////
 // Utils
 
-export type ExtractChain<
-  chains extends readonly Chain[],
-  chainId extends Chain['id'],
-> = Extract<chains[number], { id: chainId }>
-
 export type ExtractChainFormatterExclude<
   chain extends Chain | undefined,
   type extends keyof ChainFormatters,
 > = chain extends { formatters?: infer _Formatters extends ChainFormatters }
   ? _Formatters[type] extends { exclude: infer Exclude }
-    ? Extract<Exclude, string[]>[number]
+    ? Extract<Exclude, readonly string[]>[number]
     : ''
   : ''
 
@@ -267,3 +228,29 @@ export type GetChainParameter<
 > = IsUndefined<chain> extends true
   ? { chain: chainOverride | null }
   : { chain?: chainOverride | null | undefined }
+
+/////////////////////////////////////////////////////////////////////
+// Constants
+
+type ChainBlockExplorer = {
+  name: string
+  url: string
+  apiUrl?: string | undefined
+}
+
+export type ChainContract = {
+  address: Address
+  blockCreated?: number | undefined
+}
+
+type ChainNativeCurrency = {
+  name: string
+  /** 2-6 characters long */
+  symbol: string
+  decimals: number
+}
+
+type ChainRpcUrls = {
+  http: readonly string[]
+  webSocket?: readonly string[] | undefined
+}

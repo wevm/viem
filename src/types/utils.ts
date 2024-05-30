@@ -189,6 +189,10 @@ export type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
 
+export type Evaluate<type> = {
+  [key in keyof type]: type[key]
+} & {}
+
 /**
  * @description Creates a type that is T with the required keys K.
  *
