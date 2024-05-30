@@ -1,5 +1,15 @@
 # viem
 
+## 2.13.2
+
+### Patch Changes
+
+- [#2328](https://github.com/wevm/viem/pull/2328) [`d946d55b8431b255c4cdc2d20e413f9064e7513a`](https://github.com/wevm/viem/commit/d946d55b8431b255c4cdc2d20e413f9064e7513a) Thanks [@tmm](https://github.com/tmm)! - Improved `.extend` performance with `publicActions` and other large types.
+
+- [#2334](https://github.com/wevm/viem/pull/2334) [`d4f34cb7bd44ca596573fc0a84fafbc60f4ea42b`](https://github.com/wevm/viem/commit/d4f34cb7bd44ca596573fc0a84fafbc60f4ea42b) Thanks [@Migl992](https://github.com/Migl992)! - Updated Avalanche explorer URLs.
+
+- [#2329](https://github.com/wevm/viem/pull/2329) [`db85cc6bc9b29349b1eb077ebb6ea2a248bb5794`](https://github.com/wevm/viem/commit/db85cc6bc9b29349b1eb077ebb6ea2a248bb5794) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Exported `DecodeFunctionDataReturnType` type.
+
 ## 2.13.1
 
 ### Patch Changes
