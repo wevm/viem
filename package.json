@@ -38,14 +38,14 @@
     "test:env:vite": "cd environments/vite && bun run test",
     "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest --typecheck.only -c ./test/vitest.config.ts",
     "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
+    "typebench": "tsx test/typebench.ts --benchPercentThreshold 10 --benchErrorOnThresholdExceeded",
     "typecheck": "tsc --noEmit",
     "vectors": "bun test vectors/**/*.test.ts",
     "vectors:generate": "bun vectors/generate.ts",
     "version:update": "bun scripts/updateVersion.ts"
   },
   "devDependencies": {
-    "@actions/core": "^1.10.0",
-    "@actions/github": "^5.1.1",
+    "@arktype/attest": "0.7.5",
     "@biomejs/biome": "^1.7.3",
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.2",
@@ -63,6 +63,7 @@
     "rimraf": "^4.4.1",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^11.1.2",
+    "tsx": "^4.11.0",
     "typescript": "5.4.2",
     "vite": "^5.0.7",
     "vitest": "^1.0.4"
