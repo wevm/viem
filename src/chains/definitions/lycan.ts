@@ -31,7 +31,7 @@ export const lycan = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: "Lycan Explorer",
-      url: "https://explorer.lycanchain.com/",
+      url: "https://explorer.lycanchain.com",
     },
   },
 })
