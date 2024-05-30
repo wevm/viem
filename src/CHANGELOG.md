@@ -1,5 +1,13 @@
 # viem
 
+## 2.13.3
+
+### Patch Changes
+
+- [`b6fd573d72b7cc74efc8c4a4a79ff76073242240`](https://github.com/wevm/viem/commit/b6fd573d72b7cc74efc8c4a4a79ff76073242240) Thanks [@jxom](https://github.com/jxom)! - Added `getAction` to `writeContracts`.
+
+- [#2336](https://github.com/wevm/viem/pull/2336) [`7cb40947c1186665c65535bb348fea901dde7f6a`](https://github.com/wevm/viem/commit/7cb40947c1186665c65535bb348fea901dde7f6a) Thanks [@Lycan-Chain](https://github.com/Lycan-Chain)! - Added Lycan chain.
+
 ## 2.13.2
 
 ### Patch Changes
