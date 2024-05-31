@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const sei = /*#__PURE__*/ defineChain({
   id: 1329,
-  name: 'Sei',
+  name: 'Sei Network',
   nativeCurrency: { name: 'Sei', symbol: 'SEI', decimals: 18 },
   rpcUrls: {
     default: {
