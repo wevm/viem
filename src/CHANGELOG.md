@@ -1,5 +1,11 @@
 # viem
 
+## 2.13.4
+
+### Patch Changes
+
+- [`c3743258e7663068ab749fd468e5a012321e6e72`](https://github.com/wevm/viem/commit/c3743258e7663068ab749fd468e5a012321e6e72) Thanks [@defiQUG](https://github.com/defiQUG)! - Added Defi Oracle Meta Chain
+
 ## 2.13.3
 
 ### Patch Changes
