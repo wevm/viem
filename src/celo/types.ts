@@ -28,7 +28,7 @@ import type {
   OpStackRpcTransaction,
   TransactionSerializableDeposit,
   TransactionSerializedDeposit,
-} from '~viem/op-stack/types/transaction.js'
+} from '../op-stack/types/transaction.js'
 
 type CeloBlockExclude =
   | 'difficulty'

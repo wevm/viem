@@ -1,4 +1,4 @@
-import type { OpStackTransactionSerialized } from '~viem/chains/index.js'
+import type { OpStackTransactionSerialized } from '../chains/index.js'
 import { InvalidSerializedTransactionError } from '../errors/transaction.js'
 import type { Hex } from '../types/misc.js'
 import type { ExactPartial } from '../types/utils.js'
@@ -25,7 +25,7 @@ import type {
   TransactionSerializedCIP64,
 } from './types.js'
 
-import { parseTransaction as parseTransaction_op } from '~viem/op-stack/parsers.js'
+import { parseTransaction as parseTransaction_op } from '../op-stack/parsers.js'
 
 export type ParseTransactionReturnType<
   TSerialized extends CeloTransactionSerialized = CeloTransactionSerialized,

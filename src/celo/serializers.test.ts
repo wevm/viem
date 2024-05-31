@@ -18,7 +18,7 @@ import type {
   TransactionSerializableCIP64,
 } from './types.js'
 
-import type { TransactionSerializableDeposit } from '~viem/op-stack/types/transaction.js'
+import type { TransactionSerializableDeposit } from '../op-stack/types/transaction.js'
 
 const commonBaseTx = {
   to: accounts[0].address,
