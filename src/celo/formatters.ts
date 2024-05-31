@@ -28,17 +28,17 @@ export const formatters = {
     } {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
-
+        const formatted = formatTransaction(transaction as RpcTransaction)
         return {
-          ...formatTransaction(transaction as RpcTransaction),
-          feeCurrency: transaction.feeCurrency,
-          ...(transaction.type !== '0x7b' // this should be changed to === 0x7c because that is the only type that uses the fields. there is nothing special about 7b
+          ...formatted,
+          ...(transaction.gatewayFee
             ? {
-                gatewayFee: transaction.gatewayFee
-                  ? hexToBigInt(transaction.gatewayFee)
-                  : null,
-                gatewayFeeRecipient: transaction.gatewayFeeRecipient || null,
+                gatewayFee: hexToBigInt(transaction.gatewayFee),
+                gatewayFeeRecipient: transaction.gatewayFeeRecipient,
               }
+            : {}),
+          ...(transaction.feeCurrency !== undefined
+            ? { feeCurrency: transaction.feeCurrency }
             : {}),
         }
       }) as readonly Hash[] | readonly CeloTransaction[]
