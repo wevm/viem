@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
+import type { Address } from 'abitype'
 import { getBlock } from '../actions/public/getBlock.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { prepareTransactionRequest } from '../actions/wallet/prepareTransactionRequest.js'
@@ -31,31 +32,25 @@ describe('block', () => {
   >()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['difficulty']
-  >().toEqualTypeOf<never>()
+  >().toEqualTypeOf<bigint>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['gasLimit']
-  >().toEqualTypeOf<never>()
+  >().toEqualTypeOf<bigint>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['mixHash']
-  >().toEqualTypeOf<never>()
+  >().toEqualTypeOf<Hash>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['nonce']
-  >().toEqualTypeOf<never>()
+  >().toEqualTypeOf<Hash | null>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['uncles']
-  >().toEqualTypeOf<never>()
-  expectTypeOf<
-    ReturnType<typeof formatters.block.format>['randomness']
-  >().toEqualTypeOf<{
-    committed: `0x${string}`
-    revealed: `0x${string}`
-  }>()
+  >().toEqualTypeOf<Hash[]>()
 })
 
 describe('transaction', () => {
   expectTypeOf<
     ReturnType<typeof formatters.transaction.format>['feeCurrency']
-  >().toEqualTypeOf<`0x${string}` | null>()
+  >().toEqualTypeOf<Address | null | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.transaction.format>['gatewayFee']
   >().toEqualTypeOf<bigint | null | undefined>()
@@ -85,15 +80,11 @@ describe('smoke', () => {
       blockNumber: 16645775n,
     })
 
-    expectTypeOf(block.difficulty).toEqualTypeOf<never>()
-    expectTypeOf(block.gasLimit).toEqualTypeOf<never>()
-    expectTypeOf(block.mixHash).toEqualTypeOf<never>()
-    expectTypeOf(block.nonce).toEqualTypeOf<never>()
-    expectTypeOf(block.uncles).toEqualTypeOf<never>()
-    expectTypeOf(block.randomness).toEqualTypeOf<{
-      committed: `0x${string}`
-      revealed: `0x${string}`
-    }>()
+    expectTypeOf(block.difficulty).toEqualTypeOf<bigint>()
+    expectTypeOf(block.gasLimit).toEqualTypeOf<bigint>()
+    expectTypeOf(block.mixHash).toEqualTypeOf<Hash>()
+    expectTypeOf(block.nonce).toEqualTypeOf<Hash>()
+    expectTypeOf(block.uncles).toEqualTypeOf<Hash[]>()
     expectTypeOf(block.transactions).toEqualTypeOf<Hash[]>()
 
     const block_includeTransactions = await getBlock(client, {
@@ -102,7 +93,7 @@ describe('smoke', () => {
     })
     expectTypeOf(
       block_includeTransactions.transactions[0].feeCurrency,
-    ).toEqualTypeOf<`0x${string}` | null>()
+    ).toEqualTypeOf<Address | null | undefined>()
     expectTypeOf(
       block_includeTransactions.transactions[0].gatewayFee,
     ).toEqualTypeOf<bigint | null | undefined>()
@@ -137,7 +128,9 @@ describe('smoke', () => {
       index: 0,
     })
 
-    expectTypeOf(transaction.feeCurrency).toEqualTypeOf<`0x${string}` | null>()
+    expectTypeOf(transaction.feeCurrency).toEqualTypeOf<
+      Address | null | undefined
+    >()
     expectTypeOf(transaction.gatewayFee).toEqualTypeOf<
       bigint | null | undefined
     >()
@@ -145,7 +138,13 @@ describe('smoke', () => {
       `0x${string}` | null | undefined
     >()
     expectTypeOf(transaction.type).toEqualTypeOf<
-      'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'cip42' | 'cip64'
+      | 'legacy'
+      | 'eip2930'
+      | 'eip1559'
+      | 'eip4844'
+      | 'cip42'
+      | 'cip64'
+      | 'deposit'
     >()
   })
 

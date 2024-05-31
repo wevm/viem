@@ -158,7 +158,8 @@ describe('poll', () => {
     )
 
     unwatch()
-    expect(block.randomness).toBeDefined()
+    // TODO celo nor any other chains have custom block attributes. so how to test?
+    expect(block.transactions[0]).toBeDefined()
   })
 
   describe('transports', () => {
