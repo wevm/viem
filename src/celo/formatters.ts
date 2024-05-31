@@ -19,7 +19,6 @@ import { isCIP64 } from './utils.js'
 
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({
-    exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
     format(
       args: CeloBlockOverrides & {
         transactions: readonly Hash[] | readonly CeloRpcTransaction[]
@@ -29,10 +28,9 @@ export const formatters = {
     } {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
-        const formatted = formatTransaction(transaction as RpcTransaction)
 
         return {
-          ...formatted,
+          ...formatTransaction(transaction as RpcTransaction),
           feeCurrency: transaction.feeCurrency,
           ...(transaction.type !== '0x7b' // this should be changed to === 0x7c because that is the only type that uses the fields. there is nothing special about 7b
             ? {
@@ -45,7 +43,6 @@ export const formatters = {
         }
       }) as readonly Hash[] | readonly CeloTransaction[]
       return {
-        randomness: args.randomness,
         transactions,
       }
     },
