@@ -24,5 +24,5 @@ export const fantomTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 8328688,
     },
   },
-  testnet: true
+  testnet: true,
 })
