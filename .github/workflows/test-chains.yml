@@ -23,7 +23,7 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1
 
       - name: Install dependencies
-        uses: wevm/actions/.github/actions/bun@main
+        uses: wevm/actions/.github/actions/pnpm@main
 
       - name: Run tests
-        run: bun run test:chains
+        run: pnpm test:chains

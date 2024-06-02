@@ -24,14 +24,14 @@ jobs:
 
       - name: Build contracts
         shell: bash
-        run: bun run contracts:build
+        run: pnpm contracts:build
 
       - name: Run tests
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: bun run test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
@@ -95,10 +95,10 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Build
-        run: bun run build
+        run: pnpm build
 
       - name: Link
-        run: bun install
+        run: pnpm install
 
       - name: Run tests
-        run: bun run test:env:${{ matrix.runtime }}
+        run: pnpm test:env:${{ matrix.runtime }}

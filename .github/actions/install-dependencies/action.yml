@@ -12,6 +12,6 @@ runs:
       with:
         node-version: 21
 
-    - name: Set up bun
-      uses: wevm/actions/.github/actions/bun@main
+    - name: Set up pnpm
+      uses: wevm/actions/.github/actions/pnpm@main
 

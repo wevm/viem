@@ -29,6 +29,6 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'bun run dev',
+    command: 'pnpm dev',
   },
 })

@@ -19,7 +19,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Lint code
-        run: bun run lint
+        run: pnpm lint
       
       - uses: stefanzweifel/git-auto-commit-action@v5
         env:
@@ -45,7 +45,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Build
-        run: bun run build
+        run: pnpm build
 
   types:
     name: Types
@@ -65,22 +65,22 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - run: bun i -d typescript@${{ matrix.version }}
+      - run: pnpm i -d -w typescript@${{ matrix.version }}
 
       - name: Build contracts
         shell: bash
-        run: bun run contracts:build
+        run: pnpm contracts:build
 
       - name: Check types
-        run: bun run typecheck
+        run: pnpm typecheck
 
       - name: Bench types
-        run: bun run typebench
+        run: pnpm typebench
 
       # Redundant with `pnpm typecheck`
       # If Vitest adds special features in the future, e.g. type coverage, can add this back!
       # - name: Test types
-      #   run: bun run test:typecheck
+      #   run: pnpm test:typecheck
       #   env:
       #     VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
 
@@ -105,14 +105,14 @@ jobs:
 
       - name: Build contracts
         shell: bash
-        run: bun run contracts:build
+        run: pnpm contracts:build
 
       - name: Run tests
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: bun run test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_NUMBER_SEPOLIA: ${{ vars.VITE_ANVIL_BLOCK_NUMBER_SEPOLIA }}
@@ -185,13 +185,13 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Build
-        run: bun run build
+        run: pnpm build
 
       - name: Link
-        run: bun install
+        run: pnpm install
 
       - name: Run tests
-        run: bun run test:env:${{ matrix.runtime }}
+        run: pnpm test:env:${{ matrix.runtime }}
 
   vectors:
     name: Vectors
@@ -207,7 +207,7 @@ jobs:
 
       - name: Run test vectors
         shell: bash
-        run: bun run vectors
+        run: pnpm vectors
 
   wagmi:
     name: Wagmi

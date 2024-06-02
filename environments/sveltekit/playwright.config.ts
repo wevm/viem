@@ -29,7 +29,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'bun run build && bun run preview',
+    command: 'pnpm build && pnpm preview',
     port: 4173,
   },
 })
