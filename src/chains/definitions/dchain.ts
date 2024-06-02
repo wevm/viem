@@ -1,7 +1,6 @@
 import { chainConfig } from '../../op-stack/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-
 export const dchain = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 2716446429837000,
