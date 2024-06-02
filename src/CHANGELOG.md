@@ -1,5 +1,15 @@
 # viem
 
+## 2.13.4
+
+### Patch Changes
+
+- [#2348](https://github.com/wevm/viem/pull/2348) [`6cb084dd56260b1d0116e9ff9dc354117d33049e`](https://github.com/wevm/viem/commit/6cb084dd56260b1d0116e9ff9dc354117d33049e) Thanks [@ClockRide](https://github.com/ClockRide)! - Added `testnet: true` to fantomTestnet.
+
+- [#2350](https://github.com/wevm/viem/pull/2350) [`19f3db87bfaa113bb6a4156f45c35f0ffcc5df7e`](https://github.com/wevm/viem/commit/19f3db87bfaa113bb6a4156f45c35f0ffcc5df7e) Thanks [@ClockRide](https://github.com/ClockRide)! - Added `testnet: true` to `btrTestnet`.
+
+- [#2349](https://github.com/wevm/viem/pull/2349) [`4bfe975955d72fcaea46bc9bb56f4a475c39afb1`](https://github.com/wevm/viem/commit/4bfe975955d72fcaea46bc9bb56f4a475c39afb1) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added sei chain
+
 ## 2.13.3
 
 ### Patch Changes
