@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const satoshiVM = /*#__PURE__*/ defineChain({
   id: 3109,
-  name: 'SatoshiVM',
+  name: 'SatoshiVM Alpha Mainnet',
   nativeCurrency: {
     name: 'BTC',
     symbol: 'BTC',
