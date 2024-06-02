@@ -138,10 +138,10 @@ importers:
         version: 1.40.1
       '@sveltejs/adapter-vercel':
         specifier: ^3.0.3
-        version: 3.0.3(@sveltejs/kit@1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0)))
+        version: 3.0.3(@sveltejs/kit@1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0)))
       '@sveltejs/kit':
         specifier: ^1.20.4
-        version: 1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+        version: 1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       svelte:
         specifier: ^4.0.5
         version: 4.0.5
@@ -156,7 +156,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   environments/tsc:
     dependencies:
@@ -197,7 +197,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/blocks_fetching-blocks:
     dependencies:
@@ -210,7 +210,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/blocks_watching-blocks:
     dependencies:
@@ -223,7 +223,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/clients_public-client:
     dependencies:
@@ -236,7 +236,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/clients_wallet-client:
     dependencies:
@@ -258,13 +258,13 @@ importers:
         version: 18.0.10
       '@vitejs/plugin-react':
         specifier: ^3.1.0
-        version: 3.1.0(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+        version: 3.1.0(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       typescript:
         specifier: ^5.0.3
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/contracts_deploying-contracts:
     dependencies:
@@ -286,13 +286,13 @@ importers:
         version: 18.0.10
       '@vitejs/plugin-react':
         specifier: ^3.1.0
-        version: 3.1.0(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+        version: 3.1.0(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       typescript:
         specifier: ^5.0.3
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/contracts_multicall:
     dependencies:
@@ -305,7 +305,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/contracts_reading-contracts:
     dependencies:
@@ -318,7 +318,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/contracts_writing-to-contracts:
     dependencies:
@@ -340,13 +340,13 @@ importers:
         version: 18.0.10
       '@vitejs/plugin-react':
         specifier: ^3.1.0
-        version: 3.1.0(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+        version: 3.1.0(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       typescript:
         specifier: ^5.0.3
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/ens:
     dependencies:
@@ -359,7 +359,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/logs_block-event-logs:
     dependencies:
@@ -372,7 +372,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/logs_event-logs:
     dependencies:
@@ -385,7 +385,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/logs_pending-transactions-logs:
     dependencies:
@@ -398,7 +398,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/op-stack_deposit:
     dependencies:
@@ -420,13 +420,13 @@ importers:
         version: 18.0.10
       '@vitejs/plugin-react':
         specifier: ^3.1.0
-        version: 3.1.0(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+        version: 3.1.0(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       typescript:
         specifier: ^5.0.3
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/signing_typed-data:
     dependencies:
@@ -448,13 +448,13 @@ importers:
         version: 18.0.10
       '@vitejs/plugin-react':
         specifier: ^3.1.0
-        version: 3.1.0(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+        version: 3.1.0(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       typescript:
         specifier: ^5.0.3
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/transactions_fetching-transactions:
     dependencies:
@@ -467,7 +467,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/transactions_sending-transactions:
     dependencies:
@@ -489,13 +489,13 @@ importers:
         version: 18.0.10
       '@vitejs/plugin-react':
         specifier: ^3.1.0
-        version: 3.1.0(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+        version: 3.1.0(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       typescript:
         specifier: ^5.0.3
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   examples/walletconnect:
     dependencies:
@@ -523,13 +523,13 @@ importers:
         version: 18.0.10
       '@vitejs/plugin-react':
         specifier: ^3.1.0
-        version: 3.1.0(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+        version: 3.1.0(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       typescript:
         specifier: ^5.0.3
         version: 5.4.2
       vite:
         specifier: ^4.4.2
-        version: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+        version: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   site:
     devDependencies:
@@ -541,7 +541,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       vocs:
         specifier: 1.0.0-alpha.52
-        version: 1.0.0-alpha.52(@types/node@20.13.0)(@types/react-dom@18.0.10)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.18.0)(terser@5.31.0)(typescript@5.4.5)
+        version: 1.0.0-alpha.52(@types/node@20.14.0)(@types/react-dom@18.0.10)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.18.0)(terser@5.31.0)(typescript@5.4.5)
 
   src:
     dependencies:
@@ -7882,18 +7882,18 @@ snapshots:
       '@stablelib/random': 1.0.2
       '@stablelib/wipe': 1.0.1
 
-  '@sveltejs/adapter-vercel@3.0.3(@sveltejs/kit@1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0)))':
+  '@sveltejs/adapter-vercel@3.0.3(@sveltejs/kit@1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0)))':
     dependencies:
-      '@sveltejs/kit': 1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+      '@sveltejs/kit': 1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       '@vercel/nft': 0.23.1
       esbuild: 0.18.20
     transitivePeerDependencies:
       - encoding
       - supports-color
 
-  '@sveltejs/kit@1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))':
+  '@sveltejs/kit@1.20.4(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+      '@sveltejs/vite-plugin-svelte': 2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       '@types/cookie': 0.5.4
       cookie: 0.5.0
       devalue: 4.3.3
@@ -7906,30 +7906,30 @@ snapshots:
       sirv: 2.0.4
       svelte: 4.0.5
       undici: 5.22.1
-      vite: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+      vite: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte-inspector@1.0.4(@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0)))(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))':
+  '@sveltejs/vite-plugin-svelte-inspector@1.0.4(@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0)))(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+      '@sveltejs/vite-plugin-svelte': 2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       debug: 4.3.5
       svelte: 4.0.5
-      vite: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+      vite: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))':
+  '@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 1.0.4(@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0)))(svelte@4.0.5)(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+      '@sveltejs/vite-plugin-svelte-inspector': 1.0.4(@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0)))(svelte@4.0.5)(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
       debug: 4.3.5
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.10
       svelte: 4.0.5
       svelte-hmr: 0.15.3(svelte@4.0.5)
-      vite: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
-      vitefu: 0.2.5(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))
+      vite: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
+      vitefu: 0.2.5(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))
     transitivePeerDependencies:
       - supports-color
 
@@ -8117,7 +8117,7 @@ snapshots:
     dependencies:
       '@vanilla-extract/private': 1.0.5
 
-  '@vanilla-extract/integration@6.5.0(@types/node@20.13.0)(terser@5.31.0)':
+  '@vanilla-extract/integration@6.5.0(@types/node@20.14.0)(terser@5.31.0)':
     dependencies:
       '@babel/core': 7.24.6
       '@babel/plugin-syntax-typescript': 7.24.6(@babel/core@7.24.6)
@@ -8130,8 +8130,8 @@ snapshots:
       lodash: 4.17.21
       mlly: 1.7.0
       outdent: 0.8.0
-      vite: 5.2.12(@types/node@20.13.0)(terser@5.31.0)
-      vite-node: 1.6.0(@types/node@20.13.0)(terser@5.31.0)
+      vite: 5.2.12(@types/node@20.14.0)(terser@5.31.0)
+      vite-node: 1.6.0(@types/node@20.14.0)(terser@5.31.0)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -8145,13 +8145,13 @@ snapshots:
 
   '@vanilla-extract/private@1.0.5': {}
 
-  '@vanilla-extract/vite-plugin@3.9.5(@types/node@20.13.0)(terser@5.31.0)(vite@5.2.12(@types/node@20.13.0)(terser@5.31.0))':
+  '@vanilla-extract/vite-plugin@3.9.5(@types/node@20.14.0)(terser@5.31.0)(vite@5.2.12(@types/node@20.14.0)(terser@5.31.0))':
     dependencies:
-      '@vanilla-extract/integration': 6.5.0(@types/node@20.13.0)(terser@5.31.0)
+      '@vanilla-extract/integration': 6.5.0(@types/node@20.14.0)(terser@5.31.0)
       outdent: 0.8.0
       postcss: 8.4.38
       postcss-load-config: 4.0.2(postcss@8.4.38)
-      vite: 5.2.12(@types/node@20.13.0)(terser@5.31.0)
+      vite: 5.2.12(@types/node@20.14.0)(terser@5.31.0)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -8192,25 +8192,25 @@ snapshots:
       - debug
       - utf-8-validate
 
-  '@vitejs/plugin-react@3.1.0(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0))':
+  '@vitejs/plugin-react@3.1.0(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0))':
     dependencies:
       '@babel/core': 7.24.6
       '@babel/plugin-transform-react-jsx-self': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-react-jsx-source': 7.24.6(@babel/core@7.24.6)
       magic-string: 0.27.0
       react-refresh: 0.14.2
-      vite: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+      vite: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@4.2.0(vite@5.2.12(@types/node@20.13.0)(terser@5.31.0))':
+  '@vitejs/plugin-react@4.2.0(vite@5.2.12(@types/node@20.14.0)(terser@5.31.0))':
     dependencies:
       '@babel/core': 7.24.6
       '@babel/plugin-transform-react-jsx-self': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-react-jsx-source': 7.24.6(@babel/core@7.24.6)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.2.12(@types/node@20.13.0)(terser@5.31.0)
+      vite: 5.2.12(@types/node@20.14.0)(terser@5.31.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -12765,13 +12765,13 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@1.6.0(@types/node@20.13.0)(terser@5.31.0):
+  vite-node@1.6.0(@types/node@20.14.0)(terser@5.31.0):
     dependencies:
       cac: 6.7.14
       debug: 4.3.5
       pathe: 1.1.2
       picocolors: 1.0.1
-      vite: 5.2.12(@types/node@20.13.0)(terser@5.31.0)
+      vite: 5.2.12(@types/node@20.14.0)(terser@5.31.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -12782,13 +12782,13 @@ snapshots:
       - supports-color
       - terser
 
-  vite@4.4.5(@types/node@20.13.0)(terser@5.31.0):
+  vite@4.4.5(@types/node@20.14.0)(terser@5.31.0):
     dependencies:
       esbuild: 0.18.20
       postcss: 8.4.38
       rollup: 3.29.4
     optionalDependencies:
-      '@types/node': 20.13.0
+      '@types/node': 20.14.0
       fsevents: 2.3.3
       terser: 5.31.0
 
@@ -12812,19 +12812,19 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.31.0
 
-  vite@5.2.12(@types/node@20.13.0)(terser@5.31.0):
+  vite@5.2.12(@types/node@20.14.0)(terser@5.31.0):
     dependencies:
       esbuild: 0.20.2
       postcss: 8.4.38
       rollup: 4.18.0
     optionalDependencies:
-      '@types/node': 20.13.0
+      '@types/node': 20.14.0
       fsevents: 2.3.3
       terser: 5.31.0
 
-  vitefu@0.2.5(vite@4.4.5(@types/node@20.13.0)(terser@5.31.0)):
+  vitefu@0.2.5(vite@4.4.5(@types/node@20.14.0)(terser@5.31.0)):
     optionalDependencies:
-      vite: 4.4.5(@types/node@20.13.0)(terser@5.31.0)
+      vite: 4.4.5(@types/node@20.14.0)(terser@5.31.0)
 
   vitest@1.0.4(@types/node@20.14.0)(@vitest/ui@1.0.4)(terser@5.31.0):
     dependencies:
@@ -12861,7 +12861,7 @@ snapshots:
       - supports-color
       - terser
 
-  vocs@1.0.0-alpha.52(@types/node@20.13.0)(@types/react-dom@18.0.10)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.18.0)(terser@5.31.0)(typescript@5.4.5):
+  vocs@1.0.0-alpha.52(@types/node@20.14.0)(@types/react-dom@18.0.10)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.18.0)(terser@5.31.0)(typescript@5.4.5):
     dependencies:
       '@floating-ui/react': 0.26.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@hono/node-server': 1.11.2
@@ -12881,8 +12881,8 @@ snapshots:
       '@shikijs/twoslash': 1.6.2(typescript@5.4.5)
       '@vanilla-extract/css': 1.15.2
       '@vanilla-extract/dynamic': 2.1.1
-      '@vanilla-extract/vite-plugin': 3.9.5(@types/node@20.13.0)(terser@5.31.0)(vite@5.2.12(@types/node@20.13.0)(terser@5.31.0))
-      '@vitejs/plugin-react': 4.2.0(vite@5.2.12(@types/node@20.13.0)(terser@5.31.0))
+      '@vanilla-extract/vite-plugin': 3.9.5(@types/node@20.14.0)(terser@5.31.0)(vite@5.2.12(@types/node@20.14.0)(terser@5.31.0))
+      '@vitejs/plugin-react': 4.2.0(vite@5.2.12(@types/node@20.14.0)(terser@5.31.0))
       autoprefixer: 10.4.19(postcss@8.4.38)
       cac: 6.7.14
       chroma-js: 2.4.2
@@ -12925,7 +12925,7 @@ snapshots:
       ua-parser-js: 1.0.38
       unified: 11.0.4
       unist-util-visit: 5.0.0
-      vite: 5.2.12(@types/node@20.13.0)(terser@5.31.0)
+      vite: 5.2.12(@types/node@20.14.0)(terser@5.31.0)
     transitivePeerDependencies:
       - '@types/node'
       - '@types/react'

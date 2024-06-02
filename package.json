@@ -68,9 +68,7 @@
     "vite": "^5.0.7",
     "vitest": "^1.0.4"
   },
-  "trustedDependencies": [
-    "c-kzg"
-  ],
+  "trustedDependencies": ["c-kzg"],
   "packageManager": "pnpm@9.0.4",
   "simple-git-hooks": {
     "pre-commit": "pnpm lint"
