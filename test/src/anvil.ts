@@ -124,6 +124,7 @@ type DefineAnvilReturnType<chain extends Chain> = {
     ipc: string
     ws: string
   }
+  restart(): Promise<void>
   start(): Promise<() => Promise<void>>
 }
 
@@ -234,16 +235,16 @@ function defineAnvil<const chain extends Chain>({
       ).extend(() => ({ mode: 'anvil' })) as never
     },
     rpcUrl,
+    async restart() {
+      await fetch(`${rpcUrl.http}/restart`)
+    },
     async start() {
       return await createServer({
-        instance: anvil(
-          {
-            forkUrl,
-            forkBlockNumber,
-            ...options,
-          },
-          { timeout: 60_000 },
-        ),
+        instance: anvil({
+          forkUrl,
+          forkBlockNumber,
+          ...options,
+        }),
         port,
       }).start()
     },
