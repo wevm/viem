@@ -5,10 +5,9 @@ import { cleanupCache, listenersCache } from '~viem/utils/observe.js'
 import { promiseCache, responseCache } from '~viem/utils/promise/withCache.js'
 import { socketClientCache } from '~viem/utils/rpc/socket.js'
 
-import { instances } from './globalSetup.js'
-import { anvilMainnet } from './src/anvil.js'
+import * as instances from './src/anvil.js'
 
-const client = anvilMainnet.getClient()
+const client = instances.anvilMainnet.getClient()
 
 beforeAll(() => {
   vi.mock('../src/errors/utils.ts', () => ({
@@ -36,5 +35,7 @@ afterAll(async () => {
 
   if (process.env.SKIP_GLOBAL_SETUP) return
   // Reset the anvil instances to the same state it was in before the tests started.
-  await Promise.all(instances.map((instance) => instance.restart()))
+  await Promise.all(
+    Object.values(instances).map((instance) => instance.restart()),
+  )
 })

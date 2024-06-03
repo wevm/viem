@@ -1,20 +1,4 @@
-import {
-  anvilMainnet,
-  anvilOptimism,
-  anvilOptimismSepolia,
-  anvilSepolia,
-  anvilZkSync,
-} from './src/anvil.js'
-
-export const instances = [
-  anvilMainnet,
-  anvilOptimism,
-  anvilZkSync,
-
-  // TODO: remove when fault proofs deployed to mainnet.
-  anvilOptimismSepolia,
-  anvilSepolia,
-]
+import * as instances from './src/anvil.js'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) return
@@ -38,7 +22,7 @@ export default async function () {
   // handled in `setup.ts` but may require additional resetting (e.g. via `afterAll`), in case of
   // any custom per-test adjustments that persist beyond `anvil_reset`.
   const shutdown = await Promise.all(
-    instances.map((instance) => instance.start()),
+    Object.values(instances).map((instance) => instance.start()),
   )
   return () => Promise.all(shutdown.map((fn) => fn()))
 }

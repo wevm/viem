@@ -15,6 +15,13 @@ const sepoliaClient = anvilSepolia.getClient()
 const optimismClient = anvilOptimism.getClient()
 const optimismSepoliaClient = anvilOptimismSepolia.getClient()
 
+beforeAll(async () => {
+  await anvilMainnet.restart()
+  await anvilSepolia.restart()
+  await anvilOptimism.restart()
+  await anvilOptimismSepolia.restart()
+})
+
 // TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
 test('default', async () => {
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
