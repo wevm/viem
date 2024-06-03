@@ -37,9 +37,7 @@ export const formatters = {
                 gatewayFeeRecipient: transaction.gatewayFeeRecipient,
               }
             : {}),
-          ...(transaction.feeCurrency !== undefined
-            ? { feeCurrency: transaction.feeCurrency }
-            : {}),
+          feeCurrency: transaction.feeCurrency,
         }
       }) as readonly Hash[] | readonly CeloTransaction[]
       return {
