@@ -89,7 +89,7 @@ jobs:
 
       - name: Install Playwright Browsers
         if: ${{ matrix.runtime == 'next' || matrix.runtime == 'sveltekit' || matrix.runtime == 'vite' }}
-        run: npx playwright@1.40.1 install --with-deps
+        run: pnpx playwright@1.40.1 install --with-deps
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies

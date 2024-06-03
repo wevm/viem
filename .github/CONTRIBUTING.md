@@ -108,11 +108,13 @@ After the install completes, Bun links packages across the project for developme
 First, add the following to your environment (recommended to use [`direnv`](https://github.com/direnv/direnv)):
 
 ```bash
-VITE_ANVIL_FORK_URL=https://rpc
-VITE_ANVIL_BLOCK_TIME=1
-VITE_ANVIL_BLOCK_NUMBER=16280770
+VITE_ANVIL_FORK_URL=
+VITE_ANVIL_FORK_URL_OPTIMISM=
+VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA=
+VITE_ANVIL_FORK_URL_SEPOLIA=
+VITE_ANVIL_FORK_URL_ZKSYNC=
+VITE_BATCH_MULTICALL=false
 VITE_NETWORK_TRANSPORT_MODE=http
-VITE_ANVIL_PORT=8545
 ```
 
 `VITE_ANVIL_FORK_URL` can be for any RPC service provider (e.g. Alchemy or Infura) for the mainnet. Now you are ready to run the tests!
