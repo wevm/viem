@@ -163,7 +163,7 @@ type OpTxNegativeFields = {
 }
 
 type CeloNegativeFields = {
-  feeCurrency?: undefined
+  feeCurrency?: null
   gatewayFee?: undefined
   gatewayFeeRecipient?: undefined
 }
