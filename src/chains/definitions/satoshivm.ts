@@ -14,7 +14,7 @@ export const satoshiVM = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'blockscout',
-      url: 'https://svmscan.io/',
+      url: 'https://svmscan.io',
       apiUrl: 'https://svmscan.io/api',
     },
   },
