@@ -1,16 +1,23 @@
-import type { AbiStateMutability, Narrow } from 'abitype'
+import type { Abi, AbiStateMutability, Address, Narrow } from 'abitype'
 
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
 import type { Chain, GetChainParameter } from '../../../types/chain.js'
-import type { ContractFunctionParameters } from '../../../types/contract.js'
+import type {
+  ContractFunctionArgs,
+  ContractFunctionName,
+  GetValue,
+  UnionWiden,
+  Widen,
+} from '../../../types/contract.js'
 import type { MulticallContracts } from '../../../types/multicall.js'
 import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../../utils/abi/encodeFunctionData.js'
+import { getAction } from '../../../utils/getAction.js'
 import {
   type SendCallsErrorType,
   type SendCallsParameters,
@@ -19,7 +26,8 @@ import {
 } from './sendCalls.js'
 
 export type WriteContractsParameters<
-  contracts extends readonly unknown[] = readonly ContractFunctionParameters[],
+  contracts extends
+    readonly unknown[] = readonly WriteContractFunctionParameters[],
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
@@ -98,7 +106,7 @@ export async function writeContracts<
     chainOverride
   >,
 ): Promise<WriteContractsReturnType> {
-  const contracts = parameters.contracts as ContractFunctionParameters[]
+  const contracts = parameters.contracts as WriteContractFunctionParameters[]
   const calls = contracts.map((contract) => {
     const { address, abi, functionName, args, value } = contract
     return {
@@ -111,5 +119,36 @@ export async function writeContracts<
       value,
     } satisfies SendCallsParameters['calls'][number]
   })
-  return sendCalls(client, { ...parameters, calls } as SendCallsParameters)
+  return getAction(
+    client,
+    sendCalls,
+    'sendCalls',
+  )({ ...parameters, calls } as SendCallsParameters)
 }
+
+export type WriteContractFunctionParameters<
+  abi extends Abi | readonly unknown[] = Abi,
+  mutability extends AbiStateMutability = AbiStateMutability,
+  functionName extends ContractFunctionName<
+    abi,
+    mutability
+  > = ContractFunctionName<abi, mutability>,
+  args extends ContractFunctionArgs<
+    abi,
+    mutability,
+    functionName
+  > = ContractFunctionArgs<abi, mutability, functionName>,
+  ///
+  allFunctionNames = ContractFunctionName<abi, mutability>,
+  allArgs = ContractFunctionArgs<abi, mutability, functionName>,
+  // when `args` is inferred to `readonly []` ("inputs": []) or `never` (`abi` declared as `Abi` or not inferrable), allow `args` to be optional.
+  // important that both branches return same structural type
+> = {
+  address: Address
+  abi: abi
+  functionName:
+    | allFunctionNames // show all options
+    | (functionName extends allFunctionNames ? functionName : never) // infer value
+  args?: (abi extends Abi ? UnionWiden<args> : never) | allArgs | undefined
+} & (readonly [] extends allArgs ? {} : { args: Widen<args> }) &
+  GetValue<abi, functionName>

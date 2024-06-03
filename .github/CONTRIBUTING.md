@@ -303,7 +303,7 @@ export { arbitrum } from './definitions/arbitrum.js'
 export { zora } from './definitions/zora.js'
 ```
 
-#### 4. Add changeset
+#### 5. Add changeset
 
 Add a `patch` changeset with the description `"Added <your chain here> chain."`.
 
@@ -317,7 +317,7 @@ Please enter a summary for this change
 + Added Example chain.
 ```
 
-#### 5. Open your PR
+#### 6. Open your PR
 
 Now you are ready to open your Pull Request.
 

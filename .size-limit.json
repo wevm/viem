@@ -69,5 +69,17 @@
     "path": "./src/_esm/ens/index.js",
     "limit": "19 kB",
     "import": "{ getEnsAvatar }"
+  },
+  {
+    "name": "viem/siwe",
+    "path": "./src/_esm/siwe/index.js",
+    "limit": "28 kB",
+    "import": "*"
+  },
+  {
+    "name": "viem/siwe (tree-shaking)",
+    "path": "./src/_esm/siwe/index.js",
+    "limit": "27 kB",
+    "import": "{ verifySiweMessage }"
   }
 ]

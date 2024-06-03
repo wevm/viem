@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.13.1",
+  "version": "2.13.4",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -10,11 +10,12 @@
   "sideEffects": false,
   "files": [
     "*",
-    "!**/*.tsbuildinfo",
+    "!**/*.bench.ts",
+    "!**/*.bench-d.ts",
     "!**/*.test.ts",
     "!**/*.test.ts.snap",
     "!**/*.test-d.ts",
-    "!**/*.bench.ts",
+    "!**/*.tsbuildinfo",
     "!tsconfig.build.json",
     "!jsr.json"
   ],
