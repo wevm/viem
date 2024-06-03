@@ -10,7 +10,7 @@ runs:
     - name: Set up node
       uses: actions/setup-node@v4
       with:
-        node-version: 21
+        node-version: 22
 
     - name: Set up bun
       uses: wevm/actions/.github/actions/bun@main

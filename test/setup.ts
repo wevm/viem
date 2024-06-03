@@ -1,6 +1,4 @@
-import { fetchLogs } from '@viem/anvil'
-
-import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
 
 import { setIntervalMining } from '~viem/actions/test/setIntervalMining.js'
 import { cleanupCache, listenersCache } from '~viem/utils/observe.js'
@@ -9,7 +7,6 @@ import { socketClientCache } from '~viem/utils/rpc/socket.js'
 
 import { reset } from '../src/actions/test/reset.js'
 import { anvilMainnet } from './src/anvil.js'
-import { poolId } from './src/constants.js'
 
 const client = anvilMainnet.getClient()
 

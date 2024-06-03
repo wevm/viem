@@ -1,4 +1,5 @@
-import { type CreateAnvilOptions, startProxy } from '@viem/anvil'
+import { createServer } from 'prool'
+import { type AnvilParameters, anvil } from 'prool/instances'
 import {
   mainnet,
   optimism,
@@ -82,7 +83,7 @@ function getEnv(key: string, fallback: string): string {
 }
 
 type DefineAnvilParameters<chain extends Chain> = Omit<
-  CreateAnvilOptions,
+  AnvilParameters,
   'forkBlockNumber' | 'forkUrl'
 > & {
   chain: chain
@@ -234,16 +235,17 @@ function defineAnvil<const chain extends Chain>({
     },
     rpcUrl,
     async start() {
-      return await startProxy({
+      return await createServer({
+        instance: anvil(
+          {
+            forkUrl,
+            forkBlockNumber,
+            ...options,
+          },
+          { timeout: 60_000 },
+        ),
         port,
-        options: {
-          timeout: 60_000,
-          forkUrl,
-          forkBlockNumber,
-          startTimeout: 20_000,
-          ...options,
-        },
-      })
+      }).start()
     },
   } as const
 }
