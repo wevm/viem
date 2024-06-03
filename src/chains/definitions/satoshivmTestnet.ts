@@ -14,8 +14,9 @@ export const satoshiVMTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'blockscout',
-      url: 'https://testnet.svmscan.io/',
+      url: 'https://testnet.svmscan.io',
       apiUrl: 'https://testnet.svmscan.io/api',
     },
   },
+  testnet: true,
 })
