@@ -22,7 +22,7 @@ import type {
   TransactionRequestEIP4844,
   TransactionRequestLegacy,
 } from './transaction.js'
-import type { Evaluate, Omit, OneOf, PartialBy } from './utils.js'
+import type { Omit, OneOf, PartialBy } from './utils.js'
 
 export type Index = `0x${string}`
 export type Quantity = `0x${string}`
@@ -105,12 +105,10 @@ export type RpcRequest = {
   id?: number | undefined
 }
 
-export type RpcResponse<result = any, error = any> = Evaluate<
-  {
-    jsonrpc: `${number}`
-    id: number
-  } & (SuccessResult<result> | ErrorResult<error> | Subscription<result, error>)
->
+export type RpcResponse<result = any, error = any> = {
+  jsonrpc: `${number}`
+  id: number
+} & (SuccessResult<result> | ErrorResult<error> | Subscription<result, error>)
 
 /** A key-value mapping of slot and storage values (supposedly 32 bytes each) */
 export type RpcStateMapping = {

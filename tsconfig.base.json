@@ -40,7 +40,6 @@
     ],
 
     // Skip type checking for node modules
-    "skipLibCheck": true,
-    "noErrorTruncation": true
+    "skipLibCheck": true
   }
 }

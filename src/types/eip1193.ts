@@ -366,7 +366,7 @@ export type PublicRpcSchema = [
       | [
           transaction: TransactionRequest,
           block: BlockNumber | BlockTag,
-          RpcStateOverride,
+          stateOverride: RpcStateOverride,
         ]
     ReturnType: Quantity
   },
@@ -1237,7 +1237,7 @@ export type WalletRpcSchema = [
       | [
           transaction: TransactionRequest,
           block: BlockNumber | BlockTag,
-          RpcStateOverride,
+          stateOverride: RpcStateOverride,
         ]
     ReturnType: Quantity
   },
