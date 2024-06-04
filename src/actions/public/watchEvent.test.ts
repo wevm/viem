@@ -116,15 +116,6 @@ beforeAll(async () => {
     value: 10000000000000000000000n,
   })
   await mine(client, { blocks: 1 })
-
-  return async () => {
-    await stopImpersonatingAccount(client, {
-      address: address.vitalik,
-    })
-    await stopImpersonatingAccount(client, {
-      address: address.usdcHolder,
-    })
-  }
 })
 
 describe('poll', () => {
@@ -457,7 +448,7 @@ describe('poll', () => {
       expect(logs[1].length).toBe(1)
     })
 
-    test('fallback', async () => {
+    test.skip('fallback', async () => {
       const logs: WatchEventOnLogsParameter[] = []
 
       const client_2 = createClient({

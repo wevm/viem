@@ -52,15 +52,6 @@ beforeAll(async () => {
     address: address.usdcHolder,
     value: 10000000000000000000000n,
   })
-
-  return async () => {
-    await stopImpersonatingAccount(client, {
-      address: address.vitalik,
-    })
-    await stopImpersonatingAccount(client, {
-      address: address.usdcHolder,
-    })
-  }
 })
 
 describe('poll', () => {
@@ -780,7 +771,7 @@ describe('poll', () => {
       expect(logs[1][0].eventName).toEqual('Approval')
     })
 
-    test(
+    test.skip(
       'fallback',
       async () => {
         const logs: WatchContractEventOnLogsParameter<

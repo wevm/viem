@@ -123,15 +123,6 @@ beforeAll(async () => {
     address: address.usdcHolder,
     value: 10000000000000000000000n,
   })
-
-  return async () => {
-    await stopImpersonatingAccount(client, {
-      address: address.vitalik,
-    })
-    await stopImpersonatingAccount(client, {
-      address: address.usdcHolder,
-    })
-  }
 })
 
 test('default', async () => {

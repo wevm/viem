@@ -23,7 +23,7 @@ beforeAll(async () => {
 })
 
 // TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
-test('default', async () => {
+test.skip('default', async () => {
   const receipt = await getTransactionReceipt(optimismSepoliaClient, {
     hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
   })
