@@ -22,7 +22,7 @@ runs:
 
     - name: Build viem
       shell: bash
-      run: bun run build
+      run: pnpm build
 
     - name: Install dependencies
       shell: bash

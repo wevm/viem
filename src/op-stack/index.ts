@@ -176,6 +176,7 @@ export {
 
 export { chainConfig } from './chainConfig.js'
 
+// @ts-ignore TS2354: This syntax requires an imported helper but module 'tslib' cannot be found.
 // biome-ignore lint/performance/noReExportAll: intentionally re-exporting
 export * from './chains.js'
 
