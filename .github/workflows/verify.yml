@@ -93,7 +93,6 @@ jobs:
       matrix:
         transport-mode: ['http', 'webSocket']
         shard: [1, 2, 3]
-        total-shards: [3]
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
