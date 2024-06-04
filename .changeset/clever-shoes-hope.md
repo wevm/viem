@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fix wrong ABNF Message construction
+Updated `createSiweMessage` `statement` construction to match ABNF Message Format.
