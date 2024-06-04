@@ -12,7 +12,7 @@
     "changeset:prepublish": "pnpm version:update && bun scripts/prepublishOnly.ts && pnpm build",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm version:update",
-    "clean": "rimraf **/*.tsbuildinfo src/_esm src/_cjs src/_types",
+    "clean": "rimraf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
     "docs:dev": "pnpm --filter site dev",
     "docs:build": "pnpm --filter site build",
@@ -69,7 +69,95 @@
   },
   "trustedDependencies": ["c-kzg"],
   "packageManager": "pnpm@9.1.0",
+  "engines": {
+    "node": "22.x"
+  },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint"
-  }
+  },
+  "size-limit": [
+    {
+      "name": "viem (esm)",
+      "path": "./src/_esm/index.js",
+      "limit": "59.1 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem (cjs)",
+      "path": "./src/_cjs/index.js",
+      "limit": "78 kB"
+    },
+    {
+      "name": "viem (minimal surface - tree-shaking)",
+      "path": "./src/_esm/index.js",
+      "limit": "4.1 kB",
+      "import": "{ createClient, http }"
+    },
+    {
+      "name": "viem/accounts",
+      "path": "./src/_esm/accounts/index.js",
+      "limit": "92 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/accounts (tree-shaking)",
+      "path": "./src/_esm/accounts/index.js",
+      "limit": "20 kB",
+      "import": "{ privateKeyToAccount }"
+    },
+    {
+      "name": "viem/actions",
+      "path": "./src/_esm/ens/index.js",
+      "limit": "45 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/actions (tree-shaking)",
+      "path": "./src/_esm/actions/index.js",
+      "limit": "1 kB",
+      "import": "{ getBlockNumber }"
+    },
+    {
+      "name": "viem/chains",
+      "path": "./src/_esm/chains/index.js",
+      "limit": "28 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/chains (tree-shaking)",
+      "path": "./src/_esm/chains/index.js",
+      "limit": "500 B",
+      "import": "{ mainnet }"
+    },
+    {
+      "name": "viem/chains/utils",
+      "path": "./src/_esm/chains/utils.js",
+      "limit": "8 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/ens",
+      "path": "./src/_esm/ens/index.js",
+      "limit": "45 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/ens (tree-shaking)",
+      "path": "./src/_esm/ens/index.js",
+      "limit": "19 kB",
+      "import": "{ getEnsAvatar }"
+    },
+    {
+      "name": "viem/siwe",
+      "path": "./src/_esm/siwe/index.js",
+      "limit": "28 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/siwe (tree-shaking)",
+      "path": "./src/_esm/siwe/index.js",
+      "limit": "27 kB",
+      "import": "{ verifySiweMessage }"
+    }
+  ]
 }
