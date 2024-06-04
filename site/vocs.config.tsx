@@ -162,25 +162,19 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/spruce-light.svg',
           },
           {
-            name: 'rollup.id',
-            link: 'https://rollup.id',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rollup.id-light.svg',
-          },
-          {
             name: 'Celo',
             link: 'https://celo.org',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/celo-light.svg',
           },
-        ],
-        [
           {
             name: 'Rainbow',
             link: 'https://rainbow.me',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rainbow-light.svg',
           },
+        ],
+        [
           {
             name: 'Pimlico',
             link: 'https://pimlico.io',
@@ -193,14 +187,14 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg',
           },
-        ],
-        [
           {
             name: 'Lattice',
             link: 'https://lattice.xyz',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/lattice-light.svg',
           },
+        ],
+        [
           {
             name: 'Supa',
             link: 'https://twitter.com/supafinance',

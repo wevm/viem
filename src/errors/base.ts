@@ -6,12 +6,12 @@ type BaseErrorParameters = {
   metaMessages?: string[] | undefined
 } & (
   | {
-      cause?: never | undefined
+      cause?: undefined
       details?: string | undefined
     }
   | {
       cause: BaseError | Error | undefined
-      details?: never | undefined
+      details?: undefined
     }
 )
 

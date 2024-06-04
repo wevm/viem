@@ -24,4 +24,5 @@ export const btrTestnet = /*#__PURE__*/ defineChain({
       apiUrl: 'https://testnet-scan.bitlayer.org/apis',
     },
   },
+  testnet: true,
 })

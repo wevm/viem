@@ -20,7 +20,6 @@ import { wait } from '../../utils/wait.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
-import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 import * as createEventFilter from './createEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
@@ -116,15 +115,6 @@ beforeAll(async () => {
     value: 10000000000000000000000n,
   })
   await mine(client, { blocks: 1 })
-
-  return async () => {
-    await stopImpersonatingAccount(client, {
-      address: address.vitalik,
-    })
-    await stopImpersonatingAccount(client, {
-      address: address.usdcHolder,
-    })
-  }
 })
 
 describe('poll', () => {
@@ -464,34 +454,34 @@ describe('poll', () => {
         chain: anvilMainnet.chain,
         transport: fallback([http(), webSocket()]),
         pollingInterval: 200,
-      })
+      }).extend(() => ({ mode: 'anvil' }))
 
       const unwatch = watchEvent(client_2, {
         onLogs: (logs_) => logs.push(logs_),
       })
 
       await wait(200)
-      await writeContract(client, {
+      await writeContract(client_2, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(client, {
+      await writeContract(client_2, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await mine(client, { blocks: 1 })
+      await mine(client_2, { blocks: 1 })
       await wait(200)
-      await writeContract(client, {
+      await writeContract(client_2, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
         account: address.vitalik,
       })
-      await mine(client, { blocks: 1 })
+      await mine(client_2, { blocks: 1 })
       await wait(200)
       unwatch()
 

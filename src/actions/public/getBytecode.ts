@@ -16,12 +16,12 @@ export type GetBytecodeParameters = {
   address: Address
 } & (
   | {
-      blockNumber?: never | undefined
+      blockNumber?: undefined
       blockTag?: BlockTag | undefined
     }
   | {
       blockNumber?: bigint | undefined
-      blockTag?: never | undefined
+      blockTag?: undefined
     }
 )
 

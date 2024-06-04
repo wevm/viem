@@ -20,13 +20,13 @@ export type OnResponseFn = (
     transport: ReturnType<Transport>
   } & (
     | {
-        error?: never | undefined
+        error?: undefined
         response: unknown
         status: 'success'
       }
     | {
         error: Error
-        response?: never | undefined
+        response?: undefined
         status: 'error'
       }
   ),

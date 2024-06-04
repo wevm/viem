@@ -63,12 +63,9 @@ export type Chain<
   custom?: custom | undefined
   /** Modifies how fees are derived. */
   fees?: ChainFees<formatters | undefined> | undefined
-  /**
-   * Modifies how chain data structures are formatted and typed,
-   * blocks and transactions.
-   */
+  /** Modifies how data is formatted and typed (e.g. blocks and transactions) */
   formatters?: formatters | undefined
-  /** Modifies how data (ie. Transactions) is serialized. */
+  /** Modifies how data is serialized (e.g. transactions). */
   serializers?: ChainSerializers<formatters> | undefined
 }
 

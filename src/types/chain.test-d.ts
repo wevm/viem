@@ -1,54 +1,16 @@
 import { expectTypeOf, test } from 'vitest'
 
+import type { base } from '~viem/chains/index.js'
+import type { celo } from '../chains/definitions/celo.js'
 import type { mainnet } from '../chains/definitions/mainnet.js'
 import type { optimism } from '../chains/definitions/optimism.js'
 import type {
   Chain,
   DeriveChain,
-  ExtractChainFormatterExclude,
   ExtractChainFormatterParameters,
-  ExtractChainFormatterReturnType,
   GetChainParameter,
 } from './chain.js'
-
-test('ExtractChainFormatterExclude', () => {
-  type Result = ExtractChainFormatterExclude<
-    typeof optimism,
-    'transactionReceipt'
-  >
-})
-
-test('ExtractChainFormatterParameters', () => {
-  type Result = ExtractChainFormatterParameters<
-    typeof mainnet,
-    'transactionReceipt',
-    unknown
-  >
-  expectTypeOf<Result>().toEqualTypeOf<unknown>()
-
-  type Result2 = ExtractChainFormatterParameters<
-    typeof optimism,
-    'transactionReceipt',
-    unknown
-  >
-  expectTypeOf<Result2>().not.toEqualTypeOf<unknown>()
-})
-
-test('ExtractChainFormatterReturnType', () => {
-  type Result = ExtractChainFormatterReturnType<
-    typeof mainnet,
-    'transactionReceipt',
-    unknown
-  >
-  expectTypeOf<Result>().toEqualTypeOf<unknown>()
-
-  type Result2 = ExtractChainFormatterReturnType<
-    typeof optimism,
-    'transactionReceipt',
-    unknown
-  >
-  expectTypeOf<Result2>().not.toEqualTypeOf<unknown>()
-})
+import type { TransactionRequest } from './transaction.js'
 
 test('DeriveChain', () => {
   type Result = DeriveChain<Chain | undefined, Chain | undefined>
@@ -65,6 +27,38 @@ test('DeriveChain', () => {
 
   type Result5 = DeriveChain<Chain | undefined, Chain>
   expectTypeOf<Result5>().toEqualTypeOf<Chain>()
+})
+
+test('ExtractChainFormatterParameters', () => {
+  type Result = ExtractChainFormatterParameters<
+    typeof mainnet,
+    'transactionRequest',
+    TransactionRequest
+  >
+  expectTypeOf<Result['type']>().toEqualTypeOf<
+    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | undefined
+  >()
+
+  type Result2 = ExtractChainFormatterParameters<
+    typeof base,
+    'transactionRequest',
+    TransactionRequest
+  >
+  expectTypeOf<Result2['type']>().toEqualTypeOf<
+    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | undefined
+  >()
+
+  type Result3 = ExtractChainFormatterParameters<
+    typeof celo,
+    'transactionRequest',
+    TransactionRequest
+  >
+  expectTypeOf<Result3['type']>().toEqualTypeOf<
+    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'cip64' | undefined
+  >()
+  expectTypeOf<Result3['feeCurrency']>().toEqualTypeOf<
+    `0x${string}` | undefined
+  >()
 })
 
 test('GetChainParameter', () => {

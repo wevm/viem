@@ -51,7 +51,7 @@ export type CreateEventFilterParameters<
             | TEventFilterArgs
             | (_Args extends TEventFilterArgs ? _Args : never)
           event: TAbiEvent
-          events?: never | undefined
+          events?: undefined
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
            * @default false
@@ -59,9 +59,9 @@ export type CreateEventFilterParameters<
           strict?: TStrict | undefined
         }
       | {
-          args?: never | undefined
+          args?: undefined
           event?: TAbiEvent | undefined
-          events?: never | undefined
+          events?: undefined
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
            * @default false
@@ -69,8 +69,8 @@ export type CreateEventFilterParameters<
           strict?: TStrict | undefined
         }
       | {
-          args?: never | undefined
-          event?: never | undefined
+          args?: undefined
+          event?: undefined
           events: TAbiEvents | undefined
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
@@ -79,16 +79,16 @@ export type CreateEventFilterParameters<
           strict?: TStrict | undefined
         }
       | {
-          args?: never | undefined
-          event?: never | undefined
-          events?: never | undefined
-          strict?: never | undefined
+          args?: undefined
+          event?: undefined
+          events?: undefined
+          strict?: undefined
         }
   : {
-      args?: never | undefined
-      event?: never | undefined
-      events?: never | undefined
-      strict?: never | undefined
+      args?: undefined
+      event?: undefined
+      events?: undefined
+      strict?: undefined
     })
 
 export type CreateEventFilterReturnType<

@@ -17,6 +17,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../../utils/abi/encodeFunctionData.js'
+import { getAction } from '../../../utils/getAction.js'
 import {
   type SendCallsErrorType,
   type SendCallsParameters,
@@ -118,7 +119,11 @@ export async function writeContracts<
       value,
     } satisfies SendCallsParameters['calls'][number]
   })
-  return sendCalls(client, { ...parameters, calls } as SendCallsParameters)
+  return getAction(
+    client,
+    sendCalls,
+    'sendCalls',
+  )({ ...parameters, calls } as SendCallsParameters)
 }
 
 export type WriteContractFunctionParameters<

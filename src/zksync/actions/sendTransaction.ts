@@ -73,7 +73,6 @@ export async function sendTransaction<
   client: Client<Transport, TChain, TAccount>,
   args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SendTransactionReturnType> {
-  if (isEIP712Transaction(args as any))
-    return sendEip712Transaction(client, args)
+  if (isEIP712Transaction(args)) return sendEip712Transaction(client, args)
   return sendTransaction_(client, args)
 }

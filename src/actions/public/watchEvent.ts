@@ -81,7 +81,7 @@ export type WatchEventParameters<
   (
     | {
         event: TAbiEvent
-        events?: never | undefined
+        events?: undefined
         args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName> | undefined
         /**
          * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
@@ -90,9 +90,9 @@ export type WatchEventParameters<
         strict?: TStrict | undefined
       }
     | {
-        event?: never | undefined
+        event?: undefined
         events?: TAbiEvents | undefined
-        args?: never | undefined
+        args?: undefined
         /**
          * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
          * @default false
@@ -100,10 +100,10 @@ export type WatchEventParameters<
         strict?: TStrict | undefined
       }
     | {
-        event?: never | undefined
-        events?: never | undefined
-        args?: never | undefined
-        strict?: never | undefined
+        event?: undefined
+        events?: undefined
+        args?: undefined
+        strict?: undefined
       }
   )
 
