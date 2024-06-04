@@ -238,7 +238,7 @@ export type TransactionRequestEIP712<
   TTransactionType = 'eip712',
 > = TransactionRequestBase<TQuantity, TIndex> &
   ExactPartial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: never | undefined
+    accessList?: undefined
     gasPerPubdata?: bigint | undefined
     factoryDeps?: Hex[] | undefined
     paymaster?: Address | undefined

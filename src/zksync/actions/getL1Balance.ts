@@ -24,10 +24,10 @@ export type GetL1BalanceParameters<
     | {
         /** The balance of the account at a block number. */
         blockNumber?: bigint | undefined
-        blockTag?: never | undefined
+        blockTag?: undefined
       }
     | {
-        blockNumber?: never | undefined
+        blockNumber?: undefined
         /** The balance of the account at a block tag. */
         blockTag?: BlockTag | undefined
       }

@@ -68,28 +68,28 @@ export type RpcTransaction<TPending extends boolean = boolean> = UnionOmit<
 >
 
 type SuccessResult<T> = {
-  method?: never | undefined
+  method?: undefined
   result: T
-  error?: never | undefined
+  error?: undefined
 }
 type ErrorResult<T> = {
-  method?: never | undefined
-  result?: never | undefined
+  method?: undefined
+  result?: undefined
   error: T
 }
 type Subscription<TResult, TError> = {
   method: 'eth_subscription'
-  error?: never | undefined
-  result?: never | undefined
+  error?: undefined
+  result?: undefined
   params: {
     subscription: string
   } & (
     | {
         result: TResult
-        error?: never | undefined
+        error?: undefined
       }
     | {
-        result?: never | undefined
+        result?: undefined
         error: TError
       }
   )

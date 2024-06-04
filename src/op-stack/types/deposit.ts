@@ -23,6 +23,6 @@ export type DepositRequest = {
       /** Whether or not this is a contract deployment transaction. */
       isCreation: true
       /** L2 Transaction recipient. Cannot exist for contract deployment transactions. */
-      to?: never | undefined
+      to?: undefined
     }
 )

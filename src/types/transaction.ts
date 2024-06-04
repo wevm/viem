@@ -112,11 +112,11 @@ export type TransactionLegacy<
 > = Omit<TransactionBase<TQuantity, TIndex, TPending>, 'yParity'> &
   FeeValuesLegacy<TQuantity> & {
     /** EIP-2930 Access List. */
-    accessList?: never | undefined
-    blobVersionedHashes?: never | undefined
+    accessList?: undefined
+    blobVersionedHashes?: undefined
     /** Chain ID that this transaction is valid on. */
     chainId?: TIndex | undefined
-    yParity?: never | undefined
+    yParity?: undefined
     type: TType
   }
 export type TransactionEIP2930<
@@ -128,7 +128,7 @@ export type TransactionEIP2930<
   FeeValuesLegacy<TQuantity> & {
     /** EIP-2930 Access List. */
     accessList: AccessList
-    blobVersionedHashes?: never | undefined
+    blobVersionedHashes?: undefined
     /** Chain ID that this transaction is valid on. */
     chainId: TIndex
     type: TType
@@ -142,7 +142,7 @@ export type TransactionEIP1559<
   FeeValuesEIP1559<TQuantity> & {
     /** EIP-2930 Access List. */
     accessList: AccessList
-    blobVersionedHashes?: never | undefined
+    blobVersionedHashes?: undefined
     /** Chain ID that this transaction is valid on. */
     chainId: TIndex
     type: TType
@@ -193,7 +193,7 @@ export type TransactionRequestLegacy<
   TTransactionType = 'legacy',
 > = TransactionRequestBase<TQuantity, TIndex> &
   ExactPartial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: never | undefined
+    accessList?: undefined
     blobs?: undefined
     type?: TTransactionType | undefined
   }
