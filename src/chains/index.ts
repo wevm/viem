@@ -30,10 +30,10 @@ export { bearNetworkChainMainnet } from './definitions/bearNetworkChainMainnet.j
 export { bearNetworkChainTestnet } from './definitions/bearNetworkChainTestnet.js'
 export { berachainTestnet } from './definitions/berachainTestnet.js'
 export { bevmMainnet } from './definitions/bevmMainnet.js'
-export { bitTorrent } from './definitions/bitTorrent.js'
-export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js'
 export { bitkub } from './definitions/bitkub.js'
 export { bitkubTestnet } from './definitions/bitkubTestnet.js'
+export { bitTorrent } from './definitions/bitTorrent.js'
+export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js
 export { blast } from './definitions/blast.js'
 export { blastSepolia } from './definitions/blastSepolia.js'
 export { bob } from './definitions/bob.js'
