@@ -163,8 +163,6 @@ jobs:
 
       - name: Set up pnpm
         uses: wevm/actions/.github/actions/pnpm@main
-        with:
-          node-version: 22
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
