@@ -35,8 +35,7 @@ export type EncodeDeployDataParameters<
   readonly [] extends allArgs
     ? { args?: allArgs | undefined }
     : { args: allArgs }
-> &
-  (hasConstructor extends true ? unknown : never)
+>
 
 export type EncodeDeployDataReturnType = Hex
 
