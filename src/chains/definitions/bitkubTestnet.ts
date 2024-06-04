@@ -9,21 +9,12 @@ export const bitkubTestnet = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://rpc-testnet.bitkubchain.io'],
     },
-    public: {
-      http: ['https://rpc-testnet.bitkubchain.io'],
-    },
   },
   blockExplorers: {
     default: {
       name: 'Bitkub Chain Testnet Explorer',
       url: 'https://testnet.bkcscan.com',
       apiUrl: 'https://testnet.bkcscan.com/api',
-    },
-  },
-  contracts: {
-    multicall3: {
-      address: '0x3c238cb1293c039aba3ab0f1840c8330bbd190eb',
-      blockCreated: 13685238,
     },
   },
   testnet: true,
