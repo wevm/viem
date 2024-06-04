@@ -12,7 +12,7 @@
     "changeset:prepublish": "pnpm version:update && bun scripts/prepublishOnly.ts && pnpm build",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm version:update",
-    "clean": "rimraf tsconfig.tsbuildinfo src/_esm src/_cjs src/_types",
+    "clean": "rimraf **/*.tsbuildinfo src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
     "docs:dev": "pnpm --filter site dev",
     "docs:build": "pnpm --filter site build",
@@ -68,7 +68,7 @@
     "vitest": "^1.0.4"
   },
   "trustedDependencies": ["c-kzg"],
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.1.0",
   "simple-git-hooks": {
     "pre-commit": "pnpm lint"
   }

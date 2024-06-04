@@ -508,6 +508,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      viem:
+        specifier: workspace:*
+        version: link:../src
       vocs:
         specifier: 1.0.0-alpha.52
         version: 1.0.0-alpha.52(@types/node@20.14.0)(@types/react-dom@18.0.10)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.18.0)(terser@5.31.0)(typescript@5.4.5)
