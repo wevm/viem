@@ -138,9 +138,9 @@ export function createSiweMessage(
   })()
   const statement = (() => {
     if (!parameters.statement) return ''
-    return `\n${parameters.statement}\n`
+    return `${parameters.statement}\n`
   })()
-  const prefix = `${origin} wants you to sign in with your Ethereum account:\n${address}\n${statement}`
+  const prefix = `${origin} wants you to sign in with your Ethereum account:\n${address}\n\n${statement}`
 
   let suffix = `URI: ${uri}\nVersion: ${version}\nChain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${issuedAt.toISOString()}`
 

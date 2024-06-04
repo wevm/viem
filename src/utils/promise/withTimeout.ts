@@ -35,7 +35,7 @@ export function withTimeout<TData>(
         }
         resolve(await fn({ signal: controller?.signal || null }))
       } catch (err) {
-        if ((err as Error).name === 'AbortError') reject(errorInstance)
+        if ((err as Error)?.name === 'AbortError') reject(errorInstance)
         reject(err)
       } finally {
         clearTimeout(timeoutId)

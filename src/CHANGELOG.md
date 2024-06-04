@@ -1,5 +1,25 @@
 # viem
 
+## 2.13.5
+
+### Patch Changes
+
+- [#2356](https://github.com/wevm/viem/pull/2356) [`e6678622b8be1d7b72abe2e1331d455fb4a9c11f`](https://github.com/wevm/viem/commit/e6678622b8be1d7b72abe2e1331d455fb4a9c11f) Thanks [@blascokoa](https://github.com/blascokoa)! - Added SatoshiVM chain
+
+- [#2361](https://github.com/wevm/viem/pull/2361) [`05c166e5cb2f5745ac48ba482fac14f4890f5c83`](https://github.com/wevm/viem/commit/05c166e5cb2f5745ac48ba482fac14f4890f5c83) Thanks [@tirogen](https://github.com/tirogen)! - Added Bitkub chain.
+
+- [`7aad10e2ed7d3ecf5a6c38cd326aa9ff8dead239`](https://github.com/wevm/viem/commit/7aad10e2ed7d3ecf5a6c38cd326aa9ff8dead239) Thanks [@jxom](https://github.com/jxom)! - Added optional chaining to error handling in `withTimeout`.
+
+## 2.13.4
+
+### Patch Changes
+
+- [#2348](https://github.com/wevm/viem/pull/2348) [`6cb084dd56260b1d0116e9ff9dc354117d33049e`](https://github.com/wevm/viem/commit/6cb084dd56260b1d0116e9ff9dc354117d33049e) Thanks [@ClockRide](https://github.com/ClockRide)! - Added `testnet: true` to fantomTestnet.
+
+- [#2350](https://github.com/wevm/viem/pull/2350) [`19f3db87bfaa113bb6a4156f45c35f0ffcc5df7e`](https://github.com/wevm/viem/commit/19f3db87bfaa113bb6a4156f45c35f0ffcc5df7e) Thanks [@ClockRide](https://github.com/ClockRide)! - Added `testnet: true` to `btrTestnet`.
+
+- [#2349](https://github.com/wevm/viem/pull/2349) [`4bfe975955d72fcaea46bc9bb56f4a475c39afb1`](https://github.com/wevm/viem/commit/4bfe975955d72fcaea46bc9bb56f4a475c39afb1) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added sei chain
+
 ## 2.13.3
 
 ### Patch Changes
