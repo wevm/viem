@@ -26,7 +26,7 @@ import type {
   TransactionSerializedGeneric,
   TransactionType,
 } from '../../types/transaction.js'
-import type { IsNarrowable } from '../../types/utils.js'
+import type { IsNarrowable, Mutable } from '../../types/utils.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
@@ -442,7 +442,7 @@ export type ParseAccessListErrorType =
   | ErrorType
 
 export function parseAccessList(accessList_: RecursiveArray<Hex>): AccessList {
-  const accessList: AccessList = []
+  const accessList: Mutable<AccessList> = []
   for (let i = 0; i < accessList_.length; i++) {
     const [address, storageKeys] = accessList_[i] as [Hex, Hex[]]
 

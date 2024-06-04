@@ -10,7 +10,7 @@ importers:
     devDependencies:
       '@arktype/attest':
         specifier: 0.7.5
-        version: 0.7.5(typescript@5.4.5)
+        version: 0.7.5(typescript@5.2.2)
       '@biomejs/biome':
         specifier: ^1.7.3
         version: 1.7.3
@@ -43,7 +43,7 @@ importers:
         version: 1.0.4(vitest@1.0.4)
       abitype:
         specifier: 1.0.0
-        version: 1.0.0(typescript@5.4.5)(zod@3.22.4)
+        version: 1.0.0(typescript@5.2.2)(zod@3.22.4)
       bun:
         specifier: ^1.1.12
         version: 1.1.12
@@ -75,8 +75,8 @@ importers:
         specifier: ^4.11.0
         version: 4.11.0
       typescript:
-        specifier: 5.4.5
-        version: 5.4.5
+        specifier: 5.2.2
+        version: 5.2.2
       vite:
         specifier: ^5.0.7
         version: 5.0.7(@types/node@20.14.0)(terser@5.31.0)
@@ -5515,6 +5515,11 @@ packages:
     resolution: {integrity: sha512-/OxDN6OtAk5KBpGb28T+HZc2M+ADtvRxXrKKbUwtsLgdoxgX13hyy7ek6bFRl5+aBs2yZzB0c4CnQfAtVypW/g==}
     engines: {node: '>= 0.4'}
 
+  typescript@5.2.2:
+    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   typescript@5.4.2:
     resolution: {integrity: sha512-+2/g0Fds1ERlP6JsakQQDXjZdZMM+rqpamFZJEKh4kwTIn3iDkgKtby0CeNd5ATNZ4Ry1ax15TMx0W2V+miizQ==}
     engines: {node: '>=14.17'}
@@ -6057,14 +6062,14 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@arktype/attest@0.7.5(typescript@5.4.5)':
+  '@arktype/attest@0.7.5(typescript@5.2.2)':
     dependencies:
       '@arktype/fs': 0.0.19
       '@arktype/util': 0.0.41
       '@typescript/analyze-trace': 0.10.1
       '@typescript/vfs': 1.5.0
       arktype: 2.0.0-dev.11
-      typescript: 5.4.5
+      typescript: 5.2.2
     transitivePeerDependencies:
       - supports-color
 
@@ -8303,6 +8308,11 @@ snapshots:
   '@xtuc/ieee754@1.2.0': {}
 
   '@xtuc/long@4.2.2': {}
+
+  abitype@1.0.0(typescript@5.2.2)(zod@3.22.4):
+    optionalDependencies:
+      typescript: 5.2.2
+      zod: 3.22.4
 
   abitype@1.0.0(typescript@5.4.2)(zod@3.22.4):
     optionalDependencies:
@@ -11945,6 +11955,8 @@ snapshots:
       has-proto: 1.0.3
       is-typed-array: 1.1.13
       possible-typed-array-names: 1.0.0
+
+  typescript@5.2.2: {}
 
   typescript@5.4.2: {}
 
