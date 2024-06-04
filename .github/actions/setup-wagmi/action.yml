@@ -18,11 +18,11 @@ runs:
       with:
         cache: pnpm
         cache-dependency-path: ./wagmi/pnpm-lock.yaml
-        node-version: 21
+        node-version: 22
 
     - name: Build viem
       shell: bash
-      run: bun run build
+      run: pnpm build
 
     - name: Install dependencies
       shell: bash

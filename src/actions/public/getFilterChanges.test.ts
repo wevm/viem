@@ -19,7 +19,6 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
-import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { writeContract } from '../wallet/writeContract.js'
 
@@ -128,15 +127,6 @@ beforeAll(async () => {
     address: address.usdcHolder,
     value: 10000000000000000000000n,
   })
-
-  return async () => {
-    await stopImpersonatingAccount(client, {
-      address: address.vitalik,
-    })
-    await stopImpersonatingAccount(client, {
-      address: address.usdcHolder,
-    })
-  }
 })
 
 test('default', async () => {

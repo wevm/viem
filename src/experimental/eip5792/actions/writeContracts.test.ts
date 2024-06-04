@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts } from '../../../../test/src/constants.js'
@@ -98,6 +98,10 @@ const getClient = ({
       },
     }),
   })
+
+beforeAll(async () => {
+  await anvilMainnet.restart()
+})
 
 test('default', async () => {
   const requests: unknown[] = []

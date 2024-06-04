@@ -53,7 +53,9 @@ export const address = {
   notDeployed: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
 } as const
 
-export const poolId = Number(process.env.VITEST_POOL_ID ?? 1)
+export const poolId =
+  Number(process.env.VITEST_POOL_ID ?? 1) +
+  (process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket' ? 100 : 0)
 
 export const typedData = {
   basic: {
