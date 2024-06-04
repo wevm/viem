@@ -6,7 +6,7 @@ export const zetachainAthensTestnet = /*#__PURE__*/ defineChain({
   testnet:true,
   iconUrl: "https://s2.coinmarketcap.com/static/img/coins/64x64/21259.png",
   nativeCurrency: {
-    name: "ZetaChain Athens 3 Testnet",
+    name: "ZetaChain Testnet",
     symbol: "ZETA",
     decimals: 18,
   },
@@ -17,7 +17,7 @@ export const zetachainAthensTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: "zetachain",
+      name: "ZetaScan",
       url: "https://athens.explorer.zetachain.com/",
     },
   },
