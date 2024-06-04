@@ -28,18 +28,18 @@ describe('latest', () => {
     const receipt = await getTransactionReceipt(optimismSepoliaClient, {
       hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
     })
-  
+
     const [withdrawal] = getWithdrawals(receipt)
-  
+
     vi.setSystemTime(new Date(1711008145099))
-  
+
     const time = await getTimeToFinalize(sepoliaClient, {
       ...withdrawal!,
       targetChain: optimismSepoliaClient.chain,
     })
-  
+
     vi.useRealTimers()
-  
+
     expect(time).toMatchInlineSnapshot(`
       {
         "period": 604800,
@@ -48,24 +48,24 @@ describe('latest', () => {
       }
     `)
   })
-  
+
   // TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
   test('ready to finalize', async () => {
     const receipt = await getTransactionReceipt(optimismSepoliaClient, {
       hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
     })
-  
+
     const [withdrawal] = getWithdrawals(receipt)
-  
+
     vi.setSystemTime(new Date(1715731437099))
-  
+
     const time = await getTimeToFinalize(sepoliaClient, {
       ...withdrawal!,
       targetChain: optimismSepoliaClient.chain,
     })
-  
+
     vi.useRealTimers()
-  
+
     expect(time).toMatchInlineSnapshot(`
       {
         "period": 604800,
