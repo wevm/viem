@@ -89,6 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
+      max-parallel: 3
       matrix:
         transport-mode: ['http', 'webSocket']
         shard: [1, 2, 3]
