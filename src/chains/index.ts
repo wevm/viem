@@ -33,7 +33,7 @@ export { bevmMainnet } from './definitions/bevmMainnet.js'
 export { bitkub } from './definitions/bitkub.js'
 export { bitkubTestnet } from './definitions/bitkubTestnet.js'
 export { bitTorrent } from './definitions/bitTorrent.js'
-export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js
+export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js'
 export { blast } from './definitions/blast.js'
 export { blastSepolia } from './definitions/blastSepolia.js'
 export { bob } from './definitions/bob.js'
