@@ -5,11 +5,7 @@ import {
   anvilOptimismSepolia,
   anvilSepolia,
 } from '../../../test/src/anvil.js'
-import {
-  getBlockNumber,
-  getTransactionReceipt,
-  reset,
-} from '../../actions/index.js'
+import { getTransactionReceipt, reset } from '../../actions/index.js'
 
 import { getWithdrawals, optimism } from '../../op-stack/index.js'
 import { getTimeToFinalize } from './getTimeToFinalize.js'
@@ -28,9 +24,6 @@ test.skip('default', async () => {
   const [withdrawal] = getWithdrawals(receipt)
 
   vi.setSystemTime(new Date(1711008145099))
-
-  await anvilSepolia.restart()
-  expect(await getBlockNumber(sepoliaClient)).toBe(anvilSepolia.forkBlockNumber)
 
   const time = await getTimeToFinalize(sepoliaClient, {
     ...withdrawal!,
@@ -57,9 +50,6 @@ test.skip('ready to finalize', async () => {
   const [withdrawal] = getWithdrawals(receipt)
 
   vi.setSystemTime(new Date(1715731437099))
-
-  await anvilSepolia.restart()
-  expect(await getBlockNumber(sepoliaClient)).toBe(anvilSepolia.forkBlockNumber)
 
   const time = await getTimeToFinalize(sepoliaClient, {
     ...withdrawal!,

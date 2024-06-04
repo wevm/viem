@@ -8,7 +8,6 @@ import {
 import { accounts, address } from '~test/src/constants.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
-import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getAddress } from '../../index.js'
