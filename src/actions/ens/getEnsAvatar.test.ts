@@ -8,7 +8,6 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { namehash } from '../../utils/ens/namehash.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
-import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
 import { reset } from '../test/reset.js'
@@ -24,12 +23,6 @@ beforeAll(async () => {
     blockNumber: 19_258_213n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
-
-  return async () => {
-    await stopImpersonatingAccount(client, {
-      address: address.vitalik,
-    })
-  }
 })
 
 test.each([

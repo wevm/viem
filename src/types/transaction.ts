@@ -209,7 +209,7 @@ export type TransactionRequestLegacy<
   type = 'legacy',
 > = Evaluate<
   TransactionRequestBase<quantity, index> & {
-    accessList?: never | undefined
+    accessList?: undefined
     blobs?: undefined
     type?: type | undefined
   } & ExactPartial<FeeValuesLegacy<quantity>>

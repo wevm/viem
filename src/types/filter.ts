@@ -37,8 +37,8 @@ export type Filter<
       ? undefined extends TEventName
         ? {
             abi: TAbi
-            args?: never | undefined
-            eventName?: never | undefined
+            args?: undefined
+            eventName?: undefined
             strict: TStrict
           }
         : TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName>
@@ -50,14 +50,14 @@ export type Filter<
             }
           : {
               abi: TAbi
-              args?: never | undefined
+              args?: undefined
               eventName: TEventName
               strict: TStrict
             }
       : {
-          abi?: never | undefined
-          args?: never | undefined
-          eventName?: never | undefined
-          strict?: never | undefined
+          abi?: undefined
+          args?: undefined
+          eventName?: undefined
+          strict?: undefined
         })
   : {})
