@@ -15,63 +15,65 @@ const sepoliaClient = anvilSepolia.getClient()
 const optimismClient = anvilOptimism.getClient()
 const optimismSepoliaClient = anvilOptimismSepolia.getClient()
 
-beforeAll(async () => {
-  await anvilMainnet.restart()
-  await anvilSepolia.restart()
-  await anvilOptimism.restart()
-  await anvilOptimismSepolia.restart()
-})
-
-// TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
-test.skip('default', async () => {
-  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
+describe('latest', () => {
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
   })
 
-  const [withdrawal] = getWithdrawals(receipt)
-
-  vi.setSystemTime(new Date(1711008145099))
-
-  const time = await getTimeToFinalize(sepoliaClient, {
-    ...withdrawal!,
-    targetChain: optimismSepoliaClient.chain,
+  // TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
+  test('default', async () => {
+    const receipt = await getTransactionReceipt(optimismSepoliaClient, {
+      hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
+    })
+  
+    const [withdrawal] = getWithdrawals(receipt)
+  
+    vi.setSystemTime(new Date(1711008145099))
+  
+    const time = await getTimeToFinalize(sepoliaClient, {
+      ...withdrawal!,
+      targetChain: optimismSepoliaClient.chain,
+    })
+  
+    vi.useRealTimers()
+  
+    expect(time).toMatchInlineSnapshot(`
+      {
+        "period": 604800,
+        "seconds": 4723292,
+        "timestamp": 1715731437099,
+      }
+    `)
   })
-
-  vi.useRealTimers()
-
-  expect(time).toMatchInlineSnapshot(`
-    {
-      "period": 604800,
-      "seconds": 4723292,
-      "timestamp": 1715731437099,
-    }
-  `)
-})
-
-// TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
-test('ready to finalize', async () => {
-  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
+  
+  // TODO(fault-proofs): use `client` when fault proofs deployed to mainnet.
+  test('ready to finalize', async () => {
+    const receipt = await getTransactionReceipt(optimismSepoliaClient, {
+      hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
+    })
+  
+    const [withdrawal] = getWithdrawals(receipt)
+  
+    vi.setSystemTime(new Date(1715731437099))
+  
+    const time = await getTimeToFinalize(sepoliaClient, {
+      ...withdrawal!,
+      targetChain: optimismSepoliaClient.chain,
+    })
+  
+    vi.useRealTimers()
+  
+    expect(time).toMatchInlineSnapshot(`
+      {
+        "period": 604800,
+        "seconds": 0,
+        "timestamp": 1715731437099,
+      }
+    `)
   })
-
-  const [withdrawal] = getWithdrawals(receipt)
-
-  vi.setSystemTime(new Date(1715731437099))
-
-  const time = await getTimeToFinalize(sepoliaClient, {
-    ...withdrawal!,
-    targetChain: optimismSepoliaClient.chain,
-  })
-
-  vi.useRealTimers()
-
-  expect(time).toMatchInlineSnapshot(`
-    {
-      "period": 604800,
-      "seconds": 0,
-      "timestamp": 1715731437099,
-    }
-  `)
 })
 
 describe('legacy (portal v2)', () => {

@@ -771,7 +771,7 @@ describe('poll', () => {
       expect(logs[1][0].eventName).toEqual('Approval')
     })
 
-    test.skip(
+    test(
       'fallback',
       async () => {
         const logs: WatchContractEventOnLogsParameter<
@@ -782,7 +782,7 @@ describe('poll', () => {
           chain: anvilMainnet.chain,
           transport: fallback([http(), webSocket()]),
           pollingInterval: 200,
-        })
+        }).extend(() => ({ mode: 'anvil' }))
 
         const unwatch = watchContractEvent(client_2, {
           abi: usdcContractConfig.abi,
@@ -801,27 +801,27 @@ describe('poll', () => {
           },
         })
 
-        await writeContract(client, {
+        await writeContract(client_2, {
           ...usdcContractConfig,
           account: address.vitalik,
           functionName: 'transfer',
           args: [address.vitalik, 1n],
         })
-        await writeContract(client, {
+        await writeContract(client_2, {
           ...usdcContractConfig,
           account: address.vitalik,
           functionName: 'transfer',
           args: [address.vitalik, 1n],
         })
-        await mine(client, { blocks: 1 })
+        await mine(client_2, { blocks: 1 })
         await wait(200)
-        await writeContract(client, {
+        await writeContract(client_2, {
           ...usdcContractConfig,
           account: address.vitalik,
           functionName: 'approve',
           args: [address.vitalik, 1n],
         })
-        await mine(client, { blocks: 1 })
+        await mine(client_2, { blocks: 1 })
         await wait(200)
         unwatch()
 

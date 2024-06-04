@@ -448,41 +448,41 @@ describe('poll', () => {
       expect(logs[1].length).toBe(1)
     })
 
-    test.skip('fallback', async () => {
+    test('fallback', async () => {
       const logs: WatchEventOnLogsParameter[] = []
 
       const client_2 = createClient({
         chain: anvilMainnet.chain,
         transport: fallback([http(), webSocket()]),
         pollingInterval: 200,
-      })
+      }).extend(() => ({ mode: 'anvil' }))
 
       const unwatch = watchEvent(client_2, {
         onLogs: (logs_) => logs.push(logs_),
       })
 
       await wait(200)
-      await writeContract(client, {
+      await writeContract(client_2, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(client, {
+      await writeContract(client_2, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await mine(client, { blocks: 1 })
+      await mine(client_2, { blocks: 1 })
       await wait(200)
-      await writeContract(client, {
+      await writeContract(client_2, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
         account: address.vitalik,
       })
-      await mine(client, { blocks: 1 })
+      await mine(client_2, { blocks: 1 })
       await wait(200)
       unwatch()
 
