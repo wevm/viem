@@ -1,6 +1,6 @@
 {
   "name": "@wevm/viem",
-  "version": "2.13.4",
+  "version": "2.13.5",
   "exports": {
     ".": "./index.ts",
     "./accounts": "./accounts/index.ts",
@@ -16,7 +16,12 @@
     "./zksync": "./zksync/index.ts"
   },
   "publish": {
-    "include": ["LICENSE", "README.md", "CHANGELOG.md", "**/*.ts"],
+    "include": [
+      "LICENSE",
+      "README.md",
+      "CHANGELOG.md",
+      "**/*.ts"
+    ],
     "exclude": [
       "**/*.bench.ts",
       "**/*.bench-d.ts",
