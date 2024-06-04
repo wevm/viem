@@ -1,5 +1,13 @@
 # viem
 
+## 2.13.6
+
+### Patch Changes
+
+- [#2337](https://github.com/wevm/viem/pull/2337) [`8984eee7`](https://github.com/wevm/viem/commit/8984eee7f23d430070e42ac1f2645ced0e82faf8) Thanks [@jaeil-wiki](https://github.com/jaeil-wiki)! - Updated `createSiweMessage` `statement` construction to match ABNF Message Format.
+
+- [#2351](https://github.com/wevm/viem/pull/2351) [`48e6d50c`](https://github.com/wevm/viem/commit/48e6d50cae738e55869758cb25c52b2244069f09) Thanks [@agsola](https://github.com/agsola)! - Fixed `createSiweMessage` domain check to be RFC 3986 compliant.
+
 ## 2.13.5
 
 ### Patch Changes
