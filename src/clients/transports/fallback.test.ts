@@ -750,7 +750,7 @@ describe('rankTransports', () => {
     const transport2 = http(server2.url, { key: '2' })
     const transport3 = http(server3.url, { key: '3' })
 
-    const rankedTransports: Transport[][] = []
+    const rankedTransports: (readonly Transport[])[] = []
 
     rankTransports({
       chain: localhost,

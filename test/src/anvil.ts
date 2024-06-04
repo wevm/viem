@@ -128,13 +128,16 @@ type DefineAnvilReturnType<chain extends Chain> = {
   start(): Promise<() => Promise<void>>
 }
 
-function defineAnvil<const chain extends Chain>({
-  chain: chain_,
-  forkUrl,
-  forkBlockNumber,
-  port,
-  ...options
-}: DefineAnvilParameters<chain>): DefineAnvilReturnType<chain> {
+function defineAnvil<const chain extends Chain>(
+  parameters: DefineAnvilParameters<chain>,
+): DefineAnvilReturnType<chain> {
+  const {
+    chain: chain_,
+    forkUrl,
+    forkBlockNumber,
+    port,
+    ...options
+  } = parameters
   const rpcUrl = {
     http: `http://127.0.0.1:${port}/${poolId}`,
     ipc: `/tmp/anvil-${poolId}.ipc`,

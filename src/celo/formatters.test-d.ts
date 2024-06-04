@@ -25,7 +25,7 @@ describe('block', () => {
     Assign<
       ExactPartial<RpcBlock>,
       CeloBlockOverrides & {
-        transactions: `0x${string}`[] | CeloRpcTransaction[]
+        transactions: readonly `0x${string}`[] | readonly CeloRpcTransaction[]
       }
     >
   >()
