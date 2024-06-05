@@ -60,8 +60,8 @@ importers:
         specifier: ^13.2.2
         version: 13.2.2
       prool:
-        specifier: ^0.0.4
-        version: 0.0.4
+        specifier: ^0.0.9
+        version: 0.0.9
       rimraf:
         specifier: ^4.4.1
         version: 4.4.1
@@ -4728,9 +4728,14 @@ packages:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
 
-  prool@0.0.4:
-    resolution: {integrity: sha512-9jRsEPMn1Y+MLOrIws1gcGoCB3yo6LlBkmIt9ENCYp+wf0j678khnm6UzJeTPg1vqipsHXUx9eFpng7UaZawcQ==}
+  prool@0.0.9:
+    resolution: {integrity: sha512-NiSfoD/EOcZXQyIos5krvHLI7KPkhauNHPCX/qx5tIsiWNKAHSJL6y6lH/6pTs9JTrEydFXhpQxjUBDvy78wfw==}
     engines: {node: '>=22'}
+    peerDependencies:
+      '@pimlico/alto': '*'
+    peerDependenciesMeta:
+      '@pimlico/alto':
+        optional: true
 
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
@@ -11030,7 +11035,7 @@ snapshots:
 
   progress@2.0.3: {}
 
-  prool@0.0.4:
+  prool@0.0.9:
     dependencies:
       eventemitter3: 5.0.1
       execa: 9.1.0

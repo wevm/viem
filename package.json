@@ -58,7 +58,7 @@
     "ethers": "^6.0.2",
     "fs-extra": "^10.1.0",
     "globby": "^13.2.2",
-    "prool": "^0.0.4",
+    "prool": "^0.0.9",
     "rimraf": "^4.4.1",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^11.1.2",
