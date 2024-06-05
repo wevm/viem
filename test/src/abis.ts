@@ -1,3 +1,5 @@
+import { smartAccountAbi } from '~viem/constants/abis.js'
+
 export const erc20Abi = [
   {
     type: 'event',
@@ -4478,18 +4480,7 @@ export const ensReverseRegistrarConfig = {
 
 export const smartAccountConfig = {
   address: '0x3FCf42e10CC70Fe75A62EB3aDD6D305Aa840d145',
-  abi: [
-    {
-      name: 'isValidSignature',
-      type: 'function',
-      stateMutability: 'view',
-      inputs: [
-        { name: 'hash', type: 'bytes32' },
-        { name: 'signature', type: 'bytes' },
-      ],
-      outputs: [{ name: '', type: 'bytes4' }],
-    },
-  ],
+  abi: smartAccountAbi,
 } as const
 
 export const greeterContract = {
