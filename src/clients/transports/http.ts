@@ -18,19 +18,20 @@ import {
   createTransport,
 } from './createTransport.js'
 
-export type BatchOptions = {
-  /** The maximum number of JSON-RPC requests to send in a batch. @default 1_000 */
-  batchSize?: number | undefined
-  /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
-  wait?: number | undefined
-}
-
 export type HttpTransportConfig = {
   /**
    * Whether to enable Batch JSON-RPC.
    * @link https://www.jsonrpc.org/specification#batch
    */
-  batch?: boolean | BatchOptions | undefined
+  batch?:
+    | boolean
+    | {
+        /** The maximum number of JSON-RPC requests to send in a batch. @default 1_000 */
+        batchSize?: number | undefined
+        /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
+        wait?: number | undefined
+      }
+    | undefined
   /**
    * Request configuration to pass to `fetch`.
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch

@@ -67,10 +67,6 @@ import type {
   AssertRequestParameters,
 } from '../../utils/transaction/assertRequest.js'
 
-export type FormattedCall<
-  TChain extends Chain | undefined = Chain | undefined,
-> = FormattedTransactionRequest<TChain>
-
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedCall<TChain>, 'from'> & {
@@ -92,6 +88,8 @@ export type CallParameters<
         blockTag?: BlockTag | undefined
       }
   )
+type FormattedCall<TChain extends Chain | undefined = Chain | undefined> =
+  FormattedTransactionRequest<TChain>
 
 export type CallReturnType = { data: Hex | undefined }
 
@@ -256,7 +254,7 @@ type ScheduleMulticallParameters<TChain extends Chain | undefined> = Pick<
   to: Address
 }
 
-export type ScheduleMulticallErrorType =
+type ScheduleMulticallErrorType =
   | GetChainContractAddressErrorType
   | NumberToHexErrorType
   | CreateBatchSchedulerErrorType
@@ -345,6 +343,7 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
   return { data: returnData }
 }
 
+/** @internal */
 export type GetRevertErrorDataErrorType = ErrorType
 
 /** @internal */

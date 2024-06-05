@@ -1,6 +1,9 @@
 import type { Abi, AbiParameter, Address } from 'abitype'
 
-import { AbiItemAmbiguityError } from '../../errors/abi.js'
+import {
+  AbiItemAmbiguityError,
+  type AbiItemAmbiguityErrorType,
+} from '../../errors/abi.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   AbiItem,
@@ -57,6 +60,7 @@ export type GetAbiItemErrorType =
   | IsArgOfTypeErrorType
   | IsHexErrorType
   | ToFunctionSelectorErrorType
+  | AbiItemAmbiguityErrorType
   | ErrorType
 
 export type GetAbiItemReturnType<

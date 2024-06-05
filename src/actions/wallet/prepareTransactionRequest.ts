@@ -115,26 +115,6 @@ export type PrepareTransactionRequestParameters<
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request> & { chainId?: number | undefined }
 
-export type PrepareTransactionRequestReturnType_<
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-  chainOverride extends Chain | undefined = Chain | undefined,
-  accountOverride extends Account | Address | undefined =
-    | Account
-    | Address
-    | undefined,
-  ///
-  _derivedAccount extends Account | Address | undefined = DeriveAccount<
-    account,
-    accountOverride
-  >,
-  _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
-> = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
-  GetChainParameter<chain, chainOverride> &
-  (_derivedAccount extends Account
-    ? { account: _derivedAccount; from: Address }
-    : { account?: undefined; from?: undefined })
-
 export type PrepareTransactionRequestReturnType<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
