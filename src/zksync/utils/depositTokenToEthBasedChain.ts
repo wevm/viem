@@ -1,4 +1,4 @@
-import { waitForTransactionReceipt } from '~viem/actions/index.js'
+import { waitForTransactionReceipt } from '../../actions/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'

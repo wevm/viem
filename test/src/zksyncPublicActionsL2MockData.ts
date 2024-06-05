@@ -326,8 +326,199 @@ export const mockTransactionDetails: ZkSyncTransactionDetails = {
 }
 
 export const mockedGasEstimation = 123456789n
+export const mockTransactionReceipt = {
+  transactionHash:
+    '0xd6f3a9ddeb34ed805b1d04c75e95651cc8ebe4ce7d6f8d1e86191417fe578bae',
+  transactionIndex: 0,
+  blockHash:
+    '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+  blockNumber: 7n,
+  l1BatchTxIndex: 0n,
+  l1BatchNumber: 4n,
+  from: '0x36615cf349d7f6344891b1e7ca7c72883f5dc049',
+  to: '0x000000000000000000000000000000000000800a',
+  cumulativeGasUsed: 0n,
+  gasUsed: 220407n,
+  contractAddress: null,
+  logs: [
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [Array],
+      data: '0x00000000000000000000000000000000000000000000000000001cad2d9a3200',
+      blockHash:
+        '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+      blockNumber: 7n,
+      l1BatchNumber: 4n,
+      transactionHash:
+        '0xd6f3a9ddeb34ed805b1d04c75e95651cc8ebe4ce7d6f8d1e86191417fe578bae',
+      transactionIndex: 0,
+      logIndex: 0,
+      transactionLogIndex: 0,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [Array],
+      data: '0x000000000000000000000000000000000000000000000000000004c78799b300',
+      blockHash:
+        '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+      blockNumber: 7n,
+      l1BatchNumber: 4n,
+      transactionHash:
+        '0xd6f3a9ddeb34ed805b1d04c75e95651cc8ebe4ce7d6f8d1e86191417fe578bae',
+      transactionIndex: 0,
+      logIndex: 1,
+      transactionLogIndex: 1,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [Array],
+      data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      blockHash:
+        '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+      blockNumber: 7n,
+      l1BatchNumber: 4n,
+      transactionHash:
+        '0xd6f3a9ddeb34ed805b1d04c75e95651cc8ebe4ce7d6f8d1e86191417fe578bae',
+      transactionIndex: 0,
+      logIndex: 2,
+      transactionLogIndex: 2,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x0000000000000000000000000000000000008008',
+      topics: [Array],
+      data: '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008008000000000000000000000000000000000000000000000000000000000000800a45dd73c9e5194b7eb37037beda4171fe761e85d4149a083acd48061ef1ea14ae',
+      blockHash:
+        '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+      blockNumber: 7n,
+      l1BatchNumber: 4n,
+      transactionHash:
+        '0xd6f3a9ddeb34ed805b1d04c75e95651cc8ebe4ce7d6f8d1e86191417fe578bae',
+      transactionIndex: 0,
+      logIndex: 3,
+      transactionLogIndex: 3,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x0000000000000000000000000000000000008008',
+      topics: [Array],
+      data: '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000386c0960f936615cf349d7f6344891b1e7ca7c72883f5dc04900000000000000000000000000000000000000000000000000000000000000010000000000000000',
+      blockHash:
+        '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+      blockNumber: 7n,
+      l1BatchNumber: 4n,
+      transactionHash:
+        '0xd6f3a9ddeb34ed805b1d04c75e95651cc8ebe4ce7d6f8d1e86191417fe578bae',
+      transactionIndex: 0,
+      logIndex: 4,
+      transactionLogIndex: 4,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [Array],
+      data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      blockHash:
+        '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+      blockNumber: 7n,
+      l1BatchNumber: 4n,
+      transactionHash:
+        '0xd6f3a9ddeb34ed805b1d04c75e95651cc8ebe4ce7d6f8d1e86191417fe578bae',
+      transactionIndex: 0,
+      logIndex: 5,
+      transactionLogIndex: 5,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [Array],
+      data: '0x000000000000000000000000000000000000000000000000000003d9e5e86800',
+      blockHash:
+        '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+      blockNumber: 7n,
+      l1BatchNumber: 4n,
+      transactionHash:
+        '0xd6f3a9ddeb34ed805b1d04c75e95651cc8ebe4ce7d6f8d1e86191417fe578bae',
+      transactionIndex: 0,
+      logIndex: 6,
+      transactionLogIndex: 6,
+      logType: null,
+      removed: false,
+    },
+  ],
+  l2ToL1Logs: [
+    {
+      blockNumber:
+        78796022661380546701551694676929027283217048048233045390905312619491818049270n,
+      blockHash:
+        '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+      l1BatchNumber: 4n,
+      transactionIndex: 0n,
+      shardId: 0n,
+      isService: true,
+      sender: '0x0000000000000000000000000000000000008008',
+      key: '0x000000000000000000000000000000000000000000000000000000000000800a',
+      value:
+        '0x45dd73c9e5194b7eb37037beda4171fe761e85d4149a083acd48061ef1ea14ae',
+      transactionHash:
+        '0xd6f3a9ddeb34ed805b1d04c75e95651cc8ebe4ce7d6f8d1e86191417fe578bae',
+      logIndex: 0n,
+    },
+  ],
+  status: 'success',
+  root: '0xae34f7e70d90342688299d2db834c28863ddfd27e66f01be4c5dcd61dcf18ef6',
+  logsBloom:
+    '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+  type: 'eip1559',
+  effectiveGasPrice: 100000000n,
+}
 
+export const mockBlock = {
+  hash: '0xd2c6b75ab85605c61ca2de0cd7c670a53a6ccea6cf18e69701762d0c82754a10',
+  parentHash:
+    '0xe09bea35398b1fe0ba6bec1533ed3406e3c014c4f5a6a095475caa0a6a3e17bc',
+  sha3Uncles:
+    '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
+  miner: '0x0000000000000000000000000000000000000000',
+  stateRoot:
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+  transactionsRoot:
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+  receiptsRoot:
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+  number: 14n,
+  l1BatchNumber: 7n,
+  gasUsed: 0n,
+  gasLimit: 1125899906842624n,
+  baseFeePerGas: 100000000n,
+  extraData: '0x',
+  logsBloom:
+    '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+  timestamp: 1717510530n,
+  l1BatchTimestamp: 1717510529n,
+  difficulty: 0n,
+  totalDifficulty: 0n,
+  sealFields: [],
+  uncles: [],
+  transactions: [],
+  size: 0n,
+  mixHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  nonce: '0x0000000000000000',
+  blobGasUsed: undefined,
+  excessBlobGas: undefined,
+}
 export const mockRequestReturnData = async (method: string) => {
+  if (method === 'eth_getTransactionReceipt') return mockTransactionReceipt
+  if (method === 'eth_getBlockByHash') return mockBlock
+  if (method === 'eth_getBlockByNumber') return mockBlock
   if (method === 'zks_L1ChainId') return mockChainId
   if (method === 'zks_estimateFee') return mockFeeValues
   if (method === 'zks_getAllAccountBalances') return mockAccountBalances

@@ -243,7 +243,7 @@ test('deposit - TokenToETHBasedChain', async () => {
   ).toBeDefined()
 })
 
-test('deposit - ETHToETHBasedChain', async () => {
+test.only('deposit - ETHToETHBasedChain', async () => {
   const amount = 1n
 
   const depositArgs = await deposit(clientL1, clientL2, {

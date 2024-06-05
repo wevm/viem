@@ -28,7 +28,6 @@ export async function requestL2TransactionDirect<
   parameters: L2TransactionRequestDirectParameters,
 ): Promise<Hash> {
   return (await readContract(client, {
-    value: parameters.mintValue,
     abi: bridgehubAbi,
     functionName: 'requestL2TransactionDirect',
     address: parameters.bridgehubContractAddress,

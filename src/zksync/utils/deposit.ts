@@ -1,8 +1,8 @@
-import { isAddressEqualLite } from '~viem/utils/address/isAddressEqualLite.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
 import { getBaseTokenL1Address } from '../actions/getBaseTokenL1Address.js'
 import {
   ETH_ADDRESS_IN_CONTRACTS,
