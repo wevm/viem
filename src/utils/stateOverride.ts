@@ -21,9 +21,9 @@ import type { StateMapping, StateOverride } from '../types/stateOverride.js'
 import { isAddress } from './address/isAddress.js'
 import { type NumberToHexErrorType, numberToHex } from './encoding/toHex.js'
 
-export type SerializeStateMappingParameters = StateMapping | undefined
+type SerializeStateMappingParameters = StateMapping | undefined
 
-export type SerializeStateMappingErrorType = InvalidBytesLengthErrorType
+type SerializeStateMappingErrorType = InvalidBytesLengthErrorType
 
 /** @internal */
 export function serializeStateMapping(
@@ -48,12 +48,12 @@ export function serializeStateMapping(
   }, {} as RpcStateMapping)
 }
 
-export type SerializeAccountStateOverrideParameters = Omit<
+type SerializeAccountStateOverrideParameters = Omit<
   StateOverride[number],
   'address'
 >
 
-export type SerializeAccountStateOverrideErrorType =
+type SerializeAccountStateOverrideErrorType =
   | NumberToHexErrorType
   | StateAssignmentConflictErrorType
   | SerializeStateMappingErrorType
@@ -77,13 +77,14 @@ export function serializeAccountStateOverride(
   return rpcAccountStateOverride
 }
 
-export type SerializeStateOverrideParameters = StateOverride | undefined
+type SerializeStateOverrideParameters = StateOverride | undefined
 
 export type SerializeStateOverrideErrorType =
   | InvalidAddressErrorType
   | AccountStateConflictErrorType
   | SerializeAccountStateOverrideErrorType
 
+/** @internal */
 export function serializeStateOverride(
   parameters?: SerializeStateOverrideParameters,
 ): RpcStateOverride | undefined {

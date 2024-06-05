@@ -7,8 +7,8 @@ import {
   OffchainLookupError,
   type OffchainLookupErrorType as OffchainLookupErrorType_,
   OffchainLookupResponseMalformedError,
-  OffchainLookupSenderMismatchError,
   type OffchainLookupResponseMalformedErrorType,
+  OffchainLookupSenderMismatchError,
 } from '../errors/ccip.js'
 import {
   HttpRequestError,
