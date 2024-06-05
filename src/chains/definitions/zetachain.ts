@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const zetachain = /*#__PURE__*/defineChain({
   id: 7000,
   name: "ZetaChain Mainnet",
-  iconUrl: "https://s2.coinmarketcap.com/static/img/coins/64x64/21259.png",
   nativeCurrency: { name: "ZetaChain", symbol: "ZETA", decimals: 18 },
   rpcUrls: {
     default: { http: ["https://zetachain-evm.blockpi.network/v1/rpc/public"] },
