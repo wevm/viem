@@ -1,9 +1,9 @@
 import {
   NegativeOffsetError,
-  PositionOutOfBoundsError,
-  RecursiveReadLimitExceededError,
   type NegativeOffsetErrorType,
+  PositionOutOfBoundsError,
   type PositionOutOfBoundsErrorType,
+  RecursiveReadLimitExceededError,
   type RecursiveReadLimitExceededErrorType,
 } from '../errors/cursor.js'
 import type { ErrorType } from '../errors/utils.js'

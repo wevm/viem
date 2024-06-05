@@ -4,9 +4,9 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
+  type GetCacheErrorType,
   getCache,
   withCache,
-  type GetCacheErrorType,
 } from '../../utils/promise/withCache.js'
 
 export type GetBlockNumberParameters = {
