@@ -1,6 +1,8 @@
 import type { ErrorType } from '../../errors/utils.js'
 
+/** @internal */
 export const promiseCache = /*#__PURE__*/ new Map()
+/** @internal */
 export const responseCache = /*#__PURE__*/ new Map()
 
 export type GetCacheErrorType = ErrorType

@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
-import * as allChains from '../src/chains/index.js'
-import { withTimeout } from '../src/utils/promise/withTimeout.js'
-import { getHttpRpcClient } from '../src/utils/rpc/http.js'
-import { getWebSocketRpcClient } from '../src/utils/rpc/webSocket.js'
+import * as allChains from '../../src/chains/index.js'
+import { withTimeout } from '../../src/utils/promise/withTimeout.js'
+import { getHttpRpcClient } from '../../src/utils/rpc/http.js'
+import { getWebSocketRpcClient } from '../../src/utils/rpc/webSocket.js'
 
 const defaultTimeout = 10_000
 

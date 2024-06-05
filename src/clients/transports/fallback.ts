@@ -195,6 +195,7 @@ function shouldThrow(error: Error) {
   return false
 }
 
+/** @internal */
 export function rankTransports({
   chain,
   interval = 4_000,

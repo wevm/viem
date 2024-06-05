@@ -10,7 +10,7 @@ import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
 import { LruMap } from '../lru.js'
 import { type IsAddressErrorType, isAddress } from './isAddress.js'
 
-export const checksumAddressCache = /*#__PURE__*/ new LruMap<Address>(8192)
+const checksumAddressCache = /*#__PURE__*/ new LruMap<Address>(8192)
 
 export type ChecksumAddressErrorType =
   | Keccak256ErrorType

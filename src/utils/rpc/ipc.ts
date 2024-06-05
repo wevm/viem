@@ -15,6 +15,7 @@ export type GetIpcRpcClientOptions = Pick<
 const openingBrace = '{'.charCodeAt(0)
 const closingBrace = '}'.charCodeAt(0)
 
+/** @internal */
 export function extractMessages(buffer: Buffer): [Buffer[], Buffer] {
   const messages: Buffer[] = []
 

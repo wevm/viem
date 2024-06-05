@@ -1553,10 +1553,12 @@ export {
   hashMessage,
 } from './utils/signature/hashMessage.js'
 export {
+  type IsAddressOptions,
   type IsAddressErrorType,
   isAddress,
 } from './utils/address/isAddress.js'
 export {
+  type IsAddressEqualReturnType,
   type IsAddressEqualErrorType,
   isAddressEqual,
 } from './utils/address/isAddressEqual.js'

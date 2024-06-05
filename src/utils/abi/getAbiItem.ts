@@ -150,6 +150,7 @@ export function getAbiItem<
 
 export type IsArgOfTypeErrorType = IsAddressErrorType | ErrorType
 
+/** @internal */
 export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
   const argType = typeof arg
   const abiParameterType = abiParameter.type
@@ -207,6 +208,7 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
   }
 }
 
+/** @internal */
 export function getAmbiguousTypes(
   sourceParameters: readonly AbiParameter[],
   targetParameters: readonly AbiParameter[],

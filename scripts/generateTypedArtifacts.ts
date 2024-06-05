@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import { globby } from 'globby'
+import { Glob } from 'bun'
 
 const generatedPath = join(import.meta.dir, '../test/contracts/generated.ts')
 Bun.write(generatedPath, '')
@@ -7,17 +7,14 @@ Bun.write(generatedPath, '')
 const generated = Bun.file(generatedPath)
 const writer = generated.writer()
 
-const paths = await globby([
-  join(import.meta.dir, '../test/contracts/out/**/*.json'),
-])
-
 const fileNames = []
 
-for (const path of paths) {
-  const fileName = path.split('/').pop()?.replace('.json', '')
+const glob = new Glob('test/contracts/out/**/*.json')
+for await (const file of glob.scan('.')) {
+  const fileName = file.split('/').pop()?.replace('.json', '')
   if (fileNames.includes(fileName)) continue
 
-  const { abi, bytecode } = await Bun.file(path, {
+  const { abi, bytecode } = await Bun.file(file, {
     type: 'application/json',
   }).json()
   fileNames.push(fileName)

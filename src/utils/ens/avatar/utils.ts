@@ -35,6 +35,7 @@ const dataURIRegex = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/
 
 export type IsImageUriErrorType = ErrorType
 
+/** @internal */
 export async function isImageUri(uri: string) {
   try {
     const res = await fetch(uri, { method: 'HEAD' })
@@ -68,6 +69,7 @@ export async function isImageUri(uri: string) {
 
 export type GetGatewayErrorType = ErrorType
 
+/** @internal */
 export function getGateway(custom: string | undefined, defaultGateway: string) {
   if (!custom) return defaultGateway
   if (custom.endsWith('/')) return custom.slice(0, -1)

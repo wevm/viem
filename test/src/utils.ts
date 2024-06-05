@@ -1,6 +1,4 @@
 /* c8 ignore start */
-import type { Abi } from 'abitype'
-
 import { getTransactionReceipt } from '~viem/actions/public/getTransactionReceipt.js'
 import { impersonateAccount } from '~viem/actions/test/impersonateAccount.js'
 import { mine } from '~viem/actions/test/mine.js'
@@ -16,6 +14,7 @@ import { http } from '~viem/clients/transports/http.js'
 import { namehash } from '~viem/utils/ens/namehash.js'
 import type { TestClientMode } from '../../src/clients/createTestClient.js'
 import {
+  type Abi,
   type Account,
   type Chain,
   type TestClient,

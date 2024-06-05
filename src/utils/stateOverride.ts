@@ -25,6 +25,7 @@ export type SerializeStateMappingParameters = StateMapping | undefined
 
 export type SerializeStateMappingErrorType = InvalidBytesLengthErrorType
 
+/** @internal */
 export function serializeStateMapping(
   stateMapping: SerializeStateMappingParameters,
 ): RpcStateMapping | undefined {
@@ -57,6 +58,7 @@ export type SerializeAccountStateOverrideErrorType =
   | StateAssignmentConflictErrorType
   | SerializeStateMappingErrorType
 
+/** @internal */
 export function serializeAccountStateOverride(
   parameters: SerializeAccountStateOverrideParameters,
 ): RpcAccountStateOverride {

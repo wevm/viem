@@ -16,6 +16,7 @@ export type GetBlockNumberErrorType = RequestErrorType | ErrorType
 
 const cacheKey = (id: string) => `blockNumber.${id}`
 
+/** @internal */
 export function getBlockNumberCache(id: string) {
   return getCache(cacheKey(id))
 }

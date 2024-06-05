@@ -49,24 +49,6 @@ export function fromRlp<to extends To = 'hex'>(
   return result as FromRlpReturnType<to>
 }
 
-export type RlpToBytesErrorType = FromRlpErrorType | ErrorType
-
-export function rlpToBytes<to extends To = 'bytes'>(
-  bytes: ByteArray,
-  to: to | To | undefined = 'bytes',
-): FromRlpReturnType<to> {
-  return fromRlp(bytes, to)
-}
-
-export type RlpToHexErrorType = FromRlpErrorType | ErrorType
-
-export function rlpToHex<to extends To = 'hex'>(
-  hex: Hex,
-  to: to | To | undefined = 'hex',
-): FromRlpReturnType<to> {
-  return fromRlp(hex, to)
-}
-
 export type FromRlpCursorErrorType =
   | BytesToHexErrorType
   | ReadLengthErrorType
