@@ -1,4 +1,5 @@
 import type { Address } from '../../accounts/index.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { readContract } from '../../actions/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -8,7 +9,6 @@ import type { BaseError } from '../../errors/base.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import { parseAccount } from '../../utils/accounts.js'
 import { TokenIsEthError } from '../errors/token-is-eth.js'
 import { isEth } from '../utils/isEth.js'
 
