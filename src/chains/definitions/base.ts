@@ -22,6 +22,9 @@ export const base = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    entryPoint070: {
+      address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x56315b90c40730925ec5485cf004d835058518A0',

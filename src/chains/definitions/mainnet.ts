@@ -17,6 +17,9 @@ export const mainnet = /*#__PURE__*/ defineChain({
     },
   },
   contracts: {
+    entryPoint070: {
+      address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+    },
     ensRegistry: {
       address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
     },

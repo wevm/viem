@@ -1,5 +1,35 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
+  type GetSupportedEntryPointsErrorType,
+  type GetSupportedEntryPointsReturnType,
+  getSupportedEntryPoints,
+} from './erc4337/actions/getSupportedEntryPoints.js'
+export {
+  type BundlerClient,
+  type BundlerClientConfig,
+  type CreateBundlerClientErrorType,
+  createBundlerClient,
+} from './erc4337/clients/createBundlerClient.js'
+export {
+  type BundlerActions,
+  bundlerActions,
+} from './erc4337/clients/decorators/bundler.js'
+export type { BundlerRpcSchema } from './erc4337/types/eip1193.js'
+export type {
+  RpcEstimateUserOperationGasReturnType,
+  RpcGetUserOperationByHashReturnType,
+  RpcUserOperation,
+  RpcUserOperationReceipt,
+} from './erc4337/types/rpc.js'
+export type {
+  EstimateUserOperationGasReturnType,
+  GetUserOperationByHashReturnType,
+  PackedUserOperation,
+  UserOperation,
+  UserOperationReceipt,
+} from './erc4337/types/userOperation.js'
+
+export {
   type GetCapabilitiesParameters,
   type GetCapabilitiesErrorType,
   type GetCapabilitiesReturnType,

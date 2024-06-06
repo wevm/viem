@@ -28,6 +28,9 @@ export const holesky = /*#__PURE__*/ defineChain({
       address: '0xa6AC935D4971E3CD133b950aE053bECD16fE7f3b',
       blockCreated: 973484,
     },
+    entryPoint070: {
+      address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+    },
   },
   testnet: true,
 })

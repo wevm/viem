@@ -26,6 +26,9 @@ export const sepolia = /*#__PURE__*/ defineChain({
       address: '0xc8Af999e38273D658BE1b921b88A9Ddf005769cC',
       blockCreated: 5_317_080,
     },
+    entryPoint070: {
+      address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+    },
   },
   testnet: true,
 })

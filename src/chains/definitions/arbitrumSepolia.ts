@@ -21,6 +21,9 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
     },
   },
   contracts: {
+    entryPoint070: {
+      address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+    },
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 81930,

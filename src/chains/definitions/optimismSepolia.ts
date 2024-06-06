@@ -27,6 +27,9 @@ export const optimismSepolia = /*#__PURE__*/ defineChain({
         address: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
     },
+    entryPoint070: {
+      address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x90E9c4f8a994a250F6aEfd61CAFb4F2e895D458F',

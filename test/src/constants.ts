@@ -142,3 +142,6 @@ export const typedData = {
     },
   },
 } as const
+
+export const simpleAccountFactoryAddress =
+  '0x91E60e0613810449d098b0b5Ec8b51A0FE8c8985' as const
