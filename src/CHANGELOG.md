@@ -1,5 +1,13 @@
 # viem
 
+## 2.13.7
+
+### Patch Changes
+
+- [#2366](https://github.com/wevm/viem/pull/2366) [`561b03a5`](https://github.com/wevm/viem/commit/561b03a53955894f49e96f4af080588ac39657a0) Thanks [@fullstackninja864](https://github.com/fullstackninja864)! - Updated `nativeCurrency` for `defichainEvmTestnet` and `defichainEvm`.
+
+- [`a3a8b1b1`](https://github.com/wevm/viem/commit/a3a8b1b191466e77baeb7975f34f8ee4b3117a69) Thanks [@jxom](https://github.com/jxom)! - Exported `serializeTypedData`.
+
 ## 2.13.6
 
 ### Patch Changes

@@ -1632,7 +1632,9 @@ export {
 export {
   type DomainSeparatorErrorType,
   type GetTypesForEIP712DomainErrorType,
+  type SerializeTypedDataErrorType,
   type ValidateTypedDataErrorType,
+  serializeTypedData,
   validateTypedData,
   domainSeparator,
   getTypesForEIP712Domain,

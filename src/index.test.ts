@@ -392,6 +392,7 @@ test('exports', () => {
       "sliceHex",
       "stringify",
       "trim",
+      "serializeTypedData",
       "validateTypedData",
       "domainSeparator",
       "getTypesForEIP712Domain",
