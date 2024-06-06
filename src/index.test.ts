@@ -247,6 +247,7 @@ test('exports', () => {
       "UrlRequiredError",
       "AccountStateConflictError",
       "StateAssignmentConflictError",
+      "EIP1193ProviderRpcError",
       "labelhash",
       "namehash",
       "defineBlock",
