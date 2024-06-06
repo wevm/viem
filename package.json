@@ -14,6 +14,7 @@
     "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm version:update",
     "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
+    "deps": "pnpx taze -r",
     "docs:dev": "pnpm --filter site dev",
     "docs:build": "pnpm --filter site build",
     "lint": "biome check . --apply",
@@ -46,7 +47,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.3",
     "@arktype/attest": "0.7.5",
-    "@biomejs/biome": "^1.7.3",
+    "@biomejs/biome": "^1.8.0",
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.2",
     "@ethereumjs/rlp": "^5.0.0",
@@ -69,7 +70,9 @@
     "typescript": "5.4.5",
     "vitest": "^1.0.4"
   },
-  "trustedDependencies": ["c-kzg"],
+  "trustedDependencies": [
+    "c-kzg"
+  ],
   "packageManager": "pnpm@9.1.0",
   "engines": {
     "node": "22.x"
@@ -78,13 +81,32 @@
     "pre-commit": "pnpm lint"
   },
   "knip": {
-    "ignore": [".github/**", "environments/**", "vectors/**"],
-    "ignoreBinaries": ["dev", "forge", "only-allow", "printf"],
-    "ignoreDependencies": ["bun", "@size-limit/preset-big-lib"],
-    "ignoreWorkspaces": ["examples/**", "test"],
+    "ignore": [
+      ".github/**",
+      "environments/**",
+      "vectors/**"
+    ],
+    "ignoreBinaries": [
+      "dev",
+      "forge",
+      "only-allow",
+      "printf"
+    ],
+    "ignoreDependencies": [
+      "bun",
+      "@size-limit/preset-big-lib"
+    ],
+    "ignoreWorkspaces": [
+      "examples/**",
+      "test"
+    ],
     "vitest": {
-      "config": ["test/vitest.config.ts"],
-      "entry": ["**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"]
+      "config": [
+        "test/vitest.config.ts"
+      ],
+      "entry": [
+        "**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"
+      ]
     },
     "workspaces": {
       ".": {
@@ -96,10 +118,15 @@
           "{accounts,actions,celo,chains,ens,experimental,node,op-stack,siwe,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
-        "ignore": ["node/trustedSetups_cjs.ts"]
+        "ignore": [
+          "node/trustedSetups_cjs.ts"
+        ]
       },
       "site": {
-        "project": ["**/*.ts", "**/*.tsx"]
+        "project": [
+          "**/*.ts",
+          "**/*.tsx"
+        ]
       }
     }
   },
