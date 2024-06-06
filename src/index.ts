@@ -1178,6 +1178,7 @@ export {
 export {
   type GetAbiItemErrorType,
   type GetAbiItemParameters,
+  type GetAbiItemReturnType,
   getAbiItem,
 } from './utils/abi/getAbiItem.js'
 export {
@@ -1565,7 +1566,11 @@ export {
 export { type IsBytesErrorType, isBytes } from './utils/data/isBytes.js'
 export { type IsHashErrorType, isHash } from './utils/hash/isHash.js'
 export { type IsHexErrorType, isHex } from './utils/data/isHex.js'
-export { type Keccak256ErrorType, keccak256 } from './utils/hash/keccak256.js'
+export {
+  type Keccak256Hash,
+  type Keccak256ErrorType,
+  keccak256,
+} from './utils/hash/keccak256.js'
 export {
   type Sha256Hash,
   type Sha256ErrorType,

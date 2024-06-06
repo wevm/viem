@@ -26,6 +26,7 @@ import {
   getTypesForEIP712Domain,
   serializeTypedData,
   validateTypedData,
+  type SerializeTypedDataErrorType,
 } from '../../utils/typedData.js'
 
 export type SignTypedDataParameters<
@@ -48,6 +49,7 @@ export type SignTypedDataErrorType =
   | SignTypedDataErrorType_account
   | IsHexErrorType
   | RequestErrorType
+  | SerializeTypedDataErrorType
   | ErrorType
 
 /**

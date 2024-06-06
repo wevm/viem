@@ -152,7 +152,7 @@ export function getAbiItem<
   return abiItems[0] as GetAbiItemReturnType<abi, name, args>
 }
 
-export type IsArgOfTypeErrorType = IsAddressErrorType | ErrorType
+type IsArgOfTypeErrorType = IsAddressErrorType | ErrorType
 
 /** @internal */
 export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {

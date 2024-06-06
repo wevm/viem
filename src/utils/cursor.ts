@@ -44,23 +44,19 @@ export type Cursor = {
   _touch(): void
 }
 
-export type CreateCursorErrorType = StaticCursorErrorType | ErrorType
-
-export type CursorErrorType =
+type CursorErrorType =
   | CursorAssertPositionErrorType
   | CursorDecrementPositionErrorType
   | CursorIncrementPositionErrorType
   | ErrorType
 
-export type CursorAssertPositionErrorType =
-  | PositionOutOfBoundsErrorType
-  | ErrorType
+type CursorAssertPositionErrorType = PositionOutOfBoundsErrorType | ErrorType
 
-export type CursorDecrementPositionErrorType = NegativeOffsetError | ErrorType
+type CursorDecrementPositionErrorType = NegativeOffsetError | ErrorType
 
-export type CursorIncrementPositionErrorType = NegativeOffsetError | ErrorType
+type CursorIncrementPositionErrorType = NegativeOffsetError | ErrorType
 
-export type StaticCursorErrorType =
+type StaticCursorErrorType =
   | NegativeOffsetErrorType
   | RecursiveReadLimitExceededErrorType
 
@@ -224,6 +220,11 @@ const staticCursor: Cursor = {
 }
 
 type CursorConfig = { recursiveReadLimit?: number | undefined }
+
+export type CreateCursorErrorType =
+  | CursorErrorType
+  | StaticCursorErrorType
+  | ErrorType
 
 export function createCursor(
   bytes: ByteArray,

@@ -49,7 +49,7 @@ export function fromRlp<to extends To = 'hex'>(
   return result as FromRlpReturnType<to>
 }
 
-export type FromRlpCursorErrorType =
+type FromRlpCursorErrorType =
   | BytesToHexErrorType
   | ReadLengthErrorType
   | ReadListErrorType
@@ -79,7 +79,7 @@ function fromRlpCursor<to extends To = 'hex'>(
   return readList(cursor, length, to) as {} as FromRlpReturnType<to>
 }
 
-export type ReadLengthErrorType = BaseErrorType | ErrorType
+type ReadLengthErrorType = BaseErrorType | ErrorType
 
 function readLength(cursor: Cursor, prefix: number, offset: number) {
   if (offset === 0x80 && prefix < 0x80) return 1
@@ -91,7 +91,7 @@ function readLength(cursor: Cursor, prefix: number, offset: number) {
   throw new BaseError('Invalid RLP prefix')
 }
 
-export type ReadListErrorType = ErrorType
+type ReadListErrorType = ErrorType
 
 function readList<to extends To>(cursor: Cursor, length: number, to: to | To) {
   const position = cursor.position

@@ -33,7 +33,7 @@ const ipfsHashRegex =
 const base64Regex = /^data:([a-zA-Z\-/+]*);base64,([^"].*)/
 const dataURIRegex = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/
 
-export type IsImageUriErrorType = ErrorType
+type IsImageUriErrorType = ErrorType
 
 /** @internal */
 export async function isImageUri(uri: string) {
@@ -67,7 +67,7 @@ export async function isImageUri(uri: string) {
   }
 }
 
-export type GetGatewayErrorType = ErrorType
+type GetGatewayErrorType = ErrorType
 
 /** @internal */
 export function getGateway(custom: string | undefined, defaultGateway: string) {
