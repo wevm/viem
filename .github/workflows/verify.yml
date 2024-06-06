@@ -18,6 +18,9 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Lint repo
+        run: pnpm lint:repo
+
       - name: Lint code
         run: pnpm lint
       
@@ -46,6 +49,12 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Publint
+        run: pnpm test:build
+
+      - name: Check for unused files, dependencies, and exports
+        run: pnpm knip --production
 
   types:
     name: Types

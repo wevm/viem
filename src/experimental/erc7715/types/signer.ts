@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 import type { OneOf } from '../../../types/utils.js'
 
+/** @internal */
 export type AccountSigner = {
   type: 'account'
   data: {
@@ -8,6 +9,7 @@ export type AccountSigner = {
   }
 }
 
+/** @internal */
 export type KeySigner = {
   type: 'key'
   data: {
@@ -15,6 +17,7 @@ export type KeySigner = {
   }
 }
 
+/** @internal */
 export type MultiKeySigner = {
   type: 'keys'
   data: {

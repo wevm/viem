@@ -102,6 +102,7 @@ export function parseTransaction<
 }
 
 type ParseTransactionEIP4844ErrorType =
+  | ToTransactionArrayErrorType
   | AssertTransactionEIP4844ErrorType
   | ToTransactionArrayErrorType
   | HexToBigIntErrorType
@@ -204,6 +205,7 @@ function parseTransactionEIP4844(
 }
 
 type ParseTransactionEIP1559ErrorType =
+  | ToTransactionArrayErrorType
   | AssertTransactionEIP1559ErrorType
   | ToTransactionArrayErrorType
   | HexToBigIntErrorType
@@ -212,6 +214,7 @@ type ParseTransactionEIP1559ErrorType =
   | InvalidSerializedTransactionErrorType
   | IsHexErrorType
   | ParseEIP155SignatureErrorType
+  | ParseAccessListErrorType
   | ErrorType
 
 function parseTransactionEIP1559(
@@ -285,6 +288,7 @@ function parseTransactionEIP1559(
 }
 
 type ParseTransactionEIP2930ErrorType =
+  | ToTransactionArrayErrorType
   | AssertTransactionEIP2930ErrorType
   | ToTransactionArrayErrorType
   | HexToBigIntErrorType
@@ -293,6 +297,7 @@ type ParseTransactionEIP2930ErrorType =
   | InvalidSerializedTransactionErrorType
   | IsHexErrorType
   | ParseEIP155SignatureErrorType
+  | ParseAccessListErrorType
   | ErrorType
 
 function parseTransactionEIP2930(
@@ -430,13 +435,13 @@ function parseTransactionLegacy(
   return transaction
 }
 
-export type ToTransactionArrayErrorType = FromRlpErrorType | ErrorType
+type ToTransactionArrayErrorType = FromRlpErrorType | ErrorType
 
 export function toTransactionArray(serializedTransaction: string) {
   return fromRlp(`0x${serializedTransaction.slice(4)}` as Hex, 'hex')
 }
 
-export type ParseAccessListErrorType =
+type ParseAccessListErrorType =
   | InvalidAddressErrorType
   | IsAddressErrorType
   | ErrorType

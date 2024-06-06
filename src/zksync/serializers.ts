@@ -32,8 +32,7 @@ export const serializers = {
   transaction: serializeTransaction,
 } as const satisfies ChainSerializers
 
-export type SerializeTransactionEIP712ReturnType =
-  ZkSyncTransactionSerializedEIP712
+type SerializeTransactionEIP712ReturnType = ZkSyncTransactionSerializedEIP712
 
 function serializeTransactionEIP712(
   transaction: ZkSyncTransactionSerializableEIP712,

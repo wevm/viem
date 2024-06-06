@@ -15,7 +15,10 @@ import type {
 import type { TransactionReceipt } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
 import { portal2Abi, portalAbi } from '../abis.js'
-import { ReceiptContainsNoWithdrawalsError } from '../errors/withdrawal.js'
+import {
+  ReceiptContainsNoWithdrawalsError,
+  type ReceiptContainsNoWithdrawalsErrorType,
+} from '../errors/withdrawal.js'
 import type { TargetChain } from '../types/chain.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
@@ -67,11 +70,13 @@ export type GetWithdrawalStatusReturnType =
   | 'waiting-to-finalize'
   | 'ready-to-finalize'
   | 'finalized'
+
 export type GetWithdrawalStatusErrorType =
   | GetL2OutputErrorType
   | GetTimeToFinalizeErrorType
   | GetWithdrawalsErrorType
   | ReadContractErrorType
+  | ReceiptContainsNoWithdrawalsErrorType
   | ErrorType
 
 /**

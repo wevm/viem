@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
 import type { Hash } from './misc.js'
 
-export type AccountProof = Hash
+type AccountProof = Hash
 
-export type StorageProof<TQuantity = bigint> = {
+type StorageProof<TQuantity = bigint> = {
   key: Hash
   proof: Hash[]
   value: TQuantity

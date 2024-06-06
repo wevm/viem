@@ -3,7 +3,11 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
-import { getCache, withCache } from '../../utils/promise/withCache.js'
+import {
+  type GetCacheErrorType,
+  getCache,
+  withCache,
+} from '../../utils/promise/withCache.js'
 
 export type GetBlockNumberParameters = {
   /** Time (in ms) that cached block number will remain in memory. */
@@ -16,6 +20,10 @@ export type GetBlockNumberErrorType = RequestErrorType | ErrorType
 
 const cacheKey = (id: string) => `blockNumber.${id}`
 
+/** @internal */
+export type GetBlockNumberCacheErrorType = GetCacheErrorType | ErrorType
+
+/** @internal */
 export function getBlockNumberCache(id: string) {
   return getCache(cacheKey(id))
 }

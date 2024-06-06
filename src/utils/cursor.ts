@@ -1,7 +1,10 @@
 import {
   NegativeOffsetError,
+  type NegativeOffsetErrorType,
   PositionOutOfBoundsError,
+  type PositionOutOfBoundsErrorType,
   RecursiveReadLimitExceededError,
+  type RecursiveReadLimitExceededErrorType,
 } from '../errors/cursor.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { ByteArray } from '../types/misc.js'
@@ -41,19 +44,21 @@ export type Cursor = {
   _touch(): void
 }
 
-export type CreateCursorErrorType = ErrorType
-
-export type CursorErrorType =
+type CursorErrorType =
   | CursorAssertPositionErrorType
   | CursorDecrementPositionErrorType
   | CursorIncrementPositionErrorType
   | ErrorType
 
-export type CursorAssertPositionErrorType = PositionOutOfBoundsError | ErrorType
+type CursorAssertPositionErrorType = PositionOutOfBoundsErrorType | ErrorType
 
-export type CursorDecrementPositionErrorType = NegativeOffsetError | ErrorType
+type CursorDecrementPositionErrorType = NegativeOffsetError | ErrorType
 
-export type CursorIncrementPositionErrorType = NegativeOffsetError | ErrorType
+type CursorIncrementPositionErrorType = NegativeOffsetError | ErrorType
+
+type StaticCursorErrorType =
+  | NegativeOffsetErrorType
+  | RecursiveReadLimitExceededErrorType
 
 const staticCursor: Cursor = {
   bytes: new Uint8Array(),
@@ -215,6 +220,11 @@ const staticCursor: Cursor = {
 }
 
 type CursorConfig = { recursiveReadLimit?: number | undefined }
+
+export type CreateCursorErrorType =
+  | CursorErrorType
+  | StaticCursorErrorType
+  | ErrorType
 
 export function createCursor(
   bytes: ByteArray,

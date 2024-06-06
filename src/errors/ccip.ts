@@ -68,6 +68,7 @@ export class OffchainLookupResponseMalformedError extends BaseError {
   }
 }
 
+/** @internal */
 export type OffchainLookupSenderMismatchErrorType =
   OffchainLookupSenderMismatchError & {
     name: 'OffchainLookupSenderMismatchError'

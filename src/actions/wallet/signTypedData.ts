@@ -22,6 +22,7 @@ import type { IsHexErrorType } from '../../utils/data/isHex.js'
 import type { StringifyErrorType } from '../../utils/stringify.js'
 import {
   type GetTypesForEIP712DomainErrorType,
+  type SerializeTypedDataErrorType,
   type ValidateTypedDataErrorType,
   getTypesForEIP712Domain,
   serializeTypedData,
@@ -48,6 +49,7 @@ export type SignTypedDataErrorType =
   | SignTypedDataErrorType_account
   | IsHexErrorType
   | RequestErrorType
+  | SerializeTypedDataErrorType
   | ErrorType
 
 /**

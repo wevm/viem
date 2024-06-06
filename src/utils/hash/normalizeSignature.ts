@@ -1,8 +1,8 @@
 import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 
-export type NormalizeSignatureParameters = string
-export type NormalizeSignatureReturnType = string
+type NormalizeSignatureParameters = string
+type NormalizeSignatureReturnType = string
 export type NormalizeSignatureErrorType = ErrorType
 
 export function normalizeSignature(
