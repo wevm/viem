@@ -994,7 +994,7 @@ export type {
   EIP1193Provider,
   EIP1193RequestFn,
   EIP1474Methods,
-  ProviderRpcError as EIP1193ProviderRpcError,
+  ProviderRpcErrorType as EIP1193ProviderRpcErrorType,
   ProviderConnectInfo,
   ProviderMessage,
   PublicRpcSchema,
@@ -1014,6 +1014,7 @@ export type {
   WalletRpcSchema,
   WatchAssetParams,
 } from './types/eip1193.js'
+export { ProviderRpcError as EIP1193ProviderRpcError } from './types/eip1193.js'
 export type { BlobSidecar, BlobSidecars } from './types/eip4844.js'
 export type {
   FeeHistory,
@@ -1026,7 +1027,6 @@ export type {
 export type { Filter, FilterType } from './types/filter.js'
 export type { TypedDataDefinition } from './types/typedData.js'
 export type { GetTransportConfig, GetPollOptions } from './types/transport.js'
-export type { HDKey } from '@scure/bip32'
 export type { Log } from './types/log.js'
 export type {
   MulticallContracts,
@@ -1036,6 +1036,7 @@ export type {
 export type {
   ParseAccount,
   DeriveAccount,
+  HDKey,
 } from './types/account.js'
 export type {
   Index,

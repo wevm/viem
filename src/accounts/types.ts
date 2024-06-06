@@ -1,6 +1,6 @@
-import type { HDKey } from '@scure/bip32'
 import type { Address, TypedData } from 'abitype'
 
+import type { HDKey } from '../types/account.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
   TransactionSerializable,

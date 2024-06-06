@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
-import type { LocalAccount } from './account.js'
+
+import type { LocalAccount } from '../accounts/types.js'
 import type { ByteArray } from './misc.js'
 import type { TransactionRequestEIP4844 } from './transaction.js'
 import type { MaybeRequired } from './utils.js'
