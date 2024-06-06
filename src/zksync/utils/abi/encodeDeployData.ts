@@ -5,6 +5,7 @@ import {
   AbiConstructorNotFoundError,
   AbiConstructorParamsNotFoundError,
 } from '../../../errors/abi.js'
+import type { ErrorType } from '../../../errors/utils.js'
 import type { ContractConstructorArgs } from '../../../types/contract.js'
 import type { Hash } from '../../../types/misc.js'
 import type { Hex } from '../../../types/misc.js'
@@ -13,15 +14,19 @@ import type {
   EncodeDeployDataParameters as EncodeDeployDataParameters_,
   EncodeDeployDataReturnType,
 } from '../../../utils/abi/encodeDeployData.js'
-import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
+import {
+  type EncodeFunctionDataErrorType,
+  encodeFunctionData,
+} from '../../../utils/abi/encodeFunctionData.js'
 import { toHex } from '../../../utils/encoding/toHex.js'
 import { contractDeployerAbi } from '../../constants/abis.js'
 import { accountAbstractionVersion1 } from '../../constants/contract.js'
 import type { ContractDeploymentType } from '../../types/contract.js'
-import { hashBytecode } from '../hashBytecode.js'
+import { type HashBytecodeErrorType, hashBytecode } from '../hashBytecode.js'
 
 const docsPath = '/docs/contract/encodeDeployData'
 
+/** @internal */
 export type EncodeDeployDataParameters<
   abi extends Abi | readonly unknown[] = Abi,
   hasConstructor = abi extends Abi
@@ -36,6 +41,11 @@ export type EncodeDeployDataParameters<
   deploymentType?: ContractDeploymentType | undefined
   salt?: Hash | undefined
 }
+
+export type EncodeDeployDataErrorType =
+  | EncodeFunctionDataErrorType
+  | HashBytecodeErrorType
+  | ErrorType
 
 export function encodeDeployData<const abi extends Abi | readonly unknown[]>(
   parameters: EncodeDeployDataParameters<abi>,

@@ -14,9 +14,9 @@ import {
   checksumAddress,
 } from '../address/getAddress.js'
 import {
+  type CreateCursorErrorType,
   type Cursor,
   createCursor,
-  type CreateCursorErrorType,
 } from '../cursor.js'
 import { type SizeErrorType, size } from '../data/size.js'
 import { type SliceBytesErrorType, sliceBytes } from '../data/slice.js'

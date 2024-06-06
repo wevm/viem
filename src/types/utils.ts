@@ -159,6 +159,8 @@ export type NoInfer<type> = [type][type extends any ? 0 : never]
  * @example
  * NoUndefined<string | undefined>
  * => string
+ *
+ * @internal
  */
 export type NoUndefined<T> = T extends undefined ? never : T
 
@@ -190,8 +192,9 @@ export type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
 
-export type Evaluate<T> = {
-  [K in keyof T]: T[K]
+/** @internal */
+export type Evaluate<type> = {
+  [key in keyof type]: type[key]
 } & {}
 
 /**
@@ -226,6 +229,8 @@ export type Some<
  * @example
  * ValueOf<{ a: string, b: number }>
  * => string | number
+ *
+ * @internal
  */
 export type ValueOf<T> = T[keyof T]
 
@@ -286,7 +291,10 @@ type KeyofUnion<type> = type extends type ? keyof type : never
 ///////////////////////////////////////////////////////////////////////////
 // Loose types
 
-/** Loose version of {@link Omit} */
+/**
+ * Loose version of {@link Omit}
+ * @internal
+ */
 export type LooseOmit<type, keys extends string> = Pick<
   type,
   Exclude<keyof type, keys>
