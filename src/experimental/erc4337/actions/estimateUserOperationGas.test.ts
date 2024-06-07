@@ -9,6 +9,7 @@ import {
 } from '../../../../test/src/constants.js'
 import { mine, readContract, writeContract } from '../../../actions/index.js'
 import { encodeFunctionData } from '../../../utils/index.js'
+import { toCoinbaseAccount } from '../accounts/toContractAccount.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
 const ownerAddress = accounts[1].address
@@ -65,12 +66,10 @@ test('default', async () => {
 test('args: factory + factoryData', async () => {
   const salt = BigInt(Math.floor(Math.random() * 100))
 
-  const address = await readContract(client, {
-    abi: simpleAccountFactoryAbi,
-    address: simpleAccountFactoryAddress,
-    functionName: 'getAddress',
-    args: [ownerAddress, salt],
-  })
+  const account = await toCoinbaseAccount({
+    owners: [ownerAddress],
+    salt,
+  }).setup(client)
 
   const callData = encodeFunctionData({
     abi: parseAbi(['function execute(address, uint256, bytes)']),
@@ -83,7 +82,7 @@ test('args: factory + factoryData', async () => {
 
   expect(
     await estimateUserOperationGas(bundlerClient, {
-      account: address,
+      account: account.address,
       callData,
       factory: simpleAccountFactoryAddress,
       factoryData: encodeFunctionData({
