@@ -247,9 +247,7 @@ export type PublicActionsL1<
    *
    *
    */
-  getBaseToken: (
-    bridgehubContractAddress: GetBaseTokenParameters,
-  ) => Promise<Address>
+  getBaseToken: (parameters: GetBaseTokenParameters) => Promise<Address>
   /**
    * Returns the value from erc20 contract based on the function name.
    *
@@ -302,7 +300,7 @@ export type PublicActionsL1<
    *
    */
   getL2BridgeAddress: (
-    bridgeAdress: GetL2BridgeAddressParameters,
+    parameters: GetL2BridgeAddressParameters,
   ) => Promise<Address>
 
   /**

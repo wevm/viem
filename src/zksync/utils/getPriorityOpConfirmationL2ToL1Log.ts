@@ -5,7 +5,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
-import { BOOTLOADER_FORMAL_ADDRESS } from '../constants/number.js'
+import { bootloaderFormalAddress } from '../constants/address.js'
 import type { ZkSyncTransactionReceipt } from '../types/transaction.js'
 import type { GetPriorityOpConfirmationParameters } from './getPriorityOpConfirmation.js'
 
@@ -21,7 +21,7 @@ export async function getPriorityOpConfirmationL2ToL1Log<
   })) as ZkSyncTransactionReceipt
 
   const messages = Array.from(receipt.l2ToL1Logs.entries()).filter(([, log]) =>
-    isAddressEqualLite(log.sender as Address, BOOTLOADER_FORMAL_ADDRESS),
+    isAddressEqualLite(log.sender as Address, bootloaderFormalAddress),
   )
   const [l2ToL1LogIndex, l2ToL1Log] = messages[parameters.index]
 

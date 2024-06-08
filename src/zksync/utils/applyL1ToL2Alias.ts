@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 import { pad, toHex } from '../../utils/index.js'
-import { ADDRESS_MODULO, L1_TO_L2_ALIAS_OFFSET } from '../constants/number.js'
+import { l1ToL2AliasOffset } from '../constants/address.js'
+import { ADDRESS_MODULO } from '../constants/number.js'
 
 export type ApplyL1ToL2AliasParameters = {
   address: Address
@@ -13,8 +14,7 @@ export function applyL1ToL2Alias(
 ): ApplyL1ToL2AliasReturnType {
   return pad(
     toHex(
-      (BigInt(parameters.address) + BigInt(L1_TO_L2_ALIAS_OFFSET)) %
-        ADDRESS_MODULO,
+      (BigInt(parameters.address) + BigInt(l1ToL2AliasOffset)) % ADDRESS_MODULO,
     ),
     { size: 20 },
   )

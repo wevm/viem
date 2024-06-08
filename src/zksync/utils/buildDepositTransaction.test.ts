@@ -19,11 +19,11 @@ import { getBalanceL1 } from '../actions/getBalanceL1.js'
 import { getBaseTokenL1Address } from '../actions/getBaseTokenL1Address.js'
 import { getL1TokenBalance } from '../actions/getL1TokenBalance.js'
 import { l2TokenAddress } from '../actions/l2TokenAddress.js'
-import { ETH_ADDRESS_IN_CONTRACTS } from '../constants/number.js'
+import { ethAddressInContracts } from '../constants/address.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
 import { publicActionsL2 } from '../decorators/publicL2.js'
-import { getL2TransactionFromPriorityOp } from '../utils/getL2TransactionFromPriorityOp.js'
-import { deposit } from './deposit.js'
+import { deposit } from './buildDepositTransaction.js'
+import { getL2TransactionFromPriorityOp } from './getL2TransactionFromPriorityOp.js'
 import { getL2TokenAddress } from './l2TokenAddress.js'
 
 const account = privateKeyToAccount(
@@ -37,7 +37,7 @@ const clientL1Hyperchain = createClient({
 }).extend(publicActionsL1())
 
 const clientL3Hyperchain = createClient({
-  chain: zkSyncLocalHyperchainL3,
+  chain: zkSyncLocalHyperchain,
   transport: http(),
   account,
 }).extend(publicActionsL2())
@@ -99,7 +99,7 @@ test('deposit - BaseTokenToNonEthBasedChain', async () => {
   expect(l1BalanceBeforeDeposit - l1BalanceAfterDeposit >= 0n).to.be.true
 })
 
-test('deposit - NonBaseTokenOnNonETHBasedChain', async () => {
+test.only('deposit - NonBaseTokenOnNonETHBasedChain', async () => {
   const DAI_L1 = '0x70a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55' as Address
   const token = DAI_L1
   const amount = 5n
@@ -178,7 +178,7 @@ test('deposit - EthToNonEthBasedChain', async () => {
 
   const bridges = await clientL3Hyperchain.getDefaultBridgeAddresses()
   const l2EthAddress = await l2TokenAddress(clientL3Hyperchain, {
-    token: ETH_ADDRESS_IN_CONTRACTS,
+    token: ethAddressInContracts,
     sharedL2: bridges.sharedL2,
   })
 
@@ -243,7 +243,7 @@ test('deposit - TokenToETHBasedChain', async () => {
   ).toBeDefined()
 })
 
-test.only('deposit - ETHToETHBasedChain', async () => {
+test('deposit - ETHToETHBasedChain', async () => {
   const amount = 1n
 
   const depositArgs = await deposit(clientL1, clientL2, {

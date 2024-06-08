@@ -6,10 +6,10 @@ import type { Chain } from '../../types/chain.js'
 import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
 import { l2TokenAddress } from '../actions/l2TokenAddress.js'
 import {
-  ETH_ADDRESS_IN_CONTRACTS,
-  L2_BASE_TOKEN_ADDRESS,
-  LEGACY_ETH_ADDRESS,
-} from '../constants/number.js'
+  ethAddressInContracts,
+  l2BaseTokenAddress,
+  legacyEthAddress,
+} from '../constants/address.js'
 
 export type GetL2TokenAddressParameters = {
   token: Address
@@ -26,12 +26,12 @@ export async function getL2TokenAddress<
   clientL1: Client<Transport, TChain, TAccount>,
   parameters: GetL2TokenAddressParameters,
 ): Promise<GetL2TokenAddressReturnType> {
-  if (isAddressEqualLite(parameters.token, LEGACY_ETH_ADDRESS)) {
-    parameters.token = ETH_ADDRESS_IN_CONTRACTS
+  if (isAddressEqualLite(parameters.token, legacyEthAddress)) {
+    parameters.token = ethAddressInContracts
   }
 
   if (isAddressEqualLite(parameters.token, parameters.baseTokenAddress)) {
-    return L2_BASE_TOKEN_ADDRESS
+    return l2BaseTokenAddress
   }
 
   return await l2TokenAddress(clientL1, {

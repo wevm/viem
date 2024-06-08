@@ -5,7 +5,7 @@ import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
 import { getBaseTokenL1Address } from '../actions/getBaseTokenL1Address.js'
-import { L2_BASE_TOKEN_ADDRESS } from '../constants/number.js'
+import { l2BaseTokenAddress } from '../constants/address.js'
 
 export type IsBaseTokenParameters = {
   token: Address
@@ -24,6 +24,6 @@ export async function isBaseToken<
     isAddressEqualLite(
       parameters.token,
       await getBaseTokenL1Address(clientL2),
-    ) || isAddressEqualLite(parameters.token, L2_BASE_TOKEN_ADDRESS)
+    ) || isAddressEqualLite(parameters.token, l2BaseTokenAddress)
   )
 }

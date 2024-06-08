@@ -18,7 +18,7 @@ import { ETH_ADDRESS_IN_CONTRACTS } from '../constants/number.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
 import { publicActionsL2 } from '../decorators/publicL2.js'
 import { getL2TransactionFromPriorityOp } from '../utils/getL2TransactionFromPriorityOp.js'
-import { depositEthToNonEthBasedChain } from './depositEthToNonEthBasedChain.js'
+import { depositEthToNonEthBasedChain } from './buildDepositEthToNonEthBasedChainTransaction.js'
 
 const account = privateKeyToAccount(
   '0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110',

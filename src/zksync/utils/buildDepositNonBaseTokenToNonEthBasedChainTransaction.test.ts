@@ -17,7 +17,7 @@ import { getL1TokenBalance } from '../actions/getL1TokenBalance.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
 import { publicActionsL2 } from '../decorators/publicL2.js'
 import { getL2TransactionFromPriorityOp } from '../utils/getL2TransactionFromPriorityOp.js'
-import { depositNonBaseTokenToNonEthBasedChain } from './depositNonBaseTokenToNonEthBasedChain.js'
+import { depositNonBaseTokenToNonEthBasedChain } from './buildDepositNonBaseTokenToNonEthBasedChainTransaction.js'
 import { getL2TokenAddress } from './l2TokenAddress.js'
 
 const account = privateKeyToAccount(

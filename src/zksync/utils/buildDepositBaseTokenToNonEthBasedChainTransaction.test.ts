@@ -16,7 +16,7 @@ import { getBaseTokenL1Address } from '../actions/getBaseTokenL1Address.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
 import { publicActionsL2 } from '../decorators/publicL2.js'
 import { getL2TransactionFromPriorityOp } from '../utils/getL2TransactionFromPriorityOp.js'
-import { depositBaseTokenToNonEthBasedChain } from './depositBaseTokenToNonEthBasedChain.js'
+import { depositBaseTokenToNonEthBasedChain } from './buildDepositBaseTokenToNonEthBasedChainTransaction.js'
 
 const account = privateKeyToAccount(
   '0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110',

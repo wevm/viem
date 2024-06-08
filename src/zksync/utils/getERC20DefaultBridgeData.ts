@@ -8,9 +8,9 @@ import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
 import { encodeAbiParameters } from '../../utils/index.js'
 import { getErc20ContractValue } from '../actions/getErc20ContractValue.js'
 import {
-  ETH_ADDRESS_IN_CONTRACTS,
-  LEGACY_ETH_ADDRESS,
-} from '../constants/number.js'
+  ethAddressInContracts,
+  legacyEthAddress,
+} from '../constants/address.js'
 
 export async function getERC20DefaultBridgeData<
   TChain extends Chain | undefined,
@@ -21,25 +21,25 @@ export async function getERC20DefaultBridgeData<
 ): Promise<Hex> {
   let tokenAddress = l1TokenAddress
 
-  if (isAddressEqualLite(tokenAddress, LEGACY_ETH_ADDRESS)) {
-    tokenAddress = ETH_ADDRESS_IN_CONTRACTS
+  if (isAddressEqualLite(tokenAddress, legacyEthAddress)) {
+    tokenAddress = ethAddressInContracts
   }
 
-  const name = isAddressEqualLite(tokenAddress, ETH_ADDRESS_IN_CONTRACTS)
+  const name = isAddressEqualLite(tokenAddress, ethAddressInContracts)
     ? 'Ether'
     : await getErc20ContractValue(clientL1, {
         l1TokenAddress: tokenAddress,
         functionName: 'name',
       })
 
-  const symbol = isAddressEqualLite(tokenAddress, ETH_ADDRESS_IN_CONTRACTS)
+  const symbol = isAddressEqualLite(tokenAddress, ethAddressInContracts)
     ? 'ETH'
     : await getErc20ContractValue(clientL1, {
         l1TokenAddress: tokenAddress,
         functionName: 'symbol',
       })
 
-  const decimals = isAddressEqualLite(tokenAddress, ETH_ADDRESS_IN_CONTRACTS)
+  const decimals = isAddressEqualLite(tokenAddress, ethAddressInContracts)
     ? 18n
     : BigInt(
         await getErc20ContractValue(clientL1, {

@@ -8,9 +8,9 @@ import { createRandomAddress } from '../../utils/address/createRandomAddress.js'
 import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
 import { getDefaultBridgeAddresses } from '../actions/getDefaultBridgeAddresses.js'
 import {
-  ETH_ADDRESS_IN_CONTRACTS,
-  LEGACY_ETH_ADDRESS,
-} from '../constants/number.js'
+  ethAddressInContracts,
+  legacyEthAddress,
+} from '../constants/address.js'
 import { estimateCustomBridgeDepositL2Gas } from './estimateCustomBridgeDepositL2Gas.js'
 import { estimateL1ToL2Execute } from './estimateL1ToL2Execute.js'
 import { isBaseToken } from './isBaseToken.js'
@@ -50,8 +50,8 @@ export async function estimateDefaultBridgeDepositL2Gas<
   return await estimateCustomBridgeDepositL2Gas(clientL2, {
     l1BridgeAddress,
     l2BridgeAddress,
-    token: isAddressEqualLite(parameters.token, LEGACY_ETH_ADDRESS)
-      ? ETH_ADDRESS_IN_CONTRACTS
+    token: isAddressEqualLite(parameters.token, legacyEthAddress)
+      ? ethAddressInContracts
       : parameters.token,
     amount: parameters.amount,
     to: parameters.to,

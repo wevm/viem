@@ -8,10 +8,8 @@ import { isAddressEqualLite } from '../../utils/address/isAddressEqualLite.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import { getBaseToken } from '../actions/getBaseToken.js'
 import { bridgehubAbi } from '../constants/abis.js'
-import {
-  ETH_ADDRESS_IN_CONTRACTS,
-  REQUIRED_L1_TO_L2_GAS_PER_PUBDATA_LIMIT,
-} from '../constants/number.js'
+import { ethAddressInContracts } from '../constants/address.js'
+import { REQUIRED_L1_TO_L2_GAS_PER_PUBDATA_LIMIT } from '../constants/number.js'
 import { checkBaseCost } from './checkBaseCost.js'
 import { getBaseCost } from './getBaseCost.js'
 import type { DepositETHOnETHBasedChainTxReturnType } from './getDepositETHOnETHBasedChainTx.js'
@@ -42,7 +40,7 @@ export async function constructRequestL2TransactionDirectParameters<
       bridgehubContractAddress: parameters.bridgehubContractAddress,
       l2ChainId: parameters.l2ChainId,
     }),
-    ETH_ADDRESS_IN_CONTRACTS,
+    ethAddressInContracts,
   )
   const baseCost = await getBaseCost(clientL1, parameters)
 

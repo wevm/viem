@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import type { Hex } from '../../types/misc.js'
-import { ETH_ADDRESS_IN_CONTRACTS } from '../constants/number.js'
+import { ethAddressInContracts } from '../constants/address.js'
 import type {
   DepositTypeValues,
   SecondBridgeEncodeData,
@@ -38,7 +38,7 @@ export async function getDepositETHOnNonETHBasedChainTx(
     ...tx,
     secondBridgeEncodeData: {
       secondBridgeValue: parameters.amount,
-      token: ETH_ADDRESS_IN_CONTRACTS,
+      token: ethAddressInContracts,
       amount: 0n,
       to: to!,
     },
