@@ -64,6 +64,9 @@ export { getWebSocketRpcClient } from './rpc/webSocket.js'
 export { type StringifyErrorType, stringify } from './stringify.js'
 export {
   type DomainSeparatorErrorType,
+  type SerializeTypedDataErrorType,
+  type ValidateTypedDataErrorType,
+  serializeTypedData,
   validateTypedData,
 } from './typedData.js'
 export {

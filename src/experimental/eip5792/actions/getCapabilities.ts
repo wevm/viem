@@ -1,3 +1,4 @@
+import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
@@ -9,7 +10,6 @@ import type {
   WalletCapabilitiesRecord,
 } from '../../../types/eip1193.js'
 import type { Prettify } from '../../../types/utils.js'
-import { parseAccount } from '../../../utils/accounts.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 
 export type GetCapabilitiesParameters<

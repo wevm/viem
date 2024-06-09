@@ -22,8 +22,8 @@ jobs:
       - name: Set up foundry
         uses: foundry-rs/foundry-toolchain@v1
 
-      - name: Install dependencies
-        uses: wevm/actions/.github/actions/bun@main
+      - name: Set up pnpm
+        uses: wevm/actions/.github/actions/pnpm@main
 
       - name: Run tests
-        run: bun run test:chains
+        run: pnpm test:chains

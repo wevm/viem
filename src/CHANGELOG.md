@@ -1,5 +1,31 @@
 # viem
 
+## 2.13.7
+
+### Patch Changes
+
+- [#2366](https://github.com/wevm/viem/pull/2366) [`561b03a5`](https://github.com/wevm/viem/commit/561b03a53955894f49e96f4af080588ac39657a0) Thanks [@fullstackninja864](https://github.com/fullstackninja864)! - Updated `nativeCurrency` for `defichainEvmTestnet` and `defichainEvm`.
+
+- [`a3a8b1b1`](https://github.com/wevm/viem/commit/a3a8b1b191466e77baeb7975f34f8ee4b3117a69) Thanks [@jxom](https://github.com/jxom)! - Exported `serializeTypedData`.
+
+## 2.13.6
+
+### Patch Changes
+
+- [#2337](https://github.com/wevm/viem/pull/2337) [`8984eee7`](https://github.com/wevm/viem/commit/8984eee7f23d430070e42ac1f2645ced0e82faf8) Thanks [@jaeil-wiki](https://github.com/jaeil-wiki)! - Updated `createSiweMessage` `statement` construction to match ABNF Message Format.
+
+- [#2351](https://github.com/wevm/viem/pull/2351) [`48e6d50c`](https://github.com/wevm/viem/commit/48e6d50cae738e55869758cb25c52b2244069f09) Thanks [@agsola](https://github.com/agsola)! - Fixed `createSiweMessage` domain check to be RFC 3986 compliant.
+
+## 2.13.5
+
+### Patch Changes
+
+- [#2356](https://github.com/wevm/viem/pull/2356) [`e6678622b8be1d7b72abe2e1331d455fb4a9c11f`](https://github.com/wevm/viem/commit/e6678622b8be1d7b72abe2e1331d455fb4a9c11f) Thanks [@blascokoa](https://github.com/blascokoa)! - Added SatoshiVM chain
+
+- [#2361](https://github.com/wevm/viem/pull/2361) [`05c166e5cb2f5745ac48ba482fac14f4890f5c83`](https://github.com/wevm/viem/commit/05c166e5cb2f5745ac48ba482fac14f4890f5c83) Thanks [@tirogen](https://github.com/tirogen)! - Added Bitkub chain.
+
+- [`7aad10e2ed7d3ecf5a6c38cd326aa9ff8dead239`](https://github.com/wevm/viem/commit/7aad10e2ed7d3ecf5a6c38cd326aa9ff8dead239) Thanks [@jxom](https://github.com/jxom)! - Added optional chaining to error handling in `withTimeout`.
+
 ## 2.13.4
 
 ### Patch Changes

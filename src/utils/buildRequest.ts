@@ -190,6 +190,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
   }
 }
 
+/** @internal */
 export function shouldRetry(error: Error) {
   if ('code' in error && typeof error.code === 'number') {
     if (error.code === -1) return true // Unknown error

@@ -27,7 +27,6 @@ export function serializeTransaction(
 ) {
   if (isCIP64(transaction))
     return serializeTransactionCIP64(transaction, signature)
-
   return serializeTransaction_(transaction, signature)
 }
 

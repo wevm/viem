@@ -366,7 +366,7 @@ export type PublicRpcSchema = [
       | [
           transaction: TransactionRequest,
           block: BlockNumber | BlockTag,
-          RpcStateOverride,
+          stateOverride: RpcStateOverride,
         ]
     ReturnType: Quantity
   },
@@ -548,11 +548,11 @@ export type PublicRpcSchema = [
         | {
             fromBlock?: BlockNumber | BlockTag | undefined
             toBlock?: BlockNumber | BlockTag | undefined
-            blockHash?: never | undefined
+            blockHash?: undefined
           }
         | {
-            fromBlock?: never | undefined
-            toBlock?: never | undefined
+            fromBlock?: undefined
+            toBlock?: undefined
             blockHash?: Hash | undefined
           }
       ),
@@ -1237,7 +1237,7 @@ export type WalletRpcSchema = [
       | [
           transaction: TransactionRequest,
           block: BlockNumber | BlockTag,
-          RpcStateOverride,
+          stateOverride: RpcStateOverride,
         ]
     ReturnType: Quantity
   },
@@ -1508,7 +1508,7 @@ export type EIP1193Parameters<
             : never
         } & (TRpcSchema[K] extends TRpcSchema[number]
           ? TRpcSchema[K]['Parameters'] extends undefined
-            ? { params?: never | undefined }
+            ? { params?: undefined }
             : { params: TRpcSchema[K]['Parameters'] }
           : never)
       >

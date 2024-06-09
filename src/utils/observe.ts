@@ -6,10 +6,12 @@ type Callbacks = Record<string, Callback>
 
 export type ObserveErrorType = ErrorType
 
+/** @internal */
 export const listenersCache = /*#__PURE__*/ new Map<
   string,
   { id: number; fns: Callbacks }[]
 >()
+/** @internal */
 export const cleanupCache = /*#__PURE__*/ new Map<string, () => void>()
 
 type EmitFunction<TCallbacks extends Callbacks> = (

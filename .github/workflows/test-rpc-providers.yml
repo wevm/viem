@@ -24,14 +24,14 @@ jobs:
 
       - name: Build contracts
         shell: bash
-        run: bun run contracts:build
+        run: pnpm contracts:build
 
       - name: Run tests
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: bun run test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'sveltekit', 'tsc', 'vite']
+        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'tsc', 'vite']
         include:
           - type: bun
             runtime: bun
@@ -60,9 +60,6 @@ jobs:
             runtime: node
           - type: next
             runtime: next
-          - type: sveltekit
-            node-version: 18
-            runtime: sveltekit
           - type: tsc
             node-version: 20
             runtime: tsc
@@ -88,17 +85,17 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Playwright Browsers
-        if: ${{ matrix.runtime == 'next' || matrix.runtime == 'sveltekit' || matrix.runtime == 'vite' }}
-        run: npx playwright@1.40.1 install --with-deps
+        if: ${{ matrix.runtime == 'next' || matrix.runtime == 'vite' }}
+        run: pnpx playwright@1.40.1 install --with-deps
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Build
-        run: bun run build
+        run: pnpm build
 
       - name: Link
-        run: bun install
+        run: pnpm install
 
       - name: Run tests
-        run: bun run test:env:${{ matrix.runtime }}
+        run: pnpm test:env:${{ matrix.runtime }}

@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.13.4",
+  "version": "2.13.7",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -137,5 +137,5 @@
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"]
+  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3", "typescript"]
 }

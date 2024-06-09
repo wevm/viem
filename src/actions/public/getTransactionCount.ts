@@ -23,10 +23,10 @@ export type GetTransactionCountParameters = {
   | {
       /** The block number. */
       blockNumber?: bigint | undefined
-      blockTag?: never | undefined
+      blockTag?: undefined
     }
   | {
-      blockNumber?: never | undefined
+      blockNumber?: undefined
       /** The block tag. Defaults to 'latest'. */
       blockTag?: BlockTag | undefined
     }

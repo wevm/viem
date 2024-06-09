@@ -21,6 +21,48 @@ test('default', () => {
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
+
+    URI: https://example.com/path
+    Version: 1
+    Chain ID: 1
+    Nonce: foobarbaz
+    Issued At: 2023-02-01T00:00:00.000Z"
+  `)
+
+  vi.useRealTimers()
+})
+
+test('parameters: domain', () => {
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
+
+  expect(
+    createSiweMessage({
+      ...message,
+      domain: 'foo.example.com',
+    }),
+  ).toMatchInlineSnapshot(`
+    "foo.example.com wants you to sign in with your Ethereum account:
+    0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+    URI: https://example.com/path
+    Version: 1
+    Chain ID: 1
+    Nonce: foobarbaz
+    Issued At: 2023-02-01T00:00:00.000Z"
+  `)
+
+  expect(
+    createSiweMessage({
+      ...message,
+      domain: 'example.co.uk',
+    }),
+  ).toMatchInlineSnapshot(`
+    "example.co.uk wants you to sign in with your Ethereum account:
+    0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
     URI: https://example.com/path
     Version: 1
     Chain ID: 1
@@ -43,6 +85,7 @@ test('parameters: scheme', () => {
   ).toMatchInlineSnapshot(`
     "https://example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
 
     URI: https://example.com/path
     Version: 1
@@ -86,6 +129,7 @@ test('parameters: issuedAt', () => {
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
+
     URI: https://example.com/path
     Version: 1
     Chain ID: 1
@@ -106,6 +150,7 @@ test('parameters: expirationTime', () => {
   ).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
 
     URI: https://example.com/path
     Version: 1
@@ -131,6 +176,7 @@ test('parameters: notBefore', () => {
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
+
     URI: https://example.com/path
     Version: 1
     Chain ID: 1
@@ -154,6 +200,7 @@ test('parameters: requestId', () => {
   ).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
 
     URI: https://example.com/path
     Version: 1
@@ -182,6 +229,7 @@ test('parameters: resources', () => {
   ).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
 
     URI: https://example.com/path
     Version: 1

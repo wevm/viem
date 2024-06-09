@@ -25,6 +25,7 @@ test('exports utils', () => {
       "socketClientCache",
       "getWebSocketRpcClient",
       "stringify",
+      "serializeTypedData",
       "validateTypedData",
       "decodeAbiParameters",
       "decodeErrorResult",

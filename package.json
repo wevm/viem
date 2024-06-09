@@ -1,75 +1,192 @@
 {
-  "workspaces": ["examples/*", "environments/*", "site", "src", "test"],
   "private": true,
   "type": "module",
   "scripts": {
     "bench": "vitest bench",
-    "bench:ci": "CI=true vitest bench",
-    "build": "bun run clean && bun run build:cjs && bun run build:esm && bun run build:types",
-    "build:cjs": "bun run build:trustedSetups:start && tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && bun run build:trustedSetups:end",
-    "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
+    "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
+    "build:cjs": "pnpm build:trustedSetups:start && tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
+    "build:esm": "tsc --project ./tsconfig.build.json --module es2020 --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
     "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
     "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
-    "changeset": "changeset",
-    "changeset:prepublish": "bun run version:update && bun scripts/prepublishOnly.ts && bun run build",
-    "changeset:publish": "bun run changeset:prepublish && changeset publish",
-    "changeset:version": "changeset version && bun install --lockfile-only && bun version:update",
-    "clean": "rimraf src/_esm src/_cjs src/_types",
+    "changeset:prepublish": "pnpm version:update && bun scripts/prepublishOnly.ts && pnpm build",
+    "changeset:publish": "pnpm changeset:prepublish && changeset publish",
+    "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm version:update",
+    "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
-    "docs:dev": "cd site && bun run dev",
-    "docs:build": "cd site && bun run build",
-    "docs:preview": "cd site && bun run preview",
-    "lint": "biome check . --apply",
-    "postinstall": "git submodule update --init --recursive && bun run contracts:build",
-    "prepare": "bun x simple-git-hooks",
+    "deps": "pnpx taze -r",
+    "docs:dev": "pnpm --filter site dev",
+    "docs:build": "pnpm --filter site build",
+    "lint": "biome check --fix",
+    "lint:repo": "sherif",
+    "lint:unused": "pnpm clean && knip",
+    "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "pnpm simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
     "test": "vitest -c ./test/vitest.config.ts dev",
-    "test:chains": "vitest test/chains.test.ts",
-    "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1 --pool=forks",
+    "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
+    "test:chains": "vitest test/scripts/chains.test.ts",
+    "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1",
     "test:cov": "vitest dev -c ./test/vitest.config.ts --coverage",
-    "test:env": "bun run test:env:bun && bun run test:env:next && bun run test:env:node && bun run test:env:vite && bun run test:env:sveltekit",
-    "test:env:bun": "cd environments/bun && bun run test",
-    "test:env:next": "cd environments/next && bun run test",
-    "test:env:node": "cd environments/node && bun run test",
-    "test:env:sveltekit": "cd environments/sveltekit && bun run test",
-    "test:env:tsc": "cd environments/tsc && bun run test",
-    "test:env:vite": "cd environments/vite && bun run test",
+    "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",
+    "test:env:bun": "pnpm --filter test-bun test",
+    "test:env:next": "pnpm --filter test-next test",
+    "test:env:node": "pnpm --filter test-node test",
+    "test:env:tsc": "pnpm --filter test-tsc test",
+    "test:env:vite": "pnpm --filter test-vite test",
     "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest --typecheck.only -c ./test/vitest.config.ts",
     "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
-    "typebench": "tsx test/typebench.ts --benchPercentThreshold 10 --benchErrorOnThresholdExceeded",
+    "typebench": "tsx test/scripts/typebench.ts --benchPercentThreshold 10 --benchErrorOnThresholdExceeded",
     "typecheck": "tsc --noEmit",
     "vectors": "bun test vectors/**/*.test.ts",
     "vectors:generate": "bun vectors/generate.ts",
     "version:update": "bun scripts/updateVersion.ts"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.15.3",
     "@arktype/attest": "0.7.5",
-    "@biomejs/biome": "^1.7.3",
+    "@biomejs/biome": "^1.8.0",
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.2",
     "@ethereumjs/rlp": "^5.0.0",
     "@size-limit/preset-big-lib": "^11.1.2",
     "@types/bun": "^1.1.3",
-    "@types/fs-extra": "^9.0.13",
-    "@viem/anvil": "0.0.10",
+    "@types/node": "^20.14.0",
     "@vitest/coverage-v8": "^1.0.4",
     "@vitest/ui": "^1.0.4",
+    "bun": "^1.1.12",
     "c-kzg": "^2.1.2",
     "ethers": "^6.0.2",
-    "fs-extra": "^10.1.0",
-    "globby": "^13.2.2",
-    "rimraf": "^4.4.1",
+    "glob": "^10.4.1",
+    "knip": "^5.17.4",
+    "prool": "^0.0.9",
+    "publint": "^0.2.8",
+    "sherif": "^0.8.4",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^11.1.2",
     "tsx": "^4.11.0",
-    "typescript": "5.4.2",
-    "vite": "^5.0.7",
+    "typescript": "5.4.5",
     "vitest": "^1.0.4"
   },
   "trustedDependencies": ["c-kzg"],
+  "packageManager": "pnpm@9.1.0",
+  "engines": {
+    "node": "22.x"
+  },
   "simple-git-hooks": {
-    "pre-commit": "bun run lint"
-  }
+    "pre-commit": "pnpm lint"
+  },
+  "knip": {
+    "ignore": [".github/**", "environments/**", "vectors/**"],
+    "ignoreBinaries": ["dev", "forge", "only-allow", "printf"],
+    "ignoreDependencies": ["bun", "@size-limit/preset-big-lib"],
+    "ignoreWorkspaces": ["examples/**", "test"],
+    "vitest": {
+      "config": ["test/vitest.config.ts"],
+      "entry": ["**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"]
+    },
+    "workspaces": {
+      ".": {
+        "project": "scripts/*.ts"
+      },
+      "src": {
+        "entry": [
+          "index.ts!",
+          "{accounts,actions,celo,chains,ens,experimental,node,op-stack,siwe,utils,window,zksync}/index.ts!",
+          "chains/utils.ts!"
+        ],
+        "ignore": ["node/trustedSetups_cjs.ts"]
+      },
+      "site": {
+        "project": ["**/*.ts", "**/*.tsx"]
+      }
+    }
+  },
+  "size-limit": [
+    {
+      "name": "viem (esm)",
+      "path": "./src/_esm/index.js",
+      "limit": "59.1 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem (cjs)",
+      "path": "./src/_cjs/index.js",
+      "limit": "78 kB"
+    },
+    {
+      "name": "viem (minimal surface - tree-shaking)",
+      "path": "./src/_esm/index.js",
+      "limit": "4.1 kB",
+      "import": "{ createClient, http }"
+    },
+    {
+      "name": "viem/accounts",
+      "path": "./src/_esm/accounts/index.js",
+      "limit": "92 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/accounts (tree-shaking)",
+      "path": "./src/_esm/accounts/index.js",
+      "limit": "20 kB",
+      "import": "{ privateKeyToAccount }"
+    },
+    {
+      "name": "viem/actions",
+      "path": "./src/_esm/ens/index.js",
+      "limit": "45 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/actions (tree-shaking)",
+      "path": "./src/_esm/actions/index.js",
+      "limit": "1 kB",
+      "import": "{ getBlockNumber }"
+    },
+    {
+      "name": "viem/chains",
+      "path": "./src/_esm/chains/index.js",
+      "limit": "30 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/chains (tree-shaking)",
+      "path": "./src/_esm/chains/index.js",
+      "limit": "500 B",
+      "import": "{ mainnet }"
+    },
+    {
+      "name": "viem/chains/utils",
+      "path": "./src/_esm/chains/utils.js",
+      "limit": "8 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/ens",
+      "path": "./src/_esm/ens/index.js",
+      "limit": "45 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/ens (tree-shaking)",
+      "path": "./src/_esm/ens/index.js",
+      "limit": "19 kB",
+      "import": "{ getEnsAvatar }"
+    },
+    {
+      "name": "viem/siwe",
+      "path": "./src/_esm/siwe/index.js",
+      "limit": "28 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/siwe (tree-shaking)",
+      "path": "./src/_esm/siwe/index.js",
+      "limit": "27 kB",
+      "import": "{ verifySiweMessage }"
+    }
+  ]
 }

@@ -25,10 +25,10 @@ export type GetProofParameters = {
   | {
       /** The block number. */
       blockNumber?: bigint | undefined
-      blockTag?: never | undefined
+      blockTag?: undefined
     }
   | {
-      blockNumber?: never | undefined
+      blockNumber?: undefined
       /**
        * The block tag.
        * @default 'latest'

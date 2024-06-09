@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 
 import type { OneOf } from '../../../types/utils.js'
 
+/** @internal */
 export type NativeTokenLimitPermission<amount = bigint> = {
   type: 'native-token-limit'
   data: {
@@ -9,6 +10,7 @@ export type NativeTokenLimitPermission<amount = bigint> = {
   }
 }
 
+/** @internal */
 export type Erc20LimitPermission<amount = bigint> = {
   type: 'erc20-limit'
   data: {
@@ -17,6 +19,7 @@ export type Erc20LimitPermission<amount = bigint> = {
   }
 }
 
+/** @internal */
 export type GasLimitPermission<amount = bigint> = {
   type: 'gas-limit'
   data: {
@@ -24,11 +27,13 @@ export type GasLimitPermission<amount = bigint> = {
   }
 }
 
+/** @internal */
 export type ContractCallPermission = {
   type: 'contract-call'
   data: unknown
 }
 
+/** @internal */
 export type RateLimitPermission = {
   type: 'rate-limit'
   data: {

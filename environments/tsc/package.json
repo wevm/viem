@@ -6,7 +6,7 @@
     "test": "tsc --module commonjs --verbatimModuleSyntax false && tsc --module es2015 && tsc --module es2020 && tsc --module esnext && tsc --module node16 --moduleResolution nodenext && tsc --module nodenext --moduleResolution nodenext"
   },
   "dependencies": {
-    "viem": "file:../../src/",
-    "typescript": "latest"
+    "typescript": "latest",
+    "viem": "file:../../src/"
   }
 }

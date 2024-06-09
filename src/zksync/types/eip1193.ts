@@ -22,32 +22,38 @@ export type CommonDataRawBlockTransaction = {
 
 export type RawBlockTransactions = {
   common_data: {
-    L1?: {
-      serialId: number
-      deadlineBlock: number
-      layer2TipFee: Hex
-      fullFee: Hex
-      opProcessingType: string
-      priorityQueueType: string
-    } & CommonDataRawBlockTransaction
-    L2?: {
-      nonce: number
-      fee: ZkSyncFee<Hex>
-      initiatorAddress: Address
-      signature: Uint8Array
-      transactionType: string
-      input?: {
-        hash: Hash
-        data: Uint8Array
-      }
-      paymasterParams: {
-        paymaster: Address
-        paymasterInput: Uint8Array
-      }
-    }
-    ProtocolUpgrade?: {
-      upgradeId: string
-    } & CommonDataRawBlockTransaction
+    L1?:
+      | ({
+          serialId: number
+          deadlineBlock: number
+          layer2TipFee: Hex
+          fullFee: Hex
+          opProcessingType: string
+          priorityQueueType: string
+        } & CommonDataRawBlockTransaction)
+      | undefined
+    L2?:
+      | {
+          nonce: number
+          fee: ZkSyncFee<Hex>
+          initiatorAddress: Address
+          signature: Uint8Array
+          transactionType: string
+          input?: {
+            hash: Hash
+            data: Uint8Array
+          }
+          paymasterParams: {
+            paymaster: Address
+            paymasterInput: Uint8Array
+          }
+        }
+      | undefined
+    ProtocolUpgrade?:
+      | ({
+          upgradeId: string
+        } & CommonDataRawBlockTransaction)
+      | undefined
   }
   execute: {
     calldata: Hash

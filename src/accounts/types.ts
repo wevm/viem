@@ -1,6 +1,6 @@
-import type { HDKey } from '@scure/bip32'
 import type { Address, TypedData } from 'abitype'
 
+import type { HDKey } from '../types/account.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
   TransactionSerializable,
@@ -73,12 +73,12 @@ export type HDOptions =
       addressIndex?: number | undefined
       /** The change index to use in the path (`"m/44'/60'/0'/${changeIndex}/0"`). */
       changeIndex?: number | undefined
-      path?: never | undefined
+      path?: undefined
     }
   | {
-      accountIndex?: never | undefined
-      addressIndex?: never | undefined
-      changeIndex?: never | undefined
+      accountIndex?: undefined
+      addressIndex?: undefined
+      changeIndex?: undefined
       /** The HD path. */
       path: `m/44'/60'/${string}`
     }

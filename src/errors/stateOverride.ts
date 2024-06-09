@@ -23,6 +23,7 @@ export class StateAssignmentConflictError extends BaseError {
   }
 }
 
+/** @internal */
 export function prettyStateMapping(stateMapping: StateMapping) {
   return stateMapping.reduce((pretty, { slot, value }) => {
     return `${pretty}        ${slot}: ${value}\n`

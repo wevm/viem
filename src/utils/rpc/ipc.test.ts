@@ -1,4 +1,4 @@
-import { createAnvil } from '@viem/anvil'
+import { anvil } from 'prool/instances'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
@@ -14,7 +14,7 @@ const client = createClient({
   transport: http('http://127.0.0.1:6968'),
 }).extend(() => ({ mode: 'anvil' }))
 
-const anvil = createAnvil({
+const instance = anvil({
   port: 6968,
   ipc: anvilMainnet.rpcUrl.ipc,
   forkBlockNumber: anvilMainnet.forkBlockNumber,
@@ -22,11 +22,11 @@ const anvil = createAnvil({
 })
 
 beforeAll(async () => {
-  await anvil.start()
+  await instance.start()
 })
 
 afterAll(async () => {
-  await anvil.stop()
+  await instance.stop()
 })
 
 describe('getIpcRpcClient', () => {

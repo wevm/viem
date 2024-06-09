@@ -1,6 +1,5 @@
-import { parseAbiParameters } from 'abitype'
-
 import { sign } from '~viem/accounts/utils/sign.js'
+import { parseAbiParameters } from '~viem/index.js'
 import type { Hex } from '~viem/types/misc.js'
 import { decodeAbiParameters } from '~viem/utils/abi/decodeAbiParameters.js'
 import { encodeAbiParameters } from '~viem/utils/abi/encodeAbiParameters.js'
