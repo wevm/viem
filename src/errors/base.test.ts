@@ -75,6 +75,23 @@ test('BaseError (w/ docsPath)', () => {
   `)
 })
 
+test('BaseError (w/ docsBaseUrl)', () => {
+  expect(
+    new BaseError('An error occurred.', {
+      docsBaseUrl: 'https://test',
+      details: 'details',
+      docsPath: '/lol',
+      docsSlug: 'test',
+    }),
+  ).toMatchInlineSnapshot(`
+    [ViemError: An error occurred.
+
+    Docs: https://test/lol#test
+    Details: details
+    Version: viem@1.0.2]
+  `)
+})
+
 test('BaseError (w/ metaMessages)', () => {
   expect(
     new BaseError('An error occurred.', {
@@ -85,7 +102,7 @@ test('BaseError (w/ metaMessages)', () => {
     [ViemError: An error occurred.
 
     Reason: idk
-    Cause: lol
+      Cause: lol
 
     Details: details
     Version: viem@1.0.2]
@@ -103,7 +120,7 @@ test('inherited BaseError', () => {
     }),
   ).toMatchInlineSnapshot(`
     [ViemError: An internal error occurred.
-
+    
     Docs: https://viem.sh/lol
     Details: details
     Version: viem@1.0.2]
@@ -119,7 +136,7 @@ test('inherited Error', () => {
     }),
   ).toMatchInlineSnapshot(`
     [ViemError: An internal error occurred.
-
+    
     Docs: https://viem.sh/lol
     Details: details
     Version: viem@1.0.2]
