@@ -1347,6 +1347,15 @@ export const sidebar = {
         ],
       },
       {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Deposits',
+            link: '/zksync/guides/deposits',
+          },
+        ],
+      },
+      {
         text: 'EIP-712 Actions',
         items: [
           {
@@ -1580,6 +1589,19 @@ export const sidebar = {
               {
                 text: 'getGeneralPaymasterInput',
                 link: '/zksync/utilities/paymaster/getGeneralPaymasterInput',
+              },
+            ],
+          },
+          {
+            text: 'Deposit',
+            items: [
+              {
+                text: 'buildDepositTransaction',
+                link: '/zksync/utilities/deposit/buildDepositTransaction',
+              },
+              {
+                text: 'getL2TransactionFromPriorityOp',
+                link: '/zksync/utilities/deposit/getL2TransactionFromPriorityOp',
               },
             ],
           },

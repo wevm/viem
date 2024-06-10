@@ -219,4 +219,15 @@ export {
 export {
   type GetL2GasLimitParameters,
   getL2GasLimit,
-} from './utils/getL2GasLimit.js'
+} from './utils/deposit/getL2GasLimit.js'
+
+export {
+  type DepositParameters,
+  type DepositReturnType,
+  deposit,
+} from './utils/deposit/buildDepositTransaction.js'
+
+export {
+  type GetL2TransactionFromPriorityOpParameters,
+  getL2TransactionFromPriorityOp,
+} from './utils/deposit/getL2TransactionFromPriorityOp.js'

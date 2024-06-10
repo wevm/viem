@@ -6,6 +6,13 @@ The following zkSync chains are supported in Viem:
 import {
   zkSync, // [!code hl]
   zkSyncSepoliaTestnet, // [!code hl]
+  zkSyncInMemoryNode, // [!code hl]
+  zkSyncLocalHyperchainL1, // [!code hl]
+  zkSyncLocalHyperchainL2, // [!code hl]
+  zkSyncLocalHyperchainL3, // [!code hl]
+  zkSyncLocalNodeL1, // [!code hl]
+  zkSyncLocalNode, // [!code hl]
+
 } from 'viem/chains'
 ```
 
