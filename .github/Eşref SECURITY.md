@@ -1,4 +1,4 @@
-# Security Policy
+# Security Policy politika akışı saglamak
 
 ## Supported Versions
 
