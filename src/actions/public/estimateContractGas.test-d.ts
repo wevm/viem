@@ -1,6 +1,6 @@
 import { test } from 'vitest'
 
-import { wagmiContractConfig } from '~test/src/abis.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
@@ -129,5 +129,33 @@ test('eip2930', () => {
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
     type: 'eip2930',
+  })
+})
+
+test('args: value', () => {
+  // payable function
+  estimateContractGas(clientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'mintApe',
+    args: [69n],
+    value: 5n,
+  })
+
+  // payable function (undefined)
+  estimateContractGas(clientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'mintApe',
+    args: [69n],
+  })
+
+  // nonpayable function
+  estimateContractGas(clientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'approve',
+    // @ts-expect-error
+    value: 5n,
   })
 })

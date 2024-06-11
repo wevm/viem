@@ -1838,7 +1838,7 @@ export function publicActions<
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
     multicall: (args) => multicall(client, args),
     prepareTransactionRequest: (args) =>
-      prepareTransactionRequest(client as any, args as any),
+      prepareTransactionRequest(client as any, args as any) as any,
     readContract: (args) => readContract(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
     simulateContract: (args) => simulateContract(client, args),

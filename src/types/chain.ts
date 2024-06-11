@@ -180,9 +180,9 @@ export type ChainEstimateFeesPerGasFnParameters<
 export type ExtractChainFormatterExclude<
   chain extends Chain | undefined,
   type extends keyof ChainFormatters,
-> = chain extends { formatters?: infer _Formatters extends ChainFormatters }
-  ? _Formatters[type] extends { exclude: infer Exclude }
-    ? Extract<Exclude, string[]>[number]
+> = chain extends { formatters?: infer formatters extends ChainFormatters }
+  ? formatters[type] extends { exclude: infer exclude }
+    ? Extract<exclude, string[]>[number]
     : ''
   : ''
 
@@ -190,9 +190,9 @@ export type ExtractChainFormatterParameters<
   chain extends Chain | undefined,
   type extends keyof ChainFormatters,
   fallback,
-> = chain extends { formatters?: infer _Formatters extends ChainFormatters }
-  ? _Formatters[type] extends ChainFormatter
-    ? Parameters<_Formatters[type]['format']>[0]
+> = chain extends { formatters?: infer formatters extends ChainFormatters }
+  ? formatters[type] extends ChainFormatter
+    ? Parameters<formatters[type]['format']>[0]
     : fallback
   : fallback
 
