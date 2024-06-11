@@ -352,7 +352,7 @@ describe('eip1559', () => {
         - Address must be a hex value of 20 bytes (40 hex characters).
         - Address must match its checksum counterpart.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -373,7 +373,7 @@ describe('eip1559', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidStorageKeySizeError: Size for storage key "0x00000000000000000000000000000000000000000000000000000000000001" is invalid. Expected 32 bytes. Got 31 bytes.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -575,7 +575,7 @@ describe('eip2930', () => {
         - Address must be a hex value of 20 bytes (40 hex characters).
         - Address must match its checksum counterpart.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -595,7 +595,7 @@ describe('eip2930', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidStorageKeySizeError: Size for storage key "0x0000000000000000000000000000000000000000000000000000000000001" is invalid. Expected 32 bytes. Got 30 bytes.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -776,7 +776,7 @@ describe('legacy', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidLegacyVError: Invalid \`v\` value "29". Expected 27 or 28.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -802,7 +802,7 @@ test('cannot infer type from transaction object', () => {
     - an EIP-4844 Transaction with \`blobs\`, \`blobVersionedHashes\`, \`sidecars\`, or
     - a Legacy Transaction with \`gasPrice\`
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

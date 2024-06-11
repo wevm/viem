@@ -6,7 +6,7 @@ test('BaseError', () => {
   expect(new BaseError('An error occurred.')).toMatchInlineSnapshot(`
     [ViemError: An error occurred.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(
@@ -15,14 +15,14 @@ test('BaseError', () => {
     [ViemError: An error occurred.
 
     Details: details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(new BaseError('', { details: 'details' })).toMatchInlineSnapshot(`
     [ViemError: An error occurred.
 
     Details: details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -37,7 +37,7 @@ test('BaseError (w/ docsPath)', () => {
 
     Docs: https://viem.sh/lol
     Details: details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(
     new BaseError('An error occurred.', {
@@ -47,7 +47,7 @@ test('BaseError (w/ docsPath)', () => {
     [ViemError: An error occurred.
 
     Docs: https://viem.sh/docs
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(
     new BaseError('An error occurred.', {
@@ -58,7 +58,7 @@ test('BaseError (w/ docsPath)', () => {
     [ViemError: An error occurred.
 
     Docs: https://viem.sh/lol
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(
     new BaseError('An error occurred.', {
@@ -71,7 +71,7 @@ test('BaseError (w/ docsPath)', () => {
 
     Docs: https://viem.sh/lol#test
     Details: details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -88,7 +88,7 @@ test('BaseError (w/ metaMessages)', () => {
     Cause: lol
 
     Details: details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -106,7 +106,7 @@ test('inherited BaseError', () => {
 
     Docs: https://viem.sh/lol
     Details: details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -122,7 +122,7 @@ test('inherited Error', () => {
 
     Docs: https://viem.sh/lol
     Details: details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -136,7 +136,7 @@ test('walk: no predicate fn (walks to leaf)', () => {
   expect(err.walk()).toMatchInlineSnapshot(`
     [ViemError: test3
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -150,7 +150,7 @@ test('walk: predicate fn', () => {
   expect(err.walk((err) => err instanceof FooError)).toMatchInlineSnapshot(`
     [ViemError: test2
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

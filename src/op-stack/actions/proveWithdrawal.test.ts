@@ -148,6 +148,6 @@ test('error: small gas', async () => {
       gas:    69
 
     Details: intrinsic gas too low
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

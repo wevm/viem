@@ -136,7 +136,7 @@ test('errors: rpc error', async () => {
     Request body: {"method":"eth_wagmi"}
 
     Details: data did not match any variant of untagged enum EthRpcCall
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

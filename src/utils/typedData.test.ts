@@ -202,7 +202,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "-1" is not in safe 8-bit unsigned integer range (0 to 255)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -235,7 +235,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -268,7 +268,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "-129" is not in safe 8-bit signed integer range (-128 to 127)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -304,7 +304,7 @@ describe('validateTypedData', () => {
       - Address must be a hex value of 20 bytes (40 hex characters).
       - Address must match its checksum counterpart.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -337,7 +337,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [BytesSizeMismatchError: Expected bytes32, got bytes20.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -383,7 +383,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "-1n" is not in safe 256-bit unsigned integer range (0n to 115792089237316195423570985008687907853269984665640564039457584007913129639935n)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -432,7 +432,7 @@ describe('validateTypedData', () => {
       - Address must be a hex value of 20 bytes (40 hex characters).
       - Address must match its checksum counterpart.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 

@@ -192,7 +192,7 @@ test('zero data', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [AbiDecodingZeroDataError: Cannot decode zero data ("0x") with ABI parameters.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -214,6 +214,6 @@ test("errors: error doesn't exist", () => {
     You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xa3741467.
 
     Docs: https://viem.sh/docs/contract/decodeErrorResult
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

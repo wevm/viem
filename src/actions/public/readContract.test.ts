@@ -164,7 +164,7 @@ describe('bayc', () => {
         args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 5)
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -185,7 +185,7 @@ describe('bayc', () => {
         args:             (420213123123)
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -209,7 +209,7 @@ describe('contract errors', () => {
         function:  revertRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -231,7 +231,7 @@ describe('contract errors', () => {
         function:  assertRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -253,7 +253,7 @@ describe('contract errors', () => {
         function:  overflowRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -275,7 +275,7 @@ describe('contract errors', () => {
         function:  divideByZeroRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -296,7 +296,7 @@ describe('contract errors', () => {
         function:  requireRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -320,7 +320,7 @@ describe('contract errors', () => {
         function:  simpleCustomRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -343,7 +343,7 @@ describe('contract errors', () => {
         function:  simpleCustomReadNoArgs()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -367,7 +367,7 @@ describe('contract errors', () => {
         function:  complexCustomRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -397,7 +397,7 @@ describe('contract errors', () => {
         function:  simpleCustomRead()
 
       Docs: https://viem.sh/docs/contract/decodeErrorResult
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -422,6 +422,6 @@ test('fake contract address', async () => {
       function:  totalSupply()
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

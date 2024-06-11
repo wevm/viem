@@ -109,7 +109,7 @@ test('error: non-withdrawal tx', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ReceiptContainsNoWithdrawalsError: The provided transaction receipt with hash "0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023" contains no withdrawals.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -140,7 +140,7 @@ test('error: portal contract non-existent (old block)', async () => {
       function:  version()
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

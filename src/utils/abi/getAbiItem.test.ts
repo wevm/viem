@@ -520,7 +520,7 @@ test('overloads: ambiguious types', () => {
     These types encode differently and cannot be distinguished at runtime.
     Remove one of the ambiguous items in the ABI.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -542,7 +542,7 @@ test('overloads: ambiguious types', () => {
     These types encode differently and cannot be distinguished at runtime.
     Remove one of the ambiguous items in the ABI.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(
@@ -614,7 +614,7 @@ test('overloads: ambiguious types', () => {
     These types encode differently and cannot be distinguished at runtime.
     Remove one of the ambiguous items in the ABI.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -632,7 +632,7 @@ test('overloads: ambiguious types', () => {
     These types encode differently and cannot be distinguished at runtime.
     Remove one of the ambiguous items in the ABI.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -653,7 +653,7 @@ test('overloads: ambiguious types', () => {
     These types encode differently and cannot be distinguished at runtime.
     Remove one of the ambiguous items in the ABI.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

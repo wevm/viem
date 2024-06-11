@@ -327,7 +327,7 @@ describe('resolveAvatarUri()', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarUriResolutionError: Unable to resolve ENS avatar URI "invalid". The URI may be malformed, invalid, or does not respond with a valid image.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -337,7 +337,7 @@ describe('resolveAvatarUri()', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarUriResolutionError: Unable to resolve ENS avatar URI "". The URI may be malformed, invalid, or does not respond with a valid image.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -365,7 +365,7 @@ describe('getJsonImage', () => {
 
       Provided data: {"other":"test"}
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -378,7 +378,7 @@ describe('getJsonImage', () => {
 
       Provided data: "test"
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -570,7 +570,7 @@ describe('getNftTokenUri', () => {
       `
       [EnsAvatarUnsupportedNamespaceError: ENS NFT avatar namespace "erc1" is not supported. Must be "erc721" or "erc1155".
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })

@@ -468,6 +468,6 @@ test('no account', async () => {
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
 
     Docs: https://viem.sh/docs/actions/wallet/signTypedData#account
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

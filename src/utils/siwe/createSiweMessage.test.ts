@@ -254,7 +254,7 @@ test('behavior: invalid address', () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -269,7 +269,7 @@ test('behavior: invalid chainId', () => {
 
     Provided value: 1.1
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -284,7 +284,7 @@ test('behavior: invalid domain', () => {
 
     Provided value: #foo
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -299,7 +299,7 @@ test('behavior: invalid nonce', () => {
 
     Provided value: #foo
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -314,7 +314,7 @@ test('behavior: invalid uri', () => {
 
     Provided value: #foo
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -329,7 +329,7 @@ test('behavior: invalid version', () => {
 
     Provided value: 2
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -344,7 +344,7 @@ test('behavior: invalid scheme', () => {
 
     Provided value: foo_bar
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -359,7 +359,7 @@ test('behavior: invalid statement', () => {
     Provided value: foo
     bar
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -377,7 +377,7 @@ test('behavior: invalid resources', () => {
 
     Provided value: foo
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

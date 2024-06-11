@@ -151,7 +151,7 @@ describe('should throw an error for invalid cip42 transactions', () => {
       Serialized Transaction: "0x7cc0"
       Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, gatewayFeeRecipient, gatewayFee, value, data, accessList
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -164,7 +164,7 @@ describe('should throw an error for invalid cip42 transactions', () => {
       Serialized Transaction: "0x7cc20001"
       Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, gatewayFeeRecipient, gatewayFee, value, data, accessList
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -193,7 +193,7 @@ describe('should throw an error for invalid cip42 transactions', () => {
       Serialized Transaction: "0x7ccd80808080808080808080808080"
       Missing Attributes: r, s
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -327,7 +327,7 @@ describe('should throw an error for invalid cip64 transactions', () => {
       Serialized Transaction: "0x7bc0"
       Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, feeCurrency
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -340,7 +340,7 @@ describe('should throw an error for invalid cip64 transactions', () => {
       Serialized Transaction: "0x7bc20001"
       Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, feeCurrency
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -367,7 +367,7 @@ describe('should throw an error for invalid cip64 transactions', () => {
       Serialized Transaction: "0x7bcb8080808080808080808080"
       Missing Attributes: r, s
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
