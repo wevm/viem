@@ -8,7 +8,7 @@ import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { IsUndefined } from '../../types/utils.js'
-import { parseAccount } from '../../utils/accounts.js'
+import { parseAccount } from '../../utils/index.js'
 import { legacyEthAddress } from '../constants/address.js'
 import { isEth } from '../utils/isEth.js'
 import {

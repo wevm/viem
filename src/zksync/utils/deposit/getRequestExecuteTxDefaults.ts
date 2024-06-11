@@ -1,3 +1,4 @@
+import { estimateFeesPerGas } from '~viem/actions/index.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
@@ -29,10 +30,10 @@ export async function getRequestExecuteTxDefaults<
   tx.gasPerPubdataByte ??= REQUIRED_L1_TO_L2_GAS_PER_PUBDATA_LIMIT
   tx.refundRecipient ??= clientL2.account.address
   tx.l2GasLimit = await estimateL1ToL2Execute(clientL2, parameters)
-  // TODO:
-  // https://github.com/wevm/viem/discussions/239
-  tx.overrides!.maxFeePerGas = 150000000100n
-  tx.overrides!.maxPriorityFeePerGas = 150000000000n
+  
+  const fees = await estimateFeesPerGas(clientL2);
 
+  tx.overrides.maxFeePerGas = fees.maxFeePerGas;
+  tx.overrides.maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
   return tx
 }

@@ -8,7 +8,7 @@ import type { BaseError } from '../../errors/base.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import { parseAccount } from '../../utils/accounts.js'
+import { parseAccount } from '../../utils/index.js'
 
 export type AllowanceL1Parameters<
   TAccount extends Account | undefined = Account | undefined,

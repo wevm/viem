@@ -11,6 +11,7 @@ import type {
   Overrides,
 } from '../../types/deposit.js'
 import { getL2GasLimit } from './getL2GasLimit.js'
+import { estimateFeesPerGas } from '~viem/actions/index.js'
 
 export type GetDepositTxWithDefaultsParameters = Omit<
   DepositTransactionExtended,
@@ -45,10 +46,10 @@ export async function getDepositTxWithDefaults<
     depositTransaction: tx,
     erc20DefaultBridgeData: parameters.eRC20DefaultBridgeData,
   })
-  // TODO:
-  // https://github.com/wevm/viem/discussions/239
-  tx.overrides.maxFeePerGas = 150000000100n
-  tx.overrides.maxPriorityFeePerGas = 150000000000n
+  const fees = await estimateFeesPerGas(clientL2);
+
+  tx.overrides.maxFeePerGas = fees.maxFeePerGas;
+  tx.overrides.maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
 
   return tx
 }
