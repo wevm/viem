@@ -41,7 +41,7 @@ export type EstimateFinalizeWithdrawalGasParameters<
   GetChainParameter<chain, chainOverride> &
   GetContractAddressParameter<_derivedChain, 'portal'> & {
     /** Gas limit for transaction execution on the L2. */
-    gas?: bigint | null | undefined
+    gas?: bigint | undefined
     withdrawal: Withdrawal
   }
 export type EstimateFinalizeWithdrawalGasReturnType = bigint
@@ -103,16 +103,23 @@ export async function estimateFinalizeWithdrawalGas<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  return estimateContractGas(client, {
+  const params = {
     account,
     abi: portalAbi,
     address: portalAddress,
-    chain,
     functionName: 'finalizeWithdrawalTransaction',
     args: [withdrawal],
     gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-  } as EstimateContractGasParameters)
+    // TODO: Not sure `chain` is necessary since it's not used downstream
+    // in `estimateContractGas` or `estimateGas`
+    // @ts-ignore
+    chain,
+  } satisfies EstimateContractGasParameters<
+    typeof portalAbi,
+    'finalizeWithdrawalTransaction'
+  >
+  return estimateContractGas(client, params as any)
 }
