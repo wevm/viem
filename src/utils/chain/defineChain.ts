@@ -3,7 +3,7 @@ import type { Assign, Prettify } from '../../types/utils.js'
 
 export function defineChain<
   formatters extends ChainFormatters,
-  chain extends Chain<formatters>,
+  const chain extends Chain<formatters>,
 >(chain: chain): Prettify<Assign<Chain<undefined>, chain>> {
   return {
     formatters: undefined,
