@@ -1,1 +1,1 @@
-import 'bun-types'
+import '@types/bun'

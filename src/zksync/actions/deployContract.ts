@@ -10,7 +10,10 @@ import type { Hash, Hex } from '../../types/misc.js'
 import { contractDeployerAddress } from '../constants/address.js'
 import type { ChainEIP712 } from '../types/chain.js'
 import type { ContractDeploymentType } from '../types/contract.js'
-import { encodeDeployData } from '../utils/abi/encodeDeployData.js'
+import {
+  type EncodeDeployDataErrorType,
+  encodeDeployData,
+} from '../utils/abi/encodeDeployData.js'
 import {
   type SendEip712TransactionErrorType,
   type SendEip712TransactionParameters,
@@ -32,7 +35,10 @@ export type DeployContractParameters<
 
 export type DeployContractReturnType = SendEip712TransactionReturnType
 
-export type DeployContractErrorType = SendEip712TransactionErrorType | ErrorType
+export type DeployContractErrorType =
+  | EncodeDeployDataErrorType
+  | SendEip712TransactionErrorType
+  | ErrorType
 
 /**
  * Deploys a contract to the network, given bytecode and constructor arguments using EIP712 transaction.

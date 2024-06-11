@@ -28,6 +28,7 @@ export function isPresent(
   return !isEmpty(value)
 }
 
+/** @internal */
 export function isEIP1559(
   transaction: CeloTransactionSerializable | CeloTransactionRequest,
 ): boolean {

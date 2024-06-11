@@ -45,7 +45,7 @@ export type GetLogsParameters<
 } & (
   | {
       event: TAbiEvent
-      events?: never | undefined
+      events?: undefined
       args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName> | undefined
       /**
        * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
@@ -54,9 +54,9 @@ export type GetLogsParameters<
       strict?: TStrict | undefined
     }
   | {
-      event?: never | undefined
+      event?: undefined
       events: TAbiEvents
-      args?: never | undefined
+      args?: undefined
       /**
        * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
        * @default false
@@ -64,10 +64,10 @@ export type GetLogsParameters<
       strict?: TStrict | undefined
     }
   | {
-      event?: never | undefined
-      events?: never | undefined
-      args?: never | undefined
-      strict?: never | undefined
+      event?: undefined
+      events?: undefined
+      args?: undefined
+      strict?: undefined
     }
 ) &
   (
@@ -76,11 +76,11 @@ export type GetLogsParameters<
         fromBlock?: TFromBlock | BlockNumber | BlockTag | undefined
         /** Block number or tag before which to include logs */
         toBlock?: TToBlock | BlockNumber | BlockTag | undefined
-        blockHash?: never | undefined
+        blockHash?: undefined
       }
     | {
-        fromBlock?: never | undefined
-        toBlock?: never | undefined
+        fromBlock?: undefined
+        toBlock?: undefined
         /** Hash of block to include logs from */
         blockHash?: Hash | undefined
       }

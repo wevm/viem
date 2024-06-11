@@ -156,6 +156,7 @@ export async function buildProveWithdrawal<
   >
 }
 
+/** @internal */
 export function maybeAddProofNode(key: string, proof: readonly Hex[]) {
   const lastProofRlp = proof[proof.length - 1]
   const lastProof = fromRlp(lastProofRlp)

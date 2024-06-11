@@ -1,4 +1,5 @@
-import { type CreateAnvilOptions, startProxy } from '@viem/anvil'
+import { createServer } from 'prool'
+import { type AnvilParameters, anvil } from 'prool/instances'
 import {
   mainnet,
   optimism,
@@ -82,7 +83,7 @@ function getEnv(key: string, fallback: string): string {
 }
 
 type DefineAnvilParameters<chain extends Chain> = Omit<
-  CreateAnvilOptions,
+  AnvilParameters,
   'forkBlockNumber' | 'forkUrl'
 > & {
   chain: chain
@@ -123,16 +124,20 @@ type DefineAnvilReturnType<chain extends Chain> = {
     ipc: string
     ws: string
   }
+  restart(): Promise<void>
   start(): Promise<() => Promise<void>>
 }
 
-function defineAnvil<const chain extends Chain>({
-  chain: chain_,
-  forkUrl,
-  forkBlockNumber,
-  port,
-  ...options
-}: DefineAnvilParameters<chain>): DefineAnvilReturnType<chain> {
+function defineAnvil<const chain extends Chain>(
+  parameters: DefineAnvilParameters<chain>,
+): DefineAnvilReturnType<chain> {
+  const {
+    chain: chain_,
+    forkUrl,
+    forkBlockNumber,
+    port,
+    ...options
+  } = parameters
   const rpcUrl = {
     http: `http://127.0.0.1:${port}/${poolId}`,
     ipc: `/tmp/anvil-${poolId}.ipc`,
@@ -233,17 +238,18 @@ function defineAnvil<const chain extends Chain>({
       ).extend(() => ({ mode: 'anvil' })) as never
     },
     rpcUrl,
+    async restart() {
+      await fetch(`${rpcUrl.http}/restart`)
+    },
     async start() {
-      return await startProxy({
-        port,
-        options: {
-          timeout: 60_000,
+      return await createServer({
+        instance: anvil({
           forkUrl,
           forkBlockNumber,
-          startTimeout: 20_000,
           ...options,
-        },
-      })
+        }),
+        port,
+      }).start()
     },
   } as const
 }

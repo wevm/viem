@@ -1,8 +1,7 @@
-import type { HDKey } from '@scure/bip32'
-
 import { type ToHexErrorType, toHex } from '../utils/encoding/toHex.js'
 
 import type { ErrorType } from '../errors/utils.js'
+import type { HDKey } from '../types/account.js'
 import {
   type PrivateKeyToAccountErrorType,
   privateKeyToAccount,

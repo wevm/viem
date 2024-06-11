@@ -14,6 +14,7 @@ export const sei = /*#__PURE__*/ defineChain({
     default: {
       name: 'Seitrace',
       url: 'https://seitrace.com',
+      apiUrl: 'https://seitrace.com/pacific-1/api',
     },
   },
   contracts: {

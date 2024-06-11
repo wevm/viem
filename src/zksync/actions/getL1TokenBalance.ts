@@ -1,15 +1,18 @@
 import type { Address } from '../../accounts/index.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { readContract } from '../../actions/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
-import type { AccountNotFoundError } from '../../errors/account.js'
-import type { BaseError } from '../../errors/base.js'
+import type { AccountNotFoundErrorType } from '../../errors/account.js'
+import type { BaseErrorType } from '../../errors/base.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import { parseAccount } from '../../utils/accounts.js'
-import { TokenIsEthError } from '../errors/token-is-eth.js'
+import {
+  TokenIsEthError,
+  type TokenIsEthErrorType,
+} from '../errors/token-is-eth.js'
 import { isEth } from '../utils/isEth.js'
 
 export type GetL1TokenBalanceParameters<
@@ -18,10 +21,10 @@ export type GetL1TokenBalanceParameters<
     | {
         /** The balance of the account at a block number. */
         blockNumber?: bigint | undefined
-        blockTag?: never | undefined
+        blockTag?: undefined
       }
     | {
-        blockNumber?: never | undefined
+        blockNumber?: undefined
         /** The balance of the account at a block tag. */
         blockTag?: BlockTag | undefined
       }
@@ -30,9 +33,9 @@ export type GetL1TokenBalanceParameters<
 export type GetL1TokenBalanceReturnType = bigint
 
 export type GetL1TokenBalanceErrorType =
-  | AccountNotFoundError
-  | BaseError
-  | TokenIsEthError
+  | AccountNotFoundErrorType
+  | TokenIsEthErrorType
+  | BaseErrorType
 
 export async function getL1TokenBalance<
   TChain extends Chain | undefined,

@@ -57,6 +57,11 @@ export type IsNarrowable<T, U> = IsNever<
  */
 export type IsNever<T> = [T] extends [never] ? true : false
 
+/** Removes `readonly` from all properties of an object. */
+export type Mutable<type extends object> = {
+  -readonly [key in keyof type]: type[key]
+}
+
 /**
  * @description Returns type {@link T} if it is an opaque type of {@link U}
  * @param T - Type to check
@@ -154,9 +159,12 @@ export type NoInfer<type> = [type][type extends any ? 0 : never]
  * @example
  * NoUndefined<string | undefined>
  * => string
+ *
+ * @internal
  */
 export type NoUndefined<T> = T extends undefined ? never : T
 
+/** Strict version of built-in Omit type */
 export type Omit<type, keys extends keyof type> = Pick<
   type,
   Exclude<keyof type, keys>
@@ -184,6 +192,11 @@ export type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
 
+/** @internal */
+export type Evaluate<type> = {
+  [key in keyof type]: type[key]
+} & {}
+
 /**
  * @description Creates a type that is T with the required keys K.
  *
@@ -201,12 +214,12 @@ export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
  * Some<[1, 2, 3], 2>
  * => true
  */
-export type Some<array extends unknown[], value> = array extends [
+export type Some<
+  array extends readonly unknown[],
   value,
-  ...unknown[],
-]
+> = array extends readonly [value, ...unknown[]]
   ? true
-  : array extends [unknown, ...infer rest]
+  : array extends readonly [unknown, ...infer rest]
     ? Some<rest, value>
     : false
 
@@ -216,6 +229,8 @@ export type Some<array extends unknown[], value> = array extends [
  * @example
  * ValueOf<{ a: string, b: number }>
  * => string | number
+ *
+ * @internal
  */
 export type ValueOf<T> = T[keyof T]
 
@@ -276,7 +291,10 @@ type KeyofUnion<type> = type extends type ? keyof type : never
 ///////////////////////////////////////////////////////////////////////////
 // Loose types
 
-/** Loose version of {@link Omit} */
+/**
+ * Loose version of {@link Omit}
+ * @internal
+ */
 export type LooseOmit<type, keys extends string> = Pick<
   type,
   Exclude<keyof type, keys>

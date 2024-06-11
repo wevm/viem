@@ -35,7 +35,7 @@ jobs:
         with:
           commit: 'chore: version package'
           title: 'chore: version package'
-          version: bun run changeset:version
+          version: pnpm changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -62,12 +62,10 @@ jobs:
         uses: changesets/action@v1
         with:
           createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
-          publish: bun run changeset:publish
+          publish: pnpm changeset:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # https://docs.npmjs.com/generating-provenance-statements
-          NPM_CONFIG_PROVENANCE: true
 
       - name: Publish Prerelease
         if: steps.changesets.outputs.published != 'true'
@@ -75,15 +73,13 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # https://docs.npmjs.com/generating-provenance-statements
-          NPM_CONFIG_PROVENANCE: true
         run: |
           npm config set "//registry.npmjs.org/:_authToken" "$NPM_TOKEN"
           git reset --hard origin/main
-          bun run clean
-          bun run changeset version --no-git-tag --snapshot canary
-          bun run changeset:prepublish
-          bun run changeset publish --no-git-tag --snapshot canary --tag canary
+          pnpm clean
+          pnpm changeset version --no-git-tag --snapshot canary
+          pnpm changeset:prepublish
+          pnpm changeset publish --no-git-tag --snapshot canary --tag canary
 
   jsr:
     name: JSR
@@ -102,4 +98,4 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Publish to JSR
-        run: bun ./scripts/updateVersion.ts && cd src && bunx jsr publish --allow-slow-types --allow-dirty
+        run: pnpm version:update && cd src && pnpx jsr publish --allow-slow-types --allow-dirty

@@ -19,18 +19,18 @@ export type GetBlockTransactionCountParameters =
   | {
       /** Hash of the block. */
       blockHash?: Hash | undefined
-      blockNumber?: never | undefined
-      blockTag?: never | undefined
+      blockNumber?: undefined
+      blockTag?: undefined
     }
   | {
-      blockHash?: never | undefined
+      blockHash?: undefined
       /** The block number. */
       blockNumber?: bigint | undefined
-      blockTag?: never | undefined
+      blockTag?: undefined
     }
   | {
-      blockHash?: never | undefined
-      blockNumber?: never | undefined
+      blockHash?: undefined
+      blockNumber?: undefined
       /** The block tag. Defaults to 'latest'. */
       blockTag?: BlockTag | undefined
     }

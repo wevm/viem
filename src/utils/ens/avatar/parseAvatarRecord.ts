@@ -49,7 +49,7 @@ export async function parseAvatarRecord<TChain extends Chain | undefined>(
   return parseAvatarUri({ uri: record, gatewayUrls })
 }
 
-export type ParseNftAvatarUriErrorType =
+type ParseNftAvatarUriErrorType =
   | ParseNftUriErrorType
   | GetNftTokenUriErrorType
   | ResolveAvatarUriErrorType

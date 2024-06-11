@@ -994,7 +994,7 @@ export type {
   EIP1193Provider,
   EIP1193RequestFn,
   EIP1474Methods,
-  ProviderRpcError as EIP1193ProviderRpcError,
+  ProviderRpcErrorType as EIP1193ProviderRpcErrorType,
   ProviderConnectInfo,
   ProviderMessage,
   PublicRpcSchema,
@@ -1014,6 +1014,7 @@ export type {
   WalletRpcSchema,
   WatchAssetParams,
 } from './types/eip1193.js'
+export { ProviderRpcError as EIP1193ProviderRpcError } from './types/eip1193.js'
 export type { BlobSidecar, BlobSidecars } from './types/eip4844.js'
 export type {
   FeeHistory,
@@ -1026,7 +1027,6 @@ export type {
 export type { Filter, FilterType } from './types/filter.js'
 export type { TypedDataDefinition } from './types/typedData.js'
 export type { GetTransportConfig, GetPollOptions } from './types/transport.js'
-export type { HDKey } from '@scure/bip32'
 export type { Log } from './types/log.js'
 export type {
   MulticallContracts,
@@ -1036,6 +1036,7 @@ export type {
 export type {
   ParseAccount,
   DeriveAccount,
+  HDKey,
 } from './types/account.js'
 export type {
   Index,
@@ -1178,6 +1179,7 @@ export {
 export {
   type GetAbiItemErrorType,
   type GetAbiItemParameters,
+  type GetAbiItemReturnType,
   getAbiItem,
 } from './utils/abi/getAbiItem.js'
 export {
@@ -1553,19 +1555,33 @@ export {
   hashMessage,
 } from './utils/signature/hashMessage.js'
 export {
+  type IsAddressOptions,
   type IsAddressErrorType,
   isAddress,
 } from './utils/address/isAddress.js'
 export {
+  type IsAddressEqualReturnType,
   type IsAddressEqualErrorType,
   isAddressEqual,
 } from './utils/address/isAddressEqual.js'
 export { type IsBytesErrorType, isBytes } from './utils/data/isBytes.js'
 export { type IsHashErrorType, isHash } from './utils/hash/isHash.js'
 export { type IsHexErrorType, isHex } from './utils/data/isHex.js'
-export { type Keccak256ErrorType, keccak256 } from './utils/hash/keccak256.js'
-export { type Sha256ErrorType, sha256 } from './utils/hash/sha256.js'
-export { type Ripemd160ErrorType, ripemd160 } from './utils/hash/ripemd160.js'
+export {
+  type Keccak256Hash,
+  type Keccak256ErrorType,
+  keccak256,
+} from './utils/hash/keccak256.js'
+export {
+  type Sha256Hash,
+  type Sha256ErrorType,
+  sha256,
+} from './utils/hash/sha256.js'
+export {
+  type Ripemd160Hash,
+  type Ripemd160ErrorType,
+  ripemd160,
+} from './utils/hash/ripemd160.js'
 export {
   type PadBytesErrorType,
   type PadErrorType,
@@ -1617,7 +1633,9 @@ export {
 export {
   type DomainSeparatorErrorType,
   type GetTypesForEIP712DomainErrorType,
+  type SerializeTypedDataErrorType,
   type ValidateTypedDataErrorType,
+  serializeTypedData,
   validateTypedData,
   domainSeparator,
   getTypesForEIP712Domain,

@@ -5,10 +5,15 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { BaseError } from '../errors/base.js'
 import {
   OffchainLookupError,
+  type OffchainLookupErrorType as OffchainLookupErrorType_,
   OffchainLookupResponseMalformedError,
+  type OffchainLookupResponseMalformedErrorType,
   OffchainLookupSenderMismatchError,
 } from '../errors/ccip.js'
-import { HttpRequestError } from '../errors/request.js'
+import {
+  HttpRequestError,
+  type HttpRequestErrorType,
+} from '../errors/request.js'
 import type { Chain } from '../types/chain.js'
 import type { Hex } from '../types/misc.js'
 
@@ -49,7 +54,7 @@ export const offchainLookupAbiItem = {
   ],
 } as const satisfies Abi[number]
 
-export type OffchainLookupErrorType = ErrorType
+export type OffchainLookupErrorType = OffchainLookupErrorType_ | ErrorType
 
 export async function offchainLookup<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
@@ -115,7 +120,10 @@ export type CcipRequestParameters = {
 
 export type CcipRequestReturnType = Hex
 
-export type CcipRequestErrorType = ErrorType
+export type CcipRequestErrorType =
+  | HttpRequestErrorType
+  | OffchainLookupResponseMalformedErrorType
+  | ErrorType
 
 export async function ccipRequest({
   data,

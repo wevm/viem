@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import { parseAccount } from '../../utils/accounts.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
 

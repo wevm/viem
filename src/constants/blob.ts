@@ -1,7 +1,7 @@
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-4844.md#parameters
 
 /** Blob limit per transaction. */
-export const blobsPerTransaction = 6
+const blobsPerTransaction = 6
 
 /** The number of bytes in a BLS scalar field element. */
 export const bytesPerFieldElement = 32
