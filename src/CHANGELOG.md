@@ -1,5 +1,13 @@
 # viem
 
+## 2.13.8
+
+### Patch Changes
+
+- [#2375](https://github.com/wevm/viem/pull/2375) [`1d329882`](https://github.com/wevm/viem/commit/1d329882c6b37e722260a40c2745b8f0baa56bf9) Thanks [@ezynda3](https://github.com/ezynda3)! - Added API URL to `sei` chain.
+
+- [`5e082655`](https://github.com/wevm/viem/commit/5e082655859584ce7ee8f97fc5e8dca73a8a6b4e) Thanks [@jxom](https://github.com/jxom)! - Added `disputeGameFactory` contract to `optimism` chain.
+
 ## 2.13.7
 
 ### Patch Changes
