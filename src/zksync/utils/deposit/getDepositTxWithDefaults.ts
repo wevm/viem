@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import { estimateFeesPerGas } from '../../../actions/index.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
@@ -11,7 +12,6 @@ import type {
   Overrides,
 } from '../../types/deposit.js'
 import { getL2GasLimit } from './getL2GasLimit.js'
-import { estimateFeesPerGas } from '~viem/actions/index.js'
 
 export type GetDepositTxWithDefaultsParameters = Omit<
   DepositTransactionExtended,
@@ -46,10 +46,10 @@ export async function getDepositTxWithDefaults<
     depositTransaction: tx,
     erc20DefaultBridgeData: parameters.eRC20DefaultBridgeData,
   })
-  const fees = await estimateFeesPerGas(clientL2);
+  const fees = await estimateFeesPerGas(clientL2)
 
-  tx.overrides.maxFeePerGas = fees.maxFeePerGas;
-  tx.overrides.maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
+  tx.overrides.maxFeePerGas = fees.maxFeePerGas
+  tx.overrides.maxPriorityFeePerGas = fees.maxPriorityFeePerGas
 
   return tx
 }

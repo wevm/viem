@@ -9,8 +9,8 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { Chain, GetChainParameter } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
-import type { Overrides } from '../types/deposit.js'
 import { parseAccount } from '../../utils/index.js'
+import type { Overrides } from '../types/deposit.js'
 
 export type ApproveErc20L1Parameters<
   TChain extends Chain | undefined = Chain | undefined,
