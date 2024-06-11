@@ -12,7 +12,7 @@ export const redbellyTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Ethernal',
-      url: 'https://explorer.testnet.redbelly.network/',
+      url: 'https://explorer.testnet.redbelly.network',
       apiUrl: 'https://ethernal.fly.dev/api',
     },
   },
