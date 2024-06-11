@@ -1,5 +1,5 @@
 ---
-description: Checks if the address is valid. By default, it also verifies whether the address is in checksum format.
+description: Checks if the address is valid.
 ---
 
 # isAddress
@@ -25,7 +25,7 @@ isAddress('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC') // [!code focus:2]
 
 `boolean`
 
-Whether or not the address is valid. By default, it also verifies whether the address is in checksum format.
+Whether or not the address is valid.
 
 ## Parameters
 
