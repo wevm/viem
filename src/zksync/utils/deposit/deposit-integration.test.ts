@@ -27,7 +27,7 @@ import { deposit } from './buildDepositTransaction.js'
 import { getL2TransactionFromPriorityOp } from './getL2TransactionFromPriorityOp.js'
 
 const account = privateKeyToAccount(
-  '0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110',
+  '0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110'
 )
 
 const clientL1Hyperchain = createClient({
@@ -243,7 +243,7 @@ test('deposit - TokenToETHBasedChain', async () => {
   ).toBeDefined()
 })
 
-test('deposit - ETHToETHBasedChain', async () => {
+test.only('deposit - ETHToETHBasedChain', async () => {
   const amount = 1n
 
   const depositArgs = await deposit(clientL1, clientL2, {

@@ -1,6 +1,5 @@
 import type { Address } from 'abitype'
-import { estimateFeesPerGas } from '../../../actions/index.js'
-import type { Client } from '../../../clients/createClient.js'
+import { type Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
@@ -12,6 +11,7 @@ import type {
   Overrides,
 } from '../../types/deposit.js'
 import { getL2GasLimit } from './getL2GasLimit.js'
+import type { FeeValuesEIP1559 } from '../../../_types/index.js'
 
 export type GetDepositTxWithDefaultsParameters = Omit<
   DepositTransactionExtended,
@@ -21,7 +21,7 @@ export type GetDepositTxWithDefaultsParameters = Omit<
 export type GetDepositTxWithDefaultsReturnType = DepositTransactionExtended & {
   bridgehubContractAddress: Address
   l2ChainId: bigint
-}
+} & {fees:FeeValuesEIP1559}
 
 export async function getDepositTxWithDefaults<
   TChain extends Chain | undefined,
@@ -46,10 +46,9 @@ export async function getDepositTxWithDefaults<
     depositTransaction: tx,
     erc20DefaultBridgeData: parameters.eRC20DefaultBridgeData,
   })
-  const fees = await estimateFeesPerGas(clientL2)
 
-  tx.overrides.maxFeePerGas = fees.maxFeePerGas
-  tx.overrides.maxPriorityFeePerGas = fees.maxPriorityFeePerGas
+  tx.overrides.maxFeePerGas = tx.fees.maxFeePerGas
+  tx.overrides.maxPriorityFeePerGas = tx.fees.maxPriorityFeePerGas
 
   return tx
 }

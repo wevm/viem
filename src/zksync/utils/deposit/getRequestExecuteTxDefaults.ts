@@ -1,5 +1,4 @@
-import { estimateFeesPerGas } from '../../../actions/index.js'
-import type { Client } from '../../../clients/createClient.js'
+import {  type Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
@@ -31,9 +30,9 @@ export async function getRequestExecuteTxDefaults<
   tx.refundRecipient ??= clientL2.account.address
   tx.l2GasLimit = await estimateL1ToL2Execute(clientL2, parameters)
 
-  const fees = await estimateFeesPerGas(clientL2)
+  tx.overrides.maxFeePerGas = parameters.overrides?.maxFeePerGas
+  tx.overrides.maxPriorityFeePerGas = parameters.overrides?.maxPriorityFeePerGas
 
-  tx.overrides.maxFeePerGas = fees.maxFeePerGas
-  tx.overrides.maxPriorityFeePerGas = fees.maxPriorityFeePerGas
   return tx
+
 }

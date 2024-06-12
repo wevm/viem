@@ -6,7 +6,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://cloudflare-eth.com'],
+      http: ['https://mainnet.infura.io/v3/bccacd7de57345c7a399b7f2bbf2f7a3'],
     },
   },
   blockExplorers: {
@@ -29,4 +29,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
       blockCreated: 14_353_601,
     },
   },
+  fees:{
+    baseFeeMultiplier:1
+  }
 })
