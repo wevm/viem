@@ -10,10 +10,10 @@ test('default', async () => {
   })
   expect(output).toMatchInlineSnapshot(`
     {
-      "l2BlockNumber": 121269271n,
-      "outputIndex": 34n,
-      "outputRoot": "0xaeeedab937234cf92e8c968c5ec98544df05061ebecc1f61e81516e682abb63a",
-      "timestamp": 1718138819n,
+      "l2BlockNumber": 121314196n,
+      "outputIndex": 60n,
+      "outputRoot": "0xdc4f6418df103a56e75f76b45ff2b5be65485d374d901c2de6e03211ef87bee1",
+      "timestamp": 1718228819n,
     }
   `)
 }, 20_000)
