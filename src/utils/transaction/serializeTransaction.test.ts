@@ -964,4 +964,26 @@ describe('github', () => {
       '0x6ed21df69b02678dfb290ef2a43d490303562eb387f70795766b37bfa9d09bd2',
     )
   })
+
+  test('https://github.com/wevm/viem/issues/2394', async () => {
+    const serialized = serializeTransaction(
+      {
+        chainId: 17000,
+        gas: BigInt('0x52080'),
+        maxFeePerGas: BigInt('0x0'),
+        maxPriorityFeePerGas: BigInt('0x0'),
+        nonce: 0,
+        to: '0xc000000000000000000000000000000000000000',
+        value: BigInt('0x0'),
+      },
+      {
+        r: '0x0',
+        s: '0x0',
+        yParity: 0,
+      },
+    )
+    expect(serialized).toEqual(
+      '0x02e58242688080808305208094c0000000000000000000000000000000000000008080c0808080',
+    )
+  })
 })
