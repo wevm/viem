@@ -88,7 +88,7 @@ test('BaseError (w/ docsBaseUrl)', () => {
 
     Docs: https://test/lol#test
     Details: details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -102,7 +102,7 @@ test('BaseError (w/ metaMessages)', () => {
     [ViemError: An error occurred.
 
     Reason: idk
-      Cause: lol
+    Cause: lol
 
     Details: details
     Version: viem@x.y.z]
