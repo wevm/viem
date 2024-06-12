@@ -47,19 +47,19 @@ const l2TxReceipt = await getL2TransactionFromPriorityOp(clientL2, {
 
 ```ts [config.ts]
 import { createClient, createWalletClient, http } from 'viem'
-import { zkSyncLocalHyperchainL1, zkSyncLocalHyperchain } from 'viem/chains'
+import { zkSyncChainL1, zkSyncChainL2 } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/zksync'
 
 export const account = privateKeyToAccount('0x...')
 
 export const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 export const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())
@@ -87,19 +87,19 @@ The example belows how to set up a Client for **Local Account (Private Key)**
 
 ```ts [config.ts (Local Account)]
 import { createClient, createWalletClient, http } from 'viem'
-import { zkSyncLocalHyperchainL1, zkSyncLocalHyperchain } from 'viem/chains'
+import { zkSyncChainL1, zkSyncChainL2 } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/zksync'
 
 export const account = privateKeyToAccount('0x...')
 
 export const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 export const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())
@@ -132,19 +132,19 @@ const depositArgs = await deposit(clientL1, clientL2, {
 
 ```ts [config.ts (Local Account)]
 import { createClient, createWalletClient, http } from 'viem'
-import { zkSyncLocalHyperchainL1, zkSyncLocalHyperchain } from 'viem/chains'
+import { zkSyncChainL1, zkSyncChainL2 } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/zksync'
 
 export const account = privateKeyToAccount('0x...')
 
 export const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 export const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())
@@ -173,19 +173,19 @@ const hash = await sendTransaction(clientL1, depositArgs) // [!code focus]
 
 ```ts [config.ts (Local Account)]
 import { createClient, createWalletClient, http } from 'viem'
-import { zkSyncLocalHyperchainL1, zkSyncLocalHyperchain } from 'viem/chains'
+import { zkSyncChainL1, zkSyncChainL2 } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/zksync'
 
 export const account = privateKeyToAccount('0x...')
 
 export const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 export const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())
@@ -217,19 +217,19 @@ await waitForTransactionReceipt(clientL1, { hash })
 
 ```ts [config.ts (Local Account)]
 import { createClient, createWalletClient, http } from 'viem'
-import { zkSyncLocalHyperchainL1, zkSyncLocalHyperchain } from 'viem/chains'
+import { zkSyncChainL1, zkSyncChainL2 } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/zksync'
 
 export const account = privateKeyToAccount('0x...')
 
 export const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 export const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())
@@ -266,19 +266,19 @@ const l1TxReceipt = await getTransactionReceipt(clientL1, { hash }) // [!code fo
 
 ```ts [config.ts (Local Account)]
 import { createClient, createWalletClient, http } from 'viem'
-import { zkSyncLocalHyperchainL1, zkSyncLocalHyperchain } from 'viem/chains'
+import { zkSyncChainL1, zkSyncChainL2 } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/zksync'
 
 export const account = privateKeyToAccount('0x...')
 
 export const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 export const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())
@@ -321,19 +321,19 @@ const l2TxReceipt = await getL2TransactionFromPriorityOp(clientL2, {  // [!code 
 
 ```ts [config.ts (Local Account)]
 import { createClient, createWalletClient, http } from 'viem'
-import { zkSyncLocalHyperchainL1, zkSyncLocalHyperchain } from 'viem/chains'
+import { zkSyncChainL1, zkSyncChainL2 } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/zksync'
 
 export const account = privateKeyToAccount('0x...')
 
 export const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 export const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())

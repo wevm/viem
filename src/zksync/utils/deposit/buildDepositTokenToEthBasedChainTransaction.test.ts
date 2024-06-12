@@ -5,10 +5,7 @@ import {
   waitForTransactionReceipt,
 } from '~viem/actions/index.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import {
-  zkSyncLocalHyperchain,
-  zkSyncLocalHyperchainL1,
-} from '../../../chains/index.js'
+import { zkSyncChainL1, zkSyncChainL2 } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
 import { publicActionsL1 } from '../../decorators/publicL1.js'
@@ -21,13 +18,13 @@ const account = privateKeyToAccount(
 )
 
 const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())

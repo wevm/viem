@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const zkSyncLocalHyperchainL1 = /*#__PURE__*/ defineChain({
+export const zkSyncChainL1 = /*#__PURE__*/ defineChain({
   id: 9,
   name: 'zkSync CLI Local Hyperchain L1',
   network: 'zksync-cli-local-hyperchain-l1',

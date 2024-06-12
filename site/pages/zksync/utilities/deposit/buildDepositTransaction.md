@@ -26,19 +26,19 @@ const hash = await sendTransaction(clientL1, depositArgs)
 
 ```ts [config.ts]
 import { createClient, createWalletClient, http } from 'viem'
-import { zkSyncLocalHyperchainL1, zkSyncLocalHyperchain } from 'viem/chains'
+import { zkSyncChainL1, zkSyncChainL2 } from 'viem/chains'
 import { publicActionsL2, walletActionsL1 } from 'viem/zksync'
 
 export const account = privateKeyToAccount('0x...')
 
 export const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 export const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())

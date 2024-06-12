@@ -8,9 +8,9 @@ import {
 } from '~viem/actions/index.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
-  zkSyncLocalHyperchain,
-  zkSyncLocalHyperchainL1,
-  zkSyncLocalHyperchainL3,
+  zkSyncChainL1,
+  zkSyncChainL2,
+  zkSyncChainL3,
 } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
@@ -31,25 +31,25 @@ const account = privateKeyToAccount(
 )
 
 const clientL1Hyperchain = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 const clientL3Hyperchain = createClient({
-  chain: zkSyncLocalHyperchainL3,
+  chain: zkSyncChainL3,
   transport: http(),
   account,
 }).extend(publicActionsL2())
 
 const clientL1 = createClient({
-  chain: zkSyncLocalHyperchainL1,
+  chain: zkSyncChainL1,
   transport: http(),
   account,
 }).extend(publicActionsL1())
 
 const clientL2 = createClient({
-  chain: zkSyncLocalHyperchain,
+  chain: zkSyncChainL2,
   transport: http(),
   account,
 }).extend(publicActionsL2())

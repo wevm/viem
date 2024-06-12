@@ -7,9 +7,9 @@ import {
   zkSync, // [!code hl]
   zkSyncSepoliaTestnet, // [!code hl]
   zkSyncInMemoryNode, // [!code hl]
-  zkSyncLocalHyperchainL1, // [!code hl]
-  zkSyncLocalHyperchainL2, // [!code hl]
-  zkSyncLocalHyperchainL3, // [!code hl]
+  zksyncChainL1, // [!code hl]
+  zksyncChainL2, // [!code hl]
+  zksyncChainL3, // [!code hl]
   zkSyncLocalNodeL1, // [!code hl]
   zkSyncLocalNode, // [!code hl]
 
