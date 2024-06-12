@@ -10,8 +10,8 @@ export const ham = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.ham.fun/'],
-      webSocket: ['wss://rpc.ham.fun/'],
+      http: ['https://rpc.ham.fun'],
+      webSocket: ['wss://rpc.ham.fun'],
     },
   },
   blockExplorers: {
