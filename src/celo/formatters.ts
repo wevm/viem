@@ -10,6 +10,7 @@ import {
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import type {
   CeloBlockOverrides,
+  CeloRpcBlockOverrides,
   CeloRpcTransaction,
   CeloRpcTransactionRequest,
   CeloTransaction,
@@ -20,7 +21,7 @@ import { isCIP64 } from './utils.js'
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({
     format(
-      args: CeloBlockOverrides & {
+      args: CeloRpcBlockOverrides & {
         transactions: readonly Hash[] | readonly CeloRpcTransaction[]
       },
     ): CeloBlockOverrides & {
@@ -42,6 +43,7 @@ export const formatters = {
       }) as readonly Hash[] | readonly CeloTransaction[]
       return {
         transactions,
+        ...(args.randomness ? { randomness: args.randomness } : {}),
       }
     },
   }),
@@ -74,9 +76,11 @@ export const formatters = {
 
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
-      const request = {
-        feeCurrency: args.feeCurrency,
-      } as CeloRpcTransactionRequest
+      const request = {} as CeloRpcTransactionRequest
+
+      if (args.feeCurrency) {
+        request.feeCurrency = args.feeCurrency
+      }
 
       if (isCIP64(args)) request.type = '0x7b'
 

@@ -45,6 +45,15 @@ describe('block', () => {
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['uncles']
   >().toEqualTypeOf<Hash[]>()
+  expectTypeOf<
+    ReturnType<typeof formatters.block.format>['randomness']
+  >().toEqualTypeOf<
+    | {
+        committed: `0x${string}`
+        revealed: `0x${string}`
+      }
+    | undefined
+  >()
 })
 
 describe('transaction', () => {
@@ -80,6 +89,13 @@ describe('smoke', () => {
       blockNumber: 16645775n,
     })
 
+    expectTypeOf(block.randomness).toEqualTypeOf<
+      | {
+          committed: `0x${string}`
+          revealed: `0x${string}`
+        }
+      | undefined
+    >()
     expectTypeOf(block.difficulty).toEqualTypeOf<bigint>()
     expectTypeOf(block.gasLimit).toEqualTypeOf<bigint>()
     expectTypeOf(block.mixHash).toEqualTypeOf<Hash>()
