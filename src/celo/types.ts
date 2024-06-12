@@ -39,6 +39,9 @@ type CeloBlockExclude =
 
 // L2 blocks do not have randomness
 export type CeloBlockOverrides = {
+  nonce?: bigint | null
+  gasLimit?: bigint | undefined
+  difficulty?: bigint | undefined
   randomness?:
     | {
         committed: Hex
@@ -66,6 +69,9 @@ export type CeloRpcBlockOverrides = {
     committed: Hex
     revealed: Hex
   }
+  nonce?: Hex | null
+  gasLimit?: Hex | undefined
+  difficulty?: Hex | undefined
 }
 export type CeloRpcBlock<
   blockTag extends BlockTag = BlockTag,

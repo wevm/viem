@@ -16,7 +16,7 @@ import type { TransactionRequest } from '../types/transaction.js'
 import type { Assign, ExactPartial } from '../types/utils.js'
 import { formatters } from './formatters.js'
 import type {
-  CeloBlockOverrides,
+  CeloRpcBlockOverrides,
   CeloRpcTransaction,
   CeloTransactionRequest,
 } from './types.js'
@@ -25,23 +25,23 @@ describe('block', () => {
   expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
     Assign<
       ExactPartial<RpcBlock>,
-      CeloBlockOverrides & {
+      CeloRpcBlockOverrides & {
         transactions: readonly `0x${string}`[] | readonly CeloRpcTransaction[]
       }
     >
   >()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['difficulty']
-  >().toEqualTypeOf<bigint>()
+  >().toEqualTypeOf<bigint | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['gasLimit']
-  >().toEqualTypeOf<bigint>()
+  >().toEqualTypeOf<bigint | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['mixHash']
   >().toEqualTypeOf<Hash>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['nonce']
-  >().toEqualTypeOf<Hash | null>()
+  >().toEqualTypeOf<bigint | null | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['uncles']
   >().toEqualTypeOf<Hash[]>()
@@ -96,8 +96,8 @@ describe('smoke', () => {
         }
       | undefined
     >()
-    expectTypeOf(block.difficulty).toEqualTypeOf<bigint>()
-    expectTypeOf(block.gasLimit).toEqualTypeOf<bigint>()
+    expectTypeOf(block.difficulty).toEqualTypeOf<bigint | undefined>()
+    expectTypeOf(block.gasLimit).toEqualTypeOf<bigint | undefined>()
     expectTypeOf(block.mixHash).toEqualTypeOf<Hash>()
     expectTypeOf(block.nonce).toEqualTypeOf<Hash>()
     expectTypeOf(block.uncles).toEqualTypeOf<Hash[]>()
