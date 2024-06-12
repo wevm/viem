@@ -271,6 +271,8 @@ export {
   x1Testnet,
 } from './definitions/xLayerTestnet.js'
 export { xLayer } from './definitions/xLayer.js'
+export { xai } from './definitions/xai.js'
+export { xaiTestnet } from './definitions/xaiTestnet.js'
 export { xdc } from './definitions/xdc.js'
 export { xdcTestnet } from './definitions/xdcTestnet.js'
 export { yooldoVerse } from './definitions/yooldoVerse.js'
