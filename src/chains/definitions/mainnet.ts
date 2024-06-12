@@ -29,7 +29,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
       blockCreated: 14_353_601,
     },
   },
-  fees:{
-    baseFeeMultiplier:1
-  }
+  fees: {
+    baseFeeMultiplier: 1,
+  },
 })

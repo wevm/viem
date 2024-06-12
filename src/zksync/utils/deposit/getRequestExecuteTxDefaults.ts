@@ -1,4 +1,4 @@
-import {  type Client } from '../../../clients/createClient.js'
+import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
@@ -34,5 +34,4 @@ export async function getRequestExecuteTxDefaults<
   tx.overrides.maxPriorityFeePerGas = parameters.overrides?.maxPriorityFeePerGas
 
   return tx
-
 }

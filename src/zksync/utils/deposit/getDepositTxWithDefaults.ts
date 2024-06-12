@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { type Client } from '../../../clients/createClient.js'
+import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
@@ -11,7 +11,7 @@ import type {
   Overrides,
 } from '../../types/deposit.js'
 import { getL2GasLimit } from './getL2GasLimit.js'
-import type { FeeValuesEIP1559 } from '../../../_types/index.js'
+import type { FeeValuesEIP1559 } from '../../../types/fee.js'
 
 export type GetDepositTxWithDefaultsParameters = Omit<
   DepositTransactionExtended,
@@ -21,7 +21,7 @@ export type GetDepositTxWithDefaultsParameters = Omit<
 export type GetDepositTxWithDefaultsReturnType = DepositTransactionExtended & {
   bridgehubContractAddress: Address
   l2ChainId: bigint
-} & {fees:FeeValuesEIP1559}
+} & { fees: FeeValuesEIP1559 }
 
 export async function getDepositTxWithDefaults<
   TChain extends Chain | undefined,
