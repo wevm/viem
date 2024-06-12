@@ -3,6 +3,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
+import type { FeeValuesEIP1559 } from '../../../types/fee.js'
 import { getBridgehubContractAddress } from '../../actions/getBridgehubContractAddress.js'
 import { getDefaultBridgeAddresses } from '../../actions/getDefaultBridgeAddresses.js'
 import { REQUIRED_L1_TO_L2_GAS_PER_PUBDATA_LIMIT } from '../../constants/number.js'
@@ -11,7 +12,6 @@ import type {
   Overrides,
 } from '../../types/deposit.js'
 import { getL2GasLimit } from './getL2GasLimit.js'
-import type { FeeValuesEIP1559 } from '../../../types/fee.js'
 
 export type GetDepositTxWithDefaultsParameters = Omit<
   DepositTransactionExtended,
