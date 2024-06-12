@@ -169,7 +169,7 @@ export type ChainEstimateFeesPerGasFnParameters<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
   /** A function to multiply the base fee based on the `baseFeeMultiplier` value. */
-  multiply(x: bigint): bigint
+  multiply: (x: bigint) => bigint
   /** The type of fees to return. */
   type: FeeValuesType
 } & ChainFeesFnParameters<formatters>
@@ -182,7 +182,7 @@ export type ExtractChainFormatterExclude<
   type extends keyof ChainFormatters,
 > = chain extends { formatters?: infer formatters extends ChainFormatters }
   ? formatters[type] extends { exclude: infer exclude }
-    ? Extract<exclude, string[]>[number]
+    ? Extract<exclude, readonly string[]>[number]
     : ''
   : ''
 
