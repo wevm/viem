@@ -74,7 +74,7 @@ describe('wagmi', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     await expect(() =>
       estimateContractGas(client, {
@@ -94,7 +94,7 @@ describe('wagmi', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     await expect(() =>
       estimateContractGas(client, {
@@ -118,7 +118,7 @@ describe('wagmi', () => {
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -193,7 +193,7 @@ describe('BAYC', () => {
           sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
         Docs: https://viem.sh/docs/contract/estimateContractGas
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -233,7 +233,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -257,7 +257,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -281,7 +281,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -305,7 +305,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -328,7 +328,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -354,7 +354,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -380,7 +380,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

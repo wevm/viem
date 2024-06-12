@@ -10,6 +10,6 @@ test('BytecodeLengthExceedsMaxSizeError', () => {
   ).toMatchInlineSnapshot(`
     [BytecodeLengthExceedsMaxSizeError: Bytecode cannot be longer than 50 bytes. Given length: 100
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

@@ -5,7 +5,8 @@ import { prepareTransactionRequest } from '../../actions/wallet/prepareTransacti
 import { sendRawTransaction } from '../../actions/wallet/sendRawTransaction.js'
 import type {
   SendTransactionErrorType,
-  SendTransactionParameters as SendTransactionParameters_,
+  SendTransactionParameters,
+  SendTransactionRequest,
   SendTransactionReturnType,
 } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
@@ -24,10 +25,14 @@ import { assertEip712Request } from '../utils/assertEip712Request.js'
 import { signTransaction } from './signTransaction.js'
 
 export type SendEip712TransactionParameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-> = SendTransactionParameters_<TChain, TAccount, TChainOverride>
+  chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  request extends SendTransactionRequest<
+    chain,
+    chainOverride
+  > = SendTransactionRequest<chain, chainOverride>,
+> = SendTransactionParameters<chain, account, chainOverride, request>
 
 export type SendEip712TransactionReturnType = SendTransactionReturnType
 
@@ -74,27 +79,33 @@ export type SendEip712TransactionErrorType = SendTransactionErrorType
  * })
  */
 export async function sendEip712Transaction<
-  TChain extends ChainEIP712 | undefined,
-  TAccount extends Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = undefined,
+  chain extends ChainEIP712 | undefined,
+  account extends Account | undefined,
+  const request extends SendTransactionRequest<chain, chainOverride>,
+  chainOverride extends ChainEIP712 | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: SendEip712TransactionParameters<TChain, TAccount, TChainOverride>,
+  client: Client<Transport, chain, account>,
+  parameters: SendEip712TransactionParameters<
+    chain,
+    account,
+    chainOverride,
+    request
+  >,
 ): Promise<SendEip712TransactionReturnType> {
-  const { chain = client.chain } = args
+  const { chain = client.chain } = parameters
 
-  if (!args.account)
+  if (!parameters.account)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/sendTransaction',
     })
-  const account = parseAccount(args.account)
+  const account = parseAccount(parameters.account)
 
   try {
-    assertEip712Request(args)
+    assertEip712Request(parameters)
 
     // Prepare the request for signing (assign appropriate fees, etc.)
     const request = await prepareTransactionRequest(client, {
-      ...args,
+      ...parameters,
       parameters: ['gas', 'nonce', 'fees'],
     } as any)
 
@@ -121,7 +132,7 @@ export async function sendEip712Transaction<
     })
   } catch (err) {
     throw getTransactionError(err as BaseError, {
-      ...(args as GetTransactionErrorParameters),
+      ...(parameters as GetTransactionErrorParameters),
       account,
       chain: chain as Chain,
     })

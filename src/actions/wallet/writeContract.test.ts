@@ -61,7 +61,7 @@ test('client chain mismatch', async () => {
       to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
       data:  0x1249c58b
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -85,7 +85,7 @@ test('no chain', async () => {
       to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
       data:  0x1249c58b
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -125,7 +125,7 @@ describe('args: chain', () => {
         to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:   0x1249c58b
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -224,7 +224,7 @@ test('w/ simulateContract (overloaded)', async () => {
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Docs: https://viem.sh/docs/contract/simulateContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -250,7 +250,7 @@ test('w/ simulateContract (args chain mismatch)', async () => {
       to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
       data:   0x1249c58b
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -278,6 +278,6 @@ test('w/ simulateContract (client chain mismatch)', async () => {
       to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
       data:  0x1249c58b
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

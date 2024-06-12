@@ -14,7 +14,7 @@ test('default', () => {
       - include \`type: "eip712"\`
       - include one of the following: \`customSignature\`, \`paymaster\`, \`paymasterInput\`, \`gasPerPubdata\`, \`factoryDeps\`
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -24,7 +24,7 @@ test('default', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidChainIdError: Chain ID is invalid.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -35,7 +35,7 @@ test('default', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidChainIdError: Chain ID "-1" is invalid.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -50,7 +50,7 @@ test('default', () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -65,7 +65,7 @@ test('default', () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -80,7 +80,7 @@ test('default', () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -92,7 +92,7 @@ test('default', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [ViemError: \`paymasterInput\` must be provided when \`paymaster\` is defined
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -104,6 +104,6 @@ test('default', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [ViemError: \`paymaster\` must be provided when \`paymasterInput\` is defined
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

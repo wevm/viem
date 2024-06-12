@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+
 import {
   type EstimateContractGasErrorType,
   type EstimateContractGasParameters,
@@ -24,10 +25,11 @@ export type EstimateDepositTransactionGasParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-  _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
+  ///
+  derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = UnionEvaluate<
   UnionOmit<
-    FormattedTransactionRequest<_derivedChain>,
+    FormattedTransactionRequest<derivedChain>,
     | 'accessList'
     | 'data'
     | 'from'
@@ -40,13 +42,15 @@ export type EstimateDepositTransactionGasParameters<
 > &
   GetAccountParameter<account, Account | Address> &
   GetChainParameter<chain, chainOverride> &
-  GetContractAddressParameter<_derivedChain, 'portal'> & {
+  GetContractAddressParameter<derivedChain, 'portal'> & {
     /** L2 transaction request. */
     request: DepositRequest
     /** Gas limit for transaction execution on the L1. */
-    gas?: bigint | null | undefined
+    gas?: bigint | undefined
   }
+
 export type EstimateDepositTransactionGasReturnType = bigint
+
 export type EstimateDepositTransactionGasErrorType =
   | EstimateContractGasErrorType
   | ErrorType
@@ -116,11 +120,10 @@ export async function estimateDepositTransactionGas<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  return estimateContractGas(client, {
+  const params = {
     account,
     abi: portalAbi,
     address: portalAddress,
-    chain,
     functionName: 'depositTransaction',
     args: [
       isCreation ? zeroAddress : to,
@@ -134,5 +137,13 @@ export async function estimateDepositTransactionGas<
     maxPriorityFeePerGas,
     nonce,
     value: mint,
-  } as EstimateContractGasParameters)
+    // TODO: Not sure `chain` is necessary since it's not used downstream
+    // in `estimateContractGas` or `estimateGas`
+    // @ts-ignore
+    chain,
+  } satisfies EstimateContractGasParameters<
+    typeof portalAbi,
+    'depositTransaction'
+  >
+  return estimateContractGas(client, params as any)
 }

@@ -46,7 +46,7 @@ test('errors: no account', async () => {
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
 
     Docs: https://viem.sh/docs/actions/wallet/sendTransaction#account
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -66,6 +66,6 @@ test('errors: invalid eip712 tx', async () => {
       chain:  zkSync Era (Local) (id: 324)
       from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

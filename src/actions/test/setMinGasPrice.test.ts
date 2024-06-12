@@ -22,6 +22,6 @@ test('errors when eip-1559 is not enabled', async () => {
     Request body: {"method":"anvil_setMinGasPrice","params":["0x4a817c800"]}
 
     Details: anvil_setMinGasPrice is not supported when EIP-1559 is active
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

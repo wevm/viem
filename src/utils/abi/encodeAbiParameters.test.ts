@@ -348,7 +348,7 @@ describe('static', () => {
         `
         [AbiEncodingBytesSizeMismatchError: Size of bytes "0x0000000000000000000000000000000000000000000000000000000000000000000000000123456789abcdef" (bytes44) does not match expected size (bytes8).
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `,
       )
     })
@@ -388,7 +388,7 @@ describe('static', () => {
         `
         [AbiEncodingBytesSizeMismatchError: Size of bytes "0x000000000000000000000000000000000000000000000000000000000000000420" (bytes33) does not match expected size (bytes16).
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `,
       )
     })
@@ -1695,7 +1695,7 @@ test('invalid type', () => {
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/encodeAbiParameters
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1711,7 +1711,7 @@ test('invalid params/values lengths', () => {
     Expected length (params): 1
     Given length (values): 2
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1724,7 +1724,7 @@ test('invalid address', () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1738,7 +1738,7 @@ test('invalid array', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidArrayError: Value "69" is not a valid array.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1754,7 +1754,7 @@ test('invalid array lengths', () => {
     Expected length: 3
     Given length: 2
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1764,7 +1764,7 @@ test('invalid bytes', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [AbiEncodingBytesSizeMismatchError: Size of bytes "0x111" (bytes2) does not match expected size (bytes8).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1793,6 +1793,6 @@ test('https://github.com/wevm/viem/issues/1960', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [ViemError: Invalid boolean value: "true" (type: string). Expected: \`true\` or \`false\`.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

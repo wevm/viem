@@ -72,9 +72,7 @@ export const formatters = {
         feeCurrency: args.feeCurrency,
       } as CeloRpcTransactionRequest
 
-      if (isCIP64(args)) {
-        request.type = '0x7b'
-      }
+      if (isCIP64(args)) request.type = '0x7b'
 
       return request
     },

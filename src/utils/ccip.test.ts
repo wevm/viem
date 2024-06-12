@@ -159,7 +159,7 @@ describe('offchainLookup', () => {
         Callback selector: 0xcafebabe
         Extra data: 0xdeadbeaf
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -229,7 +229,7 @@ describe('ccipRequest', async () => {
       URL: http://localhost
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await server.close()
@@ -323,7 +323,7 @@ describe('ccipRequest', async () => {
       Request body: {"data":"0xdeadbeef","sender":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"}
 
       Details: Failed to parse URL from fakeurl
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await server.close()
@@ -345,7 +345,7 @@ describe('ccipRequest', async () => {
       Gateway URL: http://localhost
       Response: "what is this data?"
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await server.close()
@@ -386,7 +386,7 @@ describe('ccipRequest', async () => {
       URL: http://localhost
 
       Details: Forbidden
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(count).toBe(3)
 

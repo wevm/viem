@@ -15,7 +15,7 @@ beforeAll(() => {
       .fn()
       .mockReturnValue('0x0000000000000000000000000000000000000000'),
     getUrl: vi.fn().mockReturnValue('http://localhost'),
-    getVersion: vi.fn().mockReturnValue('viem@1.0.2'),
+    getVersion: vi.fn().mockReturnValue('viem@x.y.z'),
   }))
 })
 
