@@ -59,6 +59,15 @@ test('ExtractChainFormatterParameters', () => {
   expectTypeOf<Result3['feeCurrency']>().toEqualTypeOf<
     `0x${string}` | undefined
   >()
+
+  type Result4 = ExtractChainFormatterParameters<
+    typeof celo,
+    'transaction',
+    TransactionRequest
+  >
+  expectTypeOf<Result4['gatewayFee']>().toEqualTypeOf<
+    `0x${string}` | null | undefined
+  >()
 })
 
 test('GetChainParameter', () => {

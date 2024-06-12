@@ -18,7 +18,7 @@ test('chain mismatch', () => {
     Current Chain ID:  1
     Expected Chain ID: 10 – OP Mainnet
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     assertCurrentChain({ currentChainId: optimism.id, chain: mainnet }),
@@ -28,7 +28,7 @@ test('chain mismatch', () => {
     Current Chain ID:  10
     Expected Chain ID: 1 – Ethereum
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -39,7 +39,7 @@ test('no chain', () => {
     [ChainNotFoundError: No chain was provided to the request.
     Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     assertCurrentChain({ currentChainId: optimism.id }),
@@ -47,6 +47,6 @@ test('no chain', () => {
     [ChainNotFoundError: No chain was provided to the request.
     Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

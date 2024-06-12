@@ -24,7 +24,7 @@ test('default', () => {
     Request Arguments:
       from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -52,7 +52,7 @@ test('FeeCapTooHigh', () => {
       nonce:         1
 
     Details: fee cap higher than 2^256-1
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -81,7 +81,7 @@ test('FeeCapTooLow', () => {
       nonce:         1
 
     Details: max fee per gas less than block base fee
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -108,7 +108,7 @@ test('NonceTooHigh', () => {
       nonce:  1123123213
 
     Details: nonce too high
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -133,7 +133,7 @@ test('NonceTooLow', () => {
       nonce:  1
 
     Details: nonce too low
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -157,7 +157,7 @@ test('NonceMaxValue', () => {
       nonce:  12222222
 
     Details: nonce has max value
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -192,7 +192,7 @@ test('InsufficientFundsError', () => {
       nonce:  1
 
     Details: insufficient funds
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -216,7 +216,7 @@ test('IntrinsicGasTooHigh', () => {
       gas:   8912738912731289
 
     Details: intrinsic gas too high
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -240,7 +240,7 @@ test('IntrinsicGasTooLowError', () => {
       gas:   1
 
     Details: intrinsic gas too low
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -264,7 +264,7 @@ test('TransactionTypeNotSupported', () => {
       maxFeePerGas:  10 gwei
 
     Details: transaction type not valid
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -293,7 +293,7 @@ test('TipAboveFeeCap', () => {
       maxPriorityFeePerGas:  11 gwei
 
     Details: max priority fee per gas higher than max fee per gas
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -322,7 +322,7 @@ test('ExecutionRevertedError', () => {
       maxPriorityFeePerGas:  11 gwei
 
     Details: execution reverted: lol oh no
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -351,7 +351,7 @@ test('ExecutionRevertedError', () => {
       maxPriorityFeePerGas:  11 gwei
 
     Details: lol oh no
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -376,7 +376,7 @@ test('Unknown node error', () => {
       from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
     Details: oh no
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   const error2 = new InvalidInputRpcError(
@@ -400,6 +400,6 @@ test('Unknown node error', () => {
       from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
     Details: oh no
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

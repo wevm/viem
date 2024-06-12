@@ -27,7 +27,7 @@ test('error: empty blob data', () => {
     `
     [EmptyBlobError: Blob data must not be empty.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
@@ -41,6 +41,6 @@ test('error: blob data too big', () => {
     Max: 761855 bytes
     Given: 2400000 bytes
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

@@ -148,7 +148,7 @@ describe('behavior', () => {
         [ViemError: foo
 
         Details: bar
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -173,7 +173,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -198,7 +198,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -223,7 +223,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -249,7 +249,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -274,7 +274,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -300,7 +300,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -325,7 +325,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -353,7 +353,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -382,7 +382,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `,
       )
     })
@@ -411,7 +411,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -436,7 +436,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -464,7 +464,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -489,7 +489,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -514,7 +514,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -539,7 +539,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -567,7 +567,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -592,7 +592,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -617,7 +617,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -642,7 +642,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -668,7 +668,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: message
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -681,7 +681,7 @@ describe('behavior', () => {
         [UnknownRpcError: An unknown RPC error occurred.
 
         Details: wat
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -704,7 +704,7 @@ describe('behavior', () => {
         Request body: {"foo":"bar"}
 
         Details: The request timed out.
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -783,7 +783,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: Internal Server Error
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
       expect(retryCount).toBe(3)
     })
@@ -809,7 +809,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: Internal Server Error
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
       expect(retryCount).toBe(3)
     })
@@ -834,7 +834,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: Forbidden
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
       expect(retryCount).toBe(3)
     })
@@ -859,7 +859,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: Request Timeout
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
       expect(retryCount).toBe(3)
     })
@@ -884,7 +884,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: Payload Too Large
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
       expect(retryCount).toBe(3)
     })
@@ -909,7 +909,7 @@ describe('behavior', () => {
         Request body: {"method":"eth_blockNumber"}
 
         Details: Request Timeout
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
       expect(retryCount).toBe(3)
     })

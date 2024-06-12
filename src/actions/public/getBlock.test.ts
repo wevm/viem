@@ -766,7 +766,7 @@ test('non-existent block: throws if block number does not exist', async () => {
   ).rejects.toMatchInlineSnapshot(`
     [BlockNotFoundError: Block at number "69420694206942" could not be found.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -779,6 +779,6 @@ test('non-existent block: throws if block hash does not exist', async () => {
   ).rejects.toMatchInlineSnapshot(`
     [BlockNotFoundError: Block at hash "0xd4a8cf1bf4d05f44480ae4a513d09cddb273880ed249168bf2c523ee9e5c7722" could not be found.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

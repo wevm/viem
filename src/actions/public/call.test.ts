@@ -106,7 +106,7 @@ describe('ccip', () => {
         data:  0xbf40fac1000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000096a786f6d2e7669656d0000000000000000000000000000000000000000000000
 
       Details: execution reverted: custom error 556f1830:000000000000000000000000cc5bc84c…00000000000000000000000000000000 (576 bytes)
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await server.close()
@@ -219,7 +219,7 @@ describe('account hoisting', () => {
         data:  0xa0712d680000000000000000000000000000000000000000000000000000000000000258
 
       Details: execution reverted: ERC721: mint to the zero address
-      Version: viem@1.0.2"
+      Version: viem@x.y.z"
     `)
   })
 
@@ -250,7 +250,7 @@ describe('errors', () => {
         data:          0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -274,7 +274,7 @@ describe('errors', () => {
         gas:   100
 
       Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await expect(() =>
@@ -341,7 +341,7 @@ describe('errors', () => {
         nonce:  0
 
       Details: nonce too low
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -370,7 +370,7 @@ describe('errors', () => {
         value:  100000 ETH
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await expect(() =>
@@ -401,7 +401,7 @@ describe('errors', () => {
         maxFeePerGas:          20 gwei
         maxPriorityFeePerGas:  22 gwei
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -422,7 +422,7 @@ describe('errors', () => {
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
       Details: execution reverted: revert: Token ID is taken
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -443,7 +443,7 @@ describe('errors', () => {
         data:  0xa0712d68
 
       Details: execution reverted
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -480,7 +480,7 @@ describe('errors', () => {
               stateDiff:
                 0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -525,7 +525,7 @@ describe('errors', () => {
               stateDiff:
                 0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -567,7 +567,7 @@ describe('errors', () => {
               stateDiff:
                 0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -806,7 +806,7 @@ describe('batch call', () => {
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
-      Version: viem@1.0.2],
+      Version: viem@x.y.z],
           "status": "rejected",
         },
       ]

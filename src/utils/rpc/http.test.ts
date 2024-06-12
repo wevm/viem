@@ -163,7 +163,7 @@ describe('request', () => {
       Request body: {"method":"web3_clientVersion"}
 
       Details: Unexpected token 'b', "bogus" is not valid JSON
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     await server2.close()
   })
@@ -270,7 +270,7 @@ describe('request', () => {
       Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
       Details: "ngmi"
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -298,7 +298,7 @@ describe('request', () => {
       Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -323,7 +323,7 @@ describe('request', () => {
       Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
 
       Details: The request timed out.
-      Version: viem@1.0.2"
+      Version: viem@x.y.z"
     `,
     )
   })
@@ -350,7 +350,7 @@ describe('request', () => {
       Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
       Details: foo
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     mock.mockRestore()
@@ -467,7 +467,7 @@ describe('http (batch)', () => {
       Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
 
       Details: "ngmi"
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -498,7 +498,7 @@ describe('http (batch)', () => {
       Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -528,7 +528,7 @@ describe('http (batch)', () => {
       Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
 
       Details: foo
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     mock.mockRestore()

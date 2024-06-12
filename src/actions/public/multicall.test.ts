@@ -377,7 +377,7 @@ describe('errors', async () => {
           address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -430,7 +430,7 @@ describe('errors', async () => {
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -484,7 +484,7 @@ describe('errors', async () => {
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -550,7 +550,7 @@ describe('errors', async () => {
           args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -568,7 +568,7 @@ describe('errors', async () => {
           args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 1)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -627,7 +627,7 @@ describe('errors', async () => {
           function:  simpleCustomRead()
 
         Docs: https://viem.sh/docs/contract/decodeErrorResult
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -777,7 +777,7 @@ describe('errors', async () => {
           address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -819,7 +819,7 @@ describe('errors', async () => {
           address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/encodeFunctionData
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -855,7 +855,7 @@ describe('errors', async () => {
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -895,7 +895,7 @@ describe('errors', async () => {
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -939,7 +939,7 @@ describe('errors', async () => {
           args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -986,7 +986,7 @@ describe('errors', async () => {
         function:  simpleCustomRead()
 
       Docs: https://viem.sh/docs/contract/decodeErrorResult
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -1120,7 +1120,7 @@ test('multicall contract not configured for chain', async () => {
     This could be due to any of the following:
     - The chain does not have the contract "multicall3" configured.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1150,7 +1150,7 @@ test('multicall contract deployed on later block', async () => {
     This could be due to any of the following:
     - The contract "multicall3" was not deployed until block 14353601 (current block 69420).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

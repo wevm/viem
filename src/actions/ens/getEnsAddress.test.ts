@@ -91,7 +91,7 @@ test('name with resolver that does not support addr - strict', async () => {
       args:             (0x07766974616c696b0365746800, 0x3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -219,7 +219,7 @@ test('universal resolver contract not configured for chain', async () => {
     This could be due to any of the following:
     - The chain does not have the contract "ensUniversalResolver" configured.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -232,7 +232,7 @@ test('universal resolver contract deployed on later block', async () => {
     This could be due to any of the following:
     - The contract "ensUniversalResolver" was not deployed until block 19258213 (current block 14353601).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -251,6 +251,6 @@ test('invalid universal resolver address', async () => {
       args:             (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
