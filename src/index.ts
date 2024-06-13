@@ -49,6 +49,11 @@ export {
   type GetContractEventsReturnType,
 } from './actions/public/getContractEvents.js'
 export {
+  type GetEip712DomainErrorType,
+  type GetEip712DomainParameters,
+  type GetEip712DomainReturnType,
+} from './actions/public/getEip712Domain.js'
+export {
   type AddChainErrorType,
   type AddChainParameters,
 } from './actions/wallet/addChain.js'
