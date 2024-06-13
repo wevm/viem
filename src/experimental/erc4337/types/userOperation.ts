@@ -10,7 +10,7 @@ export type EstimateUserOperationGasReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
 > = OneOf<
-  | (entryPointVersion extends '0.7.0'
+  | (entryPointVersion extends '0.7'
       ? {
           preVerificationGas: uint256
           verificationGasLimit: uint256
@@ -19,7 +19,7 @@ export type EstimateUserOperationGasReturnType<
           paymasterPostOpGasLimit?: uint256 | undefined
         }
       : never)
-  | (entryPointVersion extends '0.0.0' ? never : never)
+  | (entryPointVersion extends '0.0' ? never : never)
 >
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_getuseroperationbyhash */
@@ -28,7 +28,7 @@ export type GetUserOperationByHashReturnType<
   uint256 = bigint,
   pending extends boolean = boolean,
 > = OneOf<
-  | (entryPointVersion extends '0.7.0'
+  | (entryPointVersion extends '0.7'
       ? {
           blockHash: pending extends true ? null : Hash
           blockNumber: pending extends true ? null : uint256
@@ -37,7 +37,7 @@ export type GetUserOperationByHashReturnType<
           userOperation: UserOperation<entryPointVersion, uint256>
         }
       : never)
-  | (entryPointVersion extends '0.0.0' ? never : never)
+  | (entryPointVersion extends '0.0' ? never : never)
 >
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#entrypoint-definition */
@@ -45,7 +45,7 @@ export type PackedUserOperation<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
 > = OneOf<
-  | (entryPointVersion extends '0.7.0'
+  | (entryPointVersion extends '0.7'
       ? {
           /** Concatenation of {@link UserOperation`verificationGasLimit`} (16 bytes) and {@link UserOperation`callGasLimit`} (16 bytes) */
           accountGasLimits: Hex
@@ -67,7 +67,7 @@ export type PackedUserOperation<
           signature: Hex
         }
       : never)
-  | (entryPointVersion extends '0.0.0' ? never : never)
+  | (entryPointVersion extends '0.0' ? never : never)
 >
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#useroperation */
@@ -75,7 +75,7 @@ export type UserOperation<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
 > = OneOf<
-  | (entryPointVersion extends '0.7.0'
+  | (entryPointVersion extends '0.7'
       ? {
           /** The data to pass to the `sender` during the main execution call. */
           callData: Hex
@@ -109,24 +109,24 @@ export type UserOperation<
           verificationGasLimit: uint256
         }
       : never)
-  | (entryPointVersion extends '0.0.0' ? never : never)
+  | (entryPointVersion extends '0.0' ? never : never)
 >
 
 export type UserOperationRequest<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
 > = OneOf<
-  | (entryPointVersion extends '0.7.0'
+  | (entryPointVersion extends '0.7'
       ? UnionPartialBy<
-          UserOperation<'0.7.0', uint256>,
+          UserOperation<'0.7', uint256>,
           // We are able to calculate these via `prepareUserOperationRequest`.
-          | keyof EstimateUserOperationGasReturnType<'0.7.0'>
+          | keyof EstimateUserOperationGasReturnType<'0.7'>
           | 'nonce'
           | 'sender'
           | 'signature'
         >
       : never)
-  | (entryPointVersion extends '0.0.0' ? never : never)
+  | (entryPointVersion extends '0.0' ? never : never)
 >
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_getuseroperationreceipt */
@@ -136,7 +136,7 @@ export type UserOperationReceipt<
   int32 = number,
   status = 'success' | 'reverted',
 > = OneOf<
-  | (entryPointVersion extends '0.7.0'
+  | (entryPointVersion extends '0.7'
       ? {
           /** Actual gas cost. */
           actualGasCost: uint256
@@ -161,5 +161,5 @@ export type UserOperationReceipt<
           userOpHash: Hash
         }
       : never)
-  | (entryPointVersion extends '0.0.0' ? never : never)
+  | (entryPointVersion extends '0.0' ? never : never)
 >

@@ -60,8 +60,8 @@ importers:
         specifier: ^5.17.4
         version: 5.17.4(@types/node@20.14.0)(typescript@5.5.2)
       prool:
-        specifier: ^0.0.11
-        version: 0.0.11(@pimlico/alto@0.0.0-alto-package.20240605T105414(typescript@5.5.2))
+        specifier: ^0.0.12
+        version: 0.0.12(@pimlico/alto@0.0.0-alto-package.20240605T105414(typescript@5.5.2))
       publint:
         specifier: ^0.2.8
         version: 0.2.8
@@ -1790,6 +1790,7 @@ packages:
 
   '@pimlico/alto@0.0.0-alto-package.20240605T105414':
     resolution: {integrity: sha512-iuQuA135J7Gfk3A7RYlnWlhHcF16tPx0vtgnTCgQdb1/npC8pObJGr0nuLCPAqRFiYpuoo3VktOWI7jSNmfx0w==}
+    deprecated: This canary version is deprecated because it is older than 2 days.
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -5382,8 +5383,8 @@ packages:
     resolution: {integrity: sha512-sF308EhTenb/pDRPakm+WgiN+VdM/T1RaHj1x+MvAuT8UiQP8JmOEbxVqtkbfR4LrvOg5n7ic01kRBDGXjYikA==}
     engines: {node: '>=10'}
 
-  prool@0.0.11:
-    resolution: {integrity: sha512-9wHxy1nS8vFUtWxseeMA0XiukaSJZX5/J2FjdjKs/k7FgbjfBOO6Iu704oxgJtp5uE1lfKvG/MtKpFa7+uyssg==}
+  prool@0.0.12:
+    resolution: {integrity: sha512-LexSbz4pfJHtjEV3rFKb6Y2G85k8heVUhoEeBZpet222hJs7cf3ZHMFaNUhrrpFpHF7pzCgJwJddwd9abiK1Yw==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -12691,7 +12692,7 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.0.11(@pimlico/alto@0.0.0-alto-package.20240605T105414(typescript@5.5.2)):
+  prool@0.0.12(@pimlico/alto@0.0.0-alto-package.20240605T105414(typescript@5.5.2)):
     dependencies:
       eventemitter3: 5.0.1
       execa: 9.1.0

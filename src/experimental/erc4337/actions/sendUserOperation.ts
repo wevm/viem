@@ -71,12 +71,8 @@ export type SendUserOperationErrorType = ErrorType
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const client = createClient({
- *   chain: mainnet,
- *   transport: http(),
- * }).extend({ bundlerClient })
  *
- * const values = await sendUserOperation(client, {
+ * const values = await sendUserOperation(bundlerClient, {
  *   account,
  *   callData: {
  *     to: '0x...',
@@ -137,7 +133,7 @@ export async function sendUserOperation<
       )
     return getChainContractAddress({
       chain,
-      contract: 'entryPoint070',
+      contract: 'entryPoint07',
     })
   })()
 

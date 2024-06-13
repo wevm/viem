@@ -90,10 +90,6 @@ export type EstimateUserOperationGasErrorType = ErrorType
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const client = createClient({
- *   chain: mainnet,
- *   transport: http(),
- * }).extend({ bundlerClient })
  *
  * const values = await estimateUserOperationGas(bundlerClient, {
  *   account,
@@ -161,7 +157,7 @@ export async function estimateUserOperationGas<
       )
     return getChainContractAddress({
       chain,
-      contract: 'entryPoint070',
+      contract: 'entryPoint07',
     })
   })()
 

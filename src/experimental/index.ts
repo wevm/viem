@@ -1,5 +1,15 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
+  type ToSmartAccountReturnType,
+  toSmartAccount,
+} from './erc4337/accounts/toSmartAccount.js'
+export {
+  type SoladyImplementation,
+  type SoladyImplementationParameters,
+  type SoladyImplementationReturnType,
+  solady,
+} from './erc4337/accounts/implementations/solady.js'
+export {
   type GetSupportedEntryPointsErrorType,
   type GetSupportedEntryPointsReturnType,
   getSupportedEntryPoints,

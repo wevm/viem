@@ -63,7 +63,7 @@
     "ethers": "^6.0.2",
     "glob": "^10.4.1",
     "knip": "^5.17.4",
-    "prool": "^0.0.11",
+    "prool": "^0.0.12",
     "publint": "^0.2.8",
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.8.1",
@@ -128,6 +128,12 @@
       "path": "./src/_esm/accounts/index.js",
       "limit": "92 kB",
       "import": "*"
+    },
+    {
+      "name": "import { coinbase, toSmartAccount } from 'viem/accounts'",
+      "path": "./src/_esm/accounts/index.js",
+      "limit": "20 kB",
+      "import": "{ coinbase, toSmartAccount }"
     },
     {
       "name": "import { privateKeyToAccount } from 'viem/accounts'",

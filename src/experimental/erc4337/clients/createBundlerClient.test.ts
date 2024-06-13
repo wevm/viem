@@ -18,12 +18,15 @@ test('creates', () => {
       "ccipRead": undefined,
       "chain": undefined,
       "entryPointVersion": undefined,
+      "estimateUserOperationGas": [Function],
       "extend": [Function],
       "getChainId": [Function],
+      "getSupportedEntryPoints": [Function],
       "key": "bundler",
       "name": "Bundler Client",
       "pollingInterval": 4000,
       "request": [Function],
+      "sendUserOperation": [Function],
       "type": "bundlerClient",
     }
   `)

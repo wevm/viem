@@ -7,7 +7,10 @@ const client = anvilMainnet.getClient().extend(bundlerActions())
 test('default', async () => {
   expect(bundlerActions()(client)).toMatchInlineSnapshot(`
     {
+      "estimateUserOperationGas": [Function],
       "getChainId": [Function],
+      "getSupportedEntryPoints": [Function],
+      "sendUserOperation": [Function],
     }
   `)
 })

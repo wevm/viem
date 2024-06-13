@@ -1,5 +1,5 @@
 /** @link https://github.com/eth-infinitism/account-abstraction/releases */
-export type EntryPointVersion = '0.0.0' | '0.7.0'
+export type EntryPointVersion = '0.0' | '0.7'
 
 export type DeriveEntryPointVersion<
   version extends EntryPointVersion | undefined,

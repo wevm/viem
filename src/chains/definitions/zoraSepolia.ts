@@ -28,7 +28,7 @@ export const zoraSepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
-    entryPoint070: {
+    entryPoint07: {
       address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
     },
     l2OutputOracle: {

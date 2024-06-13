@@ -5,6 +5,7 @@ import type {
   BundlerClient,
   BundlerClientConfig,
 } from '../../src/experimental/erc4337/clients/createBundlerClient.js'
+import type { EntryPointVersion } from '../../src/experimental/erc4337/types/entryPointVersion.js'
 import {
   http,
   type Chain,
@@ -46,7 +47,9 @@ type DefineBundlerReturnType<chain extends Chain> = {
     config['transport'] extends Transport ? config['transport'] : Transport,
     config['chain'] extends false ? undefined : chain,
     undefined,
-    config['entryPointVersion'],
+    config['entryPointVersion'] extends EntryPointVersion
+      ? config['entryPointVersion']
+      : EntryPointVersion,
     undefined
   >
   port: number
@@ -103,7 +106,7 @@ function defineBundler<const chain extends Chain>({
         instance: (key) =>
           alto({
             enableDebugEndpoints: true,
-            entrypoints: [(chain.contracts?.entryPoint070 as any).address],
+            entrypoints: [(chain.contracts?.entryPoint07 as any).address],
             entrypointSimulationContract:
               '0x74Cb5e4eE81b86e70f9045036a1C5477de69eE87',
             executorPrivateKeys: [accounts[0].privateKey],

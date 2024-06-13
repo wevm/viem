@@ -1,24 +1,18 @@
-import { parseAbi } from 'abitype'
 import { expect, test } from 'vitest'
-import { simpleAccountFactoryAbi } from '../../../../test/src/abis.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import {
-  accounts,
-  simpleAccountFactoryAddress,
-} from '../../../../test/src/constants.js'
+import { accounts } from '../../../../test/src/constants.js'
+import { deployMock4337Account } from '../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   estimateFeesPerGas,
   mine,
-  readContract,
-  sendTransaction,
-  signMessage,
   writeContract,
 } from '../../../actions/index.js'
-import { encodeFunctionData, parseEther } from '../../../utils/index.js'
+import { pad, parseEther } from '../../../utils/index.js'
+import { solady } from '../accounts/implementations/solady.js'
+import { toSmartAccount } from '../accounts/toSmartAccount.js'
 import type { UserOperation } from '../types/userOperation.js'
-import { getUserOperationHash } from '../utils/getUserOperationHash.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 import { sendUserOperation } from './sendUserOperation.js'
 
@@ -29,51 +23,46 @@ const client = anvilMainnet.getClient({ account: ownerAccount })
 const bundlerClient = bundlerMainnet.getBundlerClient()
 
 test('default', async () => {
-  const salt = BigInt(Math.floor(Math.random() * 100))
+  const { factoryAddress } = await deployMock4337Account()
+
+  const account = await toSmartAccount({
+    implementation: solady({
+      factoryAddress,
+      owner: ownerAddress,
+    }),
+  }).initialize(client)
 
   await writeContract(client, {
-    address: simpleAccountFactoryAddress,
-    abi: simpleAccountFactoryAbi,
+    ...account.factory,
     functionName: 'createAccount',
-    args: [ownerAddress, salt],
+    args: [ownerAddress, pad('0x0')],
   })
   await mine(client, {
     blocks: 1,
   })
 
-  const address = await readContract(client, {
-    abi: simpleAccountFactoryAbi,
-    address: simpleAccountFactoryAddress,
-    functionName: 'getAddress',
-    args: [ownerAddress, salt],
-  })
-
-  await sendTransaction(client, {
-    to: address,
+  await writeContract(client, {
+    abi: account.abi,
+    address: account.address,
+    functionName: 'addDeposit',
     value: parseEther('1'),
   })
   await mine(client, {
     blocks: 1,
   })
 
-  const nonce = await readContract(client, {
-    abi: parseAbi(['function getNonce() pure returns (uint256)']),
-    address,
-    functionName: 'getNonce',
-  })
-
-  const callData = encodeFunctionData({
-    abi: parseAbi(['function execute(address, uint256, bytes)']),
-    functionName: 'execute',
-    args: ['0x0000000000000000000000000000000000000000', 0n, '0x'],
-  })
-
-  const dummySignature =
-    '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
+  const nonce = await account.getNonce()
+  const callData = await account.getCallData([
+    {
+      to: '0x0000000000000000000000000000000000000000',
+      value: parseEther('1'),
+    },
+  ])
+  const dummySignature = await account.getFormattedSignature()
 
   const fees = await estimateFeesPerGas(client)
   const gas = await estimateUserOperationGas(bundlerClient, {
-    account: address,
+    account,
     callData,
     nonce,
     signature: dummySignature,
@@ -84,25 +73,15 @@ test('default', async () => {
     ...gas,
     callData,
     nonce,
-    sender: address,
+    sender: account.address,
     signature: dummySignature,
   } as const satisfies UserOperation
 
-  const userOpHash = getUserOperationHash({
-    chainId: client.chain.id,
-    entryPointAddress: client.chain.contracts.entryPoint070.address,
-    userOperation,
-  })
-
-  const signature = await signMessage(client, {
-    message: {
-      raw: userOpHash,
-    },
-  })
+  const signature = await account.signUserOperation({ userOperation })
 
   expect(
     await sendUserOperation(bundlerClient, {
-      account: address,
+      account,
       ...userOperation,
       signature,
     }),
@@ -110,76 +89,58 @@ test('default', async () => {
 })
 
 test('args: factory + factoryData', async () => {
-  const salt = BigInt(Math.floor(Math.random() * 100))
+  const { factoryAddress } = await deployMock4337Account()
 
   const fees = await estimateFeesPerGas(client)
 
-  const address = await readContract(client, {
-    abi: simpleAccountFactoryAbi,
-    address: simpleAccountFactoryAddress,
-    functionName: 'getAddress',
-    args: [ownerAddress, salt],
-  })
+  const account = await toSmartAccount({
+    implementation: solady({
+      factoryAddress,
+      owner: ownerAddress,
+    }),
+  }).initialize(client)
 
-  await sendTransaction(client, {
-    to: address,
-    value: parseEther('1'),
+  await writeContract(client, {
+    abi: account.abi,
+    address: account.address,
+    functionName: 'addDeposit',
+    value: parseEther('5'),
   })
   await mine(client, {
     blocks: 1,
   })
 
-  const callData = encodeFunctionData({
-    abi: parseAbi(['function execute(address, uint256, bytes)']),
-    functionName: 'execute',
-    args: ['0x0000000000000000000000000000000000000000', 0n, '0x'],
-  })
-
-  const dummySignature =
-    '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
+  const callData = await account.getCallData([
+    {
+      to: accounts[2].address,
+      value: parseEther('1'),
+    },
+  ])
+  const dummySignature = await account.getFormattedSignature()
+  const nonce = await account.getNonce()
+  const { factory, factoryData } = await account.getFactoryArgs()
 
   const gas = await estimateUserOperationGas(bundlerClient, {
-    account: address,
+    account,
     callData,
-    factory: simpleAccountFactoryAddress,
-    factoryData: encodeFunctionData({
-      abi: simpleAccountFactoryAbi,
-      functionName: 'createAccount',
-      args: [ownerAddress, salt],
-    }),
-    nonce: 0n,
+    factory,
+    factoryData,
+    nonce,
     signature: dummySignature,
   })
 
   const userOperation = {
     ...fees,
     ...gas,
-    account: address,
+    account,
     callData,
-    factory: simpleAccountFactoryAddress,
-    factoryData: encodeFunctionData({
-      abi: simpleAccountFactoryAbi,
-      functionName: 'createAccount',
-      args: [ownerAddress, salt],
-    }),
-    nonce: 0n,
+    factory,
+    factoryData,
+    nonce,
     signature: dummySignature,
   } as const
 
-  const userOpHash = getUserOperationHash({
-    chainId: client.chain.id,
-    entryPointAddress: client.chain.contracts.entryPoint070.address,
-    userOperation: {
-      ...userOperation,
-      sender: address,
-    },
-  })
-
-  const signature = await signMessage(client, {
-    message: {
-      raw: userOpHash,
-    },
-  })
+  const signature = await account.signUserOperation({ userOperation })
 
   expect(
     await sendUserOperation(bundlerClient, { ...userOperation, signature }),

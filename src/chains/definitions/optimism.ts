@@ -27,7 +27,7 @@ export const optimism = /*#__PURE__*/ defineChain({
         address: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
       },
     },
-    entryPoint070: {
+    entryPoint07: {
       address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
     },
     l2OutputOracle: {
