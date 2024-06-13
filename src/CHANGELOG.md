@@ -1,5 +1,11 @@
 # viem
 
+## 2.13.10
+
+### Patch Changes
+
+- [#2399](https://github.com/wevm/viem/pull/2399) [`a61a90c`](https://github.com/wevm/viem/commit/a61a90c077c02cee80c88256461d5a71a35dbc0f) Thanks [@jxom](https://github.com/jxom)! - Added `getEip712Domain` Action.
+
 ## 2.13.9
 
 ### Patch Changes
