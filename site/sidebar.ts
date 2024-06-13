@@ -1083,8 +1083,34 @@ export const sidebar = {
         text: 'ERC-4337',
         items: [
           {
+            text: 'Accounts',
+            items: [
+              {
+                text: 'toSmartAccount',
+                link: '/experimental/erc4337/toSmartAccount',
+              },
+              {
+                text: 'Implementations',
+                items: [
+                  {
+                    text: 'Solady',
+                    link: '/experimental/erc4337/solady',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: 'Bundler Client',
+            link: '/experimental/erc4337/createBundlerClient',
+          },
+          {
             text: 'Bundler Actions',
             items: [
+              {
+                text: 'estimateUserOperationGas',
+                link: '/experimental/erc4337/estimateUserOperationGas',
+              },
               {
                 text: 'getChainId',
                 link: '/experimental/erc4337/getChainId',
@@ -1092,6 +1118,10 @@ export const sidebar = {
               {
                 text: 'getSupportedEntryPoints',
                 link: '/experimental/erc4337/getSupportedEntryPoints',
+              },
+              {
+                text: 'sendUserOperation',
+                link: '/experimental/erc4337/sendUserOperation',
               },
             ],
           },
