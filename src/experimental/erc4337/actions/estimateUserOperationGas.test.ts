@@ -176,7 +176,7 @@ test('error: account not deployed', async () => {
     Request body: {"method":"eth_estimateUserOperationGas","params":[{"callData":"0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0","sender":"0x215181Bf237336849bb2Ae506dffE31666cb73B9","signature":"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"},"0x0000000071727De22E5E9d8BAf0edAc6f37da032"]}
 
     Details: UserOperation reverted during simulation with reason: AA20 account not deployed
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
@@ -243,6 +243,6 @@ test('error: account not defined', async () => {
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
 
     Docs: https://viem.sh/docs/actions/wallet/sendTransaction#account
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
