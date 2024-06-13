@@ -104,6 +104,15 @@ export const sidebar = {
           ],
         },
         {
+          text: 'EIP-712',
+          items: [
+            {
+              text: 'getEip712Domain',
+              link: '/docs/actions/public/getEip712Domain',
+            },
+          ],
+        },
+        {
           text: 'Fee',
           items: [
             {
