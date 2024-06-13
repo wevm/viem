@@ -1,6 +1,7 @@
 import { type Address, type TypedData, parseAbi } from 'abitype'
 
 import { parseAccount } from '../../../../accounts/utils/parseAccount.js'
+import { getEip712Domain } from '../../../../actions/public/getEip712Domain.js'
 import { readContract } from '../../../../actions/public/readContract.js'
 import { signMessage } from '../../../../actions/wallet/signMessage.js'
 import { signTypedData } from '../../../../actions/wallet/signTypedData.js'
@@ -137,20 +138,12 @@ export function solady(
         const { message } = parameters
 
         const address = await this.getAddress()
-        const [_, name, version, chainId, verifyingContract] =
-          await readContract(client, {
-            abi,
-            address,
-            functionName: 'eip712Domain',
-          })
+        const {
+          domain: { salt, ...domain },
+        } = await getEip712Domain(client, { address })
         const signature = await signTypedData(client, {
           account: owner,
-          domain: {
-            chainId: Number(chainId),
-            name,
-            verifyingContract,
-            version,
-          },
+          domain,
           types: {
             PersonalSign: [{ name: 'prefixed', type: 'bytes' }],
           },
@@ -170,18 +163,12 @@ export function solady(
         const address = await this.getAddress()
 
         // Retrieve account EIP712 domain.
-        const [
-          fields,
-          name,
-          version,
-          chainId,
-          verifyingContract,
-          salt,
+        const {
+          domain: accountDomain,
           extensions,
-        ] = await readContract(client, {
-          abi,
+          fields,
+        } = await getEip712Domain(client, {
           address,
-          functionName: 'eip712Domain',
         })
 
         // Sign with typed data wrapper.
@@ -205,12 +192,8 @@ export function solady(
           message: {
             contents: message as any,
             fields,
-            name,
-            version,
-            chainId,
-            verifyingContract,
-            salt,
             extensions,
+            ...(accountDomain as any),
           },
         })
 
