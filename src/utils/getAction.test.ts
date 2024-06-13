@@ -48,3 +48,13 @@ test('e2e', async () => {
     }),
   ).toEqual(69n)
 })
+
+test('should work with a syncronous action returning falsy value', async () => {
+  const returnNull = () => null
+  const returnTrue = () => true
+  const client_2 = client.extend(() => ({
+    syncAction: returnNull,
+  }))
+  const result = getAction(client_2, returnTrue, 'syncAction')({})
+  expect(result).toEqual(undefined)
+})

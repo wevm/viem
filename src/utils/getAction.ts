@@ -19,8 +19,18 @@ export function getAction<params extends {}, returnType extends {}>(
     [key: string]: (params: params) => returnType
   }
 
-  return (params: params): returnType =>
-    (client as DecoratedClient)[action.name]?.(params) ??
-    (client as DecoratedClient)[name]?.(params) ??
-    action(client, params)
+  return (params: params): returnType => {
+    if ((client as DecoratedClient)[action.name] !== undefined) {
+      return (
+        (client as DecoratedClient)[action.name]?.(params) ??
+        action(client, params)
+      )
+    }
+    if ((client as DecoratedClient)[name] !== undefined) {
+      return (
+        (client as DecoratedClient)[name]?.(params) ?? action(client, params)
+      )
+    }
+    return action(client, params)
+  }
 }
