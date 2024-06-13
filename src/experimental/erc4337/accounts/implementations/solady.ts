@@ -1,4 +1,4 @@
-import { type Address, parseAbi } from 'abitype'
+import { type Address, type TypedData, parseAbi } from 'abitype'
 
 import { parseAccount } from '../../../../accounts/utils/parseAccount.js'
 import { readContract } from '../../../../actions/public/readContract.js'
@@ -7,10 +7,19 @@ import { signTypedData } from '../../../../actions/wallet/signTypedData.js'
 import type { Account } from '../../../../types/account.js'
 import type { Chain } from '../../../../types/chain.js'
 import type { Hex } from '../../../../types/misc.js'
+import type { TypedDataDefinition } from '../../../../types/typedData.js'
 import { encodeFunctionData } from '../../../../utils/abi/encodeFunctionData.js'
+import { encodePacked } from '../../../../utils/abi/encodePacked.js'
 import { getChainContractAddress } from '../../../../utils/chain/getChainContractAddress.js'
 import { pad } from '../../../../utils/data/pad.js'
+import { size } from '../../../../utils/data/size.js'
+import { stringToHex } from '../../../../utils/encoding/toHex.js'
+import {
+  encodeType,
+  hashStruct,
+} from '../../../../utils/signature/hashTypedData.js'
 import { toPrefixedMessage } from '../../../../utils/signature/toPrefixedMessage.js'
+import { getTypesForEIP712Domain } from '../../../../utils/typedData.js'
 import { getUserOperationHash } from '../../utils/getUserOperationHash.js'
 import type {
   SmartAccountImplementation,
@@ -153,71 +162,78 @@ export function solady(
 
         return signature
       },
-      async signTypedData(_parameters) {
-        throw new Error('TODO')
-        // const { domain, types, primaryType, message } = parameters
-        // const address = await this.getAddress()
-        // const [
-        //   fields,
-        //   name,
-        //   version,
-        //   chainId,
-        //   verifyingContract,
-        //   salt,
-        //   extensions,
-        // ] = await readContract(client, {
-        //   abi,
-        //   address,
-        //   functionName: 'eip712Domain',
-        // })
-        // const signature = await signTypedData(client, {
-        //   account: this._internal.owner,
-        //   domain: domain as any,
-        //   types: {
-        //     ...types,
-        //     TypedDataSign: [
-        //       { name: 'contents', type: primaryType },
-        //       { name: 'fields', type: 'bytes1' },
-        //       { name: 'name', type: 'string' },
-        //       { name: 'version', type: 'string' },
-        //       { name: 'chainId', type: 'uint256' },
-        //       { name: 'verifyingContract', type: 'address' },
-        //       { name: 'salt', type: 'bytes32' },
-        //       { name: 'extensions', type: 'uint256[]' },
-        //     ],
-        //   },
-        //   primaryType: 'TypedDataSign',
-        //   message: {
-        //     contents: message,
-        //     fields,
-        //     name,
-        //     version,
-        //     chainId,
-        //     verifyingContract,
-        //     salt,
-        //     extensions,
-        //   },
-        // })
-        // const hashedDomain = hashStruct({
-        //   data: domain as any,
-        //   types: {
-        //     EIP712Domain: getTypesForEIP712Domain({ domain: domain as any }),
-        //   },
-        //   primaryType: 'EIP712Domain',
-        // })
-        // const hashedContents =
-        //   // keccak256(stringToHex('123'))
-        //   '0x64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107'
-        // return encodePacked(
-        //   ['bytes', 'bytes32', 'bytes32', 'bytes', 'uint16'],
-        //   [
-        //     signature,
-        //     hashedDomain,
-        //     hashedContents,
-        //     stringToHex('Contents(bytes32 stuff)'),
-        //     size(stringToHex('Contents(bytes32 stuff)')),
-        //   ],
-        // )
+      async signTypedData(parameters) {
+        const { domain, types, primaryType, message } =
+          parameters as TypedDataDefinition<TypedData, string>
+
+        const address = await this.getAddress()
+        const [
+          fields,
+          name,
+          version,
+          chainId,
+          verifyingContract,
+          salt,
+          extensions,
+        ] = await readContract(client, {
+          abi,
+          address,
+          functionName: 'eip712Domain',
+        })
+        const signature = await signTypedData(client, {
+          account: owner,
+          domain,
+          types: {
+            ...types,
+            TypedDataSign: [
+              { name: 'contents', type: primaryType },
+              { name: 'fields', type: 'bytes1' },
+              { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' },
+              { name: 'salt', type: 'bytes32' },
+              { name: 'extensions', type: 'uint256[]' },
+            ],
+          },
+          primaryType: 'TypedDataSign',
+          message: {
+            contents: message as any,
+            fields,
+            name,
+            version,
+            chainId,
+            verifyingContract,
+            salt,
+            extensions,
+          },
+        })
+        const hashedDomain = hashStruct({
+          data: domain ?? {},
+          types: {
+            EIP712Domain: getTypesForEIP712Domain({ domain }),
+          },
+          primaryType: 'EIP712Domain',
+        })
+        const hashedContents = hashStruct({
+          data: message,
+          types,
+          primaryType,
+        })
+        const encodedType = encodeType({
+          primaryType,
+          types,
+        })
+        return encodePacked(
+          ['bytes', 'bytes32', 'bytes32', 'bytes', 'uint16'],
+          [
+            signature,
+            hashedDomain,
+            hashedContents,
+            stringToHex(encodedType),
+            size(stringToHex(encodedType)),
+          ],
+        )
       },
       async signUserOperation(parameters) {
         const { chainId = chain!.id, userOperation } = parameters

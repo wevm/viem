@@ -2,7 +2,7 @@ import type { Address } from 'abitype'
 import { beforeAll, describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../../../test/src/anvil.js'
-import { accounts } from '../../../../../test/src/constants.js'
+import { accounts, typedData } from '../../../../../test/src/constants.js'
 import { deployMock4337Account } from '../../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../../accounts/privateKeyToAccount.js'
 import {
@@ -11,7 +11,7 @@ import {
   verifyTypedData,
   writeContract,
 } from '../../../../actions/index.js'
-import { keccak256, pad, stringToHex } from '../../../../utils/index.js'
+import { pad } from '../../../../utils/data/pad.js'
 import { solady } from './solady.js'
 
 const client = anvilMainnet.getClient({ account: true })
@@ -258,7 +258,7 @@ describe('return value: signMessage', () => {
   })
 })
 
-describe.skip('return value: signTypedData', () => {
+describe('return value: signTypedData', () => {
   test('default', async () => {
     const implementation = solady({
       factoryAddress,
@@ -274,28 +274,16 @@ describe.skip('return value: signTypedData', () => {
       blocks: 1,
     })
 
-    const typedData = {
-      domain: {
-        name: 'Ether Mail',
-        version: '1',
-        chainId: 1,
-        verifyingContract: '0x0000000000000000000000000000000000000000',
-      },
-      types: {
-        Contents: [{ name: 'stuff', type: 'bytes32' }],
-      },
-      primaryType: 'Contents',
-      message: {
-        stuff: keccak256(stringToHex('123')),
-      },
-    } as const
-
-    const signature = await implementation.signTypedData(typedData)
+    const signature = await implementation.signTypedData({
+      ...typedData.basic,
+      primaryType: 'Mail',
+    })
 
     const result = await verifyTypedData(client, {
       address: await implementation.getAddress(),
       signature,
-      ...typedData,
+      ...typedData.basic,
+      primaryType: 'Mail',
     })
     expect(result).toBeTruthy()
   })
