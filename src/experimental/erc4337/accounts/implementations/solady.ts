@@ -166,7 +166,10 @@ export function solady(
         const { domain, types, primaryType, message } =
           parameters as TypedDataDefinition<TypedData, string>
 
+        // Get account address.
         const address = await this.getAddress()
+
+        // Retrieve account EIP712 domain.
         const [
           fields,
           name,
@@ -180,6 +183,8 @@ export function solady(
           address,
           functionName: 'eip712Domain',
         })
+
+        // Sign with typed data wrapper.
         const signature = await signTypedData(client, {
           account: owner,
           domain,
@@ -208,6 +213,8 @@ export function solady(
             extensions,
           },
         })
+
+        // Compute dependencies for wrapped signature.
         const hashedDomain = hashStruct({
           data: domain ?? {},
           types: {
@@ -224,6 +231,8 @@ export function solady(
           primaryType,
           types,
         })
+
+        // Construct wrapped signature.
         return encodePacked(
           ['bytes', 'bytes32', 'bytes32', 'bytes', 'uint16'],
           [
