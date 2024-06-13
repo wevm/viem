@@ -27,8 +27,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       '@pimlico/alto':
-        specifier: 0.0.0-alto-package.20240605T105414
-        version: 0.0.0-alto-package.20240605T105414(typescript@5.5.2)
+        specifier: 0.0.4
+        version: 0.0.4(typescript@5.5.2)
       '@size-limit/preset-big-lib':
         specifier: ^11.1.2
         version: 11.1.2(size-limit@11.1.2)
@@ -61,7 +61,7 @@ importers:
         version: 5.17.4(@types/node@20.14.0)(typescript@5.5.2)
       prool:
         specifier: ^0.0.12
-        version: 0.0.12(@pimlico/alto@0.0.0-alto-package.20240605T105414(typescript@5.5.2))
+        version: 0.0.12(@pimlico/alto@0.0.4(typescript@5.5.2))
       publint:
         specifier: ^0.2.8
         version: 0.2.8
@@ -1251,6 +1251,9 @@ packages:
 
   '@fastify/ajv-compiler@3.5.0':
     resolution: {integrity: sha512-ebbEtlI7dxXF5ziNdr05mOY8NnDiPB1XvAlLHctRt/Rc+C3LCOVW5imUVX+mhvUhnNzmPBHewUkOFgGlCxgdAA==}
+
+  '@fastify/cors@9.0.1':
+    resolution: {integrity: sha512-YY9Ho3ovI+QHIL2hW+9X4XqQjXLjJqsU+sMV/xFsxZkE8p3GNnYVFpoOxF7SsP5ZL76gwvbo3V9L+FIekBGU4Q==}
 
   '@fastify/error@3.4.1':
     resolution: {integrity: sha512-wWSvph+29GR783IhmvdwWnN4bUxTD01Vm5Xad4i7i1VuAOItLvbPAb69sb0IQ2N57yprvhNIwAP5B6xfKTmjmQ==}
@@ -3762,12 +3765,6 @@ packages:
   fast-uri@2.3.1:
     resolution: {integrity: sha512-iC7SLdMJx2KGdBkhJ6UulbNfpeIGTMS3/OIJpPa1JkZu9DKVQmPtBBme9Esoa4XP2eLGaHBv4vzRqlolXKo9cg==}
 
-  fastify-cors@3.0.3:
-    resolution: {integrity: sha512-SDMa+GtyTTAU7pWZwY4fukb/VwCZ4c30p0oEaE7/d/+VCvceB1+NzW2udp2dSZZfWR7J1kUookCpw2dLmtAsSw==}
-
-  fastify-plugin@1.6.1:
-    resolution: {integrity: sha512-APBcb27s+MjaBIerFirYmBLatoPCgmHZM6XP0K+nDL9k0yX8NJPWDY1RAC3bh6z+AB5ULS2j31BUfLMT3uaZ4A==}
-
   fastify-plugin@4.5.1:
     resolution: {integrity: sha512-stRHYGeuqpEZTL1Ef0Ovr2ltazUT9g844X5z/zEBFLG8RYlpDiOCIG+ATvYEp+/zmc7sN29mcIMp8gvYplYPIQ==}
 
@@ -4895,6 +4892,9 @@ packages:
   mlly@1.7.0:
     resolution: {integrity: sha512-U9SDaXGEREBYQgfejV97coK0UL1r+qnF2SyO9A3qcI8MzKnsIFKHNVEkrDyNncQTKQQumsasmeq84eNMdBfsNQ==}
 
+  mnemonist@0.39.6:
+    resolution: {integrity: sha512-A/0v5Z59y63US00cRSLiloEIw3t5G+MiKz4BhX21FI+YBJXBOGW0ohFxTxO08dsOYlzxo87T7vGfZKYp2bcAWA==}
+
   modern-ahocorasick@1.0.1:
     resolution: {integrity: sha512-yoe+JbhTClckZ67b2itRtistFKf8yPYelHLc7e5xAwtNAXxM6wJTUx2C7QeVSJFDzKT7bCIFyBVybPMKvmB9AA==}
 
@@ -5059,6 +5059,9 @@ packages:
   object.assign@4.1.5:
     resolution: {integrity: sha512-byy+U7gp+FVwmyzKPYhW2h5l3crpmGsxl7X2s8y43IgxvG4g3QZ6CffDtsNQy1WsmZpQbO+ybo0AlW7TY6DcBQ==}
     engines: {node: '>= 0.4'}
+
+  obliterator@2.0.4:
+    resolution: {integrity: sha512-lgHwxlxV1qIg1Eap7LgIeoBWIMFibOjbrYPIPJZcI1mmGAI2m3lNYpK12Y+GBdPQ0U1hRwSord7GIaawz962qQ==}
 
   ofetch@1.3.4:
     resolution: {integrity: sha512-KLIET85ik3vhEfS+3fDlc/BAZiAp+43QEC/yCo5zkNoY2YaKvNkOaFr/6wCFgFH1kuYQM5pMNi0Tg8koiIemtw==}
@@ -5390,10 +5393,6 @@ packages:
     peerDependenciesMeta:
       '@pimlico/alto':
         optional: true
-
-  prool@0.0.8:
-    resolution: {integrity: sha512-Dhy0HxSncqVLX4rcOgqpUUSPVnLE5IwcSXuIR4udRk0jSrPg85qhtmE5xglHHomZrvmlxAIqc/W2K015b3Oulw==}
-    engines: {node: '>=22'}
 
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
@@ -7526,6 +7525,11 @@ snapshots:
       ajv-formats: 2.1.1
       fast-uri: 2.3.1
 
+  '@fastify/cors@9.0.1':
+    dependencies:
+      fastify-plugin: 4.5.1
+      mnemonist: 0.39.6
+
   '@fastify/error@3.4.1': {}
 
   '@fastify/fast-json-stringify-compiler@4.3.0':
@@ -8114,8 +8118,9 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.4.1
       '@parcel/watcher-win32-x64': 2.4.1
 
-  '@pimlico/alto@0.0.0-alto-package.20240605T105414(typescript@5.5.2)':
+  '@pimlico/alto@0.0.4(typescript@5.5.2)':
     dependencies:
+      '@fastify/cors': 9.0.1
       '@fastify/websocket': 10.0.1
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.25.1(@opentelemetry/api@1.9.0)
@@ -8133,22 +8138,18 @@ snapshots:
       abitype: 0.8.11(typescript@5.5.2)(zod@3.22.4)
       async-mutex: 0.4.1
       dotenv: 16.4.5
-      execa: 9.1.0
       fastify: 4.27.0
-      fastify-cors: 3.0.3
       opentelemetry-instrumentation-fetch-node: 1.2.0
       pino: 8.21.0
       pino-http: 8.6.1
       pino-pretty: 10.3.1
       prom-client: 14.2.0
-      prool: 0.0.8
       viem: 2.17.11(typescript@5.5.2)(zod@3.22.4)
       yargs: 17.7.2
       zod: 3.22.4
       zod-validation-error: 1.5.0(zod@3.22.4)
     transitivePeerDependencies:
       - bufferutil
-      - debug
       - supports-color
       - typescript
       - utf-8-validate
@@ -10676,15 +10677,6 @@ snapshots:
 
   fast-uri@2.3.1: {}
 
-  fastify-cors@3.0.3:
-    dependencies:
-      fastify-plugin: 1.6.1
-      vary: 1.1.2
-
-  fastify-plugin@1.6.1:
-    dependencies:
-      semver: 6.3.1
-
   fastify-plugin@4.5.1: {}
 
   fastify@4.27.0:
@@ -12189,6 +12181,10 @@ snapshots:
       pkg-types: 1.1.1
       ufo: 1.5.3
 
+  mnemonist@0.39.6:
+    dependencies:
+      obliterator: 2.0.4
+
   modern-ahocorasick@1.0.1: {}
 
   module-details-from-path@1.0.3: {}
@@ -12337,6 +12333,8 @@ snapshots:
       define-properties: 1.2.1
       has-symbols: 1.0.3
       object-keys: 1.1.1
+
+  obliterator@2.0.4: {}
 
   ofetch@1.3.4:
     dependencies:
@@ -12691,23 +12689,14 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.0.12(@pimlico/alto@0.0.0-alto-package.20240605T105414(typescript@5.5.2)):
+  prool@0.0.12(@pimlico/alto@0.0.4(typescript@5.5.2)):
     dependencies:
       eventemitter3: 5.0.1
       execa: 9.1.0
       get-port: 7.1.0
       http-proxy: 1.18.1
     optionalDependencies:
-      '@pimlico/alto': 0.0.0-alto-package.20240605T105414(typescript@5.5.2)
-    transitivePeerDependencies:
-      - debug
-
-  prool@0.0.8:
-    dependencies:
-      eventemitter3: 5.0.1
-      execa: 9.1.0
-      get-port: 7.1.0
-      http-proxy: 1.18.1
+      '@pimlico/alto': 0.0.4(typescript@5.5.2)
     transitivePeerDependencies:
       - debug
 
