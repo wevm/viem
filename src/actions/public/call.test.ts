@@ -1,11 +1,19 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { OffchainLookupExample } from '~test/contracts/generated.js'
+import {
+  Mock4337Account,
+  Mock4337AccountFactory,
+  OffchainLookupExample,
+} from '~test/contracts/generated.js'
 import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
 import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
-import { deployOffchainLookupExample, mainnetClient } from '~test/src/utils.js'
+import {
+  deployMock4337Account,
+  deployOffchainLookupExample,
+  mainnetClient,
+} from '~test/src/utils.js'
 
 import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
@@ -20,6 +28,7 @@ import {
   http,
   type Hex,
   createClient,
+  decodeFunctionResult,
   encodeAbiParameters,
   pad,
   parseEther,
@@ -28,6 +37,7 @@ import {
   toHex,
 } from '../../index.js'
 import { call, getRevertErrorData } from './call.js'
+import { readContract } from './readContract.js'
 
 const client = anvilMainnet.getClient({ account: accounts[0].address })
 
@@ -992,6 +1002,77 @@ describe('batch call', () => {
           "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
         },
       ]
+    `)
+  })
+})
+
+describe('counterfactual contract call', () => {
+  test('call to account that has not been deployed', async () => {
+    const { factoryAddress } = await deployMock4337Account()
+
+    const address = await readContract(client, {
+      account: accounts[0].address,
+      abi: Mock4337AccountFactory.abi,
+      address: factoryAddress,
+      functionName: 'getAddress',
+      args: [pad('0x0')],
+    })
+    const data = encodeFunctionData({
+      abi: Mock4337Account.abi,
+      functionName: 'eip712Domain',
+    })
+    const factoryData = encodeFunctionData({
+      abi: Mock4337AccountFactory.abi,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x0')],
+    })
+
+    const result = await call(client, {
+      data,
+      factory: factoryAddress,
+      factoryData,
+      to: address,
+    })
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "data": "0x0f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000d8a0ab4f74d04b9ee34ceccef647051601720dc100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000000f4d6f636b343333374163636f756e740000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000131000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      }
+    `)
+
+    const decoded = decodeFunctionResult({
+      abi: Mock4337Account.abi,
+      data: result.data!,
+      functionName: 'eip712Domain',
+    })
+    expect(decoded).toMatchInlineSnapshot(`
+      [
+        "0x0f",
+        "Mock4337Account",
+        "1",
+        1n,
+        "0xd8a0AB4f74d04b9EE34CECCEF647051601720Dc1",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        [],
+      ]
+    `)
+  })
+
+  test('error: failed counterfactual deployment', async () => {
+    await expect(() =>
+      call(client, {
+        data: '0x',
+        factory: '0x0000000000000000000000000000000000000000',
+        factoryData: '0xdeadbeef',
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [CounterfactualDeploymentFailedError: Deployment for counterfactual contract call failed for factory "0x0000000000000000000000000000000000000000".
+
+      Please ensure:
+      - The \`factory\` is a valid contract deployment factory (ie. Create2 Factory, ERC-4337 Factory, etc).
+      - The \`factoryData\` is a valid encoded function call for contract deployment function on the factory.
+
+      Version: viem@x.y.z]
     `)
   })
 })
