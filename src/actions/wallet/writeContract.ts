@@ -128,7 +128,7 @@ export type WriteContractErrorType =
  *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
  *   functionName: 'mint',
  *   args: [69420],
- * }
+ * })
  * const hash = await writeContract(client, request)
  */
 export async function writeContract<
