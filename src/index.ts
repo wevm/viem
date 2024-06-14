@@ -720,6 +720,8 @@ export {
   type ContractFunctionZeroDataErrorType,
   RawContractError,
   type RawContractErrorType,
+  CounterfactualDeploymentFailedError,
+  type CounterfactualDeploymentFailedErrorType,
 } from './errors/contract.js'
 export {
   BaseFeeScalarError,

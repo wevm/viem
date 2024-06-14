@@ -176,6 +176,7 @@ test('exports', () => {
       "ContractFunctionRevertedError",
       "ContractFunctionZeroDataError",
       "RawContractError",
+      "CounterfactualDeploymentFailedError",
       "BaseFeeScalarError",
       "Eip1559FeesNotSupportedError",
       "MaxFeePerGasTooLowError",

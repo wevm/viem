@@ -1,4 +1,4 @@
-import type { Address } from 'abitype'
+import { type Address, parseAbi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import {
@@ -9,12 +9,14 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { aggregate3Signature } from '../../constants/contract.js'
+import { counterfactualContractCallByteCode } from '../../constants/contracts.js'
 import { BaseError } from '../../errors/base.js'
 import {
   ChainDoesNotSupportContract,
   ClientChainNotConfiguredError,
 } from '../../errors/chain.js'
 import {
+  CounterfactualDeploymentFailedError,
   RawContractError,
   type RawContractErrorType,
 } from '../../errors/contract.js'
@@ -25,11 +27,15 @@ import type { Hex } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import type { ExactPartial, UnionOmit } from '../../types/utils.js'
+import type { ExactPartial, OneOf, UnionOmit } from '../../types/utils.js'
 import {
   type DecodeFunctionResultErrorType,
   decodeFunctionResult,
 } from '../../utils/abi/decodeFunctionResult.js'
+import {
+  type EncodeDeployDataErrorType,
+  encodeDeployData,
+} from '../../utils/abi/encodeDeployData.js'
 import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
@@ -87,6 +93,18 @@ export type CallParameters<
          */
         blockTag?: BlockTag | undefined
       }
+  ) &
+  (
+    | {
+        /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
+        factory: Address
+        /** Calldata to execute on the factory to deploy the contract. */
+        factoryData: Hex
+      }
+    | {
+        factory?: undefined
+        factoryData?: undefined
+      }
   )
 type FormattedCall<TChain extends Chain | undefined = Chain | undefined> =
   FormattedTransactionRequest<TChain>
@@ -101,6 +119,7 @@ export type CallErrorType = GetCallErrorReturnType<
   | FormatTransactionRequestErrorType
   | ScheduleMulticallErrorType
   | RequestErrorType
+  | ToCounterfactualDataErrorType
 >
 
 /**
@@ -139,7 +158,9 @@ export async function call<TChain extends Chain | undefined>(
     blockTag = 'latest',
     accessList,
     blobs,
-    data,
+    data: data_,
+    factory,
+    factoryData,
     gas,
     gasPrice,
     maxFeePerBlobGas,
@@ -152,6 +173,17 @@ export async function call<TChain extends Chain | undefined>(
     ...rest
   } = args
   const account = account_ ? parseAccount(account_) : undefined
+
+  // Check if the call is going to be routed via a counterfactual contract deployment.
+  const counterfactual = factory && factoryData && to && data_
+  const data = (() => {
+    // If the call is going to be routed via a counterfactual contract deployment,
+    // we need to get the data to deploy the counterfactual contract, and then perform
+    // the call.
+    if (counterfactual)
+      return toCounterfactualData({ data: data_, factory, factoryData, to })
+    return data_
+  })()
 
   try {
     assertRequest(args as AssertRequestParameters)
@@ -177,7 +209,7 @@ export async function call<TChain extends Chain | undefined>(
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      to,
+      to: counterfactual ? undefined : to,
       value,
     } as TransactionRequest) as TransactionRequest
 
@@ -211,6 +243,8 @@ export async function call<TChain extends Chain | undefined>(
     return { data: response }
   } catch (err) {
     const data = getRevertErrorData(err)
+
+    // Check for CCIP-Read offchain lookup signature.
     const { offchainLookup, offchainLookupSignature } = await import(
       '../../utils/ccip.js'
     )
@@ -220,6 +254,11 @@ export async function call<TChain extends Chain | undefined>(
       to
     )
       return { data: await offchainLookup(client, { data, to }) }
+
+    // Check for counterfactual deployment error.
+    if (counterfactual && data?.slice(0, 10) === '0x101bb98d')
+      throw new CounterfactualDeploymentFailedError({ factory })
+
     throw getCallError(err as ErrorType, {
       ...args,
       account,
@@ -341,6 +380,25 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
   if (!success) throw new RawContractError({ data: returnData })
   if (returnData === '0x') return { data: undefined }
   return { data: returnData }
+}
+
+type ToCounterfactualDataErrorType = EncodeDeployDataErrorType | ErrorType
+
+function toCounterfactualData(parameters: {
+  data: Hex
+  factory: Address
+  factoryData: Hex
+  to: Address
+}) {
+  const { data, factory, factoryData, to } = parameters
+  return encodeDeployData({
+    abi: parseAbi([
+      'error CounterfactualDeployFailed(bytes)',
+      'constructor(address, bytes, address, bytes)',
+    ]),
+    bytecode: counterfactualContractCallByteCode,
+    args: [to, data, factory, factoryData],
+  })
 }
 
 /** @internal */
