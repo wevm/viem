@@ -57,7 +57,7 @@ The example below demonstrates how we can utilize a Deployless Call **via Byteco
 
 ```ts twoslash [example.ts]
 import { encodeFunctionData, parseAbi } from 'viem'
-import { account, publicClient } from './config'
+import { publicClient } from './config'
 
 const data = await publicClient.call({
   // Bytecode of the contract.
@@ -73,8 +73,6 @@ const data = await publicClient.call({
 ```ts twoslash [config.ts] filename="config.ts"
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-
-export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -92,7 +90,7 @@ The example below demonstrates how we can utilize a Deployless Call **via a [Dep
 
 ```ts twoslash [example.ts]
 import { encodeFunctionData, parseAbi } from 'viem'
-import { account, publicClient } from './config'
+import { owner, publicClient } from './config'
 
 const data = await publicClient.call({
   // Address of the contract deployer (e.g. Smart Account Factory).
@@ -102,7 +100,7 @@ const data = await publicClient.call({
   factoryData: encodeFunctionData({
     abi: parseAbi(['function createAccount(address owner, uint256 salt)']),
     functionName: 'createAccount',
-    args: [account, 0n],
+    args: [owner, 0n],
   }),
 
   // Function to call on the contract (e.g. Smart Account contract).
@@ -120,7 +118,7 @@ const data = await publicClient.call({
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+export const owner = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
 export const publicClient = createPublicClient({
   chain: mainnet,
