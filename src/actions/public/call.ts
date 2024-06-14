@@ -78,6 +78,10 @@ export type CallParameters<
 > = UnionOmit<FormattedCall<TChain>, 'from'> & {
   account?: Account | Address | undefined
   batch?: boolean | undefined
+  /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
+  factory?: Address | undefined
+  /** Calldata to execute on the factory to deploy the contract. */
+  factoryData?: Hex | undefined
   stateOverride?: StateOverride | undefined
 } & (
     | {
@@ -92,18 +96,6 @@ export type CallParameters<
          * @default 'latest'
          */
         blockTag?: BlockTag | undefined
-      }
-  ) &
-  (
-    | {
-        /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
-        factory: Address
-        /** Calldata to execute on the factory to deploy the contract. */
-        factoryData: Hex
-      }
-    | {
-        factory?: undefined
-        factoryData?: undefined
       }
   )
 type FormattedCall<TChain extends Chain | undefined = Chain | undefined> =

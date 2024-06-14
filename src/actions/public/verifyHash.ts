@@ -24,7 +24,7 @@ import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type VerifyHashParameters = Pick<
   CallParameters,
-  'blockNumber' | 'blockTag' | 'factory' | 'factoryData'
+  'blockNumber' | 'blockTag'
 > & {
   /** The address that signed the original message. */
   address: Address
