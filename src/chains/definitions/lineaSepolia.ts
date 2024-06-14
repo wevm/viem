@@ -1,4 +1,5 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
+import { lineaEstimateFeesPerGas } from '../../linea/index.js'
 
 export const lineaSepolia = /*#__PURE__*/ defineChain({
   id: 59_141,
@@ -24,4 +25,22 @@ export const lineaSepolia = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
+  fees: {
+    // Override the fees calculation to accurately price the fees
+    // on Linea using the rpc call linea_estimateGas
+    estimateFeesPerGas: lineaEstimateFeesPerGas,
+    async defaultPriorityFee(args): Promise<bigint> {
+      const { maxPriorityFeePerGas } = await lineaEstimateFeesPerGas({
+        client: args.client,
+        request: args.request,
+        type: 'eip1559',
+      } as any)
+
+      if (maxPriorityFeePerGas === undefined) {
+        throw new Error('maxPriorityFeePerGas is undefined')
+      }
+
+      return maxPriorityFeePerGas
+    },
+  },
 })
