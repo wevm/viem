@@ -1209,13 +1209,21 @@ export {
   compactSignatureToSignature,
 } from './utils/signature/compactSignatureToSignature.js'
 export {
-  type HexToCompactSignatureErrorType,
-  hexToCompactSignature,
-} from './utils/signature/hexToCompactSignature.js'
+  /** @deprecated Use `ParseCompactSignatureErrorType`. */
+  type ParseCompactSignatureErrorType as HexToCompactSignatureErrorType,
+  /** @deprecated Use `parseCompactSignature`. */
+  parseCompactSignature as hexToCompactSignature,
+  type ParseCompactSignatureErrorType,
+  parseCompactSignature,
+} from './utils/signature/parseCompactSignature.js'
 export {
-  type HexToSignatureErrorType,
-  hexToSignature,
-} from './utils/signature/hexToSignature.js'
+  /** @deprecated Use `ParseSignatureErrorType`. */
+  type ParseSignatureErrorType as HexToSignatureErrorType,
+  /** @deprecated Use `parseSignature`. */
+  parseSignature as hexToSignature,
+  type ParseSignatureErrorType,
+  parseSignature,
+} from './utils/signature/parseSignature.js'
 export {
   type RecoverAddressErrorType,
   type RecoverAddressParameters,
@@ -1251,13 +1259,21 @@ export {
   signatureToCompactSignature,
 } from './utils/signature/signatureToCompactSignature.js'
 export {
-  type CompactSignatureToHexErrorType,
-  compactSignatureToHex,
-} from './utils/signature/compactSignatureToHex.js'
+  /** @deprecated Use `SignatureToHexErrorType` instead. */
+  type SerializeCompactSignatureErrorType as CompactSignatureToHexErrorType,
+  /** @deprecated Use `serializeCompactSignature` instead. */
+  serializeCompactSignature as compactSignatureToHex,
+  type SerializeCompactSignatureErrorType,
+  serializeCompactSignature,
+} from './utils/signature/serializeCompactSignature.js'
 export {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from './utils/signature/signatureToHex.js'
+  /** @deprecated Use `SignatureToHexErrorType` instead. */
+  type SerializeSignatureErrorType as SignatureToHexErrorType,
+  /** @deprecated Use `serializeSignature` instead. */
+  serializeSignature as signatureToHex,
+  type SerializeSignatureErrorType,
+  serializeSignature,
+} from './utils/signature/serializeSignature.js'
 export {
   bytesToRlp,
   type BytesToRlpErrorType,

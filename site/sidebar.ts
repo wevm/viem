@@ -867,10 +867,6 @@ export const sidebar = {
           text: 'Signature',
           items: [
             {
-              text: 'compactSignatureToHex',
-              link: '/docs/utilities/compactSignatureToHex',
-            },
-            {
               text: 'compactSignatureToSignature',
               link: '/docs/utilities/compactSignatureToSignature',
             },
@@ -883,12 +879,12 @@ export const sidebar = {
               link: '/docs/utilities/hashTypedData',
             },
             {
-              text: 'hexToCompactSignature',
-              link: '/docs/utilities/hexToCompactSignature',
+              text: 'parseCompactSignature',
+              link: '/docs/utilities/parseCompactSignature',
             },
             {
-              text: 'hexToSignature',
-              link: '/docs/utilities/hexToSignature',
+              text: 'parseSignature',
+              link: '/docs/utilities/parseSignature',
             },
             {
               text: 'recoverAddress',
@@ -911,12 +907,16 @@ export const sidebar = {
               link: '/docs/utilities/recoverTypedDataAddress',
             },
             {
-              text: 'signatureToCompactSignature',
-              link: '/docs/utilities/signatureToCompactSignature',
+              text: 'serializeCompactSignature',
+              link: '/docs/utilities/serializeCompactSignature',
             },
             {
-              text: 'signatureToHex',
-              link: '/docs/utilities/signatureToHex',
+              text: 'serializeSignature',
+              link: '/docs/utilities/serializeSignature',
+            },
+            {
+              text: 'signatureToCompactSignature',
+              link: '/docs/utilities/signatureToCompactSignature',
             },
             {
               text: 'verifyMessage',
@@ -1010,27 +1010,108 @@ export const sidebar = {
         ],
       },
       {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Using Invokers (EIP-3074)',
+            link: '/experimental/eip3074/using-invokers',
+          },
+        ],
+      },
+      {
+        text: 'EIP-3074',
+        items: [
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'signAuthMessage',
+                link: '/experimental/eip3074/signAuthMessage',
+              },
+            ],
+          },
+          {
+            text: 'Invoker Instances',
+            link: '/experimental/eip3074/invoker-instances',
+            items: [
+              {
+                text: 'getInvoker',
+                link: '/experimental/eip3074/getInvoker',
+              },
+              {
+                text: 'execute',
+                link: '/experimental/eip3074/execute',
+              },
+              {
+                text: 'sign',
+                link: '/experimental/eip3074/sign',
+              },
+            ],
+          },
+          {
+            text: 'Utilities',
+            items: [
+              {
+                text: 'recoverAuthMessageAddress',
+                link: '/experimental/eip3074/recoverAuthMessageAddress',
+              },
+              {
+                text: 'verifyAuthMessage',
+                link: '/experimental/eip3074/verifyAuthMessage',
+              },
+            ],
+          },
+        ],
+      },
+      {
         text: 'EIP-5792',
         items: [
           {
-            text: 'getCallsStatus',
-            link: '/experimental/actions/getCallsStatus',
+            text: 'Actions',
+            items: [
+              {
+                text: 'getCallsStatus',
+                link: '/experimental/eip5792/getCallsStatus',
+              },
+              {
+                text: 'getCapabilities',
+                link: '/experimental/eip5792/getCapabilities',
+              },
+              {
+                text: 'sendCalls',
+                link: '/experimental/eip5792/sendCalls',
+              },
+              {
+                text: 'showCallsStatus',
+                link: '/experimental/eip5792/showCallsStatus',
+              },
+              {
+                text: 'writeContracts',
+                link: '/experimental/eip5792/writeContracts',
+              },
+            ],
           },
+        ],
+      },
+      {
+        text: 'ERC-6492',
+        items: [
           {
-            text: 'getCapabilities',
-            link: '/experimental/actions/getCapabilities',
-          },
-          {
-            text: 'sendCalls',
-            link: '/experimental/actions/sendCalls',
-          },
-          {
-            text: 'showCallsStatus',
-            link: '/experimental/actions/showCallsStatus',
-          },
-          {
-            text: 'writeContracts',
-            link: '/experimental/actions/writeContracts',
+            text: 'Utilities',
+            items: [
+              {
+                text: 'parseErc6492Signature',
+                link: '/experimental/erc6492/parseErc6492Signature',
+              },
+              {
+                text: 'isErc6492Signature',
+                link: '/experimental/erc6492/isErc6492Signature',
+              },
+              {
+                text: 'serializeErc6492Signature',
+                link: '/experimental/erc6492/serializeErc6492Signature',
+              },
+            ],
           },
         ],
       },
@@ -1286,7 +1367,7 @@ export const sidebar = {
         ],
       },
       {
-        text: 'Actions',
+        text: 'EIP-712 Actions',
         items: [
           {
             text: 'deployContract',
@@ -1303,6 +1384,110 @@ export const sidebar = {
           {
             text: 'writeContract',
             link: '/zksync/actions/writeContract',
+          },
+        ],
+      },
+      {
+        text: 'L2 Public Actions',
+        items: [
+          {
+            text: 'estimateFee',
+            link: '/zksync/actions/estimateFee',
+          },
+          {
+            text: 'estimateGasL1ToL2',
+            link: '/zksync/actions/estimateGasL1ToL2',
+          },
+          {
+            text: 'getAllBalances',
+            link: '/zksync/actions/getAllBalances',
+          },
+          {
+            text: 'getBaseTokenL1Address',
+            link: '/zksync/actions/getBaseTokenL1Address',
+          },
+          {
+            text: 'getBlockDetails',
+            link: '/zksync/actions/getBlockDetails',
+          },
+          {
+            text: 'getBridgehubContractAddress',
+            link: '/zksync/actions/getBridgehubContractAddress',
+          },
+          {
+            text: 'getDefaultBridgeAddress',
+            link: '/zksync/actions/getDefaultBridgeAddress',
+          },
+          {
+            text: 'getL1BatchDetails',
+            link: '/zksync/actions/getL1BatchDetails',
+          },
+          {
+            text: 'getL1BatchBlockRange',
+            link: '/zksync/actions/getL1BatchBlockRange',
+          },
+          {
+            text: 'getL1BatchNumber',
+            link: '/zksync/actions/getL1BatchNumber',
+          },
+          {
+            text: 'getL1ChainId',
+            link: '/zksync/actions/getL1ChainId',
+          },
+          {
+            text: 'getLogProof',
+            link: '/zksync/actions/getLogProof',
+          },
+          {
+            text: 'getMainContractAddress',
+            link: '/zksync/actions/getMainContractAddress',
+          },
+          {
+            text: 'getRawBlockTransaction',
+            link: '/zksync/actions/getRawBlockTransactions',
+          },
+          {
+            text: 'getTestnetPaymasterAddress',
+            link: '/zksync/actions/getTestnetPaymasterAddress',
+          },
+          {
+            text: 'getTransactionDetails',
+            link: '/zksync/actions/getTransactionDetails',
+          },
+        ],
+      },
+      {
+        text: 'L1 Public Actions',
+        items: [
+          {
+            text: 'getL1Allowance',
+            link: '/zksync/actions/getL1Allowance',
+          },
+          {
+            text: 'getL1Balance',
+            link: '/zksync/actions/getL1Balance',
+          },
+          {
+            text: 'getL1TokenBalance',
+            link: '/zksync/actions/getL1TokenBalance',
+          },
+        ],
+      },
+      {
+        text: 'Utilities',
+        items: [
+          {
+            text: 'Paymaster',
+            items: [
+              {
+                text: 'getApprovalBasedPaymasterInput',
+                link: '/zksync/utilities/paymaster/getApprovalBasedPaymasterInput',
+              },
+              {
+                text: 'getGeneralPaymasterInput',
+                link: '/zksync/utilities/paymaster/getGeneralPaymasterInput',
+              },
+            ],
           },
         ],
       },

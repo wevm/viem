@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const darwinia = defineChain({
+export const darwinia = /*#__PURE__*/ defineChain({
   id: 46,
   name: 'Darwinia Network',
   nativeCurrency: {

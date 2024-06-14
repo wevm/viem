@@ -41,7 +41,7 @@ const publicKey = await recoverPublicKey({
 
 ### signature
 
-- **Type:** `Hex | ByteArray`
+- **Type:** `Hex | ByteArray | Signature`
 
 The signature of the hash.
 

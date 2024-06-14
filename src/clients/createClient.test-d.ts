@@ -8,7 +8,7 @@ import {
   createPublicClient,
   publicActions,
 } from '../index.js'
-import { type Chain } from '../types/chain.js'
+import type { Chain } from '../types/chain.js'
 import { type Client, createClient, rpcSchema } from './createClient.js'
 import { walletActions } from './decorators/wallet.js'
 import { http } from './transports/http.js'

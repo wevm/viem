@@ -1,14 +1,19 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { walletClient, walletClientWithAccount } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { signMessage } from './signMessage.js'
+
+const client = anvilMainnet.getClient()
+const clientWithAccount = anvilMainnet.getClient({
+  account: accounts[0].address,
+})
 
 test('default', async () => {
   expect(
-    await signMessage(walletClient!, {
+    await signMessage(client!, {
       account: accounts[0].address,
       message: 'hello world',
     }),
@@ -19,7 +24,7 @@ test('default', async () => {
 
 test('raw', async () => {
   expect(
-    await signMessage(walletClient!, {
+    await signMessage(client!, {
       account: accounts[0].address,
       message: { raw: '0x68656c6c6f20776f726c64' },
     }),
@@ -27,7 +32,7 @@ test('raw', async () => {
     `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b00"`,
   )
   expect(
-    await signMessage(walletClient!, {
+    await signMessage(client!, {
       account: accounts[0].address,
       message: {
         raw: Uint8Array.from([
@@ -42,7 +47,7 @@ test('raw', async () => {
 
 test('inferred account', async () => {
   expect(
-    await signMessage(walletClientWithAccount!, {
+    await signMessage(clientWithAccount!, {
       message: 'hello world',
     }),
   ).toMatchInlineSnapshot(
@@ -52,7 +57,7 @@ test('inferred account', async () => {
 
 test('emoji', async () => {
   expect(
-    await signMessage(walletClient!, {
+    await signMessage(client!, {
       account: accounts[0].address,
       message: '🥵',
     }),
@@ -64,7 +69,7 @@ test('emoji', async () => {
 test('local account', async () => {
   const account = privateKeyToAccount(accounts[0].privateKey)
   expect(
-    await signMessage(walletClient!, {
+    await signMessage(client!, {
       account,
       message: 'hello world',
     }),
@@ -76,7 +81,7 @@ test('local account', async () => {
 test('error: no account', async () => {
   await expect(
     // @ts-expect-error
-    signMessage(walletClient!, {
+    signMessage(client!, {
       message: 'hello world',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(

@@ -1,11 +1,11 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { localHttpUrl } from '~test/src/constants.js'
 import { createHttpServer } from '~test/src/utils.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
-import type { IncomingHttpHeaders } from 'http'
+import type { IncomingHttpHeaders } from 'node:http'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { http, type HttpTransport } from './http.js'
 
 test('default', () => {
@@ -148,7 +148,7 @@ describe('request', () => {
         ...localhost,
         rpcUrls: {
           default: {
-            http: [localHttpUrl],
+            http: [anvilMainnet.rpcUrl.http],
           },
         },
       },
@@ -404,7 +404,7 @@ describe('request', () => {
   })
 
   test('errors: rpc error', async () => {
-    const transport = http(localHttpUrl, {
+    const transport = http(anvilMainnet.rpcUrl.http, {
       key: 'jsonRpc',
       name: 'JSON RPC',
     })({

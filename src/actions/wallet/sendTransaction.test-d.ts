@@ -2,8 +2,7 @@ import type { Address } from 'abitype'
 
 import { test } from 'vitest'
 
-import { localHttpUrl } from '~test/src/constants.js'
-import { anvilChain } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import type { Account } from '../../accounts/types.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -13,16 +12,16 @@ import { sendTransaction } from './sendTransaction.js'
 
 const walletClient = createWalletClient({
   account: '0x',
-  chain: anvilChain,
-  transport: http(localHttpUrl),
+  chain: anvilMainnet.chain,
+  transport: http(anvilMainnet.rpcUrl.http),
 })
 const walletClientWithoutAccount = createWalletClient({
-  chain: anvilChain,
-  transport: http(localHttpUrl),
+  chain: anvilMainnet.chain,
+  transport: http(anvilMainnet.rpcUrl.http),
 })
 const walletClientWithoutChain = createWalletClient({
   account: '0x',
-  transport: http(localHttpUrl),
+  transport: http(anvilMainnet.rpcUrl.http),
 })
 
 test('with and without `account`', () => {
@@ -38,11 +37,11 @@ test('with and without `account`', () => {
 
 test('with and without `chain`', () => {
   sendTransaction(walletClient, {
-    chain: anvilChain as Chain | undefined,
+    chain: anvilMainnet.chain as Chain | undefined,
     // ^?
   })
   sendTransaction(walletClientWithoutChain, {
-    chain: anvilChain as Chain,
+    chain: anvilMainnet.chain as Chain,
     // ^?
   })
 })

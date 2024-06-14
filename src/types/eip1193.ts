@@ -4,19 +4,19 @@ import type { BlockTag } from './block.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
 import type { RpcStateOverride } from './rpc.js'
 import type {
-  Quantity,
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
   RpcBlockNumber as BlockNumber,
   RpcFeeHistory as FeeHistory,
   RpcLog as Log,
   RpcProof as Proof,
+  Quantity,
   RpcTransaction as Transaction,
   RpcTransactionReceipt as TransactionReceipt,
   RpcTransactionRequest as TransactionRequest,
   RpcUncle as Uncle,
 } from './rpc.js'
-import type { ExactPartial, Prettify } from './utils.js'
+import type { ExactPartial, OneOf, Prettify } from './utils.js'
 
 //////////////////////////////////////////////////
 // Provider
@@ -155,15 +155,20 @@ export type WalletSendCallsParameters<
   quantity extends Quantity | bigint = Quantity,
 > = [
   {
-    version: string
+    calls: OneOf<
+      | {
+          to: Address
+          data?: Hex | undefined
+          value?: quantity | undefined
+        }
+      | {
+          data: Hex
+        }
+    >[]
+    capabilities?: capabilities | undefined
     chainId: chainId
     from: Address
-    calls: {
-      to: Address
-      data: Hex
-      value: quantity
-    }[]
-    capabilities?: capabilities | undefined
+    version: string
   },
 ]
 
@@ -326,6 +331,11 @@ export type PublicRpcSchema = [
     Parameters:
       | [transaction: TransactionRequest]
       | [transaction: TransactionRequest, block: BlockNumber | BlockTag]
+      | [
+          transaction: TransactionRequest,
+          block: BlockNumber | BlockTag,
+          RpcStateOverride,
+        ]
     ReturnType: Quantity
   },
   /**
@@ -1192,6 +1202,11 @@ export type WalletRpcSchema = [
     Parameters:
       | [transaction: TransactionRequest]
       | [transaction: TransactionRequest, block: BlockNumber | BlockTag]
+      | [
+          transaction: TransactionRequest,
+          block: BlockNumber | BlockTag,
+          RpcStateOverride,
+        ]
     ReturnType: Quantity
   },
   /**
@@ -1364,6 +1379,18 @@ export type WalletRpcSchema = [
     Method: 'wallet_requestPermissions'
     Parameters: [permissions: { eth_accounts: Record<string, any> }]
     ReturnType: WalletPermission[]
+  },
+  /**
+   * @description Revokes the given permissions from the user.
+   * @link https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-2.md
+   * @example
+   * provider.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_revokePermissions'
+    Parameters: [permissions: { eth_accounts: Record<string, any> }]
+    ReturnType: null
   },
   /**
    * @description Requests the connected wallet to send a batch of calls.

@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import type { ErrorType } from '../../errors/utils.js'
-import type { ByteArray, Hex } from '../../types/misc.js'
+import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type { TransactionSerialized } from '../../types/transaction.js'
 import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
 import { parseTransaction } from '../transaction/parseTransaction.js'
@@ -12,14 +12,11 @@ import {
   type RecoverAddressErrorType,
   recoverAddress,
 } from './recoverAddress.js'
-import {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from './signatureToHex.js'
+import type { SerializeSignatureErrorType } from './serializeSignature.js'
 
 export type RecoverTransactionAddressParameters = {
   serializedTransaction: TransactionSerialized
-  signature?: Hex | ByteArray
+  signature?: Hex | ByteArray | Signature
 }
 
 export type RecoverTransactionAddressReturnType = Address
@@ -28,7 +25,7 @@ export type RecoverTransactionAddressErrorType =
   | SerializeTransactionErrorType
   | RecoverAddressErrorType
   | Keccak256ErrorType
-  | SignatureToHexErrorType
+  | SerializeSignatureErrorType
   | ErrorType
 
 export async function recoverTransactionAddress(
@@ -38,14 +35,12 @@ export async function recoverTransactionAddress(
 
   const transaction = parseTransaction(serializedTransaction)
 
-  const signature =
-    signature_ ??
-    signatureToHex({
-      r: transaction.r!,
-      s: transaction.s!,
-      v: transaction.v!,
-      yParity: transaction.yParity!,
-    })
+  const signature = signature_ ?? {
+    r: transaction.r!,
+    s: transaction.s!,
+    v: transaction.v!,
+    yParity: transaction.yParity!,
+  }
 
   const serialized = serializeTransaction({
     ...transaction,
@@ -53,6 +48,7 @@ export async function recoverTransactionAddress(
     s: undefined,
     v: undefined,
     yParity: undefined,
+    sidecars: undefined,
   })
 
   return await recoverAddress({

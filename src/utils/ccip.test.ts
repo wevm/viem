@@ -2,14 +2,15 @@ import { describe, expect, test } from 'vitest'
 
 import { OffchainLookupExample } from '~test/contracts/generated.js'
 import { createCcipServer } from '~test/src/ccip.js'
-import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import {
   createHttpServer,
   deployOffchainLookupExample,
-  publicClient,
 } from '~test/src/utils.js'
 import { getUrl } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
+
+import { anvilMainnet } from '../../test/src/anvil.js'
 
 import { createClient } from '../clients/createClient.js'
 import { http } from '../clients/transports/http.js'
@@ -17,6 +18,8 @@ import { encodeErrorResult } from './abi/encodeErrorResult.js'
 import { encodeFunctionData } from './abi/encodeFunctionData.js'
 import { ccipRequest, offchainLookup, offchainLookupAbiItem } from './ccip.js'
 import { trim } from './data/trim.js'
+
+const client = anvilMainnet.getClient()
 
 describe('offchainLookup', () => {
   test('default', async () => {
@@ -33,7 +36,7 @@ describe('offchainLookup', () => {
           functionName: 'getAddress',
           args: ['jxom.viem'],
         })
-        await publicClient.request({
+        await client.request({
           method: 'eth_call',
           params: [{ data, to: contractAddress! }, 'latest'],
         })
@@ -42,7 +45,7 @@ describe('offchainLookup', () => {
       }
     })
 
-    const result = await offchainLookup(publicClient, {
+    const result = await offchainLookup(client, {
       data,
       to: contractAddress!,
     })
@@ -64,7 +67,7 @@ describe('offchainLookup', () => {
           functionName: 'getAddress',
           args: ['jxom.viem'],
         })
-        await publicClient.request({
+        await client.request({
           method: 'eth_call',
           params: [{ data, to: contractAddress! }, 'latest'],
         })
@@ -74,17 +77,17 @@ describe('offchainLookup', () => {
     })
 
     let count = 0
-    const client = createClient({
+    const client_2 = createClient({
       ccipRead: {
         request: async ({ data, sender, urls }) => {
           count++
           return ccipRequest({ data, sender, urls })
         },
       },
-      transport: http(localHttpUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const result = await offchainLookup(client, {
+    const result = await offchainLookup(client_2, {
       data,
       to: contractAddress!,
     })
@@ -107,7 +110,7 @@ describe('offchainLookup', () => {
           functionName: 'getAddress',
           args: ['fake.viem'],
         })
-        await publicClient.request({
+        await client.request({
           method: 'eth_call',
           params: [{ data, to: contractAddress! }, 'latest'],
         })
@@ -117,7 +120,7 @@ describe('offchainLookup', () => {
     })
 
     await expect(() =>
-      offchainLookup(publicClient, {
+      offchainLookup(client, {
         data,
         to: contractAddress!,
       }),
@@ -138,7 +141,7 @@ describe('offchainLookup', () => {
       ],
     })
     await expect(() =>
-      offchainLookup(publicClient, {
+      offchainLookup(client, {
         data,
         to: '0x0000000000000000000000000000000000000001',
       }),

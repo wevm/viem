@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -36,6 +38,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -55,6 +59,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -86,6 +92,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -149,6 +157,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
@@ -184,6 +194,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -196,15 +208,16 @@ jobs:
     name: Wagmi
     needs: [build, types]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       matrix:
-        # TODO: Add 'latest' once https://github.com/wevm/viem/issues/1916 resolved
-        typescript-version: ['5.0.4', '5.1.6', '5.2.2', '5.3.2']
+        typescript-version: ['5.4.2', 'latest']
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies

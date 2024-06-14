@@ -4,11 +4,21 @@ import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
 
 export default defineConfig({
+  // banner: {
+  //   backgroundColor: '#3a393b',
+  //   textColor: 'white',
+  //   content:
+  //     'Viem is participating in the Gitcoin Grants 20 round. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/27/20). Thank you. 🙏',
+  // },
   baseUrl: 'https://viem.sh',
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:
     'Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.',
+  editLink: {
+    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path',
+    text: 'Suggest changes to this page',
+  },
   head() {
     return (
       <>
@@ -30,6 +40,12 @@ export default defineConfig({
   iconUrl: { light: '/favicons/light.png', dark: '/favicons/dark.png' },
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
   rootDir: '.',
+  search: {
+    boostDocument(documentId) {
+      if (documentId.startsWith('pages/docs')) return 2
+      return 1
+    },
+  },
   sidebar,
   socials: [
     {

@@ -197,11 +197,11 @@ If you wish to contribute to add an additional Chain to the `viem/chains` entryp
 ### Requirements
 
 - **Must haves**:
+  - chain must be merged into [ethereum-lists/chains](https://github.com/ethereum-lists/chains),
   - a unique Chain ID (`id`),
   - a human-readable name (`name`),
-  - an internal network label (`network`),
   - a native currency reference (`nativeCurrency`),
-  - a public, credible RPC URL (`rpcUrls.default` & `rpcUrls.public`)
+  - a public, credible RPC URL (`rpcUrls.default`)
 - **Nice to haves**
   - a block explorer (`blockExplorers`)
   - a [multicall3](https://www.multicall3.com/) contract (`contracts.multicall3`)

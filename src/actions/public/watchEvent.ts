@@ -11,7 +11,10 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
-import type { EncodeEventTopicsParameters } from '../../utils/index.js'
+import {
+  type EncodeEventTopicsParameters,
+  encodeEventTopics,
+} from '../../utils/abi/encodeEventTopics.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
@@ -23,12 +26,9 @@ import {
 import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber } from '../../types/block.js'
+import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
+import { formatLog } from '../../utils/formatters/log.js'
 import { getAction } from '../../utils/getAction.js'
-import {
-  decodeEventLog,
-  encodeEventTopics,
-  formatLog,
-} from '../../utils/index.js'
 import {
   type CreateEventFilterParameters,
   createEventFilter,
@@ -172,10 +172,17 @@ export function watchEvent<
     strict: strict_,
   }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
 ): WatchEventReturnType {
-  const enablePolling =
-    typeof poll_ !== 'undefined'
-      ? poll_
-      : client.transport.type !== 'webSocket' || typeof fromBlock === 'bigint'
+  const enablePolling = (() => {
+    if (typeof poll_ !== 'undefined') return poll_
+    if (typeof fromBlock === 'bigint') return true
+    if (client.transport.type === 'webSocket') return false
+    if (
+      client.transport.type === 'fallback' &&
+      client.transport.transports[0].config.type === 'webSocket'
+    )
+      return false
+    return true
+  })()
   const strict = strict_ ?? false
 
   const pollEvent = () => {
@@ -296,6 +303,18 @@ export function watchEvent<
     let unsubscribe = () => (active = false)
     ;(async () => {
       try {
+        const transport = (() => {
+          if (client.transport.type === 'fallback') {
+            const transport = client.transport.transports.find(
+              (transport: ReturnType<Transport>) =>
+                transport.config.type === 'webSocket',
+            )
+            if (!transport) return client.transport
+            return transport.value
+          }
+          return client.transport
+        })()
+
         const events_ = events ?? (event ? [event] : undefined)
         let topics: LogTopic[] = []
         if (events_) {
@@ -311,7 +330,7 @@ export function watchEvent<
           if (event) topics = topics[0] as LogTopic[]
         }
 
-        const { unsubscribe: unsubscribe_ } = await client.transport.subscribe({
+        const { unsubscribe: unsubscribe_ } = await transport.subscribe({
           params: ['logs', { address, topics }],
           onData(data: any) {
             if (!active) return

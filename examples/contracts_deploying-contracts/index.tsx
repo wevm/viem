@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
   http,
-  Address,
-  Hash,
-  TransactionReceipt,
+  type Address,
+  type Hash,
+  type TransactionReceipt,
   createPublicClient,
   createWalletClient,
   custom,

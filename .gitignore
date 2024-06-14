@@ -10,7 +10,9 @@ cache
 coverage
 node_modules
 tsconfig*.tsbuildinfo
+wagmi
 **/trusted-setups/**/*.txt
+.idea
 
 # local env files
 .env

@@ -1,10 +1,12 @@
 import type { AbiEvent } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import type { Hash, Hex } from '../../types/misc.js'
 import { getLogs } from './getLogs.js'
+
+const client = anvilMainnet.getClient()
 
 test('event: const assertion', async () => {
   const event = {
@@ -38,7 +40,7 @@ test('event: const assertion', async () => {
     name: 'Transfer',
     type: 'event',
   } as const
-  const logs = await getLogs(publicClient, {
+  const logs = await getLogs(client, {
     event,
   })
   expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
@@ -55,7 +57,7 @@ test('event: const assertion', async () => {
 })
 
 test('event: defined inline', async () => {
-  const logs = await getLogs(publicClient, {
+  const logs = await getLogs(client, {
     event: {
       inputs: [
         {
@@ -123,7 +125,7 @@ test('event: declared as `AbiEvent`', async () => {
     name: 'Transfer',
     type: 'event',
   }
-  const logs = await getLogs(publicClient, {
+  const logs = await getLogs(client, {
     event,
   })
   expectTypeOf(logs[0].eventName).toEqualTypeOf<string>()
@@ -136,7 +138,7 @@ test('event: declared as `AbiEvent`', async () => {
 })
 
 test('inputs: no inputs', async () => {
-  const logs = await getLogs(publicClient, {
+  const logs = await getLogs(client, {
     event: {
       inputs: [],
       name: 'Transfer',
@@ -149,7 +151,7 @@ test('inputs: no inputs', async () => {
 })
 
 test('strict: named', async () => {
-  const logs = await getLogs(publicClient, {
+  const logs = await getLogs(client, {
     event: {
       inputs: [
         {
@@ -193,7 +195,7 @@ test('strict: named', async () => {
 })
 
 test('strict: unnamed', async () => {
-  const logs = await getLogs(publicClient, {
+  const logs = await getLogs(client, {
     event: {
       inputs: [
         {
@@ -228,7 +230,7 @@ test('strict: unnamed', async () => {
 })
 
 test('non-pending logs', async () => {
-  const logs = await getLogs(publicClient)
+  const logs = await getLogs(client)
   expectTypeOf(logs[0].blockHash).toEqualTypeOf<Hex>()
   expectTypeOf(logs[0].blockNumber).toEqualTypeOf<bigint>()
   expectTypeOf(logs[0].logIndex).toEqualTypeOf<number>()
@@ -237,7 +239,7 @@ test('non-pending logs', async () => {
 })
 
 test('pending logs', async () => {
-  const logs_fromPending = await getLogs(publicClient, { fromBlock: 'pending' })
+  const logs_fromPending = await getLogs(client, { fromBlock: 'pending' })
   expectTypeOf(logs_fromPending[0].blockHash).toEqualTypeOf<Hex | null>()
   expectTypeOf(logs_fromPending[0].blockNumber).toEqualTypeOf<bigint | null>()
   expectTypeOf(logs_fromPending[0].logIndex).toEqualTypeOf<number | null>()
@@ -246,7 +248,7 @@ test('pending logs', async () => {
     number | null
   >()
 
-  const logs_toPending = await getLogs(publicClient, {
+  const logs_toPending = await getLogs(client, {
     toBlock: 'pending',
   })
   expectTypeOf(logs_toPending[0].blockHash).toEqualTypeOf<Hex | null>()
@@ -257,7 +259,7 @@ test('pending logs', async () => {
     number | null
   >()
 
-  const logs_bothPending = await getLogs(publicClient, {
+  const logs_bothPending = await getLogs(client, {
     fromBlock: 'pending',
     toBlock: 'pending',
   })

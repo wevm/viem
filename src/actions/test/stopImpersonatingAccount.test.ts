@@ -1,18 +1,20 @@
 import { expect, test } from 'vitest'
 
 import { accounts, address } from '~test/src/constants.js'
-import { testClient, walletClient } from '~test/src/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { impersonateAccount } from './impersonateAccount.js'
 import { stopImpersonatingAccount } from './stopImpersonatingAccount.js'
 
+const client = anvilMainnet.getClient()
+
 test('stops impersonating account', async () => {
-  await impersonateAccount(testClient, { address: address.vitalik })
+  await impersonateAccount(client, { address: address.vitalik })
 
   expect(
-    await sendTransaction(walletClient, {
+    await sendTransaction(client, {
       account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),
@@ -20,11 +22,11 @@ test('stops impersonating account', async () => {
   ).toBeDefined()
 
   await expect(
-    stopImpersonatingAccount(testClient, { address: address.vitalik }),
+    stopImpersonatingAccount(client, { address: address.vitalik }),
   ).resolves.toBeUndefined()
 
   await expect(
-    sendTransaction(walletClient, {
+    sendTransaction(client, {
       account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),

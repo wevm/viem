@@ -11,9 +11,11 @@ import {
 } from 'abitype/abis'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { type ReadContractParameters, readContract } from './readContract.js'
+
+const client = anvilMainnet.getClient()
 
 test('ReadContractParameters', () => {
   type Result = ReadContractParameters<typeof wagmiMintExampleAbi, 'tokenURI'>
@@ -33,7 +35,7 @@ test('ReadContractParameters', () => {
 
 test('args', () => {
   test('zero', async () => {
-    const result = await readContract(publicClient, {
+    const result = await readContract(client, {
       address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'name',
@@ -42,7 +44,7 @@ test('args', () => {
   })
 
   test('one', async () => {
-    const result = await readContract(publicClient, {
+    const result = await readContract(client, {
       address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'tokenURI',
@@ -52,7 +54,7 @@ test('args', () => {
   })
 
   test('two or more', async () => {
-    const result = await readContract(publicClient, {
+    const result = await readContract(client, {
       address: '0x',
       abi: writingEditionsFactoryAbi,
       functionName: 'predictDeterministicAddress',
@@ -64,7 +66,7 @@ test('args', () => {
 
 test('return types', () => {
   test('string', async () => {
-    const result = await readContract(publicClient, {
+    const result = await readContract(client, {
       address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'name',
@@ -73,7 +75,7 @@ test('return types', () => {
   })
 
   test('Address', async () => {
-    const result = await readContract(publicClient, {
+    const result = await readContract(client, {
       address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'ownerOf',
@@ -83,7 +85,7 @@ test('return types', () => {
   })
 
   test('number', async () => {
-    const result = await readContract(publicClient, {
+    const result = await readContract(client, {
       address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'balanceOf',
@@ -95,7 +97,7 @@ test('return types', () => {
 
 test('behavior', () => {
   test('write function not allowed', async () => {
-    const result = await readContract(publicClient, {
+    const result = await readContract(client, {
       address: '0x',
       abi: wagmiMintExampleAbi,
       // @ts-expect-error Trying to use non-read function
@@ -121,12 +123,12 @@ test('behavior', () => {
         outputs: [{ type: 'address', name: '' }],
       },
     ]
-    const result1 = await readContract(publicClient, {
+    const result1 = await readContract(client, {
       address: '0x',
       abi: abi,
       functionName: 'foo',
     })
-    const result2 = await readContract(publicClient, {
+    const result2 = await readContract(client, {
       address: '0x',
       abi: abi,
       functionName: 'bar',
@@ -155,12 +157,12 @@ test('behavior', () => {
         outputs: [{ type: 'address', name: '' }],
       },
     ]
-    const result1 = await readContract(publicClient, {
+    const result1 = await readContract(client, {
       address: '0x',
       abi: abi,
       functionName: 'foo',
     })
-    const result2 = await readContract(publicClient, {
+    const result2 = await readContract(client, {
       address: '0x',
       abi: abi,
       functionName: 'bar',
@@ -171,7 +173,7 @@ test('behavior', () => {
   })
 
   test('defined inline', async () => {
-    const result1 = await readContract(publicClient, {
+    const result1 = await readContract(client, {
       address: '0x',
       abi: [
         {
@@ -191,7 +193,7 @@ test('behavior', () => {
       ],
       functionName: 'foo',
     })
-    const result2 = await readContract(publicClient, {
+    const result2 = await readContract(client, {
       address: '0x',
       abi: [
         {
@@ -217,7 +219,7 @@ test('behavior', () => {
   })
 
   test('human readable', async () => {
-    const result = await readContract(publicClient, {
+    const result = await readContract(client, {
       address: '0x',
       abi: parseAbi(wagmiMintExampleHumanReadableAbi),
       functionName: 'balanceOf',
@@ -234,14 +236,14 @@ test('behavior', () => {
       'function bar() view returns (int8)',
     ])
 
-    const result1 = await readContract(publicClient, {
+    const result1 = await readContract(client, {
       address: '0x',
       abi,
       functionName: 'foo',
     })
     assertType<number>(result1)
 
-    const result2 = await readContract(publicClient, {
+    const result2 = await readContract(client, {
       address: '0x',
       abi,
       functionName: 'foo',
@@ -249,7 +251,7 @@ test('behavior', () => {
     })
     assertType<number>(result2)
 
-    const result3 = await readContract(publicClient, {
+    const result3 = await readContract(client, {
       address: '0x',
       abi,
       functionName: 'foo',
@@ -257,7 +259,7 @@ test('behavior', () => {
     })
     assertType<string>(result3)
 
-    const result4 = await readContract(publicClient, {
+    const result4 = await readContract(client, {
       address: '0x',
       abi,
       functionName: 'foo',

@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
-import { publicClientMainnet } from '../../../test/src/utils.js'
+import { mainnetClient } from '../../../test/src/utils.js'
 import { optimism } from '../../chains/index.js'
 import { waitForNextL2Output } from './waitForNextL2Output.js'
 
 // TODO: fix
 test('default', async () => {
-  const output = await waitForNextL2Output(publicClientMainnet, {
+  const output = await waitForNextL2Output(mainnetClient, {
     l2BlockNumber: 19494651n,
     targetChain: optimism,
   })
@@ -22,7 +22,7 @@ test('default', async () => {
 // TODO: fix
 test('error: other', async () => {
   await expect(() =>
-    waitForNextL2Output(publicClientMainnet, {
+    waitForNextL2Output(mainnetClient, {
       l2BlockNumber: -1n,
       targetChain: optimism,
     }),

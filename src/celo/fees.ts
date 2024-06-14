@@ -1,12 +1,12 @@
 import type { Client } from '../clients/createClient.js'
-import {
-  type Address,
-  type ChainEstimateFeesPerGasFnParameters,
-  type ChainFees,
-  type Hex,
+import type {
+  Address,
+  ChainEstimateFeesPerGasFnParameters,
+  ChainFees,
+  Hex,
 } from '../index.js'
 
-import { formatters } from './formatters.js'
+import type { formatters } from './formatters.js'
 
 export const fees: ChainFees<typeof formatters> = {
   /*

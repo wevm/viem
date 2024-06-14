@@ -10,7 +10,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import type { AccessList } from '../../types/transaction.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
-import { type RecursiveArray } from '../encoding/toRlp.js'
+import type { RecursiveArray } from '../encoding/toRlp.js'
 
 export type SerializeAccessListErrorType =
   | InvalidStorageKeySizeErrorType

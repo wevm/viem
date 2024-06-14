@@ -1,5 +1,5 @@
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
-import { BaseError } from '../../index.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import {
   type CreateCursorErrorType,

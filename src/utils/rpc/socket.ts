@@ -47,6 +47,7 @@ export type SocketRpcClient<socket extends {}> = {
 
 export type GetSocketRpcClientParameters<socket extends {} = {}> = {
   getSocket(params: GetSocketParameters): Promise<Socket<socket>>
+  key?: string
   /**
    * Whether or not to attempt to reconnect on socket failure.
    * @default true
@@ -81,11 +82,11 @@ export const socketClientCache = /*#__PURE__*/ new Map<
 export async function getSocketRpcClient<socket extends {}>(
   params: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
-  const { getSocket, reconnect = true, url } = params
+  const { getSocket, key = 'socket', reconnect = true, url } = params
   const { attempts = 5, delay = 2_000 } =
     typeof reconnect === 'object' ? reconnect : {}
 
-  let socketClient = socketClientCache.get(url)
+  let socketClient = socketClientCache.get(`${key}:${url}`)
 
   // If the socket already exists, return it.
   if (socketClient) return socketClient as {} as SocketRpcClient<socket>
@@ -95,7 +96,7 @@ export async function getSocketRpcClient<socket extends {}>(
     undefined,
     [SocketRpcClient<socket>]
   >({
-    id: url,
+    id: `${key}:${url}`,
     fn: async () => {
       // Set up a cache for incoming "synchronous" requests.
       const requests = new Map<Id, CallbackFn>()
@@ -148,7 +149,7 @@ export async function getSocketRpcClient<socket extends {}>(
       socketClient = {
         close() {
           socket.close()
-          socketClientCache.delete(url)
+          socketClientCache.delete(`${key}:${url}`)
         },
         socket,
         request({ body, onError, onResponse }) {
@@ -210,7 +211,7 @@ export async function getSocketRpcClient<socket extends {}>(
         subscriptions,
         url,
       }
-      socketClientCache.set(url, socketClient)
+      socketClientCache.set(`${key}:${url}`, socketClient)
 
       return [socketClient as {} as SocketRpcClient<socket>]
     },

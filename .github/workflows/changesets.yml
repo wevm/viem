@@ -1,7 +1,7 @@
 name: Changesets
 on:
   push:
-    branches: [main, rc]
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -25,6 +25,7 @@ jobs:
         with:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -50,6 +51,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -64,3 +67,22 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           # https://docs.npmjs.com/generating-provenance-statements
           NPM_CONFIG_PROVENANCE: true
+
+  jsr:
+    name: JSR
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Publish to JSR
+        run: bun ./scripts/updateVersion.ts && cd src && bunx jsr publish --allow-slow-types --allow-dirty

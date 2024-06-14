@@ -4,8 +4,8 @@ import { join } from 'node:path'
 
 import { generatePrivateKey } from '../../src/accounts/generatePrivateKey.js'
 import { signTransaction } from '../../src/accounts/utils/signTransaction.js'
-import { Hex, parseTransaction } from '../../src/index.js'
-import {
+import { type Hex, parseTransaction } from '../../src/index.js'
+import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
@@ -241,7 +241,7 @@ export async function generateTransactionVectors() {
 
     const privateKey = generatePrivateKey()
     const serializedSigned = await signTransaction({ privateKey, transaction })
-    const { r, s, v } = parseTransaction(serializedSigned)
+    const { r, s, v, yParity } = parseTransaction(serializedSigned)
 
     writer.write(
       stringify(
@@ -251,7 +251,7 @@ export async function generateTransactionVectors() {
           transaction,
           serialized,
           serializedSigned,
-          signature: { r, s, v },
+          signature: { r, s, v, yParity },
         },
         null,
         2,
