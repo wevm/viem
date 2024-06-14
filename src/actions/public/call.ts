@@ -94,15 +94,18 @@ export type CallParameters<
         blockTag?: BlockTag | undefined
       }
   ) &
-  OneOf<
+  (
     | {
         /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
         factory: Address
         /** Calldata to execute on the factory to deploy the contract. */
         factoryData: Hex
       }
-    | {}
-  >
+    | {
+        factory?: undefined
+        factoryData?: undefined
+      }
+  )
 type FormattedCall<TChain extends Chain | undefined = Chain | undefined> =
   FormattedTransactionRequest<TChain>
 
