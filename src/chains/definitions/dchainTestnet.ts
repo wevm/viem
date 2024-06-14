@@ -4,7 +4,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const dchainTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 2713017997578000,
-  name: 'Dchain Tesnet',
+  name: 'Dchain Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
