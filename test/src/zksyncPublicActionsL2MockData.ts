@@ -535,6 +535,7 @@ export const mockRequestReturnData = async (method: string) => {
   if (method === 'zks_getTransactionDetails') return mockTransactionDetails
   if (method === 'zks_L1BatchNumber') return mockedL1BatchNumber
   if (method === 'zks_estimateGasL1ToL2') return mockedGasEstimation
+  if (method === 'eth_gasPrice') return 1n
   return undefined
 }
 

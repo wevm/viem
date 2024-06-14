@@ -53,7 +53,6 @@ test('default with account hoisting and token', async () => {
   )
 
   expect(spy).toHaveBeenCalledWith(client, {
-    value: 800000000000000000000n,
     abi: bridgehubAbi,
     address: parameters.bridgehubContractAddress,
     functionName: 'requestL2TransactionDirect',

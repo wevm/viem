@@ -22,6 +22,10 @@ test('default', async () => {
     l2Value: 0n,
     contractAddress: client.account.address,
     calldata: '0x',
+    fees: {
+      maxFeePerGas: 15000000100n,
+      maxPriorityFeePerGas: 150000000000n,
+    },
   })
   expect(requestExecuteDefaults).toMatchInlineSnapshot(`
     {
@@ -31,6 +35,10 @@ test('default', async () => {
       "calldata": "0x",
       "contractAddress": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
       "eRC20DefaultBridgeData": "0x",
+      "fees": {
+        "maxFeePerGas": 15000000100n,
+        "maxPriorityFeePerGas": 150000000000n,
+      },
       "gasPerPubdataByte": 800n,
       "l2ChainId": 270n,
       "l2GasLimit": 123456789n,
@@ -40,8 +48,8 @@ test('default', async () => {
       "overrides": {
         "factoryDeps": [],
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "maxFeePerGas": 150000000100n,
-        "maxPriorityFeePerGas": 150000000000n,
+        "maxFeePerGas": undefined,
+        "maxPriorityFeePerGas": undefined,
       },
       "refundRecipient": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
       "token": "0x173999892363ba18c9dc60f8c57152fc914bce89",

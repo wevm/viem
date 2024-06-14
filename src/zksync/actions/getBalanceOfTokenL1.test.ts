@@ -132,7 +132,7 @@ test('provided token is ETH', async () => {
 
       ETH token cannot be retrived.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
   `,
   )
 
