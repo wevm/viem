@@ -144,6 +144,12 @@ export {
   getContractEvents,
 } from './public/getContractEvents.js'
 export {
+  type GetEip712DomainErrorType,
+  type GetEip712DomainParameters,
+  type GetEip712DomainReturnType,
+  getEip712Domain,
+} from './public/getEip712Domain.js'
+export {
   type GetFeeHistoryErrorType,
   type GetFeeHistoryParameters,
   type GetFeeHistoryReturnType,

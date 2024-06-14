@@ -11,6 +11,8 @@ const fileNames = []
 
 const glob = new Glob('test/contracts/out/**/*.json')
 for await (const file of glob.scan('.')) {
+  if (file.includes('build-info')) continue
+
   const fileName = file.split('/').pop()?.replace('.json', '')
   if (fileNames.includes(fileName)) continue
 
