@@ -8,7 +8,7 @@ import { checkBaseCost } from './checkBaseCost.js'
 import type { GetDepositTxWithDefaultsReturnType } from './getDepositTxWithDefaults.js'
 
 export type GetDepositTokenOnEthBasedChainTxParameters =
-GetDepositTxWithDefaultsReturnType & { baseCost: bigint }
+  GetDepositTxWithDefaultsReturnType & { baseCost: bigint }
 
 export type GetDepositTokenOnEthBasedChainTxReturnType =
   GetDepositTokenOnEthBasedChainTxParameters & {

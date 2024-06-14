@@ -12,7 +12,7 @@ Returns a L2 transaction response from L1 transaction response.
 :::code-group
 
 ```ts [example.ts]
-import { deposit } from './buildDepositTransaction.js'
+import { getL2TransactionFromPriorityOp } from 'viem/zksync'
 import { clientL1, clientL2, account } from './config.ts'
 
 const l1TransactionReceipt = await getTransactionReceipt(clientL1, { hash:"0x..." })
@@ -56,10 +56,7 @@ It includes all properties about a transaction that was sent to the network, whi
 
 Object which requires l1TransactionReceipt.
 
-```ts [example.ts]
-import { deposit } from './buildDepositTransaction.js'
-import { clientL1, clientL2, account } from './config.ts'
-
+```ts
 const l1TransactionReceipt = await getTransactionReceipt(clientL1, { hash:"0x..." })
 
 await getL2TransactionFromPriorityOp(clientL2, { 

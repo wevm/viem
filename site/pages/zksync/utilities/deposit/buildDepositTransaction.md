@@ -14,14 +14,14 @@ In this case, depending on is the chain ETH-based or not `transaction.approveERC
 :::code-group
 
 ```ts [example.ts]
-import { deposit } from './buildDepositTransaction.js'
+import { buildDepositTransaction } from 'viem/zksync'
 import { clientL1, clientL2, account } from './config.ts'
 
-const depositArgs = await deposit(clientL1, clientL2, {
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
   amount:1n,
   refundRecipient: account.address,
 })
-const hash = await sendTransaction(clientL1, depositArgs)
+const hash = await sendTransaction(clientL1, depositTransaction)
 ```
 
 ```ts [config.ts]
@@ -62,7 +62,7 @@ The amount of the token to deposit.
 
 
 ```ts
-const depositArgs = await deposit(clientL1, clientL2, {
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
   amount:1n, // [!code focus]
 })
 ```
@@ -74,9 +74,7 @@ const depositArgs = await deposit(clientL1, clientL2, {
 The address that will receive the deposited tokens on L2.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
   amount:1n,
   to:"0x..." // [!code focus]
 })
@@ -89,11 +87,9 @@ const depositArgs = await deposit(clientL1, clientL2, {
 The address of the token to deposit. ETH by default.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  token:"0x..." // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  token: "0x..." // [!code focus]
 })
 ```
 
@@ -104,11 +100,9 @@ const depositArgs = await deposit(clientL1, clientL2, {
 (currently not used) If the ETH value passed with the transaction is not explicitly stated in the overrides, this field will be equal to the tip the operator will receive on top of the base cost of the transaction.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  operatorTip:100n // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  operatorTip: 100n // [!code focus]
 })
 ```
 
@@ -120,11 +114,9 @@ The address of the bridge contract to be used.
 Defaults to the default zkSync Era bridge (either `L1EthBridge` or `L1Erc20Bridge`).
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  bridgeAddress:"0x..." // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  bridgeAddress: "0x..." // [!code focus]
 })
 ```
 
@@ -136,11 +128,9 @@ Whether or not token approval should be performed under the hood.
 Set this flag to true if you bridge an ERC20 token and didn't call the {@link approveERC20} function beforehand.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  approveERC20:true // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  approveERC20: true // [!code focus]
 })
 ```
 
@@ -152,11 +142,9 @@ Whether or not base token approval should be performed under the hood.
 Set this flag to true if you bridge a base token and didn't call the {@link approveERC20} function beforehand.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  approveBaseERC20:true // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  approveBaseERC20: true // [!code focus]
 })
 ```
 
@@ -167,11 +155,9 @@ const depositArgs = await deposit(clientL1, clientL2, {
 Maximum amount of L2 gas that the transaction can consume during execution on L2.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  l2GasLimit:100200300n // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  l2GasLimit: 100200300n // [!code focus]
 })
 ```
 
@@ -183,11 +169,9 @@ The L2 gas price for each published L1 calldata byte.
 
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  gasPerPubdataByte:800n // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  gasPerPubdataByte: 800n // [!code focus]
 })
 ```
 
@@ -199,11 +183,9 @@ The address on L2 that will receive the refund for the transaction.
 If the transaction fails, it will also be the address to receive `l2Value`.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  refundRecipient:"0x..." // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  refundRecipient: "0x..." // [!code focus]
 })
 ```
 
@@ -215,11 +197,9 @@ Transaction's overrides for deposit which may be used to pass
 L1 `gasLimit`, `gasPrice`, `value`, etc.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  overrides:{...} // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  overrides: {...} // [!code focus]
 })
 ```
 
@@ -230,11 +210,9 @@ const depositArgs = await deposit(clientL1, clientL2, {
 Transaction's overrides for approval of an ERC20 token which may be used to pass L1 `gasLimit`, `gasPrice`, `value`, etc.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  approveOverrides:{...} // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  approveOverrides: {...} // [!code focus]
 })
 ```
 
@@ -245,11 +223,9 @@ const depositArgs = await deposit(clientL1, clientL2, {
 Transaction's overrides for approval of a base token which may be used to pass L1 `gasLimit`, `gasPrice`, `value`, etc.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  approveBaseOverrides:{...} // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  approveBaseOverrides: {...} // [!code focus]
 })
 ```
 
@@ -260,10 +236,8 @@ const depositArgs = await deposit(clientL1, clientL2, {
 Additional data that can be sent to a bridge.
 
 ```ts
-import { deposit } from './buildDepositTransaction.js'
-
-const depositArgs = await deposit(clientL1, clientL2, {
-  amount:1n,
-  customBridgeData:"0x..." // [!code focus]
+const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+  amount: 1n,
+  customBridgeData: "0x..." // [!code focus]
 })
 ```
