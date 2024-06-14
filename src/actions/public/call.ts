@@ -96,7 +96,7 @@ export type CallParameters<
   ) &
   OneOf<
     | {
-        /** Contract deployment factory address (ie. Create2 factory, ERC-4337 factory, etc). */
+        /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
         factory: Address
         /** Calldata to execute on the factory to deploy the contract. */
         factoryData: Hex
