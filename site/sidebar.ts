@@ -522,8 +522,8 @@ export const sidebar = {
               link: '/docs/contract/estimateContractGas',
             },
             {
-              text: 'getBytecode',
-              link: '/docs/contract/getBytecode',
+              text: 'getCode',
+              link: '/docs/contract/getCode',
             },
             {
               text: 'getContractEvents',

@@ -93,14 +93,14 @@ import {
   getBlockTransactionCount,
 } from '../../actions/public/getBlockTransactionCount.js'
 import {
-  type GetBytecodeParameters,
-  type GetBytecodeReturnType,
-  getBytecode,
-} from '../../actions/public/getBytecode.js'
-import {
   type GetChainIdReturnType,
   getChainId,
 } from '../../actions/public/getChainId.js'
+import {
+  type GetCodeParameters,
+  type GetCodeReturnType,
+  getCode,
+} from '../../actions/public/getCode.js'
 import {
   type GetContractEventsParameters,
   type GetContractEventsReturnType,
@@ -619,28 +619,8 @@ export type PublicActions<
   getBlockTransactionCount: (
     args?: GetBlockTransactionCountParameters | undefined,
   ) => Promise<GetBlockTransactionCountReturnType>
-  /**
-   * Retrieves the bytecode at an address.
-   *
-   * - Docs: https://viem.sh/docs/contract/getBytecode
-   * - JSON-RPC Methods: [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
-   *
-   * @param args - {@link GetBytecodeParameters}
-   * @returns The contract's bytecode. {@link GetBytecodeReturnType}
-   *
-   * @example
-   * import { createPublicClient, http } from 'viem'
-   * import { mainnet } from 'viem/chains'
-   *
-   * const client = createPublicClient({
-   *   chain: mainnet,
-   *   transport: http(),
-   * })
-   * const code = await client.getBytecode({
-   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-   * })
-   */
-  getBytecode: (args: GetBytecodeParameters) => Promise<GetBytecodeReturnType>
+  /** @deprecated Use `getCode` instead. */
+  getBytecode: (args: GetCodeParameters) => Promise<GetCodeReturnType>
   /**
    * Returns the chain ID associated with the current network.
    *
@@ -661,6 +641,28 @@ export type PublicActions<
    * // 1
    */
   getChainId: () => Promise<GetChainIdReturnType>
+  /**
+   * Retrieves the bytecode at an address.
+   *
+   * - Docs: https://viem.sh/docs/contract/getCode
+   * - JSON-RPC Methods: [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
+   *
+   * @param args - {@link GetBytecodeParameters}
+   * @returns The contract's bytecode. {@link GetBytecodeReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const code = await client.getCode({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   * })
+   */
+  getCode: (args: GetCodeParameters) => Promise<GetCodeReturnType>
   /**
    * Returns a list of event logs emitted by a contract.
    *
@@ -1813,8 +1815,9 @@ export function publicActions<
     getBlock: (args) => getBlock(client, args),
     getBlockNumber: (args) => getBlockNumber(client, args),
     getBlockTransactionCount: (args) => getBlockTransactionCount(client, args),
-    getBytecode: (args) => getBytecode(client, args),
+    getBytecode: (args) => getCode(client, args),
     getChainId: () => getChainId(client),
+    getCode: (args) => getCode(client, args),
     getContractEvents: (args) => getContractEvents(client, args),
     getEnsAddress: (args) => getEnsAddress(client, args),
     getEnsAvatar: (args) => getEnsAvatar(client, args),

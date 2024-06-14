@@ -141,10 +141,16 @@ export type {
   GetBlockTransactionCountReturnType,
 } from './actions/public/getBlockTransactionCount.js'
 export type {
-  GetBytecodeErrorType,
-  GetBytecodeParameters,
-  GetBytecodeReturnType,
-} from './actions/public/getBytecode.js'
+  /** @deprecated Use `GetCodeErrorType` instead */
+  GetCodeErrorType as GetBytecodeErrorType,
+  /** @deprecated Use `GetCodeParameters` instead */
+  GetCodeParameters as GetBytecodeParameters,
+  /** @deprecated Use `GetCodeReturnType` instead  */
+  GetCodeReturnType as GetBytecodeReturnType,
+  GetCodeErrorType,
+  GetCodeParameters,
+  GetCodeReturnType,
+} from './actions/public/getCode.js'
 export type {
   GetChainIdErrorType,
   GetChainIdReturnType,

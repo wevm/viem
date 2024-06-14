@@ -46,6 +46,7 @@ test('default', async () => {
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
       "getChainId": [Function],
+      "getCode": [Function],
       "getContractEvents": [Function],
       "getEnsAddress": [Function],
       "getEnsAvatar": [Function],
@@ -161,9 +162,9 @@ describe('smoke test', () => {
     expect(await client.getBlockTransactionCount()).toBeDefined()
   })
 
-  test('getBytecode', async () => {
+  test('getCode', async () => {
     expect(
-      await client.getBytecode({ address: wagmiContractConfig.address }),
+      await client.getCode({ address: wagmiContractConfig.address }),
     ).toBeDefined()
   })
 

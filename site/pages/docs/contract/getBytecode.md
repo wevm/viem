@@ -2,7 +2,7 @@
 description: Retrieves the bytecode at an address.
 ---
 
-# getBytecode
+# getCcode
 
 Retrieves the bytecode at an address.
 
@@ -13,7 +13,7 @@ Retrieves the bytecode at an address.
 ```ts [example.ts]
 import { publicClient } from './client'
 
-const bytecode = await publicClient.getBytecode({
+const bytecode = await publicClient.getCcode({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```
@@ -45,7 +45,7 @@ The contract's bytecode.
 The contract address.
 
 ```ts
-const bytecode = await publicClient.getBytecode({
+const bytecode = await publicClient.getCcode({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
 })
 ```
@@ -57,7 +57,7 @@ const bytecode = await publicClient.getBytecode({
 The block number to perform the bytecode read against.
 
 ```ts
-const bytecode = await publicClient.getBytecode({
+const bytecode = await publicClient.getCcode({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   blockNumber: 15121123n, // [!code focus]
 })
@@ -71,7 +71,7 @@ const bytecode = await publicClient.getBytecode({
 The block tag to perform the bytecode read against.
 
 ```ts
-const bytecode = await publicClient.getBytecode({
+const bytecode = await publicClient.getCcode({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   blockTag: 'safe', // [!code focus]
 })
