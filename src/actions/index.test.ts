@@ -36,6 +36,7 @@ test('exports actions', () => {
       "getBytecode": [Function],
       "getChainId": [Function],
       "getContractEvents": [Function],
+      "getEip712Domain": [Function],
       "getEnsAddress": [Function],
       "getEnsAvatar": [Function],
       "getEnsName": [Function],

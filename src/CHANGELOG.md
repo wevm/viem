@@ -1,5 +1,37 @@
 # viem
 
+## 2.14.0
+
+### Minor Changes
+
+- [#2405](https://github.com/wevm/viem/pull/2405) [`fc8919f5`](https://github.com/wevm/viem/commit/fc8919f5e73f4859627c268cceede3f1a2d9c9c3) Thanks [@jxom](https://github.com/jxom)! - Added `factory` & `factoryData` parameters to `call` & `readContract` to enable [Deployless Calls](https://viem.sh/docs/actions/public/call#deployless-calls) (calling a function on a contract which has not been deployed) via a [Factory Contract](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses).
+
+  This is particularly useful for the use case of calling functions on [ERC-4337 Smart Accounts](https://eips.ethereum.org/EIPS/eip-4337) that have not been deployed yet.
+
+## 2.13.10
+
+### Patch Changes
+
+- [#2399](https://github.com/wevm/viem/pull/2399) [`a61a90c`](https://github.com/wevm/viem/commit/a61a90c077c02cee80c88256461d5a71a35dbc0f) Thanks [@jxom](https://github.com/jxom)! - Added `getEip712Domain` Action.
+
+## 2.13.9
+
+### Patch Changes
+
+- [#2398](https://github.com/wevm/viem/pull/2398) [`f2695cf`](https://github.com/wevm/viem/commit/f2695cfb81a3bf954879ab2f14d1c55bad1175f1) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where zero `r` and `s` values were not being serialized correctly.
+
+- [#2374](https://github.com/wevm/viem/pull/2374) [`a81965e`](https://github.com/wevm/viem/commit/a81965e0984a2d239df0d5e989e6b2119aa4c680) Thanks [@roninjin10](https://github.com/roninjin10)! - Updated `EncodeDeployDataParameters` type.
+
+- [#2388](https://github.com/wevm/viem/pull/2388) [`895e7d1`](https://github.com/wevm/viem/commit/895e7d11a2df3d7aaf7e13476b1c893abb055aaa) Thanks [@bajpai244](https://github.com/bajpai244)! - Updated `kakarotSepolia` chain id.
+
+- [#2393](https://github.com/wevm/viem/pull/2393) [`f624e23`](https://github.com/wevm/viem/commit/f624e23c3355585b5ee1b7f1f44d80b7ff0c7b2d) Thanks [@venticello](https://github.com/venticello)! - Added Xai and Xai testnet chains.
+
+- [#2392](https://github.com/wevm/viem/pull/2392) [`b80ec49`](https://github.com/wevm/viem/commit/b80ec4924ccfd1e6bb81f7e688396e6a1321a222) Thanks [@Markcial](https://github.com/Markcial)! - Added `ham` chain.
+
+- [#2380](https://github.com/wevm/viem/pull/2380) [`d2de3c6`](https://github.com/wevm/viem/commit/d2de3c6713e0a79412f3bfb4cbdc1c361f68a08c) Thanks [@roninjin10](https://github.com/roninjin10)! - Added `docsBaseUrl` to `BaseError`.
+
+- [#2384](https://github.com/wevm/viem/pull/2384) [`674f65d`](https://github.com/wevm/viem/commit/674f65d0ed3a6e8fab1bdc8a254f89200fa658ee) Thanks [@Aastha9018](https://github.com/Aastha9018)! - Added Redbelly Testnet chain.
+
 ## 2.13.8
 
 ### Patch Changes

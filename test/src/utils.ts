@@ -28,6 +28,8 @@ import {
   ERC20InvalidTransferEvent,
   EnsAvatarTokenUri,
   ErrorsExample,
+  Mock4337Account,
+  Mock4337AccountFactory,
   OffchainLookupExample,
   Payable,
 } from '../contracts/generated.js'
@@ -133,6 +135,22 @@ export async function deployPayable() {
     abi: Payable.abi,
     bytecode: Payable.bytecode.object,
   })
+}
+
+export async function deployMock4337Account() {
+  const { contractAddress: implementationAddress } = await deploy(client, {
+    abi: Mock4337Account.abi,
+    bytecode: Mock4337Account.bytecode.object,
+  })
+  const { contractAddress: factoryAddress } = await deploy(client, {
+    abi: Mock4337AccountFactory.abi,
+    bytecode: Mock4337AccountFactory.bytecode.object,
+    args: [implementationAddress!],
+  })
+  return {
+    implementationAddress: implementationAddress!,
+    factoryAddress: factoryAddress!,
+  }
 }
 
 export async function setVitalikResolver() {

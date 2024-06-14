@@ -108,7 +108,7 @@
     {
       "name": "viem (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "59.1 kB",
+      "limit": "59.6 kB",
       "import": "*"
     },
     {
@@ -137,7 +137,7 @@
     {
       "name": "viem/actions",
       "path": "./src/_esm/ens/index.js",
-      "limit": "45 kB",
+      "limit": "46.5 kB",
       "import": "*"
     },
     {
@@ -167,25 +167,25 @@
     {
       "name": "viem/ens",
       "path": "./src/_esm/ens/index.js",
-      "limit": "45 kB",
+      "limit": "46.5 kB",
       "import": "*"
     },
     {
       "name": "viem/ens (tree-shaking)",
       "path": "./src/_esm/ens/index.js",
-      "limit": "19 kB",
+      "limit": "22.3 kB",
       "import": "{ getEnsAvatar }"
     },
     {
       "name": "viem/siwe",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "28 kB",
+      "limit": "30.3 kB",
       "import": "*"
     },
     {
       "name": "viem/siwe (tree-shaking)",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "27 kB",
+      "limit": "29.5 kB",
       "import": "{ verifySiweMessage }"
     }
   ]
