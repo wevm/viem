@@ -6,6 +6,10 @@ test('getDepositBaseTokenOnNonEthBasedChainTx', async () => {
   const depositEthToEthTx = await getDepositBaseTokenOnNonEthBasedChainTx({
     ...mockDepositTransactionExtended,
     baseCost: 22222n,
+    fees: {
+      maxFeePerGas: 15000000100n,
+      maxPriorityFeePerGas: 150000000000n,
+    },
   })
   expect(depositEthToEthTx).toMatchInlineSnapshot(`
     {

@@ -1,14 +1,14 @@
 import type { Address } from 'abitype'
 import type { Hex } from '../../../types/misc.js'
 import type {
-  DepositTransactionExtended,
   DepositTypeValues,
   SecondBridgeEncodeData,
 } from '../../types/deposit.js'
 import { checkBaseCost } from './checkBaseCost.js'
+import type { GetDepositTxWithDefaultsReturnType } from './getDepositTxWithDefaults.js'
 
 export type GetDepositNonBaseTokenOnNonETHBasedChain =
-  DepositTransactionExtended & { baseCost: bigint }
+  GetDepositTxWithDefaultsReturnType & { baseCost: bigint }
 
 export type GetDepositNonBaseTokenOnNonETHBasedChainReturnType =
   GetDepositNonBaseTokenOnNonETHBasedChain & {
