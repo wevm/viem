@@ -419,6 +419,7 @@ test('extend', () => {
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
       "getChainId": [Function],
+      "getCode": [Function],
       "getContractEvents": [Function],
       "getEip712Domain": [Function],
       "getEnsAddress": [Function],
