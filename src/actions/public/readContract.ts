@@ -26,6 +26,7 @@ import {
 } from '../../utils/errors/getContractError.js'
 import { getAction } from '../../utils/getAction.js'
 
+import type { Hex } from '../../types/misc.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type ReadContractParameters<
@@ -50,7 +51,17 @@ export type ReadContractParameters<
     | 'stateOverride'
   >
 > &
-  ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>
+  (
+    | ({
+        bytecode?: Hex | undefined
+      } & ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>)
+    | ({
+        bytecode: Hex
+      } & Omit<
+        ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>,
+        'address'
+      >)
+  )
 
 export type ReadContractReturnType<
   abi extends Abi | readonly unknown[] = Abi,
