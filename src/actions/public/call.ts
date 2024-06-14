@@ -27,7 +27,7 @@ import type { Hex } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import type { ExactPartial, OneOf, UnionOmit } from '../../types/utils.js'
+import type { ExactPartial, UnionOmit } from '../../types/utils.js'
 import {
   type DecodeFunctionResultErrorType,
   decodeFunctionResult,
