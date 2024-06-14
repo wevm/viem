@@ -93,7 +93,7 @@ This example utilizes the [SimpleAccountFactory](https://github.com/eth-infiniti
 :::
 
 :::tip
-The **Deployless Counterfactual Call** pattern (and `factory` + `factoryData` parameters) is also accessible via the [`readContract`](#TODO) & [Contract Instance](#TODO) APIs.
+The **Deployless Counterfactual Call** pattern (and `factory` + `factoryData` parameters) is also accessible via the [`readContract`](/docs/contract/readContract#deployless-counterfactual-reads) & [Contract Instance](http://localhost:5173/docs/contract/getContract) APIs.
 :::
 
 ## Returns
