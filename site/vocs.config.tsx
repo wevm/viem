@@ -4,6 +4,12 @@ import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
 
 export default defineConfig({
+  // banner: {
+  //   backgroundColor: '#3a393b',
+  //   textColor: 'white',
+  //   content:
+  //     'Viem is participating in the Gitcoin Grants 20 round. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/27/20). Thank you. 🙏',
+  // },
   baseUrl: 'https://viem.sh',
   title: 'Viem',
   titleTemplate: '%s · Viem',
@@ -34,6 +40,12 @@ export default defineConfig({
   iconUrl: { light: '/favicons/light.png', dark: '/favicons/dark.png' },
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
   rootDir: '.',
+  search: {
+    boostDocument(documentId) {
+      if (documentId.startsWith('pages/docs')) return 2
+      return 1
+    },
+  },
   sidebar,
   socials: [
     {
@@ -150,25 +162,19 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/spruce-light.svg',
           },
           {
-            name: 'rollup.id',
-            link: 'https://rollup.id',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rollup.id-light.svg',
-          },
-          {
             name: 'Celo',
             link: 'https://celo.org',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/celo-light.svg',
           },
-        ],
-        [
           {
             name: 'Rainbow',
             link: 'https://rainbow.me',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rainbow-light.svg',
           },
+        ],
+        [
           {
             name: 'Pimlico',
             link: 'https://pimlico.io',
@@ -181,14 +187,14 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg',
           },
-        ],
-        [
           {
             name: 'Lattice',
             link: 'https://lattice.xyz',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/lattice-light.svg',
           },
+        ],
+        [
           {
             name: 'Supa',
             link: 'https://twitter.com/supafinance',

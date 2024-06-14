@@ -1,23 +1,13 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { localHttpUrl } from '~test/src/constants.js'
-import {
-  anvilChain,
-  httpClient,
-  publicClient,
-  testClient,
-  webSocketClient,
-} from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { localhost } from '../../chains/index.js'
-import {
-  type PublicClient,
-  createPublicClient,
-} from '../../clients/createPublicClient.js'
+import { type Client, createClient } from '../../clients/createClient.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 
-import { createClient } from '../../clients/createClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { webSocket } from '../../clients/transports/webSocket.js'
 import * as getBlockNumber from './getBlockNumber.js'
@@ -26,21 +16,31 @@ import {
   watchBlockNumber,
 } from './watchBlockNumber.js'
 
+const client = anvilMainnet.getClient()
+const httpClient = createClient({
+  ...anvilMainnet.clientConfig,
+  transport: http(),
+})
+const webSocketClient = createClient({
+  ...anvilMainnet.clientConfig,
+  transport: webSocket(),
+})
+
 describe('poll', () => {
   test('watches for new block numbers', async () => {
     const blockNumbers: OnBlockNumberParameter[] = []
-    const unwatch = watchBlockNumber(publicClient, {
+    const unwatch = watchBlockNumber(client, {
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
       poll: true,
       pollingInterval: 100,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
     expect(blockNumbers.length).toBe(4)
@@ -49,15 +49,15 @@ describe('poll', () => {
   describe('emitMissed', () => {
     test('emits on missed blocks', async () => {
       const blockNumbers: OnBlockNumberParameter[] = []
-      const unwatch = watchBlockNumber(publicClient, {
+      const unwatch = watchBlockNumber(client, {
         emitMissed: true,
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 5 })
+      await mine(client, { blocks: 5 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(6)
@@ -67,20 +67,20 @@ describe('poll', () => {
   describe('emitOnBegin', () => {
     test('watches for new block numbers', async () => {
       const blockNumbers: OnBlockNumberParameter[] = []
-      const unwatch = watchBlockNumber(publicClient, {
+      const unwatch = watchBlockNumber(client, {
         emitOnBegin: true,
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(5)
@@ -89,20 +89,20 @@ describe('poll', () => {
 
   describe('pollingInterval on client', () => {
     test('watches for new block numbers', async () => {
-      const client = createPublicClient({
+      const client_2 = createPublicClient({
         chain: localhost,
-        transport: http(localHttpUrl),
+        transport: http(anvilMainnet.rpcUrl.http),
         pollingInterval: 100,
       })
 
       const blockNumbers: OnBlockNumberParameter[] = []
-      const unwatch = watchBlockNumber(client, {
+      const unwatch = watchBlockNumber(client_2, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(2)
@@ -116,38 +116,38 @@ describe('poll', () => {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         pollingInterval: 100,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(4)
     })
 
     test('fallback transport', async () => {
-      const client = createClient({
-        chain: anvilChain,
+      const client_2 = createClient({
+        chain: anvilMainnet.chain,
         transport: fallback([http(), webSocket()]),
         pollingInterval: 200,
       })
 
       const blockNumbers: OnBlockNumberParameter[] = []
-      const unwatch = watchBlockNumber(client, {
+      const unwatch = watchBlockNumber(client_2, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(4)
@@ -157,14 +157,14 @@ describe('poll', () => {
   describe('behavior', () => {
     test('does not emit when no new incoming blocks', async () => {
       const blockNumbers: OnBlockNumberParameter[] = []
-      const unwatch = watchBlockNumber(publicClient, {
+      const unwatch = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(2)
@@ -172,25 +172,25 @@ describe('poll', () => {
 
     test('watch > unwatch > watch', async () => {
       let blockNumbers: OnBlockNumberParameter[] = []
-      let unwatch = watchBlockNumber(publicClient, {
+      let unwatch = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(2)
 
       blockNumbers = []
-      unwatch = watchBlockNumber(publicClient, {
+      unwatch = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(1)
@@ -199,24 +199,24 @@ describe('poll', () => {
     test('multiple watchers', async () => {
       let blockNumbers: OnBlockNumberParameter[] = []
 
-      let unwatch1 = watchBlockNumber(publicClient, {
+      let unwatch1 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      let unwatch2 = watchBlockNumber(publicClient, {
+      let unwatch2 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      let unwatch3 = watchBlockNumber(publicClient, {
+      let unwatch3 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch1()
       unwatch2()
@@ -225,24 +225,24 @@ describe('poll', () => {
 
       blockNumbers = []
 
-      unwatch1 = watchBlockNumber(publicClient, {
+      unwatch1 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      unwatch2 = watchBlockNumber(publicClient, {
+      unwatch2 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      unwatch3 = watchBlockNumber(publicClient, {
+      unwatch3 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch1()
       unwatch2()
@@ -252,12 +252,12 @@ describe('poll', () => {
 
     test('immediately unwatch', async () => {
       const blockNumbers: OnBlockNumberParameter[] = []
-      const unwatch = watchBlockNumber(publicClient, {
+      const unwatch = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
       })
       unwatch()
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       expect(blockNumbers.length).toBe(0)
     })
@@ -279,7 +279,7 @@ describe('poll', () => {
         OnBlockNumberParameter,
         OnBlockNumberParameter | undefined,
       ][] = []
-      const unwatch = watchBlockNumber(publicClient, {
+      const unwatch = watchBlockNumber(client, {
         poll: true,
         pollingInterval: 100,
         onBlockNumber: (blockNumber, prevBlockNumber) =>
@@ -330,7 +330,7 @@ describe('poll', () => {
         OnBlockNumberParameter,
         OnBlockNumberParameter | undefined,
       ][] = []
-      const unwatch = watchBlockNumber(publicClient, {
+      const unwatch = watchBlockNumber(client, {
         emitMissed: true,
         poll: true,
         pollingInterval: 100,
@@ -394,7 +394,7 @@ describe('poll', () => {
 
       let unwatch: () => void = () => null
       const error = await new Promise((resolve) => {
-        unwatch = watchBlockNumber(publicClient, {
+        unwatch = watchBlockNumber(client, {
           onBlockNumber: () => null,
           onError: resolve,
           poll: true,
@@ -413,68 +413,68 @@ describe('subscribe', () => {
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
     })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
     expect(blockNumbers.length).toBe(5)
   })
 
   test('fallback transport', async () => {
-    const client = createClient({
-      chain: anvilChain,
+    const client_2 = createClient({
+      chain: anvilMainnet.chain,
       transport: fallback([webSocket(), http()]),
       pollingInterval: 200,
     })
 
     const blockNumbers: OnBlockNumberParameter[] = []
-    const unwatch = watchBlockNumber(client, {
+    const unwatch = watchBlockNumber(client_2, {
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
     })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
     expect(blockNumbers.length).toBe(5)
   })
 
   test('fallback transport (poll: false)', async () => {
-    const client = createClient({
-      chain: anvilChain,
+    const client_2 = createClient({
+      chain: anvilMainnet.chain,
       transport: fallback([http(), webSocket()]),
       pollingInterval: 200,
     })
 
     const blockNumbers: OnBlockNumberParameter[] = []
-    const unwatch = watchBlockNumber(client, {
+    const unwatch = watchBlockNumber(client_2, {
       poll: false,
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
     })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
     expect(blockNumbers.length).toBe(5)
@@ -487,11 +487,11 @@ describe('subscribe', () => {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
       })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(3)
@@ -501,11 +501,11 @@ describe('subscribe', () => {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
       })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(3)
@@ -524,11 +524,11 @@ describe('subscribe', () => {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
       })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch1()
       unwatch2()
@@ -547,11 +547,11 @@ describe('subscribe', () => {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
       })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch1()
       unwatch2()
@@ -606,7 +606,7 @@ describe('subscribe', () => {
 
       let unwatch: () => void = () => null
       const error = await new Promise((resolve) => {
-        unwatch = watchBlockNumber(client as PublicClient, {
+        unwatch = watchBlockNumber(client as Client, {
           onBlockNumber: () => null,
           onError: resolve,
         })

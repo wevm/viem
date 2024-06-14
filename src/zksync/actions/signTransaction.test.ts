@@ -1,14 +1,16 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { zkSyncClient } from '~test/src/zksync.js'
 
+import { anvilZkSync } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import type { TransactionRequest } from '../../index.js'
 import type { ZkSyncTransactionRequestEIP712 } from '../../zksync/index.js'
 import { signTransaction } from './signTransaction.js'
 
 const sourceAccount = accounts[0]
+
+const client = anvilZkSync.getClient()
 
 const base: TransactionRequest = {
   from: '0x0000000000000000000000000000000000000000',
@@ -23,18 +25,18 @@ const eip712: ZkSyncTransactionRequestEIP712 = {
 
 test('eip712', async () => {
   expect(
-    await signTransaction(zkSyncClient, {
+    await signTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       ...eip712,
     }),
   ).toMatchInlineSnapshot(
-    `"0x71f8c680808080808000820144808082014494000000000000000000000000000000000000000080c0b8412e940527ab264b49c70e9c1bca7636ed2b87f94b5083140c2cbdcd570d99e2c149b697d0c6a037802d0a4757fbd5d1ffd980afccb270e9d182bf7c197bc4a2661bf85b94fd9ae5ebb0f6656f4b77a0e99dcbc5138d54b0bab8448c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000"`,
+    `"0x71f8c880808080808000820144808082014494000000000000000000000000000000000000000082c350c0b841bb509f381d29a038bd2f700bd6a1f1138edfd7a3cf7234c13a03b01a023a30aa53e6bd5e6a50fdcdcf74587c9395b8a314690abbc85aadab5ebcb7678994eacf1bf85b94fd9ae5ebb0f6656f4b77a0e99dcbc5138d54b0bab8448c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000"`,
   )
 })
 
 test('other', async () => {
   expect(
-    await signTransaction(zkSyncClient, {
+    await signTransaction(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       ...base,
     }),

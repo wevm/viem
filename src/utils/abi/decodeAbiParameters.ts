@@ -13,7 +13,11 @@ import {
   type ChecksumAddressErrorType,
   checksumAddress,
 } from '../address/getAddress.js'
-import { type Cursor, createCursor } from '../cursor.js'
+import {
+  type CreateCursorErrorType,
+  type Cursor,
+  createCursor,
+} from '../cursor.js'
 import { type SizeErrorType, size } from '../data/size.js'
 import { type SliceBytesErrorType, sliceBytes } from '../data/slice.js'
 import { type TrimErrorType, trim } from '../data/trim.js'
@@ -42,6 +46,7 @@ export type DecodeAbiParametersErrorType =
   | BytesToHexErrorType
   | DecodeParameterErrorType
   | SizeErrorType
+  | CreateCursorErrorType
   | ErrorType
 
 export function decodeAbiParameters<
@@ -249,7 +254,7 @@ function decodeBytes(
     return [bytesToHex(data), 32]
   }
 
-  const value = bytesToHex(cursor.readBytes(parseInt(size), 32))
+  const value = bytesToHex(cursor.readBytes(Number.parseInt(size), 32))
   return [value, 32]
 }
 
@@ -260,7 +265,7 @@ type DecodeNumberErrorType =
 
 function decodeNumber(cursor: Cursor, param: AbiParameter) {
   const signed = param.type.startsWith('int')
-  const size = parseInt(param.type.split('int')[1] || '256')
+  const size = Number.parseInt(param.type.split('int')[1] || '256')
   const value = cursor.readBytes(32)
   return [
     size > 48

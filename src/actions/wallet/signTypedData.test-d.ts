@@ -1,9 +1,11 @@
 import type { TypedData } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-import { walletClient } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { walletActions } from '../../clients/decorators/wallet.js'
 import { type SignTypedDataParameters, signTypedData } from './signTypedData.js'
+
+const client = anvilMainnet.getClient().extend(walletActions)
 
 const types = {
   Name: [
@@ -75,7 +77,7 @@ test('SignTypedDataParameters', () => {
 
 test('using client', () => {
   const primaryType = 'Name'
-  walletClient.signTypedData({
+  client.signTypedData({
     account,
     domain,
     types,
@@ -86,7 +88,7 @@ test('using client', () => {
     },
   })
   type Result = Parameters<
-    typeof walletClient.signTypedData<typeof types, typeof primaryType>
+    typeof client.signTypedData<typeof types, typeof primaryType>
   >[0]
   expectTypeOf<Result['message']>().toEqualTypeOf<{
     first: string
@@ -103,7 +105,7 @@ test('using client', () => {
 
 test('using function', () => {
   const primaryType = 'Name'
-  signTypedData(walletClient, {
+  signTypedData(client, {
     account,
     domain,
     types,
@@ -114,7 +116,7 @@ test('using function', () => {
     },
   })
   type Result = Parameters<
-    typeof walletClient.signTypedData<typeof types, typeof primaryType>
+    typeof client.signTypedData<typeof types, typeof primaryType>
   >[0]
   expectTypeOf<Result['message']>().toEqualTypeOf<{
     first: string
@@ -137,7 +139,7 @@ test('`types` not const asserted', () => {
       { name: 'last', type: 'string' },
     ],
   }
-  signTypedData(walletClient, {
+  signTypedData(client, {
     account,
     domain,
     types: types_,
@@ -148,7 +150,7 @@ test('`types` not const asserted', () => {
     },
   })
   type Result = Parameters<
-    typeof walletClient.signTypedData<typeof types_, typeof primaryType>
+    typeof client.signTypedData<typeof types_, typeof primaryType>
   >[0]
   expectTypeOf<Result['message']>().toEqualTypeOf<Record<string, unknown>>()
 })
@@ -161,7 +163,7 @@ test('`types` declared as `TypedData`', () => {
       { name: 'last', type: 'string' },
     ],
   }
-  signTypedData(walletClient, {
+  signTypedData(client, {
     account,
     domain,
     types: types_,
@@ -172,7 +174,7 @@ test('`types` declared as `TypedData`', () => {
     },
   })
   type Result = Parameters<
-    typeof walletClient.signTypedData<typeof types_, typeof primaryType>
+    typeof client.signTypedData<typeof types_, typeof primaryType>
   >[0]
   expectTypeOf<Result['message']>().toEqualTypeOf<Record<string, unknown>>()
 })

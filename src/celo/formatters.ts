@@ -1,8 +1,7 @@
-import { type ChainFormatters } from '../types/chain.js'
+import type { ChainFormatters } from '../types/chain.js'
 import type { Hash } from '../types/misc.js'
 import type { RpcTransaction } from '../types/rpc.js'
 import { hexToBigInt } from '../utils/encoding/fromHex.js'
-import { numberToHex } from '../utils/encoding/toHex.js'
 import { defineBlock } from '../utils/formatters/block.js'
 import {
   defineTransaction,
@@ -16,17 +15,17 @@ import type {
   CeloTransaction,
   CeloTransactionRequest,
 } from './types.js'
-import { isCIP42, isCIP64 } from './utils.js'
+import { isCIP64 } from './utils.js'
 
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({
     exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
     format(
       args: CeloBlockOverrides & {
-        transactions: Hash[] | CeloRpcTransaction[]
+        transactions: readonly Hash[] | readonly CeloRpcTransaction[]
       },
     ): CeloBlockOverrides & {
-      transactions: Hash[] | CeloTransaction[]
+      transactions: readonly Hash[] | readonly CeloTransaction[]
     } {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
@@ -42,7 +41,7 @@ export const formatters = {
               }
             : {}),
         }
-      }) as Hash[] | CeloTransaction[]
+      }) as readonly Hash[] | readonly CeloTransaction[]
       return {
         randomness: args.randomness,
         transactions,
@@ -74,15 +73,6 @@ export const formatters = {
       } as CeloRpcTransactionRequest
 
       if (isCIP64(args)) request.type = '0x7b'
-      else {
-        if (isCIP42(args)) request.type = '0x7c'
-
-        request.gatewayFee =
-          typeof args.gatewayFee !== 'undefined'
-            ? numberToHex(args.gatewayFee)
-            : undefined
-        request.gatewayFeeRecipient = args.gatewayFeeRecipient
-      }
 
       return request
     },

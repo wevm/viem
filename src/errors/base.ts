@@ -1,17 +1,18 @@
 import { getVersion } from './utils.js'
 
 type BaseErrorParameters = {
+  docsBaseUrl?: string | undefined
   docsPath?: string | undefined
   docsSlug?: string | undefined
   metaMessages?: string[] | undefined
 } & (
   | {
-      cause?: never | undefined
+      cause?: undefined
       details?: string | undefined
     }
   | {
       cause: BaseError | Error | undefined
-      details?: never | undefined
+      details?: undefined
     }
 )
 
@@ -45,7 +46,7 @@ export class BaseError extends Error {
       ...(args.metaMessages ? [...args.metaMessages, ''] : []),
       ...(docsPath
         ? [
-            `Docs: https://viem.sh${docsPath}${
+            `Docs: ${args.docsBaseUrl ?? 'https://viem.sh'}${docsPath}${
               args.docsSlug ? `#${args.docsSlug}` : ''
             }`,
           ]

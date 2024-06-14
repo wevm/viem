@@ -5,30 +5,35 @@ import {
   usdcContractConfig,
   wagmiContractConfig,
 } from '~test/src/abis.js'
-import {
-  accounts,
-  address,
-  forkBlockNumber,
-  typedData,
-} from '~test/src/constants.js'
-import {
-  publicClient,
-  setBlockNumber,
-  testClient,
-  walletClient,
-} from '~test/src/utils.js'
+import { accounts, address, typedData } from '~test/src/constants.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
+import { Mock4337AccountFactory } from '../../../test/contracts/generated.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { deployMock4337Account } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { signMessage } from '../../accounts/utils/signMessage.js'
+import {
+  mine,
+  reset,
+  sendTransaction,
+  signTransaction,
+  simulateContract,
+  writeContract,
+} from '../../actions/index.js'
 import { base } from '../../chains/index.js'
+import { pad } from '../../utils/index.js'
+import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'
 import { wait } from '../../utils/wait.js'
 import { createPublicClient } from '../createPublicClient.js'
 import { http } from '../transports/http.js'
 import { publicActions } from './public.js'
 
+const client = anvilMainnet.getClient().extend(publicActions)
+
 test('default', async () => {
-  expect(publicActions(publicClient)).toMatchInlineSnapshot(`
+  expect(publicActions(client)).toMatchInlineSnapshot(`
     {
       "call": [Function],
       "createBlockFilter": [Function],
@@ -46,7 +51,9 @@ test('default', async () => {
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
       "getChainId": [Function],
+      "getCode": [Function],
       "getContractEvents": [Function],
+      "getEip712Domain": [Function],
       "getEnsAddress": [Function],
       "getEnsAvatar": [Function],
       "getEnsName": [Function],
@@ -70,6 +77,7 @@ test('default', async () => {
       "simulateContract": [Function],
       "uninstallFilter": [Function],
       "verifyMessage": [Function],
+      "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
       "waitForTransactionReceipt": [Function],
       "watchBlockNumber": [Function],
@@ -83,7 +91,7 @@ test('default', async () => {
 
 describe('smoke test', () => {
   test('call', async () => {
-    const { data } = await publicClient.call({
+    const { data } = await client.call({
       data: '0x06fdde03',
       account: accounts[0].address,
       to: wagmiContractConfig.address,
@@ -94,28 +102,28 @@ describe('smoke test', () => {
   })
 
   test('createBlockFilter', async () => {
-    expect(await publicClient.createBlockFilter()).toBeDefined()
+    expect(await client.createBlockFilter()).toBeDefined()
   })
 
   test('createContractEventFilter', async () => {
     expect(
-      await publicClient.createContractEventFilter({
+      await client.createContractEventFilter({
         abi: usdcContractConfig.abi,
       }),
     ).toBeDefined()
   })
 
   test('createEventFilter', async () => {
-    expect(await publicClient.createEventFilter()).toBeDefined()
+    expect(await client.createEventFilter()).toBeDefined()
   })
 
   test('createPendingTransactionFilter', async () => {
-    expect(await publicClient.createPendingTransactionFilter()).toBeDefined()
+    expect(await client.createPendingTransactionFilter()).toBeDefined()
   })
 
   test('estimateContractGas', async () => {
     expect(
-      await publicClient.estimateContractGas({
+      await client.estimateContractGas({
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -126,7 +134,7 @@ describe('smoke test', () => {
 
   test('estimateGas', async () => {
     expect(
-      await publicClient.estimateGas({
+      await client.estimateGas({
         account: accounts[0].address,
         to: accounts[1].address,
         value: parseEther('1'),
@@ -135,54 +143,88 @@ describe('smoke test', () => {
   })
 
   test('getBalance', async () => {
-    expect(
-      await publicClient.getBalance({ address: accounts[5].address }),
-    ).toEqual(10000000000000000000000n)
+    expect(await client.getBalance({ address: accounts[5].address })).toEqual(
+      10000000000000000000000n,
+    )
   })
 
-  test.skip('getBlobBaseFee', async () => {
-    expect(await publicClient.getBlobBaseFee()).toBeDefined()
+  test('getBlobBaseFee', async () => {
+    expect(await client.getBlobBaseFee()).toBeDefined()
   })
 
   test('getBlock', async () => {
     expect(
-      await publicClient.getBlock({ blockNumber: forkBlockNumber }),
+      await client.getBlock({
+        blockNumber: anvilMainnet.forkBlockNumber,
+      }),
     ).toBeDefined()
   })
 
   test('getBlockNumber', async () => {
-    expect(await publicClient.getBlockNumber()).toBeDefined()
+    expect(await client.getBlockNumber()).toBeDefined()
   })
 
   test('getBlockTransactionCount', async () => {
-    expect(await publicClient.getBlockTransactionCount()).toBeDefined()
+    expect(await client.getBlockTransactionCount()).toBeDefined()
   })
 
-  test('getBytecode', async () => {
+  test('getCode', async () => {
     expect(
-      await publicClient.getBytecode({ address: wagmiContractConfig.address }),
+      await client.getCode({ address: wagmiContractConfig.address }),
     ).toBeDefined()
   })
 
   test('getChainId', async () => {
-    expect(await publicClient.getChainId()).toBeDefined()
+    expect(await client.getChainId()).toBeDefined()
   })
 
   test('getContractEvents', async () => {
     expect(
-      await publicClient.getContractEvents({ abi: wagmiContractConfig.abi }),
+      await client.getContractEvents({ abi: wagmiContractConfig.abi }),
     ).toBeDefined()
+  })
+
+  test('getEip712Domain', async () => {
+    const { factoryAddress } = await deployMock4337Account()
+
+    const { result: address, request } = await simulateContract(client, {
+      account: accounts[0].address,
+      abi: Mock4337AccountFactory.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x0')],
+    })
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+
+    expect(await client.getEip712Domain({ address })).toMatchInlineSnapshot(`
+      {
+        "domain": {
+          "chainId": 1,
+          "name": "Mock4337Account",
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "verifyingContract": "0x8a00708a83D977494139D21D618C6C2A71fA8ed1",
+          "version": "1",
+        },
+        "extensions": [],
+        "fields": "0x0f",
+      }
+    `)
   })
 
   test(
     'getEnsAddress',
     async () => {
-      const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(19_258_213n)
-      expect(
-        await publicClient.getEnsAddress({ name: 'jxom.eth' }),
-      ).toBeDefined()
-      await setBlockNumber(blockNumber)
+      const blockNumber = await getBlockNumber(client)
+      await reset(client, {
+        blockNumber: 19_258_213n,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
+      expect(await client.getEnsAddress({ name: 'jxom.eth' })).toBeDefined()
+      await reset(client, {
+        blockNumber: blockNumber,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
     },
     { timeout: 20_000 },
   )
@@ -190,12 +232,16 @@ describe('smoke test', () => {
   test(
     'getEnsAvatar',
     async () => {
-      const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(19_258_213n)
-      expect(
-        await publicClient.getEnsAvatar({ name: 'jxom.eth' }),
-      ).toBeDefined()
-      await setBlockNumber(blockNumber)
+      const blockNumber = await getBlockNumber(client)
+      await reset(client, {
+        blockNumber: 19_258_213n,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
+      expect(await client.getEnsAvatar({ name: 'jxom.eth' })).toBeDefined()
+      await reset(client, {
+        blockNumber: blockNumber,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
     },
     { timeout: 20_000 },
   )
@@ -203,12 +249,18 @@ describe('smoke test', () => {
   test(
     'getEnsName',
     async () => {
-      const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(19_258_213n)
+      const blockNumber = await getBlockNumber(client)
+      await reset(client, {
+        blockNumber: 19_258_213n,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
       expect(
-        await publicClient.getEnsName({ address: address.vitalik }),
+        await client.getEnsName({ address: address.vitalik }),
       ).toBeDefined()
-      await setBlockNumber(blockNumber)
+      await reset(client, {
+        blockNumber: blockNumber,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
     },
     { timeout: 20_000 },
   )
@@ -216,12 +268,16 @@ describe('smoke test', () => {
   test(
     'getEnsResolver',
     async () => {
-      const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(19_258_213n)
-      expect(
-        await publicClient.getEnsResolver({ name: 'jxom.eth' }),
-      ).toBeDefined()
-      await setBlockNumber(blockNumber)
+      const blockNumber = await getBlockNumber(client)
+      await reset(client, {
+        blockNumber: 19_258_213n,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
+      expect(await client.getEnsResolver({ name: 'jxom.eth' })).toBeDefined()
+      await reset(client, {
+        blockNumber: blockNumber,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
     },
     { timeout: 20_000 },
   )
@@ -229,50 +285,56 @@ describe('smoke test', () => {
   test(
     'getEnsText',
     async () => {
-      const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(19_258_213n)
+      const blockNumber = await getBlockNumber(client)
+      await reset(client, {
+        blockNumber: 19_258_213n,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
       expect(
-        await publicClient.getEnsText({ name: 'jxom.eth', key: 'com.twitter' }),
+        await client.getEnsText({ name: 'jxom.eth', key: 'com.twitter' }),
       ).toBeDefined()
-      await setBlockNumber(blockNumber)
+      await reset(client, {
+        blockNumber: blockNumber,
+        jsonRpcUrl: anvilMainnet.forkUrl,
+      })
     },
     { timeout: 20_000 },
   )
 
   test('getFeeHistory', async () => {
     expect(
-      await publicClient.getFeeHistory({
+      await client.getFeeHistory({
         blockCount: 4,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
         rewardPercentiles: [0, 50, 100],
       }),
     ).toBeDefined()
   })
 
   test('estimateFeesPerGas', async () => {
-    expect(await publicClient.estimateFeesPerGas()).toBeDefined()
+    expect(await client.estimateFeesPerGas()).toBeDefined()
   })
 
   test('getFilterChanges', async () => {
-    const filter = await publicClient.createPendingTransactionFilter()
+    const filter = await client.createPendingTransactionFilter()
     expect(
-      await publicClient.getFilterChanges({
+      await client.getFilterChanges({
         filter,
       }),
     ).toBeDefined()
   })
 
   test('getFilterLogs', async () => {
-    const filter = await publicClient.createEventFilter()
+    const filter = await client.createEventFilter()
     expect(
-      await publicClient.getFilterLogs({
+      await client.getFilterLogs({
         filter,
       }),
     ).toBeDefined()
   })
 
   test('getGasPrice', async () => {
-    expect(await publicClient.getGasPrice()).toBeDefined()
+    expect(await client.getGasPrice()).toBeDefined()
   })
 
   test('getProof', async () => {
@@ -292,16 +354,16 @@ describe('smoke test', () => {
   })
 
   test('getLogs', async () => {
-    expect(await publicClient.getLogs()).toBeDefined()
+    expect(await client.getLogs()).toBeDefined()
   })
 
   test('estimateMaxPriorityFeePerGas', async () => {
-    expect(await publicClient.estimateMaxPriorityFeePerGas()).toBeDefined()
+    expect(await client.estimateMaxPriorityFeePerGas()).toBeDefined()
   })
 
   test('getStorageAt', async () => {
     expect(
-      await publicClient.getStorageAt({
+      await client.getStorageAt({
         address: wagmiContractConfig.address,
         slot: '0x0',
       }),
@@ -310,7 +372,7 @@ describe('smoke test', () => {
 
   test('getTransaction', async () => {
     expect(
-      await publicClient.getTransaction({
+      await client.getTransaction({
         blockNumber: 15131999n,
         index: 69,
       }),
@@ -318,17 +380,17 @@ describe('smoke test', () => {
   })
 
   test('getTransactionConfirmations', async () => {
-    const hash = await walletClient.sendTransaction({
+    const hash = await sendTransaction(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     })
-    await testClient.mine({ blocks: 1 })
-    const transactionReceipt = await publicClient.getTransactionReceipt({
+    await mine(client, { blocks: 1 })
+    const transactionReceipt = await client.getTransactionReceipt({
       hash,
     })
     expect(
-      await publicClient.getTransactionConfirmations({
+      await client.getTransactionConfirmations({
         transactionReceipt,
       }),
     ).toBe(1n)
@@ -336,7 +398,7 @@ describe('smoke test', () => {
 
   test('getTransactionCount', async () => {
     expect(
-      await publicClient.getTransactionCount({
+      await client.getTransactionCount({
         address: accounts[0].address,
       }),
     ).toBeDefined()
@@ -344,7 +406,7 @@ describe('smoke test', () => {
 
   test('getTransactionReceipt', async () => {
     expect(
-      await publicClient.getTransactionReceipt({
+      await client.getTransactionReceipt({
         hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
       }),
     ).toBeDefined()
@@ -352,8 +414,8 @@ describe('smoke test', () => {
 
   test('multicall', async () => {
     expect(
-      await publicClient.multicall({
-        blockNumber: forkBlockNumber,
+      await client.multicall({
+        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -372,7 +434,7 @@ describe('smoke test', () => {
 
   test('prepareTransactionRequest', async () => {
     expect(
-      await publicClient.prepareTransactionRequest({
+      await client.prepareTransactionRequest({
         account: accounts[6].address,
         to: accounts[7].address,
         value: parseEther('1'),
@@ -381,14 +443,14 @@ describe('smoke test', () => {
   })
 
   test('sendRawTransaction', async () => {
-    const request = await publicClient.prepareTransactionRequest({
+    const request = await client.prepareTransactionRequest({
       account: privateKeyToAccount(accounts[0].privateKey),
       to: accounts[1].address,
       value: parseEther('1'),
     })
-    const serializedTransaction = await walletClient.signTransaction(request)
+    const serializedTransaction = await signTransaction(client, request)
     expect(
-      await publicClient.sendRawTransaction({
+      await client.sendRawTransaction({
         serializedTransaction,
       }),
     ).toBeDefined()
@@ -396,7 +458,7 @@ describe('smoke test', () => {
 
   test('readContract', async () => {
     expect(
-      await publicClient.readContract({
+      await client.readContract({
         ...wagmiContractConfig,
         functionName: 'balanceOf',
         args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
@@ -406,7 +468,7 @@ describe('smoke test', () => {
 
   test('simulateContract', async () => {
     expect(
-      await publicClient.simulateContract({
+      await client.simulateContract({
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
@@ -417,7 +479,7 @@ describe('smoke test', () => {
 
   test('verifyMessage', async () => {
     expect(
-      await publicClient.verifyMessage({
+      await client.verifyMessage({
         address: smartAccountConfig.address,
         message: 'This is a test message for viem!',
         signature:
@@ -426,9 +488,32 @@ describe('smoke test', () => {
     ).toBe(true)
   })
 
+  test('verifySiweMessage', async () => {
+    const account = accounts[0]
+    const message = createSiweMessage({
+      address: account.address,
+      chainId: 1,
+      domain: 'example.com',
+      nonce: 'foobarbaz',
+      uri: 'https://example.com/path',
+      version: '1',
+    })
+    const signature = await signMessage({
+      message,
+      privateKey: account.privateKey,
+    })
+
+    expect(
+      await client.verifySiweMessage({
+        message,
+        signature,
+      }),
+    ).toBe(true)
+  })
+
   test('verifyTypedData', async () => {
     expect(
-      await publicClient.verifyTypedData({
+      await client.verifyTypedData({
         ...typedData.basic,
         primaryType: 'Mail',
         address: smartAccountConfig.address,
@@ -439,40 +524,40 @@ describe('smoke test', () => {
   })
 
   test('uninstallFilter', async () => {
-    const filter = await publicClient.createPendingTransactionFilter()
-    expect(await publicClient.uninstallFilter({ filter })).toBeDefined()
+    const filter = await client.createPendingTransactionFilter()
+    expect(await client.uninstallFilter({ filter })).toBeDefined()
   })
 
   test('waitForTransactionReceipt', async () => {
-    const hash = await walletClient.sendTransaction({
+    const hash = await sendTransaction(client, {
       account: accounts[6].address,
       to: accounts[7].address,
       value: parseEther('1'),
     })
-    await testClient.mine({ blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    const { status } = await publicClient.waitForTransactionReceipt({
+    const { status } = await client.waitForTransactionReceipt({
       hash,
     })
     expect(status).toBe('success')
   })
 
   test('watchBlockNumber', async () => {
-    const unwatch = publicClient.watchBlockNumber({
+    const unwatch = client.watchBlockNumber({
       onBlockNumber: () => {},
     })
     expect(unwatch).toBeDefined()
   })
 
   test('watchBlocks', async () => {
-    const unwatch = publicClient.watchBlocks({
+    const unwatch = client.watchBlocks({
       onBlock: () => {},
     })
     expect(unwatch).toBeDefined()
   })
 
   test('watchContractEvent', async () => {
-    const unwatch = publicClient.watchContractEvent({
+    const unwatch = client.watchContractEvent({
       abi: wagmiContractConfig.abi,
       onLogs: () => {},
     })
@@ -480,14 +565,14 @@ describe('smoke test', () => {
   })
 
   test('watchEvent', async () => {
-    const unwatch = publicClient.watchEvent({
+    const unwatch = client.watchEvent({
       onLogs: () => {},
     })
     expect(unwatch).toBeDefined()
   })
 
   test('watchPendingTransactions', async () => {
-    const unwatch = publicClient.watchPendingTransactions({
+    const unwatch = client.watchPendingTransactions({
       onTransactions: () => {},
     })
     expect(unwatch).toBeDefined()

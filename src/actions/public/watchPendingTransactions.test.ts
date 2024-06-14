@@ -1,13 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import {
-  publicClient,
-  testClient,
-  walletClient,
-  webSocketClient,
-} from '~test/src/utils.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { type Client, createClient } from '../../clients/createClient.js'
+import { webSocket } from '../../clients/transports/webSocket.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
@@ -20,6 +16,12 @@ import {
   watchPendingTransactions,
 } from './watchPendingTransactions.js'
 
+const client = anvilMainnet.getClient()
+const webSocketClient = createClient({
+  ...anvilMainnet.clientConfig,
+  transport: webSocket(),
+})
+
 describe('poll', () => {
   test(
     'watches for pending transactions',
@@ -27,20 +29,20 @@ describe('poll', () => {
       await wait(1000)
 
       let transactions: OnTransactionsParameter = []
-      const unwatch = watchPendingTransactions(publicClient, {
+      const unwatch = watchPendingTransactions(client, {
         onTransactions: (transactions_) => {
           transactions = [...transactions, ...transactions_]
         },
         poll: true,
       })
       await wait(1000)
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: accounts[0].address,
         to: accounts[1].address,
         value: parseEther('1'),
       })
       await wait(1000)
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: accounts[2].address,
         to: accounts[3].address,
         value: parseEther('1'),
@@ -49,7 +51,7 @@ describe('poll', () => {
       unwatch()
       expect(transactions.length).toBe(2)
 
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
     },
     { timeout: 10_000 },
   )
@@ -58,7 +60,7 @@ describe('poll', () => {
     await wait(1000)
 
     let transactions: OnTransactionsParameter = []
-    const unwatch = watchPendingTransactions(publicClient, {
+    const unwatch = watchPendingTransactions(client, {
       batch: false,
       onTransactions: (transactions_) => {
         transactions = [...transactions, ...transactions_]
@@ -66,18 +68,18 @@ describe('poll', () => {
       poll: true,
     })
     await wait(1000)
-    await sendTransaction(walletClient, {
+    await sendTransaction(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     })
     await wait(1000)
-    await sendTransaction(walletClient, {
+    await sendTransaction(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     })
-    await sendTransaction(walletClient, {
+    await sendTransaction(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
@@ -86,7 +88,7 @@ describe('poll', () => {
     unwatch()
     expect(transactions.length).toBe(3)
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
   })
 
   describe('errors', () => {
@@ -98,7 +100,7 @@ describe('poll', () => {
 
       let unwatch: () => void = () => null
       const error = await new Promise((resolve) => {
-        unwatch = watchPendingTransactions(publicClient, {
+        unwatch = watchPendingTransactions(client, {
           onTransactions: () => null,
           onError: resolve,
           poll: true,
@@ -115,7 +117,7 @@ describe('poll', () => {
 
       let unwatch: () => void = () => null
       const error = await new Promise((resolve) => {
-        unwatch = watchPendingTransactions(publicClient, {
+        unwatch = watchPendingTransactions(client, {
           onTransactions: () => null,
           onError: resolve,
           poll: true,
@@ -140,13 +142,13 @@ describe('subscribe', () => {
         },
       })
       await wait(1000)
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: accounts[0].address,
         to: accounts[1].address,
         value: parseEther('1'),
       })
       await wait(1000)
-      await sendTransaction(walletClient, {
+      await sendTransaction(client, {
         account: accounts[2].address,
         to: accounts[3].address,
         value: parseEther('1'),
@@ -155,7 +157,7 @@ describe('subscribe', () => {
       unwatch()
       expect(transactions.length).toBe(2)
 
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
     },
     { timeout: 10_000 },
   )
@@ -196,7 +198,7 @@ describe('subscribe', () => {
 
       let unwatch: () => void = () => null
       const error = await new Promise((resolve) => {
-        unwatch = watchPendingTransactions(client as PublicClient, {
+        unwatch = watchPendingTransactions(client as Client, {
           onTransactions: () => null,
           onError: resolve,
         })

@@ -1,9 +1,11 @@
-import { expect, test } from 'vitest'
+import { beforeEach, expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { testClient, walletClient } from '../../../test/src/utils.js'
-import { getTransactionReceipt, mine } from '../../actions/index.js'
+import { getTransactionReceipt, mine, reset } from '../../actions/index.js'
 import { optimism } from '../../op-stack/chains.js'
 import { finalizeWithdrawal } from './finalizeWithdrawal.js'
+
+const client = anvilMainnet.getClient()
 
 const withdrawal = {
   nonce:
@@ -17,24 +19,31 @@ const withdrawal = {
     '0x539dfd84b3939c6d2f61e1fbaa176a70e6a433e222093c3fea872ac36527d6ac',
 } as const
 
+beforeEach(async () => {
+  await reset(client, {
+    blockNumber: 16280770n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+})
+
 test('default', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     targetChain: optimism,
     withdrawal,
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
 })
 
 test('args: chain (nullish)', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     chain: null,
     targetChain: optimism,
@@ -43,16 +52,16 @@ test('args: chain (nullish)', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
 })
 
 test('args: gas', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     targetChain: optimism,
     withdrawal,
@@ -60,16 +69,16 @@ test('args: gas', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
 })
 
 test('args: gas (nullish)', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     targetChain: optimism,
     withdrawal,
@@ -77,16 +86,16 @@ test('args: gas (nullish)', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
 })
 
 test('args: portal address', async () => {
-  const hash = await finalizeWithdrawal(walletClient, {
+  const hash = await finalizeWithdrawal(client, {
     account: accounts[0].address,
     withdrawal,
     gas: 420_000n,
@@ -94,9 +103,9 @@ test('args: portal address', async () => {
   })
   expect(hash).toBeDefined()
 
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
-  const receipt = await getTransactionReceipt(walletClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash,
   })
   expect(receipt.status).toEqual('success')
@@ -104,7 +113,7 @@ test('args: portal address', async () => {
 
 test('error: small gas', async () => {
   await expect(() =>
-    finalizeWithdrawal(walletClient, {
+    finalizeWithdrawal(client, {
       account: accounts[0].address,
       targetChain: optimism,
       withdrawal,
@@ -130,6 +139,6 @@ test('error: small gas', async () => {
 
     Docs: https://viem.sh/docs/contract/estimateContractGas
     Details: Out of gas: gas required exceeds allowance: 69
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

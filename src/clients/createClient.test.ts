@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { localWsUrl } from '~test/src/constants.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { localhost, mainnet } from '../chains/index.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { createClient } from './createClient.js'
@@ -108,7 +108,7 @@ describe('transports', () => {
   test('webSocket', () => {
     const { uid, ...client } = createClient({
       chain: localhost,
-      transport: webSocket(localWsUrl),
+      transport: webSocket(anvilMainnet.rpcUrl.ws),
     })
 
     expect(uid).toBeDefined()
@@ -504,7 +504,9 @@ describe('extends', () => {
         "getBlockTransactionCount": [Function],
         "getBytecode": [Function],
         "getChainId": [Function],
+        "getCode": [Function],
         "getContractEvents": [Function],
+        "getEip712Domain": [Function],
         "getEnsAddress": [Function],
         "getEnsAvatar": [Function],
         "getEnsName": [Function],
@@ -544,6 +546,7 @@ describe('extends', () => {
         "type": "base",
         "uninstallFilter": [Function],
         "verifyMessage": [Function],
+        "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
         "waitForTransactionReceipt": [Function],
         "watchBlockNumber": [Function],

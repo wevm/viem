@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { accounts, localHttpUrl } from '../../../../test/src/constants.js'
-import { testClient } from '../../../../test/src/utils.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { accounts } from '../../../../test/src/constants.js'
 import { mine } from '../../../actions/index.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
@@ -12,6 +12,8 @@ import { getHttpRpcClient, parseEther } from '../../../utils/index.js'
 import { uid } from '../../../utils/uid.js'
 import { getCallsStatus } from './getCallsStatus.js'
 import { sendCalls } from './sendCalls.js'
+
+const testClient = anvilMainnet.getClient()
 
 type Uid = string
 type TxHashes = Hex[]
@@ -25,7 +27,7 @@ const getClient = ({
       async request({ method, params }) {
         onRequest({ method, params })
 
-        const rpcClient = getHttpRpcClient(localHttpUrl)
+        const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
         if (method === 'wallet_getCallsStatus') {
           const hashes = calls.get(params[0])
@@ -43,7 +45,7 @@ const getClient = ({
                 throw new RpcRequestError({
                   body: { method, params },
                   error,
-                  url: localHttpUrl,
+                  url: anvilMainnet.rpcUrl.http,
                 })
               return {
                 blockHash: result.blockHash,
@@ -72,7 +74,7 @@ const getClient = ({
               throw new RpcRequestError({
                 body: { method, params },
                 error,
-                url: localHttpUrl,
+                url: anvilMainnet.rpcUrl.http,
               })
             hashes.push(result)
           }
@@ -127,27 +129,27 @@ test('default', async () => {
     [
       {
         "blockHash": undefined,
-        "blockNumber": 16280771n,
+        "blockNumber": 19808251n,
         "gasUsed": 21000n,
         "logs": [],
         "status": "success",
-        "transactionHash": "0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3",
+        "transactionHash": "0xc3e38267433ebc2381f0e5b0803d6c6ec5803d67ec19ee6ab8d0c9576a5e4010",
       },
       {
         "blockHash": undefined,
-        "blockNumber": 16280771n,
+        "blockNumber": 19808251n,
         "gasUsed": 21000n,
         "logs": [],
         "status": "success",
-        "transactionHash": "0x5fafca9937b154c21e7ea896c3ca23e5076ab9ca9e466085ae45edffb96c36e7",
+        "transactionHash": "0xaf1848055f8486bd8b898e5400707c5f5153f11bd8cc4a3376ca207260537fbc",
       },
       {
         "blockHash": undefined,
-        "blockNumber": 16280771n,
+        "blockNumber": 19808251n,
         "gasUsed": 21064n,
         "logs": [],
         "status": "success",
-        "transactionHash": "0x84f1d37995973fa977fc45eccf3d1ac0cdf666541a7dc2613e9cd3bc356ddfa4",
+        "transactionHash": "0xe8c321baa5fefb020b80461c3c4004f2f94c63176757d764795894d30a8f7d4d",
       },
     ]
   `)

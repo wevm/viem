@@ -17,7 +17,7 @@ type BatchResultsCompareFn<TResult = unknown> = (
   b: TResult,
 ) => number
 
-export type CreateBatchSchedulerArguments<
+type CreateBatchSchedulerArguments<
   TParameters = unknown,
   TReturnType extends readonly unknown[] = readonly unknown[],
 > = {
@@ -28,7 +28,7 @@ export type CreateBatchSchedulerArguments<
   sort?: BatchResultsCompareFn<TReturnType[number]> | undefined
 }
 
-export type CreateBatchSchedulerReturnType<
+type CreateBatchSchedulerReturnType<
   TParameters = unknown,
   TReturnType extends readonly unknown[] = readonly unknown[],
 > = {
@@ -42,6 +42,7 @@ export type CreateBatchSchedulerErrorType = ErrorType
 
 const schedulerCache = /*#__PURE__*/ new Map<number | string, SchedulerItem[]>()
 
+/** @internal */
 export function createBatchScheduler<
   TParameters,
   TReturnType extends readonly unknown[],

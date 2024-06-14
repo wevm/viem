@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
   type Abi,
   type AbiFunction,
@@ -47,6 +48,11 @@ export {
   type GetContractEventsParameters,
   type GetContractEventsReturnType,
 } from './actions/public/getContractEvents.js'
+export {
+  type GetEip712DomainErrorType,
+  type GetEip712DomainParameters,
+  type GetEip712DomainReturnType,
+} from './actions/public/getEip712Domain.js'
 export {
   type AddChainErrorType,
   type AddChainParameters,
@@ -140,10 +146,16 @@ export type {
   GetBlockTransactionCountReturnType,
 } from './actions/public/getBlockTransactionCount.js'
 export type {
-  GetBytecodeErrorType,
-  GetBytecodeParameters,
-  GetBytecodeReturnType,
-} from './actions/public/getBytecode.js'
+  /** @deprecated Use `GetCodeErrorType` instead */
+  GetCodeErrorType as GetBytecodeErrorType,
+  /** @deprecated Use `GetCodeParameters` instead */
+  GetCodeParameters as GetBytecodeParameters,
+  /** @deprecated Use `GetCodeReturnType` instead  */
+  GetCodeReturnType as GetBytecodeReturnType,
+  GetCodeErrorType,
+  GetCodeParameters,
+  GetCodeReturnType,
+} from './actions/public/getCode.js'
 export type {
   GetChainIdErrorType,
   GetChainIdReturnType,
@@ -714,6 +726,8 @@ export {
   type ContractFunctionZeroDataErrorType,
   RawContractError,
   type RawContractErrorType,
+  CounterfactualDeploymentFailedError,
+  type CounterfactualDeploymentFailedErrorType,
 } from './errors/contract.js'
 export {
   BaseFeeScalarError,
@@ -993,7 +1007,7 @@ export type {
   EIP1193Provider,
   EIP1193RequestFn,
   EIP1474Methods,
-  ProviderRpcError as EIP1193ProviderRpcError,
+  ProviderRpcErrorType as EIP1193ProviderRpcErrorType,
   ProviderConnectInfo,
   ProviderMessage,
   PublicRpcSchema,
@@ -1005,12 +1019,15 @@ export type {
   WalletCapabilitiesRecord,
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
+  WalletIssuePermissionsParameters,
+  WalletIssuePermissionsReturnType,
   WalletSendCallsParameters,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,
   WatchAssetParams,
 } from './types/eip1193.js'
+export { ProviderRpcError as EIP1193ProviderRpcError } from './types/eip1193.js'
 export type { BlobSidecar, BlobSidecars } from './types/eip4844.js'
 export type {
   FeeHistory,
@@ -1023,7 +1040,6 @@ export type {
 export type { Filter, FilterType } from './types/filter.js'
 export type { TypedDataDefinition } from './types/typedData.js'
 export type { GetTransportConfig, GetPollOptions } from './types/transport.js'
-export type { HDKey } from '@scure/bip32'
 export type { Log } from './types/log.js'
 export type {
   MulticallContracts,
@@ -1033,6 +1049,7 @@ export type {
 export type {
   ParseAccount,
   DeriveAccount,
+  HDKey,
 } from './types/account.js'
 export type {
   Index,
@@ -1094,6 +1111,7 @@ export {
 export {
   type DecodeFunctionDataErrorType,
   type DecodeFunctionDataParameters,
+  type DecodeFunctionDataReturnType,
   decodeFunctionData,
 } from './utils/abi/decodeFunctionData.js'
 export {
@@ -1174,6 +1192,7 @@ export {
 export {
   type GetAbiItemErrorType,
   type GetAbiItemParameters,
+  type GetAbiItemReturnType,
   getAbiItem,
 } from './utils/abi/getAbiItem.js'
 export {
@@ -1209,13 +1228,21 @@ export {
   compactSignatureToSignature,
 } from './utils/signature/compactSignatureToSignature.js'
 export {
-  type HexToCompactSignatureErrorType,
-  hexToCompactSignature,
-} from './utils/signature/hexToCompactSignature.js'
+  /** @deprecated Use `ParseCompactSignatureErrorType`. */
+  type ParseCompactSignatureErrorType as HexToCompactSignatureErrorType,
+  /** @deprecated Use `parseCompactSignature`. */
+  parseCompactSignature as hexToCompactSignature,
+  type ParseCompactSignatureErrorType,
+  parseCompactSignature,
+} from './utils/signature/parseCompactSignature.js'
 export {
-  type HexToSignatureErrorType,
-  hexToSignature,
-} from './utils/signature/hexToSignature.js'
+  /** @deprecated Use `ParseSignatureErrorType`. */
+  type ParseSignatureErrorType as HexToSignatureErrorType,
+  /** @deprecated Use `parseSignature`. */
+  parseSignature as hexToSignature,
+  type ParseSignatureErrorType,
+  parseSignature,
+} from './utils/signature/parseSignature.js'
 export {
   type RecoverAddressErrorType,
   type RecoverAddressParameters,
@@ -1251,13 +1278,21 @@ export {
   signatureToCompactSignature,
 } from './utils/signature/signatureToCompactSignature.js'
 export {
-  type CompactSignatureToHexErrorType,
-  compactSignatureToHex,
-} from './utils/signature/compactSignatureToHex.js'
+  /** @deprecated Use `SignatureToHexErrorType` instead. */
+  type SerializeCompactSignatureErrorType as CompactSignatureToHexErrorType,
+  /** @deprecated Use `serializeCompactSignature` instead. */
+  serializeCompactSignature as compactSignatureToHex,
+  type SerializeCompactSignatureErrorType,
+  serializeCompactSignature,
+} from './utils/signature/serializeCompactSignature.js'
 export {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from './utils/signature/signatureToHex.js'
+  /** @deprecated Use `SignatureToHexErrorType` instead. */
+  type SerializeSignatureErrorType as SignatureToHexErrorType,
+  /** @deprecated Use `serializeSignature` instead. */
+  serializeSignature as signatureToHex,
+  type SerializeSignatureErrorType,
+  serializeSignature,
+} from './utils/signature/serializeSignature.js'
 export {
   bytesToRlp,
   type BytesToRlpErrorType,
@@ -1533,19 +1568,33 @@ export {
   hashMessage,
 } from './utils/signature/hashMessage.js'
 export {
+  type IsAddressOptions,
   type IsAddressErrorType,
   isAddress,
 } from './utils/address/isAddress.js'
 export {
+  type IsAddressEqualReturnType,
   type IsAddressEqualErrorType,
   isAddressEqual,
 } from './utils/address/isAddressEqual.js'
 export { type IsBytesErrorType, isBytes } from './utils/data/isBytes.js'
 export { type IsHashErrorType, isHash } from './utils/hash/isHash.js'
 export { type IsHexErrorType, isHex } from './utils/data/isHex.js'
-export { type Keccak256ErrorType, keccak256 } from './utils/hash/keccak256.js'
-export { type Sha256ErrorType, sha256 } from './utils/hash/sha256.js'
-export { type Ripemd160ErrorType, ripemd160 } from './utils/hash/ripemd160.js'
+export {
+  type Keccak256Hash,
+  type Keccak256ErrorType,
+  keccak256,
+} from './utils/hash/keccak256.js'
+export {
+  type Sha256Hash,
+  type Sha256ErrorType,
+  sha256,
+} from './utils/hash/sha256.js'
+export {
+  type Ripemd160Hash,
+  type Ripemd160ErrorType,
+  ripemd160,
+} from './utils/hash/ripemd160.js'
 export {
   type PadBytesErrorType,
   type PadErrorType,
@@ -1597,7 +1646,9 @@ export {
 export {
   type DomainSeparatorErrorType,
   type GetTypesForEIP712DomainErrorType,
+  type SerializeTypedDataErrorType,
   type ValidateTypedDataErrorType,
+  serializeTypedData,
   validateTypedData,
   domainSeparator,
   getTypesForEIP712Domain,

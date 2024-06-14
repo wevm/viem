@@ -1,4 +1,4 @@
-import { type ChainFormatters } from '../types/chain.js'
+import type { ChainFormatters } from '../types/chain.js'
 import type { Hash } from '../types/misc.js'
 import { hexToBigInt, hexToNumber } from '../utils/encoding/fromHex.js'
 import { hexToBytes } from '../utils/encoding/toBytes.js'
@@ -8,6 +8,7 @@ import { formatLog } from '../utils/formatters/log.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
+import { gasPerPubdataDefault } from './constants/number.js'
 import type {
   ZkSyncBlockOverrides,
   ZkSyncRpcBlockOverrides,
@@ -125,7 +126,7 @@ export const formatters = {
           eip712Meta: {
             ...(args.gasPerPubdata
               ? { gasPerPubdata: toHex(args.gasPerPubdata) }
-              : {}),
+              : { gasPerPubdata: toHex(gasPerPubdataDefault) }),
             ...(args.paymaster && args.paymasterInput
               ? {
                   paymasterParams: {

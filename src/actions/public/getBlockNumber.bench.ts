@@ -1,13 +1,16 @@
 import { bench, describe } from 'vitest'
 
 import { ethersProvider } from '~test/src/bench.js'
-import { publicClient } from '~test/src/utils.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getBlockNumber } from './getBlockNumber.js'
 
+const client = anvilMainnet.getClient()
+
 describe('Get Block Number', () => {
   bench('viem: `getBlockNumber`', async () => {
-    await getBlockNumber(publicClient)
+    await getBlockNumber(client)
   })
 
   bench('ethers: `getBlockNumber`', async () => {

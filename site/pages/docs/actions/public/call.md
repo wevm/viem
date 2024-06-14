@@ -35,6 +35,67 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Deployless Calls
+
+It is possible to call a function on a contract that has not been deployed yet. For instance, we may want
+to call a function on an [ERC-4337 Smart Account](https://eips.ethereum.org/EIPS/eip-4337) contract which has not been deployed.
+
+Viem utilizes a **Deployless Call** pattern via a [Deploy Factory](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory) to:
+1. "temporarily deploy" a contract (e.g. a Smart Account) with a provided [Deployment Factory Contract](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory) address ([`factory`](#factory-optional)) with deployment arguments ([`factoryData`](#factorydata-optional)),
+2. Call the function on the "temporarily deployed" contract ([`to`](#to-optional)).
+
+The example below demonstrates how we can utilize this pattern to call the `entryPoint` function on an [ERC-4337 Smart Account](https://eips.ethereum.org/EIPS/eip-4337) which has not been deployed:
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { encodeFunctionData, parseAbi } from 'viem'
+import { account, publicClient } from './config'
+
+const data = await publicClient.call({
+  // Address of the contract deployer (e.g. Smart Account Factory).
+  factory: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
+
+  // Function to execute on the factory to deploy the contract.
+  factoryData: encodeFunctionData({
+    abi: parseAbi(['function createAccount(address owner, uint256 salt)']),
+    functionName: 'createAccount',
+    args: [account, 0n],
+  }),
+
+  // Function to call on the contract (e.g. Smart Account contract).
+  data: encodeFunctionData({
+    abi: parseAbi(['function entryPoint() view returns (address)']),
+    functionName: 'entryPoint'
+  }),
+
+  // Address of the contract.
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
+:::note
+This example utilizes the [SimpleAccountFactory](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccountFactory.sol).
+:::
+
+:::tip
+The **Deployless Call** pattern (and `factory` + `factoryData` parameters) is also accessible via the [`readContract`](/docs/contract/readContract#deployless-reads) & [Contract Instance](http://localhost:5173/docs/contract/getContract) APIs.
+:::
+
 ## Returns
 
 `0x${string}`
@@ -146,6 +207,40 @@ const data = await publicClient.call({
   blockTag: 'safe', // [!code focus]
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
+### factory (optional)
+
+- **Type:**
+
+Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc).
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const data = await publicClient.call({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  factory: '0x0000000000ffe8b47b3e2130213b802212439497', // [!code focus]
+  factoryData: '0xdeadbeef',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
+### factoryData (optional)
+
+- **Type:**
+
+Calldata to execute on the factory to deploy the contract.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const data = await publicClient.call({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  factory: '0x0000000000ffe8b47b3e2130213b802212439497',
+  factoryData: '0xdeadbeef', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```

@@ -1,8 +1,10 @@
 import { expect, test } from 'vitest'
-import { sepoliaClient } from '../../../test/src/utils.js'
+import { anvilSepolia } from '../../../test/src/anvil.js'
 import { optimismSepolia } from '../../op-stack/chains.js'
 import { getGames } from './getGames.js'
 import { waitForNextGame } from './waitForNextGame.js'
+
+const sepoliaClient = anvilSepolia.getClient()
 
 const games = await getGames(sepoliaClient, {
   limit: 10,

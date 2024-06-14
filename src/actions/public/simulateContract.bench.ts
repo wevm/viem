@@ -5,13 +5,16 @@ import { bench, describe } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { ethersProvider } from '~test/src/bench.js'
 import { accounts } from '~test/src/constants.js'
-import { publicClient } from '~test/src/utils.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { simulateContract } from './simulateContract.js'
 
+const client = anvilMainnet.getClient()
+
 describe('Simulate Contract', () => {
   bench('viem: `simulateContract`', async () => {
-    await simulateContract(publicClient, {
+    await simulateContract(client, {
       ...wagmiContractConfig,
       functionName: 'mint',
       args: [42111n],

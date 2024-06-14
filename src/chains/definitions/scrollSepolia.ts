@@ -11,9 +11,9 @@ export const scrollSepolia = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Blockscout',
-      url: 'https://sepolia-blockscout.scroll.io',
-      apiUrl: 'https://sepolia-blockscout.scroll.io/api',
+      name: 'Scrollscan',
+      url: 'https://sepolia.scrollscan.com',
+      apiUrl: 'https://api-sepolia.scrollscan.com/api',
     },
   },
   contracts: {

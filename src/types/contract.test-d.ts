@@ -4,7 +4,7 @@ import {
   type ResolvedRegister,
   parseAbi,
 } from 'abitype'
-import { seaportAbi } from 'abitype/abis'
+import type { seaportAbi } from 'abitype/abis'
 import { expectTypeOf, test } from 'vitest'
 
 import type {

@@ -1,10 +1,11 @@
 import { parseAbi } from 'abitype'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import { wagmiContractConfig } from '~test/src/abis.js'
-import { publicClient, walletClientWithAccount } from '~test/src/utils.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { celo } from '../../chains/definitions/celo.js'
+
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import { simulateContract } from './simulateContract.js'
@@ -15,8 +16,11 @@ const args = {
   args: [69420n],
 } as const
 
+const client = anvilMainnet.getClient()
+const clientWithAccount = anvilMainnet.getClient({ account: true })
+
 test('args: account - no client account, no account arg', async () => {
-  const result = await simulateContract(publicClient, {
+  const result = await simulateContract(client, {
     ...args,
   })
 
@@ -26,17 +30,17 @@ test('args: account - no client account, no account arg', async () => {
 })
 
 test('args: account - with client account, no account arg', async () => {
-  const result = await simulateContract(walletClientWithAccount, {
+  const result = await simulateContract(clientWithAccount, {
     ...args,
   })
 
   expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
-    account: (typeof walletClientWithAccount)['account']
+    account: (typeof clientWithAccount)['account']
   }>()
 })
 
 test('args: account - no client account, with account arg', async () => {
-  const result = await simulateContract(publicClient, {
+  const result = await simulateContract(client, {
     ...args,
     account: '0x',
   })
@@ -50,7 +54,7 @@ test('args: account - no client account, with account arg', async () => {
 })
 
 test('args: account - with client account, with account arg', async () => {
-  const result = await simulateContract(walletClientWithAccount, {
+  const result = await simulateContract(clientWithAccount, {
     ...args,
     account: '0x',
   })
@@ -63,14 +67,42 @@ test('args: account - with client account, with account arg', async () => {
   }>()
 })
 
+test('args: value', () => {
+  // payable function
+  simulateContract(clientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'mintApe',
+    args: [69n],
+    value: 5n,
+  })
+
+  // payable function (undefined)
+  simulateContract(clientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'mintApe',
+    args: [69n],
+  })
+
+  // nonpayable function
+  simulateContract(clientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'approve',
+    // @ts-expect-error
+    value: 5n,
+  })
+})
+
 test('args: legacy txn', () => {
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -78,7 +110,7 @@ test('args: legacy txn', () => {
   })
 
   // @ts-expect-error
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -86,7 +118,7 @@ test('args: legacy txn', () => {
     type: 'legacy',
   })
   // @ts-expect-error
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
@@ -95,14 +127,14 @@ test('args: legacy txn', () => {
 })
 
 test('args: eip1559 txn', () => {
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
   })
 
   // @ts-expect-error
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -110,7 +142,7 @@ test('args: eip1559 txn', () => {
   })
 
   // @ts-expect-error
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -118,7 +150,7 @@ test('args: eip1559 txn', () => {
     type: 'eip1559',
   })
   // @ts-expect-error
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     gasPrice: 0n,
     type: 'eip1559',
@@ -126,14 +158,14 @@ test('args: eip1559 txn', () => {
 })
 
 test('args: eip2930 txn', () => {
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     accessList: [],
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     accessList: [],
     gasPrice: 0n,
@@ -142,7 +174,7 @@ test('args: eip2930 txn', () => {
   })
 
   // @ts-expect-error
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     accessList: [],
     gasPrice: 0n,
@@ -151,7 +183,7 @@ test('args: eip2930 txn', () => {
     type: 'eip2930',
   })
   // @ts-expect-error
-  simulateContract(publicClient, {
+  simulateContract(client, {
     ...args,
     accessList: [],
     maxFeePerGas: 0n,
@@ -168,7 +200,7 @@ test('overloads', async () => {
     'function bar() returns (int8)',
   ])
 
-  const res1 = await simulateContract(publicClient, {
+  const res1 = await simulateContract(client, {
     address: '0x',
     abi,
     functionName: 'foo',
@@ -178,7 +210,7 @@ test('overloads', async () => {
     parseAbi(['function foo() returns (int8)']),
   )
 
-  const res2 = await simulateContract(publicClient, {
+  const res2 = await simulateContract(client, {
     address: '0x',
     abi,
     functionName: 'foo',
@@ -189,7 +221,7 @@ test('overloads', async () => {
     parseAbi(['function foo(address) returns (string)']),
   )
 
-  const res3 = await simulateContract(publicClient, {
+  const res3 = await simulateContract(client, {
     address: '0x',
     abi,
     functionName: 'foo',

@@ -1,4 +1,4 @@
-export function createIdStore() {
+function createIdStore() {
   return {
     current: 0,
     take() {

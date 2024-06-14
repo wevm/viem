@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.9.25",
+  "version": "2.14.0",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -10,12 +10,14 @@
   "sideEffects": false,
   "files": [
     "*",
-    "!**/*.tsbuildinfo",
+    "!**/*.bench.ts",
+    "!**/*.bench-d.ts",
     "!**/*.test.ts",
     "!**/*.test.ts.snap",
     "!**/*.test-d.ts",
-    "!**/*.bench.ts",
-    "!tsconfig.build.json"
+    "!**/*.tsbuildinfo",
+    "!tsconfig.build.json",
+    "!jsr.json"
   ],
   "exports": {
     ".": {
@@ -68,6 +70,11 @@
       "import": "./_esm/op-stack/index.js",
       "default": "./_cjs/op-stack/index.js"
     },
+    "./siwe": {
+      "types": "./_types/siwe/index.d.ts",
+      "import": "./_esm/siwe/index.js",
+      "default": "./_cjs/siwe/index.js"
+    },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
       "import": "./_esm/utils/index.js",
@@ -87,42 +94,19 @@
   },
   "typesVersions": {
     "*": {
-      "accounts": [
-        "./_types/accounts/index.d.ts"
-      ],
-      "actions": [
-        "./_types/actions/index.d.ts"
-      ],
-      "celo": [
-        "./_types/celo/index.d.ts"
-      ],
-      "chains": [
-        "./_types/chains/index.d.ts"
-      ],
-      "chains/utils": [
-        "./_types/chains/utils.d.ts"
-      ],
-      "ens": [
-        "./_types/ens/index.d.ts"
-      ],
-      "experimental": [
-        "./_types/experimental/index.d.ts"
-      ],
-      "node": [
-        "./_types/node/index.d.ts"
-      ],
-      "op-stack": [
-        "./_types/op-stack/index.d.ts"
-      ],
-      "utils": [
-        "./_types/utils/index.d.ts"
-      ],
-      "window": [
-        "./_types/window/index.d.ts"
-      ],
-      "zksync": [
-        "./_types/zksync/index.d.ts"
-      ]
+      "accounts": ["./_types/accounts/index.d.ts"],
+      "actions": ["./_types/actions/index.d.ts"],
+      "celo": ["./_types/celo/index.d.ts"],
+      "chains": ["./_types/chains/index.d.ts"],
+      "chains/utils": ["./_types/chains/utils.d.ts"],
+      "ens": ["./_types/ens/index.d.ts"],
+      "experimental": ["./_types/experimental/index.d.ts"],
+      "node": ["./_types/node/index.d.ts"],
+      "op-stack": ["./_types/op-stack/index.d.ts"],
+      "siwe": ["./_types/siwe/index.d.ts"],
+      "utils": ["./_types/utils/index.d.ts"],
+      "window": ["./_types/window/index.d.ts"],
+      "zksync": ["./_types/zksync/index.d.ts"]
     }
   },
   "peerDependencies": {
@@ -140,27 +124,18 @@
     "@scure/bip32": "1.3.2",
     "@scure/bip39": "1.2.1",
     "abitype": "1.0.0",
-    "isows": "1.0.3",
+    "isows": "1.0.4",
     "ws": "8.13.0"
   },
   "license": "MIT",
   "homepage": "https://viem.sh",
   "repository": "wevm/viem",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": [
-    "eth",
-    "ethereum",
-    "dapps",
-    "wallet",
-    "web3"
-  ]
+  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3", "typescript"]
 }

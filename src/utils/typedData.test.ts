@@ -1,7 +1,136 @@
 import { describe, expect, test } from 'vitest'
 
 import { pad, toHex } from './index.js'
-import { domainSeparator, validateTypedData } from './typedData.js'
+import {
+  domainSeparator,
+  serializeTypedData,
+  validateTypedData,
+} from './typedData.js'
+
+describe('serializeTypedData', () => {
+  test('default', () => {
+    expect(
+      serializeTypedData({
+        domain: {
+          name: 'Ether!',
+          version: '1',
+          chainId: 1,
+          verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        },
+        primaryType: 'Foo',
+        types: {
+          Foo: [
+            { name: 'address', type: 'address' },
+            { name: 'name', type: 'string' },
+            { name: 'foo', type: 'string' },
+          ],
+        },
+        message: {
+          address: '0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9',
+          name: 'jxom',
+          foo: '0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9',
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"{"domain":{},"message":{"address":"0xb9cab4f0e46f7f6b1024b5a7463734fa68e633f9","name":"jxom","foo":"0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9"},"primaryType":"Foo","types":{"Foo":[{"name":"address","type":"address"},{"name":"name","type":"string"},{"name":"foo","type":"string"}]}}"`,
+    )
+  })
+
+  test('with domain', () => {
+    expect(
+      serializeTypedData({
+        domain: {
+          name: 'Ether!',
+          version: '1',
+          address: '0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9',
+          chainId: 1,
+          verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        },
+        primaryType: 'Foo',
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'address', type: 'address' },
+            { name: 'chainId', type: 'uint32' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          Foo: [
+            { name: 'address', type: 'address' },
+            { name: 'name', type: 'string' },
+            { name: 'foo', type: 'string' },
+          ],
+        },
+        message: {
+          address: '0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9',
+          name: 'jxom',
+          foo: '0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9',
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"{"domain":{"name":"Ether!","version":"1","address":"0xb9cab4f0e46f7f6b1024b5a7463734fa68e633f9","chainId":1,"verifyingContract":"0xcccccccccccccccccccccccccccccccccccccccc"},"message":{"address":"0xb9cab4f0e46f7f6b1024b5a7463734fa68e633f9","name":"jxom","foo":"0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9"},"primaryType":"Foo","types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"address","type":"address"},{"name":"chainId","type":"uint32"},{"name":"verifyingContract","type":"address"}],"Foo":[{"name":"address","type":"address"},{"name":"name","type":"string"},{"name":"foo","type":"string"}]}}"`,
+    )
+  })
+
+  test('domain as primary type', () => {
+    expect(
+      serializeTypedData({
+        domain: {
+          name: 'Ether!',
+          version: '1',
+          address: '0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9',
+          chainId: 1,
+          verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        },
+        primaryType: 'EIP712Domain',
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'address', type: 'address' },
+            { name: 'chainId', type: 'uint32' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          Foo: [
+            { name: 'address', type: 'address' },
+            { name: 'name', type: 'string' },
+            { name: 'foo', type: 'string' },
+          ],
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"{"domain":{"name":"Ether!","version":"1","address":"0xb9cab4f0e46f7f6b1024b5a7463734fa68e633f9","chainId":1,"verifyingContract":"0xcccccccccccccccccccccccccccccccccccccccc"},"primaryType":"EIP712Domain","types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"address","type":"address"},{"name":"chainId","type":"uint32"},{"name":"verifyingContract","type":"address"}],"Foo":[{"name":"address","type":"address"},{"name":"name","type":"string"},{"name":"foo","type":"string"}]}}"`,
+    )
+  })
+
+  test('no domain', () => {
+    expect(
+      serializeTypedData({
+        primaryType: 'Foo',
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint32' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          Foo: [
+            { name: 'address', type: 'address' },
+            { name: 'name', type: 'string' },
+            { name: 'foo', type: 'string' },
+          ],
+        },
+        message: {
+          address: '0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9',
+          name: 'jxom',
+          foo: '0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9',
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"{"domain":{},"message":{"address":"0xb9cab4f0e46f7f6b1024b5a7463734fa68e633f9","name":"jxom","foo":"0xb9CAB4F0E46F7F6b1024b5A7463734fa68E633f9"},"primaryType":"Foo","types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint32"},{"name":"verifyingContract","type":"address"}],"Foo":[{"name":"address","type":"address"},{"name":"name","type":"string"},{"name":"foo","type":"string"}]}}"`,
+    )
+  })
+})
 
 describe('validateTypedData', () => {
   test('default', () => {
@@ -73,7 +202,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "-1" is not in safe 8-bit unsigned integer range (0 to 255)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -106,7 +235,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -139,7 +268,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "-129" is not in safe 8-bit signed integer range (-128 to 127)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -175,7 +304,7 @@ describe('validateTypedData', () => {
       - Address must be a hex value of 20 bytes (40 hex characters).
       - Address must match its checksum counterpart.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -208,7 +337,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [BytesSizeMismatchError: Expected bytes32, got bytes20.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -254,7 +383,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "-1n" is not in safe 256-bit unsigned integer range (0n to 115792089237316195423570985008687907853269984665640564039457584007913129639935n)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -303,7 +432,7 @@ describe('validateTypedData', () => {
       - Address must be a hex value of 20 bytes (40 hex characters).
       - Address must match its checksum counterpart.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 

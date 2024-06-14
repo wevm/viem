@@ -13,7 +13,7 @@ import type {
   ContractFunctionArgs,
   ContractFunctionName,
 } from '../../types/contract.js'
-import { type ConcatHexErrorType } from '../data/concat.js'
+import type { ConcatHexErrorType } from '../data/concat.js'
 import {
   type ToFunctionSelectorErrorType,
   toFunctionSelector,

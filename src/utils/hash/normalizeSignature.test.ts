@@ -128,7 +128,7 @@ test('error: invalid signatures', () => {
     `
     [ViemError: Unable to normalize signature.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 
@@ -137,7 +137,7 @@ test('error: invalid signatures', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [ViemError: Unable to normalize signature.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -145,7 +145,7 @@ test('error: invalid signatures', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [ViemError: Unable to normalize signature.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -153,6 +153,6 @@ test('error: invalid signatures', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [ViemError: Unable to normalize signature.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

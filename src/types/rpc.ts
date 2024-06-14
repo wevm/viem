@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+
 import type {
   Block,
   BlockIdentifier,
@@ -21,7 +22,7 @@ import type {
   TransactionRequestEIP4844,
   TransactionRequestLegacy,
 } from './transaction.js'
-import type { OneOf, UnionOmit, UnionPartialBy } from './utils.js'
+import type { Omit, OneOf, PartialBy } from './utils.js'
 
 export type Index = `0x${string}`
 export type Quantity = `0x${string}`
@@ -52,47 +53,49 @@ export type RpcTransactionRequest = OneOf<
   | TransactionRequestEIP1559<Quantity, Index, '0x2'>
   | TransactionRequestEIP4844<Quantity, Index, '0x3'>
 >
-export type RpcTransaction<TPending extends boolean = boolean> = UnionOmit<
-  UnionPartialBy<
-    OneOf<
-      | TransactionLegacy<Quantity, Index, TPending, '0x0'>
-      | TransactionEIP2930<Quantity, Index, TPending, '0x1'>
-      | TransactionEIP1559<Quantity, Index, TPending, '0x2'>
-      | TransactionEIP4844<Quantity, Index, TPending, '0x3'>
-    >,
-    // `yParity` is optional on the RPC type as some nodes do not return it
-    // for 1559 & 2930 transactions (they should!).
-    'yParity'
-  >,
-  'typeHex'
+// `yParity` is optional on the RPC type as some nodes do not return it
+// for 1559 & 2930 transactions (they should!).
+export type RpcTransaction<TPending extends boolean = boolean> = OneOf<
+  | Omit<TransactionLegacy<Quantity, Index, TPending, '0x0'>, 'typeHex'>
+  | PartialBy<
+      Omit<TransactionEIP2930<Quantity, Index, TPending, '0x1'>, 'typeHex'>,
+      'yParity'
+    >
+  | PartialBy<
+      Omit<TransactionEIP1559<Quantity, Index, TPending, '0x2'>, 'typeHex'>,
+      'yParity'
+    >
+  | PartialBy<
+      Omit<TransactionEIP4844<Quantity, Index, TPending, '0x3'>, 'typeHex'>,
+      'yParity'
+    >
 >
 
-type SuccessResult<T> = {
-  method?: never | undefined
-  result: T
-  error?: never | undefined
+type SuccessResult<result> = {
+  method?: undefined
+  result: result
+  error?: undefined
 }
-type ErrorResult<T> = {
-  method?: never | undefined
-  result?: never | undefined
-  error: T
+type ErrorResult<error> = {
+  method?: undefined
+  result?: undefined
+  error: error
 }
-type Subscription<TResult, TError> = {
+type Subscription<result, error> = {
   method: 'eth_subscription'
-  error?: never | undefined
-  result?: never | undefined
-  params: {
-    subscription: string
-  } & (
+  error?: undefined
+  result?: undefined
+  params:
     | {
-        result: TResult
-        error?: never | undefined
+        subscription: string
+        result: result
+        error?: undefined
       }
     | {
-        result?: never | undefined
-        error: TError
+        subscription: string
+        result?: undefined
+        error: error
       }
-  )
 }
 
 export type RpcRequest = {
@@ -102,14 +105,10 @@ export type RpcRequest = {
   id?: number | undefined
 }
 
-export type RpcResponse<TResult = any, TError = any> = {
+export type RpcResponse<result = any, error = any> = {
   jsonrpc: `${number}`
   id: number
-} & (
-  | SuccessResult<TResult>
-  | ErrorResult<TError>
-  | Subscription<TResult, TError>
-)
+} & (SuccessResult<result> | ErrorResult<error> | Subscription<result, error>)
 
 /** A key-value mapping of slot and storage values (supposedly 32 bytes each) */
 export type RpcStateMapping = {

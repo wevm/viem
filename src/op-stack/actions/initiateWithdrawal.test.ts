@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
+import { anvilOptimism } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { optimismClient } from '../../../test/src/opStack.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
   getTransactionReceipt,
@@ -22,6 +22,8 @@ import { initiateWithdrawal } from './initiateWithdrawal.js'
 import { proveWithdrawal } from './proveWithdrawal.js'
 import { waitToFinalize } from './waitToFinalize.js'
 import { waitToProve } from './waitToProve.js'
+
+const optimismClient = anvilOptimism.getClient()
 
 test('default', async () => {
   const hash = await initiateWithdrawal(optimismClient, {
@@ -122,7 +124,7 @@ test('error: insufficient funds', async () => {
 
     Docs: https://viem.sh/docs/contract/estimateContractGas
     Details: Out of gas: gas required exceeds allowance: 69
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -159,7 +161,7 @@ test('error: small gas', async () => {
 
     Docs: https://viem.sh/docs/contract/estimateContractGas
     Details: Out of gas: gas required exceeds allowance: 69
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -197,6 +199,7 @@ describe.skip('e2e', () => {
       targetChain: client_opSepolia.chain,
     })
 
+    // biome-ignore lint/suspicious/noConsoleLog:
     console.log('seconds to prove:', proveTime.seconds)
 
     const { game, withdrawal } = await waitToProve(client_sepolia, {
@@ -220,6 +223,7 @@ describe.skip('e2e', () => {
       withdrawalHash: withdrawal.withdrawalHash,
     })
 
+    // biome-ignore lint/suspicious/noConsoleLog:
     console.log('seconds to finalize:', finalizeTime.seconds)
 
     await waitToFinalize(client_sepolia, {
@@ -256,6 +260,7 @@ describe.skip('e2e', () => {
 
     const proveHash = await proveWithdrawal(client_sepolia, proveArgs)
 
+    // biome-ignore lint/suspicious/noConsoleLog:
     console.log('proveHash', proveHash)
   })
 })

@@ -1,8 +1,12 @@
-import { expect, test } from 'vitest'
+import { beforeEach, expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { publicClient } from '../../../test/src/utils.js'
+
+import { reset } from '../../actions/index.js'
 import { optimism } from '../chains.js'
 import { estimateFinalizeWithdrawalGas } from './estimateFinalizeWithdrawalGas.js'
+
+const client = anvilMainnet.getClient()
 
 const withdrawal = {
   nonce:
@@ -16,8 +20,15 @@ const withdrawal = {
     '0x539dfd84b3939c6d2f61e1fbaa176a70e6a433e222093c3fea872ac36527d6ac',
 } as const
 
+beforeEach(async () => {
+  await reset(client, {
+    blockNumber: 16280770n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+})
+
 test('default', async () => {
-  const gas = await estimateFinalizeWithdrawalGas(publicClient, {
+  const gas = await estimateFinalizeWithdrawalGas(client, {
     account: accounts[0].address,
     targetChain: optimism,
     withdrawal,

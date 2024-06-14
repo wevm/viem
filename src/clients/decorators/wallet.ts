@@ -78,9 +78,9 @@ import {
   writeContract,
 } from '../../actions/wallet/writeContract.js'
 import type { Chain } from '../../types/chain.js'
-import {
-  type ContractFunctionArgs,
-  type ContractFunctionName,
+import type {
+  ContractFunctionArgs,
+  ContractFunctionName,
 } from '../../types/contract.js'
 import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
@@ -703,7 +703,7 @@ export function walletActions<
     getChainId: () => getChainId(client),
     getPermissions: () => getPermissions(client),
     prepareTransactionRequest: (args) =>
-      prepareTransactionRequest(client as any, args as any),
+      prepareTransactionRequest(client as any, args as any) as any,
     requestAddresses: () => requestAddresses(client),
     requestPermissions: (args) => requestPermissions(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),

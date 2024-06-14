@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
-import { accounts, localHttpUrl } from '../../../../test/src/constants.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { accounts } from '../../../../test/src/constants.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
@@ -17,7 +18,7 @@ const getClient = ({
 
         onRequest({ method, params })
 
-        const rpcClient = getHttpRpcClient(localHttpUrl)
+        const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
         for (const call of params[0].calls) {
           const { error } = await rpcClient.request({
             body: {
@@ -30,7 +31,7 @@ const getClient = ({
             throw new RpcRequestError({
               body: { method, params },
               error,
-              url: localHttpUrl,
+              url: anvilMainnet.rpcUrl.http,
             })
         }
         return '0xdeadbeef'
@@ -129,7 +130,7 @@ test('error: no chain', async () => {
     [ChainNotFoundError: No chain was provided to the request.
     Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -167,7 +168,7 @@ test('error: no account', async () => {
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
 
     Docs: https://viem.sh/experimental/eip5792/sendCalls#account
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -217,6 +218,6 @@ test('error: insufficient funds', async () => {
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Details: Insufficient funds for gas * price + value
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

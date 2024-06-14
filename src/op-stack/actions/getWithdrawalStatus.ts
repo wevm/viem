@@ -15,7 +15,10 @@ import type {
 import type { TransactionReceipt } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
 import { portal2Abi, portalAbi } from '../abis.js'
-import { ReceiptContainsNoWithdrawalsError } from '../errors/withdrawal.js'
+import {
+  ReceiptContainsNoWithdrawalsError,
+  type ReceiptContainsNoWithdrawalsErrorType,
+} from '../errors/withdrawal.js'
 import type { TargetChain } from '../types/chain.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
@@ -67,11 +70,13 @@ export type GetWithdrawalStatusReturnType =
   | 'waiting-to-finalize'
   | 'ready-to-finalize'
   | 'finalized'
+
 export type GetWithdrawalStatusErrorType =
   | GetL2OutputErrorType
   | GetTimeToFinalizeErrorType
   | GetWithdrawalsErrorType
   | ReadContractErrorType
+  | ReceiptContainsNoWithdrawalsErrorType
   | ErrorType
 
 /**
@@ -192,6 +197,13 @@ export async function getWithdrawalStatus<
     return seconds > 0 ? 'waiting-to-finalize' : 'ready-to-finalize'
   }
 
+  const proofSubmitter = await readContract(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'proofSubmitters',
+    args: [withdrawal.withdrawalHash, 0n],
+  }).catch(() => withdrawal.sender)
+
   const [disputeGameResult, checkWithdrawalResult, finalizedResult] =
     await Promise.allSettled([
       getGame(client, {
@@ -203,7 +215,7 @@ export async function getWithdrawalStatus<
         abi: portal2Abi,
         address: portalAddress,
         functionName: 'checkWithdrawal',
-        args: [withdrawal.withdrawalHash],
+        args: [withdrawal.withdrawalHash, proofSubmitter],
       }),
       readContract(client, {
         abi: portal2Abi,
@@ -225,7 +237,11 @@ export async function getWithdrawalStatus<
     const error = checkWithdrawalResult.reason as ReadContractErrorType
     if (error.cause instanceof ContractFunctionRevertedError) {
       const errorMessage = error.cause.data?.args?.[0]
-      if (errorMessage === 'OptimismPortal: withdrawal has not been proven yet')
+      if (
+        errorMessage === 'OptimismPortal: withdrawal has not been proven yet' ||
+        errorMessage ===
+          'OptimismPortal: withdrawal has not been proven by proof submitter address yet'
+      )
         return 'ready-to-prove'
       if (
         errorMessage ===

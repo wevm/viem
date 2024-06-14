@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -28,4 +30,4 @@ jobs:
         uses: andresz1/size-limit-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          package_manager: bun
+          package_manager: pnpm

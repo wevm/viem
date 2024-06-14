@@ -12,12 +12,17 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Lint repo
+        run: pnpm lint:repo
+
       - name: Lint code
-        run: bun format && bun lint:fix
+        run: pnpm lint
       
       - uses: stefanzweifel/git-auto-commit-action@v5
         env:
@@ -36,12 +41,20 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Build
-        run: bun run build
+        run: pnpm build
+
+      - name: Publint
+        run: pnpm test:build
+
+      - name: Check for unused files, dependencies, and exports
+        run: pnpm knip --production
 
   types:
     name: Types
@@ -50,28 +63,34 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        typescript-version: ['5.3.2', 'latest']
+        version: ['5.0.4', '5.1.6', '5.2.2', '5.3.3', '5.4.5']
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - run: bun i -d typescript@${{ matrix.typescript-version }}
+      - run: pnpm i -d -w typescript@${{ matrix.version }}
 
       - name: Build contracts
         shell: bash
-        run: bun run contracts:build
+        run: pnpm contracts:build
 
       - name: Check types
-        run: bun run typecheck
+        run: pnpm typecheck
 
-      - name: Test types
-        run: bun run test:typecheck
-        env:
-          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
+      - name: Bench types
+        if: matrix.version != '5.0.4'
+        run: pnpm typebench
+
+      # Redundant with `pnpm typecheck`
+      # If Vitest adds special features in the future, e.g. type coverage, can add this back!
+      # - name: Test types
+      #   run: pnpm test:typecheck
 
   test:
     name: Test
@@ -80,35 +99,35 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
+        multicall: ['true', 'false']
         transport-mode: ['http', 'webSocket']
         shard: [1, 2, 3]
         total-shards: [3]
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Build contracts
         shell: bash
-        run: bun run contracts:build
+        run: pnpm contracts:build
 
       - name: Run tests
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: bun run test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
-          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
-          VITE_ANVIL_BLOCK_NUMBER_SEPOLIA: ${{ vars.VITE_ANVIL_BLOCK_NUMBER_SEPOLIA }}
-          VITE_ANVIL_BLOCK_NUMBER_OPTIMISM_SEPOLIA: ${{ vars.VITE_ANVIL_BLOCK_NUMBER_OPTIMISM_SEPOLIA }}
-          VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_ANVIL_FORK_URL_OPTIMISM: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM }}
-          VITE_ANVIL_FORK_URL_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_SEPOLIA }}
           VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA }}
+          VITE_ANVIL_FORK_URL_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_SEPOLIA }}
+          VITE_ANVIL_FORK_URL_ZKSYNC: ${{ secrets.VITE_ANVIL_FORK_URL_ZKSYNC }}
           VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
 
@@ -122,7 +141,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'sveltekit', 'tsc', 'vite']
+        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'tsc', 'vite']
         include:
           - type: bun
             runtime: bun
@@ -137,9 +156,6 @@ jobs:
             runtime: node
           - type: next
             runtime: next
-          - type: sveltekit
-            node-version: 18
-            runtime: sveltekit
           - type: tsc
             node-version: 20
             runtime: tsc
@@ -149,6 +165,14 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
+
+      - name: Set up foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Set up pnpm
+        uses: wevm/actions/.github/actions/pnpm@main
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
@@ -163,20 +187,17 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Playwright Browsers
-        if: ${{ matrix.runtime == 'next' || matrix.runtime == 'sveltekit' || matrix.runtime == 'vite' }}
-        run: npx playwright@1.40.1 install --with-deps
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
+        if: ${{ matrix.runtime == 'next' || matrix.runtime == 'vite' }}
+        run: pnpx playwright@1.40.1 install --with-deps
 
       - name: Build
-        run: bun run build
+        run: pnpm build
 
       - name: Link
-        run: bun install
+        run: pnpm install
 
       - name: Run tests
-        run: bun run test:env:${{ matrix.runtime }}
+        run: pnpm test:env:${{ matrix.runtime }}
 
   vectors:
     name: Vectors
@@ -184,27 +205,30 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Run test vectors
         shell: bash
-        run: bun run vectors
+        run: pnpm vectors
 
   wagmi:
     name: Wagmi
     needs: [build, types]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       matrix:
-        # TODO: Add 'latest' once https://github.com/wevm/viem/issues/1916 resolved
-        typescript-version: ['5.0.4', '5.1.6', '5.2.2', '5.3.2']
+        typescript-version: ['5.4.5']
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies

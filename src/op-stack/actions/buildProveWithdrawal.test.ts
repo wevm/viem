@@ -1,17 +1,14 @@
 import { keccak256 } from 'ethers'
 import { beforeAll, describe, expect, test } from 'vitest'
+import {
+  anvilMainnet,
+  anvilOptimism,
+  anvilOptimismSepolia,
+  anvilSepolia,
+} from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import {
-  optimismClient,
-  optimismSepoliaClient,
-} from '../../../test/src/opStack.js'
-import {
-  publicClient,
-  sepoliaClient,
-  setBlockNumber,
-  walletClient,
-} from '../../../test/src/utils.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
+
 import { getL2Output, getWithdrawals, proveWithdrawal } from '../index.js'
 import {
   buildProveWithdrawal,
@@ -19,14 +16,23 @@ import {
 } from './buildProveWithdrawal.js'
 import { getGame } from './getGame.js'
 
+const client = anvilMainnet.getClient()
+const sepoliaClient = anvilSepolia.getClient()
+const optimismClient = anvilOptimism.getClient()
+const optimismSepoliaClient = anvilOptimismSepolia.getClient()
+
 beforeAll(async () => {
-  await setBlockNumber(18772363n)
+  await reset(client, {
+    blockNumber: 18772363n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 })
 
-// TODO(fault-proofs): convert to `publicClient` & `optimismClient` when fault proofs deployed to mainnet.
+// TODO(fault-proofs): convert to `client` & `optimismClient` when fault proofs deployed to mainnet.
 test('default', async () => {
   await reset(sepoliaClient, {
     blockNumber: 5528129n,
+    jsonRpcUrl: anvilSepolia.forkUrl,
   })
 
   // https://sepolia-optimism.etherscan.io/tx/0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731
@@ -86,7 +92,7 @@ test('args: output (legacy)', async () => {
   })
 
   const [withdrawal] = getWithdrawals(receipt)
-  const output = await getL2Output(publicClient, {
+  const output = await getL2Output(client, {
     l2BlockNumber: receipt.blockNumber,
     targetChain: optimismClient.chain,
   })
@@ -127,7 +133,7 @@ test('args: output (legacy)', async () => {
     }
   `)
 
-  const hash = await proveWithdrawal(walletClient, request)
+  const hash = await proveWithdrawal(client, request)
   expect(hash).toBeDefined()
 }, 20_000)
 
@@ -163,7 +169,7 @@ describe('proof nodes', () => {
     })
 
     const [withdrawal] = getWithdrawals(receipt)
-    const output = await getL2Output(publicClient, {
+    const output = await getL2Output(client, {
       l2BlockNumber: receipt.blockNumber,
       targetChain: optimismClient.chain,
     })

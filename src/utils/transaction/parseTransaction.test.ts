@@ -165,7 +165,7 @@ describe('eip4844', () => {
         - Address must be a hex value of 20 bytes (40 hex characters).
         - Address must match its checksum counterpart.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
 
       expect(() =>
@@ -190,7 +190,7 @@ describe('eip4844', () => {
         - Address must be a hex value of 20 bytes (40 hex characters).
         - Address must match its checksum counterpart.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -203,7 +203,7 @@ describe('eip4844', () => {
         Serialized Transaction: "0x03c0"
         Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -216,7 +216,7 @@ describe('eip4844', () => {
         Serialized Transaction: "0x03c20001"
         Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -244,7 +244,7 @@ describe('eip4844', () => {
         Serialized Transaction: "0x03cc808080808080808080808080"
         Missing Attributes: r, s
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -446,7 +446,7 @@ describe('eip1559', () => {
         - Address must be a hex value of 20 bytes (40 hex characters).
         - Address must match its checksum counterpart.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
 
       expect(() =>
@@ -469,7 +469,7 @@ describe('eip1559', () => {
         - Address must be a hex value of 20 bytes (40 hex characters).
         - Address must match its checksum counterpart.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -482,7 +482,7 @@ describe('eip1559', () => {
         Serialized Transaction: "0x02c0"
         Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -495,7 +495,7 @@ describe('eip1559', () => {
         Serialized Transaction: "0x02c20001"
         Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -521,7 +521,7 @@ describe('eip1559', () => {
         Serialized Transaction: "0x02ca80808080808080808080"
         Missing Attributes: r, s
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -617,7 +617,7 @@ describe('eip2930', () => {
         Serialized Transaction: "0x01c0"
         Missing Attributes: chainId, nonce, gasPrice, gas, to, value, data, accessList
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -630,7 +630,7 @@ describe('eip2930', () => {
         Serialized Transaction: "0x01c20001"
         Missing Attributes: gasPrice, gas, to, value, data, accessList
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -655,7 +655,7 @@ describe('eip2930', () => {
         Serialized Transaction: "0x01c9808080808080808080"
         Missing Attributes: r, s
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -710,7 +710,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
       ...signature,
-      yParity: undefined,
+      yParity: 1,
       type: 'legacy',
     })
   })
@@ -728,7 +728,7 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...args,
       ...signature,
-      yParity: undefined,
+      yParity: 0,
       type: 'legacy',
       v: 173n,
     })
@@ -803,6 +803,7 @@ describe('legacy', () => {
           "type": "legacy",
           "v": 27n,
           "value": 0n,
+          "yParity": 0,
         }
       `)
     })
@@ -818,7 +819,7 @@ describe('legacy', () => {
         Serialized Transaction: "0xc0"
         Missing Attributes: nonce, gasPrice, gas, to, value, data
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -831,7 +832,7 @@ describe('legacy', () => {
         Serialized Transaction: "0xc20001"
         Missing Attributes: gas, to, value, data
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -844,7 +845,7 @@ describe('legacy', () => {
         Serialized Transaction: "0xc780808080808080"
         Missing Attributes: r, s
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -858,7 +859,7 @@ describe('legacy', () => {
 
         Serialized Transaction: "0xca80808080808080808080"
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -880,7 +881,7 @@ describe('legacy', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidLegacyVError: Invalid \`v\` value "0". Expected 27 or 28.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
 
       expect(() =>
@@ -900,7 +901,7 @@ describe('legacy', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidLegacyVError: Invalid \`v\` value "35". Expected 27 or 28.
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -912,7 +913,7 @@ describe('errors', () => {
       `
       [InvalidSerializedTransactionType: Serialized transaction type "0x" is invalid.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -922,7 +923,7 @@ describe('errors', () => {
       `
       [InvalidSerializedTransactionType: Serialized transaction type "0x69" is invalid.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })

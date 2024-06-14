@@ -4,14 +4,14 @@ import {
   type ReadContractErrorType,
   readContract,
 } from '../../actions/public/readContract.js'
-import { type PrepareTransactionRequestErrorType } from '../../actions/wallet/prepareTransactionRequest.js'
+import type { PrepareTransactionRequestErrorType } from '../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
-import { type Chain, type GetChainParameter } from '../../types/chain.js'
+import type { Chain, GetChainParameter } from '../../types/chain.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { getChainContractAddress } from '../../utils/chain/getChainContractAddress.js'
-import { type HexToNumberErrorType } from '../../utils/encoding/fromHex.js'
+import type { HexToNumberErrorType } from '../../utils/encoding/fromHex.js'
 
 import { gasPriceOracleAbi } from '../abis.js'
 import { contracts } from '../contracts.js'

@@ -1,16 +1,22 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import {
-  optimismClient,
-  optimismClientWithoutChain,
-} from '~test/src/opStack.js'
-import { walletClient, walletClientWithAccount } from '~test/src/utils.js'
 import { baycContractConfig } from '../../../test/src/abis.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
 import { parseEther } from '../../index.js'
 import { base } from '../chains.js'
 import { buildDepositTransaction } from './buildDepositTransaction.js'
 import { depositTransaction } from './depositTransaction.js'
+
+const client = anvilMainnet.getClient()
+const clientWithAccount = anvilMainnet.getClient({
+  account: accounts[0].address,
+})
+
+const optimismClient = anvilOptimism.getClient()
+const optimismClientWithoutChain = anvilOptimism.getClient({
+  chain: false,
+})
 
 test('default', async () => {
   const request = await buildDepositTransaction(optimismClient, {
@@ -32,7 +38,7 @@ test('default', async () => {
     }
   `)
 
-  const hash = await depositTransaction(walletClientWithAccount, request)
+  const hash = await depositTransaction(clientWithAccount, request)
   expect(hash).toBeDefined()
 })
 
@@ -60,7 +66,7 @@ test('args: account', async () => {
     }
   `)
 
-  const hash = await depositTransaction(walletClient, request)
+  const hash = await depositTransaction(client, request)
   expect(hash).toBeDefined()
 })
 
@@ -89,7 +95,7 @@ test('args: chain', async () => {
     }
   `)
 
-  const hash = await depositTransaction(walletClient, request)
+  const hash = await depositTransaction(client, request)
   expect(hash).toBeDefined()
 })
 
@@ -118,7 +124,7 @@ test('args: data', async () => {
     }
   `)
 
-  const hash = await depositTransaction(walletClient, request)
+  const hash = await depositTransaction(client, request)
   expect(hash).toBeDefined()
 })
 
@@ -147,7 +153,7 @@ test('args: isCreation', async () => {
     }
   `)
 
-  const hash = await depositTransaction(walletClient, request)
+  const hash = await depositTransaction(client, request)
   expect(hash).toBeDefined()
 })
 
@@ -176,7 +182,7 @@ test('args: mint', async () => {
     }
   `)
 
-  const hash = await depositTransaction(walletClient, request)
+  const hash = await depositTransaction(client, request)
   expect(hash).toBeDefined()
 })
 
@@ -205,6 +211,6 @@ test('args: value', async () => {
     }
   `)
 
-  const hash = await depositTransaction(walletClient, request)
+  const hash = await depositTransaction(client, request)
   expect(hash).toBeDefined()
 })

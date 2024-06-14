@@ -1,8 +1,8 @@
-import { expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, localHttpUrl } from '../../../../test/src/constants.js'
-import { setBlockNumber, testClient } from '../../../../test/src/utils.js'
-import { mine } from '../../../actions/index.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { accounts } from '../../../../test/src/constants.js'
+import { mine, reset } from '../../../actions/index.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
@@ -18,6 +18,8 @@ type Uid = string
 type TxHashes = Hex[]
 const calls = new Map<Uid, TxHashes[]>()
 
+const testClient = anvilMainnet.getClient()
+
 const getClient = ({
   onRequest,
 }: { onRequest({ method, params }: any): void }) =>
@@ -26,7 +28,7 @@ const getClient = ({
       async request({ method, params }) {
         onRequest({ method, params })
 
-        const rpcClient = getHttpRpcClient(localHttpUrl)
+        const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
         if (method === 'wallet_getCallsStatus') {
           const hashes = calls.get(params[0])
@@ -44,7 +46,7 @@ const getClient = ({
                 throw new RpcRequestError({
                   body: { method, params },
                   error,
-                  url: localHttpUrl,
+                  url: anvilMainnet.rpcUrl.http,
                 })
               if (!result) throw new Error('receipt not found')
               return {
@@ -83,7 +85,7 @@ const getClient = ({
               throw new RpcRequestError({
                 body: { method, params },
                 error,
-                url: localHttpUrl,
+                url: anvilMainnet.rpcUrl.http,
               })
             hashes.push(result)
           }
@@ -97,6 +99,10 @@ const getClient = ({
     }),
   })
 
+beforeAll(async () => {
+  await anvilMainnet.restart()
+})
+
 test('default', async () => {
   const requests: unknown[] = []
 
@@ -106,7 +112,10 @@ test('default', async () => {
     },
   })
 
-  await setBlockNumber(16280770n)
+  await reset(testClient, {
+    blockNumber: 16280770n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 
   const id_ = await writeContracts(client, {
     account: accounts[0].address,
@@ -189,12 +198,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000221",
             ],
-            "transactionHash": "0xb75d021cd610ec3adadadec4d54b6f560c9401dfe08957b78b529497b71c70c4",
+            "transactionHash": "0xf0c48f098fb7f44a4ca942f85277e97ad3481020e21f1f165eed514205a21694",
             "transactionIndex": "0x0",
           },
         ],
         "status": "success",
-        "transactionHash": "0xb75d021cd610ec3adadadec4d54b6f560c9401dfe08957b78b529497b71c70c4",
+        "transactionHash": "0xf0c48f098fb7f44a4ca942f85277e97ad3481020e21f1f165eed514205a21694",
       },
       {
         "blockHash": undefined,
@@ -215,12 +224,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000222",
             ],
-            "transactionHash": "0xde8a66a7ed5abe0a6109fc4f6e1cb6caa06ed65be893d907434e2726ff4ef0c9",
+            "transactionHash": "0x4add84ccc2e6a1b66b9ce571fa5af64b647f32e89a82454147a070549694a4d9",
             "transactionIndex": "0x1",
           },
         ],
         "status": "success",
-        "transactionHash": "0xde8a66a7ed5abe0a6109fc4f6e1cb6caa06ed65be893d907434e2726ff4ef0c9",
+        "transactionHash": "0x4add84ccc2e6a1b66b9ce571fa5af64b647f32e89a82454147a070549694a4d9",
       },
       {
         "blockHash": undefined,
@@ -241,12 +250,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000223",
             ],
-            "transactionHash": "0x33cbd0bfa4db7902da7d119b405de9075610cd53e817329055d36ad0df85a654",
+            "transactionHash": "0xe9f2e65209f76f94aadc58c78fd1d935dbe0e3cd70784d9b4632904171eeddbe",
             "transactionIndex": "0x2",
           },
         ],
         "status": "success",
-        "transactionHash": "0x33cbd0bfa4db7902da7d119b405de9075610cd53e817329055d36ad0df85a654",
+        "transactionHash": "0xe9f2e65209f76f94aadc58c78fd1d935dbe0e3cd70784d9b4632904171eeddbe",
       },
     ]
   `)

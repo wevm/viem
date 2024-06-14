@@ -2,32 +2,27 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import { ensPublicResolverConfig } from '~test/src/abis.js'
 import { address } from '~test/src/constants.js'
-import {
-  deployEnsAvatarTokenUri,
-  publicClient,
-  setBlockNumber,
-  testClient,
-  walletClient,
-} from '~test/src/utils.js'
+import { deployEnsAvatarTokenUri } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import { namehash } from '../../utils/ens/namehash.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
-import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
+import { reset } from '../test/reset.js'
 import { getEnsAvatar } from './getEnsAvatar.js'
 
+const client = anvilMainnet.getClient()
+
 beforeAll(async () => {
-  await impersonateAccount(testClient, {
+  await impersonateAccount(client, {
     address: address.vitalik,
   })
-  await setBlockNumber(19_258_213n)
-
-  return async () => {
-    await stopImpersonatingAccount(testClient, {
-      address: address.vitalik,
-    })
-  }
+  await reset(client, {
+    blockNumber: 19_258_213n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 })
 
 test.each([
@@ -102,7 +97,7 @@ test.each([
 ])('$record -> $expected', async ({ record, expected }) => {
   await setEnsAvatar(record)
   await expect(
-    getEnsAvatar(publicClient, {
+    getEnsAvatar(client, {
       name: 'vitalik.eth',
     }),
   ).resolves.toEqual(expected)
@@ -155,7 +150,7 @@ describe('eip155:1 string (erc721)', () => {
     const { contractAddress } = await deployEnsAvatarTokenUri()
     await setEnsAvatar(`eip155:1/erc721:${contractAddress}/${tokenId}`)
     await expect(
-      getEnsAvatar(publicClient, {
+      getEnsAvatar(client, {
         name: 'vitalik.eth',
       }),
     ).resolves.toEqual(expected)
@@ -179,7 +174,7 @@ describe('args: gateways', async () => {
   ])('$record -> $expected', async ({ record, expected }) => {
     await setEnsAvatar(record)
     await expect(
-      getEnsAvatar(publicClient, {
+      getEnsAvatar(client, {
         name: 'vitalik.eth',
         assetGatewayUrls: { ipfs: 'https://cloudflare-ipfs.com' },
       }),
@@ -188,11 +183,11 @@ describe('args: gateways', async () => {
 })
 
 async function setEnsAvatar(avatar: string) {
-  await writeContract(walletClient, {
+  await writeContract(client, {
     ...ensPublicResolverConfig,
     account: address.vitalik,
     functionName: 'setText',
     args: [namehash('vitalik.eth'), 'avatar', avatar],
   })
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 }

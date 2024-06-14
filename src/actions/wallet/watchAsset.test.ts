@@ -1,12 +1,13 @@
 import { expect, test } from 'vitest'
 
-import { walletClient } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { watchAsset } from './watchAsset.js'
+
+const client = anvilMainnet.getClient()
 
 test('default', async () => {
   expect(
-    await watchAsset(walletClient!, {
+    await watchAsset(client!, {
       type: 'ERC20',
       options: {
         address: '0xb60e8dd61c5d32be8058bb8eb970870f07233155',
@@ -20,7 +21,7 @@ test('default', async () => {
 
 test('errors: unsupported type', async () => {
   await expect(
-    watchAsset(walletClient!, {
+    watchAsset(client!, {
       // @ts-expect-error - test
       type: 'ERC721',
       options: {
@@ -30,11 +31,7 @@ test('errors: unsupported type', async () => {
         image: 'https://foo.io/token-image.svg',
       },
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
-    Double check you have provided the correct parameters.
-
-    Details: Token type ERC721 not supported.
-    Version: viem@1.0.2]
-  `)
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    '[Error: Token type ERC721 not supported.]',
+  )
 })

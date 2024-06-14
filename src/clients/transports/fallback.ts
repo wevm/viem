@@ -20,13 +20,13 @@ export type OnResponseFn = (
     transport: ReturnType<Transport>
   } & (
     | {
-        error?: never | undefined
+        error?: undefined
         response: unknown
         status: 'success'
       }
     | {
         error: Error
-        response?: never | undefined
+        response?: undefined
         status: 'error'
       }
   ),
@@ -80,20 +80,21 @@ export type FallbackTransportConfig = {
   retryDelay?: TransportConfig['retryDelay'] | undefined
 }
 
-export type FallbackTransport<transports extends Transport[] = Transport[]> =
-  Transport<
-    'fallback',
-    {
-      onResponse: (fn: OnResponseFn) => void
-      transports: {
-        [key in keyof transports]: ReturnType<transports[key]>
-      }
+export type FallbackTransport<
+  transports extends readonly Transport[] = readonly Transport[],
+> = Transport<
+  'fallback',
+  {
+    onResponse: (fn: OnResponseFn) => void
+    transports: {
+      [key in keyof transports]: ReturnType<transports[key]>
     }
-  >
+  }
+>
 
 export type FallbackTransportErrorType = CreateTransportErrorType | ErrorType
 
-export function fallback<const transports extends Transport[]>(
+export function fallback<const transports extends readonly Transport[]>(
   transports_: transports,
   config: FallbackTransportConfig = {},
 ): FallbackTransport<transports> {
@@ -194,6 +195,7 @@ function shouldThrow(error: Error) {
   return false
 }
 
+/** @internal */
 export function rankTransports({
   chain,
   interval = 4_000,
@@ -205,10 +207,10 @@ export function rankTransports({
 }: {
   chain?: Chain | undefined
   interval: RankOptions['interval']
-  onTransports: (transports: Transport[]) => void
+  onTransports: (transports: readonly Transport[]) => void
   sampleCount?: RankOptions['sampleCount'] | undefined
   timeout?: RankOptions['timeout'] | undefined
-  transports: Transport[]
+  transports: readonly Transport[]
   weights?: RankOptions['weights'] | undefined
 }) {
   const { stability: stabilityWeight = 0.7, latency: latencyWeight = 0.3 } =

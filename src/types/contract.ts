@@ -1,19 +1,19 @@
-import {
-  type Abi,
-  type AbiEvent,
-  type AbiFunction,
-  type AbiParameter,
-  type AbiParameterToPrimitiveType,
-  type AbiParametersToPrimitiveTypes,
-  type AbiStateMutability,
-  type Address,
-  type ExtractAbiError,
-  type ExtractAbiErrorNames,
-  type ExtractAbiEvent,
-  type ExtractAbiEventNames,
-  type ExtractAbiFunction,
-  type ExtractAbiFunctionNames,
-  type ResolvedRegister,
+import type {
+  Abi,
+  AbiEvent,
+  AbiFunction,
+  AbiParameter,
+  AbiParameterToPrimitiveType,
+  AbiParametersToPrimitiveTypes,
+  AbiStateMutability,
+  Address,
+  ExtractAbiError,
+  ExtractAbiErrorNames,
+  ExtractAbiEvent,
+  ExtractAbiEventNames,
+  ExtractAbiFunction,
+  ExtractAbiFunctionNames,
+  ResolvedRegister,
 } from 'abitype'
 
 import type { Hex, LogTopic } from './misc.js'
@@ -23,7 +23,7 @@ import type {
   IsNarrowable,
   IsUnion,
   MaybeRequired,
-  NoUndefined,
+  NoInfer,
   Prettify,
   UnionToTuple,
 } from './utils.js'
@@ -209,8 +209,7 @@ export type ContractFunctionParameters<
     | allFunctionNames // show all options
     | (functionName extends allFunctionNames ? functionName : never) // infer value
   args?: (abi extends Abi ? UnionWiden<args> : never) | allArgs | undefined
-} & (readonly [] extends allArgs ? {} : { args: Widen<args> }) &
-  GetValue<abi, functionName>
+} & (readonly [] extends allArgs ? {} : { args: Widen<args> })
 
 export type ContractFunctionReturnType<
   abi extends Abi | readonly unknown[] = Abi,
@@ -309,11 +308,11 @@ export type GetValue<
   _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
 > = _Narrowable extends true
   ? TAbiFunction['stateMutability'] extends 'payable'
-    ? { value?: NoUndefined<TValueType> | undefined }
+    ? { value?: NoInfer<TValueType> | undefined }
     : TAbiFunction['payable'] extends true
-      ? { value?: NoUndefined<TValueType> | undefined }
-      : { value?: never | undefined }
-  : { value?: TValueType | undefined }
+      ? { value?: NoInfer<TValueType> | undefined }
+      : { value?: undefined }
+  : { value?: NoInfer<TValueType> | undefined }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

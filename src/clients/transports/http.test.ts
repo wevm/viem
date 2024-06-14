@@ -1,11 +1,11 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { localHttpUrl } from '~test/src/constants.js'
 import { createHttpServer } from '~test/src/utils.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
-import type { IncomingHttpHeaders } from 'http'
+import type { IncomingHttpHeaders } from 'node:http'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { http, type HttpTransport } from './http.js'
 
 test('default', () => {
@@ -148,7 +148,7 @@ describe('request', () => {
         ...localhost,
         rpcUrls: {
           default: {
-            http: [localHttpUrl],
+            http: [anvilMainnet.rpcUrl.http],
           },
         },
       },
@@ -337,7 +337,7 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(retryCount).toBe(1)
   })
@@ -370,7 +370,7 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(end > 500 && end < 520).toBeTruthy()
   })
@@ -399,12 +399,12 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: The request timed out.
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
   test('errors: rpc error', async () => {
-    const transport = http(localHttpUrl, {
+    const transport = http(anvilMainnet.rpcUrl.http, {
       key: 'jsonRpc',
       name: 'JSON RPC',
     })({
@@ -420,7 +420,7 @@ describe('request', () => {
       Request body: {"method":"eth_wagmi"}
 
       Details: Method not found
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -431,7 +431,7 @@ test('no url', () => {
     [ViemError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
     Docs: https://viem.sh/docs/clients/intro
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })

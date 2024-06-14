@@ -188,6 +188,7 @@ export const addressResolverAbi = [
 
 // ERC-1271
 // isValidSignature(bytes32 hash, bytes signature) → bytes4 magicValue
+/** @internal */
 export const smartAccountAbi = [
   {
     name: 'isValidSignature',

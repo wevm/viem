@@ -4,19 +4,19 @@ import type { BlockTag } from './block.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
 import type { RpcStateOverride } from './rpc.js'
 import type {
-  Quantity,
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
   RpcBlockNumber as BlockNumber,
   RpcFeeHistory as FeeHistory,
   RpcLog as Log,
   RpcProof as Proof,
+  Quantity,
   RpcTransaction as Transaction,
   RpcTransactionReceipt as TransactionReceipt,
   RpcTransactionRequest as TransactionRequest,
   RpcUncle as Uncle,
 } from './rpc.js'
-import type { ExactPartial, Prettify } from './utils.js'
+import type { ExactPartial, OneOf, Prettify } from './utils.js'
 
 //////////////////////////////////////////////////
 // Provider
@@ -131,6 +131,38 @@ export type WalletCallReceipt<quantity = Hex, status = Hex> = {
   transactionHash: Hex
 }
 
+export type WalletIssuePermissionsParameters = {
+  signer?:
+    | {
+        type: string
+        data: unknown
+      }
+    | undefined
+  permissions: readonly {
+    type: string
+    data: unknown
+    required: boolean
+  }[]
+  expiry: number
+}
+
+export type WalletIssuePermissionsReturnType = {
+  expiry: number
+  factory?: `0x${string}` | undefined
+  factoryData?: string | undefined
+  grantedPermissions: readonly {
+    type: string
+    data: any
+  }[]
+  permissionsContext: string
+  signerData?:
+    | {
+        userOpBuilder?: `0x${string}` | undefined
+        submitToAddress?: `0x${string}` | undefined
+      }
+    | undefined
+}
+
 export type WalletGetCallsStatusReturnType<quantity = Hex, status = Hex> = {
   status: 'PENDING' | 'CONFIRMED'
   receipts?: WalletCallReceipt<quantity, status>[] | undefined
@@ -155,15 +187,20 @@ export type WalletSendCallsParameters<
   quantity extends Quantity | bigint = Quantity,
 > = [
   {
-    version: string
+    calls: OneOf<
+      | {
+          to: Address
+          data?: Hex | undefined
+          value?: quantity | undefined
+        }
+      | {
+          data: Hex
+        }
+    >[]
+    capabilities?: capabilities | undefined
     chainId: chainId
     from: Address
-    calls: {
-      to: Address
-      data: Hex
-      value: quantity
-    }[]
-    capabilities?: capabilities | undefined
+    version: string
   },
 ]
 
@@ -326,6 +363,11 @@ export type PublicRpcSchema = [
     Parameters:
       | [transaction: TransactionRequest]
       | [transaction: TransactionRequest, block: BlockNumber | BlockTag]
+      | [
+          transaction: TransactionRequest,
+          block: BlockNumber | BlockTag,
+          stateOverride: RpcStateOverride,
+        ]
     ReturnType: Quantity
   },
   /**
@@ -506,11 +548,11 @@ export type PublicRpcSchema = [
         | {
             fromBlock?: BlockNumber | BlockTag | undefined
             toBlock?: BlockNumber | BlockTag | undefined
-            blockHash?: never | undefined
+            blockHash?: undefined
           }
         | {
-            fromBlock?: never | undefined
-            toBlock?: never | undefined
+            fromBlock?: undefined
+            toBlock?: undefined
             blockHash?: Hash | undefined
           }
       ),
@@ -1192,6 +1234,11 @@ export type WalletRpcSchema = [
     Parameters:
       | [transaction: TransactionRequest]
       | [transaction: TransactionRequest, block: BlockNumber | BlockTag]
+      | [
+          transaction: TransactionRequest,
+          block: BlockNumber | BlockTag,
+          stateOverride: RpcStateOverride,
+        ]
     ReturnType: Quantity
   },
   /**
@@ -1354,6 +1401,18 @@ export type WalletRpcSchema = [
     ReturnType: WalletPermission[]
   },
   /**
+   * @description Requests permissions from a wallet
+   * @link https://eips.ethereum.org/EIPS/eip-7715
+   * @example
+   * provider.request({ method: 'wallet_issuePermissions', params: [{ ... }] })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_issuePermissions'
+    Parameters?: [WalletIssuePermissionsParameters]
+    ReturnType: Prettify<WalletIssuePermissionsReturnType>
+  },
+  /**
    * @description Requests the given permissions from the user.
    * @link https://eips.ethereum.org/EIPS/eip-2255
    * @example
@@ -1364,6 +1423,18 @@ export type WalletRpcSchema = [
     Method: 'wallet_requestPermissions'
     Parameters: [permissions: { eth_accounts: Record<string, any> }]
     ReturnType: WalletPermission[]
+  },
+  /**
+   * @description Revokes the given permissions from the user.
+   * @link https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-2.md
+   * @example
+   * provider.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_revokePermissions'
+    Parameters: [permissions: { eth_accounts: Record<string, any> }]
+    ReturnType: null
   },
   /**
    * @description Requests the connected wallet to send a batch of calls.
@@ -1437,7 +1508,7 @@ export type EIP1193Parameters<
             : never
         } & (TRpcSchema[K] extends TRpcSchema[number]
           ? TRpcSchema[K]['Parameters'] extends undefined
-            ? { params?: never | undefined }
+            ? { params?: undefined }
             : { params: TRpcSchema[K]['Parameters'] }
           : never)
       >

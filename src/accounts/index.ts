@@ -1,4 +1,6 @@
 export type { Address } from 'abitype'
+
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { HDKey } from '@scure/bip32'
 export { wordlist as czech } from '@scure/bip39/wordlists/czech'
 export { wordlist as english } from '@scure/bip39/wordlists/english'
@@ -48,9 +50,13 @@ export {
   sign,
 } from './utils/sign.js'
 export {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from '../utils/signature/signatureToHex.js'
+  /** @deprecated Use `SignatureToHexErrorType` instead. */
+  type SerializeSignatureErrorType as SignatureToHexErrorType,
+  /** @deprecated Use `serializeSignature` instead. */
+  serializeSignature as signatureToHex,
+  type SerializeSignatureErrorType,
+  serializeSignature,
+} from '../utils/signature/serializeSignature.js'
 export {
   type SignMessageErrorType,
   type SignMessageParameters,

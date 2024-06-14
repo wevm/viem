@@ -1,8 +1,12 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { chainConfig } from './chainConfig.js'
 
-export { parseTransaction } from './parsers.js'
+export { type ParseTransactionReturnType, parseTransaction } from './parsers.js'
 
-export { serializeTransaction } from './serializers.js'
+export {
+  type SerializeTransactionCIP64ReturnType,
+  serializeTransaction,
+} from './serializers.js'
 
 export type {
   CeloBlock,
@@ -18,11 +22,9 @@ export type {
   CeloTransactionType,
   RpcTransactionCIP42,
   RpcTransactionCIP64,
-  RpcTransactionRequestCIP42,
   RpcTransactionRequestCIP64,
   TransactionCIP42,
   TransactionCIP64,
-  TransactionRequestCIP42,
   TransactionRequestCIP64,
   TransactionSerializableCIP42,
   TransactionSerializableCIP64,

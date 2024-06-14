@@ -1,4 +1,4 @@
-import type { Address } from 'abitype'
+import { type Address, parseAbi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import {
@@ -9,40 +9,23 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { aggregate3Signature } from '../../constants/contract.js'
-import {
-  InvalidAddressError,
-  type InvalidAddressErrorType,
-} from '../../errors/address.js'
+import { counterfactualContractCallByteCode } from '../../constants/contracts.js'
 import { BaseError } from '../../errors/base.js'
 import {
   ChainDoesNotSupportContract,
   ClientChainNotConfiguredError,
 } from '../../errors/chain.js'
 import {
+  CounterfactualDeploymentFailedError,
   RawContractError,
   type RawContractErrorType,
 } from '../../errors/contract.js'
-import {
-  InvalidBytesLengthError,
-  type InvalidBytesLengthErrorType,
-} from '../../errors/data.js'
-import {
-  AccountStateConflictError,
-  type AccountStateConflictErrorType,
-  StateAssignmentConflictError,
-  type StateAssignmentConflictErrorType,
-} from '../../errors/stateOverride.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
-import type {
-  RpcAccountStateOverride,
-  RpcStateMapping,
-  RpcStateOverride,
-  RpcTransactionRequest,
-} from '../../types/rpc.js'
-import type { StateMapping, StateOverride } from '../../types/stateOverride.js'
+import type { RpcTransactionRequest } from '../../types/rpc.js'
+import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial, UnionOmit } from '../../types/utils.js'
 import {
@@ -50,10 +33,13 @@ import {
   decodeFunctionResult,
 } from '../../utils/abi/decodeFunctionResult.js'
 import {
+  type EncodeDeployDataErrorType,
+  encodeDeployData,
+} from '../../utils/abi/encodeDeployData.js'
+import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
-import { isAddress } from '../../utils/address/isAddress.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetChainContractAddressErrorType,
@@ -77,30 +63,34 @@ import {
   type CreateBatchSchedulerErrorType,
   createBatchScheduler,
 } from '../../utils/promise/createBatchScheduler.js'
+import {
+  type SerializeStateOverrideErrorType,
+  serializeStateOverride,
+} from '../../utils/stateOverride.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import type {
   AssertRequestErrorType,
   AssertRequestParameters,
 } from '../../utils/transaction/assertRequest.js'
 
-export type FormattedCall<
-  TChain extends Chain | undefined = Chain | undefined,
-> = FormattedTransactionRequest<TChain>
-
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedCall<TChain>, 'from'> & {
   account?: Account | Address | undefined
   batch?: boolean | undefined
+  /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
+  factory?: Address | undefined
+  /** Calldata to execute on the factory to deploy the contract. */
+  factoryData?: Hex | undefined
   stateOverride?: StateOverride | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
         blockNumber?: bigint | undefined
-        blockTag?: never | undefined
+        blockTag?: undefined
       }
     | {
-        blockNumber?: never | undefined
+        blockNumber?: undefined
         /**
          * The balance of the account at a block tag.
          * @default 'latest'
@@ -108,17 +98,20 @@ export type CallParameters<
         blockTag?: BlockTag | undefined
       }
   )
+type FormattedCall<TChain extends Chain | undefined = Chain | undefined> =
+  FormattedTransactionRequest<TChain>
 
 export type CallReturnType = { data: Hex | undefined }
 
 export type CallErrorType = GetCallErrorReturnType<
   | ParseAccountErrorType
-  | ParseStateOverrideErrorType
+  | SerializeStateOverrideErrorType
   | AssertRequestErrorType
   | NumberToHexErrorType
   | FormatTransactionRequestErrorType
   | ScheduleMulticallErrorType
   | RequestErrorType
+  | ToCounterfactualDataErrorType
 >
 
 /**
@@ -157,7 +150,9 @@ export async function call<TChain extends Chain | undefined>(
     blockTag = 'latest',
     accessList,
     blobs,
-    data,
+    data: data_,
+    factory,
+    factoryData,
     gas,
     gasPrice,
     maxFeePerBlobGas,
@@ -171,13 +166,24 @@ export async function call<TChain extends Chain | undefined>(
   } = args
   const account = account_ ? parseAccount(account_) : undefined
 
+  // Check if the call is going to be routed via a counterfactual contract deployment.
+  const counterfactual = factory && factoryData && to && data_
+  const data = (() => {
+    // If the call is going to be routed via a counterfactual contract deployment,
+    // we need to get the data to deploy the counterfactual contract, and then perform
+    // the call.
+    if (counterfactual)
+      return toCounterfactualData({ data: data_, factory, factoryData, to })
+    return data_
+  })()
+
   try {
     assertRequest(args as AssertRequestParameters)
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
-    const rpcStateOverride = parseStateOverride(stateOverride)
+    const rpcStateOverride = serializeStateOverride(stateOverride)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
@@ -195,7 +201,7 @@ export async function call<TChain extends Chain | undefined>(
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      to,
+      to: counterfactual ? undefined : to,
       value,
     } as TransactionRequest) as TransactionRequest
 
@@ -229,6 +235,8 @@ export async function call<TChain extends Chain | undefined>(
     return { data: response }
   } catch (err) {
     const data = getRevertErrorData(err)
+
+    // Check for CCIP-Read offchain lookup signature.
     const { offchainLookup, offchainLookupSignature } = await import(
       '../../utils/ccip.js'
     )
@@ -238,6 +246,11 @@ export async function call<TChain extends Chain | undefined>(
       to
     )
       return { data: await offchainLookup(client, { data, to }) }
+
+    // Check for counterfactual deployment error.
+    if (counterfactual && data?.slice(0, 10) === '0x101bb98d')
+      throw new CounterfactualDeploymentFailedError({ factory })
+
     throw getCallError(err as ErrorType, {
       ...args,
       account,
@@ -272,7 +285,7 @@ type ScheduleMulticallParameters<TChain extends Chain | undefined> = Pick<
   to: Address
 }
 
-export type ScheduleMulticallErrorType =
+type ScheduleMulticallErrorType =
   | GetChainContractAddressErrorType
   | NumberToHexErrorType
   | CreateBatchSchedulerErrorType
@@ -361,77 +374,31 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
   return { data: returnData }
 }
 
+type ToCounterfactualDataErrorType = EncodeDeployDataErrorType | ErrorType
+
+function toCounterfactualData(parameters: {
+  data: Hex
+  factory: Address
+  factoryData: Hex
+  to: Address
+}) {
+  const { data, factory, factoryData, to } = parameters
+  return encodeDeployData({
+    abi: parseAbi([
+      'error CounterfactualDeployFailed(bytes)',
+      'constructor(address, bytes, address, bytes)',
+    ]),
+    bytecode: counterfactualContractCallByteCode,
+    args: [to, data, factory, factoryData],
+  })
+}
+
+/** @internal */
 export type GetRevertErrorDataErrorType = ErrorType
 
+/** @internal */
 export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined
   const error = err.walk() as RawContractError
   return typeof error?.data === 'object' ? error.data?.data : error.data
-}
-
-export type ParseStateMappingErrorType = InvalidBytesLengthErrorType
-
-export function parseStateMapping(
-  stateMapping: StateMapping | undefined,
-): RpcStateMapping | undefined {
-  if (!stateMapping || stateMapping.length === 0) return undefined
-  return stateMapping.reduce((acc, { slot, value }) => {
-    if (slot.length !== 66)
-      throw new InvalidBytesLengthError({
-        size: slot.length,
-        targetSize: 66,
-        type: 'hex',
-      })
-    if (value.length !== 66)
-      throw new InvalidBytesLengthError({
-        size: value.length,
-        targetSize: 66,
-        type: 'hex',
-      })
-    acc[slot] = value
-    return acc
-  }, {} as RpcStateMapping)
-}
-
-export type ParseAccountStateOverrideErrorType =
-  | NumberToHexErrorType
-  | StateAssignmentConflictErrorType
-  | ParseStateMappingErrorType
-
-export function parseAccountStateOverride(
-  args: Omit<StateOverride[number], 'address'>,
-): RpcAccountStateOverride {
-  const { balance, nonce, state, stateDiff, code } = args
-  const rpcAccountStateOverride: RpcAccountStateOverride = {}
-  if (code !== undefined) rpcAccountStateOverride.code = code
-  if (balance !== undefined)
-    rpcAccountStateOverride.balance = numberToHex(balance)
-  if (nonce !== undefined) rpcAccountStateOverride.nonce = numberToHex(nonce)
-  if (state !== undefined)
-    rpcAccountStateOverride.state = parseStateMapping(state)
-  if (stateDiff !== undefined) {
-    if (rpcAccountStateOverride.state) throw new StateAssignmentConflictError()
-    rpcAccountStateOverride.stateDiff = parseStateMapping(stateDiff)
-  }
-  return rpcAccountStateOverride
-}
-
-export type ParseStateOverrideErrorType =
-  | InvalidAddressErrorType
-  | AccountStateConflictErrorType
-  | ParseAccountStateOverrideErrorType
-
-export function parseStateOverride(
-  args?: StateOverride | undefined,
-): RpcStateOverride | undefined {
-  if (!args) return undefined
-  const rpcStateOverride: RpcStateOverride = {}
-  for (const { address, ...accountState } of args) {
-    if (!isAddress(address, { strict: false }))
-      throw new InvalidAddressError({ address })
-    if (rpcStateOverride[address])
-      throw new AccountStateConflictError({ address: address })
-    rpcStateOverride[address] = parseAccountStateOverride(accountState)
-  }
-  return rpcStateOverride
 }

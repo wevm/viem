@@ -3,17 +3,10 @@ import { beforeAll, describe, expect, test, vi } from 'vitest'
 import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
 import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
-import {
-  anvilChain,
-  deployErc20InvalidTransferEvent,
-  httpClient,
-  publicClient,
-  testClient,
-  walletClient,
-  webSocketClient,
-} from '~test/src/utils.js'
+import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import type { Client } from '../../index.js'
 
-import type { PublicClient } from '../../index.js'
 import {
   http,
   InvalidInputRpcError,
@@ -27,7 +20,6 @@ import { wait } from '../../utils/wait.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
-import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 import * as createEventFilter from './createEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
@@ -101,60 +93,61 @@ const event = {
   },
 } as const
 
+const client = anvilMainnet.getClient()
+const httpClient = createClient({
+  ...anvilMainnet.clientConfig,
+  transport: http(),
+})
+const webSocketClient = createClient({
+  ...anvilMainnet.clientConfig,
+  transport: webSocket(),
+})
+
 beforeAll(async () => {
-  await impersonateAccount(testClient, {
+  await impersonateAccount(client, {
     address: address.vitalik,
   })
-  await impersonateAccount(testClient, {
+  await impersonateAccount(client, {
     address: address.usdcHolder,
   })
-  await setBalance(testClient, {
+  await setBalance(client, {
     address: address.usdcHolder,
     value: 10000000000000000000000n,
   })
-  await mine(testClient, { blocks: 1 })
-
-  return async () => {
-    await stopImpersonatingAccount(testClient, {
-      address: address.vitalik,
-    })
-    await stopImpersonatingAccount(testClient, {
-      address: address.usdcHolder,
-    })
-  }
+  await mine(client, { blocks: 1 })
 })
 
 describe('poll', () => {
   test('default', async () => {
     const logs: WatchEventOnLogsParameter[] = []
 
-    const unwatch = watchEvent(publicClient, {
+    const unwatch = watchEvent(client, {
       onLogs: (logs_) => logs.push(logs_),
       poll: true,
     })
 
     await wait(200)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
 
@@ -166,34 +159,34 @@ describe('poll', () => {
   test('args: batch', async () => {
     const logs: WatchEventOnLogsParameter[] = []
 
-    const unwatch = watchEvent(publicClient, {
+    const unwatch = watchEvent(client, {
       batch: false,
       onLogs: (logs_) => logs.push(logs_),
       poll: true,
     })
 
     await wait(200)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
 
@@ -207,25 +200,25 @@ describe('poll', () => {
     const logs: WatchEventOnLogsParameter[] = []
     const logs2: WatchEventOnLogsParameter[] = []
 
-    const unwatch = watchEvent(publicClient, {
+    const unwatch = watchEvent(client, {
       address: usdcContractConfig.address,
       onLogs: (logs_) => logs.push(logs_),
       poll: true,
     })
-    const unwatch2 = watchEvent(publicClient, {
+    const unwatch2 = watchEvent(client, {
       address: '0x0000000000000000000000000000000000000000',
       onLogs: (logs_) => logs2.push(logs_),
       poll: true,
     })
 
     await wait(200)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
     unwatch2()
@@ -238,13 +231,13 @@ describe('poll', () => {
     const logs: WatchEventOnLogsParameter<typeof event.transfer>[] = []
     const logs2: WatchEventOnLogsParameter<typeof event.approval>[] = []
 
-    const unwatch = watchEvent(publicClient, {
+    const unwatch = watchEvent(client, {
       address: usdcContractConfig.address,
       event: event.transfer,
       onLogs: (logs_) => logs.push(logs_),
       poll: true,
     })
-    const unwatch2 = watchEvent(publicClient, {
+    const unwatch2 = watchEvent(client, {
       address: usdcContractConfig.address,
       event: event.approval,
       onLogs: (logs_) => logs2.push(logs_),
@@ -252,13 +245,13 @@ describe('poll', () => {
     })
 
     await wait(100)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
     unwatch2()
@@ -280,7 +273,7 @@ describe('poll', () => {
       [typeof event.transfer, typeof event.approval]
     >[] = []
 
-    const unwatch = watchEvent(publicClient, {
+    const unwatch = watchEvent(client, {
       address: usdcContractConfig.address,
       events: [event.transfer, event.approval],
       onLogs: (logs_) => logs.push(logs_),
@@ -288,19 +281,19 @@ describe('poll', () => {
     })
 
     await wait(100)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'approve',
       args: [accounts[1].address, 2n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
 
@@ -328,25 +321,25 @@ describe('poll', () => {
       [typeof event.transfer, typeof event.approval]
     >[] = []
 
-    const unwatch = watchEvent(publicClient, {
+    const unwatch = watchEvent(client, {
       events: [event.transfer, event.approval],
       onLogs: (logs_) => logs.push(logs_),
       poll: true,
     })
 
     await wait(100)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...wagmiContractConfig,
       functionName: 'mint',
       account: address.vitalik,
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'approve',
       args: [accounts[1].address, 2n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
 
@@ -373,41 +366,41 @@ describe('poll', () => {
       [typeof event.transfer, typeof event.approval]
     >[] = []
 
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'approve',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
 
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
 
-    const startBlock = await getBlockNumber.getBlockNumber(publicClient)
+    const startBlock = await getBlockNumber.getBlockNumber(client)
 
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'approve',
       args: [accounts[1].address, 2n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
 
-    const unwatch = watchEvent(publicClient, {
+    const unwatch = watchEvent(client, {
       address: usdcContractConfig.address,
       events: [event.transfer, event.approval],
       onLogs: (logs_) => logs.push(logs_),
       fromBlock: startBlock + 1n,
     })
 
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'approve',
       args: [accounts[1].address, 3n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
 
@@ -425,27 +418,27 @@ describe('poll', () => {
       })
 
       await wait(200)
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
 
@@ -457,38 +450,38 @@ describe('poll', () => {
     test('fallback', async () => {
       const logs: WatchEventOnLogsParameter[] = []
 
-      const client = createClient({
-        chain: anvilChain,
+      const client_2 = createClient({
+        chain: anvilMainnet.chain,
         transport: fallback([http(), webSocket()]),
         pollingInterval: 200,
-      })
+      }).extend(() => ({ mode: 'anvil' }))
 
-      const unwatch = watchEvent(client, {
+      const unwatch = watchEvent(client_2, {
         onLogs: (logs_) => logs.push(logs_),
       })
 
       await wait(200)
-      await writeContract(walletClient, {
+      await writeContract(client_2, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client_2, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client_2, { blocks: 1 })
       await wait(200)
-      await writeContract(walletClient, {
+      await writeContract(client_2, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client_2, { blocks: 1 })
       await wait(200)
       unwatch()
 
@@ -511,33 +504,33 @@ describe('poll', () => {
 
       const logs: WatchEventOnLogsParameter[] = []
 
-      const unwatch = watchEvent(publicClient, {
+      const unwatch = watchEvent(client, {
         onLogs: (logs_) => logs.push(logs_),
         poll: true,
       })
 
       await wait(100)
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
 
@@ -560,47 +553,47 @@ describe('poll', () => {
 
       const logs: WatchEventOnLogsParameter[] = []
 
-      const unwatch = watchEvent(publicClient, {
+      const unwatch = watchEvent(client, {
         onLogs: (logs_) => logs.push(logs_),
         poll: true,
       })
 
       await wait(100)
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
         account: address.usdcHolder,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[2].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 2 })
+      await mine(client, { blocks: 2 })
       await wait(200)
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[2].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[2].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 5 })
+      await mine(client, { blocks: 5 })
       await wait(200)
       unwatch()
 
@@ -623,41 +616,41 @@ describe('poll', () => {
         [typeof event.transfer, typeof event.approval]
       >[] = []
 
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'approve',
         args: [accounts[1].address, 1n],
         account: address.vitalik,
       })
 
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
 
-      const startBlock = await getBlockNumber.getBlockNumber(publicClient)
+      const startBlock = await getBlockNumber.getBlockNumber(client)
 
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'approve',
         args: [accounts[1].address, 2n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
 
-      const unwatch = watchEvent(publicClient, {
+      const unwatch = watchEvent(client, {
         address: usdcContractConfig.address,
         events: [event.transfer, event.approval],
         onLogs: (logs_) => logs.push(logs_),
         fromBlock: startBlock + 1n,
       })
 
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'approve',
         args: [accounts[1].address, 3n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
 
@@ -676,7 +669,7 @@ describe('poll', () => {
 
       let unwatch: () => void = () => null
       const error = await new Promise((resolve) => {
-        unwatch = watchEvent(publicClient, {
+        unwatch = watchEvent(client, {
           onLogs: () => null,
           onError: resolve,
           poll: true,
@@ -693,7 +686,7 @@ describe('poll', () => {
 
       let unwatch: () => void = () => null
       const error = await new Promise((resolve) => {
-        unwatch = watchEvent(publicClient, {
+        unwatch = watchEvent(client, {
           onLogs: () => null,
           onError: resolve,
           poll: true,
@@ -706,7 +699,7 @@ describe('poll', () => {
     test('re-initializes the filter if the active filter uninstalls', async () => {
       const filterCreator = vi.spyOn(createEventFilter, 'createEventFilter')
 
-      const unwatch = watchEvent(publicClient, {
+      const unwatch = watchEvent(client, {
         ...usdcContractConfig,
         onLogs: () => null,
         onError: () => null,
@@ -746,21 +739,21 @@ describe('subscribe', () => {
     })
 
     await wait(100)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
 
@@ -781,13 +774,13 @@ describe('subscribe', () => {
     })
 
     await wait(100)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
     unwatch2()
@@ -812,13 +805,13 @@ describe('subscribe', () => {
     })
 
     await wait(100)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
     unwatch2()
@@ -847,19 +840,19 @@ describe('subscribe', () => {
     })
 
     await wait(100)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'approve',
       args: [accounts[1].address, 2n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
 
@@ -894,18 +887,18 @@ describe('subscribe', () => {
       })
 
       await wait(100)
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...wagmiContractConfig,
         functionName: 'mint',
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'approve',
         args: [accounts[1].address, 2n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
 
@@ -930,32 +923,32 @@ describe('subscribe', () => {
   test('fallback transport', async () => {
     const logs: WatchEventOnLogsParameter[] = []
 
-    const client = createClient({
-      chain: anvilChain,
+    const client_2 = createClient({
+      chain: anvilMainnet.chain,
       transport: fallback([webSocket(), http()]),
       pollingInterval: 200,
     })
 
-    const unwatch = watchEvent(client, {
+    const unwatch = watchEvent(client_2, {
       onLogs: (logs_) => logs.push(logs_),
     })
 
     await wait(100)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
 
@@ -965,33 +958,33 @@ describe('subscribe', () => {
   test('fallback transport (poll: false)', async () => {
     const logs: WatchEventOnLogsParameter[] = []
 
-    const client = createClient({
-      chain: anvilChain,
+    const client_2 = createClient({
+      chain: anvilMainnet.chain,
       transport: fallback([http(), webSocket()]),
       pollingInterval: 200,
     })
 
-    const unwatch = watchEvent(client, {
+    const unwatch = watchEvent(client_2, {
       poll: false,
       onLogs: (logs_) => logs.push(logs_),
     })
 
     await wait(100)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
 
@@ -1034,7 +1027,7 @@ describe('subscribe', () => {
 
       let unwatch: () => void = () => null
       const error = await new Promise((resolve) => {
-        unwatch = watchEvent(client as PublicClient, {
+        unwatch = watchEvent(client as Client, {
           onLogs: () => null,
           onError: resolve,
         })
@@ -1063,27 +1056,27 @@ describe('subscribe', () => {
           strict: true,
         })
 
-        await writeContract(walletClient, {
+        await writeContract(client, {
           ...usdcContractConfig,
           functionName: 'transfer',
           args: [accounts[0].address, 1n],
           account: address.vitalik,
         })
-        await writeContract(walletClient, {
+        await writeContract(client, {
           abi: ERC20InvalidTransferEvent.abi,
           address: contractAddress!,
           functionName: 'transfer',
           args: [accounts[0].address, 1n],
           account: address.vitalik,
         })
-        await writeContract(walletClient, {
+        await writeContract(client, {
           abi: ERC20InvalidTransferEvent.abi,
           address: contractAddress!,
           functionName: 'transfer',
           args: [accounts[1].address, 1n],
           account: address.vitalik,
         })
-        await mine(testClient, { blocks: 1 })
+        await mine(client, { blocks: 1 })
         await wait(200)
 
         unwatch_unstrict()
@@ -1111,27 +1104,27 @@ describe('subscribe', () => {
           strict: true,
         })
 
-        await writeContract(walletClient, {
+        await writeContract(client, {
           ...usdcContractConfig,
           functionName: 'transfer',
           args: [accounts[0].address, 1n],
           account: address.vitalik,
         })
-        await writeContract(walletClient, {
+        await writeContract(client, {
           abi: ERC20InvalidTransferEvent.abi,
           address: contractAddress!,
           functionName: 'transfer',
           args: [accounts[0].address, 1n],
           account: address.vitalik,
         })
-        await writeContract(walletClient, {
+        await writeContract(client, {
           abi: ERC20InvalidTransferEvent.abi,
           address: contractAddress!,
           functionName: 'transfer',
           args: [accounts[1].address, 1n],
           account: address.vitalik,
         })
-        await mine(testClient, { blocks: 1 })
+        await mine(client, { blocks: 1 })
         await wait(200)
 
         unwatch_unstrict()

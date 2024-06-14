@@ -5,7 +5,8 @@ export const sidebar = {
     {
       text: 'Introduction',
       items: [
-        { text: 'Why viem', link: '/docs/introduction' },
+        { text: 'Why Viem', link: '/docs/introduction' },
+        { text: 'Installation', link: '/docs/installation' },
         { text: 'Getting Started', link: '/docs/getting-started' },
         { text: 'Platform Compatibility', link: '/docs/compatibility' },
         { text: 'FAQ', link: '/docs/faq' },
@@ -100,6 +101,15 @@ export const sidebar = {
           text: 'Chain',
           items: [
             { text: 'getChainId', link: '/docs/actions/public/getChainId' },
+          ],
+        },
+        {
+          text: 'EIP-712',
+          items: [
+            {
+              text: 'getEip712Domain',
+              link: '/docs/actions/public/getEip712Domain',
+            },
           ],
         },
         {
@@ -521,8 +531,8 @@ export const sidebar = {
               link: '/docs/contract/estimateContractGas',
             },
             {
-              text: 'getBytecode',
-              link: '/docs/contract/getBytecode',
+              text: 'getCode',
+              link: '/docs/contract/getCode',
             },
             {
               text: 'getContractEvents',
@@ -638,6 +648,42 @@ export const sidebar = {
             { text: 'namehash', link: '/docs/ens/utilities/namehash' },
 
             { text: 'normalize', link: '/docs/ens/utilities/normalize' },
+          ],
+        },
+      ],
+    },
+    {
+      text: 'SIWE',
+      collapsed: true,
+      items: [
+        {
+          text: 'Actions',
+          items: [
+            {
+              text: 'verifySiweMessage',
+              link: '/docs/siwe/actions/verifySiweMessage',
+            },
+          ],
+        },
+        {
+          text: 'Utilities',
+          items: [
+            {
+              text: 'createSiweMessage',
+              link: '/docs/siwe/utilities/createSiweMessage',
+            },
+            {
+              text: 'generateSiweNonce',
+              link: '/docs/siwe/utilities/generateSiweNonce',
+            },
+            {
+              text: 'parseSiweMessage',
+              link: '/docs/siwe/utilities/parseSiweMessage',
+            },
+            {
+              text: 'validateSiweMessage',
+              link: '/docs/siwe/utilities/validateSiweMessage',
+            },
           ],
         },
       ],
@@ -867,10 +913,6 @@ export const sidebar = {
           text: 'Signature',
           items: [
             {
-              text: 'compactSignatureToHex',
-              link: '/docs/utilities/compactSignatureToHex',
-            },
-            {
               text: 'compactSignatureToSignature',
               link: '/docs/utilities/compactSignatureToSignature',
             },
@@ -883,12 +925,12 @@ export const sidebar = {
               link: '/docs/utilities/hashTypedData',
             },
             {
-              text: 'hexToCompactSignature',
-              link: '/docs/utilities/hexToCompactSignature',
+              text: 'parseCompactSignature',
+              link: '/docs/utilities/parseCompactSignature',
             },
             {
-              text: 'hexToSignature',
-              link: '/docs/utilities/hexToSignature',
+              text: 'parseSignature',
+              link: '/docs/utilities/parseSignature',
             },
             {
               text: 'recoverAddress',
@@ -911,12 +953,16 @@ export const sidebar = {
               link: '/docs/utilities/recoverTypedDataAddress',
             },
             {
-              text: 'signatureToCompactSignature',
-              link: '/docs/utilities/signatureToCompactSignature',
+              text: 'serializeCompactSignature',
+              link: '/docs/utilities/serializeCompactSignature',
             },
             {
-              text: 'signatureToHex',
-              link: '/docs/utilities/signatureToHex',
+              text: 'serializeSignature',
+              link: '/docs/utilities/serializeSignature',
+            },
+            {
+              text: 'signatureToCompactSignature',
+              link: '/docs/utilities/signatureToCompactSignature',
             },
             {
               text: 'verifyMessage',
@@ -1010,44 +1056,68 @@ export const sidebar = {
         ],
       },
       {
-        text: 'EIP-3074',
+        text: 'EIP-5792',
         items: [
           {
-            text: 'recoverAuthMessageAddress',
-            link: '/experimental/eip3074/recoverAuthMessageAddress',
-          },
-          {
-            text: 'signAuthMessage',
-            link: '/experimental/eip3074/signAuthMessage',
-          },
-          {
-            text: 'verifyAuthMessage',
-            link: '/experimental/eip3074/verifyAuthMessage',
+            text: 'Actions',
+            items: [
+              {
+                text: 'getCallsStatus',
+                link: '/experimental/eip5792/getCallsStatus',
+              },
+              {
+                text: 'getCapabilities',
+                link: '/experimental/eip5792/getCapabilities',
+              },
+              {
+                text: 'sendCalls',
+                link: '/experimental/eip5792/sendCalls',
+              },
+              {
+                text: 'showCallsStatus',
+                link: '/experimental/eip5792/showCallsStatus',
+              },
+              {
+                text: 'writeContracts',
+                link: '/experimental/eip5792/writeContracts',
+              },
+            ],
           },
         ],
       },
       {
-        text: 'EIP-5792',
+        text: 'ERC-6492',
         items: [
           {
-            text: 'getCallsStatus',
-            link: '/experimental/eip5792/getCallsStatus',
+            text: 'Utilities',
+            items: [
+              {
+                text: 'parseErc6492Signature',
+                link: '/experimental/erc6492/parseErc6492Signature',
+              },
+              {
+                text: 'isErc6492Signature',
+                link: '/experimental/erc6492/isErc6492Signature',
+              },
+              {
+                text: 'serializeErc6492Signature',
+                link: '/experimental/erc6492/serializeErc6492Signature',
+              },
+            ],
           },
+        ],
+      },
+      {
+        text: 'ERC-7715',
+        items: [
           {
-            text: 'getCapabilities',
-            link: '/experimental/eip5792/getCapabilities',
-          },
-          {
-            text: 'sendCalls',
-            link: '/experimental/eip5792/sendCalls',
-          },
-          {
-            text: 'showCallsStatus',
-            link: '/experimental/eip5792/showCallsStatus',
-          },
-          {
-            text: 'writeContracts',
-            link: '/experimental/eip5792/writeContracts',
+            text: 'Actions',
+            items: [
+              {
+                text: 'issuePermissions',
+                link: '/experimental/erc7715/issuePermissions',
+              },
+            ],
           },
         ],
       },
@@ -1286,7 +1356,7 @@ export const sidebar = {
         ],
       },
       {
-        text: 'Actions',
+        text: 'EIP-712 Actions',
         items: [
           {
             text: 'deployContract',
@@ -1303,6 +1373,110 @@ export const sidebar = {
           {
             text: 'writeContract',
             link: '/zksync/actions/writeContract',
+          },
+        ],
+      },
+      {
+        text: 'L2 Public Actions',
+        items: [
+          {
+            text: 'estimateFee',
+            link: '/zksync/actions/estimateFee',
+          },
+          {
+            text: 'estimateGasL1ToL2',
+            link: '/zksync/actions/estimateGasL1ToL2',
+          },
+          {
+            text: 'getAllBalances',
+            link: '/zksync/actions/getAllBalances',
+          },
+          {
+            text: 'getBaseTokenL1Address',
+            link: '/zksync/actions/getBaseTokenL1Address',
+          },
+          {
+            text: 'getBlockDetails',
+            link: '/zksync/actions/getBlockDetails',
+          },
+          {
+            text: 'getBridgehubContractAddress',
+            link: '/zksync/actions/getBridgehubContractAddress',
+          },
+          {
+            text: 'getDefaultBridgeAddress',
+            link: '/zksync/actions/getDefaultBridgeAddress',
+          },
+          {
+            text: 'getL1BatchDetails',
+            link: '/zksync/actions/getL1BatchDetails',
+          },
+          {
+            text: 'getL1BatchBlockRange',
+            link: '/zksync/actions/getL1BatchBlockRange',
+          },
+          {
+            text: 'getL1BatchNumber',
+            link: '/zksync/actions/getL1BatchNumber',
+          },
+          {
+            text: 'getL1ChainId',
+            link: '/zksync/actions/getL1ChainId',
+          },
+          {
+            text: 'getLogProof',
+            link: '/zksync/actions/getLogProof',
+          },
+          {
+            text: 'getMainContractAddress',
+            link: '/zksync/actions/getMainContractAddress',
+          },
+          {
+            text: 'getRawBlockTransaction',
+            link: '/zksync/actions/getRawBlockTransactions',
+          },
+          {
+            text: 'getTestnetPaymasterAddress',
+            link: '/zksync/actions/getTestnetPaymasterAddress',
+          },
+          {
+            text: 'getTransactionDetails',
+            link: '/zksync/actions/getTransactionDetails',
+          },
+        ],
+      },
+      {
+        text: 'L1 Public Actions',
+        items: [
+          {
+            text: 'getL1Allowance',
+            link: '/zksync/actions/getL1Allowance',
+          },
+          {
+            text: 'getL1Balance',
+            link: '/zksync/actions/getL1Balance',
+          },
+          {
+            text: 'getL1TokenBalance',
+            link: '/zksync/actions/getL1TokenBalance',
+          },
+        ],
+      },
+      {
+        text: 'Utilities',
+        items: [
+          {
+            text: 'Paymaster',
+            items: [
+              {
+                text: 'getApprovalBasedPaymasterInput',
+                link: '/zksync/utilities/paymaster/getApprovalBasedPaymasterInput',
+              },
+              {
+                text: 'getGeneralPaymasterInput',
+                link: '/zksync/utilities/paymaster/getGeneralPaymasterInput',
+              },
+            ],
           },
         ],
       },

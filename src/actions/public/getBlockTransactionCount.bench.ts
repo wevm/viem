@@ -1,11 +1,13 @@
 import { bench, describe } from 'vitest'
 
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
 
+const client = anvilMainnet.getClient()
+
 describe.skip('Get Block Transaction Count', () => {
   bench('viem: `getBlockTransactionCount`', async () => {
-    await getBlockTransactionCount(publicClient)
+    await getBlockTransactionCount(client)
   })
 })

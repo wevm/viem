@@ -1,14 +1,13 @@
-import type { HDKey } from '@scure/bip32'
 import type { Address, TypedData } from 'abitype'
 
-import type { ToAuthMessageParameters } from '../experimental/eip3074/utils/toAuthMessage.js'
+import type { HDKey } from '../types/account.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerialized,
 } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
-import type { IsNarrowable, OneOf, RequiredBy } from '../types/utils.js'
+import type { IsNarrowable, OneOf } from '../types/utils.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
@@ -19,9 +18,6 @@ export type Account<TAddress extends Address = Address> = OneOf<
 export type AccountSource = Address | CustomSource
 export type CustomSource = {
   address: Address
-  experimental_signAuthMessage?:
-    | ((parameters: ToAuthMessageParameters) => Promise<Hash>)
-    | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
   signTransaction: <
     serializer extends
@@ -56,7 +52,7 @@ export type JsonRpcAccount<TAddress extends Address = Address> = {
 }
 
 export type LocalAccount<
-  TSource extends string = 'custom',
+  TSource extends string = string,
   TAddress extends Address = Address,
 > = CustomSource & {
   address: TAddress
@@ -77,17 +73,14 @@ export type HDOptions =
       addressIndex?: number | undefined
       /** The change index to use in the path (`"m/44'/60'/0'/${changeIndex}/0"`). */
       changeIndex?: number | undefined
-      path?: never | undefined
+      path?: undefined
     }
   | {
-      accountIndex?: never | undefined
-      addressIndex?: never | undefined
-      changeIndex?: never | undefined
+      accountIndex?: undefined
+      addressIndex?: undefined
+      changeIndex?: undefined
       /** The HD path. */
       path: `m/44'/60'/${string}`
     }
 
-export type PrivateKeyAccount = RequiredBy<
-  LocalAccount<'privateKey'>,
-  'experimental_signAuthMessage'
->
+export type PrivateKeyAccount = LocalAccount<'privateKey'>

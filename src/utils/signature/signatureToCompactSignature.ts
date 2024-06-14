@@ -1,11 +1,7 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { CompactSignature, Signature } from '../../types/misc.js'
-import {
-  type BytesToHexErrorType,
-  type HexToBytesErrorType,
-  bytesToHex,
-  hexToBytes,
-} from '../index.js'
+import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
+import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 
 export type SignatureToCompactSignatureErrorType =
   | HexToBytesErrorType

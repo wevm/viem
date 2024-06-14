@@ -107,7 +107,7 @@ function encode<const TPackedAbiType extends PackedAbiType | unknown>(
   const intMatch = (type as string).match(integerRegex)
   if (intMatch) {
     const [_type, baseType, bits = '256'] = intMatch
-    const size = parseInt(bits) / 8
+    const size = Number.parseInt(bits) / 8
     return numberToHex(value as number, {
       size: isArray ? 32 : size,
       signed: baseType === 'int',
@@ -117,9 +117,9 @@ function encode<const TPackedAbiType extends PackedAbiType | unknown>(
   const bytesMatch = (type as string).match(bytesRegex)
   if (bytesMatch) {
     const [_type, size] = bytesMatch
-    if (parseInt(size) !== ((value as Hex).length - 2) / 2)
+    if (Number.parseInt(size) !== ((value as Hex).length - 2) / 2)
       throw new BytesSizeMismatchError({
-        expectedSize: parseInt(size),
+        expectedSize: Number.parseInt(size),
         givenSize: ((value as Hex).length - 2) / 2,
       })
     return pad(value as Hex, { dir: 'right', size: isArray ? 32 : null }) as Hex

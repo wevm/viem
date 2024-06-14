@@ -1,48 +1,50 @@
-import type { Assign, OneOf } from './utils.js'
+import type { OneOf } from './utils.js'
 
-export type FeeHistory<TQuantity = bigint> = {
+export type FeeHistory<quantity = bigint> = {
   /**
    * An array of block base fees per gas (in wei). This includes the next block after
    * the newest of the returned range, because this value can be derived from the newest block.
    * Zeroes are returned for pre-EIP-1559 blocks. */
-  baseFeePerGas: TQuantity[]
+  baseFeePerGas: quantity[]
   /** An array of block gas used ratios. These are calculated as the ratio of gasUsed and gasLimit. */
   gasUsedRatio: number[]
   /** Lowest number block of the returned range. */
-  oldestBlock: TQuantity
+  oldestBlock: quantity
   /** An array of effective priority fees (in wei) per gas data points from a single block. All zeroes are returned if the block is empty. */
-  reward?: TQuantity[][] | undefined
+  reward?: quantity[][] | undefined
 }
 
-export type FeeValuesLegacy<TQuantity = bigint> = {
+export type FeeValuesLegacy<quantity = bigint> = {
   /** Base fee per gas. */
-  gasPrice: TQuantity
-  maxFeePerBlobGas?: never | undefined
-  maxFeePerGas?: never | undefined
-  maxPriorityFeePerGas?: never | undefined
+  gasPrice: quantity
+  maxFeePerBlobGas?: undefined
+  maxFeePerGas?: undefined
+  maxPriorityFeePerGas?: undefined
 }
 
-export type FeeValuesEIP1559<TQuantity = bigint> = {
-  gasPrice?: never | undefined
-  maxFeePerBlobGas?: never | undefined
+export type FeeValuesEIP1559<quantity = bigint> = {
+  gasPrice?: undefined
+  maxFeePerBlobGas?: undefined
   /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
-  maxFeePerGas: TQuantity
+  maxFeePerGas: quantity
   /** Max priority fee per gas (in wei). */
-  maxPriorityFeePerGas: TQuantity
+  maxPriorityFeePerGas: quantity
 }
 
-export type FeeValuesEIP4844<TQuantity = bigint> = Assign<
-  FeeValuesEIP1559<TQuantity>,
-  {
-    /** The maximum total fee per gas the sender is willing to pay for blob gas (in wei). */
-    maxFeePerBlobGas: TQuantity
-  }
->
+export type FeeValuesEIP4844<quantity = bigint> = {
+  gasPrice?: undefined
+  /** Maximum total fee per gas sender is willing to pay for blob gas (in wei). */
+  maxFeePerBlobGas: quantity
+  /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
+  maxFeePerGas: quantity
+  /** Max priority fee per gas (in wei). */
+  maxPriorityFeePerGas: quantity
+}
 
-export type FeeValues<TQuantity = bigint> = OneOf<
-  | FeeValuesLegacy<TQuantity>
-  | FeeValuesEIP1559<TQuantity>
-  | FeeValuesEIP4844<TQuantity>
+export type FeeValues<quantity = bigint> = OneOf<
+  | FeeValuesLegacy<quantity>
+  | FeeValuesEIP1559<quantity>
+  | FeeValuesEIP4844<quantity>
 >
 
 export type FeeValuesType = 'legacy' | 'eip1559' | 'eip4844'

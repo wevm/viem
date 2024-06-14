@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
   type RequestErrorType,
   buildRequest,
@@ -63,6 +64,9 @@ export { getWebSocketRpcClient } from './rpc/webSocket.js'
 export { type StringifyErrorType, stringify } from './stringify.js'
 export {
   type DomainSeparatorErrorType,
+  type SerializeTypedDataErrorType,
+  type ValidateTypedDataErrorType,
+  serializeTypedData,
   validateTypedData,
 } from './typedData.js'
 export {
@@ -85,6 +89,7 @@ export {
 export {
   type DecodeFunctionDataErrorType,
   type DecodeFunctionDataParameters,
+  type DecodeFunctionDataReturnType,
   decodeFunctionData,
 } from './abi/decodeFunctionData.js'
 export {

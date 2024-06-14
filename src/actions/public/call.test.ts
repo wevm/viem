@@ -1,15 +1,18 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { OffchainLookupExample } from '~test/contracts/generated.js'
+import {
+  Mock4337Account,
+  Mock4337AccountFactory,
+  OffchainLookupExample,
+} from '~test/contracts/generated.js'
 import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
 import { createCcipServer } from '~test/src/ccip.js'
-import { accounts, forkBlockNumber, localHttpUrl } from '~test/src/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
+  deployMock4337Account,
   deployOffchainLookupExample,
-  publicClient,
-  publicClientMainnet,
-  walletClientWithAccount,
+  mainnetClient,
 } from '~test/src/utils.js'
 
 import { aggregate3Signature } from '../../constants/contract.js'
@@ -20,12 +23,12 @@ import { trim } from '../../utils/data/trim.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import {
   http,
   type Hex,
-  type StateMapping,
-  type StateOverride,
   createClient,
+  decodeFunctionResult,
   encodeAbiParameters,
   pad,
   parseEther,
@@ -33,12 +36,10 @@ import {
   toBlobs,
   toHex,
 } from '../../index.js'
-import {
-  call,
-  getRevertErrorData,
-  parseAccountStateOverride,
-  parseStateMapping,
-} from './call.js'
+import { call, getRevertErrorData } from './call.js'
+import { readContract } from './readContract.js'
+
+const client = anvilMainnet.getClient({ account: accounts[0].address })
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
@@ -47,12 +48,12 @@ const mintWithParams4bytes = '0xa0712d68'
 const fourTwenty =
   '00000000000000000000000000000000000000000000000000000000000001a4'
 const sixHundred =
-  '0000000000000000000000000000000000000000000000000000000000000258'
+  '0000000000000000000000000000000000000000000000000000000000aaaaaa'
 
 const sourceAccount = accounts[0]
 
 test('default', async () => {
-  const { data } = await call(publicClient, {
+  const { data } = await call(client, {
     data: name4bytes,
     account: sourceAccount.address,
     to: wagmiContractAddress,
@@ -75,7 +76,7 @@ describe('ccip', () => {
       args: ['jxom.viem'],
     })
 
-    const { data } = await call(publicClient, {
+    const { data } = await call(client, {
       data: calldata,
       to: contractAddress!,
     })
@@ -99,7 +100,7 @@ describe('ccip', () => {
 
     const client = createClient({
       ccipRead: false,
-      transport: http(localHttpUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     await expect(() =>
@@ -108,14 +109,14 @@ describe('ccip', () => {
         to: contractAddress!,
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [CallExecutionError: Execution reverted with reason: custom error 556f1830:000000000000000000000000124ddf9b…00000000000000000000000000000000 (576 bytes).
+      [CallExecutionError: Execution reverted with reason: custom error 556f1830:000000000000000000000000cc5bc84c…00000000000000000000000000000000 (576 bytes).
 
       Raw Call Arguments:
-        to:    0x124ddf9bdd2ddad012ef1d5bbd77c00f05c610da
+        to:    0xcc5bc84c3fdbcf262aadd9f76652d6784293dd9e
         data:  0xbf40fac1000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000096a786f6d2e7669656d0000000000000000000000000000000000000000000000
 
-      Details: execution reverted: custom error 556f1830:000000000000000000000000124ddf9b…00000000000000000000000000000000 (576 bytes)
-      Version: viem@1.0.2]
+      Details: execution reverted: custom error 556f1830:000000000000000000000000cc5bc84c…00000000000000000000000000000000 (576 bytes)
+      Version: viem@x.y.z]
     `)
 
     await server.close()
@@ -134,7 +135,7 @@ describe('ccip', () => {
     })
 
     await expect(() =>
-      call(publicClient, {
+      call(client, {
         data: calldata,
         to: contractAddress!,
       }),
@@ -145,7 +146,7 @@ describe('ccip', () => {
 })
 
 test('zero data', async () => {
-  const { data } = await call(publicClient, {
+  const { data } = await call(client, {
     data: mint4bytes,
     account: sourceAccount.address,
     to: wagmiContractAddress,
@@ -154,7 +155,7 @@ test('zero data', async () => {
 })
 
 test('args: blockNumber', async () => {
-  const { data } = await call(publicClient, {
+  const { data } = await call(client, {
     blockNumber: 15564164n,
     data: `${mintWithParams4bytes}${fourTwenty}`,
     account: sourceAccount.address,
@@ -179,7 +180,7 @@ test('args: override', async () => {
     { size: 1 },
   ).slice(2)}` as Hex
 
-  const { data } = await call(publicClient, {
+  const { data } = await call(client, {
     data: name4bytes,
     to: wagmiContractAddress,
     stateOverride: [
@@ -201,9 +202,9 @@ test('args: override', async () => {
 })
 
 test.skip('args: blobs', async () => {
-  // TODO: migrate to `publicClient` once 4844 is supported in Anvil.
+  // TODO: migrate to `client` once 4844 is supported in Anvil.
   const blobs = toBlobs({ data: stringToHex(blobData) })
-  const { data } = await call(publicClient, {
+  const { data } = await call(client, {
     account: sourceAccount.address,
     blobs,
     kzg,
@@ -216,7 +217,7 @@ test.skip('args: blobs', async () => {
 describe('account hoisting', () => {
   test.skip('no account hoisted', async () => {
     await expect(
-      call(publicClient, {
+      call(client, {
         data: `${mintWithParams4bytes}${sixHundred}`,
         to: wagmiContractAddress,
       }),
@@ -228,12 +229,12 @@ describe('account hoisting', () => {
         data:  0xa0712d680000000000000000000000000000000000000000000000000000000000000258
 
       Details: execution reverted: ERC721: mint to the zero address
-      Version: viem@1.0.2"
+      Version: viem@x.y.z"
     `)
   })
 
   test('account hoisted', async () => {
-    const { data } = await call(walletClientWithAccount, {
+    const { data } = await call(client, {
       data: `${mintWithParams4bytes}${sixHundred}`,
       to: wagmiContractAddress,
     })
@@ -244,7 +245,7 @@ describe('account hoisting', () => {
 describe('errors', () => {
   test('fee cap too high', async () => {
     await expect(() =>
-      call(publicClient, {
+      call(client, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
         account: sourceAccount.address,
         to: wagmiContractAddress,
@@ -259,7 +260,7 @@ describe('errors', () => {
         data:          0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -267,7 +268,7 @@ describe('errors', () => {
   //        This test will fail when Anvil is fixed.
   test('gas too low', async () => {
     await expect(() =>
-      call(publicClient, {
+      call(client, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
         account: sourceAccount.address,
         to: wagmiContractAddress,
@@ -283,11 +284,11 @@ describe('errors', () => {
         gas:   100
 
       Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await expect(() =>
-      call(publicClientMainnet, {
+      call(mainnetClient, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
         account: sourceAccount.address,
         to: wagmiContractAddress,
@@ -300,7 +301,7 @@ describe('errors', () => {
   //        This test will fail when Anvil is fixed.
   test('gas too high', async () => {
     expect(
-      await call(publicClient, {
+      await call(client, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
@@ -313,7 +314,7 @@ describe('errors', () => {
   //        This test will fail when Anvil is fixed.
   test('gas fee is less than block base fee', async () => {
     expect(
-      await call(publicClient, {
+      await call(client, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
@@ -322,7 +323,7 @@ describe('errors', () => {
     ).toBeDefined()
 
     await expect(() =>
-      call(publicClientMainnet, {
+      call(mainnetClient, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
@@ -333,7 +334,7 @@ describe('errors', () => {
 
   test('nonce too low', async () => {
     await expect(() =>
-      call(publicClient, {
+      call(client, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
@@ -350,13 +351,13 @@ describe('errors', () => {
         nonce:  0
 
       Details: nonce too low
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
   test('insufficient funds', async () => {
     await expect(() =>
-      call(publicClient, {
+      call(client, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: parseEther('100000'),
@@ -379,11 +380,11 @@ describe('errors', () => {
         value:  100000 ETH
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await expect(() =>
-      call(publicClientMainnet, {
+      call(mainnetClient, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: parseEther('100000'),
@@ -393,7 +394,7 @@ describe('errors', () => {
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
     await expect(
-      call(publicClient, {
+      call(client, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
         account: sourceAccount.address,
         to: wagmiContractAddress,
@@ -410,13 +411,13 @@ describe('errors', () => {
         maxFeePerGas:          20 gwei
         maxPriorityFeePerGas:  22 gwei
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
   test('contract revert (contract error)', async () => {
     await expect(
-      call(publicClient, {
+      call(client, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
         account: sourceAccount.address,
         to: wagmiContractAddress,
@@ -431,14 +432,14 @@ describe('errors', () => {
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
       Details: execution reverted: revert: Token ID is taken
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
 
   test('contract revert (insufficient params)', async () => {
     await expect(
-      call(publicClient, {
+      call(client, {
         data: mintWithParams4bytes,
         account: sourceAccount.address,
         to: wagmiContractAddress,
@@ -452,14 +453,14 @@ describe('errors', () => {
         data:  0xa0712d68
 
       Details: execution reverted
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
   describe('state overrides error', () => {
     test('wrong address', async () => {
       await expect(
-        call(publicClient, {
+        call(client, {
           data: name4bytes,
           to: wagmiContractAddress,
           stateOverride: [
@@ -481,6 +482,7 @@ describe('errors', () => {
         - Address must match its checksum counterpart.
          
         Raw Call Arguments:
+          from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
           to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
           data:  0x06fdde03
           State Override:
@@ -488,13 +490,13 @@ describe('errors', () => {
               stateDiff:
                 0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
     test('duplicate address', async () => {
       await expect(
-        call(publicClient, {
+        call(client, {
           data: name4bytes,
           to: wagmiContractAddress,
           stateOverride: [
@@ -519,26 +521,27 @@ describe('errors', () => {
           ],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [CallExecutionError: State for account "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2" is set multiple times.
+        [CallExecutionError: State for account "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2" is set multiple times.
 
-      Raw Call Arguments:
-        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-        data:  0x06fdde03
-        State Override:
-          0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
-            stateDiff:
-              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
-          0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
-            stateDiff:
-              0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+        Raw Call Arguments:
+          from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+          to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+          data:  0x06fdde03
+          State Override:
+            0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
+              stateDiff:
+                0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
+            0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2:
+              stateDiff:
+                0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
-      Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
     test('pass state and stateDiff', async () => {
       await expect(
-        call(publicClient, {
+        call(client, {
           data: name4bytes,
           to: wagmiContractAddress,
           stateOverride: [
@@ -564,6 +567,7 @@ describe('errors', () => {
         [CallExecutionError: state and stateDiff are set on the same account.
 
         Raw Call Arguments:
+          from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
           to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
           data:  0x06fdde03
           State Override:
@@ -573,7 +577,7 @@ describe('errors', () => {
               stateDiff:
                 0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -581,46 +585,46 @@ describe('errors', () => {
 
 describe('batch call', () => {
   test('default', async () => {
-    publicClient.batch = { multicall: true }
+    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
 
-    const spy = vi.spyOn(publicClient, 'request')
+    const spy = vi.spyOn(client_2, 'request')
 
     const p = []
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: usdcContractConfig.address,
       }),
     )
     await wait(1)
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: baycContractConfig.address,
       }),
     )
     await wait(1)
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
       }),
     )
     await wait(50)
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: usdcContractConfig.address,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: baycContractConfig.address,
       }),
@@ -654,55 +658,55 @@ describe('batch call', () => {
   })
 
   test('args: blockNumber', async () => {
-    publicClient.batch = { multicall: true }
+    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
 
-    const spy = vi.spyOn(publicClient, 'request')
+    const spy = vi.spyOn(client_2, 'request')
 
     const p = []
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: forkBlockNumber + 1n,
+        blockNumber: anvilMainnet.forkBlockNumber + 1n,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: usdcContractConfig.address,
       }),
     )
     await wait(1)
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: baycContractConfig.address,
-        blockNumber: forkBlockNumber,
+        blockNumber: anvilMainnet.forkBlockNumber,
       }),
     )
     await wait(1)
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
       }),
     )
     await wait(50)
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: usdcContractConfig.address,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: baycContractConfig.address,
       }),
@@ -739,29 +743,29 @@ describe('batch call', () => {
   })
 
   test('args: no address, no data, aggregate3 sig, other properties', async () => {
-    publicClient.batch = { multicall: true }
+    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
 
-    const spy = vi.spyOn(publicClient, 'request')
+    const spy = vi.spyOn(client_2, 'request')
 
     const p = []
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         to: wagmiContractAddress,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: aggregate3Signature,
         to: wagmiContractAddress,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
         maxFeePerGas: 1n,
@@ -776,17 +780,19 @@ describe('batch call', () => {
   })
 
   test('contract revert', async () => {
-    const spy = vi.spyOn(publicClient, 'request')
+    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
+
+    const spy = vi.spyOn(client_2, 'request')
 
     const p = []
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
         to: wagmiContractAddress,
       }),
@@ -810,7 +816,7 @@ describe('batch call', () => {
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
-      Version: viem@1.0.2],
+      Version: viem@x.y.z],
           "status": "rejected",
         },
       ]
@@ -818,51 +824,53 @@ describe('batch call', () => {
   })
 
   test('client config', async () => {
-    publicClient.batch = {
-      multicall: {
-        batchSize: 1024,
-        wait: 16,
+    const client_2 = anvilMainnet.getClient({
+      batch: {
+        multicall: {
+          batchSize: 1024,
+          wait: 16,
+        },
       },
-    }
+    })
 
-    const spy = vi.spyOn(publicClient, 'request')
+    const spy = vi.spyOn(client_2, 'request')
 
     const p = []
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: usdcContractConfig.address,
       }),
     )
     await wait(1)
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: baycContractConfig.address,
       }),
     )
     await wait(1)
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
       }),
     )
     await wait(50)
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: usdcContractConfig.address,
       }),
     )
     p.push(
-      call(publicClient, {
+      call(client_2, {
         data: name4bytes,
         to: baycContractConfig.address,
       }),
@@ -896,29 +904,30 @@ describe('batch call', () => {
   })
 
   test('no chain on client', async () => {
-    const client = publicClient
+    const client_2 = anvilMainnet.getClient({
+      batch: {
+        multicall: true,
+      },
+      chain: false,
+    })
 
-    // @ts-expect-error
-    client.chain = undefined
-    client.batch = { multicall: true }
-
-    const spy = vi.spyOn(client, 'request')
+    const spy = vi.spyOn(client_2, 'request')
 
     const p = []
     p.push(
-      call(client, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
       }),
     )
     p.push(
-      call(client, {
+      call(client_2, {
         data: name4bytes,
         to: usdcContractConfig.address,
       }),
     )
     p.push(
-      call(client, {
+      call(client_2, {
         data: name4bytes,
         to: baycContractConfig.address,
       }),
@@ -943,34 +952,36 @@ describe('batch call', () => {
   })
 
   test('chain not configured with multicall', async () => {
-    const client = publicClient
-
-    client.batch = { multicall: true }
-    client.chain = {
-      ...client.chain,
+    const client_2 = anvilMainnet.getClient({
+      batch: {
+        multicall: true,
+      },
+    })
+    client_2.chain = {
+      ...client_2.chain,
       contracts: {
         // @ts-expect-error
         multicall3: undefined,
       },
     }
 
-    const spy = vi.spyOn(client, 'request')
+    const spy = vi.spyOn(client_2, 'request')
 
     const p = []
     p.push(
-      call(client, {
+      call(client_2, {
         data: name4bytes,
         to: wagmiContractAddress,
       }),
     )
     p.push(
-      call(client, {
+      call(client_2, {
         data: name4bytes,
         to: usdcContractConfig.address,
       }),
     )
     p.push(
-      call(client, {
+      call(client_2, {
         data: name4bytes,
         to: baycContractConfig.address,
       }),
@@ -991,6 +1002,77 @@ describe('batch call', () => {
           "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
         },
       ]
+    `)
+  })
+})
+
+describe('deployless counterfactual call', () => {
+  test('call to account that has not been deployed', async () => {
+    const { factoryAddress } = await deployMock4337Account()
+
+    const address = await readContract(client, {
+      account: accounts[0].address,
+      abi: Mock4337AccountFactory.abi,
+      address: factoryAddress,
+      functionName: 'getAddress',
+      args: [pad('0x0')],
+    })
+    const data = encodeFunctionData({
+      abi: Mock4337Account.abi,
+      functionName: 'eip712Domain',
+    })
+    const factoryData = encodeFunctionData({
+      abi: Mock4337AccountFactory.abi,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x0')],
+    })
+
+    const result = await call(client, {
+      data,
+      factory: factoryAddress,
+      factoryData,
+      to: address,
+    })
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "data": "0x0f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000d8a0ab4f74d04b9ee34ceccef647051601720dc100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000000f4d6f636b343333374163636f756e740000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000131000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      }
+    `)
+
+    const decoded = decodeFunctionResult({
+      abi: Mock4337Account.abi,
+      data: result.data!,
+      functionName: 'eip712Domain',
+    })
+    expect(decoded).toMatchInlineSnapshot(`
+      [
+        "0x0f",
+        "Mock4337Account",
+        "1",
+        1n,
+        "0xd8a0AB4f74d04b9EE34CECCEF647051601720Dc1",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        [],
+      ]
+    `)
+  })
+
+  test('error: failed counterfactual deployment', async () => {
+    await expect(() =>
+      call(client, {
+        data: '0x',
+        factory: '0x0000000000000000000000000000000000000000',
+        factoryData: '0xdeadbeef',
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [CounterfactualDeploymentFailedError: Deployment for counterfactual contract call failed for factory "0x0000000000000000000000000000000000000000".
+
+      Please ensure:
+      - The \`factory\` is a valid contract deployment factory (ie. Create2 Factory, ERC-4337 Factory, etc).
+      - The \`factoryData\` is a valid encoded function call for contract deployment function on the factory.
+
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -1020,126 +1102,5 @@ describe('getRevertErrorData', () => {
         }),
       ),
     ).toBe('0x556f1830')
-  })
-})
-
-describe('parsing overrides', () => {
-  test('state mapping', () => {
-    const stateMapping: StateMapping = [
-      {
-        slot: `0x${fourTwenty}`,
-        value: `0x${fourTwenty}`,
-      },
-    ]
-    expect(parseStateMapping(stateMapping)).toMatchInlineSnapshot(`
-      {
-        "0x${fourTwenty}": "0x${fourTwenty}",
-      }
-    `)
-  })
-
-  test('state mapping: undefined', () => {
-    expect(parseStateMapping(undefined)).toMatchInlineSnapshot('undefined')
-  })
-
-  test('state mapping: invalid key', () => {
-    const stateMapping: StateMapping = [
-      {
-        // invalid bytes length
-        slot: `0x${fourTwenty.slice(0, -1)}`,
-        value: `0x${fourTwenty}`,
-      },
-    ]
-
-    expect(() =>
-      parseStateMapping(stateMapping),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
-
-      Version: viem@1.0.2]
-    `)
-  })
-
-  test('state mapping: invalid value', () => {
-    const stateMapping: StateMapping = [
-      {
-        slot: `0x${fourTwenty}`,
-        value: `0x${fourTwenty.slice(0, -1)}`,
-      },
-    ]
-
-    expect(() =>
-      parseStateMapping(stateMapping),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
-
-      Version: viem@1.0.2]
-    `)
-  })
-
-  test('args: code', () => {
-    const stateOverride: Omit<StateOverride[number], 'address'> = {
-      code: `0x${fourTwenty}`,
-    }
-
-    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
-      {
-        "code": "0x${fourTwenty}",
-      }
-    `)
-
-    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
-      code: undefined,
-    }
-
-    expect(
-      parseAccountStateOverride(emptyStateOverride),
-    ).toMatchInlineSnapshot(`
-      {}
-    `)
-  })
-
-  test('args: balance', () => {
-    const stateOverride: Omit<StateOverride[number], 'address'> = {
-      balance: 1n,
-    }
-
-    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
-      {
-        "balance": "0x1",
-      }
-    `)
-
-    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
-      balance: undefined,
-    }
-
-    expect(
-      parseAccountStateOverride(emptyStateOverride),
-    ).toMatchInlineSnapshot(`
-      {}
-    `)
-  })
-
-  test('args: nonce', () => {
-    const stateOverride: Omit<StateOverride[number], 'address'> = {
-      nonce: 1,
-    }
-
-    expect(parseAccountStateOverride(stateOverride)).toMatchInlineSnapshot(`
-      {
-        "nonce": "0x1",
-      }
-    `)
-
-    const emptyStateOverride: Omit<StateOverride[number], 'address'> = {
-      nonce: undefined,
-    }
-
-    expect(
-      parseAccountStateOverride(emptyStateOverride),
-    ).toMatchInlineSnapshot(`
-      {}
-    `)
   })
 })

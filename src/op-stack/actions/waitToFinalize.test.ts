@@ -1,12 +1,18 @@
 import { beforeAll, test, vi } from 'vitest'
-import { optimismClient } from '../../../test/src/opStack.js'
-import { publicClient, setBlockNumber } from '../../../test/src/utils.js'
-import { getTransactionReceipt } from '../../actions/index.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
+import { getTransactionReceipt, reset } from '../../actions/index.js'
+
 import { getWithdrawals, optimism } from '../../op-stack/index.js'
 import { waitToFinalize } from './waitToFinalize.js'
 
+const client = anvilMainnet.getClient()
+const optimismClient = anvilOptimism.getClient()
+
 beforeAll(async () => {
-  await setBlockNumber(18770525n)
+  await reset(client, {
+    blockNumber: 18770525n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 })
 
 test('default', async () => {
@@ -18,7 +24,7 @@ test('default', async () => {
 
   vi.setSystemTime(new Date(1702993989000))
 
-  await waitToFinalize(publicClient, {
+  await waitToFinalize(client, {
     ...withdrawal!,
     targetChain: optimism,
   })
@@ -35,7 +41,7 @@ test('ready to finalize', async () => {
 
   vi.setSystemTime(new Date(1702993991000))
 
-  await waitToFinalize(publicClient, {
+  await waitToFinalize(client, {
     ...withdrawal!,
     targetChain: optimism,
   })
