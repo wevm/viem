@@ -2,7 +2,9 @@ pragma solidity ^0.8.17;
 
 // SPDX-License-Identifier: UNLICENSED
 
-contract CounterfactualContractCall {
+// https://eips.ethereum.org/EIPS/eip-7679#counterfactual-call-contract
+
+contract CounterfactualCall {
     error CounterfactualDeployFailed(bytes error);
     constructor(
         address to,

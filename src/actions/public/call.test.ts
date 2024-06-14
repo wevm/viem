@@ -1006,7 +1006,7 @@ describe('batch call', () => {
   })
 })
 
-describe('counterfactual contract call', () => {
+describe('deployless counterfactual call', () => {
   test('call to account that has not been deployed', async () => {
     const { factoryAddress } = await deployMock4337Account()
 
