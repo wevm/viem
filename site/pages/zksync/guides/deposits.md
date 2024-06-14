@@ -28,11 +28,11 @@ Here is an end-to-end overview of how to execute a deposit transaction. We will 
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
-import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/index'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/actions'
 
 // Build parameters for the transaction with L1 and L2 clients.
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
 })
@@ -131,11 +131,11 @@ You can also use someone else's address as the `to` value if you wanted to.
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
-import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/index'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/actions'
 
 // Build parameters for the transaction with L1 and L2 clients.
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
 })
@@ -172,11 +172,11 @@ After that, we will execute the deposit transaction on the Mainnet (L1) chain.
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
-import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/index'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/actions'
 
 // Build parameters for the transaction with L1 and L2 clients.
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
 })
@@ -217,11 +217,11 @@ Once we have broadcast the transaction to the Mainnet (L1) chain, we need to wai
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
-import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/index'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/actions'
 
 // Build parameters for the transaction with L1 and L2 clients.
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
 })
@@ -265,11 +265,11 @@ This receipt will be later used to extract data for retrieving L2 Transaction.
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
-import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/index'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/actions'
 
 // Build parameters for the transaction with L1 and L2 clients.
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
 })
@@ -320,12 +320,12 @@ Once the `getL2TransactionFromPriorityOp` call resolves, the transaction has bee
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
-import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/index'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/actions'
 
 
 // Build parameters for the transaction with L1 and L2 clients.
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
 })
@@ -381,12 +381,12 @@ The only change that needs to happen is to add the address of the token for depo
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
-import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/index'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/actions'
 
 // Build parameters for the transaction with L1 and L2 clients.
 const erc20TokenAddressL1 = "0x..."
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
   token:erc20TokenAddressL1 // [!code focus]
@@ -397,12 +397,12 @@ Optionally, approve the ERC20 deposit if you havent previously done it.
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
-import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/index'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/actions'
 
 // Build parameters for the transaction with L1 and L2 clients.
 const erc20TokenAddressL1 = "0x..."
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
   token: erc20TokenAddressL1,
@@ -458,12 +458,12 @@ Now, provide an address of a token to be deposited.
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
 import { sendTransaction, waitForTransactionReceipt,getTransactionReceipt } from 'viem/index'
 
 // Build parameters for the transaction with L1 and L2 clients.
 const tokenAddress = "0x..."
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
   token: tokenAddress // [!code focus]
@@ -474,12 +474,12 @@ Optionally, approve the ERC20 deposit if you havent previously done it.
 
 ```ts [deposit.ts]
 import { clientL1, clientL2, account } from './config.ts'
-import { buildDepositTransaction, getL2TransactionFromPriorityOp } from 'viem/zksync'
-import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/index'
+import { deposit, getL2TransactionFromPriorityOp } from 'viem/zksync'
+import { sendTransaction, waitForTransactionReceipt, getTransactionReceipt } from 'viem/actions'
 
 // Build parameters for the transaction with L1 and L2 clients.
 const tokenAddress = "0x..."
-const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
+const depositTransaction = await deposit(clientL1, clientL2, {
   amount,
   refundRecipient: account.address,
   token: tokenAddress,
