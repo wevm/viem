@@ -63,7 +63,7 @@ The amount of the token to deposit.
 
 ```ts
 const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
-  amount:1n, // [!code focus]
+  amount: 1n, // [!code focus]
 })
 ```
 
@@ -75,8 +75,8 @@ The address that will receive the deposited tokens on L2.
 
 ```ts
 const depositTransaction = await buildDepositTransaction(clientL1, clientL2, {
-  amount:1n,
-  to:"0x..." // [!code focus]
+  amount: 1n,
+  to: "0x..." // [!code focus]
 })
 ```
 
