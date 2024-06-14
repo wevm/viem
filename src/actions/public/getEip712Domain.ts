@@ -7,15 +7,23 @@ import {
 } from '../../errors/eip712.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
+import type { RequiredBy } from '../../types/utils.js'
 import { getAction } from '../../utils/getAction.js'
-import { type ReadContractErrorType, readContract } from './readContract.js'
+import {
+  type ReadContractErrorType,
+  type ReadContractParameters,
+  readContract,
+} from './readContract.js'
 
 export type GetEip712DomainParameters = {
   address: Address
-}
+} & Pick<ReadContractParameters, 'factory' | 'factoryData'>
 
 export type GetEip712DomainReturnType = {
-  domain: TypedDataDomain
+  domain: RequiredBy<
+    TypedDataDomain,
+    'chainId' | 'name' | 'verifyingContract' | 'version'
+  >
   fields: Hex
   extensions: readonly bigint[]
 }
@@ -61,7 +69,7 @@ export async function getEip712Domain(
   client: Client<Transport>,
   parameters: GetEip712DomainParameters,
 ): Promise<GetEip712DomainReturnType> {
-  const { address } = parameters
+  const { address, factory, factoryData } = parameters
 
   try {
     const [
@@ -80,6 +88,8 @@ export async function getEip712Domain(
       abi,
       address,
       functionName: 'eip712Domain',
+      factory,
+      factoryData,
     })
 
     return {
