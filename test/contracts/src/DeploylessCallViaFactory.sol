@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 
 // https://eips.ethereum.org/EIPS/eip-7679#counterfactual-call-contract
 
-contract CounterfactualCall {
+contract DeploylessCallViaFactory {
     error CounterfactualDeployFailed(bytes error);
     constructor(
         address to,

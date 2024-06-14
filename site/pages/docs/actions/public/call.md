@@ -35,12 +35,12 @@ export const publicClient = createPublicClient({
 
 :::
 
-### Deployless Counterfactual Calls
+### Deployless Calls
 
 It is possible to call a function on a contract that has not been deployed yet. For instance, we may want
 to call a function on an [ERC-4337 Smart Account](https://eips.ethereum.org/EIPS/eip-4337) contract which has not been deployed.
 
-Viem utilizes a **Deployless Counterfactual Call** pattern to:
+Viem utilizes a **Deployless Call** pattern via a [Deploy Factory](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory) to:
 1. "temporarily deploy" a contract (e.g. a Smart Account) with a provided [Deployment Factory Contract](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory) address ([`factory`](#factory-optional)) with deployment arguments ([`factoryData`](#factorydata-optional)),
 2. Call the function on the "temporarily deployed" contract ([`to`](#to-optional)).
 
@@ -93,7 +93,7 @@ This example utilizes the [SimpleAccountFactory](https://github.com/eth-infiniti
 :::
 
 :::tip
-The **Deployless Counterfactual Call** pattern (and `factory` + `factoryData` parameters) is also accessible via the [`readContract`](/docs/contract/readContract#deployless-counterfactual-reads) & [Contract Instance](http://localhost:5173/docs/contract/getContract) APIs.
+The **Deployless Call** pattern (and `factory` + `factoryData` parameters) is also accessible via the [`readContract`](/docs/contract/readContract#deployless-reads) & [Contract Instance](http://localhost:5173/docs/contract/getContract) APIs.
 :::
 
 ## Returns
