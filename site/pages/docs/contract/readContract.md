@@ -113,7 +113,7 @@ Viem offers two ways of performing a Deployless Call, via:
 - a [Deploy Factory](#deploy-factory): "temporarily deploys" a contract with a provided [Deploy Factory](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory), and calls the function on the deployed contract.
 
 :::tip
-The **Deployless Call** patterns are also accessible via the [`readContract`](/docs/contract/readContract#deployless-reads) & [Contract Instance](/docs/contract/getContract) APIs.
+The **Deployless Call** pattern is also accessible via the [Contract Instance](/docs/contract/getContract) API.
 :::
 
 #### Bytecode
