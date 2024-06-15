@@ -1,5 +1,13 @@
 # viem
 
+## 2.14.1
+
+### Patch Changes
+
+- [#2411](https://github.com/wevm/viem/pull/2411) [`2fc14e50`](https://github.com/wevm/viem/commit/2fc14e50df3d6796cd29add44d0467320cb06195) Thanks [@tmm](https://github.com/tmm)! - Deprecated `getBytecode` (use `getCode` instead).
+
+- [#2408](https://github.com/wevm/viem/pull/2408) [`21cb684a`](https://github.com/wevm/viem/commit/21cb684a6e41fc65ac0f15c0ee08df296f2b1a15) Thanks [@jxom](https://github.com/jxom)! - Added `code` as a parameter to `call` + `readContract` – to enable [Deployless Calls via Bytecode](https://viem.sh/docs/actions/public/call#bytecode).
+
 ## 2.14.0
 
 ### Minor Changes
