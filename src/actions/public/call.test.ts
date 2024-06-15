@@ -586,6 +586,32 @@ describe('errors', () => {
       `)
     })
   })
+
+  test('pass code and factory', async () => {
+    await expect(
+      call(client, {
+        code: wagmiContractConfig.bytecode,
+        factory: wagmiContractConfig.address,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ViemError: Cannot provide both \`code\` & \`factory\`/\`factoryData\` as parameters.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('pass code and to', async () => {
+    await expect(
+      call(client, {
+        code: wagmiContractConfig.bytecode,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ViemError: Cannot provide both \`code\` & \`to\` as parameters.
+
+      Version: viem@x.y.z]
+    `)
+  })
 })
 
 describe('batch call', () => {

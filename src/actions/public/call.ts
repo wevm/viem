@@ -176,6 +176,13 @@ export async function call<TChain extends Chain | undefined>(
   } = args
   const account = account_ ? parseAccount(account_) : undefined
 
+  if (code && (factory || factoryData))
+    throw new BaseError(
+      'Cannot provide both `code` & `factory`/`factoryData` as parameters.',
+    )
+  if (code && to)
+    throw new BaseError('Cannot provide both `code` & `to` as parameters.')
+
   // Check if the call is deployless via bytecode.
   const deploylessCallViaBytecode = code && data_
   // Check if the call is deployless via a factory.
