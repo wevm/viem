@@ -9,7 +9,10 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { aggregate3Signature } from '../../constants/contract.js'
-import { counterfactualContractCallByteCode } from '../../constants/contracts.js'
+import {
+  deploylessCallViaBytecodeBytecode,
+  deploylessCallViaFactoryBytecode,
+} from '../../constants/contracts.js'
 import { BaseError } from '../../errors/base.js'
 import {
   ChainDoesNotSupportContract,
@@ -76,12 +79,17 @@ import type {
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedCall<TChain>, 'from'> & {
+  /** Account attached to the call (msg.sender). */
   account?: Account | Address | undefined
+  /** Whether or not to enable multicall batching on this call. */
   batch?: boolean | undefined
+  /** Bytecode to perform the call on. */
+  code?: Hex | undefined
   /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
   factory?: Address | undefined
   /** Calldata to execute on the factory to deploy the contract. */
   factoryData?: Hex | undefined
+  /** State overrides for the call. */
   stateOverride?: StateOverride | undefined
 } & (
     | {
@@ -111,7 +119,8 @@ export type CallErrorType = GetCallErrorReturnType<
   | FormatTransactionRequestErrorType
   | ScheduleMulticallErrorType
   | RequestErrorType
-  | ToCounterfactualDataErrorType
+  | ToDeploylessCallViaBytecodeDataErrorType
+  | ToDeploylessCallViaFactoryDataErrorType
 >
 
 /**
@@ -150,6 +159,7 @@ export async function call<TChain extends Chain | undefined>(
     blockTag = 'latest',
     accessList,
     blobs,
+    code,
     data: data_,
     factory,
     factoryData,
@@ -166,14 +176,25 @@ export async function call<TChain extends Chain | undefined>(
   } = args
   const account = account_ ? parseAccount(account_) : undefined
 
-  // Check if the call is going to be routed via a counterfactual contract deployment.
-  const counterfactual = factory && factoryData && to && data_
+  // Check if the call is deployless via bytecode.
+  const deploylessCallViaBytecode = code && data_
+  // Check if the call is deployless via a factory.
+  const deploylessCallViaFactory = factory && factoryData && to && data_
+  const deploylessCall = deploylessCallViaBytecode || deploylessCallViaFactory
+
   const data = (() => {
-    // If the call is going to be routed via a counterfactual contract deployment,
-    // we need to get the data to deploy the counterfactual contract, and then perform
-    // the call.
-    if (counterfactual)
-      return toCounterfactualData({ data: data_, factory, factoryData, to })
+    if (deploylessCallViaBytecode)
+      return toDeploylessCallViaBytecodeData({
+        code,
+        data: data_,
+      })
+    if (deploylessCallViaFactory)
+      return toDeploylessCallViaFactoryData({
+        data: data_,
+        factory,
+        factoryData,
+        to,
+      })
     return data_
   })()
 
@@ -201,7 +222,7 @@ export async function call<TChain extends Chain | undefined>(
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      to: counterfactual ? undefined : to,
+      to: deploylessCall ? undefined : to,
       value,
     } as TransactionRequest) as TransactionRequest
 
@@ -248,7 +269,7 @@ export async function call<TChain extends Chain | undefined>(
       return { data: await offchainLookup(client, { data, to }) }
 
     // Check for counterfactual deployment error.
-    if (counterfactual && data?.slice(0, 10) === '0x101bb98d')
+    if (deploylessCall && data?.slice(0, 10) === '0x101bb98d')
       throw new CounterfactualDeploymentFailedError({ factory })
 
     throw getCallError(err as ErrorType, {
@@ -374,9 +395,27 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
   return { data: returnData }
 }
 
-type ToCounterfactualDataErrorType = EncodeDeployDataErrorType | ErrorType
+type ToDeploylessCallViaBytecodeDataErrorType =
+  | EncodeDeployDataErrorType
+  | ErrorType
 
-function toCounterfactualData(parameters: {
+function toDeploylessCallViaBytecodeData(parameters: {
+  code: Hex
+  data: Hex
+}) {
+  const { code, data } = parameters
+  return encodeDeployData({
+    abi: parseAbi(['constructor(bytes, bytes)']),
+    bytecode: deploylessCallViaBytecodeBytecode,
+    args: [code, data],
+  })
+}
+
+type ToDeploylessCallViaFactoryDataErrorType =
+  | EncodeDeployDataErrorType
+  | ErrorType
+
+function toDeploylessCallViaFactoryData(parameters: {
   data: Hex
   factory: Address
   factoryData: Hex
@@ -384,11 +423,8 @@ function toCounterfactualData(parameters: {
 }) {
   const { data, factory, factoryData, to } = parameters
   return encodeDeployData({
-    abi: parseAbi([
-      'error CounterfactualDeployFailed(bytes)',
-      'constructor(address, bytes, address, bytes)',
-    ]),
-    bytecode: counterfactualContractCallByteCode,
+    abi: parseAbi(['constructor(address, bytes, address, bytes)']),
+    bytecode: deploylessCallViaFactoryBytecode,
     args: [to, data, factory, factoryData],
   })
 }

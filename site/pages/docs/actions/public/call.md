@@ -40,17 +40,57 @@ export const publicClient = createPublicClient({
 It is possible to call a function on a contract that has not been deployed yet. For instance, we may want
 to call a function on an [ERC-4337 Smart Account](https://eips.ethereum.org/EIPS/eip-4337) contract which has not been deployed.
 
-Viem utilizes a **Deployless Call** pattern via a [Deploy Factory](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory) to:
-1. "temporarily deploy" a contract (e.g. a Smart Account) with a provided [Deployment Factory Contract](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory) address ([`factory`](#factory-optional)) with deployment arguments ([`factoryData`](#factorydata-optional)),
-2. Call the function on the "temporarily deployed" contract ([`to`](#to-optional)).
+Viem offers two ways of performing a Deployless Call, via:
 
-The example below demonstrates how we can utilize this pattern to call the `entryPoint` function on an [ERC-4337 Smart Account](https://eips.ethereum.org/EIPS/eip-4337) which has not been deployed:
+- [Bytecode](#bytecode)
+- a [Deploy Factory](#deploy-factory): "temporarily deploys" a contract with a provided [Deploy Factory](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory), and calls the function on the deployed contract.
+
+:::tip
+The **Deployless Call** patterns are also accessible via the [`readContract`](/docs/contract/readContract#deployless-reads) & [Contract Instance](/docs/contract/getContract) APIs.
+:::
+
+#### Bytecode
+
+The example below demonstrates how we can utilize a Deployless Call **via Bytecode** to call the `name` function on the [Wagmi Example ERC721 contract](https://etherscan.io/address/0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2#code) which has not been deployed:
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { encodeFunctionData, parseAbi } from 'viem'
-import { account, publicClient } from './config'
+import { publicClient } from './config'
+
+const data = await publicClient.call({
+  // Bytecode of the contract. Accessible here: https://etherscan.io/address/0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2#code
+  code: '0x...'
+  // Function to call on the contract.
+  data: encodeFunctionData({
+    abi: parseAbi(['function name() view returns (string)']),
+    functionName: 'name'
+  }),
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
+#### Deploy Factory
+
+The example below demonstrates how we can utilize a Deployless Call **via a [Deploy Factory](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory)** to call the `entryPoint` function on an [ERC-4337 Smart Account](https://eips.ethereum.org/EIPS/eip-4337) which has not been deployed:
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { encodeFunctionData, parseAbi } from 'viem'
+import { owner, publicClient } from './config'
 
 const data = await publicClient.call({
   // Address of the contract deployer (e.g. Smart Account Factory).
@@ -60,7 +100,7 @@ const data = await publicClient.call({
   factoryData: encodeFunctionData({
     abi: parseAbi(['function createAccount(address owner, uint256 salt)']),
     functionName: 'createAccount',
-    args: [account, 0n],
+    args: [owner, 0n],
   }),
 
   // Function to call on the contract (e.g. Smart Account contract).
@@ -78,7 +118,7 @@ const data = await publicClient.call({
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+export const owner = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -90,10 +130,6 @@ export const publicClient = createPublicClient({
 
 :::note
 This example utilizes the [SimpleAccountFactory](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccountFactory.sol).
-:::
-
-:::tip
-The **Deployless Call** pattern (and `factory` + `factoryData` parameters) is also accessible via the [`readContract`](/docs/contract/readContract#deployless-reads) & [Contract Instance](http://localhost:5173/docs/contract/getContract) APIs.
 :::
 
 ## Returns
@@ -208,6 +244,21 @@ const data = await publicClient.call({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
+### code (optional)
+
+- **Type:**
+
+Bytecode to perform the call against.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const data = await publicClient.call({
+  code: '0x...', // [!code focus]
+  data: '0xdeadbeef',
 })
 ```
 
