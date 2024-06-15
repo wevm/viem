@@ -1588,6 +1588,10 @@ export {
   hashMessage,
 } from './utils/signature/hashMessage.js'
 export {
+  type ToPrefixedMessageErrorType,
+  toPrefixedMessage,
+} from './utils/signature/toPrefixedMessage.js'
+export {
   type IsAddressOptions,
   type IsAddressErrorType,
   isAddress,
