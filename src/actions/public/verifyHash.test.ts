@@ -7,6 +7,7 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { Mock4337AccountFactory } from '../../../test/contracts/generated.js'
 import { deployMock4337Account } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { serializeErc6492Signature } from '../../experimental/index.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/solady/actions/signMessage.js'
 import type { Hex } from '../../types/misc.js'
 import {
@@ -175,6 +176,46 @@ describe('smart account', async () => {
       }),
     ).resolves.toBe(true)
   })
+})
+
+test('signature already contains wrapper', async () => {
+  const { factoryAddress } = await deployMock4337Account()
+
+  const { result: verifier } = await simulateContract(client, {
+    account: localAccount,
+    abi: Mock4337AccountFactory.abi,
+    address: factoryAddress,
+    functionName: 'createAccount',
+    args: [localAccount.address, pad('0x0')],
+  })
+
+  const factoryData = encodeFunctionData({
+    abi: Mock4337AccountFactory.abi,
+    functionName: 'createAccount',
+    args: [localAccount.address, pad('0x0')],
+  })
+
+  const signature = await signMessageErc1271(client, {
+    account: localAccount,
+    factory: factoryAddress,
+    factoryData,
+    message: 'hello world',
+    verifier,
+  })
+
+  expect(
+    verifyHash(client, {
+      address: verifier,
+      factory: factoryAddress,
+      factoryData,
+      hash: hashMessage('hello world'),
+      signature: serializeErc6492Signature({
+        address: factoryAddress,
+        data: factoryData,
+        signature,
+      }),
+    }),
+  ).resolves.toBe(true)
 })
 
 test.each([

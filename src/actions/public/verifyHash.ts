@@ -6,6 +6,7 @@ import { universalSignatureValidatorAbi } from '../../constants/abis.js'
 import { universalSignatureValidatorByteCode } from '../../constants/contracts.js'
 import { CallExecutionError } from '../../errors/contract.js'
 import type { ErrorType } from '../../errors/utils.js'
+import { isErc6492Signature } from '../../experimental/erc6492/isErc6492Signature.js'
 import { serializeErc6492Signature } from '../../experimental/erc6492/serializeErc6492Signature.js'
 import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
@@ -75,6 +76,9 @@ export async function verifyHash<TChain extends Chain | undefined>(
     const bytecode = await getAction(client, getCode, 'getCode')({ address })
     // If the Smart Account is deployed, return the plain signature.
     if (bytecode) return signatureHex
+
+    // If the signature is already wrapped, return the signature.
+    if (isErc6492Signature(signatureHex)) return signatureHex
 
     // If the Smart Account is not deployed, wrap the signature with a 6492 wrapper
     // to perform counterfactual validation.
