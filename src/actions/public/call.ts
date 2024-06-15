@@ -79,8 +79,17 @@ import type {
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedCall<TChain>, 'from'> & {
+  /** Account attached to the call (msg.sender). */
   account?: Account | Address | undefined
+  /** Whether or not to enable multicall batching on this call. */
   batch?: boolean | undefined
+  /** Bytecode to perform the call on. */
+  code?: Hex | undefined
+  /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
+  factory?: Address | undefined
+  /** Calldata to execute on the factory to deploy the contract. */
+  factoryData?: Hex | undefined
+  /** State overrides for the call. */
   stateOverride?: StateOverride | undefined
 } & (
     | {
@@ -96,19 +105,7 @@ export type CallParameters<
          */
         blockTag?: BlockTag | undefined
       }
-  ) &
-  OneOf<
-    | {
-        /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
-        factory?: Address | undefined
-        /** Calldata to execute on the factory to deploy the contract. */
-        factoryData?: Hex | undefined
-      }
-    | {
-        /** Bytecode to perform the call on. */
-        code?: Hex | undefined
-      }
-  >
+  )
 type FormattedCall<TChain extends Chain | undefined = Chain | undefined> =
   FormattedTransactionRequest<TChain>
 
