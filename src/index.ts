@@ -929,6 +929,8 @@ export type {
   LogTopicType,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
+  UnionWiden,
+  Widen,
 } from './types/contract.js'
 export type {
   AccessList,
