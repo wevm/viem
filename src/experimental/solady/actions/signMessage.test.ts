@@ -14,7 +14,6 @@ import {
   writeContract,
 } from '../../../actions/index.js'
 import { encodeFunctionData, pad } from '../../../utils/index.js'
-import { serializeErc6492Signature } from '../../erc6492/serializeErc6492Signature.js'
 import { signMessage } from './signMessage.js'
 
 const client = anvilMainnet.getClient()
@@ -149,12 +148,10 @@ test('counterfactual smart account', async () => {
   expect(
     await verifyMessage(client!, {
       address: verifier,
+      factory: factoryAddress,
+      factoryData,
       message,
-      signature: serializeErc6492Signature({
-        address: factoryAddress,
-        data: factoryData,
-        signature,
-      }),
+      signature,
     }),
   ).toBeTruthy()
 })
