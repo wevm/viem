@@ -60,7 +60,7 @@ import { encodeFunctionData, parseAbi } from 'viem'
 import { publicClient } from './config'
 
 const data = await publicClient.call({
-  // Bytecode of the contract.
+  // Bytecode of the contract. Accessible here: https://etherscan.io/address/0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2#code
   bytecode: '0x...'
   // Function to call on the contract.
   data: encodeFunctionData({

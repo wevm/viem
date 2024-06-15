@@ -237,7 +237,7 @@ describe('deployless read (bytecode)', () => {
   test('default', async () => {
     const result = await readContract(client, {
       abi: wagmiContractConfig.abi,
-      bytecode: wagmiContractConfig.bytecode,
+      code: wagmiContractConfig.bytecode,
       functionName: 'name',
     })
     expect(result).toMatchInlineSnapshot(`"wagmi"`)

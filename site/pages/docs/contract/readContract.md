@@ -128,7 +128,7 @@ import { publicClient } from './config'
 
 const data = await publicClient.readContract({
   abi: parseAbi(['function name() view returns (string)']),
-  bytecode: '0x...',
+  bytecode: '0x...', // Accessible here: https://etherscan.io/address/0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2#code
   functionName: 'name'
 })
 ```

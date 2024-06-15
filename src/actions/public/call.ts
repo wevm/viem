@@ -106,7 +106,7 @@ export type CallParameters<
       }
     | {
         /** Bytecode to perform the call on. */
-        bytecode?: Hex | undefined
+        code?: Hex | undefined
       }
   >
 type FormattedCall<TChain extends Chain | undefined = Chain | undefined> =
@@ -162,7 +162,7 @@ export async function call<TChain extends Chain | undefined>(
     blockTag = 'latest',
     accessList,
     blobs,
-    bytecode,
+    code,
     data: data_,
     factory,
     factoryData,
@@ -180,7 +180,7 @@ export async function call<TChain extends Chain | undefined>(
   const account = account_ ? parseAccount(account_) : undefined
 
   // Check if the call is deployless via bytecode.
-  const deploylessCallViaBytecode = bytecode && data_
+  const deploylessCallViaBytecode = code && data_
   // Check if the call is deployless via a factory.
   const deploylessCallViaFactory = factory && factoryData && to && data_
   const deploylessCall = deploylessCallViaBytecode || deploylessCallViaFactory
@@ -188,7 +188,7 @@ export async function call<TChain extends Chain | undefined>(
   const data = (() => {
     if (deploylessCallViaBytecode)
       return toDeploylessCallViaBytecodeData({
-        bytecode,
+        code,
         data: data_,
       })
     if (deploylessCallViaFactory)
@@ -403,14 +403,14 @@ type ToDeploylessCallViaBytecodeDataErrorType =
   | ErrorType
 
 function toDeploylessCallViaBytecodeData(parameters: {
-  bytecode: Hex
+  code: Hex
   data: Hex
 }) {
-  const { bytecode, data } = parameters
+  const { code, data } = parameters
   return encodeDeployData({
     abi: parseAbi(['constructor(bytes, bytes)']),
     bytecode: deploylessCallViaBytecodeBytecode,
-    args: [bytecode, data],
+    args: [code, data],
   })
 }
 

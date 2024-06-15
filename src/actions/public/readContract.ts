@@ -52,11 +52,15 @@ export type ReadContractParameters<
   >
 > &
   (
+    | ({ code?: undefined } & ContractFunctionParameters<
+        abi,
+        'pure' | 'view',
+        functionName,
+        args
+      >)
     | ({
-        bytecode?: Hex | undefined
-      } & ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>)
-    | ({
-        bytecode: Hex
+        address?: undefined
+        code: Hex
       } & Omit<
         ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>,
         'address'
@@ -135,7 +139,7 @@ export async function readContract<
     )({
       ...(rest as CallParameters),
       data: calldata,
-      to: address,
+      to: address!,
     })
     return decodeFunctionResult({
       abi,
