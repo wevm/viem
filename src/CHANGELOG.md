@@ -1,5 +1,11 @@
 # viem
 
+## 2.14.2
+
+### Patch Changes
+
+- [#2414](https://github.com/wevm/viem/pull/2414) [`3636c5c`](https://github.com/wevm/viem/commit/3636c5c6c099dba1910f1d215d019acc6e12f101) Thanks [@turtlemoji](https://github.com/turtlemoji)! - Added `l2OutputOracle`, `portal` and `l1StandardBridge` contracts to `mode` chain.
+
 ## 2.14.1
 
 ### Patch Changes
