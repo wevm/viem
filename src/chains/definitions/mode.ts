@@ -30,7 +30,6 @@ export const mode = /*#__PURE__*/ defineChain({
     portal: {
       [sourceId]: {
         address: '0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07',
-        blockCreated: 17482143,
       },
     },
     l1StandardBridge: {
