@@ -61,7 +61,7 @@ import { publicClient } from './config'
 
 const data = await publicClient.call({
   // Bytecode of the contract. Accessible here: https://etherscan.io/address/0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2#code
-  bytecode: '0x...'
+  code: '0x...'
   // Function to call on the contract.
   data: encodeFunctionData({
     abi: parseAbi(['function name() view returns (string)']),
@@ -247,7 +247,7 @@ const data = await publicClient.call({
 })
 ```
 
-### bytecode (optional)
+### code (optional)
 
 - **Type:**
 
@@ -257,7 +257,7 @@ Bytecode to perform the call against.
 // [!include ~/snippets/publicClient.ts]
 // ---cut---
 const data = await publicClient.call({
-  bytecode: '0x...', // [!code focus]
+  code: '0x...', // [!code focus]
   data: '0xdeadbeef',
 })
 ```

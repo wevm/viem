@@ -175,7 +175,8 @@ describe('wagmi', () => {
 test('args: dataSuffix', async () => {
   const spy = vi.spyOn(client, 'call')
   const { request } = await simulateContract(client, {
-    ...wagmiContractConfig,
+    abi: wagmiContractConfig.abi,
+    address: wagmiContractConfig.address,
     account: accounts[0].address,
     functionName: 'mint',
     dataSuffix: '0x12345678',
