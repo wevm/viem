@@ -98,6 +98,10 @@ export const sidebar = {
           ],
         },
         {
+          text: 'Call',
+          items: [{ text: 'call', link: '/docs/actions/public/call' }],
+        },
+        {
           text: 'Chain',
           items: [
             { text: 'getChainId', link: '/docs/actions/public/getChainId' },
@@ -203,7 +207,6 @@ export const sidebar = {
         {
           text: 'Transaction',
           items: [
-            { text: 'call', link: '/docs/actions/public/call' },
             {
               text: 'prepareTransactionRequest',
               link: '/docs/actions/wallet/prepareTransactionRequest',
