@@ -73,12 +73,12 @@ export async function verifyHash<TChain extends Chain | undefined>(
     // address is not a Smart Account, or the Smart Account is already deployed.
     if (!factory && !factoryData) return signatureHex
 
+    // If the signature is already wrapped, return the signature.
+    if (isErc6492Signature(signatureHex)) return signatureHex
+
     const bytecode = await getAction(client, getCode, 'getCode')({ address })
     // If the Smart Account is deployed, return the plain signature.
     if (bytecode) return signatureHex
-
-    // If the signature is already wrapped, return the signature.
-    if (isErc6492Signature(signatureHex)) return signatureHex
 
     // If the Smart Account is not deployed, wrap the signature with a 6492 wrapper
     // to perform counterfactual validation.
