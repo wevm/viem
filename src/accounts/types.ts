@@ -1,6 +1,5 @@
 import type { Address, TypedData } from 'abitype'
 
-import type { NonceManager } from '../experimental/utils/nonceManager.js'
 import type { HDKey } from '../types/account.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
@@ -9,6 +8,7 @@ import type {
 } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
 import type { IsNarrowable, OneOf } from '../types/utils.js'
+import type { NonceManager } from '../utils/nonceManager.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 

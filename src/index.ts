@@ -1655,3 +1655,10 @@ export {
   domainSeparator,
   getTypesForEIP712Domain,
 } from './utils/typedData.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  createNonceManager,
+  jsonRpc,
+  nonceManager,
+} from './utils/nonceManager.js'

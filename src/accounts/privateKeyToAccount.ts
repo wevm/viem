@@ -4,7 +4,7 @@ import type { Hex } from '../types/misc.js'
 import { type ToHexErrorType, toHex } from '../utils/encoding/toHex.js'
 
 import type { ErrorType } from '../errors/utils.js'
-import type { NonceManager } from '../experimental/utils/nonceManager.js'
+import type { NonceManager } from '../utils/nonceManager.js'
 import { type ToAccountErrorType, toAccount } from './toAccount.js'
 import type { PrivateKeyAccount } from './types.js'
 import {
