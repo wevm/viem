@@ -148,7 +148,6 @@ test('exports utils', () => {
       "parseEther",
       "parseGwei",
       "createNonceManager",
-      "jsonRpc",
       "nonceManager",
     ]
   `)

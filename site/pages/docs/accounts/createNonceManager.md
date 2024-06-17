@@ -43,8 +43,7 @@ A `nonceManager` can be passed as an option to [Local Accounts](/docs/accounts/l
 :::code-group
 
 ```ts twoslash [example.ts]
-import { nonceManager } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts' // [!code focus]
+import { privateKeyToAccount, nonceManager } from 'viem/accounts' // [!code focus]
 import { client } from './config'
 
 const account = privateKeyToAccount('0x...', { nonceManager }) // [!code focus]

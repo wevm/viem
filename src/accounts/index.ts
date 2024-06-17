@@ -90,3 +90,10 @@ export {
   type PrivateKeyToAddressErrorType,
   privateKeyToAddress,
 } from './utils/privateKeyToAddress.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  type NonceManagerSource,
+  createNonceManager,
+  nonceManager,
+} from '../utils/nonceManager.js'

@@ -399,7 +399,6 @@ test('exports', () => {
       "domainSeparator",
       "getTypesForEIP712Domain",
       "createNonceManager",
-      "jsonRpc",
       "nonceManager",
     ]
   `)
