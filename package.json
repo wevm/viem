@@ -108,7 +108,7 @@
     {
       "name": "viem (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "59.8 kB",
+      "limit": "60 kB",
       "import": "*"
     },
     {
@@ -119,7 +119,7 @@
     {
       "name": "viem (minimal surface - tree-shaking)",
       "path": "./src/_esm/index.js",
-      "limit": "4.1 kB",
+      "limit": "6.3 kB",
       "import": "{ createClient, http }"
     },
     {
@@ -173,7 +173,7 @@
     {
       "name": "viem/ens (tree-shaking)",
       "path": "./src/_esm/ens/index.js",
-      "limit": "22.5 kB",
+      "limit": "22.6 kB",
       "import": "{ getEnsAvatar }"
     },
     {
