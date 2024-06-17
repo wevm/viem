@@ -3,7 +3,7 @@ import { LruMap } from '../lru.js'
 /** @internal */
 export const promiseCache = /*#__PURE__*/ new LruMap<Promise<any>>(8192)
 
-export type WithDedupeOptions = {
+type WithDedupeOptions = {
   enabled?: boolean | undefined
   id?: string | undefined
 }
