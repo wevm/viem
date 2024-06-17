@@ -709,6 +709,66 @@ describe('behavior', () => {
     })
   })
 
+  test('dedupes requests', async () => {
+    const args: string[] = []
+    const server = await createHttpServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        args.push(body)
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: body }))
+      })
+    })
+
+    const uid = 'foo'
+    const request_ = buildRequest(request(server.url), { uid })
+
+    const results = await Promise.all([
+      request_({ method: 'eth_blockNumber' }),
+      request_({ method: 'eth_blockNumber' }),
+      // this will not be deduped (different params).
+      request_({ method: 'eth_blockNumber', params: [1] }),
+      request_({ method: 'eth_blockNumber' }),
+      // this will not be deduped (different method).
+      request_({ method: 'eth_chainId' }),
+      request_({ method: 'eth_blockNumber' }),
+      // this will not be deduped (dedupe: false).
+      request_({ method: 'eth_blockNumber' }, { dedupe: false }),
+      request_({ method: 'eth_blockNumber' }),
+    ])
+
+    expect(
+      args
+        .map((arg) => JSON.parse(arg))
+        .sort((a, b) => a.id - b.id)
+        .map((arg) => JSON.stringify({ ...arg, id: undefined })),
+    ).toMatchInlineSnapshot(`
+      [
+        "{"jsonrpc":"2.0","method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","method":"eth_blockNumber"}",
+      ]
+    `)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "{"jsonrpc":"2.0","id":61,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":61,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":62,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":61,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":63,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":61,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":64,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":61,"method":"eth_blockNumber"}",
+      ]
+    `)
+  })
+
   describe('retry', () => {
     test('non-deterministic InternalRpcError', async () => {
       let retryCount = -1

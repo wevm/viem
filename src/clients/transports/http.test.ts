@@ -177,12 +177,16 @@ describe('request', () => {
     })({ chain: localhost })
 
     const p = []
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_a' }))
+    p.push(transport.request({ method: 'eth_b' }))
+    p.push(transport.request({ method: 'eth_c' }))
+    // test dedupe
+    p.push(transport.request({ method: 'eth_b' }))
     await wait(1)
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_d' }))
+    p.push(transport.request({ method: 'eth_e' }))
+    // test dedupe
+    p.push(transport.request({ method: 'eth_d' }))
 
     const results = await Promise.all(p)
 
@@ -191,8 +195,10 @@ describe('request', () => {
         "0x1",
         "0x2",
         "0x3",
+        "0x2",
         "0x1",
         "0x2",
+        "0x1",
       ]
     `)
     expect(count).toEqual(2)
@@ -222,14 +228,19 @@ describe('request', () => {
     })({ chain: localhost })
 
     const p = []
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_a' }))
+    p.push(transport.request({ method: 'eth_b' }))
+    p.push(transport.request({ method: 'eth_c' }))
+    // test dedupe
+    p.push(transport.request({ method: 'eth_b' }))
     await wait(1)
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_d' }))
+    p.push(transport.request({ method: 'eth_e' }))
     await wait(20)
-    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_f' }))
+    p.push(transport.request({ method: 'eth_g' }))
+    // test dedupe
+    p.push(transport.request({ method: 'eth_f' }))
 
     const results = await Promise.all(p)
 
@@ -238,14 +249,78 @@ describe('request', () => {
         "0x1",
         "0x2",
         "0x3",
+        "0x2",
         "0x4",
         "0x5",
+        "0x1",
+        "0x2",
         "0x1",
       ]
     `)
     expect(count).toEqual(2)
 
     await server.close()
+  })
+
+  test('behavior: dedupe', async () => {
+    const args: string[] = []
+    const server = await createHttpServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        args.push(body)
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: body }))
+      })
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+    })({ chain: localhost })
+
+    const results = await Promise.all([
+      transport.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }),
+      // this will not be deduped (different params).
+      transport.request({ method: 'eth_blockNumber', params: [1] }),
+      transport.request({ method: 'eth_blockNumber' }),
+      // this will not be deduped (different method).
+      transport.request({ method: 'eth_chainId' }),
+      transport.request({ method: 'eth_blockNumber' }),
+      // this will not be deduped (dedupe: false).
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: false }),
+      transport.request({ method: 'eth_blockNumber' }),
+    ])
+
+    expect(
+      args
+        .map((arg) => JSON.parse(arg))
+        .sort((a, b) => a.id - b.id)
+        .map((arg) => JSON.stringify({ ...arg, id: undefined })),
+    ).toMatchInlineSnapshot(`
+      [
+        "{"jsonrpc":"2.0","method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","method":"eth_blockNumber"}",
+      ]
+    `)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":24,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":25,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+      ]
+    `)
   })
 
   test('behavior: fetchOptions', async () => {
