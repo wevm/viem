@@ -15,8 +15,6 @@ type FunctionParameters = {
 }
 
 export type NonceManager = {
-  /** Clear all nonces. */
-  clear(): Promise<void>
   /** Get and increment a nonce. */
   consume(parameters: FunctionParameters & { client: Client }): Promise<number>
   /** Increment a nonce. */
@@ -44,16 +42,12 @@ export function createNonceManager(
 
   const deltaMap = new Map()
   const nonceMap = new LruMap<number>(8192)
-  let promiseMap = new Map<string, Promise<number>>()
+  const promiseMap = new Map<string, Promise<number>>()
 
   const getKey = ({ address, chainId }: FunctionParameters) =>
     `${address}.${chainId}`
 
   return {
-    async clear() {
-      deltaMap.clear()
-      promiseMap = new Map()
-    },
     async consume({ address, chainId, client }) {
       const key = getKey({ address, chainId })
       const promise = this.get({ address, chainId, client })

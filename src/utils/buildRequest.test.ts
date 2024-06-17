@@ -746,13 +746,13 @@ describe('behavior', () => {
       args
         .map((arg) => JSON.parse(arg))
         .sort((a, b) => a.id - b.id)
-        .map((arg) => JSON.stringify({ ...arg, id: undefined })),
+        .map((arg) => JSON.stringify(arg)),
     ).toMatchInlineSnapshot(`
       [
-        "{"jsonrpc":"2.0","method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","method":"eth_blockNumber","params":[1]}",
-        "{"jsonrpc":"2.0","method":"eth_chainId"}",
-        "{"jsonrpc":"2.0","method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":61,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":62,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":63,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":64,"method":"eth_blockNumber"}",
       ]
     `)
     expect(results).toMatchInlineSnapshot(`
