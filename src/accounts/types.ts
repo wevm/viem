@@ -1,5 +1,6 @@
 import type { Address, TypedData } from 'abitype'
 
+import type { NonceManager } from '../experimental/utils/nonceManager.js'
 import type { HDKey } from '../types/account.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
@@ -18,6 +19,7 @@ export type Account<TAddress extends Address = Address> = OneOf<
 export type AccountSource = Address | CustomSource
 export type CustomSource = {
   address: Address
+  nonceManager?: NonceManager | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
   signTransaction: <
     serializer extends

@@ -177,12 +177,12 @@ describe('request', () => {
     })({ chain: localhost })
 
     const p = []
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
     await wait(1)
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
 
     const results = await Promise.all(p)
 
@@ -222,14 +222,14 @@ describe('request', () => {
     })({ chain: localhost })
 
     const p = []
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
     await wait(1)
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
     await wait(20)
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }, { dedupe: false }))
 
     const results = await Promise.all(p)
 

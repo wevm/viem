@@ -84,10 +84,13 @@ export async function issuePermissions(
   parameters: IssuePermissionsParameters,
 ): Promise<IssuePermissionsReturnType> {
   const { expiry, permissions, signer } = parameters
-  const result = await client.request({
-    method: 'wallet_issuePermissions',
-    params: [parseParameters({ expiry, permissions, signer })],
-  })
+  const result = await client.request(
+    {
+      method: 'wallet_issuePermissions',
+      params: [parseParameters({ expiry, permissions, signer })],
+    },
+    { dedupe: false, retryCount: 0 },
+  )
   return parseResult(result) as IssuePermissionsReturnType
 }
 

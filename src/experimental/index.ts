@@ -63,3 +63,11 @@ export {
   type WalletActionsErc7715,
   walletActionsErc7715,
 } from './erc7715/decorators/erc7715.js'
+
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  createNonceManager,
+  jsonRpc,
+  nonceManager,
+} from './utils/nonceManager.js'

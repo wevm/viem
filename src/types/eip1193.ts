@@ -1519,10 +1519,14 @@ export type EIP1193Parameters<
     }
 
 export type EIP1193RequestOptions = {
+  // Deduplicate in-flight requests.
+  dedupe?: boolean | undefined
   // The base delay (in ms) between retries.
   retryDelay?: number | undefined
   // The max number of times to retry.
   retryCount?: number | undefined
+  /** Unique identifier for the request. */
+  uid?: string | undefined
 }
 
 type DerivedRpcSchema<

@@ -107,6 +107,6 @@ export async function signMessage<
       method: 'personal_sign',
       params: [message_, account.address],
     },
-    { retryCount: 0 },
+    { dedupe: false, retryCount: 0 },
   )
 }

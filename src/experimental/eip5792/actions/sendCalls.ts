@@ -116,7 +116,7 @@ export async function sendCalls<
           },
         ],
       },
-      { retryCount: 0 },
+      { dedupe: false, retryCount: 0 },
     )
   } catch (err) {
     throw getTransactionError(err as BaseError, {

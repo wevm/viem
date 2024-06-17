@@ -190,6 +190,6 @@ export async function signTypedData<
       method: 'eth_signTypedData_v4',
       params: [account.address, typedData],
     },
-    { retryCount: 0 },
+    { dedupe: false, retryCount: 0 },
   )
 }
