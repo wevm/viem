@@ -178,15 +178,15 @@ describe('request', () => {
 
     const p = []
     p.push(transport.request({ method: 'eth_a' }))
-    p.push(transport.request({ method: 'eth_b' }))
+    p.push(transport.request({ method: 'eth_b' }, { dedupe: true }))
     p.push(transport.request({ method: 'eth_c' }))
     // test dedupe
-    p.push(transport.request({ method: 'eth_b' }))
+    p.push(transport.request({ method: 'eth_b' }, { dedupe: true }))
     await wait(1)
-    p.push(transport.request({ method: 'eth_d' }))
+    p.push(transport.request({ method: 'eth_d' }, { dedupe: true }))
     p.push(transport.request({ method: 'eth_e' }))
     // test dedupe
-    p.push(transport.request({ method: 'eth_d' }))
+    p.push(transport.request({ method: 'eth_d' }, { dedupe: true }))
 
     const results = await Promise.all(p)
 
@@ -229,18 +229,18 @@ describe('request', () => {
 
     const p = []
     p.push(transport.request({ method: 'eth_a' }))
-    p.push(transport.request({ method: 'eth_b' }))
+    p.push(transport.request({ method: 'eth_b' }, { dedupe: true }))
     p.push(transport.request({ method: 'eth_c' }))
     // test dedupe
-    p.push(transport.request({ method: 'eth_b' }))
+    p.push(transport.request({ method: 'eth_b' }, { dedupe: true }))
     await wait(1)
     p.push(transport.request({ method: 'eth_d' }))
     p.push(transport.request({ method: 'eth_e' }))
     await wait(20)
-    p.push(transport.request({ method: 'eth_f' }))
+    p.push(transport.request({ method: 'eth_f' }, { dedupe: true }))
     p.push(transport.request({ method: 'eth_g' }))
     // test dedupe
-    p.push(transport.request({ method: 'eth_f' }))
+    p.push(transport.request({ method: 'eth_f' }, { dedupe: true }))
 
     const results = await Promise.all(p)
 
@@ -283,17 +283,20 @@ describe('request', () => {
     })({ chain: localhost })
 
     const results = await Promise.all([
-      transport.request({ method: 'eth_blockNumber' }),
-      transport.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
       // this will not be deduped (different params).
-      transport.request({ method: 'eth_blockNumber', params: [1] }),
-      transport.request({ method: 'eth_blockNumber' }),
+      transport.request(
+        { method: 'eth_blockNumber', params: [1] },
+        { dedupe: true },
+      ),
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
       // this will not be deduped (different method).
-      transport.request({ method: 'eth_chainId' }),
+      transport.request({ method: 'eth_chainId' }, { dedupe: true }),
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
+      // this will not be deduped (dedupe: undefined).
       transport.request({ method: 'eth_blockNumber' }),
-      // this will not be deduped (dedupe: false).
-      transport.request({ method: 'eth_blockNumber' }, { dedupe: false }),
-      transport.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
     ])
 
     expect(

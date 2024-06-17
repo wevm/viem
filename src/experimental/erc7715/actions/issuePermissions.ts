@@ -89,7 +89,7 @@ export async function issuePermissions(
       method: 'wallet_issuePermissions',
       params: [parseParameters({ expiry, permissions, signer })],
     },
-    { dedupe: false, retryCount: 0 },
+    { retryCount: 0 },
   )
   return parseResult(result) as IssuePermissionsReturnType
 }

@@ -99,7 +99,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
 ): EIP1193RequestFn {
   return async (args, overrideOptions = {}) => {
     const {
-      dedupe = true,
+      dedupe = false,
       retryDelay = 150,
       retryCount = 3,
       uid,

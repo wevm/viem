@@ -234,7 +234,7 @@ export async function sendTransaction<
         method: 'eth_sendTransaction',
         params: [request],
       },
-      { dedupe: false, retryCount: 0 },
+      { retryCount: 0 },
     )
   } catch (err) {
     throw getTransactionError(err as BaseError, {

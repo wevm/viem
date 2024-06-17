@@ -61,10 +61,13 @@ export async function getCode<TChain extends Chain | undefined>(
 ): Promise<GetCodeReturnType> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
-  const hex = await client.request({
-    method: 'eth_getCode',
-    params: [address, blockNumberHex || blockTag],
-  })
+  const hex = await client.request(
+    {
+      method: 'eth_getCode',
+      params: [address, blockNumberHex || blockTag],
+    },
+    { dedupe: Boolean(blockNumberHex) },
+  )
   if (hex === '0x') return undefined
   return hex
 }

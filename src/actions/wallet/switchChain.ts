@@ -52,6 +52,6 @@ export async function switchChain<
         },
       ],
     },
-    { dedupe: false, retryCount: 0 },
+    { retryCount: 0 },
   )
 }

@@ -176,6 +176,6 @@ export async function signTransaction<
         } as unknown as RpcTransactionRequest,
       ],
     },
-    { dedupe: false, retryCount: 0 },
+    { retryCount: 0 },
   )
 }
