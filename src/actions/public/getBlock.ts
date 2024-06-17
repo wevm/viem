@@ -109,15 +109,21 @@ export async function getBlock<
 
   let block: RpcBlock | null = null
   if (blockHash) {
-    block = await client.request({
-      method: 'eth_getBlockByHash',
-      params: [blockHash, includeTransactions],
-    })
+    block = await client.request(
+      {
+        method: 'eth_getBlockByHash',
+        params: [blockHash, includeTransactions],
+      },
+      { dedupe: true },
+    )
   } else {
-    block = await client.request({
-      method: 'eth_getBlockByNumber',
-      params: [blockNumberHex || blockTag, includeTransactions],
-    })
+    block = await client.request(
+      {
+        method: 'eth_getBlockByNumber',
+        params: [blockNumberHex || blockTag, includeTransactions],
+      },
+      { dedupe: Boolean(blockNumberHex) },
+    )
   }
 
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })

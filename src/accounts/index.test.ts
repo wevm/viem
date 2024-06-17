@@ -30,6 +30,8 @@ test('exports utils', () => {
       "parseAccount",
       "publicKeyToAddress",
       "privateKeyToAddress",
+      "createNonceManager",
+      "nonceManager",
     ]
   `)
 })
