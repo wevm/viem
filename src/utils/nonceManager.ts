@@ -20,7 +20,7 @@ export type NonceManager = {
     parameters: FunctionParameters & { client: Client },
   ) => Promise<number>
   /** Increment a nonce. */
-  increment: (chainId: FunctionParameters) => Promise<void>
+  increment: (chainId: FunctionParameters) => void
   /** Get a nonce. */
   get: (chainId: FunctionParameters & { client: Client }) => Promise<number>
   /** Reset a nonce. */
@@ -56,7 +56,7 @@ export function createNonceManager(
       const key = getKey({ address, chainId })
       const promise = this.get({ address, chainId, client })
 
-      await this.increment({ address, chainId })
+      this.increment({ address, chainId })
       const nonce = await promise
 
       await source.set({ address, chainId }, nonce)
