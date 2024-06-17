@@ -24,7 +24,7 @@ export type NonceManager = {
   /** Get a nonce. */
   get: (chainId: FunctionParameters & { client: Client }) => Promise<number>
   /** Reset a nonce. */
-  reset: (chainId: FunctionParameters) => Promise<void>
+  reset: (chainId: FunctionParameters) => void
 }
 
 /**
@@ -91,7 +91,7 @@ export function createNonceManager(
       const delta = deltaMap.get(key) ?? 0
       return delta + (await promise)
     },
-    async reset({ address, chainId }) {
+    reset({ address, chainId }) {
       const key = getKey({ address, chainId })
       deltaMap.delete(key)
       promiseMap.delete(key)
