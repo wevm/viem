@@ -65,6 +65,11 @@
       "import": "./_esm/node/index.js",
       "default": "./_cjs/node/index.js"
     },
+    "./nonce": {
+      "types": "./_types/nonce/index.d.ts",
+      "import": "./_esm/nonce/index.js",
+      "default": "./_cjs/nonce/index.js"
+    },
     "./op-stack": {
       "types": "./_types/op-stack/index.d.ts",
       "import": "./_esm/op-stack/index.js",

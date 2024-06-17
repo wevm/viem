@@ -11,7 +11,7 @@ For [JSON-RPC Accounts](/docs/accounts/jsonRpc) (ie. Browser Extension, WalletCo
 ## Import
 
 ```ts twoslash
-import { createNonceManager } from 'viem'
+import { createNonceManager } from 'viem/nonce'
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ A Nonce Manager can be instantiated with the `createNonceManager` function with 
 The example below demonstrates how to create a Nonce Manager with a JSON-RPC source (ie. uses `eth_getTransactionCount` as the source of truth).
 
 ```ts twoslash
-import { createNonceManager, jsonRpc } from 'viem'
+import { createNonceManager, jsonRpc } from 'viem/nonce'
 
 const nonceManager = createNonceManager({
   source: jsonRpc()
@@ -29,7 +29,7 @@ const nonceManager = createNonceManager({
 ```
 
 :::tip
-Viem also exports a `nonceManager` helper instance that you can use directly.
+Viem also exports a default `nonceManager` instance that you can use directly.
 
 ```ts twoslash
 import { nonceManager } from 'viem'
@@ -96,7 +96,7 @@ Available sources:
 - `jsonRpc`
 
 ```ts twoslash
-import { createNonceManager, jsonRpc } from 'viem'
+import { createNonceManager, jsonRpc } from 'viem/nonce'
 
 const nonceManager = createNonceManager({
   source: jsonRpc() // [!code focus]

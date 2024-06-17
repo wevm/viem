@@ -1658,7 +1658,7 @@ export {
 export {
   type CreateNonceManagerParameters,
   type NonceManager,
+  type NonceManagerSource,
   createNonceManager,
-  jsonRpc,
   nonceManager,
 } from './utils/nonceManager.js'

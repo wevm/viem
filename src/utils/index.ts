@@ -494,7 +494,7 @@ export { type ParseGweiErrorType, parseGwei } from './unit/parseGwei.js'
 export {
   type CreateNonceManagerParameters,
   type NonceManager,
+  type NonceManagerSource,
   createNonceManager,
-  jsonRpc,
   nonceManager,
 } from './nonceManager.js'

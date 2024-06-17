@@ -102,7 +102,7 @@ export function createNonceManager(
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Sources
 
-type NonceManagerSource = {
+export type NonceManagerSource = {
   /** Get a nonce. */
   get(parameters: FunctionParameters & { client: Client }): MaybePromise<number>
   /** Set a nonce. */
