@@ -16,13 +16,13 @@ type FunctionParameters = {
 
 export type NonceManager = {
   /** Get and increment a nonce. */
-  consume(parameters: FunctionParameters & { client: Client }): Promise<number>
+  consume: (parameters: FunctionParameters & { client: Client }) => Promise<number>
   /** Increment a nonce. */
-  increment(chainId: FunctionParameters): Promise<void>
+  increment: (chainId: FunctionParameters) => Promise<void>
   /** Get a nonce. */
-  get(chainId: FunctionParameters & { client: Client }): Promise<number>
+  get: (chainId: FunctionParameters & { client: Client }) => Promise<number>
   /** Reset a nonce. */
-  reset(chainId: FunctionParameters): Promise<void>
+  reset: (chainId: FunctionParameters) => Promise<void>
 }
 
 /**
