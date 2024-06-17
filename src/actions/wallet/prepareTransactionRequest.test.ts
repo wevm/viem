@@ -11,8 +11,8 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { nonceManager } from '../../experimental/index.js'
 import { http, createClient, toBlobs } from '../../index.js'
+import { nonceManager } from '../../utils/index.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
 
 const client = anvilMainnet.getClient()
