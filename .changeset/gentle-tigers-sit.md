@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Update Conflux eSpace RPC URL
+Updated Conflux eSpace RPC URL
