@@ -4,7 +4,7 @@
 
 Stabilized ERC-6492 utilities:
 
-- `isErc6492Signatuer`
+- `isErc6492Signature`
 - `parseErc6492Signature`
 - `serializeErc6492Signature`
 
