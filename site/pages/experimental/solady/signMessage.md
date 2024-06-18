@@ -12,3 +12,188 @@ With the calculated signature, you can use [`verifyMessage`](https://viem.sh/doc
 
 ## Usage
 
+:::code-group
+
+```ts twoslash [example.ts]
+import { account, walletClient } from './config'
+ 
+const signature_1 = await walletClient.signMessage({ // [!code focus:99]
+  // Account used for signing.
+  account,
+  message: 'hello world',
+  // Verifying contract address (e.g. ERC-4337 Smart Account).
+  verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2'
+})
+// @log: Output: "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
+
+const signature_2 = await walletClient.signMessage({
+  // Account used for signing.
+  account,
+  // Hex data representation of message.
+  message: { raw: '0x68656c6c6f20776f726c64' },
+  // Verifying contract address (e.g. ERC-4337 Smart Account)
+  verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2'
+})
+// @log: Output: "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createWalletClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { soladyActions } from 'viem/experimental'
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: http(),
+}).extend(soladyActions())
+
+export const [account] = await walletClient.getAddresses()
+// @log: ↑ JSON-RPC Account
+
+// export const account = privateKeyToAccount(...)
+// @log: ↑ Local Account
+```
+
+:::
+
+## Account and/or Verifier Hoisting
+
+If you do not wish to pass an `account` and/or `verifier` to every `signMessage`, you can also hoist the Account and/or Verifier on the Wallet Client (see `config.ts`).
+
+[Learn more](/docs/clients/wallet#withaccount).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { walletClient } from './config'
+ 
+const signature = await walletClient.signMessage({ // [!code focus:99]
+  message: 'hello world',
+})
+// @log: "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
+```
+
+```ts [config.ts (JSON-RPC Account)]
+import { createWalletClient, custom } from 'viem'
+import { soladyActions } from 'viem/experimental'
+
+// Retrieve Account from an EIP-1193 Provider.
+const [account] = await window.ethereum.request({ 
+  method: 'eth_requestAccounts' 
+})
+
+export const walletClient = createWalletClient({
+  account,
+  transport: custom(window.ethereum!)
+}).extend(soladyActions({ 
+  verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2' 
+}))
+```
+
+```ts twoslash [config.ts (Local Account)] filename="config.ts"
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { soladyActions } from 'viem/experimental'
+
+export const walletClient = createWalletClient({
+  account: privateKeyToAccount('0x...'),
+  transport: http()
+}).extend(soladyActions({ 
+  verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2' 
+}))
+```
+
+:::
+
+## Returns
+
+[`Hex`](/docs/glossary/types#hex)
+
+The signed message.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+
+Account to used to sign the message.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
+
+```ts twoslash
+import { walletClient } from './config'
+
+const signature = await walletClient.signMessage({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus:1]
+  message: 'hello world',
+  verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2'
+})
+```
+
+### message
+
+- **Type:** `string | { raw: Hex | ByteArray }`
+
+Message to sign.
+
+By default, viem signs the UTF-8 representation of the message.
+
+```ts twoslash
+import { walletClient } from './config'
+
+const signature = await walletClient.signMessage({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  message: 'hello world', // [!code focus:1]
+  verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2',
+})
+```
+
+To sign the data representation of the message, you can use the `raw` attribute.
+
+```ts twoslash
+import { walletClient } from './config'
+
+const signature = await walletClient.signMessage({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus:1]
+  verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2',
+})
+```
+
+### verifier
+
+- **Type:** `Address`
+
+The address of the verifying contract (e.g. a ERC-4337 Smart Account). Required if `verifierDomain` is not passed.
+
+```ts twoslash
+import { walletClient } from './config'
+
+const signature = await walletClient.signMessage({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  message: 'hello world',
+  verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2', // [!code focus:1]
+})
+```
+
+### verifierDomain
+
+- **Type:** `TypedDataDomain`
+
+Account domain separator. Required if `verifier` is not passed.
+
+```ts twoslash
+import { walletClient } from './config'
+
+const signature = await walletClient.signMessage({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  message: 'hello world',
+  verifierDomain: { // [!code focus]
+    name: 'Mock4337Account', // [!code focus]
+    version: '1', // [!code focus]
+    chainId: 1, // [!code focus]
+    verifyingContract: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2' // [!code focus]
+  }, // [!code focus]
+})
+```

@@ -40,7 +40,7 @@ export type SignTypedDataParameters<
   GetAccountParameter<account, accountOverride> &
   OneOf<
     | {
-        accountDomain: RequiredBy<
+        verifierDomain: RequiredBy<
           TypedDataDomain,
           'chainId' | 'name' | 'verifyingContract' | 'salt' | 'version'
         >
@@ -49,7 +49,7 @@ export type SignTypedDataParameters<
         verifier?: undefined
       }
     | (GetVerifierParameter<verifier> & {
-        accountDomain?:
+        verifierDomain?:
           | RequiredBy<
               TypedDataDomain,
               'chainId' | 'name' | 'verifyingContract' | 'salt' | 'version'
@@ -197,13 +197,13 @@ export async function signTypedData<
 
   // Retrieve account EIP712 domain.
   const {
-    domain: accountDomain,
+    domain: verifierDomain,
     fields,
     extensions,
   } = await (async () => {
-    if (parameters.accountDomain && parameters.fields && parameters.extensions)
+    if (parameters.verifierDomain && parameters.fields && parameters.extensions)
       return {
-        domain: parameters.accountDomain,
+        domain: parameters.verifierDomain,
         fields: parameters.fields,
         extensions: parameters.extensions,
       }
@@ -244,7 +244,7 @@ export async function signTypedData<
       contents: message as any,
       fields,
       extensions,
-      ...(accountDomain as any),
+      ...(verifierDomain as any),
     },
   })
 

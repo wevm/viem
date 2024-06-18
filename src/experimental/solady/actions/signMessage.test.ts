@@ -53,7 +53,7 @@ test('args: domain', async () => {
   const message = 'hello world'
   const signature = await signMessage(client!, {
     account: accounts[0].address,
-    accountDomain: {
+    verifierDomain: {
       name: 'Mock4337Account',
       version: '1',
       chainId: 1,

@@ -1123,6 +1123,24 @@ export const sidebar = {
           },
         ],
       },
+      {
+        text: 'Solady',
+        items: [
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'signMessage',
+                link: '/experimental/solady/signMessage',
+              },
+              {
+                text: 'signTypedData',
+                link: '/experimental/solady/signTypedData',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   '/op-stack': {

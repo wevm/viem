@@ -87,12 +87,12 @@ test('inferred account', async () => {
   expect(result).toBeTruthy()
 })
 
-describe('args: accountDomain', () => {
+describe('args: verifierDomain', () => {
   test('json-rpc account', async () => {
     const signature = await signTypedData(client, {
       ...typedData.complex,
       account: accounts[0].address,
-      accountDomain: {
+      verifierDomain: {
         name: 'Mock4337Account',
         version: '1',
         chainId: 1,
@@ -117,7 +117,7 @@ describe('args: accountDomain', () => {
     const signature = await signTypedData(client, {
       ...typedData.complex,
       account: privateKeyToAccount(accounts[0].privateKey),
-      accountDomain: {
+      verifierDomain: {
         name: 'Mock4337Account',
         version: '1',
         chainId: 1,

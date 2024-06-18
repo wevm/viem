@@ -27,14 +27,14 @@ export type SignMessageParameters<
     message: SignableMessage
   } & OneOf<
     | {
-        accountDomain: RequiredBy<
+        verifierDomain: RequiredBy<
           TypedDataDomain,
           'chainId' | 'name' | 'verifyingContract' | 'version'
         >
         verifier?: undefined
       }
     | (GetVerifierParameter<verifier> & {
-        accountDomain?:
+        verifierDomain?:
           | RequiredBy<
               TypedDataDomain,
               'chainId' | 'name' | 'verifyingContract' | 'version'
@@ -118,7 +118,7 @@ export async function signMessage<
   const account = parseAccount(account_)
 
   const domain = await (async () => {
-    if (parameters.accountDomain) return parameters.accountDomain
+    if (parameters.verifierDomain) return parameters.verifierDomain
     const {
       domain: { salt, ...domain },
     } = await getAction(
