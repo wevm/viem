@@ -1,5 +1,11 @@
 # viem
 
+## 2.15.1
+
+### Patch Changes
+
+- [`d8e44f7`](https://github.com/wevm/viem/commit/d8e44f7df36cd405b00d76438e9100d82cdd5ed6) Thanks [@jxom](https://github.com/jxom)! - Bumped `ws` dependency.
+
 ## 2.15.0
 
 ### Minor Changes
