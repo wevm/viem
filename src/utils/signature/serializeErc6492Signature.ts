@@ -2,8 +2,8 @@ import type { Address } from 'abitype'
 import { erc6492MagicBytes } from '../../constants/bytes.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
-import { encodeAbiParameters } from '../../utils/abi/encodeAbiParameters.js'
-import { concatHex } from '../../utils/data/concat.js'
+import { encodeAbiParameters } from '../abi/encodeAbiParameters.js'
+import { concatHex } from '../data/concat.js'
 
 export type SerializeErc6492SignatureParameters = {
   /** The ERC-4337 Account Factory address to use for counterfactual verification. */
