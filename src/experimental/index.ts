@@ -36,23 +36,35 @@ export {
 } from './eip5792/decorators/eip5792.js'
 
 export {
+  /** @deprecated This is no longer experimental – use `import type { ParseErc6492SignatureErrorType } from 'viem'` instead. */
   type ParseErc6492SignatureErrorType,
+  /** @deprecated This is no longer experimental – use `import type { ParseErc6492SignatureParameters } from 'viem'` instead. */
   type ParseErc6492SignatureParameters,
+  /** @deprecated This is no longer experimental – use `import type { ParseErc6492SignatureReturnType } from 'viem'` instead. */
   type ParseErc6492SignatureReturnType,
+  /** @deprecated This is no longer experimental – use `import { parseErc6492Signature } from 'viem'` instead. */
   parseErc6492Signature,
-} from './erc6492/parseErc6492Signature.js'
+} from '../utils/signature/parseErc6492Signature.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { IsErc6492SignatureErrorType } from 'viem'` instead. */
   type IsErc6492SignatureErrorType,
+  /** @deprecated This is no longer experimental – use `import type { IsErc6492SignatureParameters } from 'viem'` instead. */
   type IsErc6492SignatureParameters,
+  /** @deprecated This is no longer experimental – use `import type { IsErc6492SignatureReturnType } from 'viem'` instead. */
   type IsErc6492SignatureReturnType,
+  /** @deprecated This is no longer experimental – use `import { isErc6492Signature } from 'viem'` instead. */
   isErc6492Signature,
-} from './erc6492/isErc6492Signature.js'
+} from '../utils/signature/isErc6492Signature.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { SerializeErc6492SignatureErrorType } from 'viem'` instead. */
   type SerializeErc6492SignatureErrorType,
+  /** @deprecated This is no longer experimental – use `import type { SerializeErc6492SignatureParameters } from 'viem'` instead. */
   type SerializeErc6492SignatureParameters,
+  /** @deprecated This is no longer experimental – use `import type { SerializeErc6492SignatureReturnType } from 'viem'` instead. */
   type SerializeErc6492SignatureReturnType,
+  /** @deprecated This is no longer experimental – use `import { serializeErc6492Signature } from 'viem'` instead. */
   serializeErc6492Signature,
-} from './erc6492/serializeErc6492Signature.js'
+} from '../utils/signature/serializeErc6492Signature.js'
 
 export {
   type IssuePermissionsParameters,
