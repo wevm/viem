@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
-import type { Chain } from '../../../types/chain.js'
-import type { WithdrawTransaction } from '../../../zksync/types/withdraw.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
+import type { Chain } from '../../../types/chain.js'
+import type { WithdrawTransaction } from '../../../zksync/types/withdraw.js'
 import { getBaseTokenL1Address } from '../../actions/getBaseTokenL1Address.js'
 import {
   type GetDefaultBridgeAddressesReturnType,

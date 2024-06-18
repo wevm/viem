@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-import { l1MessengerAddress } from '../../../zksync/constants/address.js'
 import { getTransactionReceipt } from '../../../actions/index.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
@@ -8,6 +7,7 @@ import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { isAddressEqualLite } from '../../../utils/address/isAddressEqualLite.js'
 import { toFunctionSelector } from '../../../utils/index.js'
+import { l1MessengerAddress } from '../../../zksync/constants/address.js'
 import type { ZkSyncLog } from '../../types/log.js'
 import type { ZkSyncTransactionReceipt } from '../../types/transaction.js'
 

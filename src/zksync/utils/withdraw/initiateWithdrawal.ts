@@ -1,12 +1,12 @@
-import type { Chain } from '../../../types/chain.js'
+import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
+import type { Chain } from '../../../types/chain.js'
 import type { Hash } from '../../../types/misc.js'
 import { sendTransaction } from '../../actions/sendTransaction.js'
 import type { WithdrawTransaction } from './../../types/withdraw.js'
 import { createWithdrawSpecification } from './createWithdrawSpecification.js'
 import { getWithdrawArgs } from './getWithdrawTxArgs.js'
-import type { Client } from '../../../clients/createClient.js'
 
 export type InitiateWithdrawalParameters = WithdrawTransaction
 

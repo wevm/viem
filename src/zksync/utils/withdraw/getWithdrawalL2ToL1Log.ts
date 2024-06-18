@@ -1,12 +1,12 @@
 import type { Address } from 'abitype'
-import type { Chain } from '../../../types/chain.js'
-import { l1MessengerAddress } from '../../../zksync/constants/address.js'
 import { getTransactionReceipt } from '../../../actions/index.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
+import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { isAddressEqualLite } from '../../../utils/address/isAddressEqualLite.js'
+import { l1MessengerAddress } from '../../../zksync/constants/address.js'
 import type { ZkSyncTransactionReceipt } from '../../types/transaction.js'
 
 export type GetWithdrawalL2ToL1LogParameters = {
