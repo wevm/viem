@@ -16,9 +16,6 @@ import {
 import { encodeFunctionData, pad } from '../../../utils/index.js'
 import { signMessage } from './signMessage.js'
 
-const client = anvilMainnet.getClient()
-const clientWithAccount = anvilMainnet.getClient({ account: true })
-
 let verifier: Address
 beforeAll(async () => {
   const { factoryAddress } = await deployMock4337Account()
@@ -33,6 +30,8 @@ beforeAll(async () => {
   await writeContract(client, request)
   await mine(client, { blocks: 1 })
 })
+
+const client = anvilMainnet.getClient()
 
 test('default', async () => {
   const message = 'hello world'
@@ -108,6 +107,10 @@ test('raw message (bytes)', async () => {
 })
 
 test('inferred account', async () => {
+  const clientWithAccount = anvilMainnet.getClient({
+    account: accounts[0].address,
+  })
+
   const message = 'hello world'
   const signature = await signMessage(clientWithAccount!, {
     message,
@@ -139,7 +142,8 @@ test('counterfactual smart account', async () => {
   })
 
   const message = 'hello world'
-  const signature = await signMessage(clientWithAccount!, {
+  const signature = await signMessage(client, {
+    account: accounts[0].address,
     message,
     factory: factoryAddress,
     factoryData,

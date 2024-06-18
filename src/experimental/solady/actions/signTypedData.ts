@@ -25,16 +25,19 @@ import {
   hashStruct,
 } from '../../../utils/signature/hashTypedData.js'
 import { getTypesForEIP712Domain } from '../../../utils/typedData.js'
+import type { GetVerifierParameter } from '../types.js'
 
 export type SignTypedDataParameters<
   typedData extends TypedData | Record<string, unknown> = TypedData,
   primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   account extends Account | undefined = undefined,
+  accountOverride extends Account | undefined = undefined,
+  verifier extends Address | undefined = Address | undefined,
   ///
   primaryTypes = typedData extends TypedData ? keyof typedData : string,
 > = TypedDataDefinition<typedData, primaryType, primaryTypes> &
-  GetAccountParameter<account> &
   Pick<GetEip712DomainParameters, 'factory' | 'factoryData'> &
+  GetAccountParameter<account, accountOverride> &
   OneOf<
     | {
         accountDomain: RequiredBy<
@@ -43,8 +46,9 @@ export type SignTypedDataParameters<
         >
         fields: Hex
         extensions: readonly bigint[]
+        verifier?: undefined
       }
-    | {
+    | (GetVerifierParameter<verifier> & {
         accountDomain?:
           | RequiredBy<
               TypedDataDomain,
@@ -53,8 +57,7 @@ export type SignTypedDataParameters<
           | undefined
         fields?: Hex | undefined
         extensions?: readonly bigint[] | undefined
-        verifier: Address
-      }
+      })
   >
 
 export type SignTypedDataReturnType = Hex
@@ -82,8 +85,7 @@ export type SignTypedDataErrorType = ErrorType
  *   transport: custom(window.ethereum),
  * })
  * const signature = await signTypedData(client, {
- *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
- *   verifier: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
+ *   account: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
  *   domain: {
  *     name: 'Ether Mail',
  *     version: '1',
@@ -113,6 +115,7 @@ export type SignTypedDataErrorType = ErrorType
  *     },
  *     contents: 'Hello, Bob!',
  *   },
+ *   verifier: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  * })
  *
  * @example
@@ -123,12 +126,11 @@ export type SignTypedDataErrorType = ErrorType
  * import { signTypedData } from 'viem/experimental/solady'
  *
  * const client = createWalletClient({
- *   account: privateKeyToAccount('0x…'),
+ *   account: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb'
  *   chain: mainnet,
  *   transport: http(),
  * })
  * const signature = await signTypedData(client, {
- *   verifier: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
  *   domain: {
  *     name: 'Ether Mail',
  *     version: '1',
@@ -158,6 +160,7 @@ export type SignTypedDataErrorType = ErrorType
  *     },
  *     contents: 'Hello, Bob!',
  *   },
+ *   verifier: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  * })
  */
 export async function signTypedData<
@@ -165,9 +168,15 @@ export async function signTypedData<
   primaryType extends keyof typedData | 'EIP712Domain',
   chain extends Chain | undefined,
   account extends Account | undefined,
+  accountOverride extends Account | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: SignTypedDataParameters<typedData, primaryType, account>,
+  parameters: SignTypedDataParameters<
+    typedData,
+    primaryType,
+    account,
+    accountOverride
+  >,
 ): Promise<SignTypedDataReturnType> {
   const {
     account: account_ = client.account,
@@ -184,7 +193,7 @@ export async function signTypedData<
     throw new AccountNotFoundError({
       docsPath: '/experimental/solady/signTypedData',
     })
-  const account = parseAccount(account_)
+  const account = parseAccount(account_!)
 
   // Retrieve account EIP712 domain.
   const {

@@ -16,11 +16,14 @@ import type { Hex, SignableMessage } from '../../../types/misc.js'
 import type { OneOf, RequiredBy } from '../../../types/utils.js'
 import { getAction } from '../../../utils/getAction.js'
 import { toPrefixedMessage } from '../../../utils/signature/toPrefixedMessage.js'
+import type { GetVerifierParameter } from '../types.js'
 
 export type SignMessageParameters<
   account extends Account | undefined = Account | undefined,
-> = GetAccountParameter<account> &
-  Pick<GetEip712DomainParameters, 'factory' | 'factoryData'> & {
+  accountOverride extends Account | undefined = Account | undefined,
+  verifier extends Address | undefined = Address | undefined,
+> = Pick<GetEip712DomainParameters, 'factory' | 'factoryData'> &
+  GetAccountParameter<account, accountOverride> & {
     message: SignableMessage
   } & OneOf<
     | {
@@ -28,16 +31,16 @@ export type SignMessageParameters<
           TypedDataDomain,
           'chainId' | 'name' | 'verifyingContract' | 'version'
         >
+        verifier?: undefined
       }
-    | {
+    | (GetVerifierParameter<verifier> & {
         accountDomain?:
           | RequiredBy<
               TypedDataDomain,
               'chainId' | 'name' | 'verifyingContract' | 'version'
             >
           | undefined
-        verifier: Address
-      }
+      })
   >
 
 export type SignMessageReturnType = Hex
@@ -67,10 +70,11 @@ export type SignMessageErrorType = ErrorType
  *   chain: mainnet,
  *   transport: custom(window.ethereum),
  * })
+ *
  * const signature = await signMessage(client, {
- *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   account: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
  *   message: 'hello world',
- *   verifier: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
+ *   verifier: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  * })
  *
  * @example
@@ -81,21 +85,23 @@ export type SignMessageErrorType = ErrorType
  * import { signMessage } from 'viem/experimental/solady'
  *
  * const client = createWalletClient({
- *   account: privateKeyToAccount('0x…'),
+ *   account: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
  *   chain: mainnet,
  *   transport: custom(window.ethereum),
  * })
+ *
  * const signature = await signMessage(client, {
  *   message: 'hello world',
- *   verifier: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
+ *   verifier: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  * })
  */
 export async function signMessage<
   chain extends Chain | undefined,
   account extends Account | undefined,
+  accountOverride extends Account | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: SignMessageParameters<account>,
+  parameters: SignMessageParameters<account, accountOverride>,
 ): Promise<SignMessageReturnType> {
   const {
     account: account_ = client.account,

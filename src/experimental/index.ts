@@ -88,3 +88,8 @@ export {
   type SignTypedDataReturnType,
   signTypedData,
 } from './solady/actions/signTypedData.js'
+export {
+  type SoladyActions,
+  type SoladyActionsParameters,
+  soladyActions,
+} from './solady/decorators/solady.js'

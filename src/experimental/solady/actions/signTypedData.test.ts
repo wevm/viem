@@ -17,7 +17,6 @@ import { encodeFunctionData, pad } from '../../../utils/index.js'
 import { signTypedData } from './signTypedData.js'
 
 const client = anvilMainnet.getClient()
-const clientWithAccount = anvilMainnet.getClient({ account: true })
 
 let verifier: Address
 beforeAll(async () => {
@@ -71,6 +70,8 @@ describe('default', () => {
 })
 
 test('inferred account', async () => {
+  const clientWithAccount = anvilMainnet.getClient({ account: true })
+
   const signature = await signTypedData(clientWithAccount, {
     ...typedData.complex,
     primaryType: 'Mail',
@@ -142,8 +143,8 @@ describe('args: domain empty', () => {
   test('json-rpc account', async () => {
     const signature = await signTypedData(client, {
       ...typedData.complex,
-      domain: undefined,
       account: accounts[0].address,
+      domain: undefined,
       primaryType: 'Mail',
       verifier,
     })
@@ -182,10 +183,10 @@ describe('args: domain chainId', () => {
   test('json-rpc account', async () => {
     const signature = await signTypedData(client, {
       ...typedData.complex,
+      account: accounts[0].address,
       domain: {
         chainId: 1,
       },
-      account: accounts[0].address,
       primaryType: 'Mail',
       verifier,
     })
@@ -205,10 +206,10 @@ describe('args: domain chainId', () => {
   test('local account', async () => {
     const signature = await signTypedData(client, {
       ...typedData.complex,
+      account: privateKeyToAccount(accounts[0].privateKey),
       domain: {
         chainId: 1,
       },
-      account: privateKeyToAccount(accounts[0].privateKey),
       primaryType: 'Mail',
       verifier,
     })
@@ -230,10 +231,10 @@ describe('args: domain name', () => {
   test('json-rpc account', async () => {
     const signature = await signTypedData(client, {
       ...typedData.complex,
+      account: accounts[0].address,
       domain: {
         name: 'lol',
       },
-      account: accounts[0].address,
       primaryType: 'Mail',
       verifier,
     })
@@ -253,10 +254,10 @@ describe('args: domain name', () => {
   test('local account', async () => {
     const signature = await signTypedData(client, {
       ...typedData.complex,
+      account: privateKeyToAccount(accounts[0].privateKey),
       domain: {
         name: 'lol',
       },
-      account: privateKeyToAccount(accounts[0].privateKey),
       primaryType: 'Mail',
       verifier,
     })
@@ -278,10 +279,10 @@ describe('args: domain verifyingContract', () => {
   test('json-rpc account', async () => {
     const signature = await signTypedData(client, {
       ...typedData.complex,
+      account: accounts[0].address,
       domain: {
         verifyingContract: '0x0000000000000000000000000000000000000000',
       },
-      account: accounts[0].address,
       primaryType: 'Mail',
       verifier,
     })
@@ -301,10 +302,10 @@ describe('args: domain verifyingContract', () => {
   test('local account', async () => {
     const signature = await signTypedData(client, {
       ...typedData.complex,
+      account: privateKeyToAccount(accounts[0].privateKey),
       domain: {
         verifyingContract: '0x0000000000000000000000000000000000000000',
       },
-      account: privateKeyToAccount(accounts[0].privateKey),
       primaryType: 'Mail',
       verifier,
     })
