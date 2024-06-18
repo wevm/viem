@@ -534,10 +534,10 @@ importers:
         version: 1.0.0(typescript@5.4.5)(zod@3.22.4)
       isows:
         specifier: 1.0.4
-        version: 1.0.4(ws@8.13.0)
+        version: 1.0.4(ws@8.17.1)
       ws:
-        specifier: 8.13.0
-        version: 8.13.0
+        specifier: 8.17.1
+        version: 8.17.1
 
   test: {}
 
@@ -6221,6 +6221,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.17.1:
+    resolution: {integrity: sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   ws@8.5.0:
     resolution: {integrity: sha512-BWX0SWVgLPzYwF8lTzEy1egjhS4S4OEAHfsO8o65WOVsrnSRGaSiUaa9e0ggGlkMTtBlmOpEXiie9RUcBO86qg==}
     engines: {node: '>=10.0.0'}
@@ -10268,6 +10280,10 @@ snapshots:
     dependencies:
       ws: 8.13.0
 
+  isows@1.0.4(ws@8.17.1):
+    dependencies:
+      ws: 8.17.1
+
   istanbul-lib-coverage@3.2.2: {}
 
   istanbul-lib-report@3.0.1:
@@ -13008,6 +13024,8 @@ snapshots:
   ws@8.13.0: {}
 
   ws@8.16.0: {}
+
+  ws@8.17.1: {}
 
   ws@8.5.0: {}
 
