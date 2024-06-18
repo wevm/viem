@@ -58,6 +58,6 @@ export async function addChain<
         },
       ],
     },
-    { retryCount: 0 },
+    { dedupe: true, retryCount: 0 },
   )
 }

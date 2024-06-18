@@ -2,6 +2,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { buildRequest } from '../../utils/buildRequest.js'
+import { uid as uid_ } from '../../utils/uid.js'
 import type { ClientConfig } from '../createClient.js'
 
 export type TransportConfig<
@@ -61,9 +62,18 @@ export function createTransport<
   }: TransportConfig<TType>,
   value?: TRpcAttributes | undefined,
 ): ReturnType<Transport<TType, TRpcAttributes>> {
+  const uid = uid_()
   return {
-    config: { key, name, request, retryCount, retryDelay, timeout, type },
-    request: buildRequest(request, { retryCount, retryDelay }),
+    config: {
+      key,
+      name,
+      request,
+      retryCount,
+      retryDelay,
+      timeout,
+      type,
+    },
+    request: buildRequest(request, { retryCount, retryDelay, uid }),
     value,
   }
 }

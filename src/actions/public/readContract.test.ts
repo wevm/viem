@@ -195,7 +195,7 @@ describe('bayc', () => {
   })
 })
 
-describe('counterfactual read', () => {
+describe('deployless read (factory)', () => {
   test('default', async () => {
     const { factoryAddress: factory } = await deployMock4337Account()
 
@@ -230,6 +230,17 @@ describe('counterfactual read', () => {
         [],
       ]
     `)
+  })
+})
+
+describe('deployless read (bytecode)', () => {
+  test('default', async () => {
+    const result = await readContract(client, {
+      abi: wagmiContractConfig.abi,
+      code: wagmiContractConfig.bytecode,
+      functionName: 'name',
+    })
+    expect(result).toMatchInlineSnapshot(`"wagmi"`)
   })
 })
 

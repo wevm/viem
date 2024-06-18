@@ -98,6 +98,10 @@ export const sidebar = {
           ],
         },
         {
+          text: 'Call',
+          items: [{ text: 'call', link: '/docs/actions/public/call' }],
+        },
+        {
           text: 'Chain',
           items: [
             { text: 'getChainId', link: '/docs/actions/public/getChainId' },
@@ -203,7 +207,6 @@ export const sidebar = {
         {
           text: 'Transaction',
           items: [
-            { text: 'call', link: '/docs/actions/public/call' },
             {
               text: 'prepareTransactionRequest',
               link: '/docs/actions/wallet/prepareTransactionRequest',
@@ -447,9 +450,9 @@ export const sidebar = {
       text: 'Accounts',
       collapsed: true,
       items: [
-        { text: 'JSON-RPC', link: '/docs/accounts/jsonRpc' },
+        { text: 'JSON-RPC Account', link: '/docs/accounts/jsonRpc' },
         {
-          text: 'Local',
+          text: 'Local Accounts',
           link: '/docs/accounts/local',
           items: [
             { text: 'Private Key', link: '/docs/accounts/privateKey' },
@@ -459,6 +462,15 @@ export const sidebar = {
               link: '/docs/accounts/hd',
             },
             { text: 'Custom', link: '/docs/accounts/custom' },
+          ],
+        },
+        {
+          text: 'Utilities',
+          items: [
+            {
+              text: 'createNonceManager',
+              link: '/docs/accounts/createNonceManager',
+            },
             { text: 'signMessage', link: '/docs/accounts/signMessage' },
             { text: 'signTransaction', link: '/docs/accounts/signTransaction' },
             { text: 'signTypedData', link: '/docs/accounts/signTypedData' },

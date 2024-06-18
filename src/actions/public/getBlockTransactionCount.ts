@@ -81,15 +81,21 @@ export async function getBlockTransactionCount<
 
   let count: Quantity
   if (blockHash) {
-    count = await client.request({
-      method: 'eth_getBlockTransactionCountByHash',
-      params: [blockHash],
-    })
+    count = await client.request(
+      {
+        method: 'eth_getBlockTransactionCountByHash',
+        params: [blockHash],
+      },
+      { dedupe: true },
+    )
   } else {
-    count = await client.request({
-      method: 'eth_getBlockTransactionCountByNumber',
-      params: [blockNumberHex || blockTag],
-    })
+    count = await client.request(
+      {
+        method: 'eth_getBlockTransactionCountByNumber',
+        params: [blockNumberHex || blockTag],
+      },
+      { dedupe: Boolean(blockNumberHex) },
+    )
   }
 
   return hexToNumber(count)

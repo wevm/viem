@@ -147,6 +147,8 @@ test('exports utils', () => {
       "parseUnits",
       "parseEther",
       "parseGwei",
+      "createNonceManager",
+      "nonceManager",
     ]
   `)
 })

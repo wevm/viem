@@ -94,7 +94,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{accounts,actions,celo,chains,ens,experimental,node,op-stack,siwe,utils,window,zksync}/index.ts!",
+          "{accounts,actions,celo,chains,ens,experimental,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": ["node/trustedSetups_cjs.ts"]
@@ -108,7 +108,7 @@
     {
       "name": "viem (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "59.6 kB",
+      "limit": "60.2 kB",
       "import": "*"
     },
     {
@@ -119,7 +119,7 @@
     {
       "name": "viem (minimal surface - tree-shaking)",
       "path": "./src/_esm/index.js",
-      "limit": "4.1 kB",
+      "limit": "6.3 kB",
       "import": "{ createClient, http }"
     },
     {
@@ -173,13 +173,13 @@
     {
       "name": "viem/ens (tree-shaking)",
       "path": "./src/_esm/ens/index.js",
-      "limit": "22.3 kB",
+      "limit": "22.6 kB",
       "import": "{ getEnsAvatar }"
     },
     {
       "name": "viem/siwe",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "30.3 kB",
+      "limit": "30.5 kB",
       "import": "*"
     },
     {

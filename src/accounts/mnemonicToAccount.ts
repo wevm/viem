@@ -4,9 +4,12 @@ import { mnemonicToSeedSync } from '@scure/bip39'
 import type { ErrorType } from '../errors/utils.js'
 import {
   type HDKeyToAccountErrorType,
+  type HDKeyToAccountOptions,
   hdKeyToAccount,
 } from './hdKeyToAccount.js'
 import type { HDAccount, HDOptions } from './types.js'
+
+export type MnemonicToAccountOptions = HDKeyToAccountOptions
 
 export type MnemonicToAccountErrorType = HDKeyToAccountErrorType | ErrorType
 

@@ -491,3 +491,10 @@ export { type FormatUnitsErrorType, formatUnits } from './unit/formatUnits.js'
 export { type ParseUnitsErrorType, parseUnits } from './unit/parseUnits.js'
 export { type ParseEtherErrorType, parseEther } from './unit/parseEther.js'
 export { type ParseGweiErrorType, parseGwei } from './unit/parseGwei.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  type NonceManagerSource,
+  createNonceManager,
+  nonceManager,
+} from './nonceManager.js'

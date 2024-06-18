@@ -398,6 +398,8 @@ test('exports', () => {
       "validateTypedData",
       "domainSeparator",
       "getTypesForEIP712Domain",
+      "createNonceManager",
+      "nonceManager",
     ]
   `)
 })

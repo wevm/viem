@@ -1,5 +1,39 @@
 # viem
 
+## 2.15.1
+
+### Patch Changes
+
+- [`d8e44f7`](https://github.com/wevm/viem/commit/d8e44f7df36cd405b00d76438e9100d82cdd5ed6) Thanks [@jxom](https://github.com/jxom)! - Bumped `ws` dependency.
+
+## 2.15.0
+
+### Minor Changes
+
+- [#2418](https://github.com/wevm/viem/pull/2418) [`6c36745`](https://github.com/wevm/viem/commit/6c36745e2a7f1826d691cff1037504546ad4fed0) Thanks [@jxom](https://github.com/jxom)! - Added support for a Nonce Manager on Local Accounts via `nonceManager`.
+
+### Patch Changes
+
+- [#2419](https://github.com/wevm/viem/pull/2419) [`ec831b5`](https://github.com/wevm/viem/commit/ec831b52301312c5c985a2cac128536e2639922f) Thanks [@iosh](https://github.com/iosh)! - Updated Conflux eSpace RPC URL
+
+- [#2418](https://github.com/wevm/viem/pull/2418) [`6c36745`](https://github.com/wevm/viem/commit/6c36745e2a7f1826d691cff1037504546ad4fed0) Thanks [@jxom](https://github.com/jxom)! - Implemented in-flight request deduplication for Transport JSON-RPC requests.
+
+- [`a5c97c5`](https://github.com/wevm/viem/commit/a5c97c556f17895742c164295f62bad793139f42) Thanks [@jxom](https://github.com/jxom)! - Added `berachainTestnetbArtio` chain.
+
+## 2.14.2
+
+### Patch Changes
+
+- [#2414](https://github.com/wevm/viem/pull/2414) [`3636c5c`](https://github.com/wevm/viem/commit/3636c5c6c099dba1910f1d215d019acc6e12f101) Thanks [@turtlemoji](https://github.com/turtlemoji)! - Added `l2OutputOracle`, `portal` and `l1StandardBridge` contracts to `mode` chain.
+
+## 2.14.1
+
+### Patch Changes
+
+- [#2411](https://github.com/wevm/viem/pull/2411) [`2fc14e50`](https://github.com/wevm/viem/commit/2fc14e50df3d6796cd29add44d0467320cb06195) Thanks [@tmm](https://github.com/tmm)! - Deprecated `getBytecode` (use `getCode` instead).
+
+- [#2408](https://github.com/wevm/viem/pull/2408) [`21cb684a`](https://github.com/wevm/viem/commit/21cb684a6e41fc65ac0f15c0ee08df296f2b1a15) Thanks [@jxom](https://github.com/jxom)! - Added `code` as a parameter to `call` + `readContract` – to enable [Deployless Calls via Bytecode](https://viem.sh/docs/actions/public/call#bytecode).
+
 ## 2.14.0
 
 ### Minor Changes

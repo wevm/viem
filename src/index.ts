@@ -929,6 +929,8 @@ export type {
   LogTopicType,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
+  UnionWiden,
+  Widen,
 } from './types/contract.js'
 export type {
   AccessList,
@@ -1653,3 +1655,10 @@ export {
   domainSeparator,
   getTypesForEIP712Domain,
 } from './utils/typedData.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  type NonceManagerSource,
+  createNonceManager,
+  nonceManager,
+} from './utils/nonceManager.js'
