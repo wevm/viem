@@ -130,7 +130,7 @@
     "@scure/bip39": "1.2.1",
     "abitype": "1.0.0",
     "isows": "1.0.4",
-    "ws": "8.13.0"
+    "ws": "8.17.1"
   },
   "license": "MIT",
   "homepage": "https://viem.sh",
