@@ -3,7 +3,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hash } from '../../../types/misc.js'
-import { getLogProof } from '../../actions/getLogProof.js'
+import { getLogProof } from '../withdraw/getLogProof.js'
 import { getPriorityOpConfirmationL2ToL1Log } from './getPriorityOpConfirmationL2ToL1Log.js'
 
 export type GetPriorityOpConfirmationParameters = {

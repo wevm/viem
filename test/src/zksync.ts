@@ -5,6 +5,7 @@ import {
   type Address,
   type FeeValuesEIP1559,
   type Hex,
+  zeroAddress,
 } from '~viem/index.js'
 import type { GetL2GasLimitParameters } from '~viem/zksync/index.js'
 import type {
@@ -116,6 +117,19 @@ export const getL2GasLimitMockData: GetL2GasLimitParameters = {
 }
 
 export const mockAddress = '0x173999892363ba18c9dc60f8c57152fc914bce89'
+
+export const mockIsWithdrawalFinalized = {
+  chainId: 270n,
+  logL1BatchNumber: 2n,
+  proofId: 1n,
+  l1BridgeAddress: mockAddress as Address,
+}
+export const mockWithdrawTx = {
+  token: zeroAddress as Address,
+  amount: 1n,
+  to: mockAddress as Address,
+  from: mockAddress as Address,
+}
 
 export const mockAddresses = {
   l1SharedDefaultBridge: '0x648afeaf09a3db988ac41b786001235bbdbc7640',

@@ -21,8 +21,8 @@ import { custom } from '../../clients/transports/custom.js'
 import { estimateFee } from '../actions/estimateFee.js'
 import { estimateGasL1ToL2 } from '../actions/estimateGasL1ToL2.js'
 import type { GetAllBalancesReturnType } from '../actions/getAllBalances.js'
-import { getLogProof } from '../actions/getLogProof.js'
 import { getTransactionDetails } from '../actions/getTransactionDetails.js'
+import { getLogProof } from '../utils/withdraw/getLogProof.js'
 import { publicActionsL2 } from './publicL2.js'
 
 const mockedZksyncClient = createPublicClient({

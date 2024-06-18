@@ -53,11 +53,6 @@ import {
   getL1ChainId,
 } from '../actions/getL1ChainId.js'
 import {
-  type GetLogProofParameters,
-  type GetLogProofReturnType,
-  getLogProof,
-} from '../actions/getLogProof.js'
-import {
   type GetMainContractAddressReturnType,
   getMainContractAddress,
 } from '../actions/getMainContractAddress.js'
@@ -76,6 +71,11 @@ import {
   getTransactionDetails,
 } from '../actions/getTransactionDetails.js'
 import type { ChainEIP712 } from '../types/chain.js'
+import {
+  type GetLogProofParameters,
+  type GetLogProofReturnType,
+  getLogProof,
+} from '../utils/withdraw/getLogProof.js'
 
 export type PublicActionsL2<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,

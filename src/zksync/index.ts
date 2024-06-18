@@ -59,7 +59,7 @@ export {
   type GetLogProofReturnType,
   type GetLogProofParameters,
   getLogProof,
-} from './actions/getLogProof.js'
+} from './utils/withdraw/getLogProof.js'
 export { getMainContractAddress } from './actions/getMainContractAddress.js'
 export {
   type GetRawBlockTransactionsParameters,
