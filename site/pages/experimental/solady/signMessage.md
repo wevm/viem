@@ -4,11 +4,11 @@ description: Signs a personal sign message via Solady's ERC-1271 format.
 
 # signMessage
 
-Signs a [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal sign message via Solady's [ERC1271 `PersonalSign` format](https://github.com/Vectorized/solady/blob/678c9163550810b08f0ffb09624c9f7532392303/src/accounts/ERC1271.sol#L154-L166).
+Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal sign message via Solady's [ERC-1271 `PersonalSign` format](https://github.com/Vectorized/solady/blob/678c9163550810b08f0ffb09624c9f7532392303/src/accounts/ERC1271.sol#L154-L166).
 
-This Action is suitable to sign messages for Smart Accounts that implement (or conform to) Solady's [ERC1271.sol](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC1271.sol).
+This Action is suitable to sign messages for contracts (e.g. ERC-4337 Smart Accounts) that implement (or conform to) Solady's [ERC1271.sol](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC1271.sol).
 
-With the calculated signature, you can use [`verifyMessage`](https://viem.sh/docs/utilities/verifyMessage) to verify the signature
+With the calculated signature, you can use [`verifyMessage`](/docs/actions/public/verifyMessage) to verify the signature
 
 ## Usage
 
@@ -24,7 +24,6 @@ const signature_1 = await walletClient.signMessage({ // [!code focus:99]
   // Verifying contract address (e.g. ERC-4337 Smart Account).
   verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2'
 })
-// @log: Output: "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
 
 const signature_2 = await walletClient.signMessage({
   // Account used for signing.
@@ -34,7 +33,6 @@ const signature_2 = await walletClient.signMessage({
   // Verifying contract address (e.g. ERC-4337 Smart Account)
   verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2'
 })
-// @log: Output: "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"
@@ -70,7 +68,6 @@ import { walletClient } from './config'
 const signature = await walletClient.signMessage({ // [!code focus:99]
   message: 'hello world',
 })
-// @log: "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
