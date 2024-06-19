@@ -3,6 +3,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
+import type { Hex } from '../../../types/misc.js'
 import { isAddressEqualLite } from '../../../utils/address/isAddressEqualLite.js'
 import { encodeFunctionData } from '../../../utils/index.js'
 import {
@@ -15,7 +16,6 @@ import type { Overrides } from '../../types/deposit.js'
 import { isEth } from '../isEth.js'
 import { getL2TokenAddress } from '../l2TokenAddress.js'
 import type { CreateWithdrawSpecificationReturnType } from './createWithdrawSpecification.js'
-import type { Hex } from '../../../types/misc.js'
 
 export type GetWithdrawparametersArgsParameters =
   CreateWithdrawSpecificationReturnType

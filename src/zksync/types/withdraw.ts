@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
-import type { Overrides } from './deposit.js'
 import type { Hex } from '../../types/misc.js'
+import type { Overrides } from './deposit.js'
 
 export type WithdrawTransaction = {
   token: Address

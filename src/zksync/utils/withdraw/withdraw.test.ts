@@ -430,9 +430,6 @@ test('withdraw - DAI to L1 network using paymaster to cover fee', async () => {
   expect(l2BalanceBeforeWithdrawal - l2BalanceAfterWithdrawal).to.be.equal(
     amount,
   )
-  console.info(l2ApprovalTokenBalanceAfterWithdrawal)
-  console.info(l2ApprovalTokenBalanceBeforeWithdrawal)
-  console.info(minimalAllowance)
   expect(
     l2ApprovalTokenBalanceAfterWithdrawal ===
       l2ApprovalTokenBalanceBeforeWithdrawal - minimalAllowance,
