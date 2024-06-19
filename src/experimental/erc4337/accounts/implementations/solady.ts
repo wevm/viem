@@ -1,26 +1,17 @@
 import { type Address, type TypedData, parseAbi } from 'abitype'
 
 import { parseAccount } from '../../../../accounts/utils/parseAccount.js'
-import { getEip712Domain } from '../../../../actions/public/getEip712Domain.js'
 import { readContract } from '../../../../actions/public/readContract.js'
-import { signMessage } from '../../../../actions/wallet/signMessage.js'
-import { signTypedData } from '../../../../actions/wallet/signTypedData.js'
+import { signMessage as signMessage_ } from '../../../../actions/wallet/signMessage.js'
 import type { Account } from '../../../../types/account.js'
 import type { Chain } from '../../../../types/chain.js'
 import type { Hex } from '../../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../../types/typedData.js'
 import { encodeFunctionData } from '../../../../utils/abi/encodeFunctionData.js'
-import { encodePacked } from '../../../../utils/abi/encodePacked.js'
 import { getChainContractAddress } from '../../../../utils/chain/getChainContractAddress.js'
 import { pad } from '../../../../utils/data/pad.js'
-import { size } from '../../../../utils/data/size.js'
-import { stringToHex } from '../../../../utils/encoding/toHex.js'
-import {
-  encodeType,
-  hashStruct,
-} from '../../../../utils/signature/hashTypedData.js'
-import { toPrefixedMessage } from '../../../../utils/signature/toPrefixedMessage.js'
-import { getTypesForEIP712Domain } from '../../../../utils/typedData.js'
+import { signMessage } from '../../../solady/actions/signMessage.js'
+import { signTypedData } from '../../../solady/actions/signTypedData.js'
 import { getUserOperationHash } from '../../utils/getUserOperationHash.js'
 import type {
   SmartAccountImplementation,
@@ -136,96 +127,35 @@ export function solady(
       },
       async signMessage(parameters) {
         const { message } = parameters
-
-        const address = await this.getAddress()
-        const {
-          domain: { salt, ...domain },
-        } = await getEip712Domain(client, { address })
-        const signature = await signTypedData(client, {
+        const [address, { factory, factoryData }] = await Promise.all([
+          this.getAddress(),
+          this.getFactoryArgs(),
+        ])
+        return signMessage(client, {
           account: owner,
-          domain,
-          types: {
-            PersonalSign: [{ name: 'prefixed', type: 'bytes' }],
-          },
-          primaryType: 'PersonalSign',
-          message: {
-            prefixed: toPrefixedMessage(message),
-          },
+          factory,
+          factoryData,
+          message,
+          verifier: address,
         })
-
-        return signature
       },
       async signTypedData(parameters) {
         const { domain, types, primaryType, message } =
           parameters as TypedDataDefinition<TypedData, string>
-
-        // Get account address.
-        const address = await this.getAddress()
-
-        // Retrieve account EIP712 domain.
-        const {
-          domain: accountDomain,
-          extensions,
-          fields,
-        } = await getEip712Domain(client, {
-          address,
-        })
-
-        // Sign with typed data wrapper.
-        const signature = await signTypedData(client, {
+        const [address, { factory, factoryData }] = await Promise.all([
+          this.getAddress(),
+          this.getFactoryArgs(),
+        ])
+        return signTypedData(client, {
           account: owner,
           domain,
-          types: {
-            ...types,
-            TypedDataSign: [
-              { name: 'contents', type: primaryType },
-              { name: 'fields', type: 'bytes1' },
-              { name: 'name', type: 'string' },
-              { name: 'version', type: 'string' },
-              { name: 'chainId', type: 'uint256' },
-              { name: 'verifyingContract', type: 'address' },
-              { name: 'salt', type: 'bytes32' },
-              { name: 'extensions', type: 'uint256[]' },
-            ],
-          },
-          primaryType: 'TypedDataSign',
-          message: {
-            contents: message as any,
-            fields,
-            extensions,
-            ...(accountDomain as any),
-          },
-        })
-
-        // Compute dependencies for wrapped signature.
-        const hashedDomain = hashStruct({
-          data: domain ?? {},
-          types: {
-            EIP712Domain: getTypesForEIP712Domain({ domain }),
-          },
-          primaryType: 'EIP712Domain',
-        })
-        const hashedContents = hashStruct({
-          data: message,
-          types,
-          primaryType,
-        })
-        const encodedType = encodeType({
+          message,
+          factory,
+          factoryData,
           primaryType,
           types,
+          verifier: address,
         })
-
-        // Construct wrapped signature.
-        return encodePacked(
-          ['bytes', 'bytes32', 'bytes32', 'bytes', 'uint16'],
-          [
-            signature,
-            hashedDomain,
-            hashedContents,
-            stringToHex(encodedType),
-            size(stringToHex(encodedType)),
-          ],
-        )
       },
       async signUserOperation(parameters) {
         const { chainId = chain!.id, userOperation } = parameters
@@ -239,7 +169,7 @@ export function solady(
             sender: address,
           },
         })
-        const signature = await signMessage(client, {
+        const signature = await signMessage_(client, {
           account: owner,
           message: {
             raw: userOpHash,
