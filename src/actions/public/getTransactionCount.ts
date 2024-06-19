@@ -40,7 +40,7 @@ export type GetTransactionCountErrorType =
   | ErrorType
 
 /**
- * Returns the number of [Transactions](https://viem.sh/docs/glossary/terms#transaction) an Account has broadcast / sent.
+ * Returns the number of [Transactions](https://viem.sh/docs/glossary/terms#transaction) an Account has sent.
  *
  * - Docs: https://viem.sh/docs/actions/public/getTransactionCount
  * - JSON-RPC Methods: [`eth_getTransactionCount`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactioncount)

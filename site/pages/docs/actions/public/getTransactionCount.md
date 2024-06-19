@@ -1,5 +1,5 @@
 ---
-description: Returns the number of Transactions an Account has broadcast / sent.
+description: Returns the number of Transactions an Account has sent.
 ---
 
 # getTransactionCount
