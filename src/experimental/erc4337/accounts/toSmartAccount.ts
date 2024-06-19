@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 
-import { getBytecode } from '../../../actions/public/getBytecode.js'
+import { getCode } from '../../../actions/public/getCode.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type {
@@ -91,10 +91,10 @@ export function toSmartAccount<
       if (deployed) return true
       if (!implementation) return false
       if (!client) return false
-      const bytecode = await getBytecode(client, {
+      const code = await getCode(client, {
         address: await implementation.getAddress(),
       })
-      deployed = Boolean(bytecode)
+      deployed = Boolean(code)
       return deployed
     },
     type: 'smart',
