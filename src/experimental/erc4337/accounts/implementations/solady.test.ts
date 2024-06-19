@@ -256,6 +256,25 @@ describe('return value: signMessage', () => {
 
     expect(result).toBeTruthy()
   })
+
+  test('counterfactual', async () => {
+    const implementation = solady({
+      factoryAddress,
+      owner: accounts[1].address,
+    })({ client })
+
+    const signature = await implementation.signMessage({
+      message: 'hello world',
+    })
+
+    const result = await verifyMessage(client, {
+      address: await implementation.getAddress(),
+      message: 'hello world',
+      signature,
+    })
+
+    expect(result).toBeTruthy()
+  })
 })
 
 describe('return value: signTypedData', () => {
@@ -273,6 +292,26 @@ describe('return value: signTypedData', () => {
     await mine(client, {
       blocks: 1,
     })
+
+    const signature = await implementation.signTypedData({
+      ...typedData.basic,
+      primaryType: 'Mail',
+    })
+
+    const result = await verifyTypedData(client, {
+      address: await implementation.getAddress(),
+      signature,
+      ...typedData.basic,
+      primaryType: 'Mail',
+    })
+    expect(result).toBeTruthy()
+  })
+
+  test('counterfactual', async () => {
+    const implementation = solady({
+      factoryAddress,
+      owner: privateKeyToAccount(accounts[1].privateKey),
+    })({ client })
 
     const signature = await implementation.signTypedData({
       ...typedData.basic,
