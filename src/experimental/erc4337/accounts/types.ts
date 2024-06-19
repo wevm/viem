@@ -58,7 +58,7 @@ export type SmartAccountImplementation<
    * // '0x...'
    * ```
    */
-  getAddress(): Promise<Address>
+  getAddress: () => Promise<Address>
   /**
    * Retrieves the calldata for executing a User Operation.
    *
@@ -71,7 +71,7 @@ export type SmartAccountImplementation<
    * // '0x...'
    * ```
    */
-  getCallData(calls: readonly Call[]): Promise<Hex>
+  getCallData: (calls: readonly Call[]) => Promise<Hex>
   /**
    * Retrieves the calldata for factory call to deploy a Smart Account.
    * If the Smart Account has already been deployed, this will return undefined values.
@@ -88,7 +88,7 @@ export type SmartAccountImplementation<
    * // { factory: undefined, factoryData: undefined }
    * ```
    */
-  getFactoryArgs(): Promise<{
+  getFactoryArgs: () => Promise<{
     factory?: Address | undefined
     factoryData?: Hex | undefined
   }>
@@ -101,7 +101,7 @@ export type SmartAccountImplementation<
    * // 1n
    * ```
    */
-  getNonce(): Promise<bigint>
+  getNonce: () => Promise<bigint>
   /**
    * Formats the User Operation signature.
    *
@@ -117,9 +117,9 @@ export type SmartAccountImplementation<
    * // '0x...'
    * ```
    */
-  getFormattedSignature(
+  getFormattedSignature: (
     packedUserOperation?: Partial<PackedUserOperation> | undefined,
-  ): Promise<Hex>
+  ) => Promise<Hex>
   /**
    * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
    *
@@ -145,10 +145,12 @@ export type SmartAccountImplementation<
    * })
    * ```
    */
-  signTypedData<
+  signTypedData: <
     const typedData extends TypedData | Record<string, unknown>,
     primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
-  >(parameters: TypedDataDefinition<typedData, primaryType>): Promise<Hex>
+  >(
+    parameters: TypedDataDefinition<typedData, primaryType>,
+  ) => Promise<Hex>
   /**
    * Signs the User Operation.
    *
@@ -160,7 +162,7 @@ export type SmartAccountImplementation<
    * })
    * ```
    */
-  signUserOperation(parameters: SignUserOperationParameters): Promise<Hex>
+  signUserOperation: (parameters: SignUserOperationParameters) => Promise<Hex>
 }
 
 export type SmartAccount<
