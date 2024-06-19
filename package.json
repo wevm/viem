@@ -108,7 +108,7 @@
     {
       "name": "viem (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "60.2 kB",
+      "limit": "60.5 kB",
       "import": "*"
     },
     {
@@ -179,13 +179,13 @@
     {
       "name": "viem/siwe",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "30.5 kB",
+      "limit": "30.7 kB",
       "import": "*"
     },
     {
       "name": "viem/siwe (tree-shaking)",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "29.5 kB",
+      "limit": "29.6 kB",
       "import": "{ verifySiweMessage }"
     }
   ]
