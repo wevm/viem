@@ -21,7 +21,6 @@ import {
 } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
-import { getAllBalances } from '../../actions/getAllBalances.js'
 import { getL1TokenBalance } from '../../actions/getL1TokenBalance.js'
 import { publicActionsL1 } from '../../decorators/publicL1.js'
 import { publicActionsL2 } from '../../decorators/publicL2.js'
@@ -359,17 +358,20 @@ test('withdraw - DAI to L1 network using paymaster to cover fee', async () => {
   const paymasterBalanceBeforeWithdrawal = await getBalance(clientL2, {
     address: paymasterAddress,
   })
+
   const paymasterTokenBalanceBeforeWithdrawal = await getErc20TokenBalance(
     clientL2,
     { token: approvalTokenAddress, address: paymasterAddress },
   )
+
   const l2BalanceBeforeWithdrawal = await getErc20TokenBalance(clientL2, {
     token: l2DaiAddress,
     address: account.address,
   })
+
   const l2ApprovalTokenBalanceBeforeWithdrawal = await getErc20TokenBalance(
     clientL2,
-    { token: l2DaiAddress, address: account.address },
+    { token: approvalTokenAddress, address: account.address },
   )
 
   const withdrawTx = {
@@ -402,24 +404,24 @@ test('withdraw - DAI to L1 network using paymaster to cover fee', async () => {
   const paymasterBalanceAfterWithdrawal = await getBalance(clientL2, {
     address: paymasterAddress,
   })
+
   const paymasterTokenBalanceAfterWithdrawal = await getErc20TokenBalance(
     clientL2,
     { token: approvalTokenAddress, address: paymasterAddress },
   )
+
   const l2BalanceAfterWithdrawal = await getErc20TokenBalance(clientL2, {
-    token: DAI_L1,
+    token: l2DaiAddress,
     address: account.address,
   })
+
   const l2ApprovalTokenBalanceAfterWithdrawal = await getErc20TokenBalance(
     clientL2,
-    { token: l2DaiAddress, address: account.address },
+    { token: approvalTokenAddress, address: account.address },
   )
+
   expect(
     paymasterBalanceBeforeWithdrawal - paymasterBalanceAfterWithdrawal >= 0n,
-  ).to.be.true
-  expect(
-    l2ApprovalTokenBalanceAfterWithdrawal ===
-      l2ApprovalTokenBalanceBeforeWithdrawal - minimalAllowance,
   ).to.be.true
   expect(
     paymasterTokenBalanceAfterWithdrawal -
@@ -428,4 +430,11 @@ test('withdraw - DAI to L1 network using paymaster to cover fee', async () => {
   expect(l2BalanceBeforeWithdrawal - l2BalanceAfterWithdrawal).to.be.equal(
     amount,
   )
+  console.info(l2ApprovalTokenBalanceAfterWithdrawal)
+  console.info(l2ApprovalTokenBalanceBeforeWithdrawal)
+  console.info(minimalAllowance)
+  expect(
+    l2ApprovalTokenBalanceAfterWithdrawal ===
+      l2ApprovalTokenBalanceBeforeWithdrawal - minimalAllowance,
+  ).to.be.true
 })

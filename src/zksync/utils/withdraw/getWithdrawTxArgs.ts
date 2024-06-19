@@ -15,11 +15,20 @@ import type { Overrides } from '../../types/deposit.js'
 import { isEth } from '../isEth.js'
 import { getL2TokenAddress } from '../l2TokenAddress.js'
 import type { CreateWithdrawSpecificationReturnType } from './createWithdrawSpecification.js'
+import type { Hex } from '../../../types/misc.js'
 
 export type GetWithdrawparametersArgsParameters =
   CreateWithdrawSpecificationReturnType
 
-export type GetWithdrawparametersArgsReturnType = any
+export type GetWithdrawparametersArgsReturnType = {
+  from: Address
+  to: Address
+  data: Hex
+  value?: bigint
+  paymaster?: Address
+  paymasterInput?: Hex
+  account?: Account | undefined
+}
 
 export async function getWithdrawArgs<
   TChain extends Chain | undefined,
@@ -77,9 +86,9 @@ export async function getWithdrawArgs<
     if (parameters.paymasterParams) {
       return {
         ...populatedParameters,
-        customData: {
-          paymasterParams: parameters.paymasterParams,
-        },
+        paymaster: parameters.paymasterParams.paymaster,
+        paymasterInput: parameters.paymasterParams.paymasterInput,
+        account: clientL1.account,
       }
     }
 
@@ -105,9 +114,9 @@ export async function getWithdrawArgs<
   if (parameters.paymasterParams) {
     return {
       ...populatedParameters,
-      customData: {
-        paymasterParams: parameters.paymasterParams,
-      },
+      paymaster: parameters.paymasterParams.paymaster,
+      paymasterInput: parameters.paymasterParams.paymasterInput,
+      account: clientL1.account,
     }
   }
 

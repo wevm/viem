@@ -17,7 +17,7 @@ export type GetL2TokenAddressParameters = {
   baseTokenAddress: Address
 }
 
-export type GetL2TokenAddressReturnType = any
+export type GetL2TokenAddressReturnType = Address
 
 export async function getL2TokenAddress<
   TChain extends Chain | undefined,

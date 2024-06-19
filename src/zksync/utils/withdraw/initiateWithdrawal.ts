@@ -1,3 +1,4 @@
+import type { TransactionRequest } from '../../../types/transaction.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
@@ -27,7 +28,10 @@ export async function initiateWithdrawal<
 
   const args = await getWithdrawArgs(clientL1, withdrawSpecification)
 
-  const hash = await sendTransaction(clientL2, args)
+  const hash = await sendTransaction(
+    clientL2,
+    args satisfies TransactionRequest as any,
+  )
 
   return hash
 }
