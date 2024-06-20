@@ -116,6 +116,7 @@ export {
 export {
   type EncodeArgErrorType,
   type EncodeEventTopicsParameters,
+  type EncodeEventTopicsReturnType,
   encodeEventTopics,
 } from './abi/encodeEventTopics.js'
 export {

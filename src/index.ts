@@ -1142,6 +1142,7 @@ export {
 export {
   type EncodeEventTopicsErrorType,
   type EncodeEventTopicsParameters,
+  type EncodeEventTopicsReturnType,
   encodeEventTopics,
 } from './utils/abi/encodeEventTopics.js'
 export {
