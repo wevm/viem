@@ -1,5 +1,0 @@
----
-"viem": patch
----
-
-Bumped ABIType
