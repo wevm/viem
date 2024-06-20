@@ -176,11 +176,11 @@ export type SmartAccount<
   /** Whether or not the Smart Account has invoked `initialize`. */
   initialized: initialized
   /** Function to initialize the Smart Account. */
-  initialize(
+  initialize: (
     client: Client<Transport>,
-  ): Promise<SmartAccount<address, true, implementation>>
+  ) => Promise<SmartAccount<address, true, implementation>>
   /** Whether or not the Smart Account has been deployed. */
-  isDeployed(): Promise<boolean>
+  isDeployed: () => Promise<boolean>
   /** Type of account. */
   type: 'smart'
 } & (initialized extends true
