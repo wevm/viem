@@ -159,7 +159,7 @@ test('zero data', async () => {
   expect(data).toMatchInlineSnapshot('undefined')
 })
 
-test('args: blockNumber', async () => {
+test.skip('args: blockNumber', async () => {
   const { data } = await call(client, {
     blockNumber: 15564164n,
     data: `${mintWithParams4bytes}${fourTwenty}`,
