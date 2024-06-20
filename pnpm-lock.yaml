@@ -530,8 +530,8 @@ importers:
         specifier: 1.2.1
         version: 1.2.1
       abitype:
-        specifier: 1.0.0
-        version: 1.0.0(typescript@5.4.5)(zod@3.22.4)
+        specifier: 1.0.4
+        version: 1.0.4(typescript@5.4.5)(zod@3.22.4)
       isows:
         specifier: 1.0.4
         version: 1.0.4(ws@8.17.1)
@@ -2485,6 +2485,17 @@ packages:
 
   abitype@1.0.0:
     resolution: {integrity: sha512-NMeMah//6bJ56H5XRj8QCV4AwuW6hB6zqz2LnhhLdcWVQOsXki6/Pn3APeqxCma62nXIcmZWdu1DlHWS74umVQ==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+      zod: ^3 >=3.22.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      zod:
+        optional: true
+
+  abitype@1.0.4:
+    resolution: {integrity: sha512-UivtYZOGJGE8rsrM/N5vdRkUpqEZVmuTumfTuolm7m/6O09wprd958rx8kUBwVAAAhQDveGAgD0GJdBuR8s6tw==}
     peerDependencies:
       typescript: '>=5.0.4'
       zod: ^3 >=3.22.0
@@ -8635,7 +8646,7 @@ snapshots:
       typescript: 5.4.2
       zod: 3.22.4
 
-  abitype@1.0.0(typescript@5.4.5)(zod@3.22.4):
+  abitype@1.0.4(typescript@5.4.5)(zod@3.22.4):
     optionalDependencies:
       typescript: 5.4.5
       zod: 3.22.4
