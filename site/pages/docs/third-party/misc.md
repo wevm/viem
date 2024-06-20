@@ -59,7 +59,7 @@ import { publicActionReverseMirage } from 'reverse-mirage'
 const client = createClient({ 
   chain: mainnet,
   transport: http()
-}).extend(publicActionsReverseMirage)
+}).extend(publicActionReverseMirage)
 
 // read token metadata // [!code focus:99]
 const usdc = await publicClient.getERC20({
