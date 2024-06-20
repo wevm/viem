@@ -17,7 +17,6 @@ export { areonNetwork } from './definitions/areonNetwork.js'
 export { areonNetworkTestnet } from './definitions/areonNetworkTestnet.js'
 export { aurora } from './definitions/aurora.js'
 export { auroraTestnet } from './definitions/auroraTestnet.js'
-export { zircuitTestnet } from './definitions/zircuitTestnet.js'
 export { auroria } from './definitions/auroria.js'
 export { avalanche } from './definitions/avalanche.js'
 export { avalancheFuji } from './definitions/avalancheFuji.js'
@@ -294,6 +293,7 @@ export { zkSyncTestnet } from './definitions/zkSyncTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
+export { zircuitTestnet } from './definitions/zircuitTestnet.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".
