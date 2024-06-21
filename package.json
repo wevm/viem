@@ -94,7 +94,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{accounts,actions,celo,chains,ens,experimental,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
+          "{accounts,actions,celo,chains,ens,experimental,experimental/solady,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": ["node/trustedSetups_cjs.ts"]

@@ -77,18 +77,6 @@ export {
 } from './erc7715/decorators/erc7715.js'
 
 export {
-  type SignMessageErrorType,
-  type SignMessageParameters,
-  type SignMessageReturnType,
-  signMessage,
-} from './solady/actions/signMessage.js'
-export {
-  type SignTypedDataErrorType,
-  type SignTypedDataParameters,
-  type SignTypedDataReturnType,
-  signTypedData,
-} from './solady/actions/signTypedData.js'
-export {
   type SoladyActions,
   type SoladyActionsParameters,
   soladyActions,

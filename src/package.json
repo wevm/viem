@@ -60,6 +60,11 @@
       "import": "./_esm/experimental/index.js",
       "default": "./_cjs/experimental/index.js"
     },
+    "./experimental/solady": {
+      "types": "./_types/experimental/solady/index.d.ts",
+      "import": "./_esm/experimental/solady/index.js",
+      "default": "./_cjs/experimental/solady/index.js"
+    },
     "./node": {
       "types": "./_types/node/index.d.ts",
       "import": "./_esm/node/index.js",
@@ -106,6 +111,7 @@
       "chains/utils": ["./_types/chains/utils.d.ts"],
       "ens": ["./_types/ens/index.d.ts"],
       "experimental": ["./_types/experimental/index.d.ts"],
+      "experimental/solady": ["./_types/experimental/solady/index.d.ts"],
       "node": ["./_types/node/index.d.ts"],
       "op-stack": ["./_types/op-stack/index.d.ts"],
       "siwe": ["./_types/siwe/index.d.ts"],

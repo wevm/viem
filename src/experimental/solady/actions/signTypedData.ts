@@ -16,16 +16,9 @@ import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
 import type { OneOf, RequiredBy } from '../../../types/utils.js'
-import { encodePacked } from '../../../utils/abi/encodePacked.js'
-import { size } from '../../../utils/data/size.js'
-import { stringToHex } from '../../../utils/encoding/toHex.js'
 import { getAction } from '../../../utils/getAction.js'
-import {
-  encodeType,
-  hashStruct,
-} from '../../../utils/signature/hashTypedData.js'
-import { getTypesForEIP712Domain } from '../../../utils/typedData.js'
 import type { GetVerifierParameter } from '../types.js'
+import { wrapTypedDataSignature } from '../utils/wrapTypedDataSignature.js'
 
 export type SignTypedDataParameters<
   typedData extends TypedData | Record<string, unknown> = TypedData,
@@ -248,33 +241,11 @@ export async function signTypedData<
     },
   })
 
-  // Compute dependencies for wrapped signature.
-  const hashedDomain = hashStruct({
-    data: domain ?? {},
-    types: {
-      EIP712Domain: getTypesForEIP712Domain({ domain }),
-    },
-    primaryType: 'EIP712Domain',
-  })
-  const hashedContents = hashStruct({
-    data: message,
-    types: types as any,
+  return wrapTypedDataSignature({
+    domain,
+    message,
     primaryType,
+    signature,
+    types,
   })
-  const encodedType = encodeType({
-    primaryType,
-    types: types as any,
-  })
-
-  // Construct wrapped signature.
-  return encodePacked(
-    ['bytes', 'bytes32', 'bytes32', 'bytes', 'uint16'],
-    [
-      signature,
-      hashedDomain,
-      hashedContents,
-      stringToHex(encodedType),
-      size(stringToHex(encodedType)),
-    ],
-  )
 }

@@ -1139,6 +1139,23 @@ export const sidebar = {
               },
             ],
           },
+          {
+            text: 'Utilities',
+            items: [
+              {
+                text: 'hashMessage',
+                link: '/experimental/solady/hashMessage',
+              },
+              {
+                text: 'hashTypedData',
+                link: '/experimental/solady/hashTypedData',
+              },
+              {
+                text: 'wrapTypedDataSignature',
+                link: '/experimental/solady/wrapTypedDataSignature',
+              },
+            ],
+          },
         ],
       },
     ],
