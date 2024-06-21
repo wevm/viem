@@ -1,5 +1,19 @@
 # viem
 
+## 2.16.1
+
+### Patch Changes
+
+- [`fa494359`](https://github.com/wevm/viem/commit/fa4943594b9f95a1562c44a48f6eff87dc56a560) Thanks [@jxom](https://github.com/jxom)! - Added `chainId` as a parameter to `eth_sendTransaction`.
+
+- [#2429](https://github.com/wevm/viem/pull/2429) [`3781bbb8`](https://github.com/wevm/viem/commit/3781bbb8b3ee8de065a581c97410389b84f7e9c8) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `getAction` would ignore nullish return values from a synchronous Client Action.
+
+- [`ed5c70e0`](https://github.com/wevm/viem/commit/ed5c70e0c5f21e4e2f7eb0fd17afc66888d787d7) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added Solady utilities:
+
+  - `hashMessage`
+  - `hashTypedData`
+  - `wrapTypedDataSignature`
+
 ## 2.16.0
 
 ### Minor Changes
