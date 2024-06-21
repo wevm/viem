@@ -218,6 +218,7 @@ export async function sendTransaction<
       ...extract(rest, { format: chainFormat }),
       accessList,
       blobs,
+      chainId,
       data,
       from: account.address,
       gas,

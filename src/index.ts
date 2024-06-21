@@ -146,10 +146,16 @@ export type {
   GetBlockTransactionCountReturnType,
 } from './actions/public/getBlockTransactionCount.js'
 export type {
-  GetBytecodeErrorType,
-  GetBytecodeParameters,
-  GetBytecodeReturnType,
-} from './actions/public/getBytecode.js'
+  /** @deprecated Use `GetCodeErrorType` instead */
+  GetCodeErrorType as GetBytecodeErrorType,
+  /** @deprecated Use `GetCodeParameters` instead */
+  GetCodeParameters as GetBytecodeParameters,
+  /** @deprecated Use `GetCodeReturnType` instead  */
+  GetCodeReturnType as GetBytecodeReturnType,
+  GetCodeErrorType,
+  GetCodeParameters,
+  GetCodeReturnType,
+} from './actions/public/getCode.js'
 export type {
   GetChainIdErrorType,
   GetChainIdReturnType,
@@ -923,6 +929,8 @@ export type {
   LogTopicType,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
+  UnionWiden,
+  Widen,
 } from './types/contract.js'
 export type {
   AccessList,
@@ -1134,6 +1142,7 @@ export {
 export {
   type EncodeEventTopicsErrorType,
   type EncodeEventTopicsParameters,
+  type EncodeEventTopicsReturnType,
   encodeEventTopics,
 } from './utils/abi/encodeEventTopics.js'
 export {
@@ -1308,6 +1317,24 @@ export {
   type VerifyTypedDataReturnType,
   verifyTypedData,
 } from './utils/signature/verifyTypedData.js'
+export {
+  type ParseErc6492SignatureErrorType,
+  type ParseErc6492SignatureParameters,
+  type ParseErc6492SignatureReturnType,
+  parseErc6492Signature,
+} from './utils/signature/parseErc6492Signature.js'
+export {
+  type IsErc6492SignatureErrorType,
+  type IsErc6492SignatureParameters,
+  type IsErc6492SignatureReturnType,
+  isErc6492Signature,
+} from './utils/signature/isErc6492Signature.js'
+export {
+  type SerializeErc6492SignatureErrorType,
+  type SerializeErc6492SignatureParameters,
+  type SerializeErc6492SignatureReturnType,
+  serializeErc6492Signature,
+} from './utils/signature/serializeErc6492Signature.js'
 export {
   type AssertRequestErrorType,
   assertRequest,
@@ -1562,6 +1589,10 @@ export {
   hashMessage,
 } from './utils/signature/hashMessage.js'
 export {
+  type ToPrefixedMessageErrorType,
+  toPrefixedMessage,
+} from './utils/signature/toPrefixedMessage.js'
+export {
   type IsAddressOptions,
   type IsAddressErrorType,
   isAddress,
@@ -1647,3 +1678,10 @@ export {
   domainSeparator,
   getTypesForEIP712Domain,
 } from './utils/typedData.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  type NonceManagerSource,
+  createNonceManager,
+  nonceManager,
+} from './utils/nonceManager.js'

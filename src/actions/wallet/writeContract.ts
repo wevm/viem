@@ -53,6 +53,7 @@ export type WriteContractParameters<
   'nonpayable' | 'payable',
   functionName,
   args,
+  false,
   allFunctionNames
 > &
   GetChainParameter<chain, chainOverride> &

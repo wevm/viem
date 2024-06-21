@@ -284,9 +284,11 @@ export type CounterfactualDeploymentFailedErrorType =
   }
 export class CounterfactualDeploymentFailedError extends BaseError {
   override name = 'CounterfactualDeploymentFailedError'
-  constructor({ factory }: { factory: Address }) {
+  constructor({ factory }: { factory?: Address | undefined }) {
     super(
-      `Deployment for counterfactual contract call failed for factory "${factory}".`,
+      `Deployment for counterfactual contract call failed${
+        factory ? ` for factory "${factory}".` : ''
+      }`,
       {
         metaMessages: [
           'Please ensure:',

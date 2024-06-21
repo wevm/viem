@@ -21,14 +21,17 @@ export {
   generatePrivateKey,
 } from './generatePrivateKey.js'
 export {
+  type HDKeyToAccountOptions,
   type HDKeyToAccountErrorType,
   hdKeyToAccount,
 } from './hdKeyToAccount.js'
 export {
+  type MnemonicToAccountOptions,
   type MnemonicToAccountErrorType,
   mnemonicToAccount,
 } from './mnemonicToAccount.js'
 export {
+  type PrivateKeyToAccountOptions,
   type PrivateKeyToAccountErrorType,
   privateKeyToAccount,
 } from './privateKeyToAccount.js'
@@ -87,3 +90,10 @@ export {
   type PrivateKeyToAddressErrorType,
   privateKeyToAddress,
 } from './utils/privateKeyToAddress.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  type NonceManagerSource,
+  createNonceManager,
+  nonceManager,
+} from '../utils/nonceManager.js'

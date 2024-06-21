@@ -29,6 +29,7 @@ export { beamTestnet } from './definitions/beamTestnet.js'
 export { bearNetworkChainMainnet } from './definitions/bearNetworkChainMainnet.js'
 export { bearNetworkChainTestnet } from './definitions/bearNetworkChainTestnet.js'
 export { berachainTestnet } from './definitions/berachainTestnet.js'
+export { berachainTestnetbArtio } from './definitions/berachainTestnetbArtio.js'
 export { bevmMainnet } from './definitions/bevmMainnet.js'
 export { bitkub } from './definitions/bitkub.js'
 export { bitkubTestnet } from './definitions/bitkubTestnet.js'
@@ -292,6 +293,7 @@ export { zkSyncTestnet } from './definitions/zkSyncTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
+export { zircuitTestnet } from './definitions/zircuitTestnet.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".

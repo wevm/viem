@@ -69,7 +69,7 @@ export async function getTransactionConfirmations<
   const [blockNumber, transaction] = await Promise.all([
     getAction(client, getBlockNumber, 'getBlockNumber')({}),
     hash
-      ? getAction(client, getTransaction, 'getBlockNumber')({ hash })
+      ? getAction(client, getTransaction, 'getTransaction')({ hash })
       : undefined,
   ])
   const transactionBlockNumber =

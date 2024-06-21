@@ -318,15 +318,15 @@ export function watchEvent<
         const events_ = events ?? (event ? [event] : undefined)
         let topics: LogTopic[] = []
         if (events_) {
-          topics = [
-            (events_ as AbiEvent[]).flatMap((event) =>
-              encodeEventTopics({
-                abi: [event],
-                eventName: (event as AbiEvent).name,
-                args,
-              } as EncodeEventTopicsParameters),
-            ),
-          ]
+          const encoded = (events_ as AbiEvent[]).flatMap((event) =>
+            encodeEventTopics({
+              abi: [event],
+              eventName: (event as AbiEvent).name,
+              args,
+            } as EncodeEventTopicsParameters),
+          )
+          // TODO: Clean up type casting
+          topics = [encoded as LogTopic]
           if (event) topics = topics[0] as LogTopic[]
         }
 

@@ -197,19 +197,22 @@ export type ContractFunctionParameters<
     mutability,
     functionName
   > = ContractFunctionArgs<abi, mutability, functionName>,
+  deployless extends boolean = false,
   ///
   allFunctionNames = ContractFunctionName<abi, mutability>,
   allArgs = ContractFunctionArgs<abi, mutability, functionName>,
   // when `args` is inferred to `readonly []` ("inputs": []) or `never` (`abi` declared as `Abi` or not inferrable), allow `args` to be optional.
   // important that both branches return same structural type
 > = {
-  address: Address
   abi: abi
   functionName:
     | allFunctionNames // show all options
     | (functionName extends allFunctionNames ? functionName : never) // infer value
   args?: (abi extends Abi ? UnionWiden<args> : never) | allArgs | undefined
-} & (readonly [] extends allArgs ? {} : { args: Widen<args> })
+} & (readonly [] extends allArgs ? {} : { args: Widen<args> }) &
+  (deployless extends true
+    ? { address?: undefined; code: Hex }
+    : { address: Address })
 
 export type ContractFunctionReturnType<
   abi extends Abi | readonly unknown[] = Abi,

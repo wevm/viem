@@ -304,6 +304,9 @@ test('exports', () => {
       "toRlp",
       "verifyMessage",
       "verifyTypedData",
+      "parseErc6492Signature",
+      "isErc6492Signature",
+      "serializeErc6492Signature",
       "assertRequest",
       "assertTransactionEIP1559",
       "assertTransactionEIP2930",
@@ -371,6 +374,7 @@ test('exports', () => {
       "toEventHash",
       "toFunctionHash",
       "hashMessage",
+      "toPrefixedMessage",
       "isAddress",
       "isAddressEqual",
       "isBytes",
@@ -398,6 +402,8 @@ test('exports', () => {
       "validateTypedData",
       "domainSeparator",
       "getTypesForEIP712Domain",
+      "createNonceManager",
+      "nonceManager",
     ]
   `)
 })

@@ -44,7 +44,7 @@ export async function requestAddresses<
 ): Promise<RequestAddressesReturnType> {
   const addresses = await client.request(
     { method: 'eth_requestAccounts' },
-    { retryCount: 0 },
+    { dedupe: true, retryCount: 0 },
   )
   return addresses.map((address) => getAddress(address))
 }

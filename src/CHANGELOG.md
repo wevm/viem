@@ -1,5 +1,75 @@
 # viem
 
+## 2.16.1
+
+### Patch Changes
+
+- [`fa494359`](https://github.com/wevm/viem/commit/fa4943594b9f95a1562c44a48f6eff87dc56a560) Thanks [@jxom](https://github.com/jxom)! - Added `chainId` as a parameter to `eth_sendTransaction`.
+
+- [#2429](https://github.com/wevm/viem/pull/2429) [`3781bbb8`](https://github.com/wevm/viem/commit/3781bbb8b3ee8de065a581c97410389b84f7e9c8) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `getAction` would ignore nullish return values from a synchronous Client Action.
+
+- [`ed5c70e0`](https://github.com/wevm/viem/commit/ed5c70e0c5f21e4e2f7eb0fd17afc66888d787d7) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added Solady utilities:
+
+  - `hashMessage`
+  - `hashTypedData`
+  - `wrapTypedDataSignature`
+
+## 2.16.0
+
+### Minor Changes
+
+- [#2424](https://github.com/wevm/viem/pull/2424) [`4b929790`](https://github.com/wevm/viem/commit/4b9297901e925e3e469822d8fe722bbcefb376ed) Thanks [@jxom](https://github.com/jxom)! - Stabilized ERC-6492 utilities:
+
+  - `isErc6492Signature`
+  - `parseErc6492Signature`
+  - `serializeErc6492Signature`
+
+  These utilities are no longer experimental, and can be imported from the `viem` entrypoint.
+
+### Patch Changes
+
+- [`a2b2c523`](https://github.com/wevm/viem/commit/a2b2c523e49baec7d1e425e2d64f3f9cdbaaf83b) Thanks [@tmm](https://github.com/tmm)! - Bumped ABIType
+
+- [#2427](https://github.com/wevm/viem/pull/2427) [`38dc6a03`](https://github.com/wevm/viem/commit/38dc6a037c6d6358b3bb620db4406b9bd39620be) Thanks [@Phillip-Kemper](https://github.com/Phillip-Kemper)! - Added Zircuit Testnet
+
+- [#2413](https://github.com/wevm/viem/pull/2413) [`99ed745b`](https://github.com/wevm/viem/commit/99ed745ba28d912cdad86d6a1718968c8da4c7c0) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added [Solady flavoured ERC-1271](https://github.com/Vectorized/solady/blob/678c9163550810b08f0ffb09624c9f7532392303/src/accounts/ERC1271.sol) `signMessage` & `signTypedData` for Smart Accounts that implement (or conform to) [Solady's `ERC1271.sol`](https://github.com/Vectorized/solady/blob/678c9163550810b08f0ffb09624c9f7532392303/src/accounts/ERC1271.sol#L110-L180).
+
+- [#2426](https://github.com/wevm/viem/pull/2426) [`01086ad9`](https://github.com/wevm/viem/commit/01086ad924f2d15f076f1a27434df1d88e9d3323) Thanks [@EvanYan1024](https://github.com/EvanYan1024)! - Added multicall3 to zetachain mainnet and testnet
+
+## 2.15.1
+
+### Patch Changes
+
+- [`d8e44f7`](https://github.com/wevm/viem/commit/d8e44f7df36cd405b00d76438e9100d82cdd5ed6) Thanks [@jxom](https://github.com/jxom)! - Bumped `ws` dependency.
+
+## 2.15.0
+
+### Minor Changes
+
+- [#2418](https://github.com/wevm/viem/pull/2418) [`6c36745`](https://github.com/wevm/viem/commit/6c36745e2a7f1826d691cff1037504546ad4fed0) Thanks [@jxom](https://github.com/jxom)! - Added support for a Nonce Manager on Local Accounts via `nonceManager`.
+
+### Patch Changes
+
+- [#2419](https://github.com/wevm/viem/pull/2419) [`ec831b5`](https://github.com/wevm/viem/commit/ec831b52301312c5c985a2cac128536e2639922f) Thanks [@iosh](https://github.com/iosh)! - Updated Conflux eSpace RPC URL
+
+- [#2418](https://github.com/wevm/viem/pull/2418) [`6c36745`](https://github.com/wevm/viem/commit/6c36745e2a7f1826d691cff1037504546ad4fed0) Thanks [@jxom](https://github.com/jxom)! - Implemented in-flight request deduplication for Transport JSON-RPC requests.
+
+- [`a5c97c5`](https://github.com/wevm/viem/commit/a5c97c556f17895742c164295f62bad793139f42) Thanks [@jxom](https://github.com/jxom)! - Added `berachainTestnetbArtio` chain.
+
+## 2.14.2
+
+### Patch Changes
+
+- [#2414](https://github.com/wevm/viem/pull/2414) [`3636c5c`](https://github.com/wevm/viem/commit/3636c5c6c099dba1910f1d215d019acc6e12f101) Thanks [@turtlemoji](https://github.com/turtlemoji)! - Added `l2OutputOracle`, `portal` and `l1StandardBridge` contracts to `mode` chain.
+
+## 2.14.1
+
+### Patch Changes
+
+- [#2411](https://github.com/wevm/viem/pull/2411) [`2fc14e50`](https://github.com/wevm/viem/commit/2fc14e50df3d6796cd29add44d0467320cb06195) Thanks [@tmm](https://github.com/tmm)! - Deprecated `getBytecode` (use `getCode` instead).
+
+- [#2408](https://github.com/wevm/viem/pull/2408) [`21cb684a`](https://github.com/wevm/viem/commit/21cb684a6e41fc65ac0f15c0ee08df296f2b1a15) Thanks [@jxom](https://github.com/jxom)! - Added `code` as a parameter to `call` + `readContract` – to enable [Deployless Calls via Bytecode](https://viem.sh/docs/actions/public/call#bytecode).
+
 ## 2.14.0
 
 ### Minor Changes
