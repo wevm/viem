@@ -13,7 +13,7 @@ export const dchain = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Basescan',
+      name: 'Dchain Explorer',
       url: 'https://dchain-2716446429837000-1.sagaexplorer.io',
       apiUrl: 'https://api-dchain-2716446429837000-1.sagaexplorer.io/api',
     },
