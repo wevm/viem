@@ -15,7 +15,7 @@ export const dchainTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Basescan',
+      name: 'Dchain Explorer',
       url: 'https://dchaintestnet-2713017997578000-1.testnet.sagaexplorer.io',
       apiUrl:
         'https://api-dchaintestnet-2713017997578000-1.testnet.sagaexplorer.io/api',
