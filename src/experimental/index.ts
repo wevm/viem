@@ -67,10 +67,10 @@ export {
 } from '../utils/signature/serializeErc6492Signature.js'
 
 export {
-  type IssuePermissionsParameters,
-  type IssuePermissionsReturnType,
-  issuePermissions,
-} from './erc7715/actions/issuePermissions.js'
+  type GrantPermissionsParameters,
+  type GrantPermissionsReturnType,
+  grantPermissions,
+} from './erc7715/actions/grantPermissions.js'
 export {
   type WalletActionsErc7715,
   walletActionsErc7715,

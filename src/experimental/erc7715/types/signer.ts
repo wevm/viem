@@ -25,4 +25,11 @@ export type MultiKeySigner = {
   }
 }
 
-export type Signer = OneOf<AccountSigner | KeySigner | MultiKeySigner>
+/** @internal */
+export type WalletSigner = {
+  type: 'wallet'
+}
+
+export type Signer = OneOf<
+  AccountSigner | KeySigner | MultiKeySigner | WalletSigner
+>

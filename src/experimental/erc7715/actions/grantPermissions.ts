@@ -2,14 +2,14 @@ import type { Address } from 'abitype'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
-import type { WalletIssuePermissionsReturnType } from '../../../types/eip1193.js'
+import type { WalletGrantPermissionsReturnType } from '../../../types/eip1193.js'
 import type { Hex } from '../../../types/misc.js'
 import type { OneOf } from '../../../types/utils.js'
-import { numberToHex } from '../../../utils/encoding/toHex.js'
+import { numberToHex, parseAccount } from '../../../utils/index.js'
 import type { Permission } from '../types/permission.js'
 import type { Signer } from '../types/signer.js'
 
-export type IssuePermissionsParameters = {
+export type GrantPermissionsParameters = {
   /** Timestamp (in seconds) that specifies the time by which this session MUST expire. */
   expiry: number
   /** Set of permissions to grant to the user. */
@@ -25,7 +25,7 @@ export type IssuePermissionsParameters = {
     }
 >
 
-export type IssuePermissionsReturnType = {
+export type GrantPermissionsReturnType = {
   /** Timestamp (in seconds) that specifies the time by which this session MUST expire. */
   expiry: number
   /** ERC-4337 Factory to deploy smart contract account. */
@@ -33,7 +33,7 @@ export type IssuePermissionsReturnType = {
   /** Calldata to use when calling the ERC-4337 Factory. */
   factoryData?: string | undefined
   /** Set of granted permissions. */
-  grantedPermissions: Omit<Permission, 'required'>[]
+  grantedPermissions: readonly Permission[]
   /** Permissions identifier. */
   permissionsContext: string
   /** Signer attached to the permissions. */
@@ -48,76 +48,80 @@ export type IssuePermissionsReturnType = {
 /**
  * Request permissions from a wallet to perform actions on behalf of a user.
  *
- * - Docs: https://viem.sh/experimental/erc7715/issuePermissions
+ * - Docs: https://viem.sh/experimental/erc7715/grantPermissions
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { issuePermissions } from 'viem/experimental'
+ * import { grantPermissions } from 'viem/experimental'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
  *   transport: custom(window.ethereum),
  * })
  *
- * const result = await issuePermissions(client, {
+ * const result = await grantPermissions(client, {
  *   expiry: 1716846083638,
  *   permissions: [
  *     {
- *       type: 'contract-call',
+ *       type: 'native-token-transfer',
  *       data: {
- *         address: '0x0000000000000000000000000000000000000000',
+ *         ticker: 'ETH',
  *       },
- *     },
- *     {
- *       type: 'native-token-limit',
- *       data: {
- *         amount: 69420n,
- *       },
+ *       policies: [
+ *         {
+ *           type: 'token-allowance',
+ *           data: {
+ *             allowance: parseEther('1'),
+ *           },
+ *         }
+ *       ],
  *       required: true,
  *     },
  *   ],
  * })
  */
-export async function issuePermissions(
+export async function grantPermissions(
   client: Client<Transport>,
-  parameters: IssuePermissionsParameters,
-): Promise<IssuePermissionsReturnType> {
-  const { expiry, permissions, signer } = parameters
+  parameters: GrantPermissionsParameters,
+): Promise<GrantPermissionsReturnType> {
+  const { account, expiry, permissions, signer } = parameters
   const result = await client.request(
     {
-      method: 'wallet_issuePermissions',
-      params: [parseParameters({ expiry, permissions, signer })],
+      method: 'wallet_grantPermissions',
+      params: [
+        formatParameters({ account, expiry, permissions, signer } as any),
+      ],
     },
     { retryCount: 0 },
   )
-  return parseResult(result) as IssuePermissionsReturnType
+  return formatRequest(result) as GrantPermissionsReturnType
 }
 
-function parseParameters(parameters: IssuePermissionsParameters) {
-  const { account, expiry, permissions, signer: signer_ } = parameters
+function formatParameters(parameters: GrantPermissionsParameters) {
+  const { expiry, permissions, signer: signer_ } = parameters
+
+  const account = parameters.account
+    ? parseAccount(parameters.account)
+    : undefined
 
   const signer = (() => {
     if (!account && !signer_) return undefined
 
-    if (account) {
-      // Address as signer.
-      if (typeof account === 'string')
-        return {
-          type: 'account',
-          data: {
-            id: account,
-          },
-        }
+    // JSON-RPC Account as signer.
+    if (account?.type === 'json-rpc')
+      return {
+        type: 'wallet',
+      }
 
-      // Viem Account as signer.
+    // Local Account as signer.
+    if (account?.type === 'local')
       return {
         type: 'account',
         data: {
           id: account.address,
         },
       }
-    }
 
     // ERC-7715 Signer as signer.
     return signer_
@@ -127,36 +131,60 @@ function parseParameters(parameters: IssuePermissionsParameters) {
     expiry,
     permissions: permissions.map((permission) => ({
       ...permission,
-      ...(permission.data && typeof permission.data === 'object'
-        ? {
-            data: {
-              ...permission.data,
-              ...('amount' in permission.data &&
-              typeof permission.data.amount === 'bigint'
-                ? { amount: numberToHex(permission.data.amount) }
-                : {}),
-            },
-          }
-        : {}),
+      policies: permission.policies.map((policy) => {
+        const data = (() => {
+          if (policy.type === 'token-allowance')
+            return {
+              allowance: numberToHex(policy.data.allowance),
+            }
+          if (policy.type === 'gas-limit')
+            return {
+              limit: numberToHex(policy.data.limit),
+            }
+          return policy.data
+        })()
+
+        return {
+          data,
+          type:
+            typeof policy.type === 'string' ? policy.type : policy.type.custom,
+        }
+      }),
       required: permission.required ?? false,
+      type:
+        typeof permission.type === 'string'
+          ? permission.type
+          : permission.type.custom,
     })),
     ...(signer ? { signer } : {}),
   }
 }
 
-function parseResult(result: WalletIssuePermissionsReturnType) {
+function formatRequest(result: WalletGrantPermissionsReturnType) {
   return {
     expiry: result.expiry,
     ...(result.factory ? { factory: result.factory } : {}),
     ...(result.factoryData ? { factoryData: result.factoryData } : {}),
     grantedPermissions: result.grantedPermissions.map((permission) => ({
       ...permission,
-      data: {
-        ...permission.data,
-        ...('amount' in permission.data
-          ? { amount: BigInt(permission.data.amount) }
-          : {}),
-      },
+      policies: permission.policies.map((policy) => {
+        const data = (() => {
+          if (policy.type === 'token-allowance')
+            return {
+              allowance: BigInt((policy.data as any).allowance),
+            }
+          if (policy.type === 'gas-limit')
+            return {
+              limit: BigInt((policy.data as any).limit),
+            }
+          return policy.data
+        })()
+
+        return {
+          data,
+          type: policy.type,
+        }
+      }),
     })),
     permissionsContext: result.permissionsContext,
     ...(result.signerData ? { signerData: result.signerData } : {}),
