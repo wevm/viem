@@ -1,5 +1,13 @@
 # viem
 
+## 2.16.2
+
+### Patch Changes
+
+- [#2354](https://github.com/wevm/viem/pull/2354) [`b8fc0dc`](https://github.com/wevm/viem/commit/b8fc0dc1369a39d871dca9adf6d0c9038275d3cb) Thanks [@oleksiivinogradov](https://github.com/oleksiivinogradov)! - Added dchain chain
+
+- [`00b353b`](https://github.com/wevm/viem/commit/00b353bf0242de3a18297fcd2eac5e03dcec36be) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Updated `grantPermissions` to conform to latest spec changes.
+
 ## 2.16.1
 
 ### Patch Changes
