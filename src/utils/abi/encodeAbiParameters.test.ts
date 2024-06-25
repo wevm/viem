@@ -312,6 +312,90 @@ describe('static', () => {
         '0x0000000000000000000000000000000000000000000000000000000000000000',
       )
     })
+    
+    test('from string', () => {
+      expect(
+        encodeAbiParameters(
+          [
+            {
+              name: 'xIn',
+              type: 'bool',
+            },
+          ],
+          ['False'],
+        ),
+      ).toBe(
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+      )
+      expect(
+        encodeAbiParameters(
+          [
+            {
+              name: 'xIn',
+              type: 'bool',
+            },
+          ],
+          ['True'],
+        ),
+      ).toBe(
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+      )
+      expect(
+        encodeAbiParameters(
+          [
+            {
+              name: 'xIn',
+              type: 'bool',
+            },
+          ],
+          [''],
+        ),
+      ).toBe(
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+      )
+    })
+    
+    test('from number', () => {
+      expect(
+        encodeAbiParameters(
+          [
+            {
+              name: 'xIn',
+              type: 'bool',
+            },
+          ],
+          [23],
+        ),
+      ).toBe(
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+      )
+      expect(
+        encodeAbiParameters(
+          [
+            {
+              name: 'xIn',
+              type: 'bool',
+            },
+          ],
+          [BigInt(23)],
+        ),
+      ).toBe(
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+      )
+      expect(
+        encodeAbiParameters(
+          [
+            {
+              name: 'xIn',
+              type: 'bool',
+            },
+          ],
+          [0],
+        ),
+      ).toBe(
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+      )
+    })
   })
 
   describe('bytes8', () => {
