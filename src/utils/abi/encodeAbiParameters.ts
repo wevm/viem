@@ -315,13 +315,23 @@ type EncodeBoolErrorType = PadHexErrorType | BoolToHexErrorType | ErrorType
 
 function encodeBool(value: any): PreparedParam {
   if (typeof value === 'string')
-    return { dynamic: false, encoded: padHex(boolToHex(value.toLowerCase() !== 'false' && value !== '')) }
-  else if (typeof value === 'number' || typeof value === 'bigint' || typeof value === 'boolean')
+    return {
+      dynamic: false,
+      encoded: padHex(
+        boolToHex(value.toLowerCase() !== 'false' && value !== ''),
+      ),
+    }
+  
+  if (
+    typeof value === 'number' ||
+    typeof value === 'bigint' ||
+    typeof value === 'boolean'
+  )
     return { dynamic: false, encoded: padHex(boolToHex(value)) }
-  else
-    throw new BaseError(
-      `Invalid boolean value: "${value}" (type: ${typeof value}). Expected: \`true\` or \`false\`.`,
-    )
+
+  throw new BaseError(
+    `Invalid boolean value: "${value}" (type: ${typeof value}). Expected: \`true\` or \`false\`.`,
+  )
 }
 
 type EncodeNumberErrorType = NumberToHexErrorType | ErrorType

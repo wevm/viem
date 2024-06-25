@@ -312,7 +312,7 @@ describe('static', () => {
         '0x0000000000000000000000000000000000000000000000000000000000000000',
       )
     })
-    
+
     test('from string', () => {
       expect(
         encodeAbiParameters(
@@ -322,7 +322,7 @@ describe('static', () => {
               type: 'bool',
             },
           ],
-          ['False'],
+          ['False' as unknown as boolean],
         ),
       ).toBe(
         '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -335,7 +335,7 @@ describe('static', () => {
               type: 'bool',
             },
           ],
-          ['True'],
+          ['True' as unknown as boolean],
         ),
       ).toBe(
         '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -348,13 +348,13 @@ describe('static', () => {
               type: 'bool',
             },
           ],
-          [''],
+          ['' as unknown as boolean],
         ),
       ).toBe(
         '0x0000000000000000000000000000000000000000000000000000000000000000',
       )
     })
-    
+
     test('from number', () => {
       expect(
         encodeAbiParameters(
@@ -364,7 +364,7 @@ describe('static', () => {
               type: 'bool',
             },
           ],
-          [23],
+          [23 as unknown as boolean],
         ),
       ).toBe(
         '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -377,7 +377,7 @@ describe('static', () => {
               type: 'bool',
             },
           ],
-          [BigInt(23)],
+          [BigInt(23) as unknown as boolean],
         ),
       ).toBe(
         '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -390,7 +390,7 @@ describe('static', () => {
               type: 'bool',
             },
           ],
-          [0],
+          [0 as unknown as boolean],
         ),
       ).toBe(
         '0x0000000000000000000000000000000000000000000000000000000000000000',
