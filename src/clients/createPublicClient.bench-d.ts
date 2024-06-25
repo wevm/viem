@@ -1,5 +1,5 @@
-import { test } from 'vitest'
 import { attest } from '@arktype/attest'
+import { test } from 'vitest'
 
 import { createClient } from './createClient.js'
 import { createPublicClient } from './createPublicClient.js'

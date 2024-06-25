@@ -1,5 +1,5 @@
-import { test } from 'vitest'
 import { attest } from '@arktype/attest'
+import { test } from 'vitest'
 
 import { usdcContractConfig } from '../../../test/src/abis.js'
 import { mainnet } from '../../chains/index.js'
