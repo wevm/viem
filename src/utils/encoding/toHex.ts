@@ -93,7 +93,10 @@ export type BoolToHexErrorType = AssertSizeErrorType | PadErrorType | ErrorType
  * const data = boolToHex(true, { size: 32 })
  * // '0x0000000000000000000000000000000000000000000000000000000000000001'
  */
-export function boolToHex(value: Parameters<typeof Number>[0], opts: BoolToHexOpts = {}): Hex {
+export function boolToHex(
+  value: Parameters<typeof Number>[0],
+  opts: BoolToHexOpts = {},
+): Hex {
   const hex: Hex = `0x${Number(value)}`
   if (typeof opts.size === 'number') {
     assertSize(hex, { size: opts.size })

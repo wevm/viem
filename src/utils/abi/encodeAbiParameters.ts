@@ -321,7 +321,7 @@ function encodeBool(value: any): PreparedParam {
         boolToHex(value.toLowerCase() !== 'false' && value !== ''),
       ),
     }
-  
+
   if (
     typeof value === 'number' ||
     typeof value === 'bigint' ||
