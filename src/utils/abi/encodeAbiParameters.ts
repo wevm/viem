@@ -159,7 +159,7 @@ function prepareParam<const TParam extends AbiParameter>({
     return encodeAddress(value as unknown as Hex)
   }
   if (param.type === 'bool') {
-    return encodeBool(value as unknown as boolean)
+    return encodeBool(value)
   }
   if (param.type.startsWith('uint') || param.type.startsWith('int')) {
     const signed = param.type.startsWith('int')
@@ -313,12 +313,15 @@ function encodeBytes<const TParam extends AbiParameter>(
 
 type EncodeBoolErrorType = PadHexErrorType | BoolToHexErrorType | ErrorType
 
-function encodeBool(value: boolean): PreparedParam {
-  if (typeof value !== 'boolean')
+function encodeBool(value: any): PreparedParam {
+  if (typeof value === 'string')
+    return { dynamic: false, encoded: padHex(boolToHex(value.toLowerCase() !== 'false' && value !== '')) }
+  else if (typeof value === 'number' || typeof value === 'boolean')
+    return { dynamic: false, encoded: padHex(boolToHex(value)) }
+  else
     throw new BaseError(
       `Invalid boolean value: "${value}" (type: ${typeof value}). Expected: \`true\` or \`false\`.`,
     )
-  return { dynamic: false, encoded: padHex(boolToHex(value)) }
 }
 
 type EncodeNumberErrorType = NumberToHexErrorType | ErrorType
