@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
@@ -10,8 +11,8 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { UnionPartialBy } from '../../../types/utils.js'
-import { parseAccount } from '../../../utils/accounts.js'
 import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
+import { formatUserOperationGas } from '../formatters/gas.js'
 import { formatUserOperationRequest } from '../formatters/userOperation.js'
 import type { BundlerRpcSchema } from '../types/eip1193.js'
 import type {
@@ -19,7 +20,6 @@ import type {
   EntryPointVersion,
   GetEntryPointVersionParameter,
 } from '../types/entryPointVersion.js'
-import type { RpcEstimateUserOperationGasReturnType } from '../types/rpc.js'
 import type {
   EstimateUserOperationGasReturnType as EstimateUserOperationGasReturnType_,
   UserOperationRequest,
@@ -193,28 +193,5 @@ export async function estimateUserOperationGas<
   } catch (error) {
     // biome-ignore lint/complexity/noUselessCatch: TODO – `getEstimateUserOperationGasError`
     throw error
-  }
-}
-
-function formatUserOperationGas(
-  parameters: RpcEstimateUserOperationGasReturnType,
-): EstimateUserOperationGasReturnType_ {
-  const {
-    callGasLimit,
-    preVerificationGas,
-    verificationGasLimit,
-    paymasterPostOpGasLimit,
-    paymasterVerificationGasLimit,
-  } = parameters
-  return {
-    callGasLimit: BigInt(callGasLimit),
-    preVerificationGas: BigInt(preVerificationGas),
-    verificationGasLimit: BigInt(verificationGasLimit),
-    paymasterPostOpGasLimit: paymasterPostOpGasLimit
-      ? BigInt(paymasterPostOpGasLimit)
-      : undefined,
-    paymasterVerificationGasLimit: paymasterVerificationGasLimit
-      ? BigInt(paymasterVerificationGasLimit)
-      : undefined,
   }
 }

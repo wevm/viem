@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
@@ -10,7 +11,6 @@ import type {
   GetChainParameter,
 } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
-import { parseAccount } from '../../../utils/accounts.js'
 import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
 import { formatUserOperationRequest } from '../formatters/userOperation.js'
 import type { BundlerRpcSchema } from '../types/eip1193.js'

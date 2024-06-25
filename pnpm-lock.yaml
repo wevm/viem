@@ -1788,9 +1788,8 @@ packages:
     resolution: {integrity: sha512-HNjmfLQEVRZmHRET336f20H/8kOozUGwk7yajvsonjNxbj2wBTK1WsQuHkD5yYh9RxFGL2EyDHryOihOwUoKDA==}
     engines: {node: '>= 10.0.0'}
 
-  '@pimlico/alto@0.0.0-alto-package.20240605T105414':
-    resolution: {integrity: sha512-iuQuA135J7Gfk3A7RYlnWlhHcF16tPx0vtgnTCgQdb1/npC8pObJGr0nuLCPAqRFiYpuoo3VktOWI7jSNmfx0w==}
-    deprecated: This canary version is deprecated because it is older than 2 days.
+  '@pimlico/alto@0.0.4':
+    resolution: {integrity: sha512-rFdyBPnbNZ6O8N1kYDtm8CJ6a4Rs0Gxi2e4Wl5q1OnTdK38f09RolxPF2WgJDj2NDFWIRXINGHgt4Moj9hulYw==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}

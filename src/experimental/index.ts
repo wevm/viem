@@ -1,5 +1,6 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
+  type ToSmartAccountParameters,
   type ToSmartAccountReturnType,
   toSmartAccount,
 } from './erc4337/accounts/toSmartAccount.js'
@@ -10,10 +11,22 @@ export {
   solady,
 } from './erc4337/accounts/implementations/solady.js'
 export {
+  type EstimateUserOperationGasErrorType,
+  type EstimateUserOperationGasParameters,
+  type EstimateUserOperationGasReturnType,
+  estimateUserOperationGas,
+} from './erc4337/actions/estimateUserOperationGas.js'
+export {
   type GetSupportedEntryPointsErrorType,
   type GetSupportedEntryPointsReturnType,
   getSupportedEntryPoints,
 } from './erc4337/actions/getSupportedEntryPoints.js'
+export {
+  type SendUserOperationErrorType,
+  type SendUserOperationParameters,
+  type SendUserOperationReturnType,
+  sendUserOperation,
+} from './erc4337/actions/sendUserOperation.js'
 export {
   type BundlerClient,
   type BundlerClientConfig,
@@ -21,18 +34,32 @@ export {
   createBundlerClient,
 } from './erc4337/clients/createBundlerClient.js'
 export {
+  type BundlerActionsParameters,
   type BundlerActions,
   bundlerActions,
 } from './erc4337/clients/decorators/bundler.js'
+export {
+  type FormatUserOperationGasErrorType,
+  formatUserOperationGas,
+} from './erc4337/formatters/gas.js'
+export {
+  type FormatUserOperationRequestErrorType,
+  formatUserOperationRequest,
+} from './erc4337/formatters/userOperation.js'
+export {
+  type GetUserOperationHashParameters,
+  type GetUserOperationHashReturnType,
+  getUserOperationHash,
+} from './erc4337/utils/getUserOperationHash.js'
 export type { BundlerRpcSchema } from './erc4337/types/eip1193.js'
 export type {
   RpcEstimateUserOperationGasReturnType,
   RpcGetUserOperationByHashReturnType,
   RpcUserOperation,
   RpcUserOperationReceipt,
+  RpcUserOperationRequest,
 } from './erc4337/types/rpc.js'
 export type {
-  EstimateUserOperationGasReturnType,
   GetUserOperationByHashReturnType,
   PackedUserOperation,
   UserOperation,

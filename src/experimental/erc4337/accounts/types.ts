@@ -16,9 +16,9 @@ type Call = {
   value?: bigint | undefined
 }
 
-export type SignMessageParameters = { message: SignableMessage }
+type SignMessageParameters = { message: SignableMessage }
 
-export type SignUserOperationParameters = {
+type SignUserOperationParameters = {
   chainId?: number | undefined
   userOperation: UnionPartialBy<UserOperation, 'sender'>
 }

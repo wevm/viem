@@ -1,5 +1,6 @@
 import { type Address, parseAbi } from 'abitype'
 
+import { parseAccount } from '../../../../accounts/utils/parseAccount.js'
 import { readContract } from '../../../../actions/public/readContract.js'
 import { signMessage } from '../../../../actions/wallet/signMessage.js'
 import { signTypedData } from '../../../../actions/wallet/signTypedData.js'
@@ -7,10 +8,9 @@ import type { Account } from '../../../../types/account.js'
 import type { Chain } from '../../../../types/chain.js'
 import type { Hex } from '../../../../types/misc.js'
 import { encodeFunctionData } from '../../../../utils/abi/encodeFunctionData.js'
-import { parseAccount } from '../../../../utils/accounts.js'
 import { getChainContractAddress } from '../../../../utils/chain/getChainContractAddress.js'
 import { pad } from '../../../../utils/data/pad.js'
-import { toPrefixedMessage } from '../../../../utils/signature/hashMessage.js'
+import { toPrefixedMessage } from '../../../../utils/signature/toPrefixedMessage.js'
 import { getUserOperationHash } from '../../utils/getUserOperationHash.js'
 import type {
   SmartAccountImplementation,
