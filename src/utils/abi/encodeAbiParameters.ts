@@ -316,7 +316,7 @@ type EncodeBoolErrorType = PadHexErrorType | BoolToHexErrorType | ErrorType
 function encodeBool(value: any): PreparedParam {
   if (typeof value === 'string')
     return { dynamic: false, encoded: padHex(boolToHex(value.toLowerCase() !== 'false' && value !== '')) }
-  else if (typeof value === 'number' || typeof value === 'boolean')
+  else if (typeof value === 'number' || typeof value === 'bigint' || typeof value === 'boolean')
     return { dynamic: false, encoded: padHex(boolToHex(value)) }
   else
     throw new BaseError(
