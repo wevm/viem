@@ -18,6 +18,7 @@ export const unreal = /*#__PURE__*/ defineChain({
       apiUrl: 'https://unreal.blockscout.com/api/v2',
     },
   },
+  testnet: true,
   contracts: {
     multicall3: {
       address: '0x8b6B0e60D8CD84898Ea8b981065A12F876eA5677',
