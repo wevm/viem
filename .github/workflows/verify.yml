@@ -85,12 +85,7 @@ jobs:
 
       - name: Bench types
         if: matrix.version != '5.0.4'
-        run: pnpm typebench
-
-      # Redundant with `pnpm typecheck`
-      # If Vitest adds special features in the future, e.g. type coverage, can add this back!
-      # - name: Test types
-      #   run: pnpm test:typecheck
+        run: pnpm bench:types
 
   test:
     name: Test

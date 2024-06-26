@@ -2,7 +2,7 @@
 description: Request permissions from a wallet to perform actions on behalf of a user.
 ---
 
-# issuePermissions
+# grantPermissions
 
 Request permissions from a wallet to perform actions on behalf of a user.
 
@@ -20,16 +20,23 @@ This is an experimental action that is not supported in most wallets. It is reco
 import { parseEther } from 'viem'
 import { account, walletClient } from './config'
  
-const result = await walletClient.issuePermissions({ // [!code focus:99]
+const result = await walletClient.grantPermissions({ // [!code focus:99]
   account,
   expiry: 1716846083638,
   permissions: [
     {
-      type: 'native-token-limit',
+      type: 'native-token-transfer',
       data: {
-        amount: parseEther('0.5'),
+        ticker: 'ETH',
       },
-      required: true,
+      policies: [
+        {
+          type: 'token-allowance',
+          data: {
+            allowance: parseEther('1'),
+          },
+        },
+      ],
     },
   ],
 })
@@ -54,7 +61,7 @@ export const [account] = await walletClient.getAddresses()
 
 ## Returns
 
-`IssuePermissionsReturnType`
+`GrantPermissionsReturnType`
 
 Response from the wallet after issuing permissions.
 
@@ -70,16 +77,23 @@ The Account to scope the permissions to.
 import { parseEther } from 'viem'
 import { account, walletClient } from './config'
  
-const result = await walletClient.issuePermissions({
+const result = await walletClient.grantPermissions({
   account, // [!code focus]
   expiry: 1716846083638,
   permissions: [
     {
-      type: 'native-token-limit',
+      type: 'native-token-transfer',
       data: {
-        amount: parseEther('0.5'),
+        ticker: 'ETH',
       },
-      required: true,
+      policies: [
+        {
+          type: 'token-allowance',
+          data: {
+            allowance: parseEther('1'),
+          },
+        },
+      ],
     },
   ],
 })
@@ -95,16 +109,23 @@ The timestamp (in seconds) when the permissions will expire.
 import { parseEther } from 'viem'
 import { account, walletClient } from './config'
  
-const result = await walletClient.issuePermissions({
+const result = await walletClient.grantPermissions({
   account,
   expiry: 1716846083638, // [!code focus]
   permissions: [
     {
-      type: 'native-token-limit',
+      type: 'native-token-transfer',
       data: {
-        amount: parseEther('0.5'),
+        ticker: 'ETH',
       },
-      required: true,
+      policies: [
+        {
+          type: 'token-allowance',
+          data: {
+            allowance: parseEther('1'),
+          },
+        },
+      ],
     },
   ],
 })
@@ -114,24 +135,31 @@ const result = await walletClient.issuePermissions({
 
 - **Type:** `Permission[]`
 
-Set of permissions to grant to the user.
+Set of Permissions & Policies to grant to the user.
 
 ```ts twoslash
 // @noErrors
 import { parseEther } from 'viem'
 import { account, walletClient } from './config'
  
-const result = await walletClient.issuePermissions({
+const result = await walletClient.grantPermissions({
   account,
   expiry: 1716846083638,
-  permissions: [ // [!code focus:99]
-    { 
-      type: 'native-token-limit', 
-      data: { 
-        amount: parseEther('0.5'), 
-      }, 
-      required: true, 
-    }, 
+  permissions: [ // [!code focus:19]
+    {
+      type: 'native-token-transfer',
+      data: {
+        ticker: 'ETH',
+      },
+      policies: [
+        {
+          type: 'token-allowance',
+          data: {
+            allowance: parseEther('1'),
+          },
+        },
+      ],
+    },
     { 
       type: '  
 //           ^| 
@@ -139,6 +167,30 @@ const result = await walletClient.issuePermissions({
   ], 
 })
 ``` 
+
+:::tip
+The `type` property is constrained to the canonical set of [Permission & Policy types as 
+defined in ERC-7715](https://github.com/pedrouid/ERCs/blob/19c16341c57f6ac8770cb778d60845dcf30f6a40/ERCS/erc-7715.md#permissions), however, consumers can utilize a `custom` property on `type` as an escape hatch to use custom Permission or Policy types:
+
+```ts twoslash
+// @noErrors
+import { parseEther } from 'viem'
+import { account, walletClient } from './config'
+ 
+const result = await walletClient.grantPermissions({
+  account,
+  expiry: 1716846083638,
+  permissions: [
+    { 
+      type: { custom: 'example' }, // [!code focus]
+      data: {
+        value: '0xdeadbeef',
+      }
+    } 
+  ], 
+})
+``` 
+:::
 
 ### signer
 
@@ -150,7 +202,7 @@ Custom signer type to scope the permissions to.
 import { parseEther } from 'viem'
 import { account, walletClient } from './config'
  
-const result = await walletClient.issuePermissions({
+const result = await walletClient.grantPermissions({
   expiry: 1716846083638,
   permissions: [ 
     { 

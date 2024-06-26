@@ -1116,8 +1116,8 @@ export const sidebar = {
             text: 'Actions',
             items: [
               {
-                text: 'issuePermissions',
-                link: '/experimental/erc7715/issuePermissions',
+                text: 'grantPermissions',
+                link: '/experimental/erc7715/grantPermissions',
               },
             ],
           },

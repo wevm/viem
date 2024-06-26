@@ -16,4 +16,10 @@ export const bitTorrent = /*#__PURE__*/ defineChain({
       apiUrl: 'https://api.bttcscan.com/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 31078552,
+    },
+  },
 })
