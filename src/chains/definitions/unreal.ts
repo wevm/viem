@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain/defineChain.js';
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const unreal = /*#__PURE__*/ defineChain({
   id: 18233,
@@ -25,4 +25,4 @@ export const unreal = /*#__PURE__*/ defineChain({
       blockCreated: 1745,
     },
   },
-});
+})
