@@ -131,28 +131,37 @@ export type WalletCallReceipt<quantity = Hex, status = Hex> = {
   transactionHash: Hex
 }
 
-export type WalletIssuePermissionsParameters = {
+export type WalletGrantPermissionsParameters = {
   signer?:
     | {
         type: string
-        data: unknown
+        data?: unknown | undefined
       }
     | undefined
   permissions: readonly {
-    type: string
     data: unknown
-    required: boolean
+    policies: readonly {
+      data: unknown
+      type: string
+    }[]
+    required?: boolean | undefined
+    type: string
   }[]
   expiry: number
 }
 
-export type WalletIssuePermissionsReturnType = {
+export type WalletGrantPermissionsReturnType = {
   expiry: number
   factory?: `0x${string}` | undefined
   factoryData?: string | undefined
   grantedPermissions: readonly {
+    data: unknown
+    policies: readonly {
+      data: unknown
+      type: string
+    }[]
+    required?: boolean | undefined
     type: string
-    data: any
   }[]
   permissionsContext: string
   signerData?:
@@ -1404,13 +1413,13 @@ export type WalletRpcSchema = [
    * @description Requests permissions from a wallet
    * @link https://eips.ethereum.org/EIPS/eip-7715
    * @example
-   * provider.request({ method: 'wallet_issuePermissions', params: [{ ... }] })
+   * provider.request({ method: 'wallet_grantPermissions', params: [{ ... }] })
    * // => { ... }
    */
   {
-    Method: 'wallet_issuePermissions'
-    Parameters?: [WalletIssuePermissionsParameters]
-    ReturnType: Prettify<WalletIssuePermissionsReturnType>
+    Method: 'wallet_grantPermissions'
+    Parameters?: [WalletGrantPermissionsParameters]
+    ReturnType: Prettify<WalletGrantPermissionsReturnType>
   },
   /**
    * @description Requests the given permissions from the user.
@@ -1519,10 +1528,14 @@ export type EIP1193Parameters<
     }
 
 export type EIP1193RequestOptions = {
+  // Deduplicate in-flight requests.
+  dedupe?: boolean | undefined
   // The base delay (in ms) between retries.
   retryDelay?: number | undefined
   // The max number of times to retry.
   retryCount?: number | undefined
+  /** Unique identifier for the request. */
+  uid?: string | undefined
 }
 
 type DerivedRpcSchema<

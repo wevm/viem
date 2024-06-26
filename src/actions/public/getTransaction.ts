@@ -108,20 +108,29 @@ export async function getTransaction<
 
   let transaction: RpcTransaction | null = null
   if (hash) {
-    transaction = await client.request({
-      method: 'eth_getTransactionByHash',
-      params: [hash],
-    })
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionByHash',
+        params: [hash],
+      },
+      { dedupe: true },
+    )
   } else if (blockHash) {
-    transaction = await client.request({
-      method: 'eth_getTransactionByBlockHashAndIndex',
-      params: [blockHash, numberToHex(index)],
-    })
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionByBlockHashAndIndex',
+        params: [blockHash, numberToHex(index)],
+      },
+      { dedupe: true },
+    )
   } else if (blockNumberHex || blockTag) {
-    transaction = await client.request({
-      method: 'eth_getTransactionByBlockNumberAndIndex',
-      params: [blockNumberHex || blockTag, numberToHex(index)],
-    })
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionByBlockNumberAndIndex',
+        params: [blockNumberHex || blockTag, numberToHex(index)],
+      },
+      { dedupe: Boolean(blockNumberHex) },
+    )
   }
 
   if (!transaction)

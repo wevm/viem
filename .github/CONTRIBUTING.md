@@ -19,7 +19,7 @@ If you are contributing to add a new chain to `viem/chains`, please read the [Ch
 This guide is intended to help you get started with contributing. By following these steps, you will understand the development process and workflow.
 
 1. [Cloning the repository](#cloning-the-repository)
-2. [Installing Node.js and Bun](#installing-nodejs-and-bun)
+2. [Installing Node.js and pnpm](#installing-nodejs-and-pnpm)
 3. [Installing Foundry](#installing-foundry)
 4. [Installing dependencies](#installing-dependencies)
 5. [Running the test suite](#running-the-test-suite)
@@ -49,21 +49,21 @@ gh repo clone wevm/viem -- --recurse-submodules
 
 ---
 
-### Installing Node.js and Bun
+### Installing Node.js and pnpm
 
-wagmi uses [Bun workspaces](https://bun.sh/docs/install/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **Bun v1 or higher**.
+wagmi uses [pnpm workspaces](https://bun.sh/docs/install/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **pnpm v9.1.0 or higher**.
 
-You can run the following commands in your terminal to check your local Node.js and Bun versions:
+You can run the following commands in your terminal to check your local Node.js and pnpm versions:
 
 ```bash
 node -v
-bun -v
+pnpm -v
 ```
 
-If the versions are not correct or you don't have Node.js or Bun installed, download and follow their setup instructions:
+If the versions are not correct or you don't have Node.js or pnpm installed, download and follow their setup instructions:
 
 - Install Node.js using [fnm](https://github.com/Schniz/fnm) or from the [official website](https://nodejs.org)
-- Install [Bun](https://bun.sh/docs/installation)
+- Install [pnpm](https://pnpm.io/installation)
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
@@ -92,10 +92,10 @@ curl -L https://foundry.paradigm.xyz | bash
 Once in the project's root directory, run the following command to install the project's dependencies:
 
 ```bash
-bun install
+pnpm install
 ```
 
-After the install completes, Bun links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
+After the install completes, pnpm links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>

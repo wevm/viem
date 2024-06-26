@@ -12,7 +12,7 @@ import {
   numberToHex,
 } from '../../utils/encoding/toHex.js'
 
-export type GetBytecodeParameters = {
+export type GetCodeParameters = {
   address: Address
 } & (
   | {
@@ -25,9 +25,9 @@ export type GetBytecodeParameters = {
     }
 )
 
-export type GetBytecodeReturnType = Hex | undefined
+export type GetCodeReturnType = Hex | undefined
 
-export type GetBytecodeErrorType =
+export type GetCodeErrorType =
   | NumberToHexErrorType
   | RequestErrorType
   | ErrorType
@@ -35,36 +35,39 @@ export type GetBytecodeErrorType =
 /**
  * Retrieves the bytecode at an address.
  *
- * - Docs: https://viem.sh/docs/contract/getBytecode
+ * - Docs: https://viem.sh/docs/contract/getCode
  * - JSON-RPC Methods: [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
  *
  * @param client - Client to use
- * @param parameters - {@link GetBytecodeParameters}
- * @returns The contract's bytecode. {@link GetBytecodeReturnType}
+ * @param parameters - {@link GetCodeParameters}
+ * @returns The contract's bytecode. {@link GetCodeReturnType}
  *
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { getBytecode } from 'viem/contract'
+ * import { getCode } from 'viem/contract'
  *
  * const client = createPublicClient({
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const code = await getBytecode(client, {
+ * const code = await getCode(client, {
  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
  * })
  */
-export async function getBytecode<TChain extends Chain | undefined>(
+export async function getCode<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
-  { address, blockNumber, blockTag = 'latest' }: GetBytecodeParameters,
-): Promise<GetBytecodeReturnType> {
+  { address, blockNumber, blockTag = 'latest' }: GetCodeParameters,
+): Promise<GetCodeReturnType> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
-  const hex = await client.request({
-    method: 'eth_getCode',
-    params: [address, blockNumberHex || blockTag],
-  })
+  const hex = await client.request(
+    {
+      method: 'eth_getCode',
+      params: [address, blockNumberHex || blockTag],
+    },
+    { dedupe: Boolean(blockNumberHex) },
+  )
   if (hex === '0x') return undefined
   return hex
 }

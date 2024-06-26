@@ -132,6 +132,9 @@ test('exports utils', () => {
       "verifyMessage",
       "verifyTypedData",
       "hashMessage",
+      "parseErc6492Signature",
+      "isErc6492Signature",
+      "serializeErc6492Signature",
       "getSerializedTransactionType",
       "getTransactionType",
       "assertRequest",
@@ -147,6 +150,8 @@ test('exports utils', () => {
       "parseUnits",
       "parseEther",
       "parseGwei",
+      "createNonceManager",
+      "nonceManager",
     ]
   `)
 })

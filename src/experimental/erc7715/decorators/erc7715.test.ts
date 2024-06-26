@@ -7,12 +7,9 @@ import { walletActionsErc7715 } from './erc7715.js'
 const client = createClient({
   transport: custom({
     async request({ method, params }) {
-      if (method === 'wallet_issuePermissions')
+      if (method === 'wallet_grantPermissions')
         return {
-          grantedPermissions: params[0].permissions.map((permission: any) => ({
-            type: permission.type,
-            data: permission.data,
-          })),
+          grantedPermissions: params[0].permissions,
           expiry: params[0].expiry,
           permissionsContext: '0xdeadbeef',
         }
@@ -25,15 +22,15 @@ const client = createClient({
 test('default', async () => {
   expect(walletActionsErc7715()(client)).toMatchInlineSnapshot(`
     {
-      "issuePermissions": [Function],
+      "grantPermissions": [Function],
     }
   `)
 })
 
 describe('smoke test', () => {
-  test('issuePermissions', async () => {
+  test('grantPermissions', async () => {
     expect(
-      await client.issuePermissions({
+      await client.grantPermissions({
         expiry: 1716846083638,
         signer: {
           type: 'account',
@@ -43,17 +40,18 @@ describe('smoke test', () => {
         },
         permissions: [
           {
-            type: 'contract-call',
+            type: 'native-token-transfer',
             data: {
-              address: '0x0000000000000000000000000000000000000000',
+              ticker: 'ETH',
             },
-          },
-          {
-            type: 'native-token-limit',
-            data: {
-              amount: 69420n,
-            },
-            required: true,
+            policies: [
+              {
+                type: 'token-allowance',
+                data: {
+                  allowance: 1n,
+                },
+              },
+            ],
           },
         ],
       }),
@@ -63,15 +61,18 @@ describe('smoke test', () => {
         "grantedPermissions": [
           {
             "data": {
-              "address": "0x0000000000000000000000000000000000000000",
+              "ticker": "ETH",
             },
-            "type": "contract-call",
-          },
-          {
-            "data": {
-              "amount": 69420n,
-            },
-            "type": "native-token-limit",
+            "policies": [
+              {
+                "data": {
+                  "allowance": 1n,
+                },
+                "type": "token-allowance",
+              },
+            ],
+            "required": false,
+            "type": "native-token-transfer",
           },
         ],
         "permissionsContext": "0xdeadbeef",

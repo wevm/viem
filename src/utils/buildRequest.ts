@@ -55,9 +55,13 @@ import type {
   EIP1193RequestFn,
   EIP1193RequestOptions,
 } from '../types/eip1193.js'
+import { stringToHex } from './encoding/toHex.js'
+import { keccak256 } from './hash/keccak256.js'
 import type { CreateBatchSchedulerErrorType } from './promise/createBatchScheduler.js'
+import { withDedupe } from './promise/withDedupe.js'
 import { type WithRetryErrorType, withRetry } from './promise/withRetry.js'
 import type { GetSocketRpcClientErrorType } from './rpc/socket.js'
+import { stringify } from './stringify.js'
 
 export type RequestErrorType =
   | ChainDisconnectedErrorType
@@ -94,98 +98,110 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
   options: EIP1193RequestOptions = {},
 ): EIP1193RequestFn {
   return async (args, overrideOptions = {}) => {
-    const { retryDelay = 150, retryCount = 3 } = {
+    const {
+      dedupe = false,
+      retryDelay = 150,
+      retryCount = 3,
+      uid,
+    } = {
       ...options,
       ...overrideOptions,
     }
-    return withRetry(
-      async () => {
-        try {
-          return await request(args)
-        } catch (err_) {
-          const err = err_ as unknown as RpcError<
-            RpcErrorCode | ProviderRpcErrorCode
-          >
-          switch (err.code) {
-            // -32700
-            case ParseRpcError.code:
-              throw new ParseRpcError(err)
-            // -32600
-            case InvalidRequestRpcError.code:
-              throw new InvalidRequestRpcError(err)
-            // -32601
-            case MethodNotFoundRpcError.code:
-              throw new MethodNotFoundRpcError(err)
-            // -32602
-            case InvalidParamsRpcError.code:
-              throw new InvalidParamsRpcError(err)
-            // -32603
-            case InternalRpcError.code:
-              throw new InternalRpcError(err)
-            // -32000
-            case InvalidInputRpcError.code:
-              throw new InvalidInputRpcError(err)
-            // -32001
-            case ResourceNotFoundRpcError.code:
-              throw new ResourceNotFoundRpcError(err)
-            // -32002
-            case ResourceUnavailableRpcError.code:
-              throw new ResourceUnavailableRpcError(err)
-            // -32003
-            case TransactionRejectedRpcError.code:
-              throw new TransactionRejectedRpcError(err)
-            // -32004
-            case MethodNotSupportedRpcError.code:
-              throw new MethodNotSupportedRpcError(err)
-            // -32005
-            case LimitExceededRpcError.code:
-              throw new LimitExceededRpcError(err)
-            // -32006
-            case JsonRpcVersionUnsupportedError.code:
-              throw new JsonRpcVersionUnsupportedError(err)
-            // 4001
-            case UserRejectedRequestError.code:
-              throw new UserRejectedRequestError(err)
-            // 4100
-            case UnauthorizedProviderError.code:
-              throw new UnauthorizedProviderError(err)
-            // 4200
-            case UnsupportedProviderMethodError.code:
-              throw new UnsupportedProviderMethodError(err)
-            // 4900
-            case ProviderDisconnectedError.code:
-              throw new ProviderDisconnectedError(err)
-            // 4901
-            case ChainDisconnectedError.code:
-              throw new ChainDisconnectedError(err)
-            // 4902
-            case SwitchChainError.code:
-              throw new SwitchChainError(err)
-            // CAIP-25: User Rejected Error
-            // https://docs.walletconnect.com/2.0/specs/clients/sign/error-codes#rejected-caip-25
-            case 5000:
-              throw new UserRejectedRequestError(err)
-            default:
-              if (err_ instanceof BaseError) throw err_
-              throw new UnknownRpcError(err as Error)
-          }
-        }
-      },
-      {
-        delay: ({ count, error }) => {
-          // If we find a Retry-After header, let's retry after the given time.
-          if (error && error instanceof HttpRequestError) {
-            const retryAfter = error?.headers?.get('Retry-After')
-            if (retryAfter?.match(/\d/))
-              return Number.parseInt(retryAfter) * 1000
-          }
+    const requestId = dedupe
+      ? keccak256(stringToHex(`${uid}.${stringify(args)}`))
+      : undefined
+    return withDedupe(
+      () =>
+        withRetry(
+          async () => {
+            try {
+              return await request(args)
+            } catch (err_) {
+              const err = err_ as unknown as RpcError<
+                RpcErrorCode | ProviderRpcErrorCode
+              >
+              switch (err.code) {
+                // -32700
+                case ParseRpcError.code:
+                  throw new ParseRpcError(err)
+                // -32600
+                case InvalidRequestRpcError.code:
+                  throw new InvalidRequestRpcError(err)
+                // -32601
+                case MethodNotFoundRpcError.code:
+                  throw new MethodNotFoundRpcError(err)
+                // -32602
+                case InvalidParamsRpcError.code:
+                  throw new InvalidParamsRpcError(err)
+                // -32603
+                case InternalRpcError.code:
+                  throw new InternalRpcError(err)
+                // -32000
+                case InvalidInputRpcError.code:
+                  throw new InvalidInputRpcError(err)
+                // -32001
+                case ResourceNotFoundRpcError.code:
+                  throw new ResourceNotFoundRpcError(err)
+                // -32002
+                case ResourceUnavailableRpcError.code:
+                  throw new ResourceUnavailableRpcError(err)
+                // -32003
+                case TransactionRejectedRpcError.code:
+                  throw new TransactionRejectedRpcError(err)
+                // -32004
+                case MethodNotSupportedRpcError.code:
+                  throw new MethodNotSupportedRpcError(err)
+                // -32005
+                case LimitExceededRpcError.code:
+                  throw new LimitExceededRpcError(err)
+                // -32006
+                case JsonRpcVersionUnsupportedError.code:
+                  throw new JsonRpcVersionUnsupportedError(err)
+                // 4001
+                case UserRejectedRequestError.code:
+                  throw new UserRejectedRequestError(err)
+                // 4100
+                case UnauthorizedProviderError.code:
+                  throw new UnauthorizedProviderError(err)
+                // 4200
+                case UnsupportedProviderMethodError.code:
+                  throw new UnsupportedProviderMethodError(err)
+                // 4900
+                case ProviderDisconnectedError.code:
+                  throw new ProviderDisconnectedError(err)
+                // 4901
+                case ChainDisconnectedError.code:
+                  throw new ChainDisconnectedError(err)
+                // 4902
+                case SwitchChainError.code:
+                  throw new SwitchChainError(err)
+                // CAIP-25: User Rejected Error
+                // https://docs.walletconnect.com/2.0/specs/clients/sign/error-codes#rejected-caip-25
+                case 5000:
+                  throw new UserRejectedRequestError(err)
+                default:
+                  if (err_ instanceof BaseError) throw err_
+                  throw new UnknownRpcError(err as Error)
+              }
+            }
+          },
+          {
+            delay: ({ count, error }) => {
+              // If we find a Retry-After header, let's retry after the given time.
+              if (error && error instanceof HttpRequestError) {
+                const retryAfter = error?.headers?.get('Retry-After')
+                if (retryAfter?.match(/\d/))
+                  return Number.parseInt(retryAfter) * 1000
+              }
 
-          // Otherwise, let's retry with an exponential backoff.
-          return ~~(1 << count) * retryDelay
-        },
-        retryCount,
-        shouldRetry: ({ error }) => shouldRetry(error),
-      },
+              // Otherwise, let's retry with an exponential backoff.
+              return ~~(1 << count) * retryDelay
+            },
+            retryCount,
+            shouldRetry: ({ error }) => shouldRetry(error),
+          },
+        ),
+      { enabled: dedupe, id: requestId },
     )
   }
 }
