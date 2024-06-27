@@ -172,7 +172,7 @@ function defineAnvil<const chain extends Chain>(
 
       return {
         config,
-        async request({ method, params }: any) {
+        async request({ method, params }: any, opts: any = {}) {
           if (method === 'eth_requestAccounts') {
             return [accounts[0].address] as any
           }
@@ -213,7 +213,7 @@ function defineAnvil<const chain extends Chain>(
               },
             ]
 
-          return request({ method, params })
+          return request({ method, params }, opts)
         },
         value,
       }

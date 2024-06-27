@@ -34,6 +34,9 @@ export async function getPermissions<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(client: Client<Transport, TChain, TAccount>) {
-  const permissions = await client.request({ method: 'wallet_getPermissions' })
+  const permissions = await client.request(
+    { method: 'wallet_getPermissions' },
+    { dedupe: true },
+  )
   return permissions
 }

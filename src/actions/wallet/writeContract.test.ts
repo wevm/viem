@@ -133,7 +133,8 @@ describe('args: chain', () => {
 test('args: dataSuffix', async () => {
   const spy = vi.spyOn(client, 'sendTransaction')
   await writeContract(client, {
-    ...wagmiContractConfig,
+    abi: wagmiContractConfig.abi,
+    address: wagmiContractConfig.address,
     account: accounts[0].address,
     functionName: 'mint',
     dataSuffix: '0x12345678',

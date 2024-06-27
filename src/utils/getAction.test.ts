@@ -32,6 +32,16 @@ test('uses client action', async () => {
   expect(clientSpy).toBeCalledWith({})
 })
 
+test('nullish return value', async () => {
+  const foo = () => null
+  const foo_2 = () => true
+  const client_2 = client.extend(() => ({
+    foo,
+  }))
+  const result = getAction(client_2, foo_2, 'foo')({})
+  expect(result).toEqual(null)
+})
+
 test('e2e', async () => {
   const client_2 = client.extend(() => ({
     async call() {

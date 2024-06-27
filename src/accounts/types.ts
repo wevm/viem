@@ -8,6 +8,7 @@ import type {
 } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
 import type { IsNarrowable, OneOf } from '../types/utils.js'
+import type { NonceManager } from '../utils/nonceManager.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
@@ -18,6 +19,7 @@ export type Account<TAddress extends Address = Address> = OneOf<
 export type AccountSource = Address | CustomSource
 export type CustomSource = {
   address: Address
+  nonceManager?: NonceManager | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
   signTransaction: <
     serializer extends

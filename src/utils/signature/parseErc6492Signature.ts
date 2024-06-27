@@ -5,7 +5,7 @@ import type { OneOf, Prettify } from '../../types/utils.js'
 import {
   type DecodeAbiParametersErrorType,
   decodeAbiParameters,
-} from '../../utils/abi/decodeAbiParameters.js'
+} from '../abi/decodeAbiParameters.js'
 import {
   type IsErc6492SignatureErrorType,
   isErc6492Signature,
