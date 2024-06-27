@@ -1,5 +1,9 @@
 import type { Address } from 'abitype'
 import type { Hash, Hex } from '../../types/misc.js'
+import type { GetConfirmedTokensReturnType } from '../actions/getConfirmedTokens.js'
+import type { GetFeeParamsReturnType } from '../actions/getFeeParameters.js'
+import type { GetProtocolVersionReturnType } from '../actions/getProtocolVersion.js'
+import type { SendRawTransactionWithDetailedReturnType } from '../actions/sendRawTransactionWithDetailedOutput.js'
 import type { ZkSyncBatchDetails, ZkSyncBlockDetails } from './block.js'
 import type { ZkSyncFee } from './fee.js'
 import type { MessageProof } from './proof.js'
@@ -66,6 +70,26 @@ export type RawBlockTransactions = {
 }[]
 
 export type PublicZkSyncRpcSchema = [
+  {
+    Method: 'zks_sendRawTransactionWithDetailedOutput'
+    Parameters: [Hash]
+    ReturnType: SendRawTransactionWithDetailedReturnType
+  },
+  {
+    Method: 'zks_getConfirmedTokens'
+    Parameters: [number, number]
+    ReturnType: GetConfirmedTokensReturnType
+  },
+  {
+    Method: 'zks_getFeeParams'
+    Parameters: []
+    ReturnType: GetFeeParamsReturnType
+  },
+  {
+    Method: 'zks_getProtocolVersion'
+    Parameters: [number | undefined]
+    ReturnType: GetProtocolVersionReturnType
+  },
   {
     Method: 'zks_estimateFee'
     Parameters: [TransactionRequest]

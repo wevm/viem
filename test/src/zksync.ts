@@ -7,6 +7,7 @@ import {
   type Hex,
   zeroAddress,
 } from '~viem/index.js'
+import type { GetProtocolVersionReturnType } from '~viem/zksync/actions/getProtocolVersion.js'
 import type { GetL2GasLimitParameters } from '~viem/zksync/index.js'
 import type {
   DepositTransactionExtended,
@@ -581,7 +582,202 @@ export const mockRequestTwoBridgesParamters = {
   txValue: 1915732001613248n,
 }
 
+export const mockProtocolVersion: GetProtocolVersionReturnType = {
+  version_id: 24,
+  timestamp: 0,
+  verification_keys_hashes: {
+    params: {
+      recursion_node_level_vk_hash:
+        '0xf520cd5b37e74e19fdb369c8d676a04dce8a19457497ac6686d2bb95d94109c8',
+      recursion_leaf_level_vk_hash:
+        '0x435202d277dd06ef3c64ddd99fda043fc27c2bd8b7c66882966840202c27f4f6',
+      recursion_circuits_set_vks_hash:
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+    },
+    recursion_scheduler_level_vk_hash:
+      '0x1d485be42d712856dfe85b3cf7823f020fa5f83cb41c83f9da307fdc2089beee',
+  },
+  base_system_contracts: {
+    bootloader:
+      '0x010008e742608b21bf7eb23c1a9d0602047e3618b464c9b59c0fba3b3d7ab66e',
+    default_aa:
+      '0x01000563374c277a2c1e34659a2a1e87371bb6d852ce142022d497bfb50b9e32',
+  },
+  l2_system_upgrade_tx_hash:
+    '0x0b198075f23eba8137d7c071e5b9e594a4acabb85dfbd59b4b5dd326a54671ed',
+}
+
+export const mockConfirmedTokens = [
+  {
+    l1Address: '0x0000000000000000000000000000000000000000',
+    l2Address: '0x0000000000000000000000000000000000000000',
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+]
+
+export const mockL2ChainId = 270
+
+export const mockSendRawTransactionWithDetailsResult = {
+  transactionHash:
+    '0x0ed0bb0df12ce61d837eb06b601ac7fde916028eaa7c21d0be4720477fbad6bf',
+  storageLogs: [
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x7',
+      writtenValue: '0x7000000000000000000000000667c10bc',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x6',
+      writtenValue: '0x47868c00',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x9',
+      writtenValue: '0x15000000000000000000000000667c10bc',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x1f',
+      writtenValue:
+        '0x3db09803ba6f44c8eb9062daed715e3d1e68c9c4506f01c5c41ebe90083491a5',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0xa',
+      writtenValue: '0x0',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x10c',
+      writtenValue: '0x15000000000000000000000000667c10bc',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0xa',
+      writtenValue:
+        '0xff63ae0bc199292e637cf0da10ddcfb0cc9cff78f825260a59394d006a76fa86',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x110',
+      writtenValue: '0x0',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x10f',
+      writtenValue: '0xc',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x1',
+      writtenValue: '0x8001',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x2',
+      writtenValue: '0x47868c00',
+    },
+    {
+      address: '0x0000000000000000000000000000000000008003',
+      key: '0xeaa2b2fbf0b42c559059e5e9510edc15755f1c1883f0e41d5ba5f9aea4ac201a',
+      writtenValue: '0x20000000000000000000000000000000a',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      key: '0xeaa2b2fbf0b42c559059e5e9510edc15755f1c1883f0e41d5ba5f9aea4ac201a',
+      writtenValue: '0x218ae183621b5f907c0',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      key: '0x31b66141c575a054316a84da9cf4aa6fe0abd373cab1bf4ac029ffc061aae0da',
+      writtenValue: '0xbb0e9abcca00',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x1',
+      writtenValue: '0x36615cf349d7f6344891b1e7ca7c72883f5dc049',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      key: '0xeaa2b2fbf0b42c559059e5e9510edc15755f1c1883f0e41d5ba5f9aea4ac201a',
+      writtenValue: '0x218ae18362014bd81c0',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      key: '0x5fa82dbdc961b74d16d1c6d50b77ffe075ff664e5952c1106c4fd5642349f538',
+      writtenValue: '0x4e3b29200',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800b',
+      key: '0x1',
+      writtenValue: '0x8001',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      key: '0x31b66141c575a054316a84da9cf4aa6fe0abd373cab1bf4ac029ffc061aae0da',
+      writtenValue: '0x19a2b447ca00',
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      key: '0xeaa2b2fbf0b42c559059e5e9510edc15755f1c1883f0e41d5ba5f9aea4ac201a',
+      writtenValue: '0x218ae18d78bfb3281c0',
+    },
+  ],
+  events: [
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [Array],
+      data: '0x0000000000000000000000000000000000000000000000000000ad72da479000',
+      blockHash: null,
+      blockNumber: null,
+      l1BatchNumber: '0x7',
+      transactionHash:
+        '0x0ed0bb0df12ce61d837eb06b601ac7fde916028eaa7c21d0be4720477fbad6bf',
+      transactionIndex: '0x0',
+      logIndex: null,
+      transactionLogIndex: null,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [Array],
+      data: '0x00000000000000000000000000000000000000000000000000000001a13b8600',
+      blockHash: null,
+      blockNumber: null,
+      l1BatchNumber: '0x7',
+      transactionHash:
+        '0x0ed0bb0df12ce61d837eb06b601ac7fde916028eaa7c21d0be4720477fbad6bf',
+      transactionIndex: '0x0',
+      logIndex: null,
+      transactionLogIndex: null,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [Array],
+      data: '0x0000000000000000000000000000000000000000000000000000a16be6750000',
+      blockHash: null,
+      blockNumber: null,
+      l1BatchNumber: '0x7',
+      transactionHash:
+        '0x0ed0bb0df12ce61d837eb06b601ac7fde916028eaa7c21d0be4720477fbad6bf',
+      transactionIndex: '0x0',
+      logIndex: null,
+      transactionLogIndex: null,
+      logType: null,
+      removed: false,
+    },
+  ],
+}
+
 export const mockRequestReturnData = async (method: string) => {
+  if (method === 'eth_chainId') return mockL2ChainId
+  if (method === 'eth_getTransactionReceipt') return mockTransactionReceipt
   if (method === 'eth_getTransactionReceipt') return mockTransactionReceipt
   if (method === 'eth_getBlockByHash') return mockBlock
   if (method === 'eth_getBlockByNumber') return mockBlock
@@ -602,6 +798,10 @@ export const mockRequestReturnData = async (method: string) => {
   if (method === 'zks_getTransactionDetails') return mockTransactionDetails
   if (method === 'zks_L1BatchNumber') return mockedL1BatchNumber
   if (method === 'zks_estimateGasL1ToL2') return mockedGasEstimation
+  if (method === 'zks_getProtocolVersion') return mockProtocolVersion
+  if (method === 'zks_getConfirmedTokens') return mockConfirmedTokens
+  if (method === 'zks_sendRawTransactionWithDetailedOutput')
+    return mockSendRawTransactionWithDetailsResult
   return undefined
 }
 

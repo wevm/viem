@@ -4573,10 +4573,23 @@ export const l1SharedBridgeAbi = [
   },
   {
     inputs: [],
-    name: 'bridgehub',
+    name: 'BRIDGE_HUB',
     outputs: [
       {
         internalType: 'contract IBridgehub',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'L1_WETH_TOKEN',
+    outputs: [
+      {
+        internalType: 'address',
         name: '',
         type: 'address',
       },
@@ -4987,19 +5000,6 @@ export const l1SharedBridgeAbi = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'l1WethAddress',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
       {
         internalType: 'uint256',
@@ -5048,11 +5048,42 @@ export const l1SharedBridgeAbi = [
     inputs: [
       {
         internalType: 'uint256',
-        name: '_eraFirstPostUpgradeBatch',
+        name: '_eraLegacyBridgeLastDepositBatch',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_eraLegacyBridgeLastDepositTxNumber',
         type: 'uint256',
       },
     ],
-    name: 'setEraFirstPostUpgradeBatch',
+    name: 'setEraLegacyBridgeLastDepositTime',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_eraPostDiamondUpgradeFirstBatch',
+        type: 'uint256',
+      },
+    ],
+    name: 'setEraPostDiamondUpgradeFirstBatch',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_eraPostLegacyBridgeUpgradeFirstBatch',
+        type: 'uint256',
+      },
+    ],
+    name: 'setEraPostLegacyBridgeUpgradeFirstBatch',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
