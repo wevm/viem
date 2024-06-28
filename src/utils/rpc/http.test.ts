@@ -303,6 +303,27 @@ describe('request', () => {
     )
   })
 
+  test('fetch error', async () => {
+    vi.stubGlobal('fetch', () => {
+      throw new Error('foo', { cause: new Error('bar') })
+    })
+
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
+
+    try {
+      await client.request({
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
+        },
+      })
+    } catch (error) {
+      expect((error as Error).cause).toMatchInlineSnapshot('[Error: foo]')
+    }
+
+    vi.unstubAllGlobals()
+  })
+
   // TODO: This is flaky.
   test.skip('timeout', async () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
@@ -371,12 +392,12 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 89,
+          "id": 91,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
         {
-          "id": 90,
+          "id": 92,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -397,7 +418,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 92,
+          "id": 94,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -406,7 +427,7 @@ describe('http (batch)', () => {
             "code": -32602,
             "message": "Odd number of digits",
           },
-          "id": 93,
+          "id": 95,
           "jsonrpc": "2.0",
         },
       ]
@@ -423,7 +444,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 95,
+          "id": 97,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -432,7 +453,7 @@ describe('http (batch)', () => {
             "code": -32601,
             "message": "Method not found",
           },
-          "id": 96,
+          "id": 98,
           "jsonrpc": "2.0",
         },
       ]
