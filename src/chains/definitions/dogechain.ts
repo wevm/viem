@@ -18,4 +18,10 @@ export const dogechain = /*#__PURE__*/ defineChain({
       apiUrl: 'https://explorer.dogechain.dog/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0x68a8609a60a008EFA633dfdec592c03B030cC508',
+      blockCreated: 25384031,
+    },
+  },
 })
