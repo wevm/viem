@@ -5,8 +5,8 @@ export const dogechain = /*#__PURE__*/ defineChain({
   name: 'Dogechain',
   nativeCurrency: {
     decimals: 18,
-    name: 'Dogechain',
-    symbol: 'DC',
+    name: 'Wrapped Dogecoin',
+    symbol: 'WDOGE',
   },
   rpcUrls: {
     default: { http: ['https://rpc.dogechain.dog'] },
