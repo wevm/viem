@@ -63,7 +63,7 @@ import {
   type GetTransactionType,
   getTransactionType,
 } from '../../utils/transaction/getTransactionType.js'
-import { getChainId } from '../public/getChainId.js'
+import { getChainId as getChainId_ } from '../public/getChainId.js'
 
 export const defaultParameters = [
   'blobVersionedHashes',
@@ -243,7 +243,6 @@ export async function prepareTransactionRequest<
     account: account_ = client.account,
     blobs,
     chain,
-    chainId,
     gas,
     kzg,
     nonce,
@@ -263,6 +262,16 @@ export async function prepareTransactionRequest<
       'getBlock',
     )({ blockTag: 'latest' })
     return block
+  }
+
+  let chainId: number | undefined
+  async function getChainId(): Promise<number> {
+    if (chainId) return chainId
+    if (chain) return chain.id
+    if (typeof args.chainId !== 'undefined') return args.chainId
+    const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
+    chainId = chainId_
+    return chainId
   }
 
   if (
@@ -292,21 +301,27 @@ export async function prepareTransactionRequest<
     }
   }
 
-  if (parameters.includes('chainId')) {
-    if (chain) request.chainId = chain.id
-    else if (typeof chainId !== 'undefined') request.chainId = chainId
-    else request.chainId = await getAction(client, getChainId, 'getChainId')({})
-  }
+  if (parameters.includes('chainId')) request.chainId = await getChainId()
 
-  if (parameters.includes('nonce') && typeof nonce === 'undefined' && account)
-    request.nonce = await getAction(
-      client,
-      getTransactionCount,
-      'getTransactionCount',
-    )({
-      address: account.address,
-      blockTag: 'pending',
-    })
+  if (parameters.includes('nonce') && typeof nonce === 'undefined' && account) {
+    if (account.nonceManager) {
+      const chainId = await getChainId()
+      request.nonce = await account.nonceManager.consume({
+        address: account.address,
+        chainId,
+        client,
+      })
+    } else {
+      request.nonce = await getAction(
+        client,
+        getTransactionCount,
+        'getTransactionCount',
+      )({
+        address: account.address,
+        blockTag: 'pending',
+      })
+    }
+  }
 
   if (
     (parameters.includes('fees') || parameters.includes('type')) &&

@@ -1,16 +1,21 @@
-import { bench } from '@arktype/attest'
+import { attest } from '@arktype/attest'
+import { test } from 'vitest'
 
 import { createClient } from './createClient.js'
 import { createPublicClient } from './createPublicClient.js'
 import { publicActions } from './decorators/public.js'
 import { http } from './transports/http.js'
 
-bench('createPublicClient', () => {
-  const client = createPublicClient({ transport: http() })
-  return {} as typeof client
-}).types([13470, 'instantiations'])
+test('createPublicClient', () => {
+  createPublicClient({
+    transport: http('https://cloudflare-eth.com'),
+  })
+  attest.instantiations([12236, 'instantiations'])
+})
 
-bench('createClient.extend + publicActions', () => {
-  const client = createClient({ transport: http() }).extend(publicActions)
-  return {} as typeof client
-}).types([246356, 'instantiations'])
+test('createClient.extend + publicActions', () => {
+  createClient({
+    transport: http('https://cloudflare-eth.com'),
+  }).extend(publicActions)
+  attest.instantiations([247705, 'instantiations'])
+})
