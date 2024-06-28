@@ -1,5 +1,22 @@
 # viem
 
+## 2.16.4
+
+### Patch Changes
+
+- [#2445](https://github.com/wevm/viem/pull/2445) [`8aa20a1`](https://github.com/wevm/viem/commit/8aa20a1ba293e714ce93dd948123168ecb838c14) Thanks [@radchukd](https://github.com/radchukd)! - Added lyra chain
+
+- [`62b7a9d`](https://github.com/wevm/viem/commit/62b7a9d816e587142ae75753ff6e840ec49ebf0d) Thanks [@tmm](https://github.com/tmm)! - Bumped ABIType version
+
+- [`7e95377`](https://github.com/wevm/viem/commit/7e95377ca26a87570aa16b6805f6cee58aeb9aef) Thanks [@jxom](https://github.com/jxom)! - Bumped dependencies:
+
+  - `@noble/curves`: `1.2.0` → `1.4.0`
+  - `@noble/hashes`: `1.3.2` → `1.4.0`
+  - `@scure/bip32`: `1.3.2` → `1.4.0`
+  - `@scure/bip39`: `1.2.1` → `1.3.0`
+
+- [`95753c1`](https://github.com/wevm/viem/commit/95753c12ba34472dc747100303c2cf16d42b3e95) Thanks [@jxom](https://github.com/jxom)! - Added `cause` in `HttpRequestError`.
+
 ## 2.16.3
 
 ### Patch Changes
