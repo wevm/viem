@@ -14,7 +14,7 @@ export const xrSepolia = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://xr-sepolia-testnet.explorer.caldera.xyz/',
+      url: 'https://xr-sepolia-testnet.explorer.caldera.xyz',
     },
   },
   testnet: true,
