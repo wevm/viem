@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const bscTestnet = /*#__PURE__*/ defineChain({
   id: 157,
   name: 'Puppynet Shibarium',
-  network: 'shibarium-testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'Bone',
@@ -15,8 +14,8 @@ export const bscTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://puppyscan.shib.io/',
-      apiUrl: 'https://puppyscan.shib.io//api',
+      url: 'https://puppyscan.shib.io',
+      apiUrl: 'https://puppyscan.shib.io/api',
     },
   },
   contracts: {
