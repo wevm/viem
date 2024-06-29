@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const bscTestnet = /*#__PURE__*/ defineChain({
+export const shibariumTestnet = /*#__PURE__*/ defineChain({
   id: 157,
   name: 'Puppynet Shibarium',
   nativeCurrency: {
