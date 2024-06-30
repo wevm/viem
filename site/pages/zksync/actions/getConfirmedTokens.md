@@ -1,0 +1,37 @@
+---
+description: Returns confirmed tokens.
+---
+
+# getConfirmedTokens
+
+Returns confirmed tokens.
+Confirmed token is any token bridged to ZKsync Era via the official bridge.
+
+## Usage
+
+:::code-group
+
+```ts [example.ts]
+import { client } from './config'
+
+const confirmedTokens = await client.getConfirmedTokens();
+```
+
+```ts [config.ts]
+import { createPublicClient, http } from 'viem'
+import { zkSync } from 'viem/chains'
+import { publicActionsL2 } from 'viem/zksync'
+
+export const client = createPublicClient({
+  chain: zkSync,
+  transport: http(),
+}).extend(publicActionsL2())
+```
+
+:::
+
+## Returns
+
+`GetConfirmedTokensReturnType`
+
+Array of confirmed tokens.

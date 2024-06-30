@@ -236,3 +236,15 @@ export {
   type GetL2TransactionFromPriorityOpParameters,
   getL2TransactionFromPriorityOp,
 } from './utils/deposit/getL2TransactionFromPriorityOp.js'
+
+export {
+  type ClaimFailedDepositParameters,
+  type ClaimFailedDepositReturnType,
+  getClaimFailedDepositArgs,
+} from './utils/claim-failed-deposit/claimFailedDeposit.js'
+
+export {
+  type GetTransferArgsTransactionParameters,
+  type GetTransferArgsTransactionReturnType,
+  getTransferArgs,
+} from './utils/transfer/transfer.js'
