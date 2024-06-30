@@ -1215,7 +1215,7 @@ export {
 } from './utils/transaction/getSerializedTransactionType.js'
 export {
   type GetTransactionType,
-  type GetTransationTypeErrorType,
+  type GetTransactionTypeErrorType,
   getTransactionType,
 } from './utils/transaction/getTransactionType.js'
 export {

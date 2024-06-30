@@ -7,7 +7,7 @@ description: Returns the signature for a given function definition.
 Returns the signature for a given function definition.
 
 :::tip
-This only returns the **functon signature**. If you need the **full human-readable definition**, check out ABIType's [`formatAbiItem`](https://abitype.dev/api/human#formatabiitem-1).
+This only returns the **function signature**. If you need the **full human-readable definition**, check out ABIType's [`formatAbiItem`](https://abitype.dev/api/human#formatabiitem-1).
 :::
 
 ## Install
