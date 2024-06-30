@@ -54,7 +54,7 @@ export type SignEip712TransactionErrorType = SignTransactionErrorType
  * Signs an EIP712 transaction.
  *
  * @param args - {@link SignTransactionParameters}
- * @returns The signed serialized tranasction. {@link SignTransactionReturnType}
+ * @returns The signed serialized transaction. {@link SignTransactionReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'

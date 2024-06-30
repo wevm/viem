@@ -166,7 +166,7 @@ const gas = await walletClient.estimateGasL1ToL2({
 
 - **Type:** `Account | Address`
 
-Address of the paymaster account that will pay the gass. The `paymasterInput` field is required with this one.
+Address of the paymaster account that will pay the gas. The `paymasterInput` field is required with this one.
 
 ```ts
 const gas = await walletClient.estimateGasL1ToL2({
