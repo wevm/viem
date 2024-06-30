@@ -7,7 +7,7 @@ import type { TransactionSerializedGeneric } from '../../types/transaction.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type SendRawTransactionParameters = {
-  /** The signed serialized tranasction. */
+  /** The signed serialized transaction. */
   serializedTransaction: TransactionSerializedGeneric
 }
 

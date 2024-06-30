@@ -274,7 +274,7 @@ export function watchEvent<
             else for (const log of logs) emit.onLogs([log] as any)
           } catch (err) {
             // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
-            // Reinitalize the filter when this occurs
+            // Reinitialize the filter when this occurs
             if (filter && err instanceof InvalidInputRpcError)
               initialized = false
             emit.onError?.(err as Error)
