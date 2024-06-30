@@ -1,5 +1,4 @@
 import type { ChainFormatters } from '../types/chain.js'
-import type { Hash } from '../types/misc.js'
 import { hexToBigInt, hexToNumber } from '../utils/encoding/fromHex.js'
 import { hexToBytes } from '../utils/encoding/toBytes.js'
 import { toHex } from '../utils/encoding/toHex.js'
@@ -9,10 +8,7 @@ import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import { gasPerPubdataDefault } from './constants/number.js'
-import type {
-  ZkSyncBlockOverrides,
-  ZkSyncRpcBlockOverrides,
-} from './types/block.js'
+import type { ZkSyncBlock, ZkSyncRpcBlock } from './types/block.js'
 import type { ZkSyncL2ToL1Log, ZkSyncLog } from './types/log.js'
 import type {
   ZkSyncRpcTransaction,
@@ -25,13 +21,7 @@ import type {
 
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({
-    format(
-      args: ZkSyncRpcBlockOverrides & {
-        transactions: Hash[] | ZkSyncRpcTransaction[]
-      },
-    ): ZkSyncBlockOverrides & {
-      transactions: Hash[] | ZkSyncTransaction[]
-    } {
+    format(args: ZkSyncRpcBlock): ZkSyncBlock {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
         const formatted = formatters.transaction?.format(
@@ -40,7 +30,7 @@ export const formatters = {
         if (formatted.typeHex === '0x71') formatted.type = 'eip712'
         else if (formatted.typeHex === '0xff') formatted.type = 'priority'
         return formatted
-      }) as Hash[] | ZkSyncTransaction[]
+      })
       return {
         l1BatchNumber: args.l1BatchNumber
           ? hexToBigInt(args.l1BatchNumber)
@@ -49,11 +39,10 @@ export const formatters = {
           ? hexToBigInt(args.l1BatchTimestamp)
           : null,
         transactions,
-      }
+      } as ZkSyncBlock
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
-    override: false,
     format(args: ZkSyncRpcTransaction): ZkSyncTransaction {
       const transaction = {} as ZkSyncTransaction
       if (args.type === '0x71') transaction.type = 'eip712'
@@ -70,7 +59,6 @@ export const formatters = {
     },
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
-    override: false,
     format(args: ZkSyncRpcTransactionReceipt): ZkSyncTransactionReceipt {
       return {
         l1BatchNumber: args.l1BatchNumber

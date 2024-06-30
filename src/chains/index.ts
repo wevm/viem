@@ -307,9 +307,7 @@ export type {
 } from '../types/utils.js'
 export type {
   CeloBlock,
-  CeloBlockOverrides,
   CeloRpcBlock,
-  CeloRpcBlockOverrides,
   CeloRpcTransaction,
   CeloRpcTransactionRequest,
   CeloTransaction,
@@ -359,9 +357,7 @@ export type {
 } from '../op-stack/types/transaction.js'
 export type {
   ZkSyncBlock,
-  ZkSyncBlockOverrides,
   ZkSyncRpcBlock,
-  ZkSyncRpcBlockOverrides,
 } from '../zksync/types/block.js'
 export type { ChainEIP712 } from '../zksync/types/chain.js'
 export type { ZkSyncEip712Meta } from '../zksync/types/eip712.js'

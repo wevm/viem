@@ -1,5 +1,4 @@
 import type { ChainFormatters } from '../types/chain.js'
-import type { Hash } from '../types/misc.js'
 import type { RpcTransaction } from '../types/rpc.js'
 import { hexToBigInt } from '../utils/encoding/fromHex.js'
 import { defineBlock } from '../utils/formatters/block.js'
@@ -9,8 +8,8 @@ import {
 } from '../utils/formatters/transaction.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import type {
-  CeloBlockOverrides,
-  CeloRpcBlockOverrides,
+  CeloBlock,
+  CeloRpcBlock,
   CeloRpcTransaction,
   CeloRpcTransactionRequest,
   CeloTransaction,
@@ -20,13 +19,7 @@ import { isCIP64 } from './utils.js'
 
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({
-    format(
-      args: CeloRpcBlockOverrides & {
-        transactions: readonly Hash[] | readonly CeloRpcTransaction[]
-      },
-    ): CeloBlockOverrides & {
-      transactions: readonly Hash[] | readonly CeloTransaction[]
-    } {
+    format(args: CeloRpcBlock): CeloBlock {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
         const formatted = formatTransaction(transaction as RpcTransaction)
@@ -40,15 +33,14 @@ export const formatters = {
             : {}),
           feeCurrency: transaction.feeCurrency,
         }
-      }) as readonly Hash[] | readonly CeloTransaction[]
+      })
       return {
         transactions,
         ...(args.randomness ? { randomness: args.randomness } : {}),
-      }
+      } as CeloBlock
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
-    override: false,
     format(args: CeloRpcTransaction): CeloTransaction {
       // it is an OP deposit transaction
       if (args.type === '0x7e')
@@ -75,7 +67,6 @@ export const formatters = {
     },
   }),
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
-    override: false,
     format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
       const request = {} as CeloRpcTransactionRequest
 

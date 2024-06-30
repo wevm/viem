@@ -11,24 +11,13 @@ import { createPublicClient } from '../clients/createPublicClient.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'
 import type { Hash } from '../types/misc.js'
-import type { RpcBlock } from '../types/rpc.js'
-import type { Assign, ExactPartial } from '../types/utils.js'
 import { formatters } from './formatters.js'
-import type {
-  CeloRpcBlockOverrides,
-  CeloRpcTransaction,
-  CeloTransactionRequest,
-} from './types.js'
+import type { CeloRpcBlock, CeloTransactionRequest } from './types.js'
 
 describe('block', () => {
-  expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
-    Assign<
-      ExactPartial<RpcBlock>,
-      CeloRpcBlockOverrides & {
-        transactions: readonly `0x${string}`[] | readonly CeloRpcTransaction[]
-      }
-    >
-  >()
+  expectTypeOf(formatters.block.format)
+    .parameter(0)
+    .toEqualTypeOf<CeloRpcBlock>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['difficulty']
   >().toEqualTypeOf<bigint | undefined>()
@@ -37,13 +26,13 @@ describe('block', () => {
   >().toEqualTypeOf<bigint | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['mixHash']
-  >().toEqualTypeOf<Hash>()
+  >().toEqualTypeOf<undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['nonce']
   >().toEqualTypeOf<bigint | null | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['uncles']
-  >().toEqualTypeOf<Hash[]>()
+  >().toEqualTypeOf<undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['randomness']
   >().toEqualTypeOf<
@@ -95,9 +84,9 @@ describe('smoke', () => {
     >()
     expectTypeOf(block.difficulty).toEqualTypeOf<bigint | undefined>()
     expectTypeOf(block.gasLimit).toEqualTypeOf<bigint | undefined>()
-    expectTypeOf(block.mixHash).toEqualTypeOf<Hash>()
+    expectTypeOf(block.mixHash).toEqualTypeOf<undefined>()
     expectTypeOf(block.nonce).toEqualTypeOf<Hash>()
-    expectTypeOf(block.uncles).toEqualTypeOf<Hash[]>()
+    expectTypeOf(block.uncles).toEqualTypeOf<undefined>()
     expectTypeOf(block.transactions).toEqualTypeOf<Hash[]>()
 
     const block_includeTransactions = await getBlock(client, {

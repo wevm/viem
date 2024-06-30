@@ -21,7 +21,7 @@ import type {
   Transaction as core_Transaction,
   TransactionRequest as core_TransactionRequest,
 } from '../types/transaction.js'
-import type { ExactPartial, NeverBy, OneOf } from '../types/utils.js'
+import type { Assign, ExactPartial, OneOf } from '../types/utils.js'
 
 import type {
   OpStackDepositTransaction,
@@ -30,61 +30,54 @@ import type {
   TransactionSerializedDeposit,
 } from '../op-stack/types/transaction.js'
 
-type CeloBlockExclude =
-  | 'difficulty'
-  | 'gasLimit'
-  | 'mixHash'
-  | 'nonce'
-  | 'uncles'
-
-// L2 blocks do not have randomness
-export type CeloBlockOverrides = {
-  nonce?: bigint | null
-  gasLimit?: bigint | undefined
-  difficulty?: bigint | undefined
-  randomness?:
-    | {
-        committed: Hex
-        revealed: Hex
-      }
-    | undefined
-}
-
 export type CeloBlock<
   includeTransactions extends boolean = boolean,
   blockTag extends BlockTag = BlockTag,
-> = NeverBy<
+> = Assign<
   Block<
     bigint,
     includeTransactions,
     blockTag,
     CeloTransaction<blockTag extends 'pending' ? true : false>
   >,
-  CeloBlockExclude
-> &
-  CeloBlockOverrides
-
-export type CeloRpcBlockOverrides = {
-  randomness?: {
-    committed: Hex
-    revealed: Hex
+  {
+    difficulty?: bigint | undefined
+    gasLimit?: bigint | undefined
+    mixHash?: undefined
+    nonce?: bigint | null
+    randomness?:
+      | {
+          committed: Hex
+          revealed: Hex
+        }
+      | undefined
+    uncles?: undefined
   }
-  nonce?: Hex | null
-  gasLimit?: Hex | undefined
-  difficulty?: Hex | undefined
-}
+>
+
 export type CeloRpcBlock<
   blockTag extends BlockTag = BlockTag,
   includeTransactions extends boolean = boolean,
-> = NeverBy<
+> = Assign<
   RpcBlock<
     blockTag,
     includeTransactions,
     RpcTransaction<blockTag extends 'pending' ? true : false>
   >,
-  CeloBlockExclude
-> &
-  CeloRpcBlockOverrides
+  {
+    difficulty?: Hex | undefined
+    mixHash?: undefined
+    nonce?: Hex | null
+    gasLimit?: Hex | undefined
+    randomness?:
+      | {
+          committed: Hex
+          revealed: Hex
+        }
+      | undefined
+    uncles?: undefined
+  }
+>
 
 export type CeloRpcTransaction<isPending extends boolean = boolean> = OneOf<
   | RpcTransaction<isPending>
