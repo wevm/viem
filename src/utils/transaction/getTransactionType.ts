@@ -109,7 +109,7 @@ export type GetTransactionType<
     | (transaction['type'] extends string ? transaction['type'] : never),
 > = IsNever<result> extends false ? result : string
 
-export type GetTransationTypeErrorType =
+export type GetTransactionTypeErrorType =
   | InvalidSerializableTransactionErrorType
   | ErrorType
 
