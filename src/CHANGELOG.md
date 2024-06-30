@@ -1,5 +1,14 @@
 # viem
 
+## 2.16.5
+
+### Patch Changes
+
+- [#2444](https://github.com/wevm/viem/pull/2444) [`495192c3`](https://github.com/wevm/viem/commit/495192c3811b608e70a566944290d75d36211d2e) Thanks [@RealWooblay](https://github.com/RealWooblay)! - Added XR Sepolia chain
+
+- [#2451](https://github.com/wevm/viem/pull/2451) [`40f9a0f5`](https://github.com/wevm/viem/commit/40f9a0f5a63836c86322ddee9b0391dabd7b62b4) Thanks [@ChewySwap](https://github.com/ChewySwap)! - Added Dogechain multicall address.
+  Added Puppynet Shibarium chain.
+
 ## 2.16.4
 
 ### Patch Changes
