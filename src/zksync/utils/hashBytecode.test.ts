@@ -17,7 +17,7 @@ test('hashed bytecode', async () => {
   )
 })
 
-test('errors: length must be devisible by 32', async () => {
+test('errors: length must be divisible by 32', async () => {
   expect(() =>
     hashBytecode(invalidBytecodeLengthMustBeDivisibleBy32),
   ).toThrowErrorMatchingInlineSnapshot(

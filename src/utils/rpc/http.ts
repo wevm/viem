@@ -140,7 +140,7 @@ export function getHttpRpcClient(
         if (err instanceof TimeoutError) throw err
         throw new HttpRequestError({
           body,
-          details: (err as Error).message,
+          cause: err as Error,
           url,
         })
       }

@@ -57,7 +57,7 @@ import {
 } from './assertTransaction.js'
 import {
   type GetTransactionType,
-  type GetTransationTypeErrorType,
+  type GetTransactionTypeErrorType,
   getTransactionType,
 } from './getTransactionType.js'
 import {
@@ -81,7 +81,7 @@ export type SerializeTransactionFn<
 >
 
 export type SerializeTransactionErrorType =
-  | GetTransationTypeErrorType
+  | GetTransactionTypeErrorType
   | SerializeTransactionEIP1559ErrorType
   | SerializeTransactionEIP2930ErrorType
   | SerializeTransactionEIP4844ErrorType
