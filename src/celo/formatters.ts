@@ -48,6 +48,7 @@ export const formatters = {
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
+    override: false,
     format(args: CeloRpcTransaction): CeloTransaction {
       // it is an OP deposit transaction
       if (args.type === '0x7e')
@@ -73,8 +74,8 @@ export const formatters = {
       return transaction
     },
   }),
-
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
+    override: false,
     format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
       const request = {} as CeloRpcTransactionRequest
 

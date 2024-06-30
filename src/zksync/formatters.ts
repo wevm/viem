@@ -16,7 +16,7 @@ import type {
 import type { ZkSyncL2ToL1Log, ZkSyncLog } from './types/log.js'
 import type {
   ZkSyncRpcTransaction,
-  ZkSyncRpcTransactionReceiptOverrides,
+  ZkSyncRpcTransactionReceipt,
   ZkSyncRpcTransactionRequest,
   ZkSyncTransaction,
   ZkSyncTransactionReceipt,
@@ -53,6 +53,7 @@ export const formatters = {
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
+    override: false,
     format(args: ZkSyncRpcTransaction): ZkSyncTransaction {
       const transaction = {} as ZkSyncTransaction
       if (args.type === '0x71') transaction.type = 'eip712'
@@ -69,9 +70,8 @@ export const formatters = {
     },
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
-    format(
-      args: ZkSyncRpcTransactionReceiptOverrides,
-    ): ZkSyncTransactionReceipt {
+    override: false,
+    format(args: ZkSyncRpcTransactionReceipt): ZkSyncTransactionReceipt {
       return {
         l1BatchNumber: args.l1BatchNumber
           ? hexToBigInt(args.l1BatchNumber)

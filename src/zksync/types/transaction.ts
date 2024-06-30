@@ -4,6 +4,7 @@ import type { Hash, Hex } from '../../types/misc.js'
 import type {
   Index,
   Quantity,
+  RpcTransactionReceipt,
   RpcTransactionRequest as RpcTransactionRequest_,
 } from '../../types/rpc.js'
 import type {
@@ -173,6 +174,9 @@ export type ZkSyncRpcTransactionReceiptOverrides = {
   l2ToL1Logs: ZkSyncRpcL2ToL1Log[]
   root: Hex
 }
+
+export type ZkSyncRpcTransactionReceipt = Omit<RpcTransactionReceipt, 'logs'> &
+  ZkSyncRpcTransactionReceiptOverrides
 
 export type ZkSyncTransactionReceiptOverrides = {
   l1BatchNumber: bigint | null

@@ -86,25 +86,27 @@ export type CeloRpcBlock<
 > &
   CeloRpcBlockOverrides
 
-export type CeloRpcTransaction<isPending extends boolean = boolean> =
+export type CeloRpcTransaction<isPending extends boolean = boolean> = OneOf<
   | RpcTransaction<isPending>
   | RpcTransactionCIP42<isPending>
   | RpcTransactionCIP64<isPending>
-  | (OpStackRpcTransaction<isPending> & CeloNegativeFields)
+  | OpStackRpcTransaction<isPending>
+>
 
-export type CeloRpcTransactionRequest =
-  | RpcTransactionRequest
-  | RpcTransactionRequestCIP64
+export type CeloRpcTransactionRequest = OneOf<
+  RpcTransactionRequest | RpcTransactionRequestCIP64
+>
 
-export type CeloTransaction<isPending extends boolean = boolean> =
+export type CeloTransaction<isPending extends boolean = boolean> = OneOf<
   | Transaction<isPending>
   | TransactionCIP42<isPending>
   | TransactionCIP64<isPending>
-  | (OpStackDepositTransaction<isPending> & CeloNegativeFields)
+  | OpStackDepositTransaction<isPending>
+>
 
-export type CeloTransactionRequest =
-  | TransactionRequest
-  | TransactionRequestCIP64
+export type CeloTransactionRequest = OneOf<
+  TransactionRequest | TransactionRequestCIP64
+>
 
 export type CeloTransactionSerializable = OneOf<
   | TransactionSerializable
@@ -137,6 +139,8 @@ export type RpcTransactionCIP42<isPending extends boolean = boolean> = Omit<
   TransactionBase<Quantity, Index, isPending>,
   'typeHex'
 > & {
+  accessList: AccessList
+  chainId: Index
   feeCurrency: Address | null
   gatewayFee: Hex | null
   gatewayFeeRecipient: Address | null
@@ -147,9 +151,9 @@ export type RpcTransactionCIP64<isPending extends boolean = boolean> = Omit<
   TransactionBase<Quantity, Index, isPending>,
   'typeHex'
 > & {
+  accessList: AccessList
+  chainId: Index
   feeCurrency: Address | null
-  gatewayFee?: undefined
-  gatewayFeeRecipient?: undefined
   type: '0x7b'
 } & FeeValuesEIP1559<Quantity>
 
@@ -162,32 +166,19 @@ export type RpcTransactionRequestCIP64 = TransactionRequestBase<
   type?: '0x7b' | undefined
 } & ExactPartial<FeeValuesEIP1559<Quantity>>
 
-type OpTxNegativeFields = {
-  isSystemTx?: undefined
-  mint?: undefined
-  sourceHash?: undefined
-}
-
-type CeloNegativeFields = {
-  feeCurrency?: null
-  gatewayFee?: undefined
-  gatewayFeeRecipient?: undefined
-}
-
 type Transaction<isPending extends boolean = boolean> = core_Transaction<
   bigint,
   number,
   isPending
 > & {
   feeCurrency: Address | null
-  gatewayFee?: undefined
-  gatewayFeeRecipient?: undefined
-} & OpTxNegativeFields
+}
 
 export type TransactionCIP42<isPending extends boolean = boolean> =
   TransactionBase<bigint, number, isPending> &
-    FeeValuesEIP1559 &
-    OpTxNegativeFields & {
+    FeeValuesEIP1559 & {
+      accessList: AccessList
+      chainId: number
       feeCurrency: Address | null
       gatewayFee: bigint | null
       gatewayFeeRecipient: Address | null
@@ -196,11 +187,10 @@ export type TransactionCIP42<isPending extends boolean = boolean> =
 
 export type TransactionCIP64<isPending extends boolean = boolean> =
   TransactionBase<bigint, number, isPending> &
-    FeeValuesEIP1559 &
-    OpTxNegativeFields & {
+    FeeValuesEIP1559 & {
+      accessList: AccessList
+      chainId: number
       feeCurrency: Address | null
-      gatewayFee?: undefined
-      gatewayFeeRecipient?: undefined
       type: 'cip64'
     }
 

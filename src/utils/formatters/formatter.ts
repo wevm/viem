@@ -10,17 +10,24 @@ export function defineFormatter<TType extends string, TParameters, TReturnType>(
   return <
     TOverrideParameters,
     TOverrideReturnType,
+    TOverride extends boolean = true,
     TExclude extends (keyof TParameters | keyof TOverrideParameters)[] = [],
   >({
     exclude,
+    override: _,
     format: overrides,
   }: {
     exclude?: TExclude | undefined
+    override?: TOverride | undefined
     format: (_: TOverrideParameters) => TOverrideReturnType
   }) => {
     return {
       exclude,
-      format: (args: Assign<TParameters, TOverrideParameters>) => {
+      format: (
+        args: TOverride extends true
+          ? Assign<TParameters, TOverrideParameters>
+          : TOverrideParameters,
+      ) => {
         const formatted = format(args as any)
         if (exclude) {
           for (const key of exclude) {
@@ -30,7 +37,11 @@ export function defineFormatter<TType extends string, TParameters, TReturnType>(
         return {
           ...formatted,
           ...overrides(args),
-        } as Prettify<Assign<TReturnType, TOverrideReturnType>> & {
+        } as Prettify<
+          TOverride extends true
+            ? Assign<TReturnType, TOverrideReturnType>
+            : TOverrideReturnType
+        > & {
           [_key in TExclude[number]]: never
         }
       },

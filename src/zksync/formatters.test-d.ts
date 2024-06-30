@@ -14,7 +14,7 @@ import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'
 import type { Log } from '../types/log.js'
 import type { Hash } from '../types/misc.js'
-import type { RpcBlock, RpcTransactionReceipt } from '../types/rpc.js'
+import type { RpcBlock } from '../types/rpc.js'
 import type { TransactionRequest } from '../types/transaction.js'
 import type { Assign, ExactPartial } from '../types/utils.js'
 import { formatters } from './formatters.js'
@@ -22,7 +22,7 @@ import type { ZkSyncEip712Meta } from './types/eip712.js'
 import type { ZkSyncL2ToL1Log, ZkSyncLog } from './types/log.js'
 import type {
   ZkSyncRpcTransaction,
-  ZkSyncRpcTransactionReceiptOverrides,
+  ZkSyncRpcTransactionReceipt,
   ZkSyncTransactionRequest,
 } from './types/transaction.js'
 
@@ -47,12 +47,7 @@ describe('block', () => {
 describe('transactionReceipt', () => {
   expectTypeOf(formatters.transactionReceipt.format)
     .parameter(0)
-    .toEqualTypeOf<
-      Assign<
-        ExactPartial<RpcTransactionReceipt>,
-        ZkSyncRpcTransactionReceiptOverrides
-      >
-    >()
+    .toEqualTypeOf<ZkSyncRpcTransactionReceipt>()
 
   expectTypeOf<
     ReturnType<typeof formatters.transactionReceipt.format>['l1BatchNumber']

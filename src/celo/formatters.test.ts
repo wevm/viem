@@ -536,11 +536,9 @@ describe('transaction', () => {
 
     expect(
       transaction.format({
-        accessList: [],
         blockHash:
           '0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574',
         blockNumber: '0x1',
-        chainId: '0x1',
         from: '0xacd03d601e5bb1b275bb94076ff46ed9d753435a',
         gas: '0x69',
         hash: '0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822',

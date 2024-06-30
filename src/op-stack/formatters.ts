@@ -50,6 +50,7 @@ export const formatters = {
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
+    override: false,
     format(args: OpStackRpcTransaction): OpStackTransaction {
       const transaction = {} as OpStackTransaction
       if (args.type === '0x7e') {
