@@ -23,7 +23,7 @@ export type ZkSyncLog<
 
 export type ZkSyncRpcLog = RpcLog_ & {
   l1BatchNumber: Hex | null
-  // These are returned but doesn't apear in Log structure neither is mentioned in https://era.zksync.io/docs/api/js/types
+  // These are returned but doesn't appear in Log structure neither is mentioned in https://era.zksync.io/docs/api/js/types
   transactionLogIndex: Hex
   logType: Hex | null
 }
