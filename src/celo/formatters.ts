@@ -42,7 +42,6 @@ export const formatters = {
   }),
   transaction: /*#__PURE__*/ defineTransaction({
     format(args: CeloRpcTransaction): CeloTransaction {
-      // it is an OP deposit transaction
       if (args.type === '0x7e')
         return {
           isSystemTx: args.isSystemTx,
