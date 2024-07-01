@@ -1,5 +1,4 @@
 import type { ChainFormatters } from '../types/chain.js'
-import type { Hash } from '../types/misc.js'
 import type { RpcTransaction } from '../types/rpc.js'
 import { hexToBigInt } from '../utils/encoding/fromHex.js'
 import { defineBlock } from '../utils/formatters/block.js'
@@ -8,26 +7,17 @@ import {
   formatTransaction,
 } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
-import type {
-  OpStackBlockOverrides,
-  OpStackRpcBlockOverrides,
-} from './types/block.js'
+import type { OpStackBlock, OpStackRpcBlock } from './types/block.js'
 import type {
   OpStackRpcTransaction,
-  OpStackRpcTransactionReceiptOverrides,
+  OpStackRpcTransactionReceipt,
   OpStackTransaction,
-  OpStackTransactionReceiptOverrides,
+  OpStackTransactionReceipt,
 } from './types/transaction.js'
 
 export const formatters = {
   block: /*#__PURE__*/ defineBlock({
-    format(
-      args: OpStackRpcBlockOverrides & {
-        transactions: Hash[] | OpStackRpcTransaction[]
-      },
-    ): OpStackBlockOverrides & {
-      transactions: Hash[] | OpStackTransaction[]
-    } {
+    format(args: OpStackRpcBlock): OpStackBlock {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
         const formatted = formatTransaction(
@@ -42,11 +32,11 @@ export const formatters = {
           formatted.type = 'deposit'
         }
         return formatted
-      }) as Hash[] | OpStackTransaction[]
+      })
       return {
         transactions,
         stateRoot: args.stateRoot,
-      }
+      } as OpStackBlock
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
@@ -62,15 +52,13 @@ export const formatters = {
     },
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
-    format(
-      args: OpStackRpcTransactionReceiptOverrides,
-    ): OpStackTransactionReceiptOverrides {
+    format(args: OpStackRpcTransactionReceipt): OpStackTransactionReceipt {
       return {
         l1GasPrice: args.l1GasPrice ? hexToBigInt(args.l1GasPrice) : null,
         l1GasUsed: args.l1GasUsed ? hexToBigInt(args.l1GasUsed) : null,
         l1Fee: args.l1Fee ? hexToBigInt(args.l1Fee) : null,
         l1FeeScalar: args.l1FeeScalar ? Number(args.l1FeeScalar) : null,
-      }
+      } as OpStackTransactionReceipt
     },
   }),
 } as const satisfies ChainFormatters

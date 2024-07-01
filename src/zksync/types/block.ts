@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import type { Block, BlockTag } from '../../types/block.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
+import type { Assign } from '../../types/utils.js'
 import type { ZkSyncRpcTransaction, ZkSyncTransaction } from './transaction.js'
 
 export type ZkSyncBatchDetails = Omit<
@@ -12,21 +13,21 @@ export type ZkSyncBatchDetails = Omit<
   l2FairGasPrice: number
 }
 
-export type ZkSyncBlockOverrides = {
-  l1BatchNumber: bigint | null
-  l1BatchTimestamp: bigint | null
-}
-
 export type ZkSyncBlock<
   TIncludeTransactions extends boolean = boolean,
   TBlockTag extends BlockTag = BlockTag,
-> = Block<
-  bigint,
-  TIncludeTransactions,
-  TBlockTag,
-  ZkSyncTransaction<TBlockTag extends 'pending' ? true : false>
-> &
-  ZkSyncBlockOverrides
+> = Assign<
+  Block<
+    bigint,
+    TIncludeTransactions,
+    TBlockTag,
+    ZkSyncTransaction<TBlockTag extends 'pending' ? true : false>
+  >,
+  {
+    l1BatchNumber: bigint | null
+    l1BatchTimestamp: bigint | null
+  }
+>
 
 export type ZkSyncBlockDetails = {
   number: number
@@ -50,20 +51,20 @@ export type ZkSyncBlockDetails = {
   protocolVersion?: string
 }
 
-export type ZkSyncRpcBlockOverrides = {
-  l1BatchNumber: Hex | null
-  l1BatchTimestamp: Hex | null
-}
-
 export type ZkSyncRpcBlock<
   TBlockTag extends BlockTag = BlockTag,
   TIncludeTransactions extends boolean = boolean,
-> = RpcBlock<
-  TBlockTag,
-  TIncludeTransactions,
-  ZkSyncRpcTransaction<TBlockTag extends 'pending' ? true : false>
-> &
-  ZkSyncRpcBlockOverrides
+> = Assign<
+  RpcBlock<
+    TBlockTag,
+    TIncludeTransactions,
+    ZkSyncRpcTransaction<TBlockTag extends 'pending' ? true : false>
+  >,
+  {
+    l1BatchNumber: Hex | null
+    l1BatchTimestamp: Hex | null
+  }
+>
 
 export type ZkSyncNumberParameter = {
   number: number

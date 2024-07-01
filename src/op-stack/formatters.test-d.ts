@@ -7,21 +7,13 @@ import { optimism } from '../chains/index.js'
 import { createPublicClient } from '../clients/createPublicClient.js'
 import { http } from '../clients/transports/http.js'
 import type { Hash } from '../types/misc.js'
-import type { RpcBlock } from '../types/rpc.js'
-import type { Assign, ExactPartial } from '../types/utils.js'
 import { formatters } from './formatters.js'
-import type { OpStackRpcBlockOverrides } from './types/block.js'
-import type { OpStackRpcTransaction } from './types/transaction.js'
+import type { OpStackRpcBlock } from './types/block.js'
 
 describe('block', () => {
-  expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
-    Assign<
-      ExactPartial<RpcBlock>,
-      OpStackRpcBlockOverrides & {
-        transactions: `0x${string}`[] | OpStackRpcTransaction[]
-      }
-    >
-  >()
+  expectTypeOf(formatters.block.format)
+    .parameter(0)
+    .toEqualTypeOf<OpStackRpcBlock>()
 })
 
 describe('transaction', () => {

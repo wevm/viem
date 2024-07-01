@@ -10,9 +10,7 @@ export {
 
 export type {
   CeloBlock,
-  CeloBlockOverrides,
   CeloRpcBlock,
-  CeloRpcBlockOverrides,
   CeloRpcTransaction,
   CeloRpcTransactionRequest,
   CeloTransaction,

@@ -124,9 +124,7 @@ export { serializeTransaction } from './serializers.js'
 
 export type {
   ZkSyncBlock,
-  ZkSyncBlockOverrides,
   ZkSyncRpcBlock,
-  ZkSyncRpcBlockOverrides,
 } from './types/block.js'
 export type { ChainEIP712 } from './types/chain.js'
 export type {

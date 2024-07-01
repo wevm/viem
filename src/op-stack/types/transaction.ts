@@ -32,9 +32,9 @@ export type OpStackRpcDepositTransaction<TPending extends boolean = boolean> =
       sourceHash: Hex
       type: '0x7e'
     }
-export type OpStackRpcTransaction<TPending extends boolean = boolean> =
-  | RpcTransaction<TPending>
-  | OpStackRpcDepositTransaction<TPending>
+export type OpStackRpcTransaction<TPending extends boolean = boolean> = OneOf<
+  RpcTransaction<TPending> | OpStackRpcDepositTransaction<TPending>
+>
 
 export type OpStackRpcTransactionReceiptOverrides = {
   l1GasPrice: Hex | null

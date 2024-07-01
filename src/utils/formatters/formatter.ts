@@ -1,5 +1,5 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { Assign, Prettify } from '../../types/utils.js'
+import type { Prettify } from '../../types/utils.js'
 
 export type DefineFormatterErrorType = ErrorType
 
@@ -20,7 +20,7 @@ export function defineFormatter<TType extends string, TParameters, TReturnType>(
   }) => {
     return {
       exclude,
-      format: (args: Assign<TParameters, TOverrideParameters>) => {
+      format: (args: TOverrideParameters) => {
         const formatted = format(args as any)
         if (exclude) {
           for (const key of exclude) {
@@ -30,7 +30,7 @@ export function defineFormatter<TType extends string, TParameters, TReturnType>(
         return {
           ...formatted,
           ...overrides(args),
-        } as Prettify<Assign<TReturnType, TOverrideReturnType>> & {
+        } as Prettify<TOverrideReturnType> & {
           [_key in TExclude[number]]: never
         }
       },
