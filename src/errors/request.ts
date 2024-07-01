@@ -16,18 +16,21 @@ export class HttpRequestError extends BaseError {
 
   constructor({
     body,
+    cause,
     details,
     headers,
     status,
     url,
   }: {
     body?: { [x: string]: unknown } | { [y: string]: unknown }[] | undefined
+    cause?: Error | undefined
     details?: string | undefined
     headers?: Headers | undefined
     status?: number | undefined
     url: string
   }) {
     super('HTTP request failed.', {
+      cause,
       details,
       metaMessages: [
         status && `Status: ${status}`,

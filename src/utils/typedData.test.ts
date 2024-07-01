@@ -184,18 +184,18 @@ describe('validateTypedData', () => {
           ],
           Person: [
             { name: 'name', type: 'string' },
-            { name: 'favouriteNumber', type: 'uint8' },
+            { name: 'favoriteNumber', type: 'uint8' },
           ],
         },
         primaryType: 'Mail',
         message: {
           from: {
             name: 'Cow',
-            favouriteNumber: -1,
+            favoriteNumber: -1,
           },
           to: {
             name: 'Bob',
-            favouriteNumber: -50,
+            favoriteNumber: -50,
           },
         },
       }),
@@ -217,18 +217,18 @@ describe('validateTypedData', () => {
           ],
           Person: [
             { name: 'name', type: 'string' },
-            { name: 'favouriteNumber', type: 'uint8' },
+            { name: 'favoriteNumber', type: 'uint8' },
           ],
         },
         primaryType: 'Mail',
         message: {
           from: {
             name: 'Cow',
-            favouriteNumber: 256,
+            favoriteNumber: 256,
           },
           to: {
             name: 'Bob',
-            favouriteNumber: 0,
+            favoriteNumber: 0,
           },
         },
       }),
@@ -250,18 +250,18 @@ describe('validateTypedData', () => {
           ],
           Person: [
             { name: 'name', type: 'string' },
-            { name: 'favouriteNumber', type: 'int8' },
+            { name: 'favoriteNumber', type: 'int8' },
           ],
         },
         primaryType: 'Mail',
         message: {
           from: {
             name: 'Cow',
-            favouriteNumber: -129,
+            favoriteNumber: -129,
           },
           to: {
             name: 'Bob',
-            favouriteNumber: 0,
+            favoriteNumber: 0,
           },
         },
       }),

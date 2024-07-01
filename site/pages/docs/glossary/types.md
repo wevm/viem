@@ -26,7 +26,7 @@ Re-exported from [ABIType](https://abitype.dev/api/types#abifunction).
 
 ## `AbiParameter`
 
-`inputs` and `ouputs` item for ABI functions, events, and errors.
+`inputs` and `outputs` item for ABI functions, events, and errors.
 
 Re-exported from [ABIType](https://abitype.dev/api/types#abiparameter).
 
