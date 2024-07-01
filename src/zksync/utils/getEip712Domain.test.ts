@@ -1,5 +1,4 @@
 import { expect, test } from 'vitest'
-
 import { accounts } from '~test/src/constants.js'
 import { signTransaction } from '../../accounts/utils/signTransaction.js'
 import { type TransactionSerializableEIP1559, parseEther } from '../../index.js'
