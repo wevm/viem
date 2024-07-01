@@ -3,16 +3,16 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import {
-  type IssuePermissionsParameters,
-  type IssuePermissionsReturnType,
-  issuePermissions,
-} from '../actions/issuePermissions.js'
+  type GrantPermissionsParameters,
+  type GrantPermissionsReturnType,
+  grantPermissions,
+} from '../actions/grantPermissions.js'
 
 export type WalletActionsErc7715 = {
   /**
    * Request permissions from a wallet to perform actions on behalf of a user.
    *
-   * - Docs: https://viem.sh/experimental/erc7715/issuePermissions
+   * - Docs: https://viem.sh/experimental/erc7715/grantPermissions
    *
    * @example
    * import { createWalletClient, custom } from 'viem'
@@ -24,7 +24,7 @@ export type WalletActionsErc7715 = {
    *   transport: custom(window.ethereum),
    * }).extend(walletActionsErc7715())
    *
-   * const result = await client.issuePermissions({
+   * const result = await client.grantPermissions({
    *   expiry: 1716846083638,
    *   permissions: [
    *     {
@@ -43,9 +43,9 @@ export type WalletActionsErc7715 = {
    *   ],
    * })
    */
-  issuePermissions: (
-    parameters: IssuePermissionsParameters,
-  ) => Promise<IssuePermissionsReturnType>
+  grantPermissions: (
+    parameters: GrantPermissionsParameters,
+  ) => Promise<GrantPermissionsReturnType>
 }
 
 /**
@@ -63,7 +63,7 @@ export type WalletActionsErc7715 = {
  *   transport: http(),
  * }).extend(walletActionsErc7715())
  *
- * const result = await walletClient.issuePermissions({...})
+ * const result = await walletClient.grantPermissions({...})
  */
 export function walletActionsErc7715() {
   return <
@@ -74,7 +74,7 @@ export function walletActionsErc7715() {
     client: Client<transport, chain, account>,
   ): WalletActionsErc7715 => {
     return {
-      issuePermissions: (parameters) => issuePermissions(client, parameters),
+      grantPermissions: (parameters) => grantPermissions(client, parameters),
     }
   }
 }

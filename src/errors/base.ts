@@ -1,20 +1,13 @@
 import { getVersion } from './utils.js'
 
 type BaseErrorParameters = {
+  cause?: BaseError | Error | undefined
+  details?: string | undefined
   docsBaseUrl?: string | undefined
   docsPath?: string | undefined
   docsSlug?: string | undefined
   metaMessages?: string[] | undefined
-} & (
-  | {
-      cause?: undefined
-      details?: string | undefined
-    }
-  | {
-      cause: BaseError | Error | undefined
-      details?: undefined
-    }
-)
+}
 
 export type BaseErrorType = BaseError & { name: 'ViemError' }
 export class BaseError extends Error {

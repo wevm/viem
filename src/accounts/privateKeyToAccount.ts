@@ -4,6 +4,7 @@ import type { Hex } from '../types/misc.js'
 import { type ToHexErrorType, toHex } from '../utils/encoding/toHex.js'
 
 import type { ErrorType } from '../errors/utils.js'
+import type { NonceManager } from '../utils/nonceManager.js'
 import { type ToAccountErrorType, toAccount } from './toAccount.js'
 import type { PrivateKeyAccount } from './types.js'
 import {
@@ -20,6 +21,10 @@ import {
   signTypedData,
 } from './utils/signTypedData.js'
 
+export type PrivateKeyToAccountOptions = {
+  nonceManager?: NonceManager | undefined
+}
+
 export type PrivateKeyToAccountErrorType =
   | ToAccountErrorType
   | ToHexErrorType
@@ -34,12 +39,17 @@ export type PrivateKeyToAccountErrorType =
  *
  * @returns A Private Key Account.
  */
-export function privateKeyToAccount(privateKey: Hex): PrivateKeyAccount {
+export function privateKeyToAccount(
+  privateKey: Hex,
+  options: PrivateKeyToAccountOptions = {},
+): PrivateKeyAccount {
+  const { nonceManager } = options
   const publicKey = toHex(secp256k1.getPublicKey(privateKey.slice(2), false))
   const address = publicKeyToAddress(publicKey)
 
   const account = toAccount({
     address,
+    nonceManager,
     async signMessage({ message }) {
       return signMessage({ message, privateKey })
     },

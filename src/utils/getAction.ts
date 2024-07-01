@@ -1,4 +1,10 @@
 import type { Client } from '../clients/createClient.js'
+import type { PublicActions } from '../clients/decorators/public.js'
+import type { WalletActions } from '../clients/decorators/wallet.js'
+import type { Transport } from '../clients/transports/createTransport.js'
+import type { Account } from '../types/account.js'
+import type { Chain } from '../types/chain.js'
+import type { RpcSchema } from '../types/eip1193.js'
 
 /**
  * Retrieves and returns an action from the client (if exists), and falls
@@ -7,20 +13,30 @@ import type { Client } from '../clients/createClient.js'
  * Useful for extracting overridden actions from a client (ie. if a consumer
  * wants to override the `sendTransaction` implementation).
  */
-export function getAction<params extends {}, returnType extends {}>(
-  client: Client,
-  action: (_: any, params: params) => returnType,
-  // Some minifiers drop `Function.prototype.name` or can change function
-  // names so that getting the name by reflection through `action.name` will
-  // not work.
-  name: string,
-) {
-  type DecoratedClient = Client & {
-    [key: string]: (params: params) => returnType
-  }
+export function getAction<
+  transport extends Transport,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  rpcSchema extends RpcSchema | undefined,
+  extended extends { [key: string]: unknown },
+  client extends Client<transport, chain, account, rpcSchema, extended>,
+  parameters,
+  returnType,
+>(
+  client: client,
+  actionFn: (_: any, parameters: parameters) => returnType,
+  // Some minifiers drop `Function.prototype.name`, or replace it with short letters,
+  // meaning that `actionFn.name` will not always work. For that case, the consumer
+  // needs to pass the name explicitly.
+  name: keyof PublicActions | keyof WalletActions | (string & {}),
+): (parameters: parameters) => returnType {
+  const action_implicit = client[actionFn.name]
+  if (typeof action_implicit === 'function')
+    return action_implicit as (params: parameters) => returnType
 
-  return (params: params): returnType =>
-    (client as DecoratedClient)[action.name]?.(params) ??
-    (client as DecoratedClient)[name]?.(params) ??
-    action(client, params)
+  const action_explicit = client[name]
+  if (typeof action_explicit === 'function')
+    return action_explicit as (params: parameters) => returnType
+
+  return (params) => actionFn(client, params)
 }

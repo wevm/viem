@@ -116,6 +116,7 @@ export {
 export {
   type EncodeArgErrorType,
   type EncodeEventTopicsParameters,
+  type EncodeEventTopicsReturnType,
   encodeEventTopics,
 } from './abi/encodeEventTopics.js'
 export {
@@ -451,12 +452,30 @@ export {
   hashMessage,
 } from './signature/hashMessage.js'
 export {
+  type ParseErc6492SignatureErrorType,
+  type ParseErc6492SignatureParameters,
+  type ParseErc6492SignatureReturnType,
+  parseErc6492Signature,
+} from './signature/parseErc6492Signature.js'
+export {
+  type IsErc6492SignatureErrorType,
+  type IsErc6492SignatureParameters,
+  type IsErc6492SignatureReturnType,
+  isErc6492Signature,
+} from './signature/isErc6492Signature.js'
+export {
+  type SerializeErc6492SignatureErrorType,
+  type SerializeErc6492SignatureParameters,
+  type SerializeErc6492SignatureReturnType,
+  serializeErc6492Signature,
+} from './signature/serializeErc6492Signature.js'
+export {
   type GetSerializedTransactionTypeErrorType,
   type GetSerializedTransactionType,
   getSerializedTransactionType,
 } from './transaction/getSerializedTransactionType.js'
 export {
-  type GetTransationTypeErrorType,
+  type GetTransactionTypeErrorType,
   type GetTransactionType,
   getTransactionType,
 } from './transaction/getTransactionType.js'
@@ -491,3 +510,10 @@ export { type FormatUnitsErrorType, formatUnits } from './unit/formatUnits.js'
 export { type ParseUnitsErrorType, parseUnits } from './unit/parseUnits.js'
 export { type ParseEtherErrorType, parseEther } from './unit/parseEther.js'
 export { type ParseGweiErrorType, parseGwei } from './unit/parseGwei.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  type NonceManagerSource,
+  createNonceManager,
+  nonceManager,
+} from './nonceManager.js'
