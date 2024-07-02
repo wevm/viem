@@ -23,4 +23,5 @@ export const koi = defineChain({
       blockCreated: 180001,
     },
   },
+  testnet: true,
 })
