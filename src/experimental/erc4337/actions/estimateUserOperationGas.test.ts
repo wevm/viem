@@ -142,7 +142,7 @@ test('args: entrypoint', async () => {
       "paymasterPostOpGasLimit": 0n,
       "paymasterVerificationGasLimit": 0n,
       "preVerificationGas": 51656n,
-      "verificationGasLimit": 259093n,
+      "verificationGasLimit": 259060n,
     }
   `)
 })
