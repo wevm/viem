@@ -149,7 +149,7 @@ export type Client<
       Prettify<client> & (extended extends Extended ? extended : unknown),
       mode
     >
-  } & (mode extends TestClientMode ? { mode: mode } : {mode?: never})
+  } & (mode extends TestClientMode ? { mode: mode } : { mode?: never })
 
 type Client_Base<
   transport extends Transport = Transport,
