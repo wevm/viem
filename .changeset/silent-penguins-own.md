@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added multicall3 and fixed native currency, block explorers for btr mainnet and testnet.
+Tweaked native currency property for `btr` and `btrTestnet` chains.

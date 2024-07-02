@@ -20,14 +20,7 @@ export const btrTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Bitlayer(BTR) Scan',
-      url: 'https://testnet.btrscan.com/',
-      apiUrl: 'https://testnet.btrscan.com/apis',
-    },
-  },
-  contracts: {
-    multicall3: {
-      address: '0x5b256fe9e993902ece49d138a5b1162cbb529474',
-      blockCreated: 4135671,
+      url: 'https://testnet.btrscan.com',
     },
   },
   testnet: true,
