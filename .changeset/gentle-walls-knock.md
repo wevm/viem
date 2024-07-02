@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Sei testnet chain
+Added Sei testnet chain.
