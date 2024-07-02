@@ -52,9 +52,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 2152203n,
@@ -147,9 +147,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 3248087n,
@@ -242,9 +242,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 2152203n,
