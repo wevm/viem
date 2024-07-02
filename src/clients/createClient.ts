@@ -149,7 +149,7 @@ export type Client<
       Prettify<client> & (extended extends Extended ? extended : unknown),
       mode
     >
-  } & (mode extends TestClientMode ? { mode: mode } : {})
+  } & (mode extends TestClientMode ? { mode: mode } : {mode?: never})
 
 type Client_Base<
   transport extends Transport = Transport,
@@ -231,7 +231,7 @@ export function createClient(parameters: ClientConfig): Client {
     name = 'Base Client',
     pollingInterval = 4_000,
     type = 'base',
-    mode = undefined,
+    mode,
   } = parameters
 
   const chain = parameters.chain
