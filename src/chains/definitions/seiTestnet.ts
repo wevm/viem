@@ -6,8 +6,8 @@ export const seiTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Sei', symbol: 'SEI', decimals: 18 },
   rpcUrls: {
     default: {
-        http: ['https://evm-rpc-testnet.sei-apis.com'],
-        webSocket: ['wss://evm-ws-testnet.sei-apis.com']
+      http: ['https://evm-rpc-testnet.sei-apis.com'],
+      webSocket: ['wss://evm-ws-testnet.sei-apis.com'],
     },
   },
   blockExplorers: {
