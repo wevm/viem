@@ -9,12 +9,12 @@ export const xLayerTestnet = /*#__PURE__*/ defineChain({
     symbol: 'OKB',
   },
   rpcUrls: {
-    default: { http: ['https://x1testrpc.okx.com'] },
+    default: { http: ['https://xlayertestrpc.okx.com'] },
   },
   blockExplorers: {
     default: {
       name: 'OKLink',
-      url: 'https://www.oklink.com/x1-test',
+      url: 'https://www.oklink.com/xlayer-test',
     },
   },
   contracts: {
