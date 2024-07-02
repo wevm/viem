@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const koi = defineChain({
-  id: 44,
+  id: 701,
   name: 'Koi Network',
   nativeCurrency: {
     decimals: 18,
