@@ -19,6 +19,7 @@ import type {
   CcipRequestReturnType,
 } from '../utils/ccip.js'
 import { uid } from '../utils/uid.js'
+import type { TestClientMode } from './createTestClient.js'
 import type { PublicActions } from './decorators/public.js'
 import type { WalletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
@@ -31,6 +32,7 @@ export type ClientConfig<
     | Address
     | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  mode extends TestClientMode | undefined = undefined,
 > = {
   /** The Account to use for the Client. This will be used for Actions that require an account as an argument. */
   account?: accountOrAddress | Account | Address | undefined
@@ -81,6 +83,8 @@ export type ClientConfig<
   transport: transport
   /** The type of client. */
   type?: string | undefined
+  /** The mode of the client for test actions */
+  mode?: mode
 }
 
 // Actions that are used internally by other Actions (ie. `call` is used by `readContract`).
@@ -127,6 +131,7 @@ export type Client<
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
   extended extends Extended | undefined = Extended | undefined,
+  mode extends TestClientMode | undefined = undefined,
 > = Client_Base<transport, chain, account, rpcSchema> &
   (extended extends Extended ? extended : unknown) & {
     extend: <
@@ -134,16 +139,17 @@ export type Client<
         ExactPartial<ExtendableProtectedActions<transport, chain, account>>,
     >(
       fn: (
-        client: Client<transport, chain, account, rpcSchema, extended>,
+        client: Client<transport, chain, account, rpcSchema, extended, mode>,
       ) => client,
     ) => Client<
       transport,
       chain,
       account,
       rpcSchema,
-      Prettify<client> & (extended extends Extended ? extended : unknown)
+      Prettify<client> & (extended extends Extended ? extended : unknown),
+      mode
     >
-  }
+  } & (mode extends TestClientMode ? { mode: mode } : {})
 
 type Client_Base<
   transport extends Transport = Transport,
@@ -200,8 +206,9 @@ export function createClient<
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  mode extends TestClientMode | undefined = undefined,
 >(
-  parameters: ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
+  parameters: ClientConfig<transport, chain, accountOrAddress, rpcSchema, mode>,
 ): Prettify<
   Client<
     transport,
@@ -209,7 +216,9 @@ export function createClient<
     accountOrAddress extends Address
       ? Prettify<JsonRpcAccount<accountOrAddress>>
       : accountOrAddress,
-    rpcSchema
+    rpcSchema,
+    Extended | undefined,
+    mode
   >
 >
 
@@ -222,6 +231,7 @@ export function createClient(parameters: ClientConfig): Client {
     name = 'Base Client',
     pollingInterval = 4_000,
     type = 'base',
+    mode = undefined,
   } = parameters
 
   const chain = parameters.chain
@@ -247,6 +257,7 @@ export function createClient(parameters: ClientConfig): Client {
     transport,
     type,
     uid: uid(),
+    ...(mode !== undefined ? { mode } : {}),
   }
 
   function extend(base: typeof client) {

@@ -117,9 +117,9 @@ export function createTestClient(parameters: TestClientConfig): TestClient {
     key,
     name,
     type: 'testClient',
+    mode,
   })
   return client.extend((config) => ({
-    mode,
     ...testActions({ mode })(config),
   }))
 }

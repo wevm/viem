@@ -573,4 +573,14 @@ describe('extends', () => {
       expect(extended.chain.id).toEqual(client.chain.id)
     })
   })
+
+  test('supports test mode', () => {
+    const client = createClient({
+      chain: localhost,
+      transport: http(),
+      mode: 'hardhat',
+    })
+    assertType<{ mode: 'hardhat' }>(client)
+    expect(client.mode).toEqual('hardhat')
+  })
 })
