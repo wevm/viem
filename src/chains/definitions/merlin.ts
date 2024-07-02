@@ -13,7 +13,7 @@ export const merlin = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'blockscout',
+      name: 'Merlin Explorer',
       url: 'https://scan.merlinchain.io',
       apiUrl: 'https://scan.merlinchain.io/api',
     },
