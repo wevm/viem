@@ -17,7 +17,11 @@ describe('block', () => {
     expect(
       block.format({
         baseFeePerGas: '0x1',
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
+        sealFields: ['0x0'],
         difficulty: '0x0',
+        extraData: '0x',
         gasLimit: '0x420',
         gasUsed: '0x69',
         hash: '0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846',
@@ -177,6 +181,10 @@ describe('block', () => {
       block.format({
         baseFeePerGas: '0x1',
         difficulty: '0x0',
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
+        sealFields: ['0x0'],
+        extraData: '0x0',
         gasLimit: '0x420',
         gasUsed: '0x69',
         hash: '0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846',
@@ -389,11 +397,9 @@ describe('transaction (deposit)', () => {
 
     expect(
       transaction.format({
-        accessList: [],
         blockHash:
           '0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574',
         blockNumber: '0x1',
-        chainId: '0x1',
         from: '0xacd03d601e5bb1b275bb94076ff46ed9d753435a',
         gas: '0x69',
         hash: '0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822',

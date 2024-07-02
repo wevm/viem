@@ -139,17 +139,6 @@ type Assign_<T, U> = {
     : K]: K extends keyof U ? U[K] : T[K]
 }
 
-/**
- * @description Make properties K of type T never.
- *
- * @example
- * NeverBy<{ a: string, b: boolean, c: number }, 'a' | 'c'>
- * => { a: never, b: boolean, c: never }
- */
-export type NeverBy<T, K extends keyof T> = {
-  [U in keyof T]: U extends K ? never : T[U]
-}
-
 // TODO: Remove when peer dep `typescript@>=4.5` (NoInfer is native)
 export type NoInfer<type> = [type][type extends any ? 0 : never]
 
