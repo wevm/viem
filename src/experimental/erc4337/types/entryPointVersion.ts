@@ -1,7 +1,7 @@
 import type { SmartAccount } from '../accounts/types.js'
 
 /** @link https://github.com/eth-infinitism/account-abstraction/releases */
-export type EntryPointVersion = '0.0' | '0.7'
+export type EntryPointVersion = '0.6' | '0.7'
 
 export type DeriveEntryPointVersion<account extends SmartAccount | undefined> =
   account extends SmartAccount

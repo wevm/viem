@@ -98,7 +98,10 @@ export async function sendUserOperation<
     userOperation: request as UserOperation,
   })
 
-  const rpcParameters = formatUserOperationRequest({ ...request, signature })
+  const rpcParameters = formatUserOperationRequest({
+    ...request,
+    signature,
+  } as UserOperation)
 
   try {
     return await client.request({

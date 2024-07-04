@@ -144,6 +144,7 @@ export async function prepareUserOperationRequest<
     })(),
     (async () => {
       if (!parameters_.includes('factory')) return undefined
+      if (request.initCode) return { initCode: request.initCode }
       if (request.factory && request.factoryData)
         return {
           factory: request.factory,
@@ -170,9 +171,10 @@ export async function prepareUserOperationRequest<
   ])
 
   if (typeof callData !== 'undefined') request.callData = callData
-  if (typeof factory !== 'undefined') request = { ...request, ...factory }
+  if (typeof factory !== 'undefined')
+    request = { ...request, ...(factory as any) }
   if (typeof nonce !== 'undefined') request.nonce = nonce
-  if (typeof gas !== 'undefined') request = { ...request, ...gas }
+  if (typeof gas !== 'undefined') request = { ...request, ...(gas as any) }
   if (typeof signature !== 'undefined') request.signature = signature
 
   delete request.calls

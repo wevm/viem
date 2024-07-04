@@ -25,7 +25,13 @@ export type EstimateUserOperationGasReturnType<
           paymasterPostOpGasLimit?: uint256 | undefined
         }
       : never)
-  | (entryPointVersion extends '0.0' ? never : never)
+  | (entryPointVersion extends '0.6'
+      ? {
+          preVerificationGas: uint256
+          verificationGasLimit: uint256
+          callGasLimit: uint256
+        }
+      : never)
 >
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_getuseroperationbyhash */
@@ -33,48 +39,38 @@ export type GetUserOperationByHashReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
   pending extends boolean = boolean,
-> = OneOf<
-  | (entryPointVersion extends '0.7'
-      ? {
-          blockHash: pending extends true ? null : Hash
-          blockNumber: pending extends true ? null : uint256
-          entryPoint: Address
-          transactionHash: pending extends true ? null : Hash
-          userOperation: UserOperation<entryPointVersion, uint256>
-        }
-      : never)
-  | (entryPointVersion extends '0.0' ? never : never)
->
+> = {
+  blockHash: pending extends true ? null : Hash
+  blockNumber: pending extends true ? null : uint256
+  entryPoint: Address
+  transactionHash: pending extends true ? null : Hash
+  userOperation: UserOperation<entryPointVersion, uint256>
+}
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#entrypoint-definition */
 export type PackedUserOperation<
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
+  _entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
-> = OneOf<
-  | (entryPointVersion extends '0.7'
-      ? {
-          /** Concatenation of {@link UserOperation`verificationGasLimit`} (16 bytes) and {@link UserOperation`callGasLimit`} (16 bytes) */
-          accountGasLimits: Hex
-          /** The data to pass to the `sender` during the main execution call. */
-          callData: Hex
-          /** Concatenation of {@link UserOperation`factory`} and {@link UserOperation`factoryData`}. */
-          initCode?: Hex | undefined
-          /** Concatenation of {@link UserOperation`maxPriorityFee`} (16 bytes) and {@link UserOperation`maxFeePerGas`} (16 bytes) */
-          gasFees: Hex
-          /** Anti-replay parameter. */
-          nonce: uint256
-          /** Concatenation of paymaster fields (or empty). */
-          paymasterAndData?: Hex | undefined
-          /** Extra gas to pay the bunder. */
-          preVerificationGas: uint256
-          /** The account making the operation. */
-          sender: Address
-          /** Data passed into the account to verify authorization. */
-          signature: Hex
-        }
-      : never)
-  | (entryPointVersion extends '0.0' ? never : never)
->
+> = {
+  /** Concatenation of {@link UserOperation`verificationGasLimit`} (16 bytes) and {@link UserOperation`callGasLimit`} (16 bytes) */
+  accountGasLimits: Hex
+  /** The data to pass to the `sender` during the main execution call. */
+  callData: Hex
+  /** Concatenation of {@link UserOperation`factory`} and {@link UserOperation`factoryData`}. */
+  initCode?: Hex | undefined
+  /** Concatenation of {@link UserOperation`maxPriorityFee`} (16 bytes) and {@link UserOperation`maxFeePerGas`} (16 bytes) */
+  gasFees: Hex
+  /** Anti-replay parameter. */
+  nonce: uint256
+  /** Concatenation of paymaster fields (or empty). */
+  paymasterAndData?: Hex | undefined
+  /** Extra gas to pay the bunder. */
+  preVerificationGas: uint256
+  /** The account making the operation. */
+  sender: Address
+  /** Data passed into the account to verify authorization. */
+  signature: Hex
+}
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#useroperation */
 export type UserOperation<
@@ -115,7 +111,32 @@ export type UserOperation<
           verificationGasLimit: uint256
         }
       : never)
-  | (entryPointVersion extends '0.0' ? never : never)
+  | (entryPointVersion extends '0.6'
+      ? {
+          /** The data to pass to the `sender` during the main execution call. */
+          callData: Hex
+          /** The amount of gas to allocate the main execution call */
+          callGasLimit: uint256
+          /** Account init code. Only for new accounts. */
+          initCode?: Hex | undefined
+          /** Maximum fee per gas. */
+          maxFeePerGas: uint256
+          /** Maximum priority fee per gas. */
+          maxPriorityFeePerGas: uint256
+          /** Anti-replay parameter. */
+          nonce: uint256
+          /** Paymaster address with calldata. */
+          paymasterAndData?: Hex | undefined
+          /** Extra gas to pay the bunder. */
+          preVerificationGas: uint256
+          /** The account making the operation. */
+          sender: Address
+          /** Data passed into the account to verify authorization. */
+          signature: Hex
+          /** The amount of gas to allocate for the verification step. */
+          verificationGasLimit: uint256
+        }
+      : never)
 >
 
 export type UserOperationRequest<
@@ -136,42 +157,49 @@ export type UserOperationRequest<
             | 'signature'
           >
         : never)
-    | (entryPointVersion extends '0.0' ? { _: never } : never)
+    | (entryPointVersion extends '0.6'
+        ? UnionPartialBy<
+            UserOperation<'0.6', uint256>,
+            // We are able to calculate these via `prepareUserOperationRequest`.
+            | keyof EstimateUserOperationGasReturnType<'0.6'>
+            | 'callData'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'nonce'
+            | 'sender'
+            | 'signature'
+          >
+        : never)
   >,
   OneOf<{ calls: readonly Call[] } | { callData: Hex }>
 >
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_getuseroperationreceipt */
 export type UserOperationReceipt<
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
+  _entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
   int32 = number,
   status = 'success' | 'reverted',
-> = OneOf<
-  | (entryPointVersion extends '0.7'
-      ? {
-          /** Actual gas cost. */
-          actualGasCost: uint256
-          /** Actual gas used. */
-          actualGasUsed: uint256
-          /** Entrypoint address. */
-          entryPoint: Address
-          /** Logs emitted during execution. */
-          logs: Log<uint256, int32, false>[]
-          /** Anti-replay parameter. */
-          nonce: uint256
-          /** Paymaster for the user operation. */
-          paymaster?: Address | undefined
-          /** Revert reason, if unsuccessful. */
-          reason?: string | undefined
-          /** Transaction receipt of the user operation execution. */
-          receipt: TransactionReceipt<uint256, int32, status>
-          sender: Address
-          /** If the user operation execution was successful. */
-          success: boolean
-          /** Hash of the user operation. */
-          userOpHash: Hash
-        }
-      : never)
-  | (entryPointVersion extends '0.0' ? never : never)
->
+> = {
+  /** Actual gas cost. */
+  actualGasCost: uint256
+  /** Actual gas used. */
+  actualGasUsed: uint256
+  /** Entrypoint address. */
+  entryPoint: Address
+  /** Logs emitted during execution. */
+  logs: Log<uint256, int32, false>[]
+  /** Anti-replay parameter. */
+  nonce: uint256
+  /** Paymaster for the user operation. */
+  paymaster?: Address | undefined
+  /** Revert reason, if unsuccessful. */
+  reason?: string | undefined
+  /** Transaction receipt of the user operation execution. */
+  receipt: TransactionReceipt<uint256, int32, status>
+  sender: Address
+  /** If the user operation execution was successful. */
+  success: boolean
+  /** Hash of the user operation. */
+  userOpHash: Hash
+}

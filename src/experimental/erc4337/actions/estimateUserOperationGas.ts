@@ -18,6 +18,7 @@ import type {
 } from '../types/entryPointVersion.js'
 import type {
   EstimateUserOperationGasReturnType as EstimateUserOperationGasReturnType_,
+  UserOperation,
   UserOperationRequest,
 } from '../types/userOperation.js'
 import {
@@ -102,7 +103,10 @@ export async function estimateUserOperationGas<
   try {
     const result = await client.request({
       method: 'eth_estimateUserOperationGas',
-      params: [formatUserOperationRequest(request), account.entryPoint.address],
+      params: [
+        formatUserOperationRequest(request as UserOperation),
+        account.entryPoint.address,
+      ],
     })
     return formatUserOperationGas(result) as EstimateUserOperationGasReturnType<
       account,
