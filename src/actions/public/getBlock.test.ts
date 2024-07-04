@@ -86,12 +86,15 @@ test('chain w/ custom block type', async () => {
     {
       "baseFeePerGas": null,
       "blobGasUsed": undefined,
+      "difficulty": 0n,
       "epochSnarkData": null,
       "excessBlobGas": undefined,
+      "gasLimit": 20000000n,
       "gasUsed": 5045322n,
       "hash": "0xac8c9bc3b84e103dc321bbe83b670e425ff68bfc9a333a4f1b1b204ad11c583d",
       "logsBloom": "0x02004000004200000000000000800020000000000000400002040000002020000000802000000000000180000001000020800000000000000000000000000000000000000022000260000008000800000000000000000000000000000000000000000008000410002100000140000800000044c00200000000400010000800008800000080000000000010000040000000000000000000000000000000800020028000000100000000000000000000002002881000000000000800020000040020900402020000180000000000000040000800000011020090002000400000200010002000001000000000000080000000000000000000000000000004000000",
       "miner": "0xe267d978037b89db06c6a5fcf82fad8297e290ff",
+      "nonce": null,
       "number": 16645775n,
       "parentHash": "0xf6e57c99be5a81167bcb7bdf8d55572235384182c71635857ace2c04d25294ed",
       "randomness": {
@@ -766,7 +769,7 @@ test('non-existent block: throws if block number does not exist', async () => {
   ).rejects.toMatchInlineSnapshot(`
     [BlockNotFoundError: Block at number "69420694206942" could not be found.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -779,6 +782,6 @@ test('non-existent block: throws if block hash does not exist', async () => {
   ).rejects.toMatchInlineSnapshot(`
     [BlockNotFoundError: Block at hash "0xd4a8cf1bf4d05f44480ae4a513d09cddb273880ed249168bf2c523ee9e5c7722" could not be found.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

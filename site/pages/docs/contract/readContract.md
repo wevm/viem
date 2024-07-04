@@ -102,6 +102,98 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Deployless Reads
+
+It is possible to call a function on a contract that has not been deployed yet. For instance, we may want
+to call a function on an [ERC-4337 Smart Account](https://eips.ethereum.org/EIPS/eip-4337) contract which has not been deployed.
+
+Viem offers two ways of performing a Deployless Call, via:
+
+- [Bytecode](#bytecode)
+- a [Deploy Factory](#deploy-factory): "temporarily deploys" a contract with a provided [Deploy Factory](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory), and calls the function on the deployed contract.
+
+:::tip
+The **Deployless Call** pattern is also accessible via the [Contract Instance](/docs/contract/getContract) API.
+:::
+
+#### Bytecode
+
+The example below demonstrates how we can utilize a Deployless Call **via Bytecode** to call the `name` function on the [Wagmi Example ERC721 contract](https://etherscan.io/address/0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2#code) which has not been deployed:
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseAbi } from 'viem'
+import { publicClient } from './config'
+
+const data = await publicClient.readContract({
+  abi: parseAbi(['function name() view returns (string)']),
+  code: '0x...', // Accessible here: https://etherscan.io/address/0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2#code
+  functionName: 'name'
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
+#### Deploy Factory
+
+The example below demonstrates how we can utilize a Deployless Call **via a [Deploy Factory](https://docs.alchemy.com/docs/create2-an-alternative-to-deriving-contract-addresses#create2-contract-factory)** to call the `entryPoint` function on an [ERC-4337 Smart Account](https://eips.ethereum.org/EIPS/eip-4337) which has not been deployed:
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { encodeFunctionData, parseAbi } from 'viem'
+import { account, publicClient } from './config'
+
+const data = await publicClient.readContract({
+  // Address of the Smart Account deployer (factory).
+  factory: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
+
+  // Function to execute on the factory to deploy the Smart Account.
+  factoryData: encodeFunctionData({
+    abi: parseAbi(['function createAccount(address owner, uint256 salt)']),
+    functionName: 'createAccount',
+    args: [account, 0n],
+  }),
+
+  // Function to call on the Smart Account.
+  abi: account.abi,
+  address: account.address,
+  functionName: 'entryPoint',
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, http, parseAbi } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const account = {
+  address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  abi: parseAbi(['function entryPoint() view returns (address)'])
+} as const
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
+:::note
+This example utilizes the [SimpleAccountFactory](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccountFactory.sol).
+:::
+
 ## Return Value
 
 The response from the contract. Type is inferred.
@@ -210,6 +302,38 @@ const data = await publicClient.readContract({
   abi: wagmiAbi,
   functionName: 'totalSupply',
   blockTag: 'safe', // [!code focus]
+})
+```
+
+### factory (optional)
+
+- **Type:**
+
+Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc).
+
+```ts twoslash
+const data = await publicClient.readContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'totalSupply',
+  factory: '0x0000000000ffe8b47b3e2130213b802212439497', // [!code focus]
+  factoryData: '0xdeadbeef',
+})
+```
+
+### factoryData (optional)
+
+- **Type:**
+
+Calldata to execute on the factory to deploy the contract.
+
+```ts twoslash
+const data = await publicClient.readContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'totalSupply',
+  factory: '0x0000000000ffe8b47b3e2130213b802212439497',
+  factoryData: '0xdeadbeef', // [!code focus]
 })
 ```
 

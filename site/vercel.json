@@ -19,6 +19,10 @@
     {
       "source": "/:match/compactSignatureToHex",
       "destination": "/:match/serializeCompactSignature"
+    },
+    {
+      "source": "/:match/getBytecode",
+      "destination": "/:match/getCode"
     }
   ]
 }

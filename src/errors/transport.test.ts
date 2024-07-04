@@ -7,6 +7,6 @@ test('UrlRequiredError', () => {
     [ViemError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
     Docs: https://viem.sh/docs/clients/intro
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

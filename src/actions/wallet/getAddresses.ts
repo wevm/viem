@@ -45,6 +45,9 @@ export async function getAddresses<
   client: Client<Transport, TChain, TAccount>,
 ): Promise<GetAddressesReturnType> {
   if (client.account?.type === 'local') return [client.account.address]
-  const addresses = await client.request({ method: 'eth_accounts' })
+  const addresses = await client.request(
+    { method: 'eth_accounts' },
+    { dedupe: true },
+  )
   return addresses.map((address) => checksumAddress(address))
 }

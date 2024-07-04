@@ -13,7 +13,11 @@ import {
   type ChecksumAddressErrorType,
   checksumAddress,
 } from '../address/getAddress.js'
-import { type Cursor, createCursor } from '../cursor.js'
+import {
+  type CreateCursorErrorType,
+  type Cursor,
+  createCursor,
+} from '../cursor.js'
 import { type SizeErrorType, size } from '../data/size.js'
 import { type SliceBytesErrorType, sliceBytes } from '../data/slice.js'
 import { type TrimErrorType, trim } from '../data/trim.js'
@@ -42,6 +46,7 @@ export type DecodeAbiParametersErrorType =
   | BytesToHexErrorType
   | DecodeParameterErrorType
   | SizeErrorType
+  | CreateCursorErrorType
   | ErrorType
 
 export function decodeAbiParameters<

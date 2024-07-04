@@ -20,7 +20,7 @@ test('ChainDoesNotSupportContract', () => {
     This could be due to any of the following:
     - The chain does not have the contract "ensUniversalResolver" configured.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(
     new ChainDoesNotSupportContract({
@@ -33,7 +33,7 @@ test('ChainDoesNotSupportContract', () => {
     This could be due to any of the following:
     - The chain does not have the contract "ensUniversalResolver" configured.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(
     new ChainDoesNotSupportContract({
@@ -47,7 +47,7 @@ test('ChainDoesNotSupportContract', () => {
     This could be due to any of the following:
     - The contract "ensUniversalResolver" was not deployed until block 16172161 (current block 16172160).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -55,7 +55,7 @@ test('ClientChainNotConfiguredError', () => {
   expect(new ClientChainNotConfiguredError()).toMatchInlineSnapshot(`
     [ClientChainNotConfiguredError: No chain was provided to the Client.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -63,6 +63,6 @@ test('InvalidChainIdError', () => {
   expect(new InvalidChainIdError({ chainId: -1 })).toMatchInlineSnapshot(`
     [InvalidChainIdError: Chain ID "-1" is invalid.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

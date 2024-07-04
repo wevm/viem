@@ -24,9 +24,9 @@ export type SendUnsignedTransactionReturnType = Hash
 export type SendUnsignedTransactionErrorType = RequestErrorType | ErrorType
 
 /**
- * Returns the details of all transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
+ * Executes a transaction regardless of the signature.
  *
- * - Docs: https://viem.sh/docs/actions/test/getTxpoolContent
+ * - Docs: https://viem.sh/docs/actions/test/sendUnsignedTransaction#sendunsignedtransaction
  *
  * @param client - Client to use
  * @param parameters – {@link SendUnsignedTransactionParameters}

@@ -1,6 +1,4 @@
 /* c8 ignore start */
-import type { Abi } from 'abitype'
-
 import { getTransactionReceipt } from '~viem/actions/public/getTransactionReceipt.js'
 import { impersonateAccount } from '~viem/actions/test/impersonateAccount.js'
 import { mine } from '~viem/actions/test/mine.js'
@@ -16,6 +14,7 @@ import { http } from '~viem/clients/transports/http.js'
 import { namehash } from '~viem/utils/ens/namehash.js'
 import type { TestClientMode } from '../../src/clients/createTestClient.js'
 import {
+  type Abi,
   type Account,
   type Chain,
   type TestClient,
@@ -29,6 +28,8 @@ import {
   ERC20InvalidTransferEvent,
   EnsAvatarTokenUri,
   ErrorsExample,
+  Mock4337Account,
+  Mock4337AccountFactory,
   OffchainLookupExample,
   Payable,
 } from '../contracts/generated.js'
@@ -134,6 +135,22 @@ export async function deployPayable() {
     abi: Payable.abi,
     bytecode: Payable.bytecode.object,
   })
+}
+
+export async function deployMock4337Account() {
+  const { contractAddress: implementationAddress } = await deploy(client, {
+    abi: Mock4337Account.abi,
+    bytecode: Mock4337Account.bytecode.object,
+  })
+  const { contractAddress: factoryAddress } = await deploy(client, {
+    abi: Mock4337AccountFactory.abi,
+    bytecode: Mock4337AccountFactory.bytecode.object,
+    args: [implementationAddress!],
+  })
+  return {
+    implementationAddress: implementationAddress!,
+    factoryAddress: factoryAddress!,
+  }
 }
 
 export async function setVitalikResolver() {

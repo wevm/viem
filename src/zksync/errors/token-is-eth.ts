@@ -8,7 +8,7 @@ export class TokenIsEthError extends BaseError {
 
   constructor() {
     super(
-      ['Token is an ETH token.', '', 'ETH token cannot be retrived.'].join(
+      ['Token is an ETH token.', '', 'ETH token cannot be retrieved.'].join(
         '\n',
       ),
     )

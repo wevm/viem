@@ -1,4 +1,4 @@
-import { createAnvil } from '@viem/anvil'
+import { anvil } from 'prool/instances'
 import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
@@ -15,7 +15,7 @@ const client = createClient({
   transport: http('http://127.0.0.1:6967'),
 }).extend(() => ({ mode: 'anvil' }))
 
-const anvil = createAnvil({
+const instance = anvil({
   port: 6967,
   ipc: anvilMainnet.rpcUrl.ipc,
   forkBlockNumber: anvilMainnet.forkBlockNumber,
@@ -23,11 +23,11 @@ const anvil = createAnvil({
 })
 
 beforeAll(async () => {
-  await anvil.start()
+  await instance.start()
 })
 
 afterAll(async () => {
-  await anvil.stop()
+  await instance.stop()
 })
 
 test('default', () => {
@@ -136,7 +136,7 @@ test('errors: rpc error', async () => {
     Request body: {"method":"eth_wagmi"}
 
     Details: data did not match any variant of untagged enum EthRpcCall
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

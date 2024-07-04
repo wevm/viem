@@ -9,7 +9,9 @@ import { accounts, address, typedData } from '~test/src/constants.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
+import { Mock4337AccountFactory } from '../../../test/contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { deployMock4337Account } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { signMessage } from '../../accounts/utils/signMessage.js'
 import {
@@ -17,8 +19,11 @@ import {
   reset,
   sendTransaction,
   signTransaction,
+  simulateContract,
+  writeContract,
 } from '../../actions/index.js'
 import { base } from '../../chains/index.js'
+import { pad } from '../../utils/index.js'
 import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'
 import { wait } from '../../utils/wait.js'
 import { createPublicClient } from '../createPublicClient.js'
@@ -46,7 +51,9 @@ test('default', async () => {
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
       "getChainId": [Function],
+      "getCode": [Function],
       "getContractEvents": [Function],
+      "getEip712Domain": [Function],
       "getEnsAddress": [Function],
       "getEnsAvatar": [Function],
       "getEnsName": [Function],
@@ -161,9 +168,9 @@ describe('smoke test', () => {
     expect(await client.getBlockTransactionCount()).toBeDefined()
   })
 
-  test('getBytecode', async () => {
+  test('getCode', async () => {
     expect(
-      await client.getBytecode({ address: wagmiContractConfig.address }),
+      await client.getCode({ address: wagmiContractConfig.address }),
     ).toBeDefined()
   })
 
@@ -175,6 +182,34 @@ describe('smoke test', () => {
     expect(
       await client.getContractEvents({ abi: wagmiContractConfig.abi }),
     ).toBeDefined()
+  })
+
+  test('getEip712Domain', async () => {
+    const { factoryAddress } = await deployMock4337Account()
+
+    const { result: address, request } = await simulateContract(client, {
+      account: accounts[0].address,
+      abi: Mock4337AccountFactory.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x0')],
+    })
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+
+    expect(await client.getEip712Domain({ address })).toMatchInlineSnapshot(`
+      {
+        "domain": {
+          "chainId": 1,
+          "name": "Mock4337Account",
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "verifyingContract": "0x8a00708a83D977494139D21D618C6C2A71fA8ed1",
+          "version": "1",
+        },
+        "extensions": [],
+        "fields": "0x0f",
+      }
+    `)
   })
 
   test(

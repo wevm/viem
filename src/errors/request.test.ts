@@ -23,7 +23,7 @@ test('RpcRequestError', () => {
     Request body: {"foo":"bar"}
 
     Details: Error
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -45,7 +45,7 @@ test('HttpRequestError', () => {
     Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
     Details: Some error
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -65,7 +65,7 @@ test('WebSocketRequestError', () => {
     Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
     Details: Some error
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -84,6 +84,6 @@ test('TimeoutError', () => {
     Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
 
     Details: The request timed out.
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

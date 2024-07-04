@@ -49,7 +49,7 @@ describe('converts bytes to number', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -107,7 +107,7 @@ describe('converts bytes to bigint', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -142,7 +142,7 @@ describe('converts bytes to boolean', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -152,14 +152,14 @@ describe('converts bytes to boolean', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidBytesBooleanError: Bytes value "69" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(() =>
       bytesToBool(new Uint8Array([1, 2])),
     ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidBytesBooleanError: Bytes value "1,2" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -216,7 +216,7 @@ describe('converts bytes to string', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -281,7 +281,7 @@ describe('converts bytes to hex', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

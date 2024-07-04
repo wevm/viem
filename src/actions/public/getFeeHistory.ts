@@ -24,7 +24,7 @@ export type GetFeeHistoryParameters = {
   rewardPercentiles: number[]
 } & (
   | {
-      blockNumber?: never | undefined
+      blockNumber?: undefined
       /**
        * Highest number block of the requested range.
        * @default 'latest'
@@ -34,7 +34,7 @@ export type GetFeeHistoryParameters = {
   | {
       /** Highest number block of the requested range. */
       blockNumber?: bigint | undefined
-      blockTag?: never | undefined
+      blockTag?: undefined
     }
 )
 export type GetFeeHistoryReturnType = FeeHistory
@@ -78,13 +78,16 @@ export async function getFeeHistory<TChain extends Chain | undefined>(
   }: GetFeeHistoryParameters,
 ): Promise<GetFeeHistoryReturnType> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
-  const feeHistory = await client.request({
-    method: 'eth_feeHistory',
-    params: [
-      numberToHex(blockCount),
-      blockNumberHex || blockTag,
-      rewardPercentiles,
-    ],
-  })
+  const feeHistory = await client.request(
+    {
+      method: 'eth_feeHistory',
+      params: [
+        numberToHex(blockCount),
+        blockNumberHex || blockTag,
+        rewardPercentiles,
+      ],
+    },
+    { dedupe: Boolean(blockNumberHex) },
+  )
   return formatFeeHistory(feeHistory)
 }

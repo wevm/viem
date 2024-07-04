@@ -21,6 +21,48 @@ test('default', () => {
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
+
+    URI: https://example.com/path
+    Version: 1
+    Chain ID: 1
+    Nonce: foobarbaz
+    Issued At: 2023-02-01T00:00:00.000Z"
+  `)
+
+  vi.useRealTimers()
+})
+
+test('parameters: domain', () => {
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
+
+  expect(
+    createSiweMessage({
+      ...message,
+      domain: 'foo.example.com',
+    }),
+  ).toMatchInlineSnapshot(`
+    "foo.example.com wants you to sign in with your Ethereum account:
+    0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+    URI: https://example.com/path
+    Version: 1
+    Chain ID: 1
+    Nonce: foobarbaz
+    Issued At: 2023-02-01T00:00:00.000Z"
+  `)
+
+  expect(
+    createSiweMessage({
+      ...message,
+      domain: 'example.co.uk',
+    }),
+  ).toMatchInlineSnapshot(`
+    "example.co.uk wants you to sign in with your Ethereum account:
+    0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
     URI: https://example.com/path
     Version: 1
     Chain ID: 1
@@ -43,6 +85,7 @@ test('parameters: scheme', () => {
   ).toMatchInlineSnapshot(`
     "https://example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
 
     URI: https://example.com/path
     Version: 1
@@ -86,6 +129,7 @@ test('parameters: issuedAt', () => {
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
+
     URI: https://example.com/path
     Version: 1
     Chain ID: 1
@@ -106,6 +150,7 @@ test('parameters: expirationTime', () => {
   ).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
 
     URI: https://example.com/path
     Version: 1
@@ -131,6 +176,7 @@ test('parameters: notBefore', () => {
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
+
     URI: https://example.com/path
     Version: 1
     Chain ID: 1
@@ -154,6 +200,7 @@ test('parameters: requestId', () => {
   ).toMatchInlineSnapshot(`
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
 
     URI: https://example.com/path
     Version: 1
@@ -183,6 +230,7 @@ test('parameters: resources', () => {
     "example.com wants you to sign in with your Ethereum account:
     0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
 
+
     URI: https://example.com/path
     Version: 1
     Chain ID: 1
@@ -206,7 +254,7 @@ test('behavior: invalid address', () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -221,7 +269,7 @@ test('behavior: invalid chainId', () => {
 
     Provided value: 1.1
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -236,7 +284,7 @@ test('behavior: invalid domain', () => {
 
     Provided value: #foo
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -251,7 +299,7 @@ test('behavior: invalid nonce', () => {
 
     Provided value: #foo
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -266,7 +314,7 @@ test('behavior: invalid uri', () => {
 
     Provided value: #foo
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -281,7 +329,7 @@ test('behavior: invalid version', () => {
 
     Provided value: 2
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -296,7 +344,7 @@ test('behavior: invalid scheme', () => {
 
     Provided value: foo_bar
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -311,7 +359,7 @@ test('behavior: invalid statement', () => {
     Provided value: foo
     bar
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -329,7 +377,7 @@ test('behavior: invalid resources', () => {
 
     Provided value: foo
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

@@ -252,7 +252,7 @@ describe('args: hash', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TransactionNotFoundError: Transaction with hash "0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d" could not be found.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

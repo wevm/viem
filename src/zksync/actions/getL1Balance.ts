@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import {
   type GetBalanceParameters,
   getBalance,
@@ -10,7 +11,6 @@ import type { BaseError } from '../../errors/base.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import { parseAccount } from '../../utils/accounts.js'
 import { legacyEthAddress } from '../constants/address.js'
 import { isEth } from '../utils/isEth.js'
 import {
@@ -24,10 +24,10 @@ export type GetL1BalanceParameters<
     | {
         /** The balance of the account at a block number. */
         blockNumber?: bigint | undefined
-        blockTag?: never | undefined
+        blockTag?: undefined
       }
     | {
-        blockNumber?: never | undefined
+        blockNumber?: undefined
         /** The balance of the account at a block tag. */
         blockTag?: BlockTag | undefined
       }

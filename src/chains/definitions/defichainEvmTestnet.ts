@@ -7,7 +7,7 @@ export const defichainEvmTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: {
     name: 'DeFiChain',
     symbol: 'DFI',
-    decimals: 8,
+    decimals: 18,
   },
   rpcUrls: {
     default: {

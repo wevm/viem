@@ -26,7 +26,7 @@ import type {
   TransactionSerializedGeneric,
   TransactionType,
 } from '../../types/transaction.js'
-import type { IsNarrowable } from '../../types/utils.js'
+import type { IsNarrowable, Mutable } from '../../types/utils.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
@@ -102,6 +102,7 @@ export function parseTransaction<
 }
 
 type ParseTransactionEIP4844ErrorType =
+  | ToTransactionArrayErrorType
   | AssertTransactionEIP4844ErrorType
   | ToTransactionArrayErrorType
   | HexToBigIntErrorType
@@ -204,6 +205,7 @@ function parseTransactionEIP4844(
 }
 
 type ParseTransactionEIP1559ErrorType =
+  | ToTransactionArrayErrorType
   | AssertTransactionEIP1559ErrorType
   | ToTransactionArrayErrorType
   | HexToBigIntErrorType
@@ -212,6 +214,7 @@ type ParseTransactionEIP1559ErrorType =
   | InvalidSerializedTransactionErrorType
   | IsHexErrorType
   | ParseEIP155SignatureErrorType
+  | ParseAccessListErrorType
   | ErrorType
 
 function parseTransactionEIP1559(
@@ -285,6 +288,7 @@ function parseTransactionEIP1559(
 }
 
 type ParseTransactionEIP2930ErrorType =
+  | ToTransactionArrayErrorType
   | AssertTransactionEIP2930ErrorType
   | ToTransactionArrayErrorType
   | HexToBigIntErrorType
@@ -293,6 +297,7 @@ type ParseTransactionEIP2930ErrorType =
   | InvalidSerializedTransactionErrorType
   | IsHexErrorType
   | ParseEIP155SignatureErrorType
+  | ParseAccessListErrorType
   | ErrorType
 
 function parseTransactionEIP2930(
@@ -430,19 +435,19 @@ function parseTransactionLegacy(
   return transaction
 }
 
-export type ToTransactionArrayErrorType = FromRlpErrorType | ErrorType
+type ToTransactionArrayErrorType = FromRlpErrorType | ErrorType
 
 export function toTransactionArray(serializedTransaction: string) {
   return fromRlp(`0x${serializedTransaction.slice(4)}` as Hex, 'hex')
 }
 
-export type ParseAccessListErrorType =
+type ParseAccessListErrorType =
   | InvalidAddressErrorType
   | IsAddressErrorType
   | ErrorType
 
 export function parseAccessList(accessList_: RecursiveArray<Hex>): AccessList {
-  const accessList: AccessList = []
+  const accessList: Mutable<AccessList> = []
   for (let i = 0; i < accessList_.length; i++) {
     const [address, storageKeys] = accessList_[i] as [Hex, Hex[]]
 

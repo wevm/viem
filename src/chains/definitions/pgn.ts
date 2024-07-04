@@ -19,7 +19,7 @@ export const pgn = /*#__PURE__*/ defineChain({
       url: 'https://explorer.publicgoods.network',
       apiUrl: 'https://explorer.publicgoods.network/api',
     },
-    blocksout: {
+    blockscout: {
       name: 'PGN Explorer',
       url: 'https://explorer.publicgoods.network',
       apiUrl: 'https://explorer.publicgoods.network/api',

@@ -18,4 +18,5 @@ export const rootstockTestnet = /*#__PURE__*/ defineChain({
       url: 'https://explorer.testnet.rootstock.io',
     },
   },
+  testnet: true,
 })

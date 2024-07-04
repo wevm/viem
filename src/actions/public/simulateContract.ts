@@ -66,7 +66,14 @@ export type SimulateContractParameters<
 > &
   UnionOmit<
     CallParameters<derivedChain>,
-    'account' | 'batch' | 'to' | 'data' | 'value'
+    | 'account'
+    | 'batch'
+    | 'code'
+    | 'to'
+    | 'data'
+    | 'factory'
+    | 'factoryData'
+    | 'value'
   > &
   GetValue<
     abi,

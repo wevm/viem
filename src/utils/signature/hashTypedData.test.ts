@@ -116,7 +116,7 @@ test('typed message with a domain separator that uses all fields.', () => {
   )
 })
 
-test('typed message with only custom domain seperator fields', () => {
+test('typed message with only custom domain separator fields', () => {
   const hash = hashTypedData({
     types: {
       EIP712Domain: [

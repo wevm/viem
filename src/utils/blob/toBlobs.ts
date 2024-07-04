@@ -12,7 +12,7 @@ import {
 } from '../../errors/blob.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { createCursor } from '../cursor.js'
+import { type CreateCursorErrorType, createCursor } from '../cursor.js'
 import { type SizeErrorType, size } from '../data/size.js'
 import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
 import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
@@ -36,6 +36,7 @@ export type ToBlobsReturnType<to extends To> =
 export type ToBlobsErrorType =
   | BlobSizeTooLargeErrorType
   | BytesToHexErrorType
+  | CreateCursorErrorType
   | EmptyBlobErrorType
   | HexToBytesErrorType
   | SizeErrorType

@@ -98,9 +98,22 @@ export const sidebar = {
           ],
         },
         {
+          text: 'Call',
+          items: [{ text: 'call', link: '/docs/actions/public/call' }],
+        },
+        {
           text: 'Chain',
           items: [
             { text: 'getChainId', link: '/docs/actions/public/getChainId' },
+          ],
+        },
+        {
+          text: 'EIP-712',
+          items: [
+            {
+              text: 'getEip712Domain',
+              link: '/docs/actions/public/getEip712Domain',
+            },
           ],
         },
         {
@@ -194,7 +207,6 @@ export const sidebar = {
         {
           text: 'Transaction',
           items: [
-            { text: 'call', link: '/docs/actions/public/call' },
             {
               text: 'prepareTransactionRequest',
               link: '/docs/actions/wallet/prepareTransactionRequest',
@@ -438,9 +450,9 @@ export const sidebar = {
       text: 'Accounts',
       collapsed: true,
       items: [
-        { text: 'JSON-RPC', link: '/docs/accounts/jsonRpc' },
+        { text: 'JSON-RPC Account', link: '/docs/accounts/jsonRpc' },
         {
-          text: 'Local',
+          text: 'Local Accounts',
           link: '/docs/accounts/local',
           items: [
             { text: 'Private Key', link: '/docs/accounts/privateKey' },
@@ -450,6 +462,15 @@ export const sidebar = {
               link: '/docs/accounts/hd',
             },
             { text: 'Custom', link: '/docs/accounts/custom' },
+          ],
+        },
+        {
+          text: 'Utilities',
+          items: [
+            {
+              text: 'createNonceManager',
+              link: '/docs/accounts/createNonceManager',
+            },
             { text: 'signMessage', link: '/docs/accounts/signMessage' },
             { text: 'signTransaction', link: '/docs/accounts/signTransaction' },
             { text: 'signTypedData', link: '/docs/accounts/signTypedData' },
@@ -522,8 +543,8 @@ export const sidebar = {
               link: '/docs/contract/estimateContractGas',
             },
             {
-              text: 'getBytecode',
-              link: '/docs/contract/getBytecode',
+              text: 'getCode',
+              link: '/docs/contract/getCode',
             },
             {
               text: 'getContractEvents',
@@ -916,8 +937,16 @@ export const sidebar = {
               link: '/docs/utilities/hashTypedData',
             },
             {
+              text: 'isErc6492Signature',
+              link: '/docs/utilities/isErc6492Signature',
+            },
+            {
               text: 'parseCompactSignature',
               link: '/docs/utilities/parseCompactSignature',
+            },
+            {
+              text: 'parseErc6492Signature',
+              link: '/docs/utilities/parseErc6492Signature',
             },
             {
               text: 'parseSignature',
@@ -946,6 +975,10 @@ export const sidebar = {
             {
               text: 'serializeCompactSignature',
               link: '/docs/utilities/serializeCompactSignature',
+            },
+            {
+              text: 'serializeErc6492Signature',
+              link: '/docs/utilities/serializeErc6492Signature',
             },
             {
               text: 'serializeSignature',
@@ -1077,36 +1110,49 @@ export const sidebar = {
         ],
       },
       {
-        text: 'ERC-6492',
-        items: [
-          {
-            text: 'Utilities',
-            items: [
-              {
-                text: 'parseErc6492Signature',
-                link: '/experimental/erc6492/parseErc6492Signature',
-              },
-              {
-                text: 'isErc6492Signature',
-                link: '/experimental/erc6492/isErc6492Signature',
-              },
-              {
-                text: 'serializeErc6492Signature',
-                link: '/experimental/erc6492/serializeErc6492Signature',
-              },
-            ],
-          },
-        ],
-      },
-      {
         text: 'ERC-7715',
         items: [
           {
             text: 'Actions',
             items: [
               {
-                text: 'issuePermissions',
-                link: '/experimental/erc7715/issuePermissions',
+                text: 'grantPermissions',
+                link: '/experimental/erc7715/grantPermissions',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Solady',
+        items: [
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'signMessage',
+                link: '/experimental/solady/signMessage',
+              },
+              {
+                text: 'signTypedData',
+                link: '/experimental/solady/signTypedData',
+              },
+            ],
+          },
+          {
+            text: 'Utilities',
+            items: [
+              {
+                text: 'hashMessage',
+                link: '/experimental/solady/hashMessage',
+              },
+              {
+                text: 'hashTypedData',
+                link: '/experimental/solady/hashTypedData',
+              },
+              {
+                text: 'wrapTypedDataSignature',
+                link: '/experimental/solady/wrapTypedDataSignature',
               },
             ],
           },

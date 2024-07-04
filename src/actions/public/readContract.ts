@@ -40,9 +40,17 @@ export type ReadContractParameters<
     functionName
   > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
 > = UnionEvaluate<
-  Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag' | 'stateOverride'>
+  Pick<
+    CallParameters,
+    | 'account'
+    | 'blockNumber'
+    | 'blockTag'
+    | 'factory'
+    | 'factoryData'
+    | 'stateOverride'
+  >
 > &
-  ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>
+  ContractFunctionParameters<abi, 'pure' | 'view', functionName, args, boolean>
 
 export type ReadContractReturnType<
   abi extends Abi | readonly unknown[] = Abi,
@@ -116,7 +124,7 @@ export async function readContract<
     )({
       ...(rest as CallParameters),
       data: calldata,
-      to: address,
+      to: address!,
     })
     return decodeFunctionResult({
       abi,

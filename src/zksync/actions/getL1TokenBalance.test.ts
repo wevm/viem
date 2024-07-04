@@ -129,9 +129,9 @@ test('provided token is ETH', async () => {
     `
     [TokenIsEthError: Token is an ETH token.
 
-    ETH token cannot be retrived.
+    ETH token cannot be retrieved.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 
@@ -145,9 +145,9 @@ test('provided token is ETH', async () => {
     `
     [TokenIsEthError: Token is an ETH token.
 
-    ETH token cannot be retrived.
+    ETH token cannot be retrieved.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 
@@ -161,9 +161,9 @@ test('provided token is ETH', async () => {
     `
     [TokenIsEthError: Token is an ETH token.
 
-    ETH token cannot be retrived.
+    ETH token cannot be retrieved.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })

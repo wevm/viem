@@ -13,7 +13,7 @@ test('invalid address', () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -23,7 +23,7 @@ test('fee cap too high', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -36,7 +36,7 @@ test('invalid from address', () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -49,7 +49,7 @@ test('invalid to address', () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -62,7 +62,7 @@ test('tip higher than fee cap', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -78,7 +78,7 @@ test('fee conflict', () => {
     [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
     Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -91,7 +91,7 @@ test('fee conflict', () => {
     [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
     Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -104,6 +104,6 @@ test('fee conflict', () => {
     [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
     Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

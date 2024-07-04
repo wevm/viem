@@ -55,10 +55,13 @@ export async function getTransactionReceipt<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
   { hash }: GetTransactionReceiptParameters,
 ) {
-  const receipt = await client.request({
-    method: 'eth_getTransactionReceipt',
-    params: [hash],
-  })
+  const receipt = await client.request(
+    {
+      method: 'eth_getTransactionReceipt',
+      params: [hash],
+    },
+    { dedupe: true },
+  )
 
   if (!receipt) throw new TransactionReceiptNotFoundError({ hash })
 

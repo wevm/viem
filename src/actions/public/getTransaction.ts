@@ -21,34 +21,34 @@ export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
   | {
       /** The block hash */
       blockHash: Hash
-      blockNumber?: never | undefined
-      blockTag?: never | undefined
-      hash?: never | undefined
+      blockNumber?: undefined
+      blockTag?: undefined
+      hash?: undefined
       /** The index of the transaction on the block. */
       index: number
     }
   | {
-      blockHash?: never | undefined
+      blockHash?: undefined
       /** The block number */
       blockNumber: bigint
-      blockTag?: never | undefined
-      hash?: never | undefined
+      blockTag?: undefined
+      hash?: undefined
       /** The index of the transaction on the block. */
       index: number
     }
   | {
-      blockHash?: never | undefined
-      blockNumber?: never | undefined
+      blockHash?: undefined
+      blockNumber?: undefined
       /** The block tag. */
       blockTag: TBlockTag | BlockTag
-      hash?: never | undefined
+      hash?: undefined
       /** The index of the transaction on the block. */
       index: number
     }
   | {
-      blockHash?: never | undefined
-      blockNumber?: never | undefined
-      blockTag?: never | undefined
+      blockHash?: undefined
+      blockNumber?: undefined
+      blockTag?: undefined
       /** The hash of the transaction. */
       hash: Hash
       index?: number | undefined
@@ -108,20 +108,29 @@ export async function getTransaction<
 
   let transaction: RpcTransaction | null = null
   if (hash) {
-    transaction = await client.request({
-      method: 'eth_getTransactionByHash',
-      params: [hash],
-    })
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionByHash',
+        params: [hash],
+      },
+      { dedupe: true },
+    )
   } else if (blockHash) {
-    transaction = await client.request({
-      method: 'eth_getTransactionByBlockHashAndIndex',
-      params: [blockHash, numberToHex(index)],
-    })
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionByBlockHashAndIndex',
+        params: [blockHash, numberToHex(index)],
+      },
+      { dedupe: true },
+    )
   } else if (blockNumberHex || blockTag) {
-    transaction = await client.request({
-      method: 'eth_getTransactionByBlockNumberAndIndex',
-      params: [blockNumberHex || blockTag, numberToHex(index)],
-    })
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionByBlockNumberAndIndex',
+        params: [blockNumberHex || blockTag, numberToHex(index)],
+      },
+      { dedupe: Boolean(blockNumberHex) },
+    )
   }
 
   if (!transaction)

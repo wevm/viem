@@ -25,13 +25,11 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # https://docs.npmjs.com/generating-provenance-statements
-          NPM_CONFIG_PROVENANCE: true
         run: |
           snapshot=$(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//')
           npm config set "//registry.npmjs.org/:_authToken" "$NPM_TOKEN"
-          bun run clean
-          bun run changeset version --no-git-tag --snapshot $snapshot
-          bun run changeset:prepublish
-          bun run changeset publish --no-git-tag --snapshot $snapshot --tag $snapshot
+          pnpm clean
+          pnpm changeset version --no-git-tag --snapshot $snapshot
+          pnpm changeset:prepublish
+          pnpm changeset publish --no-git-tag --snapshot $snapshot --tag $snapshot
 

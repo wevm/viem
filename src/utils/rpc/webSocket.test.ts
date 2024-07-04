@@ -388,7 +388,7 @@ describe('request', () => {
       Request body: {"jsonrpc":"2.0","id":9,"method":"wagmi_lol"}
 
       Details: Socket is closed.
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     await wait(100)
@@ -417,7 +417,7 @@ describe('request', () => {
       Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
 
       Details: Socket is closed.
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -944,7 +944,7 @@ describe('requestAsync', () => {
       Request body: {"method":"eth_getBlockByNumber","params":["0x13fb",false]}
 
       Details: The request timed out.
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })

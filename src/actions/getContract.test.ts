@@ -263,7 +263,7 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
       function:  constructor()
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   await expect(
     contractNoIndexedEventArgs.read.function(['function']),
@@ -276,7 +276,7 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
       args:              (function)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

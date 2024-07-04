@@ -130,7 +130,7 @@ test('error: no chain', async () => {
     [ChainNotFoundError: No chain was provided to the request.
     Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -168,7 +168,7 @@ test('error: no account', async () => {
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
 
     Docs: https://viem.sh/experimental/eip5792/sendCalls#account
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -218,6 +218,6 @@ test('error: insufficient funds', async () => {
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Details: Insufficient funds for gas * price + value
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

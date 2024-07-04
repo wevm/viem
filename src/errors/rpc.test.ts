@@ -45,7 +45,7 @@ test('RpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: error details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -70,7 +70,7 @@ test('RpcError', () => {
 
     Docs: https://viem.sh/lol
     Details: error details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -93,7 +93,7 @@ test('ProviderRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: error details
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -116,7 +116,7 @@ test('ParseRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -139,7 +139,7 @@ test('InvalidRequestRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -162,7 +162,7 @@ test('MethodNotFoundRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -186,7 +186,7 @@ test('InvalidParamsRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -209,7 +209,7 @@ test('InternalRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -233,7 +233,7 @@ test('InvalidInputRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -256,7 +256,7 @@ test('ResourceNotFoundRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -279,7 +279,7 @@ test('ResourceUnavailableRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -302,7 +302,7 @@ test('TransactionRejectedRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -325,7 +325,7 @@ test('MethodNotSupportedRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -348,7 +348,7 @@ test('LimitExceededRpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -371,7 +371,7 @@ test('JsonRpcVersionUnsupportedError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -394,7 +394,7 @@ test('UserRejectedRequestError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(
@@ -405,7 +405,7 @@ test('UserRejectedRequestError', () => {
     [UserRejectedRequestError: User rejected the request.
 
     Details: An arbitrary error from a Provider SDK
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -428,7 +428,7 @@ test('UnauthorizedProviderError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(
@@ -439,7 +439,7 @@ test('UnauthorizedProviderError', () => {
     [UnauthorizedProviderError: The requested method and/or account has not been authorized by the user.
 
     Details: An arbitrary error from a Provider SDK
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -462,7 +462,7 @@ test('UnsupportedProviderMethodError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(
@@ -473,7 +473,7 @@ test('UnsupportedProviderMethodError', () => {
     [UnsupportedProviderMethodError: The Provider does not support the requested method.
 
     Details: An arbitrary error from a Provider SDK
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -496,7 +496,7 @@ test('ProviderDisconnectedError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(
@@ -507,7 +507,7 @@ test('ProviderDisconnectedError', () => {
     [ProviderDisconnectedError: The Provider is disconnected from all chains.
 
     Details: An arbitrary error from a Provider SDK
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -530,7 +530,7 @@ test('ChainDisconnectedError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(
@@ -541,7 +541,7 @@ test('ChainDisconnectedError', () => {
     [ChainDisconnectedError: The Provider is not connected to the requested chain.
 
     Details: An arbitrary error from a Provider SDK
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -564,7 +564,7 @@ test('SwitchChainError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -573,6 +573,6 @@ test('UnknownRpcError', async () => {
     [UnknownRpcError: An unknown RPC error occurred.
 
     Details: oh no
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

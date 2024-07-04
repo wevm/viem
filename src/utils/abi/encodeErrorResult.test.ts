@@ -140,7 +140,7 @@ test("errors: error doesn't exist", () => {
     Make sure you are using the correct ABI and that the error exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeErrorResult
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -183,7 +183,7 @@ test('error: abi item not an error', () => {
     Make sure you are using the correct ABI and that the error exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeErrorResult
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
@@ -213,7 +213,7 @@ test('errors: no inputs', () => {
     Make sure you are using the correct ABI and that the inputs exist on it.
 
     Docs: https://viem.sh/docs/contract/encodeErrorResult
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     encodeErrorResult({
@@ -240,6 +240,6 @@ test('errors: no inputs', () => {
     Make sure you are using the correct ABI and that the inputs exist on it.
 
     Docs: https://viem.sh/docs/contract/encodeErrorResult
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

@@ -81,7 +81,7 @@ export type WatchEventParameters<
   (
     | {
         event: TAbiEvent
-        events?: never | undefined
+        events?: undefined
         args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName> | undefined
         /**
          * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
@@ -90,9 +90,9 @@ export type WatchEventParameters<
         strict?: TStrict | undefined
       }
     | {
-        event?: never | undefined
+        event?: undefined
         events?: TAbiEvents | undefined
-        args?: never | undefined
+        args?: undefined
         /**
          * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
          * @default false
@@ -100,10 +100,10 @@ export type WatchEventParameters<
         strict?: TStrict | undefined
       }
     | {
-        event?: never | undefined
-        events?: never | undefined
-        args?: never | undefined
-        strict?: never | undefined
+        event?: undefined
+        events?: undefined
+        args?: undefined
+        strict?: undefined
       }
   )
 
@@ -274,7 +274,7 @@ export function watchEvent<
             else for (const log of logs) emit.onLogs([log] as any)
           } catch (err) {
             // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
-            // Reinitalize the filter when this occurs
+            // Reinitialize the filter when this occurs
             if (filter && err instanceof InvalidInputRpcError)
               initialized = false
             emit.onError?.(err as Error)
@@ -318,15 +318,15 @@ export function watchEvent<
         const events_ = events ?? (event ? [event] : undefined)
         let topics: LogTopic[] = []
         if (events_) {
-          topics = [
-            (events_ as AbiEvent[]).flatMap((event) =>
-              encodeEventTopics({
-                abi: [event],
-                eventName: (event as AbiEvent).name,
-                args,
-              } as EncodeEventTopicsParameters),
-            ),
-          ]
+          const encoded = (events_ as AbiEvent[]).flatMap((event) =>
+            encodeEventTopics({
+              abi: [event],
+              eventName: (event as AbiEvent).name,
+              args,
+            } as EncodeEventTopicsParameters),
+          )
+          // TODO: Clean up type casting
+          topics = [encoded as LogTopic]
           if (event) topics = topics[0] as LogTopic[]
         }
 
