@@ -132,7 +132,7 @@ export async function prepareUserOperationRequest<
   if (!account_ && !sender) throw new AccountNotFoundError()
   const account = parseAccount(account_! || sender!)
 
-  const request = {
+  let request = {
     ...parameters,
     ...(account ? { sender: account.address } : {}),
   } as PrepareUserOperationRequestRequest
@@ -170,18 +170,9 @@ export async function prepareUserOperationRequest<
   ])
 
   if (typeof callData !== 'undefined') request.callData = callData
-  if (typeof factory !== 'undefined') {
-    request.factory = factory.factory
-    request.factoryData = factory.factoryData
-  }
+  if (typeof factory !== 'undefined') request = { ...request, ...factory }
   if (typeof nonce !== 'undefined') request.nonce = nonce
-  if (typeof gas !== 'undefined') {
-    request.callGasLimit = gas.callGasLimit
-    request.preVerificationGas = gas.preVerificationGas
-    request.verificationGasLimit = gas.verificationGasLimit
-    request.paymasterPostOpGasLimit = gas.paymasterPostOpGasLimit
-    request.paymasterVerificationGasLimit = gas.paymasterVerificationGasLimit
-  }
+  if (typeof gas !== 'undefined') request = { ...request, ...gas }
   if (typeof signature !== 'undefined') request.signature = signature
 
   delete request.calls

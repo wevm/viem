@@ -84,8 +84,7 @@ export async function sendUserOperation<
   client: Client<Transport, Chain | undefined, account, BundlerRpcSchema>,
   parameters: SendUserOperationParameters<account, accountOverride>,
 ) {
-  const { account: account_ = client.account } =
-    parameters as SendUserOperationParameters
+  const { account: account_ = client.account } = parameters
 
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
