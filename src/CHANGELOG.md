@@ -1,5 +1,15 @@
 # viem
 
+## 2.17.1
+
+### Patch Changes
+
+- [`f12dfdb9`](https://github.com/wevm/viem/commit/f12dfdb9fa15b68741d79972c97fb3fa99551c85) Thanks [@jxom](https://github.com/jxom)! - Fixed `watchContractEvent` querying for events against an invalid block range.
+
+- [#2471](https://github.com/wevm/viem/pull/2471) [`f5ae57f9`](https://github.com/wevm/viem/commit/f5ae57f963cd8461f228c212dd1df7d9d99f6d47) Thanks [@michelebruno](https://github.com/michelebruno)! - Added multicall3 contract to Berachain bArtio.
+
+- [#2476](https://github.com/wevm/viem/pull/2476) [`c5a33911`](https://github.com/wevm/viem/commit/c5a33911019219c11d96312293384dbbfa5bd452) Thanks [@sj719045032](https://github.com/sj719045032)! - Added zkLinkNova chain.
+
 ## 2.17.0
 
 ### Minor Changes
