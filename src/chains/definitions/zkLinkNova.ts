@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const xLayer = /*#__PURE__*/ defineChain({
+export const zkLinkNova = /*#__PURE__*/ defineChain({
   id: 810180,
   name: 'zkLink Nova',
   nativeCurrency: {
