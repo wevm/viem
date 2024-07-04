@@ -133,7 +133,7 @@ test('default', async () => {
         "gasUsed": 21000n,
         "logs": [],
         "status": "success",
-        "transactionHash": "0xc3e38267433ebc2381f0e5b0803d6c6ec5803d67ec19ee6ab8d0c9576a5e4010",
+        "transactionHash": "0x7d9298348068dfebaf342330ed23b514062eecd54a3fc099dee2ff02c1270a4f",
       },
       {
         "blockHash": undefined,
@@ -141,7 +141,7 @@ test('default', async () => {
         "gasUsed": 21000n,
         "logs": [],
         "status": "success",
-        "transactionHash": "0xaf1848055f8486bd8b898e5400707c5f5153f11bd8cc4a3376ca207260537fbc",
+        "transactionHash": "0x3d51245022fbdcd373b690fce6a2c6b24a9b1ef6f417402c0876a9d526d14b22",
       },
       {
         "blockHash": undefined,
@@ -149,7 +149,7 @@ test('default', async () => {
         "gasUsed": 21064n,
         "logs": [],
         "status": "success",
-        "transactionHash": "0xe8c321baa5fefb020b80461c3c4004f2f94c63176757d764795894d30a8f7d4d",
+        "transactionHash": "0xa25ecff28ff38ba36fee9f63eee72a84551d1a502407c92b7f00fd76d071ff85",
       },
     ]
   `)

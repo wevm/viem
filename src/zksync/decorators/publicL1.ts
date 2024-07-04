@@ -74,7 +74,7 @@ export type PublicActionsL1<
    *
    * @param client - Client to use
    * @param parameters - {@link GetL1TokenBalanceParameters}
-   * @returns The amount of the ERC20 token the client has on specific addresse. {@link GetL1TokenBalanceReturnType}
+   * @returns The amount of the ERC20 token the client has on specific address. {@link GetL1TokenBalanceReturnType}
    *
    * @example
    * import { createPublicClient, custom, parseEther } from 'viem'

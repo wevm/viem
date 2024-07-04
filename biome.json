@@ -10,6 +10,7 @@
       ".vercel",
       "**/node_modules",
       "CHANGELOG.md",
+      "bun.lockb",
       "cache",
       "test/contracts",
       "test/kzg/*.json",
@@ -20,6 +21,7 @@
       "generated.ts",
       "vectors/*.json",
       "vectors/**/*.test.ts",
+      "wagmi",
       "site/dist"
     ]
   },
@@ -65,7 +67,7 @@
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
-      "trailingComma": "all",
+      "trailingCommas": "all",
       "semicolons": "asNeeded"
     }
   },

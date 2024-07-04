@@ -21,7 +21,7 @@ export function withTimeout<TData>(
 ): Promise<TData> {
   return new Promise((resolve, reject) => {
     ;(async () => {
-      let timeoutId!: Timer
+      let timeoutId!: NodeJS.Timeout
       try {
         const controller = new AbortController()
         if (timeout > 0) {
@@ -31,11 +31,11 @@ export function withTimeout<TData>(
             } else {
               reject(errorInstance)
             }
-          }, timeout)
+          }, timeout) as NodeJS.Timeout // need to cast because bun globals.d.ts overrides @types/node
         }
         resolve(await fn({ signal: controller?.signal || null }))
       } catch (err) {
-        if ((err as Error).name === 'AbortError') reject(errorInstance)
+        if ((err as Error)?.name === 'AbortError') reject(errorInstance)
         reject(err)
       } finally {
         clearTimeout(timeoutId)

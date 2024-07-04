@@ -6,20 +6,20 @@ import type { ZkSyncTransactionSerializable } from './transaction.js'
 export type ChainEIP712<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
   TransactionSignable = {},
+  ///
+  transactionSerializable extends
+    ZkSyncTransactionSerializable = formatters extends ChainFormatters
+    ? formatters['transactionRequest'] extends ChainFormatter
+      ? ZkSyncTransactionSerializable &
+          Parameters<formatters['transactionRequest']['format']>[0]
+      : ZkSyncTransactionSerializable
+    : ZkSyncTransactionSerializable,
 > = Chain<
   formatters,
   {
     /** Return EIP712 Domain for EIP712 transaction */
     getEip712Domain?:
-      | EIP712DomainFn<
-          formatters extends ChainFormatters
-            ? formatters['transactionRequest'] extends ChainFormatter
-              ? ZkSyncTransactionSerializable &
-                  Parameters<formatters['transactionRequest']['format']>[0]
-              : ZkSyncTransactionSerializable
-            : ZkSyncTransactionSerializable,
-          TransactionSignable
-        >
+      | EIP712DomainFn<transactionSerializable, TransactionSignable>
       | undefined
   }
 >

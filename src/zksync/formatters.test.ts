@@ -13,6 +13,8 @@ describe('block', () => {
 
     expect(
       block.format({
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
         hash: '0x288c26fa1cc1814b638f3010f20d17fc5d1a2667fb5aa1dd6354ad889fa335b4',
         parentHash:
           '0xb1f996bdcc7c1f1893b016bd47150a846ac1e11f443d23df4cbc7c36fa1d4ae1',
@@ -50,9 +52,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 2152203n,
@@ -82,6 +84,8 @@ describe('block', () => {
 
     expect(
       block.format({
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
         hash: '0xfd73aaef0e91fcd6c171056b235a2b0f17650dcbe17038d17f76bbf3980c4da2',
         parentHash:
           '0x4adced86c99c6a0db3288bcb1c99ab984f2c51ecf5b9efa243ca029b86ce1476',
@@ -143,9 +147,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 3248087n,
@@ -199,6 +203,8 @@ describe('block', () => {
 
     expect(
       block.format({
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
         hash: '0x288c26fa1cc1814b638f3010f20d17fc5d1a2667fb5aa1dd6354ad889fa335b4',
         parentHash:
           '0xb1f996bdcc7c1f1893b016bd47150a846ac1e11f443d23df4cbc7c36fa1d4ae1',
@@ -236,9 +242,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 2152203n,

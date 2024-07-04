@@ -18,7 +18,7 @@ test('default', () => {
       - include \`type: "eip712"\`
       - include one of the following: \`customSignature\`, \`paymaster\`, \`paymasterInput\`, \`gasPerPubdata\`, \`factoryDeps\`
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -31,6 +31,6 @@ test('default', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000002 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0.000000001 gwei).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

@@ -57,7 +57,7 @@ import {
 } from './assertTransaction.js'
 import {
   type GetTransactionType,
-  type GetTransationTypeErrorType,
+  type GetTransactionTypeErrorType,
   getTransactionType,
 } from './getTransactionType.js'
 import {
@@ -81,7 +81,7 @@ export type SerializeTransactionFn<
 >
 
 export type SerializeTransactionErrorType =
-  | GetTransationTypeErrorType
+  | GetTransactionTypeErrorType
   | SerializeTransactionEIP1559ErrorType
   | SerializeTransactionEIP2930ErrorType
   | SerializeTransactionEIP4844ErrorType
@@ -370,12 +370,17 @@ function serializeTransactionLegacy(
 
 export function toYParitySignatureArray(
   transaction: TransactionSerializableGeneric,
-  signature?: Signature | undefined,
+  signature_?: Signature | undefined,
 ) {
-  const { r, s, v, yParity } = signature ?? transaction
-  if (typeof r === 'undefined') return []
-  if (typeof s === 'undefined') return []
+  const signature = signature_ ?? transaction
+  const { v, yParity } = signature
+
+  if (typeof signature.r === 'undefined') return []
+  if (typeof signature.s === 'undefined') return []
   if (typeof v === 'undefined' && typeof yParity === 'undefined') return []
+
+  const r = trim(signature.r)
+  const s = trim(signature.s)
 
   const yParity_ = (() => {
     if (typeof yParity === 'number') return yParity ? toHex(1) : '0x'
@@ -384,5 +389,6 @@ export function toYParitySignatureArray(
 
     return v === 27n ? '0x' : toHex(1)
   })()
-  return [yParity_, trim(r), trim(s)]
+
+  return [yParity_, r === '0x00' ? '0x' : r, s === '0x00' ? '0x' : s]
 }

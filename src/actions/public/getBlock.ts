@@ -31,18 +31,18 @@ export type GetBlockParameters<
   | {
       /** Hash of the block. */
       blockHash?: Hash | undefined
-      blockNumber?: never | undefined
-      blockTag?: never | undefined
+      blockNumber?: undefined
+      blockTag?: undefined
     }
   | {
-      blockHash?: never | undefined
+      blockHash?: undefined
       /** The block number. */
       blockNumber?: bigint | undefined
-      blockTag?: never | undefined
+      blockTag?: undefined
     }
   | {
-      blockHash?: never | undefined
-      blockNumber?: never | undefined
+      blockHash?: undefined
+      blockNumber?: undefined
       /**
        * The block tag.
        * @default 'latest'
@@ -109,15 +109,21 @@ export async function getBlock<
 
   let block: RpcBlock | null = null
   if (blockHash) {
-    block = await client.request({
-      method: 'eth_getBlockByHash',
-      params: [blockHash, includeTransactions],
-    })
+    block = await client.request(
+      {
+        method: 'eth_getBlockByHash',
+        params: [blockHash, includeTransactions],
+      },
+      { dedupe: true },
+    )
   } else {
-    block = await client.request({
-      method: 'eth_getBlockByNumber',
-      params: [blockNumberHex || blockTag, includeTransactions],
-    })
+    block = await client.request(
+      {
+        method: 'eth_getBlockByNumber',
+        params: [blockNumberHex || blockTag, includeTransactions],
+      },
+      { dedupe: Boolean(blockNumberHex) },
+    )
   }
 
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })

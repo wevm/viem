@@ -7,88 +7,104 @@ import type {
   Index,
   Quantity,
   RpcBlock,
-  RpcTransactionRequest as RpcTransactionRequest_,
-  RpcTransaction as RpcTransaction_,
   TransactionType,
+  RpcTransaction as core_RpcTransaction,
+  RpcTransactionRequest as core_RpcTransactionRequest,
 } from '../types/rpc.js'
 import type {
   AccessList,
   TransactionBase,
   TransactionRequestBase,
-  TransactionRequest as TransactionRequest_,
   TransactionSerializable,
   TransactionSerializableBase,
   TransactionSerialized,
-  Transaction as Transaction_,
+  Transaction as core_Transaction,
+  TransactionRequest as core_TransactionRequest,
 } from '../types/transaction.js'
-import type { ExactPartial, NeverBy, OneOf } from '../types/utils.js'
+import type { Assign, ExactPartial, OneOf } from '../types/utils.js'
 
-type CeloBlockExclude =
-  | 'difficulty'
-  | 'gasLimit'
-  | 'mixHash'
-  | 'nonce'
-  | 'uncles'
+import type {
+  OpStackDepositTransaction,
+  OpStackRpcTransaction,
+  TransactionSerializableDeposit,
+  TransactionSerializedDeposit,
+} from '../op-stack/types/transaction.js'
 
-export type CeloBlockOverrides = {
-  randomness: {
-    committed: Hex
-    revealed: Hex
-  }
-}
 export type CeloBlock<
-  TIncludeTransactions extends boolean = boolean,
-  TBlockTag extends BlockTag = BlockTag,
-> = NeverBy<
+  includeTransactions extends boolean = boolean,
+  blockTag extends BlockTag = BlockTag,
+> = Assign<
   Block<
     bigint,
-    TIncludeTransactions,
-    TBlockTag,
-    CeloTransaction<TBlockTag extends 'pending' ? true : false>
+    includeTransactions,
+    blockTag,
+    CeloTransaction<blockTag extends 'pending' ? true : false>
   >,
-  CeloBlockExclude
-> &
-  CeloBlockOverrides
-
-export type CeloRpcBlockOverrides = {
-  randomness: {
-    committed: Hex
-    revealed: Hex
+  {
+    difficulty?: bigint | undefined
+    gasLimit?: bigint | undefined
+    mixHash?: undefined
+    nonce?: bigint | null
+    randomness?:
+      | {
+          committed: Hex
+          revealed: Hex
+        }
+      | undefined
+    uncles?: undefined
   }
-}
+>
+
 export type CeloRpcBlock<
-  TBlockTag extends BlockTag = BlockTag,
-  TIncludeTransactions extends boolean = boolean,
-> = NeverBy<
+  blockTag extends BlockTag = BlockTag,
+  includeTransactions extends boolean = boolean,
+> = Assign<
   RpcBlock<
-    TBlockTag,
-    TIncludeTransactions,
-    RpcTransaction<TBlockTag extends 'pending' ? true : false>
+    blockTag,
+    includeTransactions,
+    RpcTransaction<blockTag extends 'pending' ? true : false>
   >,
-  CeloBlockExclude
-> &
-  CeloRpcBlockOverrides
+  {
+    difficulty?: Hex | undefined
+    mixHash?: undefined
+    nonce?: Hex | null
+    gasLimit?: Hex | undefined
+    randomness?:
+      | {
+          committed: Hex
+          revealed: Hex
+        }
+      | undefined
+    uncles?: undefined
+  }
+>
 
-export type CeloRpcTransaction<TPending extends boolean = boolean> =
-  | RpcTransaction<TPending>
-  | RpcTransactionCIP42<TPending>
-  | RpcTransactionCIP64<TPending>
+export type CeloRpcTransaction<isPending extends boolean = boolean> = OneOf<
+  | RpcTransaction<isPending>
+  | RpcTransactionCIP42<isPending>
+  | RpcTransactionCIP64<isPending>
+  | OpStackRpcTransaction<isPending>
+>
 
-export type CeloRpcTransactionRequest =
-  | RpcTransactionRequest
-  | RpcTransactionRequestCIP64
+export type CeloRpcTransactionRequest = OneOf<
+  RpcTransactionRequest | RpcTransactionRequestCIP64
+>
 
-export type CeloTransaction<TPending extends boolean = boolean> =
-  | Transaction<TPending>
-  | TransactionCIP42<TPending>
-  | TransactionCIP64<TPending>
+export type CeloTransaction<isPending extends boolean = boolean> = OneOf<
+  | Transaction<isPending>
+  | TransactionCIP42<isPending>
+  | TransactionCIP64<isPending>
+  | OpStackDepositTransaction<isPending>
+>
 
-export type CeloTransactionRequest =
-  | TransactionRequest
-  | TransactionRequestCIP64
+export type CeloTransactionRequest = OneOf<
+  TransactionRequest | TransactionRequestCIP64
+>
 
 export type CeloTransactionSerializable = OneOf<
-  TransactionSerializable | TransactionSerializableCIP64
+  | TransactionSerializable
+  | TransactionSerializableCIP64
+  | TransactionSerializableDeposit
 >
 
 export type CeloTransactionSerialized<
@@ -97,114 +113,111 @@ export type CeloTransactionSerialized<
   | TransactionSerialized<TType>
   | TransactionSerializedCIP42
   | TransactionSerializedCIP64
+  | TransactionSerializedDeposit
 
 export type CeloTransactionType = TransactionType | 'cip42' | 'cip64'
 
-type RpcTransaction<TPending extends boolean = boolean> =
-  RpcTransaction_<TPending> & {
+type RpcTransaction<isPending extends boolean = boolean> =
+  core_RpcTransaction<isPending> & {
     feeCurrency: Address | null
     gatewayFee: Hex | null
     gatewayFeeRecipient: Address | null
   }
 
-type RpcTransactionRequest = RpcTransactionRequest_ & {
+type RpcTransactionRequest = core_RpcTransactionRequest & {
   feeCurrency?: Address | undefined
 }
 
-export type RpcTransactionCIP42<TPending extends boolean = boolean> = Omit<
-  TransactionBase<Quantity, Index, TPending>,
+export type RpcTransactionCIP42<isPending extends boolean = boolean> = Omit<
+  TransactionBase<Quantity, Index, isPending>,
   'typeHex'
-> &
-  FeeValuesEIP1559<Quantity> & {
-    feeCurrency: Address | null
-    gatewayFee: Hex | null
-    gatewayFeeRecipient: Address | null
-    type: '0x7c'
-  }
+> & {
+  accessList: AccessList
+  chainId: Index
+  feeCurrency: Address | null
+  gatewayFee: Hex | null
+  gatewayFeeRecipient: Address | null
+  type: '0x7c'
+} & FeeValuesEIP1559<Quantity>
 
-export type RpcTransactionCIP64<TPending extends boolean = boolean> = Omit<
-  TransactionBase<Quantity, Index, TPending>,
+export type RpcTransactionCIP64<isPending extends boolean = boolean> = Omit<
+  TransactionBase<Quantity, Index, isPending>,
   'typeHex'
-> &
-  FeeValuesEIP1559<Quantity> & {
-    feeCurrency: Address | null
-    gatewayFee?: undefined
-    gatewayFeeRecipient?: undefined
-    type: '0x7b'
-  }
+> & {
+  accessList: AccessList
+  chainId: Index
+  feeCurrency: Address | null
+  type: '0x7b'
+} & FeeValuesEIP1559<Quantity>
 
 export type RpcTransactionRequestCIP64 = TransactionRequestBase<
   Quantity,
   Index
-> &
-  ExactPartial<FeeValuesEIP1559<Quantity>> & {
-    accessList?: AccessList | undefined
-    feeCurrency?: Address | undefined
-    type?: '0x7b' | undefined
-  }
+> & {
+  accessList?: AccessList | undefined
+  feeCurrency?: Address | undefined
+  type?: '0x7b' | undefined
+} & ExactPartial<FeeValuesEIP1559<Quantity>>
 
-type Transaction<TPending extends boolean = boolean> = Transaction_<
+type Transaction<isPending extends boolean = boolean> = core_Transaction<
   bigint,
   number,
-  TPending
+  isPending
 > & {
   feeCurrency: Address | null
-  gatewayFee?: undefined
-  gatewayFeeRecipient?: undefined
 }
 
-export type TransactionCIP42<TPending extends boolean = boolean> =
-  TransactionBase<bigint, number, TPending> &
+export type TransactionCIP42<isPending extends boolean = boolean> =
+  TransactionBase<bigint, number, isPending> &
     FeeValuesEIP1559 & {
+      accessList: AccessList
+      chainId: number
       feeCurrency: Address | null
       gatewayFee: bigint | null
       gatewayFeeRecipient: Address | null
       type: 'cip42'
     }
 
-export type TransactionCIP64<TPending extends boolean = boolean> =
-  TransactionBase<bigint, number, TPending> &
+export type TransactionCIP64<isPending extends boolean = boolean> =
+  TransactionBase<bigint, number, isPending> &
     FeeValuesEIP1559 & {
+      accessList: AccessList
+      chainId: number
       feeCurrency: Address | null
-      gatewayFee?: undefined
-      gatewayFeeRecipient?: undefined
       type: 'cip64'
     }
 
-type TransactionRequest = TransactionRequest_ & {
+type TransactionRequest = core_TransactionRequest & {
   feeCurrency?: Address | undefined
 }
 
-export type TransactionRequestCIP64 = TransactionRequestBase &
-  ExactPartial<FeeValuesEIP1559> & {
-    accessList?: AccessList | undefined
-    feeCurrency?: Address | undefined
-    type?: 'cip64' | undefined
-  }
+export type TransactionRequestCIP64 = TransactionRequestBase & {
+  accessList?: AccessList | undefined
+  feeCurrency?: Address | undefined
+  type?: 'cip64' | undefined
+} & ExactPartial<FeeValuesEIP1559>
 
 export type TransactionSerializableCIP42<
-  TQuantity = bigint,
-  TIndex = number,
-> = TransactionSerializableBase<TQuantity, TIndex> &
-  ExactPartial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: AccessList | undefined
-    feeCurrency?: Address | undefined
-    gatewayFeeRecipient?: Address | undefined
-    gatewayFee?: TQuantity | undefined
-    chainId: number
-    type?: 'cip42' | undefined
-  }
+  quantity = bigint,
+  index = number,
+> = TransactionSerializableBase<quantity, index> & {
+  accessList?: AccessList | undefined
+  feeCurrency?: Address | undefined
+  gatewayFeeRecipient?: Address | undefined
+  gatewayFee?: quantity | undefined
+  chainId: number
+  type?: 'cip42' | undefined
+} & ExactPartial<FeeValuesEIP1559<quantity>>
 
 export type TransactionSerializableCIP64<
-  TQuantity = bigint,
-  TIndex = number,
-> = TransactionSerializableBase<TQuantity, TIndex> &
-  ExactPartial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: AccessList | undefined
-    feeCurrency?: Address | undefined
-    chainId: number
-    type?: 'cip64' | undefined
-  }
+  quantity = bigint,
+  index = number,
+> = TransactionSerializableBase<quantity, index> & {
+  accessList?: AccessList | undefined
+  feeCurrency?: Address | undefined
+  chainId: number
+  type?: 'cip64' | undefined
+} & ExactPartial<FeeValuesEIP1559<quantity>>
 
 export type TransactionSerializedCIP42 = `0x7c${string}`
 export type TransactionSerializedCIP64 = `0x7b${string}`

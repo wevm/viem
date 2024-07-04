@@ -130,6 +130,6 @@ test('invalid', () => {
     - an EIP-4844 Transaction with \`blobs\`, \`blobVersionedHashes\`, \`sidecars\`, or
     - a Legacy Transaction with \`gasPrice\`
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

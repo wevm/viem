@@ -1,6 +1,8 @@
 import type { ErrorType } from '../../errors/utils.js'
 
+/** @internal */
 export const promiseCache = /*#__PURE__*/ new Map()
+/** @internal */
 export const responseCache = /*#__PURE__*/ new Map()
 
 export type GetCacheErrorType = ErrorType
@@ -28,7 +30,7 @@ export function getCache<TData>(cacheKey: string) {
   }
 }
 
-export type WithCacheParameters = {
+type WithCacheParameters = {
   /** The key to cache the data against. */
   cacheKey: string
   /** The time that cached data will remain in memory. Default: Infinity (no expiry) */

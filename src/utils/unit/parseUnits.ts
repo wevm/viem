@@ -19,7 +19,7 @@ export function parseUnits(value: string, decimals: number) {
   const negative = integer.startsWith('-')
   if (negative) integer = integer.slice(1)
 
-  // trim leading zeros.
+  // trim trailing zeros.
   fraction = fraction.replace(/(0+)$/, '')
 
   // round off if the fraction is larger than the number of decimals.

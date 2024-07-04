@@ -127,22 +127,36 @@ export {
   getBlockTransactionCount,
 } from './public/getBlockTransactionCount.js'
 export {
-  type GetBytecodeErrorType,
-  type GetBytecodeParameters,
-  type GetBytecodeReturnType,
-  getBytecode,
-} from './public/getBytecode.js'
-export {
   type GetChainIdErrorType,
   type GetChainIdReturnType,
   getChainId,
 } from './public/getChainId.js'
+export {
+  /** @deprecated Use `GetCodeErrorType` instead */
+  type GetCodeErrorType as GetBytecodeErrorType,
+  /** @deprecated Use `GetCodeParameters` instead */
+  type GetCodeParameters as GetBytecodeParameters,
+  /** @deprecated Use `GetCodeReturnType` instead  */
+  type GetCodeReturnType as GetBytecodeReturnType,
+  /** @deprecated Use `getCode` instead  */
+  getCode as getBytecode,
+  type GetCodeErrorType,
+  type GetCodeParameters,
+  type GetCodeReturnType,
+  getCode,
+} from './public/getCode.js'
 export {
   type GetContractEventsErrorType,
   type GetContractEventsParameters,
   type GetContractEventsReturnType,
   getContractEvents,
 } from './public/getContractEvents.js'
+export {
+  type GetEip712DomainErrorType,
+  type GetEip712DomainParameters,
+  type GetEip712DomainReturnType,
+  getEip712Domain,
+} from './public/getEip712Domain.js'
 export {
   type GetFeeHistoryErrorType,
   type GetFeeHistoryParameters,

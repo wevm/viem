@@ -5,8 +5,8 @@ test('TokenIsEthError', () => {
   expect(new TokenIsEthError()).toMatchInlineSnapshot(`
     [TokenIsEthError: Token is an ETH token.
 
-    ETH token cannot be retrived.
+    ETH token cannot be retrieved.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

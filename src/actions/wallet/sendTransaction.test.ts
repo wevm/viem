@@ -16,6 +16,7 @@ import { concatHex } from '../../utils/data/concat.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { stringToHex, toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
+import { nonceManager } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
@@ -232,7 +233,7 @@ test('client chain mismatch', async () => {
       to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
       value:  1 ETH
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -268,7 +269,7 @@ test('no chain', async () => {
       to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
       value:  1 ETH
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -367,7 +368,7 @@ describe('args: gasPrice', () => {
         gasPrice:  10000000000010 gwei
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -441,7 +442,7 @@ describe('args: maxFeePerGas', () => {
         maxFeePerGas:  10000000000010 gwei
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -589,7 +590,7 @@ describe('args: chain', async () => {
         to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
         value:  1 ETH
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -812,7 +813,7 @@ describe('local account', () => {
           maxFeePerGas:  10000000000010 gwei
 
         Details: Insufficient funds for gas * price + value
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `,
       )
     })
@@ -932,6 +933,67 @@ describe('local account', () => {
       expect(transaction.nonce).toBe(hexToNumber(transactionCount))
     })
   })
+
+  describe('behavior: nonceManager', async () => {
+    test('default', async () => {
+      await setup()
+
+      const account_1 = privateKeyToAccount(sourceAccount.privateKey, {
+        nonceManager,
+      })
+      const account_2 = privateKeyToAccount(targetAccount.privateKey, {
+        nonceManager,
+      })
+
+      const [hash_1, hash_2, hash_3, hash_4, hash_5] = await Promise.all([
+        sendTransaction(client, {
+          account: account_1,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+        sendTransaction(client, {
+          account: account_2,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+        sendTransaction(client, {
+          account: account_1,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+        sendTransaction(client, {
+          account: account_1,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+        sendTransaction(client, {
+          account: account_2,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+      ])
+
+      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(671)
+      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(105)
+      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(672)
+      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(673)
+      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(106)
+
+      const hash_6 = await sendTransaction(client, {
+        account: account_1,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      })
+      const hash_7 = await sendTransaction(client, {
+        account: account_1,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      })
+
+      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(674)
+      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(675)
+    })
+  })
 })
 
 describe('errors', () => {
@@ -948,7 +1010,7 @@ describe('errors', () => {
       Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
 
       Docs: https://viem.sh/docs/actions/wallet/sendTransaction#account
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -971,7 +1033,7 @@ describe('errors', () => {
         value:         1 ETH
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -995,7 +1057,7 @@ describe('errors', () => {
         gas:    100
 
       Details: intrinsic gas too low
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -1019,7 +1081,7 @@ describe('errors', () => {
         gas:    100000000
 
       Details: intrinsic gas too high -- tx.gas_limit > env.block.gas_limit
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -1044,7 +1106,7 @@ describe('errors', () => {
         maxFeePerGas:  0.000000001 gwei
 
       Details: max fee per gas less than block base fee
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -1068,7 +1130,7 @@ describe('errors', () => {
         nonce:  1
 
       Details: nonce too low
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -1099,7 +1161,7 @@ describe('errors', () => {
         value:  100000 ETH
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -1123,7 +1185,7 @@ describe('errors', () => {
         maxFeePerGas:          10 gwei
         maxPriorityFeePerGas:  11 gwei
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })

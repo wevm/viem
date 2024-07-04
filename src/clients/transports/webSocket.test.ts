@@ -150,7 +150,7 @@ test('errors: rpc error', async () => {
     Request body: {"method":"eth_wagmi"}
 
     Details: data did not match any variant of untagged enum EthRpcCall
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -208,6 +208,6 @@ test('no url', () => {
     [ViemError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
     Docs: https://viem.sh/docs/clients/intro
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

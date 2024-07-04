@@ -1,6 +1,9 @@
 import type { Abi, AbiParameter, Address } from 'abitype'
 
-import { AbiItemAmbiguityError } from '../../errors/abi.js'
+import {
+  AbiItemAmbiguityError,
+  type AbiItemAmbiguityErrorType,
+} from '../../errors/abi.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   AbiItem,
@@ -57,6 +60,7 @@ export type GetAbiItemErrorType =
   | IsArgOfTypeErrorType
   | IsHexErrorType
   | ToFunctionSelectorErrorType
+  | AbiItemAmbiguityErrorType
   | ErrorType
 
 export type GetAbiItemReturnType<
@@ -148,8 +152,9 @@ export function getAbiItem<
   return abiItems[0] as GetAbiItemReturnType<abi, name, args>
 }
 
-export type IsArgOfTypeErrorType = IsAddressErrorType | ErrorType
+type IsArgOfTypeErrorType = IsAddressErrorType | ErrorType
 
+/** @internal */
 export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
   const argType = typeof arg
   const abiParameterType = abiParameter.type
@@ -207,6 +212,7 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
   }
 }
 
+/** @internal */
 export function getAmbiguousTypes(
   sourceParameters: readonly AbiParameter[],
   targetParameters: readonly AbiParameter[],

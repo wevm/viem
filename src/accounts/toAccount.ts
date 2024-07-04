@@ -47,6 +47,7 @@ export function toAccount<TAccountSource extends AccountSource>(
     throw new InvalidAddressError({ address: source.address })
   return {
     address: source.address,
+    nonceManager: source.nonceManager,
     signMessage: source.signMessage,
     signTransaction: source.signTransaction,
     signTypedData: source.signTypedData,

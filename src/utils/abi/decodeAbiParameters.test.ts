@@ -1484,7 +1484,7 @@ test('data size too small', () => {
     Params: (uint256)
     Data:   0x0000000000000000000000000000000000000000000000000000000000010f (31 bytes)
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -1500,7 +1500,7 @@ test('data size too small', () => {
     Params: (uint256)
     Data:   0x0000000000000000000000000000000000000000000000000000000000010f (31 bytes)
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -1511,7 +1511,7 @@ test('data size too small', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`32\` is out of bounds (\`0 < position < 32\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1526,7 +1526,7 @@ test('invalid type', () => {
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/decodeAbiParameters
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1552,7 +1552,7 @@ test('error: zero data', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [AbiDecodingZeroDataError: Cannot decode zero data ("0x") with ABI parameters.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1568,7 +1568,7 @@ test('error: recursive decode array', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1581,49 +1581,49 @@ test('zst', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters([{ type: 'uint32[0][4294967295]' }], payload),
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters([{ type: 'uint256[4294967295][4294967295]' }], payload),
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`95\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters([{ type: 'uint32[4294967295][4294967295]' }], payload),
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`95\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters([{ type: 'uint256[0][]' }], payload),
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters([{ type: 'uint256[0][]' }], payload),
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters([{ type: 'tuple[]', components: [] }], payload),
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters(
@@ -1633,7 +1633,7 @@ test('zst', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters(
@@ -1643,7 +1643,7 @@ test('zst', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters(
@@ -1658,7 +1658,7 @@ test('zst', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1702,7 +1702,7 @@ test('recursive', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   const ptrArr = parseAbiParameters('uint256[]')
@@ -1715,21 +1715,21 @@ test('recursive', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`327744\` is out of bounds (\`0 < position < 327744\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters(arr4, p2),
   ).toThrowErrorMatchingInlineSnapshot(`
     [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters(arr2, p2),
   ).toThrowErrorMatchingInlineSnapshot(`
     [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1745,6 +1745,6 @@ test('recursive 2', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

@@ -22,7 +22,7 @@ test('AbiDecodingDataSizeInvalidError', () => {
 
     Data: 0x1234 (2 bytes)
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -42,7 +42,7 @@ test('AbiDecodingDataSizeTooSmallError', () => {
     Params: (uint256 a, uint256 b)
     Data:   0x1234 (2 bytes)
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -54,7 +54,7 @@ test('InvalidAbiDecodingTypeError', () => {
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/lol
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -70,7 +70,7 @@ test('AbiEncodingArrayLengthMismatchError', () => {
     Expected length: 69
     Given length: 420
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -85,7 +85,7 @@ test('AbiEncodingLengthMismatchError', () => {
     Expected length (params): 69
     Given length (values): 420
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -96,7 +96,7 @@ test('AbiEventSignatureEmptyTopicsError', () => {
     [AbiEventSignatureEmptyTopicsError: Cannot extract event signature from empty topics.
 
     Docs: https://viem.sh/test
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -124,7 +124,7 @@ test('DecodeLogDataMismatch', () => {
     Params: (uint256 a, uint256 b)
     Data:   0x1234 (2 bytes)
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -162,7 +162,7 @@ describe('DecodeLogTopicsMismatch', () => {
     ).toMatchInlineSnapshot(`
       [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter "id" on event "Transfer(address from, address to, uint256 id)".
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -195,7 +195,7 @@ describe('DecodeLogTopicsMismatch', () => {
     ).toMatchInlineSnapshot(`
       [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter on event "Transfer(address, address, uint256)".
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -208,7 +208,7 @@ test('InvalidAbiEncodingTypeError', () => {
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/lol
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -216,6 +216,6 @@ test('InvalidArrayError', () => {
   expect(new InvalidArrayError('lol')).toMatchInlineSnapshot(`
     [InvalidArrayError: Value "lol" is not a valid array.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

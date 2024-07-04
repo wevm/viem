@@ -21,7 +21,7 @@ test('InvalidLegacyVError', () => {
   expect(new InvalidLegacyVError({ v: 69n })).toMatchInlineSnapshot(`
     [InvalidLegacyVError: Invalid \`v\` value "69". Expected 27 or 28.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -49,7 +49,7 @@ test('InvalidSerializableTransactionError', () => {
     - an EIP-4844 Transaction with \`blobs\`, \`blobVersionedHashes\`, \`sidecars\`, or
     - a Legacy Transaction with \`gasPrice\`
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -61,7 +61,7 @@ test('InvalidSerializedTransactionTypeError', () => {
   ).toMatchInlineSnapshot(`
     [InvalidSerializedTransactionType: Serialized transaction type "0x111" is invalid.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -80,7 +80,7 @@ test('InvalidSerializedTransactionError', () => {
 
     Serialized Transaction: "0x02ce01"
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -89,7 +89,7 @@ test('FeeConflictError', () => {
     [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
     Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -105,7 +105,7 @@ describe('TransactionExecutionError', () => {
       Request Arguments:
         from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -130,7 +130,7 @@ describe('TransactionExecutionError', () => {
         gas:    420
         nonce:  69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -157,7 +157,7 @@ describe('TransactionExecutionError', () => {
         maxPriorityFeePerGas:  0.000000069 gwei
         nonce:                 69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -182,7 +182,7 @@ describe('TransactionExecutionError', () => {
         gasPrice:  0.00000042 gwei
         nonce:     69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -209,7 +209,7 @@ describe('TransactionExecutionError', () => {
         gas:    420
         nonce:  69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -241,7 +241,7 @@ describe('TransactionExecutionError', () => {
         gas:    420
         nonce:  69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -251,7 +251,7 @@ describe('TransactionNotFoundError', () => {
     expect(new TransactionNotFoundError({})).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction could not be found.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -261,7 +261,7 @@ describe('TransactionNotFoundError', () => {
     ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block hash "0x123" at index "420" could not be found.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -271,7 +271,7 @@ describe('TransactionNotFoundError', () => {
     ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block time "latest" at index "420" could not be found.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -281,7 +281,7 @@ describe('TransactionNotFoundError', () => {
     ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block number "42069" at index "420" could not be found.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -291,7 +291,7 @@ describe('TransactionNotFoundError', () => {
     ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction with hash "0x123" could not be found.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -304,7 +304,7 @@ test('TransactionReceiptNotFoundError', () => {
   expect(error.message).toMatchInlineSnapshot(`
     "Transaction receipt with hash "0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a" could not be found. The Transaction may not be processed on a block yet.
 
-    Version: viem@1.0.2"
+    Version: viem@x.y.z"
   `)
 })
 

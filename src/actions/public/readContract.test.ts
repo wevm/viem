@@ -6,16 +6,21 @@
  */
 import { describe, expect, test } from 'vitest'
 
-import { ErrorsExample } from '~test/contracts/generated.js'
+import {
+  ErrorsExample,
+  Mock4337Account,
+  Mock4337AccountFactory,
+} from '~test/contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { address } from '~test/src/constants.js'
-import { deployErrorExample } from '~test/src/utils.js'
+import { accounts, address } from '~test/src/constants.js'
+import { deployErrorExample, deployMock4337Account } from '~test/src/utils.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import type { Hex } from '../../types/misc.js'
 import { pad } from '../../utils/data/pad.js'
 import { toHex } from '../../utils/encoding/toHex.js'
+import { encodeFunctionData } from '../../utils/index.js'
 import { readContract } from './readContract.js'
 
 const client = anvilMainnet.getClient()
@@ -164,7 +169,7 @@ describe('bayc', () => {
         args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 5)
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -185,8 +190,57 @@ describe('bayc', () => {
         args:             (420213123123)
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
+  })
+})
+
+describe('deployless read (factory)', () => {
+  test('default', async () => {
+    const { factoryAddress: factory } = await deployMock4337Account()
+
+    const address = await readContract(client, {
+      account: accounts[0].address,
+      abi: Mock4337AccountFactory.abi,
+      address: factory,
+      functionName: 'getAddress',
+      args: [pad('0x0')],
+    })
+    const factoryData = encodeFunctionData({
+      abi: Mock4337AccountFactory.abi,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x0')],
+    })
+
+    const result = await readContract(client, {
+      address,
+      abi: Mock4337Account.abi,
+      functionName: 'eip712Domain',
+      factory,
+      factoryData,
+    })
+    expect(result).toMatchInlineSnapshot(`
+      [
+        "0x0f",
+        "Mock4337Account",
+        "1",
+        1n,
+        "0x8a00708a83D977494139D21D618C6C2A71fA8ed1",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        [],
+      ]
+    `)
+  })
+})
+
+describe('deployless read (bytecode)', () => {
+  test('default', async () => {
+    const result = await readContract(client, {
+      abi: wagmiContractConfig.abi,
+      code: wagmiContractConfig.bytecode,
+      functionName: 'name',
+    })
+    expect(result).toMatchInlineSnapshot(`"wagmi"`)
   })
 })
 
@@ -209,7 +263,7 @@ describe('contract errors', () => {
         function:  revertRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -231,7 +285,7 @@ describe('contract errors', () => {
         function:  assertRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -253,7 +307,7 @@ describe('contract errors', () => {
         function:  overflowRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -275,7 +329,7 @@ describe('contract errors', () => {
         function:  divideByZeroRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -296,7 +350,7 @@ describe('contract errors', () => {
         function:  requireRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -320,7 +374,7 @@ describe('contract errors', () => {
         function:  simpleCustomRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -343,7 +397,7 @@ describe('contract errors', () => {
         function:  simpleCustomReadNoArgs()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -367,7 +421,7 @@ describe('contract errors', () => {
         function:  complexCustomRead()
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -397,7 +451,7 @@ describe('contract errors', () => {
         function:  simpleCustomRead()
 
       Docs: https://viem.sh/docs/contract/decodeErrorResult
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -422,6 +476,6 @@ test('fake contract address', async () => {
       function:  totalSupply()
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

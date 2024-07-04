@@ -278,6 +278,28 @@ export class ContractFunctionZeroDataError extends BaseError {
   }
 }
 
+export type CounterfactualDeploymentFailedErrorType =
+  CounterfactualDeploymentFailedError & {
+    name: 'CounterfactualDeploymentFailedError'
+  }
+export class CounterfactualDeploymentFailedError extends BaseError {
+  override name = 'CounterfactualDeploymentFailedError'
+  constructor({ factory }: { factory?: Address | undefined }) {
+    super(
+      `Deployment for counterfactual contract call failed${
+        factory ? ` for factory "${factory}".` : ''
+      }`,
+      {
+        metaMessages: [
+          'Please ensure:',
+          '- The `factory` is a valid contract deployment factory (ie. Create2 Factory, ERC-4337 Factory, etc).',
+          '- The `factoryData` is a valid encoded function call for contract deployment function on the factory.',
+        ],
+      },
+    )
+  }
+}
+
 export type RawContractErrorType = RawContractError & {
   name: 'RawContractError'
 }

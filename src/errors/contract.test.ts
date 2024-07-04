@@ -24,7 +24,7 @@ describe('CallExecutionError', () => {
       Raw Call Arguments:
         from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -49,7 +49,7 @@ describe('CallExecutionError', () => {
         gas:    420
         nonce:  69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -76,7 +76,7 @@ describe('CallExecutionError', () => {
         maxPriorityFeePerGas:  0.000000069 gwei
         nonce:                 69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -101,7 +101,7 @@ describe('CallExecutionError', () => {
         gasPrice:  0.00000042 gwei
         nonce:     69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -127,7 +127,7 @@ describe('CallExecutionError', () => {
         gas:    420
         nonce:  69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -158,7 +158,7 @@ describe('CallExecutionError', () => {
         gas:    420
         nonce:  69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -176,7 +176,7 @@ describe('ContractFunctionExecutionError', () => {
       Contract Call:
         function:  totalSupply()
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -194,7 +194,7 @@ describe('ContractFunctionExecutionError', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  totalSupply()
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -214,7 +214,7 @@ describe('ContractFunctionExecutionError', () => {
         function:  mintApe(uint256 numberOfTokens)
         args:             (1)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -236,7 +236,7 @@ describe('ContractFunctionExecutionError', () => {
         args:             (1)
 
       Docs: https://viem.sh/docs
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -258,7 +258,7 @@ describe('ContractFunctionExecutionError', () => {
         args:             (1)
         sender:    0x0000000000000000000000000000000000000000
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -282,7 +282,7 @@ describe('ContractFunctionExecutionError', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  totalSupply()
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -297,7 +297,7 @@ describe('ContractFunctionExecutionError', () => {
 
       Contract Call:
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -312,7 +312,7 @@ describe('ContractFunctionExecutionError', () => {
 
       Contract Call:
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -329,7 +329,7 @@ describe('ContractFunctionRevertedError', () => {
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following reason:
       oh no
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -344,7 +344,7 @@ describe('ContractFunctionRevertedError', () => {
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following reason:
       EnumerableSet: index out of bounds
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -359,7 +359,7 @@ describe('ContractFunctionRevertedError', () => {
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following reason:
       An \`assert\` condition failed.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -376,7 +376,7 @@ describe('ContractFunctionRevertedError', () => {
       Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
                          ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -390,7 +390,7 @@ describe('ContractFunctionRevertedError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "customComplexError" reverted.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -410,7 +410,7 @@ describe('ContractFunctionRevertedError', () => {
       You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xdb731cfa.
 
       Docs: https://viem.sh/docs/contract/decodeErrorResult
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

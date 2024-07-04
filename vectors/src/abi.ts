@@ -1,4 +1,4 @@
-/// <reference types="bun-types" />
+/// <reference types="@types/bun" />
 
 import { join } from 'node:path'
 import { type AbiParameter, checksumAddress } from '../../src'

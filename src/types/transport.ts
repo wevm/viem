@@ -36,7 +36,9 @@ export type HasTransportType<
   type extends string,
 > = GetTransportConfig<transport>['type'] extends type
   ? true
-  : transport extends FallbackTransport<infer transports extends Transport[]>
+  : transport extends FallbackTransport<
+        infer transports extends readonly Transport[]
+      >
     ? Some<
         {
           [key in keyof transports]: GetTransportConfig<transports[key]>['type']

@@ -150,7 +150,7 @@ export type NumberToHexOpts =
       size: number
     }
   | {
-      signed?: never | undefined
+      signed?: undefined
       /** The size (in bytes) of the output hex value. */
       size?: number | undefined
     }

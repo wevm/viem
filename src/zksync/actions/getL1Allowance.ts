@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -8,7 +9,6 @@ import type { BaseError } from '../../errors/base.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import { parseAccount } from '../../utils/accounts.js'
 
 export type GetL1AllowanceParameters<
   TAccount extends Account | undefined = Account | undefined,

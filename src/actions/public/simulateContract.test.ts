@@ -100,7 +100,7 @@ describe('wagmi', () => {
         args:          (13371337)
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -123,7 +123,7 @@ describe('wagmi', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     await expect(() =>
       simulateContract(client, {
@@ -143,7 +143,7 @@ describe('wagmi', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     await expect(() =>
       simulateContract(client, {
@@ -167,7 +167,7 @@ describe('wagmi', () => {
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -175,7 +175,8 @@ describe('wagmi', () => {
 test('args: dataSuffix', async () => {
   const spy = vi.spyOn(client, 'call')
   const { request } = await simulateContract(client, {
-    ...wagmiContractConfig,
+    abi: wagmiContractConfig.abi,
+    address: wagmiContractConfig.address,
     account: accounts[0].address,
     functionName: 'mint',
     dataSuffix: '0x12345678',
@@ -267,7 +268,7 @@ describe('BAYC', () => {
           args:             (1)
 
         Docs: https://viem.sh/docs/contract/simulateContract
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -323,7 +324,7 @@ describe('BAYC', () => {
           sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
         Docs: https://viem.sh/docs/contract/simulateContract
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -350,7 +351,7 @@ describe('contract errors', () => {
           sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
         Docs: https://viem.sh/docs/contract/simulateContract
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
   })
 
@@ -374,7 +375,7 @@ describe('contract errors', () => {
           sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
         Docs: https://viem.sh/docs/contract/simulateContract
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
   })
 
@@ -398,7 +399,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -422,7 +423,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -445,7 +446,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -471,7 +472,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -497,7 +498,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -532,7 +533,7 @@ test('fake contract address', async () => {
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Docs: https://viem.sh/docs/contract/simulateContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -562,7 +563,7 @@ describe('node errors', () => {
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -594,7 +595,7 @@ describe('node errors', () => {
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await expect(() =>
@@ -673,7 +674,7 @@ describe('node errors', () => {
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Details: nonce too low
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -713,7 +714,7 @@ describe('node errors', () => {
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Details: Insufficient funds for gas * price + value
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     await expect(() =>
@@ -755,7 +756,7 @@ describe('node errors', () => {
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

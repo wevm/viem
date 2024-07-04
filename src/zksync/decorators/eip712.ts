@@ -1,4 +1,6 @@
 import type { Abi } from 'abitype'
+
+import type { SendTransactionRequest } from '../../actions/wallet/sendTransaction.js'
 import { writeContract } from '../../actions/wallet/writeContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { WalletActions } from '../../clients/decorators/wallet.js'
@@ -69,8 +71,11 @@ export type Eip712WalletActions<
    *   value: 1000000000000000000n,
    * })
    */
-  sendTransaction: <chainOverride extends ChainEIP712 | undefined = undefined>(
-    args: SendTransactionParameters<chain, account, chainOverride>,
+  sendTransaction: <
+    const request extends SendTransactionRequest<chain, chainOverride>,
+    chainOverride extends ChainEIP712 | undefined = undefined,
+  >(
+    args: SendTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SendTransactionReturnType>
   /**
    * Signs a transaction.
@@ -81,7 +86,7 @@ export type Eip712WalletActions<
    *   - Local Accounts: Signs locally. No JSON-RPC request.
    *
    * @param args - {@link SignTransactionParameters}
-   * @returns The signed serialized tranasction. {@link SignTransactionReturnType}
+   * @returns The signed serialized transaction. {@link SignTransactionReturnType}
    *
    * @example
    * import { createWalletClient, custom } from 'viem'

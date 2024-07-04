@@ -50,11 +50,20 @@ export type VerifyMessageErrorType =
  */
 export async function verifyMessage<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
-  { address, message, signature, ...callRequest }: VerifyMessageParameters,
+  {
+    address,
+    message,
+    factory,
+    factoryData,
+    signature,
+    ...callRequest
+  }: VerifyMessageParameters,
 ): Promise<VerifyMessageReturnType> {
   const hash = hashMessage(message)
   return verifyHash(client, {
     address,
+    factory: factory!,
+    factoryData: factoryData!,
     hash,
     signature,
     ...callRequest,

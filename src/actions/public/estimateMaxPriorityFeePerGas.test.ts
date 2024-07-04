@@ -180,7 +180,7 @@ test('chain does not support eip1559', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

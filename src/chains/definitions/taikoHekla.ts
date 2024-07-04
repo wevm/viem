@@ -15,4 +15,5 @@ export const taikoHekla = /*#__PURE__*/ defineChain({
       url: 'https://hekla.taikoscan.network',
     },
   },
+  testnet: true,
 })

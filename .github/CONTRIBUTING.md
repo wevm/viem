@@ -19,7 +19,7 @@ If you are contributing to add a new chain to `viem/chains`, please read the [Ch
 This guide is intended to help you get started with contributing. By following these steps, you will understand the development process and workflow.
 
 1. [Cloning the repository](#cloning-the-repository)
-2. [Installing Node.js and Bun](#installing-nodejs-and-bun)
+2. [Installing Node.js and pnpm](#installing-nodejs-and-pnpm)
 3. [Installing Foundry](#installing-foundry)
 4. [Installing dependencies](#installing-dependencies)
 5. [Running the test suite](#running-the-test-suite)
@@ -49,21 +49,21 @@ gh repo clone wevm/viem -- --recurse-submodules
 
 ---
 
-### Installing Node.js and Bun
+### Installing Node.js and pnpm
 
-wagmi uses [Bun workspaces](https://bun.sh/docs/install/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **Bun v1 or higher**.
+wagmi uses [pnpm workspaces](https://bun.sh/docs/install/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **pnpm v9.1.0 or higher**.
 
-You can run the following commands in your terminal to check your local Node.js and Bun versions:
+You can run the following commands in your terminal to check your local Node.js and pnpm versions:
 
 ```bash
 node -v
-bun -v
+pnpm -v
 ```
 
-If the versions are not correct or you don't have Node.js or Bun installed, download and follow their setup instructions:
+If the versions are not correct or you don't have Node.js or pnpm installed, download and follow their setup instructions:
 
 - Install Node.js using [fnm](https://github.com/Schniz/fnm) or from the [official website](https://nodejs.org)
-- Install [Bun](https://bun.sh/docs/installation)
+- Install [pnpm](https://pnpm.io/installation)
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
@@ -92,10 +92,10 @@ curl -L https://foundry.paradigm.xyz | bash
 Once in the project's root directory, run the following command to install the project's dependencies:
 
 ```bash
-bun install
+pnpm install
 ```
 
-After the install completes, Bun links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
+After the install completes, pnpm links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
@@ -108,16 +108,18 @@ After the install completes, Bun links packages across the project for developme
 First, add the following to your environment (recommended to use [`direnv`](https://github.com/direnv/direnv)):
 
 ```bash
-VITE_ANVIL_FORK_URL=https://rpc
-VITE_ANVIL_BLOCK_TIME=1
-VITE_ANVIL_BLOCK_NUMBER=16280770
+VITE_ANVIL_FORK_URL=
+VITE_ANVIL_FORK_URL_OPTIMISM=
+VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA=
+VITE_ANVIL_FORK_URL_SEPOLIA=
+VITE_ANVIL_FORK_URL_ZKSYNC=
+VITE_BATCH_MULTICALL=false
 VITE_NETWORK_TRANSPORT_MODE=http
-VITE_ANVIL_PORT=8545
 ```
 
 `VITE_ANVIL_FORK_URL` can be for any RPC service provider (e.g. Alchemy or Infura) for the mainnet. Now you are ready to run the tests!
 
-- `bun run test` — runs tests in watch mode
+- `pnpm test` — runs tests in watch mode
 
 Sometimes there may be some tests which fail unexpectedly – you can press `f` to rerun them and they should pass.
 
@@ -134,7 +136,7 @@ When adding new features or fixing bugs, it's important to add test cases to cov
 Documentation is crucial to helping developers of all experience levels use viem. viem uses [Vocs](https://vocs.dev) and Markdown for the documentation site (located at [`site`](../site)). To start the site in dev mode, run:
 
 ```bash
-bun run docs:dev 
+pnpm docs:dev 
 ```
 
 Try to keep documentation brief and use plain language so folks of all experience levels can understand. If you think something is unclear or could be explained better, you are welcome to open a pull request.
@@ -170,7 +172,7 @@ When adding new features or fixing bugs, we'll need to bump the package versions
 
 Each changeset defines which package(s) should be published and whether the change should be a major/minor/patch release, as well as providing release notes that will be added to the changelog upon release.
 
-To create a new changeset, run `bun run changeset`. This will run the Changesets CLI, prompting you for details about the change. You’ll be able to edit the file after it’s created — don’t worry about getting everything perfect up front.
+To create a new changeset, run `pnpm changeset`. This will run the Changesets CLI, prompting you for details about the change. You’ll be able to edit the file after it’s created — don’t worry about getting everything perfect up front.
 
 Even though you can technically use any markdown formatting you like, headings should be avoided since each changeset will ultimately be nested within a bullet list. Instead, bold text should be used as section headings.
 
@@ -303,12 +305,12 @@ export { arbitrum } from './definitions/arbitrum.js'
 export { zora } from './definitions/zora.js'
 ```
 
-#### 4. Add changeset
+#### 5. Add changeset
 
 Add a `patch` changeset with the description `"Added <your chain here> chain."`.
 
 ```diff
-> bun run changeset
+> pnpm changeset
 
 What kind of change is this for viem?
 + patch
@@ -317,7 +319,7 @@ Please enter a summary for this change
 + Added Example chain.
 ```
 
-#### 5. Open your PR
+#### 6. Open your PR
 
 Now you are ready to open your Pull Request.
 

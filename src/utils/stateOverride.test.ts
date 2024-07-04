@@ -42,7 +42,7 @@ describe('serializeStateMapping', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -59,7 +59,7 @@ describe('serializeStateMapping', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -154,7 +154,7 @@ describe('serializeAccountStateOverride', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [StateAssignmentConflictError: state and stateDiff are set on the same account.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -191,7 +191,7 @@ describe('serializeStateOverride', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [AccountStateConflictError: State for account "0x0000000000000000000000000000000000000000" is set multiple times.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -208,7 +208,7 @@ describe('serializeStateOverride', () => {
       - Address must be a hex value of 20 bytes (40 hex characters).
       - Address must match its checksum counterpart.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

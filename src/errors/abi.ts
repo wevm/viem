@@ -95,19 +95,6 @@ export class AbiDecodingDataSizeTooSmallError extends BaseError {
   }
 }
 
-export type AbiDecodingOffsetOutOfBoundsErrorType =
-  AbiDecodingOffsetOutOfBoundsError & {
-    name: 'AbiDecodingOffsetOutOfBoundsError'
-  }
-export class AbiDecodingOffsetOutOfBoundsError extends BaseError {
-  override name = 'AbiDecodingOffsetOutOfBoundsError'
-  constructor({ offset, position }: { offset: number; position: number }) {
-    super(
-      `Offset at "${offset}" is out-of-bounds (current position: "${position}").`,
-    )
-  }
-}
-
 export type AbiDecodingZeroDataErrorType = AbiDecodingZeroDataError & {
   name: 'AbiDecodingZeroDataError'
 }

@@ -4,6 +4,7 @@ import type { Hash, Hex } from '../../types/misc.js'
 import type {
   Index,
   Quantity,
+  RpcTransactionReceipt,
   RpcTransactionRequest as RpcTransactionRequest_,
 } from '../../types/rpc.js'
 import type {
@@ -174,6 +175,9 @@ export type ZkSyncRpcTransactionReceiptOverrides = {
   root: Hex
 }
 
+export type ZkSyncRpcTransactionReceipt = Omit<RpcTransactionReceipt, 'logs'> &
+  ZkSyncRpcTransactionReceiptOverrides
+
 export type ZkSyncTransactionReceiptOverrides = {
   l1BatchNumber: bigint | null
   l1BatchTxIndex: bigint | null
@@ -238,7 +242,7 @@ export type TransactionRequestEIP712<
   TTransactionType = 'eip712',
 > = TransactionRequestBase<TQuantity, TIndex> &
   ExactPartial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: never | undefined
+    accessList?: undefined
     gasPerPubdata?: bigint | undefined
     factoryDeps?: Hex[] | undefined
     paymaster?: Address | undefined

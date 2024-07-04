@@ -1,13 +1,25 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import { pad } from '../../utils/data/pad.js'
-import { toBytes } from '../../utils/encoding/toBytes.js'
-import { sha256 } from '../../utils/hash/sha256.js'
+import { type ToBytesErrorType, toBytes } from '../../utils/encoding/toBytes.js'
+import { type Sha256ErrorType, sha256 } from '../../utils/hash/sha256.js'
 import { maxBytecodeSize } from '../constants/number.js'
 import {
   BytecodeLengthExceedsMaxSizeError,
+  type BytecodeLengthExceedsMaxSizeErrorType,
   BytecodeLengthInWordsMustBeOddError,
+  type BytecodeLengthInWordsMustBeOddErrorType,
   BytecodeLengthMustBeDivisibleBy32Error,
+  type BytecodeLengthMustBeDivisibleBy32ErrorType,
 } from '../errors/bytecode.js'
+
+export type HashBytecodeErrorType =
+  | BytecodeLengthExceedsMaxSizeErrorType
+  | BytecodeLengthInWordsMustBeOddErrorType
+  | BytecodeLengthMustBeDivisibleBy32ErrorType
+  | Sha256ErrorType
+  | ToBytesErrorType
+  | ErrorType
 
 export function hashBytecode(bytecode: Hex): Uint8Array {
   const bytecodeBytes = toBytes(bytecode)

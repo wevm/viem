@@ -93,19 +93,24 @@ import {
   getBlockTransactionCount,
 } from '../../actions/public/getBlockTransactionCount.js'
 import {
-  type GetBytecodeParameters,
-  type GetBytecodeReturnType,
-  getBytecode,
-} from '../../actions/public/getBytecode.js'
-import {
   type GetChainIdReturnType,
   getChainId,
 } from '../../actions/public/getChainId.js'
+import {
+  type GetCodeParameters,
+  type GetCodeReturnType,
+  getCode,
+} from '../../actions/public/getCode.js'
 import {
   type GetContractEventsParameters,
   type GetContractEventsReturnType,
   getContractEvents,
 } from '../../actions/public/getContractEvents.js'
+import {
+  type GetEip712DomainParameters,
+  type GetEip712DomainReturnType,
+  getEip712Domain,
+} from '../../actions/public/getEip712Domain.js'
 import {
   type GetFeeHistoryParameters,
   type GetFeeHistoryReturnType,
@@ -619,28 +624,8 @@ export type PublicActions<
   getBlockTransactionCount: (
     args?: GetBlockTransactionCountParameters | undefined,
   ) => Promise<GetBlockTransactionCountReturnType>
-  /**
-   * Retrieves the bytecode at an address.
-   *
-   * - Docs: https://viem.sh/docs/contract/getBytecode
-   * - JSON-RPC Methods: [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
-   *
-   * @param args - {@link GetBytecodeParameters}
-   * @returns The contract's bytecode. {@link GetBytecodeReturnType}
-   *
-   * @example
-   * import { createPublicClient, http } from 'viem'
-   * import { mainnet } from 'viem/chains'
-   *
-   * const client = createPublicClient({
-   *   chain: mainnet,
-   *   transport: http(),
-   * })
-   * const code = await client.getBytecode({
-   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-   * })
-   */
-  getBytecode: (args: GetBytecodeParameters) => Promise<GetBytecodeReturnType>
+  /** @deprecated Use `getCode` instead. */
+  getBytecode: (args: GetCodeParameters) => Promise<GetCodeReturnType>
   /**
    * Returns the chain ID associated with the current network.
    *
@@ -661,6 +646,28 @@ export type PublicActions<
    * // 1
    */
   getChainId: () => Promise<GetChainIdReturnType>
+  /**
+   * Retrieves the bytecode at an address.
+   *
+   * - Docs: https://viem.sh/docs/contract/getCode
+   * - JSON-RPC Methods: [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
+   *
+   * @param args - {@link GetBytecodeParameters}
+   * @returns The contract's bytecode. {@link GetBytecodeReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const code = await client.getCode({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   * })
+   */
+  getCode: (args: GetCodeParameters) => Promise<GetCodeReturnType>
   /**
    * Returns a list of event logs emitted by a contract.
    *
@@ -703,6 +710,41 @@ export type PublicActions<
   ) => Promise<
     GetContractEventsReturnType<abi, eventName, strict, fromBlock, toBlock>
   >
+  /**
+   * Reads the EIP-712 domain from a contract, based on the ERC-5267 specification.
+   *
+   * @param client - A {@link Client} instance.
+   * @param parameters - The parameters of the action. {@link GetEip712DomainParameters}
+   * @returns The EIP-712 domain, fields, and extensions. {@link GetEip712DomainReturnType}
+   *
+   * @example
+   * ```ts
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const domain = await client.getEip712Domain({
+   *   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+   * })
+   * // {
+   * //   domain: {
+   * //     name: 'ExampleContract',
+   * //     version: '1',
+   * //     chainId: 1,
+   * //     verifyingContract: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+   * //   },
+   * //   fields: '0x0f',
+   * //   extensions: [],
+   * // }
+   * ```
+   */
+  getEip712Domain: (
+    args: GetEip712DomainParameters,
+  ) => Promise<GetEip712DomainReturnType>
   /**
    * Gets address for ENS name.
    *
@@ -1813,9 +1855,11 @@ export function publicActions<
     getBlock: (args) => getBlock(client, args),
     getBlockNumber: (args) => getBlockNumber(client, args),
     getBlockTransactionCount: (args) => getBlockTransactionCount(client, args),
-    getBytecode: (args) => getBytecode(client, args),
+    getBytecode: (args) => getCode(client, args),
     getChainId: () => getChainId(client),
+    getCode: (args) => getCode(client, args),
     getContractEvents: (args) => getContractEvents(client, args),
+    getEip712Domain: (args) => getEip712Domain(client, args),
     getEnsAddress: (args) => getEnsAddress(client, args),
     getEnsAvatar: (args) => getEnsAvatar(client, args),
     getEnsName: (args) => getEnsName(client, args),
@@ -1838,7 +1882,7 @@ export function publicActions<
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
     multicall: (args) => multicall(client, args),
     prepareTransactionRequest: (args) =>
-      prepareTransactionRequest(client as any, args as any),
+      prepareTransactionRequest(client as any, args as any) as any,
     readContract: (args) => readContract(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
     simulateContract: (args) => simulateContract(client, args),

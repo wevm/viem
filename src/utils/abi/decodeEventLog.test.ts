@@ -394,7 +394,7 @@ test('named: topics + event params mismatch', () => {
     `
     [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter "id" on event "Transfer(address from, address to, uint256 id)".
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
@@ -431,7 +431,7 @@ test('unnamed: topics + event params mismatch', () => {
     `
     [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter on event "Transfer(address, address, uint256)".
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
@@ -479,7 +479,7 @@ test('data + event params mismatch', () => {
     Params: (address to, uint256 id)
     Data:   0x0000000000000000000000000000000000000000000000000000000023c34600 (32 bytes)
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   expect(() =>
@@ -520,7 +520,7 @@ test('data + event params mismatch', () => {
     Params: (address to)
     Data:   0x (0 bytes)
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 
@@ -563,7 +563,7 @@ test('data + event params mismatch', () => {
     Params: (address to)
     Data:   0x (0 bytes)
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
@@ -765,7 +765,7 @@ describe('GitHub repros', () => {
         `
         [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter "id" on event "Transfer(address from, address to, uint256 id)".
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `,
       )
     })
@@ -815,7 +815,7 @@ describe('GitHub repros', () => {
         Params: (address to, uint256 id)
         Data:   0x0000000000000000000000000000000000000000000000000000000023c34600 (32 bytes)
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -860,7 +860,7 @@ describe('GitHub repros', () => {
         `
         [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter "nounId" on event "AuctionCreated(uint256 nounId, uint256 startTime, uint256 endTime)".
 
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `,
       )
     })
@@ -894,7 +894,7 @@ test("errors: event doesn't exist", () => {
     You can look up the signature here: https://openchain.xyz/signatures?query=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 
     Docs: https://viem.sh/docs/contract/decodeEventLog
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -920,7 +920,7 @@ test('errors: no topics', () => {
     [AbiEventSignatureEmptyTopicsError: Cannot extract event signature from empty topics.
 
     Docs: https://viem.sh/docs/contract/decodeEventLog
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -964,7 +964,7 @@ test('errors: invalid data size', () => {
     Params: (uint256 tokenId)
     Data:   0x1 (1 bytes)
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1005,6 +1005,6 @@ test('errors: invalid bool', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidBytesBooleanError: Bytes value "221,242,82,173,27,226,200,155,105,194,176,104,252,55,141,170,149,43,167,241,99,196,161,22,40,245,90,77,245,35,179,239" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

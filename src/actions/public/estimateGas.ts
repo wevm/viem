@@ -37,10 +37,6 @@ import {
   prepareTransactionRequest,
 } from '../wallet/prepareTransactionRequest.js'
 
-export type FormattedEstimateGas<
-  TChain extends Chain | undefined = Chain | undefined,
-> = FormattedTransactionRequest<TChain>
-
 export type EstimateGasParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedEstimateGas<TChain>, 'from'> & {
@@ -50,10 +46,10 @@ export type EstimateGasParameters<
     | {
         /** The balance of the account at a block number. */
         blockNumber?: bigint | undefined
-        blockTag?: never | undefined
+        blockTag?: undefined
       }
     | {
-        blockNumber?: never | undefined
+        blockNumber?: undefined
         /**
          * The balance of the account at a block tag.
          * @default 'latest'
@@ -61,6 +57,9 @@ export type EstimateGasParameters<
         blockTag?: BlockTag | undefined
       }
   )
+type FormattedEstimateGas<
+  TChain extends Chain | undefined = Chain | undefined,
+> = FormattedTransactionRequest<TChain>
 
 export type EstimateGasReturnType = bigint
 

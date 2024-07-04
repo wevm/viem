@@ -21,7 +21,7 @@ describe('toAccount', () => {
       - Address must be a hex value of 20 bytes (40 hex characters).
       - Address must match its checksum counterpart.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -42,6 +42,7 @@ describe('toAccount', () => {
     ).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "nonceManager": undefined,
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -71,7 +72,7 @@ describe('toAccount', () => {
       - Address must be a hex value of 20 bytes (40 hex characters).
       - Address must match its checksum counterpart.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

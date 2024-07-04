@@ -1,7 +1,10 @@
 import type { Address } from 'abitype'
 
 import type { JsonRpcAccount } from '../accounts/types.js'
-import type { ParseAccountErrorType } from '../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../accounts/utils/parseAccount.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { Account } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
@@ -11,7 +14,6 @@ import type {
   RpcSchema,
 } from '../types/eip1193.js'
 import type { ExactPartial, Prettify } from '../types/utils.js'
-import { parseAccount } from '../utils/accounts.js'
 import type {
   CcipRequestParameters,
   CcipRequestReturnType,
