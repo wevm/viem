@@ -82,35 +82,6 @@ test('args: factory + factoryData', async () => {
   ).toBeDefined()
 })
 
-test('args: version', async () => {
-  const { factoryAddress } = await deployMock4337Account()
-
-  const account = await toSmartAccount({
-    client,
-    implementation: solady({
-      factoryAddress,
-      owner: ownerAddress,
-    }),
-  })
-
-  const callData = await account.getCallData([
-    { to: '0x0000000000000000000000000000000000000000' },
-  ])
-  const dummySignature = await account.getFormattedSignature()
-  const { factory, factoryData } = await account.getFactoryArgs()
-
-  expect(
-    await estimateUserOperationGas(bundlerClient, {
-      account,
-      callData,
-      entryPointVersion: '0.7',
-      factory,
-      factoryData,
-      signature: dummySignature,
-    }),
-  ).toBeDefined()
-})
-
 test('args: entrypoint', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
@@ -142,7 +113,7 @@ test('args: entrypoint', async () => {
       "callGasLimit": 80000n,
       "paymasterPostOpGasLimit": 0n,
       "paymasterVerificationGasLimit": 0n,
-      "preVerificationGas": 51656n,
+      "preVerificationGas": 51642n,
       "verificationGasLimit": 259060n,
     }
   `)
@@ -175,7 +146,7 @@ test('error: account not deployed', async () => {
     [RpcRequestError: RPC Request failed.
 
     URL: http://localhost
-    Request body: {"method":"eth_estimateUserOperationGas","params":[{"callData":"0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0","sender":"0x215181Bf237336849bb2Ae506dffE31666cb73B9","signature":"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"},"0x0000000071727De22E5E9d8BAf0edAc6f37da032"]}
+    Request body: {"method":"eth_estimateUserOperationGas","params":[{"callData":"0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0","sender":"0x71C3127fE9C6c40c4cf360639B95e217b5f58bB4","signature":"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"},"0x0000000071727De22E5E9d8BAf0edAc6f37da032"]}
 
     Details: UserOperation reverted during simulation with reason: AA20 account not deployed
     Version: viem@x.y.z]

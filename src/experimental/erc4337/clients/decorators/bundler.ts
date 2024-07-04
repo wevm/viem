@@ -5,8 +5,8 @@ import {
 } from '../../../../actions/public/getChainId.js'
 import type { Client } from '../../../../clients/createClient.js'
 import type { Transport } from '../../../../clients/transports/createTransport.js'
-import type { Account } from '../../../../types/account.js'
 import type { Chain } from '../../../../types/chain.js'
+import type { SmartAccount } from '../../accounts/types.js'
 import {
   type EstimateUserOperationGasParameters,
   type EstimateUserOperationGasReturnType,
@@ -21,14 +21,10 @@ import {
   type SendUserOperationReturnType,
   sendUserOperation,
 } from '../../actions/sendUserOperation.js'
-import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 
 export type BundlerActions<
   chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-  entryPointVersion extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
+  account extends SmartAccount | undefined = SmartAccount | undefined,
 > = {
   /**
    * Returns an estimate of gas values necessary to execute the User Operation.
@@ -66,21 +62,15 @@ export type BundlerActions<
    */
   estimateUserOperationGas: <
     chainOverride extends Chain | undefined = undefined,
-    entryPointVersionOverride extends EntryPointVersion | undefined = undefined,
+    accountOverride extends SmartAccount | undefined = undefined,
   >(
     parameters: EstimateUserOperationGasParameters<
       chain,
       account,
-      entryPointVersion,
       chainOverride,
-      entryPointVersionOverride
+      accountOverride
     >,
-  ) => Promise<
-    EstimateUserOperationGasReturnType<
-      entryPointVersion,
-      entryPointVersionOverride
-    >
-  >
+  ) => Promise<EstimateUserOperationGasReturnType<account, accountOverride>>
   /**
    * Returns the chain ID associated with the bundler.
    *
@@ -158,14 +148,13 @@ export type BundlerActions<
    */
   sendUserOperation: <
     chainOverride extends Chain | undefined = undefined,
-    entryPointVersionOverride extends EntryPointVersion | undefined = undefined,
+    accountOverride extends SmartAccount | undefined = undefined,
   >(
     parameters: SendUserOperationParameters<
       chain,
       account,
-      entryPointVersion,
       chainOverride,
-      entryPointVersionOverride
+      accountOverride
     >,
   ) => Promise<SendUserOperationReturnType>
 }
@@ -178,15 +167,10 @@ export function bundlerActions() {
   return <
     transport extends Transport = Transport,
     chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-    entryPointVersion extends EntryPointVersion | undefined =
-      | EntryPointVersion
-      | undefined,
+    account extends SmartAccount | undefined = SmartAccount | undefined,
   >(
-    client: Client<transport, chain, account> & {
-      entryPointVersion?: entryPointVersion | undefined
-    },
-  ): BundlerActions<chain, account, entryPointVersion> => {
+    client: Client<transport, chain, account>,
+  ): BundlerActions<chain, account> => {
     return {
       estimateUserOperationGas: (parameters) =>
         estimateUserOperationGas(client, parameters),

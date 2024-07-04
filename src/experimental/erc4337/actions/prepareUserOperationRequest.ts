@@ -1,15 +1,17 @@
-import type { Address } from 'abitype'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
-import type { Account, GetAccountParameter } from '../../../types/account.js'
 import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import { parseAccount } from '../../../utils/index.js'
+import type { SmartAccount } from '../accounts/types.js'
+import type {
+  DeriveSmartAccount,
+  GetSmartAccountParameter,
+} from '../types/account.js'
 import type { BundlerRpcSchema } from '../types/eip1193.js'
 import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
-  GetEntryPointVersionParameter,
 } from '../types/entryPointVersion.js'
 import type { UserOperationRequest } from '../types/userOperation.js'
 
@@ -22,93 +24,61 @@ export type PrepareUserOperationRequestParameterType =
   | 'signature'
 
 export type PrepareUserOperationRequestRequest<
-  entryPointVersion extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
-  entryPointVersionOverride extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
+  account extends SmartAccount | undefined = SmartAccount | undefined,
+  accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
   ///
-  _derivedVersion extends EntryPointVersion = DeriveEntryPointVersion<
-    entryPointVersion,
-    entryPointVersionOverride
+  _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
+    account,
+    accountOverride
   >,
+  _derivedVersion extends
+    EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = UserOperationRequest<_derivedVersion> & {
   parameters?: readonly PrepareUserOperationRequestParameterType[] | undefined
 }
 
 export type PrepareUserOperationRequestParameters<
   chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-  entryPointVersion extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
+  account extends SmartAccount | undefined = SmartAccount | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-  accountOverride extends Account | Address | undefined =
-    | Account
-    | Address
-    | undefined,
-  entryPointVersionOverride extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
+  accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
   request extends PrepareUserOperationRequestRequest<
-    entryPointVersion,
-    entryPointVersionOverride
-  > = PrepareUserOperationRequestRequest<
-    entryPointVersion,
-    entryPointVersionOverride
-  >,
+    account,
+    accountOverride
+  > = PrepareUserOperationRequestRequest<account, accountOverride>,
 > = request &
-  GetAccountParameter<account, accountOverride, false> &
-  GetChainParameter<chain, chainOverride> &
-  GetEntryPointVersionParameter<entryPointVersion, entryPointVersionOverride>
+  GetSmartAccountParameter<account, accountOverride, false> &
+  GetChainParameter<chain, chainOverride>
 
 export type PrepareUserOperationRequestReturnType<
-  entryPointVersion extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
-  entryPointVersionOverride extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
+  account extends SmartAccount | undefined = SmartAccount | undefined,
+  accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
   request extends PrepareUserOperationRequestRequest<
-    entryPointVersion,
-    entryPointVersionOverride
-  > = PrepareUserOperationRequestRequest<
-    entryPointVersion,
-    entryPointVersionOverride
-  >,
+    account,
+    accountOverride
+  > = PrepareUserOperationRequestRequest<account, accountOverride>,
 > = request
 
 export async function prepareUserOperationRequest<
   chain extends Chain | undefined,
-  account extends Account | undefined,
-  entryPointVersion extends EntryPointVersion | undefined,
+  account extends SmartAccount | undefined,
   const request extends PrepareUserOperationRequestRequest<
-    entryPointVersion,
-    entryPointVersionOverride
+    account,
+    accountOverride
   >,
   chainOverride extends Chain | undefined = undefined,
-  accountOverride extends Account | Address | undefined = undefined,
-  entryPointVersionOverride extends EntryPointVersion | undefined = undefined,
+  accountOverride extends SmartAccount | undefined = undefined,
 >(
-  client: Client<Transport, chain, account, BundlerRpcSchema> & {
-    entryPointVersion?: entryPointVersion | undefined
-  },
+  client: Client<Transport, chain, account, BundlerRpcSchema>,
   parameters: PrepareUserOperationRequestParameters<
     chain,
     account,
-    entryPointVersion,
     chainOverride,
     accountOverride,
-    entryPointVersionOverride,
     request
   >,
 ): Promise<
-  PrepareUserOperationRequestReturnType<
-    entryPointVersion,
-    entryPointVersionOverride,
-    request
-  >
+  PrepareUserOperationRequestReturnType<account, accountOverride, request>
 > {
   const {
     account: account_ = client.account,
@@ -118,11 +88,6 @@ export async function prepareUserOperationRequest<
 
   if (!account_ && !sender) throw new AccountNotFoundError()
   const account = parseAccount(account_! || sender!)
-
-  if (account.type !== 'smart')
-    throw new Error(
-      `Account type "${account?.type}" is not supported. Expected: "smart".`,
-    )
 
   const request = {
     ...parameters,

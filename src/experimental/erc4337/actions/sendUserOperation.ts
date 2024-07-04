@@ -4,45 +4,37 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Account, GetAccountParameter } from '../../../types/account.js'
-import type {
-  Chain,
-  DeriveChain,
-  GetChainParameter,
-} from '../../../types/chain.js'
+import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
+import type { SmartAccount } from '../accounts/types.js'
 import { formatUserOperationRequest } from '../formatters/userOperation.js'
+import type {
+  DeriveSmartAccount,
+  GetSmartAccountParameter,
+} from '../types/account.js'
 import type { BundlerRpcSchema } from '../types/eip1193.js'
 import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
-  GetEntryPointVersionParameter,
 } from '../types/entryPointVersion.js'
 import type { UserOperationRequest } from '../types/userOperation.js'
 
 export type SendUserOperationParameters<
   chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-  entryPointVersion extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
+  account extends SmartAccount | undefined = SmartAccount | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-  entryPointVersionOverride extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
-  _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
-  _derivedVersion extends EntryPointVersion = DeriveEntryPointVersion<
-    entryPointVersion,
-    entryPointVersionOverride
+  accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
+  //
+  _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
+    account,
+    accountOverride
   >,
+  _derivedVersion extends
+    EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = UserOperationRequest<_derivedVersion> &
-  GetAccountParameter<account> &
-  GetChainParameter<chain, chainOverride> &
-  GetEntryPointVersionParameter<
-    entryPointVersion,
-    entryPointVersionOverride
-  > & {
+  GetSmartAccountParameter<account> &
+  GetChainParameter<chain, chainOverride> & {
     entryPointAddress?: Address
   }
 
@@ -82,20 +74,16 @@ export type SendUserOperationErrorType = ErrorType
  */
 export async function sendUserOperation<
   chain extends Chain | undefined,
-  account extends Account | undefined,
-  entryPointVersion extends EntryPointVersion | undefined,
+  account extends SmartAccount | undefined,
   chainOverride extends Chain | undefined = undefined,
-  entryPointVersionOverride extends EntryPointVersion | undefined = undefined,
+  accountOverride extends SmartAccount | undefined = undefined,
 >(
-  client: Client<Transport, chain, account, BundlerRpcSchema> & {
-    entryPointVersion?: entryPointVersion | undefined
-  },
+  client: Client<Transport, chain, account, BundlerRpcSchema>,
   parameters: SendUserOperationParameters<
     chain,
     account,
-    entryPointVersion,
     chainOverride,
-    entryPointVersionOverride
+    accountOverride
   >,
 ) {
   const {

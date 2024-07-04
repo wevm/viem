@@ -17,7 +17,6 @@ test('creates', () => {
       "cacheTime": 4000,
       "ccipRead": undefined,
       "chain": undefined,
-      "entryPointVersion": undefined,
       "estimateUserOperationGas": [Function],
       "extend": [Function],
       "getChainId": [Function],

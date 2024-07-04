@@ -14,7 +14,6 @@ import type { Chain } from '../../../types/chain.js'
 import type { RpcSchema } from '../../../types/eip1193.js'
 import type { Prettify } from '../../../types/utils.js'
 import type { BundlerRpcSchema } from '../types/eip1193.js'
-import type { EntryPointVersion } from '../types/entryPointVersion.js'
 import { type BundlerActions, bundlerActions } from './decorators/bundler.js'
 
 export type BundlerClientConfig<
@@ -23,9 +22,6 @@ export type BundlerClientConfig<
   accountOrAddress extends Account | Address | undefined =
     | Account
     | Address
-    | undefined,
-  entryPointVersion extends EntryPointVersion | undefined =
-    | EntryPointVersion
     | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
@@ -38,18 +34,13 @@ export type BundlerClientConfig<
     | 'pollingInterval'
     | 'rpcSchema'
     | 'transport'
-  > & {
-    entryPointVersion?: entryPointVersion
-  }
+  >
 >
 
 export type BundlerClient<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-  entryPointVersion extends EntryPointVersion | undefined =
-    | EntryPointVersion
-    | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
   Client<
@@ -59,7 +50,7 @@ export type BundlerClient<
     rpcSchema extends RpcSchema
       ? [...BundlerRpcSchema, ...rpcSchema]
       : BundlerRpcSchema,
-    BundlerActions & { entryPointVersion: entryPointVersion }
+    BundlerActions
   >
 >
 
@@ -88,33 +79,20 @@ export function createBundlerClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
-  entryPointVersion extends EntryPointVersion | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
 >(
   parameters: BundlerClientConfig<
     transport,
     chain,
     accountOrAddress,
-    entryPointVersion,
     rpcSchema
   >,
-): BundlerClient<
-  transport,
-  chain,
-  ParseAccount<accountOrAddress>,
-  entryPointVersion,
-  rpcSchema
->
+): BundlerClient<transport, chain, ParseAccount<accountOrAddress>, rpcSchema>
 
 export function createBundlerClient(
   parameters: BundlerClientConfig,
 ): BundlerClient {
-  const {
-    entryPointVersion,
-    key = 'bundler',
-    name = 'Bundler Client',
-    transport,
-  } = parameters
+  const { key = 'bundler', name = 'Bundler Client', transport } = parameters
   const client = createClient({
     ...parameters,
     key,
@@ -122,7 +100,5 @@ export function createBundlerClient(
     transport,
     type: 'bundlerClient',
   })
-  return client
-    .extend(() => ({ entryPointVersion }))
-    .extend(bundlerActions()) as BundlerClient
+  return client.extend(bundlerActions())
 }

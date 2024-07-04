@@ -5,26 +5,18 @@ import { concat } from '../../../utils/data/concat.js'
 import { pad } from '../../../utils/data/pad.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
-import type {
-  EntryPointVersion,
-  GetEntryPointVersionParameter,
-} from '../types/entryPointVersion.js'
 import type { UserOperation } from '../types/userOperation.js'
 
-export type GetUserOperationHashParameters<
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = {
+export type GetUserOperationHashParameters = {
   chainId: number
   entryPointAddress: Address
   userOperation: UserOperation
-} & GetEntryPointVersionParameter<undefined, entryPointVersion>
+}
 
 export type GetUserOperationHashReturnType = Hash
 
-export function getUserOperationHash<
-  const entryPointVersion extends EntryPointVersion,
->(
-  parameters: GetUserOperationHashParameters<entryPointVersion>,
+export function getUserOperationHash(
+  parameters: GetUserOperationHashParameters,
 ): GetUserOperationHashReturnType {
   const { chainId, entryPointAddress, userOperation } = parameters
 

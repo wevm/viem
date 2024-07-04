@@ -5,7 +5,6 @@ import type {
   BundlerClient,
   BundlerClientConfig,
 } from '../../src/experimental/erc4337/clients/createBundlerClient.js'
-import type { EntryPointVersion } from '../../src/experimental/erc4337/types/entryPointVersion.js'
 import {
   http,
   type Chain,
@@ -47,9 +46,6 @@ type DefineBundlerReturnType<chain extends Chain> = {
     config['transport'] extends Transport ? config['transport'] : Transport,
     config['chain'] extends false ? undefined : chain,
     undefined,
-    config['entryPointVersion'] extends EntryPointVersion
-      ? config['entryPointVersion']
-      : EntryPointVersion,
     undefined
   >
   port: number
