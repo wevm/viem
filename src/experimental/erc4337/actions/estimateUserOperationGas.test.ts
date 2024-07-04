@@ -82,43 +82,6 @@ test('args: factory + factoryData', async () => {
   ).toBeDefined()
 })
 
-test('args: entrypoint', async () => {
-  const { factoryAddress } = await deployMock4337Account()
-
-  const account = await toSmartAccount({
-    client,
-    implementation: solady({
-      factoryAddress,
-      owner: ownerAddress,
-    }),
-  })
-
-  const callData = await account.getCallData([
-    { to: '0x0000000000000000000000000000000000000000' },
-  ])
-  const dummySignature = await account.getFormattedSignature()
-  const { factory, factoryData } = await account.getFactoryArgs()
-
-  expect(
-    await estimateUserOperationGas(bundlerClient, {
-      account,
-      callData,
-      entryPointAddress: account.entryPointAddress,
-      factory,
-      factoryData,
-      signature: dummySignature,
-    }),
-  ).toMatchInlineSnapshot(`
-    {
-      "callGasLimit": 80000n,
-      "paymasterPostOpGasLimit": 0n,
-      "paymasterVerificationGasLimit": 0n,
-      "preVerificationGas": 51642n,
-      "verificationGasLimit": 259060n,
-    }
-  `)
-})
-
 test('error: account not deployed', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
@@ -146,44 +109,11 @@ test('error: account not deployed', async () => {
     [RpcRequestError: RPC Request failed.
 
     URL: http://localhost
-    Request body: {"method":"eth_estimateUserOperationGas","params":[{"callData":"0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0","sender":"0x71C3127fE9C6c40c4cf360639B95e217b5f58bB4","signature":"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"},"0x0000000071727De22E5E9d8BAf0edAc6f37da032"]}
+    Request body: {"method":"eth_estimateUserOperationGas","params":[{"callData":"0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0","sender":"0x5CAb2fBd01513DC29521044B0064896260fDDf25","signature":"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"},"0x0000000071727De22E5E9d8BAf0edAc6f37da032"]}
 
     Details: UserOperation reverted during simulation with reason: AA20 account not deployed
     Version: viem@x.y.z]
   `,
-  )
-})
-
-test('error: entrypoint not defined', async () => {
-  const { factoryAddress } = await deployMock4337Account()
-
-  const account = await toSmartAccount({
-    client,
-    implementation: solady({
-      factoryAddress,
-      owner: ownerAddress,
-    }),
-  })
-
-  const callData = await account.getCallData([
-    { to: '0x0000000000000000000000000000000000000000' },
-  ])
-  const dummySignature = await account.getFormattedSignature()
-  const { factory, factoryData } = await account.getFactoryArgs()
-
-  const bundlerClient = bundlerMainnet.getBundlerClient({ chain: false })
-
-  await expect(() =>
-    // @ts-expect-error
-    estimateUserOperationGas(bundlerClient, {
-      account,
-      callData,
-      factory,
-      factoryData,
-      signature: dummySignature,
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(
-    '[Error: client chain not configured. entryPointAddress is required.]',
   )
 })
 

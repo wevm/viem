@@ -32,8 +32,10 @@ test('default', async () => {
       "_internal": null,
       "abi": null,
       "address": "0x0000000000000000000000000000000000000000",
-      "entryPointAddress": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
-      "entryPointVersion": "0.7",
+      "entryPoint": {
+        "address": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+        "version": "0.7",
+      },
       "factory": null,
       "getAddress": [Function],
       "getCallData": [Function],

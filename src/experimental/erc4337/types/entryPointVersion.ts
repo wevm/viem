@@ -5,7 +5,7 @@ export type EntryPointVersion = '0.0' | '0.7'
 
 export type DeriveEntryPointVersion<account extends SmartAccount | undefined> =
   account extends SmartAccount
-    ? account['entryPointVersion']
+    ? account['entryPoint']['version']
     : EntryPointVersion
 
 export type GetEntryPointVersionParameter<

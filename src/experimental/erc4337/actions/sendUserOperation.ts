@@ -1,12 +1,10 @@
-import type { Address } from 'abitype'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Chain, GetChainParameter } from '../../../types/chain.js'
+import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
-import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
 import type { SmartAccount } from '../accounts/types.js'
 import { formatUserOperationRequest } from '../formatters/userOperation.js'
 import type {
@@ -21,9 +19,7 @@ import type {
 import type { UserOperationRequest } from '../types/userOperation.js'
 
 export type SendUserOperationParameters<
-  chain extends Chain | undefined = Chain | undefined,
   account extends SmartAccount | undefined = SmartAccount | undefined,
-  chainOverride extends Chain | undefined = Chain | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
   //
   _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
@@ -33,10 +29,7 @@ export type SendUserOperationParameters<
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = UserOperationRequest<_derivedVersion> &
-  GetSmartAccountParameter<account> &
-  GetChainParameter<chain, chainOverride> & {
-    entryPointAddress?: Address
-  }
+  GetSmartAccountParameter<account, accountOverride>
 
 export type SendUserOperationReturnType = Hex
 
@@ -73,25 +66,16 @@ export type SendUserOperationErrorType = ErrorType
  * })
  */
 export async function sendUserOperation<
-  chain extends Chain | undefined,
   account extends SmartAccount | undefined,
-  chainOverride extends Chain | undefined = undefined,
   accountOverride extends SmartAccount | undefined = undefined,
 >(
-  client: Client<Transport, chain, account, BundlerRpcSchema>,
-  parameters: SendUserOperationParameters<
-    chain,
-    account,
-    chainOverride,
-    accountOverride
-  >,
+  client: Client<Transport, Chain | undefined, account, BundlerRpcSchema>,
+  parameters: SendUserOperationParameters<account, accountOverride>,
 ) {
   const {
     account: account_ = client.account,
     callData,
     callGasLimit,
-    chain = client.chain,
-    entryPointAddress: entryPointAddress_,
     factory,
     factoryData,
     maxFeePerGas,
@@ -102,28 +86,15 @@ export async function sendUserOperation<
     paymasterPostOpGasLimit,
     paymasterVerificationGasLimit,
     preVerificationGas,
-    sender,
     signature,
     verificationGasLimit,
   } = parameters as SendUserOperationParameters
 
-  if (!account_ && !sender)
+  if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/sendTransaction',
     })
-  const account = parseAccount(account_! || sender!)
-
-  const entryPointAddress = (() => {
-    if (entryPointAddress_) return entryPointAddress_
-    if (!chain)
-      throw new Error(
-        'client chain not configured. entryPointAddress is required.',
-      )
-    return getChainContractAddress({
-      chain,
-      contract: 'entryPoint07',
-    })
-  })()
+  const account = parseAccount(account_)
 
   // TODO: `prepareUserOperationRequest`
 
@@ -148,7 +119,7 @@ export async function sendUserOperation<
   try {
     return await client.request({
       method: 'eth_sendUserOperation',
-      params: [rpcParameters, entryPointAddress],
+      params: [rpcParameters, account.entryPoint.address],
     })
   } catch (error) {
     // biome-ignore lint/complexity/noUselessCatch: TODO – `getUserOperationError`

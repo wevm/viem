@@ -8,7 +8,6 @@ import type { Chain } from '../../../../types/chain.js'
 import type { Hex } from '../../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../../types/typedData.js'
 import { encodeFunctionData } from '../../../../utils/abi/encodeFunctionData.js'
-import { getChainContractAddress } from '../../../../utils/chain/getChainContractAddress.js'
 import { pad } from '../../../../utils/data/pad.js'
 import { signMessage } from '../../../solady/actions/signMessage.js'
 import { signTypedData } from '../../../solady/actions/signTypedData.js'
@@ -26,7 +25,6 @@ export type SoladyImplementation = SmartAccountImplementation<
 
 export type SoladyImplementationParameters = {
   chain?: Chain | undefined
-  entryPointAddress?: Address | undefined
   factoryAddress: Address
   owner: Address | Account
   salt?: Hex | undefined
@@ -59,14 +57,10 @@ export function solady(
 
     return {
       abi,
-      get entryPointAddress() {
-        if (parameters.entryPointAddress) return parameters.entryPointAddress
-        return getChainContractAddress({
-          chain: chain!,
-          contract: 'entryPoint07',
-        })
+      entryPoint: {
+        address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+        version: '0.7',
       },
-      entryPointVersion: '0.7',
       factory: {
         address: factoryAddress,
         abi: factoryAbi,
@@ -119,7 +113,7 @@ export function solady(
           abi: parseAbi([
             'function getNonce(address, uint192) pure returns (uint256)',
           ]),
-          address: this.entryPointAddress,
+          address: this.entryPoint.address,
           functionName: 'getNonce',
           args: [address, 0n],
         })
@@ -163,7 +157,7 @@ export function solady(
         const address = await this.getAddress()
         const userOpHash = getUserOperationHash({
           chainId,
-          entryPointAddress: this.entryPointAddress,
+          entryPointAddress: this.entryPoint.address,
           userOperation: {
             ...userOperation,
             sender: address,

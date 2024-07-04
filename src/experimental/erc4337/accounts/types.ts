@@ -38,10 +38,13 @@ export type SmartAccountImplementation<
 > = {
   /** ABI of the Smart Account implementation. */
   abi: abi
-  /** Compatible EntryPoint address. */
-  entryPointAddress: Address
-  /** Compatible EntryPoint version. */
-  entryPointVersion: entryPointVersion
+  /** Compatible EntryPoint of the Smart Account. */
+  entryPoint: {
+    /** Compatible EntryPoint address. */
+    address: Address
+    /** Compatible EntryPoint version. */
+    version: entryPointVersion
+  }
   /** Factory of the Smart Account. */
   factory: {
     /** Address of the Smart Account's Factory. */

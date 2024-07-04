@@ -1,9 +1,9 @@
-import type { Address } from 'abitype'
+import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Chain, GetChainParameter } from '../../../types/chain.js'
-import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
+import type { Chain } from '../../../types/chain.js'
 import type { SmartAccount } from '../accounts/types.js'
 import { formatUserOperationGas } from '../formatters/gas.js'
 import { formatUserOperationRequest } from '../formatters/userOperation.js'
@@ -26,9 +26,7 @@ import {
 } from './prepareUserOperationRequest.js'
 
 export type EstimateUserOperationGasParameters<
-  chain extends Chain | undefined = Chain | undefined,
   account extends SmartAccount | undefined = SmartAccount | undefined,
-  chainOverride extends Chain | undefined = Chain | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
   //
   _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
@@ -38,10 +36,7 @@ export type EstimateUserOperationGasParameters<
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = UserOperationRequest<_derivedVersion> &
-  GetSmartAccountParameter<account, accountOverride> &
-  GetChainParameter<chain, chainOverride> & {
-    entryPointAddress?: Address
-  }
+  GetSmartAccountParameter<account, accountOverride>
 
 export type EstimateUserOperationGasReturnType<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -88,33 +83,16 @@ export type EstimateUserOperationGasErrorType = ErrorType
  * })
  */
 export async function estimateUserOperationGas<
-  chain extends Chain | undefined,
   account extends SmartAccount | undefined,
-  chainOverride extends Chain | undefined = undefined,
   accountOverride extends SmartAccount | undefined = undefined,
 >(
-  client: Client<Transport, chain, account, BundlerRpcSchema>,
-  parameters: EstimateUserOperationGasParameters<
-    chain,
-    account,
-    chainOverride,
-    accountOverride
-  >,
+  client: Client<Transport, Chain | undefined, account, BundlerRpcSchema>,
+  parameters: EstimateUserOperationGasParameters<account, accountOverride>,
 ): Promise<EstimateUserOperationGasReturnType<account, accountOverride>> {
-  const { chain = client.chain, entryPointAddress: entryPointAddress_ } =
-    parameters
+  const { account: account_ = client.account } = parameters
 
-  const entryPointAddress = (() => {
-    if (entryPointAddress_) return entryPointAddress_
-    if (!chain)
-      throw new Error(
-        'client chain not configured. entryPointAddress is required.',
-      )
-    return getChainContractAddress({
-      chain,
-      contract: 'entryPoint07',
-    })
-  })()
+  if (!account_) throw new AccountNotFoundError()
+  const account = parseAccount(account_)
 
   const request = await prepareUserOperationRequest(
     client,
@@ -124,7 +102,7 @@ export async function estimateUserOperationGas<
   try {
     const result = await client.request({
       method: 'eth_estimateUserOperationGas',
-      params: [formatUserOperationRequest(request), entryPointAddress],
+      params: [formatUserOperationRequest(request), account.entryPoint.address],
     })
     return formatUserOperationGas(result) as EstimateUserOperationGasReturnType<
       account,

@@ -37,8 +37,10 @@ test('default', async () => {
     {
       "_internal": null,
       "abi": null,
-      "entryPointAddress": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
-      "entryPointVersion": "0.7",
+      "entryPoint": {
+        "address": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+        "version": "0.7",
+      },
       "factory": null,
       "getAddress": [Function],
       "getCallData": [Function],
@@ -50,18 +52,6 @@ test('default', async () => {
       "signUserOperation": [Function],
     }
   `)
-})
-
-test('args: entryPointAddress', async () => {
-  const implementation = solady({
-    entryPointAddress: '0x0000000000000000000000000000000000000069',
-    factoryAddress,
-    owner: accounts[1].address,
-  })({ client })
-
-  expect(implementation.entryPointAddress).toMatchInlineSnapshot(
-    `"0x0000000000000000000000000000000000000069"`,
-  )
 })
 
 test('args: salt', async () => {
@@ -85,27 +75,20 @@ test('args: salt', async () => {
   )
 })
 
-describe('return value: entryPointAddress', () => {
+describe('return value: entryPoint', () => {
   test('default', async () => {
     const implementation = solady({
       factoryAddress,
       owner: accounts[1].address,
     })({ client })
 
-    expect(implementation.entryPointAddress).toMatchInlineSnapshot(
-      `"0x0000000071727De22E5E9d8BAf0edAc6f37da032"`,
-    )
-  })
-
-  test('via arg', async () => {
-    const implementation = solady({
-      entryPointAddress: '0x0000000000000000000000000000000000000069',
-      factoryAddress,
-      owner: accounts[1].address,
-    })({ client })
-
-    expect(implementation.entryPointAddress).toMatchInlineSnapshot(
-      `"0x0000000000000000000000000000000000000069"`,
+    expect(implementation.entryPoint).toMatchInlineSnapshot(
+      `
+      {
+        "address": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+        "version": "0.7",
+      }
+    `,
     )
   })
 })
