@@ -2,12 +2,12 @@ import type { ErrorType } from '../../../errors/utils.js'
 import type { ExactPartial } from '../../../types/utils.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import type { RpcUserOperation } from '../types/rpc.js'
-import type { UserOperationRequest } from '../types/userOperation.js'
+import type { UserOperation } from '../types/userOperation.js'
 
 export type FormatUserOperationRequestErrorType = ErrorType
 
 export function formatUserOperationRequest(
-  request: ExactPartial<UserOperationRequest>,
+  request: ExactPartial<UserOperation>,
 ) {
   const rpcRequest = {} as RpcUserOperation
 

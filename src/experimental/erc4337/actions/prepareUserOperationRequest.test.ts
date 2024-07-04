@@ -23,22 +23,24 @@ test('default', async () => {
     }),
   })
 
-  const callData = await account.getCallData([
-    { to: '0x0000000000000000000000000000000000000000' },
-  ])
-
   const request = await prepareUserOperationRequest(bundlerClient, {
     account,
-    callData,
+    calls: [{ to: '0x0000000000000000000000000000000000000000' }],
   })
 
   expect({ ...request, account: undefined }).toMatchInlineSnapshot(`
     {
       "account": undefined,
       "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
+      "callGasLimit": 80000n,
+      "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+      "factoryData": "0xf14ddffc00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000000000000000000",
       "nonce": 0n,
+      "paymasterPostOpGasLimit": 0n,
+      "paymasterVerificationGasLimit": 0n,
+      "preVerificationGas": 51642n,
       "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
-      "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
+      "verificationGasLimit": 259060n,
     }
   `)
 })

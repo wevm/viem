@@ -68,9 +68,8 @@ export function solady(
       async getAddress() {
         if (address) return address
         return await readContract(client, {
+          ...this.factory,
           account: owner,
-          abi: factoryAbi,
-          address: factoryAddress,
           functionName: 'getAddress',
           args: [pad(salt)],
         })
@@ -96,11 +95,11 @@ export function solady(
       },
       getFactoryArgs() {
         const factoryData = encodeFunctionData({
-          abi: factoryAbi,
+          abi: this.factory.abi,
           functionName: 'createAccount',
           args: [owner.address, pad(salt)],
         })
-        return { factory: factoryAddress, factoryData }
+        return { factory: this.factory.address, factoryData }
       },
       async getSignature(packedUserOperation) {
         if (!packedUserOperation?.signature)

@@ -2,6 +2,8 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { Chain, GetChainParameter } from '../../../types/chain.js'
+import type { Hex } from '../../../types/misc.js'
+import type { Assign, Prettify, UnionOmit } from '../../../types/utils.js'
 import { parseAccount } from '../../../utils/index.js'
 import type { SmartAccount } from '../accounts/types.js'
 import type {
@@ -13,15 +15,18 @@ import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
 } from '../types/entryPointVersion.js'
-import type { UserOperationRequest } from '../types/userOperation.js'
+import type {
+  UserOperation,
+  UserOperationRequest,
+} from '../types/userOperation.js'
+import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
-export const defaultParameters = ['fees', 'gas', 'nonce', 'signature'] as const
+export const defaultParameters = ['factory', 'gas', 'nonce'] as const
 
 export type PrepareUserOperationRequestParameterType =
-  | 'fees'
+  | 'factory'
   | 'gas'
   | 'nonce'
-  | 'signature'
 
 export type PrepareUserOperationRequestRequest<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -57,7 +62,39 @@ export type PrepareUserOperationRequestReturnType<
     account,
     accountOverride
   > = PrepareUserOperationRequestRequest<account, accountOverride>,
-> = request
+  //
+  parameters extends
+    PrepareUserOperationRequestParameterType = request['parameters'] extends readonly PrepareUserOperationRequestParameterType[]
+    ? request['parameters'][number]
+    : (typeof defaultParameters)[number],
+> = Prettify<
+  Assign<
+    UnionOmit<request, 'calls' | 'parameters'>,
+    {
+      callData: Hex
+      sender: UserOperation['sender']
+    } & (Extract<parameters, 'factory'> extends 'factory'
+      ? {
+          factory: UserOperation['factory']
+          factoryData: UserOperation['factoryData']
+        }
+      : {}) &
+      (Extract<parameters, 'nonce'> extends 'nonce'
+        ? {
+            nonce: UserOperation['nonce']
+          }
+        : {}) &
+      (Extract<parameters, 'gas'> extends 'gas'
+        ? {
+            callGasLimit: UserOperation['callGasLimit']
+            preVerificationGas: UserOperation['preVerificationGas']
+            verificationGasLimit: UserOperation['verificationGasLimit']
+            paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
+            paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
+          }
+        : {})
+  >
+>
 
 export async function prepareUserOperationRequest<
   chain extends Chain | undefined,
@@ -94,13 +131,49 @@ export async function prepareUserOperationRequest<
     ...(account ? { sender: account.address } : {}),
   } as PrepareUserOperationRequestRequest
 
-  if (parameters_.includes('nonce'))
-    request.nonce = (await account.getNonce()) ?? 0n
+  const [callData, factory, nonce, gas] = await Promise.all([
+    (async () => {
+      if (request.calls) return account.getCallData(request.calls)
+      return request.callData
+    })(),
+    (async () => {
+      if (!parameters_.includes('factory')) return undefined
+      if (request.factory && request.factoryData)
+        return {
+          factory: request.factory,
+          factoryData: request.factoryData,
+        }
+      return account.getFactoryArgs()
+    })(),
+    (async () => {
+      if (!parameters_.includes('nonce')) return undefined
+      if (request.nonce) return request.nonce
+      return account.getNonce()
+    })(),
+    (async () => {
+      if (!parameters_.includes('gas')) return undefined
+      return estimateUserOperationGas(client, {
+        account,
+        ...request,
+      })
+    })(),
+  ])
 
-  if (parameters_.includes('signature'))
-    // TODO: pass packed userop
-    request.signature = await account.getSignature()
+  if (typeof callData !== 'undefined') request.callData = callData
+  if (typeof factory !== 'undefined') {
+    request.factory = factory.factory
+    request.factoryData = factory.factoryData
+  }
+  if (typeof nonce !== 'undefined') request.nonce = nonce
+  if (typeof gas !== 'undefined') {
+    request.callGasLimit = gas.callGasLimit
+    request.preVerificationGas = gas.preVerificationGas
+    request.verificationGasLimit = gas.verificationGasLimit
+    request.paymasterPostOpGasLimit = gas.paymasterPostOpGasLimit
+    request.paymasterVerificationGasLimit = gas.paymasterVerificationGasLimit
+  }
 
+  delete request.calls
   delete request.parameters
 
   return request as any

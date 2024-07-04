@@ -2,8 +2,14 @@ import type { Address } from 'abitype'
 import type { Log } from '../../../types/log.js'
 import type { Hash, Hex } from '../../../types/misc.js'
 import type { TransactionReceipt } from '../../../types/transaction.js'
-import type { OneOf, UnionPartialBy } from '../../../types/utils.js'
+import type { Assign, OneOf, UnionPartialBy } from '../../../types/utils.js'
 import type { EntryPointVersion } from './entryPointVersion.js'
+
+type Call = {
+  to: Hex
+  data?: Hex | undefined
+  value?: bigint | undefined
+}
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_estimateuseroperationgas */
 export type EstimateUserOperationGasReturnType<
@@ -115,20 +121,24 @@ export type UserOperation<
 export type UserOperationRequest<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
-> = OneOf<
-  | (entryPointVersion extends '0.7'
-      ? UnionPartialBy<
-          UserOperation<'0.7', uint256>,
-          // We are able to calculate these via `prepareUserOperationRequest`.
-          | keyof EstimateUserOperationGasReturnType<'0.7'>
-          | 'maxFeePerGas'
-          | 'maxPriorityFeePerGas'
-          | 'nonce'
-          | 'sender'
-          | 'signature'
-        >
-      : never)
-  | (entryPointVersion extends '0.0' ? { _: never } : never)
+> = Assign<
+  OneOf<
+    | (entryPointVersion extends '0.7'
+        ? UnionPartialBy<
+            UserOperation<'0.7', uint256>,
+            // We are able to calculate these via `prepareUserOperationRequest`.
+            | keyof EstimateUserOperationGasReturnType<'0.7'>
+            | 'callData'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'nonce'
+            | 'sender'
+            | 'signature'
+          >
+        : never)
+    | (entryPointVersion extends '0.0' ? { _: never } : never)
+  >,
+  OneOf<{ calls: readonly Call[] } | { callData: Hex }>
 >
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_getuseroperationreceipt */

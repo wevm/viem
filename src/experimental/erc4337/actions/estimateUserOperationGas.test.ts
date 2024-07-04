@@ -3,8 +3,6 @@ import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { accounts } from '../../../../test/src/constants.js'
 import { deployMock4337Account } from '../../../../test/src/utils.js'
-import { mine, writeContract } from '../../../actions/index.js'
-import { pad } from '../../../utils/index.js'
 import { solady } from '../accounts/implementations/solady.js'
 import { toSmartAccount } from '../accounts/toSmartAccount.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
@@ -25,123 +23,28 @@ test('default', async () => {
     }),
   })
 
-  await writeContract(client, {
-    ...account.factory,
-    functionName: 'createAccount',
-    args: [ownerAddress, pad('0x0')],
-  })
-  await mine(client, {
-    blocks: 1,
-  })
-
-  const callData = await account.getCallData([
-    { to: '0x0000000000000000000000000000000000000000' },
-  ])
-
   expect(
     await estimateUserOperationGas(bundlerClient, {
       account,
-      callData,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
     }),
   ).toMatchInlineSnapshot(`
     {
       "callGasLimit": 80000n,
       "paymasterPostOpGasLimit": 0n,
       "paymasterVerificationGasLimit": 0n,
-      "preVerificationGas": 50613n,
-      "verificationGasLimit": 109657n,
+      "preVerificationGas": 51642n,
+      "verificationGasLimit": 259060n,
     }
   `)
 })
 
-test('args: factory + factoryData', async () => {
-  const { factoryAddress } = await deployMock4337Account()
-
-  const account = await toSmartAccount({
-    client,
-    implementation: solady({
-      factoryAddress,
-      owner: ownerAddress,
-    }),
-  })
-
-  const callData = await account.getCallData([
-    { to: '0x0000000000000000000000000000000000000000' },
-  ])
-  const dummySignature = await account.getSignature()
-  const { factory, factoryData } = await account.getFactoryArgs()
-
-  expect(
-    await estimateUserOperationGas(bundlerClient, {
-      account,
-      callData,
-      factory,
-      factoryData,
-      signature: dummySignature,
-    }),
-  ).toBeDefined()
-})
-
-test('error: account not deployed', async () => {
-  const { factoryAddress } = await deployMock4337Account()
-
-  const account = await toSmartAccount({
-    client,
-    implementation: solady({
-      factoryAddress,
-      owner: ownerAddress,
-    }),
-  })
-
-  const callData = await account.getCallData([
-    { to: '0x0000000000000000000000000000000000000000' },
-  ])
-  const dummySignature = await account.getSignature()
-
-  await expect(() =>
-    estimateUserOperationGas(bundlerClient, {
-      account,
-      callData,
-      signature: dummySignature,
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `
-    [RpcRequestError: RPC Request failed.
-
-    URL: http://localhost
-    Request body: {"method":"eth_estimateUserOperationGas","params":[{"callData":"0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0","sender":"0x5CAb2fBd01513DC29521044B0064896260fDDf25","signature":"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"},"0x0000000071727De22E5E9d8BAf0edAc6f37da032"]}
-
-    Details: UserOperation reverted during simulation with reason: AA20 account not deployed
-    Version: viem@x.y.z]
-  `,
-  )
-})
-
 test('error: account not defined', async () => {
-  const { factoryAddress } = await deployMock4337Account()
-
-  const account = await toSmartAccount({
-    client,
-    implementation: solady({
-      factoryAddress,
-      owner: ownerAddress,
-    }),
-  })
-
-  const callData = await account.getCallData([
-    { to: '0x0000000000000000000000000000000000000000' },
-  ])
-  const dummySignature = await account.getSignature()
-  const { factory, factoryData } = await account.getFactoryArgs()
-
   await expect(() =>
     estimateUserOperationGas(bundlerClient, {
       // @ts-expect-error
       account: undefined,
-      callData,
-      factory,
-      factoryData,
-      signature: dummySignature,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [AccountNotFoundError: Could not find an Account to execute with this Action.

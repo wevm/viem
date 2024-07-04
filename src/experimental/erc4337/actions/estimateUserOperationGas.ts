@@ -94,15 +94,20 @@ export async function estimateUserOperationGas<
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
-  const request = await prepareUserOperationRequest(
-    client,
-    parameters as PrepareUserOperationRequestParameters,
-  )
+  const request = await prepareUserOperationRequest(client, {
+    ...parameters,
+    parameters: ['factory', 'nonce'],
+  } as unknown as PrepareUserOperationRequestParameters)
+
+  const signature = await account.getSignature()
 
   try {
     const result = await client.request({
       method: 'eth_estimateUserOperationGas',
-      params: [formatUserOperationRequest(request), account.entryPoint.address],
+      params: [
+        formatUserOperationRequest({ ...request, signature }),
+        account.entryPoint.address,
+      ],
     })
     return formatUserOperationGas(result) as EstimateUserOperationGasReturnType<
       account,

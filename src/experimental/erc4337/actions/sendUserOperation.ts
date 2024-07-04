@@ -5,6 +5,7 @@ import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
+import type { UnionRequiredBy } from '../../../types/utils.js'
 import type { SmartAccount } from '../accounts/types.js'
 import { formatUserOperationRequest } from '../formatters/userOperation.js'
 import type {
@@ -16,7 +17,14 @@ import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
 } from '../types/entryPointVersion.js'
-import type { UserOperationRequest } from '../types/userOperation.js'
+import type {
+  UserOperation,
+  UserOperationRequest,
+} from '../types/userOperation.js'
+import {
+  type PrepareUserOperationRequestParameters,
+  prepareUserOperationRequest,
+} from './prepareUserOperationRequest.js'
 
 export type SendUserOperationParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -28,7 +36,11 @@ export type SendUserOperationParameters<
   >,
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
-> = UserOperationRequest<_derivedVersion> &
+> = UnionRequiredBy<
+  UserOperationRequest<_derivedVersion>,
+  // @ts-ignore
+  'maxFeePerGas' | 'maxPriorityFeePerGas'
+> &
   GetSmartAccountParameter<account, accountOverride>
 
 export type SendUserOperationReturnType = Hex
@@ -72,49 +84,22 @@ export async function sendUserOperation<
   client: Client<Transport, Chain | undefined, account, BundlerRpcSchema>,
   parameters: SendUserOperationParameters<account, accountOverride>,
 ) {
-  const {
-    account: account_ = client.account,
-    callData,
-    callGasLimit,
-    factory,
-    factoryData,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    nonce,
-    paymaster,
-    paymasterData,
-    paymasterPostOpGasLimit,
-    paymasterVerificationGasLimit,
-    preVerificationGas,
-    signature,
-    verificationGasLimit,
-  } = parameters as SendUserOperationParameters
+  const { account: account_ = client.account } =
+    parameters as SendUserOperationParameters
 
-  if (!account_)
-    throw new AccountNotFoundError({
-      docsPath: '/docs/actions/wallet/sendTransaction',
-    })
+  if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
-  // TODO: `prepareUserOperationRequest`
+  const request = await prepareUserOperationRequest(
+    client,
+    parameters as unknown as PrepareUserOperationRequestParameters,
+  )
 
-  const rpcParameters = formatUserOperationRequest({
-    callData,
-    callGasLimit,
-    factory,
-    factoryData,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    nonce,
-    paymaster,
-    paymasterData,
-    paymasterPostOpGasLimit,
-    paymasterVerificationGasLimit,
-    preVerificationGas,
-    sender: account.address,
-    signature,
-    verificationGasLimit,
+  const signature = await account.signUserOperation({
+    userOperation: request as UserOperation,
   })
+
+  const rpcParameters = formatUserOperationRequest({ ...request, signature })
 
   try {
     return await client.request({
