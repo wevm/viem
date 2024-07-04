@@ -110,17 +110,17 @@ export type SmartAccountImplementation<
    *
    * @example Dummy signature
    * ```ts
-   * const signature = await account.getSignature()
+   * const signature = await account.formatSignature()
    * // '0x...'
    * ```
    *
    * @example User Operation signature
    * ```ts
-   * const signature = await account.getSignature(userOperation)
+   * const signature = await account.formatSignature(userOperation)
    * // '0x...'
    * ```
    */
-  getSignature: (
+  formatSignature: (
     packedUserOperation?: Partial<PackedUserOperation> | undefined,
   ) => Promise<Hex>
   /**

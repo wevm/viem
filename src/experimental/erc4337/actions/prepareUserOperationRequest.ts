@@ -27,6 +27,7 @@ export type PrepareUserOperationRequestParameterType =
   | 'factory'
   | 'gas'
   | 'nonce'
+  | 'signature'
 
 export type PrepareUserOperationRequestRequest<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -92,6 +93,11 @@ export type PrepareUserOperationRequestReturnType<
             paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
             paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
           }
+        : {}) &
+      (Extract<parameters, 'signature'> extends 'signature'
+        ? {
+            signature: UserOperation['signature']
+          }
         : {})
   >
 >
@@ -131,7 +137,7 @@ export async function prepareUserOperationRequest<
     ...(account ? { sender: account.address } : {}),
   } as PrepareUserOperationRequestRequest
 
-  const [callData, factory, nonce, gas] = await Promise.all([
+  const [callData, factory, nonce, gas, signature] = await Promise.all([
     (async () => {
       if (request.calls) return account.getCallData(request.calls)
       return request.callData
@@ -157,6 +163,10 @@ export async function prepareUserOperationRequest<
         ...request,
       })
     })(),
+    (async () => {
+      if (!parameters_.includes('signature')) return undefined
+      return account.formatSignature()
+    })(),
   ])
 
   if (typeof callData !== 'undefined') request.callData = callData
@@ -172,6 +182,7 @@ export async function prepareUserOperationRequest<
     request.paymasterPostOpGasLimit = gas.paymasterPostOpGasLimit
     request.paymasterVerificationGasLimit = gas.paymasterVerificationGasLimit
   }
+  if (typeof signature !== 'undefined') request.signature = signature
 
   delete request.calls
   delete request.parameters

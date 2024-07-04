@@ -96,18 +96,13 @@ export async function estimateUserOperationGas<
 
   const request = await prepareUserOperationRequest(client, {
     ...parameters,
-    parameters: ['factory', 'nonce'],
+    parameters: ['factory', 'nonce', 'signature'],
   } as unknown as PrepareUserOperationRequestParameters)
-
-  const signature = await account.getSignature()
 
   try {
     const result = await client.request({
       method: 'eth_estimateUserOperationGas',
-      params: [
-        formatUserOperationRequest({ ...request, signature }),
-        account.entryPoint.address,
-      ],
+      params: [formatUserOperationRequest(request), account.entryPoint.address],
     })
     return formatUserOperationGas(result) as EstimateUserOperationGasReturnType<
       account,
