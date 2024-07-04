@@ -68,7 +68,7 @@ test('args: factory + factoryData', async () => {
   const callData = await account.getCallData([
     { to: '0x0000000000000000000000000000000000000000' },
   ])
-  const dummySignature = await account.getFormattedSignature()
+  const dummySignature = await account.getSignature()
   const { factory, factoryData } = await account.getFactoryArgs()
 
   expect(
@@ -96,7 +96,7 @@ test('error: account not deployed', async () => {
   const callData = await account.getCallData([
     { to: '0x0000000000000000000000000000000000000000' },
   ])
-  const dummySignature = await account.getFormattedSignature()
+  const dummySignature = await account.getSignature()
 
   await expect(() =>
     estimateUserOperationGas(bundlerClient, {
@@ -131,7 +131,7 @@ test('error: account not defined', async () => {
   const callData = await account.getCallData([
     { to: '0x0000000000000000000000000000000000000000' },
   ])
-  const dummySignature = await account.getFormattedSignature()
+  const dummySignature = await account.getSignature()
   const { factory, factoryData } = await account.getFactoryArgs()
 
   await expect(() =>

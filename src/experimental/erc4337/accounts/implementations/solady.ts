@@ -102,7 +102,7 @@ export function solady(
         })
         return { factory: factoryAddress, factoryData }
       },
-      async getFormattedSignature(packedUserOperation) {
+      async getSignature(packedUserOperation) {
         if (!packedUserOperation?.signature)
           return '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
         return packedUserOperation.signature
@@ -169,7 +169,7 @@ export function solady(
             raw: userOpHash,
           },
         })
-        return await this.getFormattedSignature({
+        return await this.getSignature({
           signature,
         })
       },

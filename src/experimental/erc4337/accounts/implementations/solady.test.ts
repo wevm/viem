@@ -45,8 +45,8 @@ test('default', async () => {
       "getAddress": [Function],
       "getCallData": [Function],
       "getFactoryArgs": [Function],
-      "getFormattedSignature": [Function],
       "getNonce": [Function],
+      "getSignature": [Function],
       "signMessage": [Function],
       "signTypedData": [Function],
       "signUserOperation": [Function],
@@ -180,19 +180,19 @@ describe('return value: getFactoryArgs', () => {
   })
 })
 
-describe('return value: getFormattedSignature', () => {
+describe('return value: getSignature', () => {
   test('default', async () => {
     const implementation = solady({
       factoryAddress,
       owner: accounts[1].address,
     })({ client })
 
-    const signature = await implementation.getFormattedSignature()
+    const signature = await implementation.getSignature()
     expect(signature).toMatchInlineSnapshot(
       `"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"`,
     )
 
-    const signature_2 = await implementation.getFormattedSignature({
+    const signature_2 = await implementation.getSignature({
       signature: '0xdeadbeef',
     })
     expect(signature_2).toMatchInlineSnapshot(`"0xdeadbeef"`)

@@ -99,7 +99,7 @@ export async function prepareUserOperationRequest<
 
   if (parameters_.includes('signature'))
     // TODO: pass packed userop
-    request.signature = await account.getFormattedSignature()
+    request.signature = await account.getSignature()
 
   delete request.parameters
 

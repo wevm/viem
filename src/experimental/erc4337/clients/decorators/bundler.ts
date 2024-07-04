@@ -23,7 +23,6 @@ import {
 } from '../../actions/sendUserOperation.js'
 
 export type BundlerActions<
-  chain extends Chain | undefined = Chain | undefined,
   account extends SmartAccount | undefined = SmartAccount | undefined,
 > = {
   /**
@@ -61,15 +60,9 @@ export type BundlerActions<
    * })
    */
   estimateUserOperationGas: <
-    chainOverride extends Chain | undefined = undefined,
     accountOverride extends SmartAccount | undefined = undefined,
   >(
-    parameters: EstimateUserOperationGasParameters<
-      chain,
-      account,
-      chainOverride,
-      accountOverride
-    >,
+    parameters: EstimateUserOperationGasParameters<account, accountOverride>,
   ) => Promise<EstimateUserOperationGasReturnType<account, accountOverride>>
   /**
    * Returns the chain ID associated with the bundler.
@@ -147,15 +140,9 @@ export type BundlerActions<
    * })
    */
   sendUserOperation: <
-    chainOverride extends Chain | undefined = undefined,
     accountOverride extends SmartAccount | undefined = undefined,
   >(
-    parameters: SendUserOperationParameters<
-      chain,
-      account,
-      chainOverride,
-      accountOverride
-    >,
+    parameters: SendUserOperationParameters<account, accountOverride>,
   ) => Promise<SendUserOperationReturnType>
 }
 
@@ -170,7 +157,7 @@ export function bundlerActions() {
     account extends SmartAccount | undefined = SmartAccount | undefined,
   >(
     client: Client<transport, chain, account>,
-  ): BundlerActions<chain, account> => {
+  ): BundlerActions<account> => {
     return {
       estimateUserOperationGas: (parameters) =>
         estimateUserOperationGas(client, parameters),

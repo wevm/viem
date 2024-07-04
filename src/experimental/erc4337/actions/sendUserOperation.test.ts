@@ -59,7 +59,7 @@ test('default', async () => {
       value: parseEther('1'),
     },
   ])
-  const dummySignature = await account.getFormattedSignature()
+  const dummySignature = await account.getSignature()
 
   const fees = await estimateFeesPerGas(client)
   const gas = await estimateUserOperationGas(bundlerClient, {
@@ -118,7 +118,7 @@ test('args: factory + factoryData', async () => {
       value: parseEther('1'),
     },
   ])
-  const dummySignature = await account.getFormattedSignature()
+  const dummySignature = await account.getSignature()
   const nonce = await account.getNonce()
   const { factory, factoryData } = await account.getFactoryArgs()
 
