@@ -18,11 +18,12 @@ test('default', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
   const account = await toSmartAccount({
+    client,
     implementation: solady({
       factoryAddress,
       owner: ownerAddress,
     }),
-  }).initialize(client)
+  })
 
   await writeContract(client, {
     ...account.factory,
@@ -37,13 +38,10 @@ test('default', async () => {
     { to: '0x0000000000000000000000000000000000000000' },
   ])
 
-  const dummySignature = await account.getFormattedSignature()
-
   expect(
     await estimateUserOperationGas(bundlerClient, {
       account,
       callData,
-      signature: dummySignature,
     }),
   ).toMatchInlineSnapshot(`
     {
@@ -60,11 +58,12 @@ test('args: factory + factoryData', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
   const account = await toSmartAccount({
+    client,
     implementation: solady({
       factoryAddress,
       owner: ownerAddress,
     }),
-  }).initialize(client)
+  })
 
   const callData = await account.getCallData([
     { to: '0x0000000000000000000000000000000000000000' },
@@ -87,11 +86,12 @@ test('args: version', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
   const account = await toSmartAccount({
+    client,
     implementation: solady({
       factoryAddress,
       owner: ownerAddress,
     }),
-  }).initialize(client)
+  })
 
   const callData = await account.getCallData([
     { to: '0x0000000000000000000000000000000000000000' },
@@ -115,11 +115,12 @@ test('args: entrypoint', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
   const account = await toSmartAccount({
+    client,
     implementation: solady({
       factoryAddress,
       owner: ownerAddress,
     }),
-  }).initialize(client)
+  })
 
   const callData = await account.getCallData([
     { to: '0x0000000000000000000000000000000000000000' },
@@ -151,11 +152,12 @@ test('error: account not deployed', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
   const account = await toSmartAccount({
+    client,
     implementation: solady({
       factoryAddress,
       owner: ownerAddress,
     }),
-  }).initialize(client)
+  })
 
   const callData = await account.getCallData([
     { to: '0x0000000000000000000000000000000000000000' },
@@ -185,11 +187,12 @@ test('error: entrypoint not defined', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
   const account = await toSmartAccount({
+    client,
     implementation: solady({
       factoryAddress,
       owner: ownerAddress,
     }),
-  }).initialize(client)
+  })
 
   const callData = await account.getCallData([
     { to: '0x0000000000000000000000000000000000000000' },
@@ -217,11 +220,12 @@ test('error: account not defined', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
   const account = await toSmartAccount({
+    client,
     implementation: solady({
       factoryAddress,
       owner: ownerAddress,
     }),
-  }).initialize(client)
+  })
 
   const callData = await account.getCallData([
     { to: '0x0000000000000000000000000000000000000000' },
@@ -242,7 +246,6 @@ test('error: account not defined', async () => {
     [AccountNotFoundError: Could not find an Account to execute with this Action.
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
 
-    Docs: https://viem.sh/docs/actions/wallet/sendTransaction#account
     Version: viem@x.y.z]
   `)
 })

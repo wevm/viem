@@ -100,7 +100,7 @@ export function solady(
           ],
         })
       },
-      async getFactoryArgs() {
+      getFactoryArgs() {
         const factoryData = encodeFunctionData({
           abi: factoryAbi,
           functionName: 'createAccount',

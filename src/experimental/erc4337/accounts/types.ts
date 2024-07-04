@@ -3,7 +3,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Hex, SignableMessage } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
-import type { OneOf, UnionPartialBy } from '../../../types/utils.js'
+import type { Assign, UnionPartialBy } from '../../../types/utils.js'
 import type { EntryPointVersion } from '../types/entryPointVersion.js'
 import type {
   PackedUserOperation,
@@ -88,10 +88,10 @@ export type SmartAccountImplementation<
    * // { factory: undefined, factoryData: undefined }
    * ```
    */
-  getFactoryArgs: () => Promise<{
+  getFactoryArgs: () => {
     factory?: Address | undefined
     factoryData?: Hex | undefined
-  }>
+  }
   /**
    * Retrieves the nonce of the Account.
    *
@@ -166,23 +166,20 @@ export type SmartAccountImplementation<
 }
 
 export type SmartAccount<
-  address extends Address | undefined = Address | undefined,
-  initialized extends boolean = boolean,
   implementation extends
     SmartAccountImplementation = SmartAccountImplementation,
-> = {
-  /** Address of the Smart Account. */
-  address: address extends Address ? address : Address
-  /** Whether or not the Smart Account has invoked `initialize`. */
-  initialized: initialized
-  /** Function to initialize the Smart Account. */
-  initialize: (
-    client: Client<Transport>,
-  ) => Promise<SmartAccount<address, true, implementation>>
-  /** Whether or not the Smart Account has been deployed. */
-  isDeployed: () => Promise<boolean>
-  /** Type of account. */
-  type: 'smart'
-} & (initialized extends true
-  ? implementation
-  : OneOf<(implementation & { initialized: true }) | { initialized: false }>)
+> = Assign<
+  implementation,
+  {
+    /** Address of the Smart Account. */
+    address: Address
+    getFactoryArgs: () => Promise<{
+      factory?: Address | undefined
+      factoryData?: Hex | undefined
+    }>
+    /** Whether or not the Smart Account has been deployed. */
+    isDeployed: () => Promise<boolean>
+    /** Type of account. */
+    type: 'smart'
+  }
+>

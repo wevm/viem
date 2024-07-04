@@ -1,16 +1,9 @@
 import type { Address } from 'abitype'
-import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
-import type {
-  Chain,
-  DeriveChain,
-  GetChainParameter,
-} from '../../../types/chain.js'
-import type { UnionPartialBy } from '../../../types/utils.js'
+import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
 import { formatUserOperationGas } from '../formatters/gas.js'
 import { formatUserOperationRequest } from '../formatters/userOperation.js'
@@ -24,6 +17,10 @@ import type {
   EstimateUserOperationGasReturnType as EstimateUserOperationGasReturnType_,
   UserOperationRequest,
 } from '../types/userOperation.js'
+import {
+  type PrepareUserOperationRequestParameters,
+  prepareUserOperationRequest,
+} from './prepareUserOperationRequest.js'
 
 export type EstimateUserOperationGasParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -35,16 +32,11 @@ export type EstimateUserOperationGasParameters<
   entryPointVersionOverride extends EntryPointVersion | undefined =
     | EntryPointVersion
     | undefined,
-  _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
   _derivedVersion extends EntryPointVersion = DeriveEntryPointVersion<
     entryPointVersion,
     entryPointVersionOverride
   >,
-> = UnionPartialBy<
-  UserOperationRequest<_derivedVersion>,
-  // @ts-expect-error
-  'maxFeePerGas' | 'maxPriorityFeePerGas'
-> &
+> = UserOperationRequest<_derivedVersion> &
   GetAccountParameter<account> &
   GetChainParameter<chain, chainOverride> &
   GetEntryPointVersionParameter<
@@ -122,32 +114,8 @@ export async function estimateUserOperationGas<
     entryPointVersionOverride
   >
 > {
-  const {
-    account: account_ = client.account,
-    callData,
-    callGasLimit,
-    chain = client.chain,
-    entryPointAddress: entryPointAddress_,
-    factory,
-    factoryData,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    nonce = 0n,
-    paymaster,
-    paymasterData,
-    paymasterPostOpGasLimit,
-    paymasterVerificationGasLimit,
-    preVerificationGas,
-    sender,
-    signature,
-    verificationGasLimit,
-  } = parameters as unknown as EstimateUserOperationGasParameters
-
-  if (!account_ && !sender)
-    throw new AccountNotFoundError({
-      docsPath: '/docs/actions/wallet/sendTransaction',
-    })
-  const account = parseAccount(account_! || sender!)
+  const { chain = client.chain, entryPointAddress: entryPointAddress_ } =
+    parameters
 
   const entryPointAddress = (() => {
     if (entryPointAddress_) return entryPointAddress_
@@ -161,30 +129,15 @@ export async function estimateUserOperationGas<
     })
   })()
 
-  // TODO: `prepareUserOperationRequest`
-
-  const rpcParameters = formatUserOperationRequest({
-    callData,
-    callGasLimit,
-    factory,
-    factoryData,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    nonce,
-    paymaster,
-    paymasterData,
-    paymasterPostOpGasLimit,
-    paymasterVerificationGasLimit,
-    preVerificationGas,
-    sender: account.address,
-    signature,
-    verificationGasLimit,
-  })
+  const request = await prepareUserOperationRequest(
+    client,
+    parameters as PrepareUserOperationRequestParameters,
+  )
 
   try {
     const result = await client.request({
       method: 'eth_estimateUserOperationGas',
-      params: [rpcParameters, entryPointAddress],
+      params: [formatUserOperationRequest(request), entryPointAddress],
     })
     return formatUserOperationGas(result) as EstimateUserOperationGasReturnType<
       entryPointVersion,

@@ -26,11 +26,12 @@ test('default', async () => {
   const { factoryAddress } = await deployMock4337Account()
 
   const account = await toSmartAccount({
+    client,
     implementation: solady({
       factoryAddress,
       owner: ownerAddress,
     }),
-  }).initialize(client)
+  })
 
   await writeContract(client, {
     ...account.factory,
@@ -94,11 +95,12 @@ test('args: factory + factoryData', async () => {
   const fees = await estimateFeesPerGas(client)
 
   const account = await toSmartAccount({
+    client,
     implementation: solady({
       factoryAddress,
       owner: ownerAddress,
     }),
-  }).initialize(client)
+  })
 
   await writeContract(client, {
     abi: account.abi,

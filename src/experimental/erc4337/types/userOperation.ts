@@ -121,12 +121,14 @@ export type UserOperationRequest<
           UserOperation<'0.7', uint256>,
           // We are able to calculate these via `prepareUserOperationRequest`.
           | keyof EstimateUserOperationGasReturnType<'0.7'>
+          | 'maxFeePerGas'
+          | 'maxPriorityFeePerGas'
           | 'nonce'
           | 'sender'
           | 'signature'
         >
       : never)
-  | (entryPointVersion extends '0.0' ? never : never)
+  | (entryPointVersion extends '0.0' ? { _: never } : never)
 >
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_getuseroperationreceipt */

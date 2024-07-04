@@ -14,9 +14,7 @@ import type { GetTransactionType } from '../utils/transaction/getTransactionType
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
 export type Account<address extends Address = Address> = OneOf<
-  | JsonRpcAccount<address>
-  | LocalAccount<string, address>
-  | SmartAccount<address>
+  JsonRpcAccount<address> | LocalAccount<string, address> | SmartAccount
 >
 
 export type AccountSource = Address | CustomSource
