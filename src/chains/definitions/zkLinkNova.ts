@@ -14,7 +14,7 @@ export const zkLinkNova = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'zkLink Nova Block Explorer',
-      url: 'https://explorer.zklink.io/',
+      url: 'https://explorer.zklink.io',
     },
   },
 })
