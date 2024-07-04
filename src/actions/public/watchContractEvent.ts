@@ -229,7 +229,7 @@ export function watchContractEvent<
               // If the block number has changed, we will need to fetch the logs.
               // If the block number doesn't exist, we are yet to reach the first poll interval,
               // so do not emit any logs.
-              if (previousBlockNumber && previousBlockNumber !== blockNumber) {
+              if (previousBlockNumber && previousBlockNumber < blockNumber) {
                 logs = await getAction(
                   client,
                   getContractEvents,
