@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import {ERC4337} from "solady/accounts/ERC4337.sol";
+import {ERC4337} from "solady-0.6/accounts/ERC4337.sol";
 
-contract Mock4337Account07 is ERC4337 {
+contract Mock4337Account06 is ERC4337 {
     function _domainNameAndVersion()
         internal
         pure

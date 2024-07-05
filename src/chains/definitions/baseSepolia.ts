@@ -28,9 +28,6 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
         address: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
       },
     },
-    entryPoint07: {
-      address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
-    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',

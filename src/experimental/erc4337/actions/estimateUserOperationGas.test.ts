@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { getSmartAccounts } from '../../../../test/src/smartAccounts.js'
+import { getSmartAccounts_07 } from '../../../../test/src/smartAccounts.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
 const bundlerClient = bundlerMainnet.getBundlerClient()
 
-const [account] = await getSmartAccounts()
+const [account] = await getSmartAccounts_07()
 
 test('default', async () => {
   expect(

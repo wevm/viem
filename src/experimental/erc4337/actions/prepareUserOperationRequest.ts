@@ -4,7 +4,7 @@ import { AccountNotFoundError } from '../../../errors/account.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { Assign, Prettify, UnionOmit } from '../../../types/utils.js'
-import { parseAccount } from '../../../utils/index.js'
+import { concat, parseAccount } from '../../../utils/index.js'
 import type { SmartAccount } from '../accounts/types.js'
 import type {
   DeriveSmartAccount,
@@ -187,7 +187,7 @@ export async function prepareUserOperationRequest<
     ...(account ? { sender: account.address } : {}),
   } as PrepareUserOperationRequestRequest
 
-  const [callData, factory, nonce, gas, signature] = await Promise.all([
+  const [callData, factory, nonce, signature] = await Promise.all([
     (async () => {
       if (request.calls) return account.getCallData(request.calls)
       return request.callData
@@ -195,24 +195,29 @@ export async function prepareUserOperationRequest<
     (async () => {
       if (!parameters_.includes('factory')) return undefined
       if (request.initCode) return { initCode: request.initCode }
-      if (request.factory && request.factoryData)
+      if (request.factory && request.factoryData) {
         return {
           factory: request.factory,
           factoryData: request.factoryData,
         }
-      return account.getFactoryArgs()
+      }
+
+      const { factory, factoryData } = await account.getFactoryArgs()
+
+      if (account.entryPoint.version === '0.6')
+        return {
+          initCode:
+            factory && factoryData ? concat([factory, factoryData]) : undefined,
+        }
+      return {
+        factory,
+        factoryData,
+      }
     })(),
     (async () => {
       if (!parameters_.includes('nonce')) return undefined
       if (request.nonce) return request.nonce
       return account.getNonce()
-    })(),
-    (async () => {
-      if (!parameters_.includes('gas')) return undefined
-      return estimateUserOperationGas(client, {
-        account,
-        ...request,
-      })
     })(),
     (async () => {
       if (!parameters_.includes('signature')) return undefined
@@ -224,8 +229,18 @@ export async function prepareUserOperationRequest<
   if (typeof factory !== 'undefined')
     request = { ...request, ...(factory as any) }
   if (typeof nonce !== 'undefined') request.nonce = nonce
-  if (typeof gas !== 'undefined') request = { ...request, ...(gas as any) }
   if (typeof signature !== 'undefined') request.signature = signature
+
+  if (parameters_.includes('gas')) {
+    const gas = await estimateUserOperationGas(client, {
+      account,
+      ...request,
+    })
+    request = {
+      ...request,
+      ...(gas as any),
+    }
+  }
 
   delete request.calls
   delete request.parameters

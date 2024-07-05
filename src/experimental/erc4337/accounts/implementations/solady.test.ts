@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../../../test/src/anvil.js'
 import { accounts, typedData } from '../../../../../test/src/constants.js'
-import { deployMock4337Account } from '../../../../../test/src/utils.js'
+import { deployMock4337Account_07 } from '../../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../../accounts/privateKeyToAccount.js'
 import {
   mine,
@@ -18,7 +18,7 @@ const client = anvilMainnet.getClient({ account: true })
 
 let factoryAddress: Address
 beforeAll(async () => {
-  const { factoryAddress: _factoryAddress } = await deployMock4337Account()
+  const { factoryAddress: _factoryAddress } = await deployMock4337Account_07()
   factoryAddress = _factoryAddress
 })
 

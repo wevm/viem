@@ -19,6 +19,8 @@ export function formatUserOperationRequest(
     rpcRequest.factory = request.factory
   if (typeof request.factoryData !== 'undefined')
     rpcRequest.factoryData = request.factoryData
+  if (typeof request.initCode !== 'undefined')
+    rpcRequest.initCode = request.initCode
   if (typeof request.maxFeePerGas !== 'undefined')
     rpcRequest.maxFeePerGas = numberToHex(request.maxFeePerGas)
   if (typeof request.maxPriorityFeePerGas !== 'undefined')
@@ -27,6 +29,8 @@ export function formatUserOperationRequest(
     rpcRequest.nonce = numberToHex(request.nonce)
   if (typeof request.paymaster !== 'undefined')
     rpcRequest.paymaster = request.paymaster
+  if (request.initCode)
+    rpcRequest.paymasterAndData = request.paymasterAndData || '0x'
   if (typeof request.paymasterData !== 'undefined')
     rpcRequest.paymasterData = request.paymasterData
   if (typeof request.paymasterPostOpGasLimit !== 'undefined')

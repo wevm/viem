@@ -11,7 +11,7 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 
 import { Mock4337AccountFactory } from '~contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { deployMock4337Account } from '../../../test/src/utils.js'
+import { deployMock4337Account_07 } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { signMessage } from '../../accounts/utils/signMessage.js'
 import {
@@ -185,7 +185,7 @@ describe('smoke test', () => {
   })
 
   test('getEip712Domain', async () => {
-    const { factoryAddress } = await deployMock4337Account()
+    const { factoryAddress } = await deployMock4337Account_07()
 
     const { result: address, request } = await simulateContract(client, {
       account: accounts[0].address,

@@ -1,10 +1,10 @@
 import type { Address } from 'abitype'
 import { beforeAll, expect, test } from 'vitest'
 
-import { Mock4337AccountFactory } from '~contracts/generated.js'
+import { Mock4337AccountFactory_07 } from '~contracts/generated.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
-import { deployMock4337Account } from '~test/src/utils.js'
+import { deployMock4337Account_07 } from '../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   mine,
@@ -18,10 +18,10 @@ import { signMessage } from './signMessage.js'
 
 let verifier: Address
 beforeAll(async () => {
-  const { factoryAddress } = await deployMock4337Account()
+  const { factoryAddress } = await deployMock4337Account_07()
   const { result, request } = await simulateContract(client, {
     account: accounts[0].address,
-    abi: Mock4337AccountFactory.abi,
+    abi: Mock4337AccountFactory_07.abi,
     address: factoryAddress,
     functionName: 'createAccount',
     args: [accounts[0].address, pad('0x0')],
@@ -126,7 +126,7 @@ test('inferred account', async () => {
 })
 
 test('counterfactual smart account', async () => {
-  const { factoryAddress } = await deployMock4337Account()
+  const { factoryAddress } = await deployMock4337Account_07()
 
   const factoryData = encodeFunctionData({
     abi: Mock4337AccountFactory.abi,

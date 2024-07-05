@@ -176,15 +176,10 @@ export type SmartAccount<
   {
     /** Address of the Smart Account. */
     address: Address
-    getFactoryArgs: () => Promise<
-      | {
-          factory?: Address | undefined
-          factoryData?: Hex | undefined
-        }
-      | {
-          initCode?: Hex | undefined
-        }
-    >
+    getFactoryArgs: () => Promise<{
+      factory?: Address | undefined
+      factoryData?: Hex | undefined
+    }>
     /** Whether or not the Smart Account has been deployed. */
     isDeployed: () => Promise<boolean>
     /** Type of account. */

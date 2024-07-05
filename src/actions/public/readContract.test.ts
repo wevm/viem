@@ -13,7 +13,10 @@ import {
 } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
-import { deployErrorExample, deployMock4337Account } from '~test/src/utils.js'
+import {
+  deployErrorExample,
+  deployMock4337Account_07,
+} from '~test/src/utils.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
@@ -197,7 +200,7 @@ describe('bayc', () => {
 
 describe('deployless read (factory)', () => {
   test('default', async () => {
-    const { factoryAddress: factory } = await deployMock4337Account()
+    const { factoryAddress: factory } = await deployMock4337Account_07()
 
     const address = await readContract(client, {
       account: accounts[0].address,

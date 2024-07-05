@@ -7,22 +7,20 @@ export type FormatUserOperationGasErrorType = ErrorType
 export function formatUserOperationGas(
   parameters: RpcEstimateUserOperationGasReturnType,
 ): EstimateUserOperationGasReturnType {
-  const {
-    callGasLimit,
-    preVerificationGas,
-    verificationGasLimit,
-    paymasterPostOpGasLimit,
-    paymasterVerificationGasLimit,
-  } = parameters
-  return {
-    callGasLimit: BigInt(callGasLimit),
-    preVerificationGas: BigInt(preVerificationGas),
-    verificationGasLimit: BigInt(verificationGasLimit),
-    paymasterPostOpGasLimit: paymasterPostOpGasLimit
-      ? BigInt(paymasterPostOpGasLimit)
-      : undefined,
-    paymasterVerificationGasLimit: paymasterVerificationGasLimit
-      ? BigInt(paymasterVerificationGasLimit)
-      : undefined,
-  }
+  const gas = {} as EstimateUserOperationGasReturnType
+
+  if (parameters.callGasLimit)
+    gas.callGasLimit = BigInt(parameters.callGasLimit)
+  if (parameters.preVerificationGas)
+    gas.preVerificationGas = BigInt(parameters.preVerificationGas)
+  if (parameters.verificationGasLimit)
+    gas.verificationGasLimit = BigInt(parameters.verificationGasLimit)
+  if (parameters.paymasterPostOpGasLimit)
+    gas.paymasterPostOpGasLimit = BigInt(parameters.paymasterPostOpGasLimit)
+  if (parameters.paymasterVerificationGasLimit)
+    gas.paymasterVerificationGasLimit = BigInt(
+      parameters.paymasterVerificationGasLimit,
+    )
+
+  return gas
 }

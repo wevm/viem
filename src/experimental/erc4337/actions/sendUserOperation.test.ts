@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { getSmartAccounts } from '../../../../test/src/smartAccounts.js'
+import { getSmartAccounts_07 } from '../../../../test/src/smartAccounts.js'
 import {
   estimateFeesPerGas,
   mine,
@@ -13,7 +13,7 @@ import { sendUserOperation } from './sendUserOperation.js'
 const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient()
 
-const [account] = await getSmartAccounts()
+const [account] = await getSmartAccounts_07()
 
 test('default', async () => {
   await writeContract(client, {

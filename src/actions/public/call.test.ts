@@ -14,7 +14,7 @@ import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
-  deployMock4337Account,
+  deployMock4337Account_07,
   deployOffchainLookupExample,
   mainnetClient,
 } from '~test/src/utils.js'
@@ -1032,7 +1032,7 @@ describe('batch call', () => {
 
 describe('deployless call (factory)', () => {
   test('default', async () => {
-    const { factoryAddress } = await deployMock4337Account()
+    const { factoryAddress } = await deployMock4337Account_07()
 
     const address = await readContract(client, {
       account: accounts[0].address,

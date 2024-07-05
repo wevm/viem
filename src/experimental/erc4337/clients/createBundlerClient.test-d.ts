@@ -1,5 +1,5 @@
 import { expectTypeOf, test } from 'vitest'
-import { getSmartAccounts } from '../../../../test/src/smartAccounts.js'
+import { getSmartAccounts_07 } from '../../../../test/src/smartAccounts.js'
 import { localhost } from '../../../chains/index.js'
 import { rpcSchema } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
@@ -11,7 +11,7 @@ import {
   createBundlerClient,
 } from './createBundlerClient.js'
 
-const [account] = await getSmartAccounts()
+const [account] = await getSmartAccounts_07()
 
 test('with chain', () => {
   const client = createBundlerClient({
@@ -37,7 +37,7 @@ test('with account', async () => {
   expectTypeOf(client).toMatchTypeOf<BundlerClient>()
   expectTypeOf(client.account).toMatchTypeOf<SmartAccount>()
   expectTypeOf(client.account).toEqualTypeOf<
-    SmartAccount<SoladyImplementation>
+    SmartAccount<SoladyImplementation<'0.7'>>
   >()
 })
 

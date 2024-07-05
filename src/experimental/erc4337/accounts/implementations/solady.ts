@@ -11,27 +11,31 @@ import { encodeFunctionData } from '../../../../utils/abi/encodeFunctionData.js'
 import { pad } from '../../../../utils/data/pad.js'
 import { signMessage } from '../../../solady/actions/signMessage.js'
 import { signTypedData } from '../../../solady/actions/signTypedData.js'
+import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 import { getUserOperationHash } from '../../utils/getUserOperationHash.js'
 import type {
   SmartAccountImplementation,
   SmartAccountImplementationFn,
 } from '../types.js'
 
-export type SoladyImplementation = SmartAccountImplementation<
-  typeof abi,
-  typeof factoryAbi,
-  '0.7'
->
+export type SoladyImplementation<
+  entryPointVersion extends EntryPointVersion = EntryPointVersion,
+> = SmartAccountImplementation<typeof abi, typeof factoryAbi, entryPointVersion>
 
-export type SoladyImplementationParameters = {
+export type SoladyImplementationParameters<
+  entryPointVersion extends EntryPointVersion = EntryPointVersion,
+> = {
   chain?: Chain | undefined
+  entryPointAddress?: Address | undefined
+  entryPointVersion?: entryPointVersion | EntryPointVersion | undefined
   factoryAddress: Address
   owner: Address | Account
   salt?: Hex | undefined
 }
 
-export type SoladyImplementationReturnType =
-  SmartAccountImplementationFn<SoladyImplementation>
+export type SoladyImplementationReturnType<
+  entryPointVersion extends EntryPointVersion = EntryPointVersion,
+> = SmartAccountImplementationFn<SoladyImplementation<entryPointVersion>>
 
 /**
  * @description Smart account implementation for [Solady's `ERC4337.sol`](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol).
@@ -47,24 +51,31 @@ export type SoladyImplementationReturnType =
  *   owner: '0x...',
  * })
  */
-export function solady(
-  parameters: SoladyImplementationParameters,
-): SoladyImplementationReturnType {
-  return ({ address, client }) => {
-    const { chain = client.chain, factoryAddress, salt = '0x0' } = parameters
+export function solady<entryPointVersion extends EntryPointVersion = '0.7'>(
+  parameters: SoladyImplementationParameters<entryPointVersion>,
+): SoladyImplementationReturnType<entryPointVersion> {
+  return (({ address, client }) => {
+    const {
+      chain = client.chain,
+      entryPointAddress = '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+      entryPointVersion = '0.7',
+      factoryAddress,
+      salt = '0x0',
+    } = parameters
 
     const owner = parseAccount(parameters.owner)
 
     return {
       abi,
       entryPoint: {
-        address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
-        version: '0.7',
+        address: entryPointAddress,
+        version: entryPointVersion,
       },
       factory: {
         address: factoryAddress,
         abi: factoryAbi,
       },
+
       async getAddress() {
         if (address) return address
         return await readContract(client, {
@@ -74,6 +85,7 @@ export function solady(
           args: [pad(salt)],
         })
       },
+
       async getCallData(calls) {
         if (calls.length === 1)
           return encodeFunctionData({
@@ -93,6 +105,7 @@ export function solady(
           ],
         })
       },
+
       getFactoryArgs() {
         const factoryData = encodeFunctionData({
           abi: this.factory.abi,
@@ -101,11 +114,13 @@ export function solady(
         })
         return { factory: this.factory.address, factoryData }
       },
+
       async formatSignature(packedUserOperation) {
         if (!packedUserOperation?.signature)
           return '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
         return packedUserOperation.signature
       },
+
       async getNonce() {
         const address = await this.getAddress()
         const nonce = await readContract(client, {
@@ -118,6 +133,7 @@ export function solady(
         })
         return nonce
       },
+
       async signMessage(parameters) {
         const { message } = parameters
         const [address, { factory, factoryData }] = await Promise.all([
@@ -132,6 +148,7 @@ export function solady(
           verifier: address,
         })
       },
+
       async signTypedData(parameters) {
         const { domain, types, primaryType, message } =
           parameters as TypedDataDefinition<TypedData, string>
@@ -150,6 +167,7 @@ export function solady(
           verifier: address,
         })
       },
+
       async signUserOperation(parameters) {
         const { chainId = chain!.id, userOperation } = parameters
 
@@ -173,7 +191,7 @@ export function solady(
         })
       },
     }
-  }
+  }) as SoladyImplementationReturnType<entryPointVersion>
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

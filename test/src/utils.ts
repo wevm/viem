@@ -28,8 +28,10 @@ import {
   ERC20InvalidTransferEvent,
   EnsAvatarTokenUri,
   ErrorsExample,
-  Mock4337Account,
-  Mock4337AccountFactory,
+  Mock4337Account06,
+  Mock4337Account07,
+  Mock4337AccountFactory06,
+  Mock4337AccountFactory07,
   OffchainLookupExample,
   Payable,
 } from '../../contracts/generated.js'
@@ -137,14 +139,30 @@ export async function deployPayable() {
   })
 }
 
-export async function deployMock4337Account() {
+export async function deployMock4337Account_07() {
   const { contractAddress: implementationAddress } = await deploy(client, {
-    abi: Mock4337Account.abi,
-    bytecode: Mock4337Account.bytecode.object,
+    abi: Mock4337Account07.abi,
+    bytecode: Mock4337Account07.bytecode.object,
   })
   const { contractAddress: factoryAddress } = await deploy(client, {
-    abi: Mock4337AccountFactory.abi,
-    bytecode: Mock4337AccountFactory.bytecode.object,
+    abi: Mock4337AccountFactory07.abi,
+    bytecode: Mock4337AccountFactory07.bytecode.object,
+    args: [implementationAddress!],
+  })
+  return {
+    implementationAddress: implementationAddress!,
+    factoryAddress: factoryAddress!,
+  }
+}
+
+export async function deployMock4337Account_06() {
+  const { contractAddress: implementationAddress } = await deploy(client, {
+    abi: Mock4337Account06.abi,
+    bytecode: Mock4337Account06.bytecode.object,
+  })
+  const { contractAddress: factoryAddress } = await deploy(client, {
+    abi: Mock4337AccountFactory06.abi,
+    bytecode: Mock4337AccountFactory06.bytecode.object,
     args: [implementationAddress!],
   })
   return {
