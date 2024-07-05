@@ -24,6 +24,7 @@ test('creates', () => {
       "key": "bundler",
       "name": "Bundler Client",
       "pollingInterval": 4000,
+      "prepareUserOperationRequest": [Function],
       "request": [Function],
       "sendUserOperation": [Function],
       "type": "bundlerClient",

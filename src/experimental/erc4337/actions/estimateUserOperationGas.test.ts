@@ -1,28 +1,13 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { accounts } from '../../../../test/src/constants.js'
-import { deployMock4337Account } from '../../../../test/src/utils.js'
-import { solady } from '../accounts/implementations/solady.js'
-import { toSmartAccount } from '../accounts/toSmartAccount.js'
+import { getSmartAccounts } from '../../../../test/src/smartAccounts.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
-const ownerAddress = accounts[1].address
-
-const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient()
 
+const [account] = await getSmartAccounts()
+
 test('default', async () => {
-  const { factoryAddress } = await deployMock4337Account()
-
-  const account = await toSmartAccount({
-    client,
-    implementation: solady({
-      factoryAddress,
-      owner: ownerAddress,
-    }),
-  })
-
   expect(
     await estimateUserOperationGas(bundlerClient, {
       account,

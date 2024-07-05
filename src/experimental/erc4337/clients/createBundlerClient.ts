@@ -1,6 +1,3 @@
-import type { Address } from 'abitype'
-
-import type { Account } from '../../../accounts/types.js'
 import {
   type Client,
   type ClientConfig,
@@ -9,24 +6,22 @@ import {
 } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { ParseAccount } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import type { RpcSchema } from '../../../types/eip1193.js'
 import type { Prettify } from '../../../types/utils.js'
+import type { SmartAccount } from '../accounts/types.js'
 import type { BundlerRpcSchema } from '../types/eip1193.js'
 import { type BundlerActions, bundlerActions } from './decorators/bundler.js'
 
 export type BundlerClientConfig<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
-  accountOrAddress extends Account | Address | undefined =
-    | Account
-    | Address
-    | undefined,
+  account extends SmartAccount | undefined = SmartAccount | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
   Pick<
-    ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
+    ClientConfig<transport, chain, account, rpcSchema>,
+    | 'account'
     | 'cacheTime'
     | 'chain'
     | 'key'
@@ -40,7 +35,7 @@ export type BundlerClientConfig<
 export type BundlerClient<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
+  account extends SmartAccount | undefined = SmartAccount | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
   Client<
@@ -50,21 +45,19 @@ export type BundlerClient<
     rpcSchema extends RpcSchema
       ? [...BundlerRpcSchema, ...rpcSchema]
       : BundlerRpcSchema,
-    BundlerActions
+    BundlerActions<account>
   >
 >
 
 export type CreateBundlerClientErrorType = CreateClientErrorType | ErrorType
 
 /**
- * Creates a Wallet Client with a given [Transport](https://viem.sh/docs/clients/intro) configured for a [Chain](https://viem.sh/docs/clients/chains).
+ * Creates a Bundler Client with a given [Transport](https://viem.sh/docs/clients/intro) configured for a [Chain](https://viem.sh/docs/clients/chains).
  *
  * - Docs: https://viem.sh/erc4337/clients/bundler
  *
- * A Wallet Client is an interface to interact with [Ethereum Account(s)](https://ethereum.org/en/glossary/#account) and provides the ability to retrieve accounts, execute transactions, sign messages, etc. through [Wallet Actions](https://viem.sh/docs/actions/wallet/introduction).
- *
  * @param config - {@link BundlerClientConfig}
- * @returns A Wallet Client. {@link BundlerClient}
+ * @returns A Bundler Client. {@link BundlerClient}
  *
  * @example
  * import { createBundlerClient, http } from 'viem'
@@ -78,16 +71,11 @@ export type CreateBundlerClientErrorType = CreateClientErrorType | ErrorType
 export function createBundlerClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
-  accountOrAddress extends Account | Address | undefined = undefined,
+  account extends SmartAccount | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
 >(
-  parameters: BundlerClientConfig<
-    transport,
-    chain,
-    accountOrAddress,
-    rpcSchema
-  >,
-): BundlerClient<transport, chain, ParseAccount<accountOrAddress>, rpcSchema>
+  parameters: BundlerClientConfig<transport, chain, account, rpcSchema>,
+): BundlerClient<transport, chain, account, rpcSchema>
 
 export function createBundlerClient(
   parameters: BundlerClientConfig,

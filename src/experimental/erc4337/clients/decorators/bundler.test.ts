@@ -10,6 +10,7 @@ test('default', async () => {
       "estimateUserOperationGas": [Function],
       "getChainId": [Function],
       "getSupportedEntryPoints": [Function],
+      "prepareUserOperationRequest": [Function],
       "sendUserOperation": [Function],
     }
   `)

@@ -17,6 +17,12 @@ import {
   getSupportedEntryPoints,
 } from '../../actions/getSupportedEntryPoints.js'
 import {
+  type PrepareUserOperationRequestParameters,
+  type PrepareUserOperationRequestRequest,
+  type PrepareUserOperationRequestReturnType,
+  prepareUserOperationRequest,
+} from '../../actions/prepareUserOperationRequest.js'
+import {
   type SendUserOperationParameters,
   type SendUserOperationReturnType,
   sendUserOperation,
@@ -35,28 +41,20 @@ export type BundlerActions<
    * @returns The gas estimate (in wei). {@link EstimateUserOperationGasReturnType}
    *
    * @example
-   * import { createBundlerClient, http, parseEther } from 'viem'
+   * import { http, parseEther } from 'viem'
    * import { mainnet } from 'viem/chains'
-   * import { toSimpleAccount } from 'viem/experimental'
+   * import { createBundlerClient, toSmartAccount } from 'viem/experimental'
    *
-   * const account = toSimpleAccount({
-   *   owner: '0x...',
-   * })
+   * const account = await toSmartAccount({ ... })
+   *
    * const bundlerClient = createBundlerClient({
    *   chain: mainnet,
    *   transport: http(),
    * })
-   * const client = createClient({
-   *   chain: mainnet,
-   *   transport: http(),
-   * }).extend({ bundlerClient })
    *
    * const values = await bundlerClient.estimateUserOperationGas({
    *   account,
-   *   callData: {
-   *     to: '0x...',
-   *     value: parseEther('1'),
-   *   },
+   *   calls: [{ to: '0x...', value: parseEther('1') }],
    * })
    */
   estimateUserOperationGas: <
@@ -73,8 +71,8 @@ export type BundlerActions<
    * @returns The current chain ID. {@link GetChainIdReturnType}
    *
    * @example
-   * import { createPublicClient, http } from 'viem'
-   * import { mainnet } from 'viem/chains'
+   * import { http } from 'viem'
+   * import { createBundlerClient, mainnet } from 'viem/chains'
    *
    * const client = createPublicClient({
    *   chain: mainnet,
@@ -94,8 +92,9 @@ export type BundlerActions<
    * @returns Supported Entry Points. {@link GetSupportedEntryPointsReturnType}
    *
    * @example
-   * import { createBundlerClient, http, parseEther } from 'viem'
+   * import { http, parseEther } from 'viem'
    * import { mainnet } from 'viem/chains'
+   * import { createBundlerClient } from 'viem/experimental'
    *
    * const bundlerClient = createBundlerClient({
    *   chain: mainnet,
@@ -106,6 +105,46 @@ export type BundlerActions<
    */
   getSupportedEntryPoints: () => Promise<GetSupportedEntryPointsReturnType>
   /**
+   * Prepares a User Operation and fills in missing properties.
+   *
+   * - Docs: https://viem.sh/experimental/erc4337/prepareUserOperationRequest
+   *
+   * @param args - {@link PrepareUserOperationRequestParameters}
+   * @returns The User Operation. {@link PrepareUserOperationRequestReturnType}
+   *
+   * @example
+   * import { http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { createBundlerClient, toSmartAccount } from 'viem/experimental'
+   *
+   * const account = await toSmartAccount({ ... })
+   *
+   * const client = createBundlerClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const request = await client.prepareUserOperationRequest({
+   *   account,
+   *   calls: [{ to: '0x...', value: parseEther('1') }],
+   * })
+   */
+  prepareUserOperationRequest: <
+    const request extends PrepareUserOperationRequestRequest<
+      account,
+      accountOverride
+    >,
+    accountOverride extends SmartAccount | undefined = undefined,
+  >(
+    parameters: PrepareUserOperationRequestParameters<
+      account,
+      accountOverride,
+      request
+    >,
+  ) => Promise<
+    PrepareUserOperationRequestReturnType<account, accountOverride, request>
+  >
+  /**
    * Broadcasts a User Operation to the Bundler.
    *
    * - Docs: https://viem.sh/erc4337/actions/sendUserOperation
@@ -115,28 +154,20 @@ export type BundlerActions<
    * @returns The User Operation hash. {@link SendUserOperationReturnType}
    *
    * @example
-   * import { createBundlerClient, http, parseEther } from 'viem'
+   * import { http, parseEther } from 'viem'
    * import { mainnet } from 'viem/chains'
-   * import { toSimpleAccount } from 'viem/experimental'
+   * import { createBundlerClient, toSimpleAccount } from 'viem/experimental'
    *
-   * const account = toSimpleAccount({
-   *   owner: '0x...',
-   * })
+   * const account = toSmartAccount({ ... })
+   *
    * const bundlerClient = createBundlerClient({
    *   chain: mainnet,
    *   transport: http(),
    * })
-   * const client = createClient({
-   *   chain: mainnet,
-   *   transport: http(),
-   * }).extend({ bundlerClient })
    *
    * const values = await bundlerClient.sendUserOperation({
    *   account,
-   *   callData: {
-   *     to: '0x...',
-   *     value: parseEther('1'),
-   *   },
+   *   calls: [{ to: '0x...', value: parseEther('1') }],
    * })
    */
   sendUserOperation: <
@@ -163,6 +194,8 @@ export function bundlerActions() {
         estimateUserOperationGas(client, parameters),
       getChainId: () => getChainId(client),
       getSupportedEntryPoints: () => getSupportedEntryPoints(client),
+      prepareUserOperationRequest: (parameters) =>
+        prepareUserOperationRequest(client, parameters),
       sendUserOperation: (parameters) => sendUserOperation(client, parameters),
     }
   }

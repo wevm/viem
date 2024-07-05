@@ -59,11 +59,10 @@ export type SendUserOperationErrorType = ErrorType
  * @example
  * import { createBundlerClient, http, parseEther } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { sendUserOperation, toSimpleAccount } from 'viem/experimental'
+ * import { sendUserOperation, toSmartAccount } from 'viem/experimental'
  *
- * const account = toSimpleAccount({
- *   owner: '0x...',
- * })
+ * const account = await toSmartAccount({ ... })
+ *
  * const bundlerClient = createBundlerClient({
  *   chain: mainnet,
  *   transport: http(),
@@ -71,10 +70,7 @@ export type SendUserOperationErrorType = ErrorType
  *
  * const values = await sendUserOperation(bundlerClient, {
  *   account,
- *   callData: {
- *     to: '0x...',
- *     value: parseEther('1'),
- *   },
+ *   calls: [{ to: '0x...', value: parseEther('1') }],
  * })
  */
 export async function sendUserOperation<

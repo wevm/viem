@@ -65,11 +65,10 @@ export type EstimateUserOperationGasErrorType = ErrorType
  * @example
  * import { createBundlerClient, http, parseEther } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { estimateUserOperationGas, toSimpleAccount } from 'viem/experimental'
+ * import { estimateUserOperationGas, toSmartAccount } from 'viem/experimental'
  *
- * const account = toSimpleAccount({
- *   owner: '0x...',
- * })
+ * const account = await toSmartAccount({ ... })
+ *
  * const bundlerClient = createBundlerClient({
  *   chain: mainnet,
  *   transport: http(),
@@ -77,10 +76,7 @@ export type EstimateUserOperationGasErrorType = ErrorType
  *
  * const values = await estimateUserOperationGas(bundlerClient, {
  *   account,
- *   callData: {
- *     to: '0x...',
- *     value: parseEther('1'),
- *   },
+ *   calls: [{ to: '0x...', value: parseEther('1') }],
  * })
  */
 export async function estimateUserOperationGas<

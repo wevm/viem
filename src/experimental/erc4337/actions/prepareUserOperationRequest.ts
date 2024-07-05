@@ -1,7 +1,7 @@
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
-import type { Chain, GetChainParameter } from '../../../types/chain.js'
+import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { Assign, Prettify, UnionOmit } from '../../../types/utils.js'
 import { parseAccount } from '../../../utils/index.js'
@@ -29,10 +29,53 @@ export type PrepareUserOperationRequestParameterType =
   | 'nonce'
   | 'signature'
 
+type FactoryProperties<
+  entryPointVersion extends EntryPointVersion = EntryPointVersion,
+> =
+  | (entryPointVersion extends '0.7'
+      ? {
+          factory: UserOperation['factory']
+          factoryData: UserOperation['factoryData']
+        }
+      : never)
+  | (entryPointVersion extends '0.6'
+      ? {
+          initCode: UserOperation['initCode']
+        }
+      : never)
+
+type GasProperties<
+  entryPointVersion extends EntryPointVersion = EntryPointVersion,
+> =
+  | (entryPointVersion extends '0.7'
+      ? {
+          callGasLimit: UserOperation['callGasLimit']
+          preVerificationGas: UserOperation['preVerificationGas']
+          verificationGasLimit: UserOperation['verificationGasLimit']
+          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
+          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
+        }
+      : never)
+  | (entryPointVersion extends '0.6'
+      ? {
+          callGasLimit: UserOperation['callGasLimit']
+          preVerificationGas: UserOperation['preVerificationGas']
+          verificationGasLimit: UserOperation['verificationGasLimit']
+        }
+      : never)
+
+type NonceProperties = {
+  nonce: UserOperation['nonce']
+}
+
+type SignatureProperties = {
+  signature: UserOperation['signature']
+}
+
 export type PrepareUserOperationRequestRequest<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
-  ///
+  //
   _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
     account,
     accountOverride
@@ -44,17 +87,13 @@ export type PrepareUserOperationRequestRequest<
 }
 
 export type PrepareUserOperationRequestParameters<
-  chain extends Chain | undefined = Chain | undefined,
   account extends SmartAccount | undefined = SmartAccount | undefined,
-  chainOverride extends Chain | undefined = Chain | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
   request extends PrepareUserOperationRequestRequest<
     account,
     accountOverride
   > = PrepareUserOperationRequestRequest<account, accountOverride>,
-> = request &
-  GetSmartAccountParameter<account, accountOverride, false> &
-  GetChainParameter<chain, chainOverride>
+> = request & GetSmartAccountParameter<account, accountOverride>
 
 export type PrepareUserOperationRequestReturnType<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -64,59 +103,71 @@ export type PrepareUserOperationRequestReturnType<
     accountOverride
   > = PrepareUserOperationRequestRequest<account, accountOverride>,
   //
-  parameters extends
+  _parameters extends
     PrepareUserOperationRequestParameterType = request['parameters'] extends readonly PrepareUserOperationRequestParameterType[]
     ? request['parameters'][number]
     : (typeof defaultParameters)[number],
+  _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
+    account,
+    accountOverride
+  >,
+  _derivedVersion extends
+    EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = Prettify<
   Assign<
     UnionOmit<request, 'calls' | 'parameters'>,
     {
       callData: Hex
       sender: UserOperation['sender']
-    } & (Extract<parameters, 'factory'> extends 'factory'
-      ? {
-          factory: UserOperation['factory']
-          factoryData: UserOperation['factoryData']
-        }
+    } & (Extract<_parameters, 'factory'> extends 'factory'
+      ? FactoryProperties<_derivedVersion>
       : {}) &
-      (Extract<parameters, 'nonce'> extends 'nonce'
-        ? {
-            nonce: UserOperation['nonce']
-          }
+      (Extract<_parameters, 'nonce'> extends 'nonce' ? NonceProperties : {}) &
+      (Extract<_parameters, 'gas'> extends 'gas'
+        ? GasProperties<_derivedVersion>
         : {}) &
-      (Extract<parameters, 'gas'> extends 'gas'
-        ? {
-            callGasLimit: UserOperation['callGasLimit']
-            preVerificationGas: UserOperation['preVerificationGas']
-            verificationGasLimit: UserOperation['verificationGasLimit']
-            paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
-            paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
-          }
-        : {}) &
-      (Extract<parameters, 'signature'> extends 'signature'
-        ? {
-            signature: UserOperation['signature']
-          }
+      (Extract<_parameters, 'signature'> extends 'signature'
+        ? SignatureProperties
         : {})
   >
 >
 
+/**
+ * Prepares a User Operation and fills in missing properties.
+ *
+ * - Docs: https://viem.sh/experimental/erc4337/prepareUserOperationRequest
+ *
+ * @param args - {@link PrepareUserOperationRequestParameters}
+ * @returns The User Operation. {@link PrepareUserOperationRequestReturnType}
+ *
+ * @example
+ * import { createBundlerClient, custom } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { prepareUserOperationRequest, toSmartAccount } from 'viem/experimental'
+ *
+ * const account = await toSmartAccount({ ... })
+ *
+ * const client = createBundlerClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ *
+ * const request = await prepareUserOperationRequest(client, {
+ *   account,
+ *   calls: [{ to: '0x...', value: parseEther('1') }],
+ * })
+ */
 export async function prepareUserOperationRequest<
-  chain extends Chain | undefined,
   account extends SmartAccount | undefined,
   const request extends PrepareUserOperationRequestRequest<
     account,
     accountOverride
   >,
-  chainOverride extends Chain | undefined = undefined,
   accountOverride extends SmartAccount | undefined = undefined,
 >(
-  client: Client<Transport, chain, account, BundlerRpcSchema>,
+  client: Client<Transport, Chain | undefined, account, BundlerRpcSchema>,
   parameters: PrepareUserOperationRequestParameters<
-    chain,
     account,
-    chainOverride,
     accountOverride,
     request
   >,
@@ -126,11 +177,10 @@ export async function prepareUserOperationRequest<
   const {
     account: account_ = client.account,
     parameters: parameters_ = defaultParameters,
-    sender,
   } = parameters as PrepareUserOperationRequestParameters
 
-  if (!account_ && !sender) throw new AccountNotFoundError()
-  const account = parseAccount(account_! || sender!)
+  if (!account_) throw new AccountNotFoundError()
+  const account = parseAccount(account_)
 
   let request = {
     ...parameters,
