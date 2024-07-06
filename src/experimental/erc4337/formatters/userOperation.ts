@@ -29,7 +29,7 @@ export function formatUserOperationRequest(
     rpcRequest.nonce = numberToHex(request.nonce)
   if (typeof request.paymaster !== 'undefined')
     rpcRequest.paymaster = request.paymaster
-  if (request.initCode)
+  if (typeof request.paymasterAndData !== 'undefined')
     rpcRequest.paymasterAndData = request.paymasterAndData || '0x'
   if (typeof request.paymasterData !== 'undefined')
     rpcRequest.paymasterData = request.paymasterData

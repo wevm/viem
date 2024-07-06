@@ -12,6 +12,7 @@ import { pad } from '../../../../utils/data/pad.js'
 import { signMessage } from '../../../solady/actions/signMessage.js'
 import { signTypedData } from '../../../solady/actions/signTypedData.js'
 import type { EntryPointVersion } from '../../types/entryPointVersion.js'
+import type { UserOperation } from '../../types/userOperation.js'
 import { getUserOperationHash } from '../../utils/getUserOperationHash.js'
 import type {
   SmartAccountImplementation,
@@ -54,7 +55,7 @@ export type SoladyImplementationReturnType<
 export function solady<entryPointVersion extends EntryPointVersion = '0.7'>(
   parameters: SoladyImplementationParameters<entryPointVersion>,
 ): SoladyImplementationReturnType<entryPointVersion> {
-  return (({ address, client }) => {
+  return ({ address, client }) => {
     const {
       chain = client.chain,
       entryPointAddress = '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
@@ -69,7 +70,7 @@ export function solady<entryPointVersion extends EntryPointVersion = '0.7'>(
       abi,
       entryPoint: {
         address: entryPointAddress,
-        version: entryPointVersion,
+        version: entryPointVersion as entryPointVersion,
       },
       factory: {
         address: factoryAddress,
@@ -175,8 +176,9 @@ export function solady<entryPointVersion extends EntryPointVersion = '0.7'>(
         const userOpHash = getUserOperationHash({
           chainId,
           entryPointAddress: this.entryPoint.address,
+          entryPointVersion: this.entryPoint.version,
           userOperation: {
-            ...userOperation,
+            ...(userOperation as unknown as UserOperation<entryPointVersion>),
             sender: address,
           },
         })
@@ -191,7 +193,7 @@ export function solady<entryPointVersion extends EntryPointVersion = '0.7'>(
         })
       },
     }
-  }) as SoladyImplementationReturnType<entryPointVersion>
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

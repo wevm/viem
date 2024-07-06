@@ -187,6 +187,7 @@ export async function prepareUserOperationRequest<
     ...(account ? { sender: account.address } : {}),
   } as PrepareUserOperationRequestRequest
 
+  // Concurrently prepare properties required to fill the User Operation.
   const [callData, factory, nonce, signature] = await Promise.all([
     (async () => {
       if (request.calls) return account.getCallData(request.calls)
@@ -225,11 +226,17 @@ export async function prepareUserOperationRequest<
     })(),
   ])
 
+  // Fill in the User Operation with the prepared properties.
   if (typeof callData !== 'undefined') request.callData = callData
   if (typeof factory !== 'undefined')
     request = { ...request, ...(factory as any) }
   if (typeof nonce !== 'undefined') request.nonce = nonce
   if (typeof signature !== 'undefined') request.signature = signature
+
+  // `paymasterAndData` is required to be filled with EntryPoint 0.6.
+  // If no `paymasterAndData` is provided, we use an empty bytes string.
+  if (account.entryPoint.version === '0.6' && !request.paymasterAndData)
+    request.paymasterAndData = '0x'
 
   if (parameters_.includes('gas')) {
     const gas = await estimateUserOperationGas(client, {
@@ -242,6 +249,7 @@ export async function prepareUserOperationRequest<
     }
   }
 
+  // Remove redundant properties.
   delete request.calls
   delete request.parameters
 
