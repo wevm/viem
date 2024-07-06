@@ -17,6 +17,11 @@ export const rootstockTestnet = /*#__PURE__*/ defineChain({
       name: 'RSK Explorer',
       url: 'https://explorer.testnet.rootstock.io',
     },
+    blockscout: {
+      name: 'Rootstock Testnet Blockscout',
+      url: 'https://rootstock-testnet.blockscout.com',
+      apiUrl: 'https://rootstock-testnet.blockscout.com/api',
+    },
   },
   testnet: true,
 })

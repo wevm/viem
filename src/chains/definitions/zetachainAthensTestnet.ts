@@ -24,6 +24,11 @@ export const zetachainAthensTestnet = /*#__PURE__*/ defineChain({
       name: 'ZetaScan',
       url: 'https://athens.explorer.zetachain.com',
     },
+    blockscout: {
+      name: 'ZetaChain Athens Testnet Blockscout',
+      url: 'https://zetachain-athens-3.blockscout.com',
+      apiUrl: 'https://zetachain-athens-3.blockscout.com/api',
+    },
   },
   testnet: true,
 })

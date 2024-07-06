@@ -17,6 +17,11 @@ export const klaytnBaobab = /*#__PURE__*/ defineChain({
       name: 'KlaytnScope',
       url: 'https://baobab.klaytnscope.com',
     },
+    blockscout: {
+      name: 'Klaytn Baobab Testnet Blockscout',
+      url: 'https://scan.daofinance.me',
+      apiUrl: 'https://scan.daofinance.me/api',
+    },
   },
   contracts: {
     multicall3: {

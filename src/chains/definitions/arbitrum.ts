@@ -15,6 +15,11 @@ export const arbitrum = /*#__PURE__*/ defineChain({
       url: 'https://arbiscan.io',
       apiUrl: 'https://api.arbiscan.io/api',
     },
+    blockscout: {
+      name: 'Arbitrum One Blockscout',
+      url: 'https://arbitrum.blockscout.com',
+      apiUrl: 'https://arbitrum.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

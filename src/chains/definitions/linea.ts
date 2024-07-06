@@ -16,6 +16,11 @@ export const linea = /*#__PURE__*/ defineChain({
       url: 'https://lineascan.build',
       apiUrl: 'https://api.lineascan.build/api',
     },
+    blockscout: {
+      name: 'Linea Mainnet Blockscout',
+      url: 'https://explorer.linea.build',
+      apiUrl: 'https://explorer.linea.build/api',
+    },
   },
   contracts: {
     multicall3: {

@@ -15,6 +15,11 @@ export const neonMainnet = /*#__PURE__*/ defineChain({
       name: 'Neonscan',
       url: 'https://neonscan.org',
     },
+    blockscout: {
+      name: 'Neon EVM MainNet Blockscout',
+      url: 'https://neon.blockscout.com',
+      apiUrl: 'https://neon.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

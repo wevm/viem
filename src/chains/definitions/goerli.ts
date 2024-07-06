@@ -15,6 +15,11 @@ export const goerli = /*#__PURE__*/ defineChain({
       url: 'https://goerli.etherscan.io',
       apiUrl: 'https://api-goerli.etherscan.io/api',
     },
+    blockscout: {
+      name: 'Goerli Blockscout',
+      url: 'https://explorer.ammer.network',
+      apiUrl: 'https://explorer.ammer.network/api',
+    },
   },
   contracts: {
     ensRegistry: {

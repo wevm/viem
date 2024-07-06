@@ -18,6 +18,11 @@ export const zkSyncSepoliaTestnet = /*#__PURE__*/ defineChain({
       name: 'Etherscan',
       url: 'https://sepolia-era.zksync.network/',
     },
+    blockscout: {
+      name: 'zkSync Sepolia Testnet Blockscout',
+      url: 'https://zksync-sepolia.blockscout.com',
+      apiUrl: 'https://zksync-sepolia.blockscout.com/api',
+    },
     native: {
       name: 'zkSync Explorer',
       url: 'https://sepolia.explorer.zksync.io/',

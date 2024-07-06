@@ -19,6 +19,11 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
       url: 'https://sepolia.arbiscan.io',
       apiUrl: 'https://api-sepolia.arbiscan.io/api',
     },
+    blockscout: {
+      name: 'Arbitrum Sepolia Blockscout',
+      url: 'https://sepolia-explorer.arbitrum.io',
+      apiUrl: 'https://sepolia-explorer.arbitrum.io/api',
+    },
   },
   contracts: {
     multicall3: {

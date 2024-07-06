@@ -16,6 +16,11 @@ export const filecoin = /*#__PURE__*/ defineChain({
       name: 'Filfox',
       url: 'https://filfox.info/en',
     },
+    blockscout: {
+      name: 'Filecoin Mainnet Blockscout',
+      url: 'https://filecoin.blockscout.com',
+      apiUrl: 'https://filecoin.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

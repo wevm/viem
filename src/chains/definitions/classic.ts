@@ -16,5 +16,10 @@ export const classic = /*#__PURE__*/ defineChain({
       name: 'Blockscout',
       url: 'https://blockscout.com/etc/mainnet',
     },
+    blockscout: {
+      name: 'Ethereum Classic Blockscout',
+      url: 'https://etc.blockscout.com',
+      apiUrl: 'https://etc.blockscout.com/api',
+    },
   },
 })

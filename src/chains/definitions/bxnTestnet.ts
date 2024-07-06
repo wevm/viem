@@ -19,6 +19,11 @@ export const bxnTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet-explorer.blackfort.network',
       apiUrl: 'https://testnet-explorer.blackfort.network/api',
     },
+    blockscout: {
+      name: 'BlackFort Exchange Network Testnet Blockscout',
+      url: 'https://blackfort-testnet.blockscout.com',
+      apiUrl: 'https://blackfort-testnet.blockscout.com/api',
+    },
   },
   testnet: true,
 })

@@ -15,6 +15,11 @@ export const sepolia = /*#__PURE__*/ defineChain({
       url: 'https://sepolia.etherscan.io',
       apiUrl: 'https://api-sepolia.etherscan.io/api',
     },
+    blockscout: {
+      name: 'Sepolia Blockscout',
+      url: 'https://eth-sepolia.blockscout.com',
+      apiUrl: 'https://eth-sepolia.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

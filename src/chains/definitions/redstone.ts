@@ -16,5 +16,10 @@ export const redstone = defineChain({
   },
   blockExplorers: {
     default: { name: 'Explorer', url: '	https://explorer.redstone.xyz' },
+    blockscout: {
+      name: 'Redstone Blockscout',
+      url: 'https://explorer.redstone.xyz',
+      apiUrl: 'https://explorer.redstone.xyz/api',
+    },
   },
 })

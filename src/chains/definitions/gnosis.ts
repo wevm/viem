@@ -20,6 +20,11 @@ export const gnosis = /*#__PURE__*/ defineChain({
       url: 'https://gnosisscan.io',
       apiUrl: 'https://api.gnosisscan.io/api',
     },
+    blockscout: {
+      name: 'Gnosis Blockscout',
+      url: 'https://gnosis.blockscout.com',
+      apiUrl: 'https://gnosis.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

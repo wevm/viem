@@ -19,6 +19,11 @@ export const blast = /*#__PURE__*/ defineChain({
       url: 'https://blastscan.io',
       apiUrl: 'https://api.blastscan.io/api',
     },
+    blockscout: {
+      name: 'Blast Blockscout',
+      url: 'https://blast.blockscout.com',
+      apiUrl: 'https://blast.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

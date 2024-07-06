@@ -15,6 +15,11 @@ export const mainnet = /*#__PURE__*/ defineChain({
       url: 'https://etherscan.io',
       apiUrl: 'https://api.etherscan.io/api',
     },
+    blockscout: {
+      name: 'Ethereum Blockscout',
+      url: 'https://eth.blockscout.com',
+      apiUrl: 'https://eth.blockscout.com/api',
+    },
   },
   contracts: {
     ensRegistry: {

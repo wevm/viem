@@ -22,6 +22,11 @@ export const plumeTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet-explorer.plumenetwork.xyz',
       apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api',
     },
+    blockscout: {
+      name: 'Plume Testnet Blockscout',
+      url: 'https://plume-testnet.explorer.caldera.xyz',
+      apiUrl: 'https://plume-testnet.explorer.caldera.xyz/api',
+    },
   },
   testnet: true,
   sourceId,

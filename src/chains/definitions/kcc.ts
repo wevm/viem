@@ -19,6 +19,11 @@ export const kcc = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: { name: 'KCC Explorer', url: 'https://explorer.kcc.io' },
+    blockscout: {
+      name: 'KCC Mainnet Blockscout',
+      url: 'https://scan.kcc.io',
+      apiUrl: 'https://scan.kcc.io/api',
+    },
   },
   contracts: {
     multicall3: {

@@ -15,6 +15,11 @@ export const polygonZkEvmCardona = /*#__PURE__*/ defineChain({
       url: 'https://cardona-zkevm.polygonscan.com',
       apiUrl: 'https://cardona-zkevm.polygonscan.com/api',
     },
+    blockscout: {
+      name: 'Polygon zkEVM Cardona Blockscout',
+      url: 'https://explorer-ui.cardona.zkevm-rpc.com',
+      apiUrl: 'https://explorer-ui.cardona.zkevm-rpc.com/api',
+    },
   },
   testnet: true,
   contracts: {

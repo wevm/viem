@@ -15,6 +15,11 @@ export const arbitrumNova = /*#__PURE__*/ defineChain({
       url: 'https://nova.arbiscan.io',
       apiUrl: 'https://api-nova.arbiscan.io/api',
     },
+    blockscout: {
+      name: 'Arbitrum Nova Blockscout',
+      url: 'https://nova-explorer.arbitrum.io',
+      apiUrl: 'https://nova-explorer.arbitrum.io/api',
+    },
   },
   contracts: {
     multicall3: {

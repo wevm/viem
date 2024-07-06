@@ -19,6 +19,11 @@ export const jbc = /*#__PURE__*/ defineChain({
       url: 'https://exp-l1.jibchain.net',
       apiUrl: 'https://exp-l1.jibchain.net/api',
     },
+    blockscout: {
+      name: 'JIBCHAIN L1 Blockscout',
+      url: 'https://exp-l1-ng.jibchain.net',
+      apiUrl: 'https://exp-l1-ng.jibchain.net/api',
+    },
   },
   contracts: {
     multicall3: {

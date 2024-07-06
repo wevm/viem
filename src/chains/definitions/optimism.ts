@@ -19,6 +19,11 @@ export const optimism = /*#__PURE__*/ defineChain({
       url: 'https://optimistic.etherscan.io',
       apiUrl: 'https://api-optimistic.etherscan.io/api',
     },
+    blockscout: {
+      name: 'OP Mainnet Blockscout',
+      url: 'https://optimism.blockscout.com',
+      apiUrl: 'https://optimism.blockscout.com/api',
+    },
   },
   contracts: {
     ...chainConfig.contracts,

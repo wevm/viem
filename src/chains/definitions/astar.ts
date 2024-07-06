@@ -17,6 +17,11 @@ export const astar = /*#__PURE__*/ defineChain({
       name: 'Astar Subscan',
       url: 'https://astar.subscan.io',
     },
+    blockscout: {
+      name: 'Astar Blockscout',
+      url: 'https://astar.blockscout.com',
+      apiUrl: 'https://astar.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

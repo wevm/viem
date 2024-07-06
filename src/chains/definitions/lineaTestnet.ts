@@ -16,6 +16,11 @@ export const lineaTestnet = /*#__PURE__*/ defineChain({
       url: 'https://goerli.lineascan.build',
       apiUrl: 'https://goerli.lineascan.build/api',
     },
+    blockscout: {
+      name: 'Linea Goerli Testnet Blockscout',
+      url: 'https://explorer.goerli.linea.build',
+      apiUrl: 'https://explorer.goerli.linea.build/api',
+    },
   },
   contracts: {
     multicall3: {

@@ -15,6 +15,11 @@ export const polygonZkEvm = /*#__PURE__*/ defineChain({
       url: 'https://zkevm.polygonscan.com',
       apiUrl: 'https://api-zkevm.polygonscan.com/api',
     },
+    blockscout: {
+      name: 'Polygon zkEVM Blockscout',
+      url: 'https://zkevm.blockscout.com',
+      apiUrl: 'https://zkevm.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

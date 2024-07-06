@@ -15,5 +15,10 @@ export const oasys = /*#__PURE__*/ defineChain({
       url: 'https://scan.oasys.games',
       apiUrl: 'https://scan.oasys.games/api',
     },
+    blockscout: {
+      name: 'Oasys Blockscout',
+      url: 'https://explorer.oasys.games',
+      apiUrl: 'https://explorer.oasys.games/api',
+    },
   },
 })

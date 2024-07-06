@@ -15,6 +15,11 @@ export const shibarium = /*#__PURE__*/ defineChain({
       name: 'Blockscout',
       url: 'https://shibariumscan.io',
     },
+    blockscout: {
+      name: 'Shibarium Blockscout',
+      url: 'https://www.shibariumscan.io',
+      apiUrl: 'https://www.shibariumscan.io/api',
+    },
   },
   contracts: {
     multicall3: {

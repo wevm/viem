@@ -21,6 +21,11 @@ export const blastSepolia = /*#__PURE__*/ defineChain({
       url: 'https://sepolia.blastscan.io',
       apiUrl: 'https://api-sepolia.blastscan.io/api',
     },
+    blockscout: {
+      name: 'Blast Sepolia Blockscout',
+      url: 'https://blast-testnet.blockscout.com',
+      apiUrl: 'https://blast-testnet.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

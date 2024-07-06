@@ -17,6 +17,11 @@ export const rootstock = /*#__PURE__*/ defineChain({
       name: 'RSK Explorer',
       url: 'https://explorer.rsk.co',
     },
+    blockscout: {
+      name: 'Rootstock Mainnet Blockscout',
+      url: 'https://rootstock.blockscout.com',
+      apiUrl: 'https://rootstock.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

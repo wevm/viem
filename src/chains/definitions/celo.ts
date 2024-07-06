@@ -19,6 +19,11 @@ export const celo = /*#__PURE__*/ defineChain({
       url: 'https://celoscan.io',
       apiUrl: 'https://api.celoscan.io/api',
     },
+    blockscout: {
+      name: 'Celo Blockscout',
+      url: 'https://explorer.celo.org/mainnet',
+      apiUrl: 'https://explorer.celo.org/mainnet/api',
+    },
   },
   contracts: {
     multicall3: {

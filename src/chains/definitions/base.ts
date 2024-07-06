@@ -19,6 +19,11 @@ export const base = /*#__PURE__*/ defineChain({
       url: 'https://basescan.org',
       apiUrl: 'https://api.basescan.org/api',
     },
+    blockscout: {
+      name: 'Base Blockscout',
+      url: 'https://base.blockscout.com',
+      apiUrl: 'https://base.blockscout.com/api',
+    },
   },
   contracts: {
     ...chainConfig.contracts,

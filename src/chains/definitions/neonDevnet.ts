@@ -14,6 +14,11 @@ export const neonDevnet = /*#__PURE__*/ defineChain({
       name: 'Neonscan',
       url: 'https://devnet.neonscan.org',
     },
+    blockscout: {
+      name: 'Neon EVM DevNet Blockscout',
+      url: 'https://neon-devnet.blockscout.com',
+      apiUrl: 'https://neon-devnet.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {

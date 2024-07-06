@@ -20,6 +20,11 @@ export const taiko = /*#__PURE__*/ defineChain({
       url: 'https://taikoscan.network',
       apiUrl: 'https://taikoscan.network/api',
     },
+    blockscout: {
+      name: 'Taiko Mainnet Blockscout',
+      url: 'https://blockscoutapi.mainnet.taiko.xyz',
+      apiUrl: 'https://blockscoutapi.mainnet.taiko.xyz/api',
+    },
   },
   contracts: {
     multicall3: {

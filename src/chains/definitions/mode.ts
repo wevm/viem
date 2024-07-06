@@ -16,6 +16,11 @@ export const mode = /*#__PURE__*/ defineChain({
       name: 'Modescan',
       url: 'https://modescan.io',
     },
+    blockscout: {
+      name: 'Mode Mainnet Blockscout',
+      url: 'https://explorer.mode.network',
+      apiUrl: 'https://explorer.mode.network/api',
+    },
   },
   contracts: {
     multicall3: {

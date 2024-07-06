@@ -15,5 +15,10 @@ export const bxn = /*#__PURE__*/ defineChain({
       url: 'https://explorer.blackfort.network',
       apiUrl: 'https://explorer.blackfort.network/api',
     },
+    blockscout: {
+      name: 'BlackFort Exchange Network Blockscout',
+      url: 'https://blackfort.blockscout.com',
+      apiUrl: 'https://blackfort.blockscout.com/api',
+    },
   },
 })

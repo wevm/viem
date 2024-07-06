@@ -14,6 +14,11 @@ export const saigon = /*#__PURE__*/ defineChain({
       name: 'Saigon Explorer',
       url: 'https://saigon-app.roninchain.com',
     },
+    blockscout: {
+      name: 'Saigon Testnet Blockscout',
+      url: 'https://edgscan.live',
+      apiUrl: 'https://edgscan.live/api',
+    },
   },
   contracts: {
     multicall3: {
