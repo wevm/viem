@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Artela Testnet chain.
+Added Artela Testnet chain.
