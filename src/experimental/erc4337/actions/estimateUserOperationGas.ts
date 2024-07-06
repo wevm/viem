@@ -2,6 +2,7 @@ import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
+import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { SmartAccount } from '../accounts/types.js'
@@ -21,6 +22,7 @@ import type {
   UserOperation,
   UserOperationRequest,
 } from '../types/userOperation.js'
+import { getUserOperationError } from '../utils/errors/getUserOperationError.js'
 import {
   type PrepareUserOperationRequestParameters,
   prepareUserOperationRequest,
@@ -109,7 +111,6 @@ export async function estimateUserOperationGas<
       accountOverride
     >
   } catch (error) {
-    // biome-ignore lint/complexity/noUselessCatch: TODO – `getEstimateUserOperationGasError`
-    throw error
+    throw getUserOperationError(error as BaseError, request as UserOperation)
   }
 }
