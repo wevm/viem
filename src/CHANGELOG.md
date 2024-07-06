@@ -1,5 +1,13 @@
 # viem
 
+## 2.17.2
+
+### Patch Changes
+
+- [#2479](https://github.com/wevm/viem/pull/2479) [`5028b3f`](https://github.com/wevm/viem/commit/5028b3fb723100e49ca9b301405360b23c2a1003) Thanks [@keyding](https://github.com/keyding)! - Added Artela Testnet chain.
+
+- [#2478](https://github.com/wevm/viem/pull/2478) [`795ca46`](https://github.com/wevm/viem/commit/795ca46cf93bc496abb23a5b868ea48bd80860ae) Thanks [@sj719045032](https://github.com/sj719045032)! - Added zkLink Nova Sepolia Testnet chain.
+
 ## 2.17.1
 
 ### Patch Changes
