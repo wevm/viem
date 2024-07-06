@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add zkLink Nova Sepolia Testnet chain
+Added zkLink Nova Sepolia Testnet chain.
