@@ -8,7 +8,7 @@ import type { SmartAccount } from './types.js'
 
 const client = anvilMainnet.getClient()
 
-test('uninitialized', async () => {
+test('default', async () => {
   const account = await toSmartAccount({
     client,
     implementation: solady({

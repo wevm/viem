@@ -118,17 +118,18 @@ export type PrepareUserOperationRequestReturnType<
     UnionOmit<request, 'calls' | 'parameters'>,
     {
       callData: Hex
+      paymasterAndData: _derivedVersion extends '0.6' ? Hex : undefined
       sender: UserOperation['sender']
-    } & (Extract<_parameters, 'factory'> extends 'factory'
-      ? FactoryProperties<_derivedVersion>
-      : {}) &
-      (Extract<_parameters, 'nonce'> extends 'nonce' ? NonceProperties : {}) &
-      (Extract<_parameters, 'gas'> extends 'gas'
-        ? GasProperties<_derivedVersion>
-        : {}) &
-      (Extract<_parameters, 'signature'> extends 'signature'
-        ? SignatureProperties
-        : {})
+    } & (Extract<_parameters, 'factory'> extends never
+      ? {}
+      : FactoryProperties<_derivedVersion>) &
+      (Extract<_parameters, 'nonce'> extends never ? {} : NonceProperties) &
+      (Extract<_parameters, 'gas'> extends never
+        ? {}
+        : GasProperties<_derivedVersion>) &
+      (Extract<_parameters, 'signature'> extends never
+        ? {}
+        : SignatureProperties)
   >
 >
 
