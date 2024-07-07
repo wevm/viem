@@ -329,6 +329,18 @@ export const sidebar = {
       ],
     },
     {
+      text: 'Bundler Actions',
+      collapsed: true,
+      items: [
+        { text: 'Introduction', link: '/docs/actions/bundler/introduction' },
+        { text: 'getChainId', link: '/docs/actions/bundler/getChainId' },
+        {
+          text: 'getSupportedEntryPoints',
+          link: '/docs/actions/bundler/getSupportedEntryPoints',
+        },
+      ],
+    },
+    {
       text: 'Test Actions',
       collapsed: true,
       items: [
@@ -1077,54 +1089,6 @@ export const sidebar = {
             link: '/experimental',
           },
           { text: 'Client', link: '/experimental/client' },
-        ],
-      },
-      {
-        text: 'ERC-4337',
-        items: [
-          {
-            text: 'Accounts',
-            items: [
-              {
-                text: 'toSmartAccount',
-                link: '/experimental/erc4337/toSmartAccount',
-              },
-              {
-                text: 'Implementations',
-                items: [
-                  {
-                    text: 'Solady',
-                    link: '/experimental/erc4337/solady',
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            text: 'Bundler Client',
-            link: '/experimental/erc4337/createBundlerClient',
-          },
-          {
-            text: 'Bundler Actions',
-            items: [
-              {
-                text: 'estimateUserOperationGas',
-                link: '/experimental/erc4337/estimateUserOperationGas',
-              },
-              {
-                text: 'getChainId',
-                link: '/experimental/erc4337/getChainId',
-              },
-              {
-                text: 'getSupportedEntryPoints',
-                link: '/experimental/erc4337/getSupportedEntryPoints',
-              },
-              {
-                text: 'sendUserOperation',
-                link: '/experimental/erc4337/sendUserOperation',
-              },
-            ],
-          },
         ],
       },
       {

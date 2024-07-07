@@ -4,7 +4,7 @@ import { mainnet } from '../../src/chains/index.js'
 import type {
   BundlerClient,
   BundlerClientConfig,
-} from '../../src/experimental/erc4337/clients/createBundlerClient.js'
+} from '../../src/clients/createBundlerClient.js'
 import {
   http,
   type Chain,

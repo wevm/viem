@@ -404,6 +404,20 @@ test('exports', () => {
       "getTypesForEIP712Domain",
       "createNonceManager",
       "nonceManager",
+      "estimateUserOperationGas",
+      "getSupportedEntryPoints",
+      "prepareUserOperationRequest",
+      "sendUserOperation",
+      "createBundlerClient",
+      "bundlerActions",
+      "InitCodeFailedError",
+      "UnknownEntryPointError",
+      "UserOperationExecutionError",
+      "formatUserOperationGas",
+      "formatUserOperationRequest",
+      "getEntryPointError",
+      "getUserOperationError",
+      "getUserOperationHash",
     ]
   `)
 })

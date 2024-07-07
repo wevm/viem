@@ -13,6 +13,13 @@ export { wordlist as spanish } from '@scure/bip39/wordlists/spanish'
 export { wordlist as traditionalChinese } from '@scure/bip39/wordlists/traditional-chinese'
 
 export {
+  type SoladyImplementation,
+  type SoladyImplementationParameters,
+  type SoladyImplementationReturnType,
+  solady,
+} from './implementations/solady.js'
+
+export {
   type GenerateMnemonicErrorType,
   generateMnemonic,
 } from './generateMnemonic.js'
@@ -36,6 +43,11 @@ export {
   privateKeyToAccount,
 } from './privateKeyToAccount.js'
 export { type ToAccountErrorType, toAccount } from './toAccount.js'
+export {
+  type ToSmartAccountParameters,
+  type ToSmartAccountReturnType,
+  toSmartAccount,
+} from './toSmartAccount.js'
 export type {
   Account,
   AccountSource,

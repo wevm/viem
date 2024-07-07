@@ -1,5 +1,5 @@
-import { solady } from '../../src/experimental/erc4337/accounts/implementations/solady.js'
-import { toSmartAccount } from '../../src/experimental/erc4337/accounts/toSmartAccount.js'
+import { solady } from '../../src/accounts/implementations/solady.js'
+import { toSmartAccount } from '../../src/accounts/toSmartAccount.js'
 import { anvilMainnet } from './anvil.js'
 import { accounts } from './constants.js'
 import { deployMock4337Account_06, deployMock4337Account_07 } from './utils.js'

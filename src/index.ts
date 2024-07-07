@@ -1072,6 +1072,11 @@ export type {
   RpcAccountStateOverride,
   RpcStateOverride,
   RpcStateMapping,
+  RpcEstimateUserOperationGasReturnType,
+  RpcGetUserOperationByHashReturnType,
+  RpcUserOperation,
+  RpcUserOperationReceipt,
+  RpcUserOperationRequest,
 } from './types/rpc.js'
 export type { Withdrawal } from './types/withdrawal.js'
 export type {
@@ -1686,3 +1691,80 @@ export {
   createNonceManager,
   nonceManager,
 } from './utils/nonceManager.js'
+export {
+  type EstimateUserOperationGasErrorType,
+  type EstimateUserOperationGasParameters,
+  type EstimateUserOperationGasReturnType,
+  estimateUserOperationGas,
+} from './actions/bundler/estimateUserOperationGas.js'
+export {
+  type GetSupportedEntryPointsErrorType,
+  type GetSupportedEntryPointsReturnType,
+  getSupportedEntryPoints,
+} from './actions/bundler/getSupportedEntryPoints.js'
+export {
+  type PrepareUserOperationRequestParameterType,
+  type PrepareUserOperationRequestParameters,
+  type PrepareUserOperationRequestRequest,
+  type PrepareUserOperationRequestReturnType,
+  prepareUserOperationRequest,
+} from './actions/bundler/prepareUserOperationRequest.js'
+export {
+  type SendUserOperationErrorType,
+  type SendUserOperationParameters,
+  type SendUserOperationReturnType,
+  sendUserOperation,
+} from './actions/bundler/sendUserOperation.js'
+export {
+  type BundlerClient,
+  type BundlerClientConfig,
+  type CreateBundlerClientErrorType,
+  createBundlerClient,
+} from './clients/createBundlerClient.js'
+export {
+  type BundlerActionsParameters,
+  type BundlerActions,
+  bundlerActions,
+} from './clients/decorators/bundler.js'
+export {
+  InitCodeFailedError,
+  type InitCodeFailedErrorType,
+  UnknownEntryPointError,
+  type UnknownEntryPointErrorType,
+} from './errors/entryPoint.js'
+export {
+  UserOperationExecutionError,
+  type UserOperationExecutionErrorType,
+} from './errors/userOperation.js'
+export {
+  type FormatUserOperationGasErrorType,
+  formatUserOperationGas,
+} from './utils/formatters/userOperationGas.js'
+export {
+  type FormatUserOperationRequestErrorType,
+  formatUserOperationRequest,
+} from './utils/formatters/userOperationRequest.js'
+export type { EntryPointVersion } from './types/entryPointVersion.js'
+export type { BundlerRpcSchema } from './types/eip1193.js'
+export type {
+  GetUserOperationByHashReturnType,
+  PackedUserOperation,
+  UserOperation,
+  UserOperationReceipt,
+  UserOperationRequest,
+} from './types/userOperation.js'
+export {
+  type GetEntryPointErrorParameters,
+  type GetEntryPointErrorReturnType,
+  getEntryPointError,
+} from './utils/errors/getEntryPointError.js'
+export {
+  type GetUserOperationErrorParameters,
+  type GetUserOperationErrorReturnType,
+  getUserOperationError,
+} from './utils/errors/getUserOperationError.js'
+export {
+  type GetUserOperationHashParameters,
+  type GetUserOperationHashReturnType,
+  getUserOperationHash,
+} from './utils/userOperation/getUserOperationHash.js'
