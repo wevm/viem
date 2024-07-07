@@ -1,5 +1,11 @@
 # viem
 
+## 2.17.3
+
+### Patch Changes
+
+- [`ec3b0e0`](https://github.com/wevm/viem/commit/ec3b0e08f0a379249224e65092277191f1a8502b) Thanks [@jxom](https://github.com/jxom)! - Added fallback verification in `verifyHash`.
+
 ## 2.17.2
 
 ### Patch Changes
