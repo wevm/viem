@@ -73,6 +73,31 @@ describe('entryPointVersion: 0.6', async () => {
       }
     `)
   })
+
+  test('error: failed init code', async () => {
+    await expect(() =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        initCode: '0x0000000000000000000000000000000000000000deadbeef',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
+
+      initCode: 0x0000000000000000000000000000000000000000deadbeef
+       
+      Request Arguments:
+        callData:          0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+        initCode:          0x0000000000000000000000000000000000000000deadbeef
+        nonce:             0
+        paymasterAndData:  0x
+        sender:            0x6edf7db791fC4D438D4A683E857B2fE1a84947Ce
+        signature:         0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+      Details: UserOperation reverted during simulation with reason: AA13 initCode failed or OOG
+      Version: viem@x.y.z]
+    `)
+  })
 })
 
 test('error: account not defined', async () => {

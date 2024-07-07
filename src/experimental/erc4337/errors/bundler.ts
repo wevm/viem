@@ -2,25 +2,30 @@ import type { Address } from 'abitype'
 import { BaseError } from '../../../errors/base.js'
 import type { Hex } from '../../../types/misc.js'
 
-export type InitCodeFailedOrOutOfGasErrorType =
-  InitCodeFailedOrOutOfGasError & {
-    name: 'InitCodeFailedOrOutOfGasError'
-  }
-export class InitCodeFailedOrOutOfGasError extends BaseError {
+export type InitCodeFailedErrorType = InitCodeFailedError & {
+  name: 'InitCodeFailedError'
+}
+export class InitCodeFailedError extends BaseError {
   static bundlerMessage = /aa13/
-  override name = 'InitCodeFailedOrOutOfGas'
+  override name = 'InitCodeFailed'
   constructor({
     cause,
-    factory = '0x',
-    factoryData = '0x',
+    factory,
+    factoryData,
+    initCode,
   }: {
     cause?: BaseError | undefined
     factory?: Address | undefined
     factoryData?: Hex | undefined
+    initCode?: Hex | undefined
   }) {
     super('Failed to simulate deployment for Smart Account.', {
       cause,
-      metaMessages: [`factory: ${factory}`, `factoryData: ${factoryData}`],
+      metaMessages: [
+        factory && `factory: ${factory}`,
+        factoryData && `factoryData: ${factoryData}`,
+        initCode && `initCode: ${initCode}`,
+      ].filter(Boolean) as string[],
     })
   }
 }

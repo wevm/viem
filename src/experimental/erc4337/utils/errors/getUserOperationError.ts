@@ -7,9 +7,9 @@ import {
 } from '../../errors/userOperation.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import {
-  type GetBundlerErrorParameters,
-  getBundlerError,
-} from './getBundlerError.js'
+  type GetEntryPointErrorParameters,
+  getEntryPointError,
+} from './getEntryPointError.js'
 
 type GetNodeErrorReturnType = ErrorType
 
@@ -27,9 +27,9 @@ export function getUserOperationError<err extends ErrorType<string>>(
   { docsPath, ...args }: GetUserOperationErrorParameters,
 ): GetUserOperationErrorReturnType<err> {
   const cause = (() => {
-    const cause = getBundlerError(
+    const cause = getEntryPointError(
       err as {} as BaseError,
-      args as GetBundlerErrorParameters,
+      args as GetEntryPointErrorParameters,
     )
     if (cause instanceof UnknownBundlerError) return err as {} as BaseError
     return cause

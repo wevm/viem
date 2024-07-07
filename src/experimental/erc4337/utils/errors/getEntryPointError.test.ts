@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 import { RpcRequestError } from '../../../../errors/request.js'
-import { getBundlerError } from './getBundlerError.js'
+import { getEntryPointError } from './getEntryPointError.js'
 
-test('InitCodeFailedOrOutOfGasError', () => {
+test('InitCodeFailedError', () => {
   const error = new RpcRequestError({
     body: {},
     error: {
@@ -12,7 +12,7 @@ test('InitCodeFailedOrOutOfGasError', () => {
     },
     url: '',
   })
-  const result = getBundlerError(error, {
+  const result = getEntryPointError(error, {
     factory: '0x0000000000000000000000000000000000000000',
     factoryData: '0xdeadbeef',
   })
@@ -36,7 +36,7 @@ test('UnknownBundlerError', () => {
     },
     url: '',
   })
-  const result = getBundlerError(error, {
+  const result = getEntryPointError(error, {
     factory: '0x0000000000000000000000000000000000000000',
     factoryData: '0xdeadbeef',
   })

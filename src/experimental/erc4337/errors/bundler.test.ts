@@ -1,21 +1,30 @@
 import { expect, test } from 'vitest'
 import { BaseError } from '../../../errors/base.js'
-import {
-  InitCodeFailedOrOutOfGasError,
-  UnknownBundlerError,
-} from './bundler.js'
+import { InitCodeFailedError, UnknownBundlerError } from './bundler.js'
 
-test('InitCodeFailedOrOutOfGasError', () => {
+test('InitCodeFailedError', () => {
   expect(
-    new InitCodeFailedOrOutOfGasError({
+    new InitCodeFailedError({
       factory: '0x0000000000000000000000000000000000000000',
       factoryData: '0xdeadbeef',
     }),
   ).toMatchInlineSnapshot(`
-    [InitCodeFailedOrOutOfGas: Failed to simulate deployment for Smart Account.
+    [InitCodeFailed: Failed to simulate deployment for Smart Account.
 
     factory: 0x0000000000000000000000000000000000000000
     factoryData: 0xdeadbeef
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(
+    new InitCodeFailedError({
+      initCode: '0x0000000000000000000000000000000000000000deadbeef',
+    }),
+  ).toMatchInlineSnapshot(`
+    [InitCodeFailed: Failed to simulate deployment for Smart Account.
+
+    initCode: 0x0000000000000000000000000000000000000000deadbeef
 
     Version: viem@x.y.z]
   `)

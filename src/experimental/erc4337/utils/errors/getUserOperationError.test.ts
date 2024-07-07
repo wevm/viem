@@ -38,7 +38,7 @@ test('default', () => {
   `)
 })
 
-test('InitCodeFailedOrOutOfGasError', () => {
+test('InitCodeFailedError', () => {
   const error = new RpcRequestError({
     body: {},
     error: {
