@@ -39,6 +39,16 @@ export {
   bundlerActions,
 } from './erc4337/clients/decorators/bundler.js'
 export {
+  InitCodeFailedError,
+  type InitCodeFailedErrorType,
+  UnknownEntryPointError,
+  type UnknownEntryPointErrorType,
+} from './erc4337/errors/entryPoint.js'
+export {
+  UserOperationExecutionError,
+  type UserOperationExecutionErrorType,
+} from './erc4337/errors/userOperation.js'
+export {
   type FormatUserOperationGasErrorType,
   formatUserOperationGas,
 } from './erc4337/formatters/gas.js'
@@ -46,11 +56,7 @@ export {
   type FormatUserOperationRequestErrorType,
   formatUserOperationRequest,
 } from './erc4337/formatters/userOperation.js'
-export {
-  type GetUserOperationHashParameters,
-  type GetUserOperationHashReturnType,
-  getUserOperationHash,
-} from './erc4337/utils/getUserOperationHash.js'
+export type { EntryPointVersion } from './erc4337/types/entryPointVersion.js'
 export type { BundlerRpcSchema } from './erc4337/types/eip1193.js'
 export type {
   RpcEstimateUserOperationGasReturnType,
@@ -64,7 +70,23 @@ export type {
   PackedUserOperation,
   UserOperation,
   UserOperationReceipt,
+  UserOperationRequest,
 } from './erc4337/types/userOperation.js'
+export {
+  type GetEntryPointErrorParameters,
+  type GetEntryPointErrorReturnType,
+  getEntryPointError,
+} from './erc4337/utils/errors/getEntryPointError.js'
+export {
+  type GetUserOperationErrorParameters,
+  type GetUserOperationErrorReturnType,
+  getUserOperationError,
+} from './erc4337/utils/errors/getUserOperationError.js'
+export {
+  type GetUserOperationHashParameters,
+  type GetUserOperationHashReturnType,
+  getUserOperationHash,
+} from './erc4337/utils/getUserOperationHash.js'
 
 export {
   type GetCapabilitiesParameters,

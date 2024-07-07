@@ -3,16 +3,16 @@ import type { ExactPartial } from '../../../../types/utils.js'
 import {
   InitCodeFailedError,
   type InitCodeFailedErrorType,
-  UnknownBundlerError,
-  type UnknownBundlerErrorType,
-} from '../../errors/bundler.js'
+  UnknownEntryPointError,
+  type UnknownEntryPointErrorType,
+} from '../../errors/entryPoint.js'
 import type { UserOperation } from '../../types/userOperation.js'
 
 export type GetEntryPointErrorParameters = ExactPartial<UserOperation>
 
 export type GetEntryPointErrorReturnType =
   | InitCodeFailedErrorType
-  | UnknownBundlerErrorType
+  | UnknownEntryPointErrorType
 
 export function getEntryPointError(
   err: BaseError,
@@ -27,7 +27,7 @@ export function getEntryPointError(
       factoryData: args.factoryData,
       initCode: args.initCode,
     }) as any
-  return new UnknownBundlerError({
+  return new UnknownEntryPointError({
     cause: err,
   }) as any
 }

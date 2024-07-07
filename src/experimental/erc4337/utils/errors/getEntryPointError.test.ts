@@ -27,7 +27,7 @@ test('InitCodeFailedError', () => {
   `)
 })
 
-test('UnknownBundlerError', () => {
+test('UnknownEntryPointError', () => {
   const error = new RpcRequestError({
     body: {},
     error: {
@@ -41,7 +41,7 @@ test('UnknownBundlerError', () => {
     factoryData: '0xdeadbeef',
   })
   expect(result).toMatchInlineSnapshot(`
-    [UnknownBundlerError: An error occurred while executing user operation: RPC Request failed.
+    [UnknownEntryPointError: An error occurred while executing user operation: RPC Request failed.
 
     Details: wat man
     Version: viem@x.y.z]

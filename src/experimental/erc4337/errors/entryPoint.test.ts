@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { BaseError } from '../../../errors/base.js'
-import { InitCodeFailedError, UnknownBundlerError } from './bundler.js'
+import { InitCodeFailedError, UnknownEntryPointError } from './entryPoint.js'
 
 test('InitCodeFailedError', () => {
   expect(
@@ -30,13 +30,13 @@ test('InitCodeFailedError', () => {
   `)
 })
 
-test('UnknownBundlerError', () => {
+test('UnknownEntryPointError', () => {
   expect(
-    new UnknownBundlerError({
+    new UnknownEntryPointError({
       cause: new BaseError('test'),
     }),
   ).toMatchInlineSnapshot(`
-    [UnknownBundlerError: An error occurred while executing user operation: test
+    [UnknownEntryPointError: An error occurred while executing user operation: test
 
     Version: viem@x.y.z]
   `)

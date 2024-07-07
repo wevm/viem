@@ -30,11 +30,11 @@ export class InitCodeFailedError extends BaseError {
   }
 }
 
-export type UnknownBundlerErrorType = UnknownBundlerError & {
-  name: 'UnknownBundlerError'
+export type UnknownEntryPointErrorType = UnknownEntryPointError & {
+  name: 'UnknownEntryPointError'
 }
-export class UnknownBundlerError extends BaseError {
-  override name = 'UnknownBundlerError'
+export class UnknownEntryPointError extends BaseError {
+  override name = 'UnknownEntryPointError'
 
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(

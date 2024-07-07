@@ -1,6 +1,6 @@
 import type { BaseError } from '../../../../errors/base.js'
 import type { ErrorType } from '../../../../errors/utils.js'
-import { UnknownBundlerError } from '../../errors/bundler.js'
+import { UnknownEntryPointError } from '../../errors/entryPoint.js'
 import {
   UserOperationExecutionError,
   type UserOperationExecutionErrorType,
@@ -31,7 +31,7 @@ export function getUserOperationError<err extends ErrorType<string>>(
       err as {} as BaseError,
       args as GetEntryPointErrorParameters,
     )
-    if (cause instanceof UnknownBundlerError) return err as {} as BaseError
+    if (cause instanceof UnknownEntryPointError) return err as {} as BaseError
     return cause
   })()
   return new UserOperationExecutionError(cause, {
