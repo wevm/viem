@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import {
-  Mock4337Account,
+  Mock4337Account07,
   Mock4337AccountFactory07,
   OffchainLookupExample,
 } from '~contracts/generated.js'
@@ -1042,7 +1042,7 @@ describe('deployless call (factory)', () => {
       args: [pad('0x0')],
     })
     const data = encodeFunctionData({
-      abi: Mock4337Account.abi,
+      abi: Mock4337Account07.abi,
       functionName: 'eip712Domain',
     })
     const factoryData = encodeFunctionData({
@@ -1067,7 +1067,7 @@ describe('deployless call (factory)', () => {
       salt,
       extensions,
     ] = decodeFunctionResult({
-      abi: Mock4337Account.abi,
+      abi: Mock4337Account07.abi,
       data: result.data!,
       functionName: 'eip712Domain',
     })

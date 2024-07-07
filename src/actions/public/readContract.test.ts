@@ -8,7 +8,7 @@ import { describe, expect, test } from 'vitest'
 
 import {
   ErrorsExample,
-  Mock4337Account,
+  Mock4337Account07,
   Mock4337AccountFactory07,
 } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
@@ -225,7 +225,7 @@ describe('deployless read (factory)', () => {
       extensions,
     ] = await readContract(client, {
       address,
-      abi: Mock4337Account.abi,
+      abi: Mock4337Account07.abi,
       functionName: 'eip712Domain',
       factory,
       factoryData,
