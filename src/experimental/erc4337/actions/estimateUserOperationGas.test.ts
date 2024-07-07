@@ -1,15 +1,20 @@
 import { describe, expect, test } from 'vitest'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
+import { accounts } from '../../../../test/src/constants.js'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
 } from '../../../../test/src/smartAccounts.js'
+import { mine, writeContract } from '../../../actions/index.js'
+import { pad } from '../../../utils/index.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
+const client = anvilMainnet.getClient()
 const bundlerClient = bundlerMainnet.getBundlerClient()
 
 describe('entryPointVersion: 0.7', async () => {
-  const [account] = await getSmartAccounts_07()
+  const [account, account_2, account_3] = await getSmartAccounts_07()
 
   test('default', async () => {
     expect(
@@ -28,7 +33,48 @@ describe('entryPointVersion: 0.7', async () => {
     `)
   })
 
-  test('error: failed init code', async () => {
+  test('error: aa10', async () => {
+    const { factory, factoryData } = await account_2.getFactoryArgs()
+
+    await writeContract(client, {
+      account: accounts[0].address,
+      abi: account_2.factory.abi,
+      address: account_2.factory.address,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x1')],
+    })
+    await mine(client, {
+      blocks: 1,
+    })
+
+    await expect(() =>
+      estimateUserOperationGas(bundlerClient, {
+        account: account_2,
+        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        factory,
+        factoryData,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [UserOperationExecutionError: Smart Account has already been deployed.
+
+      Remove the following properties and try again:
+      \`factory\`
+      \`factoryData\`
+       
+      Request Arguments:
+        callData:     0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+        factory:      0xfb6dab6200b8958c2655c3747708f82243d3f32e
+        factoryData:  0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000001
+        nonce:        0
+        sender:       0x0b3D649C00208AFB6A40b4A7e918b84A52D783B8
+        signature:    0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+      Details: UserOperation reverted during simulation with reason: AA10 sender already constructed
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('error: aa13', async () => {
     await expect(() =>
       estimateUserOperationGas(bundlerClient, {
         account,
@@ -54,6 +100,47 @@ describe('entryPointVersion: 0.7', async () => {
       Version: viem@x.y.z]
     `)
   })
+
+  test('error: aa14', async () => {
+    const { factory, factoryData } = await account_3.getFactoryArgs()
+
+    await writeContract(client, {
+      account: accounts[0].address,
+      abi: account_3.factory.abi,
+      address: account_3.factory.address,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x1')],
+    })
+    await mine(client, {
+      blocks: 1,
+    })
+
+    await expect(() =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        factory,
+        factoryData,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [UserOperationExecutionError: Smart Account initialization does not return the expected sender.
+
+      factory: 0xfb6dab6200b8958c2655c3747708f82243d3f32e
+      factoryData: 0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000002
+      sender: 0xE911628bF8428C23f179a07b081325cAe376DE1f
+       
+      Request Arguments:
+        callData:     0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+        factory:      0xfb6dab6200b8958c2655c3747708f82243d3f32e
+        factoryData:  0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000002
+        nonce:        0
+        sender:       0xE911628bF8428C23f179a07b081325cAe376DE1f
+        signature:    0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+      Details: UserOperation reverted during simulation with reason: AA14 initCode must return sender
+      Version: viem@x.y.z]
+    `)
+  })
 })
 
 describe('entryPointVersion: 0.6', async () => {
@@ -74,7 +161,7 @@ describe('entryPointVersion: 0.6', async () => {
     `)
   })
 
-  test('error: failed init code', async () => {
+  test('error: aa13', async () => {
     await expect(() =>
       estimateUserOperationGas(bundlerClient, {
         account,
