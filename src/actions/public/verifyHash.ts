@@ -13,6 +13,8 @@ import {
   type EncodeDeployDataErrorType,
   encodeDeployData,
 } from '../../utils/abi/encodeDeployData.js'
+import { getAddress } from '../../utils/address/getAddress.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import {
   type IsBytesEqualErrorType,
   isBytesEqual,
@@ -21,6 +23,7 @@ import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
 import { type ToHexErrorType, bytesToHex } from '../../utils/encoding/toHex.js'
 import { getAction } from '../../utils/getAction.js'
 import { isErc6492Signature } from '../../utils/signature/isErc6492Signature.js'
+import { recoverAddress } from '../../utils/signature/recoverAddress.js'
 import { serializeErc6492Signature } from '../../utils/signature/serializeErc6492Signature.js'
 import { serializeSignature } from '../../utils/signature/serializeSignature.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
@@ -105,6 +108,15 @@ export async function verifyHash<TChain extends Chain | undefined>(
 
     return isBytesEqual(data ?? '0x0', '0x1')
   } catch (error) {
+    // Fallback attempt to verify the signature via ECDSA recovery.
+    try {
+      const verified = isAddressEqual(
+        getAddress(address),
+        await recoverAddress({ hash, signature }),
+      )
+      if (verified) return true
+    } catch {}
+
     if (error instanceof CallExecutionError) {
       // if the execution fails, the signature was not valid and an internal method inside of the validator reverted
       // this can happen for many reasons, for example if signer can not be recovered from the signature
