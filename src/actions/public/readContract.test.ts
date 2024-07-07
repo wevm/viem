@@ -9,7 +9,7 @@ import { describe, expect, test } from 'vitest'
 import {
   ErrorsExample,
   Mock4337Account,
-  Mock4337AccountFactory,
+  Mock4337AccountFactory07,
 } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
@@ -204,13 +204,13 @@ describe('deployless read (factory)', () => {
 
     const address = await readContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       address: factory,
       functionName: 'getAddress',
       args: [pad('0x0')],
     })
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
     })

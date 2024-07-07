@@ -9,9 +9,9 @@ import { accounts, address, typedData } from '~test/src/constants.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
-import { Mock4337AccountFactory } from '~contracts/generated.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { deployMock4337Account_07 } from '../../../test/src/utils.js'
+import { Mock4337AccountFactory07 } from '~contracts/generated.js'
+import { anvilMainnet } from '~test/src/anvil.js'
+import { deployMock4337Account_07 } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { signMessage } from '../../accounts/utils/signMessage.js'
 import {
@@ -189,7 +189,7 @@ describe('smoke test', () => {
 
     const { result: address, request } = await simulateContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       address: factoryAddress,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],

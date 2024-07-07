@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import {
   Mock4337Account,
-  Mock4337AccountFactory,
+  Mock4337AccountFactory07,
   OffchainLookupExample,
 } from '~contracts/generated.js'
 import {
@@ -1036,7 +1036,7 @@ describe('deployless call (factory)', () => {
 
     const address = await readContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       address: factoryAddress,
       functionName: 'getAddress',
       args: [pad('0x0')],
@@ -1046,7 +1046,7 @@ describe('deployless call (factory)', () => {
       functionName: 'eip712Domain',
     })
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
     })

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { Mock4337AccountFactory } from '~contracts/generated.js'
+import { Mock4337AccountFactory07 } from '~contracts/generated.js'
 import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts, address } from '~test/src/constants.js'
@@ -82,7 +82,7 @@ describe('smart account', async () => {
 
     const { request, result: verifier } = await simulateContract(client, {
       account: localAccount,
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       address: factoryAddress,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
@@ -110,14 +110,14 @@ describe('smart account', async () => {
 
     const { result: verifier } = await simulateContract(client, {
       account: localAccount,
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       address: factoryAddress,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
     })
 
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
     })
@@ -146,7 +146,7 @@ describe('smart account', async () => {
 
     const { request, result: verifier } = await simulateContract(client, {
       account: localAccount,
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       address: factoryAddress,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
@@ -155,7 +155,7 @@ describe('smart account', async () => {
     await mine(client, { blocks: 1 })
 
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
     })
@@ -185,14 +185,14 @@ test('signature already contains wrapper', async () => {
 
   const { result: verifier } = await simulateContract(client, {
     account: localAccount,
-    abi: Mock4337AccountFactory.abi,
+    abi: Mock4337AccountFactory07.abi,
     address: factoryAddress,
     functionName: 'createAccount',
     args: [localAccount.address, pad('0x0')],
   })
 
   const factoryData = encodeFunctionData({
-    abi: Mock4337AccountFactory.abi,
+    abi: Mock4337AccountFactory07.abi,
     functionName: 'createAccount',
     args: [localAccount.address, pad('0x0')],
   })

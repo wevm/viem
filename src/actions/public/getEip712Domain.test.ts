@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
-import { Mock4337AccountFactory } from '~contracts/generated.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { accounts } from '../../../test/src/constants.js'
-import { deployMock4337Account_07 } from '../../../test/src/utils.js'
+import { Mock4337AccountFactory07 } from '~contracts/generated.js'
+import { anvilMainnet } from '~test/src/anvil.js'
+import { accounts } from '~test/src/constants.js'
+import { deployMock4337Account_07 } from '~test/src/utils.js'
 import { encodeFunctionData, pad } from '../../utils/index.js'
 import { mine } from '../test/mine.js'
 import { writeContract } from '../wallet/writeContract.js'
@@ -17,7 +17,7 @@ test('default', async () => {
 
   const { result: address, request } = await simulateContract(client, {
     account: accounts[0].address,
-    abi: Mock4337AccountFactory.abi,
+    abi: Mock4337AccountFactory07.abi,
     address: factoryAddress,
     functionName: 'createAccount',
     args: [accounts[0].address, pad('0x0')],
@@ -51,7 +51,7 @@ test('counterfactual call', async () => {
 
   const address = await readContract(client, {
     account: accounts[0].address,
-    abi: Mock4337AccountFactory.abi,
+    abi: Mock4337AccountFactory07.abi,
     address: factoryAddress,
     functionName: 'getAddress',
     args: [pad('0x0')],
@@ -61,7 +61,7 @@ test('counterfactual call', async () => {
     address,
     factory: factoryAddress,
     factoryData: encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: Mock4337AccountFactory07.abi,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
     }),

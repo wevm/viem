@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 import { beforeAll, expect, test } from 'vitest'
 
-import { Mock4337AccountFactory_07 } from '~contracts/generated.js'
+import { Mock4337AccountFactory07 } from '~contracts/generated.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
 import { deployMock4337Account_07 } from '../../../../test/src/utils.js'
@@ -21,7 +21,7 @@ beforeAll(async () => {
   const { factoryAddress } = await deployMock4337Account_07()
   const { result, request } = await simulateContract(client, {
     account: accounts[0].address,
-    abi: Mock4337AccountFactory_07.abi,
+    abi: Mock4337AccountFactory07.abi,
     address: factoryAddress,
     functionName: 'createAccount',
     args: [accounts[0].address, pad('0x0')],
@@ -129,13 +129,13 @@ test('counterfactual smart account', async () => {
   const { factoryAddress } = await deployMock4337Account_07()
 
   const factoryData = encodeFunctionData({
-    abi: Mock4337AccountFactory.abi,
+    abi: Mock4337AccountFactory07.abi,
     functionName: 'createAccount',
     args: [accounts[0].address, pad('0x1')],
   })
   const verifier = await readContract(client, {
     account: accounts[0].address,
-    abi: Mock4337AccountFactory.abi,
+    abi: Mock4337AccountFactory07.abi,
     address: factoryAddress,
     functionName: 'getAddress',
     args: [pad('0x1')],
