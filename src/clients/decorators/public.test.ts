@@ -203,7 +203,7 @@ describe('smoke test', () => {
           "chainId": 1,
           "name": "Mock4337Account",
           "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "verifyingContract": "0x8a00708a83D977494139D21D618C6C2A71fA8ed1",
+          "verifyingContract": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
           "version": "1",
         },
         "extensions": [],

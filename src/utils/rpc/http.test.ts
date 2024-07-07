@@ -267,7 +267,7 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
       Details: "ngmi"
       Version: viem@x.y.z]
@@ -295,7 +295,7 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
       Details: Internal Server Error
       Version: viem@x.y.z]
@@ -368,7 +368,7 @@ describe('request', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
       Details: foo
       Version: viem@x.y.z]
@@ -485,7 +485,7 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
 
       Details: "ngmi"
       Version: viem@x.y.z]
@@ -516,7 +516,7 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
 
       Details: Internal Server Error
       Version: viem@x.y.z]
@@ -546,7 +546,7 @@ describe('http (batch)', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
 
       Details: foo
       Version: viem@x.y.z]

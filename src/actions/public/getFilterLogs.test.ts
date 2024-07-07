@@ -278,7 +278,7 @@ describe('contract events', () => {
         'Transfer'
       >[]
     >(logs)
-    expect(logs.length).toBe(881)
+    expect(logs.length).toBe(973)
   })
 
   test('args: strict', async () => {
@@ -302,7 +302,7 @@ describe('contract events', () => {
         'Transfer'
       >[]
     >(logs)
-    expect(logs.length).toBe(698)
+    expect(logs.length).toBe(958)
   })
 
   test('args: singular `from`', async () => {
@@ -712,7 +712,7 @@ describe('raw events', () => {
 
     const logs = await getFilterLogs(client, { filter })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
-    expect(logs.length).toBe(881)
+    expect(logs.length).toBe(973)
   })
 
   test('args: strict = true (named)', async () => {
@@ -727,18 +727,20 @@ describe('raw events', () => {
 
     assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
 
-    expect(logs.length).toBe(698)
+    expect(logs.length).toBe(958)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from: Address
       to: Address
       value: bigint
     }>()
-    expect(logs[0].args).toEqual({
-      from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      to: '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
-      value: 100000000000000000n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        "value": 17991444454902871n,
+      }
+    `)
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
   })
@@ -756,18 +758,20 @@ describe('raw events', () => {
       logs,
     )
 
-    expect(logs.length).toBe(881)
+    expect(logs.length).toBe(973)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from?: Address
       to?: Address
       value?: bigint
     }>()
-    expect(logs[0].args).toEqual({
-      from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      to: '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
-      value: 100000000000000000n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        "value": 17991444454902871n,
+      }
+    `)
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
   })
@@ -784,16 +788,18 @@ describe('raw events', () => {
 
     assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
 
-    expect(logs.length).toBe(698)
+    expect(logs.length).toBe(958)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       readonly [`0x${string}`, `0x${string}`, bigint]
     >()
-    expect(logs[0].args).toEqual([
-      '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
-      100000000000000000n,
-    ])
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      [
+        "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        17991444454902871n,
+      ]
+    `)
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
   })
@@ -811,7 +817,7 @@ describe('raw events', () => {
       logs,
     )
 
-    expect(logs.length).toBe(881)
+    expect(logs.length).toBe(973)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | readonly []
@@ -819,11 +825,13 @@ describe('raw events', () => {
       | readonly [`0x${string}`, `0x${string}`]
       | readonly [`0x${string}`]
     >()
-    expect(logs[0].args).toEqual([
-      '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
-      100000000000000000n,
-    ])
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      [
+        "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        17991444454902871n,
+      ]
+    `)
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
   })

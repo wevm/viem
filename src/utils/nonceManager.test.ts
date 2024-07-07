@@ -28,12 +28,12 @@ test('get next', async () => {
     source: jsonRpc(),
   })
 
-  expect(await nonceManager.get(mainnetArgs)).toBe(655)
+  expect(await nonceManager.get(mainnetArgs)).toBe(663)
   await sendTransaction(mainnetClient, {
     to: accounts[0].address,
     value: 0n,
   })
-  expect(await nonceManager.get(mainnetArgs)).toBe(656)
+  expect(await nonceManager.get(mainnetArgs)).toBe(664)
 
   expect(await nonceManager.get(optimismArgs)).toBe(66)
   await sendTransaction(optimismClient, {
@@ -49,31 +49,31 @@ test('consume (sequence)', async () => {
   })
 
   const nonce_1 = await nonceManager.consume(mainnetArgs)
-  expect(nonce_1).toBe(656)
+  expect(nonce_1).toBe(664)
   const promise_1 = sendTransaction(mainnetClient, {
     to: accounts[0].address,
     nonce: nonce_1,
     value: 0n,
   })
-  expect(await nonceManager.get(mainnetArgs)).toBe(657)
+  expect(await nonceManager.get(mainnetArgs)).toBe(665)
 
   const nonce_2 = await nonceManager.consume(mainnetArgs)
-  expect(nonce_2).toBe(657)
+  expect(nonce_2).toBe(665)
   const promise_2 = sendTransaction(mainnetClient, {
     to: accounts[0].address,
     nonce: nonce_2,
     value: 0n,
   })
-  expect(await nonceManager.get(mainnetArgs)).toBe(658)
+  expect(await nonceManager.get(mainnetArgs)).toBe(666)
 
   const nonce_3 = await nonceManager.consume(mainnetArgs)
-  expect(nonce_3).toBe(658)
+  expect(nonce_3).toBe(666)
   const promise_3 = sendTransaction(mainnetClient, {
     to: accounts[0].address,
     nonce: nonce_3,
     value: 0n,
   })
-  expect(await nonceManager.get(mainnetArgs)).toBe(659)
+  expect(await nonceManager.get(mainnetArgs)).toBe(667)
 
   const [hash_1, hash_2, hash_3] = await Promise.all([
     promise_1,
@@ -83,17 +83,17 @@ test('consume (sequence)', async () => {
 
   expect(
     (await getTransaction(mainnetClient, { hash: hash_1 })).nonce,
-  ).toMatchObject(656)
+  ).toMatchObject(664)
   expect(
     (await getTransaction(mainnetClient, { hash: hash_2 })).nonce,
-  ).toMatchObject(657)
+  ).toMatchObject(665)
   expect(
     (await getTransaction(mainnetClient, { hash: hash_3 })).nonce,
-  ).toMatchObject(658)
-  expect(await nonceManager.get(mainnetArgs)).toBe(659)
+  ).toMatchObject(666)
+  expect(await nonceManager.get(mainnetArgs)).toBe(667)
 
   const nonce_4 = await nonceManager.consume(mainnetArgs)
-  expect(nonce_4).toBe(659)
+  expect(nonce_4).toBe(667)
   const hash_4 = await sendTransaction(mainnetClient, {
     to: accounts[0].address,
     nonce: nonce_4,
@@ -101,9 +101,9 @@ test('consume (sequence)', async () => {
   })
   expect(
     (await getTransaction(mainnetClient, { hash: hash_4 })).nonce,
-  ).toMatchObject(659)
+  ).toMatchObject(667)
 
-  expect(await nonceManager.get(mainnetArgs)).toBe(660)
+  expect(await nonceManager.get(mainnetArgs)).toBe(668)
 })
 
 test('consume (parallel)', async () => {
@@ -121,13 +121,13 @@ test('consume (parallel)', async () => {
     nonceManager.get(mainnetArgs),
   ])
 
-  expect(n_1).toBe(660)
-  expect(nonce_1).toBe(660)
-  expect(n_2).toBe(661)
-  expect(nonce_2).toBe(661)
-  expect(n_3).toBe(662)
-  expect(nonce_3).toBe(662)
-  expect(n_4).toBe(663)
+  expect(n_1).toBe(668)
+  expect(nonce_1).toBe(668)
+  expect(n_2).toBe(669)
+  expect(nonce_2).toBe(669)
+  expect(n_3).toBe(670)
+  expect(nonce_3).toBe(670)
+  expect(n_4).toBe(671)
 
   const [hash_1, hash_2, hash_3] = await Promise.all([
     sendTransaction(mainnetClient, {
@@ -149,17 +149,17 @@ test('consume (parallel)', async () => {
 
   expect(
     (await getTransaction(mainnetClient, { hash: hash_1 })).nonce,
-  ).toMatchObject(660)
+  ).toMatchObject(668)
   expect(
     (await getTransaction(mainnetClient, { hash: hash_2 })).nonce,
-  ).toMatchObject(661)
+  ).toMatchObject(669)
   expect(
     (await getTransaction(mainnetClient, { hash: hash_3 })).nonce,
-  ).toMatchObject(662)
-  expect(await nonceManager.get(mainnetArgs)).toBe(663)
+  ).toMatchObject(670)
+  expect(await nonceManager.get(mainnetArgs)).toBe(671)
 
   const nonce_4 = await nonceManager.consume(mainnetArgs)
-  expect(nonce_4).toBe(663)
+  expect(nonce_4).toBe(671)
   const hash_4 = await sendTransaction(mainnetClient, {
     to: accounts[0].address,
     nonce: nonce_4,
@@ -167,14 +167,14 @@ test('consume (parallel)', async () => {
   })
   expect(
     (await getTransaction(mainnetClient, { hash: hash_4 })).nonce,
-  ).toMatchObject(663)
-  expect(await nonceManager.get(mainnetArgs)).toBe(664)
+  ).toMatchObject(671)
+  expect(await nonceManager.get(mainnetArgs)).toBe(672)
 })
 
 test('nonceManager export', async () => {
-  expect(await nonceManager.get(mainnetArgs)).toBe(664)
-  expect(await nonceManager.consume(mainnetArgs)).toBe(664)
-  expect(await nonceManager.get(mainnetArgs)).toBe(665)
+  expect(await nonceManager.get(mainnetArgs)).toBe(672)
+  expect(await nonceManager.consume(mainnetArgs)).toBe(672)
+  expect(await nonceManager.get(mainnetArgs)).toBe(673)
 
   const nonces = await Promise.all([
     nonceManager.consume(mainnetArgs),
@@ -186,12 +186,12 @@ test('nonceManager export', async () => {
   ])
   expect(nonces).toMatchInlineSnapshot(`
     [
-      665,
-      666,
-      666,
-      667,
-      667,
-      668,
+      673,
+      674,
+      674,
+      675,
+      675,
+      676,
     ]
   `)
 })
@@ -208,35 +208,35 @@ test('dropped tx', async () => {
   }
 
   const nonce_1 = await nonceManager.consume(args)
-  expect(nonce_1).toBe(105)
+  expect(nonce_1).toBe(112)
   const hash_1 = await sendTransaction(mainnetClient, {
     account: privateKeyToAccount(accounts[1].privateKey),
     to: accounts[0].address,
     nonce: nonce_1,
     value: 0n,
   })
-  expect(await nonceManager.get(args)).toBe(106)
+  expect(await nonceManager.get(args)).toBe(113)
 
   const nonce_2 = await nonceManager.consume(args)
-  expect(nonce_2).toBe(106)
+  expect(nonce_2).toBe(113)
   const hash_2 = await sendTransaction(mainnetClient, {
     account: privateKeyToAccount(accounts[1].privateKey),
     to: accounts[0].address,
     nonce: nonce_2,
     value: 0n,
   })
-  expect(await nonceManager.get(args)).toBe(107)
+  expect(await nonceManager.get(args)).toBe(114)
 
   await dropTransaction(mainnetClient, { hash: hash_1 })
   await dropTransaction(mainnetClient, { hash: hash_2 })
 
   const nonce_3 = await nonceManager.consume(args)
-  expect(nonce_3).toBe(105)
+  expect(nonce_3).toBe(112)
   await sendTransaction(mainnetClient, {
     account: privateKeyToAccount(accounts[1].privateKey),
     to: accounts[0].address,
     nonce: nonce_3,
     value: 0n,
   })
-  expect(await nonceManager.get(args)).toBe(106)
+  expect(await nonceManager.get(args)).toBe(113)
 })

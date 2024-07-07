@@ -92,7 +92,7 @@ describe('wagmi', () => {
         blockNumber: anvilMainnet.forkBlockNumber,
         functionName: 'totalSupply',
       }),
-    ).toEqual(631n)
+    ).toEqual(648n)
   })
 
   test('overloaded function', async () => {
@@ -225,7 +225,7 @@ describe('deployless read (factory)', () => {
         "Mock4337Account",
         "1",
         1n,
-        "0x8a00708a83D977494139D21D618C6C2A71fA8ed1",
+        "0xE911628bF8428C23f179a07b081325cAe376DE1f",
         "0x0000000000000000000000000000000000000000000000000000000000000000",
         [],
       ]
