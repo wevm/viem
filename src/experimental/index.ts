@@ -22,6 +22,13 @@ export {
   getSupportedEntryPoints,
 } from './erc4337/actions/getSupportedEntryPoints.js'
 export {
+  type PrepareUserOperationRequestParameterType,
+  type PrepareUserOperationRequestParameters,
+  type PrepareUserOperationRequestRequest,
+  type PrepareUserOperationRequestReturnType,
+  prepareUserOperationRequest,
+} from './erc4337/actions/prepareUserOperationRequest.js'
+export {
   type SendUserOperationErrorType,
   type SendUserOperationParameters,
   type SendUserOperationReturnType,

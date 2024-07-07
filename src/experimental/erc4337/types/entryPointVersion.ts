@@ -8,6 +8,7 @@ export type DeriveEntryPointVersion<account extends SmartAccount | undefined> =
     ? account['entryPoint']['version']
     : EntryPointVersion
 
+/** @internal */
 export type GetEntryPointVersionParameter<
   version extends EntryPointVersion | undefined,
   versionOverride extends EntryPointVersion | undefined =

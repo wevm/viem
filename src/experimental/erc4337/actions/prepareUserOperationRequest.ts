@@ -21,7 +21,7 @@ import type {
 } from '../types/userOperation.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
-export const defaultParameters = ['factory', 'gas', 'nonce'] as const
+const defaultParameters = ['factory', 'gas', 'nonce'] as const
 
 export type PrepareUserOperationRequestParameterType =
   | 'factory'
