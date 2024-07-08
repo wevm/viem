@@ -61,7 +61,7 @@ If you do not wish to pass an `account` to every `estimateUserOperationGas`, you
 import { parseEther } from 'viem'
 import { bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const gas = await bundlerClient.estimateUserOperationGas({ // [!code focus:7]
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
     value: parseEther('1')

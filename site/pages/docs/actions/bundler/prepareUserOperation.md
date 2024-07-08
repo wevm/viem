@@ -61,7 +61,7 @@ If you do not wish to pass an `account` to every `prepareUserOperation`, you can
 import { parseEther } from 'viem'
 import { bundlerClient } from './config'
 
-const userOperation = await bundlerClient.prepareUserOperation({
+const userOperation = await bundlerClient.prepareUserOperation({ // [!code focus:7]
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
     value: parseEther('1')
