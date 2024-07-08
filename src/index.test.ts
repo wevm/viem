@@ -406,7 +406,7 @@ test('exports', () => {
       "nonceManager",
       "estimateUserOperationGas",
       "getSupportedEntryPoints",
-      "prepareUserOperationRequest",
+      "prepareUserOperation",
       "sendUserOperation",
       "createBundlerClient",
       "bundlerActions",

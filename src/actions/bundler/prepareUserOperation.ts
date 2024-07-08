@@ -25,7 +25,7 @@ import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
 const defaultParameters = ['factory', 'gas', 'nonce'] as const
 
-export type PrepareUserOperationRequestParameterType =
+export type PrepareUserOperationParameterType =
   | 'factory'
   | 'gas'
   | 'nonce'
@@ -74,7 +74,7 @@ type SignatureProperties = {
   signature: UserOperation['signature']
 }
 
-export type PrepareUserOperationRequestRequest<
+export type PrepareUserOperationRequest<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
   //
@@ -85,28 +85,28 @@ export type PrepareUserOperationRequestRequest<
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = UserOperationRequest<_derivedVersion> & {
-  parameters?: readonly PrepareUserOperationRequestParameterType[] | undefined
+  parameters?: readonly PrepareUserOperationParameterType[] | undefined
 }
 
-export type PrepareUserOperationRequestParameters<
+export type PrepareUserOperationParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
-  request extends PrepareUserOperationRequestRequest<
+  request extends PrepareUserOperationRequest<
     account,
     accountOverride
-  > = PrepareUserOperationRequestRequest<account, accountOverride>,
+  > = PrepareUserOperationRequest<account, accountOverride>,
 > = request & GetSmartAccountParameter<account, accountOverride>
 
-export type PrepareUserOperationRequestReturnType<
+export type PrepareUserOperationReturnType<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
-  request extends PrepareUserOperationRequestRequest<
+  request extends PrepareUserOperationRequest<
     account,
     accountOverride
-  > = PrepareUserOperationRequestRequest<account, accountOverride>,
+  > = PrepareUserOperationRequest<account, accountOverride>,
   //
   _parameters extends
-    PrepareUserOperationRequestParameterType = request['parameters'] extends readonly PrepareUserOperationRequestParameterType[]
+    PrepareUserOperationParameterType = request['parameters'] extends readonly PrepareUserOperationParameterType[]
     ? request['parameters'][number]
     : (typeof defaultParameters)[number],
   _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
@@ -133,13 +133,13 @@ export type PrepareUserOperationRequestReturnType<
 /**
  * Prepares a User Operation and fills in missing properties.
  *
- * - Docs: https://viem.sh/actions/bundler/prepareUserOperationRequest
+ * - Docs: https://viem.sh/actions/bundler/prepareUserOperation
  *
- * @param args - {@link PrepareUserOperationRequestParameters}
- * @returns The User Operation. {@link PrepareUserOperationRequestReturnType}
+ * @param args - {@link PrepareUserOperationParameters}
+ * @returns The User Operation. {@link PrepareUserOperationReturnType}
  *
  * @example
- * import { createBundlerClient, prepareUserOperationRequest, http } from 'viem'
+ * import { createBundlerClient, prepareUserOperation, http } from 'viem'
  * import { toSmartAccount } from 'viem/accounts'
  * import { mainnet } from 'viem/chains'
  *
@@ -150,32 +150,23 @@ export type PrepareUserOperationRequestReturnType<
  *   transport: http(),
  * })
  *
- * const request = await prepareUserOperationRequest(client, {
+ * const request = await prepareUserOperation(client, {
  *   account,
  *   calls: [{ to: '0x...', value: parseEther('1') }],
  * })
  */
-export async function prepareUserOperationRequest<
+export async function prepareUserOperation<
   account extends SmartAccount | undefined,
-  const request extends PrepareUserOperationRequestRequest<
-    account,
-    accountOverride
-  >,
+  const request extends PrepareUserOperationRequest<account, accountOverride>,
   accountOverride extends SmartAccount | undefined = undefined,
 >(
   client: Client<Transport, Chain | undefined, account, BundlerRpcSchema>,
-  parameters: PrepareUserOperationRequestParameters<
-    account,
-    accountOverride,
-    request
-  >,
-): Promise<
-  PrepareUserOperationRequestReturnType<account, accountOverride, request>
-> {
+  parameters: PrepareUserOperationParameters<account, accountOverride, request>,
+): Promise<PrepareUserOperationReturnType<account, accountOverride, request>> {
   const {
     account: account_ = client.account,
     parameters: parameters_ = defaultParameters,
-  } = parameters as PrepareUserOperationRequestParameters
+  } = parameters as PrepareUserOperationParameters
 
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
@@ -183,7 +174,7 @@ export async function prepareUserOperationRequest<
   let request = {
     ...parameters,
     ...(account ? { sender: account.address } : {}),
-  } as PrepareUserOperationRequestRequest
+  } as PrepareUserOperationRequest
 
   // Concurrently prepare properties required to fill the User Operation.
   const [callData, factory, nonce, signature] = await Promise.all([

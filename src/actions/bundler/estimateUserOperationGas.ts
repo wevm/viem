@@ -20,14 +20,15 @@ import type {
   UserOperation,
   UserOperationRequest,
 } from '../../types/userOperation.js'
+import type { Prettify } from '../../types/utils.js'
 import { getUserOperationError } from '../../utils/errors/getUserOperationError.js'
 import { formatUserOperationGas } from '../../utils/formatters/userOperationGas.js'
 import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import {
-  type PrepareUserOperationRequestParameters,
-  prepareUserOperationRequest,
-} from './prepareUserOperationRequest.js'
+  type PrepareUserOperationParameters,
+  prepareUserOperation,
+} from './prepareUserOperation.js'
 
 export type EstimateUserOperationGasParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -52,7 +53,7 @@ export type EstimateUserOperationGasReturnType<
   >,
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
-> = EstimateUserOperationGasReturnType_<_derivedVersion>
+> = Prettify<EstimateUserOperationGasReturnType_<_derivedVersion>>
 
 export type EstimateUserOperationGasErrorType = ErrorType
 
@@ -96,12 +97,12 @@ export async function estimateUserOperationGas<
 
   const request = await getAction(
     client,
-    prepareUserOperationRequest,
-    'prepareUserOperationRequest',
+    prepareUserOperation,
+    'prepareUserOperation',
   )({
     ...parameters,
     parameters: ['factory', 'nonce', 'signature'],
-  } as unknown as PrepareUserOperationRequestParameters)
+  } as unknown as PrepareUserOperationParameters)
 
   try {
     const result = await client.request({

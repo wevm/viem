@@ -1703,12 +1703,12 @@ export {
   getSupportedEntryPoints,
 } from './actions/bundler/getSupportedEntryPoints.js'
 export {
-  type PrepareUserOperationRequestParameterType,
-  type PrepareUserOperationRequestParameters,
-  type PrepareUserOperationRequestRequest,
-  type PrepareUserOperationRequestReturnType,
-  prepareUserOperationRequest,
-} from './actions/bundler/prepareUserOperationRequest.js'
+  type PrepareUserOperationParameterType,
+  type PrepareUserOperationParameters,
+  type PrepareUserOperationRequest,
+  type PrepareUserOperationReturnType,
+  prepareUserOperation,
+} from './actions/bundler/prepareUserOperation.js'
 export {
   type SendUserOperationErrorType,
   type SendUserOperationParameters,

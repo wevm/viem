@@ -10,11 +10,11 @@ import {
   getSupportedEntryPoints,
 } from '../../actions/bundler/getSupportedEntryPoints.js'
 import {
-  type PrepareUserOperationRequestParameters,
-  type PrepareUserOperationRequestRequest,
-  type PrepareUserOperationRequestReturnType,
-  prepareUserOperationRequest,
-} from '../../actions/bundler/prepareUserOperationRequest.js'
+  type PrepareUserOperationParameters,
+  type PrepareUserOperationRequest,
+  type PrepareUserOperationReturnType,
+  prepareUserOperation,
+} from '../../actions/bundler/prepareUserOperation.js'
 import {
   type SendUserOperationParameters,
   type SendUserOperationReturnType,
@@ -106,10 +106,10 @@ export type BundlerActions<
   /**
    * Prepares a User Operation and fills in missing properties.
    *
-   * - Docs: https://viem.sh/actions/bundler/prepareUserOperationRequest
+   * - Docs: https://viem.sh/actions/bundler/prepareUserOperation
    *
-   * @param args - {@link PrepareUserOperationRequestParameters}
-   * @returns The User Operation. {@link PrepareUserOperationRequestReturnType}
+   * @param args - {@link PrepareUserOperationParameters}
+   * @returns The User Operation. {@link PrepareUserOperationReturnType}
    *
    * @example
    * import { createBundlerClient, http } from 'viem'
@@ -123,25 +123,22 @@ export type BundlerActions<
    *   transport: http(),
    * })
    *
-   * const request = await client.prepareUserOperationRequest({
+   * const request = await client.prepareUserOperation({
    *   account,
    *   calls: [{ to: '0x...', value: parseEther('1') }],
    * })
    */
-  prepareUserOperationRequest: <
-    const request extends PrepareUserOperationRequestRequest<
-      account,
-      accountOverride
-    >,
+  prepareUserOperation: <
+    const request extends PrepareUserOperationRequest<account, accountOverride>,
     accountOverride extends SmartAccount | undefined = undefined,
   >(
-    parameters: PrepareUserOperationRequestParameters<
+    parameters: PrepareUserOperationParameters<
       account,
       accountOverride,
       request
     >,
   ) => Promise<
-    PrepareUserOperationRequestReturnType<account, accountOverride, request>
+    PrepareUserOperationReturnType<account, accountOverride, request>
   >
   /**
    * Broadcasts a User Operation to the Bundler.
@@ -193,8 +190,8 @@ export function bundlerActions() {
         estimateUserOperationGas(client, parameters),
       getChainId: () => getChainId(client),
       getSupportedEntryPoints: () => getSupportedEntryPoints(client),
-      prepareUserOperationRequest: (parameters) =>
-        prepareUserOperationRequest(client, parameters),
+      prepareUserOperation: (parameters) =>
+        prepareUserOperation(client, parameters),
       sendUserOperation: (parameters) => sendUserOperation(client, parameters),
     }
   }

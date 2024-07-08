@@ -343,8 +343,8 @@ export const sidebar = {
           link: '/docs/actions/bundler/getSupportedEntryPoints',
         },
         {
-          text: 'prepareUserOperationRequest',
-          link: '/docs/actions/bundler/prepareUserOperationRequest',
+          text: 'prepareUserOperation',
+          link: '/docs/actions/bundler/prepareUserOperation',
         },
         {
           text: 'sendUserOperation',

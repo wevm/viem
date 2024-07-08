@@ -25,9 +25,9 @@ import { getUserOperationError } from '../../utils/errors/getUserOperationError.
 import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import {
-  type PrepareUserOperationRequestParameters,
-  prepareUserOperationRequest,
-} from './prepareUserOperationRequest.js'
+  type PrepareUserOperationParameters,
+  prepareUserOperation,
+} from './prepareUserOperation.js'
 
 export type SendUserOperationParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -90,9 +90,9 @@ export async function sendUserOperation<
 
   const request = await getAction(
     client,
-    prepareUserOperationRequest,
+    prepareUserOperation,
     'prepareTransactionRequest',
-  )(parameters as unknown as PrepareUserOperationRequestParameters)
+  )(parameters as unknown as PrepareUserOperationParameters)
 
   const signature = await account.signUserOperation({
     userOperation: request as UserOperation,

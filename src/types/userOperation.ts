@@ -147,7 +147,7 @@ export type UserOperationRequest<
     | (entryPointVersion extends '0.7'
         ? UnionPartialBy<
             UserOperation<'0.7', uint256>,
-            // We are able to calculate these via `prepareUserOperationRequest`.
+            // We are able to calculate these via `prepareUserOperation`.
             | keyof EstimateUserOperationGasReturnType<'0.7'>
             | 'callData'
             | 'maxFeePerGas'
@@ -160,7 +160,7 @@ export type UserOperationRequest<
     | (entryPointVersion extends '0.6'
         ? UnionPartialBy<
             UserOperation<'0.6', uint256>,
-            // We are able to calculate these via `prepareUserOperationRequest`.
+            // We are able to calculate these via `prepareUserOperation`.
             | keyof EstimateUserOperationGasReturnType<'0.6'>
             | 'callData'
             | 'maxFeePerGas'

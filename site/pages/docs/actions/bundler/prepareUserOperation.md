@@ -1,10 +1,10 @@
 ---
-description: Estimates the gas values for a User Operation to be executed successfully.
+description: Prepares a User Operation for execution and fills in missing properties.
 ---
 
-# estimateUserOperationGas
+# prepareUserOperation
 
-Estimates the gas values for a User Operation to be executed successfully.
+Prepares a User Operation for execution and fills in missing properties.
 
 ## Usage
 
@@ -14,7 +14,7 @@ Estimates the gas values for a User Operation to be executed successfully.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({ // [!code focus:7]
+const userOperation = await bundlerClient.prepareUserOperation({ // [!code focus:7]
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -51,7 +51,7 @@ export const bundlerClient = createBundlerClient({
 
 ### Account Hoisting
 
-If you do not wish to pass an `account` to every `estimateUserOperationGas`, you can also hoist the Account on the Bundler Client (see `config.ts`).
+If you do not wish to pass an `account` to every `prepareUserOperation`, you can also hoist the Account on the Bundler Client (see `config.ts`).
 
 [Learn more](/docs/clients/wallet#account).
 
@@ -61,7 +61,7 @@ If you do not wish to pass an `account` to every `estimateUserOperationGas`, you
 import { parseEther } from 'viem'
 import { bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
     value: parseEther('1')
@@ -98,17 +98,9 @@ export const bundlerClient = createBundlerClient({
 
 ## Returns
 
-```ts
-{
-  callGasLimit: bigint;
-  preVerificationGas: bigint;
-  verificationGasLimit: bigint;
-  paymasterVerificationGasLimit: bigint | undefined;
-  paymasterPostOpGasLimit: bigint | undefined;
-}
-```
+`UserOperation`
 
-The estimated gas values.
+The prepared User Operation.
 
 ## Parameters
 
@@ -122,7 +114,7 @@ The Account to use for User Operation execution.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account, // [!code focus]
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -141,7 +133,7 @@ The calls to execute in the User Operation.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{ // [!code focus]
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
@@ -157,7 +149,7 @@ You can also pass raw call data via the `callData` property:
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 // ---cut---
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   callData: '0xdeadbeef', // [!code focus]
 })
@@ -174,7 +166,7 @@ The amount of gas to allocate the main execution call.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -198,7 +190,7 @@ This property should only be populated when the Smart Account has not been deplo
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -223,7 +215,7 @@ This property should only be populated when the Smart Account has not been deplo
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -244,7 +236,7 @@ Maximum fee per gas for User Operation execution.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -264,7 +256,7 @@ Maximum priority fee per gas for User Operation execution.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -285,7 +277,7 @@ Nonce for the User Operation.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -305,7 +297,7 @@ Paymaster address.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -326,7 +318,7 @@ Call data to execute on the Paymaster contract.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -347,7 +339,7 @@ The amount of gas to allocate for the Paymaster post-operation code.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -369,7 +361,7 @@ The amount of gas to allocate for the Paymaster validation code.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -391,7 +383,7 @@ Extra gas to pay the Bunder.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -411,7 +403,7 @@ Signature for the User Operation.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -431,7 +423,7 @@ The amount of gas to allocate for the verification step.
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
-const gas = await bundlerClient.estimateUserOperationGas({
+const userOperation = await bundlerClient.prepareUserOperation({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',

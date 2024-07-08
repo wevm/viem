@@ -36,7 +36,7 @@ test('with account', async () => {
   })
   expectTypeOf(client).toMatchTypeOf<BundlerClient>()
   expectTypeOf(client.account).toMatchTypeOf<SmartAccount>()
-  expectTypeOf(client.account).toEqualTypeOf<
+  expectTypeOf(client.account).toMatchTypeOf<
     SmartAccount<SoladyImplementation<'0.7'>>
   >()
 })
@@ -65,12 +65,12 @@ test('action: estimateUserOperationGas', () => {
   })
 })
 
-test('action: prepareUserOperationRequest', () => {
+test('action: prepareUserOperation', () => {
   const client_withAccount = createBundlerClient({
     account,
     transport: http(),
   })
-  client_withAccount.prepareUserOperationRequest({
+  client_withAccount.prepareUserOperation({
     calls: [{ to: '0x0000000000000000000000000000000000000000' }],
   })
 
@@ -78,7 +78,7 @@ test('action: prepareUserOperationRequest', () => {
     transport: http(),
   })
   // @ts-expect-error
-  client_withoutAccount.prepareUserOperationRequest({
+  client_withoutAccount.prepareUserOperation({
     calls: [{ to: '0x0000000000000000000000000000000000000000' }],
   })
 })

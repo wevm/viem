@@ -4,7 +4,7 @@ import {
   getSmartAccounts_06,
   getSmartAccounts_07,
 } from '../../../test/src/smartAccounts.js'
-import { prepareUserOperationRequest } from './prepareUserOperationRequest.js'
+import { prepareUserOperation } from './prepareUserOperation.js'
 
 const bundlerClient = bundlerMainnet.getBundlerClient()
 
@@ -12,7 +12,7 @@ describe('entryPointVersion: 0.7', async () => {
   const [account] = await getSmartAccounts_07()
 
   test('default', async () => {
-    const request = await prepareUserOperationRequest(bundlerClient, {
+    const request = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
     })
@@ -39,7 +39,7 @@ describe('entryPointVersion: 0.6', async () => {
   const [account] = await getSmartAccounts_06()
 
   test('default', async () => {
-    const request = await prepareUserOperationRequest(bundlerClient, {
+    const request = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
     })

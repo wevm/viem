@@ -6,7 +6,7 @@ import {
 } from '../../../test/src/smartAccounts.js'
 import type { Hex } from '../../types/misc.js'
 import type { UserOperation } from '../../types/userOperation.js'
-import { prepareUserOperationRequest } from './prepareUserOperationRequest.js'
+import { prepareUserOperation } from './prepareUserOperation.js'
 
 const bundlerClient = bundlerMainnet.getBundlerClient()
 
@@ -14,7 +14,7 @@ describe('entryPointVersion: 0.7', async () => {
   const [account] = await getSmartAccounts_07()
 
   test('default', async () => {
-    const result = await prepareUserOperationRequest(bundlerClient, {
+    const result = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x' }],
     })
@@ -36,7 +36,7 @@ describe('entryPointVersion: 0.7', async () => {
   })
 
   test('cast (widened)', async () => {
-    const result = await prepareUserOperationRequest(bundlerClient, {
+    const result = await prepareUserOperation(bundlerClient, {
       account,
       ...({} as UserOperation),
     })
@@ -61,7 +61,7 @@ describe('entryPointVersion: 0.7', async () => {
   })
 
   test('cast (narrowed)', async () => {
-    const result = await prepareUserOperationRequest(bundlerClient, {
+    const result = await prepareUserOperation(bundlerClient, {
       account,
       ...({} as UserOperation<'0.7'>),
     })
@@ -87,7 +87,7 @@ describe('entryPointVersion: 0.7', async () => {
   })
 
   test('args: parameters', async () => {
-    const result = await prepareUserOperationRequest(bundlerClient, {
+    const result = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x' }],
       parameters: ['gas'],
@@ -112,7 +112,7 @@ describe('entryPointVersion: 0.7', async () => {
       bigint | undefined
     >()
 
-    const result_2 = await prepareUserOperationRequest(bundlerClient, {
+    const result_2 = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x' }],
       parameters: ['gas', 'nonce'],
@@ -136,7 +136,7 @@ describe('entryPointVersion: 0.7', async () => {
       bigint | undefined
     >()
 
-    const result_3 = await prepareUserOperationRequest(bundlerClient, {
+    const result_3 = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x' }],
       parameters: ['gas', 'nonce', 'signature'],
@@ -159,7 +159,7 @@ describe('entryPointVersion: 0.7', async () => {
     >()
     expectTypeOf(result_3.signature).toMatchTypeOf<Hex>()
 
-    const result_4 = await prepareUserOperationRequest(bundlerClient, {
+    const result_4 = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x' }],
       parameters: ['factory', 'gas', 'nonce', 'signature'],
@@ -185,7 +185,7 @@ describe('entryPointVersion: 0.6', async () => {
   const [account] = await getSmartAccounts_06()
 
   test('default', async () => {
-    const result = await prepareUserOperationRequest(bundlerClient, {
+    const result = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x' }],
     })
@@ -201,7 +201,7 @@ describe('entryPointVersion: 0.6', async () => {
   })
 
   test('cast (widened)', async () => {
-    const result = await prepareUserOperationRequest(bundlerClient, {
+    const result = await prepareUserOperation(bundlerClient, {
       account,
       ...({} as UserOperation),
     })
@@ -226,7 +226,7 @@ describe('entryPointVersion: 0.6', async () => {
   })
 
   test('cast (narrowed)', async () => {
-    const result = await prepareUserOperationRequest(bundlerClient, {
+    const result = await prepareUserOperation(bundlerClient, {
       account,
       ...({} as UserOperation<'0.6'>),
     })
