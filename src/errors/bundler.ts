@@ -498,11 +498,11 @@ export class UserOperationPaymasterSignatureError extends BaseError {
   }
 }
 
-export type UnknownEntryPointErrorType = UnknownEntryPointError & {
-  name: 'UnknownEntryPointError'
+export type UnknownBundlerErrorType = UnknownBundlerError & {
+  name: 'UnknownBundlerError'
 }
-export class UnknownEntryPointError extends BaseError {
-  override name = 'UnknownEntryPointError'
+export class UnknownBundlerError extends BaseError {
+  override name = 'UnknownBundlerError'
 
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(

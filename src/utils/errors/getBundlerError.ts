@@ -36,8 +36,8 @@ import {
   type SenderAlreadyConstructedErrorType,
   SmartAccountFunctionRevertedError,
   type SmartAccountFunctionRevertedErrorType,
-  UnknownEntryPointError,
-  type UnknownEntryPointErrorType,
+  UnknownBundlerError,
+  type UnknownBundlerErrorType,
   UserOperationExpiredError,
   type UserOperationExpiredErrorType,
   UserOperationPaymasterExpiredError,
@@ -75,7 +75,7 @@ export type GetBundlerErrorReturnType =
   | PaymasterPostOpFunctionRevertedErrorType
   | SenderAlreadyConstructedErrorType
   | SmartAccountFunctionRevertedErrorType
-  | UnknownEntryPointErrorType
+  | UnknownBundlerErrorType
   | UserOperationExpiredErrorType
   | UserOperationPaymasterExpiredErrorType
   | UserOperationPaymasterSignatureErrorType
@@ -198,7 +198,7 @@ export function getBundlerError(
     return new VerificationGasLimitTooLowError({
       cause: err,
     }) as any
-  return new UnknownEntryPointError({
+  return new UnknownBundlerError({
     cause: err,
   }) as any
 }

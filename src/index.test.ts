@@ -411,7 +411,7 @@ test('exports', () => {
       "createBundlerClient",
       "bundlerActions",
       "InitCodeFailedError",
-      "UnknownEntryPointError",
+      "UnknownBundlerError",
       "UserOperationExecutionError",
       "formatUserOperationGas",
       "formatUserOperationRequest",

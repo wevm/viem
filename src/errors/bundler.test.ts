@@ -19,7 +19,7 @@ import {
   PaymasterPostOpFunctionRevertedError,
   SenderAlreadyConstructedError,
   SmartAccountFunctionRevertedError,
-  UnknownEntryPointError,
+  UnknownBundlerError,
   UserOperationExpiredError,
   UserOperationPaymasterExpiredError,
   UserOperationPaymasterSignatureError,
@@ -416,13 +416,13 @@ test('UserOperationPaymasterSignatureError', () => {
   `)
 })
 
-test('UnknownEntryPointError', () => {
+test('UnknownBundlerError', () => {
   expect(
-    new UnknownEntryPointError({
+    new UnknownBundlerError({
       cause: new BaseError('test'),
     }),
   ).toMatchInlineSnapshot(`
-    [UnknownEntryPointError: An error occurred while executing user operation: test
+    [UnknownBundlerError: An error occurred while executing user operation: test
 
     Version: viem@x.y.z]
   `)
