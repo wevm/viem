@@ -42,7 +42,7 @@ describe('entryPointVersion: 0.7', async () => {
     expect(hash).toBeDefined()
   })
 
-  test('error: failed init code', async () => {
+  test('error: aa13', async () => {
     await writeContract(client, {
       abi: account.abi,
       address: account.address,
@@ -70,6 +70,11 @@ describe('entryPointVersion: 0.7', async () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
+
+      This could arise when:
+      - Invalid \`factory\`/\`factoryData\` or \`initCode\` properties are present
+      - Smart Account deployment execution ran out of gas (low \`verificationGasLimit\` value)
+      - Smart Account deployment execution reverted with an error
 
       factory: 0x0000000000000000000000000000000000000000
       factoryData: 0xdeadbeef
@@ -120,7 +125,7 @@ describe('entryPointVersion: 0.6', async () => {
     expect(hash).toBeDefined()
   })
 
-  test('error: failed init code', async () => {
+  test('error: aa13', async () => {
     await writeContract(client, {
       abi: account.abi,
       address: account.address,
@@ -147,6 +152,11 @@ describe('entryPointVersion: 0.6', async () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
+
+      This could arise when:
+      - Invalid \`factory\`/\`factoryData\` or \`initCode\` properties are present
+      - Smart Account deployment execution ran out of gas (low \`verificationGasLimit\` value)
+      - Smart Account deployment execution reverted with an error
 
       initCode: 0x0000000000000000000000000000000000000000deadbeef
        

@@ -1,6 +1,6 @@
 # Local Accounts (Private Key, Mnemonic, etc)
 
-A Local Account performs signing of transactions & messages with a private key **before** executing a method over JSON-RPC.
+A Local Account is an Account that is "managed" locally, on the consuming user's machine. It performs signing of transactions & messages with a private key **before** broadcasting the transaction or message over JSON-RPC.
 
 There are three types of Local Accounts in viem:
 

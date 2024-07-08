@@ -12,6 +12,7 @@ import type { TypedDataDefinition } from '../../types/typedData.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { pad } from '../../utils/data/pad.js'
+import { getAction } from '../../utils/getAction.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
 import type {
   SmartAccountImplementation,
@@ -182,7 +183,11 @@ export function solady<entryPointVersion extends EntryPointVersion = '0.7'>(
             sender: address,
           },
         })
-        const signature = await signMessage_(client, {
+        const signature = await getAction(
+          client,
+          signMessage_,
+          'signMessage',
+        )({
           account: owner,
           message: {
             raw: userOpHash,

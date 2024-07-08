@@ -333,10 +333,22 @@ export const sidebar = {
       collapsed: true,
       items: [
         { text: 'Introduction', link: '/docs/actions/bundler/introduction' },
+        {
+          text: 'estimateUserOperationGas',
+          link: '/docs/actions/bundler/estimateUserOperationGas',
+        },
         { text: 'getChainId', link: '/docs/actions/bundler/getChainId' },
         {
           text: 'getSupportedEntryPoints',
           link: '/docs/actions/bundler/getSupportedEntryPoints',
+        },
+        {
+          text: 'prepareUserOperationRequest',
+          link: '/docs/actions/bundler/prepareUserOperationRequest',
+        },
+        {
+          text: 'sendUserOperation',
+          link: '/docs/actions/bundler/sendUserOperation',
         },
       ],
     },
@@ -474,18 +486,42 @@ export const sidebar = {
               link: '/docs/accounts/hd',
             },
             { text: 'Custom', link: '/docs/accounts/custom' },
+            {
+              text: 'Utilities',
+              items: [
+                {
+                  text: 'createNonceManager',
+                  link: '/docs/accounts/createNonceManager',
+                },
+                { text: 'signMessage', link: '/docs/accounts/signMessage' },
+                {
+                  text: 'signTransaction',
+                  link: '/docs/accounts/signTransaction',
+                },
+                { text: 'signTypedData', link: '/docs/accounts/signTypedData' },
+              ],
+            },
           ],
         },
         {
-          text: 'Utilities',
+          text: 'Smart Accounts',
+          link: '/docs/accounts/smart',
           items: [
+            { text: 'toSmartAccount', link: '/docs/accounts/toSmartAccount' },
             {
-              text: 'createNonceManager',
-              link: '/docs/accounts/createNonceManager',
+              text: 'Implementations',
+              link: '/docs/accounts/implementations',
+              items: [
+                {
+                  text: 'Solady',
+                  link: '/docs/accounts/implementations/solady',
+                },
+                {
+                  text: 'Custom',
+                  link: '/docs/accounts/implementations/custom',
+                },
+              ],
             },
-            { text: 'signMessage', link: '/docs/accounts/signMessage' },
-            { text: 'signTransaction', link: '/docs/accounts/signTransaction' },
-            { text: 'signTypedData', link: '/docs/accounts/signTypedData' },
           ],
         },
       ],

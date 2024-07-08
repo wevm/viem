@@ -23,6 +23,7 @@ import type {
 import { getUserOperationError } from '../../utils/errors/getUserOperationError.js'
 import { formatUserOperationGas } from '../../utils/formatters/userOperationGas.js'
 import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type PrepareUserOperationRequestParameters,
   prepareUserOperationRequest,
@@ -93,7 +94,11 @@ export async function estimateUserOperationGas<
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
-  const request = await prepareUserOperationRequest(client, {
+  const request = await getAction(
+    client,
+    prepareUserOperationRequest,
+    'prepareUserOperationRequest',
+  )({
     ...parameters,
     parameters: ['factory', 'nonce', 'signature'],
   } as unknown as PrepareUserOperationRequestParameters)

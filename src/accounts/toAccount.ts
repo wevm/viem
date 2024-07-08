@@ -1,3 +1,5 @@
+// TODO(v3): Rename to `toLocalAccount` + add `source` property to define source (privateKey, mnemonic, hdKey, etc).
+
 import type { Address } from 'abitype'
 
 import {

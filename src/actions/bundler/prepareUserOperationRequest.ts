@@ -20,6 +20,7 @@ import type {
 } from '../../types/userOperation.js'
 import type { Prettify, UnionOmit } from '../../types/utils.js'
 import { concat } from '../../utils/data/concat.js'
+import { getAction } from '../../utils/getAction.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
 const defaultParameters = ['factory', 'gas', 'nonce'] as const
@@ -236,7 +237,11 @@ export async function prepareUserOperationRequest<
     request.paymasterAndData = '0x'
 
   if (parameters_.includes('gas')) {
-    const gas = await estimateUserOperationGas(client, {
+    const gas = await getAction(
+      client,
+      estimateUserOperationGas,
+      'estimateUserOperationGas',
+    )({
       account,
       ...request,
     })

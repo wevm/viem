@@ -2,6 +2,8 @@ import type { Address } from 'abitype'
 
 import { getCode } from '../actions/public/getCode.js'
 import type { Client } from '../clients/createClient.js'
+import type { Prettify } from '../types/utils.js'
+import { getAction } from '../utils/getAction.js'
 import type {
   SmartAccount,
   SmartAccountImplementation,
@@ -12,15 +14,18 @@ export type ToSmartAccountParameters<
   implementation extends
     SmartAccountImplementation = SmartAccountImplementation,
 > = {
+  /** Address of the Smart Account. */
   address?: Address | undefined
+  /** Client used to retrieve Smart Account data, and perform signing (if owner is a JSON-RPC Account). */
   client: Client
+  /** Implementation of the Smart Account. */
   implementation: SmartAccountImplementationFn<implementation>
 }
 
 export type ToSmartAccountReturnType<
   implementation extends
     SmartAccountImplementation = SmartAccountImplementation,
-> = SmartAccount<implementation>
+> = Prettify<SmartAccount<implementation>>
 
 /**
  * @description Creates a Smart Account with a provided account implementation.
@@ -63,7 +68,11 @@ export async function toSmartAccount<
     },
     async isDeployed() {
       if (deployed) return true
-      const code = await getCode(client, {
+      const code = await getAction(
+        client,
+        getCode,
+        'getCode',
+      )({
         address: await implementation.getAddress(),
       })
       deployed = Boolean(code)
