@@ -85,6 +85,11 @@ describe('entryPointVersion: 0.7', async () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
 
+      This could arise when:
+      - Invalid \`factory\`/\`factoryData\` or \`initCode\` properties are present
+      - Smart Account deployment execution ran out of gas (low \`verificationGasLimit\` value)
+      - Smart Account deployment execution reverted with an error
+
       factory: 0x0000000000000000000000000000000000000000
       factoryData: 0x
        
@@ -123,7 +128,10 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData,
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [UserOperationExecutionError: Smart Account initialization does not return the expected sender.
+      [UserOperationExecutionError: Smart Account initialization implementation does not return the expected sender.
+
+      This could arise when:
+      Smart Account initialization implementation does not return a sender address
 
       factory: 0xfb6dab6200b8958c2655c3747708f82243d3f32e
       factoryData: 0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000002
@@ -170,6 +178,11 @@ describe('entryPointVersion: 0.6', async () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
+
+      This could arise when:
+      - Invalid \`factory\`/\`factoryData\` or \`initCode\` properties are present
+      - Smart Account deployment execution ran out of gas (low \`verificationGasLimit\` value)
+      - Smart Account deployment execution reverted with an error
 
       initCode: 0x0000000000000000000000000000000000000000deadbeef
        

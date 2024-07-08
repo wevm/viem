@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { RpcRequestError } from '../../errors/request.js'
-import { getEntryPointError } from './getEntryPointError.js'
+import { getBundlerError } from './getBundlerError.js'
 
 test('InitCodeFailedError', () => {
   const error = new RpcRequestError({
@@ -12,12 +12,17 @@ test('InitCodeFailedError', () => {
     },
     url: '',
   })
-  const result = getEntryPointError(error, {
+  const result = getBundlerError(error, {
     factory: '0x0000000000000000000000000000000000000000',
     factoryData: '0xdeadbeef',
   })
   expect(result).toMatchInlineSnapshot(`
     [InitCodeFailedError: Failed to simulate deployment for Smart Account.
+
+    This could arise when:
+    - Invalid \`factory\`/\`factoryData\` or \`initCode\` properties are present
+    - Smart Account deployment execution ran out of gas (low \`verificationGasLimit\` value)
+    - Smart Account deployment execution reverted with an error
 
     factory: 0x0000000000000000000000000000000000000000
     factoryData: 0xdeadbeef
@@ -36,13 +41,16 @@ test('InitCodeMustReturnSenderError', () => {
     },
     url: '',
   })
-  const result = getEntryPointError(error, {
+  const result = getBundlerError(error, {
     factory: '0x0000000000000000000000000000000000000000',
     factoryData: '0xdeadbeef',
     sender: '0x0000000000000000000000000000000000000000',
   })
   expect(result).toMatchInlineSnapshot(`
-    [InitCodeMustReturnSenderError: Smart Account initialization does not return the expected sender.
+    [InitCodeMustReturnSenderError: Smart Account initialization implementation does not return the expected sender.
+
+    This could arise when:
+    Smart Account initialization implementation does not return a sender address
 
     factory: 0x0000000000000000000000000000000000000000
     factoryData: 0xdeadbeef
@@ -62,7 +70,7 @@ test('SenderAlreadyConstructedError', () => {
     },
     url: '',
   })
-  const result = getEntryPointError(error, {
+  const result = getBundlerError(error, {
     factory: '0x0000000000000000000000000000000000000000',
     factoryData: '0xdeadbeef',
   })
@@ -87,7 +95,7 @@ test('UnknownEntryPointError', () => {
     },
     url: '',
   })
-  const result = getEntryPointError(error, {
+  const result = getBundlerError(error, {
     factory: '0x0000000000000000000000000000000000000000',
     factoryData: '0xdeadbeef',
   })

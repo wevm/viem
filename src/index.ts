@@ -1731,7 +1731,7 @@ export {
   type InitCodeFailedErrorType,
   UnknownEntryPointError,
   type UnknownEntryPointErrorType,
-} from './errors/entryPoint.js'
+} from './errors/bundler.js'
 export {
   UserOperationExecutionError,
   type UserOperationExecutionErrorType,
@@ -1754,10 +1754,10 @@ export type {
   UserOperationRequest,
 } from './types/userOperation.js'
 export {
-  type GetEntryPointErrorParameters,
-  type GetEntryPointErrorReturnType,
-  getEntryPointError,
-} from './utils/errors/getEntryPointError.js'
+  type GetBundlerErrorParameters,
+  type GetBundlerErrorReturnType,
+  getBundlerError,
+} from './utils/errors/getBundlerError.js'
 export {
   type GetUserOperationErrorParameters,
   type GetUserOperationErrorReturnType,

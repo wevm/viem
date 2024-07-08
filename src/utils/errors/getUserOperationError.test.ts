@@ -64,6 +64,11 @@ test('InitCodeFailedError', () => {
   expect(result).toMatchInlineSnapshot(`
     [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
 
+    This could arise when:
+    - Invalid \`factory\`/\`factoryData\` or \`initCode\` properties are present
+    - Smart Account deployment execution ran out of gas (low \`verificationGasLimit\` value)
+    - Smart Account deployment execution reverted with an error
+
     factory: 0x0000000000000000000000000000000000000000
     factoryData: 0xdeadbeef
      
