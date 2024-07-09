@@ -180,6 +180,28 @@ test('InternalCallOnlyError', () => {
   `)
 })
 
+test('InvalidAccountNonceError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -69420,
+      message: 'useroperation reverted during simulation with reason: aa25',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {
+    nonce: 69n,
+  })
+  expect(result).toMatchInlineSnapshot(`
+    [InvalidAccountNonceError: Invalid Smart Account nonce used for User Operation.
+
+    nonce: 69
+
+    Details: useroperation reverted during simulation with reason: aa25
+    Version: viem@x.y.z]
+  `)
+})
+
 test('InvalidAggregatorError', () => {
   const error = new RpcRequestError({
     body: {},

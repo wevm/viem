@@ -137,12 +137,15 @@ export type SmartAccountImplementationFn<
 export type SmartAccountImplementation<
   abi extends Abi | readonly unknown[] = Abi,
   factoryAbi extends Abi | readonly unknown[] = Abi,
+  entryPointAbi extends Abi | readonly unknown[] = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > = {
   /** ABI of the Smart Account implementation. */
   abi: abi
   /** Compatible EntryPoint of the Smart Account. */
   entryPoint: {
+    /** Compatible EntryPoint ABI. */
+    abi: entryPointAbi
     /** Compatible EntryPoint address. */
     address: Address
     /** Compatible EntryPoint version. */

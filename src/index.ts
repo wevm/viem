@@ -550,6 +550,8 @@ export {
   webSocket,
 } from './clients/transports/webSocket.js'
 export {
+  entryPoint06Abi,
+  entryPoint07Abi,
   multicall3Abi,
   erc20Abi,
   erc20Abi_bytes32,
@@ -1695,25 +1697,26 @@ export {
   type EstimateUserOperationGasErrorType,
   type EstimateUserOperationGasParameters,
   type EstimateUserOperationGasReturnType,
-  estimateUserOperationGas,
 } from './actions/bundler/estimateUserOperationGas.js'
 export {
   type GetSupportedEntryPointsErrorType,
   type GetSupportedEntryPointsReturnType,
-  getSupportedEntryPoints,
 } from './actions/bundler/getSupportedEntryPoints.js'
 export {
   type PrepareUserOperationParameterType,
   type PrepareUserOperationParameters,
   type PrepareUserOperationRequest,
   type PrepareUserOperationReturnType,
-  prepareUserOperation,
 } from './actions/bundler/prepareUserOperation.js'
+export {
+  type GetUserOperationReceiptErrorType,
+  type GetUserOperationReceiptParameters,
+  type GetUserOperationReceiptReturnType,
+} from './actions/bundler/getUserOperationReceipt.js'
 export {
   type SendUserOperationErrorType,
   type SendUserOperationParameters,
   type SendUserOperationReturnType,
-  sendUserOperation,
 } from './actions/bundler/sendUserOperation.js'
 export {
   type BundlerClient,
@@ -1781,6 +1784,8 @@ export {
 export {
   UserOperationExecutionError,
   type UserOperationExecutionErrorType,
+  UserOperationReceiptNotFoundError,
+  type UserOperationReceiptNotFoundErrorType,
 } from './errors/userOperation.js'
 export {
   type FormatUserOperationGasErrorType,
@@ -1790,6 +1795,10 @@ export {
   type FormatUserOperationRequestErrorType,
   formatUserOperationRequest,
 } from './utils/formatters/userOperationRequest.js'
+export {
+  type FormatUserOperationReceiptErrorType,
+  formatUserOperationReceipt,
+} from './utils/formatters/userOperationReceipt.js'
 export type { EntryPointVersion } from './types/entryPointVersion.js'
 export type { BundlerRpcSchema } from './types/eip1193.js'
 export type {

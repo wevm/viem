@@ -1,7 +1,8 @@
-import { type Address, type TypedData, parseAbi } from 'abitype'
+import { type Abi, type Address, type TypedData, parseAbi } from 'abitype'
 
 import { readContract } from '../../actions/public/readContract.js'
 import { signMessage as signMessage_ } from '../../actions/wallet/signMessage.js'
+import { entryPoint07Abi } from '../../constants/abis.js'
 import { signMessage } from '../../experimental/solady/actions/signMessage.js'
 import { signTypedData } from '../../experimental/solady/actions/signTypedData.js'
 import type { Account } from '../../types/account.js'
@@ -21,23 +22,38 @@ import type {
 import { parseAccount } from '../utils/parseAccount.js'
 
 export type SoladyImplementation<
+  entryPointAbi extends Abi = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = SmartAccountImplementation<typeof abi, typeof factoryAbi, entryPointVersion>
+> = SmartAccountImplementation<
+  typeof abi,
+  typeof factoryAbi,
+  entryPointAbi,
+  entryPointVersion
+>
 
 export type SoladyImplementationParameters<
+  entryPointAbi extends Abi = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > = {
   chain?: Chain | undefined
-  entryPointAddress?: Address | undefined
-  entryPointVersion?: entryPointVersion | EntryPointVersion | undefined
+  entryPoint?:
+    | {
+        abi: entryPointAbi
+        address: Address
+        version: entryPointVersion | EntryPointVersion
+      }
+    | undefined
   factoryAddress: Address
   owner: Address | Account
   salt?: Hex | undefined
 }
 
 export type SoladyImplementationReturnType<
+  entryPointAbi extends Abi = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = SmartAccountImplementationFn<SoladyImplementation<entryPointVersion>>
+> = SmartAccountImplementationFn<
+  SoladyImplementation<entryPointAbi, entryPointVersion>
+>
 
 /**
  * @description Smart account implementation for [Solady's `ERC4337.sol`](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol).
@@ -53,14 +69,20 @@ export type SoladyImplementationReturnType<
  *   owner: '0x...',
  * })
  */
-export function solady<entryPointVersion extends EntryPointVersion = '0.7'>(
-  parameters: SoladyImplementationParameters<entryPointVersion>,
-): SoladyImplementationReturnType<entryPointVersion> {
+export function solady<
+  entryPointAbi extends Abi = typeof entryPoint07Abi,
+  entryPointVersion extends EntryPointVersion = '0.7',
+>(
+  parameters: SoladyImplementationParameters<entryPointAbi, entryPointVersion>,
+): SoladyImplementationReturnType<entryPointAbi, entryPointVersion> {
   return ({ address, client }) => {
     const {
       chain = client.chain,
-      entryPointAddress = '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
-      entryPointVersion = '0.7',
+      entryPoint = {
+        abi: entryPoint07Abi,
+        address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+        version: '0.7',
+      },
       factoryAddress,
       salt = '0x0',
     } = parameters
@@ -70,12 +92,13 @@ export function solady<entryPointVersion extends EntryPointVersion = '0.7'>(
     return {
       abi,
       entryPoint: {
-        address: entryPointAddress,
-        version: entryPointVersion as entryPointVersion,
+        abi: entryPoint.abi as entryPointAbi,
+        address: entryPoint.address,
+        version: entryPoint.version as entryPointVersion,
       },
       factory: {
-        address: factoryAddress,
         abi: factoryAbi,
+        address: factoryAddress,
       },
 
       async getAddress() {

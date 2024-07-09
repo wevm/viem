@@ -8,7 +8,6 @@ import type {
   GetSmartAccountParameter,
 } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import type { BundlerRpcSchema } from '../../types/eip1193.js'
 import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
@@ -139,9 +138,10 @@ export type PrepareUserOperationReturnType<
  * @returns The User Operation. {@link PrepareUserOperationReturnType}
  *
  * @example
- * import { createBundlerClient, prepareUserOperation, http } from 'viem'
+ * import { createBundlerClient, http } from 'viem'
  * import { toSmartAccount } from 'viem/accounts'
  * import { mainnet } from 'viem/chains'
+ * import { prepareUserOperation } from 'viem/actions'
  *
  * const account = await toSmartAccount({ ... })
  *
@@ -160,7 +160,7 @@ export async function prepareUserOperation<
   const request extends PrepareUserOperationRequest<account, accountOverride>,
   accountOverride extends SmartAccount | undefined = undefined,
 >(
-  client: Client<Transport, Chain | undefined, account, BundlerRpcSchema>,
+  client: Client<Transport, Chain | undefined, account>,
   parameters: PrepareUserOperationParameters<account, accountOverride, request>,
 ): Promise<PrepareUserOperationReturnType<account, accountOverride, request>> {
   const {
@@ -173,7 +173,7 @@ export async function prepareUserOperation<
 
   let request = {
     ...parameters,
-    ...(account ? { sender: account.address } : {}),
+    sender: account.address,
   } as PrepareUserOperationRequest
 
   // Concurrently prepare properties required to fill the User Operation.
@@ -206,7 +206,7 @@ export async function prepareUserOperation<
     })(),
     (async () => {
       if (!parameters_.includes('nonce')) return undefined
-      if (request.nonce) return request.nonce
+      if (typeof request.nonce === 'bigint') return request.nonce
       return account.getNonce()
     })(),
     (async () => {

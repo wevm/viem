@@ -10,6 +10,11 @@ import {
   getSupportedEntryPoints,
 } from '../../actions/bundler/getSupportedEntryPoints.js'
 import {
+  type GetUserOperationReceiptParameters,
+  type GetUserOperationReceiptReturnType,
+  getUserOperationReceipt,
+} from '../../actions/bundler/getUserOperationReceipt.js'
+import {
   type PrepareUserOperationParameters,
   type PrepareUserOperationRequest,
   type PrepareUserOperationReturnType,
@@ -104,6 +109,31 @@ export type BundlerActions<
    */
   getSupportedEntryPoints: () => Promise<GetSupportedEntryPointsReturnType>
   /**
+   * Returns the User Operation Receipt given a User Operation hash.
+   *
+   * - Docs: https://viem.sh/docs/actions/bundler/getUserOperationReceipt
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetUserOperationReceiptParameters}
+   * @returns The receipt. {@link GetUserOperationReceiptReturnType}
+   *
+   * @example
+   * import { createBundlerClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createBundlerClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const receipt = await client.getUserOperationReceipt({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   * })
+   */
+  getUserOperationReceipt: (
+    parameters: GetUserOperationReceiptParameters,
+  ) => Promise<GetUserOperationReceiptReturnType>
+  /**
    * Prepares a User Operation and fills in missing properties.
    *
    * - Docs: https://viem.sh/actions/bundler/prepareUserOperation
@@ -190,6 +220,8 @@ export function bundlerActions() {
         estimateUserOperationGas(client, parameters),
       getChainId: () => getChainId(client),
       getSupportedEntryPoints: () => getSupportedEntryPoints(client),
+      getUserOperationReceipt: (parameters) =>
+        getUserOperationReceipt(client, parameters),
       prepareUserOperation: (parameters) =>
         prepareUserOperation(client, parameters),
       sendUserOperation: (parameters) => sendUserOperation(client, parameters),

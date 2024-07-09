@@ -3,6 +3,7 @@ import { getSmartAccounts_07 } from '../../test/src/smartAccounts.js'
 import type { SoladyImplementation } from '../accounts/implementations/solady.js'
 import type { SmartAccount } from '../accounts/types.js'
 import { localhost } from '../chains/index.js'
+import type { entryPoint07Abi } from '../constants/abis.js'
 import type { RpcUserOperationReceipt } from '../types/rpc.js'
 import {
   type BundlerClient,
@@ -37,7 +38,7 @@ test('with account', async () => {
   expectTypeOf(client).toMatchTypeOf<BundlerClient>()
   expectTypeOf(client.account).toMatchTypeOf<SmartAccount>()
   expectTypeOf(client.account).toMatchTypeOf<
-    SmartAccount<SoladyImplementation<'0.7'>>
+    SmartAccount<SoladyImplementation<typeof entryPoint07Abi, '0.7'>>
   >()
 })
 

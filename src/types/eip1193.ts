@@ -27,7 +27,11 @@ import type { ExactPartial, OneOf, Prettify } from './utils.js'
 //////////////////////////////////////////////////
 // Provider
 
-export type EIP1474Methods = [...PublicRpcSchema, ...WalletRpcSchema]
+export type EIP1474Methods = [
+  ...PublicRpcSchema,
+  ...WalletRpcSchema,
+  ...BundlerRpcSchema,
+]
 
 export type EIP1193Provider = Prettify<
   EIP1193Events & {

@@ -21,6 +21,7 @@ test('creates', () => {
       "extend": [Function],
       "getChainId": [Function],
       "getSupportedEntryPoints": [Function],
+      "getUserOperationReceipt": [Function],
       "key": "bundler",
       "name": "Bundler Client",
       "pollingInterval": 4000,

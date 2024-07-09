@@ -1,6 +1,9 @@
 import { expect, test } from 'vitest'
 import { BaseError } from './base.js'
-import { UserOperationExecutionError } from './userOperation.js'
+import {
+  UserOperationExecutionError,
+  UserOperationReceiptNotFoundError,
+} from './userOperation.js'
 
 test('UserOperationExecutionError', () => {
   expect(
@@ -37,6 +40,18 @@ test('UserOperationExecutionError', () => {
       sender:                0xdeadbeef
       signature:             0xdeadbeef
       verificationGasLimit:  1
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UserOperationReceiptNotFoundError', () => {
+  expect(
+    new UserOperationReceiptNotFoundError({
+      hash: '0x0000000000000000000000000000000000000000',
+    }),
+  ).toMatchInlineSnapshot(`
+    [UserOperationReceiptNotFoundError: User Operation receipt with hash "0x0000000000000000000000000000000000000000" could not be found. The User Operation may not have been processed yet.
 
     Version: viem@x.y.z]
   `)

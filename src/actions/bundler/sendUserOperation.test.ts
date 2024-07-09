@@ -22,16 +22,6 @@ describe('entryPointVersion: 0.7', async () => {
   const [account, account_2, account_3] = await getSmartAccounts_07()
 
   test('default', async () => {
-    await writeContract(client, {
-      abi: account.abi,
-      address: account.address,
-      functionName: 'addDeposit',
-      value: parseEther('1'),
-    })
-    await mine(client, {
-      blocks: 1,
-    })
-
     const hash = await sendUserOperation(bundlerClient, {
       account,
       calls: [
@@ -44,6 +34,27 @@ describe('entryPointVersion: 0.7', async () => {
     })
 
     expect(hash).toBeDefined()
+  })
+
+  test('error: no account', async () => {
+    await expect(() =>
+      // @ts-expect-error
+      sendUserOperation(bundlerClient, {
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+        ],
+        signature: '0xdeadbeef',
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [AccountNotFoundError: Could not find an Account to execute with this Action.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
+
+      Version: viem@x.y.z]
+    `)
   })
 
   test('error: aa10', async () => {
@@ -91,16 +102,6 @@ describe('entryPointVersion: 0.7', async () => {
   })
 
   test('error: aa13', async () => {
-    await writeContract(client, {
-      abi: account.abi,
-      address: account.address,
-      functionName: 'addDeposit',
-      value: parseEther('1'),
-    })
-    await mine(client, {
-      blocks: 1,
-    })
-
     await expect(() =>
       sendUserOperation(bundlerClient, {
         account,
@@ -186,22 +187,51 @@ describe('entryPointVersion: 0.7', async () => {
       Version: viem@x.y.z]
     `)
   })
+
+  test('error: aa24', async () => {
+    await expect(() =>
+      sendUserOperation(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+        ],
+        signature: '0xdeadbeef',
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [UserOperationExecutionError: Signature provided for the User Operation is invalid.
+
+      This could arise when:
+      - the \`signature\` for the User Operation is incorrectly computed, and unable to be verified by the Smart Account
+       
+      Request Arguments:
+        callData:                       0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+        callGasLimit:                   80000
+        factory:                        0xfb6dab6200b8958c2655c3747708f82243d3f32e
+        factoryData:                    0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
+        maxFeePerGas:                   7 gwei
+        maxPriorityFeePerGas:           1 gwei
+        nonce:                          0
+        paymasterPostOpGasLimit:        0
+        paymasterVerificationGasLimit:  0
+        preVerificationGas:             51722
+        sender:                         0xE911628bF8428C23f179a07b081325cAe376DE1f
+        signature:                      0xdeadbeef
+        verificationGasLimit:           259060
+
+      Details: UserOperation reverted with reason: AA24 signature error
+      Version: viem@x.y.z]
+    `)
+  })
 })
 
 describe('entryPointVersion: 0.6', async () => {
   const [account] = await getSmartAccounts_06()
 
   test('default', async () => {
-    await writeContract(client, {
-      abi: account.abi,
-      address: account.address,
-      functionName: 'addDeposit',
-      value: parseEther('1'),
-    })
-    await mine(client, {
-      blocks: 1,
-    })
-
     const hash = await sendUserOperation(bundlerClient, {
       account,
       calls: [
@@ -217,16 +247,6 @@ describe('entryPointVersion: 0.6', async () => {
   })
 
   test('error: aa13', async () => {
-    await writeContract(client, {
-      abi: account.abi,
-      address: account.address,
-      functionName: 'addDeposit',
-      value: parseEther('1'),
-    })
-    await mine(client, {
-      blocks: 1,
-    })
-
     await expect(() =>
       sendUserOperation(bundlerClient, {
         account,

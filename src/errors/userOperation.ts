@@ -1,3 +1,4 @@
+import type { Hash } from '../types/misc.js'
 import type { UserOperation } from '../types/userOperation.js'
 import { formatGwei } from '../utils/index.js'
 import { BaseError } from './base.js'
@@ -70,5 +71,18 @@ export class UserOperationExecutionError extends BaseError {
       ].filter(Boolean) as string[],
     })
     this.cause = cause
+  }
+}
+
+export type UserOperationReceiptNotFoundErrorType =
+  UserOperationReceiptNotFoundError & {
+    name: 'UserOperationReceiptNotFoundError'
+  }
+export class UserOperationReceiptNotFoundError extends BaseError {
+  override name = 'UserOperationReceiptNotFoundError'
+  constructor({ hash }: { hash: Hash }) {
+    super(
+      `User Operation receipt with hash "${hash}" could not be found. The User Operation may not have been processed yet.`,
+    )
   }
 }

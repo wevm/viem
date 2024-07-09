@@ -1,4 +1,4 @@
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import {
   AccountNotDeployedError,
   type AccountNotDeployedErrorType,
@@ -18,6 +18,8 @@ import {
   type InsufficientPrefundErrorType,
   InternalCallOnlyError,
   type InternalCallOnlyErrorType,
+  InvalidAccountNonceError,
+  type InvalidAccountNonceErrorType,
   InvalidAggregatorError,
   type InvalidAggregatorErrorType,
   InvalidBeneficiaryError,
@@ -51,6 +53,7 @@ import {
   VerificationGasLimitTooLowError,
   type VerificationGasLimitTooLowErrorType,
 } from '../../errors/bundler.js'
+import { ExecutionRevertedError } from '../../errors/node.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import type { ExactPartial } from '../../types/utils.js'
 
@@ -66,6 +69,7 @@ export type GetBundlerErrorReturnType =
   | InitCodeMustReturnSenderErrorType
   | InsufficientPrefundErrorType
   | InternalCallOnlyErrorType
+  | InvalidAccountNonceErrorType
   | InvalidAggregatorErrorType
   | InvalidBeneficiaryErrorType
   | InvalidPaymasterAndDataErrorType
@@ -89,6 +93,17 @@ export function getBundlerError(
 ): GetBundlerErrorReturnType {
   const message = (err.details || '').toLowerCase()
 
+  const executionRevertedError =
+    err instanceof BaseError
+      ? err.walk(
+          (e) => (e as { code: number }).code === ExecutionRevertedError.code,
+        )
+      : err
+  if (executionRevertedError instanceof BaseError)
+    return new ExecutionRevertedError({
+      cause: err,
+      message: executionRevertedError.details,
+    }) as any
   if (AccountNotDeployedError.message.test(message))
     return new AccountNotDeployedError({
       cause: err,
@@ -134,6 +149,11 @@ export function getBundlerError(
   if (InternalCallOnlyError.message.test(message))
     return new InternalCallOnlyError({
       cause: err,
+    }) as any
+  if (InvalidAccountNonceError.message.test(message))
+    return new InvalidAccountNonceError({
+      cause: err,
+      nonce: args.nonce,
     }) as any
   if (InvalidAggregatorError.message.test(message))
     return new InvalidAggregatorError({

@@ -249,6 +249,26 @@ export class InvalidAggregatorError extends BaseError {
   }
 }
 
+export type InvalidAccountNonceErrorType = InvalidAccountNonceError & {
+  name: 'InvalidAccountNonceError'
+}
+export class InvalidAccountNonceError extends BaseError {
+  static message = /aa25/
+  override name = 'InvalidAccountNonceError'
+  constructor({
+    cause,
+    nonce,
+  }: {
+    cause?: BaseError | undefined
+    nonce?: bigint | undefined
+  }) {
+    super('Invalid Smart Account nonce used for User Operation.', {
+      cause,
+      metaMessages: [nonce && `nonce: ${nonce}`].filter(Boolean) as string[],
+    })
+  }
+}
+
 export type InvalidBeneficiaryErrorType = InvalidBeneficiaryError & {
   name: 'InvalidBeneficiaryError'
 }

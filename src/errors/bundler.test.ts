@@ -10,6 +10,7 @@ import {
   InitCodeMustReturnSenderError,
   InsufficientPrefundError,
   InternalCallOnlyError,
+  InvalidAccountNonceError,
   InvalidAggregatorError,
   InvalidBeneficiaryError,
   InvalidPaymasterAndDataError,
@@ -223,6 +224,21 @@ test('InternalCallOnlyError', () => {
   `)
 })
 
+test('InvalidAccountNonceError', () => {
+  expect(
+    new InvalidAccountNonceError({
+      cause: new BaseError('test'),
+      nonce: 69n,
+    }),
+  ).toMatchInlineSnapshot(`
+    [InvalidAccountNonceError: Invalid Smart Account nonce used for User Operation.
+
+    nonce: 69
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('InvalidAggregatorError', () => {
   expect(
     new InvalidAggregatorError({
@@ -251,6 +267,21 @@ test('InvalidPaymasterAndDataError', () => {
   expect(
     new InvalidPaymasterAndDataError({
       cause: new BaseError('test'),
+    }),
+  ).toMatchInlineSnapshot(`
+    [InvalidPaymasterAndDataError: Paymaster properties provided are invalid.
+
+    This could arise when:
+    - the \`paymasterAndData\` property is of an incorrect length
+
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(
+    new InvalidPaymasterAndDataError({
+      cause: new BaseError('test'),
+      paymasterAndData: '0x0000000000000000000000000000000000000000deadbeef',
     }),
   ).toMatchInlineSnapshot(`
     [InvalidPaymasterAndDataError: Paymaster properties provided are invalid.

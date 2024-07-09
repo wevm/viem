@@ -154,7 +154,7 @@ export type RpcUserOperation<
 
 export type RpcUserOperationReceipt<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = UserOperationReceipt<entryPointVersion, Hex, Hex>
+> = UserOperationReceipt<entryPointVersion, Hex, Hex, Hex>
 
 export type RpcUserOperationRequest<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,

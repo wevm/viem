@@ -10,7 +10,6 @@ import type {
   GetSmartAccountParameter,
 } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import type { BundlerRpcSchema } from '../../types/eip1193.js'
 import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
@@ -60,9 +59,10 @@ export type SendUserOperationErrorType = ErrorType
  * @returns The User Operation hash. {@link SendUserOperationReturnType}
  *
  * @example
- * import { createBundlerClient, http, parseEther, sendUserOperation } from 'viem'
+ * import { createBundlerClient, http, parseEther } from 'viem'
  * import { mainnet } from 'viem/chains'
  * import { toSmartAccount } from 'viem/accounts'
+ * import { sendUserOperation } from 'viem/actions'
  *
  * const account = await toSmartAccount({ ... })
  *
@@ -80,7 +80,7 @@ export async function sendUserOperation<
   account extends SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = undefined,
 >(
-  client: Client<Transport, Chain | undefined, account, BundlerRpcSchema>,
+  client: Client<Transport, Chain | undefined, account>,
   parameters: SendUserOperationParameters<account, accountOverride>,
 ) {
   const { account: account_ = client.account } = parameters
@@ -94,9 +94,11 @@ export async function sendUserOperation<
     'prepareTransactionRequest',
   )(parameters as unknown as PrepareUserOperationParameters)
 
-  const signature = await account.signUserOperation({
-    userOperation: request as UserOperation,
-  })
+  const signature =
+    request.signature ||
+    (await account.signUserOperation({
+      userOperation: request as UserOperation,
+    }))
 
   const rpcParameters = formatUserOperationRequest({
     ...request,
