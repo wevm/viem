@@ -335,6 +335,90 @@ export type BundlerRpcSchema = [
   },
 ]
 
+export type DebugBundlerRpcSchema = [
+  /**
+   * @description Clears the bundler mempool and reputation data of paymasters/accounts/factories/aggregators.
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L1
+   */
+  {
+    Method: 'debug_bundler_clearState'
+    Parameters?: undefined
+    ReturnType: undefined
+  },
+  /**
+   * @description Returns the current mempool
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L8
+   */
+  {
+    Method: 'debug_bundler_dumpMempool'
+    Parameters: [entryPoint: Address]
+    ReturnType: readonly { userOp: RpcUserOperation }[]
+  },
+  /**
+   * @description Forces the bundler to execute the entire current mempool.
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L19
+   */
+  {
+    Method: 'debug_bundler_sendBundleNow'
+    Parameters?: undefined
+    ReturnType: Hash
+  },
+  /**
+   * @description Toggles bundling mode between 'auto' and 'manual'
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L26
+   */
+  {
+    Method: 'debug_bundler_setBundlingMode'
+    Parameters: [mode: 'auto' | 'manual']
+    ReturnType: undefined
+  },
+  /**
+   * @description Sets reputation of given addresses.
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L37
+   */
+  {
+    Method: 'debug_bundler_setReputation'
+    Parameters: [
+      reputations: readonly {
+        address: Address
+        opsSeen: Hex
+        opsIncluded: Hex
+      }[],
+      entryPoint: Address,
+    ]
+    ReturnType: undefined
+  },
+  /**
+   * @description Returns the reputation data of all observed addresses.
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L52
+   */
+  {
+    Method: 'debug_bundler_dumpReputation'
+    Parameters: [entryPoint: Address]
+    ReturnType: readonly {
+      address: Address
+      opsSeen: Hex
+      opsIncluded: Hex
+    }[]
+  },
+  /**
+   * @description Add a bulk of UserOps into the mempool
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L64
+   */
+  {
+    Method: 'debug_bundler_addUserOps'
+    Parameters: [userOps: readonly RpcUserOperation[], entryPoint: Address]
+    ReturnType: undefined
+  },
+]
+
 export type PublicRpcSchema = [
   /**
    * @description Returns the version of the current client

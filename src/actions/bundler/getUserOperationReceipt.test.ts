@@ -33,9 +33,8 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    await bundlerClient.request<any>({
+    await bundlerClient.request({
       method: 'debug_bundler_sendBundleNow',
-      params: [],
     })
     await mine(client, {
       blocks: 1,
@@ -246,9 +245,8 @@ describe('entryPointVersion: 0.6', async () => {
       ...fees,
     })
 
-    await bundlerClient.request<any>({
+    await bundlerClient.request({
       method: 'debug_bundler_sendBundleNow',
-      params: [],
     })
     await mine(client, {
       blocks: 1,

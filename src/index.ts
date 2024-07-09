@@ -1006,6 +1006,8 @@ export type {
 } from './types/misc.js'
 export type {
   AddEthereumChainParameter,
+  BundlerRpcSchema,
+  DebugBundlerRpcSchema,
   EIP1193EventMap,
   EIP1193Events,
   EIP1193Parameters,
@@ -1800,7 +1802,6 @@ export {
   formatUserOperationReceipt,
 } from './utils/formatters/userOperationReceipt.js'
 export type { EntryPointVersion } from './types/entryPointVersion.js'
-export type { BundlerRpcSchema } from './types/eip1193.js'
 export type {
   GetUserOperationByHashReturnType,
   PackedUserOperation,

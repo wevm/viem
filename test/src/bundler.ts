@@ -13,6 +13,7 @@ import {
   type Transport,
   createClient,
 } from '../../src/index.js'
+import type { DebugBundlerRpcSchema } from '../../src/types/eip1193.js'
 import { anvilMainnet } from './anvil.js'
 import { accounts, poolId } from './constants.js'
 
@@ -46,7 +47,7 @@ type DefineBundlerReturnType<chain extends Chain> = {
     config['transport'] extends Transport ? config['transport'] : Transport,
     config['chain'] extends false ? undefined : chain,
     undefined,
-    undefined
+    DebugBundlerRpcSchema
   >
   port: number
   rpcUrl: {

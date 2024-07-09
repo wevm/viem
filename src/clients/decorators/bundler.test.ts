@@ -46,9 +46,8 @@ describe('smoke', async () => {
       maxFeePerGas: 1000000000n,
       maxPriorityFeePerGas: 1000000000n,
     })
-    await bundlerClient.request<any>({
+    await bundlerClient.request({
       method: 'debug_bundler_sendBundleNow',
-      params: [],
     })
     await mine(client, { blocks: 1 })
     await bundlerClient.getUserOperationReceipt({ hash })
