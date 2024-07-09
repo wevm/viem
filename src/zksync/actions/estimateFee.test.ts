@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
+import { mockClientPublicActionsL2 } from '~test/src/zksyncPublicActionsL2MockData.js'
 import {
-  mockClientPublicActionsL2,
   zkSyncClientLocalNode,
   zkSyncClientLocalNodeWithAccount,
 } from '../../../test/src/zksync.js'

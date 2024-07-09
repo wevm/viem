@@ -59,7 +59,7 @@ export {
   type GetLogProofReturnType,
   type GetLogProofParameters,
   getLogProof,
-} from './actions/getLogProof.js'
+} from './utils/withdraw/getLogProof.js'
 export { getMainContractAddress } from './actions/getMainContractAddress.js'
 export {
   type GetRawBlockTransactionsParameters,
@@ -178,3 +178,71 @@ export {
   type GetGeneralPaymasterInputReturnType,
   getGeneralPaymasterInput,
 } from './utils/paymaster/getGeneralPaymasterInput.js'
+
+export {
+  type ApproveErc20L1Parameters,
+  approveErc20L1,
+} from './actions/approveL1Erc20Token.js'
+
+export {
+  type GetBaseTokenParameters,
+  getBaseToken,
+} from './actions/getBaseToken.js'
+
+export {
+  type GetErc20ContractValueParameters,
+  getErc20ContractValue,
+} from './actions/getErc20ContractValue.js'
+
+export {
+  type GetL2BridgeAddressParameters,
+  getL2BridgeAddress,
+} from './actions/getL2BridgeAddress.js'
+
+export {
+  type GetL2TransactionBaseCostParameters,
+  getL2TransactionBaseCost,
+} from './actions/getL2TransactionBaseCost.js'
+
+export {
+  type L2TransactionRequestDirectParameters,
+  requestL2TransactionDirect,
+} from './actions/requestL2TransactionDirect.js'
+
+export {
+  type L2TransactionRequestTwoBridgesParameters,
+  requestL2TransactionTwoBridges,
+} from './actions/requestL2TransactionTwoBridges.js'
+
+export {
+  type SharedBridgeParameters,
+  sharedBridge,
+} from './actions/sharedBridge.js'
+
+export {
+  type GetL2GasLimitParameters,
+  getL2GasLimit,
+} from './utils/deposit/getL2GasLimit.js'
+
+export {
+  type DepositParameters,
+  type DepositReturnType,
+  deposit,
+} from './utils/deposit/buildDepositTransaction.js'
+
+export {
+  type GetL2TransactionFromPriorityOpParameters,
+  getL2TransactionFromPriorityOp,
+} from './utils/deposit/getL2TransactionFromPriorityOp.js'
+
+export {
+  type ClaimFailedDepositParameters,
+  type ClaimFailedDepositReturnType,
+  getClaimFailedDepositArgs,
+} from './utils/claim-failed-deposit/claimFailedDeposit.js'
+
+export {
+  type GetTransferArgsTransactionParameters,
+  type GetTransferArgsTransactionReturnType,
+  getTransferArgs,
+} from './utils/transfer/transfer.js'

@@ -53,11 +53,6 @@ import {
   getL1ChainId,
 } from '../actions/getL1ChainId.js'
 import {
-  type GetLogProofParameters,
-  type GetLogProofReturnType,
-  getLogProof,
-} from '../actions/getLogProof.js'
-import {
   type GetMainContractAddressReturnType,
   getMainContractAddress,
 } from '../actions/getMainContractAddress.js'
@@ -76,11 +71,121 @@ import {
   getTransactionDetails,
 } from '../actions/getTransactionDetails.js'
 import type { ChainEIP712 } from '../types/chain.js'
+import {
+  type GetLogProofParameters,
+  type GetLogProofReturnType,
+  getLogProof,
+} from '../utils/withdraw/getLogProof.js'
+
+import {
+  type GetProtocolVersionParameters,
+  type GetProtocolVersionReturnType,
+  getProtocolVersion,
+} from '../actions/getProtocolVersion.js'
+
+import {
+  type GetConfirmedTokensReturnType,
+  getConfirmedTokens,
+} from '../actions/getConfirmedTokens.js'
+
+import {
+  type GetFeeParamsReturnType,
+  getFeeParams,
+} from '../actions/getFeeParameters.js'
+
+import {
+  type SendRawTransactionWithDetailedOutputParameters,
+  type SendRawTransactionWithDetailedReturnType,
+  sendRawTransactionWithDetailedOutput,
+} from '../actions/sendRawTransactionWithDetailedOutput.js'
 
 export type PublicActionsL2<
   TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
   TAccount extends Account | undefined = Account | undefined,
 > = {
+  /**
+   * Executes a transaction and returns its hash, storage logs, and events that would have been generated if the transaction had already been included in the block.
+   *
+   * @returns Returns the confirmed tokens - {@link SendRawTransactionWithDetailedReturnType}.
+   * @params args - {@link SendRawTransactionWithDetailedOutputParameters}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const parameters = await client.sendRawTransactionWithDetailedOutput();
+   */
+  sendRawTransactionWithDetailedOutput: (
+    args: SendRawTransactionWithDetailedOutputParameters,
+  ) => Promise<SendRawTransactionWithDetailedReturnType>
+  /**
+   * Lists confirmed tokens. Confirmed in the method name means any token bridged to ZKsync Era via the official bridge.
+   *
+   * @returns Returns the confirmed tokens - {@link GetFeeParamsReturnType}.
+   *
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const parameters = await client.getFeeParameters();
+   */
+  getFeeParameters: () => Promise<GetFeeParamsReturnType>
+  /**
+   * Lists confirmed tokens. Confirmed in the method name means any token bridged to ZKsync Era via the official bridge.
+   *
+   * @returns Returns the confirmed tokens - {@link GetConfirmedTokensReturnType}.
+   *
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const tokens = await client.getConfirmedTokens();
+   */
+  getConfirmedTokens: () => Promise<GetConfirmedTokensReturnType>
+
+  /**
+   * Returns the protocol version.
+   *
+   * @returns Returns the protocol version - {@link GetProtocolVersionReturnType}.
+   * @param args - {@link GetProtocolVersionParameters}
+   *
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zkSyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const protocolVersion = await client.getProtocolVersion();
+   */
+  getProtocolVersion: (
+    args: GetProtocolVersionParameters,
+  ) => Promise<GetProtocolVersionReturnType>
+
   /**
    * Returns the addresses of the default zkSync Era bridge contracts on both L1 and L2.
    *
@@ -422,6 +527,11 @@ export function publicActionsL2() {
     client: Client<TTransport, TChain, TAccount>,
   ): PublicActionsL2<TChain, TAccount> => {
     return {
+      sendRawTransactionWithDetailedOutput: (args) =>
+        sendRawTransactionWithDetailedOutput(client, args),
+      getFeeParameters: () => getFeeParams(client),
+      getConfirmedTokens: () => getConfirmedTokens(client),
+      getProtocolVersion: (args) => getProtocolVersion(client, args),
       estimateGasL1ToL2: (args) => estimateGasL1ToL2(client, args),
       getDefaultBridgeAddresses: () => getDefaultBridgeAddresses(client),
       getTestnetPaymasterAddress: () => getTestnetPaymasterAddress(client),

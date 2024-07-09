@@ -5,6 +5,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { ChainEIP712 } from '../types/chain.js'
 import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
+import { applyL1ToL2Alias } from '../utils/applyL1ToL2Alias.js'
 
 export type EstimateGasL1ToL2Parameters<
   chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
@@ -26,7 +27,7 @@ export async function estimateGasL1ToL2<
   const formatters = client.chain?.formatters
   const formatted = formatters?.transactionRequest?.format({
     ...request,
-    from: account?.address,
+    from: applyL1ToL2Alias({ address: account!.address }),
   })
 
   const result = await client.request({
