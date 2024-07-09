@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../test/src/bundler.js'
 import {
@@ -17,6 +17,10 @@ const fees = {
   maxFeePerGas: parseGwei('7'),
   maxPriorityFeePerGas: parseGwei('1'),
 } as const
+
+beforeEach(async () => {
+  await bundlerMainnet.restart()
+})
 
 describe('entryPointVersion: 0.7', async () => {
   const [account] = await getSmartAccounts_07()
