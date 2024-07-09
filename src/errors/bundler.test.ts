@@ -289,6 +289,7 @@ test('InvalidPaymasterAndDataError', () => {
     This could arise when:
     - the \`paymasterAndData\` property is of an incorrect length
 
+    paymasterAndData: 0x0000000000000000000000000000000000000000deadbeef
 
     Version: viem@x.y.z]
   `)
