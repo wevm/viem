@@ -37,6 +37,7 @@ test('default', async () => {
     {
       "_internal": null,
       "abi": null,
+      "encodeCalls": [Function],
       "entryPoint": {
         "abi": [
           {
@@ -1038,11 +1039,10 @@ test('default', async () => {
         "version": "0.7",
       },
       "factory": null,
-      "getSignature": [Function],
       "getAddress": [Function],
-      "encodeCalls": [Function],
       "getFactoryArgs": [Function],
       "getNonce": [Function],
+      "getSignature": [Function],
       "signMessage": [Function],
       "signTypedData": [Function],
       "signUserOperation": [Function],

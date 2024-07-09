@@ -21,6 +21,7 @@ test('creates', () => {
       "extend": [Function],
       "getChainId": [Function],
       "getSupportedEntryPoints": [Function],
+      "getUserOperation": [Function],
       "getUserOperationReceipt": [Function],
       "key": "bundler",
       "name": "Bundler Client",
@@ -29,6 +30,7 @@ test('creates', () => {
       "request": [Function],
       "sendUserOperation": [Function],
       "type": "bundlerClient",
+      "waitForUserOperationReceipt": [Function],
     }
   `)
 })
