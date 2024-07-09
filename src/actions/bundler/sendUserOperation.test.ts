@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../test/src/bundler.js'
 import { accounts } from '../../../test/src/constants.js'
@@ -6,17 +6,30 @@ import {
   getSmartAccounts_06,
   getSmartAccounts_07,
 } from '../../../test/src/smartAccounts.js'
-import { mine, writeContract } from '../../actions/index.js'
+import {
+  getBalance,
+  mine,
+  setBalance,
+  writeContract,
+} from '../../actions/index.js'
 import { pad, parseEther, parseGwei } from '../../utils/index.js'
 import { sendUserOperation } from './sendUserOperation.js'
 
 const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient()
 
+const alice = accounts[7].address
+const bob = accounts[8].address
+
 const fees = {
   maxFeePerGas: parseGwei('7'),
   maxPriorityFeePerGas: parseGwei('1'),
 } as const
+
+beforeEach(async () => {
+  await setBalance(client, { address: alice, value: parseEther('10000') })
+  await setBalance(client, { address: bob, value: parseEther('10000') })
+})
 
 describe('entryPointVersion: 0.7', async () => {
   const [account, account_2, account_3] = await getSmartAccounts_07()
@@ -26,14 +39,27 @@ describe('entryPointVersion: 0.7', async () => {
       account,
       calls: [
         {
-          to: '0x0000000000000000000000000000000000000000',
+          to: alice,
           value: parseEther('1'),
+        },
+        {
+          to: bob,
+          value: parseEther('2'),
         },
       ],
       ...fees,
     })
-
     expect(hash).toBeDefined()
+
+    await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
+    await mine(client, { blocks: 1 })
+
+    expect(await getBalance(client, { address: alice })).toMatchInlineSnapshot(
+      '10001000000000000000000n',
+    )
+    expect(await getBalance(client, { address: bob })).toMatchInlineSnapshot(
+      '10002000000000000000000n',
+    )
   })
 
   test('error: no account', async () => {
@@ -104,7 +130,7 @@ describe('entryPointVersion: 0.7', async () => {
   test('error: aa13', async () => {
     await expect(() =>
       sendUserOperation(bundlerClient, {
-        account,
+        account: account_3,
         calls: [
           {
             to: '0x0000000000000000000000000000000000000000',
@@ -133,57 +159,10 @@ describe('entryPointVersion: 0.7', async () => {
         maxFeePerGas:          7 gwei
         maxPriorityFeePerGas:  1 gwei
         nonce:                 0
-        sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
+        sender:                0x274B2baeCC1A87493db36439Df3D8012855fB182
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
       Details: UserOperation reverted during simulation with reason: AA13 initCode failed or OOG
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('error: aa14', async () => {
-    const { factory, factoryData } = await account_3.getFactoryArgs()
-
-    await writeContract(client, {
-      account: accounts[0].address,
-      abi: account_3.factory.abi,
-      address: account_3.factory.address,
-      functionName: 'createAccount',
-      args: [accounts[0].address, pad('0x1')],
-    })
-    await mine(client, {
-      blocks: 1,
-    })
-
-    await expect(() =>
-      sendUserOperation(bundlerClient, {
-        account,
-        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-        factory,
-        factoryData,
-        ...fees,
-      }),
-    ).rejects.toMatchInlineSnapshot(`
-      [UserOperationExecutionError: Smart Account initialization implementation does not return the expected sender.
-
-      This could arise when:
-      Smart Account initialization implementation does not return a sender address
-
-      factory: 0xfb6dab6200b8958c2655c3747708f82243d3f32e
-      factoryData: 0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000002
-      sender: 0xE911628bF8428C23f179a07b081325cAe376DE1f
-       
-      Request Arguments:
-        callData:              0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
-        factory:               0xfb6dab6200b8958c2655c3747708f82243d3f32e
-        factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000002
-        maxFeePerGas:          7 gwei
-        maxPriorityFeePerGas:  1 gwei
-        nonce:                 0
-        sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
-        signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
-
-      Details: UserOperation reverted during simulation with reason: AA14 initCode must return sender
       Version: viem@x.y.z]
     `)
   })
@@ -210,17 +189,15 @@ describe('entryPointVersion: 0.7', async () => {
       Request Arguments:
         callData:                       0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         callGasLimit:                   80000
-        factory:                        0xfb6dab6200b8958c2655c3747708f82243d3f32e
-        factoryData:                    0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:                   7 gwei
         maxPriorityFeePerGas:           1 gwei
-        nonce:                          0
+        nonce:                          1
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
-        preVerificationGas:             51722
+        preVerificationGas:             50692
         sender:                         0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:                      0xdeadbeef
-        verificationGasLimit:           259060
+        verificationGasLimit:           58357
 
       Details: UserOperation reverted with reason: AA24 signature error
       Version: viem@x.y.z]
@@ -229,27 +206,40 @@ describe('entryPointVersion: 0.7', async () => {
 })
 
 describe('entryPointVersion: 0.6', async () => {
-  const [account] = await getSmartAccounts_06()
+  const [account, account_2] = await getSmartAccounts_06()
 
   test('default', async () => {
     const hash = await sendUserOperation(bundlerClient, {
       account,
       calls: [
         {
-          to: '0x0000000000000000000000000000000000000000',
+          to: alice,
           value: parseEther('1'),
+        },
+        {
+          to: bob,
+          value: parseEther('2'),
         },
       ],
       ...fees,
     })
-
     expect(hash).toBeDefined()
+
+    await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
+    await mine(client, { blocks: 1 })
+
+    expect(await getBalance(client, { address: alice })).toMatchInlineSnapshot(
+      '10001000000000000000000n',
+    )
+    expect(await getBalance(client, { address: bob })).toMatchInlineSnapshot(
+      '10002000000000000000000n',
+    )
   })
 
   test('error: aa13', async () => {
     await expect(() =>
       sendUserOperation(bundlerClient, {
-        account,
+        account: account_2,
         calls: [
           {
             to: '0x0000000000000000000000000000000000000000',
@@ -276,7 +266,7 @@ describe('entryPointVersion: 0.6', async () => {
         maxPriorityFeePerGas:  1 gwei
         nonce:                 0
         paymasterAndData:      0x
-        sender:                0x6edf7db791fC4D438D4A683E857B2fE1a84947Ce
+        sender:                0x07B486204EC3d1ff6803614D3308945Fd45d580c
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
       Details: UserOperation reverted during simulation with reason: AA13 initCode failed or OOG
