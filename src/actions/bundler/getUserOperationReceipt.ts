@@ -1,6 +1,9 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { UserOperationReceiptNotFoundError } from '../../errors/userOperation.js'
+import {
+  UserOperationReceiptNotFoundError,
+  type UserOperationReceiptNotFoundErrorType,
+} from '../../errors/userOperation.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hash } from '../../types/misc.js'
 import type { UserOperationReceipt } from '../../types/userOperation.js'
@@ -14,7 +17,10 @@ export type GetUserOperationReceiptParameters = {
 
 export type GetUserOperationReceiptReturnType = UserOperationReceipt
 
-export type GetUserOperationReceiptErrorType = RequestErrorType | ErrorType
+export type GetUserOperationReceiptErrorType =
+  | RequestErrorType
+  | UserOperationReceiptNotFoundErrorType
+  | ErrorType
 
 /**
  * Returns the User Operation Receipt given a User Operation hash.

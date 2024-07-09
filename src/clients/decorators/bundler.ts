@@ -31,6 +31,11 @@ import {
   sendUserOperation,
 } from '../../actions/bundler/sendUserOperation.js'
 import {
+  type WaitForUserOperationReceiptParameters,
+  type WaitForUserOperationReceiptReturnType,
+  waitForUserOperationReceipt,
+} from '../../actions/bundler/waitForUserOperationReceipt.js'
+import {
   type GetChainIdReturnType,
   getChainId,
 } from '../../actions/public/getChainId.js'
@@ -231,6 +236,31 @@ export type BundlerActions<
   >(
     parameters: SendUserOperationParameters<account, accountOverride>,
   ) => Promise<SendUserOperationReturnType>
+  /**
+   * Waits for the User Operation to be included on a [Block](https://viem.sh/docs/glossary/terms#block) (one confirmation), and then returns the User Operation receipt.
+   *
+   * - Docs: https://viem.sh/docs/actions/bundler/waitForUserOperationReceipt
+   *
+   * @param client - Client to use
+   * @param parameters - {@link WaitForUserOperationReceiptParameters}
+   * @returns The receipt. {@link WaitForUserOperationReceiptReturnType}
+   *
+   * @example
+   * import { createBundlerClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createBundlerClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const receipt = await client.waitForUserOperationReceipt({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   * })
+   */
+  waitForUserOperationReceipt: (
+    parameters: WaitForUserOperationReceiptParameters,
+  ) => Promise<WaitForUserOperationReceiptReturnType>
 }
 
 export type BundlerActionsParameters = {
@@ -256,6 +286,8 @@ export function bundlerActions() {
       prepareUserOperation: (parameters) =>
         prepareUserOperation(client, parameters),
       sendUserOperation: (parameters) => sendUserOperation(client, parameters),
+      waitForUserOperationReceipt: (parameters) =>
+        waitForUserOperationReceipt(client, parameters),
     }
   }
 }

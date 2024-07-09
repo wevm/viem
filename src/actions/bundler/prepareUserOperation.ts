@@ -179,7 +179,7 @@ export async function prepareUserOperation<
   // Concurrently prepare properties required to fill the User Operation.
   const [callData, factory, nonce, signature] = await Promise.all([
     (async () => {
-      if (request.calls) return account.getCallData(request.calls)
+      if (request.calls) return account.encodeCalls(request.calls)
       return request.callData
     })(),
     (async () => {
@@ -211,7 +211,7 @@ export async function prepareUserOperation<
     })(),
     (async () => {
       if (!parameters_.includes('signature')) return undefined
-      return account.formatSignature()
+      return account.getSignature()
     })(),
   ])
 

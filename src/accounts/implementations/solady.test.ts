@@ -1038,9 +1038,9 @@ test('default', async () => {
         "version": "0.7",
       },
       "factory": null,
-      "formatSignature": [Function],
+      "getSignature": [Function],
       "getAddress": [Function],
-      "getCallData": [Function],
+      "encodeCalls": [Function],
       "getFactoryArgs": [Function],
       "getNonce": [Function],
       "signMessage": [Function],
@@ -2099,20 +2099,20 @@ describe('return value: getAddress', () => {
   })
 })
 
-describe('return value: getCallData', () => {
+describe('return value: encodeCalls', () => {
   test('single', async () => {
     const implementation = solady({
       factoryAddress,
       owner: accounts[1].address,
     })({ client })
 
-    const callData_1 = await implementation.getCallData([
+    const callData_1 = await implementation.encodeCalls([
       { to: '0x0000000000000000000000000000000000000000' },
     ])
-    const callData_2 = await implementation.getCallData([
+    const callData_2 = await implementation.encodeCalls([
       { to: '0x0000000000000000000000000000000000000000', value: 69n },
     ])
-    const callData_3 = await implementation.getCallData([
+    const callData_3 = await implementation.encodeCalls([
       {
         to: '0x0000000000000000000000000000000000000000',
         value: 69n,
@@ -2137,7 +2137,7 @@ describe('return value: getCallData', () => {
       owner: accounts[1].address,
     })({ client })
 
-    const callData = await implementation.getCallData([
+    const callData = await implementation.encodeCalls([
       { to: '0x0000000000000000000000000000000000000000' },
       { to: '0x0000000000000000000000000000000000000000', value: 69n },
       {
@@ -2172,19 +2172,19 @@ describe('return value: getFactoryArgs', () => {
   })
 })
 
-describe('return value: formatSignature', () => {
+describe('return value: getSignature', () => {
   test('default', async () => {
     const implementation = solady({
       factoryAddress,
       owner: accounts[1].address,
     })({ client })
 
-    const signature = await implementation.formatSignature()
+    const signature = await implementation.getSignature()
     expect(signature).toMatchInlineSnapshot(
       `"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"`,
     )
 
-    const signature_2 = await implementation.formatSignature({
+    const signature_2 = await implementation.getSignature({
       signature: '0xdeadbeef',
     })
     expect(signature_2).toMatchInlineSnapshot(`"0xdeadbeef"`)

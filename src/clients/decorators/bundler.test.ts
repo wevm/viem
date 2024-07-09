@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../test/src/bundler.js'
 import { getSmartAccounts_07 } from '../../../test/src/smartAccounts.js'
@@ -7,6 +7,10 @@ import { bundlerActions } from './bundler.js'
 
 const client = anvilMainnet.getClient().extend(bundlerActions())
 const bundlerClient = bundlerMainnet.getBundlerClient().extend(bundlerActions())
+
+beforeEach(async () => {
+  await bundlerMainnet.restart()
+})
 
 test('default', async () => {
   expect(bundlerActions()(bundlerClient)).toMatchInlineSnapshot(`
@@ -18,6 +22,7 @@ test('default', async () => {
       "getUserOperationReceipt": [Function],
       "prepareUserOperation": [Function],
       "sendUserOperation": [Function],
+      "waitForUserOperationReceipt": [Function],
     }
   `)
 })
@@ -84,5 +89,41 @@ describe('smoke', async () => {
       maxFeePerGas: 1000000000n,
       maxPriorityFeePerGas: 1000000000n,
     })
+    await bundlerClient.request({
+      method: 'debug_bundler_sendBundleNow',
+    })
+    await mine(client, {
+      blocks: 1,
+    })
+  })
+
+  test('waitForUserOperationReceipt', async () => {
+    const hash = await bundlerClient.sendUserOperation({
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: 0n,
+        },
+      ],
+      maxFeePerGas: 1000000000n,
+      maxPriorityFeePerGas: 1000000000n,
+    })
+
+    const [receipt] = await Promise.all([
+      bundlerClient.waitForUserOperationReceipt({
+        hash,
+      }),
+      (async () => {
+        await bundlerClient.request({
+          method: 'debug_bundler_sendBundleNow',
+        })
+        await mine(client, {
+          blocks: 1,
+        })
+      })(),
+    ])
+
+    expect(receipt.success).toBeTruthy()
   })
 })

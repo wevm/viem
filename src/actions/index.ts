@@ -34,6 +34,12 @@ export {
   sendUserOperation,
 } from './bundler/sendUserOperation.js'
 export {
+  type WaitForUserOperationReceiptErrorType,
+  type WaitForUserOperationReceiptParameters,
+  type WaitForUserOperationReceiptReturnType,
+  waitForUserOperationReceipt,
+} from './bundler/waitForUserOperationReceipt.js'
+export {
   type AddChainErrorType,
   type AddChainParameters,
   addChain,

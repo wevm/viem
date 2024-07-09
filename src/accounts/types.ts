@@ -169,18 +169,18 @@ export type SmartAccountImplementation<
    */
   getAddress: () => Promise<Address>
   /**
-   * Retrieves the calldata for executing a User Operation.
+   * Encodes the calls into calldata for executing a User Operation.
    *
    * @example
    * ```ts
-   * const callData = await account.getCallData([
+   * const callData = await account.encodeCalls([
    *   { to: '0x...', data: '0x...' },
    *   { to: '0x...', data: '0x...', value: 100n },
    * ])
    * // '0x...'
    * ```
    */
-  getCallData: (calls: readonly Call[]) => Promise<Hex>
+  encodeCalls: (calls: readonly Call[]) => Promise<Hex>
   /**
    * Retrieves the calldata for factory call to deploy a Smart Account.
    * If the Smart Account has already been deployed, this will return undefined values.
@@ -197,10 +197,10 @@ export type SmartAccountImplementation<
    * // { factory: undefined, factoryData: undefined }
    * ```
    */
-  getFactoryArgs: () => {
+  getFactoryArgs: () => Promise<{
     factory?: Address | undefined
     factoryData?: Hex | undefined
-  }
+  }>
   /**
    * Retrieves the nonce of the Account.
    *
@@ -212,21 +212,21 @@ export type SmartAccountImplementation<
    */
   getNonce: () => Promise<bigint>
   /**
-   * Formats the User Operation signature.
+   * Retrieves the User Operation signature.
    *
    * @example Dummy signature
    * ```ts
-   * const signature = await account.formatSignature()
+   * const signature = await account.getSignature()
    * // '0x...'
    * ```
    *
    * @example User Operation signature
    * ```ts
-   * const signature = await account.formatSignature(userOperation)
+   * const signature = await account.getSignature(userOperation)
    * // '0x...'
    * ```
    */
-  formatSignature: (
+  getSignature: (
     packedUserOperation?: Partial<PackedUserOperation> | undefined,
   ) => Promise<Hex>
   /**
@@ -284,10 +284,6 @@ export type SmartAccount<
   {
     /** Address of the Smart Account. */
     address: Address
-    getFactoryArgs: () => Promise<{
-      factory?: Address | undefined
-      factoryData?: Hex | undefined
-    }>
     /** Whether or not the Smart Account has been deployed. */
     isDeployed: () => Promise<boolean>
     /** Type of account. */

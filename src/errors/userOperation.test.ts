@@ -3,6 +3,7 @@ import { BaseError } from './base.js'
 import {
   UserOperationExecutionError,
   UserOperationReceiptNotFoundError,
+  WaitForUserOperationReceiptTimeoutError,
 } from './userOperation.js'
 
 test('UserOperationExecutionError', () => {
@@ -52,6 +53,18 @@ test('UserOperationReceiptNotFoundError', () => {
     }),
   ).toMatchInlineSnapshot(`
     [UserOperationReceiptNotFoundError: User Operation receipt with hash "0x0000000000000000000000000000000000000000" could not be found. The User Operation may not have been processed yet.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('WaitForUserOperationReceiptTimeoutError', () => {
+  expect(
+    new WaitForUserOperationReceiptTimeoutError({
+      hash: '0x0000000000000000000000000000000000000000',
+    }),
+  ).toMatchInlineSnapshot(`
+    [WaitForUserOperationReceiptTimeoutError: Timed out while waiting for User Operation with hash "0x0000000000000000000000000000000000000000" to be confirmed.
 
     Version: viem@x.y.z]
   `)

@@ -1726,6 +1726,11 @@ export {
   type SendUserOperationReturnType,
 } from './actions/bundler/sendUserOperation.js'
 export {
+  type WaitForUserOperationReceiptErrorType,
+  type WaitForUserOperationReceiptParameters,
+  type WaitForUserOperationReceiptReturnType,
+} from './actions/bundler/waitForUserOperationReceipt.js'
+export {
   type BundlerClient,
   type BundlerClientConfig,
   type CreateBundlerClientErrorType,

@@ -96,3 +96,16 @@ export class UserOperationNotFoundError extends BaseError {
     super(`User Operation with hash "${hash}" could not be found.`)
   }
 }
+
+export type WaitForUserOperationReceiptTimeoutErrorType =
+  WaitForUserOperationReceiptTimeoutError & {
+    name: 'WaitForUserOperationReceiptTimeoutError'
+  }
+export class WaitForUserOperationReceiptTimeoutError extends BaseError {
+  override name = 'WaitForUserOperationReceiptTimeoutError'
+  constructor({ hash }: { hash: Hash }) {
+    super(
+      `Timed out while waiting for User Operation with hash "${hash}" to be confirmed.`,
+    )
+  }
+}

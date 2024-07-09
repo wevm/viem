@@ -101,17 +101,7 @@ export function solady<
         address: factoryAddress,
       },
 
-      async getAddress() {
-        if (address) return address
-        return await readContract(client, {
-          ...this.factory,
-          account: owner,
-          functionName: 'getAddress',
-          args: [pad(salt)],
-        })
-      },
-
-      async getCallData(calls) {
+      async encodeCalls(calls) {
         if (calls.length === 1)
           return encodeFunctionData({
             abi,
@@ -131,19 +121,23 @@ export function solady<
         })
       },
 
-      getFactoryArgs() {
+      async getAddress() {
+        if (address) return address
+        return await readContract(client, {
+          ...this.factory,
+          account: owner,
+          functionName: 'getAddress',
+          args: [pad(salt)],
+        })
+      },
+
+      async getFactoryArgs() {
         const factoryData = encodeFunctionData({
           abi: this.factory.abi,
           functionName: 'createAccount',
           args: [owner.address, pad(salt)],
         })
         return { factory: this.factory.address, factoryData }
-      },
-
-      async formatSignature(packedUserOperation) {
-        if (!packedUserOperation?.signature)
-          return '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
-        return packedUserOperation.signature
       },
 
       async getNonce() {
@@ -157,6 +151,12 @@ export function solady<
           args: [address, 0n],
         })
         return nonce
+      },
+
+      async getSignature(packedUserOperation) {
+        if (!packedUserOperation?.signature)
+          return '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
+        return packedUserOperation.signature
       },
 
       async signMessage(parameters) {
@@ -216,7 +216,7 @@ export function solady<
             raw: userOpHash,
           },
         })
-        return await this.formatSignature({
+        return await this.getSignature({
           signature,
         })
       },

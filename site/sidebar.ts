@@ -358,6 +358,10 @@ export const sidebar = {
           text: 'sendUserOperation',
           link: '/docs/actions/bundler/sendUserOperation',
         },
+        {
+          text: 'waitForUserOperationReceipt',
+          link: '/docs/actions/bundler/waitForUserOperationReceipt',
+        },
       ],
     },
     {
