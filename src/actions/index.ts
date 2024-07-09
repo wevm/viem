@@ -11,6 +11,12 @@ export {
   getSupportedEntryPoints,
 } from './bundler/getSupportedEntryPoints.js'
 export {
+  type GetUserOperationErrorType,
+  type GetUserOperationParameters,
+  type GetUserOperationReturnType,
+  getUserOperation,
+} from './bundler/getUserOperation.js'
+export {
   type GetUserOperationReceiptErrorType,
   type GetUserOperationReceiptParameters,
   type GetUserOperationReceiptReturnType,

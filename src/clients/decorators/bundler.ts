@@ -10,6 +10,11 @@ import {
   getSupportedEntryPoints,
 } from '../../actions/bundler/getSupportedEntryPoints.js'
 import {
+  type GetUserOperationParameters,
+  type GetUserOperationReturnType,
+  getUserOperation,
+} from '../../actions/bundler/getUserOperation.js'
+import {
   type GetUserOperationReceiptParameters,
   type GetUserOperationReceiptReturnType,
   getUserOperationReceipt,
@@ -108,6 +113,31 @@ export type BundlerActions<
    * const addresses = await bundlerClient.getSupportedEntryPoints()
    */
   getSupportedEntryPoints: () => Promise<GetSupportedEntryPointsReturnType>
+  /**
+   * Returns the information about a User Operation given a hash.
+   *
+   * - Docs: https://viem.sh/docs/actions/bundler/getUserOperation
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetUserOperationParameters}
+   * @returns The receipt. {@link GetUserOperationReturnType}
+   *
+   * @example
+   * import { createBundlerClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createBundlerClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const receipt = await client.getUserOperation({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   * })
+   */
+  getUserOperation: (
+    parameters: GetUserOperationParameters,
+  ) => Promise<GetUserOperationReturnType>
   /**
    * Returns the User Operation Receipt given a User Operation hash.
    *
@@ -220,6 +250,7 @@ export function bundlerActions() {
         estimateUserOperationGas(client, parameters),
       getChainId: () => getChainId(client),
       getSupportedEntryPoints: () => getSupportedEntryPoints(client),
+      getUserOperation: (parameters) => getUserOperation(client, parameters),
       getUserOperationReceipt: (parameters) =>
         getUserOperationReceipt(client, parameters),
       prepareUserOperation: (parameters) =>

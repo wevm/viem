@@ -1,10 +1,10 @@
 ---
-description: Returns the User Operation receipt given a User Operation hash.
+description: Retrieves information about a User Operation given a hash.
 ---
 
 # getUserOperationReceipt
 
-Returns the User Operation Receipt given a User Operation hash.
+Retrieves information about a User Operation given a hash.
 
 ## Usage
 
@@ -13,16 +13,9 @@ Returns the User Operation Receipt given a User Operation hash.
 ```ts twoslash [example.ts]
 import { bundlerClient } from './client'
 
-const receipt = await bundlerClient.getUserOperationReceipt({ // [!code focus:99]
+const result = await bundlerClient.getUserOperation({ // [!code focus:99]
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
 })
-// @log: {
-// @log:   blockHash: '0xaf1dadb8a98f1282e8f7b42cc3da8847bfa2cf4e227b8220403ae642e1173088',
-// @log:   blockNumber: 15132008n,
-// @log:   sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-// @log:   ...
-// @log:   status: 'success',
-// @log: }
 ```
 
 ```ts twoslash [client.ts] filename="client.ts"
@@ -39,9 +32,17 @@ export const bundlerClient = createBundlerClient({
 
 ## Returns
 
-`UserOperationReceipt`
+```ts
+{
+  blockHash: Hash,
+  blockNumber: bigint,
+  entryPoint: Address,
+  transactionHash: Hash,
+  userOperation: UserOperation
+}
+```
 
-The User Operation receipt.
+User Operation information.
 
 ## Parameters
 
@@ -54,7 +55,7 @@ A User Operation hash.
 ```ts twoslash
 import { bundlerClient } from './client'
 // ---cut---
-const receipt = await publicClient.getUserOperationReceipt({
+const result = await publicClient.getUserOperation({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```

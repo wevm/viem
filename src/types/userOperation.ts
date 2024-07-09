@@ -38,12 +38,11 @@ export type EstimateUserOperationGasReturnType<
 export type GetUserOperationByHashReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
-  pending extends boolean = boolean,
 > = {
-  blockHash: pending extends true ? null : Hash
-  blockNumber: pending extends true ? null : uint256
+  blockHash: Hash
+  blockNumber: uint256
   entryPoint: Address
-  transactionHash: pending extends true ? null : Hash
+  transactionHash: Hash
   userOperation: UserOperation<entryPointVersion, uint256>
 }
 

@@ -1711,6 +1711,11 @@ export {
   type PrepareUserOperationReturnType,
 } from './actions/bundler/prepareUserOperation.js'
 export {
+  type GetUserOperationErrorType,
+  type GetUserOperationParameters,
+  type GetUserOperationReturnType,
+} from './actions/bundler/getUserOperation.js'
+export {
   type GetUserOperationReceiptErrorType,
   type GetUserOperationReceiptParameters,
   type GetUserOperationReceiptReturnType,

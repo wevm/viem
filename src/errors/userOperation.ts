@@ -86,3 +86,13 @@ export class UserOperationReceiptNotFoundError extends BaseError {
     )
   }
 }
+
+export type UserOperationNotFoundErrorType = UserOperationNotFoundError & {
+  name: 'UserOperationNotFoundError'
+}
+export class UserOperationNotFoundError extends BaseError {
+  override name = 'UserOperationNotFoundError'
+  constructor({ hash }: { hash: Hash }) {
+    super(`User Operation with hash "${hash}" could not be found.`)
+  }
+}

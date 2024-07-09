@@ -14,6 +14,7 @@ test('default', async () => {
       "estimateUserOperationGas": [Function],
       "getChainId": [Function],
       "getSupportedEntryPoints": [Function],
+      "getUserOperation": [Function],
       "getUserOperationReceipt": [Function],
       "prepareUserOperation": [Function],
       "sendUserOperation": [Function],
@@ -37,6 +38,20 @@ describe('smoke', async () => {
 
   test('getSupportedEntryPoints', async () => {
     await bundlerClient.getSupportedEntryPoints()
+  })
+
+  test('getUserOperation', async () => {
+    const hash = await bundlerClient.sendUserOperation({
+      account,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      maxFeePerGas: 1000000000n,
+      maxPriorityFeePerGas: 1000000000n,
+    })
+    await bundlerClient.request({
+      method: 'debug_bundler_sendBundleNow',
+    })
+    await mine(client, { blocks: 1 })
+    await bundlerClient.getUserOperation({ hash })
   })
 
   test('getUserOperationReceipt', async () => {
