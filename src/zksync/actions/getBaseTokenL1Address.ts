@@ -8,10 +8,10 @@ import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
 export type GetBaseTokenL1AddressReturnType = Address
 
 export async function getBaseTokenL1Address<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
 ): Promise<GetBaseTokenL1AddressReturnType> {
   const result = await client.request({ method: 'zks_getBaseTokenL1Address' })
   return result

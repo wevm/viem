@@ -14,25 +14,25 @@ import {
 import { type BytesToHexErrorType, bytesToHex } from './toHex.js'
 
 export type FromBytesParameters<
-  TTo extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
+  to extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
 > =
-  | TTo
+  | to
   | {
       /** Size of the bytes. */
       size?: number | undefined
       /** Type to convert to. */
-      to: TTo
+      to: to
     }
 
-export type FromBytesReturnType<TTo> = TTo extends 'string'
+export type FromBytesReturnType<to> = to extends 'string'
   ? string
-  : TTo extends 'hex'
+  : to extends 'hex'
     ? Hex
-    : TTo extends 'bigint'
+    : to extends 'bigint'
       ? bigint
-      : TTo extends 'number'
+      : to extends 'number'
         ? number
-        : TTo extends 'boolean'
+        : to extends 'boolean'
           ? boolean
           : never
 
@@ -68,23 +68,23 @@ export type FromBytesErrorType =
  * // 'Hello world'
  */
 export function fromBytes<
-  TTo extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
+  to extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
 >(
   bytes: ByteArray,
-  toOrOpts: FromBytesParameters<TTo>,
-): FromBytesReturnType<TTo> {
+  toOrOpts: FromBytesParameters<to>,
+): FromBytesReturnType<to> {
   const opts = typeof toOrOpts === 'string' ? { to: toOrOpts } : toOrOpts
   const to = opts.to
 
   if (to === 'number')
-    return bytesToNumber(bytes, opts) as FromBytesReturnType<TTo>
+    return bytesToNumber(bytes, opts) as FromBytesReturnType<to>
   if (to === 'bigint')
-    return bytesToBigInt(bytes, opts) as FromBytesReturnType<TTo>
+    return bytesToBigInt(bytes, opts) as FromBytesReturnType<to>
   if (to === 'boolean')
-    return bytesToBool(bytes, opts) as FromBytesReturnType<TTo>
+    return bytesToBool(bytes, opts) as FromBytesReturnType<to>
   if (to === 'string')
-    return bytesToString(bytes, opts) as FromBytesReturnType<TTo>
-  return bytesToHex(bytes, opts) as FromBytesReturnType<TTo>
+    return bytesToString(bytes, opts) as FromBytesReturnType<to>
+  return bytesToHex(bytes, opts) as FromBytesReturnType<to>
 }
 
 export type BytesToBigIntOpts = {

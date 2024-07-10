@@ -11,9 +11,9 @@ import { bytesToHex, numberToHex } from '../encoding/toHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
 export type FormattedTransactionRequest<
-  TChain extends Chain | undefined = Chain | undefined,
+  chain extends Chain | undefined = Chain | undefined,
 > = ExtractChainFormatterParameters<
-  TChain,
+  chain,
   'transactionRequest',
   TransactionRequest
 >

@@ -4,20 +4,20 @@ import type { Hex } from '../../types/misc.js'
 import type { RpcLog as RpcLog_ } from '../../types/rpc.js'
 
 export type ZkSyncLog<
-  TQuantity = bigint,
-  TIndex = number,
-  TPending extends boolean = boolean,
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TStrict extends boolean | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] | undefined = TAbiEvent extends AbiEvent
-    ? [TAbiEvent]
+  quantity = bigint,
+  index = number,
+  pending extends boolean = boolean,
+  abiEvent extends AbiEvent | undefined = undefined,
+  strict extends boolean | undefined = undefined,
+  abi extends Abi | readonly unknown[] | undefined = abiEvent extends AbiEvent
+    ? [abiEvent]
     : undefined,
-  TEventName extends string | undefined = TAbiEvent extends AbiEvent
-    ? TAbiEvent['name']
+  eventName extends string | undefined = abiEvent extends AbiEvent
+    ? abiEvent['name']
     : undefined,
-> = Log_<TQuantity, TIndex, TPending, TAbiEvent, TStrict, TAbi, TEventName> & {
-  l1BatchNumber: TQuantity | null
-  transactionLogIndex: TIndex
+> = Log_<quantity, index, pending, abiEvent, strict, abi, eventName> & {
+  l1BatchNumber: quantity | null
+  transactionLogIndex: index
   logType: Hex | null
 }
 

@@ -66,10 +66,8 @@ export type GetBlockTransactionCountErrorType =
  * })
  * const count = await getBlockTransactionCount(client)
  */
-export async function getBlockTransactionCount<
-  TChain extends Chain | undefined,
->(
-  client: Client<Transport, TChain>,
+export async function getBlockTransactionCount<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockHash,
     blockNumber,

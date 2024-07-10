@@ -20,8 +20,8 @@ export type RpcErrorCode =
   | -32006 // JSON-RPC version not supported
   | -32042 // Method not found
 
-type RpcErrorOptions<TCode extends number = RpcErrorCode> = {
-  code?: TCode | (number & {}) | undefined
+type RpcErrorOptions<code extends number = RpcErrorCode> = {
+  code?: code | (number & {}) | undefined
   docsPath?: string | undefined
   metaMessages?: string[] | undefined
   shortMessage: string
@@ -33,14 +33,14 @@ type RpcErrorOptions<TCode extends number = RpcErrorCode> = {
  * - EIP https://eips.ethereum.org/EIPS/eip-1474
  */
 export type RpcErrorType = RpcError & { name: 'RpcError' }
-export class RpcError<TCode extends number = RpcErrorCode> extends BaseError {
+export class RpcError<code extends number = RpcErrorCode> extends BaseError {
   override name = 'RpcError'
 
-  code: TCode | (number & {})
+  code: code | (number & {})
 
   constructor(
     cause: Error,
-    { code, docsPath, metaMessages, shortMessage }: RpcErrorOptions<TCode>,
+    { code, docsPath, metaMessages, shortMessage }: RpcErrorOptions<code>,
   ) {
     super(shortMessage, {
       cause,
@@ -51,7 +51,7 @@ export class RpcError<TCode extends number = RpcErrorCode> extends BaseError {
     this.name = cause.name
     this.code = (
       cause instanceof RpcRequestError ? cause.code : code ?? unknownErrorCode
-    ) as TCode
+    ) as code
   }
 }
 

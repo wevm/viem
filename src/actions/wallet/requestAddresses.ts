@@ -37,10 +37,10 @@ export type RequestAddressesErrorType = RequestErrorType | ErrorType
  * const accounts = await requestAddresses(client)
  */
 export async function requestAddresses<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
+  client: Client<Transport, chain, account>,
 ): Promise<RequestAddressesReturnType> {
   const addresses = await client.request(
     { method: 'eth_requestAccounts' },

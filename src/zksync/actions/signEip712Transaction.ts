@@ -26,25 +26,25 @@ import {
 } from '../utils/assertEip712Request.js'
 
 type FormattedTransactionRequest<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
 > = ExtractChainFormatterParameters<
-  TChain,
+  chain,
   'transactionRequest',
   TransactionRequestEIP712
 >
 
 export type SignEip712TransactionParameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
 > = UnionOmit<
   FormattedTransactionRequest<
-    TChainOverride extends ChainEIP712 ? TChainOverride : TChain
+    chainOverride extends ChainEIP712 ? chainOverride : chain
   >,
   'from'
 > &
-  GetAccountParameter<TAccount> &
-  GetChainParameter<TChain, TChainOverride>
+  GetAccountParameter<account> &
+  GetChainParameter<chain, chainOverride>
 
 export type SignEip712TransactionReturnType = SignTransactionReturnType
 
@@ -89,12 +89,12 @@ export type SignEip712TransactionErrorType = SignTransactionErrorType
  * })
  */
 export async function signEip712Transaction<
-  TChain extends ChainEIP712 | undefined,
-  TAccount extends Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined,
+  chain extends ChainEIP712 | undefined,
+  account extends Account | undefined,
+  chainOverride extends ChainEIP712 | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: SignEip712TransactionParameters<TChain, TAccount, TChainOverride>,
+  client: Client<Transport, chain, account>,
+  args: SignEip712TransactionParameters<chain, account, chainOverride>,
 ): Promise<SignEip712TransactionReturnType> {
   const {
     account: account_ = client.account,

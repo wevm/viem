@@ -8,10 +8,10 @@ import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
 export type GetTestnetPaymasterAddressReturnType = Address | null
 
 export async function getTestnetPaymasterAddress<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
 ): Promise<GetTestnetPaymasterAddressReturnType> {
   const result = await client.request({ method: 'zks_getTestnetPaymaster' })
   return result

@@ -28,30 +28,30 @@ import type {
 import { parseTransaction as parseTransaction_op } from '../op-stack/parsers.js'
 
 export type ParseTransactionReturnType<
-  TSerialized extends CeloTransactionSerialized = CeloTransactionSerialized,
-  TType extends CeloTransactionType = GetSerializedTransactionType<TSerialized>,
-> = TSerialized extends TransactionSerializedCIP42
+  serialized extends CeloTransactionSerialized = CeloTransactionSerialized,
+  type extends CeloTransactionType = GetSerializedTransactionType<serialized>,
+> = serialized extends TransactionSerializedCIP42
   ? TransactionSerializableCIP42
-  : ParseTransactionReturnType_<TSerialized, TType>
+  : ParseTransactionReturnType_<serialized, type>
 
-export function parseTransaction<TSerialized extends CeloTransactionSerialized>(
-  serializedTransaction: TSerialized,
-): ParseTransactionReturnType<TSerialized> {
+export function parseTransaction<serialized extends CeloTransactionSerialized>(
+  serializedTransaction: serialized,
+): ParseTransactionReturnType<serialized> {
   const serializedType = sliceHex(serializedTransaction, 0, 1)
 
   if (serializedType === '0x7c')
     return parseTransactionCIP42(
       serializedTransaction as TransactionSerializedCIP42,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   if (serializedType === '0x7b')
     return parseTransactionCIP64(
       serializedTransaction as TransactionSerializedCIP64,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   return parseTransaction_op(
     serializedTransaction as OpStackTransactionSerialized,
-  ) as ParseTransactionReturnType<TSerialized>
+  ) as ParseTransactionReturnType<serialized>
 }
 
 function parseTransactionCIP42(

@@ -116,20 +116,20 @@ export async function getContractEvents<
   chain extends Chain | undefined,
   const abi extends Abi | readonly unknown[],
   eventName extends ContractEventName<abi> | undefined = undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
   client: Client<Transport, chain>,
   parameters: GetContractEventsParameters<
     abi,
     eventName,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    strict,
+    fromBlock,
+    toBlock
   >,
 ): Promise<
-  GetContractEventsReturnType<abi, eventName, TStrict, TFromBlock, TToBlock>
+  GetContractEventsReturnType<abi, eventName, strict, fromBlock, toBlock>
 > {
   const {
     abi,
@@ -163,8 +163,8 @@ export async function getContractEvents<
   } as {} as GetLogsParameters) as unknown as GetContractEventsReturnType<
     abi,
     eventName,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    strict,
+    fromBlock,
+    toBlock
   >
 }

@@ -17,29 +17,29 @@ import {
 } from '../../utils/formatters/log.js'
 
 export type GetFilterLogsParameters<
-  TAbi extends Abi | readonly unknown[] | undefined = undefined,
-  TEventName extends string | undefined = undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  abi extends Abi | readonly unknown[] | undefined = undefined,
+  eventName extends string | undefined = undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
-  filter: Filter<'event', TAbi, TEventName, any, TStrict, TFromBlock, TToBlock>
+  filter: Filter<'event', abi, eventName, any, strict, fromBlock, toBlock>
 }
 export type GetFilterLogsReturnType<
-  TAbi extends Abi | readonly unknown[] | undefined = undefined,
-  TEventName extends string | undefined = undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-  _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
-    ? TEventName extends string
-      ? ExtractAbiEvent<TAbi, TEventName>
+  abi extends Abi | readonly unknown[] | undefined = undefined,
+  eventName extends string | undefined = undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
+  _AbiEvent extends AbiEvent | undefined = abi extends Abi
+    ? eventName extends string
+      ? ExtractAbiEvent<abi, eventName>
       : undefined
     : undefined,
   _Pending extends boolean =
-    | (TFromBlock extends 'pending' ? true : false)
-    | (TToBlock extends 'pending' ? true : false),
-> = Log<bigint, number, _Pending, _AbiEvent, TStrict, TAbi, TEventName>[]
+    | (fromBlock extends 'pending' ? true : false)
+    | (toBlock extends 'pending' ? true : false),
+> = Log<bigint, number, _Pending, _AbiEvent, strict, abi, eventName>[]
 
 export type GetFilterLogsErrorType =
   | RequestErrorType
@@ -75,19 +75,19 @@ export type GetFilterLogsErrorType =
  * const logs = await getFilterLogs(client, { filter })
  */
 export async function getFilterLogs<
-  TChain extends Chain | undefined,
-  const TAbi extends Abi | readonly unknown[] | undefined,
-  TEventName extends string | undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  chain extends Chain | undefined,
+  const abi extends Abi | readonly unknown[] | undefined,
+  eventName extends string | undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
-  _client: Client<Transport, TChain>,
+  _client: Client<Transport, chain>,
   {
     filter,
-  }: GetFilterLogsParameters<TAbi, TEventName, TStrict, TFromBlock, TToBlock>,
+  }: GetFilterLogsParameters<abi, eventName, strict, fromBlock, toBlock>,
 ): Promise<
-  GetFilterLogsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
+  GetFilterLogsReturnType<abi, eventName, strict, fromBlock, toBlock>
 > {
   const strict = filter.strict ?? false
 
@@ -99,21 +99,21 @@ export async function getFilterLogs<
   const formattedLogs = logs.map((log) => formatLog(log))
   if (!filter.abi)
     return formattedLogs as GetFilterLogsReturnType<
-      TAbi,
-      TEventName,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      abi,
+      eventName,
+      strict,
+      fromBlock,
+      toBlock
     >
   return parseEventLogs({
     abi: filter.abi,
     logs: formattedLogs,
     strict,
   }) as unknown as GetFilterLogsReturnType<
-    TAbi,
-    TEventName,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    abi,
+    eventName,
+    strict,
+    fromBlock,
+    toBlock
   >
 }

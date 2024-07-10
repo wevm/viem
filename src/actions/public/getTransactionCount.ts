@@ -63,10 +63,10 @@ export type GetTransactionCountErrorType =
  * })
  */
 export async function getTransactionCount<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
+  client: Client<Transport, chain, account>,
   { address, blockTag = 'latest', blockNumber }: GetTransactionCountParameters,
 ): Promise<GetTransactionCountReturnType> {
   const count = await client.request(

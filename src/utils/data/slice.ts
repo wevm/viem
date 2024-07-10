@@ -8,7 +8,7 @@ import type { ByteArray, Hex } from '../../types/misc.js'
 import { type IsHexErrorType, isHex } from './isHex.js'
 import { type SizeErrorType, size } from './size.js'
 
-export type SliceReturnType<TValue extends ByteArray | Hex> = TValue extends Hex
+export type SliceReturnType<value extends ByteArray | Hex> = value extends Hex
   ? Hex
   : ByteArray
 
@@ -25,19 +25,19 @@ export type SliceErrorType =
  * @param start The start offset (in bytes).
  * @param end The end offset (in bytes).
  */
-export function slice<TValue extends ByteArray | Hex>(
-  value: TValue,
+export function slice<value extends ByteArray | Hex>(
+  value: value,
   start?: number | undefined,
   end?: number | undefined,
   { strict }: { strict?: boolean | undefined } = {},
-): SliceReturnType<TValue> {
+): SliceReturnType<value> {
   if (isHex(value, { strict: false }))
     return sliceHex(value as Hex, start, end, {
       strict,
-    }) as SliceReturnType<TValue>
+    }) as SliceReturnType<value>
   return sliceBytes(value as ByteArray, start, end, {
     strict,
-  }) as SliceReturnType<TValue>
+  }) as SliceReturnType<value>
 }
 
 export type AssertStartOffsetErrorType =

@@ -17,15 +17,15 @@ export type ZkSyncEip712Meta = {
 type EIP712FieldType = 'uint256' | 'bytes' | 'bytes32[]'
 type EIP712Field = { name: string; type: EIP712FieldType }
 
-export type EIP712Domain<TransactionSignable> = {
+export type EIP712Domain<transactionSignable> = {
   domain: TypedDataDomain
   types: Record<string, EIP712Field[]>
   primaryType: string
-  message: TransactionSignable
+  message: transactionSignable
 }
 
 export type EIP712DomainFn<
-  TTransactionSerializable extends
+  transactionSerializable extends
     ZkSyncTransactionSerializable = ZkSyncTransactionSerializable,
-  TransactionSignable = {},
-> = (transaction: TTransactionSerializable) => EIP712Domain<TransactionSignable>
+  transactionSignable = {},
+> = (transaction: transactionSerializable) => EIP712Domain<transactionSignable>

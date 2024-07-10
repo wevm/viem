@@ -661,12 +661,12 @@ export type PublicActionsL1<
  */
 export function publicActionsL1() {
   return <
-    TTransport extends Transport,
-    TChain extends Chain | undefined = Chain | undefined,
-    TAccount extends Account | undefined = Account | undefined,
+    transport extends Transport,
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
   >(
-    client: Client<TTransport, TChain, TAccount>,
-  ): PublicActionsL1<TChain, TAccount> => {
+    client: Client<transport, chain, account>,
+  ): PublicActionsL1<chain, account> => {
     return {
       buildInitiateWithdrawal: (args) => buildInitiateWithdrawal(client, args),
       estimateDepositTransactionGas: (args) =>

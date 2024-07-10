@@ -12,8 +12,8 @@ import type { NonceManager } from '../utils/nonceManager.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
-export type Account<TAddress extends Address = Address> = OneOf<
-  JsonRpcAccount<TAddress> | LocalAccount<string, TAddress>
+export type Account<address extends Address = Address> = OneOf<
+  JsonRpcAccount<address> | LocalAccount<string, address>
 >
 
 export type AccountSource = Address | CustomSource
@@ -48,18 +48,18 @@ export type CustomSource = {
   ) => Promise<Hash>
 }
 
-export type JsonRpcAccount<TAddress extends Address = Address> = {
-  address: TAddress
+export type JsonRpcAccount<address extends Address = Address> = {
+  address: address
   type: 'json-rpc'
 }
 
 export type LocalAccount<
-  TSource extends string = string,
-  TAddress extends Address = Address,
+  source extends string = string,
+  address extends Address = Address,
 > = CustomSource & {
-  address: TAddress
+  address: address
   publicKey: Hex
-  source: TSource
+  source: source
   type: 'local'
 }
 

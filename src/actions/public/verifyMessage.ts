@@ -48,8 +48,8 @@ export type VerifyMessageErrorType =
  * @param parameters - {@link VerifyMessageParameters}
  * @returns Whether or not the signature is valid. {@link VerifyMessageReturnType}
  */
-export async function verifyMessage<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function verifyMessage<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     address,
     message,

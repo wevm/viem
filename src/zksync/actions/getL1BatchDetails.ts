@@ -13,10 +13,10 @@ export type GetL1BatchDetailsParameters = ZkSyncNumberParameter
 export type GetL1BatchDetailsReturnType = ZkSyncBatchDetails
 
 export async function getL1BatchDetails<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
   parameters: GetL1BatchDetailsParameters,
 ): Promise<GetL1BatchDetailsReturnType> {
   const result = await client.request({

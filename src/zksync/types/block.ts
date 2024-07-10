@@ -14,14 +14,14 @@ export type ZkSyncBatchDetails = Omit<
 }
 
 export type ZkSyncBlock<
-  TIncludeTransactions extends boolean = boolean,
-  TBlockTag extends BlockTag = BlockTag,
+  includeTransactions extends boolean = boolean,
+  blockTag extends BlockTag = BlockTag,
 > = Assign<
   Block<
     bigint,
-    TIncludeTransactions,
-    TBlockTag,
-    ZkSyncTransaction<TBlockTag extends 'pending' ? true : false>
+    includeTransactions,
+    blockTag,
+    ZkSyncTransaction<blockTag extends 'pending' ? true : false>
   >,
   {
     l1BatchNumber: bigint | null
@@ -52,13 +52,13 @@ export type ZkSyncBlockDetails = {
 }
 
 export type ZkSyncRpcBlock<
-  TBlockTag extends BlockTag = BlockTag,
-  TIncludeTransactions extends boolean = boolean,
+  blockTag extends BlockTag = BlockTag,
+  includeTransactions extends boolean = boolean,
 > = Assign<
   RpcBlock<
-    TBlockTag,
-    TIncludeTransactions,
-    ZkSyncRpcTransaction<TBlockTag extends 'pending' ? true : false>
+    blockTag,
+    includeTransactions,
+    ZkSyncRpcTransaction<blockTag extends 'pending' ? true : false>
   >,
   {
     l1BatchNumber: Hex | null

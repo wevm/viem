@@ -19,8 +19,8 @@ import {
 } from './getL1TokenBalance.js'
 
 export type GetL1BalanceParameters<
-  TAccount extends Account | undefined = Account | undefined,
-> = GetAccountParameter<TAccount> & { token?: Address | undefined } & (
+  account extends Account | undefined = Account | undefined,
+> = GetAccountParameter<account> & { token?: Address | undefined } & (
     | {
         /** The balance of the account at a block number. */
         blockNumber?: bigint | undefined
@@ -38,13 +38,13 @@ export type GetL1BalanceReturnType = bigint
 export type GetL1BalanceErrorType = AccountNotFoundError | BaseError
 
 export async function getL1Balance<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  ...[parameters = {}]: TAccount extends undefined
-    ? [GetL1BalanceParameters<TAccount>]
-    : [GetL1BalanceParameters<TAccount>] | []
+  client: Client<Transport, chain, account>,
+  ...[parameters = {}]: account extends undefined
+    ? [GetL1BalanceParameters<account>]
+    : [GetL1BalanceParameters<account>] | []
 ): Promise<GetL1BalanceReturnType> {
   const {
     account: account_ = client.account,
@@ -63,6 +63,6 @@ export async function getL1Balance<
     } as GetBalanceParameters)
 
   return await getL1TokenBalance(client, {
-    ...(parameters as GetL1TokenBalanceParameters<TAccount>),
+    ...(parameters as GetL1TokenBalanceParameters<account>),
   })
 }

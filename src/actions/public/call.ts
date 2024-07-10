@@ -77,8 +77,8 @@ import type {
 } from '../../utils/transaction/assertRequest.js'
 
 export type CallParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-> = UnionOmit<FormattedCall<TChain>, 'from'> & {
+  chain extends Chain | undefined = Chain | undefined,
+> = UnionOmit<FormattedCall<chain>, 'from'> & {
   /** Account attached to the call (msg.sender). */
   account?: Account | Address | undefined
   /** Whether or not to enable multicall batching on this call. */
@@ -106,8 +106,8 @@ export type CallParameters<
         blockTag?: BlockTag | undefined
       }
   )
-type FormattedCall<TChain extends Chain | undefined = Chain | undefined> =
-  FormattedTransactionRequest<TChain>
+type FormattedCall<chain extends Chain | undefined = Chain | undefined> =
+  FormattedTransactionRequest<chain>
 
 export type CallReturnType = { data: Hex | undefined }
 
@@ -148,9 +148,9 @@ export type CallErrorType = GetCallErrorReturnType<
  *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  * })
  */
-export async function call<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
-  args: CallParameters<TChain>,
+export async function call<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  args: CallParameters<chain>,
 ): Promise<CallReturnType> {
   const {
     account: account_ = client.account,
@@ -239,7 +239,7 @@ export async function call<TChain extends Chain | undefined>(
           ...request,
           blockNumber,
           blockTag,
-        } as unknown as ScheduleMulticallParameters<TChain>)
+        } as unknown as ScheduleMulticallParameters<chain>)
       } catch (err) {
         if (
           !(err instanceof ClientChainNotConfiguredError) &&
@@ -304,8 +304,8 @@ function shouldPerformMulticall({ request }: { request: TransactionRequest }) {
   return true
 }
 
-type ScheduleMulticallParameters<TChain extends Chain | undefined> = Pick<
-  CallParameters<TChain>,
+type ScheduleMulticallParameters<chain extends Chain | undefined> = Pick<
+  CallParameters<chain>,
   'blockNumber' | 'blockTag'
 > & {
   data: Hex
@@ -322,9 +322,9 @@ type ScheduleMulticallErrorType =
   | RawContractErrorType
   | ErrorType
 
-async function scheduleMulticall<TChain extends Chain | undefined>(
+async function scheduleMulticall<chain extends Chain | undefined>(
   client: Client<Transport>,
-  args: ScheduleMulticallParameters<TChain>,
+  args: ScheduleMulticallParameters<chain>,
 ) {
   const { batchSize = 1024, wait = 0 } =
     typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}

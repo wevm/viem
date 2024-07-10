@@ -21,14 +21,14 @@ export type OnBlockNumberFn = (
 ) => void
 
 export type WatchBlockNumberParameters<
-  TTransport extends Transport = Transport,
+  transport extends Transport = Transport,
 > = {
   /** The callback to call when a new block number is received. */
   onBlockNumber: OnBlockNumberFn
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
 } & (
-  | (HasTransportType<TTransport, 'webSocket'> extends true
+  | (HasTransportType<transport, 'webSocket'> extends true
       ? {
           emitMissed?: undefined
           emitOnBegin?: undefined
@@ -78,10 +78,10 @@ export type WatchBlockNumberErrorType = PollErrorType | ErrorType
  * })
  */
 export function watchBlockNumber<
-  TChain extends Chain | undefined,
-  TTransport extends Transport,
+  chain extends Chain | undefined,
+  transport extends Transport,
 >(
-  client: Client<TTransport, TChain>,
+  client: Client<transport, chain>,
   {
     emitOnBegin = false,
     emitMissed = false,
@@ -89,7 +89,7 @@ export function watchBlockNumber<
     onError,
     poll: poll_,
     pollingInterval = client.pollingInterval,
-  }: WatchBlockNumberParameters<TTransport>,
+  }: WatchBlockNumberParameters<transport>,
 ): WatchBlockNumberReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_

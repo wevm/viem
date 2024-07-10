@@ -16,8 +16,8 @@ import {
 import { isEth } from '../utils/isEth.js'
 
 export type GetL1TokenBalanceParameters<
-  TAccount extends Account | undefined = Account | undefined,
-> = GetAccountParameter<TAccount> & { token: Address } & (
+  account extends Account | undefined = Account | undefined,
+> = GetAccountParameter<account> & { token: Address } & (
     | {
         /** The balance of the account at a block number. */
         blockNumber?: bigint | undefined
@@ -38,11 +38,11 @@ export type GetL1TokenBalanceErrorType =
   | BaseErrorType
 
 export async function getL1TokenBalance<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  parameters: GetL1TokenBalanceParameters<TAccount>,
+  client: Client<Transport, chain, account>,
+  parameters: GetL1TokenBalanceParameters<account>,
 ): Promise<GetL1TokenBalanceReturnType> {
   const {
     account: account_ = client.account,

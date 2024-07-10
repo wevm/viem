@@ -6,12 +6,12 @@ import type { Withdrawal } from './withdrawal.js'
 
 export type Block<
   quantity = bigint,
-  TIncludeTransactions extends boolean = boolean,
-  TBlockTag extends BlockTag = BlockTag,
-  TTransaction = Transaction<
+  includeTransactions extends boolean = boolean,
+  blockTag extends BlockTag = BlockTag,
+  transaction = Transaction<
     bigint,
     number,
-    TBlockTag extends 'pending' ? true : false
+    blockTag extends 'pending' ? true : false
   >,
 > = {
   /** Base fee per gas */
@@ -29,17 +29,17 @@ export type Block<
   /** Total used gas by all transactions in this block */
   gasUsed: quantity
   /** Block hash or `null` if pending */
-  hash: TBlockTag extends 'pending' ? null : Hash
+  hash: blockTag extends 'pending' ? null : Hash
   /** Logs bloom filter or `null` if pending */
-  logsBloom: TBlockTag extends 'pending' ? null : Hex
+  logsBloom: blockTag extends 'pending' ? null : Hex
   /** Address that received this block’s mining rewards */
   miner: Address
   /** Unique identifier for the block. */
   mixHash: Hash
   /** Proof-of-work hash or `null` if pending */
-  nonce: TBlockTag extends 'pending' ? null : Hex
+  nonce: blockTag extends 'pending' ? null : Hex
   /** Block number or `null` if pending */
-  number: TBlockTag extends 'pending' ? null : quantity
+  number: blockTag extends 'pending' ? null : quantity
   /** Parent block hash */
   parentHash: Hash
   /** Root of the this block’s receipts trie */
@@ -56,7 +56,7 @@ export type Block<
   /** Total difficulty of the chain until this block */
   totalDifficulty: quantity | null
   /** List of transaction objects or hashes */
-  transactions: TIncludeTransactions extends true ? TTransaction[] : Hash[]
+  transactions: includeTransactions extends true ? transaction[] : Hash[]
   /** Root of this block’s transaction trie */
   transactionsRoot: Hash
   /** List of uncle hashes */
@@ -87,11 +87,11 @@ export type BlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'
 
 export type Uncle<
   quantity = bigint,
-  TIncludeTransactions extends boolean = boolean,
-  TBlockTag extends BlockTag = BlockTag,
-  TTransaction = Transaction<
+  includeTransactions extends boolean = boolean,
+  blockTag extends BlockTag = BlockTag,
+  transaction = Transaction<
     bigint,
     number,
-    TBlockTag extends 'pending' ? true : false
+    blockTag extends 'pending' ? true : false
   >,
-> = Block<quantity, TIncludeTransactions, TBlockTag, TTransaction>
+> = Block<quantity, includeTransactions, blockTag, transaction>

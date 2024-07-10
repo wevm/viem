@@ -37,10 +37,10 @@ export type GetTxpoolStatusErrorType = RequestErrorType | ErrorType
  * const status = await getTxpoolStatus(client)
  */
 export async function getTxpoolStatus<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
 ): Promise<GetTxpoolStatusReturnType> {
   const { pending, queued } = await client.request({
     method: 'txpool_status',

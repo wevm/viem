@@ -13,34 +13,32 @@ import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 import { type GetBlockReturnType, getBlock } from './getBlock.js'
 
 export type OnBlockParameter<
-  TChain extends Chain | undefined = Chain,
-  TIncludeTransactions extends boolean = false,
-  TBlockTag extends BlockTag = 'latest',
-> = GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>
+  chain extends Chain | undefined = Chain,
+  includeTransactions extends boolean = false,
+  blockTag extends BlockTag = 'latest',
+> = GetBlockReturnType<chain, includeTransactions, blockTag>
 
 export type OnBlock<
-  TChain extends Chain | undefined = Chain,
-  TIncludeTransactions extends boolean = false,
-  TBlockTag extends BlockTag = 'latest',
+  chain extends Chain | undefined = Chain,
+  includeTransactions extends boolean = false,
+  blockTag extends BlockTag = 'latest',
 > = (
-  block: OnBlockParameter<TChain, TIncludeTransactions, TBlockTag>,
-  prevBlock:
-    | OnBlockParameter<TChain, TIncludeTransactions, TBlockTag>
-    | undefined,
+  block: OnBlockParameter<chain, includeTransactions, blockTag>,
+  prevBlock: OnBlockParameter<chain, includeTransactions, blockTag> | undefined,
 ) => void
 
 export type WatchBlocksParameters<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain,
-  TIncludeTransactions extends boolean = false,
-  TBlockTag extends BlockTag = 'latest',
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain,
+  includeTransactions extends boolean = false,
+  blockTag extends BlockTag = 'latest',
 > = {
   /** The callback to call when a new block is received. */
-  onBlock: OnBlock<TChain, TIncludeTransactions, TBlockTag>
+  onBlock: OnBlock<chain, includeTransactions, blockTag>
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
 } & (
-  | (HasTransportType<TTransport, 'webSocket'> extends true
+  | (HasTransportType<transport, 'webSocket'> extends true
       ? {
           blockTag?: undefined
           emitMissed?: undefined
@@ -53,13 +51,13 @@ export type WatchBlocksParameters<
       : never)
   | {
       /** The block tag. Defaults to "latest". */
-      blockTag?: TBlockTag | BlockTag | undefined
+      blockTag?: blockTag | BlockTag | undefined
       /** Whether or not to emit the missed blocks to the callback. */
       emitMissed?: boolean | undefined
       /** Whether or not to emit the block to the callback when the subscription opens. */
       emitOnBegin?: boolean | undefined
       /** Whether or not to include transaction data in the response. */
-      includeTransactions?: TIncludeTransactions | undefined
+      includeTransactions?: includeTransactions | undefined
       poll?: true | undefined
       /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
       pollingInterval?: number | undefined
@@ -99,12 +97,12 @@ export type WatchBlocksErrorType =
  * })
  */
 export function watchBlocks<
-  TTransport extends Transport,
-  TChain extends Chain | undefined,
-  TIncludeTransactions extends boolean = false,
-  TBlockTag extends BlockTag = 'latest',
+  transport extends Transport,
+  chain extends Chain | undefined,
+  includeTransactions extends boolean = false,
+  blockTag extends BlockTag = 'latest',
 >(
-  client: Client<TTransport, TChain>,
+  client: Client<transport, chain>,
   {
     blockTag = 'latest',
     emitMissed = false,
@@ -114,7 +112,7 @@ export function watchBlocks<
     includeTransactions: includeTransactions_,
     poll: poll_,
     pollingInterval = client.pollingInterval,
-  }: WatchBlocksParameters<TTransport, TChain, TIncludeTransactions, TBlockTag>,
+  }: WatchBlocksParameters<transport, chain, includeTransactions, blockTag>,
 ): WatchBlocksReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
@@ -129,7 +127,7 @@ export function watchBlocks<
   const includeTransactions = includeTransactions_ ?? false
 
   let prevBlock:
-    | GetBlockReturnType<TChain, false | TIncludeTransactions, 'latest'>
+    | GetBlockReturnType<chain, false | includeTransactions, 'latest'>
     | undefined
 
   const pollBlocks = () => {
@@ -171,7 +169,7 @@ export function watchBlocks<
                   )({
                     blockNumber: i,
                     includeTransactions,
-                  })) as GetBlockReturnType<TChain>
+                  })) as GetBlockReturnType<chain>
                   emit.onBlock(block as any, prevBlock as any)
                   prevBlock = block
                 }

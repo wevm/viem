@@ -8,10 +8,10 @@ import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
 export type GetDefaultBridgeAddressesReturnType = BridgeContractAddresses
 
 export async function getDefaultBridgeAddresses<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
 ): Promise<GetDefaultBridgeAddressesReturnType> {
   const addresses = await client.request({ method: 'zks_getBridgeContracts' })
   return {

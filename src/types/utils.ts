@@ -110,7 +110,7 @@ export type IsUndefined<T> = [undefined] extends [T] ? true : false
 export type MaybePromise<T> = T | Promise<T>
 
 /**
- * @description Makes attributes on the type T required if TRequired is true.
+ * @description Makes attributes on the type T required if required is true.
  *
  * @example
  * MaybeRequired<{ a: string, b?: number }, true>
@@ -119,7 +119,7 @@ export type MaybePromise<T> = T | Promise<T>
  * MaybeRequired<{ a: string, b?: number }, false>
  * => { a: string, b?: number }
  */
-export type MaybeRequired<T, TRequired extends boolean> = TRequired extends true
+export type MaybeRequired<T, required extends boolean> = required extends true
   ? ExactRequired<T>
   : T
 

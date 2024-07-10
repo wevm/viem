@@ -38,8 +38,8 @@ import {
 } from '../wallet/prepareTransactionRequest.js'
 
 export type EstimateGasParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-> = UnionOmit<FormattedEstimateGas<TChain>, 'from'> & {
+  chain extends Chain | undefined = Chain | undefined,
+> = UnionOmit<FormattedEstimateGas<chain>, 'from'> & {
   account?: Account | Address | undefined
   stateOverride?: StateOverride | undefined
 } & (
@@ -57,9 +57,8 @@ export type EstimateGasParameters<
         blockTag?: BlockTag | undefined
       }
   )
-type FormattedEstimateGas<
-  TChain extends Chain | undefined = Chain | undefined,
-> = FormattedTransactionRequest<TChain>
+type FormattedEstimateGas<chain extends Chain | undefined = Chain | undefined> =
+  FormattedTransactionRequest<chain>
 
 export type EstimateGasReturnType = bigint
 
@@ -96,11 +95,11 @@ export type EstimateGasErrorType = GetEstimateGasErrorReturnType<
  * })
  */
 export async function estimateGas<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: EstimateGasParameters<TChain>,
+  client: Client<Transport, chain, account>,
+  args: EstimateGasParameters<chain>,
 ): Promise<EstimateGasReturnType> {
   const account_ = args.account ?? client.account
   const account = account_ ? parseAccount(account_) : undefined
