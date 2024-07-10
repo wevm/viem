@@ -1798,7 +1798,15 @@ export {
   type UserOperationExecutionErrorType,
   UserOperationReceiptNotFoundError,
   type UserOperationReceiptNotFoundErrorType,
+  UserOperationNotFoundError,
+  type UserOperationNotFoundErrorType,
+  WaitForUserOperationReceiptTimeoutError,
+  type WaitForUserOperationReceiptTimeoutErrorType,
 } from './errors/userOperation.js'
+export {
+  type FormatUserOperationErrorType,
+  formatUserOperation,
+} from './utils/formatters/userOperation.js'
 export {
   type FormatUserOperationGasErrorType,
   formatUserOperationGas,
