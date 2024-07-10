@@ -29,8 +29,8 @@ const request = await walletClient.prepareTransactionRequest({ // [!code focus:1
 // @log: }
 
 
-const signature = await walletClient.signTransaction(request)
-const hash = await walletClient.sendRawTransaction(signature)
+const serializedTransaction = await walletClient.signTransaction(request)
+const hash = await walletClient.sendRawTransaction({ serializedTransaction })
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"
@@ -80,8 +80,8 @@ const request = await walletClient.prepareTransactionRequest({ // [!code focus:1
 // @log: }
 
 
-const signature = await walletClient.signTransaction(request)
-const hash = await walletClient.sendRawTransaction(signature)
+const sendRawTransaction = await walletClient.signTransaction(request)
+const hash = await walletClient.sendRawTransaction({ sendRawTransaction })
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
