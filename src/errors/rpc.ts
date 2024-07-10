@@ -33,14 +33,14 @@ type RpcErrorOptions<code extends number = RpcErrorCode> = {
  * - EIP https://eips.ethereum.org/EIPS/eip-1474
  */
 export type RpcErrorType = RpcError & { name: 'RpcError' }
-export class RpcError<code extends number = RpcErrorCode> extends BaseError {
+export class RpcError<code_ extends number = RpcErrorCode> extends BaseError {
   override name = 'RpcError'
 
-  code: code | (number & {})
+  code: code_ | (number & {})
 
   constructor(
     cause: Error,
-    { code, docsPath, metaMessages, shortMessage }: RpcErrorOptions<code>,
+    { code, docsPath, metaMessages, shortMessage }: RpcErrorOptions<code_>,
   ) {
     super(shortMessage, {
       cause,
@@ -51,7 +51,7 @@ export class RpcError<code extends number = RpcErrorCode> extends BaseError {
     this.name = cause.name
     this.code = (
       cause instanceof RpcRequestError ? cause.code : code ?? unknownErrorCode
-    ) as code
+    ) as code_
   }
 }
 
