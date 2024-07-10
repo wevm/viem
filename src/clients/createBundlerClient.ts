@@ -88,5 +88,5 @@ export function createBundlerClient(
     transport,
     type: 'bundlerClient',
   })
-  return client.extend(bundlerActions())
+  return client.extend(bundlerActions)
 }
