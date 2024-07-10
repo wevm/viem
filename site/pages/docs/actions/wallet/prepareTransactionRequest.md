@@ -80,8 +80,8 @@ const request = await walletClient.prepareTransactionRequest({ // [!code focus:1
 // @log: }
 
 
-const sendRawTransaction = await walletClient.signTransaction(request)
-const hash = await walletClient.sendRawTransaction({ sendRawTransaction })
+const serializedTransaction = await walletClient.signTransaction(request)
+const hash = await walletClient.sendRawTransaction({ serializedTransaction })
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
