@@ -945,7 +945,7 @@ export type PublicActions<
     type extends FeeValuesType = 'eip1559',
   >(
     args?: EstimateFeesPerGasParameters<chain, chainOverride, type> | undefined,
-  ) => Promise<EstimateFeesPerGasReturnType>
+  ) => Promise<EstimateFeesPerGasReturnType<type>>
   /**
    * Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter) since the last time it was called.
    *

@@ -267,27 +267,23 @@ export type BundlerActionsParameters = {
   entryPoint: Address
 }
 
-export function bundlerActions() {
-  return <
-    transport extends Transport = Transport,
-    chain extends Chain | undefined = Chain | undefined,
-    account extends SmartAccount | undefined = SmartAccount | undefined,
-  >(
-    client: Client<transport, chain, account>,
-  ): BundlerActions<account> => {
-    return {
-      estimateUserOperationGas: (parameters) =>
-        estimateUserOperationGas(client, parameters),
-      getChainId: () => getChainId(client),
-      getSupportedEntryPoints: () => getSupportedEntryPoints(client),
-      getUserOperation: (parameters) => getUserOperation(client, parameters),
-      getUserOperationReceipt: (parameters) =>
-        getUserOperationReceipt(client, parameters),
-      prepareUserOperation: (parameters) =>
-        prepareUserOperation(client, parameters),
-      sendUserOperation: (parameters) => sendUserOperation(client, parameters),
-      waitForUserOperationReceipt: (parameters) =>
-        waitForUserOperationReceipt(client, parameters),
-    }
+export function bundlerActions<
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends SmartAccount | undefined = SmartAccount | undefined,
+>(client: Client<transport, chain, account>): BundlerActions<account> {
+  return {
+    estimateUserOperationGas: (parameters) =>
+      estimateUserOperationGas(client, parameters),
+    getChainId: () => getChainId(client),
+    getSupportedEntryPoints: () => getSupportedEntryPoints(client),
+    getUserOperation: (parameters) => getUserOperation(client, parameters),
+    getUserOperationReceipt: (parameters) =>
+      getUserOperationReceipt(client, parameters),
+    prepareUserOperation: (parameters) =>
+      prepareUserOperation(client, parameters),
+    sendUserOperation: (parameters) => sendUserOperation(client, parameters),
+    waitForUserOperationReceipt: (parameters) =>
+      waitForUserOperationReceipt(client, parameters),
   }
 }

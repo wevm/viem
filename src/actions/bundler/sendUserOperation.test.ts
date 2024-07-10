@@ -6,12 +6,21 @@ import {
   getSmartAccounts_06,
   getSmartAccounts_07,
 } from '../../../test/src/smartAccounts.js'
+import { solady } from '../../accounts/index.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { toSmartAccount } from '../../accounts/toSmartAccount.js'
 import {
   getBalance,
   mine,
   setBalance,
+  waitForUserOperationReceipt,
   writeContract,
 } from '../../actions/index.js'
+import { sepolia } from '../../chains/index.js'
+import { createClient } from '../../clients/createClient.js'
+import { bundlerActions } from '../../clients/decorators/bundler.js'
+import { publicActions } from '../../clients/decorators/public.js'
+import { http } from '../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../utils/index.js'
 import { sendUserOperation } from './sendUserOperation.js'
 
@@ -273,4 +282,54 @@ describe('entryPointVersion: 0.6', async () => {
       Version: viem@x.y.z]
     `)
   })
+})
+
+test.skip('e2e', async () => {
+  const factoryAddress = '0xda4b37208c41c4f6d1b101cac61e182fe1da0754'
+
+  const client = createClient({
+    chain: sepolia,
+    transport: http(
+      'https://eth-sepolia.g.alchemy.com/v2/ptAJSH3_HOZJy7nXLVZ0e-7c1i4Sgny7',
+    ),
+  })
+    .extend(publicActions)
+    .extend(bundlerActions)
+
+  const owner = privateKeyToAccount(
+    process.env.VITE_ACCOUNT_PRIVATE_KEY! as `0x${string}`,
+  )
+
+  const account = await toSmartAccount({
+    client,
+    implementation: solady({
+      factoryAddress,
+      owner,
+    }),
+  })
+
+  // const hash_send = await sendTransaction(client, {
+  //   account: owner,
+  //   to: account.address,
+  //   value: parseEther('0.001'),
+  // })
+  // await waitForTransactionReceipt(client, { hash: hash_send })
+
+  const fees = await client.estimateFeesPerGas()
+
+  const hash = await client.sendUserOperation({
+    account,
+    calls: [
+      {
+        to: owner.address,
+        value: 1n,
+      },
+    ],
+    maxFeePerGas: fees.maxFeePerGas + parseGwei('2'),
+    maxPriorityFeePerGas: fees.maxPriorityFeePerGas + parseGwei('2'),
+  })
+
+  const receipt = await waitForUserOperationReceipt(client, { hash })
+
+  expect(receipt.success).toBe(true)
 })

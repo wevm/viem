@@ -5,15 +5,15 @@ import { getSmartAccounts_07 } from '../../../test/src/smartAccounts.js'
 import { mine } from '../../actions/index.js'
 import { bundlerActions } from './bundler.js'
 
-const client = anvilMainnet.getClient().extend(bundlerActions())
-const bundlerClient = bundlerMainnet.getBundlerClient().extend(bundlerActions())
+const client = anvilMainnet.getClient().extend(bundlerActions)
+const bundlerClient = bundlerMainnet.getBundlerClient().extend(bundlerActions)
 
 beforeEach(async () => {
   await bundlerMainnet.restart()
 })
 
 test('default', async () => {
-  expect(bundlerActions()(bundlerClient)).toMatchInlineSnapshot(`
+  expect(bundlerActions(bundlerClient)).toMatchInlineSnapshot(`
     {
       "estimateUserOperationGas": [Function],
       "getChainId": [Function],

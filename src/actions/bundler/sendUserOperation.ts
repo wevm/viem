@@ -91,7 +91,7 @@ export async function sendUserOperation<
   const request = await getAction(
     client,
     prepareUserOperation,
-    'prepareTransactionRequest',
+    'prepareUserOperation',
   )(parameters as unknown as PrepareUserOperationParameters)
 
   const signature =
