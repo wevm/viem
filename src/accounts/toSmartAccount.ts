@@ -5,10 +5,10 @@ import type { Client } from '../clients/createClient.js'
 import type { Prettify } from '../types/utils.js'
 import { getAction } from '../utils/getAction.js'
 import type {
-  SmartAccount,
   SmartAccountImplementation,
   SmartAccountImplementationFn,
-} from './types.js'
+} from './implementations/defineImplementation.js'
+import type { SmartAccount } from './types.js'
 
 export type ToSmartAccountParameters<
   implementation extends

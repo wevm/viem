@@ -13,6 +13,11 @@ export { wordlist as spanish } from '@scure/bip39/wordlists/spanish'
 export { wordlist as traditionalChinese } from '@scure/bip39/wordlists/traditional-chinese'
 
 export {
+  type SmartAccountImplementation,
+  type SmartAccountImplementationFn,
+  defineImplementation,
+} from './implementations/defineImplementation.js'
+export {
   type SoladyImplementation,
   type SoladyImplementationParameters,
   type SoladyImplementationReturnType,
@@ -57,6 +62,7 @@ export type {
   LocalAccount,
   HDAccount,
   PrivateKeyAccount,
+  SmartAccount,
 } from './types.js'
 export {
   type SignErrorType,

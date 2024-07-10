@@ -6,7 +6,6 @@ import { entryPoint07Abi } from '../../constants/abis.js'
 import { signMessage } from '../../experimental/solady/actions/signMessage.js'
 import { signTypedData } from '../../experimental/solady/actions/signTypedData.js'
 import type { Account } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
 import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
@@ -15,11 +14,12 @@ import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { pad } from '../../utils/data/pad.js'
 import { getAction } from '../../utils/getAction.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
-import type {
-  SmartAccountImplementation,
-  SmartAccountImplementationFn,
-} from '../types.js'
 import { parseAccount } from '../utils/parseAccount.js'
+import {
+  type SmartAccountImplementation,
+  type SmartAccountImplementationFn,
+  defineImplementation,
+} from './defineImplementation.js'
 
 export type SoladyImplementation<
   entryPointAbi extends Abi = Abi,
@@ -35,7 +35,6 @@ export type SoladyImplementationParameters<
   entryPointAbi extends Abi = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > = {
-  chain?: Chain | undefined
   entryPoint?:
     | {
         abi: entryPointAbi
@@ -75,9 +74,8 @@ export function solady<
 >(
   parameters: SoladyImplementationParameters<entryPointAbi, entryPointVersion>,
 ): SoladyImplementationReturnType<entryPointAbi, entryPointVersion> {
-  return ({ address, client }) => {
+  return defineImplementation(({ address, client }) => {
     const {
-      chain = client.chain,
       entryPoint = {
         abi: entryPoint07Abi,
         address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
@@ -153,10 +151,10 @@ export function solady<
         return nonce
       },
 
-      async getSignature(packedUserOperation) {
-        if (!packedUserOperation?.signature)
+      async getSignature(userOperation) {
+        if (!userOperation?.signature)
           return '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
-        return packedUserOperation.signature
+        return userOperation.signature
       },
 
       async signMessage(parameters) {
@@ -194,7 +192,7 @@ export function solady<
       },
 
       async signUserOperation(parameters) {
-        const { chainId = chain!.id, userOperation } = parameters
+        const { chainId = client.chain!.id, userOperation } = parameters
 
         const address = await this.getAddress()
         const userOpHash = getUserOperationHash({
@@ -221,7 +219,7 @@ export function solady<
         })
       },
     }
-  }
+  })
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

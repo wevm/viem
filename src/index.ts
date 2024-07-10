@@ -986,6 +986,7 @@ export type {
   JsonRpcAccount,
   LocalAccount,
   PrivateKeyAccount,
+  SmartAccount,
 } from './accounts/types.js'
 export type { AssetGateway, AssetGatewayUrls } from './types/ens.js'
 export type {

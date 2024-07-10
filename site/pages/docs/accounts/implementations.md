@@ -1,3 +1,0 @@
-# Smart Account Implementations
-
-TODO
