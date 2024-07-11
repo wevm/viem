@@ -7,6 +7,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hash } from '../../types/misc.js'
 import type { UserOperationReceipt } from '../../types/userOperation.js'
+import type { Prettify } from '../../types/utils.js'
 import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { type PollErrorType, poll } from '../../utils/poll.js'
@@ -33,7 +34,8 @@ export type WaitForUserOperationReceiptParameters = {
   timeout?: number | undefined
 }
 
-export type WaitForUserOperationReceiptReturnType = UserOperationReceipt
+export type WaitForUserOperationReceiptReturnType =
+  Prettify<UserOperationReceipt>
 
 export type WaitForUserOperationReceiptErrorType =
   | WaitForUserOperationReceiptTimeoutErrorType

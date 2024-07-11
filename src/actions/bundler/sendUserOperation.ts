@@ -21,7 +21,7 @@ import type {
   UserOperationCalls,
   UserOperationRequest,
 } from '../../types/userOperation.js'
-import type { Assign, OneOf, UnionRequiredBy } from '../../types/utils.js'
+import type { Assign, OneOf } from '../../types/utils.js'
 import { getUserOperationError } from '../../utils/errors/getUserOperationError.js'
 import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
 import { getAction } from '../../utils/getAction.js'
@@ -41,12 +41,9 @@ export type SendUserOperationParameters<
   >,
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
-> = UnionRequiredBy<
-  Assign<
-    UserOperationRequest<_derivedVersion>,
-    OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }>
-  >,
-  'maxFeePerGas' | 'maxPriorityFeePerGas'
+> = Assign<
+  UserOperationRequest<_derivedVersion>,
+  OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }>
 > &
   GetSmartAccountParameter<account, accountOverride>
 

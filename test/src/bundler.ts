@@ -8,10 +8,11 @@ import type {
 import {
   http,
   type Chain,
+  type Client,
   type ClientConfig,
   type ExactPartial,
   type Transport,
-  createClient,
+  createBundlerClient,
 } from '../../src/index.js'
 import type { DebugBundlerRpcSchema } from '../../src/types/eip1193.js'
 import { anvilMainnet } from './anvil.js'
@@ -47,6 +48,7 @@ type DefineBundlerReturnType<chain extends Chain> = {
     config['transport'] extends Transport ? config['transport'] : Transport,
     config['chain'] extends false ? undefined : chain,
     undefined,
+    config['client'] extends Client ? config['client'] : undefined,
     DebugBundlerRpcSchema
   >
   port: number
@@ -84,7 +86,7 @@ function defineBundler<const chain extends Chain>({
     chain,
     clientConfig,
     getBundlerClient(config) {
-      return createClient({
+      return createBundlerClient({
         ...clientConfig,
         ...config,
         chain: config?.chain === false ? undefined : chain,

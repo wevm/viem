@@ -15,27 +15,20 @@ import {
   mine,
   readContract,
   setBalance,
-  waitForUserOperationReceipt,
   writeContract,
 } from '../../actions/index.js'
 import { sepolia } from '../../chains/index.js'
-import { createClient } from '../../clients/createClient.js'
-import { bundlerActions } from '../../clients/decorators/bundler.js'
-import { publicActions } from '../../clients/decorators/public.js'
+import { createBundlerClient } from '../../clients/createBundlerClient.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-import { pad, parseEther, parseGwei } from '../../utils/index.js'
+import { pad, parseEther } from '../../utils/index.js'
 import { sendUserOperation } from './sendUserOperation.js'
 
 const client = anvilMainnet.getClient({ account: true })
-const bundlerClient = bundlerMainnet.getBundlerClient()
+const bundlerClient = bundlerMainnet.getBundlerClient({ client })
 
 const alice = accounts[7].address
 const bob = accounts[8].address
-
-const fees = {
-  maxFeePerGas: parseGwei('7'),
-  maxPriorityFeePerGas: parseGwei('1'),
-} as const
 
 beforeEach(async () => {
   await setBalance(client, { address: alice, value: parseEther('10000') })
@@ -64,7 +57,6 @@ describe('entryPointVersion: 0.7', async () => {
           args: [69420451n],
         },
       ],
-      ...fees,
     })
     expect(hash).toBeDefined()
 
@@ -101,7 +93,6 @@ describe('entryPointVersion: 0.7', async () => {
           },
         ],
         signature: '0xdeadbeef',
-        ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [AccountNotFoundError: Could not find an Account to execute with this Action.
@@ -131,7 +122,6 @@ describe('entryPointVersion: 0.7', async () => {
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         factory,
         factoryData,
-        ...fees,
       }),
     ).rejects.toMatchInlineSnapshot(`
       [UserOperationExecutionError: Smart Account has already been deployed.
@@ -144,8 +134,8 @@ describe('entryPointVersion: 0.7', async () => {
         callData:              0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         factory:               0xfb6dab6200b8958c2655c3747708f82243d3f32e
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000001
-        maxFeePerGas:          7 gwei
-        maxPriorityFeePerGas:  1 gwei
+        maxFeePerGas:          10.448429652 gwei
+        maxPriorityFeePerGas:  2 gwei
         nonce:                 0
         sender:                0x0b3D649C00208AFB6A40b4A7e918b84A52D783B8
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
@@ -167,7 +157,6 @@ describe('entryPointVersion: 0.7', async () => {
         ],
         factory: '0x0000000000000000000000000000000000000000',
         factoryData: '0xdeadbeef',
-        ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
@@ -184,8 +173,8 @@ describe('entryPointVersion: 0.7', async () => {
         callData:              0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         factory:               0x0000000000000000000000000000000000000000
         factoryData:           0xdeadbeef
-        maxFeePerGas:          7 gwei
-        maxPriorityFeePerGas:  1 gwei
+        maxFeePerGas:          10.448429652 gwei
+        maxPriorityFeePerGas:  2 gwei
         nonce:                 0
         sender:                0x274B2baeCC1A87493db36439Df3D8012855fB182
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
@@ -206,7 +195,6 @@ describe('entryPointVersion: 0.7', async () => {
           },
         ],
         signature: '0xdeadbeef',
-        ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Signature provided for the User Operation is invalid.
@@ -217,8 +205,8 @@ describe('entryPointVersion: 0.7', async () => {
       Request Arguments:
         callData:                       0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         callGasLimit:                   80000
-        maxFeePerGas:                   7 gwei
-        maxPriorityFeePerGas:           1 gwei
+        maxFeePerGas:                   10.448429652 gwei
+        maxPriorityFeePerGas:           2 gwei
         nonce:                          1
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
@@ -255,7 +243,6 @@ describe('entryPointVersion: 0.6', async () => {
           args: [69420452n],
         },
       ],
-      ...fees,
     })
     expect(hash).toBeDefined()
 
@@ -285,7 +272,6 @@ describe('entryPointVersion: 0.6', async () => {
           },
         ],
         initCode: '0x0000000000000000000000000000000000000000deadbeef',
-        ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
@@ -300,8 +286,8 @@ describe('entryPointVersion: 0.6', async () => {
       Request Arguments:
         callData:              0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         initCode:              0x0000000000000000000000000000000000000000deadbeef
-        maxFeePerGas:          7 gwei
-        maxPriorityFeePerGas:  1 gwei
+        maxFeePerGas:          9.400708352 gwei
+        maxPriorityFeePerGas:  2 gwei
         nonce:                 0
         paymasterAndData:      0x
         sender:                0x07B486204EC3d1ff6803614D3308945Fd45d580c
@@ -316,14 +302,16 @@ describe('entryPointVersion: 0.6', async () => {
 test.skip('e2e', async () => {
   const factoryAddress = '0xda4b37208c41c4f6d1b101cac61e182fe1da0754'
 
-  const client = createClient({
+  const client = createPublicClient({
     chain: sepolia,
-    transport: http(
-      'https://eth-sepolia.g.alchemy.com/v2/ptAJSH3_HOZJy7nXLVZ0e-7c1i4Sgny7',
-    ),
+    transport: http(process.env.VITE_ANVIL_FORK_URL_SEPOLIA),
   })
-    .extend(publicActions)
-    .extend(bundlerActions)
+
+  const bundlerClient = createBundlerClient({
+    chain: sepolia,
+    client,
+    transport: http(process.env.VITE_BUNDLER_URL_SEPOLIA),
+  })
 
   const owner = privateKeyToAccount(
     process.env.VITE_ACCOUNT_PRIVATE_KEY! as `0x${string}`,
@@ -344,21 +332,18 @@ test.skip('e2e', async () => {
   // })
   // await waitForTransactionReceipt(client, { hash: hash_send })
 
-  const fees = await client.estimateFeesPerGas()
-
-  const hash = await client.sendUserOperation({
+  const hash = await bundlerClient.sendUserOperation({
     account,
     calls: [
       {
-        to: owner.address,
-        value: 1n,
+        abi: wagmiContractConfig.abi,
+        to: '0xa3547d42ab27e8d4a7d04b4db960f346669f8701',
+        functionName: 'mint',
       },
     ],
-    maxFeePerGas: fees.maxFeePerGas + parseGwei('2'),
-    maxPriorityFeePerGas: fees.maxPriorityFeePerGas + parseGwei('2'),
   })
 
-  const receipt = await waitForUserOperationReceipt(client, { hash })
+  const receipt = await bundlerClient.waitForUserOperationReceipt({ hash })
 
   expect(receipt.success).toBe(true)
 })

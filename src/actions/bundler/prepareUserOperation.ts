@@ -25,12 +25,14 @@ import type { Assign, OneOf, Prettify, UnionOmit } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { concat } from '../../utils/data/concat.js'
 import { getAction } from '../../utils/getAction.js'
+import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
-const defaultParameters = ['factory', 'gas', 'nonce'] as const
+const defaultParameters = ['factory', 'fees', 'gas', 'nonce'] as const
 
 export type PrepareUserOperationParameterType =
   | 'factory'
+  | 'fees'
   | 'gas'
   | 'nonce'
   | 'signature'
@@ -69,6 +71,11 @@ type GasProperties<
           verificationGasLimit: UserOperation['verificationGasLimit']
         }
       : never)
+
+type FeeProperties = {
+  maxFeePerGas: UserOperation['maxFeePerGas']
+  maxPriorityFeePerGas: UserOperation['maxPriorityFeePerGas']
+}
 
 type NonceProperties = {
   nonce: UserOperation['nonce']
@@ -136,6 +143,7 @@ export type PrepareUserOperationReturnType<
       ? {}
       : FactoryProperties<_derivedVersion>) &
     (Extract<_parameters, 'nonce'> extends never ? {} : NonceProperties) &
+    (Extract<_parameters, 'fees'> extends never ? {} : FeeProperties) &
     (Extract<_parameters, 'gas'> extends never
       ? {}
       : GasProperties<_derivedVersion>) &
@@ -202,7 +210,7 @@ export async function prepareUserOperation<
   } as PrepareUserOperationRequest
 
   // Concurrently prepare properties required to fill the User Operation.
-  const [callData, factory, nonce, signature] = await Promise.all([
+  const [callData, factory, fees, nonce, signature] = await Promise.all([
     (async () => {
       if (request.calls)
         return account.encodeCalls(
@@ -244,6 +252,37 @@ export async function prepareUserOperation<
       }
     })(),
     (async () => {
+      if (!parameters_.includes('fees')) return undefined
+      if (
+        typeof request.maxFeePerGas === 'bigint' &&
+        typeof request.maxPriorityFeePerGas === 'bigint'
+      )
+        return request
+
+      try {
+        const fees = await getAction(
+          'client' in client ? (client.client as Client) : client,
+          estimateFeesPerGas,
+          'estimateFeesPerGas',
+        )({
+          chain: client.chain,
+          type: 'eip1559',
+        })
+        return {
+          maxFeePerGas:
+            typeof request.maxFeePerGas === 'bigint'
+              ? request.maxFeePerGas
+              : 2n * fees.maxFeePerGas,
+          maxPriorityFeePerGas:
+            typeof request.maxPriorityFeePerGas === 'bigint'
+              ? request.maxPriorityFeePerGas
+              : 2n * fees.maxPriorityFeePerGas,
+        }
+      } catch {
+        return undefined
+      }
+    })(),
+    (async () => {
       if (!parameters_.includes('nonce')) return undefined
       if (typeof request.nonce === 'bigint') return request.nonce
       return account.getNonce()
@@ -258,6 +297,7 @@ export async function prepareUserOperation<
   if (typeof callData !== 'undefined') request.callData = callData
   if (typeof factory !== 'undefined')
     request = { ...request, ...(factory as any) }
+  if (typeof fees !== 'undefined') request = { ...request, ...(fees as any) }
   if (typeof nonce !== 'undefined') request.nonce = nonce
   if (typeof signature !== 'undefined') request.signature = signature
 
