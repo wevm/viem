@@ -4,9 +4,9 @@ A Local Account is an Account that is "managed" locally, on the consuming user's
 
 There are three types of Local Accounts in viem:
 
-- [Private Key Account](/docs/accounts/privateKey)
-- [Mnemonic Account](/docs/accounts/mnemonic)
-- [Hierarchical Deterministic (HD) Account](/docs/accounts/hd)
+- [Private Key Account](/docs/accounts/local/privateKey)
+- [Mnemonic Account](/docs/accounts/local/mnemonic)
+- [Hierarchical Deterministic (HD) Account](/docs/accounts/local/hd)
 
 Below are the steps to integrate a **Private Key Account**, but the same steps can be applied to **Mnemonic & HD Accounts**.
 

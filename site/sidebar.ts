@@ -491,26 +491,36 @@ export const sidebar = {
           text: 'Local Accounts',
           link: '/docs/accounts/local',
           items: [
-            { text: 'Private Key', link: '/docs/accounts/privateKey' },
-            { text: 'Mnemonic', link: '/docs/accounts/mnemonic' },
+            { text: 'Private Key', link: '/docs/accounts/local/privateKey' },
+            { text: 'Mnemonic', link: '/docs/accounts/local/mnemonic' },
             {
               text: 'Hierarchical Deterministic (HD)',
-              link: '/docs/accounts/hd',
+              link: '/docs/accounts/local/hd',
             },
-            { text: 'Custom', link: '/docs/accounts/custom' },
+            {
+              text: 'WebAuthn (Passkey)',
+              link: '/docs/accounts/local/webauthn',
+            },
+            { text: 'Custom', link: '/docs/accounts/local/custom' },
             {
               text: 'Utilities',
               items: [
                 {
                   text: 'createNonceManager',
-                  link: '/docs/accounts/createNonceManager',
+                  link: '/docs/accounts/local/createNonceManager',
                 },
-                { text: 'signMessage', link: '/docs/accounts/signMessage' },
+                {
+                  text: 'signMessage',
+                  link: '/docs/accounts/local/signMessage',
+                },
                 {
                   text: 'signTransaction',
-                  link: '/docs/accounts/signTransaction',
+                  link: '/docs/accounts/local/signTransaction',
                 },
-                { text: 'signTypedData', link: '/docs/accounts/signTypedData' },
+                {
+                  text: 'signTypedData',
+                  link: '/docs/accounts/local/signTypedData',
+                },
               ],
             },
           ],
@@ -522,7 +532,6 @@ export const sidebar = {
             { text: 'toSmartAccount', link: '/docs/accounts/toSmartAccount' },
             {
               text: 'Implementations',
-              link: '/docs/accounts/implementations',
               items: [
                 {
                   text: 'Solady',
@@ -531,6 +540,23 @@ export const sidebar = {
                 {
                   text: 'Custom',
                   link: '/docs/accounts/implementations/custom',
+                },
+              ],
+            },
+            {
+              text: 'Utilities',
+              items: [
+                {
+                  text: 'signMessage',
+                  link: '/docs/accounts/smart/signMessage',
+                },
+                {
+                  text: 'signTypedData',
+                  link: '/docs/accounts/smart/signTypedData',
+                },
+                {
+                  text: 'signUserOperation',
+                  link: '/docs/accounts/smart/signUserOperation',
                 },
               ],
             },

@@ -114,7 +114,7 @@ const client = createClient({
 
 The Account to use for the Client. This will be used for Actions that require an `account` as an argument.
 
-Accepts a [JSON-RPC Account](/docs/accounts/jsonRpc) or [Local Account (Private Key, etc)](/docs/accounts/privateKey).
+Accepts a [JSON-RPC Account](/docs/accounts/jsonRpc) or [Local Account (Private Key, etc)](/docs/accounts/local/privateKey).
 
 ```ts twoslash
 import { createClient, http } from 'viem'

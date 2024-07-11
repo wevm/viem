@@ -4,7 +4,7 @@ description: Creates a Smart Account with a provided Account Implementation.
 
 # toSmartAccount
 
-Creates a Smart Account with a provided Account [Implementation](/docs/accounts/implementations) and [Client](/docs/clients/public).
+Creates a Smart Account with a provided Account [Implementation](/docs/accounts/toSmartAccount#implementation) and [Client](/docs/clients/public).
 
 ## Import
 
@@ -14,9 +14,9 @@ import { toSmartAccount, solady } from 'viem/accounts'
 
 ## Usage
 
-To instantiate a Smart Account, you will need to provide an Account [Implementation](/docs/accounts/implementations) as well as a [Client](/docs/clients/public). 
+To instantiate a Smart Account, you will need to provide an Account [Implementation](/docs/accounts/toSmartAccount#implementation) as well as a [Client](/docs/clients/public). 
 
-For the example below, we will use the [`solady` Implementation](/docs/accounts/implementations/solady) – a basic implementation which utilizes [Solady's `ERC4337.sol`](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol).
+For the example below, we will use the [`solady` Implementation](/docs/accounts/implementations/solady).
 
 :::code-group
 
@@ -27,7 +27,7 @@ import { client, owner } from './config.js'
 const account = await toSmartAccount({
   client,
   implementation: solady({
-    factoryAddress: '0x...',
+    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
     owner,
   }),
 })
@@ -46,6 +46,10 @@ export const client = createPublicClient({
 })
 ```
 
+:::
+
+:::warning
+The `solady` implementation is unaudited. It is intended to be used for testing purposes or as a reference to implement a [Custom Implementation](/docs/accounts/implementations/custom).
 :::
 
 ## Returns
@@ -70,7 +74,7 @@ const account = await toSmartAccount({
   address: '0x0000000000000000000000000000000000000000', // [!code focus]
   client,
   implementation: solady({
-    factoryAddress: '0x...',
+    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
     owner,
   }),
 })
@@ -97,7 +101,7 @@ const account = await toSmartAccount({
   address: '0x0000000000000000000000000000000000000000',
   client, // [!code focus]
   implementation: solady({
-    factoryAddress: '0x...',
+    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
     owner,
   }),
 })
@@ -117,7 +121,7 @@ const account = await toSmartAccount({
   address: '0x0000000000000000000000000000000000000000',
   client,
   implementation: solady({ // [!code focus]
-    factoryAddress: '0x...', // [!code focus]
+    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754', // [!code focus]
     owner, // [!code focus]
   }), // [!code focus]
 })

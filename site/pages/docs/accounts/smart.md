@@ -2,7 +2,7 @@
 
 A **Smart Account** is an account whose implementation resides in a **Smart Contract**, and implements the [ERC-4337 interface](https://eips.ethereum.org/EIPS/eip-4337#account-contract-interface). 
 
-A **Smart Account** can be controlled by one or more **Owners**, which can be a [Local](/docs/accounts/local) or [JSON-RPC Account](/docs/accounts/json-rpc). The **Owner Account** is responsible for signing User Operations (transactions) on behalf of the **Smart Account**, which are then broadcasted to the Blockchain via a [Bundler](https://eips.ethereum.org/EIPS/eip-4337#bundling).
+A **Smart Account** can be controlled by one or more **Owners**, which can be a [Local](/docs/accounts/local) or [JSON-RPC Account](/docs/accounts/jsonRpc) (if supported). The **Owner Account** is responsible for signing User Operations (transactions) on behalf of the **Smart Account**, which are then broadcasted to the Blockchain via a [Bundler](https://eips.ethereum.org/EIPS/eip-4337#bundling).
 
 ## Instantiation
 
@@ -96,7 +96,7 @@ const [owner] = await client.getAddresses() // [!code focus]
 
 ### 4. Create a Smart Account
 
-Next, we will instantiate a Smart Account with the [Client](/docs/clients/intro), and an Account [Implementation](/docs/accounts/implementations/custom). For this example, we will use the [`solady` Implementation](/docs/accounts/implementations/solady).
+Next, we will instantiate a Smart Account with the [Client](/docs/clients/intro), and an Account [Implementation](/docs/accounts/toSmartAccount#implementation). For this example, we will use the [`solady` Implementation](/docs/accounts/implementations/solady).
 
 :::code-group
 

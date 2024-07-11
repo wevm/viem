@@ -3,7 +3,7 @@
 The Solady Implementation is a simple Smart Account Implementation that references [Solady's `ERC4337.sol`](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol) Smart Account contract.
 
 :::warning
-This Implementation is not recommended for use in production. This Implementation is intended to be used for testing purposes or as a reference to implement a [Custom Implementation](/docs/accounts/implementations/custom).
+This implementation is unaudited. It is intended to be used for testing purposes or as a reference to implement a [Custom Implementation](/docs/accounts/implementations/custom).
 :::
 
 ## Usage

@@ -23,6 +23,34 @@
     {
       "source": "/:match/getBytecode",
       "destination": "/:match/getCode"
+    },
+    {
+      "source": "/:match/accounts/createNonceManager",
+      "destination": "/:match/accounts/local/createNonceManager"
+    },
+    {
+      "source": "/:match/accounts/custom",
+      "destination": "/:match/accounts/local/custom"
+    },
+    {
+      "source": "/:match/accounts/mnemonic",
+      "destination": "/:match/accounts/local/mnemonic"
+    },
+    {
+      "source": "/:match/accounts/privateKey",
+      "destination": "/:match/accounts/local/privateKey"
+    },
+    {
+      "source": "/:match/accounts/signMessage",
+      "destination": "/:match/accounts/local/signMessage"
+    },
+    {
+      "source": "/:match/accounts/signTransaction",
+      "destination": "/:match/accounts/local/signTransaction"
+    },
+    {
+      "source": "/:match/accounts/signTypedData",
+      "destination": "/:match/accounts/local/signTypedData"
     }
   ]
 }
