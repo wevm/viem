@@ -4,7 +4,7 @@ import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
-import { Mock4337AccountFactory } from '../../../test/contracts/generated.js'
+import { Mock4337AccountFactory } from '~contracts/generated.js'
 import { deployMock4337Account } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zkSync } from '../../chains/index.js'

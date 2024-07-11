@@ -9,7 +9,7 @@ import { accounts, address, typedData } from '~test/src/constants.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
-import { Mock4337AccountFactory } from '../../../test/contracts/generated.js'
+import { Mock4337AccountFactory } from '~contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { deployMock4337Account } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'

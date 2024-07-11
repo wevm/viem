@@ -1,10 +1,10 @@
 import type { Address } from 'abitype'
 import { beforeAll, expect, test } from 'vitest'
 
+import { Mock4337AccountFactory } from '~contracts/generated.js'
+import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
-import { Mock4337AccountFactory } from '../../../../test/contracts/generated.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { deployMock4337Account } from '../../../../test/src/utils.js'
+import { deployMock4337Account } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   mine,

@@ -7,7 +7,7 @@ import {
   test,
 } from 'vitest'
 
-import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
+import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'

@@ -8,8 +8,9 @@ import {
   test,
 } from 'vitest'
 
-import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
+import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
+import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'
 import type { Log } from '../../types/log.js'
@@ -21,8 +22,6 @@ import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { writeContract } from '../wallet/writeContract.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { createBlockFilter } from './createBlockFilter.js'
 import { createContractEventFilter } from './createContractEventFilter.js'

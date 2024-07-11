@@ -32,7 +32,7 @@ import {
   Mock4337AccountFactory,
   OffchainLookupExample,
   Payable,
-} from '../contracts/generated.js'
+} from '../../contracts/generated.js'
 import {
   baycContractConfig,
   ensRegistryConfig,

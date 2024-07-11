@@ -3,10 +3,11 @@
   "extends": "./tsconfig.base.json",
   "include": ["src", "test/src"],
   "exclude": [],
-  "references": [{ "path": "./scripts/tsconfig.json" }],
+  "references": [{ "path": "./.scripts/tsconfig.json" }],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "~contracts/*": ["./contracts/*"],
       "~viem/*": ["./src/*"],
       "~test/*": ["./test/*"]
     }

@@ -5,7 +5,7 @@
  */
 import { describe, expect, test, vi } from 'vitest'
 
-import { ErrorsExample, GH434 } from '~test/contracts/generated.js'
+import { ErrorsExample, GH434 } from '~contracts/generated.js'
 import {
   baycContractConfig,
   usdcContractConfig,

@@ -1,0 +1,6 @@
+[profile.default]
+remappings = [
+  "solady/=lib/solady/src/",
+]
+src = "src"
+out = "out"

@@ -4,7 +4,7 @@ import {
   Mock4337Account,
   Mock4337AccountFactory,
   OffchainLookupExample,
-} from '~test/contracts/generated.js'
+} from '~contracts/generated.js'
 import {
   baycContractConfig,
   usdcContractConfig,

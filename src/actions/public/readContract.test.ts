@@ -10,7 +10,7 @@ import {
   ErrorsExample,
   Mock4337Account,
   Mock4337AccountFactory,
-} from '~test/contracts/generated.js'
+} from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deployErrorExample, deployMock4337Account } from '~test/src/utils.js'
