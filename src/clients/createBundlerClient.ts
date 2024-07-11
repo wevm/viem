@@ -17,6 +17,7 @@ export type BundlerClientConfig<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends SmartAccount | undefined = SmartAccount | undefined,
+  client extends Client | undefined = Client | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
   Pick<
@@ -30,12 +31,15 @@ export type BundlerClientConfig<
     | 'rpcSchema'
     | 'transport'
   >
->
+> & {
+  client?: client | Client | undefined
+}
 
 export type BundlerClient<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends SmartAccount | undefined = SmartAccount | undefined,
+  client extends Client | undefined = Client | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
   Client<
@@ -47,7 +51,9 @@ export type BundlerClient<
       : BundlerRpcSchema,
     BundlerActions<account>
   >
->
+> & {
+  client: client
+}
 
 export type CreateBundlerClientErrorType = CreateClientErrorType | ErrorType
 
@@ -72,21 +78,25 @@ export function createBundlerClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
   account extends SmartAccount | undefined = undefined,
+  client extends Client | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
 >(
-  parameters: BundlerClientConfig<transport, chain, account, rpcSchema>,
-): BundlerClient<transport, chain, account, rpcSchema>
+  parameters: BundlerClientConfig<transport, chain, account, client, rpcSchema>,
+): BundlerClient<transport, chain, account, client, rpcSchema>
 
 export function createBundlerClient(
   parameters: BundlerClientConfig,
 ): BundlerClient {
   const { key = 'bundler', name = 'Bundler Client', transport } = parameters
-  const client = createClient({
-    ...parameters,
-    key,
-    name,
-    transport,
-    type: 'bundlerClient',
-  })
-  return client.extend(bundlerActions)
+  const client = Object.assign(
+    createClient({
+      ...parameters,
+      key,
+      name,
+      transport,
+      type: 'bundlerClient',
+    }),
+    { client: parameters.client },
+  )
+  return client.extend(bundlerActions) as any
 }

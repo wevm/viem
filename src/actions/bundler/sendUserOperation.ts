@@ -1,3 +1,4 @@
+import type { Narrow } from 'abitype'
 import type { SmartAccount } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
@@ -17,9 +18,10 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type {
   UserOperation,
+  UserOperationCalls,
   UserOperationRequest,
 } from '../../types/userOperation.js'
-import type { UnionRequiredBy } from '../../types/utils.js'
+import type { Assign, OneOf, UnionRequiredBy } from '../../types/utils.js'
 import { getUserOperationError } from '../../utils/errors/getUserOperationError.js'
 import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
 import { getAction } from '../../utils/getAction.js'
@@ -31,6 +33,7 @@ import {
 export type SendUserOperationParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
+  calls extends readonly unknown[] = readonly unknown[],
   //
   _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
     account,
@@ -39,8 +42,10 @@ export type SendUserOperationParameters<
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = UnionRequiredBy<
-  UserOperationRequest<_derivedVersion>,
-  // @ts-ignore
+  Assign<
+    UserOperationRequest<_derivedVersion>,
+    OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }>
+  >,
   'maxFeePerGas' | 'maxPriorityFeePerGas'
 > &
   GetSmartAccountParameter<account, accountOverride>
@@ -77,11 +82,12 @@ export type SendUserOperationErrorType = ErrorType
  * })
  */
 export async function sendUserOperation<
+  const calls extends readonly unknown[],
   account extends SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = undefined,
 >(
   client: Client<Transport, Chain | undefined, account>,
-  parameters: SendUserOperationParameters<account, accountOverride>,
+  parameters: SendUserOperationParameters<account, accountOverride, calls>,
 ) {
   const { account: account_ = client.account } = parameters
 

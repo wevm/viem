@@ -1,3 +1,4 @@
+import type { Address, Narrow } from 'abitype'
 import type { SmartAccount } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
@@ -8,6 +9,7 @@ import type {
   GetSmartAccountParameter,
 } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { ContractFunctionParameters } from '../../types/contract.js'
 import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
@@ -15,9 +17,12 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type {
   UserOperation,
+  UserOperationCall,
+  UserOperationCalls,
   UserOperationRequest,
 } from '../../types/userOperation.js'
-import type { Prettify, UnionOmit } from '../../types/utils.js'
+import type { Assign, OneOf, Prettify, UnionOmit } from '../../types/utils.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { concat } from '../../utils/data/concat.js'
 import { getAction } from '../../utils/getAction.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
@@ -76,6 +81,7 @@ type SignatureProperties = {
 export type PrepareUserOperationRequest<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
+  calls extends readonly unknown[] = readonly unknown[],
   //
   _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
     account,
@@ -83,26 +89,33 @@ export type PrepareUserOperationRequest<
   >,
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
-> = UserOperationRequest<_derivedVersion> & {
+> = Assign<
+  UserOperationRequest<_derivedVersion>,
+  OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }>
+> & {
   parameters?: readonly PrepareUserOperationParameterType[] | undefined
 }
 
 export type PrepareUserOperationParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
+  calls extends readonly unknown[] = readonly unknown[],
   request extends PrepareUserOperationRequest<
     account,
-    accountOverride
-  > = PrepareUserOperationRequest<account, accountOverride>,
+    accountOverride,
+    calls
+  > = PrepareUserOperationRequest<account, accountOverride, calls>,
 > = request & GetSmartAccountParameter<account, accountOverride>
 
 export type PrepareUserOperationReturnType<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
+  calls extends readonly unknown[] = readonly unknown[],
   request extends PrepareUserOperationRequest<
     account,
-    accountOverride
-  > = PrepareUserOperationRequest<account, accountOverride>,
+    accountOverride,
+    calls
+  > = PrepareUserOperationRequest<account, accountOverride, calls>,
   //
   _parameters extends
     PrepareUserOperationParameterType = request['parameters'] extends readonly PrepareUserOperationParameterType[]
@@ -157,12 +170,24 @@ export type PrepareUserOperationReturnType<
  */
 export async function prepareUserOperation<
   account extends SmartAccount | undefined,
-  const request extends PrepareUserOperationRequest<account, accountOverride>,
+  const calls extends readonly unknown[],
+  const request extends PrepareUserOperationRequest<
+    account,
+    accountOverride,
+    calls
+  >,
   accountOverride extends SmartAccount | undefined = undefined,
 >(
   client: Client<Transport, Chain | undefined, account>,
-  parameters: PrepareUserOperationParameters<account, accountOverride, request>,
-): Promise<PrepareUserOperationReturnType<account, accountOverride, request>> {
+  parameters: PrepareUserOperationParameters<
+    account,
+    accountOverride,
+    calls,
+    request
+  >,
+): Promise<
+  PrepareUserOperationReturnType<account, accountOverride, calls, request>
+> {
   const {
     account: account_ = client.account,
     parameters: parameters_ = defaultParameters,
@@ -179,7 +204,21 @@ export async function prepareUserOperation<
   // Concurrently prepare properties required to fill the User Operation.
   const [callData, factory, nonce, signature] = await Promise.all([
     (async () => {
-      if (request.calls) return account.encodeCalls(request.calls)
+      if (request.calls)
+        return account.encodeCalls(
+          request.calls.map((call_) => {
+            const call = call_ as
+              | UserOperationCall
+              | (ContractFunctionParameters & { to: Address; value: bigint })
+            if ('abi' in call)
+              return {
+                data: encodeFunctionData(call),
+                to: call.to,
+                value: call.value,
+              } as UserOperationCall
+            return call as UserOperationCall
+          }),
+        )
       return request.callData
     })(),
     (async () => {

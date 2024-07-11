@@ -1,9 +1,11 @@
 import { describe, expect, test } from 'vitest'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { bundlerMainnet } from '../../../test/src/bundler.js'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
 } from '../../../test/src/smartAccounts.js'
+import { parseEther } from '../../utils/index.js'
 import { prepareUserOperation } from './prepareUserOperation.js'
 
 const bundlerClient = bundlerMainnet.getBundlerClient()
@@ -14,7 +16,17 @@ describe('entryPointVersion: 0.7', async () => {
   test('default', async () => {
     const request = await prepareUserOperation(bundlerClient, {
       account,
-      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
     })
 
     expect({ ...request, account: undefined }).toMatchInlineSnapshot(`
@@ -127,6 +139,10 @@ describe('entryPointVersion: 0.7', async () => {
     `)
   })
 
+  test.todo('error: insufficient funds')
+
+  test.todo('error: contract revert')
+
   test('error: no account', async () => {
     await expect(() =>
       // @ts-expect-error
@@ -184,4 +200,8 @@ describe('entryPointVersion: 0.6', async () => {
       }
     `)
   })
+
+  test.todo('error: error: insufficient funds')
+
+  test.todo('error: error: contract revert')
 })

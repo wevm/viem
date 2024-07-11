@@ -6,38 +6,38 @@ A **Smart Account** can be controlled by one or more **Owners**, which can be a 
 
 ## Instantiation
 
-### 1. Set up a Bundler Client
-
-Firstly, we will need to set up a Bundler Client. A Bundler is required to submit User Operations to the Blockchain for the Smart Account.
-
-```ts twoslash
-import { createBundlerClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const bundlerClient = createBundlerClient({
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-})
-```
-
-### 2. Set up a Client
+### 1. Set up a Client
 
 A Smart Account needs access to the Blockchain to query for information about its state (e.g. nonce, address, etc). Let's set up a Client that we can use for the Smart Account:
 
 ```ts twoslash
 // @noErrors
+import { createWalletClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createWalletClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### 2. Set up a Bundler Client
+
+Next, we will need to set up a Bundler Client. A Bundler is required to submit User Operations to the Blockchain for the Smart Account.
+
+```ts twoslash
 import { createBundlerClient, createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const bundlerClient = createBundlerClient({
+const client = createWalletClient({
   chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http(),
 })
 
-const client = createWalletClient({ // [!code focus]
-  bundlerClient, // [!code focus]
+const bundlerClient = createBundlerClient({ // [!code focus]
   chain: mainnet, // [!code focus]
-  transport: http(), // [!code focus]
+  client, // [!code focus]
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'), // [!code focus]
 }) // [!code focus]
 ```
 
@@ -58,15 +58,15 @@ import { createBundlerClient, createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' // [!code focus]
 
-const bundlerClient = createBundlerClient({
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-})
-
 const client = createWalletClient({
-  bundlerClient,
   chain: mainnet,
   transport: http(),
+})
+
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  client,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
 })
 
 const owner = privateKeyToAccount('0x...') // [!code focus]
@@ -77,16 +77,16 @@ const owner = privateKeyToAccount('0x...') // [!code focus]
 import { createBundlerClient, createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const bundlerClient = createBundlerClient({
-  bundlerClient,
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-})
-
 const client = createWalletClient({
   bundlerClient,
   chain: mainnet,
   transport: custom(window.ethereum!)
+})
+
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  client,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
 })
 
 const [owner] = await client.getAddresses() // [!code focus]
@@ -106,15 +106,15 @@ import { createBundlerClient, createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts' // [!code focus]
 
-const bundlerClient = createBundlerClient({
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-})
-
 const client = createWalletClient({
-  bundlerClient,
   chain: mainnet,
   transport: http(),
+})
+
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  client,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
 })
 
 const owner = privateKeyToAccount('0x...')
@@ -134,15 +134,15 @@ import { createBundlerClient, createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 import { toSmartAccount, solady } from 'viem/accounts' // [!code focus]
 
-const bundlerClient = createBundlerClient({
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-})
-
 const client = createWalletClient({
-  bundlerClient,
   chain: mainnet,
   transport: custom(window.ethereum!)
+})
+
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  client,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
 })
 
 const [owner] = await client.getAddresses()
@@ -168,15 +168,15 @@ import { createWalletClient, http, parseEther } from 'viem'
 import { mainnet } from 'viem/chains'
 import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts' 
 
-const bundlerClient = createBundlerClient({
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-})
-
 const client = createWalletClient({
-  bundlerClient,
   chain: mainnet,
   transport: http(),
+})
+
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  client,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
 })
 
 const owner = privateKeyToAccount('0x...')
@@ -189,10 +189,12 @@ const account = await toSmartAccount({
   }) 
 }) 
 
-const hash = await client.sendTransaction({ // [!code focus]
+const hash = await bundlerClient.sendUserOperation({ // [!code focus]
   account, // [!code focus]
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
-  value: parseEther('0.001') // [!code focus]
+  calls: [{ // [!code focus]
+    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
+    value: parseEther('0.001') // [!code focus]
+  }] // [!code focus]
 }) // [!code focus]
 ```
 
@@ -202,15 +204,15 @@ import { createWalletClient, custom, parseEther } from 'viem'
 import { mainnet } from 'viem/chains'
 import { toSmartAccount, solady } from 'viem/accounts' 
 
-const bundlerClient = createBundlerClient({
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-})
-
 const client = createWalletClient({
-  bundlerClient,
   chain: mainnet,
   transport: custom(window.ethereum!)
+})
+
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  client,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
 })
 
 const [owner] = await client.getAddresses()
@@ -223,10 +225,12 @@ const account = await toSmartAccount({
   }) 
 }) 
 
-const hash = await client.sendTransaction({ // [!code focus]
+const hash = await bundlerClient.sendUserOperation({ // [!code focus]
   account, // [!code focus]
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
-  value: parseEther('0.001') // [!code focus]
+  calls: [{ // [!code focus]
+    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
+    value: parseEther('0.001') // [!code focus]
+  }] // [!code focus]
 }) // [!code focus]
 ```
 
@@ -244,11 +248,6 @@ import { createBundlerClient, createWalletClient, http, parseEther } from 'viem'
 import { mainnet } from 'viem/chains'
 import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts' 
 
-const bundlerClient = createBundlerClient({
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-})
-
 const client = createWalletClient({
   chain: mainnet,
   transport: http(),
@@ -264,16 +263,19 @@ const account = await toSmartAccount({
   }) 
 }) 
 
-const smartWalletClient = createWalletClient({ // [!code ++]
+const bundlerClient = createBundlerClient({
   account, // [!code ++]
-  bundlerClient, // [!code ++]
-  chain: mainnet, // [!code ++]
-  transport: http() // [!code ++]
-}) // [!code ++]
+  chain: mainnet,
+  client,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+})
 
-const hash = await smartWalletClient.sendTransaction({
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
-  value: parseEther('0.001')
+const hash = await bundlerClient.sendUserOperation({
+  account, // [!code --]
+  calls: [{
+    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+    value: parseEther('0.001')
+  }]
 })
 ```
 
@@ -282,11 +284,6 @@ const hash = await smartWalletClient.sendTransaction({
 import { createBundlerClient, createWalletClient, custom, parseEther } from 'viem'
 import { mainnet } from 'viem/chains'
 import { toSmartAccount, solady } from 'viem/accounts' 
-
-const bundlerClient = createBundlerClient({
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-})
 
 const client = createWalletClient({
   chain: mainnet,
@@ -303,17 +300,19 @@ const account = await toSmartAccount({
   }) 
 }) 
 
-const smartWalletClient = createWalletClient({ // [!code ++]
+const bundlerClient = createBundlerClient({
   account, // [!code ++]
-  bundlerClient, // [!code ++]
-  chain: mainnet, // [!code ++]
-  transport: http() // [!code ++]
-}) // [!code ++]
+  chain: mainnet,
+  client,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+})
 
-const hash = await smartWalletClient.sendTransaction({
-  account, 
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
-  value: parseEther('0.001') 
+const hash = await bundlerClient.sendTransaction({
+  account, // [!code --]
+  calls: [{
+    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
+    value: parseEther('0.001') 
+  }]
 }) 
 ```
 

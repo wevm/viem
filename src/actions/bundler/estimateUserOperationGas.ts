@@ -1,3 +1,4 @@
+import type { Narrow } from 'abitype'
 import type { SmartAccount } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
@@ -14,12 +15,14 @@ import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
 } from '../../types/entryPointVersion.js'
+import type { Hex } from '../../types/misc.js'
 import type {
   EstimateUserOperationGasReturnType as EstimateUserOperationGasReturnType_,
   UserOperation,
+  UserOperationCalls,
   UserOperationRequest,
 } from '../../types/userOperation.js'
-import type { Prettify } from '../../types/utils.js'
+import type { Assign, OneOf, Prettify } from '../../types/utils.js'
 import { getUserOperationError } from '../../utils/errors/getUserOperationError.js'
 import { formatUserOperationGas } from '../../utils/formatters/userOperationGas.js'
 import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
@@ -32,6 +35,7 @@ import {
 export type EstimateUserOperationGasParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
+  calls extends readonly unknown[] = readonly unknown[],
   //
   _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
     account,
@@ -39,7 +43,10 @@ export type EstimateUserOperationGasParameters<
   >,
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
-> = UserOperationRequest<_derivedVersion> &
+> = Assign<
+  UserOperationRequest<_derivedVersion>,
+  OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }>
+> &
   GetSmartAccountParameter<account, accountOverride>
 
 export type EstimateUserOperationGasReturnType<
@@ -84,11 +91,16 @@ export type EstimateUserOperationGasErrorType = ErrorType
  * })
  */
 export async function estimateUserOperationGas<
+  const calls extends readonly unknown[],
   account extends SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = undefined,
 >(
   client: Client<Transport, Chain | undefined, account>,
-  parameters: EstimateUserOperationGasParameters<account, accountOverride>,
+  parameters: EstimateUserOperationGasParameters<
+    account,
+    accountOverride,
+    calls
+  >,
 ): Promise<EstimateUserOperationGasReturnType<account, accountOverride>> {
   const { account: account_ = client.account } = parameters
 

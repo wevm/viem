@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test } from 'vitest'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../test/src/bundler.js'
 import { accounts } from '../../../test/src/constants.js'
@@ -12,6 +13,7 @@ import { toSmartAccount } from '../../accounts/toSmartAccount.js'
 import {
   getBalance,
   mine,
+  readContract,
   setBalance,
   waitForUserOperationReceipt,
   writeContract,
@@ -55,6 +57,12 @@ describe('entryPointVersion: 0.7', async () => {
           to: bob,
           value: parseEther('2'),
         },
+        {
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+          to: wagmiContractConfig.address,
+          args: [69420451n],
+        },
       ],
       ...fees,
     })
@@ -69,7 +77,18 @@ describe('entryPointVersion: 0.7', async () => {
     expect(await getBalance(client, { address: bob })).toMatchInlineSnapshot(
       '10002000000000000000000n',
     )
+    expect(
+      await readContract(client, {
+        ...wagmiContractConfig,
+        functionName: 'ownerOf',
+        args: [69420451n],
+      }),
+    ).toBe(account.address)
   })
+
+  test.todo('error: insufficient funds')
+
+  test.todo('error: contract revert')
 
   test('error: no account', async () => {
     await expect(() =>
@@ -229,6 +248,12 @@ describe('entryPointVersion: 0.6', async () => {
           to: bob,
           value: parseEther('2'),
         },
+        {
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+          to: wagmiContractConfig.address,
+          args: [69420452n],
+        },
       ],
       ...fees,
     })
@@ -244,6 +269,10 @@ describe('entryPointVersion: 0.6', async () => {
       '10002000000000000000000n',
     )
   })
+
+  test.todo('error: insufficient funds')
+
+  test.todo('error: contract revert')
 
   test('error: aa13', async () => {
     await expect(() =>

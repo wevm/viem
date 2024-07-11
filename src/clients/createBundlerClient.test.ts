@@ -36,11 +36,11 @@ test('creates', () => {
 })
 
 test('smoke', async () => {
-  const client = createBundlerClient({
+  const bundlerClient = createBundlerClient({
     transport: http(bundlerMainnet.rpcUrl.http),
   })
 
-  const chainId = await client.request({ method: 'eth_chainId' })
+  const chainId = await bundlerClient.request({ method: 'eth_chainId' })
 
   expect(chainId).toMatchInlineSnapshot(`"0x1"`)
 })

@@ -14,15 +14,12 @@ Broadcasts a User Operation to the Bundler.
 import { parseEther } from 'viem'
 import { account, bundlerClient, publicClient } from './config'
 
-const fees = await publicClient.estimateFeesPerGas()
-
 const hash = await bundlerClient.sendUserOperation({ // [!code focus:7]
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
     value: parseEther('1')
   }],
-  ...fees,
 })
 ```
 
@@ -31,13 +28,13 @@ import { createBundlerClient, createPublicClient, http } from 'viem'
 import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
-export const publicClient = createPublicClient({
+const client = createPublicClient({
   chain: mainnet,
   transport: http()
 })
 
 export const account = await toSmartAccount({
-  client: publicClient,
+  client,
   implementation: solady({
     factoryAddress: '0x...',
     owner: privateKeyToAccount('0x...'),
@@ -46,6 +43,7 @@ export const account = await toSmartAccount({
 
 export const bundlerClient = createBundlerClient({
   chain: mainnet,
+  client,
   transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
 })
 ```
@@ -62,16 +60,13 @@ If you do not wish to pass an `account` to every `sendUserOperation`, you can al
 
 ```ts twoslash [example.ts]
 import { parseEther } from 'viem'
-import { bundlerClient, publicClient } from './config'
-
-const fees = await publicClient.estimateFeesPerGas()
+import { bundlerClient } from './config'
 
 const hash = await bundlerClient.sendUserOperation({ // [!code focus:7]
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
     value: parseEther('1')
   }],
-  ...fees,
 })
 ```
 
@@ -95,7 +90,70 @@ export const account = await toSmartAccount({
 
 export const bundlerClient = createBundlerClient({
   account, // [!code ++]
+  client,
   chain: mainnet,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
+})
+```
+
+:::
+
+### Contract Calls
+
+The `calls` property also accepts **Contract Calls**, and can be used via the `abi`, `functionName`, and `args` properties.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseEther } from 'viem'
+import { bundlerClient, publicClient } from './config'
+import { wagmiAbi } from './abi' // [!code focus]
+
+const hash = await bundlerClient.sendUserOperation({ // [!code focus:7]
+  calls: [{
+    abi: wagmiAbi,
+    functionName: 'mint',
+    to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  }],
+})
+```
+
+```ts [abi.ts] filename="abi.ts"
+export const wagmiAbi = [
+  // ...
+  {
+    inputs: [],
+    name: "mint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  // ...
+] as const;
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createBundlerClient, createPublicClient, http } from 'viem'
+import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+
+export const account = await toSmartAccount({
+  client,
+  implementation: solady({
+    factoryAddress: '0x...',
+    owner: privateKeyToAccount('0x...'),
+  }),
+})
+
+export const bundlerClient = createBundlerClient({
+  account,
+  chain: mainnet,
+  client,
   transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
 })
 ```
@@ -131,7 +189,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 ### calls
 
-- **Type:** `{ data: Hex, to: Address, value: bigint }[]`
+- **Type:** `({ data?: Hex | undefined, to: Address, value?: bigint | undefined } | { abi: Abi, functionName: string, args: unknown[], to: Address, value?: bigint | undefined })[]`
 
 The calls to execute in the User Operation.
 
@@ -144,6 +202,10 @@ const hash = await bundlerClient.sendUserOperation({
   calls: [{ // [!code focus]
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
     value: parseEther('1') // [!code focus]
+  }, { // [!code focus]
+    abi: wagmiAbi, // [!code focus]
+    functionName: 'mint', // [!code focus]
+    to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   }] // [!code focus]
 })
 ```

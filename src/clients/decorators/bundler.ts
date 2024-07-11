@@ -73,9 +73,14 @@ export type BundlerActions<
    * })
    */
   estimateUserOperationGas: <
+    const calls extends readonly unknown[],
     accountOverride extends SmartAccount | undefined = undefined,
   >(
-    parameters: EstimateUserOperationGasParameters<account, accountOverride>,
+    parameters: EstimateUserOperationGasParameters<
+      account,
+      accountOverride,
+      calls
+    >,
   ) => Promise<EstimateUserOperationGasReturnType<account, accountOverride>>
   /**
    * Returns the chain ID associated with the bundler.
@@ -194,16 +199,22 @@ export type BundlerActions<
    * })
    */
   prepareUserOperation: <
-    const request extends PrepareUserOperationRequest<account, accountOverride>,
+    const calls extends readonly unknown[],
+    const request extends PrepareUserOperationRequest<
+      account,
+      accountOverride,
+      calls
+    >,
     accountOverride extends SmartAccount | undefined = undefined,
   >(
     parameters: PrepareUserOperationParameters<
       account,
       accountOverride,
+      calls,
       request
     >,
   ) => Promise<
-    PrepareUserOperationReturnType<account, accountOverride, request>
+    PrepareUserOperationReturnType<account, accountOverride, calls, request>
   >
   /**
    * Broadcasts a User Operation to the Bundler.
@@ -232,9 +243,10 @@ export type BundlerActions<
    * })
    */
   sendUserOperation: <
+    const calls extends readonly unknown[],
     accountOverride extends SmartAccount | undefined = undefined,
   >(
-    parameters: SendUserOperationParameters<account, accountOverride>,
+    parameters: SendUserOperationParameters<account, accountOverride, calls>,
   ) => Promise<SendUserOperationReturnType>
   /**
    * Waits for the User Operation to be included on a [Block](https://viem.sh/docs/glossary/terms#block) (one confirmation), and then returns the User Operation receipt.

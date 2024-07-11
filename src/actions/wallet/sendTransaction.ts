@@ -172,6 +172,36 @@ export async function sendTransaction<
       })
     }
 
+    if (account.type === 'json-rpc') {
+      const chainFormat = client.chain?.formatters?.transactionRequest?.format
+      const format = chainFormat || formatTransactionRequest
+
+      const request = format({
+        // Pick out extra data that might exist on the chain's transaction request type.
+        ...extract(rest, { format: chainFormat }),
+        accessList,
+        blobs,
+        chainId,
+        data,
+        from: account.address,
+        gas,
+        gasPrice,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to,
+        value,
+      } as TransactionRequest)
+      return await client.request(
+        {
+          method: 'eth_sendTransaction',
+          params: [request],
+        },
+        { retryCount: 0 },
+      )
+    }
+
     if (account.type === 'local') {
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await getAction(
@@ -210,33 +240,7 @@ export async function sendTransaction<
       })
     }
 
-    const chainFormat = client.chain?.formatters?.transactionRequest?.format
-    const format = chainFormat || formatTransactionRequest
-
-    const request = format({
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      accessList,
-      blobs,
-      chainId,
-      data,
-      from: account.address,
-      gas,
-      gasPrice,
-      maxFeePerBlobGas,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to,
-      value,
-    } as TransactionRequest)
-    return await client.request(
-      {
-        method: 'eth_sendTransaction',
-        params: [request],
-      },
-      { retryCount: 0 },
-    )
+    throw new Error('incompatible account type.')
   } catch (err) {
     throw getTransactionError(err as BaseError, {
       ...parameters,

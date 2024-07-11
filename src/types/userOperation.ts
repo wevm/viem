@@ -1,15 +1,11 @@
 import type { Address } from 'abitype'
+import type { ContractFunctionParameters } from './contract.js'
 import type { EntryPointVersion } from './entryPointVersion.js'
 import type { Log } from './log.js'
 import type { Hash, Hex } from './misc.js'
+import type { GetMulticallContractParameters } from './multicall.js'
 import type { TransactionReceipt } from './transaction.js'
-import type { Assign, OneOf, UnionPartialBy } from './utils.js'
-
-type Call = {
-  to: Hex
-  data?: Hex | undefined
-  value?: bigint | undefined
-}
+import type { OneOf, Prettify, UnionPartialBy } from './utils.js'
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_estimateuseroperationgas */
 export type EstimateUserOperationGasReturnType<
@@ -141,36 +137,33 @@ export type UserOperation<
 export type UserOperationRequest<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
-> = Assign<
-  OneOf<
-    | (entryPointVersion extends '0.7'
-        ? UnionPartialBy<
-            UserOperation<'0.7', uint256>,
-            // We are able to calculate these via `prepareUserOperation`.
-            | keyof EstimateUserOperationGasReturnType<'0.7'>
-            | 'callData'
-            | 'maxFeePerGas'
-            | 'maxPriorityFeePerGas'
-            | 'nonce'
-            | 'sender'
-            | 'signature'
-          >
-        : never)
-    | (entryPointVersion extends '0.6'
-        ? UnionPartialBy<
-            UserOperation<'0.6', uint256>,
-            // We are able to calculate these via `prepareUserOperation`.
-            | keyof EstimateUserOperationGasReturnType<'0.6'>
-            | 'callData'
-            | 'maxFeePerGas'
-            | 'maxPriorityFeePerGas'
-            | 'nonce'
-            | 'sender'
-            | 'signature'
-          >
-        : never)
-  >,
-  OneOf<{ calls: readonly Call[] } | { callData: Hex }>
+> = OneOf<
+  | (entryPointVersion extends '0.7'
+      ? UnionPartialBy<
+          UserOperation<'0.7', uint256>,
+          // We are able to calculate these via `prepareUserOperation`.
+          | keyof EstimateUserOperationGasReturnType<'0.7'>
+          | 'callData'
+          | 'maxFeePerGas'
+          | 'maxPriorityFeePerGas'
+          | 'nonce'
+          | 'sender'
+          | 'signature'
+        >
+      : never)
+  | (entryPointVersion extends '0.6'
+      ? UnionPartialBy<
+          UserOperation<'0.6', uint256>,
+          // We are able to calculate these via `prepareUserOperation`.
+          | keyof EstimateUserOperationGasReturnType<'0.6'>
+          | 'callData'
+          | 'maxFeePerGas'
+          | 'maxPriorityFeePerGas'
+          | 'nonce'
+          | 'sender'
+          | 'signature'
+        >
+      : never)
 >
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_getuseroperationreceipt */
@@ -202,3 +195,65 @@ export type UserOperationReceipt<
   /** Hash of the user operation. */
   userOpHash: Hash
 }
+
+export type UserOperationCall = {
+  to: Hex
+  data?: Hex | undefined
+  value?: bigint | undefined
+}
+
+export type UserOperationCalls<
+  calls extends readonly unknown[],
+  ///
+  result extends readonly any[] = [],
+> = calls extends readonly [] // no calls, return empty
+  ? readonly []
+  : calls extends readonly [infer call] // one call left before returning `result`
+    ? readonly [
+        ...result,
+        Prettify<
+          OneOf<
+            | (Omit<GetMulticallContractParameters<call>, 'address'> & {
+                to: Address
+                value?: bigint | undefined
+              })
+            | UserOperationCall
+          >
+        >,
+      ]
+    : calls extends readonly [infer call, ...infer rest] // grab first call and recurse through `rest`
+      ? UserOperationCalls<
+          [...rest],
+          [
+            ...result,
+            Prettify<
+              OneOf<
+                | (Omit<GetMulticallContractParameters<call>, 'address'> & {
+                    to: Address
+                    value?: bigint | undefined
+                  })
+                | UserOperationCall
+              >
+            >,
+          ]
+        >
+      : readonly unknown[] extends calls
+        ? calls
+        : // If `calls` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
+          // use this to infer the param types in the case of Array.map() argument
+          calls extends readonly (infer call extends OneOf<
+              | (Omit<ContractFunctionParameters, 'address'> & {
+                  to: Address
+                  value?: bigint | undefined
+                })
+              | UserOperationCall
+            >)[]
+          ? readonly Prettify<call>[]
+          : // Fallback
+            readonly OneOf<
+              | (Omit<ContractFunctionParameters, 'address'> & {
+                  to: Address
+                  value?: bigint | undefined
+                })
+              | UserOperationCall
+            >[]

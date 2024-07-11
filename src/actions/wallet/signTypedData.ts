@@ -181,7 +181,7 @@ export async function signTypedData<
   // as we can't statically check this with TypeScript.
   validateTypedData({ domain, message, primaryType, types })
 
-  if (account.type === 'local')
+  if (account.signTypedData)
     return account.signTypedData({ domain, message, primaryType, types })
 
   const typedData = serializeTypedData({ domain, message, primaryType, types })

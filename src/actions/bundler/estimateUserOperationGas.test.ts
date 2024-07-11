@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../test/src/bundler.js'
 import { accounts } from '../../../test/src/constants.js'
@@ -7,7 +8,7 @@ import {
   getSmartAccounts_07,
 } from '../../../test/src/smartAccounts.js'
 import { mine, writeContract } from '../../actions/index.js'
-import { pad } from '../../utils/index.js'
+import { pad, parseEther } from '../../utils/index.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
 const client = anvilMainnet.getClient()
@@ -20,18 +21,32 @@ describe('entryPointVersion: 0.7', async () => {
     expect(
       await estimateUserOperationGas(bundlerClient, {
         account,
-        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+          {
+            to: wagmiContractConfig.address,
+            abi: wagmiContractConfig.abi,
+            functionName: 'mint',
+          },
+        ],
       }),
     ).toMatchInlineSnapshot(`
       {
-        "callGasLimit": 80000n,
+        "callGasLimit": 141653n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "preVerificationGas": 51642n,
-        "verificationGasLimit": 259060n,
+        "preVerificationGas": 53438n,
+        "verificationGasLimit": 259350n,
       }
     `)
   })
+
+  test.todo('error: insufficient funds')
+
+  test.todo('error: contract revert')
 
   test('error: aa10', async () => {
     const { factory, factoryData } = await account_2.getFactoryArgs()
@@ -158,16 +173,30 @@ describe('entryPointVersion: 0.6', async () => {
     expect(
       await estimateUserOperationGas(bundlerClient, {
         account,
-        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+          {
+            to: wagmiContractConfig.address,
+            abi: wagmiContractConfig.abi,
+            functionName: 'mint',
+          },
+        ],
       }),
     ).toMatchInlineSnapshot(`
       {
-        "callGasLimit": 80000n,
-        "preVerificationGas": 55154n,
-        "verificationGasLimit": 258801n,
+        "callGasLimit": 141822n,
+        "preVerificationGas": 56936n,
+        "verificationGasLimit": 259089n,
       }
     `)
   })
+
+  test.todo('error: insufficient funds')
+
+  test.todo('error: contract revert')
 
   test('error: aa13', async () => {
     await expect(() =>
