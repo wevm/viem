@@ -1,6 +1,8 @@
 [profile.default]
+libs = ["lib"]
 remappings = [
   "solady/=lib/solady/src/",
+  "solady-dc09481/=lib/solady-dc09481/src/",
 ]
 src = "src"
 out = "out"
