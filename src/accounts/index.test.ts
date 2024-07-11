@@ -15,6 +15,7 @@ test('exports utils', () => {
       "simplifiedChinese",
       "spanish",
       "traditionalChinese",
+      "defineImplementation",
       "solady",
       "generateMnemonic",
       "generatePrivateKey",
