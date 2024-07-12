@@ -107,10 +107,13 @@ export async function sendUserOperation<
   } as UserOperation)
 
   try {
-    return await client.request({
-      method: 'eth_sendUserOperation',
-      params: [rpcParameters, account.entryPoint.address],
-    })
+    return await client.request(
+      {
+        method: 'eth_sendUserOperation',
+        params: [rpcParameters, account.entryPoint.address],
+      },
+      { retryCount: 0 },
+    )
   } catch (error) {
     throw getUserOperationError(error as BaseError, request as UserOperation)
   }
