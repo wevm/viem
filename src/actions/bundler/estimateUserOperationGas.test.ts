@@ -549,11 +549,6 @@ describe('entryPointVersion: 0.6', async () => {
             to: '0x0000000000000000000000000000000000000000',
             value: parseEther('1'),
           },
-          {
-            to: wagmiContractConfig.address,
-            abi: wagmiContractConfig.abi,
-            functionName: 'mint',
-          },
         ],
       }),
     ).toMatchInlineSnapshot(`
