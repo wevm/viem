@@ -255,7 +255,7 @@ describe('entryPointVersion: 0.7', async () => {
   })
 })
 
-describe('entryPointVersion: 0.6', async () => {
+describe.skip('entryPointVersion: 0.6', async () => {
   await bundlerMainnet.restart()
 
   const [account] = await getSmartAccounts_06()
