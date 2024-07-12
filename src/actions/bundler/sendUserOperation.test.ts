@@ -21,7 +21,7 @@ import { sepolia } from '../../chains/index.js'
 import { createBundlerClient } from '../../clients/createBundlerClient.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-import { pad, parseEther } from '../../utils/index.js'
+import { pad, parseEther, parseGwei } from '../../utils/index.js'
 import { sendUserOperation } from './sendUserOperation.js'
 
 const client = anvilMainnet.getClient({ account: true })
@@ -29,6 +29,11 @@ const bundlerClient = bundlerMainnet.getBundlerClient({ client })
 
 const alice = accounts[7].address
 const bob = accounts[8].address
+
+const fees = {
+  maxFeePerGas: parseGwei('15'),
+  maxPriorityFeePerGas: parseGwei('2'),
+} as const
 
 beforeEach(async () => {
   await setBalance(client, { address: alice, value: parseEther('10000') })
@@ -59,6 +64,7 @@ describe('entryPointVersion: 0.7', async () => {
           args: [69420451n],
         },
       ],
+      ...fees,
     })
     expect(hash).toBeDefined()
 
@@ -91,6 +97,7 @@ describe('entryPointVersion: 0.7', async () => {
           },
         ],
         signature: '0xdeadbeef',
+        ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [AccountNotFoundError: Could not find an Account to execute with this Action.
@@ -120,6 +127,7 @@ describe('entryPointVersion: 0.7', async () => {
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         factory,
         factoryData,
+        ...fees,
       }),
     ).rejects.toMatchInlineSnapshot(`
       [UserOperationExecutionError: Smart Account has already been deployed.
@@ -132,7 +140,7 @@ describe('entryPointVersion: 0.7', async () => {
         callData:              0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         factory:               0xfb6dab6200b8958c2655c3747708f82243d3f32e
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000001
-        maxFeePerGas:          10.448522616 gwei
+        maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
         nonce:                 0
         sender:                0x0b3D649C00208AFB6A40b4A7e918b84A52D783B8
@@ -155,6 +163,7 @@ describe('entryPointVersion: 0.7', async () => {
         ],
         factory: '0x0000000000000000000000000000000000000000',
         factoryData: '0xdeadbeef',
+        ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
@@ -171,7 +180,7 @@ describe('entryPointVersion: 0.7', async () => {
         callData:              0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         factory:               0x0000000000000000000000000000000000000000
         factoryData:           0xdeadbeef
-        maxFeePerGas:          10.448522616 gwei
+        maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
         nonce:                 0
         sender:                0x274B2baeCC1A87493db36439Df3D8012855fB182
@@ -193,6 +202,7 @@ describe('entryPointVersion: 0.7', async () => {
           },
         ],
         signature: '0xdeadbeef',
+        ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Signature provided for the User Operation is invalid.
@@ -203,7 +213,7 @@ describe('entryPointVersion: 0.7', async () => {
       Request Arguments:
         callData:                       0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         callGasLimit:                   80000
-        maxFeePerGas:                   10.448522616 gwei
+        maxFeePerGas:                   15 gwei
         maxPriorityFeePerGas:           2 gwei
         nonce:                          1
         paymasterPostOpGasLimit:        0
@@ -243,6 +253,7 @@ describe('entryPointVersion: 0.6', async () => {
           args: [69420452n],
         },
       ],
+      ...fees,
     })
     expect(hash).toBeDefined()
 
@@ -268,6 +279,7 @@ describe('entryPointVersion: 0.6', async () => {
           },
         ],
         initCode: '0x0000000000000000000000000000000000000000deadbeef',
+        ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [UserOperationExecutionError: Failed to simulate deployment for Smart Account.
@@ -282,7 +294,7 @@ describe('entryPointVersion: 0.6', async () => {
       Request Arguments:
         callData:              0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         initCode:              0x0000000000000000000000000000000000000000deadbeef
-        maxFeePerGas:          9.400789786 gwei
+        maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
         nonce:                 0
         paymasterAndData:      0x

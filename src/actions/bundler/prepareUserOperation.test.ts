@@ -6,11 +6,16 @@ import {
   getSmartAccounts_06,
   getSmartAccounts_07,
 } from '../../../test/src/smartAccounts.js'
-import { parseEther } from '../../utils/index.js'
+import { parseEther, parseGwei } from '../../utils/index.js'
 import { prepareUserOperation } from './prepareUserOperation.js'
 
 const client = anvilMainnet.getClient()
 const bundlerClient = bundlerMainnet.getBundlerClient({ client })
+
+const fees = {
+  maxFeePerGas: parseGwei('15'),
+  maxPriorityFeePerGas: parseGwei('2'),
+} as const
 
 describe('entryPointVersion: 0.7', async () => {
   await bundlerMainnet.restart()
@@ -31,6 +36,7 @@ describe('entryPointVersion: 0.7', async () => {
           functionName: 'mint',
         },
       ],
+      ...fees,
     })
 
     expect({
@@ -61,6 +67,7 @@ describe('entryPointVersion: 0.7', async () => {
       account,
       callData:
         '0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000',
+      ...fees,
     })
 
     expect({
@@ -91,6 +98,7 @@ describe('entryPointVersion: 0.7', async () => {
       account,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       parameters: ['gas', 'nonce'],
+      ...fees,
     })
 
     expect({ ...request, account: undefined }).toMatchInlineSnapshot(`
@@ -98,6 +106,8 @@ describe('entryPointVersion: 0.7', async () => {
         "account": undefined,
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
         "callGasLimit": 80000n,
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
         "nonce": 0n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
@@ -113,6 +123,7 @@ describe('entryPointVersion: 0.7', async () => {
       account,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       parameters: ['gas', 'factory'],
+      ...fees,
     })
 
     expect({ ...request, account: undefined }).toMatchInlineSnapshot(`
@@ -122,6 +133,8 @@ describe('entryPointVersion: 0.7', async () => {
         "callGasLimit": 80000n,
         "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51642n,
@@ -136,6 +149,7 @@ describe('entryPointVersion: 0.7', async () => {
       account,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       nonce: 0n,
+      ...fees,
     })
 
     expect({
@@ -190,6 +204,7 @@ describe('entryPointVersion: 0.7', async () => {
     const request_2 = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      ...fees,
       maxFeePerGas: 2n,
     })
 
@@ -214,6 +229,7 @@ describe('entryPointVersion: 0.7', async () => {
     const request_3 = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      ...fees,
       maxPriorityFeePerGas: 2n,
     })
 
@@ -245,6 +261,7 @@ describe('entryPointVersion: 0.7', async () => {
       // @ts-expect-error
       prepareUserOperation(bundlerClient, {
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [AccountNotFoundError: Could not find an Account to execute with this Action.
@@ -264,6 +281,7 @@ describe('entryPointVersion: 0.6', async () => {
     const request = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      ...fees,
     })
     expect({
       ...request,
@@ -291,12 +309,15 @@ describe('entryPointVersion: 0.6', async () => {
       account,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       parameters: ['gas', 'nonce'],
+      ...fees,
     })
     expect({ ...request, account: undefined }).toMatchInlineSnapshot(`
       {
         "account": undefined,
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
         "callGasLimit": 80000n,
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
         "nonce": 0n,
         "paymasterAndData": "0x",
         "preVerificationGas": 55154n,
