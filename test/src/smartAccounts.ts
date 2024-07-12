@@ -1,6 +1,6 @@
 import { solady } from '../../src/accounts/implementations/solady.js'
 import { toSmartAccount } from '../../src/accounts/toSmartAccount.js'
-import { mine, writeContract } from '../../src/actions/index.js'
+import { mine, sendTransaction } from '../../src/actions/index.js'
 import { entryPoint06Abi } from '../../src/constants/abis.js'
 import { parseEther } from '../../src/index.js'
 import { anvilMainnet } from './anvil.js'
@@ -34,11 +34,9 @@ export async function getSmartAccounts_07() {
         salt,
       }),
     })
-    await writeContract(client, {
+    await sendTransaction(client, {
       account: accounts[9].address,
-      address: account.address,
-      abi: account.abi,
-      functionName: 'addDeposit',
+      to: account.address,
       value: parseEther('100'),
     })
     accounts_.push(account)
@@ -81,11 +79,9 @@ export async function getSmartAccounts_06() {
         salt,
       }),
     })
-    await writeContract(client, {
+    await sendTransaction(client, {
       account: accounts[9].address,
-      address: account.address,
-      abi: account.abi,
-      functionName: 'addDeposit',
+      to: account.address,
       value: parseEther('100'),
     })
     accounts_.push(account)

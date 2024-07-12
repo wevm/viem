@@ -557,9 +557,9 @@ describe('entryPointVersion: 0.6', async () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "callGasLimit": 141822n,
-        "preVerificationGas": 56936n,
-        "verificationGasLimit": 259089n,
+        "callGasLimit": 80000n,
+        "preVerificationGas": 55233n,
+        "verificationGasLimit": 258801n,
       }
     `)
   })
