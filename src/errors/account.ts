@@ -18,3 +18,24 @@ export class AccountNotFoundError extends BaseError {
     )
   }
 }
+
+export type AccountTypeNotSupportedErrorType = AccountTypeNotSupportedError & {
+  name: 'AccountTypeNotSupportedError'
+}
+export class AccountTypeNotSupportedError extends BaseError {
+  override name = 'AccountTypeNotSupportedError'
+  constructor({
+    docsPath,
+    metaMessages,
+    type,
+  }: {
+    docsPath?: string | undefined
+    metaMessages?: string[] | undefined
+    type: string
+  }) {
+    super(`Account type "${type}" is not supported.`, {
+      docsPath,
+      metaMessages,
+    })
+  }
+}

@@ -6,6 +6,7 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
+import { getSmartAccounts_07 } from '../../../test/src/smartAccounts.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'
@@ -993,6 +994,27 @@ describe('local account', () => {
       expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(682)
       expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(683)
     })
+  })
+})
+
+describe('smart account', async () => {
+  const [account] = await getSmartAccounts_07()
+
+  test('default', async () => {
+    await expect(() =>
+      sendTransaction(client, {
+        account,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [AccountTypeNotSupportedError: Account type "smart" is not supported.
+
+      Consider using the \`sendUserOperation\` Action instead.
+
+      Docs: https://viem.sh/docs/actions/bundler/sendUserOperation
+      Version: viem@x.y.z]
+    `)
   })
 })
 

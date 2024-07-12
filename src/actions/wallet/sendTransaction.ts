@@ -6,7 +6,12 @@ import {
 import type { SignTransactionErrorType } from '../../accounts/utils/signTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
+import {
+  AccountNotFoundError,
+  type AccountNotFoundErrorType,
+  AccountTypeNotSupportedError,
+  type AccountTypeNotSupportedErrorType,
+} from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
@@ -73,6 +78,8 @@ export type SendTransactionReturnType = Hash
 export type SendTransactionErrorType =
   | ParseAccountErrorType
   | GetTransactionErrorReturnType<
+      | AccountNotFoundErrorType
+      | AccountTypeNotSupportedErrorType
       | AssertCurrentChainErrorType
       | AssertRequestErrorType
       | GetChainIdErrorType
@@ -240,8 +247,18 @@ export async function sendTransaction<
       })
     }
 
+    if (account.type === 'smart')
+      throw new AccountTypeNotSupportedError({
+        metaMessages: [
+          'Consider using the `sendUserOperation` Action instead.',
+        ],
+        docsPath: '/docs/actions/bundler/sendUserOperation',
+        type: 'smart',
+      })
+
     throw new Error('incompatible account type.')
   } catch (err) {
+    if (err instanceof AccountTypeNotSupportedError) throw err
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,
