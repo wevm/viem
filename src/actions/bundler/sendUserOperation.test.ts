@@ -36,6 +36,8 @@ beforeEach(async () => {
 })
 
 describe('entryPointVersion: 0.7', async () => {
+  await bundlerMainnet.restart()
+
   const [account, account_2, account_3] = await getSmartAccounts_07()
 
   test('default', async () => {
@@ -218,6 +220,8 @@ describe('entryPointVersion: 0.7', async () => {
 })
 
 describe('entryPointVersion: 0.6', async () => {
+  await bundlerMainnet.restart()
+
   const [account, account_2] = await getSmartAccounts_06()
 
   test('default', async () => {
