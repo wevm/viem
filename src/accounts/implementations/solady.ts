@@ -192,7 +192,7 @@ export function solady<
       },
 
       async signUserOperation(parameters) {
-        const { chainId = client.chain!.id, userOperation } = parameters
+        const { chainId = client.chain!.id, ...userOperation } = parameters
 
         const address = await this.getAddress()
         const userOpHash = getUserOperationHash({

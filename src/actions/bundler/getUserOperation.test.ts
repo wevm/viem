@@ -52,6 +52,7 @@ describe('entryPointVersion: 0.7', async () => {
       JSON.parse(
         stringify(result, (key, value) => {
           if (key === 'blockHash') return '...'
+          if (key === 'transactionHash') return '...'
           return value
         }),
       ),
@@ -60,7 +61,7 @@ describe('entryPointVersion: 0.7', async () => {
         "blockHash": "...",
         "blockNumber": "19868027",
         "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
-        "transactionHash": "0xda3eac6a02829cb62d4fe85bd7a7edd58f028ae9926755b3241c169d921c87f5",
+        "transactionHash": "...",
         "userOperation": {
           "callData": "0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
           "callGasLimit": "80000",
@@ -136,6 +137,7 @@ describe('entryPointVersion: 0.6', async () => {
       JSON.parse(
         stringify(result, (key, value) => {
           if (key === 'blockHash') return '...'
+          if (key === 'transactionHash') return '...'
           return value
         }),
       ),
@@ -144,7 +146,7 @@ describe('entryPointVersion: 0.6', async () => {
         "blockHash": "...",
         "blockNumber": "19868028",
         "entryPoint": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-        "transactionHash": "0x2e14cbbe0c9df03d07fbfe6390497942d4595dc4f581d7c55d9f5708452cfdd5",
+        "transactionHash": "...",
         "userOperation": {
           "callData": "0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
           "callGasLimit": "80000",

@@ -15,13 +15,6 @@ type Call = {
 
 type SignMessageParameters = { message: SignableMessage }
 
-type SignUserOperationParameters<
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = {
-  chainId?: number | undefined
-  userOperation: UnionPartialBy<UserOperation<entryPointVersion>, 'sender'>
-}
-
 export type SmartAccountImplementationFn<
   implementation extends
     SmartAccountImplementation = SmartAccountImplementation,
@@ -168,7 +161,9 @@ export type SmartAccountImplementation<
    * ```
    */
   signUserOperation: (
-    parameters: SignUserOperationParameters<entryPointVersion>,
+    parameters: UnionPartialBy<UserOperation, 'sender'> & {
+      chainId?: number | undefined
+    },
   ) => Promise<Hex>
 }
 

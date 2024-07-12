@@ -2311,16 +2311,14 @@ describe('return value: signUserOperation', () => {
     })({ client })
 
     const signature = await implementation.signUserOperation({
-      userOperation: {
-        callData: '0xdeadbeef',
-        callGasLimit: 69n,
-        maxFeePerGas: 69n,
-        maxPriorityFeePerGas: 69n,
-        nonce: 0n,
-        preVerificationGas: 69n,
-        signature: '0xdeadbeef',
-        verificationGasLimit: 69n,
-      },
+      callData: '0xdeadbeef',
+      callGasLimit: 69n,
+      maxFeePerGas: 69n,
+      maxPriorityFeePerGas: 69n,
+      nonce: 0n,
+      preVerificationGas: 69n,
+      signature: '0xdeadbeef',
+      verificationGasLimit: 69n,
     })
 
     expect(signature).toMatchInlineSnapshot(
