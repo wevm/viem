@@ -147,9 +147,80 @@ describe('entryPointVersion: 0.7', async () => {
     `)
   })
 
-  test.todo('error: insufficient funds')
+  test('args: fees', async () => {
+    const request = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      maxFeePerGas: 2n,
+      maxPriorityFeePerGas: 1n,
+    })
 
-  test.todo('error: contract revert')
+    expect({ ...request, account: undefined }).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
+        "callGasLimit": 80000n,
+        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+        "maxFeePerGas": 2n,
+        "maxPriorityFeePerGas": 1n,
+        "nonce": 0n,
+        "paymasterPostOpGasLimit": 0n,
+        "paymasterVerificationGasLimit": 0n,
+        "preVerificationGas": 51642n,
+        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "verificationGasLimit": 259060n,
+      }
+    `)
+
+    const request_2 = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      maxFeePerGas: 2n,
+    })
+
+    expect({ ...request_2, account: undefined }).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
+        "callGasLimit": 80000n,
+        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+        "maxFeePerGas": 2n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "nonce": 0n,
+        "paymasterPostOpGasLimit": 0n,
+        "paymasterVerificationGasLimit": 0n,
+        "preVerificationGas": 51642n,
+        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "verificationGasLimit": 259060n,
+      }
+    `)
+
+    const request_3 = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      maxPriorityFeePerGas: 2n,
+    })
+
+    expect({ ...request_3, account: undefined }).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
+        "callGasLimit": 80000n,
+        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+        "maxFeePerGas": 12981960176n,
+        "maxPriorityFeePerGas": 2n,
+        "nonce": 0n,
+        "paymasterPostOpGasLimit": 0n,
+        "paymasterVerificationGasLimit": 0n,
+        "preVerificationGas": 51642n,
+        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "verificationGasLimit": 259060n,
+      }
+    `)
+  })
 
   test('error: no account', async () => {
     await expect(() =>
@@ -210,8 +281,4 @@ describe('entryPointVersion: 0.6', async () => {
       }
     `)
   })
-
-  test.todo('error: error: insufficient funds')
-
-  test.todo('error: error: contract revert')
 })

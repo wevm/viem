@@ -78,10 +78,6 @@ describe('entryPointVersion: 0.7', async () => {
     ).toBe(account.address)
   })
 
-  test.todo('error: insufficient funds')
-
-  test.todo('error: contract revert')
-
   test('error: no account', async () => {
     await expect(() =>
       // @ts-expect-error
@@ -256,10 +252,6 @@ describe('entryPointVersion: 0.6', async () => {
       '10002000000000000000000n',
     )
   })
-
-  test.todo('error: insufficient funds')
-
-  test.todo('error: contract revert')
 
   test('error: aa13', async () => {
     await expect(() =>
