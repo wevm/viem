@@ -1,6 +1,6 @@
 import { defineChain } from '../utils.js'
 
-export const dreyerxTestnet = defineChain({
+export const dreyerxTestnet = /*#__PURE__*/ defineChain({
   id: 23452,
   name: 'DreyerX Testnet',
   nativeCurrency: {
@@ -19,4 +19,5 @@ export const dreyerxTestnet = defineChain({
       url: 'https://testnet-scan.dreyerx.com',
     },
   },
+  testnet: true,
 })
