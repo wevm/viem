@@ -289,7 +289,7 @@ export async function prepareUserOperation<
     })(),
     (async () => {
       if (!parameters_.includes('signature')) return undefined
-      return account.getSignature()
+      return account.getStubSignature()
     })(),
   ])
 
@@ -317,8 +317,16 @@ export async function prepareUserOperation<
     })
     request = {
       ...request,
-      ...(gas as any),
-    }
+      callGasLimit: request.callGasLimit ?? gas.callGasLimit,
+      preVerificationGas: request.preVerificationGas ?? gas.preVerificationGas,
+      verificationGasLimit:
+        request.verificationGasLimit ?? gas.verificationGasLimit,
+      paymasterPostOpGasLimit:
+        request.paymasterPostOpGasLimit ?? gas.paymasterPostOpGasLimit,
+      paymasterVerificationGasLimit:
+        request.paymasterVerificationGasLimit ??
+        gas.paymasterVerificationGasLimit,
+    } as any
   }
 
   // Remove redundant properties.

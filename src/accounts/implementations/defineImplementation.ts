@@ -5,7 +5,7 @@ import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 import type { Hex, SignableMessage } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import type { UserOperation } from '../../types/userOperation.js'
-import type { ExactPartial, UnionPartialBy } from '../../types/utils.js'
+import type { UnionPartialBy } from '../../types/utils.js'
 
 type Call = {
   to: Hex
@@ -101,23 +101,14 @@ export type SmartAccountImplementation<
    */
   getNonce: () => Promise<bigint>
   /**
-   * Retrieves the User Operation signature.
+   * Retrieves the User Operation "stub" signature for gas estimation.
    *
-   * @example Dummy signature
    * ```ts
-   * const signature = await account.getSignature()
-   * // '0x...'
-   * ```
-   *
-   * @example User Operation signature
-   * ```ts
-   * const signature = await account.getSignature(userOperation)
+   * const signature = await account.getStubSignature()
    * // '0x...'
    * ```
    */
-  getSignature: (
-    userOperation?: ExactPartial<UserOperation> | undefined,
-  ) => Promise<Hex>
+  getStubSignature: () => Promise<Hex>
   /**
    * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
    *

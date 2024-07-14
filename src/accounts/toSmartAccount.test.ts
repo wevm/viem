@@ -1037,7 +1037,7 @@ test('default', async () => {
       "getAddress": [Function],
       "getFactoryArgs": [Function],
       "getNonce": [Function],
-      "getSignature": [Function],
+      "getStubSignature": [Function],
       "isDeployed": [Function],
       "signMessage": [Function],
       "signTypedData": [Function],

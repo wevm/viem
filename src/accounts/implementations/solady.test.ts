@@ -1042,7 +1042,7 @@ test('default', async () => {
       "getAddress": [Function],
       "getFactoryArgs": [Function],
       "getNonce": [Function],
-      "getSignature": [Function],
+      "getStubSignature": [Function],
       "signMessage": [Function],
       "signTypedData": [Function],
       "signUserOperation": [Function],
@@ -2179,15 +2179,10 @@ describe('return value: getSignature', () => {
       owner: accounts[1].address,
     })({ client })
 
-    const signature = await implementation.getSignature()
+    const signature = await implementation.getStubSignature()
     expect(signature).toMatchInlineSnapshot(
       `"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"`,
     )
-
-    const signature_2 = await implementation.getSignature({
-      signature: '0xdeadbeef',
-    })
-    expect(signature_2).toMatchInlineSnapshot(`"0xdeadbeef"`)
   })
 })
 
@@ -2235,7 +2230,8 @@ describe('return value: signMessage', () => {
   test('counterfactual', async () => {
     const implementation = solady({
       factoryAddress,
-      owner: accounts[1].address,
+      owner: accounts[9].address,
+      salt: '0x9',
     })({ client })
 
     const signature = await implementation.signMessage({
@@ -2285,7 +2281,8 @@ describe('return value: signTypedData', () => {
   test('counterfactual', async () => {
     const implementation = solady({
       factoryAddress,
-      owner: privateKeyToAccount(accounts[1].privateKey),
+      owner: accounts[9].address,
+      salt: '0x9',
     })({ client })
 
     const signature = await implementation.signTypedData({

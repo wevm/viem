@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import { UnknownBundlerError } from '../../errors/bundler.js'
 import {
   ContractFunctionExecutionError,
@@ -68,7 +68,7 @@ function getRevertData(error: BaseError) {
     if (
       typeof error.data === 'string' ||
       typeof error.data?.revertData === 'string' ||
-      typeof error.message === 'string'
+      (!(error instanceof BaseError) && typeof error.message === 'string')
     ) {
       const match = (
         error.data?.revertData ||

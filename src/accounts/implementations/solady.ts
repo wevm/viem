@@ -3,6 +3,7 @@ import { type Abi, type Address, type TypedData, parseAbi } from 'abitype'
 import { readContract } from '../../actions/public/readContract.js'
 import { signMessage as signMessage_ } from '../../actions/wallet/signMessage.js'
 import { entryPoint07Abi } from '../../constants/abis.js'
+import { entryPoint07Address } from '../../constants/address.js'
 import { signMessage } from '../../experimental/solady/actions/signMessage.js'
 import { signTypedData } from '../../experimental/solady/actions/signTypedData.js'
 import type { Account } from '../../types/account.js'
@@ -13,6 +14,7 @@ import type { UserOperation } from '../../types/userOperation.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { pad } from '../../utils/data/pad.js'
 import { getAction } from '../../utils/getAction.js'
+import { serializeErc6492Signature } from '../../utils/index.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
 import { parseAccount } from '../utils/parseAccount.js'
 import {
@@ -78,7 +80,7 @@ export function solady<
     const {
       entryPoint = {
         abi: entryPoint07Abi,
-        address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+        address: entryPoint07Address,
         version: '0.7',
       },
       factoryAddress,
@@ -123,7 +125,6 @@ export function solady<
         if (address) return address
         return await readContract(client, {
           ...this.factory,
-          account: owner,
           functionName: 'getAddress',
           args: [pad(salt)],
         })
@@ -151,10 +152,8 @@ export function solady<
         return nonce
       },
 
-      async getSignature(userOperation) {
-        if (!userOperation?.signature)
-          return '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
-        return userOperation.signature
+      async getStubSignature() {
+        return '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
       },
 
       async signMessage(parameters) {
@@ -163,13 +162,20 @@ export function solady<
           this.getAddress(),
           this.getFactoryArgs(),
         ])
-        return signMessage(client, {
+        const signature = await signMessage(client, {
           account: owner,
           factory,
           factoryData,
           message,
           verifier: address,
         })
+        if (factory && factoryData)
+          return serializeErc6492Signature({
+            address: factory,
+            data: factoryData,
+            signature,
+          })
+        return signature
       },
 
       async signTypedData(parameters) {
@@ -179,7 +185,7 @@ export function solady<
           this.getAddress(),
           this.getFactoryArgs(),
         ])
-        return signTypedData(client, {
+        const signature = await signTypedData(client, {
           account: owner,
           domain,
           message,
@@ -189,6 +195,13 @@ export function solady<
           types,
           verifier: address,
         })
+        if (factory && factoryData)
+          return serializeErc6492Signature({
+            address: factory,
+            data: factoryData,
+            signature,
+          })
+        return signature
       },
 
       async signUserOperation(parameters) {
@@ -214,9 +227,7 @@ export function solady<
             raw: userOpHash,
           },
         })
-        return await this.getSignature({
-          signature,
-        })
+        return signature
       },
     }
   })

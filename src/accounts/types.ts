@@ -25,6 +25,8 @@ export type AccountSource = Address | CustomSource
 export type CustomSource = {
   address: Address
   nonceManager?: NonceManager | undefined
+  // TODO(v3): Make `sign` required.
+  sign?: (({ hash }: { hash: Hash }) => Promise<Hash>) | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
   signTransaction: <
     serializer extends
@@ -65,12 +67,16 @@ export type JsonRpcAccount<address extends Address = Address> = {
 export type LocalAccount<
   source extends string = string,
   address extends Address = Address,
-> = CustomSource & {
-  address: address
-  publicKey: Hex
-  source: source
-  type: 'local'
-}
+> = Assign<
+  CustomSource,
+  {
+    address: address
+    publicKey: Hex
+    sign: ({ hash }: { hash: Hash }) => Promise<Hash>
+    source: source
+    type: 'local'
+  }
+>
 
 export type HDAccount = LocalAccount<'hd'> & {
   getHdKey(): HDKey

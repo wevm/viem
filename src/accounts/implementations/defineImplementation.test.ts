@@ -28,7 +28,7 @@ test('defineImplementation', () => {
     async getNonce() {
       return 1n
     },
-    async getSignature(_packedUserOperation) {
+    async getStubSignature() {
       return '0x'
     },
     async signMessage(_message) {

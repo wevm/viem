@@ -115,6 +115,9 @@ export async function sendUserOperation<
       { retryCount: 0 },
     )
   } catch (error) {
-    throw getUserOperationError(error as BaseError, request as UserOperation)
+    throw getUserOperationError(error as BaseError, {
+      ...(request as UserOperation),
+      calls: parameters.calls,
+    })
   }
 }
