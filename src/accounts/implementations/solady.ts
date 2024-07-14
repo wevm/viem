@@ -14,7 +14,6 @@ import type { UserOperation } from '../../types/userOperation.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { pad } from '../../utils/data/pad.js'
 import { getAction } from '../../utils/getAction.js'
-import { serializeErc6492Signature } from '../../utils/index.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
 import { parseAccount } from '../utils/parseAccount.js'
 import {

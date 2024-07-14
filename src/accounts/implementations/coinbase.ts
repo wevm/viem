@@ -13,7 +13,6 @@ import { pad } from '../../utils/data/pad.js'
 import { hashMessage } from '../../utils/signature/hashMessage.js'
 import { hashTypedData } from '../../utils/signature/hashTypedData.js'
 import { parseSignature } from '../../utils/signature/parseSignature.js'
-import { serializeErc6492Signature } from '../../utils/signature/serializeErc6492Signature.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
 import type { LocalAccount } from '../types.js'
 import {
@@ -45,11 +44,10 @@ export type CoinbaseImplementationReturnType =
  * @returns Coinbase implementation. {@link CoinbaseImplementationReturnType}
  *
  * @example
- * import { coinbase } from 'viem/accounts'
+ * import { coinbase, privateKeyToAccount } from 'viem/accounts'
  *
  * const implementation = coinbase({
- *   factoryAddress: '0x...',
- *   owner: '0x...',
+ *   owners: [privateKeyToAccount('0x...')],
  * })
  */
 export function coinbase(
