@@ -9,9 +9,9 @@ import { accounts, address, typedData } from '~test/src/constants.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
-import { Mock4337AccountFactory07 } from '~contracts/generated.js'
+import { SoladyAccountFactory07 } from '~contracts/generated.js'
 import { anvilMainnet } from '~test/src/anvil.js'
-import { deployMock4337Account_07 } from '~test/src/utils.js'
+import { deploySoladyAccount_07 } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { signMessage } from '../../accounts/utils/signMessage.js'
 import {
@@ -185,11 +185,11 @@ describe('smoke test', () => {
   })
 
   test('getEip712Domain', async () => {
-    const { factoryAddress } = await deployMock4337Account_07()
+    const { factoryAddress } = await deploySoladyAccount_07()
 
     const { result: address, request } = await simulateContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory07.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factoryAddress,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
@@ -209,7 +209,7 @@ describe('smoke test', () => {
     expect(restDomain).toMatchInlineSnapshot(`
       {
         "chainId": 1,
-        "name": "Mock4337Account",
+        "name": "SoladyAccount",
         "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
         "version": "1",
       }

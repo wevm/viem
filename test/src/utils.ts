@@ -28,12 +28,12 @@ import {
   ERC20InvalidTransferEvent,
   EnsAvatarTokenUri,
   ErrorsExample,
-  Mock4337Account06,
-  Mock4337Account07,
-  Mock4337AccountFactory06,
-  Mock4337AccountFactory07,
   OffchainLookupExample,
   Payable,
+  SoladyAccount06,
+  SoladyAccount07,
+  SoladyAccountFactory06,
+  SoladyAccountFactory07,
 } from '../../contracts/generated.js'
 import {
   baycContractConfig,
@@ -139,14 +139,14 @@ export async function deployPayable() {
   })
 }
 
-export async function deployMock4337Account_07() {
+export async function deploySoladyAccount_07() {
   const { contractAddress: implementationAddress } = await deploy(client, {
-    abi: Mock4337Account07.abi,
-    bytecode: Mock4337Account07.bytecode.object,
+    abi: SoladyAccount07.abi,
+    bytecode: SoladyAccount07.bytecode.object,
   })
   const { contractAddress: factoryAddress } = await deploy(client, {
-    abi: Mock4337AccountFactory07.abi,
-    bytecode: Mock4337AccountFactory07.bytecode.object,
+    abi: SoladyAccountFactory07.abi,
+    bytecode: SoladyAccountFactory07.bytecode.object,
     args: [implementationAddress!],
   })
   return {
@@ -155,14 +155,14 @@ export async function deployMock4337Account_07() {
   }
 }
 
-export async function deployMock4337Account_06() {
+export async function deploySoladyAccount_06() {
   const { contractAddress: implementationAddress } = await deploy(client, {
-    abi: Mock4337Account06.abi,
-    bytecode: Mock4337Account06.bytecode.object,
+    abi: SoladyAccount06.abi,
+    bytecode: SoladyAccount06.bytecode.object,
   })
   const { contractAddress: factoryAddress } = await deploy(client, {
-    abi: Mock4337AccountFactory06.abi,
-    bytecode: Mock4337AccountFactory06.bytecode.object,
+    abi: SoladyAccountFactory06.abi,
+    bytecode: SoladyAccountFactory06.bytecode.object,
     args: [implementationAddress!],
   })
   return {

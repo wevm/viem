@@ -5,12 +5,12 @@ import { entryPoint06Abi } from '../../src/constants/abis.js'
 import { parseEther } from '../../src/index.js'
 import { anvilMainnet } from './anvil.js'
 import { accounts } from './constants.js'
-import { deployMock4337Account_06, deployMock4337Account_07 } from './utils.js'
+import { deploySoladyAccount_06, deploySoladyAccount_07 } from './utils.js'
 
 const client = anvilMainnet.getClient()
 
 export async function getSmartAccounts_07() {
-  const { factoryAddress } = await deployMock4337Account_07()
+  const { factoryAddress } = await deploySoladyAccount_07()
 
   const accounts_ = []
 
@@ -50,7 +50,7 @@ export async function getSmartAccounts_07() {
 }
 
 export async function getSmartAccounts_06() {
-  const { factoryAddress } = await deployMock4337Account_06()
+  const { factoryAddress } = await deploySoladyAccount_06()
 
   const accounts_ = []
 

@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../test/src/anvil.js'
 import { accounts } from '../../test/src/constants.js'
-import { deployMock4337Account_07 } from '../../test/src/utils.js'
+import { deploySoladyAccount_07 } from '../../test/src/utils.js'
 import { mine, writeContract } from '../actions/index.js'
 import { pad } from '../utils/index.js'
 import { solady } from './implementations/solady.js'
@@ -11,7 +11,7 @@ import { toSmartAccount } from './toSmartAccount.js'
 const client = anvilMainnet.getClient({ account: true })
 
 test('default', async () => {
-  const { factoryAddress } = await deployMock4337Account_07()
+  const { factoryAddress } = await deploySoladyAccount_07()
 
   const account = await toSmartAccount({
     address: '0x0000000000000000000000000000000000000000',
@@ -1048,7 +1048,7 @@ test('default', async () => {
 })
 
 test('return value: `isDeployed`', async () => {
-  const { factoryAddress } = await deployMock4337Account_07()
+  const { factoryAddress } = await deploySoladyAccount_07()
 
   const account = await toSmartAccount({
     client,
@@ -1073,7 +1073,7 @@ test('return value: `isDeployed`', async () => {
 })
 
 test('return value: `getFactoryArgs`', async () => {
-  const { factoryAddress } = await deployMock4337Account_07()
+  const { factoryAddress } = await deploySoladyAccount_07()
 
   const account = await toSmartAccount({
     client,

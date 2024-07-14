@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import {
-  Mock4337Account07,
-  Mock4337AccountFactory07,
   OffchainLookupExample,
+  SoladyAccount07,
+  SoladyAccountFactory07,
 } from '~contracts/generated.js'
 import {
   baycContractConfig,
@@ -14,8 +14,8 @@ import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
-  deployMock4337Account_07,
   deployOffchainLookupExample,
+  deploySoladyAccount_07,
   mainnetClient,
 } from '~test/src/utils.js'
 
@@ -1032,21 +1032,21 @@ describe('batch call', () => {
 
 describe('deployless call (factory)', () => {
   test('default', async () => {
-    const { factoryAddress } = await deployMock4337Account_07()
+    const { factoryAddress } = await deploySoladyAccount_07()
 
     const address = await readContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory07.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factoryAddress,
       functionName: 'getAddress',
       args: [pad('0x0')],
     })
     const data = encodeFunctionData({
-      abi: Mock4337Account07.abi,
+      abi: SoladyAccount07.abi,
       functionName: 'eip712Domain',
     })
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory07.abi,
+      abi: SoladyAccountFactory07.abi,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
     })
@@ -1067,7 +1067,7 @@ describe('deployless call (factory)', () => {
       salt,
       extensions,
     ] = decodeFunctionResult({
-      abi: Mock4337Account07.abi,
+      abi: SoladyAccount07.abi,
       data: result.data!,
       functionName: 'eip712Domain',
     })
@@ -1083,7 +1083,7 @@ describe('deployless call (factory)', () => {
     ]).toMatchInlineSnapshot(`
       [
         "0x0f",
-        "Mock4337Account",
+        "SoladyAccount",
         "1",
         1n,
         "0x0000000000000000000000000000000000000000000000000000000000000000",

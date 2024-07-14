@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
-import { Mock4337AccountFactory07 } from '~contracts/generated.js'
+import { SoladyAccountFactory07 } from '~contracts/generated.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
-import { deployMock4337Account_07 } from '~test/src/utils.js'
+import { deploySoladyAccount_07 } from '~test/src/utils.js'
 import { encodeFunctionData, pad } from '../../utils/index.js'
 import { mine } from '../test/mine.js'
 import { writeContract } from '../wallet/writeContract.js'
@@ -13,11 +13,11 @@ import { simulateContract } from './simulateContract.js'
 const client = anvilMainnet.getClient()
 
 test('default', async () => {
-  const { factoryAddress } = await deployMock4337Account_07()
+  const { factoryAddress } = await deploySoladyAccount_07()
 
   const { result: address, request } = await simulateContract(client, {
     account: accounts[0].address,
-    abi: Mock4337AccountFactory07.abi,
+    abi: SoladyAccountFactory07.abi,
     address: factoryAddress,
     functionName: 'createAccount',
     args: [accounts[0].address, pad('0x0')],
@@ -39,7 +39,7 @@ test('default', async () => {
   expect(restDomain).toMatchInlineSnapshot(`
     {
       "chainId": 1,
-      "name": "Mock4337Account",
+      "name": "SoladyAccount",
       "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "version": "1",
     }
@@ -47,11 +47,11 @@ test('default', async () => {
 })
 
 test('counterfactual call', async () => {
-  const { factoryAddress } = await deployMock4337Account_07()
+  const { factoryAddress } = await deploySoladyAccount_07()
 
   const address = await readContract(client, {
     account: accounts[0].address,
-    abi: Mock4337AccountFactory07.abi,
+    abi: SoladyAccountFactory07.abi,
     address: factoryAddress,
     functionName: 'getAddress',
     args: [pad('0x0')],
@@ -61,7 +61,7 @@ test('counterfactual call', async () => {
     address,
     factory: factoryAddress,
     factoryData: encodeFunctionData({
-      abi: Mock4337AccountFactory07.abi,
+      abi: SoladyAccountFactory07.abi,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
     }),
@@ -77,7 +77,7 @@ test('counterfactual call', async () => {
   expect(restDomain).toMatchInlineSnapshot(`
     {
       "chainId": 1,
-      "name": "Mock4337Account",
+      "name": "SoladyAccount",
       "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "version": "1",
     }
