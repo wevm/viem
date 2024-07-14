@@ -4,6 +4,7 @@ import { getCode } from '../actions/public/getCode.js'
 import type { Client } from '../clients/createClient.js'
 import type { Prettify } from '../types/utils.js'
 import { getAction } from '../utils/getAction.js'
+import { serializeErc6492Signature } from '../utils/signature/serializeErc6492Signature.js'
 import type {
   SmartAccountImplementation,
   SmartAccountImplementationFn,
@@ -77,6 +78,32 @@ export async function toSmartAccount<
       })
       deployed = Boolean(code)
       return deployed
+    },
+    async signMessage(parameters) {
+      const [{ factory, factoryData }, signature] = await Promise.all([
+        this.getFactoryArgs(),
+        implementation.signMessage(parameters),
+      ])
+      if (factory && factoryData)
+        return serializeErc6492Signature({
+          address: factory,
+          data: factoryData,
+          signature,
+        })
+      return signature
+    },
+    async signTypedData(parameters) {
+      const [{ factory, factoryData }, signature] = await Promise.all([
+        this.getFactoryArgs(),
+        implementation.signTypedData(parameters),
+      ])
+      if (factory && factoryData)
+        return serializeErc6492Signature({
+          address: factory,
+          data: factoryData,
+          signature,
+        })
+      return signature
     },
     type: 'smart',
   } as ToSmartAccountReturnType<implementation>

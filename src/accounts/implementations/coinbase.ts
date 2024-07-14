@@ -138,10 +138,7 @@ export function coinbase(
 
       async signMessage(parameters) {
         const { message } = parameters
-        const [address, { factory, factoryData }] = await Promise.all([
-          this.getAddress(),
-          this.getFactoryArgs(),
-        ])
+        const address = await this.getAddress()
 
         const hash = toReplaySafeHash({
           address,
@@ -149,26 +146,15 @@ export function coinbase(
           hash: hashMessage(message),
         })
 
-        const signature = wrapSignature({
+        return wrapSignature({
           signature: await owner.sign({ hash }),
         })
-
-        if (factory && factoryData)
-          return serializeErc6492Signature({
-            address: factory,
-            data: factoryData,
-            signature,
-          })
-        return signature
       },
 
       async signTypedData(parameters) {
         const { domain, types, primaryType, message } =
           parameters as TypedDataDefinition<TypedData, string>
-        const [address, { factory, factoryData }] = await Promise.all([
-          this.getAddress(),
-          this.getFactoryArgs(),
-        ])
+        const address = await this.getAddress()
 
         const hash = toReplaySafeHash({
           address,
@@ -181,17 +167,9 @@ export function coinbase(
           }),
         })
 
-        const signature = wrapSignature({
+        return wrapSignature({
           signature: await owner.sign({ hash }),
         })
-
-        if (factory && factoryData)
-          return serializeErc6492Signature({
-            address: factory,
-            data: factoryData,
-            signature,
-          })
-        return signature
       },
 
       async signUserOperation(parameters) {

@@ -162,20 +162,13 @@ export function solady<
           this.getAddress(),
           this.getFactoryArgs(),
         ])
-        const signature = await signMessage(client, {
+        return await signMessage(client, {
           account: owner,
           factory,
           factoryData,
           message,
           verifier: address,
         })
-        if (factory && factoryData)
-          return serializeErc6492Signature({
-            address: factory,
-            data: factoryData,
-            signature,
-          })
-        return signature
       },
 
       async signTypedData(parameters) {
@@ -185,7 +178,7 @@ export function solady<
           this.getAddress(),
           this.getFactoryArgs(),
         ])
-        const signature = await signTypedData(client, {
+        return await signTypedData(client, {
           account: owner,
           domain,
           message,
@@ -195,13 +188,6 @@ export function solady<
           types,
           verifier: address,
         })
-        if (factory && factoryData)
-          return serializeErc6492Signature({
-            address: factory,
-            data: factoryData,
-            signature,
-          })
-        return signature
       },
 
       async signUserOperation(parameters) {

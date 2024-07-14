@@ -139,17 +139,20 @@ describe('return value: signMessage', () => {
   })
 
   test('counterfactual', async () => {
-    const implementation = coinbase({
-      owners: [owner],
-      nonce: 69n,
-    })({ client })
+    const account = await toSmartAccount({
+      client,
+      implementation: coinbase({
+        owners: [owner],
+        nonce: 141241n,
+      }),
+    })
 
-    const signature = await implementation.signMessage({
+    const signature = await account.signMessage({
       message: 'hello world',
     })
 
     const result = await verifyMessage(client, {
-      address: await implementation.getAddress(),
+      address: await account.getAddress(),
       message: 'hello world',
       signature,
     })
@@ -189,18 +192,21 @@ describe('return value: signTypedData', () => {
   })
 
   test('counterfactual', async () => {
-    const implementation = coinbase({
-      owners: [owner],
-      nonce: 112312n,
-    })({ client })
+    const account = await toSmartAccount({
+      client,
+      implementation: coinbase({
+        owners: [owner],
+        nonce: 112312n,
+      }),
+    })
 
-    const signature = await implementation.signTypedData({
+    const signature = await account.signTypedData({
       ...typedData.basic,
       primaryType: 'Mail',
     })
 
     const result = await verifyTypedData(client, {
-      address: await implementation.getAddress(),
+      address: await account.getAddress(),
       signature,
       ...typedData.basic,
       primaryType: 'Mail',

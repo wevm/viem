@@ -12,6 +12,7 @@ import {
   writeContract,
 } from '../../actions/index.js'
 import { pad } from '../../utils/data/pad.js'
+import { toSmartAccount } from '../toSmartAccount.js'
 import { solady } from './solady.js'
 
 const client = anvilMainnet.getClient({ account: true })
@@ -2228,18 +2229,21 @@ describe('return value: signMessage', () => {
   })
 
   test('counterfactual', async () => {
-    const implementation = solady({
-      factoryAddress,
-      owner: accounts[9].address,
-      salt: '0x9',
-    })({ client })
+    const account = await toSmartAccount({
+      client,
+      implementation: solady({
+        factoryAddress,
+        owner: accounts[9].address,
+        salt: '0x9',
+      }),
+    })
 
-    const signature = await implementation.signMessage({
+    const signature = await account.signMessage({
       message: 'hello world',
     })
 
     const result = await verifyMessage(client, {
-      address: await implementation.getAddress(),
+      address: await account.getAddress(),
       message: 'hello world',
       signature,
     })
@@ -2279,19 +2283,22 @@ describe('return value: signTypedData', () => {
   })
 
   test('counterfactual', async () => {
-    const implementation = solady({
-      factoryAddress,
-      owner: accounts[9].address,
-      salt: '0x9',
-    })({ client })
+    const account = await toSmartAccount({
+      client,
+      implementation: solady({
+        factoryAddress,
+        owner: accounts[9].address,
+        salt: '0x9',
+      }),
+    })
 
-    const signature = await implementation.signTypedData({
+    const signature = await account.signTypedData({
       ...typedData.basic,
       primaryType: 'Mail',
     })
 
     const result = await verifyTypedData(client, {
-      address: await implementation.getAddress(),
+      address: await account.getAddress(),
       signature,
       ...typedData.basic,
       primaryType: 'Mail',
