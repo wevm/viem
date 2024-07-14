@@ -1,5 +1,11 @@
 # viem
 
+## 2.17.4
+
+### Patch Changes
+
+- [#2493](https://github.com/wevm/viem/pull/2493) [`ef3601d`](https://github.com/wevm/viem/commit/ef3601d1db04e41c993943c0cfc72d3a64bbb6db) Thanks [@billalxcode](https://github.com/billalxcode)! - Added DreyerX Testnet chain
+
 ## 2.17.3
 
 ### Patch Changes
