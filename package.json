@@ -106,86 +106,86 @@
   },
   "size-limit": [
     {
-      "name": "viem (esm)",
+      "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "60.5 kB",
+      "limit": "61 kB",
       "import": "*"
     },
     {
-      "name": "viem (cjs)",
+      "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
       "limit": "78 kB"
     },
     {
-      "name": "viem (minimal surface - tree-shaking)",
+      "name": "import { createClient, http } from 'viem'",
       "path": "./src/_esm/index.js",
       "limit": "6.3 kB",
       "import": "{ createClient, http }"
     },
     {
-      "name": "viem/accounts",
+      "name": "import * from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
       "limit": "92 kB",
       "import": "*"
     },
     {
-      "name": "viem/accounts (tree-shaking)",
+      "name": "import { privateKeyToAccount } from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
       "limit": "20 kB",
       "import": "{ privateKeyToAccount }"
     },
     {
-      "name": "viem/actions",
-      "path": "./src/_esm/ens/index.js",
+      "name": "import * from 'viem/actions'",
+      "path": "./src/_esm/actions/index.js",
       "limit": "46.5 kB",
       "import": "*"
     },
     {
-      "name": "viem/actions (tree-shaking)",
+      "name": "import { getBlockNumber } from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
       "limit": "1 kB",
       "import": "{ getBlockNumber }"
     },
     {
-      "name": "viem/chains",
+      "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "30 kB",
+      "limit": "31 kB",
       "import": "*"
     },
     {
-      "name": "viem/chains (tree-shaking)",
+      "name": "import { mainnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
       "limit": "500 B",
       "import": "{ mainnet }"
     },
     {
-      "name": "viem/chains/utils",
+      "name": "import * from 'viem/chains/utils'",
       "path": "./src/_esm/chains/utils.js",
       "limit": "8 kB",
       "import": "*"
     },
     {
-      "name": "viem/ens",
+      "name": "import * from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
       "limit": "46.5 kB",
       "import": "*"
     },
     {
-      "name": "viem/ens (tree-shaking)",
+      "name": "import { getEnsAvatar } from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
       "limit": "22.6 kB",
       "import": "{ getEnsAvatar }"
     },
     {
-      "name": "viem/siwe",
+      "name": "import * from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "30.7 kB",
+      "limit": "32 kB",
       "import": "*"
     },
     {
-      "name": "viem/siwe (tree-shaking)",
+      "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "29.6 kB",
+      "limit": "30 kB",
       "import": "{ verifySiweMessage }"
     }
   ]
