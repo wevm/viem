@@ -7,6 +7,3 @@
 [submodule "contracts/lib/solady-dc09481"]
 	path = contracts/lib/solady-dc09481
 	url = git@github.com:Vectorized/solady.git
-[submodule "contracts/lib/solady-dc09481"]
-	path = contracts/lib/solady-dc09481
-	url = git@github.com:Vectorized/solady.git
