@@ -30,15 +30,19 @@
     },
     {
       "source": "/:match/accounts/custom",
-      "destination": "/:match/accounts/local/custom"
+      "destination": "/:match/accounts/local/toAccount"
     },
     {
       "source": "/:match/accounts/mnemonic",
-      "destination": "/:match/accounts/local/mnemonic"
+      "destination": "/:match/accounts/local/mnemonicToAccount"
     },
     {
       "source": "/:match/accounts/privateKey",
-      "destination": "/:match/accounts/local/privateKey"
+      "destination": "/:match/accounts/local/privateKeyToAccount"
+    },
+    {
+      "source": "/:match/accounts/hd",
+      "destination": "/:match/accounts/local/hdKeyToAccount"
     },
     {
       "source": "/:match/accounts/signMessage",

@@ -96,7 +96,7 @@ const [owner] = await client.getAddresses() // [!code focus]
 
 ### 4. Create a Smart Account
 
-Next, we will instantiate a Smart Account with the [Client](/docs/clients/intro), and an Account [Implementation](/docs/accounts/toSmartAccount#implementation). For this example, we will use the [`solady` Implementation](/docs/accounts/implementations/solady).
+Next, we will instantiate a Smart Account with the [Client](/docs/clients/intro), and an Account [Implementation](/docs/accounts/smart/toSmartAccount#implementation). For this example, we will use the [`solady` Implementation](/docs/accounts/implementations/solady).
 
 :::code-group
 

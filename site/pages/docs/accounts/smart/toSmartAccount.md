@@ -4,7 +4,7 @@ description: Creates a Smart Account with a provided Account Implementation.
 
 # toSmartAccount
 
-Creates a Smart Account with a provided Account [Implementation](/docs/accounts/toSmartAccount#implementation) and [Client](/docs/clients/public).
+Creates a Smart Account with a provided Account [Implementation](/docs/accounts/smart/toSmartAccount#implementation) and [Client](/docs/clients/public).
 
 ## Import
 
@@ -14,7 +14,7 @@ import { toSmartAccount, solady } from 'viem/accounts'
 
 ## Usage
 
-To instantiate a Smart Account, you will need to provide an Account [Implementation](/docs/accounts/toSmartAccount#implementation) as well as a [Client](/docs/clients/public). 
+To instantiate a Smart Account, you will need to provide an Account [Implementation](/docs/accounts/smart/toSmartAccount#implementation) as well as a [Client](/docs/clients/public). 
 
 For the example below, we will use the [`solady` Implementation](/docs/accounts/implementations/solady).
 

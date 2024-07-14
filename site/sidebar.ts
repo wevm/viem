@@ -491,17 +491,23 @@ export const sidebar = {
           text: 'Local Accounts',
           link: '/docs/accounts/local',
           items: [
-            { text: 'Private Key', link: '/docs/accounts/local/privateKey' },
-            { text: 'Mnemonic', link: '/docs/accounts/local/mnemonic' },
             {
-              text: 'Hierarchical Deterministic (HD)',
-              link: '/docs/accounts/local/hd',
+              text: 'privateKeyToAccount',
+              link: '/docs/accounts/local/privateKeyToAccount',
             },
             {
-              text: 'WebAuthn (Passkey)',
-              link: '/docs/accounts/local/webauthn',
+              text: 'mnemonicToAccount',
+              link: '/docs/accounts/local/mnemonicToAccount',
             },
-            { text: 'Custom', link: '/docs/accounts/local/custom' },
+            {
+              text: 'hdKeyToAccount',
+              link: '/docs/accounts/local/hdKeyToAccount',
+            },
+            {
+              text: 'webauthnToAccount',
+              link: '/docs/accounts/local/webauthnToAccount',
+            },
+            { text: 'toAccount', link: '/docs/accounts/local/toAccount' },
             {
               text: 'Utilities',
               items: [
@@ -529,7 +535,10 @@ export const sidebar = {
           text: 'Smart Accounts',
           link: '/docs/accounts/smart',
           items: [
-            { text: 'toSmartAccount', link: '/docs/accounts/toSmartAccount' },
+            {
+              text: 'toSmartAccount',
+              link: '/docs/accounts/smart/toSmartAccount',
+            },
             {
               text: 'Implementations',
               items: [
