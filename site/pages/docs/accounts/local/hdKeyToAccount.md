@@ -1,4 +1,4 @@
-# Hierarchical Deterministic (HD) Account [A function to create a Hierarchical Deterministic (HD) Account.]
+# hdKeyToAccount [A function to create a Hierarchical Deterministic (HD) Account.]
 
 A [Hierarchical Deterministic (HD)](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#abstract) Account is derived from a [HD Key](https://github.com/paulmillr/scure-bip32#usage) and an optional HD path.
 

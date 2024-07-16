@@ -8,27 +8,26 @@ Creates a Smart Account with a provided Account [Implementation](/docs/accounts/
 
 ## Import
 
-```ts twoslash
-import { toSmartAccount, solady } from 'viem/accounts'
+```ts
+import { toSmartAccount } from 'viem/accounts'
 ```
 
 ## Usage
 
 To instantiate a Smart Account, you will need to provide an Account [Implementation](/docs/accounts/smart/toSmartAccount#implementation) as well as a [Client](/docs/clients/public). 
 
-For the example below, we will use the [`solady` Implementation](/docs/accounts/implementations/solady).
+For the example below, we will use the [`coinbase` Implementation](/docs/accounts/smart/coinbase) (Coinbase Smart Wallet).
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toSmartAccount, solady } from 'viem/accounts'
+import { coinbase, toSmartAccount } from 'viem/accounts'
 import { client, owner } from './config.js'
 
 const account = await toSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
-    owner,
+  implementation: coinbase({
+    owners: [owner],
   }),
 })
 ```
@@ -48,10 +47,6 @@ export const client = createPublicClient({
 
 :::
 
-:::warning
-The `solady` implementation is unaudited. It is intended to be used for testing purposes or as a reference to implement a [Custom Implementation](/docs/accounts/implementations/custom).
-:::
-
 ## Returns
 
 `SmartAccount`
@@ -66,16 +61,12 @@ The Smart Account.
 
 Address of the Smart Account.
 
-```ts twoslash
-import { toSmartAccount, solady } from 'viem/accounts'
-import { client, owner } from './config.js'
-// ---cut---
+```ts
 const account = await toSmartAccount({
   address: '0x0000000000000000000000000000000000000000', // [!code focus]
   client,
-  implementation: solady({
-    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
-    owner,
+  implementation: coinbase({
+    owners: [owner],
   }),
 })
 ```
@@ -86,8 +77,8 @@ const account = await toSmartAccount({
 
 Client used to retrieve Smart Account data, and perform signing (if owner is a [JSON-RPC Account](/docs/accounts/jsonRpc)).
 
-```ts twoslash
-import { toSmartAccount, solady } from 'viem/accounts'
+```ts
+import { coinbase, toSmartAccount } from 'viem/accounts'
 import { owner } from './config.js'
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -100,9 +91,8 @@ const client = createPublicClient({ // [!code focus]
 const account = await toSmartAccount({
   address: '0x0000000000000000000000000000000000000000',
   client, // [!code focus]
-  implementation: solady({
-    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
-    owner,
+  implementation: coinbase({
+    owners: [owner],
   }),
 })
 ```
@@ -113,16 +103,12 @@ const account = await toSmartAccount({
 
 Implementation of the Smart Account.
 
-```ts twoslash
-import { toSmartAccount, solady } from 'viem/accounts'
-import { client, owner } from './config.js'
-// ---cut---
+```ts
 const account = await toSmartAccount({
   address: '0x0000000000000000000000000000000000000000',
   client,
-  implementation: solady({ // [!code focus]
-    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754', // [!code focus]
-    owner, // [!code focus]
+  implementation: coinbase({ // [!code focus]
+    owners: [owner], // [!code focus]
   }), // [!code focus]
 })
 ```

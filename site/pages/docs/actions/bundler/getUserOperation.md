@@ -10,7 +10,7 @@ Retrieves information about a User Operation given a hash.
 
 :::code-group
 
-```ts twoslash [example.ts]
+```ts [example.ts]
 import { bundlerClient } from './client'
 
 const result = await bundlerClient.getUserOperation({ // [!code focus:99]
@@ -18,7 +18,7 @@ const result = await bundlerClient.getUserOperation({ // [!code focus:99]
 })
 ```
 
-```ts twoslash [client.ts] filename="client.ts"
+```ts [client.ts] filename="client.ts"
 import { createBundlerClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -52,9 +52,7 @@ User Operation information.
 
 A User Operation hash.
 
-```ts twoslash
-import { bundlerClient } from './client'
-// ---cut---
+```ts
 const result = await publicClient.getUserOperation({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })

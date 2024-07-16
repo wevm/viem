@@ -1,9 +1,9 @@
 # Solady
 
-The Solady Implementation is a simple Smart Account Implementation that references [Solady's `ERC4337.sol`](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol) Smart Account contract.
+The `solady` Implementation is a simple Smart Account Implementation that references [Solady's `ERC4337.sol`](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol) Smart Account contract.
 
 :::warning
-This implementation is unaudited. It is intended to be used for testing purposes or as a reference to implement a [Custom Implementation](/docs/accounts/implementations/custom).
+This implementation is unaudited. It is intended to be used for testing purposes or as a reference to implement a [Custom Implementation](/docs/accounts/smart/custom).
 :::
 
 ## Usage
@@ -56,10 +56,7 @@ to:
 - Retrieve the Smart Account nonce
 - Distinguish which type of `UserOperation` structure to use
 
-```ts twoslash
-import { toSmartAccount, solady } from 'viem/accounts' // [!code focus]
-import { client, owner } from './config.js'
-// ---cut---
+```ts
 const account = await toSmartAccount({
   client,
   implementation: solady({
@@ -80,10 +77,7 @@ const account = await toSmartAccount({
 
 Factory address of the Smart Account.
 
-```ts twoslash
-import { toSmartAccount, solady } from 'viem/accounts' // [!code focus]
-import { client, owner } from './config.js'
-// ---cut---
+```ts
 const account = await toSmartAccount({
   client,
   implementation: solady({
@@ -99,10 +93,7 @@ const account = await toSmartAccount({
 
 Owner of the Smart Account.
 
-```ts twoslash
-import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts' // [!code focus]
-import { client } from './config.js'
-// ---cut---
+```ts
 const account = await toSmartAccount({
   client,
   implementation: solady({
@@ -118,10 +109,7 @@ const account = await toSmartAccount({
 
 Salt to use for Smart Account deployment.
 
-```ts twoslash
-import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts' // [!code focus]
-import { client, owner } from './config.js'
-// ---cut---
+```ts
 const account = await toSmartAccount({
   client,
   implementation: solady({

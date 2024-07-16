@@ -113,9 +113,9 @@ A Local Account performs signing of transactions & messages with a private key *
 
 There are three types of Local Accounts in viem:
 
-- [Private Key Account](/docs/accounts/local/privateKey)
-- [Mnemonic Account](/docs/accounts/local/mnemonic)
-- [Hierarchical Deterministic (HD) Account](/docs/accounts/local/hd)
+- [Private Key Account](/docs/accounts/local/privateKeyToAccount)
+- [Mnemonic Account](/docs/accounts/local/mnemonicToAccount)
+- [Hierarchical Deterministic (HD) Account](/docs/accounts/local/hdKeyToAccount)
 
 Below are the steps to integrate a **Private Key Account**, but the same steps can be applied to **Mnemonic & HD Accounts**.
 

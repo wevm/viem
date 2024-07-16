@@ -1,6 +1,6 @@
 # JSON-RPC Account [A function to create a JSON-RPC Account.]
 
-A JSON-RPC Account is an Account that is "managed" by the Wallet. It **defers** signing of transactions & messages to the target Wallet over JSON-RPC. An example of such Wallet could be a Browser Extension Wallet, or Mobile Wallet over WalletConnect.
+A JSON-RPC Account is an Account whose signing keys are stored on the external Wallet. It **defers** signing of transactions & messages to the target Wallet over JSON-RPC. An example of such Wallet could be a Browser Extension Wallet, or Mobile Wallet over WalletConnect.
 
 ## Usage
 

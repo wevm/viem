@@ -36,7 +36,6 @@ export type CoinbaseImplementation = SmartAccountImplementation<
 >
 
 export type CoinbaseImplementationParameters = {
-  entryPointAddress?: Address | undefined
   owners: readonly OneOf<LocalAccount | WebAuthnAccount>[]
   nonce?: bigint | undefined
 }
@@ -61,11 +60,7 @@ export function coinbase(
   parameters: CoinbaseImplementationParameters,
 ): CoinbaseImplementationReturnType {
   return defineImplementation(({ address, client }) => {
-    const {
-      entryPointAddress = entryPoint06Address,
-      owners,
-      nonce = 0n,
-    } = parameters
+    const { owners, nonce = 0n } = parameters
 
     const owners_bytes = owners.map((owner) =>
       owner.type === 'webAuthn' ? owner.publicKey : pad(owner.address),
@@ -77,7 +72,7 @@ export function coinbase(
       abi,
       entryPoint: {
         abi: entryPoint06Abi,
-        address: entryPointAddress,
+        address: entryPoint06Address,
         version: '0.6',
       },
       factory: {

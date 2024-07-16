@@ -1,16 +1,16 @@
 # Local Accounts (Private Key, Mnemonic, etc)
 
-A Local Account is an Account that is "managed" locally, on the consuming user's machine. It performs signing of transactions & messages with a private key **before** broadcasting the transaction or message over JSON-RPC.
+A Local Account is an Account whose signing keys are stored on the consuming user's machine. It performs signing of transactions & messages with a private key **before** broadcasting the transaction or message over JSON-RPC.
 
 There are three types of Local Accounts in viem:
 
-- [Private Key Account](/docs/accounts/local/privateKey)
-- [Mnemonic Account](/docs/accounts/local/mnemonic)
-- [Hierarchical Deterministic (HD) Account](/docs/accounts/local/hd)
+- [Private Key Account](/docs/accounts/local/privateKeyToAccount)
+- [Mnemonic Account](/docs/accounts/local/mnemonicToAccount)
+- [Hierarchical Deterministic (HD) Account](/docs/accounts/local/hdKeyToAccount)
 
-Below are the steps to integrate a **Private Key Account**, but the same steps can be applied to **Mnemonic & HD Accounts**.
+## Instantiation
 
-### 1: Initialize a Wallet Client
+### 1. Initialize a Wallet Client
 
 Before we set up our Account and start consuming Wallet Actions, we will need to set up our Wallet Client with the [`http` Transport](/docs/clients/transports/http):
 
@@ -24,7 +24,7 @@ const client = createWalletClient({
 })
 ```
 
-### 2: Set up your Local Account
+### 2. Set up your Local Account
 
 Next, we will instantiate a Private Key Account using `privateKeyToAccount`:
 
@@ -41,7 +41,7 @@ const client = createWalletClient({
 const account = privateKeyToAccount('0x...') // [!code focus:1]
 ```
 
-### 3: Consume [Wallet Actions](/docs/actions/wallet/introduction)
+### 3. Consume [Wallet Actions](/docs/actions/wallet/introduction)
 
 Now you can use that Account within Wallet Actions that need a signature from the user:
 
@@ -64,7 +64,7 @@ const hash = await client.sendTransaction({ // [!code focus:5]
 })
 ```
 
-### Optional: Hoist the Account
+### 4. Optional: Hoist the Account
 
 If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account into the Wallet Client.
 
@@ -88,7 +88,7 @@ const hash = await client.sendTransaction({
 })
 ```
 
-### Optional: Extend with Public Actions
+### 5. Optional: Extend with Public Actions
 
 When using a Local Account, you may be finding yourself using a [Public Client](/docs/clients/public) instantiated with the same parameters (`transport`, `chain`, etc) as your Wallet Client.
 

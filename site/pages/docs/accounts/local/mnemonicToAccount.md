@@ -1,6 +1,6 @@
-# Mnemonic Account [A function to create a Mnemonic Account.]
+# mnemonicToAccount [A function to create a Mnemonic Account.]
 
-A Mnemonic Account is a [Hierarchical Deterministic (HD) Account](/docs/accounts/local/hd) that is derived from a [BIP-39 mnemonic phrase](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) and an optional HD path.
+A Mnemonic Account is a [Hierarchical Deterministic (HD) Account](/docs/accounts/local/hdKeyToAccount) that is derived from a [BIP-39 mnemonic phrase](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) and an optional HD path.
 
 It has the ability to sign transactions and messages with the private key derived from the HD Node.
 

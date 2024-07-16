@@ -10,7 +10,7 @@ Broadcasts a User Operation to the Bundler.
 
 :::code-group
 
-```ts twoslash [example.ts]
+```ts [example.ts]
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -23,7 +23,7 @@ const hash = await bundlerClient.sendUserOperation({ // [!code focus:7]
 })
 ```
 
-```ts twoslash [config.ts] filename="config.ts"
+```ts [config.ts] filename="config.ts"
 import { createBundlerClient, createPublicClient, http } from 'viem'
 import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
@@ -58,7 +58,7 @@ If you do not wish to pass an `account` to every `sendUserOperation`, you can al
 
 :::code-group
 
-```ts twoslash [example.ts]
+```ts [example.ts]
 import { parseEther } from 'viem'
 import { bundlerClient } from './config'
 
@@ -70,7 +70,7 @@ const hash = await bundlerClient.sendUserOperation({ // [!code focus:7]
 })
 ```
 
-```ts twoslash [config.ts] filename="config.ts"
+```ts [config.ts] filename="config.ts"
 import { createBundlerClient, createPublicClient, http } from 'viem'
 import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
@@ -104,7 +104,7 @@ The `calls` property also accepts **Contract Calls**, and can be used via the `a
 
 :::code-group
 
-```ts twoslash [example.ts]
+```ts [example.ts]
 import { parseEther } from 'viem'
 import { bundlerClient, publicClient } from './config'
 import { wagmiAbi } from './abi' // [!code focus]
@@ -132,7 +132,7 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts twoslash [config.ts] filename="config.ts"
+```ts [config.ts]
 import { createBundlerClient, createPublicClient, http } from 'viem'
 import { toSmartAccount, privateKeyToAccount, solady } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
@@ -174,7 +174,7 @@ The User Operation hash.
 
 The Account to use for User Operation execution.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -193,7 +193,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 The calls to execute in the User Operation.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -213,10 +213,7 @@ const hash = await bundlerClient.sendUserOperation({
 :::tip
 You can also pass raw call data via the `callData` property:
 
-```ts twoslash
-import { parseEther } from 'viem'
-import { account, bundlerClient } from './config'
-// ---cut---
+```ts
 const hash = await bundlerClient.sendUserOperation({
   account,
   callData: '0xdeadbeef', // [!code focus]
@@ -230,7 +227,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 The amount of gas to allocate the main execution call.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -254,7 +251,7 @@ Account Factory address.
 This property should only be populated when the Smart Account has not been deployed yet.
 :::
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -279,7 +276,7 @@ Call data to execute on the Account Factory to deploy a Smart Account.
 This property should only be populated when the Smart Account has not been deployed yet.
 :::
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -300,7 +297,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 Maximum fee per gas for User Operation execution.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -320,7 +317,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 Maximum priority fee per gas for User Operation execution.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -341,7 +338,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 Nonce for the User Operation.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -361,7 +358,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 Paymaster address.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -382,7 +379,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 Call data to execute on the Paymaster contract.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -403,7 +400,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 The amount of gas to allocate for the Paymaster post-operation code.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -425,7 +422,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 The amount of gas to allocate for the Paymaster validation code.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -447,7 +444,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 Extra gas to pay the Bunder.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -467,7 +464,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 Signature for the User Operation.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -487,7 +484,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 The amount of gas to allocate for the verification step.
 
-```ts twoslash
+```ts
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 

@@ -503,10 +503,6 @@ export const sidebar = {
               text: 'hdKeyToAccount',
               link: '/docs/accounts/local/hdKeyToAccount',
             },
-            {
-              text: 'webauthnToAccount',
-              link: '/docs/accounts/local/webauthnToAccount',
-            },
             { text: 'toAccount', link: '/docs/accounts/local/toAccount' },
             {
               text: 'Utilities',
@@ -543,12 +539,16 @@ export const sidebar = {
               text: 'Implementations',
               items: [
                 {
+                  text: 'Coinbase',
+                  link: '/docs/accounts/smart/coinbase',
+                },
+                {
                   text: 'Solady',
-                  link: '/docs/accounts/implementations/solady',
+                  link: '/docs/accounts/smart/solady',
                 },
                 {
                   text: 'Custom',
-                  link: '/docs/accounts/implementations/custom',
+                  link: '/docs/accounts/smart/custom',
                 },
               ],
             },
@@ -568,6 +568,20 @@ export const sidebar = {
                   link: '/docs/accounts/smart/signUserOperation',
                 },
               ],
+            },
+          ],
+        },
+        {
+          text: 'WebAuthn Account',
+          link: '/docs/accounts/webauthn',
+          items: [
+            {
+              text: 'toWebAuthnAccount',
+              link: '/docs/accounts/webauthn/toWebAuthnAccount',
+            },
+            {
+              text: 'createWebAuthnCredential',
+              link: '/docs/accounts/webauthn/createWebAuthnCredential',
             },
           ],
         },
@@ -1134,20 +1148,6 @@ export const sidebar = {
               link: '/docs/utilities/parseUnits',
             },
           ],
-        },
-      ],
-    },
-    {
-      text: 'Third Party',
-      collapsed: true,
-      items: [
-        {
-          text: 'Account Abstraction',
-          link: '/docs/third-party/account-abstraction',
-        },
-        {
-          text: 'Miscellaneous',
-          link: '/docs/third-party/misc',
         },
       ],
     },

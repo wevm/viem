@@ -4,13 +4,13 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "vocs build --searchIndex false && vocs search-index",
+    "build": "vocs build --searchIndex false --logLevel info && vocs search-index",
     "preview": "vocs preview"
   },
   "devDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "viem": "workspace:*",
-    "vocs": "1.0.0-alpha.52"
+    "vocs": "1.0.0-alpha.53"
   }
 }

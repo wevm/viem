@@ -10,7 +10,7 @@ Returns the User Operation Receipt given a User Operation hash.
 
 :::code-group
 
-```ts twoslash [example.ts]
+```ts [example.ts]
 import { bundlerClient } from './client'
 
 const receipt = await bundlerClient.getUserOperationReceipt({ // [!code focus:99]
@@ -25,7 +25,7 @@ const receipt = await bundlerClient.getUserOperationReceipt({ // [!code focus:99
 // @log: }
 ```
 
-```ts twoslash [client.ts] filename="client.ts"
+```ts [client.ts] filename="client.ts"
 import { createBundlerClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -51,9 +51,7 @@ The User Operation receipt.
 
 A User Operation hash.
 
-```ts twoslash
-import { bundlerClient } from './client'
-// ---cut---
+```ts
 const receipt = await publicClient.getUserOperationReceipt({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })

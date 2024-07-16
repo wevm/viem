@@ -1,4 +1,4 @@
-# Custom Account [A function to create a Custom Account.]
+# toAccount [A function to create a Custom Account.]
 
 A Custom Account is an interface that has the ability to sign transactions and messages with your own custom implementation of the signable methods.
 

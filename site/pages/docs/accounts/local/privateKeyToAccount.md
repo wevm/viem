@@ -1,4 +1,4 @@
-# Private Key Account [A function to create a Private Key Account.]
+# privateKeyToAccount [A function to create a Private Key Account.]
 
 A Private Key Account is an interface that has the ability to sign transactions and messages with a given private key.
 
@@ -50,34 +50,3 @@ const privateKey = generatePrivateKey()
 
 The private key to use for the Account.
 
-## Returns
-
-### address
-
-The address of the Account.
-
-```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
-// ---cut---
-const account = privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
-
-account.address
-// '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-```
-
-### signMessage
-
-Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
-
-```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
-// ---cut---
-const account = privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
-
-account.signMessage({ message: 'Hello World' })
-// '0x7b2274797065223a226d657373616765222c226d657373616765223a2248656c6c6f20576f726c64227d'
-```
-
-### signTransaction
-
-### signTypedData
