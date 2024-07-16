@@ -1,7 +1,9 @@
-import { BaseError } from '../../errors/base.js'
+import type { BaseError } from '../../errors/base.js'
 import {
   AccountNotDeployedError,
   type AccountNotDeployedErrorType,
+  ExecutionRevertedError,
+  type ExecutionRevertedErrorType,
   FailedToSendToBeneficiaryError,
   type FailedToSendToBeneficiaryErrorType,
   GasValuesOverflowError,
@@ -24,6 +26,8 @@ import {
   type InvalidAggregatorErrorType,
   InvalidBeneficiaryError,
   type InvalidBeneficiaryErrorType,
+  InvalidFieldsError,
+  type InvalidFieldsErrorType,
   InvalidPaymasterAndDataError,
   type InvalidPaymasterAndDataErrorType,
   PaymasterDepositTooLowError,
@@ -34,18 +38,34 @@ import {
   type PaymasterNotDeployedErrorType,
   PaymasterPostOpFunctionRevertedError,
   type PaymasterPostOpFunctionRevertedErrorType,
+  PaymasterRateLimitError,
+  type PaymasterRateLimitErrorType,
+  PaymasterStakeTooLowError,
+  type PaymasterStakeTooLowErrorType,
   SenderAlreadyConstructedError,
   type SenderAlreadyConstructedErrorType,
+  SignatureCheckFailedError,
+  type SignatureCheckFailedErrorType,
   SmartAccountFunctionRevertedError,
   type SmartAccountFunctionRevertedErrorType,
   UnknownBundlerError,
   type UnknownBundlerErrorType,
+  UnsupportedSignatureAggregatorError,
+  type UnsupportedSignatureAggregatorErrorType,
   UserOperationExpiredError,
   type UserOperationExpiredErrorType,
+  UserOperationOutOfTimeRangeError,
+  type UserOperationOutOfTimeRangeErrorType,
   UserOperationPaymasterExpiredError,
   type UserOperationPaymasterExpiredErrorType,
   UserOperationPaymasterSignatureError,
   type UserOperationPaymasterSignatureErrorType,
+  UserOperationRejectedByEntryPointError,
+  type UserOperationRejectedByEntryPointErrorType,
+  UserOperationRejectedByOpCodeError,
+  type UserOperationRejectedByOpCodeErrorType,
+  UserOperationRejectedByPaymasterError,
+  type UserOperationRejectedByPaymasterErrorType,
   UserOperationSignatureError,
   type UserOperationSignatureErrorType,
   VerificationGasLimitExceededError,
@@ -53,14 +73,28 @@ import {
   VerificationGasLimitTooLowError,
   type VerificationGasLimitTooLowErrorType,
 } from '../../errors/bundler.js'
-import { ExecutionRevertedError } from '../../errors/node.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import type { ExactPartial } from '../../types/utils.js'
+
+const bundlerErrors = [
+  ExecutionRevertedError,
+  InvalidFieldsError,
+  PaymasterDepositTooLowError,
+  PaymasterRateLimitError,
+  PaymasterStakeTooLowError,
+  SignatureCheckFailedError,
+  UnsupportedSignatureAggregatorError,
+  UserOperationOutOfTimeRangeError,
+  UserOperationRejectedByEntryPointError,
+  UserOperationRejectedByPaymasterError,
+  UserOperationRejectedByOpCodeError,
+]
 
 export type GetBundlerErrorParameters = ExactPartial<UserOperation>
 
 export type GetBundlerErrorReturnType =
   | AccountNotDeployedErrorType
+  | ExecutionRevertedErrorType
   | FailedToSendToBeneficiaryErrorType
   | GasValuesOverflowErrorType
   | HandleOpsOutOfGasErrorType
@@ -72,13 +106,22 @@ export type GetBundlerErrorReturnType =
   | InvalidAccountNonceErrorType
   | InvalidAggregatorErrorType
   | InvalidBeneficiaryErrorType
+  | InvalidFieldsErrorType
   | InvalidPaymasterAndDataErrorType
   | PaymasterDepositTooLowErrorType
   | PaymasterFunctionRevertedErrorType
   | PaymasterNotDeployedErrorType
   | PaymasterPostOpFunctionRevertedErrorType
+  | PaymasterRateLimitErrorType
+  | PaymasterStakeTooLowErrorType
+  | SignatureCheckFailedErrorType
   | SenderAlreadyConstructedErrorType
   | SmartAccountFunctionRevertedErrorType
+  | UnsupportedSignatureAggregatorErrorType
+  | UserOperationOutOfTimeRangeErrorType
+  | UserOperationRejectedByEntryPointErrorType
+  | UserOperationRejectedByOpCodeErrorType
+  | UserOperationRejectedByPaymasterErrorType
   | UnknownBundlerErrorType
   | UserOperationExpiredErrorType
   | UserOperationPaymasterExpiredErrorType
@@ -93,17 +136,6 @@ export function getBundlerError(
 ): GetBundlerErrorReturnType {
   const message = (err.details || '').toLowerCase()
 
-  const executionRevertedError =
-    err instanceof BaseError
-      ? err.walk(
-          (e) => (e as { code: number }).code === ExecutionRevertedError.code,
-        )
-      : err
-  if (executionRevertedError instanceof BaseError)
-    return new ExecutionRevertedError({
-      cause: err,
-      message: executionRevertedError.details,
-    }) as any
   if (AccountNotDeployedError.message.test(message))
     return new AccountNotDeployedError({
       cause: err,
@@ -218,6 +250,59 @@ export function getBundlerError(
     return new VerificationGasLimitTooLowError({
       cause: err,
     }) as any
+
+  const error = err.walk((e) =>
+    bundlerErrors.some((error) => error.code === (e as { code: number }).code),
+  ) as BaseError & { code: number }
+
+  if (error) {
+    if (error.code === ExecutionRevertedError.code)
+      return new ExecutionRevertedError({
+        cause: err,
+        message: error.details,
+      }) as any
+    if (error.code === InvalidFieldsError.code)
+      return new InvalidFieldsError({
+        cause: err,
+      }) as any
+    if (error.code === PaymasterDepositTooLowError.code)
+      return new PaymasterDepositTooLowError({
+        cause: err,
+      }) as any
+    if (error.code === PaymasterRateLimitError.code)
+      return new PaymasterRateLimitError({
+        cause: err,
+      }) as any
+    if (error.code === PaymasterStakeTooLowError.code)
+      return new PaymasterStakeTooLowError({
+        cause: err,
+      }) as any
+    if (error.code === SignatureCheckFailedError.code)
+      return new SignatureCheckFailedError({
+        cause: err,
+      }) as any
+    if (error.code === UnsupportedSignatureAggregatorError.code)
+      return new UnsupportedSignatureAggregatorError({
+        cause: err,
+      }) as any
+    if (error.code === UserOperationOutOfTimeRangeError.code)
+      return new UserOperationOutOfTimeRangeError({
+        cause: err,
+      }) as any
+    if (error.code === UserOperationRejectedByEntryPointError.code)
+      return new UserOperationRejectedByEntryPointError({
+        cause: err,
+      }) as any
+    if (error.code === UserOperationRejectedByPaymasterError.code)
+      return new UserOperationRejectedByPaymasterError({
+        cause: err,
+      }) as any
+    if (error.code === UserOperationRejectedByOpCodeError.code)
+      return new UserOperationRejectedByOpCodeError({
+        cause: err,
+      }) as any
+  }
+
   return new UnknownBundlerError({
     cause: err,
   }) as any

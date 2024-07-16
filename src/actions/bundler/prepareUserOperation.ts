@@ -25,6 +25,7 @@ import type { Assign, OneOf, Prettify, UnionOmit } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { concat } from '../../utils/data/concat.js'
 import { getAction } from '../../utils/getAction.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 
@@ -209,6 +210,11 @@ export async function prepareUserOperation<
     sender: account.address,
   } as PrepareUserOperationRequest
 
+  if (account.prepareUserOperation)
+    request = (await account.prepareUserOperation(
+      request,
+    )) as PrepareUserOperationRequest
+
   // Concurrently prepare properties required to fill the User Operation.
   const [callData, factory, fees, nonce, signature] = await Promise.all([
     (async () => {
@@ -272,11 +278,23 @@ export async function prepareUserOperation<
           maxFeePerGas:
             typeof request.maxFeePerGas === 'bigint'
               ? request.maxFeePerGas
-              : 2n * fees.maxFeePerGas,
+              : BigInt(
+                  // Bundlers unfortunately have strict rules on fee prechecks – we will need to set a generous buffer.
+                  Math.max(
+                    Number(2n * fees.maxFeePerGas),
+                    Number(parseGwei('3')),
+                  ),
+                ),
           maxPriorityFeePerGas:
             typeof request.maxPriorityFeePerGas === 'bigint'
               ? request.maxPriorityFeePerGas
-              : 2n * fees.maxPriorityFeePerGas,
+              : BigInt(
+                  // Bundlers unfortunately have strict rules on fee prechecks – we will need to set a generous buffer.
+                  Math.max(
+                    Number(2n * fees.maxPriorityFeePerGas),
+                    Number(parseGwei('1')),
+                  ),
+                ),
         }
       } catch {
         return undefined
@@ -301,10 +319,12 @@ export async function prepareUserOperation<
   if (typeof nonce !== 'undefined') request.nonce = nonce
   if (typeof signature !== 'undefined') request.signature = signature
 
-  // `paymasterAndData` is required to be filled with EntryPoint 0.6.
-  // If no `paymasterAndData` is provided, we use an empty bytes string.
-  if (account.entryPoint.version === '0.6' && !request.paymasterAndData)
-    request.paymasterAndData = '0x'
+  // `paymasterAndData` + `initCode` is required to be filled with EntryPoint 0.6.
+  // If no `paymasterAndData` or `initCode` is provided, we use an empty bytes string.
+  if (account.entryPoint.version === '0.6') {
+    if (!request.paymasterAndData) request.paymasterAndData = '0x'
+    if (!request.initCode) request.initCode = '0x'
+  }
 
   if (parameters_.includes('gas')) {
     const gas = await getAction(

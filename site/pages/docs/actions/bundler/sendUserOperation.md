@@ -12,7 +12,7 @@ Broadcasts a User Operation to the Bundler.
 
 ```ts twoslash [example.ts]
 import { parseEther } from 'viem'
-import { account, bundlerClient, publicClient } from './config'
+import { account, bundlerClient } from './config'
 
 const hash = await bundlerClient.sendUserOperation({ // [!code focus:7]
   account,

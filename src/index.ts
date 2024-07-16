@@ -1304,6 +1304,8 @@ export {
   type SerializeSignatureErrorType as SignatureToHexErrorType,
   /** @deprecated Use `serializeSignature` instead. */
   serializeSignature as signatureToHex,
+  type SerializeSignatureParameters,
+  type SerializeSignatureReturnType,
   type SerializeSignatureErrorType,
   serializeSignature,
 } from './utils/signature/serializeSignature.js'

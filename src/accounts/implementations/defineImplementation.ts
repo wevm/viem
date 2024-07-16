@@ -4,7 +4,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 import type { Hex, SignableMessage } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
-import type { UserOperation } from '../../types/userOperation.js'
+import type {
+  UserOperation,
+  UserOperationRequest,
+} from '../../types/userOperation.js'
 import type { UnionPartialBy } from '../../types/utils.js'
 
 type Call = {
@@ -109,6 +112,17 @@ export type SmartAccountImplementation<
    * ```
    */
   getStubSignature: () => Promise<Hex>
+  /**
+   * Prepares properties for the User Operation request.
+   *
+   * @example
+   * ```ts
+   * const request = await account.prepareUserOperation(request)
+   * ```
+   */
+  prepareUserOperation?: (
+    parameters: UserOperationRequest,
+  ) => Promise<UserOperationRequest> | undefined
   /**
    * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
    *

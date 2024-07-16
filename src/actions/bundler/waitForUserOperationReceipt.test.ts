@@ -106,6 +106,7 @@ describe('entryPointVersion: 0.7', async () => {
       Promise.all([
         waitForUserOperationReceipt(bundlerClient, {
           hash,
+          retryCount: 6,
         }),
         (async () => {
           // Simulate some delay

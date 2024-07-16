@@ -24,6 +24,34 @@ export class AccountNotDeployedError extends BaseError {
   }
 }
 
+export type ExecutionRevertedErrorType = ExecutionRevertedError & {
+  code: -32521
+  name: 'ExecutionRevertedError'
+}
+export class ExecutionRevertedError extends BaseError {
+  static code = -32521
+  static message = /execution reverted/
+
+  override name = 'ExecutionRevertedError'
+
+  constructor({
+    cause,
+    message,
+  }: { cause?: BaseError | undefined; message?: string | undefined } = {}) {
+    const reason = message
+      ?.replace('execution reverted: ', '')
+      ?.replace('execution reverted', '')
+    super(
+      `Execution reverted ${
+        reason ? `with reason: ${reason}` : 'for an unknown reason'
+      }.`,
+      {
+        cause,
+      },
+    )
+  }
+}
+
 export type FailedToSendToBeneficiaryErrorType =
   FailedToSendToBeneficiaryError & {
     name: 'FailedToSendToBeneficiaryError'
@@ -286,6 +314,25 @@ export class InvalidBeneficiaryError extends BaseError {
   }
 }
 
+export type InvalidFieldsErrorType = InvalidFieldsError & {
+  name: 'InvalidFieldsError'
+}
+export class InvalidFieldsError extends BaseError {
+  static code = -32602
+
+  override name = 'InvalidFieldsError'
+
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
+    super('Invalid fields set on User Operation.', {
+      cause,
+    })
+  }
+}
+
 export type InvalidPaymasterAndDataErrorType = InvalidPaymasterAndDataError & {
   name: 'InvalidPaymasterAndDataError'
 }
@@ -311,11 +358,15 @@ export class InvalidPaymasterAndDataError extends BaseError {
 }
 
 export type PaymasterDepositTooLowErrorType = PaymasterDepositTooLowError & {
+  code: -32508
   name: 'PaymasterDepositTooLowError'
 }
 export class PaymasterDepositTooLowError extends BaseError {
+  static code = -32508
   static message = /aa31/
+
   override name = 'PaymasterDepositTooLowError'
+
   constructor({
     cause,
   }: {
@@ -363,6 +414,44 @@ export class PaymasterNotDeployedError extends BaseError {
     super('The Paymaster contract has not been deployed.', {
       cause,
     })
+  }
+}
+
+export type PaymasterRateLimitErrorType = PaymasterRateLimitError & {
+  code: -32504
+  name: 'PaymasterRateLimitError'
+}
+export class PaymasterRateLimitError extends BaseError {
+  static code = -32504
+
+  override name = 'PaymasterRateLimitError'
+
+  constructor({ cause }: { cause?: BaseError | undefined }) {
+    super(
+      'UserOperation rejected because paymaster (or signature aggregator) is throttled/banned.',
+      {
+        cause,
+      },
+    )
+  }
+}
+
+export type PaymasterStakeTooLowErrorType = PaymasterStakeTooLowError & {
+  code: -32505
+  name: 'PaymasterStakeTooLowError'
+}
+export class PaymasterStakeTooLowError extends BaseError {
+  static code = -32505
+
+  override name = 'PaymasterStakeTooLowError'
+
+  constructor({ cause }: { cause?: BaseError | undefined }) {
+    super(
+      'UserOperation rejected because paymaster (or signature aggregator) is throttled/banned.',
+      {
+        cause,
+      },
+    )
   }
 }
 
@@ -414,6 +503,25 @@ export class SenderAlreadyConstructedError extends BaseError {
   }
 }
 
+export type SignatureCheckFailedErrorType = SignatureCheckFailedError & {
+  code: -32507
+  name: 'SignatureCheckFailedError'
+}
+export class SignatureCheckFailedError extends BaseError {
+  static code = -32507
+
+  override name = 'SignatureCheckFailedError'
+
+  constructor({ cause }: { cause?: BaseError | undefined }) {
+    super(
+      'UserOperation rejected because account signature check failed (or paymaster signature, if the paymaster uses its data as signature).',
+      {
+        cause,
+      },
+    )
+  }
+}
+
 export type SmartAccountFunctionRevertedErrorType =
   SmartAccountFunctionRevertedError & {
     name: 'SmartAccountFunctionRevertedError'
@@ -429,6 +537,26 @@ export class SmartAccountFunctionRevertedError extends BaseError {
     super('The `validateUserOp` function on the Smart Account reverted.', {
       cause,
     })
+  }
+}
+
+export type UnsupportedSignatureAggregatorErrorType =
+  UnsupportedSignatureAggregatorError & {
+    code: -32506
+    name: 'UnsupportedSignatureAggregatorError'
+  }
+export class UnsupportedSignatureAggregatorError extends BaseError {
+  static code = -32506
+
+  override name = 'UnsupportedSignatureAggregatorError'
+
+  constructor({ cause }: { cause?: BaseError | undefined }) {
+    super(
+      'UserOperation rejected because account specified unsupported signature aggregator.',
+      {
+        cause,
+      },
+    )
   }
 }
 
@@ -515,6 +643,80 @@ export class UserOperationPaymasterSignatureError extends BaseError {
         '- the `signature` for the User Operation is incorrectly computed, and unable to be verified by the Paymaster',
       ].filter(Boolean) as string[],
     })
+  }
+}
+
+export type UserOperationRejectedByEntryPointErrorType =
+  UserOperationRejectedByEntryPointError & {
+    code: -32500
+    name: 'UserOperationRejectedByEntryPointError'
+  }
+export class UserOperationRejectedByEntryPointError extends BaseError {
+  static code = -32500
+
+  override name = 'UserOperationRejectedByEntryPointError'
+
+  constructor({ cause }: { cause?: BaseError | undefined }) {
+    super(
+      "User Operation rejected by EntryPoint's `simulateValidation` during account creation or validation.",
+      {
+        cause,
+      },
+    )
+  }
+}
+
+export type UserOperationRejectedByPaymasterErrorType =
+  UserOperationRejectedByPaymasterError & {
+    code: -32501
+    name: 'UserOperationRejectedByPaymasterError'
+  }
+export class UserOperationRejectedByPaymasterError extends BaseError {
+  static code = -32501
+
+  override name = 'UserOperationRejectedByPaymasterError'
+
+  constructor({ cause }: { cause?: BaseError | undefined }) {
+    super("User Operation rejected by Paymaster's `validatePaymasterUserOp`.", {
+      cause,
+    })
+  }
+}
+
+export type UserOperationRejectedByOpCodeErrorType =
+  UserOperationRejectedByOpCodeError & {
+    code: -32502
+    name: 'UserOperationRejectedByOpCodeError'
+  }
+export class UserOperationRejectedByOpCodeError extends BaseError {
+  static code = -32502
+
+  override name = 'UserOperationRejectedByOpCodeError'
+
+  constructor({ cause }: { cause?: BaseError | undefined }) {
+    super('User Operation rejected with op code validation error.', {
+      cause,
+    })
+  }
+}
+
+export type UserOperationOutOfTimeRangeErrorType =
+  UserOperationOutOfTimeRangeError & {
+    code: -32503
+    name: 'UserOperationOutOfTimeRangeError'
+  }
+export class UserOperationOutOfTimeRangeError extends BaseError {
+  static code = -32503
+
+  override name = 'UserOperationOutOfTimeRangeError'
+
+  constructor({ cause }: { cause?: BaseError | undefined }) {
+    super(
+      'UserOperation out of time-range: either wallet or paymaster returned a time-range, and it is already expired (or will expire soon).',
+      {
+        cause,
+      },
+    )
   }
 }
 

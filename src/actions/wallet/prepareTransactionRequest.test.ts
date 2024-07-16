@@ -78,26 +78,27 @@ test('legacy fees', async () => {
     },
   )
   expect(request).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "gasPrice": 11700000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "legacy",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "gasPrice": 11700000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "legacy",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: account', async () => {
@@ -113,26 +114,27 @@ test('args: account', async () => {
     value: parseEther('1'),
   })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxPriorityFeePerGas": 1000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: chain', async () => {
@@ -148,26 +150,27 @@ test('args: chain', async () => {
     value: parseEther('1'),
   })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxPriorityFeePerGas": 1000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: chainId', async () => {
@@ -184,26 +187,27 @@ test('args: chainId', async () => {
     value: parseEther('1'),
   })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 69,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxPriorityFeePerGas": 1000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 69,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: nonce', async () => {
@@ -217,27 +221,28 @@ test('args: nonce', async () => {
       value: parseEther('1'),
     })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxPriorityFeePerGas": 1000000000n,
-        "nonce": 5,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "nonce": 5,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: gasPrice', async () => {
@@ -255,26 +260,27 @@ test('args: gasPrice', async () => {
     },
   )
   expect(request).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "gasPrice": 10000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "legacy",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "gasPrice": 10000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "legacy",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
@@ -290,26 +296,27 @@ test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     },
   )
   expect(request).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "gasPrice": 10000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "legacy",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "gasPrice": 10000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "legacy",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: maxFeePerGas', async () => {
@@ -322,27 +329,28 @@ test('args: maxFeePerGas', async () => {
     value: parseEther('1'),
   })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxFeePerGas": 100000000000n,
-        "maxPriorityFeePerGas": 1000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxFeePerGas": 100000000000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: maxFeePerGas (under default tip)', async () => {
@@ -393,27 +401,28 @@ test('args: maxPriorityFeePerGas', async () => {
     value: parseEther('1'),
   })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxFeePerGas": 17000000000n,
-        "maxPriorityFeePerGas": 5000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxFeePerGas": 17000000000n,
+      "maxPriorityFeePerGas": 5000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: maxPriorityFeePerGas === 0', async () => {
@@ -426,27 +435,28 @@ test('args: maxPriorityFeePerGas === 0', async () => {
     value: parseEther('1'),
   })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxFeePerGas": 12000000000n,
-        "maxPriorityFeePerGas": 0n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxFeePerGas": 12000000000n,
+      "maxPriorityFeePerGas": 0n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: maxPriorityFeePerGas (on legacy)', async () => {
@@ -481,27 +491,28 @@ test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     value: parseEther('1'),
   })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxFeePerGas": 10000000000n,
-        "maxPriorityFeePerGas": 5000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxFeePerGas": 10000000000n,
+      "maxPriorityFeePerGas": 5000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: gasPrice + maxFeePerGas', async () => {
@@ -551,27 +562,28 @@ test('args: type', async () => {
     value: parseEther('1'),
   })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxFeePerGas": 13000000000n,
-        "maxPriorityFeePerGas": 1000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxFeePerGas": 13000000000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: blobs', async () => {
@@ -590,35 +602,36 @@ test('args: blobs', async () => {
     value: parseEther('1'),
   })
   expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "blobVersionedHashes": [
-          "0x01d34d7bd213433308d1f63023dc70fd585064cd108ee69be0637a09f4028ea3",
-        ],
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 53001n,
-        "kzg": {
-          "blobToKzgCommitment": [Function],
-          "computeBlobKzgProof": [Function],
-        },
-        "maxFeePerBlobGas": 20000000000n,
-        "maxFeePerGas": 13000000000n,
-        "maxPriorityFeePerGas": 1000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip4844",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "blobVersionedHashes": [
+        "0x01d34d7bd213433308d1f63023dc70fd585064cd108ee69be0637a09f4028ea3",
+      ],
+      "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 53001n,
+      "kzg": {
+        "blobToKzgCommitment": [Function],
+        "computeBlobKzgProof": [Function],
+      },
+      "maxFeePerBlobGas": 20000000000n,
+      "maxFeePerGas": 13000000000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip4844",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('args: parameters', async () => {
@@ -631,23 +644,24 @@ test('args: parameters', async () => {
     value: parseEther('1'),
   })
   expect(result).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "value": 1000000000000000000n,
+    }
+  `)
 
   const result2 = await prepareTransactionRequest(client, {
     account: privateKeyToAccount(sourceAccount.privateKey),
@@ -656,26 +670,27 @@ test('args: parameters', async () => {
     value: parseEther('1'),
   })
   expect(result2).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 21000n,
-        "maxFeePerGas": 13000000000n,
-        "maxPriorityFeePerGas": 1000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "gas": 21000n,
+      "maxFeePerGas": 13000000000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "value": 1000000000000000000n,
+    }
+  `)
 
   const result3 = await prepareTransactionRequest(client, {
     account: privateKeyToAccount(sourceAccount.privateKey),
@@ -689,6 +704,7 @@ test('args: parameters', async () => {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -718,6 +734,7 @@ test('args: parameters', async () => {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -759,27 +776,28 @@ test('args: parameters', async () => {
       ]
     `)
   expect(result5).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "kzg": {
-          "blobToKzgCommitment": [Function],
-          "computeBlobKzgProof": [Function],
-        },
-        "maxFeePerBlobGas": 20000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "value": 1000000000000000000n,
-      }
-    `)
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "kzg": {
+        "blobToKzgCommitment": [Function],
+        "computeBlobKzgProof": [Function],
+      },
+      "maxFeePerBlobGas": 20000000000n,
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "value": 1000000000000000000n,
+    }
+  `)
 })
 
 test('behavior: chain default priority fee', async () => {

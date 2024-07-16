@@ -13,10 +13,23 @@ export { wordlist as spanish } from '@scure/bip39/wordlists/spanish'
 export { wordlist as traditionalChinese } from '@scure/bip39/wordlists/traditional-chinese'
 
 export {
+  type CreateWebAuthnCredentialParameters,
+  type CreateWebAuthnCredentialReturnType,
+  type P256Credential,
+  createWebAuthnCredential,
+} from './createWebAuthnCredential.js'
+
+export {
   type SmartAccountImplementation,
   type SmartAccountImplementationFn,
   defineImplementation,
 } from './implementations/defineImplementation.js'
+export {
+  type CoinbaseImplementation,
+  type CoinbaseImplementationParameters,
+  type CoinbaseImplementationReturnType,
+  coinbase,
+} from './implementations/coinbase.js'
 export {
   type SoladyImplementation,
   type SoladyImplementationParameters,
@@ -47,6 +60,11 @@ export {
   type PrivateKeyToAccountErrorType,
   privateKeyToAccount,
 } from './privateKeyToAccount.js'
+export {
+  type ToWebAuthnAccountParameters,
+  type ToWebAuthnAccountErrorType,
+  toWebAuthnAccount,
+} from './toWebAuthnAccount.js'
 export { type ToAccountErrorType, toAccount } from './toAccount.js'
 export {
   type ToSmartAccountParameters,
@@ -63,6 +81,7 @@ export type {
   HDAccount,
   PrivateKeyAccount,
   SmartAccount,
+  WebAuthnAccount,
 } from './types.js'
 export {
   type SignErrorType,

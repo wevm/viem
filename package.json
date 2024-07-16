@@ -23,6 +23,7 @@
     "lint:repo": "sherif",
     "lint:unused": "pnpm clean && knip",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
+    "preconstruct": "bun .scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "prepublishOnly": "bun .scripts/prepublishOnly.ts",

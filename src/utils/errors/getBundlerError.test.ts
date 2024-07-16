@@ -24,6 +24,24 @@ test('AccountNotDeployedError', () => {
   `)
 })
 
+test('ExecutionReverted', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32521,
+      message: 'execution reverted: get good',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [ExecutionRevertedError: Execution reverted with reason: get good.
+
+    Details: execution reverted: get good
+    Version: viem@x.y.z]
+  `)
+})
+
 test('FailedToSendToBeneficiaryError', () => {
   const error = new RpcRequestError({
     body: {},
@@ -140,6 +158,35 @@ test('InitCodeMustReturnSenderError', () => {
   `)
 })
 
+test('InitCodeMustCreateSenderError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -69420,
+      message: 'useroperation reverted during simulation with reason: aa15',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {
+    factory: '0x0000000000000000000000000000000000000000',
+    factoryData: '0xdeadbeef',
+    sender: '0x0000000000000000000000000000000000000000',
+  })
+  expect(result).toMatchInlineSnapshot(`
+    [InitCodeMustCreateSenderError: Smart Account initialization implementation did not create an account.
+
+    This could arise when:
+    - \`factory\`/\`factoryData\` or \`initCode\` properties are invalid
+    - Smart Account initialization implementation is incorrect
+
+    factory: 0x0000000000000000000000000000000000000000
+    factoryData: 0xdeadbeef
+
+    Details: useroperation reverted during simulation with reason: aa15
+    Version: viem@x.y.z]
+  `)
+})
+
 test('InsufficientPrefundError', () => {
   const error = new RpcRequestError({
     body: {},
@@ -200,6 +247,15 @@ test('InvalidAccountNonceError', () => {
     Details: useroperation reverted during simulation with reason: aa25
     Version: viem@x.y.z]
   `)
+
+  const result_2 = getBundlerError(error, {})
+  expect(result_2).toMatchInlineSnapshot(`
+    [InvalidAccountNonceError: Invalid Smart Account nonce used for User Operation.
+
+
+    Details: useroperation reverted during simulation with reason: aa25
+    Version: viem@x.y.z]
+  `)
 })
 
 test('InvalidAggregatorError', () => {
@@ -234,6 +290,24 @@ test('InvalidBeneficiaryError', () => {
     [InvalidBeneficiaryError: Bundler has not set a beneficiary address.
 
     Details: useroperation reverted during simulation with reason: aa90
+    Version: viem@x.y.z]
+  `)
+})
+
+test('InvalidFieldsError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32602,
+      message: 'invalid fields set on User Operation',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [InvalidFieldsError: Invalid fields set on User Operation.
+
+    Details: invalid fields set on User Operation
     Version: viem@x.y.z]
   `)
 })
@@ -277,6 +351,27 @@ test('PaymasterDepositTooLowError', () => {
     - the Paymaster has deposited less than the expected amount via the \`deposit\` function
 
     Details: useroperation reverted during simulation with reason: aa31
+    Version: viem@x.y.z]
+  `)
+})
+
+test('PaymasterDepositTooLowError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32508,
+      message: 'useroperation reverted during simulation with reason: aa26',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [PaymasterDepositTooLowError: Paymaster deposit for the User Operation is too low.
+
+    This could arise when:
+    - the Paymaster has deposited less than the expected amount via the \`deposit\` function
+
+    Details: useroperation reverted during simulation with reason: aa26
     Version: viem@x.y.z]
   `)
 })
@@ -335,6 +430,42 @@ test('PaymasterPostOpFunctionRevertedError', () => {
   `)
 })
 
+test('PaymasterRateLimitError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32504,
+      message: 'rate limited',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [PaymasterRateLimitError: UserOperation rejected because paymaster (or signature aggregator) is throttled/banned.
+
+    Details: rate limited
+    Version: viem@x.y.z]
+  `)
+})
+
+test('PaymasterStakeTooLowError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32505,
+      message: 'stake too low',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [PaymasterStakeTooLowError: UserOperation rejected because paymaster (or signature aggregator) is throttled/banned.
+
+    Details: stake too low
+    Version: viem@x.y.z]
+  `)
+})
+
 test('SenderAlreadyConstructedError', () => {
   const error = new RpcRequestError({
     body: {},
@@ -356,6 +487,24 @@ test('SenderAlreadyConstructedError', () => {
     \`factoryData\`
 
     Details: useroperation reverted during simulation with reason: aa10
+    Version: viem@x.y.z]
+  `)
+})
+
+test('SignatureCheckFailedError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32507,
+      message: 'signature check failed',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [SignatureCheckFailedError: UserOperation rejected because account signature check failed (or paymaster signature, if the paymaster uses its data as signature).
+
+    Details: signature check failed
     Version: viem@x.y.z]
   `)
 })
@@ -477,6 +626,24 @@ test('UserOperationPaymasterSignatureError', () => {
   `)
 })
 
+test('UnsupportedSignatureAggregatorError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32506,
+      message: 'unsupported sig',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [UnsupportedSignatureAggregatorError: UserOperation rejected because account specified unsupported signature aggregator.
+
+    Details: unsupported sig
+    Version: viem@x.y.z]
+  `)
+})
+
 test('UnknownBundlerError', () => {
   const error = new RpcRequestError({
     body: {},
@@ -494,6 +661,79 @@ test('UnknownBundlerError', () => {
     [UnknownBundlerError: An error occurred while executing user operation: RPC Request failed.
 
     Details: wat man
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UserOperationRejectedByEntryPointError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32500,
+      message: 'useroperation reverted during simulation with reason: aa25',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [InvalidAccountNonceError: Invalid Smart Account nonce used for User Operation.
+
+
+    Details: useroperation reverted during simulation with reason: aa25
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UserOperationRejectedByPaymasterError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32501,
+      message: 'paymaster doesnt like it',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [UserOperationRejectedByPaymasterError: User Operation rejected by Paymaster's \`validatePaymasterUserOp\`.
+
+    Details: paymaster doesnt like it
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UserOperationRejectedByOpCodeError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32502,
+      message: 'opcode sucks',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [UserOperationRejectedByOpCodeError: User Operation rejected with op code validation error.
+
+    Details: opcode sucks
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UserOperationOutOfTimeRangeError', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32503,
+      message: 'opcode sucks',
+    },
+    url: '',
+  })
+  const result = getBundlerError(error, {})
+  expect(result).toMatchInlineSnapshot(`
+    [UserOperationOutOfTimeRangeError: UserOperation out of time-range: either wallet or paymaster returned a time-range, and it is already expired (or will expire soon).
+
+    Details: opcode sucks
     Version: viem@x.y.z]
   `)
 })

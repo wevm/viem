@@ -31,6 +31,9 @@ test('defineImplementation', () => {
     async getStubSignature() {
       return '0x'
     },
+    async prepareUserOperation(_parameters) {
+      return {}
+    },
     async signMessage(_message) {
       return '0x'
     },

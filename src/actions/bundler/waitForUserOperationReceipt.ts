@@ -73,8 +73,8 @@ export function waitForUserOperationReceipt(
   const {
     hash,
     pollingInterval = client.pollingInterval,
-    retryCount = 6,
-    timeout,
+    retryCount,
+    timeout = 120_000,
   } = parameters
 
   let count = 0
@@ -94,7 +94,7 @@ export function waitForUserOperationReceipt(
 
       const unpoll = poll(
         async () => {
-          if (count >= retryCount)
+          if (retryCount && count >= retryCount)
             done(() =>
               emit.reject(
                 new WaitForUserOperationReceiptTimeoutError({ hash }),

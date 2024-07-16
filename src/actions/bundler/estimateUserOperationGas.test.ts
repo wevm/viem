@@ -54,6 +54,36 @@ describe('entryPointVersion: 0.7', async () => {
     `)
   })
 
+  test('error: insufficient funds', async () => {
+    await expect(() =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1000000'),
+          },
+        ],
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [UserOperationExecutionError: Execution reverted with reason: UserOperation reverted during simulation with reason: 0x.
+
+      Request Arguments:
+        callData:              0xb61d27f6000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d3c21bcecceda100000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+        factory:               0xfb6dab6200b8958c2655c3747708f82243d3f32e
+        factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
+        maxFeePerGas:          15 gwei
+        maxPriorityFeePerGas:  2 gwei
+        nonce:                 0
+        sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
+        signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+      Details: UserOperation reverted during simulation with reason: 0x
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('error: contract revert', async () => {
     await expect(() =>
       estimateUserOperationGas(bundlerClient, {

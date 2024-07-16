@@ -1,4 +1,8 @@
 import { type Address, type TypedData, parseAbi } from 'abitype'
+import {
+  type WebAuthnData,
+  parseSignature as parseP256Signature,
+} from 'webauthn-p256'
 
 import { readContract } from '../../actions/public/readContract.js'
 import { entryPoint06Abi } from '../../constants/abis.js'
@@ -6,15 +10,18 @@ import { entryPoint06Address } from '../../constants/address.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import type { UserOperation } from '../../types/userOperation.js'
+import type { OneOf } from '../../types/utils.js'
 import { encodeAbiParameters } from '../../utils/abi/encodeAbiParameters.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { encodePacked } from '../../utils/abi/encodePacked.js'
 import { pad } from '../../utils/data/pad.js'
+import { size } from '../../utils/data/size.js'
+import { stringToHex } from '../../utils/encoding/toHex.js'
 import { hashMessage } from '../../utils/signature/hashMessage.js'
 import { hashTypedData } from '../../utils/signature/hashTypedData.js'
 import { parseSignature } from '../../utils/signature/parseSignature.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
-import type { LocalAccount } from '../types.js'
+import type { LocalAccount, WebAuthnAccount } from '../types.js'
 import {
   type SmartAccountImplementation,
   type SmartAccountImplementationFn,
@@ -30,7 +37,7 @@ export type CoinbaseImplementation = SmartAccountImplementation<
 
 export type CoinbaseImplementationParameters = {
   entryPointAddress?: Address | undefined
-  owners: readonly LocalAccount[]
+  owners: readonly OneOf<LocalAccount | WebAuthnAccount>[]
   nonce?: bigint | undefined
 }
 
@@ -60,7 +67,9 @@ export function coinbase(
       nonce = 0n,
     } = parameters
 
-    const owners_bytes = owners.map((owner) => pad(owner.address))
+    const owners_bytes = owners.map((owner) =>
+      owner.type === 'webAuthn' ? owner.publicKey : pad(owner.address),
+    )
 
     const owner = owners[0]
 
@@ -128,10 +137,23 @@ export function coinbase(
       },
 
       async getStubSignature() {
+        if (owner.type === 'webAuthn')
+          return '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000170000000000000000000000000000000000000000000000000000000000000001949fc7c88032b9fcb5f6efc7a7b8c63668eae9871b765e23123bb473ff57aa831a7c0d9276168ebcc29f2875a0239cffdf2a9cd1c2007c5c77c071db9264df1d000000000000000000000000000000000000000000000000000000000000002549960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008a7b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2273496a396e6164474850596759334b7156384f7a4a666c726275504b474f716d59576f4d57516869467773222c226f726967696e223a2268747470733a2f2f7369676e2e636f696e626173652e636f6d222c2263726f73734f726967696e223a66616c73657d00000000000000000000000000000000000000000000'
         return wrapSignature({
           signature:
             '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c',
         })
+      },
+
+      async prepareUserOperation(parameters) {
+        if (owner.type === 'webAuthn')
+          return {
+            ...parameters,
+            verificationGasLimit: BigInt(
+              Math.max(Number(parameters.verificationGasLimit ?? 0n), 800_000),
+            ),
+          }
+        return parameters
       },
 
       async signMessage(parameters) {
@@ -144,8 +166,10 @@ export function coinbase(
           hash: hashMessage(message),
         })
 
+        const signature = await sign({ hash, owner })
+
         return wrapSignature({
-          signature: await owner.sign({ hash }),
+          signature,
         })
       },
 
@@ -165,8 +189,10 @@ export function coinbase(
           }),
         })
 
+        const signature = await sign({ hash, owner })
+
         return wrapSignature({
-          signature: await owner.sign({ hash }),
+          signature,
         })
       },
 
@@ -184,7 +210,8 @@ export function coinbase(
           },
         })
 
-        const signature = await owner.sign({ hash })
+        const signature = await sign({ hash, owner })
+
         return wrapSignature({
           signature,
         })
@@ -197,7 +224,25 @@ export function coinbase(
 // Utilities
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-function toReplaySafeHash({
+/** @internal */
+export async function sign({
+  hash,
+  owner,
+}: { hash: Hash; owner: OneOf<LocalAccount | WebAuthnAccount> }) {
+  // WebAuthn Account (Passkey)
+  if (owner.type === 'webAuthn') {
+    const { signature, webauthn } = await owner.sign({
+      hash,
+    })
+    return toWebAuthnSignature({ signature, webauthn })
+  }
+
+  // Local Account
+  return owner.sign({ hash })
+}
+
+/** @internal */
+export function toReplaySafeHash({
   address,
   chainId,
   hash,
@@ -224,16 +269,65 @@ function toReplaySafeHash({
   })
 }
 
-function wrapSignature(parameters: {
+/** @internal */
+export function toWebAuthnSignature({
+  webauthn,
+  signature,
+}: {
+  webauthn: WebAuthnData
+  signature: Hex
+}) {
+  const { r, s } = parseP256Signature(signature)
+  return encodeAbiParameters(
+    [
+      {
+        components: [
+          {
+            name: 'authenticatorData',
+            type: 'bytes',
+          },
+          { name: 'clientDataJSON', type: 'bytes' },
+          { name: 'challengeIndex', type: 'uint256' },
+          { name: 'typeIndex', type: 'uint256' },
+          {
+            name: 'r',
+            type: 'uint256',
+          },
+          {
+            name: 's',
+            type: 'uint256',
+          },
+        ],
+        type: 'tuple',
+      },
+    ],
+    [
+      {
+        authenticatorData: webauthn.authenticatorData,
+        clientDataJSON: stringToHex(webauthn.clientDataJSON),
+        challengeIndex: BigInt(webauthn.challengeIndex),
+        typeIndex: BigInt(webauthn.typeIndex),
+        r,
+        s,
+      },
+    ],
+  )
+}
+
+/** @internal */
+export function wrapSignature(parameters: {
   ownerIndex?: number | undefined
   signature: Hex
 }) {
   const { ownerIndex = 0 } = parameters
-  const signature = parseSignature(parameters.signature)
-  const signatureData = encodePacked(
-    ['bytes32', 'bytes32', 'uint8'],
-    [signature.r, signature.s, signature.yParity === 0 ? 27 : 28],
-  )
+  const signatureData = (() => {
+    if (size(parameters.signature) !== 65) return parameters.signature
+    const signature = parseSignature(parameters.signature)
+    return encodePacked(
+      ['bytes32', 'bytes32', 'uint8'],
+      [signature.r, signature.s, signature.yParity === 0 ? 27 : 28],
+    )
+  })()
   return encodeAbiParameters(
     [
       {

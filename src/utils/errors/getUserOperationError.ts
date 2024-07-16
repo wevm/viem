@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import { BaseError } from '../../errors/base.js'
-import { UnknownBundlerError } from '../../errors/bundler.js'
+import { ExecutionRevertedError } from '../../errors/bundler.js'
 import {
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
@@ -25,6 +25,13 @@ import {
 } from './getBundlerError.js'
 import type { GetContractErrorReturnType } from './getContractError.js'
 
+type Call = OneOf<
+  | UserOperationCall
+  | (ContractFunctionParameters & {
+      to: Address
+    })
+>
+
 type GetNodeErrorReturnType = ErrorType
 
 export type GetUserOperationErrorParameters = UserOperation & {
@@ -46,10 +53,13 @@ export function getUserOperationError<err extends ErrorType<string>>(
       err as {} as BaseError,
       args as GetBundlerErrorParameters,
     )
-    if (cause instanceof UnknownBundlerError) {
+    if (cause instanceof ExecutionRevertedError) {
       const revertData = getRevertData(cause)
-      if (revertData) return getContractError({ calls, revertData })
-      return err as {} as BaseError
+      const contractCalls = calls?.filter(
+        (call: any) => call.abi || call.data,
+      ) as readonly Call[]
+      if (revertData && contractCalls.length > 0)
+        return getContractError({ calls: contractCalls, revertData })
     }
     return cause
   })()
@@ -86,15 +96,10 @@ function getRevertData(error: BaseError) {
 }
 
 function getContractError(parameters: {
-  calls?: readonly unknown[] | undefined
+  calls: readonly Call[]
   revertData: Hex
 }) {
-  const { revertData } = parameters
-  const calls = parameters.calls as
-    | readonly OneOf<
-        UserOperationCall | (ContractFunctionParameters & { to: Address })
-      >[]
-    | undefined
+  const { calls, revertData } = parameters
 
   const { abi, functionName, args, to } = (() => {
     const contractCalls = calls?.filter((call) =>

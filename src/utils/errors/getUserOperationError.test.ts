@@ -21,7 +21,7 @@ test('default', () => {
     maxPriorityFeePerGas: 2n,
   })
   expect(result).toMatchInlineSnapshot(`
-    [UserOperationExecutionError: Unknown error
+    [UserOperationExecutionError: An error occurred while executing user operation: Unknown error
 
     Request Arguments:
       callData:              0xdeadbeef
@@ -43,6 +43,8 @@ test('default', () => {
 test('contract error (via error.message)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
+      // @ts-ignore
+      code: -32521,
       name: '',
       message:
         'execution reverted: 0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000',
@@ -98,8 +100,9 @@ test('contract error (via error.message)', () => {
 test('contract error (via error.data)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
+      // @ts-ignore
+      code: -32521,
       name: '',
-      // @ts-expect-error
       data: 'execution reverted: 0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000',
     },
   })
@@ -153,8 +156,9 @@ test('contract error (via error.data)', () => {
 test('contract error (via error.data.revertData)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
+      // @ts-ignore
+      code: -32521,
       name: '',
-      // @ts-expect-error
       data: {
         revertData:
           'execution reverted: 0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000',
@@ -211,6 +215,8 @@ test('contract error (via error.data.revertData)', () => {
 test('contract error (via error.data)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
+      // @ts-ignore
+      code: -32521,
       name: '',
       message: 'execution reverted: 0x',
     },
@@ -269,6 +275,8 @@ test('contract error (via error.data)', () => {
 test('contract error (multiple calls)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
+      // @ts-ignore
+      code: -32521,
       name: '',
       message:
         'execution reverted: 0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000',
@@ -325,6 +333,8 @@ test('contract error (multiple calls)', () => {
 test('contract error (multiple calls)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
+      // @ts-ignore
+      code: -32521,
       name: '',
       message:
         'execution reverted: 0xf9006398000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000',
@@ -386,6 +396,8 @@ test('contract error (multiple calls)', () => {
 test('contract error (multiple calls - unknown error)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
+      // @ts-ignore
+      code: -32521,
       name: '',
       message:
         'execution reverted: 0xdeadbeef000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000',
@@ -447,6 +459,8 @@ test('contract error (multiple calls - unknown error)', () => {
 test('contract error (raw call)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
+      // @ts-ignore
+      code: -32521,
       name: '',
       message:
         'execution reverted: 0xdeadbeef000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000',
