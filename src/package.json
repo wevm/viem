@@ -25,6 +25,11 @@
       "import": "./_esm/index.js",
       "default": "./_cjs/index.js"
     },
+    "./account-abstraction": {
+      "types": "./_types/account-abstraction/index.d.ts",
+      "import": "./_esm/account-abstraction/index.js",
+      "default": "./_cjs/account-abstraction/index.js"
+    },
     "./accounts": {
       "types": "./_types/accounts/index.d.ts",
       "import": "./_esm/accounts/index.js",

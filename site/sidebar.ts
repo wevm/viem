@@ -329,42 +329,6 @@ export const sidebar = {
       ],
     },
     {
-      text: 'Bundler Actions',
-      collapsed: true,
-      items: [
-        { text: 'Introduction', link: '/docs/actions/bundler/introduction' },
-        {
-          text: 'estimateUserOperationGas',
-          link: '/docs/actions/bundler/estimateUserOperationGas',
-        },
-        { text: 'getChainId', link: '/docs/actions/bundler/getChainId' },
-        {
-          text: 'getSupportedEntryPoints',
-          link: '/docs/actions/bundler/getSupportedEntryPoints',
-        },
-        {
-          text: 'getUserOperation',
-          link: '/docs/actions/bundler/getUserOperation',
-        },
-        {
-          text: 'getUserOperationReceipt',
-          link: '/docs/actions/bundler/getUserOperationReceipt',
-        },
-        {
-          text: 'prepareUserOperation',
-          link: '/docs/actions/bundler/prepareUserOperation',
-        },
-        {
-          text: 'sendUserOperation',
-          link: '/docs/actions/bundler/sendUserOperation',
-        },
-        {
-          text: 'waitForUserOperationReceipt',
-          link: '/docs/actions/bundler/waitForUserOperationReceipt',
-        },
-      ],
-    },
-    {
       text: 'Test Actions',
       collapsed: true,
       items: [
@@ -524,64 +488,6 @@ export const sidebar = {
                   link: '/docs/accounts/local/signTypedData',
                 },
               ],
-            },
-          ],
-        },
-        {
-          text: 'Smart Accounts',
-          link: '/docs/accounts/smart',
-          items: [
-            {
-              text: 'toSmartAccount',
-              link: '/docs/accounts/smart/toSmartAccount',
-            },
-            {
-              text: 'Implementations',
-              items: [
-                {
-                  text: 'Coinbase',
-                  link: '/docs/accounts/smart/coinbase',
-                },
-                {
-                  text: 'Solady',
-                  link: '/docs/accounts/smart/solady',
-                },
-                {
-                  text: 'Custom',
-                  link: '/docs/accounts/smart/custom',
-                },
-              ],
-            },
-            {
-              text: 'Utilities',
-              items: [
-                {
-                  text: 'signMessage',
-                  link: '/docs/accounts/smart/signMessage',
-                },
-                {
-                  text: 'signTypedData',
-                  link: '/docs/accounts/smart/signTypedData',
-                },
-                {
-                  text: 'signUserOperation',
-                  link: '/docs/accounts/smart/signUserOperation',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'WebAuthn Account',
-          link: '/docs/accounts/webauthn',
-          items: [
-            {
-              text: 'toWebAuthnAccount',
-              link: '/docs/accounts/webauthn/toWebAuthnAccount',
-            },
-            {
-              text: 'createWebAuthnCredential',
-              link: '/docs/accounts/webauthn/createWebAuthnCredential',
             },
           ],
         },
@@ -1161,6 +1067,133 @@ export const sidebar = {
       ],
     },
   ],
+  '/account-abstraction': {
+    backLink: true,
+    items: [
+      {
+        text: 'Account Abstraction',
+        items: [
+          {
+            text: 'Getting Started',
+            link: '/account-abstraction',
+          },
+        ],
+      },
+      {
+        text: 'Clients',
+        items: [
+          {
+            text: 'Bundler Client',
+            link: '/account-abstraction/clients/bundler',
+          },
+        ],
+      },
+      {
+        text: 'Accounts',
+        items: [
+          {
+            text: 'Smart Accounts',
+            link: '/account-abstraction/accounts/smart',
+            items: [
+              {
+                text: 'toSmartAccount',
+                link: '/account-abstraction/accounts/smart/toSmartAccount',
+              },
+              {
+                text: 'Implementations',
+                items: [
+                  {
+                    text: 'Coinbase',
+                    link: '/account-abstraction/accounts/smart/coinbase',
+                  },
+                  {
+                    text: 'Solady',
+                    link: '/account-abstraction/accounts/smart/solady',
+                  },
+                  {
+                    text: 'Custom',
+                    link: '/account-abstraction/accounts/smart/custom',
+                  },
+                ],
+              },
+              {
+                text: 'Utilities',
+                items: [
+                  {
+                    text: 'signMessage',
+                    link: '/account-abstraction/accounts/smart/signMessage',
+                  },
+                  {
+                    text: 'signTypedData',
+                    link: '/account-abstraction/accounts/smart/signTypedData',
+                  },
+                  {
+                    text: 'signUserOperation',
+                    link: '/account-abstraction/accounts/smart/signUserOperation',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: 'WebAuthn Account',
+            link: '/account-abstraction/accounts/webauthn',
+            items: [
+              {
+                text: 'toWebAuthnAccount',
+                link: '/account-abstraction/accounts/webauthn/toWebAuthnAccount',
+              },
+              {
+                text: 'createWebAuthnCredential',
+                link: '/account-abstraction/accounts/webauthn/createWebAuthnCredential',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Bundler Actions',
+        items: [
+          {
+            text: 'Introduction',
+            link: '/account-abstraction/actions/bundler/introduction',
+          },
+          {
+            text: 'estimateUserOperationGas',
+            link: '/account-abstraction/actions/bundler/estimateUserOperationGas',
+          },
+          {
+            text: 'getChainId',
+            link: '/account-abstraction/actions/bundler/getChainId',
+          },
+          {
+            text: 'getSupportedEntryPoints',
+            link: '/account-abstraction/actions/bundler/getSupportedEntryPoints',
+          },
+          {
+            text: 'getUserOperation',
+            link: '/account-abstraction/actions/bundler/getUserOperation',
+          },
+          {
+            text: 'getUserOperationReceipt',
+            link: '/account-abstraction/actions/bundler/getUserOperationReceipt',
+          },
+          {
+            text: 'prepareUserOperation',
+            link: '/account-abstraction/actions/bundler/prepareUserOperation',
+          },
+          {
+            text: 'sendUserOperation',
+            link: '/account-abstraction/actions/bundler/sendUserOperation',
+          },
+          {
+            text: 'waitForUserOperationReceipt',
+            link: '/account-abstraction/actions/bundler/waitForUserOperationReceipt',
+          },
+        ],
+      },
+    ],
+  },
   '/experimental': {
     backLink: true,
     items: [

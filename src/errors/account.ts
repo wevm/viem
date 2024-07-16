@@ -19,6 +19,7 @@ export class AccountNotFoundError extends BaseError {
   }
 }
 
+// TODO(aa): still need?
 export type AccountTypeNotSupportedErrorType = AccountTypeNotSupportedError & {
   name: 'AccountTypeNotSupportedError'
 }

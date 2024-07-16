@@ -1,14 +1,14 @@
 import type { Address } from 'abitype'
 
-import type { BlockTag } from './block.js'
-import type { Hash, Hex, LogTopic } from './misc.js'
 import type {
   RpcEstimateUserOperationGasReturnType,
   RpcGetUserOperationByHashReturnType,
-  RpcStateOverride,
   RpcUserOperation,
   RpcUserOperationReceipt,
-} from './rpc.js'
+} from '../account-abstraction/types/rpc.js'
+import type { BlockTag } from './block.js'
+import type { Hash, Hex, LogTopic } from './misc.js'
+import type { RpcStateOverride } from './rpc.js'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,

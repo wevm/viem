@@ -233,6 +233,10 @@ export default defineConfig({
       text: 'Extensions',
       items: [
         {
+          text: 'Account Abstraction',
+          link: '/account-abstraction',
+        },
+        {
           text: 'OP Stack',
           link: '/op-stack',
         },

@@ -1,6 +1,6 @@
 import type { Address, TypedData } from 'abitype'
-import type { SignReturnType as WebAuthnSignReturnType } from 'webauthn-p256'
 
+import type { SmartAccount } from '../account-abstraction/accounts/types.js'
 import type { HDKey } from '../types/account.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
@@ -12,9 +12,9 @@ import type { Assign, IsNarrowable, OneOf } from '../types/utils.js'
 import type { NonceManager } from '../utils/nonceManager.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import type { SmartAccountImplementation } from './implementations/defineImplementation.js'
 
 export type Account<address extends Address = Address> = OneOf<
+  // TODO(aa): remove smart account?
   JsonRpcAccount<address> | LocalAccount<string, address> | SmartAccount
 >
 
@@ -102,37 +102,3 @@ export type HDOptions =
     }
 
 export type PrivateKeyAccount = LocalAccount<'privateKey'>
-
-export type WebAuthnAccount = {
-  publicKey: Hex
-  sign: ({ hash }: { hash: Hash }) => Promise<WebAuthnSignReturnType>
-  signMessage: ({
-    message,
-  }: { message: SignableMessage }) => Promise<WebAuthnSignReturnType>
-  signTypedData: <
-    const typedData extends TypedData | Record<string, unknown>,
-    primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
-  >(
-    typedDataDefinition: TypedDataDefinition<typedData, primaryType>,
-  ) => Promise<WebAuthnSignReturnType>
-  type: 'webAuthn'
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Smart Account
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-export type SmartAccount<
-  implementation extends
-    SmartAccountImplementation = SmartAccountImplementation,
-> = Assign<
-  implementation,
-  {
-    /** Address of the Smart Account. */
-    address: Address
-    /** Whether or not the Smart Account has been deployed. */
-    isDeployed: () => Promise<boolean>
-    /** Type of account. */
-    type: 'smart'
-  }
->

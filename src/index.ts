@@ -550,8 +550,6 @@ export {
   webSocket,
 } from './clients/transports/webSocket.js'
 export {
-  entryPoint06Abi,
-  entryPoint07Abi,
   multicall3Abi,
   erc20Abi,
   erc20Abi_bytes32,
@@ -986,7 +984,6 @@ export type {
   JsonRpcAccount,
   LocalAccount,
   PrivateKeyAccount,
-  SmartAccount,
 } from './accounts/types.js'
 export type { AssetGateway, AssetGatewayUrls } from './types/ens.js'
 export type {
@@ -1077,11 +1074,6 @@ export type {
   RpcAccountStateOverride,
   RpcStateOverride,
   RpcStateMapping,
-  RpcEstimateUserOperationGasReturnType,
-  RpcGetUserOperationByHashReturnType,
-  RpcUserOperation,
-  RpcUserOperationReceipt,
-  RpcUserOperationRequest,
 } from './types/rpc.js'
 export type { Withdrawal } from './types/withdrawal.js'
 export type {
@@ -1699,52 +1691,6 @@ export {
   nonceManager,
 } from './utils/nonceManager.js'
 export {
-  type EstimateUserOperationGasErrorType,
-  type EstimateUserOperationGasParameters,
-  type EstimateUserOperationGasReturnType,
-} from './actions/bundler/estimateUserOperationGas.js'
-export {
-  type GetSupportedEntryPointsErrorType,
-  type GetSupportedEntryPointsReturnType,
-} from './actions/bundler/getSupportedEntryPoints.js'
-export {
-  type PrepareUserOperationParameterType,
-  type PrepareUserOperationParameters,
-  type PrepareUserOperationRequest,
-  type PrepareUserOperationReturnType,
-} from './actions/bundler/prepareUserOperation.js'
-export {
-  type GetUserOperationErrorType,
-  type GetUserOperationParameters,
-  type GetUserOperationReturnType,
-} from './actions/bundler/getUserOperation.js'
-export {
-  type GetUserOperationReceiptErrorType,
-  type GetUserOperationReceiptParameters,
-  type GetUserOperationReceiptReturnType,
-} from './actions/bundler/getUserOperationReceipt.js'
-export {
-  type SendUserOperationErrorType,
-  type SendUserOperationParameters,
-  type SendUserOperationReturnType,
-} from './actions/bundler/sendUserOperation.js'
-export {
-  type WaitForUserOperationReceiptErrorType,
-  type WaitForUserOperationReceiptParameters,
-  type WaitForUserOperationReceiptReturnType,
-} from './actions/bundler/waitForUserOperationReceipt.js'
-export {
-  type BundlerClient,
-  type BundlerClientConfig,
-  type CreateBundlerClientErrorType,
-  createBundlerClient,
-} from './clients/createBundlerClient.js'
-export {
-  type BundlerActionsParameters,
-  type BundlerActions,
-  bundlerActions,
-} from './clients/decorators/bundler.js'
-export {
   AccountNotDeployedError,
   type AccountNotDeployedErrorType,
   FailedToSendToBeneficiaryError,
@@ -1805,43 +1751,4 @@ export {
   type UserOperationNotFoundErrorType,
   WaitForUserOperationReceiptTimeoutError,
   type WaitForUserOperationReceiptTimeoutErrorType,
-} from './errors/userOperation.js'
-export {
-  type FormatUserOperationErrorType,
-  formatUserOperation,
-} from './utils/formatters/userOperation.js'
-export {
-  type FormatUserOperationGasErrorType,
-  formatUserOperationGas,
-} from './utils/formatters/userOperationGas.js'
-export {
-  type FormatUserOperationRequestErrorType,
-  formatUserOperationRequest,
-} from './utils/formatters/userOperationRequest.js'
-export {
-  type FormatUserOperationReceiptErrorType,
-  formatUserOperationReceipt,
-} from './utils/formatters/userOperationReceipt.js'
-export type { EntryPointVersion } from './types/entryPointVersion.js'
-export type {
-  GetUserOperationByHashReturnType,
-  PackedUserOperation,
-  UserOperation,
-  UserOperationReceipt,
-  UserOperationRequest,
-} from './types/userOperation.js'
-export {
-  type GetBundlerErrorParameters,
-  type GetBundlerErrorReturnType,
-  getBundlerError,
-} from './utils/errors/getBundlerError.js'
-export {
-  type GetUserOperationErrorParameters,
-  type GetUserOperationErrorReturnType,
-  getUserOperationError,
-} from './utils/errors/getUserOperationError.js'
-export {
-  type GetUserOperationHashParameters,
-  type GetUserOperationHashReturnType,
-  getUserOperationHash,
-} from './utils/userOperation/getUserOperationHash.js'
+} from './account-abstraction/errors/userOperation.js'

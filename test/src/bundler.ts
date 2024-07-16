@@ -1,10 +1,11 @@
 import { createServer } from 'prool'
 import { alto } from 'prool/instances'
+import {
+  type BundlerClient,
+  type BundlerClientConfig,
+  createBundlerClient,
+} from '../../src/account-abstraction/clients/createBundlerClient.js'
 import { mainnet } from '../../src/chains/index.js'
-import type {
-  BundlerClient,
-  BundlerClientConfig,
-} from '../../src/clients/createBundlerClient.js'
 import {
   http,
   type Chain,
@@ -12,7 +13,6 @@ import {
   type ClientConfig,
   type ExactPartial,
   type Transport,
-  createBundlerClient,
 } from '../../src/index.js'
 import type { DebugBundlerRpcSchema } from '../../src/types/eip1193.js'
 import { anvilMainnet } from './anvil.js'

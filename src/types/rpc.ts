@@ -7,7 +7,6 @@ import type {
   BlockTag,
   Uncle,
 } from './block.js'
-import type { EntryPointVersion } from './entryPointVersion.js'
 import type { FeeHistory, FeeValues } from './fee.js'
 import type { Log } from './log.js'
 import type { Hex } from './misc.js'
@@ -23,13 +22,6 @@ import type {
   TransactionRequestEIP4844,
   TransactionRequestLegacy,
 } from './transaction.js'
-import type {
-  EstimateUserOperationGasReturnType,
-  GetUserOperationByHashReturnType,
-  UserOperation,
-  UserOperationReceipt,
-  UserOperationRequest,
-} from './userOperation.js'
 import type { Omit, OneOf, PartialBy } from './utils.js'
 
 export type Index = `0x${string}`
@@ -139,23 +131,3 @@ export type RpcAccountStateOverride = {
 export type RpcStateOverride = {
   [address: Address]: RpcAccountStateOverride
 }
-
-export type RpcEstimateUserOperationGasReturnType<
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = EstimateUserOperationGasReturnType<entryPointVersion, Hex>
-
-export type RpcGetUserOperationByHashReturnType<
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = GetUserOperationByHashReturnType<entryPointVersion, Hex>
-
-export type RpcUserOperation<
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = UserOperation<entryPointVersion, Hex>
-
-export type RpcUserOperationReceipt<
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = UserOperationReceipt<entryPointVersion, Hex, Hex, Hex>
-
-export type RpcUserOperationRequest<
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = UserOperationRequest<entryPointVersion, Hex>
