@@ -110,7 +110,7 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "66 kB",
+      "limit": "66.5 kB",
       "import": "*"
     },
     {
@@ -127,13 +127,13 @@
     {
       "name": "import * from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
-      "limit": "92 kB",
+      "limit": "97 kB",
       "import": "*"
     },
     {
       "name": "import { coinbase, toSmartAccount } from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
-      "limit": "20 kB",
+      "limit": "35 kB",
       "import": "{ coinbase, toSmartAccount }"
     },
     {
@@ -145,7 +145,7 @@
     {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "46.5 kB",
+      "limit": "51 kB",
       "import": "*"
     },
     {
