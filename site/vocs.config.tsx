@@ -10,7 +10,10 @@ export default defineConfig({
   //   content:
   //     'Viem is participating in the Gitcoin Grants 20 round. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/27/20). Thank you. 🙏',
   // },
-  baseUrl: 'https://viem.sh',
+  baseUrl:
+    process.env.VERCEL_ENV === 'production'
+      ? 'https://viem.sh'
+      : process.env.VERCEL_URL,
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:
