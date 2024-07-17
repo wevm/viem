@@ -11,10 +11,10 @@ import { toCoinbaseSmartAccount } from 'viem/account-abstraction' // [!code focu
 import { client } from './client.js'
 import { owner } from './owner.js'
 
-const account = await toCoinbaseSmartAccount({
-  client,
+const account = await toCoinbaseSmartAccount({ // [!code focus]
+  client, // [!code focus]
   owners: [owner], // [!code focus]
-})
+}) // [!code focus]
 ```
 
 ```ts twoslash [client.ts] filename="config.ts"

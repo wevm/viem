@@ -14,11 +14,11 @@ This implementation is unaudited. It is intended to be used for testing purposes
 import { toSoladySmartAccount } from 'viem/account-abstraction' // [!code focus]
 import { client, owner } from './config.js'
 
-const account = await toSoladySmartAccount({
-  client,
+const account = await toSoladySmartAccount({ // [!code focus]
+  client, // [!code focus]
   factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754', // [!code focus]
   owner, // [!code focus]
-})
+}) // [!code focus]
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"
