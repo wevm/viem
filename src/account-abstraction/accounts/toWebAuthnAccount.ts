@@ -9,7 +9,10 @@ export type ToWebAuthnAccountParameters = {
   /**
    * The WebAuthn P256 credential to use.
    */
-  credential: P256Credential
+  credential: {
+    id: P256Credential['id']
+    publicKey: P256Credential['publicKey']
+  }
   /**
    * Credential request function. Useful for environments that do not support
    * the WebAuthn API natively (i.e. React Native or testing environments).
