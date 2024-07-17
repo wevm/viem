@@ -68,7 +68,7 @@ export async function toCoinbaseSmartAccount(
   } as const
   const factory = {
     abi: factoryAbi,
-    address: '0x0ba5ed0c6aa8c49038f819e587e263c4a9f428a',
+    address: '0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a',
   } as const
 
   const owners_bytes = owners.map((owner) =>

@@ -21,7 +21,6 @@ const client = createPublicClient({
 })
 
 const bundlerClient = createBundlerClient({ // [!code focus]
-  chain: mainnet, // [!code focus]
   client, // [!code focus]
   transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet') // [!code focus]
 }) // [!code focus]
@@ -57,7 +56,6 @@ const account = await toCoinbaseSmartAccount({ // [!code focus]
 
 const bundlerClient = createBundlerClient({
   account, // [!code focus]
-  chain: mainnet,
   client,
   transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
 })

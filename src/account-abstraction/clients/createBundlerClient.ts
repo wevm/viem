@@ -66,12 +66,17 @@ export type CreateBundlerClientErrorType = CreateClientErrorType | ErrorType
  * @returns A Bundler Client. {@link BundlerClient}
  *
  * @example
- * import { createBundlerClient, http } from 'viem'
+ * import { createBundlerClient, createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
  *
- * const client = createBundlerClient({
+ * const client = createPublicClient({
  *   chain: mainnet,
- *   transport: http(window.ethereum),
+ *   transport: http(),
+ * })
+ *
+ * const bundlerClient = createBundlerClient({
+ *   client,
+ *   transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
  * })
  */
 export function createBundlerClient<

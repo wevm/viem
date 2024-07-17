@@ -20,6 +20,7 @@ test('default', async () => {
 
   expect({
     ...account,
+    client: null,
     _internal: null,
     abi: null,
     factory: null,
@@ -27,7 +28,8 @@ test('default', async () => {
     {
       "_internal": null,
       "abi": null,
-      "address": "0x0000000000000000000000000000000000000000",
+      "address": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+      "client": null,
       "encodeCalls": [Function],
       "entryPoint": {
         "abi": [

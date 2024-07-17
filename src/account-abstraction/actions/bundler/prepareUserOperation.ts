@@ -271,12 +271,13 @@ export async function prepareUserOperation<
         return request
 
       try {
+        const client_ = 'client' in client ? (client.client as Client) : client
         const fees = await getAction(
-          'client' in client ? (client.client as Client) : client,
+          client_,
           estimateFeesPerGas,
           'estimateFeesPerGas',
         )({
-          chain: client.chain,
+          chain: client_.chain,
           type: 'eip1559',
         })
         return {
