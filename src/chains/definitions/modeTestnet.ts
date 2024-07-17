@@ -6,9 +6,8 @@ const sourceId = 11_155_111 // sepolia
 export const modeTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 919,
-  network: 'mode-testnet',
   name: 'Mode Testnet',
-  nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://sepolia.mode.network'],
