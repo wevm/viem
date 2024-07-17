@@ -29,10 +29,10 @@ A Smart Account needs access to the Network to query for information about its s
 
 ```ts twoslash
 // @noErrors
-import { createWalletClient, http } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createWalletClient({
+const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
@@ -43,11 +43,11 @@ const client = createWalletClient({
 Next, we will need to set up a Bundler Client. A Bundler is required to submit User Operations to the Blockchain for the Smart Account.
 
 ```ts twoslash
-import { createWalletClient, http } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { createBundlerClient } from 'viem/account-abstraction' // [!code focus]
 import { mainnet } from 'viem/chains'
 
-const client = createWalletClient({
+const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
@@ -65,12 +65,12 @@ We will also need to set up an Owner for the Smart Account which will be used to
 
 ```ts twoslash 
 // @noErrors
-import { createWalletClient, http } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { createBundlerClient } from 'viem/account-abstraction'
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' // [!code focus]
 
-const client = createWalletClient({
+const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
@@ -90,7 +90,7 @@ Next, we will instantiate a Smart Account. For this example, we will use [`toCoi
 
 ```ts twoslash
 // @noErrors
-import { createWalletClient, http } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { // [!code focus]
   createBundlerClient, // [!code focus]
   toCoinbaseSmartAccount // [!code focus]
@@ -98,7 +98,7 @@ import { // [!code focus]
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const client = createWalletClient({
+const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
@@ -129,7 +129,7 @@ import {
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' 
 
-const client = createWalletClient({
+const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
@@ -162,12 +162,12 @@ If you do not wish to pass an account around to every Action that requires an `a
 
 ```ts twoslash 
 // @noErrors
-import { createWalletClient, http, parseEther } from 'viem'
+import { createPublicClient, http, parseEther } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' 
 
-const client = createWalletClient({
+const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })

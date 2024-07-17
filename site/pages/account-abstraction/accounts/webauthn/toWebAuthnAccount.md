@@ -11,7 +11,10 @@ import { toWebAuthnAccount } from 'viem/account-abstraction'
 ## Usage
 
 ```ts twoslash
-import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
+import { 
+  createWebAuthnCredential, 
+  toWebAuthnAccount 
+} from 'viem/account-abstraction'
 
 // Register a credential (ie. passkey).
 const credential = await createWebAuthnCredential({

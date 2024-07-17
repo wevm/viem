@@ -11,16 +11,41 @@ WebAuthn Accounts are commonly used for **[Smart Account](/account-abstraction/a
 
 ## Usage
 
-```ts twoslash
-import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
+:::code-group
 
-// Register a credential (ie. passkey).
+```ts twoslash [example.ts]
+import { 
+  createWebAuthnCredential, 
+  toWebAuthnAccount,
+  toCoinbaseSmartAccount 
+} from 'viem/account-abstraction'
+import { client } from './client'
+
+// 1. Register a credential (ie. passkey).
 const credential = await createWebAuthnCredential({
   name: 'Example',
 })
 
-// Create a WebAuthn account from the credential.
-const account = toWebAuthnAccount({
+// 2. Create a WebAuthn owner account from the credential.
+const owner = toWebAuthnAccount({
   credential,
 })
+
+// 3. Hook up the owner to a WebAuthn-compatible Smart Account.
+const account = toCoinbaseSmartAccount({
+  client,
+  owners: [owner],
+})
 ```
+
+```ts twoslash [client.ts] filename="client.ts"
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::

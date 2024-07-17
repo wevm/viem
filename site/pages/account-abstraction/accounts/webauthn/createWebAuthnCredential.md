@@ -15,7 +15,10 @@ import { createWebAuthnCredential } from 'viem/account-abstraction'
 ## Usage
 
 ```ts twoslash
-import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
+import { 
+  createWebAuthnCredential, 
+  toWebAuthnAccount 
+} from 'viem/account-abstraction'
 
 // Register a credential (ie. passkey). // [!code focus]
 const credential = await createWebAuthnCredential({ // [!code focus]
@@ -45,7 +48,6 @@ An `ArrayBuffer`, `TypedArray`, or `DataView` used as a cryptographic challenge.
 ```ts twoslash
 import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
 // ---cut---
-
 const credential = await createWebAuthnCredential({
   challenge: new Uint8Array([1, 2, 3]), // [!code focus]
   name: 'Example',
