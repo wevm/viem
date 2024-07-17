@@ -1,6 +1,5 @@
 import type { Address } from 'abitype'
 import { BaseError } from '../../../errors/base.js'
-import { ExecutionRevertedError } from '../../../errors/bundler.js'
 import {
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
@@ -12,6 +11,7 @@ import type { Hex } from '../../../types/misc.js'
 import type { OneOf } from '../../../types/utils.js'
 import { decodeErrorResult } from '../../../utils/abi/decodeErrorResult.js'
 import type { GetContractErrorReturnType } from '../../../utils/errors/getContractError.js'
+import { ExecutionRevertedError } from '../../errors/bundler.js'
 import {
   UserOperationExecutionError,
   type UserOperationExecutionErrorType,

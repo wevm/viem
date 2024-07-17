@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
-import type { Hex } from '../types/misc.js'
-import { BaseError } from './base.js'
+import { BaseError } from '../../errors/base.js'
+import type { Hex } from '../../types/misc.js'
 
 export type AccountNotDeployedErrorType = AccountNotDeployedError & {
   name: 'AccountNotDeployedError'

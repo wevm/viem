@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { BaseError } from './base.js'
+import { BaseError } from '../../errors/base.js'
 import {
   AccountNotDeployedError,
   FailedToSendToBeneficiaryError,

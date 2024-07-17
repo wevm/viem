@@ -1,4 +1,5 @@
 import type { BaseError } from '../../../errors/base.js'
+import type { ExactPartial } from '../../../types/utils.js'
 import {
   AccountNotDeployedError,
   type AccountNotDeployedErrorType,
@@ -72,8 +73,7 @@ import {
   type VerificationGasLimitExceededErrorType,
   VerificationGasLimitTooLowError,
   type VerificationGasLimitTooLowErrorType,
-} from '../../../errors/bundler.js'
-import type { ExactPartial } from '../../../types/utils.js'
+} from '../../errors/bundler.js'
 import type { UserOperation } from '../../types/userOperation.js'
 
 const bundlerErrors = [
