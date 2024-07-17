@@ -1,21 +1,19 @@
 # Coinbase
 
-The `coinbase` Implementation references the [Coinbase Smart Wallet](https://github.com/coinbase/smart-wallet) contract implementation. 
+The `toCoinbaseSmartAccount` implementation references the [Coinbase Smart Wallet](https://github.com/coinbase/smart-wallet) contract. 
 
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toSmartAccount, coinbase } from 'viem/account-abstraction' // [!code focus]
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction' // [!code focus]
 import { client } from './client.js'
 import { owner } from './owner.js'
 
-const account = await toSmartAccount({
+const account = await toCoinbaseSmartAccount({
   client,
-  implementation: coinbase({ // [!code focus]
-    owners: [owner], // [!code focus]
-  }), // [!code focus]
+  owners: [owner], // [!code focus]
 })
 ```
 
@@ -51,6 +49,29 @@ export const owner = toWebAuthnAccount({ credential })
 
 ## Parameters
 
+### client
+
+- **Type:** `Client`
+
+Client used to retrieve Smart Account data.
+
+```ts
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
+import { owner } from './config.js'
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = createPublicClient({ // [!code focus]
+  chain: mainnet, // [!code focus]
+  transport: http(), // [!code focus]
+}) // [!code focus]
+
+const account = await toCoinbaseSmartAccount({
+  client, // [!code focus]
+  owners: [owner],
+})
+```
+
 ### owners
 
 - **Type:** `(LocalAccount | WebAuthnAccount)[]`
@@ -58,11 +79,9 @@ export const owner = toWebAuthnAccount({ credential })
 Owners of the Smart Account. Can be a [Local Account](/docs/accounts/local) or a [WebAuthn Account (Passkey)](/account-abstraction/accounts/webauthn).
 
 ```ts twoslash
-const account = await toSmartAccount({
+const account = await toCoinbaseSmartAccount({
   client,
-  implementation: coinbase({
-    owners: [privateKeyToAccount('0x...')], // [!code focus]
-  }),
+  owners: [privateKeyToAccount('0x...')], // [!code focus]
 })
 ```
 
@@ -73,11 +92,9 @@ const account = await toSmartAccount({
 Nonce to use for the Smart Account.
 
 ```ts
-const account = await toSmartAccount({
+const account = await toCoinbaseSmartAccount({
   client,
-  implementation: coinbase({
-    owners: [owner],
-    nonce: 1n, // [!code focus]
-  }),
+  owners: [owner],
+  nonce: 1n, // [!code focus]
 })
 ```

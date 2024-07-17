@@ -14,7 +14,6 @@ import type { GetTransactionType } from '../utils/transaction/getTransactionType
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
 export type Account<address extends Address = Address> = OneOf<
-  // TODO(aa): remove smart account?
   JsonRpcAccount<address> | LocalAccount<string, address> | SmartAccount
 >
 

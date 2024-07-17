@@ -4,7 +4,7 @@ description: Creates a Smart Account with a provided Account Implementation.
 
 # toSmartAccount
 
-Creates a Smart Account with a provided Account [Implementation](/account-abstraction/accounts/smart/toSmartAccount#implementation) and [Client](/docs/clients/public).
+Creates a Smart Account with a provided Account Implementation.
 
 ## Import
 
@@ -14,9 +14,7 @@ import { toSmartAccount } from 'viem/account-abstraction'
 
 ## Usage
 
-To instantiate a Smart Account, you will need to provide an Account [Implementation](/account-abstraction/accounts/smart/toSmartAccount#implementation) as well as a [Client](/docs/clients/public). 
-
-For the example below, we will use the [`coinbase` Implementation](/account-abstraction/accounts/smart/coinbase) (Coinbase Smart Wallet).
+To instantiate a Smart Account, you will need to provide an Account Implementation. 
 
 :::code-group
 
@@ -25,10 +23,41 @@ import { coinbase, toSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config.js'
 
 const account = await toSmartAccount({
+  abi: [/* ... */],
   client,
-  implementation: coinbase({
-    owners: [owner],
-  }),
+  entryPoint: {
+    abi: [/* ... */],
+    address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+    version: '0.7',
+  },
+  factory: {
+    abi: [/* ... */],
+    address: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
+  },
+  async encodeCalls(calls) {
+    // Encode calls as defined by the Smart Account contract.
+  },
+  async getAddress() {
+    // Get the address of the Smart Account.
+  },
+  async getFactoryArgs() {
+    // Build the Factory properties for the Smart Account.
+  },
+  async getNonce() {
+    // Get the nonce of the Smart Account.
+  },
+  async getSignature(packedUserOperation) {
+    // Get the signature of the Smart Account.
+  },
+  async signMessage(message) {
+    // Sign message to be verified by the Smart Account contract.
+  },
+  async signTypedData(typedData) {
+    // Sign typed data to be verified by the Smart Account contract.
+  },
+  async signUserOperation(userOperation) {
+    // Sign a User Operation to be broadcasted via the Bundler.
+  },
 })
 ```
 
@@ -52,63 +81,3 @@ export const client = createPublicClient({
 `SmartAccount`
 
 The Smart Account.
-
-## Parameters
-
-### address
-
-- **Type:** `Address`
-
-Address of the Smart Account.
-
-```ts
-const account = await toSmartAccount({
-  address: '0x0000000000000000000000000000000000000000', // [!code focus]
-  client,
-  implementation: coinbase({
-    owners: [owner],
-  }),
-})
-```
-
-### client
-
-- **Type:** `Client`
-
-Client used to retrieve Smart Account data, and perform signing (if owner is a [JSON-RPC Account](/docs/accounts/jsonRpc)).
-
-```ts
-import { coinbase, toSmartAccount } from 'viem/account-abstraction'
-import { owner } from './config.js'
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-// ---cut---
-const client = createPublicClient({ // [!code focus]
-  chain: mainnet, // [!code focus]
-  transport: http(), // [!code focus]
-}) // [!code focus]
-
-const account = await toSmartAccount({
-  address: '0x0000000000000000000000000000000000000000',
-  client, // [!code focus]
-  implementation: coinbase({
-    owners: [owner],
-  }),
-})
-```
-
-### implementation
-
-- **Type:** `SmartAccountImplementation`
-
-Implementation of the Smart Account.
-
-```ts
-const account = await toSmartAccount({
-  address: '0x0000000000000000000000000000000000000000',
-  client,
-  implementation: coinbase({ // [!code focus]
-    owners: [owner], // [!code focus]
-  }), // [!code focus]
-})
-```

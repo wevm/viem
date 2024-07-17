@@ -45,16 +45,14 @@ const client = createPublicClient({
   transport: http()
 })
 // ---cut---
-import { coinbase, toSmartAccount } from 'viem/account-abstraction' // [!code focus]
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction' // [!code focus]
 import { privateKeyToAccount } from 'viem/accounts'
 
 const owner = privateKeyToAccount('0x...')
 
-const account = await toSmartAccount({ // [!code focus]
+const account = await toCoinbaseSmartAccount({ // [!code focus]
   client, // [!code focus]
-  implementation: coinbase({ // [!code focus]
-    owners: [owner] // [!code focus]
-  }) // [!code focus]
+  owners: [owner] // [!code focus]
 }) // [!code focus]
 
 const bundlerClient = createBundlerClient({

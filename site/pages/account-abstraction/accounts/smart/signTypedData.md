@@ -9,16 +9,13 @@ Uses the Smart Account's **Owner** to sign the message.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config.js'
 import { domain, types } from './data.js'
 
-const account = await toSmartAccount({
+const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
-    owner,
-  }),
+  owners: [owner],
 })
 
 const signature = await account.signTypedData({ // [!code focus]

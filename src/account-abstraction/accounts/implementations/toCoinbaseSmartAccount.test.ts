@@ -14,9 +14,12 @@ import { keccak256, pad, parseEther } from '../../../utils/index.js'
 import { estimateUserOperationGas } from '../../actions/bundler/estimateUserOperationGas.js'
 import { prepareUserOperation } from '../../actions/bundler/prepareUserOperation.js'
 import { sendUserOperation } from '../../actions/bundler/sendUserOperation.js'
-import { toSmartAccount } from '../toSmartAccount.js'
 import { toWebAuthnAccount } from '../toWebAuthnAccount.js'
-import { coinbase, sign, wrapSignature } from './coinbase.js'
+import {
+  sign,
+  toCoinbaseSmartAccount,
+  wrapSignature,
+} from './toCoinbaseSmartAccount.js'
 
 const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient({ client })
@@ -25,17 +28,18 @@ const owner = privateKeyToAccount(accounts[0].privateKey)
 
 describe('return value: encodeCalls', () => {
   test('single', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const callData_1 = await implementation.encodeCalls([
+    const callData_1 = await account.encodeCalls([
       { to: '0x0000000000000000000000000000000000000000' },
     ])
-    const callData_2 = await implementation.encodeCalls([
+    const callData_2 = await account.encodeCalls([
       { to: '0x0000000000000000000000000000000000000000', value: 69n },
     ])
-    const callData_3 = await implementation.encodeCalls([
+    const callData_3 = await account.encodeCalls([
       {
         to: '0x0000000000000000000000000000000000000000',
         value: 69n,
@@ -55,11 +59,12 @@ describe('return value: encodeCalls', () => {
   })
 
   test('batch', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const callData = await implementation.encodeCalls([
+    const callData = await account.encodeCalls([
       { to: '0x0000000000000000000000000000000000000000' },
       { to: '0x0000000000000000000000000000000000000000', value: 69n },
       {
@@ -77,49 +82,51 @@ describe('return value: encodeCalls', () => {
 
 describe('return value: getAddress', () => {
   test('default', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const address = await implementation.getAddress()
+    const address = await account.getAddress()
     expect(address).toMatchInlineSnapshot(
       `"0xBb0c1d5E7f530e8e648150fc7Cf30912575523E8"`,
     )
 
-    const implementation_2 = coinbase({
+    const implementation_2 = await toCoinbaseSmartAccount({
+      client,
       owners: [privateKeyToAccount(accounts[1].privateKey)],
-    })({ client })
+    })
 
     const address_2 = await implementation_2.getAddress()
     expect(address_2).toMatchInlineSnapshot(
       `"0xA15C25E1d03280C19634954A38D380C076fcafa7"`,
     )
 
-    const implementation_3 = coinbase({
+    const implementation_3 = await toCoinbaseSmartAccount({
+      client,
       owners: [owner, privateKeyToAccount(accounts[1].privateKey)],
-    })({ client })
+    })
 
     const address_3 = await implementation_3.getAddress()
     expect(address_3).toMatchInlineSnapshot(
       `"0xCf6498bcc4E30fC6e9674b156995729E0CfC62d4"`,
     )
 
-    const implementation_4 = coinbase({
+    const implementation_4 = await toCoinbaseSmartAccount({
+      client,
       owners: [owner, privateKeyToAccount(accounts[1].privateKey)],
       nonce: 1n,
-    })({ client })
+    })
 
     const address_4 = await implementation_4.getAddress()
     expect(address_4).toMatchInlineSnapshot(
       `"0x64467188b574493d5C29a3e624115eFD67B83ee1"`,
     )
 
-    const implementation_5 = toSmartAccount({
+    const implementation_5 = await toCoinbaseSmartAccount({
       address: '0xBb0c1d5E7f530e8e648150fc7Cf30912575523E8',
       client,
-      implementation: coinbase({
-        owners: [owner],
-      }),
+      owners: [owner],
     })
 
     const address_5 = (await implementation_5).address
@@ -131,11 +138,12 @@ describe('return value: getAddress', () => {
 
 describe('return value: getFactoryArgs', () => {
   test('default', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const signature = await implementation.getFactoryArgs()
+    const signature = await account.getFactoryArgs()
     expect(signature).toMatchInlineSnapshot(
       `
       {
@@ -149,11 +157,12 @@ describe('return value: getFactoryArgs', () => {
 
 describe('return value: getStubSignature', () => {
   test('default: private key', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const signature = await implementation.getStubSignature()
+    const signature = await account.getStubSignature()
     expect(signature).toMatchInlineSnapshot(
       `"0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000041fffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c00000000000000000000000000000000000000000000000000000000000000"`,
     )
@@ -164,11 +173,12 @@ describe('return value: getStubSignature', () => {
       credential: { id: 'abc', publicKey: '0xdeadbeef' },
     })
 
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const signature = await implementation.getStubSignature()
+    const signature = await account.getStubSignature()
     expect(signature).toMatchInlineSnapshot(
       `"0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000170000000000000000000000000000000000000000000000000000000000000001949fc7c88032b9fcb5f6efc7a7b8c63668eae9871b765e23123bb473ff57aa831a7c0d9276168ebcc29f2875a0239cffdf2a9cd1c2007c5c77c071db9264df1d000000000000000000000000000000000000000000000000000000000000002549960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008a7b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2273496a396e6164474850596759334b7156384f7a4a666c726275504b474f716d59576f4d57516869467773222c226f726967696e223a2268747470733a2f2f7369676e2e636f696e626173652e636f6d222c2263726f73734f726967696e223a66616c73657d00000000000000000000000000000000000000000000"`,
     )
@@ -177,22 +187,24 @@ describe('return value: getStubSignature', () => {
 
 describe('return value: getNonce', () => {
   test('default', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const nonce = await implementation.getNonce()
+    const nonce = await account.getNonce()
     expect(nonce).toMatchInlineSnapshot('0n')
   })
 })
 
 describe('return value: prepareUserOperation', () => {
   test('default: private key', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const request = await implementation.prepareUserOperation!({
+    const request = await account.prepareUserOperation!({
       callData: '0xdeadbeef',
     })
     expect(request).toMatchInlineSnapshot(
@@ -209,11 +221,12 @@ describe('return value: prepareUserOperation', () => {
       credential: { id: 'abc', publicKey: '0xdeadbeef' },
     })
 
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const request = await implementation.prepareUserOperation!({
+    const request = await account.prepareUserOperation!({
       callData: '0xdeadbeef',
     })
     expect(request).toMatchInlineSnapshot(
@@ -229,13 +242,14 @@ describe('return value: prepareUserOperation', () => {
 
 describe('return value: signMessage', () => {
   test('default', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
       nonce: 70n,
-    })({ client })
+    })
 
     await writeContract(client, {
-      ...implementation.factory,
+      ...account.factory,
       functionName: 'createAccount',
       args: [[pad(owner.address)], 70n],
     })
@@ -243,12 +257,12 @@ describe('return value: signMessage', () => {
       blocks: 1,
     })
 
-    const signature = await implementation.signMessage({
+    const signature = await account.signMessage({
       message: 'hello world',
     })
 
     const result = await verifyMessage(client, {
-      address: await implementation.getAddress(),
+      address: await account.getAddress(),
       message: 'hello world',
       signature,
     })
@@ -257,12 +271,10 @@ describe('return value: signMessage', () => {
   })
 
   test('counterfactual', async () => {
-    const account = await toSmartAccount({
+    const account = await toCoinbaseSmartAccount({
       client,
-      implementation: coinbase({
-        owners: [owner],
-        nonce: 141241n,
-      }),
+      owners: [owner],
+      nonce: 141241n,
     })
 
     const signature = await account.signMessage({
@@ -281,13 +293,14 @@ describe('return value: signMessage', () => {
 
 describe('return value: signTypedData', () => {
   test('default', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
       nonce: 515151n,
-    })({ client })
+    })
 
     await writeContract(client, {
-      ...implementation.factory,
+      ...account.factory,
       functionName: 'createAccount',
       args: [[pad(owner.address)], 515151n],
     })
@@ -295,13 +308,13 @@ describe('return value: signTypedData', () => {
       blocks: 1,
     })
 
-    const signature = await implementation.signTypedData({
+    const signature = await account.signTypedData({
       ...typedData.basic,
       primaryType: 'Mail',
     })
 
     const result = await verifyTypedData(client, {
-      address: await implementation.getAddress(),
+      address: await account.getAddress(),
       signature,
       ...typedData.basic,
       primaryType: 'Mail',
@@ -310,12 +323,10 @@ describe('return value: signTypedData', () => {
   })
 
   test('counterfactual', async () => {
-    const account = await toSmartAccount({
+    const account = await toCoinbaseSmartAccount({
       client,
-      implementation: coinbase({
-        owners: [owner],
-        nonce: 112312n,
-      }),
+      owners: [owner],
+      nonce: 112312n,
     })
 
     const signature = await account.signTypedData({
@@ -335,11 +346,12 @@ describe('return value: signTypedData', () => {
 
 describe('return value: signUserOperation', () => {
   test('default', async () => {
-    const implementation = coinbase({
+    const account = await toCoinbaseSmartAccount({
+      client,
       owners: [owner],
-    })({ client })
+    })
 
-    const signature = await implementation.signUserOperation({
+    const signature = await account.signUserOperation({
       callData: '0xdeadbeef',
       callGasLimit: 69n,
       maxFeePerGas: 69n,
@@ -443,11 +455,9 @@ describe('wrapSignature', () => {
 })
 
 describe('smoke', async () => {
-  const account = await toSmartAccount({
+  const account = await toCoinbaseSmartAccount({
     client,
-    implementation: coinbase({
-      owners: [owner],
-    }),
+    owners: [owner],
   })
 
   await sendTransaction(client, {

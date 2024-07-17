@@ -12,8 +12,7 @@ import {
   writeContract,
 } from '../../../actions/index.js'
 import { pad } from '../../../utils/data/pad.js'
-import { toSmartAccount } from '../toSmartAccount.js'
-import { solady } from './solady.js'
+import { toSoladySmartAccount } from './toSoladySmartAccount.js'
 
 const client = anvilMainnet.getClient({ account: true })
 
@@ -24,20 +23,24 @@ beforeAll(async () => {
 })
 
 test('default', async () => {
-  const implementation = solady({
+  const account = await toSoladySmartAccount({
+    client,
     factoryAddress,
     owner: accounts[1].address,
-  })({ client })
+  })
 
   expect({
-    ...implementation,
+    ...account,
     _internal: null,
     abi: null,
+    client: null,
     factory: null,
   }).toMatchInlineSnapshot(`
     {
       "_internal": null,
       "abi": null,
+      "address": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+      "client": null,
       "encodeCalls": [Function],
       "entryPoint": {
         "abi": [
@@ -1044,25 +1047,29 @@ test('default', async () => {
       "getFactoryArgs": [Function],
       "getNonce": [Function],
       "getStubSignature": [Function],
+      "isDeployed": [Function],
       "signMessage": [Function],
       "signTypedData": [Function],
       "signUserOperation": [Function],
+      "type": "smart",
     }
   `)
 })
 
 test('args: salt', async () => {
-  const account_1 = solady({
+  const account_1 = await toSoladySmartAccount({
+    client,
     factoryAddress,
     salt: '0x1',
     owner: accounts[1].address,
-  })({ client })
+  })
 
-  const account_2 = solady({
+  const account_2 = await toSoladySmartAccount({
+    client,
     factoryAddress,
     salt: '0x2',
     owner: accounts[1].address,
-  })({ client })
+  })
 
   expect(await account_1.getAddress()).toMatchInlineSnapshot(
     `"0x0b3D649C00208AFB6A40b4A7e918b84A52D783B8"`,
@@ -1074,12 +1081,13 @@ test('args: salt', async () => {
 
 describe('return value: entryPoint', () => {
   test('default', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: accounts[1].address,
-    })({ client })
+    })
 
-    expect(implementation.entryPoint).toMatchInlineSnapshot(
+    expect(account.entryPoint).toMatchInlineSnapshot(
       `
       {
         "abi": [
@@ -2088,12 +2096,13 @@ describe('return value: entryPoint', () => {
 
 describe('return value: getAddress', () => {
   test('default', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: accounts[1].address,
-    })({ client })
+    })
 
-    const address = await implementation.getAddress()
+    const address = await account.getAddress()
     expect(address).toMatchInlineSnapshot(
       `"0xE911628bF8428C23f179a07b081325cAe376DE1f"`,
     )
@@ -2102,18 +2111,19 @@ describe('return value: getAddress', () => {
 
 describe('return value: encodeCalls', () => {
   test('single', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: accounts[1].address,
-    })({ client })
+    })
 
-    const callData_1 = await implementation.encodeCalls([
+    const callData_1 = await account.encodeCalls([
       { to: '0x0000000000000000000000000000000000000000' },
     ])
-    const callData_2 = await implementation.encodeCalls([
+    const callData_2 = await account.encodeCalls([
       { to: '0x0000000000000000000000000000000000000000', value: 69n },
     ])
-    const callData_3 = await implementation.encodeCalls([
+    const callData_3 = await account.encodeCalls([
       {
         to: '0x0000000000000000000000000000000000000000',
         value: 69n,
@@ -2133,12 +2143,13 @@ describe('return value: encodeCalls', () => {
   })
 
   test('batch', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: accounts[1].address,
-    })({ client })
+    })
 
-    const callData = await implementation.encodeCalls([
+    const callData = await account.encodeCalls([
       { to: '0x0000000000000000000000000000000000000000' },
       { to: '0x0000000000000000000000000000000000000000', value: 69n },
       {
@@ -2156,12 +2167,13 @@ describe('return value: encodeCalls', () => {
 
 describe('return value: getFactoryArgs', () => {
   test('default', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: accounts[1].address,
-    })({ client })
+    })
 
-    const signature = await implementation.getFactoryArgs()
+    const signature = await account.getFactoryArgs()
     expect(signature).toMatchInlineSnapshot(
       `
       {
@@ -2175,12 +2187,13 @@ describe('return value: getFactoryArgs', () => {
 
 describe('return value: getSignature', () => {
   test('default', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: accounts[1].address,
-    })({ client })
+    })
 
-    const signature = await implementation.getStubSignature()
+    const signature = await account.getStubSignature()
     expect(signature).toMatchInlineSnapshot(
       `"0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c"`,
     )
@@ -2189,25 +2202,27 @@ describe('return value: getSignature', () => {
 
 describe('return value: getNonce', () => {
   test('default', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: accounts[1].address,
-    })({ client })
+    })
 
-    const nonce = await implementation.getNonce()
+    const nonce = await account.getNonce()
     expect(nonce).toMatchInlineSnapshot('0n')
   })
 })
 
 describe('return value: signMessage', () => {
   test('default', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: accounts[1].address,
-    })({ client })
+    })
 
     await writeContract(client, {
-      ...implementation.factory,
+      ...account.factory,
       functionName: 'createAccount',
       args: [accounts[1].address, pad('0x0')],
     })
@@ -2215,12 +2230,12 @@ describe('return value: signMessage', () => {
       blocks: 1,
     })
 
-    const signature = await implementation.signMessage({
+    const signature = await account.signMessage({
       message: 'hello world',
     })
 
     const result = await verifyMessage(client, {
-      address: await implementation.getAddress(),
+      address: await account.getAddress(),
       message: 'hello world',
       signature,
     })
@@ -2229,13 +2244,11 @@ describe('return value: signMessage', () => {
   })
 
   test('counterfactual', async () => {
-    const account = await toSmartAccount({
+    const account = await toSoladySmartAccount({
       client,
-      implementation: solady({
-        factoryAddress,
-        owner: accounts[9].address,
-        salt: '0x9',
-      }),
+      factoryAddress,
+      owner: accounts[9].address,
+      salt: '0x9',
     })
 
     const signature = await account.signMessage({
@@ -2254,13 +2267,14 @@ describe('return value: signMessage', () => {
 
 describe('return value: signTypedData', () => {
   test('default', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: privateKeyToAccount(accounts[1].privateKey),
-    })({ client })
+    })
 
     await writeContract(client, {
-      ...implementation.factory,
+      ...account.factory,
       functionName: 'createAccount',
       args: [accounts[1].address, pad('0x0')],
     })
@@ -2268,13 +2282,13 @@ describe('return value: signTypedData', () => {
       blocks: 1,
     })
 
-    const signature = await implementation.signTypedData({
+    const signature = await account.signTypedData({
       ...typedData.basic,
       primaryType: 'Mail',
     })
 
     const result = await verifyTypedData(client, {
-      address: await implementation.getAddress(),
+      address: await account.getAddress(),
       signature,
       ...typedData.basic,
       primaryType: 'Mail',
@@ -2283,13 +2297,11 @@ describe('return value: signTypedData', () => {
   })
 
   test('counterfactual', async () => {
-    const account = await toSmartAccount({
+    const account = await toSoladySmartAccount({
       client,
-      implementation: solady({
-        factoryAddress,
-        owner: accounts[9].address,
-        salt: '0x9',
-      }),
+      factoryAddress,
+      owner: accounts[9].address,
+      salt: '0x9',
     })
 
     const signature = await account.signTypedData({
@@ -2309,12 +2321,13 @@ describe('return value: signTypedData', () => {
 
 describe('return value: signUserOperation', () => {
   test('default', async () => {
-    const implementation = solady({
+    const account = await toSoladySmartAccount({
+      client,
       factoryAddress,
       owner: accounts[1].address,
-    })({ client })
+    })
 
-    const signature = await implementation.signUserOperation({
+    const signature = await account.signUserOperation({
       callData: '0xdeadbeef',
       callGasLimit: 69n,
       maxFeePerGas: 69n,

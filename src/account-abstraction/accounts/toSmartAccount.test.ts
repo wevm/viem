@@ -5,21 +5,17 @@ import { accounts } from '../../../test/src/constants.js'
 import { deploySoladyAccount_07 } from '../../../test/src/utils.js'
 import { mine, writeContract } from '../../actions/index.js'
 import { pad } from '../../utils/index.js'
-import { solady } from './implementations/solady.js'
-import { toSmartAccount } from './toSmartAccount.js'
+import { toSoladySmartAccount } from './implementations/toSoladySmartAccount.js'
 
 const client = anvilMainnet.getClient({ account: true })
 
 test('default', async () => {
   const { factoryAddress } = await deploySoladyAccount_07()
 
-  const account = await toSmartAccount({
-    address: '0x0000000000000000000000000000000000000000',
+  const account = await toSoladySmartAccount({
     client,
-    implementation: solady({
-      factoryAddress,
-      owner: accounts[1].address,
-    }),
+    factoryAddress,
+    owner: accounts[1].address,
   })
 
   expect({
@@ -1050,12 +1046,10 @@ test('default', async () => {
 test('return value: `isDeployed`', async () => {
   const { factoryAddress } = await deploySoladyAccount_07()
 
-  const account = await toSmartAccount({
+  const account = await toSoladySmartAccount({
     client,
-    implementation: solady({
-      factoryAddress,
-      owner: accounts[1].address,
-    }),
+    factoryAddress,
+    owner: accounts[1].address,
   })
   expect(await account.isDeployed()).toBe(false)
 
@@ -1075,12 +1069,10 @@ test('return value: `isDeployed`', async () => {
 test('return value: `getFactoryArgs`', async () => {
   const { factoryAddress } = await deploySoladyAccount_07()
 
-  const account = await toSmartAccount({
+  const account = await toSoladySmartAccount({
     client,
-    implementation: solady({
-      factoryAddress,
-      owner: accounts[1].address,
-    }),
+    factoryAddress,
+    owner: accounts[1].address,
   })
 
   expect(await account.getFactoryArgs()).toMatchInlineSnapshot(`

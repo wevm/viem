@@ -6,22 +6,15 @@ export {
   createWebAuthnCredential,
 } from './accounts/createWebAuthnCredential.js'
 export {
-  type SmartAccountImplementation,
-  type SmartAccountImplementationFn,
-  defineImplementation,
-} from './accounts/implementations/defineImplementation.js'
+  type ToCoinbaseSmartAccountParameters,
+  type ToCoinbaseSmartAccountReturnType,
+  toCoinbaseSmartAccount,
+} from './accounts/implementations/toCoinbaseSmartAccount.js'
 export {
-  type CoinbaseImplementation,
-  type CoinbaseImplementationParameters,
-  type CoinbaseImplementationReturnType,
-  coinbase,
-} from './accounts/implementations/coinbase.js'
-export {
-  type SoladyImplementation,
-  type SoladyImplementationParameters,
-  type SoladyImplementationReturnType,
-  solady,
-} from './accounts/implementations/solady.js'
+  type ToSoladySmartAccountParameters,
+  type ToSoladySmartAccountReturnType,
+  toSoladySmartAccount,
+} from './accounts/implementations/toSoladySmartAccount.js'
 export {
   type ToSmartAccountParameters,
   type ToSmartAccountReturnType,

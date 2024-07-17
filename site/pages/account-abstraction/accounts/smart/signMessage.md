@@ -9,15 +9,12 @@ Uses the Smart Account's **Owner** to sign the message.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config.js'
 
 const account = await toSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
-    owner,
-  }),
+  owners: [owner],
 })
 
 const signature = await account.signMessage({ // [!code focus]
@@ -57,15 +54,12 @@ Message to sign.
 By default, viem signs the UTF-8 representation of the message.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config.js'
 
 const account = await toSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signMessage({
@@ -76,15 +70,12 @@ const signature = await account.signMessage({
 To sign the data representation of the message, you can use the `raw` attribute.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config.js'
 
 const account = await toSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signMessage({

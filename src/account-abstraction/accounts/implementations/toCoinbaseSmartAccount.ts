@@ -6,6 +6,7 @@ import {
 
 import type { LocalAccount } from '../../../accounts/types.js'
 import { readContract } from '../../../actions/public/readContract.js'
+import type { Client } from '../../../clients/createClient.js'
 import { entryPoint06Address } from '../../../constants/address.js'
 import type { Hash, Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
@@ -22,197 +23,197 @@ import { parseSignature } from '../../../utils/signature/parseSignature.js'
 import { entryPoint06Abi } from '../../constants/abis.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
-import type { WebAuthnAccount } from '../types.js'
-import {
-  type SmartAccountImplementation,
-  type SmartAccountImplementationFn,
-  defineImplementation,
-} from './defineImplementation.js'
+import { toSmartAccount } from '../toSmartAccount.js'
+import type { SmartAccount, WebAuthnAccount } from '../types.js'
 
-export type CoinbaseImplementation = SmartAccountImplementation<
+export type ToCoinbaseSmartAccountParameters = {
+  address?: Address | undefined
+  client: Client
+  owners: readonly OneOf<LocalAccount | WebAuthnAccount>[]
+  nonce?: bigint | undefined
+}
+
+export type ToCoinbaseSmartAccountReturnType = SmartAccount<
   typeof abi,
   typeof factoryAbi,
   typeof entryPoint06Abi,
   '0.6'
 >
 
-export type CoinbaseImplementationParameters = {
-  owners: readonly OneOf<LocalAccount | WebAuthnAccount>[]
-  nonce?: bigint | undefined
-}
-
-export type CoinbaseImplementationReturnType =
-  SmartAccountImplementationFn<CoinbaseImplementation>
-
 /**
- * @description Smart account implementation for Coinbase Smart Wallet.
+ * @description Create a Coinbase Smart Account.
  *
- * @param parameters - {@link CoinbaseImplementationParameters}
- * @returns Coinbase implementation. {@link CoinbaseImplementationReturnType}
+ * @param parameters - {@link ToCoinbaseSmartAccountParameters}
+ * @returns Coinbase Smart Account. {@link ToCoinbaseSmartAccountReturnType}
  *
  * @example
- * import { coinbase, privateKeyToAccount } from 'viem/accounts'
+ * import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { client } from './client.js'
  *
- * const implementation = coinbase({
+ * const account = toCoinbaseSmartAccount({
+ *   client,
  *   owners: [privateKeyToAccount('0x...')],
  * })
  */
-export function coinbase(
-  parameters: CoinbaseImplementationParameters,
-): CoinbaseImplementationReturnType {
-  return defineImplementation(({ address, client }) => {
-    const { owners, nonce = 0n } = parameters
+export async function toCoinbaseSmartAccount(
+  parameters: ToCoinbaseSmartAccountParameters,
+): Promise<ToCoinbaseSmartAccountReturnType> {
+  const { address, client, owners, nonce = 0n } = parameters
 
-    const owners_bytes = owners.map((owner) =>
-      owner.type === 'webAuthn' ? owner.publicKey : pad(owner.address),
-    )
+  const entryPoint = {
+    abi: entryPoint06Abi,
+    address: entryPoint06Address,
+    version: '0.6',
+  } as const
+  const factory = {
+    abi: factoryAbi,
+    address: '0x0ba5ed0c6aa8c49038f819e587e263c4a9f428a',
+  } as const
 
-    const owner = owners[0]
+  const owners_bytes = owners.map((owner) =>
+    owner.type === 'webAuthn' ? owner.publicKey : pad(owner.address),
+  )
 
-    return {
-      abi,
-      entryPoint: {
-        abi: entryPoint06Abi,
-        address: entryPoint06Address,
-        version: '0.6',
-      },
-      factory: {
-        abi: factoryAbi,
-        address: '0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a',
-      },
+  const owner = owners[0]
 
-      async encodeCalls(calls) {
-        if (calls.length === 1)
-          return encodeFunctionData({
-            abi,
-            functionName: 'execute',
-            args: [calls[0].to, calls[0].value ?? 0n, calls[0].data ?? '0x'],
-          })
+  return toSmartAccount({
+    abi,
+    client,
+    entryPoint,
+    factory,
+
+    async encodeCalls(calls) {
+      if (calls.length === 1)
         return encodeFunctionData({
           abi,
-          functionName: 'executeBatch',
-          args: [
-            calls.map((call) => ({
-              data: call.data ?? '0x',
-              target: call.to,
-              value: call.value ?? 0n,
-            })),
-          ],
+          functionName: 'execute',
+          args: [calls[0].to, calls[0].value ?? 0n, calls[0].data ?? '0x'],
         })
-      },
+      return encodeFunctionData({
+        abi,
+        functionName: 'executeBatch',
+        args: [
+          calls.map((call) => ({
+            data: call.data ?? '0x',
+            target: call.to,
+            value: call.value ?? 0n,
+          })),
+        ],
+      })
+    },
 
-      async getAddress() {
-        if (address) return address
-        return await readContract(client, {
-          ...this.factory,
-          functionName: 'getAddress',
-          args: [owners_bytes, nonce],
-        })
-      },
+    async getAddress() {
+      if (address) return address
+      return await readContract(client, {
+        ...factory,
+        functionName: 'getAddress',
+        args: [owners_bytes, nonce],
+      })
+    },
 
-      async getFactoryArgs() {
-        const factoryData = encodeFunctionData({
-          abi: this.factory.abi,
-          functionName: 'createAccount',
-          args: [owners_bytes, nonce],
-        })
-        return { factory: this.factory.address, factoryData }
-      },
+    async getFactoryArgs() {
+      const factoryData = encodeFunctionData({
+        abi: factory.abi,
+        functionName: 'createAccount',
+        args: [owners_bytes, nonce],
+      })
+      return { factory: factory.address, factoryData }
+    },
 
-      async getNonce() {
-        const address = await this.getAddress()
-        const nonce = await readContract(client, {
-          abi: parseAbi([
-            'function getNonce(address, uint192) pure returns (uint256)',
-          ]),
-          address: this.entryPoint.address,
-          functionName: 'getNonce',
-          args: [address, 0n],
-        })
-        return nonce
-      },
+    async getNonce() {
+      const address = await this.getAddress()
+      const nonce = await readContract(client, {
+        abi: parseAbi([
+          'function getNonce(address, uint192) pure returns (uint256)',
+        ]),
+        address: entryPoint.address,
+        functionName: 'getNonce',
+        args: [address, 0n],
+      })
+      return nonce
+    },
 
-      async getStubSignature() {
-        if (owner.type === 'webAuthn')
-          return '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000170000000000000000000000000000000000000000000000000000000000000001949fc7c88032b9fcb5f6efc7a7b8c63668eae9871b765e23123bb473ff57aa831a7c0d9276168ebcc29f2875a0239cffdf2a9cd1c2007c5c77c071db9264df1d000000000000000000000000000000000000000000000000000000000000002549960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008a7b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2273496a396e6164474850596759334b7156384f7a4a666c726275504b474f716d59576f4d57516869467773222c226f726967696e223a2268747470733a2f2f7369676e2e636f696e626173652e636f6d222c2263726f73734f726967696e223a66616c73657d00000000000000000000000000000000000000000000'
-        return wrapSignature({
-          signature:
-            '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c',
-        })
-      },
+    async getStubSignature() {
+      if (owner.type === 'webAuthn')
+        return '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000170000000000000000000000000000000000000000000000000000000000000001949fc7c88032b9fcb5f6efc7a7b8c63668eae9871b765e23123bb473ff57aa831a7c0d9276168ebcc29f2875a0239cffdf2a9cd1c2007c5c77c071db9264df1d000000000000000000000000000000000000000000000000000000000000002549960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008a7b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2273496a396e6164474850596759334b7156384f7a4a666c726275504b474f716d59576f4d57516869467773222c226f726967696e223a2268747470733a2f2f7369676e2e636f696e626173652e636f6d222c2263726f73734f726967696e223a66616c73657d00000000000000000000000000000000000000000000'
+      return wrapSignature({
+        signature:
+          '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c',
+      })
+    },
 
-      async prepareUserOperation(parameters) {
-        if (owner.type === 'webAuthn')
-          return {
-            ...parameters,
-            verificationGasLimit: BigInt(
-              Math.max(Number(parameters.verificationGasLimit ?? 0n), 800_000),
-            ),
-          }
-        return parameters
-      },
+    async prepareUserOperation(parameters) {
+      if (owner.type === 'webAuthn')
+        return {
+          ...parameters,
+          verificationGasLimit: BigInt(
+            Math.max(Number(parameters.verificationGasLimit ?? 0n), 800_000),
+          ),
+        }
+      return parameters
+    },
 
-      async signMessage(parameters) {
-        const { message } = parameters
-        const address = await this.getAddress()
+    async signMessage(parameters) {
+      const { message } = parameters
+      const address = await this.getAddress()
 
-        const hash = toReplaySafeHash({
-          address,
-          chainId: client.chain!.id,
-          hash: hashMessage(message),
-        })
+      const hash = toReplaySafeHash({
+        address,
+        chainId: client.chain!.id,
+        hash: hashMessage(message),
+      })
 
-        const signature = await sign({ hash, owner })
+      const signature = await sign({ hash, owner })
 
-        return wrapSignature({
-          signature,
-        })
-      },
+      return wrapSignature({
+        signature,
+      })
+    },
 
-      async signTypedData(parameters) {
-        const { domain, types, primaryType, message } =
-          parameters as TypedDataDefinition<TypedData, string>
-        const address = await this.getAddress()
+    async signTypedData(parameters) {
+      const { domain, types, primaryType, message } =
+        parameters as TypedDataDefinition<TypedData, string>
+      const address = await this.getAddress()
 
-        const hash = toReplaySafeHash({
-          address,
-          chainId: client.chain!.id,
-          hash: hashTypedData({
-            domain,
-            message,
-            primaryType,
-            types,
-          }),
-        })
+      const hash = toReplaySafeHash({
+        address,
+        chainId: client.chain!.id,
+        hash: hashTypedData({
+          domain,
+          message,
+          primaryType,
+          types,
+        }),
+      })
 
-        const signature = await sign({ hash, owner })
+      const signature = await sign({ hash, owner })
 
-        return wrapSignature({
-          signature,
-        })
-      },
+      return wrapSignature({
+        signature,
+      })
+    },
 
-      async signUserOperation(parameters) {
-        const { chainId = client.chain!.id, ...userOperation } = parameters
+    async signUserOperation(parameters) {
+      const { chainId = client.chain!.id, ...userOperation } = parameters
 
-        const address = await this.getAddress()
-        const hash = getUserOperationHash({
-          chainId,
-          entryPointAddress: this.entryPoint.address,
-          entryPointVersion: this.entryPoint.version,
-          userOperation: {
-            ...(userOperation as unknown as UserOperation),
-            sender: address,
-          },
-        })
+      const address = await this.getAddress()
+      const hash = getUserOperationHash({
+        chainId,
+        entryPointAddress: entryPoint.address,
+        entryPointVersion: entryPoint.version,
+        userOperation: {
+          ...(userOperation as unknown as UserOperation),
+          sender: address,
+        },
+      })
 
-        const signature = await sign({ hash, owner })
+      const signature = await sign({ hash, owner })
 
-        return wrapSignature({
-          signature,
-        })
-      },
-    }
+      return wrapSignature({
+        signature,
+      })
+    },
   })
 }
 

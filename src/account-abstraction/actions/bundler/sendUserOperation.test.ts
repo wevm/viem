@@ -19,8 +19,7 @@ import { sepolia } from '../../../chains/index.js'
 import { createPublicClient } from '../../../clients/createPublicClient.js'
 import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'
-import { solady } from '../../accounts/implementations/solady.js'
-import { toSmartAccount } from '../../accounts/toSmartAccount.js'
+import { toSoladySmartAccount } from '../../accounts/implementations/toSoladySmartAccount.js'
 import { createBundlerClient } from '../../clients/createBundlerClient.js'
 import { sendUserOperation } from './sendUserOperation.js'
 
@@ -325,12 +324,10 @@ test.skip('e2e', async () => {
     process.env.VITE_ACCOUNT_PRIVATE_KEY! as `0x${string}`,
   )
 
-  const account = await toSmartAccount({
+  const account = await toSoladySmartAccount({
     client,
-    implementation: solady({
-      factoryAddress,
-      owner,
-    }),
+    factoryAddress,
+    owner,
   })
 
   // const hash_send = await sendTransaction(client, {

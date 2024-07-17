@@ -1,6 +1,6 @@
 # toAccount [A function to create a Custom Account.]
 
-A Custom Account is an interface that has the ability to sign transactions and messages with your own custom implementation of the signable methods.
+Creates an Account from a custom signing implementation
 
 ## Import
 
@@ -11,34 +11,30 @@ import { toAccount } from 'viem/accounts'
 ## Usage
 
 ```ts
-import { createWalletClient, http } from 'viem'
-import {  // [!code focus:7]
+import { 
   signMessage, 
   signTransaction, 
   signTypedData, 
   privateKeyToAddress,
   toAccount 
 } from 'viem/accounts'
-import { mainnet } from 'viem/chains'
 
-const privateKey = '0x...' // [!code focus:13]
-const account = toAccount({
+const privateKey = '0x...'
+
+const account = toAccount({ // [!code focus:15]
   address: getAddress(privateKey),
+
   async signMessage({ message }) {
     return signMessage({ message, privateKey })
   },
+
   async signTransaction(transaction, { serializer }) {
     return signTransaction({ privateKey, transaction, serializer })
   },
+
   async signTypedData(typedData) {
     return signTypedData({ ...typedData, privateKey })
   },
-})
-
-const client = createWalletClient({
-  account,
-  chain: mainnet,
-  transport: http()
 })
 ```
 

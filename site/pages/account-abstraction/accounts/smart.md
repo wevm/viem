@@ -86,12 +86,15 @@ const owner = privateKeyToAccount('0x...') // [!code focus]
 
 ### 4. Create a Smart Account
 
-Next, we will instantiate a Smart Account with the [Client](/docs/clients/intro), and an Account [Implementation](/account-abstraction/accounts/smart/toSmartAccount#implementation). For this example, we will use the [`coinbase` Implementation](/account-abstraction/accounts/smart/coinbase) (Coinbase Smart Wallet).
+Next, we will instantiate a Smart Account. For this example, we will use [`toCoinbaseSmartAccount`](/account-abstraction/accounts/smart/toCoinbaseSmartAccount) (Coinbase Smart Wallet).
 
 ```ts twoslash
 // @noErrors
 import { createWalletClient, http } from 'viem'
-import { createBundlerClient, coinbase, toSmartAccount } from 'viem/account-abstraction' // [!code focus]
+import { // [!code focus]
+  createBundlerClient, // [!code focus]
+  toCoinbaseSmartAccount // [!code focus]
+} from 'viem/account-abstraction' // [!code focus]
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -108,11 +111,9 @@ const bundlerClient = createBundlerClient({
 
 const owner = privateKeyToAccount('0x...')
 
-const account = await toSmartAccount({ // [!code focus]
+const account = await toCoinbaseSmartAccount({ // [!code focus]
   client, // [!code focus]
-  implementation: coinbase({ // [!code focus]
-    owners: [owner] // [!code focus]
-  }) // [!code focus]
+  owners: [owner] // [!code focus]
 }) // [!code focus]
 ```
 
@@ -121,7 +122,10 @@ const account = await toSmartAccount({ // [!code focus]
 ```ts twoslash
 // @noErrors
 import { http, parseEther } from 'viem'
-import { createBundlerClient, coinbase, toSmartAccount } from 'viem/account-abstraction'
+import { 
+  createBundlerClient, 
+  toCoinbaseSmartAccount 
+} from 'viem/account-abstraction'
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' 
 
@@ -138,11 +142,9 @@ const bundlerClient = createBundlerClient({
 
 const owner = privateKeyToAccount('0x...')
 
-const account = await toSmartAccount({ 
+const account = await toCoinbaseSmartAccount({ 
   client, 
-  implementation: coinbase({ 
-    owners: [owner]
-  }) 
+  owners: [owner]
 }) 
 
 const hash = await bundlerClient.sendUserOperation({ // [!code focus]
@@ -161,7 +163,7 @@ If you do not wish to pass an account around to every Action that requires an `a
 ```ts twoslash 
 // @noErrors
 import { createWalletClient, http, parseEther } from 'viem'
-import { createBundlerClient, coinbase, toSmartAccount } from 'viem/account-abstraction'
+import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' 
 
@@ -172,11 +174,9 @@ const client = createWalletClient({
 
 const owner = privateKeyToAccount('0x...')
 
-const account = await toSmartAccount({ 
+const account = await toCoinbaseSmartAccount({ 
   client, 
-  implementation: coinbase({ 
-    owners: [owner]
-  }) 
+  owners: [owner]
 }) 
 
 const bundlerClient = createBundlerClient({

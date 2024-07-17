@@ -7,15 +7,12 @@ Signs a User Operation with the Smart Account's **Owner**.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 
 const signature = await account.signUserOperation({ // [!code focus:99]
@@ -64,15 +61,12 @@ The User Operation signature.
 The data to pass to the `sender` during the main execution call.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -98,15 +92,12 @@ const signature = await account.signUserOperation({
 The amount of gas to allocate the main execution call.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -132,15 +123,12 @@ const signature = await account.signUserOperation({
 Account factory. Only for new accounts.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -166,15 +154,12 @@ const signature = await account.signUserOperation({
 Data for account factory.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -200,15 +185,12 @@ const signature = await account.signUserOperation({
 Maximum fee per gas.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -234,15 +216,12 @@ const signature = await account.signUserOperation({
 Maximum priority fee per gas.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -269,15 +248,12 @@ const signature = await account.signUserOperation({
 Anti-replay parameter.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -303,15 +279,12 @@ const signature = await account.signUserOperation({
 Address of paymaster contract.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -339,15 +312,12 @@ const signature = await account.signUserOperation({
 Data for paymaster.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -375,15 +345,12 @@ const signature = await account.signUserOperation({
 The amount of gas to allocate for the paymaster post-operation code.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -411,15 +378,12 @@ const signature = await account.signUserOperation({
 The amount of gas to allocate for the paymaster validation code.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -447,15 +411,12 @@ const signature = await account.signUserOperation({
 Extra gas to pay the bunder.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -483,15 +444,12 @@ const signature = await account.signUserOperation({
 The account making the operation.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -519,15 +477,12 @@ const signature = await account.signUserOperation({
 The amount of gas to allocate for the verification step.
 
 ```ts twoslash
-import { toSmartAccount, solady } from 'viem/account-abstraction'
+import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config'
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner,
-  }),
+  owners: [owner],
 })
 // ---cut---
 const signature = await account.signUserOperation({

@@ -1,5 +1,4 @@
-import { solady } from '../../src/account-abstraction/accounts/implementations/solady.js'
-import { toSmartAccount } from '../../src/account-abstraction/accounts/toSmartAccount.js'
+import { toSoladySmartAccount } from '../../src/account-abstraction/accounts/implementations/toSoladySmartAccount.js'
 import { entryPoint06Abi } from '../../src/account-abstraction/constants/abis.js'
 import { mine, sendTransaction } from '../../src/actions/index.js'
 import { parseEther } from '../../src/index.js'
@@ -26,13 +25,11 @@ export async function getSmartAccounts_07() {
     '0x8',
     '0x9',
   ] as const) {
-    const account = await toSmartAccount({
+    const account = await toSoladySmartAccount({
       client,
-      implementation: solady({
-        factoryAddress,
-        owner: accounts[0].address,
-        salt,
-      }),
+      factoryAddress,
+      owner: accounts[0].address,
+      salt,
     })
     await sendTransaction(client, {
       account: accounts[9].address,
@@ -66,18 +63,16 @@ export async function getSmartAccounts_06() {
     '0x8',
     '0x9',
   ] as const) {
-    const account = await toSmartAccount({
+    const account = await toSoladySmartAccount({
       client,
-      implementation: solady({
-        entryPoint: {
-          abi: entryPoint06Abi,
-          address: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
-          version: '0.6',
-        },
-        factoryAddress,
-        owner: accounts[0].address,
-        salt,
-      }),
+      entryPoint: {
+        abi: entryPoint06Abi,
+        address: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+        version: '0.6',
+      },
+      factoryAddress,
+      owner: accounts[0].address,
+      salt,
     })
     await sendTransaction(client, {
       account: accounts[9].address,

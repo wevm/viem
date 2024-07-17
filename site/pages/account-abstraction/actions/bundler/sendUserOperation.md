@@ -25,7 +25,7 @@ const hash = await bundlerClient.sendUserOperation({ // [!code focus:7]
 
 ```ts [config.ts] filename="config.ts"
 import { createPublicClient, http } from 'viem'
-import { createBundlerClient, toSmartAccount, solady } from 'viem/account-abstraction'
+import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -34,12 +34,9 @@ const client = createPublicClient({
   transport: http()
 })
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner: privateKeyToAccount('0x...'),
-  }),
+  owners: [privateKeyToAccount('0x...')],
 })
 
 export const bundlerClient = createBundlerClient({
@@ -73,7 +70,7 @@ const hash = await bundlerClient.sendUserOperation({ // [!code focus:7]
 
 ```ts [config.ts] filename="config.ts"
 import { createPublicClient, http } from 'viem'
-import { createBundlerClient, toSmartAccount, solady } from 'viem/account-abstraction'
+import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -82,12 +79,9 @@ const client = createPublicClient({
   transport: http()
 })
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner: privateKeyToAccount('0x...'),
-  }),
+  owners: [privateKeyToAccount('0x...')],
 })
 
 export const bundlerClient = createBundlerClient({
@@ -136,7 +130,7 @@ export const wagmiAbi = [
 
 ```ts [config.ts]
 import { createPublicClient, http } from 'viem'
-import { createBundlerClient, toSmartAccount, solady } from 'viem/account-abstraction'
+import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -145,12 +139,9 @@ const client = createPublicClient({
   transport: http()
 })
 
-export const account = await toSmartAccount({
+export const account = await toCoinbaseSmartAccount({
   client,
-  implementation: solady({
-    factoryAddress: '0x...',
-    owner: privateKeyToAccount('0x...'),
-  }),
+  owners: [privateKeyToAccount('0x...')],
 })
 
 export const bundlerClient = createBundlerClient({

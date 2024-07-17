@@ -456,18 +456,18 @@ export const sidebar = {
           link: '/docs/accounts/local',
           items: [
             {
-              text: 'privateKeyToAccount',
+              text: 'Private Key',
               link: '/docs/accounts/local/privateKeyToAccount',
             },
             {
-              text: 'mnemonicToAccount',
+              text: 'Mnemonic',
               link: '/docs/accounts/local/mnemonicToAccount',
             },
             {
-              text: 'hdKeyToAccount',
+              text: 'Hierarchical Deterministic (HD)',
               link: '/docs/accounts/local/hdKeyToAccount',
             },
-            { text: 'toAccount', link: '/docs/accounts/local/toAccount' },
+            { text: 'Custom', link: '/docs/accounts/local/toAccount' },
             {
               text: 'Utilities',
               items: [
@@ -1096,25 +1096,16 @@ export const sidebar = {
             link: '/account-abstraction/accounts/smart',
             items: [
               {
-                text: 'toSmartAccount',
-                link: '/account-abstraction/accounts/smart/toSmartAccount',
+                text: 'Coinbase',
+                link: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
               },
               {
-                text: 'Implementations',
-                items: [
-                  {
-                    text: 'Coinbase',
-                    link: '/account-abstraction/accounts/smart/coinbase',
-                  },
-                  {
-                    text: 'Solady',
-                    link: '/account-abstraction/accounts/smart/solady',
-                  },
-                  {
-                    text: 'Custom',
-                    link: '/account-abstraction/accounts/smart/custom',
-                  },
-                ],
+                text: 'Solady',
+                link: '/account-abstraction/accounts/smart/toSoladySmartAccount',
+              },
+              {
+                text: 'Custom',
+                link: '/account-abstraction/accounts/smart/toSmartAccount',
               },
               {
                 text: 'Utilities',

@@ -2,19 +2,16 @@ import { expectTypeOf, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import type { Account } from '../../types/account.js'
-import { type SoladyImplementation, solady } from './implementations/solady.js'
-import { toSmartAccount } from './toSmartAccount.js'
+import { toSoladySmartAccount } from './implementations/toSoladySmartAccount.js'
 import type { SmartAccount } from './types.js'
 
 const client = anvilMainnet.getClient()
 
 test('default', async () => {
-  const account = await toSmartAccount({
+  const account = await toSoladySmartAccount({
     client,
-    implementation: solady({
-      factoryAddress: '0x',
-      owner: '0x',
-    }),
+    factoryAddress: '0x',
+    owner: '0x',
   })
 
   // Matches generic Account.
@@ -23,6 +20,13 @@ test('default', async () => {
   // Matches generic SmartAccount.
   expectTypeOf(account).toMatchTypeOf<SmartAccount>()
 
-  // Matches SmartAccount with implementation.
-  expectTypeOf(account).toMatchTypeOf<SmartAccount<SoladyImplementation>>()
+  // Matches narrowed Smart Account.
+  expectTypeOf(account).toMatchTypeOf<
+    SmartAccount<
+      typeof account.abi,
+      typeof account.factory.abi,
+      typeof account.entryPoint.abi,
+      typeof account.entryPoint.version
+    >
+  >()
 })
