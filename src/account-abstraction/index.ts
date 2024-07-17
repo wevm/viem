@@ -56,7 +56,9 @@ export {
 } from './actions/bundler/getUserOperationReceipt.js'
 export {
   type PrepareUserOperationParameters,
+  type PrepareUserOperationParameterType,
   type PrepareUserOperationReturnType,
+  type PrepareUserOperationRequest,
   prepareUserOperation,
 } from './actions/bundler/prepareUserOperation.js'
 export {
@@ -178,6 +180,16 @@ export type {
   UserOperationCalls,
 } from './types/userOperation.js'
 
+export {
+  type GetBundlerErrorParameters,
+  type GetBundlerErrorReturnType,
+  getBundlerError,
+} from './utils/errors/getBundlerError.js'
+export {
+  type GetUserOperationErrorParameters,
+  type GetUserOperationErrorReturnType,
+  getUserOperationError,
+} from './utils/errors/getUserOperationError.js'
 export {
   type FormatUserOperationErrorType,
   formatUserOperation,

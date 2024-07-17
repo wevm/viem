@@ -96,7 +96,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{accounts,actions,celo,chains,ens,experimental,experimental/solady,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/solady,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": ["node/trustedSetups_cjs.ts"]
@@ -125,16 +125,22 @@
       "import": "{ createClient, http }"
     },
     {
+      "name": "import * from 'viem/account-abstraction'",
+      "path": "./src/_esm/account-abstraction/index.js",
+      "limit": "45 kB",
+      "import": "*"
+    },
+    {
+      "name": "import { toCoinbaseSmartAccount } from 'viem/account-abstraction'",
+      "path": "./src/_esm/account-abstraction/index.js",
+      "limit": "35 kB",
+      "import": "{ toCoinbaseSmartAccount }"
+    },
+    {
       "name": "import * from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
       "limit": "97 kB",
       "import": "*"
-    },
-    {
-      "name": "import { coinbase, toSmartAccount } from 'viem/accounts'",
-      "path": "./src/_esm/accounts/index.js",
-      "limit": "35 kB",
-      "import": "{ coinbase, toSmartAccount }"
     },
     {
       "name": "import { privateKeyToAccount } from 'viem/accounts'",
