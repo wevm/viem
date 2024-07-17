@@ -202,8 +202,70 @@ import { createBundlerClient } from 'viem/account-abstraction'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 // ---cut---
-const publicClient = createBundlerClient({
+const bundlerClient = createBundlerClient({
   chain: mainnet,
   transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'), // [!code focus]
+})
+```
+
+### userOperation
+
+Configuration for User Operations.
+
+#### userOperation.estimateFeesPerGas
+
+- **Type:** `({ account: Account, bundlerClient: Client, userOperation: UserOperationRequest }) => Promise<{ maxFeePerGas: bigint, maxPriorityFeePerGas: bigint }>`
+
+Prepares fee properties for the User Operation request.
+
+```ts twoslash
+// @noErrors
+import { createBundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  userOperation: { // [!code focus]
+    async estimateFeesPerGas({ account, bundlerClient, userOperation }) { // [!code focus]
+      // Estimate fees per gas for the User Operation. // [!code focus]
+      return { // [!code focus]
+        maxFeePerGas: /* ... */, // [!code focus]
+        maxPriorityFeePerGas: /* ... */, // [!code focus]
+      } // [!code focus]
+    } // [!code focus]
+  } // [!code focus]
+})
+```
+
+#### userOperation.sponsorUserOperation
+
+- **Type:** `({ account: Account, bundlerClient: Client, userOperation: UserOperationRequest }) => Promise<UserOperationRequest>`
+
+Prepares sponsorship properties for the User Operation request.
+
+```ts twoslash
+// @noErrors
+import { createBundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+import { client } from './config'
+import { formatUserOperationRequest } from 'viem/account-abstraction'
+
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  userOperation: { // [!code focus]
+    async sponsorUserOperation({ account, bundlerClient, userOperation }) { // [!code focus]
+      // Retrieve sponsorship properties for the User Operation. // [!code focus]
+      const request = await client.request({ // [!code focus]
+        method: 'pm_sponsorUserOperation', // [!code focus]
+        params: [formatUserOperationRequest(userOperation)], // [!code focus]
+      }) // [!code focus]
+      return request // [!code focus]
+    } // [!code focus]
+  } // [!code focus]
 })
 ```

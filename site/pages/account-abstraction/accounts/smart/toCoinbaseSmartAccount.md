@@ -56,11 +56,6 @@ export const owner = toWebAuthnAccount({ credential })
 Client used to retrieve Smart Account data.
 
 ```ts
-import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
-import { owner } from './config.js'
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-// ---cut---
 const client = createPublicClient({ // [!code focus]
   chain: mainnet, // [!code focus]
   transport: http(), // [!code focus]
@@ -78,7 +73,7 @@ const account = await toCoinbaseSmartAccount({
 
 Owners of the Smart Account. Can be a [Local Account](/docs/accounts/local) or a [WebAuthn Account (Passkey)](/account-abstraction/accounts/webauthn).
 
-```ts twoslash
+```ts
 const account = await toCoinbaseSmartAccount({
   client,
   owners: [privateKeyToAccount('0x...')], // [!code focus]

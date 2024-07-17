@@ -1,3 +1,4 @@
+import type { EstimateFeesPerGasReturnType } from '../../actions/public/estimateFeesPerGas.js'
 import {
   type Client,
   type ClientConfig,
@@ -11,6 +12,7 @@ import type { RpcSchema } from '../../types/eip1193.js'
 import type { BundlerRpcSchema } from '../../types/eip1193.js'
 import type { Prettify } from '../../types/utils.js'
 import type { SmartAccount } from '../accounts/types.js'
+import type { UserOperationRequest } from '../types/userOperation.js'
 import { type BundlerActions, bundlerActions } from './decorators/bundler.js'
 
 export type BundlerClientConfig<
@@ -32,7 +34,29 @@ export type BundlerClientConfig<
     | 'transport'
   >
 > & {
+  /** Client that points to an execution RPC URL. */
   client?: client | Client | undefined
+  /** User Operation configuration properties. */
+  userOperation?:
+    | {
+        /** Prepares fee properties for the User Operation request. */
+        estimateFeesPerGas?:
+          | ((parameters: {
+              account: account | SmartAccount
+              bundlerClient: Client
+              userOperation: UserOperationRequest
+            }) => Promise<EstimateFeesPerGasReturnType<'eip1559'>>)
+          | undefined
+        /** Prepares sponsorship properties for the User Operation request. */
+        sponsorUserOperation?:
+          | ((parameters: {
+              account: account | SmartAccount
+              bundlerClient: Client
+              userOperation: UserOperationRequest
+            }) => Promise<UserOperationRequest>)
+          | undefined
+      }
+    | undefined
 }
 
 export type BundlerClient<
@@ -57,6 +81,7 @@ export type BundlerClient<
   >
 > & {
   client: client
+  userOperation?: BundlerClientConfig['userOperation'] | undefined
 }
 
 export type CreateBundlerClientErrorType = CreateClientErrorType | ErrorType
@@ -96,7 +121,13 @@ export function createBundlerClient<
 export function createBundlerClient(
   parameters: BundlerClientConfig,
 ): BundlerClient {
-  const { key = 'bundler', name = 'Bundler Client', transport } = parameters
+  const {
+    client: client_,
+    key = 'bundler',
+    name = 'Bundler Client',
+    transport,
+    userOperation,
+  } = parameters
   const client = Object.assign(
     createClient({
       ...parameters,
@@ -105,7 +136,7 @@ export function createBundlerClient(
       transport,
       type: 'bundlerClient',
     }),
-    { client: parameters.client },
+    { client: client_, userOperation },
   )
   return client.extend(bundlerActions) as any
 }

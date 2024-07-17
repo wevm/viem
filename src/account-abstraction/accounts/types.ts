@@ -4,9 +4,10 @@ import type { SignReturnType as WebAuthnSignReturnType } from 'webauthn-p256'
 import type { Client } from '../../clients/createClient.js'
 import type { Hash, Hex, SignableMessage } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
-import type { Assign, UnionPartialBy } from '../../types/utils.js'
+import type { Assign, ExactPartial, UnionPartialBy } from '../../types/utils.js'
 import type { EntryPointVersion } from '../types/entryPointVersion.js'
 import type {
+  EstimateUserOperationGasReturnType,
   UserOperation,
   UserOperationRequest,
 } from '../types/userOperation.js'
@@ -106,17 +107,6 @@ export type SmartAccountImplementation<
    */
   getStubSignature: () => Promise<Hex>
   /**
-   * Prepares properties for the User Operation request.
-   *
-   * @example
-   * ```ts
-   * const request = await account.prepareUserOperation(request)
-   * ```
-   */
-  prepareUserOperation?: (
-    parameters: UserOperationRequest,
-  ) => Promise<UserOperationRequest> | undefined
-  /**
    * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
    *
    * @example
@@ -163,6 +153,19 @@ export type SmartAccountImplementation<
       chainId?: number | undefined
     },
   ) => Promise<Hex>
+  /** User Operation configuration properties. */
+  userOperation?:
+    | {
+        /** Prepares gas properties for the User Operation request. */
+        estimateGas?:
+          | ((parameters: {
+              userOperation: UserOperationRequest
+            }) => Promise<
+              ExactPartial<EstimateUserOperationGasReturnType> | undefined
+            >)
+          | undefined
+      }
+    | undefined
 }
 
 export type SmartAccount<

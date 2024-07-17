@@ -19,7 +19,7 @@ import { sepolia } from '../../../chains/index.js'
 import { createPublicClient } from '../../../clients/createPublicClient.js'
 import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'
-import { toSoladySmartAccount } from '../../accounts/implementations/toSoladySmartAccount.js'
+import { toCoinbaseSmartAccount } from '../../accounts/implementations/toCoinbaseSmartAccount.js'
 import { createBundlerClient } from '../../clients/createBundlerClient.js'
 import { sendUserOperation } from './sendUserOperation.js'
 
@@ -137,13 +137,16 @@ describe('entryPointVersion: 0.7', async () => {
        
       Request Arguments:
         callData:              0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+        callGasLimit:          0
         factory:               0xfb6dab6200b8958c2655c3747708f82243d3f32e
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000001
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
         nonce:                 0
+        preVerificationGas:    0
         sender:                0x0b3D649C00208AFB6A40b4A7e918b84A52D783B8
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+        verificationGasLimit:  0
 
       Details: UserOperation reverted during simulation with reason: AA10 sender already constructed
       Version: viem@x.y.z]
@@ -177,13 +180,16 @@ describe('entryPointVersion: 0.7', async () => {
        
       Request Arguments:
         callData:              0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+        callGasLimit:          0
         factory:               0x0000000000000000000000000000000000000000
         factoryData:           0xdeadbeef
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
         nonce:                 0
+        preVerificationGas:    0
         sender:                0x274B2baeCC1A87493db36439Df3D8012855fB182
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+        verificationGasLimit:  0
 
       Details: UserOperation reverted during simulation with reason: AA13 initCode failed or OOG
       Version: viem@x.y.z]
@@ -292,13 +298,16 @@ describe('entryPointVersion: 0.6', async () => {
        
       Request Arguments:
         callData:              0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+        callGasLimit:          0
         initCode:              0x0000000000000000000000000000000000000000deadbeef
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
         nonce:                 0
         paymasterAndData:      0x
+        preVerificationGas:    0
         sender:                0x07B486204EC3d1ff6803614D3308945Fd45d580c
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+        verificationGasLimit:  0
 
       Details: UserOperation reverted during simulation with reason: AA13 initCode failed or OOG
       Version: viem@x.y.z]
@@ -307,8 +316,6 @@ describe('entryPointVersion: 0.6', async () => {
 })
 
 test.skip('e2e', async () => {
-  const factoryAddress = '0xda4b37208c41c4f6d1b101cac61e182fe1da0754'
-
   const client = createPublicClient({
     chain: sepolia,
     transport: http(process.env.VITE_ANVIL_FORK_URL_SEPOLIA),
@@ -324,12 +331,12 @@ test.skip('e2e', async () => {
     process.env.VITE_ACCOUNT_PRIVATE_KEY! as `0x${string}`,
   )
 
-  const account = await toSoladySmartAccount({
+  const account = await toCoinbaseSmartAccount({
     client,
-    factoryAddress,
-    owner,
+    owners: [owner],
   })
 
+  // Prefund account
   // const hash_send = await sendTransaction(client, {
   //   account: owner,
   //   to: account.address,

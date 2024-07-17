@@ -31,6 +31,7 @@ test('creates', () => {
       "request": [Function],
       "sendUserOperation": [Function],
       "type": "bundlerClient",
+      "userOperation": undefined,
       "waitForUserOperationReceipt": [Function],
     }
   `)

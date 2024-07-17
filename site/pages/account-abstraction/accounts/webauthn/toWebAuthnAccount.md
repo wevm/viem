@@ -2,9 +2,11 @@
 
 Creates a **WebAuthn Account** – commonly used for **[Smart Account](/account-abstraction/accounts/smart) Owners** to sign User Operations and messages on behalf of the Smart Account.
 
+:::note
 WebAuthn Account owners are currently supported on the following Smart Account implementations:
 
 - [`toCoinbaseSmartAccount`](/account-abstraction/accounts/smart/toCoinbaseSmartAccount#owners)
+:::
 
 ## Import
 

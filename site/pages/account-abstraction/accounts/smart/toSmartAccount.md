@@ -34,6 +34,7 @@ const account = await toSmartAccount({
     abi: [/* ... */],
     address: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
   },
+  
   async encodeCalls(calls) {
     // Encode calls as defined by the Smart Account contract.
   },
@@ -57,6 +58,13 @@ const account = await toSmartAccount({
   },
   async signUserOperation(userOperation) {
     // Sign a User Operation to be broadcasted via the Bundler.
+  },
+
+  // (Optional) User Operation configuration.
+  userOperation: {
+    async estimateGas({ userOperation }) {
+      // Estimate gas properties for a User Operation.
+    },
   },
 })
 ```

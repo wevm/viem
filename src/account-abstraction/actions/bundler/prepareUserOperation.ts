@@ -18,6 +18,7 @@ import { concat } from '../../../utils/data/concat.js'
 import { getAction } from '../../../utils/getAction.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import type { SmartAccount } from '../../accounts/types.js'
+import type { BundlerClient } from '../../clients/createBundlerClient.js'
 import type {
   DeriveSmartAccount,
   GetSmartAccountParameter,
@@ -32,7 +33,10 @@ import type {
   UserOperationCalls,
   UserOperationRequest,
 } from '../../types/userOperation.js'
-import { estimateUserOperationGas } from './estimateUserOperationGas.js'
+import {
+  type EstimateUserOperationGasParameters,
+  estimateUserOperationGas,
+} from './estimateUserOperationGas.js'
 
 const defaultParameters = ['factory', 'fees', 'gas', 'nonce'] as const
 
@@ -210,15 +214,15 @@ export async function prepareUserOperation<
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
+  const bundlerClient =
+    client.type === 'bundlerClient'
+      ? (client as unknown as BundlerClient)
+      : undefined
+
   let request = {
     ...parameters,
     sender: account.address,
   } as PrepareUserOperationRequest
-
-  if (account.prepareUserOperation)
-    request = (await account.prepareUserOperation(
-      request,
-    )) as PrepareUserOperationRequest
 
   // Concurrently prepare properties required to fill the User Operation.
   const [callData, factory, fees, nonce, signature] = await Promise.all([
@@ -264,12 +268,28 @@ export async function prepareUserOperation<
     })(),
     (async () => {
       if (!parameters_.includes('fees')) return undefined
+
+      // If the Bundler Client has a `estimateFeesPerGas` hook, run it.
+      if (bundlerClient?.userOperation?.estimateFeesPerGas) {
+        const fees = await bundlerClient.userOperation.estimateFeesPerGas({
+          account,
+          bundlerClient,
+          userOperation: request as UserOperation,
+        })
+        request = {
+          ...request,
+          ...fees,
+        }
+      }
+
+      // If we have sufficient properties for fees, return them.
       if (
         typeof request.maxFeePerGas === 'bigint' &&
         typeof request.maxPriorityFeePerGas === 'bigint'
       )
         return request
 
+      // Otherwise, we will need to estimate the fees to fill the fee properties.
       try {
         const client_ = 'client' in client ? (client.client as Client) : client
         const fees = await getAction(
@@ -332,32 +352,88 @@ export async function prepareUserOperation<
     if (!request.initCode) request.initCode = '0x'
   }
 
-  if (parameters_.includes('gas')) {
-    const gas = await getAction(
-      client,
-      estimateUserOperationGas,
-      'estimateUserOperationGas',
-    )({
-      account,
-      ...request,
-    })
+  // If the Bundler Client has a `sponsorUserOperation` hook, run it and populate the request
+  // with the prepared sponsored User Operation.
+  if (bundlerClient?.userOperation?.sponsorUserOperation) {
+    const request_sponsor =
+      await bundlerClient.userOperation.sponsorUserOperation({
+        account,
+        bundlerClient,
+        userOperation: request as UserOperation,
+      })
     request = {
       ...request,
-      callGasLimit: request.callGasLimit ?? gas.callGasLimit,
-      preVerificationGas: request.preVerificationGas ?? gas.preVerificationGas,
-      verificationGasLimit:
-        request.verificationGasLimit ?? gas.verificationGasLimit,
-      paymasterPostOpGasLimit:
-        request.paymasterPostOpGasLimit ?? gas.paymasterPostOpGasLimit,
-      paymasterVerificationGasLimit:
-        request.paymasterVerificationGasLimit ??
-        gas.paymasterVerificationGasLimit,
-    } as any
+      ...request_sponsor,
+    } as PrepareUserOperationRequest
   }
 
-  // Remove redundant properties.
+  if (parameters_.includes('gas')) {
+    // If the Account has opinionated gas estimation logic, run the `estimateGas` hook and
+    // fill the request with the prepared gas properties.
+    if (account.userOperation?.estimateGas) {
+      const gas = await account.userOperation.estimateGas({
+        userOperation: request,
+      })
+      request = {
+        ...request,
+        ...gas,
+      } as PrepareUserOperationRequest
+    }
+
+    // If not all the gas properties are already populated, we will need to estimate the gas
+    // to fill the gas properties.
+    if (
+      typeof request.callGasLimit === 'undefined' ||
+      typeof request.preVerificationGas === 'undefined' ||
+      typeof request.verificationGasLimit === 'undefined' ||
+      (request.paymaster &&
+        typeof request.paymasterPostOpGasLimit === 'undefined') ||
+      (request.paymaster &&
+        typeof request.paymasterVerificationGasLimit === 'undefined')
+    ) {
+      const gas = await getAction(
+        client,
+        estimateUserOperationGas,
+        'estimateUserOperationGas',
+      )({
+        account,
+        // Some Bundlers fail if nullish gas values are provided for gas estimation :') –
+        // so we will need to set a default zeroish value.
+        callGasLimit: 0n,
+        preVerificationGas: 0n,
+        verificationGasLimit: 0n,
+        ...(request.paymaster
+          ? {
+              paymasterPostOpGasLimit: 0n,
+              paymasterVerificationGasLimit: 0n,
+            }
+          : {}),
+        ...request,
+      } as EstimateUserOperationGasParameters)
+      request = {
+        ...request,
+        callGasLimit: request.callGasLimit ?? gas.callGasLimit,
+        preVerificationGas:
+          request.preVerificationGas ?? gas.preVerificationGas,
+        verificationGasLimit:
+          request.verificationGasLimit ?? gas.verificationGasLimit,
+        paymasterPostOpGasLimit:
+          request.paymasterPostOpGasLimit ?? gas.paymasterPostOpGasLimit,
+        paymasterVerificationGasLimit:
+          request.paymasterVerificationGasLimit ??
+          gas.paymasterVerificationGasLimit,
+      } as PrepareUserOperationRequest
+    }
+  }
+
+  // Remove redundant properties that do not conform to the User Operation schema.
   delete request.calls
   delete request.parameters
 
-  return request as any
+  return request as unknown as PrepareUserOperationReturnType<
+    account,
+    accountOverride,
+    calls,
+    request
+  >
 }

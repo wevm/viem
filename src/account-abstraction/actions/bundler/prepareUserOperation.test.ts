@@ -257,12 +257,35 @@ describe('entryPointVersion: 0.7', async () => {
     `)
   })
 
-  test('behavior: account.prepareUserOperation', async () => {
+  test('args: paymaster', async () => {
+    await expect(() =>
+      prepareUserOperation(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+          {
+            to: wagmiContractConfig.address,
+            abi: wagmiContractConfig.abi,
+            functionName: 'mint',
+          },
+        ],
+        paymaster: '0x0000000000000000000000000000000000000000',
+        ...fees,
+      }),
+    ).rejects.toThrowError()
+  })
+
+  test('behavior: account.userOperation.estimateGas', async () => {
     const request = await prepareUserOperation(bundlerClient, {
       account: {
         ...account,
-        prepareUserOperation(parameters) {
-          return { ...parameters, maxFeePerGas: 69n } as any
+        userOperation: {
+          async estimateGas() {
+            return { verificationGasLimit: 1_000_000n }
+          },
         },
       },
       calls: [
@@ -289,11 +312,192 @@ describe('entryPointVersion: 0.7', async () => {
         "callGasLimit": 141653n,
         "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
-        "maxFeePerGas": 69n,
+        "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
         "nonce": 0n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
+        "preVerificationGas": 53438n,
+        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "verificationGasLimit": 1000000n,
+      }
+    `)
+  })
+
+  test('behavior: account.userOperation.estimateGas (all filled)', async () => {
+    const request = await prepareUserOperation(bundlerClient, {
+      account: {
+        ...account,
+        userOperation: {
+          async estimateGas() {
+            return {
+              callGasLimit: 1_000_000n,
+              preVerificationGas: 1_000_000n,
+              verificationGasLimit: 1_000_000n,
+            }
+          },
+        },
+      },
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      ...fees,
+    })
+
+    expect({
+      ...request,
+      account: undefined,
+    }).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "callGasLimit": 1000000n,
+        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "nonce": 0n,
+        "preVerificationGas": 1000000n,
+        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "verificationGasLimit": 1000000n,
+      }
+    `)
+  })
+
+  test('behavior: account.userOperation.estimateGas (all filled – paymaster)', async () => {
+    await prepareUserOperation(bundlerClient, {
+      account: {
+        ...account,
+        userOperation: {
+          async estimateGas() {
+            return {
+              callGasLimit: 1_000_000n,
+              preVerificationGas: 1_000_000n,
+              verificationGasLimit: 1_000_000n,
+              paymasterPostOpGasLimit: 1_000_000n,
+              paymasterVerificationGasLimit: 1_000_000n,
+            }
+          },
+        },
+      },
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      paymaster: '0x0000000000000000000000000000000000000000',
+      ...fees,
+    })
+  })
+
+  test('behavior: client.userOperation.estimateFeesPerGas', async () => {
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      userOperation: {
+        async estimateFeesPerGas() {
+          return { maxFeePerGas: 3_000_000n, maxPriorityFeePerGas: 1_000_000n }
+        },
+      },
+    })
+
+    const request = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      ...fees,
+    })
+
+    expect({
+      ...request,
+      account: undefined,
+    }).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "callGasLimit": 141653n,
+        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+        "maxFeePerGas": 3000000n,
+        "maxPriorityFeePerGas": 1000000n,
+        "nonce": 0n,
+        "paymasterPostOpGasLimit": 0n,
+        "paymasterVerificationGasLimit": 0n,
+        "preVerificationGas": 53438n,
+        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "verificationGasLimit": 259350n,
+      }
+    `)
+  })
+
+  test('behavior: client.userOperation.sponsorUserOperation', async () => {
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      userOperation: {
+        async sponsorUserOperation() {
+          return {
+            paymasterData: '0xdeadbeef',
+            paymasterPostOpGasLimit: 100000n,
+            paymasterVerificationGasLimit: 100000n,
+          }
+        },
+      },
+    })
+
+    const request = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      ...fees,
+    })
+
+    expect({
+      ...request,
+      account: undefined,
+    }).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "callGasLimit": 141653n,
+        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "nonce": 0n,
+        "paymasterData": "0xdeadbeef",
+        "paymasterPostOpGasLimit": 100000n,
+        "paymasterVerificationGasLimit": 100000n,
         "preVerificationGas": 53438n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
         "verificationGasLimit": 259350n,

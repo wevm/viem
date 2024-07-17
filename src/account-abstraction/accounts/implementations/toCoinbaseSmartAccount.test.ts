@@ -197,23 +197,19 @@ describe('return value: getNonce', () => {
   })
 })
 
-describe('return value: prepareUserOperation', () => {
+describe('return value: userOperation.estimateGas', () => {
   test('default: private key', async () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
     })
 
-    const request = await account.prepareUserOperation!({
-      callData: '0xdeadbeef',
+    const request = await account.userOperation?.estimateGas?.({
+      userOperation: {
+        callData: '0xdeadbeef',
+      },
     })
-    expect(request).toMatchInlineSnapshot(
-      `
-      {
-        "callData": "0xdeadbeef",
-      }
-    `,
-    )
+    expect(request).toMatchInlineSnapshot('undefined')
   })
 
   test('default: webauthn', async () => {
@@ -226,13 +222,14 @@ describe('return value: prepareUserOperation', () => {
       owners: [owner],
     })
 
-    const request = await account.prepareUserOperation!({
-      callData: '0xdeadbeef',
+    const request = await account.userOperation?.estimateGas?.({
+      userOperation: {
+        callData: '0xdeadbeef',
+      },
     })
     expect(request).toMatchInlineSnapshot(
       `
       {
-        "callData": "0xdeadbeef",
         "verificationGasLimit": 800000n,
       }
     `,
