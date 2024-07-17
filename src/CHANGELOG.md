@@ -1,5 +1,11 @@
 # viem
 
+## 2.17.5
+
+### Patch Changes
+
+- [#2500](https://github.com/wevm/viem/pull/2500) [`f6d60054`](https://github.com/wevm/viem/commit/f6d60054bdcf8ada44c8af46b66eda50b05dd08b) Thanks [@lucadonnoh](https://github.com/lucadonnoh)! - Added OP Stack contract addresses for Mode Testnet chain.
+
 ## 2.17.4
 
 ### Patch Changes
