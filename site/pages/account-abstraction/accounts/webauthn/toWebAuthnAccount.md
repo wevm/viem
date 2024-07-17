@@ -1,6 +1,10 @@
 # toWebAuthnAccount
 
-Creates a **WebAuthn Account** – commonly used for **[Smart Account](/account-abstraction/accounts/smart) Owners** (such as [Coinbase Smart Wallet](/account-abstraction/accounts/smart/toCoinbaseSmartAccount#owners)) to sign User Operations and messages on behalf of the Smart Account.
+Creates a **WebAuthn Account** – commonly used for **[Smart Account](/account-abstraction/accounts/smart) Owners** to sign User Operations and messages on behalf of the Smart Account.
+
+WebAuthn Account owners are currently supported on the following Smart Account implementations:
+
+- [`toCoinbaseSmartAccount`](/account-abstraction/accounts/smart/toCoinbaseSmartAccount#owners)
 
 ## Import
 

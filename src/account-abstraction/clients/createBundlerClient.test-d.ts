@@ -1,7 +1,7 @@
 import { expectTypeOf, test } from 'vitest'
 import { getSmartAccounts_07 } from '../../../test/src/smartAccounts.js'
 import { localhost } from '../../chains/index.js'
-import { rpcSchema } from '../../clients/createClient.js'
+import { createClient, rpcSchema } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { SmartAccount } from '../accounts/types.js'
 import type { RpcUserOperationReceipt } from '../types/rpc.js'
@@ -49,6 +49,19 @@ test('without account', () => {
   const client = createBundlerClient({ transport: http() })
   expectTypeOf(client).toMatchTypeOf<BundlerClient>()
   expectTypeOf(client.account).toEqualTypeOf(undefined)
+})
+
+test('with client', () => {
+  const client = createClient({
+    chain: localhost,
+    transport: http(),
+  })
+  const bundlerClient = createBundlerClient({
+    client,
+    transport: http(),
+  })
+
+  expectTypeOf(bundlerClient.chain).toEqualTypeOf(localhost)
 })
 
 test('action: estimateUserOperationGas', () => {

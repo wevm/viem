@@ -44,7 +44,11 @@ export type BundlerClient<
 > = Prettify<
   Client<
     transport,
-    chain,
+    chain extends Chain
+      ? chain
+      : client extends Client<any, infer chain>
+        ? chain
+        : undefined,
     account,
     rpcSchema extends RpcSchema
       ? [...BundlerRpcSchema, ...rpcSchema]
