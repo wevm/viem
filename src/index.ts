@@ -1690,3 +1690,10 @@ export {
   createNonceManager,
   nonceManager,
 } from './utils/nonceManager.js'
+export type {
+  RpcEstimateUserOperationGasReturnType,
+  RpcGetUserOperationByHashReturnType,
+  RpcUserOperation,
+  RpcUserOperationReceipt,
+  RpcUserOperationRequest,
+} from './account-abstraction/types/rpc.js'
