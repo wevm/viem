@@ -3,22 +3,20 @@ import ReactDOM from 'react-dom/client'
 import {
   http,
   type Hex,
-  type SmartAccount,
-  createBundlerClient,
   createPublicClient,
   createWalletClient,
   parseEther,
 } from 'viem'
 import {
   type P256Credential,
-  coinbase,
+  type SmartAccount,
+  createBundlerClient,
   createWebAuthnCredential,
-  privateKeyToAccount,
-  toSmartAccount,
+  toCoinbaseSmartAccount,
   toWebAuthnAccount,
-} from 'viem/accounts'
+} from 'viem/account-abstraction'
+import { privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
-import 'viem/window'
 
 const client = createPublicClient({
   chain: sepolia,
@@ -47,11 +45,9 @@ function Example() {
 
   React.useEffect(() => {
     if (!credential) return
-    toSmartAccount({
+    toCoinbaseSmartAccount({
       client,
-      implementation: coinbase({
-        owners: [toWebAuthnAccount({ credential })],
-      }),
+      owners: [toWebAuthnAccount({ credential })],
     }).then(setAccount)
   }, [credential])
 
