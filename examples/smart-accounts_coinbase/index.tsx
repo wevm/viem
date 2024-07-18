@@ -77,7 +77,7 @@ function Example() {
     setPrefundHash(hash)
   }
 
-  const sendTransaction = async (event: React.FormEvent<HTMLFormElement>) => {
+  const sendUserOperation = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!account) return
 
@@ -119,7 +119,7 @@ function Example() {
       </form>
 
       <h2>Send User Operation</h2>
-      <form onSubmit={sendTransaction}>
+      <form onSubmit={sendUserOperation}>
         <input name="to" placeholder="Address" />
         <input name="value" placeholder="Amount (ETH)" />
         <button type="submit">Send</button>
