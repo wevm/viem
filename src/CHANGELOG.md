@@ -1,5 +1,11 @@
 # viem
 
+## 2.17.7
+
+### Patch Changes
+
+- [`7d3d505`](https://github.com/wevm/viem/commit/7d3d505221d4bb2ccc002be1cddc9e2011e33c01) Thanks [@jxom](https://github.com/jxom)! - Allow override of `Content-Type` header on `http` transport.
+
 ## 2.17.6
 
 ### Patch Changes
