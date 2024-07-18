@@ -98,7 +98,7 @@ export async function sendUserOperation<
   )(parameters as unknown as PrepareUserOperationParameters)
 
   const signature =
-    request.signature ||
+    parameters.signature ||
     (await account.signUserOperation(request as UserOperation))
 
   const rpcParameters = formatUserOperationRequest({
@@ -118,6 +118,7 @@ export async function sendUserOperation<
     throw getUserOperationError(error as BaseError, {
       ...(request as UserOperation),
       calls: parameters.calls,
+      signature,
     })
   }
 }

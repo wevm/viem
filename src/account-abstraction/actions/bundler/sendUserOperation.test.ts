@@ -21,6 +21,8 @@ import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'
 import { toCoinbaseSmartAccount } from '../../accounts/implementations/toCoinbaseSmartAccount.js'
 import { createBundlerClient } from '../../clients/createBundlerClient.js'
+import { formatUserOperation } from '../../utils/formatters/userOperation.js'
+import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
 import { sendUserOperation } from './sendUserOperation.js'
 
 const client = anvilMainnet.getClient({ account: true })
@@ -325,6 +327,18 @@ test.skip('e2e', async () => {
     chain: sepolia,
     client,
     transport: http(process.env.VITE_BUNDLER_URL_SEPOLIA),
+    userOperation: {
+      async sponsorUserOperation({ account, bundlerClient, userOperation }) {
+        const result = await bundlerClient.request<any>({
+          method: 'pm_sponsorUserOperation',
+          params: [
+            formatUserOperationRequest(userOperation),
+            account?.entryPoint.address,
+          ],
+        })
+        return formatUserOperation(result)
+      },
+    },
   })
 
   const owner = privateKeyToAccount(

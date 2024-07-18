@@ -252,7 +252,7 @@ import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 // ---cut---
 import { client } from './config'
-import { formatUserOperationRequest } from 'viem/account-abstraction'
+import { formatUserOperationRequest, formatUserOperation } from 'viem/account-abstraction'
 
 const bundlerClient = createBundlerClient({
   chain: mainnet,
@@ -260,11 +260,11 @@ const bundlerClient = createBundlerClient({
   userOperation: { // [!code focus]
     async sponsorUserOperation({ account, bundlerClient, userOperation }) { // [!code focus]
       // Retrieve sponsorship properties for the User Operation. // [!code focus]
-      const request = await client.request({ // [!code focus]
+      const result = await client.request({ // [!code focus]
         method: 'pm_sponsorUserOperation', // [!code focus]
         params: [formatUserOperationRequest(userOperation)], // [!code focus]
       }) // [!code focus]
-      return request // [!code focus]
+      return formatUserOperation(result) // [!code focus]
     } // [!code focus]
   } // [!code focus]
 })

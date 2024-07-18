@@ -60,6 +60,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 53438n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 259350n,
       }
     `)
@@ -91,6 +92,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51642n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 259060n,
       }
     `)
@@ -173,6 +175,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51642n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 259060n,
       }
     `)
@@ -200,6 +203,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51642n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 259060n,
       }
     `)
@@ -224,6 +228,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51642n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 259060n,
       }
     `)
@@ -252,6 +257,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51642n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 259060n,
       }
     `)
@@ -319,6 +325,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 53438n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 1000000n,
       }
     `)
@@ -367,6 +374,7 @@ describe('entryPointVersion: 0.7', async () => {
         "nonce": 0n,
         "preVerificationGas": 1000000n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 1000000n,
       }
     `)
@@ -447,6 +455,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 53438n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 259350n,
       }
     `)
@@ -500,6 +509,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterVerificationGasLimit": 100000n,
         "preVerificationGas": 53438n,
         "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 259350n,
       }
     `)
@@ -550,6 +560,7 @@ describe('entryPointVersion: 0.6', async () => {
         "paymasterVerificationGasLimit": undefined,
         "preVerificationGas": 55154n,
         "sender": "0x6edf7db791fC4D438D4A683E857B2fE1a84947Ce",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         "verificationGasLimit": 258801n,
       }
     `)
