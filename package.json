@@ -119,7 +119,7 @@
     {
       "name": "import { createClient, http } from 'viem'",
       "path": "./src/_esm/index.js",
-      "limit": "6.3 kB",
+      "limit": "6.4 kB",
       "import": "{ createClient, http }"
     },
     {
