@@ -16,7 +16,6 @@ import { client, owner } from './config.js'
 
 const account = await toSoladySmartAccount({ // [!code focus]
   client, // [!code focus]
-  factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754', // [!code focus]
   owner, // [!code focus]
 }) // [!code focus]
 ```
@@ -62,7 +61,6 @@ const account = await toSoladySmartAccount({
     address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032', // [!code focus]
     version: '0.7', // [!code focus]
   }, // [!code focus]
-  factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
   owner,
 })
 ```
@@ -90,7 +88,6 @@ Owner of the Smart Account.
 ```ts
 const account = await toSoladySmartAccount({
   client,
-  factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
   owner: privateKeyToAccount('0x...'), // [!code focus]
 })
 ```
@@ -104,7 +101,6 @@ Salt to use for Smart Account deployment.
 ```ts
 const account = await toSoladySmartAccount({
   client,
-  factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
   owner,
   salt: '0x5', // [!code focus]
 })

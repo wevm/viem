@@ -10,7 +10,6 @@ const client = anvilMainnet.getClient()
 test('default', async () => {
   const account = await toSoladySmartAccount({
     client,
-    factoryAddress: '0x',
     owner: '0x',
   })
 

@@ -32,7 +32,7 @@ export type ToSoladySmartAccountParameters<
         version: entryPointVersion | EntryPointVersion
       }
     | undefined
-  factoryAddress: Address
+  factoryAddress?: Address | undefined
   owner: Address | Account
   salt?: Hex | undefined
 }
@@ -59,7 +59,6 @@ export type ToSoladySmartAccountReturnType<
  *
  * const implementation = toSoladySmartAccount({
  *   client,
- *   factoryAddress: '0x...',
  *   owner: '0x...',
  * })
  */
@@ -77,7 +76,7 @@ export async function toSoladySmartAccount<
       address: entryPoint07Address,
       version: '0.7',
     },
-    factoryAddress,
+    factoryAddress = '0x5d82735936c6Cd5DE57cC3c1A799f6B2E6F933Df',
     salt = '0x0',
   } = parameters
 

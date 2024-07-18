@@ -349,6 +349,10 @@ test.skip('e2e', async () => {
     client,
     owners: [owner],
   })
+  // const account = await toSoladySmartAccount({
+  //   client,
+  //   owner,
+  // })
 
   // Prefund account
   // const hash_send = await sendTransaction(client, {
