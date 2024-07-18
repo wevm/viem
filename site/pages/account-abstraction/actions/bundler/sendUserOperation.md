@@ -206,7 +206,7 @@ const hash = await bundlerClient.sendUserOperation({
 ```
 :::
 
-### callGasLimit
+### callGasLimit (optional)
 
 - **Type:** `bigint`
 
@@ -223,7 +223,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### factory
+### factory (optional)
 
 - **Type:** `Address`
 
@@ -245,7 +245,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### factoryData
+### factoryData (optional)
 
 - **Type:** `Hex`
 
@@ -267,7 +267,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### maxFeePerGas
+### maxFeePerGas (optional)
 
 - **Type:** `bigint`
 
@@ -284,7 +284,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### maxPriorityFeePerGas
+### maxPriorityFeePerGas (optional)
 
 - **Type:** `bigint`
 
@@ -302,7 +302,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### nonce
+### nonce (optional)
 
 - **Type:** `bigint`
 
@@ -319,7 +319,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### paymaster
+### paymaster (optional)
 
 - **Type:** `Address`
 
@@ -337,7 +337,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### paymasterData
+### paymasterData (optional)
 
 - **Type:** `Address`
 
@@ -355,7 +355,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### paymasterPostOpGasLimit
+### paymasterPostOpGasLimit (optional)
 
 - **Type:** `bigint`
 
@@ -374,7 +374,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### paymasterVerificationGasLimit
+### paymasterVerificationGasLimit (optional)
 
 - **Type:** `bigint`
 
@@ -393,7 +393,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### preVerificationGas
+### preVerificationGas (optional)
 
 - **Type:** `bigint`
 
@@ -410,7 +410,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### signature
+### signature (optional)
 
 - **Type:** `Hex`
 
@@ -427,7 +427,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-### verificationGasLimit
+### verificationGasLimit (optional)
 
 - **Type:** `bigint`
 

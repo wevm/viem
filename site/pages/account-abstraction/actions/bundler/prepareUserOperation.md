@@ -202,7 +202,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 ```
 :::
 
-### callGasLimit
+### callGasLimit (optional)
 
 - **Type:** `bigint`
 
@@ -219,7 +219,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### factory
+### factory (optional)
 
 - **Type:** `Address`
 
@@ -241,7 +241,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### factoryData
+### factoryData (optional)
 
 - **Type:** `Hex`
 
@@ -263,7 +263,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### maxFeePerGas
+### maxFeePerGas (optional)
 
 - **Type:** `bigint`
 
@@ -280,7 +280,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### maxPriorityFeePerGas
+### maxPriorityFeePerGas (optional)
 
 - **Type:** `bigint`
 
@@ -298,7 +298,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### nonce
+### nonce (optional)
 
 - **Type:** `bigint`
 
@@ -315,7 +315,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### paymaster
+### paymaster (optional)
 
 - **Type:** `Address`
 
@@ -333,7 +333,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### paymasterData
+### paymasterData (optional)
 
 - **Type:** `Address`
 
@@ -351,7 +351,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### paymasterPostOpGasLimit
+### paymasterPostOpGasLimit (optional)
 
 - **Type:** `bigint`
 
@@ -370,7 +370,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### paymasterVerificationGasLimit
+### paymasterVerificationGasLimit (optional)
 
 - **Type:** `bigint`
 
@@ -389,7 +389,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### preVerificationGas
+### preVerificationGas (optional)
 
 - **Type:** `bigint`
 
@@ -406,7 +406,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### signature
+### signature (optional)
 
 - **Type:** `Hex`
 
@@ -423,7 +423,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 })
 ```
 
-### verificationGasLimit
+### verificationGasLimit (optional)
 
 - **Type:** `bigint`
 

@@ -216,7 +216,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 ```
 :::
 
-### callGasLimit
+### callGasLimit (optional)
 
 - **Type:** `bigint`
 
@@ -236,7 +236,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### factory
+### factory (optional)
 
 - **Type:** `Address`
 
@@ -261,7 +261,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### factoryData
+### factoryData (optional)
 
 - **Type:** `Hex`
 
@@ -286,7 +286,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### maxFeePerGas
+### maxFeePerGas (optional)
 
 - **Type:** `bigint`
 
@@ -306,7 +306,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### maxPriorityFeePerGas
+### maxPriorityFeePerGas (optional)
 
 - **Type:** `bigint`
 
@@ -327,7 +327,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### nonce
+### nonce (optional)
 
 - **Type:** `bigint`
 
@@ -347,7 +347,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### paymaster
+### paymaster (optional)
 
 - **Type:** `Address`
 
@@ -368,7 +368,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### paymasterData
+### paymasterData (optional)
 
 - **Type:** `Address`
 
@@ -389,7 +389,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### paymasterPostOpGasLimit
+### paymasterPostOpGasLimit (optional)
 
 - **Type:** `bigint`
 
@@ -411,7 +411,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### paymasterVerificationGasLimit
+### paymasterVerificationGasLimit (optional)
 
 - **Type:** `bigint`
 
@@ -433,7 +433,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### preVerificationGas
+### preVerificationGas (optional)
 
 - **Type:** `bigint`
 
@@ -453,7 +453,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### signature
+### signature (optional)
 
 - **Type:** `Hex`
 
@@ -473,7 +473,7 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
-### verificationGasLimit
+### verificationGasLimit (optional)
 
 - **Type:** `bigint`
 

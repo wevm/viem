@@ -80,7 +80,7 @@ const account = await toCoinbaseSmartAccount({
 })
 ```
 
-### nonce
+### nonce (optional)
 
 - **Type:** `bigint`
 

@@ -42,7 +42,7 @@ export const client = createPublicClient({
 
 ## Parameters
 
-### entryPoint
+### entryPoint (optional)
 
 - **Type:** `{ abi: Abi, address: Address, version: EntryPointVersion }`
 
@@ -95,7 +95,7 @@ const account = await toSoladySmartAccount({
 })
 ```
 
-### salt
+### salt (optional)
 
 - **Type:** `Hex`
 

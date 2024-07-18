@@ -28,7 +28,7 @@ const bundlerClient = createBundlerClient({ // [!code focus]
 
 ## Parameters
 
-### account
+### account (optional)
 
 - **Type:** `SmartAccount`
 
@@ -61,7 +61,7 @@ const bundlerClient = createBundlerClient({
 })
 ```
 
-### chain
+### chain (optional)
 
 - **Type:** [Chain](/docs/glossary/types#chain)
 
@@ -84,7 +84,7 @@ const bundlerClient = createBundlerClient({
 })
 ```
 
-### client
+### client (optional)
 
 - **Type:** `Client`
 
@@ -107,7 +107,7 @@ const bundlerClient = createBundlerClient({
 })
 ```
 
-### key
+### key (optional)
 
 - **Type:** `string`
 - **Default:** `"wallet"`
@@ -124,7 +124,7 @@ const client = createBundlerClient({
 })
 ```
 
-### name
+### name (optional)
 
 - **Type:** `string`
 - **Default:** `"Wallet Client"`
@@ -141,7 +141,7 @@ const client = createBundlerClient({
 })
 ```
 
-### pollingInterval
+### pollingInterval (optional)
 
 - **Type:** `number`
 - **Default:** `4_000`
@@ -158,7 +158,7 @@ const client = createBundlerClient({
 })
 ```
 
-### rpcSchema
+### rpcSchema (optional)
 
 - **Type:** `RpcSchema`
 - **Default:** `WalletRpcSchema`
@@ -208,7 +208,7 @@ const bundlerClient = createBundlerClient({
 })
 ```
 
-### userOperation
+### userOperation (optional)
 
 Configuration for User Operations.
 

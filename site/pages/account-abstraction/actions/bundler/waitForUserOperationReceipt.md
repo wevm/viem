@@ -58,7 +58,7 @@ const receipt = await publicClient.waitForUserOperationReceipt({
 })
 ```
 
-### pollingInterval
+### pollingInterval (optional)
 
 - **Type:** `number`
 
@@ -71,7 +71,7 @@ const receipt = await publicClient.waitForUserOperationReceipt({
 })
 ```
 
-### retryCount
+### retryCount (optional)
 
 - **Type:** `number`
 - **Default:** `6`
@@ -85,7 +85,7 @@ const receipt = await publicClient.waitForUserOperationReceipt({
 })
 ```
 
-### timeout
+### timeout (optional)
 
 - **Type:** `number`
 
