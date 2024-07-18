@@ -1,5 +1,13 @@
 # viem
 
+## 2.17.6
+
+### Patch Changes
+
+- [`aa42f47`](https://github.com/wevm/viem/commit/aa42f47fe8b5ce19858e5855ecdceae7000dbb92) Thanks [@jxom](https://github.com/jxom)! - Updated Darwinia chain explorer URL.
+
+- [`759e34d`](https://github.com/wevm/viem/commit/759e34dde23ca50275d9e4df38805e8f0b285753) Thanks [@jxom](https://github.com/jxom)! - Enforced `r` and `s` hex values on `Signature` to be always padded to 32 bytes.
+
 ## 2.17.5
 
 ### Patch Changes
