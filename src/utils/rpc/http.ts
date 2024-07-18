@@ -94,8 +94,8 @@ export function getHttpRpcClient(
                     ...body,
                   }),
               headers: {
-                ...headers,
                 'Content-Type': 'application/json',
+                ...headers,
               },
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),
