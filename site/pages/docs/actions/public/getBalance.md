@@ -1,5 +1,5 @@
 ---
-description: Returns the balance of an address in wei.
+description: Returns the balance of an address in usdt.
 ---
 
 # getBalance
@@ -16,7 +16,7 @@ import { publicClient } from './client'
 const balance = await publicClient.getBalance({ // [!code focus:4]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
-// @log: > 10000000000000000000000n (wei)
+// @log: > 10000000000000000000000n (usdt)
 ```
 
 ```ts twoslash [client.ts] filename="client.ts"
@@ -29,7 +29,7 @@ const balance = await publicClient.getBalance({ // [!code focus:4]
 
 `bigint`
 
-The balance of the address in wei.
+The balance of the address in usdt.
 
 ## Parameters
 
