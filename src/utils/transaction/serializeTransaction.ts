@@ -350,11 +350,14 @@ function serializeTransactionLegacy(
       return v
     })()
 
+    const r = trim(signature.r)
+    const s = trim(signature.s)
+
     serializedTransaction = [
       ...serializedTransaction,
       toHex(v),
-      signature.r,
-      signature.s,
+      r === '0x00' ? '0x' : r,
+      s === '0x00' ? '0x' : s,
     ]
   } else if (chainId > 0) {
     serializedTransaction = [
