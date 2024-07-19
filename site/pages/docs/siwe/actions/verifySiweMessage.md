@@ -229,7 +229,7 @@ const valid = await publicClient.verifySiweMessage({
 - **Type:** `Date`
 - **Default:** `new Date()`
 
-Current time to check optional [`expirationTime`](http://localhost:5173/docs/siwe/utilities/createSiweMessage#expirationtime-optional) and [`notBefore`](/docs/siwe/utilities/createSiweMessage#notbefore-optional) message fields.
+Current time to check optional [`expirationTime`](/docs/siwe/utilities/createSiweMessage#expirationtime-optional) and [`notBefore`](/docs/siwe/utilities/createSiweMessage#notbefore-optional) message fields.
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts]
