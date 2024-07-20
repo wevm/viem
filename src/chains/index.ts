@@ -322,6 +322,13 @@ export type {
   UnionLooseOmit,
 } from '../types/utils.js'
 export type {
+  SerializeTransactionCIP64ReturnType,
+  assertTransactionCIP42 as assertTransactionCIP42Celo,
+  assertTransactionCIP64 as assertTransactionCIP64Celo,
+  serializeTransaction as serializeTransactionCelo,
+  serializers as serializersCelo,
+} from '../celo/serializers.js'
+export type {
   CeloBlock,
   CeloRpcBlock,
   CeloRpcTransaction,
