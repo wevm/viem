@@ -1,5 +1,11 @@
 # viem
 
+## 2.17.8
+
+### Patch Changes
+
+- [`690cb9a7`](https://github.com/wevm/viem/commit/690cb9a78a801edf7ea3ab1d8cf1a0cd794fc32a) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
 ## 2.17.7
 
 ### Patch Changes
