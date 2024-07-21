@@ -37,18 +37,13 @@ test('default', async () => {
       }
     `)
   expect(restDomain).toMatchInlineSnapshot(`
-      {
-        "domain": {
-          "chainId": 1,
-          "name": "Mock4337Account",
-          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "verifyingContract": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
-          "version": "1",
-        },
-        "extensions": [],
-        "fields": "0x0f",
-      }
-    `)
+    {
+      "chainId": 1,
+      "name": "Mock4337Account",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "version": "1",
+    }
+  `)
 })
 
 test('counterfactual call', async () => {
@@ -80,18 +75,13 @@ test('counterfactual call', async () => {
       }
     `)
   expect(restDomain).toMatchInlineSnapshot(`
-      {
-        "domain": {
-          "chainId": 1,
-          "name": "Mock4337Account",
-          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "verifyingContract": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
-          "version": "1",
-        },
-        "extensions": [],
-        "fields": "0x0f",
-      }
-    `)
+    {
+      "chainId": 1,
+      "name": "Mock4337Account",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "version": "1",
+    }
+  `)
 })
 
 test('error: non-existent', async () => {
