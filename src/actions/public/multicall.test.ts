@@ -585,7 +585,6 @@ describe('errors', async () => {
 
       expect(
         await multicall(client, {
-          blockNumber: anvilMainnet.forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -954,7 +953,6 @@ describe('errors', async () => {
     await expect(() =>
       multicall(client, {
         allowFailure: false,
-        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -1188,7 +1186,6 @@ describe('GitHub repros', () => {
     expect(
       await multicall(client, {
         allowFailure: false,
-        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             abi: GH434.abi,
