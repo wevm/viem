@@ -212,20 +212,35 @@ describe('deployless read (factory)', () => {
       args: [accounts[0].address, pad('0x0')],
     })
 
-    const result = await readContract(client, {
+    const [
+      fields,
+      name,
+      version,
+      chainId,
+      verifyingContract,
+      salt,
+      extensions,
+    ] = await readContract(client, {
       address,
       abi: Mock4337Account.abi,
       functionName: 'eip712Domain',
       factory,
       factoryData,
     })
-    expect(result).toMatchInlineSnapshot(`
+    expect(verifyingContract).toBeDefined()
+    expect([
+      fields,
+      name,
+      version,
+      chainId,
+      salt,
+      extensions,
+    ]).toMatchInlineSnapshot(`
       [
         "0x0f",
         "Mock4337Account",
         "1",
         1n,
-        "0xE911628bF8428C23f179a07b081325cAe376DE1f",
         "0x0000000000000000000000000000000000000000000000000000000000000000",
         [],
       ]

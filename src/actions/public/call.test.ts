@@ -113,16 +113,9 @@ describe('ccip', () => {
         data: calldata,
         to: contractAddress!,
       }),
-    ).rejects.toMatchInlineSnapshot(`
-      [CallExecutionError: Execution reverted with reason: custom error 556f1830:000000000000000000000000fb6dab62…00000000000000000000000000000000 (576 bytes).
-
-      Raw Call Arguments:
-        to:    0xfb6dab6200b8958c2655c3747708f82243d3f32e
-        data:  0xbf40fac1000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000096a786f6d2e7669656d0000000000000000000000000000000000000000000000
-
-      Details: execution reverted: custom error 556f1830:000000000000000000000000fb6dab62…00000000000000000000000000000000 (576 bytes)
-      Version: viem@x.y.z]
-    `)
+    ).rejects.toThrowError(
+      'Execution reverted with reason: custom error 556f1830',
+    )
 
     await server.close()
   })

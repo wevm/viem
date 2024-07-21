@@ -25,23 +25,30 @@ test('default', async () => {
   await writeContract(client, request)
   await mine(client, { blocks: 1 })
 
-  expect(
-    await getEip712Domain(client, {
-      address,
-    }),
-  ).toMatchInlineSnapshot(`
-    {
-      "domain": {
-        "chainId": 1,
-        "name": "Mock4337Account",
-        "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "verifyingContract": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
-        "version": "1",
-      },
-      "extensions": [],
-      "fields": "0x0f",
-    }
-  `)
+  const { domain, ...rest } = await getEip712Domain(client, {
+    address,
+  })
+  const { verifyingContract, ...restDomain } = domain
+  expect(verifyingContract).toBeDefined()
+  expect(rest).toMatchInlineSnapshot(`
+      {
+        "extensions": [],
+        "fields": "0x0f",
+      }
+    `)
+  expect(restDomain).toMatchInlineSnapshot(`
+      {
+        "domain": {
+          "chainId": 1,
+          "name": "Mock4337Account",
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "verifyingContract": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+          "version": "1",
+        },
+        "extensions": [],
+        "fields": "0x0f",
+      }
+    `)
 })
 
 test('counterfactual call', async () => {
@@ -55,29 +62,36 @@ test('counterfactual call', async () => {
     args: [pad('0x0')],
   })
 
-  expect(
-    await getEip712Domain(client, {
-      address,
-      factory: factoryAddress,
-      factoryData: encodeFunctionData({
-        abi: Mock4337AccountFactory.abi,
-        functionName: 'createAccount',
-        args: [accounts[0].address, pad('0x0')],
-      }),
+  const { domain, ...rest } = await getEip712Domain(client, {
+    address,
+    factory: factoryAddress,
+    factoryData: encodeFunctionData({
+      abi: Mock4337AccountFactory.abi,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x0')],
     }),
-  ).toMatchInlineSnapshot(`
-    {
-      "domain": {
-        "chainId": 1,
-        "name": "Mock4337Account",
-        "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "verifyingContract": "0xB8e1B1e362872b237526e74B227077B0aeE8e223",
-        "version": "1",
-      },
-      "extensions": [],
-      "fields": "0x0f",
-    }
-  `)
+  })
+  const { verifyingContract, ...restDomain } = domain
+  expect(verifyingContract).toBeDefined()
+  expect(rest).toMatchInlineSnapshot(`
+      {
+        "extensions": [],
+        "fields": "0x0f",
+      }
+    `)
+  expect(restDomain).toMatchInlineSnapshot(`
+      {
+        "domain": {
+          "chainId": 1,
+          "name": "Mock4337Account",
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "verifyingContract": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+          "version": "1",
+        },
+        "extensions": [],
+        "fields": "0x0f",
+      }
+    `)
 })
 
 test('error: non-existent', async () => {

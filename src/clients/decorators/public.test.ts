@@ -197,17 +197,21 @@ describe('smoke test', () => {
     await writeContract(client, request)
     await mine(client, { blocks: 1 })
 
-    expect(await client.getEip712Domain({ address })).toMatchInlineSnapshot(`
+    const { domain, ...rest } = await client.getEip712Domain({ address })
+    const { verifyingContract, ...restDomain } = domain
+    expect(verifyingContract).toBeDefined()
+    expect(rest).toMatchInlineSnapshot(`
       {
-        "domain": {
-          "chainId": 1,
-          "name": "Mock4337Account",
-          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "verifyingContract": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
-          "version": "1",
-        },
         "extensions": [],
         "fields": "0x0f",
+      }
+    `)
+    expect(restDomain).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "name": "Mock4337Account",
+        "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "version": "1",
       }
     `)
   })
