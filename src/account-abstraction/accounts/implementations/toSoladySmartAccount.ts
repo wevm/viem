@@ -10,6 +10,7 @@ import { signTypedData } from '../../../experimental/solady/actions/signTypedDat
 import type { Account } from '../../../types/account.js'
 import type { Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
+import type { Prettify } from '../../../types/utils.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { pad } from '../../../utils/data/pad.js'
 import { getAction } from '../../../utils/getAction.js'
@@ -40,11 +41,12 @@ export type ToSoladySmartAccountParameters<
 export type ToSoladySmartAccountReturnType<
   entryPointAbi extends Abi = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = SmartAccount<
-  typeof abi,
-  typeof factoryAbi,
-  entryPointAbi,
-  entryPointVersion
+> = Prettify<
+  SmartAccount<
+    entryPointAbi,
+    entryPointVersion,
+    { abi: typeof abi; factory: { abi: typeof factoryAbi; address: Address } }
+  >
 >
 
 /**
@@ -92,10 +94,10 @@ export async function toSoladySmartAccount<
   const owner = parseAccount(parameters.owner)
 
   return toSmartAccount({
-    abi,
     client,
     entryPoint,
-    factory,
+
+    extend: { abi, factory },
 
     async encodeCalls(calls) {
       if (calls.length === 1)

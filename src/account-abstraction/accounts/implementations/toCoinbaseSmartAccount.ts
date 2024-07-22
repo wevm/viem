@@ -10,7 +10,7 @@ import type { Client } from '../../../clients/createClient.js'
 import { entryPoint06Address } from '../../../constants/address.js'
 import type { Hash, Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
-import type { OneOf } from '../../../types/utils.js'
+import type { OneOf, Prettify } from '../../../types/utils.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { encodePacked } from '../../../utils/abi/encodePacked.js'
@@ -33,11 +33,12 @@ export type ToCoinbaseSmartAccountParameters = {
   nonce?: bigint | undefined
 }
 
-export type ToCoinbaseSmartAccountReturnType = SmartAccount<
-  typeof abi,
-  typeof factoryAbi,
-  typeof entryPoint06Abi,
-  '0.6'
+export type ToCoinbaseSmartAccountReturnType = Prettify<
+  SmartAccount<
+    typeof entryPoint06Abi,
+    '0.6',
+    { abi: typeof abi; factory: { abi: typeof factoryAbi; address: Address } }
+  >
 >
 
 /**
@@ -78,10 +79,10 @@ export async function toCoinbaseSmartAccount(
   const owner = owners[0]
 
   return toSmartAccount({
-    abi,
     client,
     entryPoint,
-    factory,
+
+    extend: { abi, factory },
 
     async encodeCalls(calls) {
       if (calls.length === 1)

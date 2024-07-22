@@ -8,23 +8,16 @@ import type { EntryPointVersion } from '../types/entryPointVersion.js'
 import type { SmartAccount, SmartAccountImplementation } from './types.js'
 
 export type ToSmartAccountParameters<
-  abi extends Abi | readonly unknown[] = Abi,
-  factoryAbi extends Abi | readonly unknown[] = Abi,
   entryPointAbi extends Abi | readonly unknown[] = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = SmartAccountImplementation<
-  abi,
-  factoryAbi,
-  entryPointAbi,
-  entryPointVersion
->
+  extend extends object = object,
+> = SmartAccountImplementation<entryPointAbi, entryPointVersion, extend>
 
 export type ToSmartAccountReturnType<
-  abi extends Abi | readonly unknown[] = Abi,
-  factoryAbi extends Abi | readonly unknown[] = Abi,
   entryPointAbi extends Abi | readonly unknown[] = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = Prettify<SmartAccount<abi, factoryAbi, entryPointAbi, entryPointVersion>>
+  extend extends object = object,
+> = Prettify<SmartAccount<entryPointAbi, entryPointVersion, extend>>
 
 /**
  * @description Creates a Smart Account with a provided account implementation.
@@ -33,28 +26,25 @@ export type ToSmartAccountReturnType<
  * @returns A Smart Account. {@link ToSmartAccountReturnType}
  */
 export async function toSmartAccount<
-  abi extends Abi | readonly unknown[],
-  factoryAbi extends Abi | readonly unknown[],
   entryPointAbi extends Abi | readonly unknown[],
   entryPointVersion extends EntryPointVersion,
+  extend extends object,
 >(
   parameters: ToSmartAccountParameters<
-    abi,
-    factoryAbi,
     entryPointAbi,
-    entryPointVersion
+    entryPointVersion,
+    extend
   >,
-): Promise<
-  ToSmartAccountReturnType<abi, factoryAbi, entryPointAbi, entryPointVersion>
-> {
-  const { client } = parameters
+): Promise<ToSmartAccountReturnType<entryPointAbi, entryPointVersion, extend>> {
+  const { extend, ...rest } = parameters
 
   let deployed = false
 
   const address = await parameters.getAddress()
 
   return {
-    ...parameters,
+    ...extend,
+    ...rest,
     address,
     async getFactoryArgs() {
       if ('isDeployed' in this && (await this.isDeployed()))
@@ -64,7 +54,7 @@ export async function toSmartAccount<
     async isDeployed() {
       if (deployed) return true
       const code = await getAction(
-        client,
+        parameters.client,
         getCode,
         'getCode',
       )({
@@ -100,10 +90,5 @@ export async function toSmartAccount<
       return signature
     },
     type: 'smart',
-  } as ToSmartAccountReturnType<
-    abi,
-    factoryAbi,
-    entryPointAbi,
-    entryPointVersion
-  >
+  } as ToSmartAccountReturnType<entryPointAbi, entryPointVersion, extend>
 }

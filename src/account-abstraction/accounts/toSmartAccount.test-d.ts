@@ -22,8 +22,6 @@ test('default', async () => {
   // Matches narrowed Smart Account.
   expectTypeOf(account).toMatchTypeOf<
     SmartAccount<
-      typeof account.abi,
-      typeof account.factory.abi,
       typeof account.entryPoint.abi,
       typeof account.entryPoint.version
     >

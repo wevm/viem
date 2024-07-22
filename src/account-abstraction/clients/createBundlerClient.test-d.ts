@@ -37,8 +37,6 @@ test('with account', async () => {
   expectTypeOf(client.account).toMatchTypeOf<SmartAccount>()
   expectTypeOf(client.account).toMatchTypeOf<
     SmartAccount<
-      typeof client.account.abi,
-      typeof client.account.factory.abi,
       typeof client.account.entryPoint.abi,
       typeof client.account.entryPoint.version
     >

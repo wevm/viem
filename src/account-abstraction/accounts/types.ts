@@ -19,13 +19,10 @@ type Call = {
 }
 
 export type SmartAccountImplementation<
-  abi extends Abi | readonly unknown[] = Abi,
-  factoryAbi extends Abi | readonly unknown[] = Abi,
   entryPointAbi extends Abi | readonly unknown[] = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
+  extend extends object = object,
 > = {
-  /** ABI of the Smart Account implementation. */
-  abi: abi
   /** Client used to retrieve Smart Account data, and perform signing (if owner is a JSON-RPC Account). */
   client: Client
   /** Compatible EntryPoint of the Smart Account. */
@@ -37,13 +34,8 @@ export type SmartAccountImplementation<
     /** Compatible EntryPoint version. */
     version: entryPointVersion
   }
-  /** Factory of the Smart Account. */
-  factory: {
-    /** Address of the Smart Account's Factory. */
-    address: Address
-    /** ABI of the Smart Account's Factory. */
-    abi: factoryAbi
-  }
+  /** Extend the Smart Account with custom properties. */
+  extend?: extend | undefined
   /**
    * Retrieves the Smart Account's address.
    *
@@ -169,20 +161,22 @@ export type SmartAccountImplementation<
 }
 
 export type SmartAccount<
-  abi extends Abi | readonly unknown[] = Abi,
-  factoryAbi extends Abi | readonly unknown[] = Abi,
   entryPointAbi extends Abi | readonly unknown[] = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
+  extend extends object = object,
 > = Assign<
-  SmartAccountImplementation<abi, factoryAbi, entryPointAbi, entryPointVersion>,
-  {
-    /** Address of the Smart Account. */
-    address: Address
-    /** Whether or not the Smart Account has been deployed. */
-    isDeployed: () => Promise<boolean>
-    /** Type of account. */
-    type: 'smart'
-  }
+  extend,
+  Assign<
+    SmartAccountImplementation<entryPointAbi, entryPointVersion>,
+    {
+      /** Address of the Smart Account. */
+      address: Address
+      /** Whether or not the Smart Account has been deployed. */
+      isDeployed: () => Promise<boolean>
+      /** Type of account. */
+      type: 'smart'
+    }
+  >
 >
 
 export type WebAuthnAccount = {
