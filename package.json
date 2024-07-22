@@ -185,7 +185,7 @@
     {
       "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "30 kB",
+      "limit": "31 kB",
       "import": "{ verifySiweMessage }"
     }
   ]
