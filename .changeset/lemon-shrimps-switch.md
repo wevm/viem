@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Funki Mainnet
+Added Funki Mainnet.
