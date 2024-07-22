@@ -1,5 +1,5 @@
 import { WebSocket } from 'isows'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
@@ -30,6 +30,30 @@ describe('getWebSocketRpcClient', () => {
     expect(client1).toEqual(client2)
     expect(client1).toEqual(client3)
     expect(client1).toEqual(client4)
+  })
+
+  test('reconnect after Connection ended', async () => {
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
+      reconnect: { delay: 0 },
+    })
+    expect(socketClient).toBeDefined()
+    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+    await anvilMainnet.restart()
+    setTimeout(() => {
+      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+    }, 10)
+  })
+
+  test('keepalive', async () => {
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
+      keepAliveInterval: 1,
+    })
+    const spy = vi.spyOn(socketClient.socket, 'ping')
+    expect(socketClient).toBeDefined()
+    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+    setTimeout(() => {
+      expect(spy).toHaveBeenCalled()
+    }, 5)
   })
 })
 

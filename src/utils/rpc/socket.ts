@@ -23,9 +23,7 @@ export type GetSocketParameters = {
 
 export type Socket<socket extends {}> = socket & {
   close(): void
-  request(params: {
-    body: RpcRequest
-  }): void
+  request(params: { body: RpcRequest }): void
 }
 
 export type SocketRpcClient<socket extends {}> = {
@@ -68,6 +66,11 @@ export type GetSocketRpcClientParameters<socket extends {} = {}> = {
       }
     | undefined
   url: string
+  /**
+   * The interval (in ms) to send keep-alive messages.
+   * @default 30_000
+   */
+  keepAliveInterval?: number | undefined
 }
 
 export type GetSocketRpcClientErrorType =
@@ -82,7 +85,13 @@ export const socketClientCache = /*#__PURE__*/ new Map<
 export async function getSocketRpcClient<socket extends {}>(
   params: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
-  const { getSocket, key = 'socket', reconnect = true, url } = params
+  const {
+    getSocket,
+    key = 'socket',
+    reconnect = true,
+    url,
+    keepAliveInterval = 30_000,
+  } = params
   const { attempts = 5, delay = 2_000 } =
     typeof reconnect === 'object' ? reconnect : {}
 
@@ -106,6 +115,7 @@ export async function getSocketRpcClient<socket extends {}>(
 
       let error: Error | Event | undefined
       let socket: Socket<any>
+      let keepAliveTimer: Timer | undefined
       // Set up socket implementation.
       async function setup() {
         return getSocket({
@@ -145,9 +155,17 @@ export async function getSocketRpcClient<socket extends {}>(
       socket = await setup()
       error = undefined
 
+      if (keepAliveInterval) {
+        if (keepAliveTimer) clearInterval(keepAliveTimer)
+        keepAliveTimer = setInterval(() => {
+          socket.ping()
+        }, keepAliveInterval)
+      }
+
       // Create a new socket instance.
       socketClient = {
         close() {
+          clearInterval(keepAliveTimer)
           socket.close()
           socketClientCache.delete(`${key}:${url}`)
         },

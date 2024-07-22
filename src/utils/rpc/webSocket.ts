@@ -10,14 +10,14 @@ import {
 
 export type GetWebSocketRpcClientOptions = Pick<
   GetSocketRpcClientParameters,
-  'reconnect'
+  'reconnect' | 'keepAliveInterval'
 >
 
 export async function getWebSocketRpcClient(
   url: string,
   options: GetWebSocketRpcClientOptions | undefined = {},
 ): Promise<SocketRpcClient<WebSocket>> {
-  const { reconnect } = options
+  const { reconnect, keepAliveInterval } = options
 
   return getSocketRpcClient({
     async getSocket({ onError, onOpen, onResponse }) {
@@ -56,6 +56,10 @@ export async function getWebSocketRpcClient(
           close_.bind(socket)()
           onClose()
         },
+        ping() {
+          if (socket.readyState === socket.CLOSED) return
+          socket.send('ping')
+        },
         request({ body }) {
           if (
             socket.readyState === socket.CLOSED ||
@@ -72,6 +76,7 @@ export async function getWebSocketRpcClient(
       } as Socket<WebSocket>)
     },
     reconnect,
+    keepAliveInterval,
     url,
   })
 }
