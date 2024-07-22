@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added support for The Root Network
+Added Root Network chain.
