@@ -1,5 +1,15 @@
 # viem
 
+## 2.17.10
+
+### Patch Changes
+
+- [#2513](https://github.com/wevm/viem/pull/2513) [`3af06fe`](https://github.com/wevm/viem/commit/3af06fe23dda1f44d43b3d3cec5d985894c2840a) Thanks [@hoangtan282](https://github.com/hoangtan282)! - Added Funki Mainnet.
+
+- [#2519](https://github.com/wevm/viem/pull/2519) [`01cdac1`](https://github.com/wevm/viem/commit/01cdac14d508fbae50a31492e244b7adbe858bab) Thanks [@cbfyi](https://github.com/cbfyi)! - Added dispute game factory address for Base Sepolia.
+
+- [#2515](https://github.com/wevm/viem/pull/2515) [`b7e4fa5`](https://github.com/wevm/viem/commit/b7e4fa518b1798741cf029f34ed3154695ab3a16) Thanks [@JoeyKhd](https://github.com/JoeyKhd)! - Added Root Network chain.
+
 ## 2.17.9
 
 ### Patch Changes
