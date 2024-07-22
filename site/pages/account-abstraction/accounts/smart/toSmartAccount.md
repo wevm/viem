@@ -47,8 +47,8 @@ const account = await toSmartAccount({
   async getNonce() {
     // Get the nonce of the Smart Account.
   },
-  async getSignature(packedUserOperation) {
-    // Get the signature of the Smart Account.
+  async getStubSignature() {
+    // Get the stub signature for User Operations from the Smart Account.
   },
   async signMessage(message) {
     // Sign message to be verified by the Smart Account contract.

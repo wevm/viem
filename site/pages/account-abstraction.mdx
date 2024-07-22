@@ -138,7 +138,6 @@ const account = await toCoinbaseSmartAccount({ // [!code focus]
 Next, we will send a User Operation to the Bundler. For the example below, we will send 0.001 ETH to a random address.
 
 ```ts
-// @noErrors
 import { http, parseEther } from 'viem'
 import { 
   createBundlerClient, 
@@ -182,7 +181,6 @@ const receipt = await bundlerClient.waitForUserOperationReceipt({ hash }) // [!c
 If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account onto a Wallet Client.
 
 ```ts 
-// @noErrors
 import { createPublicClient, http, parseEther } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { mainnet } from 'viem/chains'

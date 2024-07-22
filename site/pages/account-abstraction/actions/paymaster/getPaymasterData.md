@@ -40,7 +40,7 @@ export const paymasterClient = createPaymasterClient({
 
 ## Returns
 
-```
+```ts
 {
   paymaster: Address
   paymasterData: Hex

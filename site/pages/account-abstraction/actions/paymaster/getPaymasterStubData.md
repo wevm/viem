@@ -40,7 +40,7 @@ export const paymasterClient = createPaymasterClient({
 
 ## Returns
 
-```
+```ts
 {
   isFinal: boolean
   paymaster: Address
