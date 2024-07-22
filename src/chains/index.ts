@@ -393,6 +393,7 @@ export type {
 } from '../zksync/types/log.js'
 export type {
   TransactionRequestEIP712,
+  TransactionRequest as ZkSyncTransactionRequest_internal,
   ZkSyncEIP712TransactionSignable,
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionEIP712,
@@ -411,4 +412,7 @@ export type {
   ZkSyncTransactionSerialized,
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
+  ZkSyncRawBlockTransactions,
+  ZkSyncRpcTransactionReceipt,
+  ZkSyncTransactionDetails,
 } from '../zksync/types/transaction.js'
