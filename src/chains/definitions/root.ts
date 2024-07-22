@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const root = /*#__PURE__*/ defineChain({
   id: 7668,
   name: 'The Root Network',
-  network: 'root',
   nativeCurrency: {
     decimals: 18,
     name: 'XRP',
