@@ -76,15 +76,24 @@ export {
 
 export {
   type BundlerActions,
-  type BundlerActionsParameters,
   bundlerActions,
 } from './clients/decorators/bundler.js'
+export {
+  type PaymasterActions,
+  paymasterActions,
+} from './clients/decorators/paymaster.js'
 export {
   type BundlerClient,
   type BundlerClientConfig,
   type CreateBundlerClientErrorType,
   createBundlerClient,
 } from './clients/createBundlerClient.js'
+export {
+  type PaymasterClient,
+  type PaymasterClientConfig,
+  type CreatePaymasterClientErrorType,
+  createPaymasterClient,
+} from './clients/createPaymasterClient.js'
 
 export { entryPoint06Abi, entryPoint07Abi } from './constants/abis.js'
 export {
@@ -211,3 +220,4 @@ export {
   type GetUserOperationHashReturnType,
   getUserOperationHash,
 } from './utils/userOperation/getUserOperationHash.js'
+export { toPackedUserOperation } from './utils/userOperation/toPackedUserOperation.js'

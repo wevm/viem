@@ -205,7 +205,7 @@ export async function toCoinbaseSmartAccount(
     },
 
     userOperation: {
-      async estimateGas({ userOperation }) {
+      async estimateGas(userOperation) {
         if (owner.type !== 'webAuthn') return
 
         // Accounts with WebAuthn owner require a minimum verification gas limit of 800,000.

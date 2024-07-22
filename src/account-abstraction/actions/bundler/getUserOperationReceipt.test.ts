@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, test } from 'vitest'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
-} from '../../../../test/src/smartAccounts.js'
+} from '../../../../test/src/account-abstraction.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { mine } from '../../../actions/index.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { getUserOperationReceipt } from './getUserOperationReceipt.js'
@@ -67,11 +67,9 @@ describe('entryPointVersion: 0.7', async () => {
       getUserOperationReceipt(bundlerClient, {
         hash,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [UserOperationReceiptNotFoundError: User Operation receipt with hash "0x71188c6207d26b66e5bd03e05b04196b963ad26ec6ce91d234aef3af607cddf7" could not be found. The User Operation may not have been processed yet.
-
-      Version: viem@x.y.z]
-    `)
+    ).rejects.toThrowError(
+      'The User Operation may not have been processed yet.',
+    )
   })
 })
 

@@ -6,7 +6,7 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
-import { getSmartAccounts_07 } from '../../../test/src/smartAccounts.js'
+import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'

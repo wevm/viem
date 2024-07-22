@@ -26,6 +26,8 @@ test('creates', () => {
       "getUserOperationReceipt": [Function],
       "key": "bundler",
       "name": "Bundler Client",
+      "paymaster": undefined,
+      "paymasterContext": undefined,
       "pollingInterval": 4000,
       "prepareUserOperation": [Function],
       "request": [Function],

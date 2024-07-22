@@ -1,9 +1,9 @@
 import { describe, expectTypeOf, test } from 'vitest'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
-} from '../../../../test/src/smartAccounts.js'
+} from '../../../../test/src/account-abstraction.js'
+import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import type { Hex } from '../../../types/misc.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { prepareUserOperation } from './prepareUserOperation.js'

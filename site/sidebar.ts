@@ -1080,11 +1080,28 @@ export const sidebar = {
         ],
       },
       {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Sending User Operations',
+            link: '/account-abstraction/guides/sending-user-operations',
+          },
+          {
+            text: 'Sponsorship via a Paymaster Service',
+            link: '/account-abstraction/guides/sponsorship-via-a-paymaster-service',
+          },
+        ],
+      },
+      {
         text: 'Clients',
         items: [
           {
             text: 'Bundler Client',
             link: '/account-abstraction/clients/bundler',
+          },
+          {
+            text: 'Paymaster Client',
+            link: '/account-abstraction/clients/paymaster',
           },
         ],
       },
@@ -1176,6 +1193,19 @@ export const sidebar = {
           {
             text: 'waitForUserOperationReceipt',
             link: '/account-abstraction/actions/bundler/waitForUserOperationReceipt',
+          },
+        ],
+      },
+      {
+        text: 'Paymaster Actions',
+        items: [
+          {
+            text: 'getPaymasterData',
+            link: '/account-abstraction/actions/paymaster/getPaymasterData',
+          },
+          {
+            text: 'getPaymasterStubData',
+            link: '/account-abstraction/actions/paymaster/getPaymasterStubData',
           },
         ],
       },

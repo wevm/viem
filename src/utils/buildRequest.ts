@@ -129,7 +129,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
                   throw new InvalidRequestRpcError(err)
                 // -32601
                 case MethodNotFoundRpcError.code:
-                  throw new MethodNotFoundRpcError(err)
+                  throw new MethodNotFoundRpcError(err, { method: args.method })
                 // -32602
                 case InvalidParamsRpcError.code:
                   throw new InvalidParamsRpcError(err)
@@ -150,7 +150,9 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
                   throw new TransactionRejectedRpcError(err)
                 // -32004
                 case MethodNotSupportedRpcError.code:
-                  throw new MethodNotSupportedRpcError(err)
+                  throw new MethodNotSupportedRpcError(err, {
+                    method: args.method,
+                  })
                 // -32005
                 case LimitExceededRpcError.code:
                   throw new LimitExceededRpcError(err)

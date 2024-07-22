@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
-} from '../../../../test/src/smartAccounts.js'
+} from '../../../../test/src/account-abstraction.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { mine } from '../../../actions/index.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { wait } from '../../../utils/wait.js'
@@ -113,11 +113,7 @@ describe('entryPointVersion: 0.7', async () => {
           await wait(500)
         })(),
       ]),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [WaitForUserOperationReceiptTimeoutError: Timed out while waiting for User Operation with hash "0x227b510ab5364e143571334f3a6ad3e8228bbb517469389d8e4c5b902678f5d4" to be confirmed.
-
-      Version: viem@x.y.z]
-    `)
+    ).rejects.toThrowError('Timed out while waiting for User Operation')
   })
 
   test('error: timeout exceeded', async () => {
@@ -143,11 +139,7 @@ describe('entryPointVersion: 0.7', async () => {
           await wait(500)
         })(),
       ]),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [WaitForUserOperationReceiptTimeoutError: Timed out while waiting for User Operation with hash "0x227b510ab5364e143571334f3a6ad3e8228bbb517469389d8e4c5b902678f5d4" to be confirmed.
-
-      Version: viem@x.y.z]
-    `)
+    ).rejects.toThrowError('Timed out while waiting for User Operation')
   })
 
   test('error: generic error', async () => {

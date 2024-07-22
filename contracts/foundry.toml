@@ -1,6 +1,8 @@
 [profile.default]
 libs = ["lib"]
 remappings = [
+  "@openzeppelin/=lib/openzeppelin/",
+  "account-abstraction/=lib/account-abstraction/contracts/",
   "solady/=lib/solady/src/",
   "solady-dc09481/=lib/solady-dc09481/src/",
 ]

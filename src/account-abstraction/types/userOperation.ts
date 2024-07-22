@@ -43,24 +43,21 @@ export type GetUserOperationByHashReturnType<
 }
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#entrypoint-definition */
-export type PackedUserOperation<
-  _entryPointVersion extends EntryPointVersion = EntryPointVersion,
-  uint256 = bigint,
-> = {
+export type PackedUserOperation = {
   /** Concatenation of {@link UserOperation`verificationGasLimit`} (16 bytes) and {@link UserOperation`callGasLimit`} (16 bytes) */
   accountGasLimits: Hex
   /** The data to pass to the `sender` during the main execution call. */
   callData: Hex
   /** Concatenation of {@link UserOperation`factory`} and {@link UserOperation`factoryData`}. */
-  initCode?: Hex | undefined
+  initCode: Hex
   /** Concatenation of {@link UserOperation`maxPriorityFee`} (16 bytes) and {@link UserOperation`maxFeePerGas`} (16 bytes) */
   gasFees: Hex
   /** Anti-replay parameter. */
-  nonce: uint256
+  nonce: bigint
   /** Concatenation of paymaster fields (or empty). */
-  paymasterAndData?: Hex | undefined
+  paymasterAndData: Hex
   /** Extra gas to pay the bunder. */
-  preVerificationGas: uint256
+  preVerificationGas: bigint
   /** The account making the operation. */
   sender: Address
   /** Data passed into the account to verify authorization. */

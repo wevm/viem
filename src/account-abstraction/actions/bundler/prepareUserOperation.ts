@@ -19,6 +19,7 @@ import { getAction } from '../../../utils/getAction.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import type { SmartAccount } from '../../accounts/types.js'
 import type { BundlerClient } from '../../clients/createBundlerClient.js'
+import type { PaymasterActions } from '../../clients/decorators/paymaster.js'
 import type {
   DeriveSmartAccount,
   GetSmartAccountParameter,
@@ -33,6 +34,8 @@ import type {
   UserOperationCalls,
   UserOperationRequest,
 } from '../../types/userOperation.js'
+import { getPaymasterData as getPaymasterData_ } from '../paymaster/getPaymasterData.js'
+import { getPaymasterStubData as getPaymasterStubData_ } from '../paymaster/getPaymasterStubData.js'
 import {
   type EstimateUserOperationGasParameters,
   estimateUserOperationGas,
@@ -42,6 +45,7 @@ const defaultParameters = [
   'factory',
   'fees',
   'gas',
+  'paymaster',
   'nonce',
   'signature',
 ] as const
@@ -50,6 +54,7 @@ export type PrepareUserOperationParameterType =
   | 'factory'
   | 'fees'
   | 'gas'
+  | 'paymaster'
   | 'nonce'
   | 'signature'
 
@@ -97,6 +102,23 @@ type NonceProperties = {
   nonce: UserOperation['nonce']
 }
 
+type PaymasterProperties<
+  entryPointVersion extends EntryPointVersion = EntryPointVersion,
+> =
+  | (entryPointVersion extends '0.7'
+      ? {
+          paymaster: UserOperation['paymaster']
+          paymasterData: UserOperation['paymasterData']
+          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
+          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
+        }
+      : never)
+  | (entryPointVersion extends '0.6'
+      ? {
+          paymasterAndData: UserOperation['paymasterAndData']
+        }
+      : never)
+
 type SignatureProperties = {
   signature: UserOperation['signature']
 }
@@ -114,10 +136,24 @@ export type PrepareUserOperationRequest<
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = Assign<
   UserOperationRequest<_derivedVersion>,
-  OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }>
-> & {
-  parameters?: readonly PrepareUserOperationParameterType[] | undefined
-}
+  OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }> & {
+    parameters?: readonly PrepareUserOperationParameterType[] | undefined
+    paymaster?:
+      | Address
+      | true
+      | {
+          /** Retrieves paymaster-related User Operation properties to be used for sending the User Operation. */
+          getPaymasterData?: PaymasterActions['getPaymasterData'] | undefined
+          /** Retrieves paymaster-related User Operation properties to be used for gas estimation. */
+          getPaymasterStubData?:
+            | PaymasterActions['getPaymasterStubData']
+            | undefined
+        }
+      | undefined
+    /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
+    paymasterContext?: unknown
+  }
+>
 
 export type PrepareUserOperationParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -163,6 +199,9 @@ export type PrepareUserOperationReturnType<
     (Extract<_parameters, 'gas'> extends never
       ? {}
       : GasProperties<_derivedVersion>) &
+    (Extract<_parameters, 'paymaster'> extends never
+      ? {}
+      : PaymasterProperties<_derivedVersion>) &
     (Extract<_parameters, 'signature'> extends never ? {} : SignatureProperties)
 >
 
@@ -203,7 +242,7 @@ export async function prepareUserOperation<
   accountOverride extends SmartAccount | undefined = undefined,
 >(
   client: Client<Transport, Chain | undefined, account>,
-  parameters: PrepareUserOperationParameters<
+  parameters_: PrepareUserOperationParameters<
     account,
     accountOverride,
     calls,
@@ -212,30 +251,92 @@ export async function prepareUserOperation<
 ): Promise<
   PrepareUserOperationReturnType<account, accountOverride, calls, request>
 > {
+  const parameters = parameters_ as PrepareUserOperationParameters
   const {
     account: account_ = client.account,
-    parameters: parameters_ = defaultParameters,
-  } = parameters as PrepareUserOperationParameters
+    parameters: properties = defaultParameters,
+  } = parameters
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Assert that an Account is defined.
+  ////////////////////////////////////////////////////////////////////////////////
 
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
-  const bundlerClient =
-    client.type === 'bundlerClient'
-      ? (client as unknown as BundlerClient)
-      : undefined
+  ////////////////////////////////////////////////////////////////////////////////
+  // Declare typed Bundler Client.
+  ////////////////////////////////////////////////////////////////////////////////
+
+  const bundlerClient = client as unknown as BundlerClient
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Declare Paymaster properties.
+  ////////////////////////////////////////////////////////////////////////////////
+
+  const paymaster = parameters.paymaster ?? bundlerClient?.paymaster
+  const paymasterAddress = typeof paymaster === 'string' ? paymaster : undefined
+  const { getPaymasterStubData, getPaymasterData } = (() => {
+    // If `paymaster: true`, we will assume the Bundler Client supports Paymaster Actions.
+    if (paymaster === true)
+      return {
+        getPaymasterStubData: (parameters: any) =>
+          getAction(
+            bundlerClient,
+            getPaymasterStubData_,
+            'getPaymasterStubData',
+          )(parameters),
+        getPaymasterData: (parameters: any) =>
+          getAction(
+            bundlerClient,
+            getPaymasterData_,
+            'getPaymasterData',
+          )(parameters),
+      }
+
+    // If Actions are passed to `paymaster` (via Paymaster Client or directly), we will use them.
+    if (typeof paymaster === 'object') {
+      const { getPaymasterStubData, getPaymasterData } = paymaster
+      return {
+        getPaymasterStubData: (getPaymasterData && getPaymasterStubData
+          ? getPaymasterStubData
+          : getPaymasterData) as typeof getPaymasterStubData,
+        getPaymasterData:
+          getPaymasterData && getPaymasterStubData
+            ? getPaymasterData
+            : undefined,
+      }
+    }
+
+    // No Paymaster functions.
+    return {
+      getPaymasterStubData: undefined,
+      getPaymasterData: undefined,
+    }
+  })()
+  const paymasterContext = parameters.paymasterContext
+    ? parameters.paymasterContext
+    : bundlerClient?.paymasterContext
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Set up the User Operation request.
+  ////////////////////////////////////////////////////////////////////////////////
 
   let request = {
     ...parameters,
+    paymaster: paymasterAddress,
     sender: account.address,
   } as PrepareUserOperationRequest
 
+  ////////////////////////////////////////////////////////////////////////////////
   // Concurrently prepare properties required to fill the User Operation.
+  ////////////////////////////////////////////////////////////////////////////////
+
   const [callData, factory, fees, nonce, signature] = await Promise.all([
     (async () => {
-      if (request.calls)
+      if (parameters.calls)
         return account.encodeCalls(
-          request.calls.map((call_) => {
+          parameters.calls.map((call_) => {
             const call = call_ as
               | UserOperationCall
               | (ContractFunctionParameters & { to: Address; value: bigint })
@@ -248,15 +349,15 @@ export async function prepareUserOperation<
             return call as UserOperationCall
           }),
         )
-      return request.callData
+      return parameters.callData
     })(),
     (async () => {
-      if (!parameters_.includes('factory')) return undefined
-      if (request.initCode) return { initCode: request.initCode }
-      if (request.factory && request.factoryData) {
+      if (!properties.includes('factory')) return undefined
+      if (parameters.initCode) return { initCode: parameters.initCode }
+      if (parameters.factory && parameters.factoryData) {
         return {
-          factory: request.factory,
-          factoryData: request.factoryData,
+          factory: parameters.factory,
+          factoryData: parameters.factoryData,
         }
       }
 
@@ -273,7 +374,7 @@ export async function prepareUserOperation<
       }
     })(),
     (async () => {
-      if (!parameters_.includes('fees')) return undefined
+      if (!properties.includes('fees')) return undefined
 
       // If the Bundler Client has a `estimateFeesPerGas` hook, run it.
       if (bundlerClient?.userOperation?.estimateFeesPerGas) {
@@ -290,8 +391,8 @@ export async function prepareUserOperation<
 
       // If we have sufficient properties for fees, return them.
       if (
-        typeof request.maxFeePerGas === 'bigint' &&
-        typeof request.maxPriorityFeePerGas === 'bigint'
+        typeof parameters.maxFeePerGas === 'bigint' &&
+        typeof parameters.maxPriorityFeePerGas === 'bigint'
       )
         return request
 
@@ -308,8 +409,8 @@ export async function prepareUserOperation<
         })
         return {
           maxFeePerGas:
-            typeof request.maxFeePerGas === 'bigint'
-              ? request.maxFeePerGas
+            typeof parameters.maxFeePerGas === 'bigint'
+              ? parameters.maxFeePerGas
               : BigInt(
                   // Bundlers unfortunately have strict rules on fee prechecks – we will need to set a generous buffer.
                   Math.max(
@@ -318,8 +419,8 @@ export async function prepareUserOperation<
                   ),
                 ),
           maxPriorityFeePerGas:
-            typeof request.maxPriorityFeePerGas === 'bigint'
-              ? request.maxPriorityFeePerGas
+            typeof parameters.maxPriorityFeePerGas === 'bigint'
+              ? parameters.maxPriorityFeePerGas
               : BigInt(
                   // Bundlers unfortunately have strict rules on fee prechecks – we will need to set a generous buffer.
                   Math.max(
@@ -333,17 +434,20 @@ export async function prepareUserOperation<
       }
     })(),
     (async () => {
-      if (!parameters_.includes('nonce')) return undefined
-      if (typeof request.nonce === 'bigint') return request.nonce
+      if (!properties.includes('nonce')) return undefined
+      if (typeof parameters.nonce === 'bigint') return parameters.nonce
       return account.getNonce()
     })(),
     (async () => {
-      if (!parameters_.includes('signature')) return undefined
+      if (!properties.includes('signature')) return undefined
       return account.getStubSignature()
     })(),
   ])
 
-  // Fill in the User Operation with the prepared properties.
+  ////////////////////////////////////////////////////////////////////////////////
+  // Fill User Operation with the prepared properties from above.
+  ////////////////////////////////////////////////////////////////////////////////
+
   if (typeof callData !== 'undefined') request.callData = callData
   if (typeof factory !== 'undefined')
     request = { ...request, ...(factory as any) }
@@ -351,35 +455,65 @@ export async function prepareUserOperation<
   if (typeof nonce !== 'undefined') request.nonce = nonce
   if (typeof signature !== 'undefined') request.signature = signature
 
-  // `paymasterAndData` + `initCode` is required to be filled with EntryPoint 0.6.
-  // If no `paymasterAndData` or `initCode` is provided, we use an empty bytes string.
-  if (account.entryPoint.version === '0.6') {
-    if (!request.paymasterAndData) request.paymasterAndData = '0x'
-    if (!request.initCode) request.initCode = '0x'
-  }
+  ////////////////////////////////////////////////////////////////////////////////
+  // `initCode` is required to be filled with EntryPoint 0.6.
+  ////////////////////////////////////////////////////////////////////////////////
 
-  // If the Bundler Client has a `sponsorUserOperation` hook, run it and populate the request
-  // with the prepared sponsored User Operation.
-  if (bundlerClient?.userOperation?.sponsorUserOperation) {
-    const request_sponsor =
-      await bundlerClient.userOperation.sponsorUserOperation({
-        account,
-        bundlerClient,
-        userOperation: request as UserOperation,
-      })
+  // If no `initCode` is provided, we use an empty bytes string.
+  if (account.entryPoint.version === '0.6' && !request.initCode)
+    request.initCode = '0x'
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Fill User Operation with paymaster-related properties for **gas estimation**.
+  ////////////////////////////////////////////////////////////////////////////////
+
+  // console.log('wat')
+
+  // If the User Operation is intended to be sponsored, we will need to fill the paymaster-related
+  // User Operation properties required to estimate the User Operation gas.
+  let isPaymasterPopulated = false
+  if (
+    properties.includes('paymaster') &&
+    getPaymasterStubData &&
+    !paymasterAddress &&
+    !parameters.paymasterAndData
+  ) {
+    const {
+      isFinal = false,
+      sponsor,
+      ...paymasterArgs
+    } = await getPaymasterStubData({
+      chainId: client.chain!.id!,
+      entryPointAddress: account.entryPoint.address,
+      context: paymasterContext,
+      ...(request as UserOperation),
+    })
+    isPaymasterPopulated = isFinal
     request = {
       ...request,
-      ...request_sponsor,
+      ...paymasterArgs,
     } as PrepareUserOperationRequest
   }
 
-  if (parameters_.includes('gas')) {
+  ////////////////////////////////////////////////////////////////////////////////
+  // `paymasterAndData` is required to be filled with EntryPoint 0.6.
+  ////////////////////////////////////////////////////////////////////////////////
+
+  // If no `paymasterAndData` is provided, we use an empty bytes string.
+  if (account.entryPoint.version === '0.6' && !request.paymasterAndData)
+    request.paymasterAndData = '0x'
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Fill User Operation with gas-related properties.
+  ////////////////////////////////////////////////////////////////////////////////
+
+  if (properties.includes('gas')) {
     // If the Account has opinionated gas estimation logic, run the `estimateGas` hook and
     // fill the request with the prepared gas properties.
     if (account.userOperation?.estimateGas) {
-      const gas = await account.userOperation.estimateGas({
-        userOperation: request,
-      })
+      const gas = await account.userOperation.estimateGas(
+        request as UserOperation,
+      )
       request = {
         ...request,
         ...gas,
@@ -432,9 +566,42 @@ export async function prepareUserOperation<
     }
   }
 
+  ////////////////////////////////////////////////////////////////////////////////
+  // Fill User Operation with paymaster-related properties for **sending** the User Operation.
+  ////////////////////////////////////////////////////////////////////////////////
+
+  // If the User Operation is intended to be sponsored, we will need to fill the paymaster-related
+  // User Operation properties required to send the User Operation.
+  if (
+    properties.includes('paymaster') &&
+    getPaymasterData &&
+    !paymasterAddress &&
+    !parameters.paymasterAndData &&
+    !isPaymasterPopulated
+  ) {
+    // Retrieve paymaster-related User Operation properties to be used for **sending** the User Operation.
+    const paymaster = await getPaymasterData({
+      chainId: client.chain!.id!,
+      entryPointAddress: account.entryPoint.address,
+      context: paymasterContext,
+      ...(request as UserOperation),
+    })
+    request = {
+      ...request,
+      ...paymaster,
+    } as PrepareUserOperationRequest
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
   // Remove redundant properties that do not conform to the User Operation schema.
+  ////////////////////////////////////////////////////////////////////////////////
+
   delete request.calls
   delete request.parameters
+  delete request.paymasterContext
+  if (typeof request.paymaster !== 'string') delete request.paymaster
+
+  ////////////////////////////////////////////////////////////////////////////////
 
   return request as unknown as PrepareUserOperationReturnType<
     account,

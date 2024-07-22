@@ -205,9 +205,7 @@ describe('return value: userOperation.estimateGas', () => {
     })
 
     const request = await account.userOperation?.estimateGas?.({
-      userOperation: {
-        callData: '0xdeadbeef',
-      },
+      callData: '0xdeadbeef',
     })
     expect(request).toMatchInlineSnapshot('undefined')
   })
@@ -223,9 +221,7 @@ describe('return value: userOperation.estimateGas', () => {
     })
 
     const request = await account.userOperation?.estimateGas?.({
-      userOperation: {
-        callData: '0xdeadbeef',
-      },
+      callData: '0xdeadbeef',
     })
     expect(request).toMatchInlineSnapshot(
       `
@@ -493,6 +489,8 @@ describe('smoke', async () => {
           to: '0x0000000000000000000000000000000000000000',
         },
       ],
+      maxFeePerGas: 22785120848n,
+      maxPriorityFeePerGas: 2000000000n,
     })
 
     expect({ ...userOperation, account: null }).toMatchInlineSnapshot(`
@@ -501,7 +499,7 @@ describe('smoke', async () => {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
         "callGasLimit": 80000n,
         "initCode": "0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a3ffba36f00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000f39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "maxFeePerGas": 17945674088n,
+        "maxFeePerGas": 22785120848n,
         "maxPriorityFeePerGas": 2000000000n,
         "nonce": 0n,
         "paymasterAndData": "0x",

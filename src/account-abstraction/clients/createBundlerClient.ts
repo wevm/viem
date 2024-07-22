@@ -14,6 +14,7 @@ import type { Prettify } from '../../types/utils.js'
 import type { SmartAccount } from '../accounts/types.js'
 import type { UserOperationRequest } from '../types/userOperation.js'
 import { type BundlerActions, bundlerActions } from './decorators/bundler.js'
+import type { PaymasterActions } from './decorators/paymaster.js'
 
 export type BundlerClientConfig<
   transport extends Transport = Transport,
@@ -34,9 +35,23 @@ export type BundlerClientConfig<
     | 'transport'
   >
 > & {
-  /** Client that points to an execution RPC URL. */
+  /** Client that points to an Execution RPC URL. */
   client?: client | Client | undefined
-  /** User Operation configuration properties. */
+  /** Paymaster configuration. */
+  paymaster?:
+    | true
+    | {
+        /** Retrieves paymaster-related User Operation properties to be used for sending the User Operation. */
+        getPaymasterData?: PaymasterActions['getPaymasterData'] | undefined
+        /** Retrieves paymaster-related User Operation properties to be used for gas estimation. */
+        getPaymasterStubData?:
+          | PaymasterActions['getPaymasterStubData']
+          | undefined
+      }
+    | undefined
+  /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
+  paymasterContext?: unknown
+  /** User Operation configuration. */
   userOperation?:
     | {
         /** Prepares fee properties for the User Operation request. */
@@ -46,14 +61,6 @@ export type BundlerClientConfig<
               bundlerClient: Client
               userOperation: UserOperationRequest
             }) => Promise<EstimateFeesPerGasReturnType<'eip1559'>>)
-          | undefined
-        /** Prepares sponsorship properties for the User Operation request. */
-        sponsorUserOperation?:
-          | ((parameters: {
-              account: account | SmartAccount
-              bundlerClient: Client
-              userOperation: UserOperationRequest
-            }) => Promise<UserOperationRequest>)
           | undefined
       }
     | undefined
@@ -81,7 +88,9 @@ export type BundlerClient<
   >
 > & {
   client: client
-  userOperation?: BundlerClientConfig['userOperation'] | undefined
+  paymaster: BundlerClientConfig['paymaster'] | undefined
+  paymasterContext: BundlerClientConfig['paymasterContext'] | undefined
+  userOperation: BundlerClientConfig['userOperation'] | undefined
 }
 
 export type CreateBundlerClientErrorType = CreateClientErrorType | ErrorType
@@ -89,13 +98,14 @@ export type CreateBundlerClientErrorType = CreateClientErrorType | ErrorType
 /**
  * Creates a Bundler Client with a given [Transport](https://viem.sh/docs/clients/intro) configured for a [Chain](https://viem.sh/docs/clients/chains).
  *
- * - Docs: https://viem.sh/clients/bundler
+ * - Docs: https://viem.sh/account-abstraction/clients/bundler
  *
  * @param config - {@link BundlerClientConfig}
  * @returns A Bundler Client. {@link BundlerClient}
  *
  * @example
- * import { createBundlerClient, createPublicClient, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
+ * import { createBundlerClient } from 'viem/account-abstraction'
  * import { mainnet } from 'viem/chains'
  *
  * const client = createPublicClient({
@@ -125,18 +135,21 @@ export function createBundlerClient(
     client: client_,
     key = 'bundler',
     name = 'Bundler Client',
+    paymaster,
+    paymasterContext,
     transport,
     userOperation,
   } = parameters
   const client = Object.assign(
     createClient({
       ...parameters,
+      chain: parameters.chain ?? client_?.chain,
       key,
       name,
       transport,
       type: 'bundlerClient',
     }),
-    { client: client_, userOperation },
+    { client: client_, paymaster, paymasterContext, userOperation },
   )
   return client.extend(bundlerActions) as any
 }

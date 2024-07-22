@@ -110,7 +110,7 @@ const bundlerClient = createBundlerClient({
 ### key (optional)
 
 - **Type:** `string`
-- **Default:** `"wallet"`
+- **Default:** `"bundler"`
 
 A key for the Client.
 
@@ -127,7 +127,7 @@ const client = createBundlerClient({
 ### name (optional)
 
 - **Type:** `string`
-- **Default:** `"Wallet Client"`
+- **Default:** `"Bundler Client"`
 
 A name for the Client.
 
@@ -138,6 +138,145 @@ import { http } from 'viem'
 const client = createBundlerClient({
   name: 'Foo Bundler Client', // [!code focus]
   transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
+})
+```
+
+### paymaster (optional)
+
+- **Type:** `true | PaymasterClient | { getPaymasterData: typeof getPaymasterData, getPaymasterStubData: typeof getPaymasterStubData }`
+
+Sets Paymaster configuration for the Bundler Client to be utilized on User Operations.
+
+- If `paymaster: PaymasterClient`, it will use the provided [Paymaster Client](/account-abstraction/clients/paymaster) for User Operation sponsorship.
+- If `paymaster: true`, it will be assumed that the Bundler Client also supports Paymaster RPC methods (e.g. `pm_getPaymasterData`), and use them for User Operation sponsorship.
+- If [custom functions](#paymastergetpaymasterdata-optional) are provided to `paymaster`, it will use them for User Operation sponsorship.
+
+#### Using a Paymaster Client
+
+```ts twoslash
+// @noErrors
+import { createPaymasterClient, createBundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { client } from './config'
+// ---cut---
+const paymasterClient = createPaymasterClient({ // [!code focus]
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>') // [!code focus]
+}) // [!code focus]
+
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  paymaster: paymasterClient, // [!code focus]
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+})
+```
+
+#### Using the Bundler Client as Paymaster
+
+```ts twoslash
+// @noErrors
+import { createBundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  paymaster: true, // [!code focus]
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+})
+```
+
+#### Using Custom Paymaster Functions
+
+See the [properties below](#paymastergetpaymasterdata-optional) for more information on how to use custom Paymaster functions.
+
+### paymaster.getPaymasterData (optional)
+
+- **Type:** `(userOperation: UserOperation) => Promise<GetPaymasterDataReturnType>`
+
+Retrieves paymaster-related User Operation properties to be used for sending the User Operation.
+
+[Read more](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7677.md#pm_getpaymasterdata)
+
+```ts twoslash
+// @noErrors
+import { createBundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  paymaster: { // [!code focus]
+    async getPaymasterData(userOperation) { // [!code focus]
+      // Retrieve paymaster properties for the User Operation. // [!code focus]
+      return { // [!code focus]
+        paymaster: '0x...', // [!code focus]
+        paymasterData: '0x...', // [!code focus]
+        paymasterVerificationGasLimit: 69420n, // [!code focus]
+        paymasterPostOpGasLimit: 69420n, // [!code focus]
+      } // [!code focus]
+    } // [!code focus]
+  } // [!code focus]
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+})
+```
+
+### paymaster.getPaymasterStubData (optional)
+
+- **Type:** `(userOperation: UserOperation) => Promise<GetPaymasterStubDataReturnType>`
+
+Retrieves paymaster-related User Operation properties to be used for gas estimation.
+
+[Read more](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7677.md#pm_getpaymasterstubdata)
+
+```ts twoslash
+// @noErrors
+import { createBundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  paymaster: { 
+    async getPaymasterStubData(userOperation) { // [!code focus]
+      // Retrieve paymaster properties for the User Operation. // [!code focus]
+      return { // [!code focus]
+        paymaster: '0x...', // [!code focus]
+        paymasterData: '0x...', // [!code focus]
+        paymasterVerificationGasLimit: 69420n, // [!code focus]
+        paymasterPostOpGasLimit: 69420n, // [!code focus]
+      } // [!code focus]
+    } // [!code focus]
+    async getPaymasterData(userOperation) { /* ... */ }
+  } 
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+})
+```
+
+### paymasterContext (optional)
+
+- **Type:** `unknown`
+
+Paymaster specific fields.
+
+```ts twoslash
+// @noErrors
+import { createPaymasterClient, createBundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { client } from './config'
+// ---cut---
+const paymasterClient = createPaymasterClient({
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>')
+})
+
+const bundlerClient = createBundlerClient({
+  chain: mainnet,
+  paymaster: paymasterClient,
+  paymasterContext: { // [!code focus]
+    policyId: 'abc123' // [!code focus]
+  }, // [!code focus]
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
 })
 ```
 
@@ -161,7 +300,7 @@ const client = createBundlerClient({
 ### rpcSchema (optional)
 
 - **Type:** `RpcSchema`
-- **Default:** `WalletRpcSchema`
+- **Default:** `BundlerRpcSchema`
 
 Typed JSON-RPC schema for the client.
 
@@ -234,37 +373,6 @@ const bundlerClient = createBundlerClient({
         maxFeePerGas: /* ... */, // [!code focus]
         maxPriorityFeePerGas: /* ... */, // [!code focus]
       } // [!code focus]
-    } // [!code focus]
-  } // [!code focus]
-})
-```
-
-#### userOperation.sponsorUserOperation
-
-- **Type:** `({ account: Account, bundlerClient: Client, userOperation: UserOperationRequest }) => Promise<UserOperationRequest>`
-
-Prepares sponsorship properties for the User Operation request.
-
-```ts twoslash
-// @noErrors
-import { createBundlerClient } from 'viem/account-abstraction'
-import { http } from 'viem'
-import { mainnet } from 'viem/chains'
-// ---cut---
-import { client } from './config'
-import { formatUserOperationRequest, formatUserOperation } from 'viem/account-abstraction'
-
-const bundlerClient = createBundlerClient({
-  chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-  userOperation: { // [!code focus]
-    async sponsorUserOperation({ account, bundlerClient, userOperation }) { // [!code focus]
-      // Retrieve sponsorship properties for the User Operation. // [!code focus]
-      const result = await client.request({ // [!code focus]
-        method: 'pm_sponsorUserOperation', // [!code focus]
-        params: [formatUserOperationRequest(userOperation)], // [!code focus]
-      }) // [!code focus]
-      return formatUserOperation(result) // [!code focus]
     } // [!code focus]
   } // [!code focus]
 })

@@ -1,4 +1,4 @@
-import type { Narrow } from 'abitype'
+import type { Address, Narrow } from 'abitype'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
@@ -10,6 +10,7 @@ import type { Hex } from '../../../types/misc.js'
 import type { Assign, OneOf, Prettify } from '../../../types/utils.js'
 import { getAction } from '../../../utils/getAction.js'
 import type { SmartAccount } from '../../accounts/types.js'
+import type { PaymasterActions } from '../../clients/decorators/paymaster.js'
 import type {
   DeriveSmartAccount,
   GetSmartAccountParameter,
@@ -45,7 +46,22 @@ export type EstimateUserOperationGasParameters<
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = Assign<
   UserOperationRequest<_derivedVersion>,
-  OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }>
+  OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }> & {
+    paymaster?:
+      | Address
+      | true
+      | {
+          /** Retrieves paymaster-related User Operation properties to be used for sending the User Operation. */
+          getPaymasterData?: PaymasterActions['getPaymasterData'] | undefined
+          /** Retrieves paymaster-related User Operation properties to be used for gas estimation. */
+          getPaymasterStubData?:
+            | PaymasterActions['getPaymasterStubData']
+            | undefined
+        }
+      | undefined
+    /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
+    paymasterContext?: unknown
+  }
 > &
   GetSmartAccountParameter<account, accountOverride>
 
@@ -113,7 +129,7 @@ export async function estimateUserOperationGas<
     'prepareUserOperation',
   )({
     ...parameters,
-    parameters: ['factory', 'nonce', 'signature'],
+    parameters: ['factory', 'nonce', 'paymaster', 'signature'],
   } as unknown as PrepareUserOperationParameters)
 
   try {

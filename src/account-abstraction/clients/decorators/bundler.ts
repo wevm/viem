@@ -1,4 +1,3 @@
-import type { Address } from 'abitype'
 import {
   type GetChainIdReturnType,
   getChainId,
@@ -273,10 +272,6 @@ export type BundlerActions<
   waitForUserOperationReceipt: (
     parameters: WaitForUserOperationReceiptParameters,
   ) => Promise<WaitForUserOperationReceiptReturnType>
-}
-
-export type BundlerActionsParameters = {
-  entryPoint: Address
 }
 
 export function bundlerActions<

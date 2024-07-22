@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, test } from 'vitest'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
+import {
+  createVerifyingPaymasterServer,
+  getSmartAccounts_06,
+  getSmartAccounts_07,
+  getVerifyingPaymaster_07,
+} from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { accounts } from '../../../../test/src/constants.js'
-import {
-  getSmartAccounts_06,
-  getSmartAccounts_07,
-} from '../../../../test/src/smartAccounts.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   getBalance,
@@ -21,8 +23,7 @@ import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'
 import { toCoinbaseSmartAccount } from '../../accounts/implementations/toCoinbaseSmartAccount.js'
 import { createBundlerClient } from '../../clients/createBundlerClient.js'
-import { formatUserOperation } from '../../utils/formatters/userOperation.js'
-import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
+import { createPaymasterClient } from '../../clients/createPaymasterClient.js'
 import { sendUserOperation } from './sendUserOperation.js'
 
 const client = anvilMainnet.getClient({ account: true })
@@ -37,13 +38,12 @@ const fees = {
 } as const
 
 beforeEach(async () => {
+  await bundlerMainnet.restart()
   await setBalance(client, { address: alice, value: parseEther('10000') })
   await setBalance(client, { address: bob, value: parseEther('10000') })
 })
 
 describe('entryPointVersion: 0.7', async () => {
-  await bundlerMainnet.restart()
-
   const [account, account_2, account_3] = await getSmartAccounts_07()
 
   test('default', async () => {
@@ -85,6 +85,68 @@ describe('entryPointVersion: 0.7', async () => {
         args: [69420451n],
       }),
     ).toBe(account.address)
+  })
+
+  test('args: paymaster (client)', async () => {
+    const paymaster = await getVerifyingPaymaster_07()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: alice,
+          value: parseEther('1'),
+        },
+        {
+          to: bob,
+          value: parseEther('2'),
+        },
+      ],
+      paymaster: paymasterClient,
+      ...fees,
+    })
+    expect(hash).toBeDefined()
+
+    await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
+    await mine(client, { blocks: 1 })
+  })
+
+  test('behavior: client.paymaster (client)', async () => {
+    const paymaster = await getVerifyingPaymaster_07()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      paymaster: paymasterClient,
+    })
+
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: alice,
+          value: parseEther('1'),
+        },
+        {
+          to: bob,
+          value: parseEther('2'),
+        },
+      ],
+      ...fees,
+    })
+    expect(hash).toBeDefined()
+
+    await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
+    await mine(client, { blocks: 1 })
   })
 
   test('error: no account', async () => {
@@ -222,7 +284,7 @@ describe('entryPointVersion: 0.7', async () => {
         callGasLimit:                   80000
         maxFeePerGas:                   15 gwei
         maxPriorityFeePerGas:           2 gwei
-        nonce:                          1
+        nonce:                          3
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
         preVerificationGas:             50692
@@ -237,8 +299,6 @@ describe('entryPointVersion: 0.7', async () => {
 })
 
 describe('entryPointVersion: 0.6', async () => {
-  await bundlerMainnet.restart()
-
   const [account, account_2] = await getSmartAccounts_06()
 
   test('default', async () => {
@@ -323,22 +383,15 @@ test.skip('e2e', async () => {
     transport: http(process.env.VITE_ANVIL_FORK_URL_SEPOLIA),
   })
 
+  const paymasterClient = createPaymasterClient({
+    transport: http(process.env.VITE_PAYMASTER_URL),
+  })
+
   const bundlerClient = createBundlerClient({
     chain: sepolia,
     client,
+    paymaster: paymasterClient,
     transport: http(process.env.VITE_BUNDLER_URL_SEPOLIA),
-    userOperation: {
-      async sponsorUserOperation({ account, bundlerClient, userOperation }) {
-        const result = await bundlerClient.request<any>({
-          method: 'pm_sponsorUserOperation',
-          params: [
-            formatUserOperationRequest(userOperation),
-            account?.entryPoint.address,
-          ],
-        })
-        return formatUserOperation(result)
-      },
-    },
   })
 
   const owner = privateKeyToAccount(

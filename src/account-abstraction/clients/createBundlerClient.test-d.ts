@@ -1,5 +1,5 @@
 import { expectTypeOf, test } from 'vitest'
-import { getSmartAccounts_07 } from '../../../test/src/smartAccounts.js'
+import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { localhost } from '../../chains/index.js'
 import { createClient, rpcSchema } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -62,6 +62,7 @@ test('with client', () => {
   })
 
   expectTypeOf(bundlerClient.chain).toEqualTypeOf(localhost)
+  expectTypeOf(bundlerClient.client).toEqualTypeOf(client)
 })
 
 test('action: estimateUserOperationGas', () => {

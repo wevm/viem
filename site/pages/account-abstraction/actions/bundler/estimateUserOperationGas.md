@@ -349,15 +349,19 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 ### paymaster (optional)
 
-- **Type:** `Address`
+- **Type:** `Address | true | PaymasterClient | PaymasterActions`
 
-Paymaster address.
+Sets Paymaster configuration for the User Operation.
+
+- If `paymaster: Address`, it will use the provided Paymaster contract address for sponsorship.
+- If `paymaster: PaymasterClient`, it will use the provided [Paymaster Client](/account-abstraction/clients/paymaster) for sponsorship.
+- If `paymaster: true`, it will be assumed that the Bundler Client also supports Paymaster RPC methods (e.g. `pm_getPaymasterData`), and use them for sponsorship.
+- If [custom functions](/account-abstraction/clients/bundler#paymastergetpaymasterdata-optional) are provided to `paymaster`, it will use them for sponsorship.
+
+#### Using a Paymaster Contract Address
 
 ```ts
-import { parseEther } from 'viem'
-import { account, bundlerClient } from './config'
-
-const gas = await bundlerClient.estimateUserOperationGas({
+const hash = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -368,11 +372,73 @@ const gas = await bundlerClient.estimateUserOperationGas({
 })
 ```
 
+#### Using a Paymaster Client
+
+```ts
+const paymasterClient = createPaymasterClient({ // [!code focus]
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>') // [!code focus]
+}) // [!code focus]
+
+const hash = await bundlerClient.estimateUserOperationGas({
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('1')
+  }],
+  paymaster: paymasterClient, // [!code focus]
+})
+```
+
+#### Using the Bundler Client as Paymaster
+
+```ts
+const hash = await bundlerClient.estimateUserOperationGas({
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('1')
+  }],
+  paymaster: true, // [!code focus]
+})
+```
+
+### paymasterContext (optional)
+
+- **Type:** `unknown`
+
+Paymaster specific fields.
+
+:::warning
+This property is only available if **`paymaster` is a Paymaster Client**.
+:::
+
+```ts
+const paymasterClient = createPaymasterClient({
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>')
+})
+
+const hash = await bundlerClient.estimateUserOperationGas({
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('1')
+  }],
+  paymaster: paymasterClient,
+  paymasterContext: { // [!code focus]
+    policyId: 'abc123' // [!code focus]
+  }, // [!code focus]
+})
+```
+
 ### paymasterData (optional)
 
 - **Type:** `Address`
 
 Call data to execute on the Paymaster contract.
+
+:::warning
+This property is only available if **`paymaster` is an address**.
+:::
 
 ```ts
 import { parseEther } from 'viem'

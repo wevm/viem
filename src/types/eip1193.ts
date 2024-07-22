@@ -22,7 +22,7 @@ import type {
   RpcTransactionRequest as TransactionRequest,
   RpcUncle as Uncle,
 } from './rpc.js'
-import type { ExactPartial, OneOf, Prettify } from './utils.js'
+import type { ExactPartial, OneOf, PartialBy, Prettify } from './utils.js'
 
 //////////////////////////////////////////////////
 // Provider
@@ -31,6 +31,7 @@ export type EIP1474Methods = [
   ...PublicRpcSchema,
   ...WalletRpcSchema,
   ...BundlerRpcSchema,
+  ...PaymasterRpcSchema,
 ]
 
 export type EIP1193Provider = Prettify<
@@ -416,6 +417,126 @@ export type DebugBundlerRpcSchema = [
     Method: 'debug_bundler_addUserOps'
     Parameters: [userOps: readonly RpcUserOperation[], entryPoint: Address]
     ReturnType: undefined
+  },
+]
+
+export type PaymasterRpcSchema = [
+  /**
+   * @description Returns the chain ID associated with the current network
+   *
+   * @link https://eips.ethereum.org/EIPS/eip-4337#-eth_chainid
+   */
+  {
+    Method: 'pm_getPaymasterStubData'
+    Parameters?: [
+      userOperation: OneOf<
+        | PartialBy<
+            Pick<
+              RpcUserOperation<'0.6'>,
+              | 'callData'
+              | 'callGasLimit'
+              | 'initCode'
+              | 'maxFeePerGas'
+              | 'maxPriorityFeePerGas'
+              | 'nonce'
+              | 'sender'
+              | 'preVerificationGas'
+              | 'verificationGasLimit'
+            >,
+            | 'callGasLimit'
+            | 'initCode'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'preVerificationGas'
+            | 'verificationGasLimit'
+          >
+        | PartialBy<
+            Pick<
+              RpcUserOperation<'0.7'>,
+              | 'callData'
+              | 'callGasLimit'
+              | 'factory'
+              | 'factoryData'
+              | 'maxFeePerGas'
+              | 'maxPriorityFeePerGas'
+              | 'nonce'
+              | 'sender'
+              | 'preVerificationGas'
+              | 'verificationGasLimit'
+            >,
+            | 'callGasLimit'
+            | 'factory'
+            | 'factoryData'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'preVerificationGas'
+            | 'verificationGasLimit'
+          >
+      >,
+      entrypoint: Address,
+      chainId: Hex,
+      context: unknown,
+    ]
+    ReturnType: OneOf<
+      | { paymasterAndData: Hex }
+      | {
+          paymaster: Address
+          paymasterData: Hex
+          paymasterVerificationGasLimit: Hex
+          paymasterPostOpGasLimit: Hex
+        }
+    > & {
+      sponsor?: { name: string; icon?: string | undefined } | undefined
+      isFinal?: boolean | undefined
+    }
+  },
+  /**
+   * @description Returns values to be used in paymaster-related fields of a signed user operation.
+   *
+   * @link https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7677.md#pm_getpaymasterdata
+   */
+  {
+    Method: 'pm_getPaymasterData'
+    Parameters?: [
+      userOperation:
+        | Pick<
+            RpcUserOperation<'0.6'>,
+            | 'callData'
+            | 'callGasLimit'
+            | 'initCode'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'nonce'
+            | 'sender'
+            | 'preVerificationGas'
+            | 'verificationGasLimit'
+          >
+        | Pick<
+            RpcUserOperation<'0.7'>,
+            | 'callData'
+            | 'callGasLimit'
+            | 'factory'
+            | 'factoryData'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'nonce'
+            | 'sender'
+            | 'preVerificationGas'
+            | 'verificationGasLimit'
+          >,
+      entrypoint: Address,
+      chainId: Hex,
+      context: unknown,
+    ]
+    ReturnType: OneOf<
+      | { paymasterAndData: Hex }
+      | {
+          paymaster: Address
+          paymasterData: Hex
+          paymasterVerificationGasLimit: Hex
+          paymasterPostOpGasLimit: Hex
+        }
+    >
   },
 ]
 

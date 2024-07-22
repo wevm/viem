@@ -158,9 +158,9 @@ export type SmartAccountImplementation<
     | {
         /** Prepares gas properties for the User Operation request. */
         estimateGas?:
-          | ((parameters: {
-              userOperation: UserOperationRequest
-            }) => Promise<
+          | ((
+              userOperation: UserOperationRequest,
+            ) => Promise<
               ExactPartial<EstimateUserOperationGasReturnType> | undefined
             >)
           | undefined

@@ -4,12 +4,10 @@ A **Smart Account** is an account whose implementation resides in a **Smart Cont
 
 A **Smart Account** can be controlled by one or more **Owners**, which can be a [Local](/docs/accounts/local) or [JSON-RPC Account](/docs/accounts/jsonRpc) (if supported). The **Owner Account** is responsible for signing User Operations (transactions) on behalf of the **Smart Account**, which are then broadcasted to the Network via a [Bundler](https://eips.ethereum.org/EIPS/eip-4337#bundling).
 
-:::warning
+:::note
 **Compatibility Note**
 
-Smart Accounts are an abstraction over [ERC-4337 Account Abstraction](https://eips.ethereum.org/EIPS/eip-4337) which avoids protocol changes to implement Account Abstraction. 
-
-Due to its "non-native" nature, this means that Smart Accounts are incompatible with Viem's Transaction APIs such as `sendTransaction` and `writeContract`.
+As ERC-4337 is not implemented on a protocol level (non-native), this means that Smart Accounts are incompatible with Viem's Transaction APIs such as `sendTransaction` and `writeContract`.
 
 Sending "transactions" can be achieved by broadcasting a **User Operation** to a **Bundler**, which will then broadcast it to the Network shortly after.
 

@@ -11,10 +11,26 @@ Smart Contract Accounts can send calls on the Network via a "meta-transaction" c
 Such key features that Account Abstraction enables are:
 
 - **Batching:** Group multiple calls into a single transaction.
-- **Paymasters:** Allow third parties to pay for gas fees, or pay for gas via ERC20 tokens.
+- **Fee Sponsorship:** Allow third parties to pay for gas fees, or pay for gas via ERC20 tokens.
 - **Arbitrary Signature Verification:** Smart Contract Accounts can contain arbitrary signature verification logic (e.g. WebAuthn, secp256r1, secp256k1, ed25519, etc).
 - **Multi-Owner Wallets:** Enable multiple owners to control a single account, and set rules for the owners.
 - **Recovery Mechanisms:** A Smart Contract Account can assign multiple entities or services as trusted recovery agents for the Account.
+- and many more...
+
+:::note
+**Compatibility Note**
+
+As ERC-4337 is not implemented on a protocol level (non-native), this means that Smart Accounts are incompatible with Viem's Transaction APIs such as `sendTransaction` and `writeContract`.
+
+Sending "transactions" can be achieved by broadcasting a **User Operation** to a **Bundler**, which will then broadcast it to the Network shortly after.
+
+The most common Actions for **User Operations** are:
+
+- [`sendUserOperation`](/account-abstraction/actions/bundler/sendUserOperation)
+- [`estimateUserOperationGas`](/account-abstraction/actions/bundler/estimateUserOperationGas)
+- [`getUserOperation`](/account-abstraction/actions/bundler/getUserOperation)
+- [`getUserOperationReceipt`](/account-abstraction/actions/bundler/getUserOperationReceipt)
+:::
 
 ## Sending your first User Operation
 
@@ -61,7 +77,7 @@ const bundlerClient = createBundlerClient({ // [!code focus]
 
 We will also need to set up an Owner for the Smart Account which will be used to sign User Operations (transactions) for the Smart Account.
 
-```ts twoslash 
+```ts twoslash
 // @noErrors
 import { createPublicClient, http } from 'viem'
 import { createBundlerClient } from 'viem/account-abstraction'
@@ -121,7 +137,7 @@ const account = await toCoinbaseSmartAccount({ // [!code focus]
 
 Next, we will send a User Operation to the Bundler. For the example below, we will send 0.001 ETH to a random address.
 
-```ts twoslash
+```ts
 // @noErrors
 import { http, parseEther } from 'viem'
 import { 
@@ -165,7 +181,7 @@ const receipt = await bundlerClient.waitForUserOperationReceipt({ hash }) // [!c
 
 If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account onto a Wallet Client.
 
-```ts twoslash 
+```ts 
 // @noErrors
 import { createPublicClient, http, parseEther } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
@@ -201,41 +217,35 @@ const hash = await bundlerClient.sendUserOperation({
 
 ### 7. Optional: Sponsor User Operation 
 
-You can also leverage the `userOperation.sponsorUserOperation` property on the Bundler Client to hoist Paymaster capabilities such as User Operation gas fee sponsorship.
+By using a Paymaster, we can add sponsorship of User Operation fees.
 
-In the example below, we are utilizing [Pimlico's Paymaster `pm_sponsorUserOperation` API](https://docs.pimlico.io/infra/paymaster) to sponsor & cover the gas fees that the User Operation consumes.
+Viem exposes a `paymaster` property on both the **Bundler Client** ("on Client" tab) and **User Operation Action** ("on Action" tab) to add User Operation sponsorship capabilities.
+
+The `paymaster` property accepts a [Paymaster Client](/account-abstraction/clients/paymaster) ([among others](#TODO)), which is used to fetch the necessary data for User Operation sponsorship.
+
+:::info
+The example below uses [Pimlico's Paymaster API](https://docs.pimlico.io/infra/paymaster) – allowing consumers to sponsor gas fees for users on over 30+ chains.
+:::
 
 :::code-group
 
-```ts twoslash [example.ts]
-import { createClient, http } from 'viem'
+```ts [example.ts (on Client)]
+import { http } from 'viem'
 import { 
   createBundlerClient, 
-  formatUserOperation,
-  formatUserOperationRequest 
+  createPaymasterClient,
 } from 'viem/account-abstraction'
 import { account, client } from './config.ts'
 
-const paymasterClient = createClient({ // [!code ++]
+const paymasterClient = createPaymasterClient({ // [!code ++]
   transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code ++]
 }) // [!code ++]
 
 const bundlerClient = createBundlerClient({
   account,
   client,
+  paymaster: paymasterClient, // [!code ++]
   transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
-  userOperation: { // [!code ++]
-    async sponsorUserOperation({ account, userOperation }) { // [!code ++]
-      const result = await paymasterClient.request({ // [!code ++]
-        method: 'pm_sponsorUserOperation', // [!code ++]
-        params: [ // [!code ++]
-          formatUserOperationRequest(userOperation), // [!code ++]
-          account?.entryPoint.address, // [!code ++]
-        ], // [!code ++]
-      }) // [!code ++]
-      return formatUserOperation(result) // [!code ++]
-    }, // [!code ++]
-  }, // [!code ++]
 })
 
 const hash = await bundlerClient.sendUserOperation({
@@ -246,7 +256,34 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-```ts twoslash [config.ts] filename="config.ts"
+```ts [example.ts (on Action)]
+import { http } from 'viem'
+import { 
+  createBundlerClient, 
+  createPaymasterClient,
+} from 'viem/account-abstraction'
+import { account, client } from './config.ts'
+
+const paymasterClient = createPaymasterClient({ // [!code ++]
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code ++]
+}) // [!code ++]
+
+const bundlerClient = createBundlerClient({
+  account,
+  client,
+  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+})
+
+const hash = await bundlerClient.sendUserOperation({
+  calls: [{
+    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+    value: parseEther('0.001')
+  }]
+  paymaster: paymasterClient, // [!code ++]
+})
+```
+
+```ts [config.ts] filename="config.ts"
 // @noErrors
 import { createPublicClient, http, parseEther } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
@@ -267,3 +304,81 @@ export const account = await toCoinbaseSmartAccount({
 ```
 
 :::
+
+::::tip
+If your Bundler also accepts Paymaster sponsorship, you can set `paymaster: true` instead of declaring a separate Paymaster Client.
+
+:::code-group
+
+```ts [example.ts (on Client)]
+import { http } from 'viem'
+import { 
+  createBundlerClient, 
+  createPaymasterClient,
+} from 'viem/account-abstraction'
+import { account, client } from './config.ts'
+
+const paymasterClient = createPaymasterClient({ // [!code --]
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code --]
+}) // [!code --]
+
+const bundlerClient = createBundlerClient({
+  account,
+  client,
+  paymaster: paymasterClient, // [!code --]
+  paymaster: true, // [!code ++]
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'),
+})
+```
+
+```ts [example.ts (on Action)]
+import { http } from 'viem'
+import { 
+  createBundlerClient, 
+  createPaymasterClient,
+} from 'viem/account-abstraction'
+import { account, client } from './config.ts'
+
+const paymasterClient = createPaymasterClient({ // [!code --]
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code --]
+}) // [!code --]
+
+const bundlerClient = createBundlerClient({
+  account,
+  client,
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'),
+})
+
+const hash = await bundlerClient.sendUserOperation({
+  calls: [{
+    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+    value: parseEther('0.001')
+  }]
+  paymaster: paymasterClient, // [!code --]
+  paymaster: true, // [!code ++]
+})
+```
+
+```ts [config.ts] filename="config.ts"
+// @noErrors
+import { createPublicClient, http, parseEther } from 'viem'
+import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
+import { mainnet } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts' 
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+const owner = privateKeyToAccount('0x...')
+
+export const account = await toCoinbaseSmartAccount({ 
+  client, 
+  owners: [owner]
+}) 
+```
+
+:::
+
+::::
