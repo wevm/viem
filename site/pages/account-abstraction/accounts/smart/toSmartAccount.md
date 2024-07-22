@@ -23,16 +23,11 @@ import { coinbase, toSmartAccount } from 'viem/account-abstraction'
 import { client, owner } from './config.js'
 
 const account = await toSmartAccount({
-  abi: [/* ... */],
   client,
   entryPoint: {
     abi: [/* ... */],
     address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
     version: '0.7',
-  },
-  factory: {
-    abi: [/* ... */],
-    address: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
   },
   
   async encodeCalls(calls) {
@@ -60,6 +55,14 @@ const account = await toSmartAccount({
     // Sign a User Operation to be broadcasted via the Bundler.
   },
 
+  // (Optional) Extend the Smart Account with custom properties.
+  extend: {
+    abi: [/* ... */],
+    factory: {
+      abi: [/* ... */],
+      address: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754',
+    },
+  },
   // (Optional) User Operation configuration.
   userOperation: {
     async estimateGas({ userOperation }) {
