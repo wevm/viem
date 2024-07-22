@@ -83,6 +83,21 @@ const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
 })
 ```
 
+### keepAliveInterval (optional)
+
+- **Type:** `number`
+- **Default:** `30_000`
+
+The interval (in ms) to send keep-alive ping message.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  keepAliveInterval: 10_000, // [!code focus]
+})
+```
+
 #### reconnect.attempts (optional)
 
 - **Type:** `number`
