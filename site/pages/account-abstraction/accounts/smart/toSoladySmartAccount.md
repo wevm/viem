@@ -37,7 +37,7 @@ export const client = createPublicClient({
 
 ## Returns
 
-`SmartAccountImplementationFn<SoladyImplementation>`
+`SmartAccount`
 
 ## Parameters
 

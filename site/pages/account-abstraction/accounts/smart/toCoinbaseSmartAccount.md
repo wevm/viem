@@ -45,7 +45,7 @@ export const owner = toWebAuthnAccount({ credential })
 
 ## Returns
 
-`SmartAccountImplementationFn<SoladyImplementation>`
+`SmartAccount`
 
 ## Parameters
 
