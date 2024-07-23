@@ -36,7 +36,7 @@ type DefineBundlerParameters<chain extends Chain> = {
 type DefineBundlerReturnType<chain extends Chain> = {
   chain: chain
   clientConfig: BundlerClientConfig<Transport, chain, undefined>
-  getBundlerClient<
+  getBundlerClient: <
     config extends ExactPartial<
       Omit<BundlerClientConfig, 'chain'> & {
         chain?: false | undefined
@@ -44,7 +44,7 @@ type DefineBundlerReturnType<chain extends Chain> = {
     >,
   >(
     config?: config | undefined,
-  ): BundlerClient<
+  ) => BundlerClient<
     config['transport'] extends Transport ? config['transport'] : Transport,
     config['chain'] extends false ? undefined : chain,
     undefined,
