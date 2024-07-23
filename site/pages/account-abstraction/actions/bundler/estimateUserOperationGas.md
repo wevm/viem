@@ -10,7 +10,7 @@ Estimates the gas values for a User Operation to be executed successfully.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -23,7 +23,7 @@ const gas = await bundlerClient.estimateUserOperationGas({ // [!code focus:7]
 })
 ```
 
-```ts [config.ts]
+```ts twoslash [config.ts] filename="config.ts"
 import { createPublicClient, http } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -55,7 +55,7 @@ If you do not wish to pass an `account` to every `estimateUserOperationGas`, you
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseEther } from 'viem'
 import { bundlerClient } from './config'
 
@@ -67,7 +67,7 @@ const gas = await bundlerClient.estimateUserOperationGas({ // [!code focus:7]
 })
 ```
 
-```ts [config.ts]
+```ts twoslash [config.ts]
 import { createPublicClient, http } from 'viem'
 import { createBundlerClient, toSmartAccount, solady } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -98,7 +98,7 @@ The `calls` property also accepts **Contract Calls**, and can be used via the `a
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseEther } from 'viem'
 import { bundlerClient, publicClient } from './config'
 import { wagmiAbi } from './abi' // [!code focus]
@@ -112,7 +112,7 @@ const gas = await bundlerClient.estimateUserOperationGas({ // [!code focus:7]
 })
 ```
 
-```ts [abi.ts] filename="abi.ts"
+```ts twoslash [abi.ts] filename="abi.ts"
 export const wagmiAbi = [
   // ...
   {
@@ -126,7 +126,7 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [config.ts]
+```ts twoslash [config.ts]
 import { createPublicClient, http } from 'viem'
 import { createBundlerClient, toSmartAccount, solady } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'

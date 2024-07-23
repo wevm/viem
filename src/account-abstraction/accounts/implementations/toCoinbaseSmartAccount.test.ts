@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { accounts, typedData } from '../../../../test/src/constants.js'
@@ -25,6 +25,12 @@ const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient({ client })
 
 const owner = privateKeyToAccount(accounts[0].privateKey)
+
+beforeAll(() => {
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
+  return () => vi.useRealTimers()
+})
 
 describe('return value: encodeCalls', () => {
   test('single', async () => {
@@ -193,7 +199,7 @@ describe('return value: getNonce', () => {
     })
 
     const nonce = await account.getNonce()
-    expect(nonce).toMatchInlineSnapshot('0n')
+    expect(nonce).toMatchInlineSnapshot('30902162761021348478818713600000n')
   })
 })
 
@@ -501,7 +507,7 @@ describe('smoke', async () => {
         "initCode": "0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a3ffba36f00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000f39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "maxFeePerGas": 22785120848n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 0n,
+        "nonce": 30902162761039795222892423151616n,
         "paymasterAndData": "0x",
         "paymasterPostOpGasLimit": undefined,
         "paymasterVerificationGasLimit": undefined,
@@ -530,7 +536,7 @@ describe('smoke', async () => {
     })
 
     expect(hash).toMatchInlineSnapshot(
-      `"0x474c699faf5a903f0cbf9d2b583f5bd14c598bdeda1815487abdfe621a0520b6"`,
+      `"0xd3ca1852906b0ee560734f84a806bc8fe5df98cf3dda4fe8ffe9ba6a8c9a85ea"`,
     )
   })
 })

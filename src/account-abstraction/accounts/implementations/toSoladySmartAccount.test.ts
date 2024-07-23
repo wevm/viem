@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts, typedData } from '../../../../test/src/constants.js'
@@ -20,6 +20,10 @@ let factoryAddress: Address
 beforeAll(async () => {
   const { factoryAddress: _factoryAddress } = await deploySoladyAccount_07()
   factoryAddress = _factoryAddress
+
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
+  return () => vi.useRealTimers()
 })
 
 test('default', async () => {
@@ -2209,7 +2213,7 @@ describe('return value: getNonce', () => {
     })
 
     const nonce = await account.getNonce()
-    expect(nonce).toMatchInlineSnapshot('0n')
+    expect(nonce).toMatchInlineSnapshot('30902162761021348478818713600000n')
   })
 })
 

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { ErrorsExample } from '../../../../contracts/generated.js'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
@@ -24,6 +24,12 @@ const fees = {
   maxFeePerGas: parseGwei('15'),
   maxPriorityFeePerGas: parseGwei('2'),
 } as const
+
+beforeAll(() => {
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
+  return () => vi.useRealTimers()
+})
 
 beforeEach(async () => {
   await bundlerMainnet.restart()
@@ -156,7 +162,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761076688711039842254848
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -194,7 +200,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761095135455113551806464
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -231,7 +237,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761113582199187261358080
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -269,7 +275,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761132028943260970909696
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -310,7 +316,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761150475687334680461312
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -351,7 +357,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761168922431408390012928
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -392,7 +398,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761187369175482099564544
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -433,7 +439,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761205815919555809116160
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -474,7 +480,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761224262663629518667776
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -517,7 +523,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761242709407703228219392
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -560,7 +566,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761261156151776937771008
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -603,7 +609,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000001
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761021348478818713600000
         sender:                0x0b3D649C00208AFB6A40b4A7e918b84A52D783B8
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -638,7 +644,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0x
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761279602895850647322624
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -685,7 +691,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000002
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761298049639924356874240
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -742,7 +748,7 @@ describe('entryPointVersion: 0.6', async () => {
         initCode:              0x0000000000000000000000000000000000000000deadbeef
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761039795222892423151616
         paymasterAndData:      0x
         sender:                0x6edf7db791fC4D438D4A683E857B2fE1a84947Ce
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c

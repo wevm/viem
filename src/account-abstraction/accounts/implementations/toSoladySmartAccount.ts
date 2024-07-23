@@ -137,7 +137,7 @@ export async function toSoladySmartAccount<
       return { factory: factory.address, factoryData }
     },
 
-    async getNonce() {
+    async getNonce({ key = 0n } = {}) {
       const address = await this.getAddress()
       const nonce = await readContract(client, {
         abi: parseAbi([
@@ -145,7 +145,7 @@ export async function toSoladySmartAccount<
         ]),
         address: entryPoint.address,
         functionName: 'getNonce',
-        args: [address, 0n],
+        args: [address, key],
       })
       return nonce
     },

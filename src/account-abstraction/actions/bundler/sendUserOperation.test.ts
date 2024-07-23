@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
   createVerifyingPaymasterServer,
@@ -36,6 +36,12 @@ const fees = {
   maxFeePerGas: parseGwei('15'),
   maxPriorityFeePerGas: parseGwei('2'),
 } as const
+
+beforeAll(() => {
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
+  return () => vi.useRealTimers()
+})
 
 beforeEach(async () => {
   await bundlerMainnet.restart()
@@ -206,7 +212,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000001
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761021348478818713600000
         preVerificationGas:    0
         sender:                0x0b3D649C00208AFB6A40b4A7e918b84A52D783B8
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
@@ -249,7 +255,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xdeadbeef
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761021348478818713600000
         preVerificationGas:    0
         sender:                0x274B2baeCC1A87493db36439Df3D8012855fB182
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
@@ -284,13 +290,13 @@ describe('entryPointVersion: 0.7', async () => {
         callGasLimit:                   80000
         maxFeePerGas:                   15 gwei
         maxPriorityFeePerGas:           2 gwei
-        nonce:                          3
+        nonce:                          30902162761076688711039842254848
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
         preVerificationGas:             50692
         sender:                         0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:                      0xdeadbeef
-        verificationGasLimit:           58357
+        verificationGasLimit:           84007
 
       Details: UserOperation reverted with reason: AA24 signature error
       Version: viem@x.y.z]
@@ -364,7 +370,7 @@ describe('entryPointVersion: 0.6', async () => {
         initCode:              0x0000000000000000000000000000000000000000deadbeef
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 0
+        nonce:                 30902162761021348478818713600000
         paymasterAndData:      0x
         preVerificationGas:    0
         sender:                0x07B486204EC3d1ff6803614D3308945Fd45d580c
@@ -378,19 +384,21 @@ describe('entryPointVersion: 0.6', async () => {
 })
 
 test.skip('e2e', async () => {
+  vi.useRealTimers()
+
   const client = createPublicClient({
     chain: sepolia,
     transport: http(process.env.VITE_ANVIL_FORK_URL_SEPOLIA),
   })
 
-  const paymasterClient = createPaymasterClient({
-    transport: http(process.env.VITE_PAYMASTER_URL),
-  })
+  // const paymasterClient = createPaymasterClient({
+  //   transport: http(process.env.VITE_PAYMASTER_URL),
+  // })
 
   const bundlerClient = createBundlerClient({
     chain: sepolia,
     client,
-    paymaster: paymasterClient,
+    // paymaster: paymasterClient,
     transport: http(process.env.VITE_BUNDLER_URL_SEPOLIA),
   })
 
@@ -415,18 +423,34 @@ test.skip('e2e', async () => {
   // })
   // await waitForTransactionReceipt(client, { hash: hash_send })
 
-  const hash = await bundlerClient.sendUserOperation({
-    account,
-    calls: [
-      {
-        abi: wagmiContractConfig.abi,
-        to: '0xa3547d42ab27e8d4a7d04b4db960f346669f8701',
-        functionName: 'mint',
-      },
-    ],
-  })
+  const [hash, hash_2] = await Promise.all([
+    bundlerClient.sendUserOperation({
+      account,
+      calls: [
+        {
+          abi: wagmiContractConfig.abi,
+          to: '0xa3547d42ab27e8d4a7d04b4db960f346669f8701',
+          functionName: 'mint',
+        },
+      ],
+    }),
+    bundlerClient.sendUserOperation({
+      account,
+      calls: [
+        {
+          abi: wagmiContractConfig.abi,
+          to: '0xa3547d42ab27e8d4a7d04b4db960f346669f8701',
+          functionName: 'mint',
+        },
+      ],
+    }),
+  ])
 
   const receipt = await bundlerClient.waitForUserOperationReceipt({ hash })
+  const receipt_2 = await bundlerClient.waitForUserOperationReceipt({
+    hash: hash_2,
+  })
 
   expect(receipt.success).toBe(true)
+  expect(receipt_2.success).toBe(true)
 })

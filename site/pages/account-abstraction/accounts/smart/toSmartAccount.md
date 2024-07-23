@@ -65,7 +65,7 @@ const account = await toSmartAccount({
   },
   // (Optional) User Operation configuration.
   userOperation: {
-    async estimateGas({ userOperation }) {
+    async estimateGas(userOperation) {
       // Estimate gas properties for a User Operation.
     },
   },

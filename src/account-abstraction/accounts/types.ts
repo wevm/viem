@@ -88,7 +88,9 @@ export type SmartAccountImplementation<
    * // 1n
    * ```
    */
-  getNonce: () => Promise<bigint>
+  getNonce: (
+    parameters?: { key?: bigint | undefined } | undefined,
+  ) => Promise<bigint>
   /**
    * Retrieves the User Operation "stub" signature for gas estimation.
    *

@@ -10,7 +10,7 @@ Prepares a User Operation for execution and fills in missing properties.
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
 
@@ -23,8 +23,8 @@ const userOperation = await bundlerClient.prepareUserOperation({ // [!code focus
 })
 ```
 
-```ts [config.ts] filename="config.ts"
-import { http } from 'viem'
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, http } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
@@ -55,7 +55,7 @@ If you do not wish to pass an `account` to every `prepareUserOperation`, you can
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseEther } from 'viem'
 import { bundlerClient } from './config'
 
@@ -67,8 +67,8 @@ const userOperation = await bundlerClient.prepareUserOperation({ // [!code focus
 })
 ```
 
-```ts [config.ts] filename="config.ts"
-import { http } from 'viem'
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, http } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
@@ -98,7 +98,7 @@ The `calls` property also accepts **Contract Calls**, and can be used via the `a
 
 :::code-group
 
-```ts [example.ts]
+```ts twoslash [example.ts]
 import { parseEther } from 'viem'
 import { bundlerClient, publicClient } from './config'
 import { wagmiAbi } from './abi' // [!code focus]
@@ -112,7 +112,7 @@ const userOperation = await bundlerClient.prepareUserOperation({ // [!code focus
 })
 ```
 
-```ts [abi.ts] filename="abi.ts"
+```ts twoslash [abi.ts] filename="abi.ts"
 export const wagmiAbi = [
   // ...
   {
@@ -126,7 +126,7 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [config.ts] filename="config.ts"
+```ts twoslash [config.ts] filename="config.ts"
 import { createPublicClient, http } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'

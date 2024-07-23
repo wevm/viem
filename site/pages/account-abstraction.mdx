@@ -137,8 +137,8 @@ const account = await toCoinbaseSmartAccount({ // [!code focus]
 
 Next, we will send a User Operation to the Bundler. For the example below, we will send 0.001 ETH to a random address.
 
-```ts
-import { http, parseEther } from 'viem'
+```ts twoslash
+import { createPublicClient, http, parseEther } from 'viem'
 import { 
   createBundlerClient, 
   toCoinbaseSmartAccount 
@@ -180,7 +180,7 @@ const receipt = await bundlerClient.waitForUserOperationReceipt({ hash }) // [!c
 
 If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account onto a Wallet Client.
 
-```ts 
+```ts twoslash 
 import { createPublicClient, http, parseEther } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { mainnet } from 'viem/chains'
@@ -227,7 +227,7 @@ The example below uses [Pimlico's Paymaster API](https://docs.pimlico.io/infra/p
 
 :::code-group
 
-```ts [example.ts (on Client)]
+```ts twoslash [example.ts (on Client)]
 import { http } from 'viem'
 import { 
   createBundlerClient, 
@@ -254,7 +254,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-```ts [example.ts (on Action)]
+```ts twoslash [example.ts (on Action)]
 import { http } from 'viem'
 import { 
   createBundlerClient, 
@@ -281,7 +281,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-```ts [config.ts] filename="config.ts"
+```ts twoslash [config.ts] filename="config.ts"
 // @noErrors
 import { createPublicClient, http, parseEther } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
@@ -308,7 +308,7 @@ If your Bundler also accepts Paymaster sponsorship, you can set `paymaster: true
 
 :::code-group
 
-```ts [example.ts (on Client)]
+```ts twoslash [example.ts (on Client)]
 import { http } from 'viem'
 import { 
   createBundlerClient, 
@@ -329,7 +329,7 @@ const bundlerClient = createBundlerClient({
 })
 ```
 
-```ts [example.ts (on Action)]
+```ts twoslash [example.ts (on Action)]
 import { http } from 'viem'
 import { 
   createBundlerClient, 
@@ -357,7 +357,7 @@ const hash = await bundlerClient.sendUserOperation({
 })
 ```
 
-```ts [config.ts] filename="config.ts"
+```ts twoslash [config.ts] filename="config.ts"
 // @noErrors
 import { createPublicClient, http, parseEther } from 'viem'
 import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'

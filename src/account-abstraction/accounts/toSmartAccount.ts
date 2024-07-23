@@ -3,6 +3,7 @@ import type { Abi } from 'abitype'
 import { getCode } from '../../actions/public/getCode.js'
 import type { Prettify } from '../../types/utils.js'
 import { getAction } from '../../utils/getAction.js'
+import { createNonceManager } from '../../utils/nonceManager.js'
 import { serializeErc6492Signature } from '../../utils/signature/serializeErc6492Signature.js'
 import type { EntryPointVersion } from '../types/entryPointVersion.js'
 import type { SmartAccount, SmartAccountImplementation } from './types.js'
@@ -42,6 +43,15 @@ export async function toSmartAccount<
 
   const address = await parameters.getAddress()
 
+  const nonceKeyManager = createNonceManager({
+    source: {
+      get() {
+        return Date.now()
+      },
+      set() {},
+    },
+  })
+
   return {
     ...extend,
     ...rest,
@@ -50,6 +60,18 @@ export async function toSmartAccount<
       if ('isDeployed' in this && (await this.isDeployed()))
         return { factory: undefined, factoryData: undefined }
       return parameters.getFactoryArgs()
+    },
+    async getNonce(parameters_) {
+      const key =
+        parameters_?.key ??
+        BigInt(
+          await nonceKeyManager.consume({
+            address,
+            chainId: parameters.client.chain!.id!,
+            client: parameters.client,
+          }),
+        )
+      return await parameters.getNonce({ ...parameters_, key })
     },
     async isDeployed() {
       if (deployed) return true

@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "vocs build --searchIndex false --logLevel info && vocs search-index",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" vocs build --searchIndex false && vocs search-index",
     "preview": "vocs preview"
   },
   "devDependencies": {
