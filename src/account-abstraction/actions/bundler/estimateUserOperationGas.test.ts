@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { ErrorsExample } from '../../../../contracts/generated.js'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
