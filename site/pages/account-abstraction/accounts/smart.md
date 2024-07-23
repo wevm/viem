@@ -7,7 +7,7 @@ A **Smart Account** can be controlled by one or more **Owners**, which can be a 
 :::note
 **Compatibility Note**
 
-As ERC-4337 is not implemented on a protocol level (non-native), this means that Smart Accounts are incompatible with Viem's Transaction APIs such as `sendTransaction` and `writeContract`.
+As ERC-4337 is not enshrined on the protocol, this means that Smart Accounts are incompatible with Viem's Transaction APIs such as `sendTransaction` and `writeContract`.
 
 Sending "transactions" can be achieved by broadcasting a **User Operation** to a **Bundler**, which will then broadcast it to the Network shortly after.
 
@@ -17,4 +17,6 @@ The most common Actions for **User Operations** are:
 - [`estimateUserOperationGas`](/account-abstraction/actions/bundler/estimateUserOperationGas)
 - [`getUserOperation`](/account-abstraction/actions/bundler/getUserOperation)
 - [`getUserOperationReceipt`](/account-abstraction/actions/bundler/getUserOperationReceipt)
+
+Once Account Abstraction is enshrined on the protocol, we anticipate the above Actions will become redundant in favor of Viem's Transaction APIs.
 :::
