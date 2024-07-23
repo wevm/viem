@@ -1,5 +1,13 @@
 # viem
 
+## 2.17.11
+
+### Patch Changes
+
+- [`37d837cc`](https://github.com/wevm/viem/commit/37d837cc0bfccbeac7d8be5ffe25cb71c57ac764) Thanks [@tmm](https://github.com/tmm)! - Fixed internal type errors.
+
+- [#2526](https://github.com/wevm/viem/pull/2526) [`e426cae2`](https://github.com/wevm/viem/commit/e426cae239a6bf8bb73ad4cd6861d23edbe07240) Thanks [@Si-Ki](https://github.com/Si-Ki)! - Added `bobaSepolia` chain.
+
 ## 2.17.10
 
 ### Patch Changes
