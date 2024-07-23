@@ -55,8 +55,8 @@ type DefineBundlerReturnType<chain extends Chain> = {
   rpcUrl: {
     http: string
   }
-  restart(): Promise<void>
-  start(): Promise<() => Promise<void>>
+  restart: () => Promise<void>
+  start: () => Promise<() => Promise<void>>
 }
 
 function defineBundler<const chain extends Chain>({
