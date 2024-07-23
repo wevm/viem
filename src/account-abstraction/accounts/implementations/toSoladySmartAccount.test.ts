@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { beforeAll, describe, expect, test, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts, typedData } from '../../../../test/src/constants.js'
@@ -20,10 +20,6 @@ let factoryAddress: Address
 beforeAll(async () => {
   const { factoryAddress: _factoryAddress } = await deploySoladyAccount_07()
   factoryAddress = _factoryAddress
-
-  vi.useFakeTimers()
-  vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
-  return () => vi.useRealTimers()
 })
 
 test('default', async () => {
@@ -2205,6 +2201,12 @@ describe('return value: getSignature', () => {
 })
 
 describe('return value: getNonce', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
+    return () => vi.useRealTimers()
+  })
+
   test('default', async () => {
     const account = await toSoladySmartAccount({
       client,
@@ -2214,6 +2216,17 @@ describe('return value: getNonce', () => {
 
     const nonce = await account.getNonce()
     expect(nonce).toMatchInlineSnapshot('30902162761021348478818713600000n')
+  })
+
+  test('args: key', async () => {
+    const account = await toSoladySmartAccount({
+      client,
+      factoryAddress,
+      owner: accounts[1].address,
+    })
+
+    const nonce = await account.getNonce({ key: 0n })
+    expect(nonce).toMatchInlineSnapshot('0n')
   })
 })
 

@@ -25,14 +25,12 @@ const fees = {
   maxPriorityFeePerGas: parseGwei('2'),
 } as const
 
-beforeAll(() => {
+beforeEach(async () => {
+  await bundlerMainnet.restart()
+
   vi.useFakeTimers()
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
   return () => vi.useRealTimers()
-})
-
-beforeEach(async () => {
-  await bundlerMainnet.restart()
 })
 
 describe('entryPointVersion: 0.7', async () => {

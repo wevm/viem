@@ -37,16 +37,15 @@ const fees = {
   maxPriorityFeePerGas: parseGwei('2'),
 } as const
 
-beforeAll(() => {
+beforeEach(async () => {
+  await bundlerMainnet.restart()
+
+  await setBalance(client, { address: alice, value: parseEther('10000') })
+  await setBalance(client, { address: bob, value: parseEther('10000') })
+
   vi.useFakeTimers()
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
   return () => vi.useRealTimers()
-})
-
-beforeEach(async () => {
-  await bundlerMainnet.restart()
-  await setBalance(client, { address: alice, value: parseEther('10000') })
-  await setBalance(client, { address: bob, value: parseEther('10000') })
 })
 
 describe('entryPointVersion: 0.7', async () => {
