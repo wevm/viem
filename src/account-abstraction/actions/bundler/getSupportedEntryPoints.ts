@@ -2,9 +2,10 @@ import type { Address } from 'abitype'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { RequestErrorType } from '../../../utils/buildRequest.js'
 
 export type GetSupportedEntryPointsReturnType = readonly Address[]
-export type GetSupportedEntryPointsErrorType = ErrorType
+export type GetSupportedEntryPointsErrorType = RequestErrorType | ErrorType
 
 /**
  * Returns the EntryPoints that the bundler supports.
