@@ -7,7 +7,7 @@ import {
   test,
 } from 'vitest'
 
-import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
+import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'
@@ -234,13 +234,15 @@ describe('events', () => {
       toBlock: anvilMainnet.forkBlockNumber,
     })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
-    expect(logs.length).toBe(881)
+    expect(logs.length).toBe(973)
     expect(logs[0].eventName).toEqual('Transfer')
-    expect(logs[0].args).toEqual({
-      from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      to: '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
-      value: 100000000000000000n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        "value": 17991444454902871n,
+      }
+    `)
   })
 
   test('args: blockHash', async () => {
@@ -252,13 +254,15 @@ describe('events', () => {
       blockHash: block.hash!,
     })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
-    expect(logs.length).toBe(86)
+    expect(logs.length).toBe(161)
     expect(logs[0].eventName).toEqual('Transfer')
-    expect(logs[0].args).toEqual({
-      from: '0x00eb6C179ebfc11D7682fc2f602169f32eAcCf78',
-      to: '0x3CC936b795A188F0e246cBB2D74C5Bd190aeCF18',
-      value: 7772954000000000000000000n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x6b75d8AF000000e20B7a7DDf000Ba900b4009A80",
+        "to": "0x5CEd44F03ff443BBE14d8eA23bc24425FB89E3ED",
+        "value": 158620485778292080640n,
+      }
+    `)
   })
 
   test('args: strict = true (named)', async () => {
@@ -270,18 +274,20 @@ describe('events', () => {
     })
 
     assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
-    expect(logs.length).toBe(698)
+    expect(logs.length).toBe(958)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from: `0x${string}`
       to: `0x${string}`
       value: bigint
     }>()
-    expect(logs[0].args).toEqual({
-      from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      to: '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
-      value: 100000000000000000n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        "value": 17991444454902871n,
+      }
+    `)
 
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
@@ -297,18 +303,20 @@ describe('events', () => {
     assertType<Log<bigint, number, boolean, typeof event.default, false>[]>(
       logs,
     )
-    expect(logs.length).toBe(881)
+    expect(logs.length).toBe(973)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from?: `0x${string}`
       to?: `0x${string}`
       value?: bigint
     }>()
-    expect(logs[0].args).toEqual({
-      from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      to: '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
-      value: 100000000000000000n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        "value": 17991444454902871n,
+      }
+    `)
 
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
@@ -323,16 +331,18 @@ describe('events', () => {
     })
 
     assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
-    expect(logs.length).toBe(698)
+    expect(logs.length).toBe(958)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       readonly [`0x${string}`, `0x${string}`, bigint]
     >()
-    expect(logs[0].args).toEqual([
-      '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
-      100000000000000000n,
-    ])
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      [
+        "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        17991444454902871n,
+      ]
+    `)
 
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
@@ -348,7 +358,7 @@ describe('events', () => {
     assertType<Log<bigint, number, boolean, typeof event.unnamed, false>[]>(
       logs,
     )
-    expect(logs.length).toBe(881)
+    expect(logs.length).toBe(973)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | readonly []
@@ -356,11 +366,13 @@ describe('events', () => {
       | readonly [`0x${string}`, `0x${string}`]
       | readonly [`0x${string}`]
     >()
-    expect(logs[0].args).toEqual([
-      '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      '0x3785ca1128D2EfdDFec1a87ddb5686B59C7138F8',
-      100000000000000000n,
-    ])
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      [
+        "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        17991444454902871n,
+      ]
+    `)
 
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')

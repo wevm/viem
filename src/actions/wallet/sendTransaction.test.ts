@@ -179,7 +179,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f30182028f843b9aca008501a786b06a825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f301820297843b9aca008502ae1107ec825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -973,11 +973,11 @@ describe('local account', () => {
         }),
       ])
 
-      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(671)
-      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(105)
-      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(672)
-      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(673)
-      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(106)
+      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(679)
+      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(112)
+      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(680)
+      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(681)
+      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(113)
 
       const hash_6 = await sendTransaction(client, {
         account: account_1,
@@ -990,8 +990,8 @@ describe('local account', () => {
         value: parseEther('1'),
       })
 
-      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(674)
-      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(675)
+      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(682)
+      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(683)
     })
   })
 })

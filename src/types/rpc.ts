@@ -30,10 +30,10 @@ export type Status = '0x0' | '0x1'
 export type TransactionType = '0x0' | '0x1' | '0x2' | (string & {})
 
 export type RpcBlock<
-  TBlockTag extends BlockTag = BlockTag,
-  TIncludeTransactions extends boolean = boolean,
-  TTransaction = RpcTransaction<TBlockTag extends 'pending' ? true : false>,
-> = Block<Quantity, TIncludeTransactions, TBlockTag, TTransaction>
+  blockTag extends BlockTag = BlockTag,
+  includeTransactions extends boolean = boolean,
+  transaction = RpcTransaction<blockTag extends 'pending' ? true : false>,
+> = Block<Quantity, includeTransactions, blockTag, transaction>
 export type RpcBlockNumber = BlockNumber<Quantity>
 export type RpcBlockIdentifier = BlockIdentifier<Quantity>
 export type RpcUncle = Uncle<Quantity>
@@ -55,18 +55,18 @@ export type RpcTransactionRequest = OneOf<
 >
 // `yParity` is optional on the RPC type as some nodes do not return it
 // for 1559 & 2930 transactions (they should!).
-export type RpcTransaction<TPending extends boolean = boolean> = OneOf<
-  | Omit<TransactionLegacy<Quantity, Index, TPending, '0x0'>, 'typeHex'>
+export type RpcTransaction<pending extends boolean = boolean> = OneOf<
+  | Omit<TransactionLegacy<Quantity, Index, pending, '0x0'>, 'typeHex'>
   | PartialBy<
-      Omit<TransactionEIP2930<Quantity, Index, TPending, '0x1'>, 'typeHex'>,
+      Omit<TransactionEIP2930<Quantity, Index, pending, '0x1'>, 'typeHex'>,
       'yParity'
     >
   | PartialBy<
-      Omit<TransactionEIP1559<Quantity, Index, TPending, '0x2'>, 'typeHex'>,
+      Omit<TransactionEIP1559<Quantity, Index, pending, '0x2'>, 'typeHex'>,
       'yParity'
     >
   | PartialBy<
-      Omit<TransactionEIP4844<Quantity, Index, TPending, '0x3'>, 'typeHex'>,
+      Omit<TransactionEIP4844<Quantity, Index, pending, '0x3'>, 'typeHex'>,
       'yParity'
     >
 >

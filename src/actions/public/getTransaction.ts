@@ -17,7 +17,7 @@ import {
   formatTransaction,
 } from '../../utils/formatters/transaction.js'
 
-export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
+export type GetTransactionParameters<blockTag extends BlockTag = 'latest'> =
   | {
       /** The block hash */
       blockHash: Hash
@@ -40,7 +40,7 @@ export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
       blockHash?: undefined
       blockNumber?: undefined
       /** The block tag. */
-      blockTag: TBlockTag | BlockTag
+      blockTag: blockTag | BlockTag
       hash?: undefined
       /** The index of the transaction on the block. */
       index: number
@@ -55,9 +55,9 @@ export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
     }
 
 export type GetTransactionReturnType<
-  TChain extends Chain | undefined = undefined,
-  TBlockTag extends BlockTag = 'latest',
-> = Prettify<FormattedTransaction<TChain, TBlockTag>>
+  chain extends Chain | undefined = undefined,
+  blockTag extends BlockTag = 'latest',
+> = Prettify<FormattedTransaction<chain, blockTag>>
 
 export type GetTransactionErrorType =
   | NumberToHexErrorType
@@ -89,18 +89,18 @@ export type GetTransactionErrorType =
  * })
  */
 export async function getTransaction<
-  TChain extends Chain | undefined,
-  TBlockTag extends BlockTag = 'latest',
+  chain extends Chain | undefined,
+  blockTag extends BlockTag = 'latest',
 >(
-  client: Client<Transport, TChain>,
+  client: Client<Transport, chain>,
   {
     blockHash,
     blockNumber,
     blockTag: blockTag_,
     hash,
     index,
-  }: GetTransactionParameters<TBlockTag>,
-): Promise<GetTransactionReturnType<TChain, TBlockTag>> {
+  }: GetTransactionParameters<blockTag>,
+): Promise<GetTransactionReturnType<chain, blockTag>> {
   const blockTag = blockTag_ || 'latest'
 
   const blockNumberHex =

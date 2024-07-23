@@ -13,57 +13,57 @@ import type {
 import type { Hash, Hex } from './misc.js'
 
 export type Log<
-  TQuantity = bigint,
-  TIndex = number,
-  TPending extends boolean = boolean,
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TStrict extends boolean | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] | undefined = TAbiEvent extends AbiEvent
-    ? [TAbiEvent]
+  quantity = bigint,
+  index = number,
+  pending extends boolean = boolean,
+  abiEvent extends AbiEvent | undefined = undefined,
+  strict extends boolean | undefined = undefined,
+  abi extends Abi | readonly unknown[] | undefined = abiEvent extends AbiEvent
+    ? [abiEvent]
     : undefined,
-  TEventName extends string | undefined = TAbiEvent extends AbiEvent
-    ? TAbiEvent['name']
+  eventName extends string | undefined = abiEvent extends AbiEvent
+    ? abiEvent['name']
     : undefined,
 > = {
   /** The address from which this log originated */
   address: Address
   /** Hash of block containing this log or `null` if pending */
-  blockHash: TPending extends true ? null : Hash
+  blockHash: pending extends true ? null : Hash
   /** Number of block containing this log or `null` if pending */
-  blockNumber: TPending extends true ? null : TQuantity
+  blockNumber: pending extends true ? null : quantity
   /** Contains the non-indexed arguments of the log */
   data: Hex
   /** Index of this log within its block or `null` if pending */
-  logIndex: TPending extends true ? null : TIndex
+  logIndex: pending extends true ? null : index
   /** Hash of the transaction that created this log or `null` if pending */
-  transactionHash: TPending extends true ? null : Hash
+  transactionHash: pending extends true ? null : Hash
   /** Index of the transaction that created this log or `null` if pending */
-  transactionIndex: TPending extends true ? null : TIndex
+  transactionIndex: pending extends true ? null : index
   /** `true` if this filter has been destroyed and is invalid */
   removed: boolean
-} & GetInferredLogValues<TAbiEvent, TAbi, TEventName, TStrict>
+} & GetInferredLogValues<abiEvent, abi, eventName, strict>
 
 type Topics<
-  THead extends AbiEvent['inputs'],
-  TBase = [Hex],
-> = THead extends readonly [
+  head extends AbiEvent['inputs'],
+  base = [Hex],
+> = head extends readonly [
   infer _Head,
   ...infer Tail extends AbiEvent['inputs'],
 ]
   ? _Head extends { indexed: true }
     ? [Hex, ...Topics<Tail>]
     : Topics<Tail>
-  : TBase
+  : base
 
 type GetTopics<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
-  TEventName extends string | undefined = TAbiEvent extends AbiEvent
-    ? TAbiEvent['name']
+  abiEvent extends AbiEvent | undefined = undefined,
+  abi extends Abi | readonly unknown[] = [abiEvent],
+  eventName extends string | undefined = abiEvent extends AbiEvent
+    ? abiEvent['name']
     : undefined,
-  _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
-    ? TEventName extends string
-      ? ExtractAbiEvent<TAbi, TEventName>
+  _AbiEvent extends AbiEvent | undefined = abi extends Abi
+    ? eventName extends string
+      ? ExtractAbiEvent<abi, eventName>
       : undefined
     : undefined,
   _Args = _AbiEvent extends AbiEvent
@@ -74,58 +74,58 @@ type GetTopics<
     | (readonly unknown[] extends _Args ? true : false),
 > = true extends _FailedToParseArgs
   ? [Hex, ...Hex[]] | []
-  : TAbiEvent extends AbiEvent
-    ? Topics<TAbiEvent['inputs']>
+  : abiEvent extends AbiEvent
+    ? Topics<abiEvent['inputs']>
     : _AbiEvent extends AbiEvent
       ? Topics<_AbiEvent['inputs']>
       : [Hex, ...Hex[]] | []
 
 type GetInferredLogValues<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] | undefined = TAbiEvent extends AbiEvent
-    ? [TAbiEvent]
+  abiEvent extends AbiEvent | undefined = undefined,
+  abi extends Abi | readonly unknown[] | undefined = abiEvent extends AbiEvent
+    ? [abiEvent]
     : undefined,
-  TEventName extends string | undefined = TAbiEvent extends AbiEvent
-    ? TAbiEvent['name']
+  eventName extends string | undefined = abiEvent extends AbiEvent
+    ? abiEvent['name']
     : undefined,
-  TStrict extends boolean | undefined = undefined,
-  _EventNames extends string = TAbi extends Abi
-    ? Abi extends TAbi
+  strict extends boolean | undefined = undefined,
+  _EventNames extends string = abi extends Abi
+    ? Abi extends abi
       ? string
-      : ExtractAbiEventNames<TAbi>
+      : ExtractAbiEventNames<abi>
     : string,
-> = TAbi extends Abi
-  ? TEventName extends string
+> = abi extends Abi
+  ? eventName extends string
     ? {
         args: GetEventArgs<
-          TAbi,
-          TEventName,
+          abi,
+          eventName,
           {
             EnableUnion: false
             IndexedOnly: false
-            Required: TStrict extends boolean ? TStrict : false
+            Required: strict extends boolean ? strict : false
           }
         >
         /** The event name decoded from `topics`. */
-        eventName: TEventName
+        eventName: eventName
         /** List of order-dependent topics */
-        topics: GetTopics<TAbiEvent, TAbi, TEventName>
+        topics: GetTopics<abiEvent, abi, eventName>
       }
     : {
-        [TName in _EventNames]: {
+        [name in _EventNames]: {
           args: GetEventArgs<
-            TAbi,
-            TName,
+            abi,
+            name,
             {
               EnableUnion: false
               IndexedOnly: false
-              Required: TStrict extends boolean ? TStrict : false
+              Required: strict extends boolean ? strict : false
             }
           >
           /** The event name decoded from `topics`. */
-          eventName: TName
+          eventName: name
           /** List of order-dependent topics */
-          topics: GetTopics<TAbiEvent, TAbi, TName>
+          topics: GetTopics<abiEvent, abi, name>
         }
       }[_EventNames]
   : {

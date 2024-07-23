@@ -25,10 +25,10 @@ export type HttpRpcClientOptions = {
 }
 
 export type HttpRequestParameters<
-  TBody extends RpcRequest | RpcRequest[] = RpcRequest,
+  body extends RpcRequest | RpcRequest[] = RpcRequest,
 > = {
   /** The RPC request body. */
-  body: TBody
+  body: body
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
   /** A callback to handle the response. */
@@ -40,8 +40,8 @@ export type HttpRequestParameters<
 }
 
 export type HttpRequestReturnType<
-  TBody extends RpcRequest | RpcRequest[] = RpcRequest,
-> = TBody extends RpcRequest[] ? RpcResponse[] : RpcResponse
+  body extends RpcRequest | RpcRequest[] = RpcRequest,
+> = body extends RpcRequest[] ? RpcResponse[] : RpcResponse
 
 export type HttpRequestErrorType =
   | HttpRequestErrorType_
@@ -50,9 +50,9 @@ export type HttpRequestErrorType =
   | ErrorType
 
 export type HttpRpcClient = {
-  request<TBody extends RpcRequest | RpcRequest[]>(
-    params: HttpRequestParameters<TBody>,
-  ): Promise<HttpRequestReturnType<TBody>>
+  request<body extends RpcRequest | RpcRequest[]>(
+    params: HttpRequestParameters<body>,
+  ): Promise<HttpRequestReturnType<body>>
 }
 
 export function getHttpRpcClient(
@@ -94,8 +94,8 @@ export function getHttpRpcClient(
                     ...body,
                   }),
               headers: {
-                ...headers,
                 'Content-Type': 'application/json',
+                ...headers,
               },
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),

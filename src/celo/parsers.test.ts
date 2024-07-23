@@ -371,3 +371,17 @@ describe('should throw an error for invalid cip64 transactions', () => {
     `)
   })
 })
+
+describe('should be able to parse op-stack transactions', () => {
+  test('parsing an op deposit transaction', () => {
+    const parsed = parseTransaction(
+      '0x7ef83ca018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808080808080',
+    )
+    expect(parsed).toEqual({
+      from: '0x977f82a600a1414e583f7f13623f1ac5d58b1c0b',
+      sourceHash:
+        '0x18040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d7104319',
+      type: 'deposit',
+    })
+  })
+})

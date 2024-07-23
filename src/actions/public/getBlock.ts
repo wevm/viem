@@ -22,11 +22,11 @@ import {
 } from '../../utils/formatters/block.js'
 
 export type GetBlockParameters<
-  TIncludeTransactions extends boolean = false,
-  TBlockTag extends BlockTag = 'latest',
+  includeTransactions extends boolean = false,
+  blockTag extends BlockTag = 'latest',
 > = {
   /** Whether or not to include transaction data in the response. */
-  includeTransactions?: TIncludeTransactions | undefined
+  includeTransactions?: includeTransactions | undefined
 } & (
   | {
       /** Hash of the block. */
@@ -47,15 +47,15 @@ export type GetBlockParameters<
        * The block tag.
        * @default 'latest'
        */
-      blockTag?: TBlockTag | BlockTag | undefined
+      blockTag?: blockTag | BlockTag | undefined
     }
 )
 
 export type GetBlockReturnType<
-  TChain extends Chain | undefined = undefined,
-  TIncludeTransactions extends boolean = false,
-  TBlockTag extends BlockTag = 'latest',
-> = Prettify<FormattedBlock<TChain, TIncludeTransactions, TBlockTag>>
+  chain extends Chain | undefined = undefined,
+  includeTransactions extends boolean = false,
+  blockTag extends BlockTag = 'latest',
+> = Prettify<FormattedBlock<chain, includeTransactions, blockTag>>
 
 export type GetBlockErrorType =
   | BlockNotFoundErrorType
@@ -88,19 +88,19 @@ export type GetBlockErrorType =
  * const block = await getBlock(client)
  */
 export async function getBlock<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  TIncludeTransactions extends boolean = false,
-  TBlockTag extends BlockTag = 'latest',
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  includeTransactions extends boolean = false,
+  blockTag extends BlockTag = 'latest',
 >(
-  client: Client<Transport, TChain, TAccount>,
+  client: Client<Transport, chain, account>,
   {
     blockHash,
     blockNumber,
     blockTag: blockTag_,
     includeTransactions: includeTransactions_,
-  }: GetBlockParameters<TIncludeTransactions, TBlockTag> = {},
-): Promise<GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>> {
+  }: GetBlockParameters<includeTransactions, blockTag> = {},
+): Promise<GetBlockReturnType<chain, includeTransactions, blockTag>> {
   const blockTag = blockTag_ ?? 'latest'
   const includeTransactions = includeTransactions_ ?? false
 

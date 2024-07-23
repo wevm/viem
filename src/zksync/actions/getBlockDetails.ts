@@ -13,10 +13,10 @@ export type GetBlockDetailsParameters = ZkSyncNumberParameter
 export type GetBlockDetailsReturnType = ZkSyncBlockDetails
 
 export async function getBlockDetails<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
   parameters: GetBlockDetailsParameters,
 ): Promise<GetBlockDetailsReturnType> {
   const result = await client.request({

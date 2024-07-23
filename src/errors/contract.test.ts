@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { ErrorsExample } from '~test/contracts/generated.js'
+import { ErrorsExample } from '~contracts/generated.js'
 import { baycContractConfig } from '~test/src/abis.js'
 import { address } from '~test/src/constants.js'
 import { polygon } from '../chains/index.js'

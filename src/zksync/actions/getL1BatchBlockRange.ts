@@ -12,10 +12,10 @@ export type GetL1BatchBlockRangeParameters = {
 export type GetL1BatchBlockRangeReturnParameters = [number, number]
 
 export async function getL1BatchBlockRange<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
   parameters: GetL1BatchBlockRangeParameters,
 ): Promise<GetL1BatchBlockRangeReturnParameters> {
   const [number_1, number_2] = await client.request({

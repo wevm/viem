@@ -1,5 +1,91 @@
 # viem
 
+## 2.17.10
+
+### Patch Changes
+
+- [#2513](https://github.com/wevm/viem/pull/2513) [`3af06fe`](https://github.com/wevm/viem/commit/3af06fe23dda1f44d43b3d3cec5d985894c2840a) Thanks [@hoangtan282](https://github.com/hoangtan282)! - Added Funki Mainnet.
+
+- [#2519](https://github.com/wevm/viem/pull/2519) [`01cdac1`](https://github.com/wevm/viem/commit/01cdac14d508fbae50a31492e244b7adbe858bab) Thanks [@cbfyi](https://github.com/cbfyi)! - Added dispute game factory address for Base Sepolia.
+
+- [#2515](https://github.com/wevm/viem/pull/2515) [`b7e4fa5`](https://github.com/wevm/viem/commit/b7e4fa518b1798741cf029f34ed3154695ab3a16) Thanks [@JoeyKhd](https://github.com/JoeyKhd)! - Added Root Network chain.
+
+## 2.17.9
+
+### Patch Changes
+
+- [`b71e656e`](https://github.com/wevm/viem/commit/b71e656e08dadc44e2c1eccb5f505f70ce4d3aaf) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
+## 2.17.8
+
+### Patch Changes
+
+- [`690cb9a7`](https://github.com/wevm/viem/commit/690cb9a78a801edf7ea3ab1d8cf1a0cd794fc32a) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
+## 2.17.7
+
+### Patch Changes
+
+- [`7d3d505`](https://github.com/wevm/viem/commit/7d3d505221d4bb2ccc002be1cddc9e2011e33c01) Thanks [@jxom](https://github.com/jxom)! - Allow override of `Content-Type` header on `http` transport.
+
+## 2.17.6
+
+### Patch Changes
+
+- [`aa42f47`](https://github.com/wevm/viem/commit/aa42f47fe8b5ce19858e5855ecdceae7000dbb92) Thanks [@jxom](https://github.com/jxom)! - Updated Darwinia chain explorer URL.
+
+- [`759e34d`](https://github.com/wevm/viem/commit/759e34dde23ca50275d9e4df38805e8f0b285753) Thanks [@jxom](https://github.com/jxom)! - Enforced `r` and `s` hex values on `Signature` to be always padded to 32 bytes.
+
+## 2.17.5
+
+### Patch Changes
+
+- [#2500](https://github.com/wevm/viem/pull/2500) [`f6d60054`](https://github.com/wevm/viem/commit/f6d60054bdcf8ada44c8af46b66eda50b05dd08b) Thanks [@lucadonnoh](https://github.com/lucadonnoh)! - Added OP Stack contract addresses for Mode Testnet chain.
+
+## 2.17.4
+
+### Patch Changes
+
+- [#2493](https://github.com/wevm/viem/pull/2493) [`ef3601d`](https://github.com/wevm/viem/commit/ef3601d1db04e41c993943c0cfc72d3a64bbb6db) Thanks [@billalxcode](https://github.com/billalxcode)! - Added DreyerX Testnet chain
+
+## 2.17.3
+
+### Patch Changes
+
+- [`ec3b0e0`](https://github.com/wevm/viem/commit/ec3b0e08f0a379249224e65092277191f1a8502b) Thanks [@jxom](https://github.com/jxom)! - Added fallback verification in `verifyHash`.
+
+## 2.17.2
+
+### Patch Changes
+
+- [#2479](https://github.com/wevm/viem/pull/2479) [`5028b3f`](https://github.com/wevm/viem/commit/5028b3fb723100e49ca9b301405360b23c2a1003) Thanks [@keyding](https://github.com/keyding)! - Added Artela Testnet chain.
+
+- [#2478](https://github.com/wevm/viem/pull/2478) [`795ca46`](https://github.com/wevm/viem/commit/795ca46cf93bc496abb23a5b868ea48bd80860ae) Thanks [@sj719045032](https://github.com/sj719045032)! - Added zkLink Nova Sepolia Testnet chain.
+
+## 2.17.1
+
+### Patch Changes
+
+- [`f12dfdb9`](https://github.com/wevm/viem/commit/f12dfdb9fa15b68741d79972c97fb3fa99551c85) Thanks [@jxom](https://github.com/jxom)! - Fixed `watchContractEvent` querying for events against an invalid block range.
+
+- [#2471](https://github.com/wevm/viem/pull/2471) [`f5ae57f9`](https://github.com/wevm/viem/commit/f5ae57f963cd8461f228c212dd1df7d9d99f6d47) Thanks [@michelebruno](https://github.com/michelebruno)! - Added multicall3 contract to Berachain bArtio.
+
+- [#2476](https://github.com/wevm/viem/pull/2476) [`c5a33911`](https://github.com/wevm/viem/commit/c5a33911019219c11d96312293384dbbfa5bd452) Thanks [@sj719045032](https://github.com/sj719045032)! - Added zkLinkNova chain.
+
+## 2.17.0
+
+### Minor Changes
+
+- [#2335](https://github.com/wevm/viem/pull/2335) [`3fce1c3`](https://github.com/wevm/viem/commit/3fce1c36414dfb4cd1b8df3f913fe1cc8abba7db) Thanks [@aaronmgdr](https://github.com/aaronmgdr)! - Added support for serializing and parsing OP deposit transactions on Celo.
+
+### Patch Changes
+
+- [#2459](https://github.com/wevm/viem/pull/2459) [`76092d8`](https://github.com/wevm/viem/commit/76092d851177edeeb6e801976fb9fc1afee94ee9) Thanks [@besated](https://github.com/besated)! - Added Sei testnet chain.
+
+- [#2465](https://github.com/wevm/viem/pull/2465) [`32a71ab`](https://github.com/wevm/viem/commit/32a71ab2434a7cb53a59f6a5cc901a68ee78f362) Thanks [@giskook](https://github.com/giskook)! - Updated `xLayerTestnet` RPC URL.
+
+- [#2447](https://github.com/wevm/viem/pull/2447) [`861d962`](https://github.com/wevm/viem/commit/861d962507cef076ceffa479ba74cd2fade0308c) Thanks [@jerray](https://github.com/jerray)! - Tweaked native currency property for `btr` and `btrTestnet` chains.
+
 ## 2.16.5
 
 ### Patch Changes

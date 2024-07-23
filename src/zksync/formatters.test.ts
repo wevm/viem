@@ -13,6 +13,8 @@ describe('block', () => {
 
     expect(
       block.format({
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
         hash: '0x288c26fa1cc1814b638f3010f20d17fc5d1a2667fb5aa1dd6354ad889fa335b4',
         parentHash:
           '0xb1f996bdcc7c1f1893b016bd47150a846ac1e11f443d23df4cbc7c36fa1d4ae1',
@@ -50,9 +52,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 2152203n,
@@ -82,6 +84,8 @@ describe('block', () => {
 
     expect(
       block.format({
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
         hash: '0xfd73aaef0e91fcd6c171056b235a2b0f17650dcbe17038d17f76bbf3980c4da2',
         parentHash:
           '0x4adced86c99c6a0db3288bcb1c99ab984f2c51ecf5b9efa243ca029b86ce1476',
@@ -143,9 +147,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 3248087n,
@@ -199,6 +203,8 @@ describe('block', () => {
 
     expect(
       block.format({
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
         hash: '0x288c26fa1cc1814b638f3010f20d17fc5d1a2667fb5aa1dd6354ad889fa335b4',
         parentHash:
           '0xb1f996bdcc7c1f1893b016bd47150a846ac1e11f443d23df4cbc7c36fa1d4ae1',
@@ -236,9 +242,9 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 250000000n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
         "extraData": "0x",
         "gasLimit": 4294967295n,
         "gasUsed": 2152203n,
@@ -1209,6 +1215,7 @@ describe('transaction receipt', () => {
             "address": "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x",
             "l1BatchNumber": 1n,
             "logIndex": 14,
@@ -1226,6 +1233,7 @@ describe('transaction receipt', () => {
             "address": "0x9c931462ac1bf8b47a727aaad7776405ac894482",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
             "l1BatchNumber": 1n,
             "logIndex": 15,
@@ -1242,6 +1250,7 @@ describe('transaction receipt', () => {
             "address": "0x0000000000000000000000000000000000008006",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x",
             "l1BatchNumber": 1n,
             "logIndex": 16,
@@ -1261,6 +1270,7 @@ describe('transaction receipt', () => {
             "address": "0x1eb710030273e529a6ad7e1e14d4e601765ba3c6",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x",
             "l1BatchNumber": 1n,
             "logIndex": 17,
@@ -1279,6 +1289,7 @@ describe('transaction receipt', () => {
             "address": "0x0000000000000000000000000000000000008006",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x",
             "l1BatchNumber": 1n,
             "logIndex": 18,
@@ -1298,6 +1309,7 @@ describe('transaction receipt', () => {
             "address": "0x1eb710030273e529a6ad7e1e14d4e601765ba3c6",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x",
             "l1BatchNumber": 1n,
             "logIndex": 19,
@@ -1316,6 +1328,7 @@ describe('transaction receipt', () => {
             "address": "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
             "l1BatchNumber": 1n,
             "logIndex": 20,
@@ -1332,6 +1345,7 @@ describe('transaction receipt', () => {
             "address": "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000029df43f75149d0552475a6f9b2ac96e28796ed0b",
             "l1BatchNumber": 1n,
             "logIndex": 21,
@@ -1348,6 +1362,7 @@ describe('transaction receipt', () => {
             "address": "0x0000000000000000000000000000000000008006",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x",
             "l1BatchNumber": 1n,
             "logIndex": 22,
@@ -1367,6 +1382,7 @@ describe('transaction receipt', () => {
             "address": "0x000000000000000000000000000000000000800a",
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
             "blockNumber": 1n,
+            "blockTimestamp": "0x63eb991e",
             "data": "0x0000000000000000000000000000000000000000000000000000000000000000",
             "l1BatchNumber": 1n,
             "logIndex": 23,

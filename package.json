@@ -10,11 +10,11 @@
     "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
     "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
-    "changeset:prepublish": "pnpm version:update && bun scripts/prepublishOnly.ts && pnpm build",
+    "changeset:prepublish": "pnpm version:update && bun .scripts/prepublishOnly.ts && pnpm build",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm version:update && pnpm format",
     "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
-    "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
+    "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun .scripts/generateTypedArtifacts.ts",
     "deps": "pnpx taze -r",
     "docs:dev": "pnpm --filter site dev",
     "docs:build": "pnpm --filter site build",
@@ -25,7 +25,7 @@
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
-    "prepublishOnly": "bun scripts/prepublishOnly.ts",
+    "prepublishOnly": "bun .scripts/prepublishOnly.ts",
     "size": "size-limit",
     "test": "vitest -c ./test/vitest.config.ts dev",
     "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
@@ -43,7 +43,7 @@
     "typecheck": "tsc --noEmit",
     "vectors": "bun test vectors/**/*.test.ts",
     "vectors:generate": "bun vectors/generate.ts",
-    "version:update": "bun scripts/updateVersion.ts"
+    "version:update": "bun .scripts/updateVersion.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.3",
@@ -89,7 +89,7 @@
     },
     "workspaces": {
       ".": {
-        "project": "scripts/*.ts"
+        "project": ".scripts/*.ts"
       },
       "src": {
         "entry": [
@@ -106,86 +106,86 @@
   },
   "size-limit": [
     {
-      "name": "viem (esm)",
+      "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "60.5 kB",
+      "limit": "61 kB",
       "import": "*"
     },
     {
-      "name": "viem (cjs)",
+      "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
       "limit": "78 kB"
     },
     {
-      "name": "viem (minimal surface - tree-shaking)",
+      "name": "import { createClient, http } from 'viem'",
       "path": "./src/_esm/index.js",
-      "limit": "6.3 kB",
+      "limit": "6.4 kB",
       "import": "{ createClient, http }"
     },
     {
-      "name": "viem/accounts",
+      "name": "import * from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
       "limit": "92 kB",
       "import": "*"
     },
     {
-      "name": "viem/accounts (tree-shaking)",
+      "name": "import { privateKeyToAccount } from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
       "limit": "20 kB",
       "import": "{ privateKeyToAccount }"
     },
     {
-      "name": "viem/actions",
-      "path": "./src/_esm/ens/index.js",
+      "name": "import * from 'viem/actions'",
+      "path": "./src/_esm/actions/index.js",
       "limit": "46.5 kB",
       "import": "*"
     },
     {
-      "name": "viem/actions (tree-shaking)",
+      "name": "import { getBlockNumber } from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
       "limit": "1 kB",
       "import": "{ getBlockNumber }"
     },
     {
-      "name": "viem/chains",
+      "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "30 kB",
+      "limit": "31 kB",
       "import": "*"
     },
     {
-      "name": "viem/chains (tree-shaking)",
+      "name": "import { mainnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
       "limit": "500 B",
       "import": "{ mainnet }"
     },
     {
-      "name": "viem/chains/utils",
+      "name": "import * from 'viem/chains/utils'",
       "path": "./src/_esm/chains/utils.js",
       "limit": "8 kB",
       "import": "*"
     },
     {
-      "name": "viem/ens",
+      "name": "import * from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
       "limit": "46.5 kB",
       "import": "*"
     },
     {
-      "name": "viem/ens (tree-shaking)",
+      "name": "import { getEnsAvatar } from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
       "limit": "22.6 kB",
       "import": "{ getEnsAvatar }"
     },
     {
-      "name": "viem/siwe",
+      "name": "import * from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "30.7 kB",
+      "limit": "32 kB",
       "import": "*"
     },
     {
-      "name": "viem/siwe (tree-shaking)",
+      "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "29.6 kB",
+      "limit": "31 kB",
       "import": "{ verifySiweMessage }"
     }
   ]

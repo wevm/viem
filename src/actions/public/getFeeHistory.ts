@@ -68,8 +68,8 @@ export type GetFeeHistoryErrorType =
  *   rewardPercentiles: [25, 75],
  * })
  */
-export async function getFeeHistory<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getFeeHistory<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockCount,
     blockNumber,

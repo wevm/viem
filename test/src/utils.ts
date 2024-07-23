@@ -32,7 +32,7 @@ import {
   Mock4337AccountFactory,
   OffchainLookupExample,
   Payable,
-} from '../contracts/generated.js'
+} from '../../contracts/generated.js'
 import {
   baycContractConfig,
   ensRegistryConfig,
@@ -71,7 +71,7 @@ export function createHttpServer(
   })
 }
 
-export async function deploy<const TAbi extends Abi | readonly unknown[]>(
+export async function deploy<const abi extends Abi | readonly unknown[]>(
   client: TestClient<
     TestClientMode,
     Transport,
@@ -79,7 +79,7 @@ export async function deploy<const TAbi extends Abi | readonly unknown[]>(
     Account | undefined,
     false
   >,
-  args: DeployContractParameters<TAbi, (typeof client)['chain'], Account>,
+  args: DeployContractParameters<abi, (typeof client)['chain'], Account>,
 ) {
   const hash = await deployContract(client, {
     account: accounts[0].address,

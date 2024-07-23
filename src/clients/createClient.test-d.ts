@@ -110,7 +110,7 @@ describe('extend', () => {
     }))
 
     client.extend(() => ({
-      // @ts-expect-error: Type 'SendTransactionParameters<Chain | undefined, Account | undefined, TChainOverride>' is not assignable to type 'number'.
+      // @ts-expect-error: Type 'SendTransactionParameters<Chain | undefined, Account | undefined, chainOverride>' is not assignable to type 'number'.
       async sendTransaction(_args: number) {
         return '0x'
       },

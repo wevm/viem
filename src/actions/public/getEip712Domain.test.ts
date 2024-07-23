@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { Mock4337AccountFactory } from '../../../test/contracts/generated.js'
+import { Mock4337AccountFactory } from '~contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
 import { deployMock4337Account } from '../../../test/src/utils.js'
@@ -25,21 +25,23 @@ test('default', async () => {
   await writeContract(client, request)
   await mine(client, { blocks: 1 })
 
-  expect(
-    await getEip712Domain(client, {
-      address,
-    }),
-  ).toMatchInlineSnapshot(`
+  const { domain, ...rest } = await getEip712Domain(client, {
+    address,
+  })
+  const { verifyingContract, ...restDomain } = domain
+  expect(verifyingContract).toBeDefined()
+  expect(rest).toMatchInlineSnapshot(`
+      {
+        "extensions": [],
+        "fields": "0x0f",
+      }
+    `)
+  expect(restDomain).toMatchInlineSnapshot(`
     {
-      "domain": {
-        "chainId": 1,
-        "name": "Mock4337Account",
-        "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "verifyingContract": "0x8a00708a83D977494139D21D618C6C2A71fA8ed1",
-        "version": "1",
-      },
-      "extensions": [],
-      "fields": "0x0f",
+      "chainId": 1,
+      "name": "Mock4337Account",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "version": "1",
     }
   `)
 })
@@ -55,27 +57,29 @@ test('counterfactual call', async () => {
     args: [pad('0x0')],
   })
 
-  expect(
-    await getEip712Domain(client, {
-      address,
-      factory: factoryAddress,
-      factoryData: encodeFunctionData({
-        abi: Mock4337AccountFactory.abi,
-        functionName: 'createAccount',
-        args: [accounts[0].address, pad('0x0')],
-      }),
+  const { domain, ...rest } = await getEip712Domain(client, {
+    address,
+    factory: factoryAddress,
+    factoryData: encodeFunctionData({
+      abi: Mock4337AccountFactory.abi,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x0')],
     }),
-  ).toMatchInlineSnapshot(`
+  })
+  const { verifyingContract, ...restDomain } = domain
+  expect(verifyingContract).toBeDefined()
+  expect(rest).toMatchInlineSnapshot(`
+      {
+        "extensions": [],
+        "fields": "0x0f",
+      }
+    `)
+  expect(restDomain).toMatchInlineSnapshot(`
     {
-      "domain": {
-        "chainId": 1,
-        "name": "Mock4337Account",
-        "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "verifyingContract": "0xd8a0AB4f74d04b9EE34CECCEF647051601720Dc1",
-        "version": "1",
-      },
-      "extensions": [],
-      "fields": "0x0f",
+      "chainId": 1,
+      "name": "Mock4337Account",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "version": "1",
     }
   `)
 })

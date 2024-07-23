@@ -81,11 +81,11 @@ export type EncodeAbiParametersErrorType =
  * ```
  */
 export function encodeAbiParameters<
-  const TParams extends readonly AbiParameter[] | readonly unknown[],
+  const params extends readonly AbiParameter[] | readonly unknown[],
 >(
-  params: TParams,
-  values: TParams extends readonly AbiParameter[]
-    ? AbiParametersToPrimitiveTypes<TParams>
+  params: params,
+  values: params extends readonly AbiParameter[]
+    ? AbiParametersToPrimitiveTypes<params>
     : never,
 ): EncodeAbiParametersReturnType {
   if (params.length !== values.length)
@@ -112,12 +112,12 @@ type Tuple = AbiParameterToPrimitiveType<TupleAbiParameter>
 
 type PrepareParamsErrorType = PrepareParamErrorType | ErrorType
 
-function prepareParams<const TParams extends readonly AbiParameter[]>({
+function prepareParams<const params extends readonly AbiParameter[]>({
   params,
   values,
 }: {
-  params: TParams
-  values: AbiParametersToPrimitiveTypes<TParams>
+  params: params
+  values: AbiParametersToPrimitiveTypes<params>
 }) {
   const preparedParams: PreparedParam[] = []
   for (let i = 0; i < params.length; i++) {
@@ -138,12 +138,12 @@ type PrepareParamErrorType =
   | InvalidAbiEncodingTypeErrorType
   | ErrorType
 
-function prepareParam<const TParam extends AbiParameter>({
+function prepareParam<const param extends AbiParameter>({
   param,
   value,
 }: {
-  param: TParam
-  value: AbiParameterToPrimitiveType<TParam>
+  param: param
+  value: AbiParameterToPrimitiveType<param>
 }): PreparedParam {
   const arrayComponents = getArrayComponents(param.type)
   if (arrayComponents) {
@@ -230,14 +230,14 @@ type EncodeArrayErrorType =
   // | PrepareParamErrorType
   | ErrorType
 
-function encodeArray<const TParam extends AbiParameter>(
-  value: AbiParameterToPrimitiveType<TParam>,
+function encodeArray<const param extends AbiParameter>(
+  value: AbiParameterToPrimitiveType<param>,
   {
     length,
     param,
   }: {
     length: number | null
-    param: TParam
+    param: param
   },
 ): PreparedParam {
   const dynamic = length === null
@@ -283,9 +283,9 @@ type EncodeBytesErrorType =
   | SizeErrorType
   | ErrorType
 
-function encodeBytes<const TParam extends AbiParameter>(
+function encodeBytes<const param extends AbiParameter>(
   value: Hex,
-  { param }: { param: TParam },
+  { param }: { param: param },
 ): PreparedParam {
   const [, paramSize] = param.type.split('bytes')
   const bytesSize = size(value)
@@ -373,10 +373,10 @@ type EncodeTupleErrorType =
   | ErrorType
 
 function encodeTuple<
-  const TParam extends AbiParameter & { components: readonly AbiParameter[] },
+  const param extends AbiParameter & { components: readonly AbiParameter[] },
 >(
-  value: AbiParameterToPrimitiveType<TParam>,
-  { param }: { param: TParam },
+  value: AbiParameterToPrimitiveType<param>,
+  { param }: { param: param },
 ): PreparedParam {
   let dynamic = false
   const preparedParams: PreparedParam[] = []

@@ -4,9 +4,12 @@ import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
-import { Mock4337AccountFactory } from '../../../test/contracts/generated.js'
+import { Mock4337AccountFactory } from '~contracts/generated.js'
 import { deployMock4337Account } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { zkSync } from '../../chains/index.js'
+import { createClient } from '../../clients/createClient.js'
+import { http } from '../../clients/transports/http.js'
 import { serializeErc6492Signature } from '../../experimental/index.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/solady/actions/signMessage.js'
 import type { Hex } from '../../types/misc.js'
@@ -298,4 +301,24 @@ test('unexpected errors still get thrown', async () => {
       signature: '0xdead',
     }),
   ).rejects.toThrow()
+})
+
+test('https://github.com/wevm/viem/issues/2484', async () => {
+  const client = createClient({
+    chain: zkSync,
+    transport: http(),
+  })
+
+  const signature = await signMessage(client, {
+    account: localAccount,
+    message: 'hello world',
+  })
+
+  expect(
+    verifyHash(client, {
+      address: localAccount.address,
+      hash: hashMessage('hello world'),
+      signature,
+    }),
+  ).resolves.toBe(true)
 })

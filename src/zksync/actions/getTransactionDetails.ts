@@ -13,10 +13,10 @@ export type GetTransactionDetailsParameters = {
 export type GetTransactionDetailsReturnType = ZkSyncTransactionDetails
 
 export async function getTransactionDetails<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
   parameters: GetTransactionDetailsParameters,
 ): Promise<GetTransactionDetailsReturnType> {
   const result = await client.request({

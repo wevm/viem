@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { Payable } from '~test/contracts/generated.js'
+import { Payable } from '~contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { deployPayable } from '~test/src/utils.js'

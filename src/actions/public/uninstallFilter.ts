@@ -37,10 +37,10 @@ export type UninstallFilterErrorType = RequestErrorType | ErrorType
  * // true
  */
 export async function uninstallFilter<
-  TTransport extends Transport,
-  TChain extends Chain | undefined,
+  transport extends Transport,
+  chain extends Chain | undefined,
 >(
-  _client: Client<TTransport, TChain>,
+  _client: Client<transport, chain>,
   { filter }: UninstallFilterParameters,
 ): Promise<UninstallFilterReturnType> {
   return filter.request({

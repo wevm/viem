@@ -8,10 +8,10 @@ import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
 export type GetL1ChainIdReturnType = Hex
 
 export async function getL1ChainId<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
 ): Promise<GetL1ChainIdReturnType> {
   const result = await client.request({ method: 'zks_L1ChainId' })
   return result

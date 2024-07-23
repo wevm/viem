@@ -1,6 +1,6 @@
 {
   "name": "@wevm/viem",
-  "version": "2.16.5",
+  "version": "2.17.10",
   "exports": {
     ".": "./index.ts",
     "./accounts": "./accounts/index.ts",

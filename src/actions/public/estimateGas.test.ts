@@ -127,18 +127,6 @@ test('args: gas', async () => {
   ).toMatchInlineSnapshot('21000n')
 })
 
-test('args: blobs', async () => {
-  expect(
-    await estimateGas(client, {
-      account: accounts[0].address,
-      blobs: toBlobs({ data: '0x1234' }),
-      kzg,
-      to: accounts[1].address,
-      maxFeePerBlobGas: parseGwei('20'),
-    }),
-  ).toMatchInlineSnapshot('53001n')
-})
-
 test('args: override', async () => {
   const transferData =
     '0xa9059cbb00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000de0b6b3a7640000'
@@ -174,6 +162,18 @@ describe('local account', () => {
         value: parseEther('1'),
       }),
     ).toMatchInlineSnapshot('21000n')
+  })
+
+  test('args: blobs', async () => {
+    expect(
+      await estimateGas(client, {
+        account: privateKeyToAccount(accounts[0].privateKey),
+        blobs: toBlobs({ data: '0x1234' }),
+        kzg,
+        to: accounts[1].address,
+        maxFeePerBlobGas: parseGwei('20'),
+      }),
+    ).toMatchInlineSnapshot('53001n')
   })
 
   test('args: data', async () => {

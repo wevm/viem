@@ -5,7 +5,7 @@
  */
 import { describe, expect, test, vi } from 'vitest'
 
-import { ErrorsExample, GH434 } from '~test/contracts/generated.js'
+import { ErrorsExample, GH434 } from '~contracts/generated.js'
 import {
   baycContractConfig,
   usdcContractConfig,
@@ -50,7 +50,7 @@ test('default', async () => {
   ).toMatchInlineSnapshot(`
     [
       {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
@@ -89,7 +89,7 @@ test('args: allowFailure', async () => {
     }),
   ).toMatchInlineSnapshot(`
     [
-      25847278192610069n,
+      25386964533553076n,
       9063377042n,
       10000n,
     ]
@@ -151,23 +151,11 @@ test('args: batchSize', async () => {
   ).toMatchInlineSnapshot(`
     [
       {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
-        "result": 25847278192610069n,
-        "status": "success",
-      },
-      {
-        "result": 9063377042n,
-        "status": "success",
-      },
-      {
-        "result": 10000n,
-        "status": "success",
-      },
-      {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
@@ -179,7 +167,19 @@ test('args: batchSize', async () => {
         "status": "success",
       },
       {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
+        "status": "success",
+      },
+      {
+        "result": 9063377042n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+      {
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
@@ -263,7 +263,7 @@ test('args: multicallAddress', async () => {
   ).toMatchInlineSnapshot(`
     [
       {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
@@ -585,7 +585,6 @@ describe('errors', async () => {
 
       expect(
         await multicall(client, {
-          blockNumber: anvilMainnet.forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -954,7 +953,6 @@ describe('errors', async () => {
     await expect(() =>
       multicall(client, {
         allowFailure: false,
-        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -1188,7 +1186,6 @@ describe('GitHub repros', () => {
     expect(
       await multicall(client, {
         allowFailure: false,
-        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             abi: GH434.abi,

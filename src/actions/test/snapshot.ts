@@ -30,9 +30,9 @@ export type SnapshotErrorType = RequestErrorType | ErrorType
  * await snapshot(client)
  */
 export async function snapshot<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
->(client: TestClient<TestClientMode, Transport, TChain, TAccount, false>) {
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(client: TestClient<TestClientMode, Transport, chain, account, false>) {
   return await client.request({
     method: 'evm_snapshot',
   })

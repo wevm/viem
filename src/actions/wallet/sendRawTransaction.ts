@@ -39,8 +39,8 @@ export type SendRawTransactionErrorType = RequestErrorType | ErrorType
  *   serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33'
  * })
  */
-export async function sendRawTransaction<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function sendRawTransaction<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { serializedTransaction }: SendRawTransactionParameters,
 ): Promise<SendRawTransactionReturnType> {
   return client.request(

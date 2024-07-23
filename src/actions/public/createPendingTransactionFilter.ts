@@ -34,10 +34,10 @@ export type CreatePendingTransactionFilterErrorType =
  * // { id: "0x345a6572337856574a76364e457a4366", type: 'transaction' }
  */
 export async function createPendingTransactionFilter<
-  TTransport extends Transport,
-  TChain extends Chain | undefined,
+  transport extends Transport,
+  chain extends Chain | undefined,
 >(
-  client: Client<TTransport, TChain>,
+  client: Client<transport, chain>,
 ): Promise<CreatePendingTransactionFilterReturnType> {
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newPendingTransactionFilter',

@@ -961,6 +961,7 @@ export type {
   TransactionSerializedLegacy,
   TransactionType,
   TransactionRequestEIP4844,
+  TransactionRequestGeneric,
 } from './types/transaction.js'
 export type {
   ExactPartial,

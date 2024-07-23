@@ -1,6 +1,0 @@
-[profile.default]
-remappings = [
-  "solady/=contracts/lib/solady/src/",
-]
-src = "contracts/src"
-out = "contracts/out"

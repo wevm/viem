@@ -19,7 +19,7 @@ import {
 } from '../actions/getL1TokenBalance.js'
 
 export type PublicActionsL1<
-  TAccount extends Account | undefined = Account | undefined,
+  account extends Account | undefined = Account | undefined,
 > = {
   /**
    * Returns the amount of approved tokens for a specific L1 bridge.
@@ -65,7 +65,7 @@ export type PublicActionsL1<
    * })
    */
   getL1Allowance: (
-    parameters: GetL1AllowanceParameters<TAccount>,
+    parameters: GetL1AllowanceParameters<account>,
   ) => Promise<GetL1AllowanceReturnType>
   /**
    * Returns the amount of the ERC20 token the client has on specific address.
@@ -109,7 +109,7 @@ export type PublicActionsL1<
    * })
    */
   getL1TokenBalance: (
-    parameters: GetL1TokenBalanceParameters<TAccount>,
+    parameters: GetL1TokenBalanceParameters<account>,
   ) => Promise<GetL1TokenBalanceReturnType>
   /**
    * Returns the amount of the token held by the account on the L1 network.
@@ -159,19 +159,19 @@ export type PublicActionsL1<
    * })
    */
   getL1Balance: (
-    ...parameters: TAccount extends undefined
-      ? [GetL1BalanceParameters<TAccount>]
-      : [GetL1BalanceParameters<TAccount>] | []
+    ...parameters: account extends undefined
+      ? [GetL1BalanceParameters<account>]
+      : [GetL1BalanceParameters<account>] | []
   ) => Promise<GetL1BalanceReturnType>
 }
 
 export function publicActionsL1() {
   return <
-    TChain extends Chain | undefined = Chain | undefined,
-    TAccount extends Account | undefined = Account | undefined,
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
   >(
-    client: Client<Transport, TChain, TAccount>,
-  ): PublicActionsL1<TAccount> => ({
+    client: Client<Transport, chain, account>,
+  ): PublicActionsL1<account> => ({
     getL1Allowance: (args) => getL1Allowance(client, args),
     getL1TokenBalance: (args) => getL1TokenBalance(client, args),
     // @ts-expect-error

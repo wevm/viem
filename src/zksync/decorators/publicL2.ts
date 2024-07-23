@@ -78,8 +78,8 @@ import {
 import type { ChainEIP712 } from '../types/chain.js'
 
 export type PublicActionsL2<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
+  chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  account extends Account | undefined = Account | undefined,
 > = {
   /**
    * Returns the addresses of the default zkSync Era bridge contracts on both L1 and L2.
@@ -347,7 +347,7 @@ export type PublicActionsL2<
    * const details = await client.estimateFee({transactionRequest: {...}}});
    */
   estimateFee: (
-    args: EstimateFeeParameters<TChain, TAccount>,
+    args: EstimateFeeParameters<chain, account>,
   ) => Promise<EstimateFeeReturnType>
 
   /**
@@ -369,7 +369,7 @@ export type PublicActionsL2<
    * const details = await client.estimateGasL1ToL2({transactionRequest: {...}}});
    */
   estimateGasL1ToL2: (
-    args: EstimateGasL1ToL2Parameters<TChain, TAccount>,
+    args: EstimateGasL1ToL2Parameters<chain, account>,
   ) => Promise<EstimateGasL1ToL2ReturnType>
 
   /**
@@ -415,12 +415,12 @@ export type PublicActionsL2<
 
 export function publicActionsL2() {
   return <
-    TTransport extends Transport = Transport,
-    TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-    TAccount extends Account | undefined = Account | undefined,
+    transport extends Transport = Transport,
+    chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+    account extends Account | undefined = Account | undefined,
   >(
-    client: Client<TTransport, TChain, TAccount>,
-  ): PublicActionsL2<TChain, TAccount> => {
+    client: Client<transport, chain, account>,
+  ): PublicActionsL2<chain, account> => {
     return {
       estimateGasL1ToL2: (args) => estimateGasL1ToL2(client, args),
       getDefaultBridgeAddresses: () => getDefaultBridgeAddresses(client),

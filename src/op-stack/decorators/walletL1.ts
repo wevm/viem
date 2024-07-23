@@ -157,12 +157,12 @@ export type WalletActionsL1<
  */
 export function walletActionsL1() {
   return <
-    TTransport extends Transport,
-    TChain extends Chain | undefined = Chain | undefined,
-    TAccount extends Account | undefined = Account | undefined,
+    transport extends Transport,
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
   >(
-    client: Client<TTransport, TChain, TAccount>,
-  ): WalletActionsL1<TChain, TAccount> => {
+    client: Client<transport, chain, account>,
+  ): WalletActionsL1<chain, account> => {
     return {
       depositTransaction: (args) => depositTransaction(client, args),
       finalizeWithdrawal: (args) => finalizeWithdrawal(client, args),

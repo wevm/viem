@@ -59,14 +59,14 @@ import {
 } from './getSerializedTransactionType.js'
 
 export type ParseTransactionReturnType<
-  TSerialized extends TransactionSerializedGeneric = TransactionSerialized,
-  TType extends TransactionType = GetSerializedTransactionType<TSerialized>,
-> = IsNarrowable<TSerialized, Hex> extends true
+  serialized extends TransactionSerializedGeneric = TransactionSerialized,
+  type extends TransactionType = GetSerializedTransactionType<serialized>,
+> = IsNarrowable<serialized, Hex> extends true
   ?
-      | (TType extends 'eip1559' ? TransactionSerializableEIP1559 : never)
-      | (TType extends 'eip2930' ? TransactionSerializableEIP2930 : never)
-      | (TType extends 'eip4844' ? TransactionSerializableEIP4844 : never)
-      | (TType extends 'legacy' ? TransactionSerializableLegacy : never)
+      | (type extends 'eip1559' ? TransactionSerializableEIP1559 : never)
+      | (type extends 'eip2930' ? TransactionSerializableEIP2930 : never)
+      | (type extends 'eip4844' ? TransactionSerializableEIP4844 : never)
+      | (type extends 'legacy' ? TransactionSerializableLegacy : never)
   : TransactionSerializable
 
 export type ParseTransactionErrorType =
@@ -77,28 +77,28 @@ export type ParseTransactionErrorType =
   | ParseTransactionLegacyErrorType
 
 export function parseTransaction<
-  const TSerialized extends TransactionSerializedGeneric,
->(serializedTransaction: TSerialized): ParseTransactionReturnType<TSerialized> {
+  const serialized extends TransactionSerializedGeneric,
+>(serializedTransaction: serialized): ParseTransactionReturnType<serialized> {
   const type = getSerializedTransactionType(serializedTransaction)
 
   if (type === 'eip1559')
     return parseTransactionEIP1559(
       serializedTransaction as TransactionSerializedEIP1559,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   if (type === 'eip2930')
     return parseTransactionEIP2930(
       serializedTransaction as TransactionSerializedEIP2930,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   if (type === 'eip4844')
     return parseTransactionEIP4844(
       serializedTransaction as TransactionSerializedEIP4844,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   return parseTransactionLegacy(
     serializedTransaction,
-  ) as ParseTransactionReturnType<TSerialized>
+  ) as ParseTransactionReturnType<serialized>
 }
 
 type ParseTransactionEIP4844ErrorType =

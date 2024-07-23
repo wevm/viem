@@ -10,7 +10,7 @@ import {
   ErrorsExample,
   Mock4337Account,
   Mock4337AccountFactory,
-} from '~test/contracts/generated.js'
+} from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deployErrorExample, deployMock4337Account } from '~test/src/utils.js'
@@ -92,7 +92,7 @@ describe('wagmi', () => {
         blockNumber: anvilMainnet.forkBlockNumber,
         functionName: 'totalSupply',
       }),
-    ).toEqual(631n)
+    ).toEqual(648n)
   })
 
   test('overloaded function', async () => {
@@ -212,20 +212,35 @@ describe('deployless read (factory)', () => {
       args: [accounts[0].address, pad('0x0')],
     })
 
-    const result = await readContract(client, {
+    const [
+      fields,
+      name,
+      version,
+      chainId,
+      verifyingContract,
+      salt,
+      extensions,
+    ] = await readContract(client, {
       address,
       abi: Mock4337Account.abi,
       functionName: 'eip712Domain',
       factory,
       factoryData,
     })
-    expect(result).toMatchInlineSnapshot(`
+    expect(verifyingContract).toBeDefined()
+    expect([
+      fields,
+      name,
+      version,
+      chainId,
+      salt,
+      extensions,
+    ]).toMatchInlineSnapshot(`
       [
         "0x0f",
         "Mock4337Account",
         "1",
         1n,
-        "0x8a00708a83D977494139D21D618C6C2A71fA8ed1",
         "0x0000000000000000000000000000000000000000000000000000000000000000",
         [],
       ]

@@ -1,12 +1,12 @@
-export type ZkSyncFee<TQuantity = bigint> = {
-  gasLimit: TQuantity
-  gasPerPubdataLimit: TQuantity
-  maxPriorityFeePerGas: TQuantity
-  maxFeePerGas: TQuantity
+export type ZkSyncFee<quantity = bigint> = {
+  gasLimit: quantity
+  gasPerPubdataLimit: quantity
+  maxPriorityFeePerGas: quantity
+  maxFeePerGas: quantity
 }
 
-export type ZkSyncFeeValues<TQuantity = bigint> = {
-  gasPrice: TQuantity
-  maxFeePerGas: TQuantity
-  maxPriorityFeePerGas: TQuantity
+export type ZkSyncFeeValues<quantity = bigint> = {
+  gasPrice: quantity
+  maxFeePerGas: quantity
+  maxPriorityFeePerGas: quantity
 }

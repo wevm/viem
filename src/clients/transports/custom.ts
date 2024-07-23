@@ -30,8 +30,8 @@ export type CustomTransportErrorType = CreateTransportErrorType | ErrorType
 /**
  * @description Creates a custom transport given an EIP-1193 compliant `request` attribute.
  */
-export function custom<TProvider extends EthereumProvider>(
-  provider: TProvider,
+export function custom<provider extends EthereumProvider>(
+  provider: provider,
   config: CustomTransportConfig = {},
 ): CustomTransport {
   const { key = 'custom', name = 'Custom Provider', retryDelay } = config

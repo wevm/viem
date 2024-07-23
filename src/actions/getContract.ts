@@ -69,35 +69,35 @@ import {
 } from './wallet/writeContract.js'
 
 type KeyedClient<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
 > =
   | {
-      public?: Client<TTransport, TChain> | undefined
-      wallet: Client<TTransport, TChain, TAccount>
+      public?: Client<transport, chain> | undefined
+      wallet: Client<transport, chain, account>
     }
   | {
-      public: Client<TTransport, TChain>
-      wallet?: Client<TTransport, TChain, TAccount> | undefined
+      public: Client<transport, chain>
+      wallet?: Client<transport, chain, account> | undefined
     }
 
 export type GetContractParameters<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TClient extends
-    | Client<TTransport, TChain, TAccount>
-    | KeyedClient<TTransport, TChain, TAccount> =
-    | Client<TTransport, TChain, TAccount>
-    | KeyedClient<TTransport, TChain, TAccount>,
-  TAddress extends Address = Address,
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+  abi extends Abi | readonly unknown[] = Abi,
+  client extends
+    | Client<transport, chain, account>
+    | KeyedClient<transport, chain, account> =
+    | Client<transport, chain, account>
+    | KeyedClient<transport, chain, account>,
+  address extends Address = Address,
 > = {
   /** Contract ABI */
-  abi: TAbi
+  abi: abi
   /** Contract address */
-  address: TAddress
+  address: address
   /** The Client.
    *
    * If you pass in a [`publicClient`](https://viem.sh/docs/clients/public), the following methods are available:
@@ -114,43 +114,44 @@ export type GetContractParameters<
    * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas)
    * - [`write`](https://viem.sh/docs/contract/writeContract)
    */
-  client: TClient
+  client: client
 }
 
 export type GetContractReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TClient extends Client | KeyedClient = Client | KeyedClient,
-  TAddress extends Address = Address,
-  _EventNames extends string = TAbi extends Abi
-    ? Abi extends TAbi
+  abi extends Abi | readonly unknown[] = Abi,
+  client extends Client | KeyedClient = Client | KeyedClient,
+  address extends Address = Address,
+  //
+  _eventNames extends string = abi extends Abi
+    ? Abi extends abi
       ? string
-      : ExtractAbiEventNames<TAbi>
+      : ExtractAbiEventNames<abi>
     : string,
-  _ReadFunctionNames extends string = TAbi extends Abi
-    ? Abi extends TAbi
+  _readFunctionNames extends string = abi extends Abi
+    ? Abi extends abi
       ? string
-      : ExtractAbiFunctionNames<TAbi, 'pure' | 'view'>
+      : ExtractAbiFunctionNames<abi, 'pure' | 'view'>
     : string,
-  _WriteFunctionNames extends string = TAbi extends Abi
-    ? Abi extends TAbi
+  _writeFunctionNames extends string = abi extends Abi
+    ? Abi extends abi
       ? string
-      : ExtractAbiFunctionNames<TAbi, 'nonpayable' | 'payable'>
+      : ExtractAbiFunctionNames<abi, 'nonpayable' | 'payable'>
     : string,
-  _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
-  _PublicClient extends Client | unknown = TClient extends {
+  _narrowable extends boolean = IsNarrowable<abi, Abi>,
+  _publicClient extends Client | unknown = client extends {
     public: Client
   }
-    ? TClient['public']
-    : TClient,
-  _WalletClient extends Client | unknown = TClient extends {
+    ? client['public']
+    : client,
+  _walletClient extends Client | unknown = client extends {
     wallet: Client
   }
-    ? TClient['wallet']
-    : TClient,
+    ? client['wallet']
+    : client,
 > = Prettify<
   Prettify<
-    (_PublicClient extends Client
-      ? (IsNever<_ReadFunctionNames> extends true
+    (_publicClient extends Client
+      ? (IsNever<_readFunctionNames> extends true
           ? unknown
           : {
               /**
@@ -179,11 +180,11 @@ export type GetContractReturnType<
                * // 424122n
                */
               read: {
-                [functionName in _ReadFunctionNames]: GetReadFunction<
-                  _Narrowable,
-                  TAbi,
+                [functionName in _readFunctionNames]: GetReadFunction<
+                  _narrowable,
+                  abi,
                   functionName extends ContractFunctionName<
-                    TAbi,
+                    abi,
                     'pure' | 'view'
                   >
                     ? functionName
@@ -191,7 +192,7 @@ export type GetContractReturnType<
                 >
               }
             }) &
-          (IsNever<_WriteFunctionNames> extends true
+          (IsNever<_writeFunctionNames> extends true
             ? unknown
             : {
                 /**
@@ -215,13 +216,13 @@ export type GetContractReturnType<
                  * })
                  */
                 estimateGas: {
-                  [functionName in _WriteFunctionNames]: GetEstimateFunction<
-                    _Narrowable,
-                    _PublicClient['chain'],
+                  [functionName in _writeFunctionNames]: GetEstimateFunction<
+                    _narrowable,
+                    _publicClient['chain'],
                     undefined,
-                    TAbi,
+                    abi,
                     functionName extends ContractFunctionName<
-                      TAbi,
+                      abi,
                       'nonpayable' | 'payable'
                     >
                       ? functionName
@@ -253,15 +254,15 @@ export type GetContractReturnType<
                  * })
                  */
                 simulate: {
-                  [functionName in _WriteFunctionNames]: GetSimulateFunction<
-                    _Narrowable,
-                    _PublicClient['chain'],
-                    _WalletClient extends Client
-                      ? _WalletClient['account']
-                      : _PublicClient['account'],
-                    TAbi,
+                  [functionName in _writeFunctionNames]: GetSimulateFunction<
+                    _narrowable,
+                    _publicClient['chain'],
+                    _walletClient extends Client
+                      ? _walletClient['account']
+                      : _publicClient['account'],
+                    abi,
                     functionName extends ContractFunctionName<
-                      TAbi,
+                      abi,
                       'nonpayable' | 'payable'
                     >
                       ? functionName
@@ -269,7 +270,7 @@ export type GetContractReturnType<
                   >
                 }
               }) &
-          (IsNever<_EventNames> extends true
+          (IsNever<_eventNames> extends true
             ? unknown
             : {
                 /**
@@ -291,12 +292,10 @@ export type GetContractReturnType<
                  * const filter = await contract.createEventFilter.Transfer()
                  */
                 createEventFilter: {
-                  [EventName in _EventNames]: GetEventFilter<
-                    _Narrowable,
-                    TAbi,
-                    EventName extends ContractEventName<TAbi>
-                      ? EventName
-                      : never
+                  [EventName in _eventNames]: GetEventFilter<
+                    _narrowable,
+                    abi,
+                    EventName extends ContractEventName<abi> ? EventName : never
                   >
                 }
                 /**
@@ -318,12 +317,10 @@ export type GetContractReturnType<
                  * const filter = await contract.createEventFilter.Transfer()
                  */
                 getEvents: {
-                  [EventName in _EventNames]: GetEventsFunction<
-                    _Narrowable,
-                    TAbi,
-                    EventName extends ContractEventName<TAbi>
-                      ? EventName
-                      : never
+                  [EventName in _eventNames]: GetEventsFunction<
+                    _narrowable,
+                    abi,
+                    EventName extends ContractEventName<abi> ? EventName : never
                   >
                 }
                 /**
@@ -353,18 +350,16 @@ export type GetContractReturnType<
                  * )
                  */
                 watchEvent: {
-                  [EventName in _EventNames]: GetWatchEvent<
-                    _Narrowable,
-                    TAbi,
-                    EventName extends ContractEventName<TAbi>
-                      ? EventName
-                      : never
+                  [EventName in _eventNames]: GetWatchEvent<
+                    _narrowable,
+                    abi,
+                    EventName extends ContractEventName<abi> ? EventName : never
                   >
                 }
               })
       : unknown) &
-      (_WalletClient extends Client
-        ? IsNever<_WriteFunctionNames> extends true
+      (_walletClient extends Client
+        ? IsNever<_writeFunctionNames> extends true
           ? unknown
           : {
               /**
@@ -388,13 +383,13 @@ export type GetContractReturnType<
                * })
                */
               estimateGas: {
-                [functionName in _WriteFunctionNames]: GetEstimateFunction<
-                  _Narrowable,
-                  _WalletClient['chain'],
-                  _WalletClient['account'],
-                  TAbi,
+                [functionName in _writeFunctionNames]: GetEstimateFunction<
+                  _narrowable,
+                  _walletClient['chain'],
+                  _walletClient['account'],
+                  abi,
                   functionName extends ContractFunctionName<
-                    TAbi,
+                    abi,
                     'nonpayable' | 'payable'
                   >
                     ? functionName
@@ -428,13 +423,13 @@ export type GetContractReturnType<
                * })
                */
               write: {
-                [functionName in _WriteFunctionNames]: GetWriteFunction<
-                  _Narrowable,
-                  _WalletClient['chain'],
-                  _WalletClient['account'],
-                  TAbi,
+                [functionName in _writeFunctionNames]: GetWriteFunction<
+                  _narrowable,
+                  _walletClient['chain'],
+                  _walletClient['account'],
+                  abi,
                   functionName extends ContractFunctionName<
-                    TAbi,
+                    abi,
                     'nonpayable' | 'payable'
                   >
                     ? functionName
@@ -443,7 +438,7 @@ export type GetContractReturnType<
               }
             }
         : unknown)
-  > & { address: TAddress; abi: TAbi }
+  > & { address: address; abi: abi }
 >
 
 export type GetContractErrorType = ErrorType
@@ -474,29 +469,29 @@ export type GetContractErrorType = ErrorType
  * })
  */
 export function getContract<
-  TTransport extends Transport,
-  TAddress extends Address,
-  const TAbi extends Abi | readonly unknown[],
-  const TClient extends
-    | Client<TTransport, TChain, TAccount>
-    | KeyedClient<TTransport, TChain, TAccount>,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
+  transport extends Transport,
+  address extends Address,
+  const abi extends Abi | readonly unknown[],
+  const client extends
+    | Client<transport, chain, account>
+    | KeyedClient<transport, chain, account>,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
 >({
   abi,
   address,
   client: client_,
 }: GetContractParameters<
-  TTransport,
-  TChain,
-  TAccount,
-  TAbi,
-  TClient,
-  TAddress
->): GetContractReturnType<TAbi, TClient, TAddress> {
+  transport,
+  chain,
+  account,
+  abi,
+  client,
+  address
+>): GetContractReturnType<abi, client, address> {
   const client = client_ as
-    | Client<TTransport, TChain, TAccount>
-    | KeyedClient<TTransport, TChain, TAccount>
+    | Client<transport, chain, account>
+    | KeyedClient<transport, chain, account>
 
   const [publicClient, walletClient] = (() => {
     if (!client) return [undefined, undefined]
@@ -779,7 +774,7 @@ export function getContract<
   contract.address = address
   contract.abi = abi
 
-  return contract as unknown as GetContractReturnType<TAbi, TClient, TAddress>
+  return contract as unknown as GetContractReturnType<abi, client, address>
 }
 
 /**
@@ -819,158 +814,161 @@ export function getEventParameters(
 }
 
 type GetReadFunction<
-  Narrowable extends boolean,
-  TAbi extends Abi | readonly unknown[],
-  TFunctionName extends ContractFunctionName<TAbi, 'pure' | 'view'>,
-  TArgs extends ContractFunctionArgs<
-    TAbi,
+  narrowable extends boolean,
+  abi extends Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+  args extends ContractFunctionArgs<
+    abi,
     'pure' | 'view',
-    TFunctionName
-  > = ContractFunctionArgs<TAbi, 'pure' | 'view', TFunctionName>,
-  TAbiFunction extends AbiFunction = TAbi extends Abi
-    ? ExtractAbiFunction<TAbi, TFunctionName>
+    functionName
+  > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  abiFunction extends AbiFunction = abi extends Abi
+    ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
-  Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
-  Options = Prettify<
+  //
+  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs']>,
+  _options = Prettify<
     UnionOmit<
-      ReadContractParameters<TAbi, TFunctionName, TArgs>,
+      ReadContractParameters<abi, functionName, args>,
       'abi' | 'address' | 'args' | 'functionName'
     >
   >,
-> = Narrowable extends true
+> = narrowable extends true
   ? (
-      ...parameters: Args extends readonly []
-        ? [options?: Options]
-        : [args: Args, options?: Options]
-    ) => Promise<ReadContractReturnType<TAbi, TFunctionName, TArgs>>
+      ...parameters: _args extends readonly []
+        ? [options?: _options]
+        : [args: _args, options?: _options]
+    ) => Promise<ReadContractReturnType<abi, functionName, args>>
   : (
       ...parameters:
-        | [options?: Options]
-        | [args: readonly unknown[], options?: Options]
+        | [options?: _options]
+        | [args: readonly unknown[], options?: _options]
     ) => Promise<ReadContractReturnType>
 
 type GetEstimateFunction<
-  Narrowable extends boolean,
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  TAbi extends Abi | readonly unknown[],
-  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
-  TArgs extends ContractFunctionArgs<
-    TAbi,
+  narrowable extends boolean,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  abi extends Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  args extends ContractFunctionArgs<
+    abi,
     'nonpayable' | 'payable',
-    TFunctionName
-  > = ContractFunctionArgs<TAbi, 'nonpayable' | 'payable', TFunctionName>,
-  TAbiFunction extends AbiFunction = TAbi extends Abi
-    ? ExtractAbiFunction<TAbi, TFunctionName>
+    functionName
+  > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
+  abiFunction extends AbiFunction = abi extends Abi
+    ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
-  Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
-  Options = Prettify<
+  //
+  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs']>,
+  _options = Prettify<
     UnionOmit<
-      EstimateContractGasParameters<TAbi, TFunctionName, TArgs, TChain>,
+      EstimateContractGasParameters<abi, functionName, args, chain>,
       'abi' | 'address' | 'args' | 'functionName'
     >
   >,
-  // For making `options` parameter required if `TAccount`
-  IsOptionsRequired = IsUndefined<TAccount>,
-> = Narrowable extends true
+  // For making `options` parameter required if `account`
+  IsOptionsRequired = IsUndefined<account>,
+> = narrowable extends true
   ? (
-      ...parameters: Args extends readonly []
+      ...parameters: _args extends readonly []
         ? IsOptionsRequired extends true
-          ? [options: Options]
-          : [options?: Options]
+          ? [options: _options]
+          : [options?: _options]
         : [
-            args: Args,
+            args: _args,
             ...parameters: IsOptionsRequired extends true
-              ? [options: Options]
-              : [options?: Options],
+              ? [options: _options]
+              : [options?: _options],
           ]
     ) => Promise<EstimateContractGasReturnType>
   : (
       ...parameters:
         | (IsOptionsRequired extends true
-            ? [options: Options]
-            : [options?: Options])
+            ? [options: _options]
+            : [options?: _options])
         | [
             args: readonly unknown[],
             ...parameters: IsOptionsRequired extends true
-              ? [options: Options]
-              : [options?: Options],
+              ? [options: _options]
+              : [options?: _options],
           ]
     ) => Promise<EstimateContractGasReturnType>
 
 type GetSimulateFunction<
-  Narrowable extends boolean,
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  TAbi extends Abi | readonly unknown[],
-  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
-  TArgs extends ContractFunctionArgs<
-    TAbi,
+  narrowable extends boolean,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  abi extends Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  args extends ContractFunctionArgs<
+    abi,
     'nonpayable' | 'payable',
-    TFunctionName
-  > = ContractFunctionArgs<TAbi, 'nonpayable' | 'payable', TFunctionName>,
-  TAbiFunction extends AbiFunction = TAbi extends Abi
-    ? ExtractAbiFunction<TAbi, TFunctionName>
+    functionName
+  > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
+  abiFunction extends AbiFunction = abi extends Abi
+    ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
-  Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
-> = Narrowable extends true
+  //
+  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs']>,
+> = narrowable extends true
   ? <
-      TChainOverride extends Chain | undefined = undefined,
-      TAccountOverride extends Account | Address | undefined = undefined,
+      chainOverride extends Chain | undefined = undefined,
+      accountOverride extends Account | Address | undefined = undefined,
     >(
-      ...parameters: Args extends readonly []
+      ...parameters: _args extends readonly []
         ? [
             options?: Omit<
               SimulateContractParameters<
-                TAbi,
-                TFunctionName,
-                TArgs,
-                TChain,
-                TChainOverride,
-                TAccountOverride
+                abi,
+                functionName,
+                args,
+                chain,
+                chainOverride,
+                accountOverride
               >,
               'abi' | 'address' | 'args' | 'functionName'
             >,
           ]
         : [
-            args: Args,
+            args: _args,
             options?: Omit<
               SimulateContractParameters<
-                TAbi,
-                TFunctionName,
-                TArgs,
-                TChain,
-                TChainOverride,
-                TAccountOverride
+                abi,
+                functionName,
+                args,
+                chain,
+                chainOverride,
+                accountOverride
               >,
               'abi' | 'address' | 'args' | 'functionName'
             >,
           ]
     ) => Promise<
       SimulateContractReturnType<
-        TAbi,
-        TFunctionName,
-        TArgs,
-        TChain,
-        TAccount,
-        TChainOverride,
-        TAccountOverride
+        abi,
+        functionName,
+        args,
+        chain,
+        account,
+        chainOverride,
+        accountOverride
       >
     >
   : <
-      TChainOverride extends Chain | undefined = undefined,
-      TAccountOverride extends Account | Address | undefined = undefined,
+      chainOverride extends Chain | undefined = undefined,
+      accountOverride extends Account | Address | undefined = undefined,
     >(
       ...parameters:
         | [
             options?: Omit<
               SimulateContractParameters<
-                TAbi,
-                TFunctionName,
-                TArgs,
-                TChain,
-                TChainOverride,
-                TAccountOverride
+                abi,
+                functionName,
+                args,
+                chain,
+                chainOverride,
+                accountOverride
               >,
               'abi' | 'address' | 'args' | 'functionName'
             >,
@@ -979,12 +977,12 @@ type GetSimulateFunction<
             args: readonly unknown[],
             options?: Omit<
               SimulateContractParameters<
-                TAbi,
-                TFunctionName,
-                TArgs,
-                TChain,
-                TChainOverride,
-                TAccountOverride
+                abi,
+                functionName,
+                args,
+                chain,
+                chainOverride,
+                accountOverride
               >,
               'abi' | 'address' | 'args' | 'functionName'
             >,
@@ -992,169 +990,173 @@ type GetSimulateFunction<
     ) => Promise<SimulateContractReturnType>
 
 type GetWriteFunction<
-  Narrowable extends boolean,
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  TAbi extends Abi | readonly unknown[],
-  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
-  TArgs extends ContractFunctionArgs<
-    TAbi,
+  narrowable extends boolean,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  abi extends Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  args extends ContractFunctionArgs<
+    abi,
     'nonpayable' | 'payable',
-    TFunctionName
-  > = ContractFunctionArgs<TAbi, 'nonpayable' | 'payable', TFunctionName>,
-  TAbiFunction extends AbiFunction = TAbi extends Abi
-    ? ExtractAbiFunction<TAbi, TFunctionName>
+    functionName
+  > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
+  abiFunction extends AbiFunction = abi extends Abi
+    ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
-  Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
-  // For making `options` parameter required if `TAccount` or `TChain` is undefined
-  IsOptionsRequired = Or<[IsUndefined<TAccount>, IsUndefined<TChain>]>,
-> = Narrowable extends true
+  //
+  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs']>,
+  // For making `options` parameter required if `account` or `chain` is undefined
+  _isOptionsRequired = Or<[IsUndefined<account>, IsUndefined<chain>]>,
+> = narrowable extends true
   ? <
-      TChainOverride extends Chain | undefined,
-      Options extends Prettify<
+      chainOverride extends Chain | undefined,
+      options extends Prettify<
         UnionOmit<
           WriteContractParameters<
-            TAbi,
-            TFunctionName,
-            TArgs,
-            TChain,
-            TAccount,
-            TChainOverride
+            abi,
+            functionName,
+            args,
+            chain,
+            account,
+            chainOverride
           >,
           'abi' | 'address' | 'args' | 'functionName'
         >
       >,
     >(
-      ...parameters: Args extends readonly []
-        ? IsOptionsRequired extends true
-          ? [options: Options]
-          : [options?: Options]
+      ...parameters: _args extends readonly []
+        ? _isOptionsRequired extends true
+          ? [options: options]
+          : [options?: options]
         : [
-            args: Args,
-            ...parameters: IsOptionsRequired extends true
-              ? [options: Options]
-              : [options?: Options],
+            args: _args,
+            ...parameters: _isOptionsRequired extends true
+              ? [options: options]
+              : [options?: options],
           ]
     ) => Promise<WriteContractReturnType>
   : <
-      TChainOverride extends Chain | undefined,
-      Options extends Prettify<
+      chainOverride extends Chain | undefined,
+      options extends Prettify<
         UnionOmit<
           WriteContractParameters<
-            TAbi,
-            TFunctionName,
-            TArgs,
-            TChain,
-            TAccount,
-            TChainOverride
+            abi,
+            functionName,
+            args,
+            chain,
+            account,
+            chainOverride
           >,
           'abi' | 'address' | 'args' | 'functionName'
         >
       >,
-      Rest extends unknown[] = IsOptionsRequired extends true
-        ? [options: Options]
-        : [options?: Options],
+      Rest extends unknown[] = _isOptionsRequired extends true
+        ? [options: options]
+        : [options?: options],
     >(
       ...parameters: Rest | [args: readonly unknown[], ...parameters: Rest]
     ) => Promise<WriteContractReturnType>
 
 type GetEventFilter<
-  Narrowable extends boolean,
-  TAbi extends Abi | readonly unknown[],
-  TEventName extends ContractEventName<TAbi>,
-  TAbiEvent extends AbiEvent = TAbi extends Abi
-    ? ExtractAbiEvent<TAbi, TEventName>
+  narrowable extends boolean,
+  abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi>,
+  abiEvent extends AbiEvent = abi extends Abi
+    ? ExtractAbiEvent<abi, eventName>
     : AbiEvent,
-  Args = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs']>,
-  Options = Prettify<
+  //
+  _args = AbiEventParametersToPrimitiveTypes<abiEvent['inputs']>,
+  _options = Prettify<
     Omit<
-      CreateContractEventFilterParameters<TAbi, TEventName>,
+      CreateContractEventFilterParameters<abi, eventName>,
       'abi' | 'address' | 'args' | 'eventName' | 'strict'
     >
   >,
-  IndexedInputs = Extract<TAbiEvent['inputs'][number], { indexed: true }>,
-> = Narrowable extends true
+  IndexedInputs = Extract<abiEvent['inputs'][number], { indexed: true }>,
+> = narrowable extends true
   ? <
-      const TArgs extends
-        | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+      const args extends
+        | MaybeExtractEventArgsFromAbi<abi, eventName>
         | undefined,
-      TStrict extends boolean | undefined = undefined,
+      strict extends boolean | undefined = undefined,
     >(
       ...parameters: IsNever<IndexedInputs> extends true
-        ? [options?: Options & { strict?: TStrict }]
+        ? [options?: _options & { strict?: strict }]
         : [
-            args: Args | (Args extends TArgs ? Readonly<TArgs> : never),
-            options?: Options & { strict?: TStrict },
+            args: _args | (_args extends args ? Readonly<args> : never),
+            options?: _options & { strict?: strict },
           ]
     ) => Promise<
-      CreateContractEventFilterReturnType<TAbi, TEventName, TArgs, TStrict>
+      CreateContractEventFilterReturnType<abi, eventName, args, strict>
     >
-  : <TStrict extends boolean | undefined = undefined>(
+  : <strict extends boolean | undefined = undefined>(
       ...parameters:
-        | [options?: Options & { strict?: TStrict }]
+        | [options?: _options & { strict?: strict }]
         | [
             args: readonly unknown[] | CreateContractFilterOptions,
-            options?: Options & { strict?: TStrict },
+            options?: _options & { strict?: strict },
           ]
     ) => Promise<CreateContractEventFilterReturnType>
 
 type GetEventsFunction<
-  Narrowable extends boolean,
-  TAbi extends Abi | readonly unknown[],
-  TEventName extends ContractEventName<TAbi>,
-  TAbiEvent extends AbiEvent = TAbi extends Abi
-    ? ExtractAbiEvent<TAbi, TEventName>
+  narrowable extends boolean,
+  abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi>,
+  abiEvent extends AbiEvent = abi extends Abi
+    ? ExtractAbiEvent<abi, eventName>
     : AbiEvent,
-  Args = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs']>,
-  Options = Prettify<
+  //
+  _args = AbiEventParametersToPrimitiveTypes<abiEvent['inputs']>,
+  _options = Prettify<
     Omit<
-      GetContractEventsParameters<TAbi, TEventName>,
+      GetContractEventsParameters<abi, eventName>,
       'abi' | 'address' | 'args' | 'eventName'
     >
   >,
-  IndexedInputs = Extract<TAbiEvent['inputs'][number], { indexed: true }>,
-> = Narrowable extends true
+  IndexedInputs = Extract<abiEvent['inputs'][number], { indexed: true }>,
+> = narrowable extends true
   ? (
       ...parameters: IsNever<IndexedInputs> extends true
-        ? [options?: Options]
-        : [args?: Args, options?: Options]
-    ) => Promise<GetContractEventsReturnType<TAbi, TEventName>>
+        ? [options?: _options]
+        : [args?: _args, options?: _options]
+    ) => Promise<GetContractEventsReturnType<abi, eventName>>
   : (
       ...parameters:
-        | [options?: Options]
+        | [options?: _options]
         | [
             args?: readonly unknown[] | WatchContractEventOptions,
-            options?: Options,
+            options?: _options,
           ]
-    ) => Promise<GetContractEventsReturnType<TAbi, TEventName>>
+    ) => Promise<GetContractEventsReturnType<abi, eventName>>
 
 type GetWatchEvent<
-  Narrowable extends boolean,
-  TAbi extends Abi | readonly unknown[],
-  TEventName extends ContractEventName<TAbi>,
-  TAbiEvent extends AbiEvent = TAbi extends Abi
-    ? ExtractAbiEvent<TAbi, TEventName>
+  narrowable extends boolean,
+  abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi>,
+  abiEvent extends AbiEvent = abi extends Abi
+    ? ExtractAbiEvent<abi, eventName>
     : AbiEvent,
-  Args = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs']>,
-  Options = Prettify<
+  //
+  _args = AbiEventParametersToPrimitiveTypes<abiEvent['inputs']>,
+  _options = Prettify<
     Omit<
-      WatchContractEventParameters<TAbi, TEventName>,
+      WatchContractEventParameters<abi, eventName>,
       'abi' | 'address' | 'args' | 'eventName'
     >
   >,
-  IndexedInputs = Extract<TAbiEvent['inputs'][number], { indexed: true }>,
-> = Narrowable extends true
+  _indexedInputs = Extract<abiEvent['inputs'][number], { indexed: true }>,
+> = narrowable extends true
   ? (
-      ...parameters: IsNever<IndexedInputs> extends true
-        ? [options: Options]
-        : [args: Args, options: Options]
+      ...parameters: IsNever<_indexedInputs> extends true
+        ? [options: _options]
+        : [args: _args, options: _options]
     ) => WatchContractEventReturnType
   : (
       ...parameters:
-        | [options?: Options]
+        | [options?: _options]
         | [
             args: readonly unknown[] | WatchContractEventOptions,
-            options?: Options,
+            options?: _options,
           ]
     ) => WatchContractEventReturnType
 

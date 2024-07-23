@@ -67,13 +67,13 @@ export type EIP1193EventMap = {
 }
 
 export type EIP1193Events = {
-  on<TEvent extends keyof EIP1193EventMap>(
-    event: TEvent,
-    listener: EIP1193EventMap[TEvent],
+  on<event extends keyof EIP1193EventMap>(
+    event: event,
+    listener: EIP1193EventMap[event],
   ): void
-  removeListener<TEvent extends keyof EIP1193EventMap>(
-    event: TEvent,
-    listener: EIP1193EventMap[TEvent],
+  removeListener<event extends keyof EIP1193EventMap>(
+    event: event,
+    listener: EIP1193EventMap[event],
   ): void
 }
 
@@ -808,13 +808,13 @@ export type PublicRpcSchema = [
   },
 ]
 
-export type TestRpcSchema<TMode extends string> = [
+export type TestRpcSchema<mode extends string> = [
   /**
    * @description Add information about compiled contracts
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_addcompilationresult
    */
   {
-    Method: `${TMode}_addCompilationResult`
+    Method: `${mode}_addCompilationResult`
     Parameters: any[]
     ReturnType: any
   },
@@ -823,7 +823,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_droptransaction
    */
   {
-    Method: `${TMode}_dropTransaction`
+    Method: `${mode}_dropTransaction`
     Parameters: [hash: Hash]
     ReturnType: void
   },
@@ -831,7 +831,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @description Serializes the current state (including contracts code, contract's storage, accounts properties, etc.) into a savable data blob.
    */
   {
-    Method: `${TMode}_dumpState`
+    Method: `${mode}_dumpState`
     Parameters?: undefined
     ReturnType: Hex
   },
@@ -839,7 +839,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @description Turn on call traces for transactions that are returned to the user when they execute a transaction (instead of just txhash/receipt).
    */
   {
-    Method: `${TMode}_enableTraces`
+    Method: `${mode}_enableTraces`
     Parameters?: undefined
     ReturnType: void
   },
@@ -848,7 +848,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_impersonateaccount
    */
   {
-    Method: `${TMode}_impersonateAccount`
+    Method: `${mode}_impersonateAccount`
     Parameters: [address: Address]
     ReturnType: void
   },
@@ -857,7 +857,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_getautomine
    */
   {
-    Method: `${TMode}_getAutomine`
+    Method: `${mode}_getAutomine`
     Parameters?: undefined
     ReturnType: boolean
   },
@@ -865,7 +865,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @description Adds state previously dumped with `dumpState` to the current chain.
    */
   {
-    Method: `${TMode}_loadState`
+    Method: `${mode}_loadState`
     Parameters?: [Hex] | undefined
     ReturnType: void
   },
@@ -874,7 +874,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_mine
    */
   {
-    Method: `${TMode}_mine`
+    Method: `${mode}_mine`
     Parameters: [
       /** Number of blocks to mine. */
       count: Hex,
@@ -888,7 +888,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_reset
    */
   {
-    Method: `${TMode}_reset`
+    Method: `${mode}_reset`
     Parameters: any[]
     ReturnType: void
   },
@@ -897,7 +897,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setbalance
    */
   {
-    Method: `${TMode}_setBalance`
+    Method: `${mode}_setBalance`
     Parameters: [
       /** The address of the target account. */
       address: Address,
@@ -911,7 +911,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setcode
    */
   {
-    Method: `${TMode}_setCode`
+    Method: `${mode}_setCode`
     Parameters: [
       /** The address of the contract. */
       address: Address,
@@ -925,7 +925,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setcoinbase
    */
   {
-    Method: `${TMode}_setCoinbase`
+    Method: `${mode}_setCoinbase`
     Parameters: [
       /** The address to set as the coinbase address. */
       address: Address,
@@ -937,7 +937,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setcoinbase
    */
   {
-    Method: `${TMode}_setLoggingEnabled`
+    Method: `${mode}_setLoggingEnabled`
     Parameters: [enabled: boolean]
     ReturnType: void
   },
@@ -946,7 +946,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setmingasprice
    */
   {
-    Method: `${TMode}_setMinGasPrice`
+    Method: `${mode}_setMinGasPrice`
     Parameters: [gasPrice: Quantity]
     ReturnType: void
   },
@@ -955,7 +955,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setnextblockbasefeepergas
    */
   {
-    Method: `${TMode}_setNextBlockBaseFeePerGas`
+    Method: `${mode}_setNextBlockBaseFeePerGas`
     Parameters: [baseFeePerGas: Quantity]
     ReturnType: void
   },
@@ -964,7 +964,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setnonce
    */
   {
-    Method: `${TMode}_setNonce`
+    Method: `${mode}_setNonce`
     Parameters: [
       /** The account address. */
       address: Address,
@@ -977,7 +977,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @description Sets the backend RPC URL.
    */
   {
-    Method: `${TMode}_setRpcUrl`
+    Method: `${mode}_setRpcUrl`
     Parameters: [url: string]
     ReturnType: void
   },
@@ -986,7 +986,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setstorageat
    */
   {
-    Method: `${TMode}_setStorageAt`
+    Method: `${mode}_setStorageAt`
     Parameters: [
       /** The account address. */
       address: Address,
@@ -1002,7 +1002,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_stopimpersonatingaccount
    */
   {
-    Method: `${TMode}_stopImpersonatingAccount`
+    Method: `${mode}_stopImpersonatingAccount`
     Parameters: [
       /** The address to stop impersonating. */
       address: Address,
@@ -1014,7 +1014,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @link https://github.com/trufflesuite/ganache/blob/ef1858d5d6f27e4baeb75cccd57fb3dc77a45ae8/src/chains/ethereum/ethereum/RPC-METHODS.md#evm_increasetime
    */
   {
-    Method: `${TMode}_increaseTime`
+    Method: `${mode}_increaseTime`
     Parameters: [seconds: number]
     ReturnType: Quantity
   },
@@ -1064,7 +1064,7 @@ export type TestRpcSchema<TMode extends string> = [
    * The timestamp of the next block will be computed as `lastBlock_timestamp` + `interval`
    */
   {
-    Method: `${TMode}_setBlockTimestampInterval`
+    Method: `${mode}_setBlockTimestampInterval`
     Parameters: [seconds: number]
     ReturnType: void
   },
@@ -1072,7 +1072,7 @@ export type TestRpcSchema<TMode extends string> = [
    * @description Removes `setBlockTimestampInterval` if it exists
    */
   {
-    Method: `${TMode}_removeBlockTimestampInterval`
+    Method: `${mode}_removeBlockTimestampInterval`
     Parameters?: undefined
     ReturnType: void
   },
@@ -1507,18 +1507,18 @@ export type RpcSchema = readonly {
 export type RpcSchemaOverride = Omit<RpcSchema[number], 'Method'>
 
 export type EIP1193Parameters<
-  TRpcSchema extends RpcSchema | undefined = undefined,
-> = TRpcSchema extends RpcSchema
+  rpcSchema extends RpcSchema | undefined = undefined,
+> = rpcSchema extends RpcSchema
   ? {
-      [K in keyof TRpcSchema]: Prettify<
+      [K in keyof rpcSchema]: Prettify<
         {
-          method: TRpcSchema[K] extends TRpcSchema[number]
-            ? TRpcSchema[K]['Method']
+          method: rpcSchema[K] extends rpcSchema[number]
+            ? rpcSchema[K]['Method']
             : never
-        } & (TRpcSchema[K] extends TRpcSchema[number]
-          ? TRpcSchema[K]['Parameters'] extends undefined
+        } & (rpcSchema[K] extends rpcSchema[number]
+          ? rpcSchema[K]['Parameters'] extends undefined
             ? { params?: undefined }
-            : { params: TRpcSchema[K]['Parameters'] }
+            : { params: rpcSchema[K]['Parameters'] }
           : never)
       >
     }[number]
@@ -1539,29 +1539,26 @@ export type EIP1193RequestOptions = {
 }
 
 type DerivedRpcSchema<
-  TRpcSchema extends RpcSchema | undefined,
-  TRpcSchemaOverride extends RpcSchemaOverride | undefined,
-> = TRpcSchemaOverride extends RpcSchemaOverride
-  ? [TRpcSchemaOverride & { Method: string }]
-  : TRpcSchema
+  rpcSchema extends RpcSchema | undefined,
+  rpcSchemaOverride extends RpcSchemaOverride | undefined,
+> = rpcSchemaOverride extends RpcSchemaOverride
+  ? [rpcSchemaOverride & { Method: string }]
+  : rpcSchema
 
 export type EIP1193RequestFn<
-  TRpcSchema extends RpcSchema | undefined = undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 > = <
-  TRpcSchemaOverride extends RpcSchemaOverride | undefined = undefined,
-  TParameters extends EIP1193Parameters<
-    DerivedRpcSchema<TRpcSchema, TRpcSchemaOverride>
-  > = EIP1193Parameters<DerivedRpcSchema<TRpcSchema, TRpcSchemaOverride>>,
-  _ReturnType = DerivedRpcSchema<
-    TRpcSchema,
-    TRpcSchemaOverride
-  > extends RpcSchema
+  rpcSchemaOverride extends RpcSchemaOverride | undefined = undefined,
+  _parameters extends EIP1193Parameters<
+    DerivedRpcSchema<rpcSchema, rpcSchemaOverride>
+  > = EIP1193Parameters<DerivedRpcSchema<rpcSchema, rpcSchemaOverride>>,
+  _returnType = DerivedRpcSchema<rpcSchema, rpcSchemaOverride> extends RpcSchema
     ? Extract<
-        DerivedRpcSchema<TRpcSchema, TRpcSchemaOverride>[number],
-        { Method: TParameters['method'] }
+        DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
+        { Method: _parameters['method'] }
       >['ReturnType']
     : unknown,
 >(
-  args: TParameters,
+  args: _parameters,
   options?: EIP1193RequestOptions | undefined,
-) => Promise<_ReturnType>
+) => Promise<_returnType>

@@ -258,8 +258,8 @@ export type GetNftTokenUriErrorType =
   | EnsAvatarUnsupportedNamespaceErrorType
   | ErrorType
 
-export async function getNftTokenUri<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getNftTokenUri<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { nft }: { nft: ParsedNft },
 ) {
   if (nft.namespace === 'erc721') {

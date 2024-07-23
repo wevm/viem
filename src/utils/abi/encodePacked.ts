@@ -45,10 +45,10 @@ type PackedAbiType =
   | SolidityArrayWithoutTuple
 
 type EncodePackedValues<
-  TPackedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
+  packedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
 > = {
-  [K in keyof TPackedAbiTypes]: TPackedAbiTypes[K] extends AbiType
-    ? AbiParameterToPrimitiveType<{ type: TPackedAbiTypes[K] }>
+  [K in keyof packedAbiTypes]: packedAbiTypes[K] extends AbiType
+    ? AbiParameterToPrimitiveType<{ type: packedAbiTypes[K] }>
     : unknown
 }
 
@@ -59,8 +59,8 @@ export type EncodePackedErrorType =
   | ErrorType
 
 export function encodePacked<
-  const TPackedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
->(types: TPackedAbiTypes, values: EncodePackedValues<TPackedAbiTypes>): Hex {
+  const packedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
+>(types: packedAbiTypes, values: EncodePackedValues<packedAbiTypes>): Hex {
   if (types.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
       expectedLength: types.length as number,
@@ -87,9 +87,9 @@ type EncodeErrorType =
   | UnsupportedPackedAbiType
   | ErrorType
 
-function encode<const TPackedAbiType extends PackedAbiType | unknown>(
-  type: TPackedAbiType,
-  value: EncodePackedValues<[TPackedAbiType]>[0],
+function encode<const packedAbiType extends PackedAbiType | unknown>(
+  type: packedAbiType,
+  value: EncodePackedValues<[packedAbiType]>[0],
   isArray = false,
 ): Hex {
   if (type === 'address') {

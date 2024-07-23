@@ -13,9 +13,9 @@ import { formatLog } from './log.js'
 import { transactionType } from './transaction.js'
 
 export type FormattedTransactionReceipt<
-  TChain extends Chain | undefined = undefined,
+  chain extends Chain | undefined = undefined,
 > = ExtractChainFormatterReturnType<
-  TChain,
+  chain,
   'transactionReceipt',
   TransactionReceipt
 >

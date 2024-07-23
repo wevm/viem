@@ -70,8 +70,8 @@ export type GetProofErrorType =
  *  storageKeys: ['0x...'],
  * })
  */
-export async function getProof<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getProof<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     address,
     blockNumber,

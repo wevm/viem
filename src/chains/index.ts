@@ -15,6 +15,7 @@ export { astarZkyoto } from './definitions/astarZkyoto.js'
 export { arbitrumSepolia } from './definitions/arbitrumSepolia.js'
 export { areonNetwork } from './definitions/areonNetwork.js'
 export { areonNetworkTestnet } from './definitions/areonNetworkTestnet.js'
+export { artelaTestnet } from './definitions/artelaTestnet.js'
 export { aurora } from './definitions/aurora.js'
 export { auroraTestnet } from './definitions/auroraTestnet.js'
 export { auroria } from './definitions/auroria.js'
@@ -56,6 +57,7 @@ export { classic } from './definitions/classic.js'
 export { confluxESpace } from './definitions/confluxESpace.js'
 export { confluxESpaceTestnet } from './definitions/confluxESpaceTestnet.js'
 export { coreDao } from './definitions/coreDao.js'
+export { crab } from './definitions/crab.js'
 export { cronos } from './definitions/cronos.js'
 export { cronosTestnet } from './definitions/cronosTestnet.js'
 export { crossbell } from './definitions/crossbell.js'
@@ -71,6 +73,7 @@ export { dfk } from './definitions/dfk.js'
 export { dodochainTestnet } from './definitions/dodochainTestnet.js'
 export { dogechain } from './definitions/dogechain.js'
 export { dreyerxMainnet } from './definitions/dreyerxMainnet.js'
+export { dreyerxTestnet } from './definitions/dreyerxTestnet.js'
 export { edgeless } from './definitions/edgeless.js'
 export { edgelessTestnet } from './definitions/edgelessTestnet.js'
 export { edgeware } from './definitions/edgeware.js'
@@ -100,6 +103,7 @@ export { flowTestnet } from './definitions/flowTestnet.js'
 export { foundry } from './definitions/foundry.js'
 export { fraxtal } from './definitions/fraxtal.js'
 export { fraxtalTestnet } from './definitions/fraxtalTestnet.js'
+export { funkiMainnet } from './definitions/funkiMainnet.js'
 export { funkiSepolia } from './definitions/funkiSepolia.js'
 export { fuse } from './definitions/fuse.js'
 export { fuseSparknet } from './definitions/fuseSparknet.js'
@@ -130,6 +134,7 @@ export { kavaTestnet } from './definitions/kavaTestnet.js'
 export { kcc } from './definitions/kcc.js'
 export { klaytn } from './definitions/klaytn.js'
 export { klaytnBaobab } from './definitions/klaytnBaobab.js'
+export { koi } from './definitions/koi.js'
 export { kroma } from './definitions/kroma.js'
 export { kromaSepolia } from './definitions/kromaSepolia.js'
 export { l3x } from './definitions/l3x.js'
@@ -216,6 +221,8 @@ export { reyaNetwork } from './definitions/reyaNetwork.js'
 export { rollux } from './definitions/rollux.js'
 export { rolluxTestnet } from './definitions/rolluxTestnet.js'
 export { ronin } from './definitions/ronin.js'
+export { root } from './definitions/root.js'
+export { rootPorcini } from './definitions/rootPorcini.js'
 export { rootstock } from './definitions/rootstock.js'
 export { rootstockTestnet } from './definitions/rootstockTestnet.js'
 export { rss3 } from './definitions/rss3.js'
@@ -229,6 +236,7 @@ export { scroll } from './definitions/scroll.js'
 export { scrollSepolia } from './definitions/scrollSepolia.js'
 export { sei } from './definitions/sei.js'
 export { seiDevnet } from './definitions/seiDevnet.js'
+export { seiTestnet } from './definitions/seiTestnet.js'
 export { sepolia } from './definitions/sepolia.js'
 export { shimmer } from './definitions/shimmer.js'
 export { shimmerTestnet } from './definitions/shimmerTestnet.js'
@@ -294,6 +302,8 @@ export { zilliqa } from './definitions/zilliqa.js'
 export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
 export { zkFair } from './definitions/zkFair.js'
 export { zkFairTestnet } from './definitions/zkFairTestnet.js'
+export { zkLinkNova } from './definitions/zkLinkNova.js'
+export { zkLinkNovaSepoliaTestnet } from './definitions/zkLinkNovaSepoliaTestnet.js'
 export { zkSync } from './definitions/zkSync.js'
 export { zkSyncInMemoryNode } from './definitions/zkSyncInMemoryNode.js'
 export { zkSyncLocalNode } from './definitions/zkSyncLocalNode.js'
@@ -315,10 +325,15 @@ export type {
   UnionLooseOmit,
 } from '../types/utils.js'
 export type {
+  SerializeTransactionCIP64ReturnType,
+  assertTransactionCIP42 as assertTransactionCIP42Celo,
+  assertTransactionCIP64 as assertTransactionCIP64Celo,
+  serializeTransaction as serializeTransactionCelo,
+  serializers as serializersCelo,
+} from '../celo/serializers.js'
+export type {
   CeloBlock,
-  CeloBlockOverrides,
   CeloRpcBlock,
-  CeloRpcBlockOverrides,
   CeloRpcTransaction,
   CeloRpcTransactionRequest,
   CeloTransaction,
@@ -368,9 +383,7 @@ export type {
 } from '../op-stack/types/transaction.js'
 export type {
   ZkSyncBlock,
-  ZkSyncBlockOverrides,
   ZkSyncRpcBlock,
-  ZkSyncRpcBlockOverrides,
 } from '../zksync/types/block.js'
 export type { ChainEIP712 } from '../zksync/types/chain.js'
 export type { ZkSyncEip712Meta } from '../zksync/types/eip712.js'
@@ -383,6 +396,7 @@ export type {
 } from '../zksync/types/log.js'
 export type {
   TransactionRequestEIP712,
+  TransactionRequest as ZkSyncTransactionRequest_internal,
   ZkSyncEIP712TransactionSignable,
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionEIP712,
@@ -401,4 +415,7 @@ export type {
   ZkSyncTransactionSerialized,
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
+  ZkSyncRawBlockTransactions,
+  ZkSyncRpcTransactionReceipt,
+  ZkSyncTransactionDetails,
 } from '../zksync/types/transaction.js'

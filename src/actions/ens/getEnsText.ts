@@ -89,8 +89,8 @@ export type GetEnsTextErrorType =
  * })
  * // 'wevm_dev'
  */
-export async function getEnsText<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getEnsText<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockNumber,
     blockTag,

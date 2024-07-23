@@ -23,15 +23,15 @@ export type WithRetryParameters = {
 
 export type WithRetryErrorType = ErrorType
 
-export function withRetry<TData>(
-  fn: () => Promise<TData>,
+export function withRetry<data>(
+  fn: () => Promise<data>,
   {
     delay: delay_ = 100,
     retryCount = 2,
     shouldRetry = () => true,
   }: WithRetryParameters = {},
 ) {
-  return new Promise<TData>((resolve, reject) => {
+  return new Promise<data>((resolve, reject) => {
     const attemptRetry = async ({ count = 0 } = {}) => {
       const retry = async ({ error }: { error: Error }) => {
         const delay =

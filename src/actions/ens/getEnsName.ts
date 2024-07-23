@@ -71,8 +71,8 @@ export type GetEnsNameErrorType =
  * })
  * // 'wevm.eth'
  */
-export async function getEnsName<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getEnsName<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     address,
     blockNumber,

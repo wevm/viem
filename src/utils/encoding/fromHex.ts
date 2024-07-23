@@ -28,25 +28,25 @@ export function assertSize(
 }
 
 export type FromHexParameters<
-  TTo extends 'string' | 'bigint' | 'number' | 'bytes' | 'boolean',
+  to extends 'string' | 'bigint' | 'number' | 'bytes' | 'boolean',
 > =
-  | TTo
+  | to
   | {
       /** Size (in bytes) of the hex value. */
       size?: number | undefined
       /** Type to convert to. */
-      to: TTo
+      to: to
     }
 
-export type FromHexReturnType<TTo> = TTo extends 'string'
+export type FromHexReturnType<to> = to extends 'string'
   ? string
-  : TTo extends 'bigint'
+  : to extends 'bigint'
     ? bigint
-    : TTo extends 'number'
+    : to extends 'number'
       ? number
-      : TTo extends 'bytes'
+      : to extends 'bytes'
         ? ByteArray
-        : TTo extends 'boolean'
+        : to extends 'boolean'
           ? boolean
           : never
 
@@ -87,16 +87,16 @@ export type FromHexErrorType =
  * // 'Hello world'
  */
 export function fromHex<
-  TTo extends 'string' | 'bigint' | 'number' | 'bytes' | 'boolean',
->(hex: Hex, toOrOpts: FromHexParameters<TTo>): FromHexReturnType<TTo> {
+  to extends 'string' | 'bigint' | 'number' | 'bytes' | 'boolean',
+>(hex: Hex, toOrOpts: FromHexParameters<to>): FromHexReturnType<to> {
   const opts = typeof toOrOpts === 'string' ? { to: toOrOpts } : toOrOpts
   const to = opts.to
 
-  if (to === 'number') return hexToNumber(hex, opts) as FromHexReturnType<TTo>
-  if (to === 'bigint') return hexToBigInt(hex, opts) as FromHexReturnType<TTo>
-  if (to === 'string') return hexToString(hex, opts) as FromHexReturnType<TTo>
-  if (to === 'boolean') return hexToBool(hex, opts) as FromHexReturnType<TTo>
-  return hexToBytes(hex, opts) as FromHexReturnType<TTo>
+  if (to === 'number') return hexToNumber(hex, opts) as FromHexReturnType<to>
+  if (to === 'bigint') return hexToBigInt(hex, opts) as FromHexReturnType<to>
+  if (to === 'string') return hexToString(hex, opts) as FromHexReturnType<to>
+  if (to === 'boolean') return hexToBool(hex, opts) as FromHexReturnType<to>
+  return hexToBytes(hex, opts) as FromHexReturnType<to>
 }
 
 export type HexToBigIntOpts = {

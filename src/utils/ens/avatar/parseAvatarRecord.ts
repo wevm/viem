@@ -34,8 +34,8 @@ export type ParseAvatarRecordErrorType =
  * @see https://docs.ens.domains/web/avatars
  *
  */
-export async function parseAvatarRecord<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function parseAvatarRecord<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     gatewayUrls,
     record,
@@ -58,8 +58,8 @@ type ParseNftAvatarUriErrorType =
   | GetMetadataAvatarUriErrorType
   | ErrorType
 
-async function parseNftAvatarUri<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+async function parseNftAvatarUri<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     gatewayUrls,
     record,
