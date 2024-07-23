@@ -251,11 +251,10 @@ export type WalletActions<
     >,
   ) => Promise<
     PrepareTransactionRequestReturnType<
-      Chain,
+      chain,
       account,
       chainOverride,
       accountOverride,
-      // @ts-expect-error
       request
     >
   >
