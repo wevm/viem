@@ -151,7 +151,7 @@ export type PrepareUserOperationRequest<
         }
       | undefined
     /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
-    paymasterContext?: unknown
+    paymasterContext?: unknown | undefined
   }
 >
 
