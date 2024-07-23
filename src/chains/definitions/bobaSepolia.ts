@@ -9,12 +9,12 @@ export const bobaSepolia = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: { http: ['https://sepolia.boba.network/'] },
+    default: { http: ['https://sepolia.boba.network'] },
   },
   blockExplorers: {
     default: {
       name: 'BOBAScan',
-      url: 'https://testnet.bobascan.com/',
+      url: 'https://testnet.bobascan.com',
     },
   },
 })
