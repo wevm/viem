@@ -36,12 +36,10 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "bool",
                 "name": "success",
                 "type": "bool",
               },
               {
-                "internalType": "bytes",
                 "name": "ret",
                 "type": "bytes",
               },
@@ -52,12 +50,10 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "uint256",
                 "name": "opIndex",
                 "type": "uint256",
               },
               {
-                "internalType": "string",
                 "name": "reason",
                 "type": "string",
               },
@@ -68,17 +64,14 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "uint256",
                 "name": "opIndex",
                 "type": "uint256",
               },
               {
-                "internalType": "string",
                 "name": "reason",
                 "type": "string",
               },
               {
-                "internalType": "bytes",
                 "name": "inner",
                 "type": "bytes",
               },
@@ -89,7 +82,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "bytes",
                 "name": "returnData",
                 "type": "bytes",
               },
@@ -105,7 +97,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address",
                 "name": "sender",
                 "type": "address",
               },
@@ -116,7 +107,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address",
                 "name": "aggregator",
                 "type": "address",
               },
@@ -129,25 +119,21 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "bytes32",
                 "name": "userOpHash",
                 "type": "bytes32",
               },
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "sender",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "address",
                 "name": "factory",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "address",
                 "name": "paymaster",
                 "type": "address",
               },
@@ -166,13 +152,11 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "account",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "totalDeposit",
                 "type": "uint256",
               },
@@ -185,25 +169,21 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "bytes32",
                 "name": "userOpHash",
                 "type": "bytes32",
               },
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "sender",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "nonce",
                 "type": "uint256",
               },
               {
                 "indexed": false,
-                "internalType": "bytes",
                 "name": "revertReason",
                 "type": "bytes",
               },
@@ -216,7 +196,6 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "aggregator",
                 "type": "address",
               },
@@ -229,19 +208,16 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "account",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "totalStaked",
                 "type": "uint256",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "unstakeDelaySec",
                 "type": "uint256",
               },
@@ -254,13 +230,11 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "account",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "withdrawTime",
                 "type": "uint256",
               },
@@ -273,19 +247,16 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "account",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "address",
                 "name": "withdrawAddress",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256",
               },
@@ -298,43 +269,36 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "bytes32",
                 "name": "userOpHash",
                 "type": "bytes32",
               },
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "sender",
                 "type": "address",
               },
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "paymaster",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "nonce",
                 "type": "uint256",
               },
               {
                 "indexed": false,
-                "internalType": "bool",
                 "name": "success",
                 "type": "bool",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "actualGasCost",
                 "type": "uint256",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "actualGasUsed",
                 "type": "uint256",
               },
@@ -347,19 +311,16 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "bytes32",
                 "name": "userOpHash",
                 "type": "bytes32",
               },
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "sender",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "nonce",
                 "type": "uint256",
               },
@@ -372,25 +333,21 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "bytes32",
                 "name": "userOpHash",
                 "type": "bytes32",
               },
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "sender",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "nonce",
                 "type": "uint256",
               },
               {
                 "indexed": false,
-                "internalType": "bytes",
                 "name": "revertReason",
                 "type": "bytes",
               },
@@ -403,19 +360,16 @@ test('default', async () => {
             "inputs": [
               {
                 "indexed": true,
-                "internalType": "address",
                 "name": "account",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "address",
                 "name": "withdrawAddress",
                 "type": "address",
               },
               {
                 "indexed": false,
-                "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256",
               },
@@ -426,7 +380,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "uint32",
                 "name": "unstakeDelaySec",
                 "type": "uint32",
               },
@@ -439,7 +392,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address",
                 "name": "account",
                 "type": "address",
               },
@@ -447,7 +399,6 @@ test('default', async () => {
             "name": "balanceOf",
             "outputs": [
               {
-                "internalType": "uint256",
                 "name": "",
                 "type": "uint256",
               },
@@ -458,12 +409,10 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address",
                 "name": "target",
                 "type": "address",
               },
               {
-                "internalType": "bytes",
                 "name": "data",
                 "type": "bytes",
               },
@@ -476,7 +425,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address",
                 "name": "account",
                 "type": "address",
               },
@@ -489,7 +437,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address",
                 "name": "",
                 "type": "address",
               },
@@ -497,27 +444,22 @@ test('default', async () => {
             "name": "deposits",
             "outputs": [
               {
-                "internalType": "uint256",
                 "name": "deposit",
                 "type": "uint256",
               },
               {
-                "internalType": "bool",
                 "name": "staked",
                 "type": "bool",
               },
               {
-                "internalType": "uint112",
                 "name": "stake",
                 "type": "uint112",
               },
               {
-                "internalType": "uint32",
                 "name": "unstakeDelaySec",
                 "type": "uint32",
               },
               {
-                "internalType": "uint48",
                 "name": "withdrawTime",
                 "type": "uint48",
               },
@@ -528,7 +470,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address",
                 "name": "account",
                 "type": "address",
               },
@@ -538,32 +479,26 @@ test('default', async () => {
               {
                 "components": [
                   {
-                    "internalType": "uint256",
                     "name": "deposit",
                     "type": "uint256",
                   },
                   {
-                    "internalType": "bool",
                     "name": "staked",
                     "type": "bool",
                   },
                   {
-                    "internalType": "uint112",
                     "name": "stake",
                     "type": "uint112",
                   },
                   {
-                    "internalType": "uint32",
                     "name": "unstakeDelaySec",
                     "type": "uint32",
                   },
                   {
-                    "internalType": "uint48",
                     "name": "withdrawTime",
                     "type": "uint48",
                   },
                 ],
-                "internalType": "struct IStakeManager.DepositInfo",
                 "name": "info",
                 "type": "tuple",
               },
@@ -574,12 +509,10 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address",
                 "name": "sender",
                 "type": "address",
               },
               {
-                "internalType": "uint192",
                 "name": "key",
                 "type": "uint192",
               },
@@ -587,7 +520,6 @@ test('default', async () => {
             "name": "getNonce",
             "outputs": [
               {
-                "internalType": "uint256",
                 "name": "nonce",
                 "type": "uint256",
               },
@@ -598,7 +530,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "bytes",
                 "name": "initCode",
                 "type": "bytes",
               },
@@ -613,52 +544,42 @@ test('default', async () => {
               {
                 "components": [
                   {
-                    "internalType": "address",
                     "name": "sender",
                     "type": "address",
                   },
                   {
-                    "internalType": "uint256",
                     "name": "nonce",
                     "type": "uint256",
                   },
                   {
-                    "internalType": "bytes",
                     "name": "initCode",
                     "type": "bytes",
                   },
                   {
-                    "internalType": "bytes",
                     "name": "callData",
                     "type": "bytes",
                   },
                   {
-                    "internalType": "bytes32",
                     "name": "accountGasLimits",
                     "type": "bytes32",
                   },
                   {
-                    "internalType": "uint256",
                     "name": "preVerificationGas",
                     "type": "uint256",
                   },
                   {
-                    "internalType": "bytes32",
                     "name": "gasFees",
                     "type": "bytes32",
                   },
                   {
-                    "internalType": "bytes",
                     "name": "paymasterAndData",
                     "type": "bytes",
                   },
                   {
-                    "internalType": "bytes",
                     "name": "signature",
                     "type": "bytes",
                   },
                 ],
-                "internalType": "struct PackedUserOperation",
                 "name": "userOp",
                 "type": "tuple",
               },
@@ -666,7 +587,6 @@ test('default', async () => {
             "name": "getUserOpHash",
             "outputs": [
               {
-                "internalType": "bytes32",
                 "name": "",
                 "type": "bytes32",
               },
@@ -681,72 +601,58 @@ test('default', async () => {
                   {
                     "components": [
                       {
-                        "internalType": "address",
                         "name": "sender",
                         "type": "address",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "nonce",
                         "type": "uint256",
                       },
                       {
-                        "internalType": "bytes",
                         "name": "initCode",
                         "type": "bytes",
                       },
                       {
-                        "internalType": "bytes",
                         "name": "callData",
                         "type": "bytes",
                       },
                       {
-                        "internalType": "bytes32",
                         "name": "accountGasLimits",
                         "type": "bytes32",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "preVerificationGas",
                         "type": "uint256",
                       },
                       {
-                        "internalType": "bytes32",
                         "name": "gasFees",
                         "type": "bytes32",
                       },
                       {
-                        "internalType": "bytes",
                         "name": "paymasterAndData",
                         "type": "bytes",
                       },
                       {
-                        "internalType": "bytes",
                         "name": "signature",
                         "type": "bytes",
                       },
                     ],
-                    "internalType": "struct PackedUserOperation[]",
                     "name": "userOps",
                     "type": "tuple[]",
                   },
                   {
-                    "internalType": "contract IAggregator",
                     "name": "aggregator",
                     "type": "address",
                   },
                   {
-                    "internalType": "bytes",
                     "name": "signature",
                     "type": "bytes",
                   },
                 ],
-                "internalType": "struct IEntryPoint.UserOpsPerAggregator[]",
                 "name": "opsPerAggregator",
                 "type": "tuple[]",
               },
               {
-                "internalType": "address payable",
                 "name": "beneficiary",
                 "type": "address",
               },
@@ -761,57 +667,46 @@ test('default', async () => {
               {
                 "components": [
                   {
-                    "internalType": "address",
                     "name": "sender",
                     "type": "address",
                   },
                   {
-                    "internalType": "uint256",
                     "name": "nonce",
                     "type": "uint256",
                   },
                   {
-                    "internalType": "bytes",
                     "name": "initCode",
                     "type": "bytes",
                   },
                   {
-                    "internalType": "bytes",
                     "name": "callData",
                     "type": "bytes",
                   },
                   {
-                    "internalType": "bytes32",
                     "name": "accountGasLimits",
                     "type": "bytes32",
                   },
                   {
-                    "internalType": "uint256",
                     "name": "preVerificationGas",
                     "type": "uint256",
                   },
                   {
-                    "internalType": "bytes32",
                     "name": "gasFees",
                     "type": "bytes32",
                   },
                   {
-                    "internalType": "bytes",
                     "name": "paymasterAndData",
                     "type": "bytes",
                   },
                   {
-                    "internalType": "bytes",
                     "name": "signature",
                     "type": "bytes",
                   },
                 ],
-                "internalType": "struct PackedUserOperation[]",
                 "name": "ops",
                 "type": "tuple[]",
               },
               {
-                "internalType": "address payable",
                 "name": "beneficiary",
                 "type": "address",
               },
@@ -824,7 +719,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "uint192",
                 "name": "key",
                 "type": "uint192",
               },
@@ -837,7 +731,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "bytes",
                 "name": "callData",
                 "type": "bytes",
               },
@@ -846,87 +739,70 @@ test('default', async () => {
                   {
                     "components": [
                       {
-                        "internalType": "address",
                         "name": "sender",
                         "type": "address",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "nonce",
                         "type": "uint256",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "verificationGasLimit",
                         "type": "uint256",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "callGasLimit",
                         "type": "uint256",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "paymasterVerificationGasLimit",
                         "type": "uint256",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "paymasterPostOpGasLimit",
                         "type": "uint256",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "preVerificationGas",
                         "type": "uint256",
                       },
                       {
-                        "internalType": "address",
                         "name": "paymaster",
                         "type": "address",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "maxFeePerGas",
                         "type": "uint256",
                       },
                       {
-                        "internalType": "uint256",
                         "name": "maxPriorityFeePerGas",
                         "type": "uint256",
                       },
                     ],
-                    "internalType": "struct EntryPoint.MemoryUserOp",
                     "name": "mUserOp",
                     "type": "tuple",
                   },
                   {
-                    "internalType": "bytes32",
                     "name": "userOpHash",
                     "type": "bytes32",
                   },
                   {
-                    "internalType": "uint256",
                     "name": "prefund",
                     "type": "uint256",
                   },
                   {
-                    "internalType": "uint256",
                     "name": "contextOffset",
                     "type": "uint256",
                   },
                   {
-                    "internalType": "uint256",
                     "name": "preOpGas",
                     "type": "uint256",
                   },
                 ],
-                "internalType": "struct EntryPoint.UserOpInfo",
                 "name": "opInfo",
                 "type": "tuple",
               },
               {
-                "internalType": "bytes",
                 "name": "context",
                 "type": "bytes",
               },
@@ -934,7 +810,6 @@ test('default', async () => {
             "name": "innerHandleOp",
             "outputs": [
               {
-                "internalType": "uint256",
                 "name": "actualGasCost",
                 "type": "uint256",
               },
@@ -945,12 +820,10 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address",
                 "name": "",
                 "type": "address",
               },
               {
-                "internalType": "uint192",
                 "name": "",
                 "type": "uint192",
               },
@@ -958,7 +831,6 @@ test('default', async () => {
             "name": "nonceSequenceNumber",
             "outputs": [
               {
-                "internalType": "uint256",
                 "name": "",
                 "type": "uint256",
               },
@@ -969,7 +841,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "bytes4",
                 "name": "interfaceId",
                 "type": "bytes4",
               },
@@ -977,7 +848,6 @@ test('default', async () => {
             "name": "supportsInterface",
             "outputs": [
               {
-                "internalType": "bool",
                 "name": "",
                 "type": "bool",
               },
@@ -995,7 +865,6 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address payable",
                 "name": "withdrawAddress",
                 "type": "address",
               },
@@ -1008,12 +877,10 @@ test('default', async () => {
           {
             "inputs": [
               {
-                "internalType": "address payable",
                 "name": "withdrawAddress",
                 "type": "address",
               },
               {
-                "internalType": "uint256",
                 "name": "withdrawAmount",
                 "type": "uint256",
               },

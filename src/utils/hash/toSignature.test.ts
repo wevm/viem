@@ -16,7 +16,7 @@ test('creates function signature', () => {
   expect(toSignature('processInvestment(address,uint256,bool)')).toEqual(
     'processInvestment(address,uint256,bool)',
   )
-  expect(toSignature('processAccount(uint256 address )')).toEqual(
+  expect(toSignature('processAccount(uint256 , address)')).toEqual(
     'processAccount(uint256,address)',
   )
   expect(toSignature('claimed()')).toEqual('claimed()')
