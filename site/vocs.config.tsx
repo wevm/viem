@@ -93,11 +93,19 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
           },
+        ],
+        [
           {
             name: 'Brave',
             link: 'https://brave.com',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/brave-light.svg',
+          },
+          {
+            name: 'Linea',
+            link: 'https://linea.build',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-light.svg',
           },
         ],
       ],
