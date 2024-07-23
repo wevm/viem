@@ -44,6 +44,8 @@ export type GetUserOperationErrorReturnType<cause = ErrorType> = Omit<
   'cause'
 > & { cause: cause | GetNodeErrorReturnType }
 
+export type GetUserOperationErrorErrorType = ErrorType
+
 export function getUserOperationError<err extends ErrorType<string>>(
   err: err,
   { calls, docsPath, ...args }: GetUserOperationErrorParameters,

@@ -1,9 +1,16 @@
 import type { Address, Narrow } from 'abitype'
-import { parseAccount } from '../../../accounts/utils/parseAccount.js'
-import { estimateFeesPerGas } from '../../../actions/public/estimateFeesPerGas.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../../accounts/utils/parseAccount.js'
+import {
+  type EstimateFeesPerGasErrorType,
+  estimateFeesPerGas,
+} from '../../../actions/public/estimateFeesPerGas.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
+import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { ContractFunctionParameters } from '../../../types/contract.js'
 import type { Hex } from '../../../types/misc.js'
@@ -13,8 +20,11 @@ import type {
   Prettify,
   UnionOmit,
 } from '../../../types/utils.js'
-import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
-import { concat } from '../../../utils/data/concat.js'
+import {
+  type EncodeFunctionDataErrorType,
+  encodeFunctionData,
+} from '../../../utils/abi/encodeFunctionData.js'
+import { type ConcatErrorType, concat } from '../../../utils/data/concat.js'
 import { getAction } from '../../../utils/getAction.js'
 import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import type { SmartAccount } from '../../accounts/types.js'
@@ -34,8 +44,14 @@ import type {
   UserOperationCalls,
   UserOperationRequest,
 } from '../../types/userOperation.js'
-import { getPaymasterData as getPaymasterData_ } from '../paymaster/getPaymasterData.js'
-import { getPaymasterStubData as getPaymasterStubData_ } from '../paymaster/getPaymasterStubData.js'
+import {
+  type GetPaymasterDataErrorType,
+  getPaymasterData as getPaymasterData_,
+} from '../paymaster/getPaymasterData.js'
+import {
+  type GetPaymasterStubDataErrorType,
+  getPaymasterStubData as getPaymasterStubData_,
+} from '../paymaster/getPaymasterStubData.js'
 import {
   type EstimateUserOperationGasParameters,
   estimateUserOperationGas,
@@ -204,6 +220,15 @@ export type PrepareUserOperationReturnType<
       : PaymasterProperties<_derivedVersion>) &
     (Extract<_parameters, 'signature'> extends never ? {} : SignatureProperties)
 >
+
+export type PrepareUserOperationErrorType =
+  | ParseAccountErrorType
+  | GetPaymasterStubDataErrorType
+  | GetPaymasterDataErrorType
+  | EncodeFunctionDataErrorType
+  | ConcatErrorType
+  | EstimateFeesPerGasErrorType
+  | ErrorType
 
 /**
  * Prepares a User Operation and fills in missing properties.

@@ -1,5 +1,8 @@
 import type { Address, Narrow } from 'abitype'
-import { parseAccount } from '../../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
@@ -8,6 +11,7 @@ import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { Assign, OneOf, Prettify } from '../../../types/utils.js'
+import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { getAction } from '../../../utils/getAction.js'
 import type { SmartAccount } from '../../accounts/types.js'
 import type { PaymasterActions } from '../../clients/decorators/paymaster.js'
@@ -26,9 +30,16 @@ import type {
   UserOperationRequest,
 } from '../../types/userOperation.js'
 import { getUserOperationError } from '../../utils/errors/getUserOperationError.js'
-import { formatUserOperationGas } from '../../utils/formatters/userOperationGas.js'
-import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
 import {
+  type FormatUserOperationGasErrorType,
+  formatUserOperationGas,
+} from '../../utils/formatters/userOperationGas.js'
+import {
+  type FormatUserOperationRequestErrorType,
+  formatUserOperationRequest,
+} from '../../utils/formatters/userOperationRequest.js'
+import {
+  type PrepareUserOperationErrorType,
   type PrepareUserOperationParameters,
   prepareUserOperation,
 } from './prepareUserOperation.js'
@@ -77,7 +88,13 @@ export type EstimateUserOperationGasReturnType<
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = Prettify<EstimateUserOperationGasReturnType_<_derivedVersion>>
 
-export type EstimateUserOperationGasErrorType = ErrorType
+export type EstimateUserOperationGasErrorType =
+  | ParseAccountErrorType
+  | PrepareUserOperationErrorType
+  | FormatUserOperationRequestErrorType
+  | FormatUserOperationGasErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Returns an estimate of gas values necessary to execute the User Operation.

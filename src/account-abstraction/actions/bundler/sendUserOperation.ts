@@ -8,6 +8,7 @@ import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { Assign, OneOf } from '../../../types/utils.js'
+import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { getAction } from '../../../utils/getAction.js'
 import type { SmartAccount } from '../../accounts/types.js'
 import type { PaymasterActions } from '../../clients/decorators/paymaster.js'
@@ -25,8 +26,12 @@ import type {
   UserOperationRequest,
 } from '../../types/userOperation.js'
 import { getUserOperationError } from '../../utils/errors/getUserOperationError.js'
-import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
 import {
+  type FormatUserOperationRequestErrorType,
+  formatUserOperationRequest,
+} from '../../utils/formatters/userOperationRequest.js'
+import {
+  type PrepareUserOperationErrorType,
   type PrepareUserOperationParameters,
   prepareUserOperation,
 } from './prepareUserOperation.js'
@@ -65,7 +70,11 @@ export type SendUserOperationParameters<
 
 export type SendUserOperationReturnType = Hex
 
-export type SendUserOperationErrorType = ErrorType
+export type SendUserOperationErrorType =
+  | FormatUserOperationRequestErrorType
+  | PrepareUserOperationErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Broadcasts a User Operation to the Bundler.

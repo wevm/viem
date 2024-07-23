@@ -1,12 +1,16 @@
 import type { Address } from 'abitype'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../../errors/utils.js'
 import type { Hex } from '../../../types/misc.js'
 import type { OneOf, PartialBy, Prettify } from '../../../types/utils.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import type { UserOperation } from '../../types/userOperation.js'
-import { formatUserOperationRequest } from '../../utils/formatters/userOperationRequest.js'
+import {
+  type FormatUserOperationRequestErrorType,
+  formatUserOperationRequest,
+} from '../../utils/formatters/userOperationRequest.js'
 
 export type GetPaymasterDataParameters = OneOf<
   | PartialBy<
@@ -68,6 +72,10 @@ export type GetPaymasterDataReturnType = Prettify<
       }
   >
 >
+
+export type GetPaymasterDataErrorType =
+  | FormatUserOperationRequestErrorType
+  | ErrorType
 
 /**
  * Retrieves paymaster-related User Operation properties to be used for sending the User Operation.
