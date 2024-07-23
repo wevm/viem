@@ -261,7 +261,7 @@ import {
 import { account, client } from './config.ts'
 
 const paymasterClient = createPaymasterClient({ // [!code ++]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code ++]
+  transport: http('https://public.pimlico.io/v2/11155111/rpc'), // [!code ++]
 }) // [!code ++]
 
 const bundlerClient = createBundlerClient({
@@ -288,7 +288,7 @@ import {
 import { account, client } from './config.ts'
 
 const paymasterClient = createPaymasterClient({ // [!code ++]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code ++]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code ++]
 }) // [!code ++]
 
 const bundlerClient = createBundlerClient({
@@ -342,7 +342,7 @@ import {
 import { account, client } from './config.ts'
 
 const paymasterClient = createPaymasterClient({ // [!code --]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code --]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code --]
 }) // [!code --]
 
 const bundlerClient = createBundlerClient({
@@ -350,7 +350,7 @@ const bundlerClient = createBundlerClient({
   client,
   paymaster: paymasterClient, // [!code --]
   paymaster: true, // [!code ++]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -363,13 +363,13 @@ import {
 import { account, client } from './config.ts'
 
 const paymasterClient = createPaymasterClient({ // [!code --]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code --]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code --]
 }) // [!code --]
 
 const bundlerClient = createBundlerClient({
   account,
   client,
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const hash = await bundlerClient.sendUserOperation({

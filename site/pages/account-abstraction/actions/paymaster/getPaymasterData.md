@@ -32,7 +32,7 @@ import { http } from 'viem'
 import { createPaymasterClient } from 'viem/account-abstraction'
 
 export const paymasterClient = createPaymasterClient({ 
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), 
+  transport: http('https://public.pimlico.io/v2/11155111/rpc'), 
 }) 
 ```
 

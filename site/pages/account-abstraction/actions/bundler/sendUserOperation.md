@@ -352,7 +352,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 ```ts
 const paymasterClient = createPaymasterClient({ // [!code focus]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>') // [!code focus]
+  transport: http('https://public.pimlico.io/v2/11155111/rpc') // [!code focus]
 }) // [!code focus]
 
 const hash = await bundlerClient.sendUserOperation({
@@ -390,7 +390,7 @@ This property is only available if **`paymaster` is a Paymaster Client**.
 
 ```ts
 const paymasterClient = createPaymasterClient({
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>')
+  transport: http('https://public.pimlico.io/v2/1/rpc')
 })
 
 const hash = await bundlerClient.sendUserOperation({

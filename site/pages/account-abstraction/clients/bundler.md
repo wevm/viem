@@ -165,7 +165,7 @@ import { mainnet } from 'viem/chains'
 import { client } from './config'
 // ---cut---
 const paymasterClient = createPaymasterClient({ // [!code focus]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>') // [!code focus]
+  transport: http('https://public.pimlico.io/v2/11155111/rpc') // [!code focus]
 }) // [!code focus]
 
 const bundlerClient = createBundlerClient({
@@ -271,7 +271,7 @@ import { mainnet } from 'viem/chains'
 import { client } from './config'
 // ---cut---
 const paymasterClient = createPaymasterClient({
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>')
+  transport: http('https://public.pimlico.io/v2/1/rpc')
 })
 
 const bundlerClient = createBundlerClient({
