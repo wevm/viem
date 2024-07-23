@@ -22,9 +22,13 @@ const client = createPublicClient({
 
 const bundlerClient = createBundlerClient({ // [!code focus]
   client, // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet') // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc') // [!code focus]
 }) // [!code focus]
 ```
+
+:::info
+The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io) or another Bundler service.
+:::
 
 ## Parameters
 
@@ -57,7 +61,7 @@ const account = await toCoinbaseSmartAccount({ // [!code focus]
 const bundlerClient = createBundlerClient({
   account, // [!code focus]
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -80,7 +84,7 @@ import { mainnet } from 'viem/chains'
 
 const bundlerClient = createBundlerClient({
   chain: mainnet, // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
+  transport: http('https://public.pimlico.io/v2/1/rpc')
 })
 ```
 
@@ -103,7 +107,7 @@ const client = createPublicClient({ // [!code focus]
 
 const bundlerClient = createBundlerClient({
   client, // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
+  transport: http('https://public.pimlico.io/v2/1/rpc')
 })
 ```
 
@@ -120,7 +124,7 @@ import { http } from 'viem'
 // ---cut---
 const client = createBundlerClient({
   key: 'foo', // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
+  transport: http('https://public.pimlico.io/v2/1/rpc')
 })
 ```
 
@@ -137,7 +141,7 @@ import { http } from 'viem'
 // ---cut---
 const client = createBundlerClient({
   name: 'Foo Bundler Client', // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
+  transport: http('https://public.pimlico.io/v2/1/rpc')
 })
 ```
 
@@ -167,7 +171,7 @@ const paymasterClient = createPaymasterClient({ // [!code focus]
 const bundlerClient = createBundlerClient({
   chain: mainnet,
   paymaster: paymasterClient, // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -182,7 +186,7 @@ import { mainnet } from 'viem/chains'
 const bundlerClient = createBundlerClient({
   chain: mainnet,
   paymaster: true, // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -217,7 +221,7 @@ const bundlerClient = createBundlerClient({
       } // [!code focus]
     } // [!code focus]
   } // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -249,7 +253,7 @@ const bundlerClient = createBundlerClient({
     } // [!code focus]
     async getPaymasterData(userOperation) { /* ... */ }
   } 
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -276,7 +280,7 @@ const bundlerClient = createBundlerClient({
   paymasterContext: { // [!code focus]
     policyId: 'abc123' // [!code focus]
   }, // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -293,7 +297,7 @@ import { http } from 'viem'
 // ---cut---
 const client = createBundlerClient({
   pollingInterval: 10_000, // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
+  transport: http('https://public.pimlico.io/v2/1/rpc')
 })
 ```
 
@@ -319,7 +323,7 @@ type CustomRpcSchema = [{ // [!code focus]
 
 const client = createBundlerClient({
   rpcSchema: rpcSchema<CustomRpcSchema>(), // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
+  transport: http('https://public.pimlico.io/v2/1/rpc')
 })
 
 const result = await client.request({ // [!code focus]
@@ -343,7 +347,7 @@ import { mainnet } from 'viem/chains'
 // ---cut---
 const bundlerClient = createBundlerClient({
   chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'), // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code focus]
 })
 ```
 
@@ -365,7 +369,7 @@ import { mainnet } from 'viem/chains'
 // ---cut---
 const bundlerClient = createBundlerClient({
   chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
   userOperation: { // [!code focus]
     async estimateFeesPerGas({ account, bundlerClient, userOperation }) { // [!code focus]
       // Estimate fees per gas for the User Operation. // [!code focus]

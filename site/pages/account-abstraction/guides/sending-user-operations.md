@@ -47,7 +47,7 @@ const account = await toCoinbaseSmartAccount({
 export const bundlerClient = createBundlerClient({
   account,
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -88,9 +88,13 @@ const client = createPublicClient({
 
 const bundlerClient = createBundlerClient({ // [!code focus]
   client, // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'), // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code focus]
 }) // [!code focus]
 ```
+
+:::info
+The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io) or another Bundler service.
+:::
 
 [See `createBundlerClient` Docs](/account-abstraction/clients/bundler)
 
@@ -112,7 +116,7 @@ const client = createPublicClient({
 
 const bundlerClient = createBundlerClient({
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const owner = privateKeyToAccount('0x...') // [!code focus]
@@ -141,7 +145,7 @@ const client = createPublicClient({
 
 const bundlerClient = createBundlerClient({
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const owner = privateKeyToAccount('0x...')
@@ -174,7 +178,7 @@ const client = createPublicClient({
 
 const bundlerClient = createBundlerClient({
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const owner = privateKeyToAccount('0x...')
@@ -222,7 +226,7 @@ const account = await toCoinbaseSmartAccount({
 const bundlerClient = createBundlerClient({
   account, // [!code ++]
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const hash = await bundlerClient.sendUserOperation({
@@ -264,7 +268,7 @@ const bundlerClient = createBundlerClient({
   account,
   client,
   paymaster: paymasterClient, // [!code ++]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const hash = await bundlerClient.sendUserOperation({
@@ -290,7 +294,7 @@ const paymasterClient = createPaymasterClient({ // [!code ++]
 const bundlerClient = createBundlerClient({
   account,
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const hash = await bundlerClient.sendUserOperation({

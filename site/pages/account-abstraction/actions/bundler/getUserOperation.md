@@ -25,10 +25,14 @@ import { mainnet } from 'viem/chains'
 
 export const bundlerClient = createBundlerClient({
   chain: mainnet,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet')
+  transport: http('https://public.pimlico.io/v2/1/rpc')
 })
 ```
 
+:::
+
+:::info
+The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io) or another Bundler service.
 :::
 
 ## Returns

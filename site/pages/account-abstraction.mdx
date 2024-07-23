@@ -53,7 +53,7 @@ const client = createPublicClient({
 
 ### 2. Set up a Bundler Client
 
-Next, we will need to set up a Bundler Client. A Bundler is required to submit User Operations to the Blockchain for the Smart Account.
+Next, we will need to set up a Bundler Client. A Bundler is required to submit User Operations to the Network for the Smart Account.
 
 ```ts twoslash
 import { createPublicClient, http } from 'viem'
@@ -67,9 +67,13 @@ const client = createPublicClient({
 
 const bundlerClient = createBundlerClient({ // [!code focus]
   client, // [!code focus]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'), // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code focus]
 }) // [!code focus]
 ```
+
+:::info
+The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io) or another Bundler service.
+:::
 
 [See `createBundlerClient` Docs](/account-abstraction/clients/bundler)
 
@@ -91,7 +95,7 @@ const client = createPublicClient({
 
 const bundlerClient = createBundlerClient({
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const owner = privateKeyToAccount('0x...') // [!code focus]
@@ -120,7 +124,7 @@ const client = createPublicClient({
 
 const bundlerClient = createBundlerClient({
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const owner = privateKeyToAccount('0x...')
@@ -153,7 +157,7 @@ const client = createPublicClient({
 
 const bundlerClient = createBundlerClient({
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const owner = privateKeyToAccount('0x...')
@@ -201,7 +205,7 @@ const account = await toCoinbaseSmartAccount({
 const bundlerClient = createBundlerClient({
   account, // [!code ++]
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const hash = await bundlerClient.sendUserOperation({
@@ -236,14 +240,14 @@ import {
 import { account, client } from './config.ts'
 
 const paymasterClient = createPaymasterClient({ // [!code ++]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code ++]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code ++]
 }) // [!code ++]
 
 const bundlerClient = createBundlerClient({
   account,
   client,
   paymaster: paymasterClient, // [!code ++]
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const hash = await bundlerClient.sendUserOperation({
@@ -263,13 +267,13 @@ import {
 import { account, client } from './config.ts'
 
 const paymasterClient = createPaymasterClient({ // [!code ++]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code ++]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code ++]
 }) // [!code ++]
 
 const bundlerClient = createBundlerClient({
   account,
   client,
-  transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const hash = await bundlerClient.sendUserOperation({
@@ -304,7 +308,7 @@ export const account = await toCoinbaseSmartAccount({
 :::
 
 ::::tip
-If your Bundler also accepts Paymaster sponsorship, you can set `paymaster: true` instead of declaring a separate Paymaster Client.
+If your Bundler also accepts Paymaster sponsorship (like [Pimlico](https://www.pimlico.io)), you can set `paymaster: true` instead of declaring a separate Paymaster Client.
 
 :::code-group
 
@@ -317,7 +321,7 @@ import {
 import { account, client } from './config.ts'
 
 const paymasterClient = createPaymasterClient({ // [!code --]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code --]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code --]
 }) // [!code --]
 
 const bundlerClient = createBundlerClient({
@@ -325,7 +329,7 @@ const bundlerClient = createBundlerClient({
   client,
   paymaster: paymasterClient, // [!code --]
   paymaster: true, // [!code ++]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -338,13 +342,13 @@ import {
 import { account, client } from './config.ts'
 
 const paymasterClient = createPaymasterClient({ // [!code --]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'), // [!code --]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code --]
 }) // [!code --]
 
 const bundlerClient = createBundlerClient({
   account,
   client,
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey=<key>'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const hash = await bundlerClient.sendUserOperation({

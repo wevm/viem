@@ -115,7 +115,7 @@ export type CreateBundlerClientErrorType = CreateClientErrorType | ErrorType
  *
  * const bundlerClient = createBundlerClient({
  *   client,
- *   transport: http('https://public.stackup.sh/api/v1/node/ethereum-mainnet'),
+ *   transport: http('https://public.pimlico.io/v2/1/rpc'),
  * })
  */
 export function createBundlerClient<
