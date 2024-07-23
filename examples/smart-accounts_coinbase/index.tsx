@@ -1,12 +1,6 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom/client'
-import {
-  http,
-  type Hex,
-  createPublicClient,
-  createWalletClient,
-  parseEther,
-} from 'viem'
+import { http, type Hex, parseEther, createClient, walletActions } from 'viem'
 import {
   type P256Credential,
   type SmartAccount,
@@ -18,15 +12,12 @@ import {
 import { privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: sepolia,
-  transport: http(import.meta.env.VITE_RPC_URL),
-})
-const walletClient = createWalletClient({
+const client = createClient({
   account: privateKeyToAccount(import.meta.env.VITE_ACCOUNT_PRIVATE_KEY as Hex),
   chain: sepolia,
   transport: http(import.meta.env.VITE_RPC_URL),
-})
+}).extend(walletActions)
+
 const bundlerClient = createBundlerClient({
   chain: sepolia,
   client,
@@ -66,7 +57,7 @@ function Example() {
     const formData = new FormData(event.currentTarget)
     const value = formData.get('value') as string
 
-    const hash = await walletClient.sendTransaction({
+    const hash = await client.sendTransaction({
       to: account.address,
       value: parseEther(value),
     })
@@ -89,6 +80,7 @@ function Example() {
           value: parseEther(value),
         },
       ],
+      paymaster: true,
     })
     setUserOpHash(hash)
 

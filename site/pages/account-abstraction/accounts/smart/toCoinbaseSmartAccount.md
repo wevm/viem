@@ -45,6 +45,10 @@ export const owner = toWebAuthnAccount({ credential })
 
 :::
 
+:::tip
+**Tip:** You can use a Passkey (WebAuthn) to sign User Operations. Check the **owner.ts (Passkey)** tab.
+:::
+
 ## Returns
 
 `SmartAccount`
