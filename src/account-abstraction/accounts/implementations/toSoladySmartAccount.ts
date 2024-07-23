@@ -249,7 +249,6 @@ const abi = [
       {
         name: 'pendingOwner',
         type: 'address',
-        internalType: 'address',
       },
     ],
     outputs: [],
@@ -262,19 +261,16 @@ const abi = [
       {
         name: 'delegate',
         type: 'address',
-        internalType: 'address',
       },
       {
         name: 'data',
         type: 'bytes',
-        internalType: 'bytes',
       },
     ],
     outputs: [
       {
         name: 'result',
         type: 'bytes',
-        internalType: 'bytes',
       },
     ],
     stateMutability: 'payable',
@@ -287,37 +283,30 @@ const abi = [
       {
         name: 'fields',
         type: 'bytes1',
-        internalType: 'bytes1',
       },
       {
         name: 'name',
         type: 'string',
-        internalType: 'string',
       },
       {
         name: 'version',
         type: 'string',
-        internalType: 'string',
       },
       {
         name: 'chainId',
         type: 'uint256',
-        internalType: 'uint256',
       },
       {
         name: 'verifyingContract',
         type: 'address',
-        internalType: 'address',
       },
       {
         name: 'salt',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
       {
         name: 'extensions',
         type: 'uint256[]',
-        internalType: 'uint256[]',
       },
     ],
     stateMutability: 'view',
@@ -330,7 +319,6 @@ const abi = [
       {
         name: '',
         type: 'address',
-        internalType: 'address',
       },
     ],
     stateMutability: 'view',
@@ -342,24 +330,20 @@ const abi = [
       {
         name: 'target',
         type: 'address',
-        internalType: 'address',
       },
       {
         name: 'value',
         type: 'uint256',
-        internalType: 'uint256',
       },
       {
         name: 'data',
         type: 'bytes',
-        internalType: 'bytes',
       },
     ],
     outputs: [
       {
         name: 'result',
         type: 'bytes',
-        internalType: 'bytes',
       },
     ],
     stateMutability: 'payable',
@@ -371,22 +355,19 @@ const abi = [
       {
         name: 'calls',
         type: 'tuple[]',
-        internalType: 'struct ERC4337.Call[]',
+
         components: [
           {
             name: 'target',
             type: 'address',
-            internalType: 'address',
           },
           {
             name: 'value',
             type: 'uint256',
-            internalType: 'uint256',
           },
           {
             name: 'data',
             type: 'bytes',
-            internalType: 'bytes',
           },
         ],
       },
@@ -395,7 +376,6 @@ const abi = [
       {
         name: 'results',
         type: 'bytes[]',
-        internalType: 'bytes[]',
       },
     ],
     stateMutability: 'payable',
@@ -408,7 +388,6 @@ const abi = [
       {
         name: 'result',
         type: 'uint256',
-        internalType: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -420,7 +399,6 @@ const abi = [
       {
         name: 'newOwner',
         type: 'address',
-        internalType: 'address',
       },
     ],
     outputs: [],
@@ -433,19 +411,16 @@ const abi = [
       {
         name: 'hash',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
       {
         name: 'signature',
         type: 'bytes',
-        internalType: 'bytes',
       },
     ],
     outputs: [
       {
         name: 'result',
         type: 'bytes4',
-        internalType: 'bytes4',
       },
     ],
     stateMutability: 'view',
@@ -458,7 +433,6 @@ const abi = [
       {
         name: 'result',
         type: 'address',
-        internalType: 'address',
       },
     ],
     stateMutability: 'view',
@@ -470,14 +444,12 @@ const abi = [
       {
         name: 'pendingOwner',
         type: 'address',
-        internalType: 'address',
       },
     ],
     outputs: [
       {
         name: 'result',
         type: 'uint256',
-        internalType: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -490,7 +462,6 @@ const abi = [
       {
         name: '',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
     ],
     stateMutability: 'view',
@@ -516,14 +487,12 @@ const abi = [
       {
         name: 'storageSlot',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
     ],
     outputs: [
       {
         name: 'result',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
     ],
     stateMutability: 'view',
@@ -535,12 +504,10 @@ const abi = [
       {
         name: 'storageSlot',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
       {
         name: 'storageValue',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
     ],
     outputs: [],
@@ -553,7 +520,6 @@ const abi = [
       {
         name: 'newOwner',
         type: 'address',
-        internalType: 'address',
       },
     ],
     outputs: [],
@@ -566,12 +532,10 @@ const abi = [
       {
         name: 'newImplementation',
         type: 'address',
-        internalType: 'address',
       },
       {
         name: 'data',
         type: 'bytes',
-        internalType: 'bytes',
       },
     ],
     outputs: [],
@@ -584,71 +548,59 @@ const abi = [
       {
         name: 'userOp',
         type: 'tuple',
-        internalType: 'struct ERC4337.PackedUserOperation',
+
         components: [
           {
             name: 'sender',
             type: 'address',
-            internalType: 'address',
           },
           {
             name: 'nonce',
             type: 'uint256',
-            internalType: 'uint256',
           },
           {
             name: 'initCode',
             type: 'bytes',
-            internalType: 'bytes',
           },
           {
             name: 'callData',
             type: 'bytes',
-            internalType: 'bytes',
           },
           {
             name: 'accountGasLimits',
             type: 'bytes32',
-            internalType: 'bytes32',
           },
           {
             name: 'preVerificationGas',
             type: 'uint256',
-            internalType: 'uint256',
           },
           {
             name: 'gasFees',
             type: 'bytes32',
-            internalType: 'bytes32',
           },
           {
             name: 'paymasterAndData',
             type: 'bytes',
-            internalType: 'bytes',
           },
           {
             name: 'signature',
             type: 'bytes',
-            internalType: 'bytes',
           },
         ],
       },
       {
         name: 'userOpHash',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
       {
         name: 'missingAccountFunds',
         type: 'uint256',
-        internalType: 'uint256',
       },
     ],
     outputs: [
       {
         name: 'validationData',
         type: 'uint256',
-        internalType: 'uint256',
       },
     ],
     stateMutability: 'payable',
@@ -660,12 +612,10 @@ const abi = [
       {
         name: 'to',
         type: 'address',
-        internalType: 'address',
       },
       {
         name: 'amount',
         type: 'uint256',
-        internalType: 'uint256',
       },
     ],
     outputs: [],
@@ -679,7 +629,6 @@ const abi = [
         name: 'pendingOwner',
         type: 'address',
         indexed: true,
-        internalType: 'address',
       },
     ],
     anonymous: false,
@@ -692,7 +641,6 @@ const abi = [
         name: 'pendingOwner',
         type: 'address',
         indexed: true,
-        internalType: 'address',
       },
     ],
     anonymous: false,
@@ -705,13 +653,11 @@ const abi = [
         name: 'oldOwner',
         type: 'address',
         indexed: true,
-        internalType: 'address',
       },
       {
         name: 'newOwner',
         type: 'address',
         indexed: true,
-        internalType: 'address',
       },
     ],
     anonymous: false,
@@ -724,7 +670,6 @@ const abi = [
         name: 'implementation',
         type: 'address',
         indexed: true,
-        internalType: 'address',
       },
     ],
     anonymous: false,
@@ -773,7 +718,6 @@ const factoryAbi = [
       {
         name: 'erc4337',
         type: 'address',
-        internalType: 'address',
       },
     ],
     stateMutability: 'nonpayable',
@@ -785,19 +729,16 @@ const factoryAbi = [
       {
         name: 'owner',
         type: 'address',
-        internalType: 'address',
       },
       {
         name: 'salt',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
     ],
     outputs: [
       {
         name: '',
         type: 'address',
-        internalType: 'address',
       },
     ],
     stateMutability: 'payable',
@@ -809,14 +750,12 @@ const factoryAbi = [
       {
         name: 'salt',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
     ],
     outputs: [
       {
         name: '',
         type: 'address',
-        internalType: 'address',
       },
     ],
     stateMutability: 'view',
@@ -829,7 +768,6 @@ const factoryAbi = [
       {
         name: '',
         type: 'address',
-        internalType: 'address',
       },
     ],
     stateMutability: 'view',
@@ -842,7 +780,6 @@ const factoryAbi = [
       {
         name: '',
         type: 'bytes32',
-        internalType: 'bytes32',
       },
     ],
     stateMutability: 'view',

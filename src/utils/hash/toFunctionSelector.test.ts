@@ -115,27 +115,22 @@ test('creates function signature from `AbiFunction`', () => {
         {
           components: [
             {
-              internalType: 'uint64',
               name: 'position',
               type: 'uint64',
             },
             {
-              internalType: 'address',
               name: 'owner',
               type: 'address',
             },
             {
-              internalType: 'enum UsingStratagemsTypes.Color',
               name: 'color',
               type: 'uint8',
             },
             {
-              internalType: 'uint8',
               name: 'life',
               type: 'uint8',
             },
           ],
-          internalType: 'struct IStratagemsDebug.SimpleCell[]',
           name: 'cells',
           type: 'tuple[]',
         },

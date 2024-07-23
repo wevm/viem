@@ -1784,7 +1784,6 @@ test('https://github.com/wevm/viem/issues/1960', () => {
         {
           name: 'boolz',
           type: 'bool[]',
-          internalType: 'bool[]',
         },
       ] as const,
       // @ts-expect-error
