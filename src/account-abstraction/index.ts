@@ -58,6 +58,7 @@ export {
   type PrepareUserOperationParameters,
   type PrepareUserOperationParameterType,
   type PrepareUserOperationReturnType,
+  type PrepareUserOperationErrorType,
   type PrepareUserOperationRequest,
   prepareUserOperation,
 } from './actions/bundler/prepareUserOperation.js'
@@ -197,6 +198,7 @@ export {
 export {
   type GetUserOperationErrorParameters,
   type GetUserOperationErrorReturnType,
+  type GetUserOperationErrorErrorType,
   getUserOperationError,
 } from './utils/errors/getUserOperationError.js'
 export {
