@@ -1086,10 +1086,6 @@ export const sidebar = {
             text: 'Sending User Operations',
             link: '/account-abstraction/guides/sending-user-operations',
           },
-          {
-            text: 'Sponsorship via a Paymaster Service',
-            link: '/account-abstraction/guides/sponsorship-via-a-paymaster-service',
-          },
         ],
       },
       {

@@ -240,7 +240,7 @@ By using a Paymaster, we can add sponsorship of User Operation fees.
 
 Viem exposes a `paymaster` property on both the **Bundler Client** ("on Client" tab) and **User Operation Action** ("on Action" tab) to add User Operation sponsorship capabilities.
 
-The `paymaster` property accepts a [Paymaster Client](/account-abstraction/clients/paymaster) ([among others](#TODO)), which is used to fetch the necessary data for User Operation sponsorship.
+The `paymaster` property accepts a [Paymaster Client](/account-abstraction/clients/paymaster) ([among others](/account-abstraction/actions/bundler/sendUserOperation#paymaster-optional)), which is used to fetch the necessary data for User Operation sponsorship.
 
 :::info
 The example below uses [Pimlico's Paymaster API](https://docs.pimlico.io/infra/paymaster) – allowing consumers to sponsor gas fees for users on over 30+ chains.
@@ -325,7 +325,7 @@ export const account = await toCoinbaseSmartAccount({
 :::
 
 ::::tip
-If your Bundler also accepts Paymaster sponsorship, you can set `paymaster: true` instead of declaring a separate Paymaster Client.
+If your Bundler also supports Paymaster sponsorshop (`pm_` JSON-RPC methods), you can set `paymaster: true` instead of declaring a separate Paymaster Client.
 
 :::code-group
 

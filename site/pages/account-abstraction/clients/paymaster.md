@@ -33,6 +33,10 @@ const bundlerClient = createBundlerClient({
 })
 ```
 
+:::tip
+You can see an example of end-to-end Paymaster Client usage on the [Sending User Operations guide](/account-abstraction/guides/sending-user-operations#7-optional-sponsor-user-operation).
+:::
+
 ## Parameters
 
 ### key (optional)
