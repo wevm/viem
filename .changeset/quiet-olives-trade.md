@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-added bobaSepolia chain
+Added `bobaSepolia` chain.
