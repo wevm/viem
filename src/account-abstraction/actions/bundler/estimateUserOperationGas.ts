@@ -60,7 +60,7 @@ export type EstimateUserOperationGasParameters<
         }
       | undefined
     /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
-    paymasterContext?: unknown
+    paymasterContext?: unknown | undefined
   }
 > &
   GetSmartAccountParameter<account, accountOverride>
