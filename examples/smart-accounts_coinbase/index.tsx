@@ -1,6 +1,6 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom/client'
-import { http, type Hex, parseEther, createClient, walletActions } from 'viem'
+import { http, type Hex, createClient, parseEther, walletActions } from 'viem'
 import {
   type P256Credential,
   type SmartAccount,
