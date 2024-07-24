@@ -3,13 +3,13 @@ import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { localhost } from '../../chains/index.js'
 import { createClient, rpcSchema } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
+import type { SoladySmartAccountImplementation } from '../accounts/implementations/toSoladySmartAccount.js'
 import type { SmartAccount } from '../accounts/types.js'
 import type { RpcUserOperationReceipt } from '../types/rpc.js'
 import {
   type BundlerClient,
   createBundlerClient,
 } from './createBundlerClient.js'
-import type { SoladySmartAccountImplementation } from '../accounts/implementations/toSoladySmartAccount.js'
 
 const [account] = await getSmartAccounts_07()
 

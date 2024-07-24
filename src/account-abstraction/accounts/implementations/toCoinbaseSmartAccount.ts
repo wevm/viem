@@ -8,6 +8,7 @@ import type { LocalAccount } from '../../../accounts/types.js'
 import { readContract } from '../../../actions/public/readContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import { entryPoint06Address } from '../../../constants/address.js'
+import { BaseError } from '../../../errors/base.js'
 import type { Hash, Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
 import type { Assign, OneOf, Prettify } from '../../../types/utils.js'
@@ -29,7 +30,6 @@ import type {
   SmartAccountImplementation,
   WebAuthnAccount,
 } from '../types.js'
-import { BaseError } from '../../../errors/base.js'
 
 export type ToCoinbaseSmartAccountParameters = {
   address?: Address | undefined

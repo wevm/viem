@@ -3,8 +3,8 @@ import { expectTypeOf, test } from 'vitest'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import type { Account } from '../../types/account.js'
 import {
-  toSoladySmartAccount,
   type SoladySmartAccountImplementation,
+  toSoladySmartAccount,
 } from './implementations/toSoladySmartAccount.js'
 import type { SmartAccount } from './types.js'
 
