@@ -1,3 +1,5 @@
+// TODO(v3): Rename to `toLocalAccount` + add `source` property to define source (privateKey, mnemonic, hdKey, etc).
+
 import type { Address } from 'abitype'
 
 import {
@@ -48,6 +50,7 @@ export function toAccount<accountSource extends AccountSource>(
   return {
     address: source.address,
     nonceManager: source.nonceManager,
+    sign: source.sign,
     signMessage: source.signMessage,
     signTransaction: source.signTransaction,
     signTypedData: source.signTypedData,

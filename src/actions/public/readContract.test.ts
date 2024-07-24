@@ -8,12 +8,12 @@ import { describe, expect, test } from 'vitest'
 
 import {
   ErrorsExample,
-  Mock4337Account,
-  Mock4337AccountFactory,
+  SoladyAccount07,
+  SoladyAccountFactory07,
 } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
-import { deployErrorExample, deployMock4337Account } from '~test/src/utils.js'
+import { deployErrorExample, deploySoladyAccount_07 } from '~test/src/utils.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
@@ -197,17 +197,17 @@ describe('bayc', () => {
 
 describe('deployless read (factory)', () => {
   test('default', async () => {
-    const { factoryAddress: factory } = await deployMock4337Account()
+    const { factoryAddress: factory } = await deploySoladyAccount_07()
 
     const address = await readContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factory,
       functionName: 'getAddress',
       args: [pad('0x0')],
     })
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
     })
@@ -222,7 +222,7 @@ describe('deployless read (factory)', () => {
       extensions,
     ] = await readContract(client, {
       address,
-      abi: Mock4337Account.abi,
+      abi: SoladyAccount07.abi,
       functionName: 'eip712Domain',
       factory,
       factoryData,
@@ -238,7 +238,7 @@ describe('deployless read (factory)', () => {
     ]).toMatchInlineSnapshot(`
       [
         "0x0f",
-        "Mock4337Account",
+        "SoladyAccount",
         "1",
         1n,
         "0x0000000000000000000000000000000000000000000000000000000000000000",

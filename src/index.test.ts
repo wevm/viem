@@ -302,6 +302,7 @@ test('exports', () => {
       "bytesToRlp",
       "hexToRlp",
       "toRlp",
+      "verifyHash",
       "verifyMessage",
       "verifyTypedData",
       "parseErc6492Signature",

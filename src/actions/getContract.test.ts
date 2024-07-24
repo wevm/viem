@@ -149,7 +149,6 @@ test('simulate', async () => {
           {
             "inputs": [
               {
-                "internalType": "uint256",
                 "name": "tokenId",
                 "type": "uint256",
               },

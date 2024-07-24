@@ -435,6 +435,12 @@ export {
   recoverTypedDataAddress,
 } from './signature/recoverTypedDataAddress.js'
 export {
+  type VerifyHashErrorType,
+  type VerifyHashParameters,
+  type VerifyHashReturnType,
+  verifyHash,
+} from './signature/verifyHash.js'
+export {
   type VerifyMessageErrorType,
   type VerifyMessageParameters,
   type VerifyMessageReturnType,

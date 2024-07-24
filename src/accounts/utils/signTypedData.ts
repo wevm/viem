@@ -6,10 +6,6 @@ import {
   type HashTypedDataErrorType,
   hashTypedData,
 } from '../../utils/signature/hashTypedData.js'
-import {
-  type SerializeSignatureErrorType,
-  serializeSignature,
-} from '../../utils/signature/serializeSignature.js'
 
 import type { ErrorType } from '../../errors/utils.js'
 import { type SignErrorType, sign } from './sign.js'
@@ -27,7 +23,6 @@ export type SignTypedDataReturnType = Hex
 export type SignTypedDataErrorType =
   | HashTypedDataErrorType
   | SignErrorType
-  | SerializeSignatureErrorType
   | ErrorType
 
 /**
@@ -44,9 +39,9 @@ export async function signTypedData<
 ): Promise<SignTypedDataReturnType> {
   const { privateKey, ...typedData } =
     parameters as unknown as SignTypedDataParameters
-  const signature = await sign({
+  return await sign({
     hash: hashTypedData(typedData),
     privateKey,
+    to: 'hex',
   })
-  return serializeSignature(signature)
 }

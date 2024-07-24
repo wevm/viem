@@ -152,7 +152,7 @@ export class ContractFunctionExecutionError extends BaseError {
         docsPath,
         metaMessages: [
           ...(cause.metaMessages ? [...cause.metaMessages, ' '] : []),
-          'Contract Call:',
+          prettyArgs && 'Contract Call:',
           prettyArgs,
         ].filter(Boolean) as string[],
       },

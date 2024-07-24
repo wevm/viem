@@ -264,7 +264,7 @@ describe('behavior', () => {
       await expect(() =>
         buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [MethodNotFoundRpcError: The method does not exist / is not available.
+        [MethodNotFoundRpcError: The method "eth_blockNumber" does not exist / is not available.
 
         URL: http://localhost
         Request body: {"method":"eth_blockNumber"}
@@ -452,7 +452,7 @@ describe('behavior', () => {
       await expect(() =>
         buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [MethodNotSupportedRpcError: Method is not implemented.
+        [MethodNotSupportedRpcError: Method "eth_blockNumber" is not implemented.
 
         URL: http://localhost
         Request body: {"method":"eth_blockNumber"}

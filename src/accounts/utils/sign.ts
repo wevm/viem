@@ -3,17 +3,27 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 
 import type { ErrorType } from '../../errors/utils.js'
-import type { Hex, Signature } from '../../types/misc.js'
-import { type ToHexErrorType, numberToHex } from '../../utils/encoding/toHex.js'
+import type { ByteArray, Hex, Signature } from '../../types/misc.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
+import { serializeSignature } from '../../utils/signature/serializeSignature.js'
 
-export type SignParameters = {
+type To = 'object' | 'bytes' | 'hex'
+
+export type SignParameters<to extends To = 'object'> = {
   hash: Hex
   privateKey: Hex
+  to?: to | To | undefined
 }
 
-export type SignReturnType = Signature
+export type SignReturnType<to extends To = 'object'> =
+  | (to extends 'object' ? Signature : never)
+  | (to extends 'bytes' ? ByteArray : never)
+  | (to extends 'hex' ? Hex : never)
 
-export type SignErrorType = ToHexErrorType | ErrorType
+export type SignErrorType = NumberToHexErrorType | ErrorType
 
 /**
  * @description Signs a hash with a given private key.
@@ -23,15 +33,21 @@ export type SignErrorType = ToHexErrorType | ErrorType
  *
  * @returns The signature.
  */
-export async function sign({
+export async function sign<to extends To = 'object'>({
   hash,
   privateKey,
-}: SignParameters): Promise<SignReturnType> {
+  to = 'object',
+}: SignParameters<to>): Promise<SignReturnType<to>> {
   const { r, s, recovery } = secp256k1.sign(hash.slice(2), privateKey.slice(2))
-  return {
+  const signature = {
     r: numberToHex(r, { size: 32 }),
     s: numberToHex(s, { size: 32 }),
     v: recovery ? 28n : 27n,
     yParity: recovery,
   }
+  return (() => {
+    if (to === 'bytes' || to === 'hex')
+      return serializeSignature({ ...signature, to })
+    return signature
+  })() as SignReturnType<to>
 }

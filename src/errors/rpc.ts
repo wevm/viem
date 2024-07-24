@@ -148,10 +148,10 @@ export class MethodNotFoundRpcError extends RpcError {
   override name = 'MethodNotFoundRpcError'
   static code = -32601 as const
 
-  constructor(cause: Error) {
+  constructor(cause: Error, { method }: { method?: string } = {}) {
     super(cause, {
       code: MethodNotFoundRpcError.code,
-      shortMessage: 'The method does not exist / is not available.',
+      shortMessage: `The method${method ? ` "${method}"` : ''} does not exist / is not available.`,
     })
   }
 }
@@ -301,10 +301,10 @@ export class MethodNotSupportedRpcError extends RpcError {
   override name = 'MethodNotSupportedRpcError'
   static code = -32004 as const
 
-  constructor(cause: Error) {
+  constructor(cause: Error, { method }: { method?: string } = {}) {
     super(cause, {
       code: MethodNotSupportedRpcError.code,
-      shortMessage: 'Method is not implemented.',
+      shortMessage: `Method${method ? ` "${method}"` : ''} is not implemented.`,
     })
   }
 }
@@ -409,10 +409,10 @@ export class UnsupportedProviderMethodError extends ProviderRpcError {
   override name = 'UnsupportedProviderMethodError'
   static code = 4200 as const
 
-  constructor(cause: Error) {
+  constructor(cause: Error, { method }: { method?: string } = {}) {
     super(cause, {
       code: UnsupportedProviderMethodError.code,
-      shortMessage: 'The Provider does not support the requested method.',
+      shortMessage: `The Provider does not support the requested method${method ? ` " ${method}"` : ''}.`,
     })
   }
 }
