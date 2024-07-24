@@ -1417,11 +1417,10 @@ export type PublicActions<
     >,
   ) => Promise<
     PrepareTransactionRequestReturnType<
-      Chain,
+      chain,
       account,
       chainOverride,
       accountOverride,
-      // @ts-expect-error
       request
     >
   >
