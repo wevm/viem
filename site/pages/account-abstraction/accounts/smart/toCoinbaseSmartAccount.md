@@ -51,7 +51,7 @@ export const owner = toWebAuthnAccount({ credential })
 
 ## Returns
 
-`SmartAccount`
+`SmartAccount<CoinbaseSmartAccountImplementation>`
 
 ## Parameters
 

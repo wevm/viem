@@ -101,7 +101,19 @@ export type SmartAccountImplementation<
    */
   getStubSignature: () => Promise<Hex>
   /**
-   * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
+   * Signs a hash via the Smart Account's owner.
+   *
+   * @example
+   * ```ts
+   * const signature = await account.sign({
+   *   hash: '0x...'
+   * })
+   * // '0x...'
+   * ```
+   */
+  sign?: ((parameters: { hash: Hash }) => Promise<Hex>) | undefined
+  /**
+   * Signs a [EIP-191 Personal Sign message](https://eips.ethereum.org/EIPS/eip-191).
    *
    * @example
    * ```ts
@@ -113,7 +125,7 @@ export type SmartAccountImplementation<
    */
   signMessage: (parameters: { message: SignableMessage }) => Promise<Hex>
   /**
-   * Signs typed data and calculates an Ethereum-specific signature in [https://eips.ethereum.org/EIPS/eip-712](https://eips.ethereum.org/EIPS/eip-712): `sign(keccak256("\x19\x01" ‖ domainSeparator ‖ hashStruct(message)))`
+   * Signs [EIP-712 Typed Data](https://eips.ethereum.org/EIPS/eip-712).
    *
    * @example
    * ```ts
@@ -163,13 +175,12 @@ export type SmartAccountImplementation<
 }
 
 export type SmartAccount<
-  entryPointAbi extends Abi | readonly unknown[] = Abi,
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
-  extend extends object = object,
+  implementation extends
+    SmartAccountImplementation = SmartAccountImplementation,
 > = Assign<
-  extend,
+  implementation['extend'],
   Assign<
-    SmartAccountImplementation<entryPointAbi, entryPointVersion>,
+    implementation,
     {
       /** Address of the Smart Account. */
       address: Address

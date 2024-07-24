@@ -959,7 +959,6 @@ test('return value: `getFactoryArgs`', async () => {
   await mine(client, {
     blocks: 1,
   })
-
   expect(await account.getFactoryArgs()).toMatchInlineSnapshot(`
     {
       "factory": undefined,

@@ -9,6 +9,7 @@ import {
   type BundlerClient,
   createBundlerClient,
 } from './createBundlerClient.js'
+import type { SoladySmartAccountImplementation } from '../accounts/implementations/toSoladySmartAccount.js'
 
 const [account] = await getSmartAccounts_07()
 
@@ -36,10 +37,7 @@ test('with account', async () => {
   expectTypeOf(client).toMatchTypeOf<BundlerClient>()
   expectTypeOf(client.account).toMatchTypeOf<SmartAccount>()
   expectTypeOf(client.account).toMatchTypeOf<
-    SmartAccount<
-      typeof client.account.entryPoint.abi,
-      typeof client.account.entryPoint.version
-    >
+    SmartAccount<SoladySmartAccountImplementation>
   >()
 })
 

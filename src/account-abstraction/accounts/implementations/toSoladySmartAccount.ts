@@ -18,7 +18,7 @@ import { entryPoint07Abi } from '../../constants/abis.js'
 import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
 import { toSmartAccount } from '../toSmartAccount.js'
-import type { SmartAccount } from '../types.js'
+import type { SmartAccount, SmartAccountImplementation } from '../types.js'
 
 export type ToSoladySmartAccountParameters<
   entryPointAbi extends Abi = Abi,
@@ -43,10 +43,17 @@ export type ToSoladySmartAccountReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > = Prettify<
   SmartAccount<
-    entryPointAbi,
-    entryPointVersion,
-    { abi: typeof abi; factory: { abi: typeof factoryAbi; address: Address } }
+    SoladySmartAccountImplementation<entryPointAbi, entryPointVersion>
   >
+>
+
+export type SoladySmartAccountImplementation<
+  entryPointAbi extends Abi = Abi,
+  entryPointVersion extends EntryPointVersion = EntryPointVersion,
+> = SmartAccountImplementation<
+  entryPointAbi,
+  entryPointVersion,
+  { abi: typeof abi; factory: { abi: typeof factoryAbi; address: Address } }
 >
 
 /**

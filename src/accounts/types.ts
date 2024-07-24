@@ -72,15 +72,19 @@ export type LocalAccount<
   {
     address: address
     publicKey: Hex
-    sign: ({ hash }: { hash: Hash }) => Promise<Hash>
     source: source
     type: 'local'
   }
 >
 
-export type HDAccount = LocalAccount<'hd'> & {
-  getHdKey(): HDKey
-}
+export type HDAccount = Assign<
+  LocalAccount<'hd'>,
+  {
+    getHdKey(): HDKey
+    // TODO(v3): This will be redundant.
+    sign: NonNullable<CustomSource['sign']>
+  }
+>
 
 export type HDOptions =
   | {
@@ -100,4 +104,10 @@ export type HDOptions =
       path: `m/44'/60'/${string}`
     }
 
-export type PrivateKeyAccount = LocalAccount<'privateKey'>
+export type PrivateKeyAccount = Assign<
+  LocalAccount<'privateKey'>,
+  {
+    // TODO(v3): This will be redundant.
+    sign: NonNullable<CustomSource['sign']>
+  }
+>

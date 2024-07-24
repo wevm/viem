@@ -2,7 +2,10 @@ import { expectTypeOf, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import type { Account } from '../../types/account.js'
-import { toSoladySmartAccount } from './implementations/toSoladySmartAccount.js'
+import {
+  toSoladySmartAccount,
+  type SoladySmartAccountImplementation,
+} from './implementations/toSoladySmartAccount.js'
 import type { SmartAccount } from './types.js'
 
 const client = anvilMainnet.getClient()
@@ -21,9 +24,6 @@ test('default', async () => {
 
   // Matches narrowed Smart Account.
   expectTypeOf(account).toMatchTypeOf<
-    SmartAccount<
-      typeof account.entryPoint.abi,
-      typeof account.entryPoint.version
-    >
+    SmartAccount<SoladySmartAccountImplementation>
   >()
 })

@@ -6,6 +6,7 @@ import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   mine,
   sendTransaction,
+  verifyHash,
   verifyMessage,
   verifyTypedData,
   writeContract,
@@ -251,6 +252,57 @@ describe('return value: userOperation.estimateGas', () => {
   })
 })
 
+describe('return value: sign', () => {
+  test('default', async () => {
+    const account = await toCoinbaseSmartAccount({
+      client,
+      owners: [owner],
+      nonce: 70n,
+    })
+
+    await writeContract(client, {
+      ...account.factory,
+      functionName: 'createAccount',
+      args: [[pad(owner.address)], 70n],
+    })
+    await mine(client, {
+      blocks: 1,
+    })
+
+    const signature = await account.sign({
+      hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+    })
+
+    const result = await verifyHash(client, {
+      address: await account.getAddress(),
+      hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+      signature,
+    })
+
+    expect(result).toBeTruthy()
+  })
+
+  test('counterfactual', async () => {
+    const account = await toCoinbaseSmartAccount({
+      client,
+      owners: [owner],
+      nonce: 141241n,
+    })
+
+    const signature = await account.sign({
+      hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+    })
+
+    const result = await verifyHash(client, {
+      address: await account.getAddress(),
+      hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+      signature,
+    })
+
+    expect(result).toBeTruthy()
+  })
+})
+
 describe('return value: signMessage', () => {
   test('default', async () => {
     const account = await toCoinbaseSmartAccount({
@@ -438,6 +490,20 @@ describe('sign', async () => {
     expect(signature).toMatchInlineSnapshot(
       `"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000170000000000000000000000000000000000000000000000000000000000000001c66a718123aa330c0d00439ed337bc6721c20298be9fb50bb0e8723b6340a7dc65bc37d891cb278953722d0a93f6daf784dde4e1396e8f57acc64c8d1ea9a602000000000000000000000000000000000000000000000000000000000000002549960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d9763050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000867b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223150314f474a45794a7a4132524a5f4a34524759787a6b574730774246716d69334d333648456b67427645222c226f726967696e223a22687474703a2f2f6c6f63616c686f73743a35313733222c2263726f73734f726967696e223a66616c73657d0000000000000000000000000000000000000000000000000000"`,
     )
+  })
+
+  test('error: incompat account', async () => {
+    await expect(() =>
+      sign({
+        // @ts-expect-error
+        owner: { address: '0x', type: 'json-rpc' },
+        hash: keccak256('0xdeadbeef'),
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ViemError: \`owner\` does not support raw sign.
+
+      Version: viem@x.y.z]
+    `)
   })
 })
 

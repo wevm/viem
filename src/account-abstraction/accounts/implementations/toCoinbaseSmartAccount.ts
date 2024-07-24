@@ -10,7 +10,7 @@ import type { Client } from '../../../clients/createClient.js'
 import { entryPoint06Address } from '../../../constants/address.js'
 import type { Hash, Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
-import type { OneOf, Prettify } from '../../../types/utils.js'
+import type { Assign, OneOf, Prettify } from '../../../types/utils.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { encodePacked } from '../../../utils/abi/encodePacked.js'
@@ -24,7 +24,12 @@ import { entryPoint06Abi } from '../../constants/abis.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
 import { toSmartAccount } from '../toSmartAccount.js'
-import type { SmartAccount, WebAuthnAccount } from '../types.js'
+import type {
+  SmartAccount,
+  SmartAccountImplementation,
+  WebAuthnAccount,
+} from '../types.js'
+import { BaseError } from '../../../errors/base.js'
 
 export type ToCoinbaseSmartAccountParameters = {
   address?: Address | undefined
@@ -34,11 +39,16 @@ export type ToCoinbaseSmartAccountParameters = {
 }
 
 export type ToCoinbaseSmartAccountReturnType = Prettify<
-  SmartAccount<
+  SmartAccount<CoinbaseSmartAccountImplementation>
+>
+
+export type CoinbaseSmartAccountImplementation = Assign<
+  SmartAccountImplementation<
     typeof entryPoint06Abi,
     '0.6',
     { abi: typeof abi; factory: { abi: typeof factoryAbi; address: Address } }
-  >
+  >,
+  { sign: NonNullable<SmartAccountImplementation['sign']> }
 >
 
 /**
@@ -144,6 +154,22 @@ export async function toCoinbaseSmartAccount(
       })
     },
 
+    async sign(parameters) {
+      const address = await this.getAddress()
+
+      const hash = toReplaySafeHash({
+        address,
+        chainId: client.chain!.id,
+        hash: parameters.hash,
+      })
+
+      const signature = await sign({ hash, owner })
+
+      return wrapSignature({
+        signature,
+      })
+    },
+
     async signMessage(parameters) {
       const { message } = parameters
       const address = await this.getAddress()
@@ -237,8 +263,9 @@ export async function sign({
     return toWebAuthnSignature({ signature, webauthn })
   }
 
-  // Local Account
-  return owner.sign({ hash })
+  if (owner.sign) return owner.sign({ hash })
+
+  throw new BaseError('`owner` does not support raw sign.')
 }
 
 /** @internal */

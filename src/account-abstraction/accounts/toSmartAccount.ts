@@ -15,10 +15,9 @@ export type ToSmartAccountParameters<
 > = SmartAccountImplementation<entryPointAbi, entryPointVersion, extend>
 
 export type ToSmartAccountReturnType<
-  entryPointAbi extends Abi | readonly unknown[] = Abi,
-  entryPointVersion extends EntryPointVersion = EntryPointVersion,
-  extend extends object = object,
-> = Prettify<SmartAccount<entryPointAbi, entryPointVersion, extend>>
+  implementation extends
+    SmartAccountImplementation = SmartAccountImplementation,
+> = Prettify<SmartAccount<implementation>>
 
 /**
  * @description Creates a Smart Account with a provided account implementation.
@@ -27,21 +26,15 @@ export type ToSmartAccountReturnType<
  * @returns A Smart Account. {@link ToSmartAccountReturnType}
  */
 export async function toSmartAccount<
-  entryPointAbi extends Abi | readonly unknown[],
-  entryPointVersion extends EntryPointVersion,
-  extend extends object,
+  implementation extends SmartAccountImplementation,
 >(
-  parameters: ToSmartAccountParameters<
-    entryPointAbi,
-    entryPointVersion,
-    extend
-  >,
-): Promise<ToSmartAccountReturnType<entryPointAbi, entryPointVersion, extend>> {
-  const { extend, ...rest } = parameters
+  implementation: implementation,
+): Promise<ToSmartAccountReturnType<implementation>> {
+  const { extend, ...rest } = implementation
 
   let deployed = false
 
-  const address = await parameters.getAddress()
+  const address = await implementation.getAddress()
 
   const nonceKeyManager = createNonceManager({
     source: {
@@ -59,24 +52,24 @@ export async function toSmartAccount<
     async getFactoryArgs() {
       if ('isDeployed' in this && (await this.isDeployed()))
         return { factory: undefined, factoryData: undefined }
-      return parameters.getFactoryArgs()
+      return implementation.getFactoryArgs()
     },
-    async getNonce(parameters_) {
+    async getNonce(parameters) {
       const key =
-        parameters_?.key ??
+        parameters?.key ??
         BigInt(
           await nonceKeyManager.consume({
             address,
-            chainId: parameters.client.chain!.id!,
-            client: parameters.client,
+            chainId: implementation.client.chain!.id!,
+            client: implementation.client,
           }),
         )
-      return await parameters.getNonce({ ...parameters_, key })
+      return await implementation.getNonce({ ...parameters, key })
     },
     async isDeployed() {
       if (deployed) return true
       const code = await getAction(
-        parameters.client,
+        implementation.client,
         getCode,
         'getCode',
       )({
@@ -85,10 +78,27 @@ export async function toSmartAccount<
       deployed = Boolean(code)
       return deployed
     },
-    async signMessage(parameters_) {
+    ...(implementation.sign
+      ? {
+          async sign(parameters) {
+            const [{ factory, factoryData }, signature] = await Promise.all([
+              this.getFactoryArgs(),
+              implementation.sign!(parameters),
+            ])
+            if (factory && factoryData)
+              return serializeErc6492Signature({
+                address: factory,
+                data: factoryData,
+                signature,
+              })
+            return signature
+          },
+        }
+      : {}),
+    async signMessage(parameters) {
       const [{ factory, factoryData }, signature] = await Promise.all([
         this.getFactoryArgs(),
-        parameters.signMessage(parameters_),
+        implementation.signMessage(parameters),
       ])
       if (factory && factoryData)
         return serializeErc6492Signature({
@@ -98,10 +108,10 @@ export async function toSmartAccount<
         })
       return signature
     },
-    async signTypedData(parameters_) {
+    async signTypedData(parameters) {
       const [{ factory, factoryData }, signature] = await Promise.all([
         this.getFactoryArgs(),
-        parameters.signTypedData(parameters_),
+        implementation.signTypedData(parameters),
       ])
       if (factory && factoryData)
         return serializeErc6492Signature({
@@ -112,5 +122,5 @@ export async function toSmartAccount<
       return signature
     },
     type: 'smart',
-  } as ToSmartAccountReturnType<entryPointAbi, entryPointVersion, extend>
+  } as ToSmartAccountReturnType<implementation>
 }

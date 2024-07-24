@@ -915,6 +915,7 @@ test('default', async () => {
       "getNonce": [Function],
       "getStubSignature": [Function],
       "isDeployed": [Function],
+      "sign": [Function],
       "signMessage": [Function],
       "signTypedData": [Function],
       "signUserOperation": [Function],
