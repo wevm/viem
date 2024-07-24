@@ -3,6 +3,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Hash } from '../../../types/misc.js'
+import type { Prettify } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import {
   UserOperationNotFoundError,
@@ -10,7 +11,6 @@ import {
 } from '../../errors/userOperation.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { formatUserOperation } from '../../utils/formatters/userOperation.js'
-import type { Prettify } from '../../../types/utils.js'
 
 export type GetUserOperationParameters = {
   /** The hash of the User Operation. */
