@@ -268,7 +268,7 @@ const unwatch = publicClient.watchEvent(
 
 - **Type:** [`AbiEvent`](/docs/glossary/types#abievent)
 
-The event is in ABI format.
+The event in ABI format.
 
 A [`parseAbiItem` utility](/docs/abi/parseAbiItem) is exported from viem that converts from a human-readable event signature → ABI.
 
