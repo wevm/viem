@@ -1,5 +1,11 @@
 # viem
 
+## 2.18.0
+
+### Minor Changes
+
+- [#2510](https://github.com/wevm/viem/pull/2510) [`070c0d1b`](https://github.com/wevm/viem/commit/070c0d1bd85ff3e77fdaf6b7f4ce4aee8d19c71a) Thanks [@jxom](https://github.com/jxom)! - Added an **ERC-4337 Account Abstraction** extension. [See Docs](https://viem.sh/account-abstraction).
+
 ## 2.17.11
 
 ### Patch Changes
