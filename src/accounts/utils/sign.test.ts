@@ -2,8 +2,8 @@ import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 
-import { sign } from './sign.js'
 import { verifyHash } from '../../utils/signature/verifyHash.js'
+import { sign } from './sign.js'
 
 test('default', async () => {
   const signature_1 = await sign({

@@ -4,8 +4,8 @@ import { accounts } from '~test/src/constants.js'
 import { signMessage } from '../../actions/wallet/signMessage.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { verifyHash } from './verifyHash.js'
 import { hashMessage } from './hashMessage.js'
+import { verifyHash } from './verifyHash.js'
 
 const client = anvilMainnet.getClient()
 
