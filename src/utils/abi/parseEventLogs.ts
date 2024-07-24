@@ -50,7 +50,7 @@ export type ParseEventLogsParameters<
     | ContractEventName<abi>[]
     | undefined
   /** List of logs. */
-  logs: readonly (Log | RpcLog)[]
+  logs: (Log | RpcLog)[]
   strict?: strict | boolean | undefined
 }
 

@@ -48,7 +48,7 @@ export type DecodeEventLogParameters<
   data?: data | undefined
   eventName?: eventName | ContractEventName<abi> | undefined
   strict?: strict | boolean | undefined
-  topics: readonly [signature: Hex, ...args: topics] | readonly []
+  topics: [signature: Hex, ...args: topics] | []
 }
 
 export type DecodeEventLogReturnType<

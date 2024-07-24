@@ -2,8 +2,8 @@ import { describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getLogs } from '../../actions/public/getLogs.js'
-
 import { parseEventLogs } from './parseEventLogs.js'
+import type { Log } from '../../types/log.js'
 
 const client = anvilMainnet.getClient()
 
@@ -149,7 +149,7 @@ test('default', async () => {
 })
 
 describe('args: args', () => {
-  const logs = [
+  const logs: Log[] = [
     {
       address: '0xc56c7a0eaa804f854b536a5f3d5f49d2ec4b12b8',
       topics: [
@@ -234,7 +234,7 @@ describe('args: args', () => {
       logIndex: 5,
       removed: false,
     },
-  ] as const
+  ]
 
   test('named: single arg', async () => {
     const parsedLogs = parseEventLogs({
