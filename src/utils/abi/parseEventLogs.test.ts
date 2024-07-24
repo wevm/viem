@@ -2,8 +2,8 @@ import { describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getLogs } from '../../actions/public/getLogs.js'
-import { parseEventLogs } from './parseEventLogs.js'
 import type { Log } from '../../types/log.js'
+import { parseEventLogs } from './parseEventLogs.js'
 
 const client = anvilMainnet.getClient()
 
