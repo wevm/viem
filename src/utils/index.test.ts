@@ -129,6 +129,7 @@ test('exports utils', () => {
       "recoverMessageAddress",
       "recoverPublicKey",
       "recoverTypedDataAddress",
+      "verifyHash",
       "verifyMessage",
       "verifyTypedData",
       "hashMessage",

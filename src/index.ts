@@ -439,9 +439,9 @@ export type {
   WatchAssetReturnType,
 } from './actions/wallet/watchAsset.js'
 export type {
-  VerifyHashErrorType,
-  VerifyHashParameters,
-  VerifyHashReturnType,
+  VerifyHashErrorType as VerifyHashActionErrorType,
+  VerifyHashParameters as VerifyHashActionParameters,
+  VerifyHashReturnType as VerifyHashActionReturnType,
 } from './actions/public/verifyHash.js'
 export type {
   VerifyTypedDataErrorType as VerifyTypedDataActionErrorType,
@@ -1310,6 +1310,12 @@ export {
   type ToRlpErrorType,
   type ToRlpReturnType,
 } from './utils/encoding/toRlp.js'
+export {
+  type VerifyHashErrorType,
+  type VerifyHashParameters,
+  type VerifyHashReturnType,
+  verifyHash,
+} from './utils/signature/verifyHash.js'
 export {
   type VerifyMessageErrorType,
   type VerifyMessageParameters,
