@@ -56,9 +56,18 @@ export async function getWebSocketRpcClient(
           close_.bind(socket)()
           onClose()
         },
-        ping() {
-          if (socket.readyState === socket.CLOSED) return
-          socket.send('ping')
+        ping(data = 'ping') {
+          try {
+            if (socket.readyState === socket.CLOSED) {
+              throw new Error('Socket is closed: readyState === CLOSED')
+            }
+            if (socket.readyState === socket.CONNECTING) {
+              return
+            }
+            socket.send(data)
+          } catch (error) {
+            onError(error as Error)
+          }
         },
         request({ body }) {
           if (

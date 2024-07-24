@@ -11,7 +11,7 @@ import { wait } from '../wait.js'
 import { getWebSocketRpcClient } from './webSocket.js'
 
 const client = anvilMainnet.getClient()
-
+anvilMainnet.start()
 describe('getWebSocketRpcClient', () => {
   test('creates WebSocket instance', async () => {
     const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
@@ -53,6 +53,10 @@ describe('getWebSocketRpcClient', () => {
     expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
     setTimeout(() => {
       expect(spy).toHaveBeenCalled()
+    }, 5)
+    await anvilMainnet.restart()
+    setTimeout(() => {
+      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
     }, 5)
   })
 })

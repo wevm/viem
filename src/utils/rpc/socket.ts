@@ -116,6 +116,16 @@ export async function getSocketRpcClient<socket extends {}>(
       let error: Error | Event | undefined
       let socket: Socket<any>
       let keepAliveTimer: Timer | undefined
+
+      const socketKeepAlive = () => {
+        if (socket && keepAliveInterval) {
+          if (keepAliveTimer) clearInterval(keepAliveTimer)
+          keepAliveTimer = setInterval(() => {
+            socket.ping()
+          }, keepAliveInterval)
+        }
+      }
+
       // Set up socket implementation.
       async function setup() {
         return getSocket({
@@ -136,6 +146,7 @@ export async function getSocketRpcClient<socket extends {}>(
               setTimeout(async () => {
                 reconnectCount++
                 socket = await setup().catch(console.error)
+                socketKeepAlive()
               }, delay)
           },
           onOpen() {
@@ -154,18 +165,12 @@ export async function getSocketRpcClient<socket extends {}>(
       }
       socket = await setup()
       error = undefined
-
-      if (keepAliveInterval) {
-        if (keepAliveTimer) clearInterval(keepAliveTimer)
-        keepAliveTimer = setInterval(() => {
-          socket.ping()
-        }, keepAliveInterval)
-      }
+      socketKeepAlive()
 
       // Create a new socket instance.
       socketClient = {
         close() {
-          clearInterval(keepAliveTimer)
+          keepAliveTimer && clearInterval(keepAliveTimer)
           socket.close()
           socketClientCache.delete(`${key}:${url}`)
         },
