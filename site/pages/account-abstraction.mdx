@@ -4,11 +4,11 @@ description: Getting Started with Account Abstraction in Viem
 
 # Getting Started with Account Abstraction
 
-**[Account Abstraction (ERC-4337)](https://eips.ethereum.org/EIPS/eip-4337)**, is a proposal within the Ethereum ecosystem which aims to standardize Smart Contract Accounts (SCA) and their operations without the need to modify or upgrade the protocol.
+**[Account Abstraction (ERC-4337)](https://eips.ethereum.org/EIPS/eip-4337)** is a proposal within the Ethereum ecosystem which aims to standardize Smart Contract Accounts (SCA) and their operations without the need to modify or upgrade the protocol.
 
-Smart Contract Accounts can send calls on the Network via a "meta-transaction" called a **User Operation.** A user can send a User Operation to a **Bundler** which aggregates User Operations into a single transaction and submits it to the Network via an **EntryPoint** contract.
+Smart Contract Accounts can send calls on the Network via a "meta-transaction" called a **User Operation.** Users can send User Operations to **Bundlers** which aggregate User Operations into single transactions and submit them to the Network via an **EntryPoint** contract.
 
-Such key features that Account Abstraction enables are:
+Key features that Account Abstraction enables are:
 
 - **Batching:** Group multiple calls into a single transaction.
 - **Fee Sponsorship:** Allow third parties to pay for gas fees, or pay for gas via ERC20 tokens.
@@ -55,7 +55,7 @@ const client = createPublicClient({
 
 ### 2. Set up a Bundler Client
 
-Next, we will need to set up a Bundler Client. A Bundler is required to submit User Operations to the Network for the Smart Account.
+Next, we need to set up a Bundler Client. A Bundler is required to submit User Operations to the Network for the Smart Account.
 
 ```ts twoslash
 import { createPublicClient, http } from 'viem'
@@ -81,7 +81,7 @@ The Bundler URL above is a public endpoint. Please do not use it in production a
 
 ### 3. Set up an Owner
 
-We will also need to set up an Owner for the Smart Account which will be used to sign User Operations (transactions) for the Smart Account.
+We also need to set up an Owner for the Smart Account which will be used to sign User Operations (transactions) for the Smart Account.
 
 ```ts twoslash
 // @noErrors
@@ -107,7 +107,7 @@ const owner = privateKeyToAccount('0x...') // [!code focus]
 
 ### 4. Create a Smart Account
 
-Next, we will instantiate a Smart Account. For this example, we will use [`toCoinbaseSmartAccount`](/account-abstraction/accounts/smart/toCoinbaseSmartAccount) (Coinbase Smart Wallet).
+Next, we instantiate a Smart Account. For this example, we will use [`toCoinbaseSmartAccount`](/account-abstraction/accounts/smart/toCoinbaseSmartAccount) (Coinbase Smart Wallet).
 
 ```ts twoslash
 // @noErrors
@@ -145,7 +145,7 @@ const account = await toCoinbaseSmartAccount({ // [!code focus]
 
 ### 5. Send User Operation
 
-Next, we will send a User Operation to the Bundler. For the example below, we will send 0.001 ETH to a random address.
+Next, we send a User Operation to the Bundler. For the example below, we will send 0.001 ETH to a random address.
 
 ```ts twoslash
 import { createPublicClient, http, parseEther } from 'viem'
@@ -192,7 +192,7 @@ const receipt = await bundlerClient.waitForUserOperationReceipt({ hash }) // [!c
 
 ### 6. Optional: Hoist the Account
 
-If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account onto a Wallet Client.
+If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account onto a Bundler Client.
 
 ```ts twoslash 
 import { createPublicClient, http, parseEther } from 'viem'
