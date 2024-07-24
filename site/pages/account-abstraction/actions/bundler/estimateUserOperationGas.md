@@ -390,7 +390,7 @@ import { http, parseEther } from 'viem'
 import { createPaymasterClient } from 'viem/account-abstraction'
 
 const paymasterClient = createPaymasterClient({ // [!code focus]
-  transport: http('https://public.pimlico.io/v2/11155111/rpc') // [!code focus]
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey={API_KEY}') // [!code focus]
 }) // [!code focus]
 
 const hash = await bundlerClient.estimateUserOperationGas({

@@ -75,7 +75,7 @@ import { http } from 'viem'
 // ---cut---
 const client = createPaymasterClient({
   name: 'Foo Bundler Client', // [!code focus]
-  transport: http('https://public.pimlico.io/v2/1/rpc')
+  transport: http('https://public.pimlico.io/v2/11155111/rpc')
 })
 ```
 
@@ -92,7 +92,7 @@ import { http } from 'viem'
 // ---cut---
 const client = createPaymasterClient({
   pollingInterval: 10_000, // [!code focus]
-  transport: http('https://public.pimlico.io/v2/1/rpc')
+  transport: http('https://public.pimlico.io/v2/11155111/rpc')
 })
 ```
 
@@ -118,7 +118,7 @@ type CustomRpcSchema = [{ // [!code focus]
 
 const client = createPaymasterClient({
   rpcSchema: rpcSchema<CustomRpcSchema>(), // [!code focus]
-  transport: http('https://public.pimlico.io/v2/1/rpc')
+  transport: http('https://public.pimlico.io/v2/11155111/rpc')
 })
 
 const result = await client.request({ // [!code focus]
@@ -141,6 +141,6 @@ import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 // ---cut---
 const paymasterClient = createPaymasterClient({
-  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code focus]
+  transport: http('https://public.pimlico.io/v2/11155111/rpc'), // [!code focus]
 })
 ```

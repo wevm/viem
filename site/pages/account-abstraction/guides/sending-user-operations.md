@@ -296,7 +296,7 @@ import {
 import { account, client } from './config.ts'
 
 const paymasterClient = createPaymasterClient({ // [!code ++]
-  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code ++]
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey={API_KEY}'), // [!code ++]
 }) // [!code ++]
 
 const bundlerClient = createBundlerClient({
