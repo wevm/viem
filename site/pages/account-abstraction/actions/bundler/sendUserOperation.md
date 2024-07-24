@@ -169,7 +169,10 @@ The User Operation hash.
 
 The Account to use for User Operation execution.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account, // [!code focus]
   calls: [{
@@ -185,7 +188,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 The calls to execute in the User Operation.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{ // [!code focus]
@@ -202,7 +208,10 @@ const hash = await bundlerClient.sendUserOperation({
 :::tip
 You can also pass raw call data via the `callData` property:
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   callData: '0xdeadbeef', // [!code focus]
@@ -216,7 +225,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 The amount of gas to allocate the main execution call.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -237,7 +249,10 @@ Account Factory address.
 This property should only be populated when the Smart Account has not been deployed yet.
 :::
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -259,7 +274,10 @@ Call data to execute on the Account Factory to deploy a Smart Account.
 This property should only be populated when the Smart Account has not been deployed yet.
 :::
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -277,7 +295,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 Maximum fee per gas for User Operation execution.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -294,7 +315,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 Maximum priority fee per gas for User Operation execution.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -312,7 +336,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 Nonce for the User Operation.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -336,7 +363,10 @@ Sets Paymaster configuration for the User Operation.
 
 #### Using a Paymaster Contract Address
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -350,7 +380,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 #### Using a Paymaster Client
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const paymasterClient = createPaymasterClient({ // [!code focus]
   transport: http('https://public.pimlico.io/v2/11155111/rpc') // [!code focus]
 }) // [!code focus]
@@ -367,7 +400,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 #### Using the Bundler Client as Paymaster
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -388,7 +424,10 @@ Paymaster specific fields.
 This property is only available if **`paymaster` is a Paymaster Client**.
 :::
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const paymasterClient = createPaymasterClient({
   transport: http('https://public.pimlico.io/v2/1/rpc')
 })
@@ -416,7 +455,10 @@ Call data to execute on the Paymaster contract.
 This property is only available if **`paymaster` is an address**.
 :::
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -434,7 +476,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 The amount of gas to allocate for the Paymaster post-operation code.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -453,7 +498,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 The amount of gas to allocate for the Paymaster validation code.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -472,7 +520,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 Extra gas to pay the Bunder.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -489,7 +540,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 Signature for the User Operation.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{
@@ -506,7 +560,10 @@ const hash = await bundlerClient.sendUserOperation({
 
 The amount of gas to allocate for the verification step.
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
 const hash = await bundlerClient.sendUserOperation({
   account,
   calls: [{

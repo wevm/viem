@@ -57,7 +57,9 @@ User Operation information.
 
 A User Operation hash.
 
-```ts
+```ts twoslash
+import { bundlerClient } from './client'
+// ---cut---
 const result = await publicClient.getUserOperation({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })

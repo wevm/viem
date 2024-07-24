@@ -2,6 +2,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Hash } from '../../../types/misc.js'
+import type { Prettify } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import {
   UserOperationReceiptNotFoundError,
@@ -15,7 +16,7 @@ export type GetUserOperationReceiptParameters = {
   hash: Hash
 }
 
-export type GetUserOperationReceiptReturnType = UserOperationReceipt
+export type GetUserOperationReceiptReturnType = Prettify<UserOperationReceipt>
 
 export type GetUserOperationReceiptErrorType =
   | RequestErrorType

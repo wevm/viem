@@ -56,8 +56,10 @@ The User Operation receipt.
 
 A User Operation hash.
 
-```ts
-const receipt = await publicClient.waitForUserOperationReceipt({
+```ts twoslash
+import { bundlerClient } from './client'
+// ---cut---
+const receipt = await bundlerClient.waitForUserOperationReceipt({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```
@@ -68,8 +70,10 @@ const receipt = await publicClient.waitForUserOperationReceipt({
 
 Polling frequency (in ms).
 
-```ts
-const receipt = await publicClient.waitForUserOperationReceipt({
+```ts twoslash
+import { bundlerClient } from './client'
+// ---cut---
+const receipt = await bundlerClient.waitForUserOperationReceipt({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
   pollingInterval: 1_000 // [!code focus]
 })
@@ -82,8 +86,10 @@ const receipt = await publicClient.waitForUserOperationReceipt({
 
 The number of times to retry.
 
-```ts
-const receipt = await publicClient.waitForUserOperationReceipt({
+```ts twoslash
+import { bundlerClient } from './client'
+// ---cut---
+const receipt = await bundlerClient.waitForUserOperationReceipt({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
   retryCount: 3 // [!code focus]
 })
@@ -95,8 +101,10 @@ const receipt = await publicClient.waitForUserOperationReceipt({
 
 Optional timeout (in ms) to wait before stopping polling.
 
-```ts
-const receipt = await publicClient.waitForUserOperationReceipt({
+```ts twoslash
+import { bundlerClient } from './client'
+// ---cut---
+const receipt = await bundlerClient.waitForUserOperationReceipt({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
   timeout: 30_000 // [!code focus]
 })

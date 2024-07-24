@@ -13,7 +13,7 @@ Sending "transactions" can be achieved by broadcasting a **User Operation** to a
 
 The most common Actions for **User Operations** are:
 
-- [`sendUserOperation`](/account-abstraction/actions/bundler/sendUserOperation)
+- [`sendUserOperation`](/account-abstraction/actions/bundler/sendUserOperation) (also supports [Contract Writes](/account-abstraction/actions/bundler/sendUserOperation#contract-calls))
 - [`estimateUserOperationGas`](/account-abstraction/actions/bundler/estimateUserOperationGas)
 - [`getUserOperation`](/account-abstraction/actions/bundler/getUserOperation)
 - [`getUserOperationReceipt`](/account-abstraction/actions/bundler/getUserOperationReceipt)

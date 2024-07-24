@@ -10,13 +10,14 @@ import {
 } from '../../errors/userOperation.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { formatUserOperation } from '../../utils/formatters/userOperation.js'
+import type { Prettify } from '../../../types/utils.js'
 
 export type GetUserOperationParameters = {
   /** The hash of the User Operation. */
   hash: Hash
 }
 
-export type GetUserOperationReturnType = {
+export type GetUserOperationReturnType = Prettify<{
   /** The block hash the User Operation was included on. */
   blockHash: Hash
   /** The block number the User Operation was included on. */
@@ -27,7 +28,7 @@ export type GetUserOperationReturnType = {
   transactionHash: Hash
   /** The User Operation. */
   userOperation: UserOperation
-}
+}>
 
 export type GetUserOperationErrorType =
   | RequestErrorType

@@ -177,10 +177,10 @@ The estimated gas values.
 
 The Account to use for User Operation execution.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account, // [!code focus]
   calls: [{
@@ -196,10 +196,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 The calls to execute in the User Operation.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{ // [!code focus]
@@ -212,7 +212,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 :::tip
 You can also pass raw call data via the `callData` property:
 
-```ts
+```ts twoslash
+import { parseEther } from 'viem'
+import { account, bundlerClient } from './config'
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   callData: '0xdeadbeef', // [!code focus]
@@ -226,10 +229,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 The amount of gas to allocate the main execution call.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -250,10 +253,10 @@ Account Factory address.
 This property should only be populated when the Smart Account has not been deployed yet.
 :::
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -275,10 +278,10 @@ Call data to execute on the Account Factory to deploy a Smart Account.
 This property should only be populated when the Smart Account has not been deployed yet.
 :::
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -296,10 +299,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 Maximum fee per gas for User Operation execution.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -316,10 +319,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 Maximum priority fee per gas for User Operation execution.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -337,10 +340,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 Nonce for the User Operation.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -364,7 +367,9 @@ Sets Paymaster configuration for the User Operation.
 
 #### Using a Paymaster Contract Address
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+// ---cut---
 const hash = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -378,7 +383,12 @@ const hash = await bundlerClient.estimateUserOperationGas({
 
 #### Using a Paymaster Client
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+// ---cut---
+import { http, parseEther } from 'viem'
+import { createPaymasterClient } from 'viem/account-abstraction'
+
 const paymasterClient = createPaymasterClient({ // [!code focus]
   transport: http('https://public.pimlico.io/v2/11155111/rpc') // [!code focus]
 }) // [!code focus]
@@ -395,7 +405,9 @@ const hash = await bundlerClient.estimateUserOperationGas({
 
 #### Using the Bundler Client as Paymaster
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+// ---cut---
 const hash = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -416,7 +428,12 @@ Paymaster specific fields.
 This property is only available if **`paymaster` is a Paymaster Client**.
 :::
 
-```ts
+```ts twoslash
+import { account, bundlerClient } from './config'
+// ---cut---
+import { http, parseEther } from 'viem'
+import { createPaymasterClient } from 'viem/account-abstraction'
+
 const paymasterClient = createPaymasterClient({
   transport: http('https://public.pimlico.io/v2/11155111/rpc')
 })
@@ -444,10 +461,10 @@ Call data to execute on the Paymaster contract.
 This property is only available if **`paymaster` is an address**.
 :::
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -465,10 +482,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 The amount of gas to allocate for the Paymaster post-operation code.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -487,10 +504,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 The amount of gas to allocate for the Paymaster validation code.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -509,10 +526,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 Extra gas to pay the Bunder.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -529,10 +546,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 Signature for the User Operation.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{
@@ -549,10 +566,10 @@ const gas = await bundlerClient.estimateUserOperationGas({
 
 The amount of gas to allocate for the verification step.
 
-```ts
+```ts twoslash
 import { parseEther } from 'viem'
 import { account, bundlerClient } from './config'
-
+// ---cut---
 const gas = await bundlerClient.estimateUserOperationGas({
   account,
   calls: [{

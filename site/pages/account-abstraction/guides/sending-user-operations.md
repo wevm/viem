@@ -156,6 +156,10 @@ const account = await toCoinbaseSmartAccount({ // [!code focus]
 }) // [!code focus]
 ```
 
+:::tip
+**Tip:** `toCoinbaseSmartAccount` also accepts [Passkey (WebAuthn) Accounts](/account-abstraction/accounts/webauthn) as an `owner`.
+:::
+
 [See `toCoinbaseSmartAccount` Docs](/account-abstraction/accounts/smart/toCoinbaseSmartAccount)
 
 ### 5. Send User Operation
@@ -198,6 +202,10 @@ const hash = await bundlerClient.sendUserOperation({ // [!code focus]
 
 const receipt = await bundlerClient.waitForUserOperationReceipt({ hash }) // [!code focus]
 ```
+
+:::tip
+**Tip:** The `calls` property also accepts [Contract Write calls](/account-abstraction/actions/bundler/sendUserOperation#contract-calls).
+:::
 
 [See `sendUserOperation` Docs](/account-abstraction/actions/bundler/sendUserOperation)
 
