@@ -73,12 +73,12 @@ type GetTopics<
     | ([_Args] extends [never] ? true : false)
     | (readonly unknown[] extends _Args ? true : false),
 > = true extends _FailedToParseArgs
-  ? [Hex, ...Hex[]] | []
+  ? readonly [Hex, ...Hex[]] | readonly []
   : abiEvent extends AbiEvent
     ? Topics<abiEvent['inputs']>
     : _AbiEvent extends AbiEvent
       ? Topics<_AbiEvent['inputs']>
-      : [Hex, ...Hex[]] | []
+      : readonly [Hex, ...Hex[]] | readonly []
 
 type GetInferredLogValues<
   abiEvent extends AbiEvent | undefined = undefined,
@@ -129,5 +129,5 @@ type GetInferredLogValues<
         }
       }[_EventNames]
   : {
-      topics: [Hex, ...Hex[]] | []
+      topics: readonly [Hex, ...Hex[]] | readonly []
     }
