@@ -129,7 +129,7 @@ export type MulticallResponse<
 // infer contract parameters from `unknown`
 export type GetMulticallContractParameters<
   contract,
-  mutability extends AbiStateMutability = AbiStateMutability,
+  mutability extends AbiStateMutability,
 > = contract extends { abi: infer abi extends Abi } // 1. Check if `abi` is const-asserted or defined inline
   ? // 1a. Check if `functionName` is valid for `abi`
     contract extends {

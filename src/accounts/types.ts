@@ -8,7 +8,7 @@ import type {
   TransactionSerialized,
 } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
-import type { Assign, IsNarrowable, OneOf } from '../types/utils.js'
+import type { IsNarrowable, OneOf, Prettify } from '../types/utils.js'
 import type { NonceManager } from '../utils/nonceManager.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
@@ -67,9 +67,8 @@ export type JsonRpcAccount<address extends Address = Address> = {
 export type LocalAccount<
   source extends string = string,
   address extends Address = Address,
-> = Assign<
-  CustomSource,
-  {
+> = Prettify<
+  CustomSource & {
     address: address
     publicKey: Hex
     source: source
@@ -77,9 +76,8 @@ export type LocalAccount<
   }
 >
 
-export type HDAccount = Assign<
-  LocalAccount<'hd'>,
-  {
+export type HDAccount = Prettify<
+  LocalAccount<'hd'> & {
     getHdKey(): HDKey
     // TODO(v3): This will be redundant.
     sign: NonNullable<CustomSource['sign']>
@@ -104,9 +102,8 @@ export type HDOptions =
       path: `m/44'/60'/${string}`
     }
 
-export type PrivateKeyAccount = Assign<
-  LocalAccount<'privateKey'>,
-  {
+export type PrivateKeyAccount = Prettify<
+  LocalAccount<'privateKey'> & {
     // TODO(v3): This will be redundant.
     sign: NonNullable<CustomSource['sign']>
   }

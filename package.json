@@ -10,11 +10,11 @@
     "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
     "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
-    "changeset:prepublish": "pnpm version:update && bun .scripts/prepublishOnly.ts && pnpm build",
+    "changeset:prepublish": "pnpm version:update && bun scripts/prepublishOnly.ts && pnpm build",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm version:update && pnpm format",
     "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
-    "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun .scripts/generateTypedArtifacts.ts",
+    "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/generateTypedArtifacts.ts",
     "deps": "pnpx taze -r",
     "docs:dev": "pnpm --filter site dev",
     "docs:build": "pnpm --filter site build",
@@ -23,10 +23,10 @@
     "lint:repo": "sherif",
     "lint:unused": "pnpm clean && knip",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
-    "preconstruct": "bun .scripts/preconstruct.ts",
+    "preconstruct": "bun scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
-    "prepublishOnly": "bun .scripts/prepublishOnly.ts",
+    "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
     "test": "vitest -c ./test/vitest.config.ts dev",
     "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
@@ -44,7 +44,7 @@
     "typecheck": "tsc --noEmit",
     "vectors": "bun test vectors/**/*.test.ts",
     "vectors:generate": "bun vectors/generate.ts",
-    "version:update": "bun .scripts/updateVersion.ts"
+    "version:update": "bun scripts/updateVersion.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.3",
@@ -91,7 +91,7 @@
     },
     "workspaces": {
       ".": {
-        "project": ".scripts/*.ts"
+        "project": "scripts/*.ts"
       },
       "src": {
         "entry": [

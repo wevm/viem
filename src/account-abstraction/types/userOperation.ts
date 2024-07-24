@@ -1,4 +1,4 @@
-import type { Address } from 'abitype'
+import type { AbiStateMutability, Address } from 'abitype'
 import type { ContractFunctionParameters } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
 import type { Hash, Hex } from '../../types/misc.js'
@@ -210,7 +210,10 @@ export type UserOperationCalls<
         ...result,
         Prettify<
           OneOf<
-            | (Omit<GetMulticallContractParameters<call>, 'address'> & {
+            | (Omit<
+                GetMulticallContractParameters<call, AbiStateMutability>,
+                'address'
+              > & {
                 to: Address
                 value?: bigint | undefined
               })
@@ -225,7 +228,10 @@ export type UserOperationCalls<
             ...result,
             Prettify<
               OneOf<
-                | (Omit<GetMulticallContractParameters<call>, 'address'> & {
+                | (Omit<
+                    GetMulticallContractParameters<call, AbiStateMutability>,
+                    'address'
+                  > & {
                     to: Address
                     value?: bigint | undefined
                   })
