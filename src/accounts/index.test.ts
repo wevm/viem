@@ -20,6 +20,7 @@ test('exports utils', () => {
       "hdKeyToAccount",
       "mnemonicToAccount",
       "privateKeyToAccount",
+      "toAccount",
       "sign",
       "signatureToHex",
       "serializeSignature",
