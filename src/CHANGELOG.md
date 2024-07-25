@@ -1,5 +1,17 @@
 # viem
 
+## 2.18.1
+
+### Patch Changes
+
+- [#2530](https://github.com/wevm/viem/pull/2530) [`d6cc8f6b`](https://github.com/wevm/viem/commit/d6cc8f6bad61ca7f3bf04605de826530d23f1602) Thanks [@Si-Ki](https://github.com/Si-Ki)! - Added cronoszkEVMTestnet chain.
+
+- [#2533](https://github.com/wevm/viem/pull/2533) [`a5d4ec4b`](https://github.com/wevm/viem/commit/a5d4ec4bdc73fc12a3078dc66eac884b41573a7a) Thanks [@jxom](https://github.com/jxom)! - Fixed support for filtering contract logs via its events on `abi` + `args`.
+
+- [`62ff31dd`](https://github.com/wevm/viem/commit/62ff31dde0caaa96702187f42049cf8ea67e7cdd) Thanks [@tmm](https://github.com/tmm)! - Fixed missing import.
+
+- [#2533](https://github.com/wevm/viem/pull/2533) [`a5d4ec4b`](https://github.com/wevm/viem/commit/a5d4ec4bdc73fc12a3078dc66eac884b41573a7a) Thanks [@jxom](https://github.com/jxom)! - Added `args` as a property to `parseEventLogs` to filter event logs by its arguments.
+
 ## 2.18.0
 
 ### Minor Changes
