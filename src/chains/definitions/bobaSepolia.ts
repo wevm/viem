@@ -17,4 +17,5 @@ export const bobaSepolia = /*#__PURE__*/ defineChain({
       url: 'https://testnet.bobascan.com',
     },
   },
+  testnet: true,
 })
