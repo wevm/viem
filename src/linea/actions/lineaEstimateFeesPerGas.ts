@@ -1,7 +1,6 @@
 import { getBlock, getGasPrice } from '../../actions/index.js'
 import { internal_estimateMaxPriorityFeePerGas } from '../../actions/public/estimateMaxPriorityFeePerGas.js'
 import {
-  http,
   type Block,
   type Chain,
   type ChainEstimateFeesPerGasFnParameters,
@@ -9,17 +8,13 @@ import {
   Eip1559FeesNotSupportedError,
   type EstimateGasParameters,
   type Transport,
-  createPublicClient,
 } from '../../index.js'
 import { getAction } from '../../utils/getAction.js'
-import { linea, lineaTestnet } from '../chains.js'
 import type {
   LineaEstimateFeesPerGasReturnType,
   LineaEstimateGasReturnType,
 } from '../types/fee.js'
 import { lineaEstimateGas } from './lineaEstimateGas.js'
-
-const BASE_FEE_PER_GAS_MARGIN = 1.35
 
 /**
  * Returns an estimate for the fees per gas (in wei) for a
@@ -68,40 +63,21 @@ export async function lineaEstimateFeesPerGas({
       ...request,
     } as unknown as EstimateGasParameters)
   } catch (_err) {
-    try {
-      // Try with the public endpoint
-      const publicClient = createPublicClient({
-        chain: client.chain.id === linea.id ? linea : lineaTestnet,
-        transport: http(),
-      })
-      lineaEstimateGasResponse = await getAction(
-        publicClient,
-        lineaEstimateGas,
-        'lineaEstimateGas',
-      )({
-        data: request.data,
-        to: request.to,
-        ...request,
-      } as unknown as EstimateGasParameters)
-    } catch (_err) {
-      // Return the result using the standard eth_gasPrice method
-      return lineaEstimateFeesPerGasFallback({
-        multiply,
-        block,
-        client,
-        request,
-        type,
-      })
-    }
+    // Return the result using the standard eth_gasPrice method
+    return lineaEstimateFeesPerGasFallback({
+      multiply,
+      block,
+      client,
+      request,
+      type,
+    })
   }
 
   const { baseFeePerGas, priorityFeePerGas, gasLimit } =
     lineaEstimateGasResponse
 
   const adjustedPriorityFeePerGas = BigInt(priorityFeePerGas)
-  const adjustedBaseFee =
-    (BigInt(baseFeePerGas) * BigInt(BASE_FEE_PER_GAS_MARGIN * 100)) /
-    BigInt(100)
+  const adjustedBaseFee = multiply(BigInt(baseFeePerGas))
   const gasPrice = adjustedBaseFee + adjustedPriorityFeePerGas
 
   if (type === 'legacy') return { gasPrice, gasLimit }
