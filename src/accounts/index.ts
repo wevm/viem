@@ -35,6 +35,7 @@ export {
   type PrivateKeyToAccountErrorType,
   privateKeyToAccount,
 } from './privateKeyToAccount.js'
+export { type ToAccountErrorType, toAccount } from './toAccount.js'
 
 export type {
   Account,
