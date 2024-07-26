@@ -33,9 +33,12 @@ describe('getWebSocketRpcClient', () => {
   })
 
   test('reconnect', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
-      reconnect: { delay: 100 },
-    })
+    const socketClient = await getWebSocketRpcClient(
+      'ws://127.0.0.1:8545/69420',
+      {
+        reconnect: { delay: 100 },
+      },
+    )
     expect(socketClient).toBeDefined()
     expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
     socketClient.socket.close()
@@ -44,9 +47,12 @@ describe('getWebSocketRpcClient', () => {
   })
 
   test('keepalive', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
-      keepAlive: { interval: 100 },
-    })
+    const socketClient = await getWebSocketRpcClient(
+      'ws://127.0.0.1:8545/69421',
+      {
+        keepAlive: { interval: 100 },
+      },
+    )
     const spy = vi.spyOn(socketClient.socket, 'ping')
     await wait(500)
     expect(spy).toHaveBeenCalledTimes(4)
