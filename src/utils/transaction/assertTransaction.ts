@@ -3,6 +3,7 @@ import {
   InvalidAddressError,
   type InvalidAddressErrorType,
 } from '../../errors/address.js'
+import { EmptyAuthorizationListError } from '../../errors/authorization.js'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   EmptyBlobError,
@@ -27,12 +28,35 @@ import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
+  TransactionSerializableEIP7702,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { size } from '../data/size.js'
 import { slice } from '../data/slice.js'
 import { hexToNumber } from '../encoding/fromHex.js'
+
+export type AssertTransactionEIP7702ErrorType =
+  | AssertTransactionEIP1559ErrorType
+  | EmptyAuthorizationListError
+  | InvalidAddressErrorType
+  | InvalidChainIdErrorType
+  | ErrorType
+
+export function assertTransactionEIP7702(
+  transaction: TransactionSerializableEIP7702,
+) {
+  const { authorizationList } = transaction
+  if (authorizationList) {
+    if (authorizationList.length === 0) throw new EmptyAuthorizationListError()
+    for (const authorization of authorizationList) {
+      const { address, chainId } = authorization
+      if (!isAddress(address)) throw new InvalidAddressError({ address })
+      if (chainId <= 0) throw new InvalidChainIdError({ chainId })
+    }
+  }
+  assertTransactionEIP1559(transaction as {} as TransactionSerializableEIP1559)
+}
 
 export type AssertTransactionEIP4844ErrorType =
   | AssertTransactionEIP1559ErrorType
@@ -121,14 +145,8 @@ export type AssertTransactionLegacyErrorType =
 export function assertTransactionLegacy(
   transaction: TransactionSerializableLegacy,
 ) {
-  const {
-    chainId,
-    maxPriorityFeePerGas,
-    gasPrice,
-    maxFeePerGas,
-    to,
-    accessList,
-  } = transaction
+  const { chainId, maxPriorityFeePerGas, gasPrice, maxFeePerGas, to } =
+    transaction
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
   if (typeof chainId !== 'undefined' && chainId <= 0)
     throw new InvalidChainIdError({ chainId })
@@ -138,8 +156,4 @@ export function assertTransactionLegacy(
     )
   if (gasPrice && gasPrice > 2n ** 256n - 1n)
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
-  if (accessList)
-    throw new BaseError(
-      '`accessList` is not a valid Legacy Transaction attribute.',
-    )
 }

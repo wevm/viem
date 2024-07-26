@@ -20,6 +20,7 @@ import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
   TransactionRequestLegacy,
 } from './transaction.js'
 import type { Omit, OneOf, PartialBy } from './utils.js'
@@ -27,7 +28,13 @@ import type { Omit, OneOf, PartialBy } from './utils.js'
 export type Index = `0x${string}`
 export type Quantity = `0x${string}`
 export type Status = '0x0' | '0x1'
-export type TransactionType = '0x0' | '0x1' | '0x2' | (string & {})
+export type TransactionType =
+  | '0x0'
+  | '0x1'
+  | '0x2'
+  | '0x3'
+  | '0x4'
+  | (string & {})
 
 export type RpcBlock<
   blockTag extends BlockTag = BlockTag,
@@ -52,6 +59,7 @@ export type RpcTransactionRequest = OneOf<
   | TransactionRequestEIP2930<Quantity, Index, '0x1'>
   | TransactionRequestEIP1559<Quantity, Index, '0x2'>
   | TransactionRequestEIP4844<Quantity, Index, '0x3'>
+  | TransactionRequestEIP7702<Quantity, Index, '0x4'>
 >
 // `yParity` is optional on the RPC type as some nodes do not return it
 // for 1559 & 2930 transactions (they should!).

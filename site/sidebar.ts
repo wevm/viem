@@ -944,6 +944,10 @@ export const sidebar = {
               link: '/docs/utilities/compactSignatureToSignature',
             },
             {
+              text: 'hashAuthorization',
+              link: '/docs/utilities/hashAuthorization',
+            },
+            {
               text: 'hashMessage',
               link: '/docs/utilities/hashMessage',
             },

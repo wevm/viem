@@ -62,6 +62,12 @@ export {
   serializeSignature,
 } from '../utils/signature/serializeSignature.js'
 export {
+  type SignAuthorizationErrorType,
+  type SignAuthorizationParameters,
+  type SignAuthorizationReturnType,
+  signAuthorization,
+} from './utils/signAuthorization.js'
+export {
   type SignMessageErrorType,
   type SignMessageParameters,
   type SignMessageReturnType,

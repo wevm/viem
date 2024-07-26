@@ -62,20 +62,14 @@ export type Mutable<type extends object> = {
   -readonly [key in keyof type]: type[key]
 }
 
-/**
- * @description Returns type {@link T} if it is an opaque type of {@link U}
- * @param T - Type to check
- * @param U - Type to against
- *
- * @example
- * type Result = Opaque<string, 'foo'>
- * //   ^? never
- *
- * @example
- * type Result = Opaque<string, string>
- * //   ^? string
- */
-export type Opaque<T, U> = IsNarrowable<T, U> extends true ? T : never
+// TODO(7702): jsdoc
+export type Exact<T extends object, U extends object> = ValueOf<
+  Required<{
+    [K in keyof U]: K extends keyof T ? K : undefined
+  }>
+> extends string
+  ? T
+  : never
 
 /**
  * @description Evaluates boolean "or" condition for {@link T} properties.

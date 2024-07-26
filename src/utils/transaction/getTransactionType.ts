@@ -12,11 +12,13 @@ import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
   TransactionRequestGeneric,
   TransactionRequestLegacy,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
+  TransactionSerializableEIP7702,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
@@ -25,11 +27,12 @@ import type {
   ExactPartial,
   IsNever,
   OneOf,
-  Opaque,
+  Exact,
 } from '../../types/utils.js'
 
 type BaseProperties = {
   accessList?: undefined
+  authorizationList?: undefined
   blobs?: undefined
   blobVersionedHashes?: undefined
   gasPrice?: undefined
@@ -60,7 +63,7 @@ type EIP2930Properties = Assign<
     accessList: TransactionSerializableEIP2930['accessList']
   }
 >
-type EIP4844Properties = Assign<
+export type EIP4844Properties = Assign<
   BaseProperties,
   ExactPartial<FeeValuesEIP4844> &
     OneOf<
@@ -76,6 +79,12 @@ type EIP4844Properties = Assign<
       TransactionSerializableEIP4844
     >
 >
+type EIP7702Properties = Assign<
+  BaseProperties,
+  ExactPartial<FeeValuesEIP1559> & {
+    authorizationList: TransactionSerializableEIP7702['authorizationList']
+  }
+>
 
 export type GetTransactionType<
   transaction extends OneOf<
@@ -83,31 +92,43 @@ export type GetTransactionType<
   > = TransactionSerializableGeneric,
   result =
     | (transaction extends
-        | Opaque<TransactionSerializableLegacy, transaction>
-        | Opaque<TransactionRequestLegacy, transaction>
+        | Exact<TransactionSerializableLegacy, transaction>
+        | Exact<TransactionRequestLegacy, transaction>
         | LegacyProperties
         ? 'legacy'
         : never)
     | (transaction extends
-        | Opaque<TransactionSerializableEIP1559, transaction>
-        | Opaque<TransactionRequestEIP1559, transaction>
+        | Exact<TransactionSerializableEIP1559, transaction>
+        | Exact<TransactionRequestEIP1559, transaction>
         | EIP1559Properties
         ? 'eip1559'
         : never)
     | (transaction extends
-        | Opaque<TransactionSerializableEIP2930, transaction>
-        | Opaque<TransactionRequestEIP2930, transaction>
+        | Exact<TransactionSerializableEIP2930, transaction>
+        | Exact<TransactionRequestEIP2930, transaction>
         | EIP2930Properties
         ? 'eip2930'
         : never)
     | (transaction extends
-        | Opaque<TransactionSerializableEIP4844, transaction>
-        | Opaque<TransactionRequestEIP4844, transaction>
+        | Exact<TransactionSerializableEIP4844, transaction>
+        | Exact<TransactionRequestEIP4844, transaction>
         | EIP4844Properties
         ? 'eip4844'
         : never)
-    | (transaction['type'] extends string ? transaction['type'] : never),
-> = IsNever<result> extends false ? result : string
+    | (transaction extends
+        | Exact<TransactionSerializableEIP7702, transaction>
+        | Exact<TransactionRequestEIP7702, transaction>
+        | EIP7702Properties
+        ? 'eip7702'
+        : never)
+    | (transaction['type'] extends TransactionSerializableGeneric['type']
+        ? Extract<transaction['type'], string>
+        : never),
+> = IsNever<keyof transaction> extends true
+  ? string
+  : IsNever<result> extends false
+    ? result
+    : string
 
 export type GetTransactionTypeErrorType =
   | InvalidSerializableTransactionErrorType
@@ -120,6 +141,9 @@ export function getTransactionType<
 >(transaction: transaction): GetTransactionType<transaction> {
   if (transaction.type)
     return transaction.type as GetTransactionType<transaction>
+
+  if (typeof transaction.authorizationList !== 'undefined')
+    return 'eip7702' as any
 
   if (
     typeof transaction.blobs !== 'undefined' ||

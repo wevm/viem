@@ -80,7 +80,7 @@ describe('eip4844', () => {
           ],
         },
       ],
-    } satisfies TransactionSerializableEIP4844
+    } as const satisfies TransactionSerializableEIP4844
     const serialized = serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP4844>(transaction)

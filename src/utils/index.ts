@@ -453,7 +453,13 @@ export {
   verifyTypedData,
 } from './signature/verifyTypedData.js'
 export {
-  type HashMessage,
+  type HashAuthorizationParameters,
+  type HashAuthorizationReturnType,
+  type HashAuthorizationErrorType,
+  hashAuthorization,
+} from './signature/hashAuthorization.js'
+export {
+  type HashMessageReturnType,
   type HashMessageErrorType,
   hashMessage,
 } from './signature/hashMessage.js'

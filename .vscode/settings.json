@@ -6,11 +6,9 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "javascript.preferences.autoImportFileExcludePatterns": [
-    "**/node_modules/**",
     "**/_types/**"
   ],
   "typescript.preferences.autoImportFileExcludePatterns": [
-    "**/node_modules/**",
     "**/_types/**"
   ],
   "[json]": {
