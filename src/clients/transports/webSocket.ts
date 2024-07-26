@@ -42,6 +42,11 @@ type WebSocketTransportSubscribe = {
 }
 
 export type WebSocketTransportConfig = {
+  /**
+   * Whether or not to send keep-alive ping messages.
+   * @default true
+   */
+  keepAlive?: GetWebSocketRpcClientOptions['keepAlive'] | undefined
   /** The key of the WebSocket transport. */
   key?: TransportConfig['key'] | undefined
   /** The name of the WebSocket transport. */
@@ -85,6 +90,7 @@ export function webSocket(
   config: WebSocketTransportConfig = {},
 ): WebSocketTransport {
   const {
+    keepAlive,
     key = 'webSocket',
     name = 'WebSocket JSON-RPC',
     reconnect,
@@ -101,7 +107,10 @@ export function webSocket(
         name,
         async request({ method, params }) {
           const body = { method, params }
-          const rpcClient = await getWebSocketRpcClient(url_, { reconnect })
+          const rpcClient = await getWebSocketRpcClient(url_, {
+            keepAlive,
+            reconnect,
+          })
           const { error, result } = await rpcClient.requestAsync({
             body,
             timeout,
