@@ -4,8 +4,8 @@ import { accounts } from '~test/src/constants.js'
 
 import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { signAuthorization } from '../../accounts/utils/signAuthorization.js'
-import { recoverAuthorizationAddress } from './recoverAuthorizationAddress.js'
 import { getAddress } from '../address/getAddress.js'
+import { recoverAuthorizationAddress } from './recoverAuthorizationAddress.js'
 
 test('default', async () => {
   const authorization = {

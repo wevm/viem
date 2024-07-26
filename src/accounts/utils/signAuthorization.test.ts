@@ -2,9 +2,9 @@ import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 
-import { signAuthorization } from './signAuthorization.js'
 import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { verifyAuthorization } from '../../utils/signature/verifyAuthorization.js'
+import { signAuthorization } from './signAuthorization.js'
 
 test('default', async () => {
   const authorization = {

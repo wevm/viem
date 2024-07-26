@@ -24,10 +24,10 @@ import type {
 } from '../../types/transaction.js'
 import type {
   Assign,
+  Exact,
   ExactPartial,
   IsNever,
   OneOf,
-  Exact,
 } from '../../types/utils.js'
 
 type BaseProperties = {

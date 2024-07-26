@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { hashAuthorization } from './hashAuthorization.js'
 import { wagmiContractConfig } from '../../../test/src/abis.js'
+import { hashAuthorization } from './hashAuthorization.js'
 
 test('default', () => {
   expect(

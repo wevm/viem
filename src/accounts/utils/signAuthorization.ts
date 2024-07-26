@@ -1,11 +1,11 @@
 import type { ErrorType } from '../../errors/utils.js'
+import type { Authorization } from '../../types/authorization.js'
 import type { Hex } from '../../types/misc.js'
 import {
   type HashAuthorizationErrorType,
   hashAuthorization,
 } from '../../utils/signature/hashAuthorization.js'
 import { type SignErrorType, sign } from './sign.js'
-import type { Authorization } from '../../types/authorization.js'
 
 export type SignAuthorizationParameters = {
   /** The authorization to sign. */

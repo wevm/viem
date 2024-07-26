@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import type { AuthorizationList } from './authorization.js'
 import type { BlobSidecar } from './eip4844.js'
 import type {
   FeeValuesEIP1559,
@@ -17,7 +18,6 @@ import type {
   OneOf,
   RequiredBy,
 } from './utils.js'
-import type { AuthorizationList } from './authorization.js'
 
 export type AccessList = readonly {
   address: Address
