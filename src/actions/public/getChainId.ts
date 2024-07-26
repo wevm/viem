@@ -43,6 +43,7 @@ export async function getChainId<
 >(client: Client<Transport, chain, account>): Promise<GetChainIdReturnType> {
   const chainIdHex = await client.request(
     {
+      jsonrpc: '2.0',
       method: 'eth_chainId',
     },
     { dedupe: true },
