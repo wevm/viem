@@ -42,6 +42,11 @@ type WebSocketTransportSubscribe = {
 }
 
 export type WebSocketTransportConfig = {
+  /**
+   * Whether or not to send keep-alive ping messages.
+   * @default true
+   */
+  keepAlive?: GetWebSocketRpcClientOptions['keepAlive'] | undefined
   /** The key of the WebSocket transport. */
   key?: TransportConfig['key'] | undefined
   /** The name of the WebSocket transport. */
@@ -51,13 +56,6 @@ export type WebSocketTransportConfig = {
    * @default true
    */
   reconnect?: GetWebSocketRpcClientOptions['reconnect'] | undefined
-  /**
-   * The interval (in ms) to send keep-alive ping message.
-   * @default 30_000
-   */
-  keepAliveInterval?:
-    | GetWebSocketRpcClientOptions['keepAliveInterval']
-    | undefined
   /** The max number of times to retry. */
   retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
@@ -92,10 +90,10 @@ export function webSocket(
   config: WebSocketTransportConfig = {},
 ): WebSocketTransport {
   const {
+    keepAlive,
     key = 'webSocket',
     name = 'WebSocket JSON-RPC',
     reconnect,
-    keepAliveInterval = 30_000,
     retryDelay,
   } = config
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
@@ -110,8 +108,8 @@ export function webSocket(
         async request({ method, params }) {
           const body = { method, params }
           const rpcClient = await getWebSocketRpcClient(url_, {
+            keepAlive,
             reconnect,
-            keepAliveInterval,
           })
           const { error, result } = await rpcClient.requestAsync({
             body,

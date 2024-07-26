@@ -38,6 +38,21 @@ import { webSocket } from 'viem'
 const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...')
 ```
 
+### keepAlive (optional)
+
+- **Type:** `boolean | { interval?: number }`
+- **Default:** `true`
+
+Whether or not to send keep-alive ping messages.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  keepAlive: { interval: 1_000 }, // [!code focus]
+})
+```
+
 ### key (optional)
 
 - **Type:** `string`
@@ -80,21 +95,6 @@ import { webSocket } from 'viem'
 // ---cut---
 const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
   reconnect: false, // [!code focus]
-})
-```
-
-### keepAliveInterval (optional)
-
-- **Type:** `number`
-- **Default:** `30_000`
-
-The interval (in ms) to send keep-alive ping message.
-
-```ts twoslash
-import { webSocket } from 'viem'
-// ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
-  keepAliveInterval: 10_000, // [!code focus]
 })
 ```
 
