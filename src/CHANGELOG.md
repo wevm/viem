@@ -1,5 +1,11 @@
 # viem
 
+## 2.18.2
+
+### Patch Changes
+
+- [#2516](https://github.com/wevm/viem/pull/2516) [`44281e8`](https://github.com/wevm/viem/commit/44281e85e28f893df6e722ebadfe74b2a9bf93e2) Thanks [@izayl](https://github.com/izayl)! - Added `keepAlive` property to `webSocket` transport to send keep-alive ping messages (defaults to `true`).
+
 ## 2.18.1
 
 ### Patch Changes
