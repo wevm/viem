@@ -10,22 +10,23 @@ import {
 
 export type GetWebSocketRpcClientOptions = Pick<
   GetSocketRpcClientParameters,
-  'reconnect' | 'keepAliveInterval'
+  'keepAlive' | 'reconnect'
 >
 
 export async function getWebSocketRpcClient(
   url: string,
   options: GetWebSocketRpcClientOptions | undefined = {},
 ): Promise<SocketRpcClient<WebSocket>> {
-  const { reconnect, keepAliveInterval } = options
+  const { keepAlive, reconnect } = options
 
   return getSocketRpcClient({
-    async getSocket({ onError, onOpen, onResponse }) {
+    async getSocket({ onClose, onError, onOpen, onResponse }) {
       const WebSocket = await import('isows').then((module) => module.WebSocket)
       const socket = new WebSocket(url)
 
-      function onClose() {
-        socket.removeEventListener('close', onClose)
+      function onClose_() {
+        onClose()
+        socket.removeEventListener('close', onClose_)
         socket.removeEventListener('message', onMessage)
         socket.removeEventListener('error', onError)
         socket.removeEventListener('open', onOpen)
@@ -35,7 +36,7 @@ export async function getWebSocketRpcClient(
       }
 
       // Setup event listeners for RPC & subscription responses.
-      socket.addEventListener('close', onClose)
+      socket.addEventListener('close', onClose_)
       socket.addEventListener('message', onMessage)
       socket.addEventListener('error', onError)
       socket.addEventListener('open', onOpen)
@@ -56,15 +57,19 @@ export async function getWebSocketRpcClient(
           close_.bind(socket)()
           onClose()
         },
-        ping(data = 'ping') {
+        ping() {
           try {
-            if (socket.readyState === socket.CLOSED) {
-              throw new Error('Socket is closed: readyState === CLOSED')
-            }
-            if (socket.readyState === socket.CONNECTING) {
-              return
-            }
-            socket.send(data)
+            if (
+              socket.readyState === socket.CLOSED ||
+              socket.readyState === socket.CLOSING
+            )
+              throw new WebSocketRequestError({
+                body: {},
+                url: socket.url,
+                details: 'Socket is closed.',
+              })
+
+            socket.send('ping')
           } catch (error) {
             onError(error as Error)
           }
@@ -84,8 +89,8 @@ export async function getWebSocketRpcClient(
         },
       } as Socket<WebSocket>)
     },
+    keepAlive,
     reconnect,
-    keepAliveInterval,
     url,
   })
 }

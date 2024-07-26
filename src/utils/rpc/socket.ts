@@ -16,6 +16,7 @@ type CallbackFn = {
 type CallbackMap = Map<Id, CallbackFn>
 
 export type GetSocketParameters = {
+  onClose: () => void
   onError: (error?: Error | Event | undefined) => void
   onOpen: () => void
   onResponse: (data: RpcResponse) => void
@@ -23,6 +24,7 @@ export type GetSocketParameters = {
 
 export type Socket<socket extends {}> = socket & {
   close(): void
+  ping?: (() => void) | undefined
   request(params: { body: RpcRequest }): void
 }
 
@@ -45,9 +47,23 @@ export type SocketRpcClient<socket extends {}> = {
 
 export type GetSocketRpcClientParameters<socket extends {} = {}> = {
   getSocket(params: GetSocketParameters): Promise<Socket<socket>>
+  /**
+   * Whether or not to send keep-alive messages.
+   * @default true
+   */
+  keepAlive?:
+    | boolean
+    | {
+        /**
+         * The interval (in ms) to send keep-alive messages.
+         * @default 30_000
+         */
+        interval?: number | undefined
+      }
+    | undefined
   key?: string
   /**
-   * Whether or not to attempt to reconnect on socket failure.
+   * Whether or not to attempt to reconnect on socket failure or closure.
    * @default true
    */
   reconnect?:
@@ -66,11 +82,6 @@ export type GetSocketRpcClientParameters<socket extends {} = {}> = {
       }
     | undefined
   url: string
-  /**
-   * The interval (in ms) to send keep-alive messages.
-   * @default 30_000
-   */
-  keepAliveInterval?: number | undefined
 }
 
 export type GetSocketRpcClientErrorType =
@@ -83,15 +94,17 @@ export const socketClientCache = /*#__PURE__*/ new Map<
 >()
 
 export async function getSocketRpcClient<socket extends {}>(
-  params: GetSocketRpcClientParameters<socket>,
+  parameters: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
   const {
     getSocket,
+    keepAlive = true,
     key = 'socket',
     reconnect = true,
     url,
-    keepAliveInterval = 30_000,
-  } = params
+  } = parameters
+  const { interval: keepAliveInterval = 30_000 } =
+    typeof keepAlive === 'object' ? keepAlive : {}
   const { attempts = 5, delay = 2_000 } =
     typeof reconnect === 'object' ? reconnect : {}
 
@@ -114,21 +127,24 @@ export async function getSocketRpcClient<socket extends {}>(
       const subscriptions = new Map<Id, CallbackFn>()
 
       let error: Error | Event | undefined
-      let socket: Socket<any>
+      let socket: Socket<{}>
       let keepAliveTimer: Timer | undefined
-
-      const socketKeepAlive = () => {
-        if (socket && keepAliveInterval) {
-          if (keepAliveTimer) clearInterval(keepAliveTimer)
-          keepAliveTimer = setInterval(() => {
-            socket.ping()
-          }, keepAliveInterval)
-        }
-      }
 
       // Set up socket implementation.
       async function setup() {
-        return getSocket({
+        const result = await getSocket({
+          onClose() {
+            // Clear all requests and subscriptions.
+            requests.clear()
+            subscriptions.clear()
+
+            // Attempt to reconnect.
+            if (reconnect && reconnectCount < attempts)
+              setTimeout(async () => {
+                reconnectCount++
+                await setup().catch(console.error)
+              }, delay)
+          },
           onError(error_) {
             error = error_
 
@@ -145,8 +161,7 @@ export async function getSocketRpcClient<socket extends {}>(
             if (reconnect && reconnectCount < attempts)
               setTimeout(async () => {
                 reconnectCount++
-                socket = await setup().catch(console.error)
-                socketKeepAlive()
+                await setup().catch(console.error)
               }, delay)
           },
           onOpen() {
@@ -162,10 +177,18 @@ export async function getSocketRpcClient<socket extends {}>(
             if (!isSubscription) cache.delete(id)
           },
         })
+
+        socket = result
+
+        if (keepAlive) {
+          if (keepAliveTimer) clearInterval(keepAliveTimer)
+          keepAliveTimer = setInterval(() => socket.ping?.(), keepAliveInterval)
+        }
+
+        return result
       }
-      socket = await setup()
+      await setup()
       error = undefined
-      socketKeepAlive()
 
       // Create a new socket instance.
       socketClient = {
@@ -174,7 +197,9 @@ export async function getSocketRpcClient<socket extends {}>(
           socket.close()
           socketClientCache.delete(`${key}:${url}`)
         },
-        socket,
+        get socket() {
+          return socket
+        },
         request({ body, onError, onResponse }) {
           if (error && onError) onError(error)
 

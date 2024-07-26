@@ -11,7 +11,7 @@ import { wait } from '../wait.js'
 import { getWebSocketRpcClient } from './webSocket.js'
 
 const client = anvilMainnet.getClient()
-anvilMainnet.start()
+
 describe('getWebSocketRpcClient', () => {
   test('creates WebSocket instance', async () => {
     const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
@@ -32,32 +32,24 @@ describe('getWebSocketRpcClient', () => {
     expect(client1).toEqual(client4)
   })
 
-  test('reconnect after Connection ended', async () => {
+  test('reconnect', async () => {
     const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
-      reconnect: { delay: 0 },
+      reconnect: { delay: 100 },
     })
     expect(socketClient).toBeDefined()
     expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-    await anvilMainnet.restart()
-    setTimeout(() => {
-      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-    }, 10)
+    socketClient.socket.close()
+    await wait(500)
+    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
   })
 
   test('keepalive', async () => {
     const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
-      keepAliveInterval: 1,
+      keepAlive: { interval: 100 },
     })
     const spy = vi.spyOn(socketClient.socket, 'ping')
-    expect(socketClient).toBeDefined()
-    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-    setTimeout(() => {
-      expect(spy).toHaveBeenCalled()
-    }, 5)
-    await anvilMainnet.restart()
-    setTimeout(() => {
-      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-    }, 5)
+    await wait(500)
+    expect(spy).toHaveBeenCalledTimes(4)
   })
 })
 
@@ -388,7 +380,7 @@ describe('request', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 7,
+        "id": 9,
         "jsonrpc": "2.0",
       }
     `,
@@ -416,7 +408,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":9,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@x.y.z]
@@ -445,7 +437,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":13,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@x.y.z]
@@ -578,7 +570,7 @@ describe('request (subscription)', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 31,
+        "id": 33,
         "jsonrpc": "2.0",
       }
     `)
@@ -952,7 +944,7 @@ describe('requestAsync', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 151,
+        "id": 153,
         "jsonrpc": "2.0",
       }
     `,
