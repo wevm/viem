@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const arbitrum = /*#__PURE__*/ defineChain({
+export const gravity = /*#__PURE__*/ defineChain({
   id: 1625,
   name: 'Gravity Alpha Mainnet',
   nativeCurrency: { name: 'G', symbol: 'G', decimals: 18 },
