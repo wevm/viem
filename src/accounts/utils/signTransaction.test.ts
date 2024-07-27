@@ -1,6 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { blobData, kzg } from '../../../test/src/kzg.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
@@ -20,9 +21,8 @@ import { toBlobs } from '../../utils/blob/toBlobs.js'
 import type { SerializeTransactionFn } from '../../utils/transaction/serializeTransaction.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { privateKeyToAccount } from '../privateKeyToAccount.js'
-import { signTransaction } from './signTransaction.js'
-import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { signAuthorization } from './signAuthorization.js'
+import { signTransaction } from './signTransaction.js'
 
 const client = anvilMainnet.getClient()
 
