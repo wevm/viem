@@ -1,20 +1,29 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { Authorization } from '../../types/authorization.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hex, Signature } from '../../types/misc.js'
 import {
   type HashAuthorizationErrorType,
   hashAuthorization,
 } from '../../utils/signature/hashAuthorization.js'
-import { type SignErrorType, sign } from './sign.js'
+import {
+  type SignErrorType,
+  type SignParameters,
+  type SignReturnType,
+  sign,
+} from './sign.js'
 
-export type SignAuthorizationParameters = {
+type To = 'object' | 'bytes' | 'hex'
+
+export type SignAuthorizationParameters<to extends To = 'object'> = {
   /** The authorization to sign. */
   authorization: Authorization<number, false>
   /** The private key to sign with. */
   privateKey: Hex
+  to?: SignParameters<to>['to'] | undefined
 }
 
-export type SignAuthorizationReturnType = Hex
+export type SignAuthorizationReturnType<to extends To = 'object'> =
+  to extends 'object' ? Authorization<number, true> : SignReturnType<to>
 
 export type SignAuthorizationErrorType =
   | SignErrorType
@@ -24,13 +33,19 @@ export type SignAuthorizationErrorType =
 /**
  * Signs an "authorization tuple" hash in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
  */
-export async function signAuthorization(
-  parameters: SignAuthorizationParameters,
-): Promise<SignAuthorizationReturnType> {
-  const { authorization, privateKey } = parameters
-  return await sign({
+export async function signAuthorization<to extends To = 'object'>(
+  parameters: SignAuthorizationParameters<to>,
+): Promise<SignAuthorizationReturnType<to>> {
+  const { authorization, privateKey, to = 'object' } = parameters
+  const signature = await sign({
     hash: hashAuthorization(authorization),
     privateKey,
-    to: 'hex',
+    to,
   })
+  if (to === 'object')
+    return {
+      ...authorization,
+      ...(signature as Signature),
+    } as SignAuthorizationReturnType<to>
+  return signature as SignAuthorizationReturnType<to>
 }

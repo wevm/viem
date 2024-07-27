@@ -21,6 +21,8 @@ import type { SerializeTransactionFn } from '../../utils/transaction/serializeTr
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { privateKeyToAccount } from '../privateKeyToAccount.js'
 import { signTransaction } from './signTransaction.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
+import { signAuthorization } from './signAuthorization.js'
 
 const client = anvilMainnet.getClient()
 
@@ -28,6 +30,42 @@ const base = {
   gas: 21000n,
   nonce: 785,
 } satisfies TransactionSerializableBase
+
+describe('eip7702', async () => {
+  const signedAuthorization_1 = await signAuthorization({
+    authorization: {
+      address: wagmiContractConfig.address,
+      chainId: 1,
+      nonce: 420,
+    },
+    privateKey: accounts[0].privateKey,
+  })
+  const signedAuthorization_2 = await signAuthorization({
+    authorization: {
+      address: wagmiContractConfig.address,
+      chainId: 10,
+      nonce: 69,
+    },
+    privateKey: accounts[0].privateKey,
+  })
+
+  const baseEip7702 = {
+    ...base,
+    authorizationList: [signedAuthorization_1, signedAuthorization_2],
+    chainId: 1,
+    type: 'eip7702',
+  } as const satisfies TransactionSerializable
+
+  test('default', async () => {
+    const signature = await signTransaction({
+      transaction: baseEip7702,
+      privateKey: accounts[0].privateKey,
+    })
+    expect(signature).toMatchInlineSnapshot(
+      `"0x04f9010c018203118080825208808080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a401a08a7649432038e179fa07d36d5d0a765257b398710b2b8362d9279554c60e0bf5a03c0816acd7874ed4ea820cdd25ae22c197c7faac18947218ae4b261de4f34724f85a0a94fba3912ca04dd458c843e2ee08967fc04f3579c24580a04f19a4d67e78eee1c2280c1a62d558b6a8e6ecd9eae440c212a86702ac3ec760a01051a7db6d5976194e45f2e30c5fdf35167630e7d091109d300e0258e4a8ee2501a03268f8eb9970e487a36b93217c5ddc6808e6a3aa91726b14f4545fb75e78027da03969c64ca43628d9b7bd12b3cec8da1e053dddf2e6e5661a80fbd581a3cdfdc6"`,
+    )
+  })
+})
 
 describe('eip4844', async () => {
   const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
