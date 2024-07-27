@@ -250,7 +250,7 @@ export type TransactionRequestEIP7702<
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    authorizationList: AuthorizationList<boolean, index>
+    authorizationList: AuthorizationList<index>
   }
 
 export type TransactionRequest<quantity = bigint, index = number> = OneOf<
@@ -360,7 +360,7 @@ export type TransactionSerializableEIP7702<
 > = TransactionSerializableBase<quantity, index> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    authorizationList: AuthorizationList<true, index>
+    authorizationList: AuthorizationList<index, true>
     chainId: number
     type?: 'eip7702' | undefined
     yParity?: number | undefined
@@ -379,7 +379,7 @@ export type TransactionSerializableGeneric<
   index = number,
 > = TransactionSerializableBase<quantity, index> & {
   accessList?: AccessList | undefined
-  authorizationList?: AuthorizationList<boolean, index> | undefined
+  authorizationList?: AuthorizationList<index> | undefined
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
   chainId?: number | undefined

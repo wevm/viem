@@ -1,16 +1,29 @@
 import type { Address } from 'abitype'
-import type { Signature } from './misc.js'
+import type { Hex, Signature } from './misc.js'
 
-export type Authorization<signed extends boolean = boolean, uint32 = number> = {
+export type Authorization<uint32 = number, signed extends boolean = boolean> = {
   /** Address of the contract to set as code for the Authority. */
   chainId: uint32
   /** Chain ID to authorize. */
   address: Address
   /** Nonce of the Authority to authorize. */
   nonce: uint32
-} & (signed extends true ? Signature : {})
+} & (signed extends true
+  ? Signature
+  : { r?: undefined; s?: undefined; yParity?: undefined; v?: undefined })
 
 export type AuthorizationList<
-  signed extends boolean = boolean,
   uint32 = number,
-> = readonly Authorization<signed, uint32>[]
+  signed extends boolean = boolean,
+> = readonly Authorization<uint32, signed>[]
+
+export type SerializedAuthorization = readonly [
+  chainId: Hex,
+  address: Hex,
+  nonce: Hex,
+  yParity: Hex,
+  r: Hex,
+  s: Hex,
+]
+
+export type SerializedAuthorizationList = readonly SerializedAuthorization[]

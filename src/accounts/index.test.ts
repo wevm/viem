@@ -24,6 +24,7 @@ test('exports utils', () => {
       "sign",
       "signatureToHex",
       "serializeSignature",
+      "signAuthorization",
       "signMessage",
       "signTransaction",
       "signTypedData",

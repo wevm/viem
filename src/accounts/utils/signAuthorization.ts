@@ -9,7 +9,7 @@ import { type SignErrorType, sign } from './sign.js'
 
 export type SignAuthorizationParameters = {
   /** The authorization to sign. */
-  authorization: Authorization<false>
+  authorization: Authorization<number, false>
   /** The private key to sign with. */
   privateKey: Hex
 }

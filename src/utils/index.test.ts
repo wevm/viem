@@ -132,6 +132,7 @@ test('exports utils', () => {
       "verifyHash",
       "verifyMessage",
       "verifyTypedData",
+      "hashAuthorization",
       "hashMessage",
       "parseErc6492Signature",
       "isErc6492Signature",

@@ -9,11 +9,13 @@ import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
 
 type To = 'hex' | 'bytes'
 
-export type HashAuthorizationParameters<to extends To> =
-  Authorization<false> & {
-    /** Output format. @default "hex" */
-    to?: to | To | undefined
-  }
+export type HashAuthorizationParameters<to extends To> = Authorization<
+  number,
+  false
+> & {
+  /** Output format. @default "hex" */
+  to?: to | To | undefined
+}
 
 export type HashAuthorizationReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray : never)

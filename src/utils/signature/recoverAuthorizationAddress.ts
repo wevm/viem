@@ -15,7 +15,7 @@ import {
 
 export type RecoverAuthorizationAddressParameters = {
   /** The authorization to recover the address from. */
-  authorization: Authorization<false>
+  authorization: Authorization<number, false>
   /** Signature of the authorization item. */
   signature: Hex | ByteArray | Signature
 }
