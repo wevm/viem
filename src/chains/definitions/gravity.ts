@@ -11,8 +11,8 @@ export const gravity = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Gravity Alpha Mainnet explorer',
-      url: 'https://explorer.gravity.xyz/',
+      name: 'Gravity Explorer',
+      url: 'https://explorer.gravity.xyz',
       apiUrl: 'https://explorer.gravity.xyz/api',
     },
   },
