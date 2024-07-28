@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add new chain "Gravity"
+Added Gravity Alpha Mainnet chain.
