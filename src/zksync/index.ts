@@ -98,9 +98,8 @@ export {
 } from './actions/signTransaction.js'
 
 export {
-  zkSync,
-  zkSyncTestnet,
-  zkSyncSepoliaTestnet,
+  zksync,
+  zksyncSepoliaTestnet,
 } from './chains.js'
 
 export { chainConfig } from './chainConfig.js'
@@ -123,49 +122,49 @@ export {
 export { serializeTransaction } from './serializers.js'
 
 export type {
-  ZkSyncBlock,
-  ZkSyncRpcBlock,
+  ZksyncBlock,
+  ZksyncRpcBlock,
 } from './types/block.js'
 export type { ChainEIP712 } from './types/chain.js'
 export type {
   EIP712Domain,
   EIP712DomainFn,
-  ZkSyncEip712Meta,
+  ZksyncEip712Meta,
 } from './types/eip712.js'
 export type {
   CommonDataRawBlockTransaction,
   RawBlockTransactions,
-  PublicZkSyncRpcSchema,
+  PublicZksyncRpcSchema,
 } from './types/eip1193.js'
-export type { ZkSyncFeeValues } from './types/fee.js'
+export type { ZksyncFeeValues } from './types/fee.js'
 export type {
-  ZkSyncL2ToL1Log,
-  ZkSyncLog,
-  ZkSyncRpcL2ToL1Log,
-  ZkSyncRpcLog,
+  ZksyncL2ToL1Log,
+  ZksyncLog,
+  ZksyncRpcL2ToL1Log,
+  ZksyncRpcLog,
 } from './types/log.js'
 export type {
   TransactionRequestEIP712,
-  ZkSyncEIP712TransactionSignable,
-  ZkSyncRawBlockTransactions,
-  ZkSyncRpcTransaction,
-  ZkSyncRpcTransactionEIP712,
-  ZkSyncRpcTransactionPriority,
-  ZkSyncRpcTransactionReceiptOverrides,
-  ZkSyncRpcTransactionRequest,
-  ZkSyncRpcTransactionRequestEIP712,
-  ZkSyncTransaction,
-  ZkSyncTransactionEIP712,
-  ZkSyncTransactionReceipt,
-  ZkSyncTransactionReceiptOverrides,
-  ZkSyncTransactionRequest,
-  ZkSyncTransactionRequestEIP712,
-  ZkSyncTransactionSerializable,
-  ZkSyncTransactionSerializableEIP712,
-  ZkSyncTransactionSerialized,
-  ZkSyncTransactionSerializedEIP712,
-  ZkSyncTransactionType,
-  ZkSyncTransactionDetails,
+  ZksyncEIP712TransactionSignable,
+  ZksyncRawBlockTransactions,
+  ZksyncRpcTransaction,
+  ZksyncRpcTransactionEIP712,
+  ZksyncRpcTransactionPriority,
+  ZksyncRpcTransactionReceiptOverrides,
+  ZksyncRpcTransactionRequest,
+  ZksyncRpcTransactionRequestEIP712,
+  ZksyncTransaction,
+  ZksyncTransactionEIP712,
+  ZksyncTransactionReceipt,
+  ZksyncTransactionReceiptOverrides,
+  ZksyncTransactionRequest,
+  ZksyncTransactionRequestEIP712,
+  ZksyncTransactionSerializable,
+  ZksyncTransactionSerializableEIP712,
+  ZksyncTransactionSerialized,
+  ZksyncTransactionSerializedEIP712,
+  ZksyncTransactionType,
+  ZksyncTransactionDetails,
 } from './types/transaction.js'
 
 export {

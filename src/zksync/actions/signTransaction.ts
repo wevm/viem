@@ -52,11 +52,11 @@ export type SignTransactionErrorType = SignTransactionErrorType_
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
- * import { zkSync } from 'viem/chains'
+ * import { zksync } from 'viem/chains'
  * import { signTransaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
- *   chain: zkSync,
+ *   chain: zksync,
  *   transport: custom(window.ethereum),
  * })
  * const signature = await signTransaction(client, {
@@ -69,12 +69,12 @@ export type SignTransactionErrorType = SignTransactionErrorType_
  * // Account Hoisting
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { zkSync } from 'viem/chains'
+ * import { zksync } from 'viem/chains'
  * import { signTransaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),
- *   chain: zkSync,
+ *   chain: zksync,
  *   transport: custom(window.ethereum),
  * })
  * const signature = await signTransaction(client, {

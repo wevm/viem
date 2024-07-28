@@ -2,10 +2,11 @@ import { assertType, describe, expect, it, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { holesky, zkSync } from '../../chains/index.js'
+import { holesky, zksync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
+import type { zksyncTransactionReceipt } from '../../zksync/types/transaction.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
@@ -13,7 +14,6 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import { createClient } from '../../index.js'
 import { wait } from '../../utils/wait.js'
-import type { ZkSyncTransactionReceipt } from '../../zksync/types/transaction.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
@@ -141,14 +141,14 @@ test('gets transaction receipt (4844)', async () => {
 
 test('chain w/ custom block type', async () => {
   const client = createPublicClient({
-    chain: zkSync,
+    chain: zksync,
     transport: http(),
   })
   const receipt = await getTransactionReceipt(client, {
     hash: '0x835ac2ecd4e2b6e3e8dae1804f8f33d3c307b657bc90563bd9f4b4b3e4d49a29',
   })
 
-  assertType<ZkSyncTransactionReceipt>(receipt)
+  assertType<zksyncTransactionReceipt>(receipt)
   expect(receipt).toMatchInlineSnapshot(`
     {
       "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",

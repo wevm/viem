@@ -3,14 +3,14 @@ import { expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 import { signTransaction } from '../../accounts/utils/signTransaction.js'
 import { type TransactionSerializableEIP1559, parseEther } from '../../index.js'
-import { zkSync } from '../../zksync/index.js'
+import { zksync } from '../../zksync/index.js'
 import { serializeTransaction } from '../../zksync/serializers.js'
-import type { ZkSyncTransactionSerializableEIP712 } from '../types/transaction.js'
+import type { ZksyncTransactionSerializableEIP712 } from '../types/transaction.js'
 import { getEip712Domain } from './getEip712Domain.js'
 
 const baseTransaction: TransactionSerializableEIP1559 = {
   to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
-  chainId: zkSync.id,
+  chainId: zksync.id,
   nonce: 7,
   maxFeePerGas: 250000000n,
   maxPriorityFeePerGas: 2n,
@@ -18,7 +18,7 @@ const baseTransaction: TransactionSerializableEIP1559 = {
   data: '0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000017900000000000000000000000000000000000000000000000000000000000000',
 }
 
-const baseEip712: ZkSyncTransactionSerializableEIP712 = {
+const baseEip712: ZksyncTransactionSerializableEIP712 = {
   ...baseTransaction,
   from: '0xf760bdd822fccf93c44be68d94c45133002b3037',
   gasPerPubdata: 50000n,
@@ -39,7 +39,7 @@ test('default', () => {
     {
       "domain": {
         "chainId": 324,
-        "name": "zkSync",
+        "name": "zksync",
         "version": "2",
       },
       "message": {

@@ -527,7 +527,7 @@ export const sidebar = {
               link: '/op-stack',
             },
             {
-              text: 'zkSync',
+              text: 'ZKsync',
               link: '/zksync',
             },
           ],
@@ -1523,7 +1523,7 @@ export const sidebar = {
     backLink: true,
     items: [
       {
-        text: 'zkSync',
+        text: 'ZKsync',
         items: [
           {
             text: 'Getting Started',

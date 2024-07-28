@@ -2,16 +2,16 @@ import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 
-import { anvilZkSync } from '../../../test/src/anvil.js'
+import { anvilZksync } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import type { ZkSyncTransactionRequestEIP712 } from '../../zksync/index.js'
+import type { ZksyncTransactionRequestEIP712 } from '../../zksync/index.js'
 import { signTransaction } from './signTransaction.js'
 
 const sourceAccount = accounts[0]
 
-const client = anvilZkSync.getClient()
+const client = anvilZksync.getClient()
 
-const base: ZkSyncTransactionRequestEIP712 = {
+const base: ZksyncTransactionRequestEIP712 = {
   from: '0x0000000000000000000000000000000000000000',
   paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
   paymasterInput:

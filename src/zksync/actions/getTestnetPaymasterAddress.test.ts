@@ -3,12 +3,12 @@ import {
   mockAddress,
   mockClientPublicActionsL2,
   mockTestnetPaymasterAddress,
-  zkSyncClientLocalNode,
+  zksyncClientLocalNode,
 } from '../../../test/src/zksync.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { getTestnetPaymasterAddress } from './getTestnetPaymasterAddress.js'
 
-const client = { ...zkSyncClientLocalNode }
+const client = { ...zksyncClientLocalNode }
 
 mockClientPublicActionsL2(client)
 

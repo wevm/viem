@@ -1,8 +1,8 @@
 import type { ExactPartial } from '../../types/utils.js'
-import type { ZkSyncTransactionSerializable } from '../types/transaction.js'
+import type { ZksyncTransactionSerializable } from '../types/transaction.js'
 
 export function isEIP712Transaction(
-  transaction: ExactPartial<ZkSyncTransactionSerializable>,
+  transaction: ExactPartial<ZksyncTransactionSerializable>,
 ) {
   if (transaction.type === 'eip712') return true
   if (

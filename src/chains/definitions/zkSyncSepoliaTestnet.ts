@@ -1,10 +1,10 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../../zksync/chainConfig.js'
 
-export const zkSyncSepoliaTestnet = /*#__PURE__*/ defineChain({
+export const zksyncSepoliaTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 300,
-  name: 'zkSync Sepolia Testnet',
+  name: 'ZKsync Sepolia Testnet',
   network: 'zksync-sepolia-testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
@@ -17,10 +17,12 @@ export const zkSyncSepoliaTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://sepolia-era.zksync.network/',
+      apiUrl: 'https://api-sepolia-era.zksync.network/api',
     },
     native: {
-      name: 'zkSync Explorer',
+      name: 'ZKsync Explorer',
       url: 'https://sepolia.explorer.zksync.io/',
+      blockExplorerApi: "https://block-explorer-api.sepolia.zksync.dev/api",
     },
   },
   contracts: {

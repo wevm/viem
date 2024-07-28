@@ -306,11 +306,10 @@ export { zkFair } from './definitions/zkFair.js'
 export { zkFairTestnet } from './definitions/zkFairTestnet.js'
 export { zkLinkNova } from './definitions/zkLinkNova.js'
 export { zkLinkNovaSepoliaTestnet } from './definitions/zkLinkNovaSepoliaTestnet.js'
-export { zkSync } from './definitions/zkSync.js'
-export { zkSyncInMemoryNode } from './definitions/zkSyncInMemoryNode.js'
-export { zkSyncLocalNode } from './definitions/zkSyncLocalNode.js'
-export { zkSyncSepoliaTestnet } from './definitions/zkSyncSepoliaTestnet.js'
-export { zkSyncTestnet } from './definitions/zkSyncTestnet.js'
+export { zksync } from './definitions/zksync.js'
+export { zksyncInMemoryNode } from './definitions/zksyncInMemoryNode.js'
+export { zksyncLocalNode } from './definitions/zksyncLocalNode.js'
+export { zksyncSepoliaTestnet } from './definitions/zksyncSepoliaTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
@@ -384,40 +383,40 @@ export type {
   TransactionSerializedDeposit,
 } from '../op-stack/types/transaction.js'
 export type {
-  ZkSyncBlock,
-  ZkSyncRpcBlock,
+  ZksyncBlock,
+  ZksyncRpcBlock,
 } from '../zksync/types/block.js'
 export type { ChainEIP712 } from '../zksync/types/chain.js'
-export type { ZkSyncEip712Meta } from '../zksync/types/eip712.js'
-export type { ZkSyncFeeValues } from '../zksync/types/fee.js'
+export type { ZksyncEip712Meta } from '../zksync/types/eip712.js'
+export type { ZksyncFeeValues } from '../zksync/types/fee.js'
 export type {
-  ZkSyncL2ToL1Log,
-  ZkSyncLog,
-  ZkSyncRpcL2ToL1Log,
-  ZkSyncRpcLog,
+  ZksyncL2ToL1Log,
+  ZksyncLog,
+  ZksyncRpcL2ToL1Log,
+  ZksyncRpcLog,
 } from '../zksync/types/log.js'
 export type {
   TransactionRequestEIP712,
-  TransactionRequest as ZkSyncTransactionRequest_internal,
-  ZkSyncEIP712TransactionSignable,
-  ZkSyncRpcTransaction,
-  ZkSyncRpcTransactionEIP712,
-  ZkSyncRpcTransactionPriority,
-  ZkSyncRpcTransactionReceiptOverrides,
-  ZkSyncRpcTransactionRequest,
-  ZkSyncRpcTransactionRequestEIP712,
-  ZkSyncTransaction,
-  ZkSyncTransactionEIP712,
-  ZkSyncTransactionReceipt,
-  ZkSyncTransactionReceiptOverrides,
-  ZkSyncTransactionRequest,
-  ZkSyncTransactionRequestEIP712,
-  ZkSyncTransactionSerializable,
-  ZkSyncTransactionSerializableEIP712,
-  ZkSyncTransactionSerialized,
-  ZkSyncTransactionSerializedEIP712,
-  ZkSyncTransactionType,
-  ZkSyncRawBlockTransactions,
-  ZkSyncRpcTransactionReceipt,
-  ZkSyncTransactionDetails,
+  TransactionRequest as ZksyncTransactionRequest_internal,
+  ZksyncEIP712TransactionSignable,
+  ZksyncRpcTransaction,
+  ZksyncRpcTransactionEIP712,
+  ZksyncRpcTransactionPriority,
+  ZksyncRpcTransactionReceiptOverrides,
+  ZksyncRpcTransactionRequest,
+  ZksyncRpcTransactionRequestEIP712,
+  ZksyncTransaction,
+  ZksyncTransactionEIP712,
+  ZksyncTransactionReceipt,
+  ZksyncTransactionReceiptOverrides,
+  ZksyncTransactionRequest,
+  ZksyncTransactionRequestEIP712,
+  ZksyncTransactionSerializable,
+  ZksyncTransactionSerializableEIP712,
+  ZksyncTransactionSerialized,
+  ZksyncTransactionSerializedEIP712,
+  ZksyncTransactionType,
+  ZksyncRawBlockTransactions,
+  ZksyncRpcTransactionReceipt,
+  ZksyncTransactionDetails,
 } from '../zksync/types/transaction.js'
