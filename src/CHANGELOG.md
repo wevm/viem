@@ -1,5 +1,11 @@
 # viem
 
+## 2.18.4
+
+### Patch Changes
+
+- [`5a528d9b`](https://github.com/wevm/viem/commit/5a528d9b24cbdd495371ce69a290ad9358e4c358) Thanks [@jxom](https://github.com/jxom)! - Propagated `message` + `cause` to root `Error` instance.
+
 ## 2.18.3
 
 ### Patch Changes
