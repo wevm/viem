@@ -5,13 +5,13 @@ import type { ByteArray, Hex, Signature } from '../../../types/misc.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Authorization } from '../../../types/authorization.js'
 import {
-  type HashAuthorizationErrorType,
-  hashAuthorization,
-} from './hashAuthorization.js'
-import {
   type RecoverAddressErrorType,
   recoverAddress,
 } from '../../../utils/signature/recoverAddress.js'
+import {
+  type HashAuthorizationErrorType,
+  hashAuthorization,
+} from './hashAuthorization.js'
 
 export type RecoverAuthorizationAddressParameters = {
   /** The authorization to recover the address from. */
