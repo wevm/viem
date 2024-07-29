@@ -12,6 +12,7 @@ import {
   publicKeyToAddress,
 } from './utils/publicKeyToAddress.js'
 import { type SignErrorType, sign } from './utils/sign.js'
+import { signAuthorization } from './utils/signAuthorization.js'
 import { type SignMessageErrorType, signMessage } from './utils/signMessage.js'
 import {
   type SignTransactionErrorType,
@@ -21,7 +22,6 @@ import {
   type SignTypedDataErrorType,
   signTypedData,
 } from './utils/signTypedData.js'
-import { signAuthorization } from './utils/signAuthorization.js'
 
 export type PrivateKeyToAccountOptions = {
   nonceManager?: NonceManager | undefined

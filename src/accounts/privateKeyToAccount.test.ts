@@ -4,8 +4,8 @@ import { accounts, typedData } from '~test/src/constants.js'
 import { parseEther } from '../utils/unit/parseEther.js'
 import { parseGwei } from '../utils/unit/parseGwei.js'
 
-import { privateKeyToAccount } from './privateKeyToAccount.js'
 import { wagmiContractConfig } from '../../test/src/abis.js'
+import { privateKeyToAccount } from './privateKeyToAccount.js'
 
 test('default', () => {
   expect(privateKeyToAccount(accounts[0].privateKey)).toMatchInlineSnapshot(`
