@@ -107,6 +107,7 @@ export async function estimateGas<
   try {
     const {
       accessList,
+      authorizationList,
       blobs,
       blobVersionedHashes,
       blockNumber,
@@ -145,6 +146,7 @@ export async function estimateGas<
       ...extract(rest, { format: chainFormat }),
       from: account?.address,
       accessList,
+      authorizationList,
       blobs,
       blobVersionedHashes,
       data,
@@ -158,7 +160,7 @@ export async function estimateGas<
       value,
     } as TransactionRequest)
 
-    const balance = await client.request({
+    const result = await client.request({
       method: 'eth_estimateGas',
       params: rpcStateOverride
         ? [request, block ?? 'latest', rpcStateOverride]
@@ -166,7 +168,15 @@ export async function estimateGas<
           ? [request, block]
           : [request],
     })
-    return BigInt(balance)
+
+    return (() => {
+      // TODO: Remove this once https://github.com/ethereum/execution-apis/issues/561 is resolved.
+      //       Authorization list schema is not implemented on JSON-RPC spec yet, so we need to
+      //       manually buffer the gas.
+      if (authorizationList)
+        return BigInt(result) + BigInt(5_000 * authorizationList.length)
+      return BigInt(result)
+    })()
   } catch (err) {
     throw getEstimateGasError(err as BaseError, {
       ...args,

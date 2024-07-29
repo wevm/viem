@@ -11,19 +11,6 @@ import {
 } from './assertTransaction.js'
 
 describe('eip7702', () => {
-  test('empty authorization list', () => {
-    expect(() =>
-      assertTransactionEIP7702({
-        authorizationList: [],
-        chainId: 1,
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [EmptyAuthorizationListError: Authorization list must not be empty.
-
-      Version: viem@x.y.z]
-    `)
-  })
-
   test('invalid chainId', () => {
     expect(() =>
       assertTransactionEIP7702({

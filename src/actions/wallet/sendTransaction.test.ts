@@ -6,7 +6,10 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
+import { EIP7702 } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
+import { deploy } from '../../../test/src/utils.js'
+import { signAuthorization } from '../../accounts/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'
@@ -17,13 +20,20 @@ import { concatHex } from '../../utils/data/concat.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { stringToHex, toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
-import { nonceManager } from '../../utils/index.js'
+import {
+  decodeEventLog,
+  encodeFunctionData,
+  keccak256,
+  nonceManager,
+} from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { getBalance } from '../public/getBalance.js'
 import { getBlock } from '../public/getBlock.js'
 import { getTransaction } from '../public/getTransaction.js'
+import { getTransactionCount } from '../public/getTransactionCount.js'
+import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { mine } from '../test/mine.js'
 import { reset } from '../test/reset.js'
 import { setBalance } from '../test/setBalance.js'
@@ -820,6 +830,59 @@ describe('local account', () => {
     })
   })
 
+  test('args: authorizationList', async () => {
+    const invoker = accounts[0]
+    const authorizer = accounts[1]
+
+    const { contractAddress } = await deploy(client, {
+      abi: EIP7702.abi,
+      bytecode: EIP7702.bytecode.object,
+    })
+
+    const nonce = await getTransactionCount(client, {
+      address: authorizer.address,
+    })
+
+    const authorization = await signAuthorization({
+      authorization: {
+        address: contractAddress!,
+        chainId: client.chain.id,
+        nonce,
+      },
+      privateKey: authorizer.privateKey,
+    })
+
+    const hash = await sendTransaction(client, {
+      account: privateKeyToAccount(invoker.privateKey),
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: EIP7702.abi,
+        functionName: 'exec',
+        args: ['0xdeadbeef'],
+      }),
+      to: authorizer.address,
+    })
+    expect(hash).toBeDefined()
+
+    await mine(client, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(client, { hash })
+    const log = receipt.logs[0]
+    expect(log.address).toBe(authorizer.address)
+    expect(
+      decodeEventLog({
+        abi: EIP7702.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: keccak256('0xdeadbeef'),
+        from: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      },
+      eventName: 'WeGucci',
+    })
+  })
+
   test('args: blobs', async () => {
     const blobs = toBlobs({
       data: stringToHex(blobData),
@@ -974,10 +1037,10 @@ describe('local account', () => {
         }),
       ])
 
-      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(679)
+      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(681)
       expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(112)
-      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(680)
-      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(681)
+      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(682)
+      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(683)
       expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(113)
 
       const hash_6 = await sendTransaction(client, {
@@ -991,8 +1054,8 @@ describe('local account', () => {
         value: parseEther('1'),
       })
 
-      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(682)
-      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(683)
+      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(684)
+      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(685)
     })
   })
 })

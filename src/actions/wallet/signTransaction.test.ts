@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { blobData, kzg } from '../../../test/src/kzg.js'
+import { signAuthorization } from '../../accounts/index.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
 import {
@@ -15,7 +17,10 @@ import {
   parseGwei,
   stringToHex,
 } from '../../index.js'
-import type { TransactionRequestEIP4844 } from '../../types/transaction.js'
+import type {
+  TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
+} from '../../types/transaction.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { mine } from '../index.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
@@ -30,6 +35,48 @@ const base = {
   gas: 21000n,
   nonce: 785,
 } satisfies TransactionRequestBase
+
+describe('eip7702', async () => {
+  const authorization = await signAuthorization({
+    authorization: {
+      address: wagmiContractConfig.address,
+      chainId: 1,
+      nonce: 420,
+    },
+    privateKey: accounts[1].privateKey,
+  })
+
+  const baseEip7702 = {
+    ...base,
+    authorizationList: [authorization],
+    to: '0x0000000000000000000000000000000000000000',
+    type: 'eip7702',
+  } as const satisfies TransactionRequestEIP7702
+
+  // TODO: Anvil does not support sign 7702 over JSON-RPC yet.
+  test.todo('default: json-rpc')
+
+  test('default: local', async () => {
+    const signature = await signTransaction(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      ...baseEip7702,
+    })
+    expect(signature).toMatchInlineSnapshot(
+      `"0x04f8c50182031180808252089400000000000000000000000000000000000000008080c0f85ff85d0194fba3912ca04dd458c843e2ee08967fc04f3579c2c38201a480a05140ccc73f785f9cfbe53f3fbbece6c3bd944669fab3ec95710d89c1acd9a67ea053a19bd48b26ec4dd88a31682061716ac4ae4c806d66704728cc11dba173d65701a0721ed11052bdd2347b2b3a5de7258c440b1b11d85ee890ec7fba00bc5b096d15a0780d9c23b62f9289b14bb010b62b2bf7d3129009bcb2740020425cb0930adcc9"`,
+    )
+  })
+
+  test('w/ prepareTransactionRequest', async () => {
+    const request = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      ...baseEip7702,
+    })
+    const signature = await signTransaction(client, request)
+    expect(signature).toMatchInlineSnapshot(
+      `"0x04f8ce01820311843b9aca008502ae1107ec8252089400000000000000000000000000000000000000008080c0f85ff85d0194fba3912ca04dd458c843e2ee08967fc04f3579c2c38201a480a05140ccc73f785f9cfbe53f3fbbece6c3bd944669fab3ec95710d89c1acd9a67ea053a19bd48b26ec4dd88a31682061716ac4ae4c806d66704728cc11dba173d65701a0dd7a61bcce42a949cc47981020c67fe5c38247501560753f26aa4f4a01cfe682a0214a76ccb14d8f4db68a8224840a3b377943e9bc51f10dc8f7b7f4bbf81fcc65"`,
+    )
+  })
+})
 
 describe('eip4844', () => {
   const baseEip4844 = {

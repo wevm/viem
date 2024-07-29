@@ -24,7 +24,7 @@ export function serializeAuthorizationList(
     serializedAuthorizationList.push([
       toHex(chainId),
       address,
-      toHex(nonce),
+      [nonce ? toHex(nonce) : '0x'],
       ...toYParitySignatureArray({}, signature),
     ])
   }

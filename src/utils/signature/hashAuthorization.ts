@@ -36,10 +36,16 @@ export function hashAuthorization<to extends To = 'hex'>(
   parameters: HashAuthorizationParameters<to>,
 ): HashAuthorizationReturnType<to> {
   const { chainId, address, nonce, to } = parameters
-  const hash = concatHex([
-    '0x05',
-    keccak256(toRlp([numberToHex(chainId), address, numberToHex(nonce)])),
-  ])
+  const hash = keccak256(
+    concatHex([
+      '0x05',
+      toRlp([
+        numberToHex(chainId),
+        address,
+        [nonce ? numberToHex(nonce) : '0x'],
+      ]),
+    ]),
+  )
   if (to === 'bytes') return hexToBytes(hash) as HashAuthorizationReturnType<to>
   return hash as HashAuthorizationReturnType<to>
 }

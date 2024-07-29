@@ -1,9 +1,10 @@
 import type { ErrorType } from '../../errors/utils.js'
+import type { AuthorizationList } from '../../types/authorization.js'
 import type {
   Chain,
   ExtractChainFormatterParameters,
 } from '../../types/chain.js'
-import type { ByteArray } from '../../types/misc.js'
+import type { ByteArray, Hex } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial } from '../../types/utils.js'
@@ -33,6 +34,10 @@ export function formatTransactionRequest(
 ) {
   const rpcRequest = {} as RpcTransactionRequest
 
+  if (typeof request.authorizationList !== 'undefined')
+    rpcRequest.authorizationList = serializeAuthorizationList(
+      request.authorizationList,
+    )
   if (typeof request.accessList !== 'undefined')
     rpcRequest.accessList = request.accessList
   if (typeof request.blobVersionedHashes !== 'undefined')
@@ -75,3 +80,26 @@ export const defineTransactionRequest = /*#__PURE__*/ defineFormatter(
   'transactionRequest',
   formatTransactionRequest,
 )
+
+//////////////////////////////////////////////////////////////////////////////
+
+export function serializeAuthorizationList(
+  authorizationList: AuthorizationList,
+): AuthorizationList<Hex> {
+  return authorizationList.map(
+    (authorization) =>
+      ({
+        address: authorization.address,
+        r: authorization.r,
+        s: authorization.s,
+        chainId: numberToHex(authorization.chainId),
+        nonce: numberToHex(authorization.nonce),
+        ...(authorization.yParity
+          ? { yParity: numberToHex(authorization.yParity) }
+          : {}),
+        ...(authorization.v && !authorization.yParity
+          ? { v: numberToHex(authorization.v) }
+          : {}),
+      }) as any,
+  ) as AuthorizationList<Hex>
+}

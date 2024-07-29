@@ -3,7 +3,7 @@ import {
   InvalidAddressError,
   type InvalidAddressErrorType,
 } from '../../errors/address.js'
-import { EmptyAuthorizationListError } from '../../errors/authorization.js'
+import type { EmptyAuthorizationListError } from '../../errors/authorization.js'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   EmptyBlobError,
@@ -48,7 +48,6 @@ export function assertTransactionEIP7702(
 ) {
   const { authorizationList } = transaction
   if (authorizationList) {
-    if (authorizationList.length === 0) throw new EmptyAuthorizationListError()
     for (const authorization of authorizationList) {
       const { address, chainId } = authorization
       if (!isAddress(address)) throw new InvalidAddressError({ address })

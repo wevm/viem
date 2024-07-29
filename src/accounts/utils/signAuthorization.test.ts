@@ -18,7 +18,17 @@ test('default', async () => {
   })
 
   expect(signature).toMatchInlineSnapshot(
-    `"0x21bbc77c6985abee7a2e0cd446ba67fd2eb7763ab76127e2bb1a6f239e95c7c74f83ade665cce0d57ec2044f7c5b4fab9c5a52239cdc8443ae1a682c008ea12c1b"`,
+    `
+    {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+      "chainId": 1,
+      "nonce": 0,
+      "r": "0x623129c9fcc520bee4b19fbb5148b178d67e1c854d2baee0e64cd518aad5549f",
+      "s": "0x17997fb5ef9d7521c09f0208b1082a9fecbeabdad90ef0a806a50d1b9c7b5d66",
+      "v": 27n,
+      "yParity": 0,
+    }
+  `,
   )
   expect(
     await verifyAuthorization({
