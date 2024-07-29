@@ -1,12 +1,14 @@
 import { describe, expect, test } from 'vitest'
 
-import { SoladyAccountFactory07 } from '~contracts/generated.js'
+import {
+  SoladyAccount07,
+  SoladyAccountFactory07,
+} from '~contracts/generated.js'
 import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { bundlerMainnet } from '~test/src/bundler.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deploySoladyAccount_07 } from '~test/src/utils.js'
-import {} from '~viem/account-abstraction/index.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zkSync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
@@ -26,6 +28,8 @@ import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
+import { entryPoint07Abi } from '~viem/account-abstraction/index.js'
+import { entryPoint07Address } from '~viem/constants/address.js'
 
 const client = anvilMainnet.getClient()
 
@@ -212,7 +216,7 @@ describe('smart account', async () => {
           to: account.address,
           value: 0n,
           data: encodeFunctionData({
-            abi: SoladyAccountFactory07.abi,
+            abi: SoladyAccount07.abi,
             functionName: 'transferOwnership',
             args: [newOwner.address],
           }),
