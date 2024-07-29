@@ -183,6 +183,7 @@ export { moonbeamDev } from './definitions/moonbeamDev.js'
 export { moonriver } from './definitions/moonriver.js'
 export { morphHolesky } from './definitions/morphHolesky.js'
 export { morphSepolia } from './definitions/morphSepolia.js'
+export { movementImola } from "./definitions/movementImola.js"
 export { nautilus } from './definitions/nautilus.js'
 export { neonDevnet } from './definitions/neonDevnet.js'
 export { neonMainnet } from './definitions/neonMainnet.js'
