@@ -6,6 +6,7 @@ import { numberToHex } from '../utils/encoding/toHex.js'
 import {
   HttpRequestError,
   RpcRequestError,
+  SocketClosedError,
   TimeoutError,
   WebSocketRequestError,
 } from './request.js'
@@ -65,6 +66,19 @@ test('WebSocketRequestError', () => {
     Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
     Details: Some error
+    Version: viem@x.y.z]
+  `)
+})
+
+test('SocketClosedError', () => {
+  const err = new SocketClosedError({
+    url: 'ws://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+  })
+  expect(err).toMatchInlineSnapshot(`
+    [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
     Version: viem@x.y.z]
   `)
 })

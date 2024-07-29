@@ -1,6 +1,9 @@
 import type { MessageEvent } from 'isows'
 
-import { WebSocketRequestError } from '../../errors/request.js'
+import {
+  SocketClosedError,
+  WebSocketRequestError,
+} from '../../errors/request.js'
 import {
   type GetSocketRpcClientParameters,
   type Socket,
@@ -64,12 +67,11 @@ export async function getWebSocketRpcClient(
               socket.readyState === socket.CLOSING
             )
               throw new WebSocketRequestError({
-                body: {},
                 url: socket.url,
-                details: 'Socket is closed.',
+                cause: new SocketClosedError({ url: socket.url }),
               })
 
-            socket.send('ping')
+            socket.send('net_version')
           } catch (error) {
             onError(error as Error)
           }
@@ -82,7 +84,7 @@ export async function getWebSocketRpcClient(
             throw new WebSocketRequestError({
               body,
               url: socket.url,
-              details: 'Socket is closed.',
+              cause: new SocketClosedError({ url: socket.url }),
             })
 
           return socket.send(JSON.stringify(body))
