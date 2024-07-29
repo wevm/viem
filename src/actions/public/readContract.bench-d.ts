@@ -1,4 +1,4 @@
-import { attest } from '@arktype/attest'
+import { attest } from '@ark/attest'
 import { test } from 'vitest'
 
 import { usdcContractConfig } from '../../../test/src/abis.js'

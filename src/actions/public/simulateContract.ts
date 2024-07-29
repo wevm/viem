@@ -84,25 +84,26 @@ export type SimulateContractParameters<
   >
 
 export type SimulateContractReturnType<
-  abi extends Abi | readonly unknown[] = Abi,
-  functionName extends ContractFunctionName<
+  out abi extends Abi | readonly unknown[] = Abi,
+  in out functionName extends ContractFunctionName<
     abi,
     'nonpayable' | 'payable'
   > = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
-  args extends ContractFunctionArgs<
+  in out args extends ContractFunctionArgs<
     abi,
     'nonpayable' | 'payable',
     functionName
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-  chainOverride extends Chain | undefined = Chain | undefined,
-  accountOverride extends Account | Address | undefined =
+  /** @ts-expect-error cast variance */
+  out chain extends Chain | undefined = Chain | undefined,
+  out account extends Account | undefined = Account | undefined,
+  out chainOverride extends Chain | undefined = Chain | undefined,
+  out accountOverride extends Account | Address | undefined =
     | Account
     | Address
     | undefined,
   ///
-  minimizedAbi extends Abi = readonly [
+  in out minimizedAbi extends Abi = readonly [
     ExtractAbiFunctionForArgs<
       abi extends Abi ? abi : Abi,
       'nonpayable' | 'payable',
@@ -110,7 +111,7 @@ export type SimulateContractReturnType<
       args
     >,
   ],
-  resolvedAccount extends Account | undefined = accountOverride extends
+  out resolvedAccount extends Account | undefined = accountOverride extends
     | Account
     | Address
     ? ParseAccount<accountOverride>
