@@ -56,7 +56,7 @@ export function privateKeyToAccount(
     async sign({ hash }) {
       return sign({ hash, privateKey, to: 'hex' })
     },
-    async experimental_signAuthorization(authorization) {
+    async experimental_signAuthorization({ authorization }) {
       return experimental_signAuthorization({ authorization, privateKey })
     },
     async signMessage({ message }) {

@@ -42,8 +42,9 @@ test('sign authorization', async () => {
     chainId: 1,
     nonce: 0,
   } as const
-  const signedAuthorization =
-    await account.experimental_signAuthorization(authorization)
+  const signedAuthorization = await account.experimental_signAuthorization({
+    authorization,
+  })
   expect(signedAuthorization).toMatchInlineSnapshot(
     `
     {

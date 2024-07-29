@@ -33,14 +33,18 @@ const base = {
 describe('eip7702', async () => {
   const account = privateKeyToAccount(accounts[0].privateKey)
   const signedAuthorization_1 = await account.experimental_signAuthorization({
-    address: wagmiContractConfig.address,
-    chainId: 1,
-    nonce: 420,
+    authorization: {
+      address: wagmiContractConfig.address,
+      chainId: 1,
+      nonce: 420,
+    },
   })
   const signedAuthorization_2 = await account.experimental_signAuthorization({
-    address: wagmiContractConfig.address,
-    chainId: 10,
-    nonce: 69,
+    authorization: {
+      address: wagmiContractConfig.address,
+      chainId: 10,
+      nonce: 69,
+    },
   })
 
   const baseEip7702 = {
