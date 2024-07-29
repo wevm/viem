@@ -831,8 +831,8 @@ describe('local account', () => {
   })
 
   test('args: authorizationList', async () => {
-    const invoker = accounts[0]
-    const authorizer = accounts[1]
+    const invoker = privateKeyToAccount(accounts[0].privateKey)
+    const authority = privateKeyToAccount(accounts[1].privateKey)
 
     const { contractAddress } = await deploy(client, {
       abi: EIP7702.abi,
@@ -840,27 +840,26 @@ describe('local account', () => {
     })
 
     const nonce = await getTransactionCount(client, {
-      address: authorizer.address,
+      address: authority.address,
     })
 
-    const authorization = await signAuthorization({
+    const authorization = await authority.signAuthorization({
       authorization: {
         address: contractAddress!,
         chainId: client.chain.id,
         nonce,
       },
-      privateKey: authorizer.privateKey,
     })
 
     const hash = await sendTransaction(client, {
-      account: privateKeyToAccount(invoker.privateKey),
+      account: invoker,
       authorizationList: [authorization],
       data: encodeFunctionData({
         abi: EIP7702.abi,
         functionName: 'exec',
         args: ['0xdeadbeef'],
       }),
-      to: authorizer.address,
+      to: authority.address,
     })
     expect(hash).toBeDefined()
 
@@ -868,7 +867,7 @@ describe('local account', () => {
 
     const receipt = await getTransactionReceipt(client, { hash })
     const log = receipt.logs[0]
-    expect(log.address).toBe(authorizer.address)
+    expect(log.address).toBe(authority.address.toLowerCase())
     expect(
       decodeEventLog({
         abi: EIP7702.abi,

@@ -1,6 +1,7 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { Authorization } from '../../types/authorization.js'
 import type { Hex, Signature } from '../../types/misc.js'
+import type { Prettify } from '../../types/utils.js'
 import {
   type HashAuthorizationErrorType,
   hashAuthorization,
@@ -22,8 +23,9 @@ export type SignAuthorizationParameters<to extends To = 'object'> = {
   to?: SignParameters<to>['to'] | undefined
 }
 
-export type SignAuthorizationReturnType<to extends To = 'object'> =
+export type SignAuthorizationReturnType<to extends To = 'object'> = Prettify<
   to extends 'object' ? Authorization<number, true> : SignReturnType<to>
+>
 
 export type SignAuthorizationErrorType =
   | SignErrorType
@@ -46,6 +48,6 @@ export async function signAuthorization<to extends To = 'object'>(
     return {
       ...authorization,
       ...(signature as Signature),
-    } as SignAuthorizationReturnType<to>
-  return signature as SignAuthorizationReturnType<to>
+    } as any
+  return signature as any
 }

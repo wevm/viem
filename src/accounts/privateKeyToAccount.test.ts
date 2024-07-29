@@ -5,6 +5,7 @@ import { parseEther } from '../utils/unit/parseEther.js'
 import { parseGwei } from '../utils/unit/parseGwei.js'
 
 import { privateKeyToAccount } from './privateKeyToAccount.js'
+import { wagmiContractConfig } from '../../test/src/abis.js'
 
 test('default', () => {
   expect(privateKeyToAccount(accounts[0].privateKey)).toMatchInlineSnapshot(`
@@ -13,6 +14,7 @@ test('default', () => {
       "nonceManager": undefined,
       "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
       "sign": [Function],
+      "signAuthorization": [Function],
       "signMessage": [Function],
       "signTransaction": [Function],
       "signTypedData": [Function],
@@ -20,6 +22,30 @@ test('default', () => {
       "type": "local",
     }
   `)
+})
+
+test('sign authorization', async () => {
+  const account = privateKeyToAccount(accounts[0].privateKey)
+  const authorization = {
+    address: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 0,
+  }
+  expect(
+    await account.signAuthorization({ authorization }),
+  ).toMatchInlineSnapshot(
+    `
+    {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+      "chainId": 1,
+      "nonce": 0,
+      "r": "0x623129c9fcc520bee4b19fbb5148b178d67e1c854d2baee0e64cd518aad5549f",
+      "s": "0x17997fb5ef9d7521c09f0208b1082a9fecbeabdad90ef0a806a50d1b9c7b5d66",
+      "v": 27n,
+      "yParity": 0,
+    }
+  `,
+  )
 })
 
 test('sign message', async () => {

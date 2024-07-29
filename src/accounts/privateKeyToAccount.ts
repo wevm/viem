@@ -21,6 +21,7 @@ import {
   type SignTypedDataErrorType,
   signTypedData,
 } from './utils/signTypedData.js'
+import { signAuthorization } from './utils/signAuthorization.js'
 
 export type PrivateKeyToAccountOptions = {
   nonceManager?: NonceManager | undefined
@@ -54,6 +55,9 @@ export function privateKeyToAccount(
     nonceManager,
     async sign({ hash }) {
       return sign({ hash, privateKey, to: 'hex' })
+    },
+    async signAuthorization({ authorization }) {
+      return signAuthorization({ authorization, privateKey })
     },
     async signMessage({ message }) {
       return signMessage({ message, privateKey })
