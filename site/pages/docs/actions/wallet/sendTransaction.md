@@ -144,6 +144,14 @@ const hash = await publicClient.sendTransaction({
 })
 ```
 
+### authorizationList (optional)
+
+- **Type:** `AuthorizationList`
+
+Signed EIP-7702 Authorization list.
+
+<!-- TODO(7702): example -->
+
 ### blobs (optional)
 
 - **Type:** `Hex[]`
