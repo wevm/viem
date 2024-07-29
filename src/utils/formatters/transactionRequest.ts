@@ -94,10 +94,11 @@ export function serializeAuthorizationList(
         s: authorization.s,
         chainId: numberToHex(authorization.chainId),
         nonce: numberToHex(authorization.nonce),
-        ...(authorization.yParity
+        ...(typeof authorization.yParity !== 'undefined'
           ? { yParity: numberToHex(authorization.yParity) }
           : {}),
-        ...(authorization.v && !authorization.yParity
+        ...(typeof authorization.v !== 'undefined' &&
+        typeof authorization.yParity === 'undefined'
           ? { v: numberToHex(authorization.v) }
           : {}),
       }) as any,

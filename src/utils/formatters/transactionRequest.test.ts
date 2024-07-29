@@ -5,6 +5,7 @@ import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
   TransactionRequestLegacy,
 } from '../../types/transaction.js'
 
@@ -160,6 +161,84 @@ test('eip4844 transaction', () => {
       "nonce": "0x1",
       "to": "0x1",
       "type": "0x3",
+      "value": "0x1",
+    }
+  `)
+})
+
+test('eip7702 transaction', () => {
+  expect(
+    formatTransactionRequest({
+      ...base,
+      authorizationList: [
+        {
+          address: '0x0000000000000000000000000000000000000000',
+          chainId: 1,
+          nonce: 0,
+          r: '0x1',
+          s: '0x1',
+          v: 27n,
+        },
+      ],
+      from: '0x0000000000000000000000000000000000000000',
+      type: 'eip7702',
+    } as TransactionRequestEIP7702),
+  ).toMatchInlineSnapshot(`
+    {
+      "authorizationList": [
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "chainId": "0x1",
+          "nonce": "0x0",
+          "r": "0x1",
+          "s": "0x1",
+          "v": "0x1b",
+        },
+      ],
+      "data": "0x1",
+      "from": "0x0000000000000000000000000000000000000000",
+      "gas": "0x4234584",
+      "nonce": "0x1",
+      "to": "0x1",
+      "type": "0x4",
+      "value": "0x1",
+    }
+  `)
+
+  expect(
+    formatTransactionRequest({
+      ...base,
+      authorizationList: [
+        {
+          address: '0x0000000000000000000000000000000000000000',
+          chainId: 1,
+          nonce: 0,
+          r: '0x1',
+          s: '0x1',
+          yParity: 0,
+        },
+      ],
+      from: '0x0000000000000000000000000000000000000000',
+      type: 'eip7702',
+    } as TransactionRequestEIP7702),
+  ).toMatchInlineSnapshot(`
+    {
+      "authorizationList": [
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "chainId": "0x1",
+          "nonce": "0x0",
+          "r": "0x1",
+          "s": "0x1",
+          "yParity": "0x0",
+        },
+      ],
+      "data": "0x1",
+      "from": "0x0000000000000000000000000000000000000000",
+      "gas": "0x4234584",
+      "nonce": "0x1",
+      "to": "0x1",
+      "type": "0x4",
       "value": "0x1",
     }
   `)

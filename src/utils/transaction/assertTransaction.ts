@@ -3,7 +3,6 @@ import {
   InvalidAddressError,
   type InvalidAddressErrorType,
 } from '../../errors/address.js'
-import type { EmptyAuthorizationListError } from '../../errors/authorization.js'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   EmptyBlobError,
@@ -38,7 +37,6 @@ import { hexToNumber } from '../encoding/fromHex.js'
 
 export type AssertTransactionEIP7702ErrorType =
   | AssertTransactionEIP1559ErrorType
-  | EmptyAuthorizationListError
   | InvalidAddressErrorType
   | InvalidChainIdErrorType
   | ErrorType

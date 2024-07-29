@@ -47,6 +47,22 @@ test('args: account', async () => {
   ).toMatchInlineSnapshot('21000n')
 })
 
+test('args: authorizationList', async () => {
+  expect(
+    await estimateGas(client, {
+      account: accounts[0].address,
+      authorizationList: [
+        {
+          address: '0x0000000000000000000000000000000000000000',
+          chainId: 1,
+          nonce: 0,
+        },
+      ],
+      to: accounts[1].address,
+    }),
+  ).toMatchInlineSnapshot('26000n')
+})
+
 test('args: blockNumber', async () => {
   await reset(client, {
     blockNumber: anvilMainnet.forkBlockNumber,
