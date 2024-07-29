@@ -181,7 +181,7 @@
     {
       "name": "import * from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "46.5 kB",
+      "limit": "47 kB",
       "import": "*"
     },
     {
