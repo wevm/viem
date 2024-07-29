@@ -1,5 +1,13 @@
 # viem
 
+## 2.18.5
+
+### Patch Changes
+
+- [`5babc8d2`](https://github.com/wevm/viem/commit/5babc8d2bc408467912db7fc8de10123944b7d47) Thanks [@jxom](https://github.com/jxom)! - Added more robust WebSocket socket closure handling.
+
+- [#2555](https://github.com/wevm/viem/pull/2555) [`9be9b2cc`](https://github.com/wevm/viem/commit/9be9b2cc99e5aa26e67dbfaaf11f0dd6aa8c49f3) Thanks [@mycodecrafting](https://github.com/mycodecrafting)! - Added Forma mainnet and Sketchpad testnet chains.
+
 ## 2.18.4
 
 ### Patch Changes
