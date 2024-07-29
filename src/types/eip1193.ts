@@ -1,5 +1,11 @@
 import type { Address } from 'abitype'
 
+import type {
+  RpcEstimateUserOperationGasReturnType,
+  RpcGetUserOperationByHashReturnType,
+  RpcUserOperation,
+  RpcUserOperationReceipt,
+} from '../account-abstraction/types/rpc.js'
 import type { BlockTag } from './block.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
 import type { RpcStateOverride } from './rpc.js'
@@ -16,12 +22,17 @@ import type {
   RpcTransactionRequest as TransactionRequest,
   RpcUncle as Uncle,
 } from './rpc.js'
-import type { ExactPartial, OneOf, Prettify } from './utils.js'
+import type { ExactPartial, OneOf, PartialBy, Prettify } from './utils.js'
 
 //////////////////////////////////////////////////
 // Provider
 
-export type EIP1474Methods = [...PublicRpcSchema, ...WalletRpcSchema]
+export type EIP1474Methods = [
+  ...PublicRpcSchema,
+  ...WalletRpcSchema,
+  ...BundlerRpcSchema,
+  ...PaymasterRpcSchema,
+]
 
 export type EIP1193Provider = Prettify<
   EIP1193Events & {
@@ -227,6 +238,307 @@ export type WatchAssetParams = {
     image?: string | undefined
   }
 }
+
+export type BundlerRpcSchema = [
+  /**
+   * @description Returns the chain ID associated with the current network
+   *
+   * @link https://eips.ethereum.org/EIPS/eip-4337#-eth_chainid
+   */
+  {
+    Method: 'eth_chainId'
+    Parameters?: undefined
+    ReturnType: Hex
+  },
+  /**
+   * @description Estimate the gas values for a UserOperation.
+   *
+   * @link https://eips.ethereum.org/EIPS/eip-4337#-eth_estimateuseroperationgas
+   *
+   * @example
+   * provider.request({
+   *  method: 'eth_estimateUserOperationGas',
+   *  params: [{ ... }]
+   * })
+   * // => { ... }
+   */
+  {
+    Method: 'eth_estimateUserOperationGas'
+    Parameters:
+      | [userOperation: RpcUserOperation, entrypoint: Address]
+      | [
+          userOperation: RpcUserOperation,
+          entrypoint: Address,
+          stateOverrideSet: RpcStateOverride,
+        ]
+    ReturnType: RpcEstimateUserOperationGasReturnType
+  },
+  /**
+   * @description Return a UserOperation based on a hash.
+   *
+   * @link https://eips.ethereum.org/EIPS/eip-4337#-eth_getuseroperationbyhash
+   *
+   * @example
+   * provider.request({
+   *  method: 'eth_getUserOperationByHash',
+   *  params: ['0x...']
+   * })
+   * // => { ... }
+   */
+  {
+    Method: 'eth_getUserOperationByHash'
+    Parameters: [hash: Hash]
+    ReturnType: RpcGetUserOperationByHashReturnType | null
+  },
+  /**
+   * @description Return a UserOperation receipt based on a hash.
+   *
+   * @link https://eips.ethereum.org/EIPS/eip-4337#-eth_getuseroperationreceipt
+   *
+   * @example
+   * provider.request({
+   *  method: 'eth_getUserOperationReceipt',
+   *  params: ['0x...']
+   * })
+   * // => { ... }
+   */
+  {
+    Method: 'eth_getUserOperationReceipt'
+    Parameters: [hash: Hash]
+    ReturnType: RpcUserOperationReceipt | null
+  },
+  /**
+   * @description Submits a User Operation object to the User Operation pool of the client.
+   *
+   * @link https://eips.ethereum.org/EIPS/eip-4337#-eth_senduseroperation
+   *
+   * @example
+   * provider.request({
+   *  method: 'eth_sendUserOperation',
+   *  params: [{ ... }]
+   * })
+   * // => '0x...'
+   */
+  {
+    Method: 'eth_sendUserOperation'
+    Parameters: [userOperation: RpcUserOperation, entrypoint: Address]
+    ReturnType: Hash
+  },
+  /**
+   * @description Return the list of supported entry points by the client.
+   *
+   * @link https://eips.ethereum.org/EIPS/eip-4337#-eth_supportedentrypoints
+   */
+  {
+    Method: 'eth_supportedEntryPoints'
+    Parameters?: undefined
+    ReturnType: readonly Address[]
+  },
+]
+
+export type DebugBundlerRpcSchema = [
+  /**
+   * @description Clears the bundler mempool and reputation data of paymasters/accounts/factories/aggregators.
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L1
+   */
+  {
+    Method: 'debug_bundler_clearState'
+    Parameters?: undefined
+    ReturnType: undefined
+  },
+  /**
+   * @description Returns the current mempool
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L8
+   */
+  {
+    Method: 'debug_bundler_dumpMempool'
+    Parameters: [entryPoint: Address]
+    ReturnType: readonly { userOp: RpcUserOperation }[]
+  },
+  /**
+   * @description Forces the bundler to execute the entire current mempool.
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L19
+   */
+  {
+    Method: 'debug_bundler_sendBundleNow'
+    Parameters?: undefined
+    ReturnType: Hash
+  },
+  /**
+   * @description Toggles bundling mode between 'auto' and 'manual'
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L26
+   */
+  {
+    Method: 'debug_bundler_setBundlingMode'
+    Parameters: [mode: 'auto' | 'manual']
+    ReturnType: undefined
+  },
+  /**
+   * @description Sets reputation of given addresses.
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L37
+   */
+  {
+    Method: 'debug_bundler_setReputation'
+    Parameters: [
+      reputations: readonly {
+        address: Address
+        opsSeen: Hex
+        opsIncluded: Hex
+      }[],
+      entryPoint: Address,
+    ]
+    ReturnType: undefined
+  },
+  /**
+   * @description Returns the reputation data of all observed addresses.
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L52
+   */
+  {
+    Method: 'debug_bundler_dumpReputation'
+    Parameters: [entryPoint: Address]
+    ReturnType: readonly {
+      address: Address
+      opsSeen: Hex
+      opsIncluded: Hex
+    }[]
+  },
+  /**
+   * @description Add a bulk of UserOps into the mempool
+   *
+   * @link https://github.com/eth-infinitism/bundler-spec/blob/a247b5de59a702063ea5b09d6136f119a061642b/src/debug/debug.yaml#L64
+   */
+  {
+    Method: 'debug_bundler_addUserOps'
+    Parameters: [userOps: readonly RpcUserOperation[], entryPoint: Address]
+    ReturnType: undefined
+  },
+]
+
+export type PaymasterRpcSchema = [
+  /**
+   * @description Returns the chain ID associated with the current network
+   *
+   * @link https://eips.ethereum.org/EIPS/eip-4337#-eth_chainid
+   */
+  {
+    Method: 'pm_getPaymasterStubData'
+    Parameters?: [
+      userOperation: OneOf<
+        | PartialBy<
+            Pick<
+              RpcUserOperation<'0.6'>,
+              | 'callData'
+              | 'callGasLimit'
+              | 'initCode'
+              | 'maxFeePerGas'
+              | 'maxPriorityFeePerGas'
+              | 'nonce'
+              | 'sender'
+              | 'preVerificationGas'
+              | 'verificationGasLimit'
+            >,
+            | 'callGasLimit'
+            | 'initCode'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'preVerificationGas'
+            | 'verificationGasLimit'
+          >
+        | PartialBy<
+            Pick<
+              RpcUserOperation<'0.7'>,
+              | 'callData'
+              | 'callGasLimit'
+              | 'factory'
+              | 'factoryData'
+              | 'maxFeePerGas'
+              | 'maxPriorityFeePerGas'
+              | 'nonce'
+              | 'sender'
+              | 'preVerificationGas'
+              | 'verificationGasLimit'
+            >,
+            | 'callGasLimit'
+            | 'factory'
+            | 'factoryData'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'preVerificationGas'
+            | 'verificationGasLimit'
+          >
+      >,
+      entrypoint: Address,
+      chainId: Hex,
+      context: unknown,
+    ]
+    ReturnType: OneOf<
+      | { paymasterAndData: Hex }
+      | {
+          paymaster: Address
+          paymasterData: Hex
+          paymasterVerificationGasLimit: Hex
+          paymasterPostOpGasLimit: Hex
+        }
+    > & {
+      sponsor?: { name: string; icon?: string | undefined } | undefined
+      isFinal?: boolean | undefined
+    }
+  },
+  /**
+   * @description Returns values to be used in paymaster-related fields of a signed user operation.
+   *
+   * @link https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7677.md#pm_getpaymasterdata
+   */
+  {
+    Method: 'pm_getPaymasterData'
+    Parameters?: [
+      userOperation:
+        | Pick<
+            RpcUserOperation<'0.6'>,
+            | 'callData'
+            | 'callGasLimit'
+            | 'initCode'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'nonce'
+            | 'sender'
+            | 'preVerificationGas'
+            | 'verificationGasLimit'
+          >
+        | Pick<
+            RpcUserOperation<'0.7'>,
+            | 'callData'
+            | 'callGasLimit'
+            | 'factory'
+            | 'factoryData'
+            | 'maxFeePerGas'
+            | 'maxPriorityFeePerGas'
+            | 'nonce'
+            | 'sender'
+            | 'preVerificationGas'
+            | 'verificationGasLimit'
+          >,
+      entrypoint: Address,
+      chainId: Hex,
+      context: unknown,
+    ]
+    ReturnType: OneOf<
+      | { paymasterAndData: Hex }
+      | {
+          paymaster: Address
+          paymasterData: Hex
+          paymasterVerificationGasLimit: Hex
+          paymasterPostOpGasLimit: Hex
+        }
+    >
+  },
+]
 
 export type PublicRpcSchema = [
   /**

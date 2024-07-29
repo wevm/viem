@@ -1,10 +1,10 @@
 import type { Address } from 'abitype'
 import { beforeAll, expect, test } from 'vitest'
 
-import { Mock4337AccountFactory } from '~contracts/generated.js'
+import { SoladyAccountFactory07 } from '~contracts/generated.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
-import { deployMock4337Account } from '~test/src/utils.js'
+import { deploySoladyAccount_07 } from '../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   mine,
@@ -18,10 +18,10 @@ import { signMessage } from './signMessage.js'
 
 let verifier: Address
 beforeAll(async () => {
-  const { factoryAddress } = await deployMock4337Account()
+  const { factoryAddress } = await deploySoladyAccount_07()
   const { result, request } = await simulateContract(client, {
     account: accounts[0].address,
-    abi: Mock4337AccountFactory.abi,
+    abi: SoladyAccountFactory07.abi,
     address: factoryAddress,
     functionName: 'createAccount',
     args: [accounts[0].address, pad('0x0')],
@@ -54,7 +54,7 @@ test('args: domain', async () => {
   const signature = await signMessage(client!, {
     account: accounts[0].address,
     verifierDomain: {
-      name: 'Mock4337Account',
+      name: 'SoladyAccount',
       version: '1',
       chainId: 1,
       verifyingContract: verifier,
@@ -126,16 +126,16 @@ test('inferred account', async () => {
 })
 
 test('counterfactual smart account', async () => {
-  const { factoryAddress } = await deployMock4337Account()
+  const { factoryAddress } = await deploySoladyAccount_07()
 
   const factoryData = encodeFunctionData({
-    abi: Mock4337AccountFactory.abi,
+    abi: SoladyAccountFactory07.abi,
     functionName: 'createAccount',
     args: [accounts[0].address, pad('0x1')],
   })
   const verifier = await readContract(client, {
     account: accounts[0].address,
-    abi: Mock4337AccountFactory.abi,
+    abi: SoladyAccountFactory07.abi,
     address: factoryAddress,
     functionName: 'getAddress',
     args: [pad('0x1')],
@@ -186,7 +186,7 @@ test('no account', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
     [AccountNotFoundError: Could not find an Account to execute with this Action.
-    Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
+    Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
     Docs: https://viem.sh/experimental/solady/signMessage#account
     Version: viem@x.y.z]

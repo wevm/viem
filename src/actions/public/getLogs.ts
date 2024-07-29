@@ -165,7 +165,7 @@ export async function getLogs<
       encodeEventTopics({
         abi: [event],
         eventName: (event as AbiEvent).name,
-        args,
+        args: events_ ? undefined : args,
       } as EncodeEventTopicsParameters),
     )
     // TODO: Clean up type casting
@@ -205,6 +205,7 @@ export async function getLogs<
     >
   return parseEventLogs({
     abi: events,
+    args: args as any,
     logs: formattedLogs,
     strict,
   }) as unknown as GetLogsReturnType<

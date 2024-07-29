@@ -11,12 +11,12 @@ test('createTestClient', () => {
     mode: 'anvil',
     transport: http('https://cloudflare-eth.com'),
   })
-  attest.instantiations([690, 'instantiations'])
+  attest.instantiations([2100, 'instantiations'])
 })
 
 test('createClient.extend + testActions', () => {
   createClient({
     transport: http('https://cloudflare-eth.com'),
   }).extend(testActions({ mode: 'anvil' }))
-  attest.instantiations([6329, 'instantiations'])
+  attest.instantiations([7900, 'instantiations'])
 })

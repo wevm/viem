@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
+import { SoladyAccountFactory07 } from '~contracts/generated.js'
 import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
+import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts, address } from '~test/src/constants.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-
-import { Mock4337AccountFactory } from '~contracts/generated.js'
-import { deployMock4337Account } from '../../../test/src/utils.js'
+import { deploySoladyAccount_07 } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zkSync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
@@ -79,11 +78,11 @@ describe('local account', async () => {
 
 describe('smart account', async () => {
   test('deployed', async () => {
-    const { factoryAddress } = await deployMock4337Account()
+    const { factoryAddress } = await deploySoladyAccount_07()
 
     const { request, result: verifier } = await simulateContract(client, {
       account: localAccount,
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factoryAddress,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
@@ -107,18 +106,18 @@ describe('smart account', async () => {
   })
 
   test('undeployed', async () => {
-    const { factoryAddress } = await deployMock4337Account()
+    const { factoryAddress } = await deploySoladyAccount_07()
 
     const { result: verifier } = await simulateContract(client, {
       account: localAccount,
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factoryAddress,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
     })
 
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
     })
@@ -143,11 +142,11 @@ describe('smart account', async () => {
   })
 
   test('deployed w/ factory + factoryData', async () => {
-    const { factoryAddress } = await deployMock4337Account()
+    const { factoryAddress } = await deploySoladyAccount_07()
 
     const { request, result: verifier } = await simulateContract(client, {
       account: localAccount,
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factoryAddress,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
@@ -156,7 +155,7 @@ describe('smart account', async () => {
     await mine(client, { blocks: 1 })
 
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       functionName: 'createAccount',
       args: [localAccount.address, pad('0x0')],
     })
@@ -182,18 +181,18 @@ describe('smart account', async () => {
 })
 
 test('signature already contains wrapper', async () => {
-  const { factoryAddress } = await deployMock4337Account()
+  const { factoryAddress } = await deploySoladyAccount_07()
 
   const { result: verifier } = await simulateContract(client, {
     account: localAccount,
-    abi: Mock4337AccountFactory.abi,
+    abi: SoladyAccountFactory07.abi,
     address: factoryAddress,
     functionName: 'createAccount',
     args: [localAccount.address, pad('0x0')],
   })
 
   const factoryData = encodeFunctionData({
-    abi: Mock4337AccountFactory.abi,
+    abi: SoladyAccountFactory07.abi,
     functionName: 'createAccount',
     args: [localAccount.address, pad('0x0')],
   })

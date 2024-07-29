@@ -455,25 +455,40 @@ export const sidebar = {
           text: 'Local Accounts',
           link: '/docs/accounts/local',
           items: [
-            { text: 'Private Key', link: '/docs/accounts/privateKey' },
-            { text: 'Mnemonic', link: '/docs/accounts/mnemonic' },
+            {
+              text: 'Private Key',
+              link: '/docs/accounts/local/privateKeyToAccount',
+            },
+            {
+              text: 'Mnemonic',
+              link: '/docs/accounts/local/mnemonicToAccount',
+            },
             {
               text: 'Hierarchical Deterministic (HD)',
-              link: '/docs/accounts/hd',
+              link: '/docs/accounts/local/hdKeyToAccount',
             },
-            { text: 'Custom', link: '/docs/accounts/custom' },
-          ],
-        },
-        {
-          text: 'Utilities',
-          items: [
+            { text: 'Custom', link: '/docs/accounts/local/toAccount' },
             {
-              text: 'createNonceManager',
-              link: '/docs/accounts/createNonceManager',
+              text: 'Utilities',
+              items: [
+                {
+                  text: 'createNonceManager',
+                  link: '/docs/accounts/local/createNonceManager',
+                },
+                {
+                  text: 'signMessage',
+                  link: '/docs/accounts/local/signMessage',
+                },
+                {
+                  text: 'signTransaction',
+                  link: '/docs/accounts/local/signTransaction',
+                },
+                {
+                  text: 'signTypedData',
+                  link: '/docs/accounts/local/signTypedData',
+                },
+              ],
             },
-            { text: 'signMessage', link: '/docs/accounts/signMessage' },
-            { text: 'signTransaction', link: '/docs/accounts/signTransaction' },
-            { text: 'signTypedData', link: '/docs/accounts/signTypedData' },
           ],
         },
       ],
@@ -1043,20 +1058,6 @@ export const sidebar = {
       ],
     },
     {
-      text: 'Third Party',
-      collapsed: true,
-      items: [
-        {
-          text: 'Account Abstraction',
-          link: '/docs/third-party/account-abstraction',
-        },
-        {
-          text: 'Miscellaneous',
-          link: '/docs/third-party/misc',
-        },
-      ],
-    },
-    {
       text: 'Glossary',
       collapsed: true,
       items: [
@@ -1066,6 +1067,146 @@ export const sidebar = {
       ],
     },
   ],
+  '/account-abstraction': {
+    backLink: true,
+    items: [
+      {
+        text: 'Account Abstraction',
+        items: [
+          {
+            text: 'Getting Started',
+            link: '/account-abstraction',
+          },
+        ],
+      },
+      {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Sending User Operations',
+            link: '/account-abstraction/guides/sending-user-operations',
+          },
+        ],
+      },
+      {
+        text: 'Clients',
+        items: [
+          {
+            text: 'Bundler Client',
+            link: '/account-abstraction/clients/bundler',
+          },
+          {
+            text: 'Paymaster Client',
+            link: '/account-abstraction/clients/paymaster',
+          },
+        ],
+      },
+      {
+        text: 'Accounts',
+        items: [
+          {
+            text: 'Smart Accounts',
+            link: '/account-abstraction/accounts/smart',
+            items: [
+              {
+                text: 'Coinbase',
+                link: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
+              },
+              {
+                text: 'Solady',
+                link: '/account-abstraction/accounts/smart/toSoladySmartAccount',
+              },
+              {
+                text: 'Custom',
+                link: '/account-abstraction/accounts/smart/toSmartAccount',
+              },
+              {
+                text: 'Utilities',
+                items: [
+                  {
+                    text: 'signMessage',
+                    link: '/account-abstraction/accounts/smart/signMessage',
+                  },
+                  {
+                    text: 'signTypedData',
+                    link: '/account-abstraction/accounts/smart/signTypedData',
+                  },
+                  {
+                    text: 'signUserOperation',
+                    link: '/account-abstraction/accounts/smart/signUserOperation',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: 'WebAuthn Account',
+            link: '/account-abstraction/accounts/webauthn',
+            items: [
+              {
+                text: 'toWebAuthnAccount',
+                link: '/account-abstraction/accounts/webauthn/toWebAuthnAccount',
+              },
+              {
+                text: 'createWebAuthnCredential',
+                link: '/account-abstraction/accounts/webauthn/createWebAuthnCredential',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Bundler Actions',
+        items: [
+          {
+            text: 'estimateUserOperationGas',
+            link: '/account-abstraction/actions/bundler/estimateUserOperationGas',
+          },
+          {
+            text: 'getChainId',
+            link: '/account-abstraction/actions/bundler/getChainId',
+          },
+          {
+            text: 'getSupportedEntryPoints',
+            link: '/account-abstraction/actions/bundler/getSupportedEntryPoints',
+          },
+          {
+            text: 'getUserOperation',
+            link: '/account-abstraction/actions/bundler/getUserOperation',
+          },
+          {
+            text: 'getUserOperationReceipt',
+            link: '/account-abstraction/actions/bundler/getUserOperationReceipt',
+          },
+          {
+            text: 'prepareUserOperation',
+            link: '/account-abstraction/actions/bundler/prepareUserOperation',
+          },
+          {
+            text: 'sendUserOperation',
+            link: '/account-abstraction/actions/bundler/sendUserOperation',
+          },
+          {
+            text: 'waitForUserOperationReceipt',
+            link: '/account-abstraction/actions/bundler/waitForUserOperationReceipt',
+          },
+        ],
+      },
+      {
+        text: 'Paymaster Actions',
+        items: [
+          {
+            text: 'getPaymasterData',
+            link: '/account-abstraction/actions/paymaster/getPaymasterData',
+          },
+          {
+            text: 'getPaymasterStubData',
+            link: '/account-abstraction/actions/paymaster/getPaymasterStubData',
+          },
+        ],
+      },
+    ],
+  },
   '/experimental': {
     backLink: true,
     items: [

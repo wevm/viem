@@ -295,7 +295,6 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: An unknown error occurred while executing the contract function "foo".
 
-      Contract Call:
 
       Version: viem@x.y.z]
     `)
@@ -310,7 +309,6 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: Internal error.
 
-      Contract Call:
 
       Version: viem@x.y.z]
     `)

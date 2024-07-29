@@ -1,5 +1,5 @@
 import { WebSocket } from 'isows'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
@@ -30,6 +30,32 @@ describe('getWebSocketRpcClient', () => {
     expect(client1).toEqual(client2)
     expect(client1).toEqual(client3)
     expect(client1).toEqual(client4)
+  })
+
+  test('reconnect', async () => {
+    const socketClient = await getWebSocketRpcClient(
+      'ws://127.0.0.1:8545/69420',
+      {
+        reconnect: { delay: 100 },
+      },
+    )
+    expect(socketClient).toBeDefined()
+    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+    socketClient.socket.close()
+    await wait(500)
+    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+  })
+
+  test('keepalive', async () => {
+    const socketClient = await getWebSocketRpcClient(
+      'ws://127.0.0.1:8545/69421',
+      {
+        keepAlive: { interval: 100 },
+      },
+    )
+    const spy = vi.spyOn(socketClient.socket, 'ping')
+    await wait(500)
+    expect(spy).toHaveBeenCalledTimes(4)
   })
 })
 
@@ -360,7 +386,7 @@ describe('request', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 7,
+        "id": 9,
         "jsonrpc": "2.0",
       }
     `,
@@ -388,7 +414,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":9,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@x.y.z]
@@ -417,7 +443,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":13,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@x.y.z]
@@ -550,7 +576,7 @@ describe('request (subscription)', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 31,
+        "id": 33,
         "jsonrpc": "2.0",
       }
     `)
@@ -924,7 +950,7 @@ describe('requestAsync', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 151,
+        "id": 153,
         "jsonrpc": "2.0",
       }
     `,

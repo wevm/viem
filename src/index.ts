@@ -439,9 +439,9 @@ export type {
   WatchAssetReturnType,
 } from './actions/wallet/watchAsset.js'
 export type {
-  VerifyHashErrorType,
-  VerifyHashParameters,
-  VerifyHashReturnType,
+  VerifyHashErrorType as VerifyHashActionErrorType,
+  VerifyHashParameters as VerifyHashActionParameters,
+  VerifyHashReturnType as VerifyHashActionReturnType,
 } from './actions/public/verifyHash.js'
 export type {
   VerifyTypedDataErrorType as VerifyTypedDataActionErrorType,
@@ -1004,6 +1004,8 @@ export type {
 } from './types/misc.js'
 export type {
   AddEthereumChainParameter,
+  BundlerRpcSchema,
+  DebugBundlerRpcSchema,
   EIP1193EventMap,
   EIP1193Events,
   EIP1193Parameters,
@@ -1294,6 +1296,8 @@ export {
   type SerializeSignatureErrorType as SignatureToHexErrorType,
   /** @deprecated Use `serializeSignature` instead. */
   serializeSignature as signatureToHex,
+  type SerializeSignatureParameters,
+  type SerializeSignatureReturnType,
   type SerializeSignatureErrorType,
   serializeSignature,
 } from './utils/signature/serializeSignature.js'
@@ -1306,6 +1310,12 @@ export {
   type ToRlpErrorType,
   type ToRlpReturnType,
 } from './utils/encoding/toRlp.js'
+export {
+  type VerifyHashErrorType,
+  type VerifyHashParameters,
+  type VerifyHashReturnType,
+  verifyHash,
+} from './utils/signature/verifyHash.js'
 export {
   type VerifyMessageErrorType,
   type VerifyMessageParameters,
@@ -1686,3 +1696,10 @@ export {
   createNonceManager,
   nonceManager,
 } from './utils/nonceManager.js'
+export type {
+  RpcEstimateUserOperationGasReturnType,
+  RpcGetUserOperationByHashReturnType,
+  RpcUserOperation,
+  RpcUserOperationReceipt,
+  RpcUserOperationRequest,
+} from './account-abstraction/types/rpc.js'

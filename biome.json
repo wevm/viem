@@ -13,7 +13,6 @@
       "bun.lockb",
       "cache",
       "contracts",
-      "test/contracts",
       "test/kzg/*.json",
       "test/kzg/*.txt",
       "coverage",
