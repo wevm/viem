@@ -1258,12 +1258,6 @@ export {
   recoverAddress,
 } from './utils/signature/recoverAddress.js'
 export {
-  type RecoverAuthorizationAddressErrorType,
-  type RecoverAuthorizationAddressParameters,
-  type RecoverAuthorizationAddressReturnType,
-  recoverAuthorizationAddress,
-} from './utils/signature/recoverAuthorizationAddress.js'
-export {
   type RecoverMessageAddressErrorType,
   type RecoverMessageAddressParameters,
   type RecoverMessageAddressReturnType,
@@ -1318,12 +1312,6 @@ export {
   type ToRlpErrorType,
   type ToRlpReturnType,
 } from './utils/encoding/toRlp.js'
-export {
-  type VerifyAuthorizationErrorType,
-  type VerifyAuthorizationParameters,
-  type VerifyAuthorizationReturnType,
-  verifyAuthorization,
-} from './utils/signature/verifyAuthorization.js'
 export {
   type VerifyHashErrorType,
   type VerifyHashParameters,
@@ -1609,12 +1597,6 @@ export {
   type ToFunctionHashErrorType,
   toFunctionHash,
 } from './utils/hash/toFunctionHash.js'
-export {
-  type HashAuthorizationErrorType,
-  type HashAuthorizationParameters,
-  type HashAuthorizationReturnType,
-  hashAuthorization,
-} from './utils/signature/hashAuthorization.js'
 export {
   type HashMessageErrorType,
   hashMessage,

@@ -31,10 +31,11 @@ export type CustomSource = {
   nonceManager?: NonceManager | undefined
   // TODO(v3): Make `sign` required.
   sign?: ((parameters: { hash: Hash }) => Promise<Hex>) | undefined
-  // TODO(v3): Make `signAuthorization` required.
-  signAuthorization?: (parameters: {
-    authorization: SignAuthorizationParameters['authorization']
-  }) => Promise<SignAuthorizationReturnType>
+  experimental_signAuthorization?:
+    | ((
+        authorization: SignAuthorizationParameters['authorization'],
+      ) => Promise<SignAuthorizationReturnType>)
+    | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hex>
   signTransaction: <
     serializer extends
@@ -114,7 +115,8 @@ export type PrivateKeyAccount = Prettify<
   LocalAccount<'privateKey'> & {
     // TODO(v3): This will be redundant.
     sign: NonNullable<CustomSource['sign']>
-    // TODO(v3): This will be redundant.
-    signAuthorization: NonNullable<CustomSource['signAuthorization']>
+    experimental_signAuthorization: NonNullable<
+      CustomSource['experimental_signAuthorization']
+    >
   }
 >

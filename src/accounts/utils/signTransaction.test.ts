@@ -21,7 +21,6 @@ import { toBlobs } from '../../utils/blob/toBlobs.js'
 import type { SerializeTransactionFn } from '../../utils/transaction/serializeTransaction.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { privateKeyToAccount } from '../privateKeyToAccount.js'
-import { signAuthorization } from './signAuthorization.js'
 import { signTransaction } from './signTransaction.js'
 
 const client = anvilMainnet.getClient()
@@ -32,21 +31,16 @@ const base = {
 } satisfies TransactionSerializableBase
 
 describe('eip7702', async () => {
-  const signedAuthorization_1 = await signAuthorization({
-    authorization: {
-      address: wagmiContractConfig.address,
-      chainId: 1,
-      nonce: 420,
-    },
-    privateKey: accounts[0].privateKey,
+  const account = privateKeyToAccount(accounts[0].privateKey)
+  const signedAuthorization_1 = await account.experimental_signAuthorization({
+    address: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 420,
   })
-  const signedAuthorization_2 = await signAuthorization({
-    authorization: {
-      address: wagmiContractConfig.address,
-      chainId: 10,
-      nonce: 69,
-    },
-    privateKey: accounts[0].privateKey,
+  const signedAuthorization_2 = await account.experimental_signAuthorization({
+    address: wagmiContractConfig.address,
+    chainId: 10,
+    nonce: 69,
   })
 
   const baseEip7702 = {

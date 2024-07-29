@@ -65,7 +65,7 @@ export {
   type SignAuthorizationErrorType,
   type SignAuthorizationParameters,
   type SignAuthorizationReturnType,
-  signAuthorization,
+  experimental_signAuthorization,
 } from './utils/signAuthorization.js'
 export {
   type SignMessageErrorType,

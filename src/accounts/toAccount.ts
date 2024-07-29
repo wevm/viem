@@ -51,7 +51,7 @@ export function toAccount<accountSource extends AccountSource>(
     address: source.address,
     nonceManager: source.nonceManager,
     sign: source.sign,
-    signAuthorization: source.signAuthorization,
+    experimental_signAuthorization: source.experimental_signAuthorization,
     signMessage: source.signMessage,
     signTransaction: source.signTransaction,
     signTypedData: source.signTypedData,

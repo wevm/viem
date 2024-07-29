@@ -4,7 +4,6 @@ import { accounts } from '~test/src/constants.js'
 import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { blobData, kzg } from '../../../test/src/kzg.js'
-import { signAuthorization } from '../../accounts/index.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
 import {
@@ -37,13 +36,11 @@ const base = {
 } satisfies TransactionRequestBase
 
 describe('eip7702', async () => {
-  const authorization = await signAuthorization({
-    authorization: {
-      address: wagmiContractConfig.address,
-      chainId: 1,
-      nonce: 420,
-    },
-    privateKey: accounts[1].privateKey,
+  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const authorization = await authority.experimental_signAuthorization({
+    address: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 420,
   })
 
   const baseEip7702 = {

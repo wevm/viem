@@ -3,8 +3,8 @@ import { expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 
 import { wagmiContractConfig } from '../../../test/src/abis.js'
-import { verifyAuthorization } from '../../utils/signature/verifyAuthorization.js'
-import { signAuthorization } from './signAuthorization.js'
+import { verifyAuthorization } from '../../experimental/eip7702/utils/verifyAuthorization.js'
+import { experimental_signAuthorization } from './signAuthorization.js'
 
 test('default', async () => {
   const authorization = {
@@ -12,7 +12,7 @@ test('default', async () => {
     chainId: 1,
     nonce: 0,
   }
-  const signature = await signAuthorization({
+  const signature = await experimental_signAuthorization({
     authorization,
     privateKey: accounts[0].privateKey,
   })
@@ -45,7 +45,7 @@ test('args: to (hex)', async () => {
     chainId: 1,
     nonce: 0,
   }
-  const signature = await signAuthorization({
+  const signature = await experimental_signAuthorization({
     authorization,
     privateKey: accounts[0].privateKey,
     to: 'hex',

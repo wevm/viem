@@ -9,20 +9,20 @@ Calculates an "authorization tuple" hash in [EIP-7702 format](https://eips.ether
 ## Import
 
 ```ts twoslash
-import { hashAuthorization } from 'viem'
+import { hashAuthorization } from 'viem/experimental'
 ```
 
 ## Usage
 
 ```ts twoslash
-import { hashAuthorization } from 'viem'
+import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
   address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
   chainId: 1,
   nonce: 0,
 })
-// 0x05d428ed36e6098e46b40a4cb99b83b930b0ca1f054f40b5996589eda33c295663
+// 0xd428ed36e6098e46b40a4cb99b83b930b0ca1f054f40b5996589eda33c295663
 ```
 
 ## Returns
@@ -40,7 +40,7 @@ The hashed authorization tuple.
 Address of the contract to set as code for the Authority.
 
 ```ts twoslash
-import { hashAuthorization } from 'viem'
+import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
   address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
@@ -56,7 +56,7 @@ hashAuthorization({
 Chain ID to authorize.
 
 ```ts twoslash
-import { hashAuthorization } from 'viem'
+import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
   address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
@@ -72,7 +72,7 @@ hashAuthorization({
 Nonce of the Authority to authorize.
 
 ```ts twoslash
-import { hashAuthorization } from 'viem'
+import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
   address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
@@ -89,7 +89,7 @@ hashAuthorization({
 Output format.
 
 ```ts twoslash
-import { hashAuthorization } from 'viem'
+import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
   address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',

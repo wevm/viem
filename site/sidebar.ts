@@ -944,10 +944,6 @@ export const sidebar = {
               link: '/docs/utilities/compactSignatureToSignature',
             },
             {
-              text: 'hashAuthorization',
-              link: '/docs/utilities/hashAuthorization',
-            },
-            {
               text: 'hashMessage',
               link: '/docs/utilities/hashMessage',
             },
@@ -1249,6 +1245,37 @@ export const sidebar = {
               {
                 text: 'writeContracts',
                 link: '/experimental/eip5792/writeContracts',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'EIP-7702',
+        items: [
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'signAuthorization',
+                link: '/experimental/eip7702/signAuthorization',
+              },
+            ],
+          },
+          {
+            text: 'Utilities',
+            items: [
+              {
+                text: 'hashAuthorization',
+                link: '/experimental/eip7702/hashAuthorization',
+              },
+              {
+                text: 'recoverAuthorizationAddress',
+                link: '/experimental/eip7702/recoverAuthorizationAddress',
+              },
+              {
+                text: 'verifyAuthorization',
+                link: '/experimental/eip7702/verifyAuthorization',
               },
             ],
           },

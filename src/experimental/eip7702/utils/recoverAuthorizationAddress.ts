@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
 
-import type { ByteArray, Hex, Signature } from '../../types/misc.js'
+import type { ByteArray, Hex, Signature } from '../../../types/misc.js'
 
-import type { ErrorType } from '../../errors/utils.js'
-import type { Authorization } from '../../types/authorization.js'
+import type { ErrorType } from '../../../errors/utils.js'
+import type { Authorization } from '../../../types/authorization.js'
 import {
   type HashAuthorizationErrorType,
   hashAuthorization,
@@ -11,7 +11,7 @@ import {
 import {
   type RecoverAddressErrorType,
   recoverAddress,
-} from './recoverAddress.js'
+} from '../../../utils/signature/recoverAddress.js'
 
 export type RecoverAuthorizationAddressParameters = {
   /** The authorization to recover the address from. */

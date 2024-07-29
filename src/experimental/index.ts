@@ -67,6 +67,25 @@ export {
 } from '../utils/signature/serializeErc6492Signature.js'
 
 export {
+  type HashAuthorizationParameters,
+  type HashAuthorizationReturnType,
+  type HashAuthorizationErrorType,
+  hashAuthorization,
+} from './eip7702/utils/hashAuthorization.js'
+export {
+  type RecoverAuthorizationAddressParameters,
+  type RecoverAuthorizationAddressReturnType,
+  type RecoverAuthorizationAddressErrorType,
+  recoverAuthorizationAddress,
+} from './eip7702/utils/recoverAuthorizationAddress.js'
+export {
+  type VerifyAuthorizationParameters,
+  type VerifyAuthorizationReturnType,
+  type VerifyAuthorizationErrorType,
+  verifyAuthorization,
+} from './eip7702/utils/verifyAuthorization.js'
+
+export {
   type GrantPermissionsParameters,
   type GrantPermissionsReturnType,
   grantPermissions,

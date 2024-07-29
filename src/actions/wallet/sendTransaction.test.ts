@@ -842,12 +842,10 @@ describe('local account', () => {
       address: authority.address,
     })
 
-    const authorization = await authority.signAuthorization({
-      authorization: {
-        address: contractAddress!,
-        chainId: client.chain.id,
-        nonce,
-      },
+    const authorization = await authority.experimental_signAuthorization({
+      address: contractAddress!,
+      chainId: client.chain.id,
+      nonce,
     })
 
     const hash = await sendTransaction(client, {

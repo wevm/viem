@@ -1,13 +1,16 @@
 import type { Address } from 'abitype'
 
-import type { ErrorType } from '../../errors/utils.js'
-import type { Authorization } from '../../types/authorization.js'
-import type { ByteArray, Hex, Signature } from '../../types/misc.js'
-import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
+import type { ErrorType } from '../../../errors/utils.js'
+import type { Authorization } from '../../../types/authorization.js'
+import type { ByteArray, Hex, Signature } from '../../../types/misc.js'
+import {
+  type GetAddressErrorType,
+  getAddress,
+} from '../../../utils/address/getAddress.js'
 import {
   type IsAddressEqualErrorType,
   isAddressEqual,
-} from '../address/isAddressEqual.js'
+} from '../../../utils/address/isAddressEqual.js'
 import {
   type RecoverAuthorizationAddressErrorType,
   recoverAuthorizationAddress,
