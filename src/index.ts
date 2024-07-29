@@ -857,6 +857,8 @@ export {
   type RpcRequestErrorType,
   TimeoutError,
   type TimeoutErrorType,
+  SocketClosedError,
+  type SocketClosedErrorType,
   WebSocketRequestError,
   type WebSocketRequestErrorType,
 } from './errors/request.js'
