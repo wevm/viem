@@ -1,12 +1,11 @@
-import { parseAbiParameters } from 'abitype'
-
 import { sign } from '~viem/accounts/utils/sign.js'
+import { parseAbiParameters } from '~viem/index.js'
 import type { Hex } from '~viem/types/misc.js'
 import { decodeAbiParameters } from '~viem/utils/abi/decodeAbiParameters.js'
 import { encodeAbiParameters } from '~viem/utils/abi/encodeAbiParameters.js'
 import { stringToHex } from '~viem/utils/encoding/toHex.js'
 import { keccak256 } from '~viem/utils/hash/keccak256.js'
-import { signatureToHex } from '~viem/utils/signature/signatureToHex.js'
+import { serializeSignature } from '~viem/utils/signature/serializeSignature.js'
 
 import { accounts } from './constants.js'
 import { createHttpServer } from './utils.js'
@@ -16,7 +15,7 @@ export function createCcipServer() {
     res.writeHead(200, {
       'Content-Type': 'application/json',
     })
-    const signature = signatureToHex(
+    const signature = serializeSignature(
       await sign({
         hash: keccak256(stringToHex('jxom.viem')),
         privateKey: accounts[0].privateKey,

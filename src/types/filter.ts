@@ -16,48 +16,48 @@ type FilterRpcSchema = Filter_<
 >
 
 export type Filter<
-  TFilterType extends FilterType = 'event',
-  TAbi extends Abi | readonly unknown[] | undefined = undefined,
-  TEventName extends string | undefined = undefined,
-  TArgs extends
-    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
-    | undefined = MaybeExtractEventArgsFromAbi<TAbi, TEventName>,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  filterType extends FilterType = 'event',
+  abi extends Abi | readonly unknown[] | undefined = undefined,
+  eventName extends string | undefined = undefined,
+  args extends
+    | MaybeExtractEventArgsFromAbi<abi, eventName>
+    | undefined = MaybeExtractEventArgsFromAbi<abi, eventName>,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
   id: Hex
   request: EIP1193RequestFn<FilterRpcSchema>
-  type: TFilterType
-} & (TFilterType extends 'event'
+  type: filterType
+} & (filterType extends 'event'
   ? {
-      fromBlock?: TFromBlock | undefined
-      toBlock?: TToBlock | undefined
-    } & (TAbi extends Abi
-      ? undefined extends TEventName
+      fromBlock?: fromBlock | undefined
+      toBlock?: toBlock | undefined
+    } & (abi extends Abi
+      ? undefined extends eventName
         ? {
-            abi: TAbi
-            args?: never | undefined
-            eventName?: never | undefined
-            strict: TStrict
+            abi: abi
+            args?: undefined
+            eventName?: undefined
+            strict: strict
           }
-        : TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+        : args extends MaybeExtractEventArgsFromAbi<abi, eventName>
           ? {
-              abi: TAbi
-              args: TArgs
-              eventName: TEventName
-              strict: TStrict
+              abi: abi
+              args: args
+              eventName: eventName
+              strict: strict
             }
           : {
-              abi: TAbi
-              args?: never | undefined
-              eventName: TEventName
-              strict: TStrict
+              abi: abi
+              args?: undefined
+              eventName: eventName
+              strict: strict
             }
       : {
-          abi?: never | undefined
-          args?: never | undefined
-          eventName?: never | undefined
-          strict?: never | undefined
+          abi?: undefined
+          args?: undefined
+          eventName?: undefined
+          strict?: undefined
         })
   : {})

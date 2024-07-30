@@ -1,10 +1,12 @@
 import type { Transport } from '../clients/transports/createTransport.js'
+import type { FallbackTransport } from '../clients/transports/fallback.js'
+import type { Some } from './utils.js'
 
-export type GetTransportConfig<TTransport extends Transport> =
-  ReturnType<TTransport>['config']
+export type GetTransportConfig<transport extends Transport> =
+  ReturnType<transport>['config']
 
 export type GetPollOptions<transport extends Transport> =
-  | (GetTransportConfig<transport>['type'] extends 'webSocket'
+  | (HasTransportType<transport, 'webSocket'> extends true
       ? {
           batch?: undefined
           /**
@@ -28,3 +30,19 @@ export type GetPollOptions<transport extends Transport> =
        */
       pollingInterval?: number | undefined
     }
+
+export type HasTransportType<
+  transport extends Transport,
+  type extends string,
+> = GetTransportConfig<transport>['type'] extends type
+  ? true
+  : transport extends FallbackTransport<
+        infer transports extends readonly Transport[]
+      >
+    ? Some<
+        {
+          [key in keyof transports]: GetTransportConfig<transports[key]>['type']
+        },
+        type
+      >
+    : false

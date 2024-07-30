@@ -2,7 +2,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import type { GetTransportConfig } from '../../types/transport.js'
+import type { HasTransportType } from '../../types/transport.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { getAction } from '../../utils/getAction.js'
 import { observe } from '../../utils/observe.js'
@@ -21,14 +21,14 @@ export type OnBlockNumberFn = (
 ) => void
 
 export type WatchBlockNumberParameters<
-  TTransport extends Transport = Transport,
+  transport extends Transport = Transport,
 > = {
   /** The callback to call when a new block number is received. */
   onBlockNumber: OnBlockNumberFn
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
 } & (
-  | (GetTransportConfig<TTransport>['type'] extends 'webSocket'
+  | (HasTransportType<transport, 'webSocket'> extends true
       ? {
           emitMissed?: undefined
           emitOnBegin?: undefined
@@ -78,10 +78,10 @@ export type WatchBlockNumberErrorType = PollErrorType | ErrorType
  * })
  */
 export function watchBlockNumber<
-  TChain extends Chain | undefined,
-  TTransport extends Transport,
+  chain extends Chain | undefined,
+  transport extends Transport,
 >(
-  client: Client<TTransport, TChain>,
+  client: Client<transport, chain>,
   {
     emitOnBegin = false,
     emitMissed = false,
@@ -89,10 +89,18 @@ export function watchBlockNumber<
     onError,
     poll: poll_,
     pollingInterval = client.pollingInterval,
-  }: WatchBlockNumberParameters<TTransport>,
+  }: WatchBlockNumberParameters<transport>,
 ): WatchBlockNumberReturnType {
-  const enablePolling =
-    typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
+  const enablePolling = (() => {
+    if (typeof poll_ !== 'undefined') return poll_
+    if (client.transport.type === 'webSocket') return false
+    if (
+      client.transport.type === 'fallback' &&
+      client.transport.transports[0].config.type === 'webSocket'
+    )
+      return false
+    return true
+  })()
 
   let prevBlockNumber: GetBlockNumberReturnType | undefined
 
@@ -161,19 +169,30 @@ export function watchBlockNumber<
       let unsubscribe = () => (active = false)
       ;(async () => {
         try {
-          const { unsubscribe: unsubscribe_ } =
-            await client.transport.subscribe({
-              params: ['newHeads'],
-              onData(data: any) {
-                if (!active) return
-                const blockNumber = hexToBigInt(data.result?.number)
-                emit.onBlockNumber(blockNumber, prevBlockNumber)
-                prevBlockNumber = blockNumber
-              },
-              onError(error: Error) {
-                emit.onError?.(error)
-              },
-            })
+          const transport = (() => {
+            if (client.transport.type === 'fallback') {
+              const transport = client.transport.transports.find(
+                (transport: ReturnType<Transport>) =>
+                  transport.config.type === 'webSocket',
+              )
+              if (!transport) return client.transport
+              return transport.value
+            }
+            return client.transport
+          })()
+
+          const { unsubscribe: unsubscribe_ } = await transport.subscribe({
+            params: ['newHeads'],
+            onData(data: any) {
+              if (!active) return
+              const blockNumber = hexToBigInt(data.result?.number)
+              emit.onBlockNumber(blockNumber, prevBlockNumber)
+              prevBlockNumber = blockNumber
+            },
+            onError(error: Error) {
+              emit.onError?.(error)
+            },
+          })
           unsubscribe = unsubscribe_
           if (!active) unsubscribe()
         } catch (err) {

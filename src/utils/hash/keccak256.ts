@@ -8,9 +8,9 @@ import { type ToHexErrorType, toHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 
-export type Keccak256Hash<TTo extends To> =
-  | (TTo extends 'bytes' ? ByteArray : never)
-  | (TTo extends 'hex' ? Hex : never)
+export type Keccak256Hash<to extends To> =
+  | (to extends 'bytes' ? ByteArray : never)
+  | (to extends 'hex' ? Hex : never)
 
 export type Keccak256ErrorType =
   | IsHexErrorType
@@ -18,14 +18,14 @@ export type Keccak256ErrorType =
   | ToHexErrorType
   | ErrorType
 
-export function keccak256<TTo extends To = 'hex'>(
+export function keccak256<to extends To = 'hex'>(
   value: Hex | ByteArray,
-  to_?: TTo | undefined,
-): Keccak256Hash<TTo> {
+  to_?: to | undefined,
+): Keccak256Hash<to> {
   const to = to_ || 'hex'
   const bytes = keccak_256(
     isHex(value, { strict: false }) ? toBytes(value) : value,
   )
-  if (to === 'bytes') return bytes as Keccak256Hash<TTo>
-  return toHex(bytes) as Keccak256Hash<TTo>
+  if (to === 'bytes') return bytes as Keccak256Hash<to>
+  return toHex(bytes) as Keccak256Hash<to>
 }

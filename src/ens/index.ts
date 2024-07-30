@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { type NormalizeErrorType, normalize } from '../utils/ens/normalize.js'
 export {
   type GetEnsAddressErrorType,
@@ -31,3 +32,11 @@ export {
 } from '../actions/ens/getEnsText.js'
 export { type LabelhashErrorType, labelhash } from '../utils/ens/labelhash.js'
 export { type NamehashErrorType, namehash } from '../utils/ens/namehash.js'
+export {
+  parseAvatarRecord,
+  type ParseAvatarRecordErrorType,
+} from '../utils/ens/avatar/parseAvatarRecord.js'
+export {
+  packetToBytes,
+  type PacketToBytesErrorType,
+} from '../utils/ens/packetToBytes.js'

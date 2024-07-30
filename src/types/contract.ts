@@ -1,19 +1,19 @@
-import {
-  type Abi,
-  type AbiEvent,
-  type AbiFunction,
-  type AbiParameter,
-  type AbiParameterToPrimitiveType,
-  type AbiParametersToPrimitiveTypes,
-  type AbiStateMutability,
-  type Address,
-  type ExtractAbiError,
-  type ExtractAbiErrorNames,
-  type ExtractAbiEvent,
-  type ExtractAbiEventNames,
-  type ExtractAbiFunction,
-  type ExtractAbiFunctionNames,
-  type ResolvedRegister,
+import type {
+  Abi,
+  AbiEvent,
+  AbiFunction,
+  AbiParameter,
+  AbiParameterToPrimitiveType,
+  AbiParametersToPrimitiveTypes,
+  AbiStateMutability,
+  Address,
+  ExtractAbiError,
+  ExtractAbiErrorNames,
+  ExtractAbiEvent,
+  ExtractAbiEventNames,
+  ExtractAbiFunction,
+  ExtractAbiFunctionNames,
+  ResolvedRegister,
 } from 'abitype'
 
 import type { Hex, LogTopic } from './misc.js'
@@ -23,7 +23,7 @@ import type {
   IsNarrowable,
   IsUnion,
   MaybeRequired,
-  NoUndefined,
+  NoInfer,
   Prettify,
   UnionToTuple,
 } from './utils.js'
@@ -197,19 +197,22 @@ export type ContractFunctionParameters<
     mutability,
     functionName
   > = ContractFunctionArgs<abi, mutability, functionName>,
+  deployless extends boolean = false,
   ///
   allFunctionNames = ContractFunctionName<abi, mutability>,
   allArgs = ContractFunctionArgs<abi, mutability, functionName>,
   // when `args` is inferred to `readonly []` ("inputs": []) or `never` (`abi` declared as `Abi` or not inferrable), allow `args` to be optional.
   // important that both branches return same structural type
 > = {
-  address: Address
   abi: abi
   functionName:
     | allFunctionNames // show all options
     | (functionName extends allFunctionNames ? functionName : never) // infer value
   args?: (abi extends Abi ? UnionWiden<args> : never) | allArgs | undefined
-} & (readonly [] extends allArgs ? {} : { args: Widen<args> })
+} & (readonly [] extends allArgs ? {} : { args: Widen<args> }) &
+  (deployless extends true
+    ? { address?: undefined; code: Hex }
+    : { address: Address })
 
 export type ContractFunctionReturnType<
   abi extends Abi | readonly unknown[] = Abi,
@@ -299,32 +302,32 @@ export type ExtractAbiItemForArgs<
 export type EventDefinition = `${string}(${string})`
 
 export type GetValue<
-  TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
-  TValueType = TransactionRequest['value'],
-  TAbiFunction extends AbiFunction = TAbi extends Abi
-    ? ExtractAbiFunction<TAbi, TFunctionName>
+  abi extends Abi | readonly unknown[],
+  functionName extends string,
+  valueType = TransactionRequest['value'],
+  abiFunction extends AbiFunction = abi extends Abi
+    ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
-  _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
+  _Narrowable extends boolean = IsNarrowable<abi, Abi>,
 > = _Narrowable extends true
-  ? TAbiFunction['stateMutability'] extends 'payable'
-    ? { value?: NoUndefined<TValueType> | undefined }
-    : TAbiFunction['payable'] extends true
-      ? { value?: NoUndefined<TValueType> | undefined }
-      : { value?: never | undefined }
-  : { value?: TValueType | undefined }
+  ? abiFunction['stateMutability'] extends 'payable'
+    ? { value?: NoInfer<valueType> | undefined }
+    : abiFunction['payable'] extends true
+      ? { value?: NoInfer<valueType> | undefined }
+      : { value?: undefined }
+  : { value?: NoInfer<valueType> | undefined }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
-  TAbiEvent extends AbiEvent ? TAbiEvent['name'] : undefined
+export type MaybeAbiEventName<abiEvent extends AbiEvent | undefined> =
+  abiEvent extends AbiEvent ? abiEvent['name'] : undefined
 
 export type MaybeExtractEventArgsFromAbi<
-  TAbi extends Abi | readonly unknown[] | undefined,
-  TEventName extends string | undefined,
-> = TAbi extends Abi | readonly unknown[]
-  ? TEventName extends string
-    ? GetEventArgs<TAbi, TEventName>
+  abi extends Abi | readonly unknown[] | undefined,
+  eventName extends string | undefined,
+> = abi extends Abi | readonly unknown[]
+  ? eventName extends string
+    ? GetEventArgs<abi, eventName>
     : undefined
   : undefined
 
@@ -332,19 +335,19 @@ export type MaybeExtractEventArgsFromAbi<
 // ABI item args
 
 export type GetEventArgs<
-  TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
-  TConfig extends EventParameterOptions = DefaultEventParameterOptions,
-  TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
-    ? ExtractAbiEvent<TAbi, TEventName>
+  abi extends Abi | readonly unknown[],
+  eventName extends string,
+  config extends EventParameterOptions = DefaultEventParameterOptions,
+  abiEvent extends AbiEvent & { type: 'event' } = abi extends Abi
+    ? ExtractAbiEvent<abi, eventName>
     : AbiEvent & { type: 'event' },
-  TArgs = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs'], TConfig>,
+  args = AbiEventParametersToPrimitiveTypes<abiEvent['inputs'], config>,
   FailedToParseArgs =
-    | ([TArgs] extends [never] ? true : false)
-    | (readonly unknown[] extends TArgs ? true : false),
+    | ([args] extends [never] ? true : false)
+    | (readonly unknown[] extends args ? true : false),
 > = true extends FailedToParseArgs
   ? readonly unknown[] | Record<string, unknown>
-  : TArgs
+  : args
 
 //////////////////////////////////////////////////////////////////////
 // ABI event types
@@ -361,14 +364,15 @@ type DefaultEventParameterOptions = {
 }
 
 export type AbiEventParametersToPrimitiveTypes<
-  TAbiParameters extends readonly AbiParameter[],
-  Options extends EventParameterOptions = DefaultEventParameterOptions,
+  abiParameters extends readonly AbiParameter[],
+  //
+  _options extends EventParameterOptions = DefaultEventParameterOptions,
   // Remove non-indexed parameters based on `Options['IndexedOnly']`
-> = TAbiParameters extends readonly []
+> = abiParameters extends readonly []
   ? readonly []
   : Filter<
-        TAbiParameters,
-        Options['IndexedOnly'] extends true ? { indexed: true } : object
+        abiParameters,
+        _options['IndexedOnly'] extends true ? { indexed: true } : object
       > extends infer Filtered extends readonly AbiParameter[]
     ? _HasUnnamedAbiParameter<Filtered> extends true
       ? // Has unnamed tuple parameters so return as array
@@ -376,12 +380,12 @@ export type AbiEventParametersToPrimitiveTypes<
               ...{
                 [K in keyof Filtered]: AbiEventParameterToPrimitiveType<
                   Filtered[K],
-                  Options
+                  _options
                 >
               },
             ]
           // Distribute over tuple to represent optional parameters
-          | (Options['Required'] extends true
+          | (_options['Required'] extends true
               ? never
               : // Distribute over tuple to represent optional parameters
                 Filtered extends readonly [
@@ -390,7 +394,7 @@ export type AbiEventParametersToPrimitiveTypes<
                   ]
                 ? AbiEventParametersToPrimitiveTypes<
                     readonly [...{ [K in keyof Head]: Omit<Head[K], 'name'> }],
-                    Options
+                    _options
                   >
                 : never)
       : // All tuple parameters are named so return as object
@@ -400,21 +404,23 @@ export type AbiEventParametersToPrimitiveTypes<
             }
               ? Name
               : never]?:
-              | AbiEventParameterToPrimitiveType<Parameter, Options>
+              | AbiEventParameterToPrimitiveType<Parameter, _options>
               | undefined
           } extends infer Mapped
         ? Prettify<
             MaybeRequired<
               Mapped,
-              Options['Required'] extends boolean ? Options['Required'] : false
+              _options['Required'] extends boolean
+                ? _options['Required']
+                : false
             >
           >
         : never
     : never
 
 // TODO: Speed up by returning immediately as soon as named parameter is found.
-type _HasUnnamedAbiParameter<TAbiParameters extends readonly AbiParameter[]> =
-  TAbiParameters extends readonly [
+type _HasUnnamedAbiParameter<abiParameters extends readonly AbiParameter[]> =
+  abiParameters extends readonly [
     infer Head extends AbiParameter,
     ...infer Tail extends readonly AbiParameter[],
   ]
@@ -429,13 +435,13 @@ type _HasUnnamedAbiParameter<TAbiParameters extends readonly AbiParameter[]> =
  * @internal
  */
 export type LogTopicType<
-  TPrimitiveType = Hex,
-  TTopic extends LogTopic = LogTopic,
-> = TTopic extends Hex
-  ? TPrimitiveType
-  : TTopic extends Hex[]
-    ? TPrimitiveType[]
-    : TTopic extends null
+  primitiveType = Hex,
+  topic extends LogTopic = LogTopic,
+> = topic extends Hex
+  ? primitiveType
+  : topic extends Hex[]
+    ? primitiveType[]
+    : topic extends null
       ? null
       : never
 
@@ -443,10 +449,11 @@ export type LogTopicType<
  * @internal
  */
 export type AbiEventParameterToPrimitiveType<
-  TAbiParameter extends AbiParameter,
-  Options extends EventParameterOptions = DefaultEventParameterOptions,
-  _Type = AbiParameterToPrimitiveType<TAbiParameter>,
-> = Options['EnableUnion'] extends true ? LogTopicType<_Type> : _Type
+  abiParameter extends AbiParameter,
+  //
+  _options extends EventParameterOptions = DefaultEventParameterOptions,
+  _type = AbiParameterToPrimitiveType<abiParameter>,
+> = _options['EnableUnion'] extends true ? LogTopicType<_type> : _type
 
 type HashedEventTypes = 'bytes' | 'string' | 'tuple' | `${string}[${string}]`
 
@@ -454,9 +461,9 @@ type HashedEventTypes = 'bytes' | 'string' | 'tuple' | `${string}[${string}]`
  * @internal
  */
 export type AbiEventTopicToPrimitiveType<
-  TAbiParameter extends AbiParameter,
-  TTopic extends LogTopic,
-  TPrimitiveType = TAbiParameter['type'] extends HashedEventTypes
-    ? TTopic
-    : AbiParameterToPrimitiveType<TAbiParameter>,
-> = LogTopicType<TPrimitiveType, TTopic>
+  abiParameter extends AbiParameter,
+  topic extends LogTopic,
+  primitiveType = abiParameter['type'] extends HashedEventTypes
+    ? topic
+    : AbiParameterToPrimitiveType<abiParameter>,
+> = LogTopicType<primitiveType, topic>

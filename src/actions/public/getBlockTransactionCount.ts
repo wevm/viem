@@ -19,18 +19,18 @@ export type GetBlockTransactionCountParameters =
   | {
       /** Hash of the block. */
       blockHash?: Hash | undefined
-      blockNumber?: never | undefined
-      blockTag?: never | undefined
+      blockNumber?: undefined
+      blockTag?: undefined
     }
   | {
-      blockHash?: never | undefined
+      blockHash?: undefined
       /** The block number. */
       blockNumber?: bigint | undefined
-      blockTag?: never | undefined
+      blockTag?: undefined
     }
   | {
-      blockHash?: never | undefined
-      blockNumber?: never | undefined
+      blockHash?: undefined
+      blockNumber?: undefined
       /** The block tag. Defaults to 'latest'. */
       blockTag?: BlockTag | undefined
     }
@@ -66,10 +66,8 @@ export type GetBlockTransactionCountErrorType =
  * })
  * const count = await getBlockTransactionCount(client)
  */
-export async function getBlockTransactionCount<
-  TChain extends Chain | undefined,
->(
-  client: Client<Transport, TChain>,
+export async function getBlockTransactionCount<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockHash,
     blockNumber,
@@ -81,15 +79,21 @@ export async function getBlockTransactionCount<
 
   let count: Quantity
   if (blockHash) {
-    count = await client.request({
-      method: 'eth_getBlockTransactionCountByHash',
-      params: [blockHash],
-    })
+    count = await client.request(
+      {
+        method: 'eth_getBlockTransactionCountByHash',
+        params: [blockHash],
+      },
+      { dedupe: true },
+    )
   } else {
-    count = await client.request({
-      method: 'eth_getBlockTransactionCountByNumber',
-      params: [blockNumberHex || blockTag],
-    })
+    count = await client.request(
+      {
+        method: 'eth_getBlockTransactionCountByNumber',
+        params: [blockNumberHex || blockTag],
+      },
+      { dedupe: Boolean(blockNumberHex) },
+    )
   }
 
   return hexToNumber(count)

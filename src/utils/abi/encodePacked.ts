@@ -45,10 +45,10 @@ type PackedAbiType =
   | SolidityArrayWithoutTuple
 
 type EncodePackedValues<
-  TPackedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
+  packedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
 > = {
-  [K in keyof TPackedAbiTypes]: TPackedAbiTypes[K] extends AbiType
-    ? AbiParameterToPrimitiveType<{ type: TPackedAbiTypes[K] }>
+  [K in keyof packedAbiTypes]: packedAbiTypes[K] extends AbiType
+    ? AbiParameterToPrimitiveType<{ type: packedAbiTypes[K] }>
     : unknown
 }
 
@@ -59,8 +59,8 @@ export type EncodePackedErrorType =
   | ErrorType
 
 export function encodePacked<
-  const TPackedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
->(types: TPackedAbiTypes, values: EncodePackedValues<TPackedAbiTypes>): Hex {
+  const packedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
+>(types: packedAbiTypes, values: EncodePackedValues<packedAbiTypes>): Hex {
   if (types.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
       expectedLength: types.length as number,
@@ -87,9 +87,9 @@ type EncodeErrorType =
   | UnsupportedPackedAbiType
   | ErrorType
 
-function encode<const TPackedAbiType extends PackedAbiType | unknown>(
-  type: TPackedAbiType,
-  value: EncodePackedValues<[TPackedAbiType]>[0],
+function encode<const packedAbiType extends PackedAbiType | unknown>(
+  type: packedAbiType,
+  value: EncodePackedValues<[packedAbiType]>[0],
   isArray = false,
 ): Hex {
   if (type === 'address') {
@@ -107,7 +107,7 @@ function encode<const TPackedAbiType extends PackedAbiType | unknown>(
   const intMatch = (type as string).match(integerRegex)
   if (intMatch) {
     const [_type, baseType, bits = '256'] = intMatch
-    const size = parseInt(bits) / 8
+    const size = Number.parseInt(bits) / 8
     return numberToHex(value as number, {
       size: isArray ? 32 : size,
       signed: baseType === 'int',
@@ -117,9 +117,9 @@ function encode<const TPackedAbiType extends PackedAbiType | unknown>(
   const bytesMatch = (type as string).match(bytesRegex)
   if (bytesMatch) {
     const [_type, size] = bytesMatch
-    if (parseInt(size) !== ((value as Hex).length - 2) / 2)
+    if (Number.parseInt(size) !== ((value as Hex).length - 2) / 2)
       throw new BytesSizeMismatchError({
-        expectedSize: parseInt(size),
+        expectedSize: Number.parseInt(size),
         givenSize: ((value as Hex).length - 2) / 2,
       })
     return pad(value as Hex, { dir: 'right', size: isArray ? 32 : null }) as Hex

@@ -93,19 +93,24 @@ import {
   getBlockTransactionCount,
 } from '../../actions/public/getBlockTransactionCount.js'
 import {
-  type GetBytecodeParameters,
-  type GetBytecodeReturnType,
-  getBytecode,
-} from '../../actions/public/getBytecode.js'
-import {
   type GetChainIdReturnType,
   getChainId,
 } from '../../actions/public/getChainId.js'
+import {
+  type GetCodeParameters,
+  type GetCodeReturnType,
+  getCode,
+} from '../../actions/public/getCode.js'
 import {
   type GetContractEventsParameters,
   type GetContractEventsReturnType,
   getContractEvents,
 } from '../../actions/public/getContractEvents.js'
+import {
+  type GetEip712DomainParameters,
+  type GetEip712DomainReturnType,
+  getEip712Domain,
+} from '../../actions/public/getEip712Domain.js'
 import {
   type GetFeeHistoryParameters,
   type GetFeeHistoryReturnType,
@@ -221,6 +226,11 @@ import {
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
 import {
+  type VerifySiweMessageParameters,
+  type VerifySiweMessageReturnType,
+  verifySiweMessage,
+} from '../../actions/siwe/verifySiweMessage.js'
+import {
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestRequest,
   type PrepareTransactionRequestReturnType,
@@ -247,9 +257,9 @@ import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 export type PublicActions<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
 > = {
   /**
    * Executes a new message call immediately without submitting a transaction to the network.
@@ -274,7 +284,7 @@ export type PublicActions<
    *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
    * })
    */
-  call: (parameters: CallParameters<TChain>) => Promise<CallReturnType>
+  call: (parameters: CallParameters<chain>) => Promise<CallReturnType>
   /**
    * Creates a Filter to listen for new block hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
    *
@@ -316,29 +326,29 @@ export type PublicActions<
    * })
    */
   createContractEventFilter: <
-    const TAbi extends Abi | readonly unknown[],
-    TEventName extends ContractEventName<TAbi> | undefined,
-    TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
-    TStrict extends boolean | undefined = undefined,
-    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+    const abi extends Abi | readonly unknown[],
+    eventName extends ContractEventName<abi> | undefined,
+    args extends MaybeExtractEventArgsFromAbi<abi, eventName> | undefined,
+    strict extends boolean | undefined = undefined,
+    fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    toBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
     args: CreateContractEventFilterParameters<
-      TAbi,
-      TEventName,
-      TArgs,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      abi,
+      eventName,
+      args,
+      strict,
+      fromBlock,
+      toBlock
     >,
   ) => Promise<
     CreateContractEventFilterReturnType<
-      TAbi,
-      TEventName,
-      TArgs,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      abi,
+      eventName,
+      args,
+      strict,
+      fromBlock,
+      toBlock
     >
   >
   /**
@@ -363,37 +373,37 @@ export type PublicActions<
    * })
    */
   createEventFilter: <
-    const TAbiEvent extends AbiEvent | undefined = undefined,
-    const TAbiEvents extends
+    const abiEvent extends AbiEvent | undefined = undefined,
+    const abiEvents extends
       | readonly AbiEvent[]
       | readonly unknown[]
-      | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-    TStrict extends boolean | undefined = undefined,
-    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-    _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+      | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+    strict extends boolean | undefined = undefined,
+    fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    toBlock extends BlockNumber | BlockTag | undefined = undefined,
+    _EventName extends string | undefined = MaybeAbiEventName<abiEvent>,
     _Args extends
-      | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
+      | MaybeExtractEventArgsFromAbi<abiEvents, _EventName>
       | undefined = undefined,
   >(
     args?:
       | CreateEventFilterParameters<
-          TAbiEvent,
-          TAbiEvents,
-          TStrict,
-          TFromBlock,
-          TToBlock,
+          abiEvent,
+          abiEvents,
+          strict,
+          fromBlock,
+          toBlock,
           _EventName,
           _Args
         >
       | undefined,
   ) => Promise<
     CreateEventFilterReturnType<
-      TAbiEvent,
-      TAbiEvents,
-      TStrict,
-      TFromBlock,
-      TToBlock,
+      abiEvent,
+      abiEvents,
+      strict,
+      fromBlock,
+      toBlock,
       _EventName,
       _Args
     >
@@ -445,7 +455,7 @@ export type PublicActions<
    * })
    */
   estimateContractGas: <
-    TChain extends Chain | undefined,
+    chain extends Chain | undefined,
     const abi extends Abi | readonly unknown[],
     functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
     args extends ContractFunctionArgs<
@@ -454,7 +464,7 @@ export type PublicActions<
       functionName
     >,
   >(
-    args: EstimateContractGasParameters<abi, functionName, args, TChain>,
+    args: EstimateContractGasParameters<abi, functionName, args, chain>,
   ) => Promise<EstimateContractGasReturnType>
   /**
    * Estimates the gas necessary to complete a transaction without submitting it to the network.
@@ -480,7 +490,7 @@ export type PublicActions<
    * })
    */
   estimateGas: (
-    args: EstimateGasParameters<TChain>,
+    args: EstimateGasParameters<chain>,
   ) => Promise<EstimateGasReturnType>
   /**
    * Returns the balance of an address in wei.
@@ -561,11 +571,11 @@ export type PublicActions<
    * const block = await client.getBlock()
    */
   getBlock: <
-    TIncludeTransactions extends boolean = false,
-    TBlockTag extends BlockTag = 'latest',
+    includeTransactions extends boolean = false,
+    blockTag extends BlockTag = 'latest',
   >(
-    args?: GetBlockParameters<TIncludeTransactions, TBlockTag> | undefined,
-  ) => Promise<GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>>
+    args?: GetBlockParameters<includeTransactions, blockTag> | undefined,
+  ) => Promise<GetBlockReturnType<chain, includeTransactions, blockTag>>
   /**
    * Returns the number of the most recent block seen.
    *
@@ -614,28 +624,8 @@ export type PublicActions<
   getBlockTransactionCount: (
     args?: GetBlockTransactionCountParameters | undefined,
   ) => Promise<GetBlockTransactionCountReturnType>
-  /**
-   * Retrieves the bytecode at an address.
-   *
-   * - Docs: https://viem.sh/docs/contract/getBytecode
-   * - JSON-RPC Methods: [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
-   *
-   * @param args - {@link GetBytecodeParameters}
-   * @returns The contract's bytecode. {@link GetBytecodeReturnType}
-   *
-   * @example
-   * import { createPublicClient, http } from 'viem'
-   * import { mainnet } from 'viem/chains'
-   *
-   * const client = createPublicClient({
-   *   chain: mainnet,
-   *   transport: http(),
-   * })
-   * const code = await client.getBytecode({
-   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-   * })
-   */
-  getBytecode: (args: GetBytecodeParameters) => Promise<GetBytecodeReturnType>
+  /** @deprecated Use `getCode` instead. */
+  getBytecode: (args: GetCodeParameters) => Promise<GetCodeReturnType>
   /**
    * Returns the chain ID associated with the current network.
    *
@@ -656,6 +646,28 @@ export type PublicActions<
    * // 1
    */
   getChainId: () => Promise<GetChainIdReturnType>
+  /**
+   * Retrieves the bytecode at an address.
+   *
+   * - Docs: https://viem.sh/docs/contract/getCode
+   * - JSON-RPC Methods: [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
+   *
+   * @param args - {@link GetBytecodeParameters}
+   * @returns The contract's bytecode. {@link GetBytecodeReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const code = await client.getCode({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   * })
+   */
+  getCode: (args: GetCodeParameters) => Promise<GetCodeReturnType>
   /**
    * Returns a list of event logs emitted by a contract.
    *
@@ -698,6 +710,41 @@ export type PublicActions<
   ) => Promise<
     GetContractEventsReturnType<abi, eventName, strict, fromBlock, toBlock>
   >
+  /**
+   * Reads the EIP-712 domain from a contract, based on the ERC-5267 specification.
+   *
+   * @param client - A {@link Client} instance.
+   * @param parameters - The parameters of the action. {@link GetEip712DomainParameters}
+   * @returns The EIP-712 domain, fields, and extensions. {@link GetEip712DomainReturnType}
+   *
+   * @example
+   * ```ts
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const domain = await client.getEip712Domain({
+   *   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+   * })
+   * // {
+   * //   domain: {
+   * //     name: 'ExampleContract',
+   * //     version: '1',
+   * //     chainId: 1,
+   * //     verifyingContract: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+   * //   },
+   * //   fields: '0x0f',
+   * //   extensions: [],
+   * // }
+   * ```
+   */
+  getEip712Domain: (
+    args: GetEip712DomainParameters,
+  ) => Promise<GetEip712DomainReturnType>
   /**
    * Gets address for ENS name.
    *
@@ -844,7 +891,7 @@ export type PublicActions<
    *   name: normalize('wevm.eth'),
    *   key: 'com.twitter',
    * })
-   * // 'wagmi_sh'
+   * // 'wevm_dev'
    */
   getEnsText: (args: GetEnsTextParameters) => Promise<GetEnsTextReturnType>
   /**
@@ -894,13 +941,11 @@ export type PublicActions<
    * // { maxFeePerGas: ..., maxPriorityFeePerGas: ... }
    */
   estimateFeesPerGas: <
-    TChainOverride extends Chain | undefined = undefined,
-    TType extends FeeValuesType = 'eip1559',
+    chainOverride extends Chain | undefined = undefined,
+    type extends FeeValuesType = 'eip1559',
   >(
-    args?:
-      | EstimateFeesPerGasParameters<TChain, TChainOverride, TType>
-      | undefined,
-  ) => Promise<EstimateFeesPerGasReturnType>
+    args?: EstimateFeesPerGasParameters<chain, chainOverride, type> | undefined,
+  ) => Promise<EstimateFeesPerGasReturnType<type>>
   /**
    * Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter) since the last time it was called.
    *
@@ -980,29 +1025,29 @@ export type PublicActions<
    * const hashes = await client.getFilterChanges({ filter })
    */
   getFilterChanges: <
-    TFilterType extends FilterType,
-    const TAbi extends Abi | readonly unknown[] | undefined,
-    TEventName extends string | undefined,
-    TStrict extends boolean | undefined = undefined,
-    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+    filterType extends FilterType,
+    const abi extends Abi | readonly unknown[] | undefined,
+    eventName extends string | undefined,
+    strict extends boolean | undefined = undefined,
+    fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    toBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
     args: GetFilterChangesParameters<
-      TFilterType,
-      TAbi,
-      TEventName,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      filterType,
+      abi,
+      eventName,
+      strict,
+      fromBlock,
+      toBlock
     >,
   ) => Promise<
     GetFilterChangesReturnType<
-      TFilterType,
-      TAbi,
-      TEventName,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      filterType,
+      abi,
+      eventName,
+      strict,
+      fromBlock,
+      toBlock
     >
   >
   /**
@@ -1032,21 +1077,15 @@ export type PublicActions<
    * const logs = await client.getFilterLogs({ filter })
    */
   getFilterLogs: <
-    const TAbi extends Abi | readonly unknown[] | undefined,
-    TEventName extends string | undefined,
-    TStrict extends boolean | undefined = undefined,
-    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+    const abi extends Abi | readonly unknown[] | undefined,
+    eventName extends string | undefined,
+    strict extends boolean | undefined = undefined,
+    fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    toBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args: GetFilterLogsParameters<
-      TAbi,
-      TEventName,
-      TStrict,
-      TFromBlock,
-      TToBlock
-    >,
+    args: GetFilterLogsParameters<abi, eventName, strict, fromBlock, toBlock>,
   ) => Promise<
-    GetFilterLogsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
+    GetFilterLogsReturnType<abi, eventName, strict, fromBlock, toBlock>
   >
   /**
    * Returns the current price of gas (in wei).
@@ -1088,20 +1127,20 @@ export type PublicActions<
    * const logs = await client.getLogs()
    */
   getLogs: <
-    const TAbiEvent extends AbiEvent | undefined = undefined,
-    const TAbiEvents extends
+    const abiEvent extends AbiEvent | undefined = undefined,
+    const abiEvents extends
       | readonly AbiEvent[]
       | readonly unknown[]
-      | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-    TStrict extends boolean | undefined = undefined,
-    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+      | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+    strict extends boolean | undefined = undefined,
+    fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    toBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
     args?:
-      | GetLogsParameters<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
+      | GetLogsParameters<abiEvent, abiEvents, strict, fromBlock, toBlock>
       | undefined,
   ) => Promise<
-    GetLogsReturnType<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
+    GetLogsReturnType<abiEvent, abiEvents, strict, fromBlock, toBlock>
   >
   /**
    * Returns the account and storage values of the specified account including the Merkle-proof.
@@ -1149,10 +1188,10 @@ export type PublicActions<
    * // 10000000n
    */
   estimateMaxPriorityFeePerGas: <
-    TChainOverride extends Chain | undefined = undefined,
+    chainOverride extends Chain | undefined = undefined,
   >(
     args?:
-      | EstimateMaxPriorityFeePerGasParameters<TChain, TChainOverride>
+      | EstimateMaxPriorityFeePerGasParameters<chain, chainOverride>
       | undefined,
   ) => Promise<EstimateMaxPriorityFeePerGasReturnType>
   /**
@@ -1203,9 +1242,9 @@ export type PublicActions<
    *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
    * })
    */
-  getTransaction: <TBlockTag extends BlockTag = 'latest'>(
-    args: GetTransactionParameters<TBlockTag>,
-  ) => Promise<GetTransactionReturnType<TChain, TBlockTag>>
+  getTransaction: <blockTag extends BlockTag = 'latest'>(
+    args: GetTransactionParameters<blockTag>,
+  ) => Promise<GetTransactionReturnType<chain, blockTag>>
   /**
    * Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
    *
@@ -1229,7 +1268,7 @@ export type PublicActions<
    * })
    */
   getTransactionConfirmations: (
-    args: GetTransactionConfirmationsParameters<TChain>,
+    args: GetTransactionConfirmationsParameters<chain>,
   ) => Promise<GetTransactionConfirmationsReturnType>
   /**
    * Returns the number of [Transactions](https://viem.sh/docs/glossary/terms#transaction) an Account has broadcast / sent.
@@ -1279,7 +1318,7 @@ export type PublicActions<
    */
   getTransactionReceipt: (
     args: GetTransactionReceiptParameters,
-  ) => Promise<GetTransactionReceiptReturnType<TChain>>
+  ) => Promise<GetTransactionReceiptReturnType<chain>>
   /**
    * Similar to [`readContract`](https://viem.sh/docs/contract/readContract), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
    *
@@ -1362,28 +1401,27 @@ export type PublicActions<
    * })
    */
   prepareTransactionRequest: <
-    const TRequest extends PrepareTransactionRequestRequest<
-      TChain,
-      TChainOverride
+    const request extends PrepareTransactionRequestRequest<
+      chain,
+      chainOverride
     >,
-    TChainOverride extends Chain | undefined = undefined,
-    TAccountOverride extends Account | Address | undefined = undefined,
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | Address | undefined = undefined,
   >(
     args: PrepareTransactionRequestParameters<
-      TChain,
-      TAccount,
-      TChainOverride,
-      TAccountOverride,
-      TRequest
+      chain,
+      account,
+      chainOverride,
+      accountOverride,
+      request
     >,
   ) => Promise<
     PrepareTransactionRequestReturnType<
-      Chain,
-      TAccount,
-      TChainOverride,
-      TAccountOverride,
-      // @ts-expect-error
-      TRequest
+      chain,
+      account,
+      chainOverride,
+      accountOverride,
+      request
     >
   >
   /**
@@ -1496,7 +1534,7 @@ export type PublicActions<
       abi,
       functionName,
       args,
-      TChain,
+      chain,
       chainOverride,
       accountOverride
     >,
@@ -1505,15 +1543,46 @@ export type PublicActions<
       abi,
       functionName,
       args,
-      TChain,
-      TAccount,
+      chain,
+      account,
       chainOverride,
       accountOverride
     >
   >
+  /**
+   * Verify that a message was signed by the provided address.
+   *
+   * Compatible with Smart Contract Accounts & Externally Owned Accounts via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492).
+   *
+   * - Docs {@link https://viem.sh/docs/actions/public/verifyMessage}
+   *
+   * @param parameters - {@link VerifyMessageParameters}
+   * @returns Whether or not the signature is valid. {@link VerifyMessageReturnType}
+   */
   verifyMessage: (
     args: VerifyMessageParameters,
   ) => Promise<VerifyMessageReturnType>
+  /**
+   * Verifies [EIP-4361](https://eips.ethereum.org/EIPS/eip-4361) formatted message was signed.
+   *
+   * Compatible with Smart Contract Accounts & Externally Owned Accounts via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492).
+   *
+   * - Docs {@link https://viem.sh/docs/siwe/actions/verifySiweMessage}
+   *
+   * @param parameters - {@link VerifySiweMessageParameters}
+   * @returns Whether or not the signature is valid. {@link VerifySiweMessageReturnType}
+   */
+  verifySiweMessage: (
+    args: VerifySiweMessageParameters,
+  ) => Promise<VerifySiweMessageReturnType>
+  /**
+   * Verify that typed data was signed by the provided address.
+   *
+   * - Docs {@link https://viem.sh/docs/actions/public/verifyTypedData}
+   *
+   * @param parameters - {@link VerifyTypedDataParameters}
+   * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
+   */
   verifyTypedData: (
     args: VerifyTypedDataParameters,
   ) => Promise<VerifyTypedDataReturnType>
@@ -1581,8 +1650,8 @@ export type PublicActions<
    * })
    */
   waitForTransactionReceipt: (
-    args: WaitForTransactionReceiptParameters<TChain>,
-  ) => Promise<WaitForTransactionReceiptReturnType<TChain>>
+    args: WaitForTransactionReceiptParameters<chain>,
+  ) => Promise<WaitForTransactionReceiptReturnType<chain>>
   /**
    * Watches and returns incoming block numbers.
    *
@@ -1635,14 +1704,14 @@ export type PublicActions<
    * })
    */
   watchBlocks: <
-    TIncludeTransactions extends boolean = false,
-    TBlockTag extends BlockTag = 'latest',
+    includeTransactions extends boolean = false,
+    blockTag extends BlockTag = 'latest',
   >(
     args: WatchBlocksParameters<
-      TTransport,
-      TChain,
-      TIncludeTransactions,
-      TBlockTag
+      transport,
+      chain,
+      includeTransactions,
+      blockTag
     >,
   ) => WatchBlocksReturnType
   /**
@@ -1675,11 +1744,11 @@ export type PublicActions<
    * })
    */
   watchContractEvent: <
-    const TAbi extends Abi | readonly unknown[],
-    TEventName extends ContractEventName<TAbi>,
-    TStrict extends boolean | undefined = undefined,
+    const abi extends Abi | readonly unknown[],
+    eventName extends ContractEventName<abi>,
+    strict extends boolean | undefined = undefined,
   >(
-    args: WatchContractEventParameters<TAbi, TEventName, TStrict, TTransport>,
+    args: WatchContractEventParameters<abi, eventName, strict, transport>,
   ) => WatchContractEventReturnType
   /**
    * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms#event-log).
@@ -1713,14 +1782,14 @@ export type PublicActions<
    * })
    */
   watchEvent: <
-    const TAbiEvent extends AbiEvent | undefined = undefined,
-    const TAbiEvents extends
+    const abiEvent extends AbiEvent | undefined = undefined,
+    const abiEvents extends
       | readonly AbiEvent[]
       | readonly unknown[]
-      | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-    TStrict extends boolean | undefined = undefined,
+      | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+    strict extends boolean | undefined = undefined,
   >(
-    args: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
+    args: WatchEventParameters<abiEvent, abiEvents, strict, transport>,
   ) => WatchEventReturnType
   /**
    * Watches and returns pending transaction hashes.
@@ -1751,17 +1820,17 @@ export type PublicActions<
    * })
    */
   watchPendingTransactions: (
-    args: WatchPendingTransactionsParameters<TTransport>,
+    args: WatchPendingTransactionsParameters<transport>,
   ) => WatchPendingTransactionsReturnType
 }
 
 export function publicActions<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
 >(
-  client: Client<TTransport, TChain, TAccount>,
-): PublicActions<TTransport, TChain, TAccount> {
+  client: Client<transport, chain, account>,
+): PublicActions<transport, chain, account> {
   return {
     call: (args) => call(client, args),
     createBlockFilter: () => createBlockFilter(client),
@@ -1777,9 +1846,11 @@ export function publicActions<
     getBlock: (args) => getBlock(client, args),
     getBlockNumber: (args) => getBlockNumber(client, args),
     getBlockTransactionCount: (args) => getBlockTransactionCount(client, args),
-    getBytecode: (args) => getBytecode(client, args),
+    getBytecode: (args) => getCode(client, args),
     getChainId: () => getChainId(client),
+    getCode: (args) => getCode(client, args),
     getContractEvents: (args) => getContractEvents(client, args),
+    getEip712Domain: (args) => getEip712Domain(client, args),
     getEnsAddress: (args) => getEnsAddress(client, args),
     getEnsAvatar: (args) => getEnsAvatar(client, args),
     getEnsName: (args) => getEnsName(client, args),
@@ -1802,11 +1873,12 @@ export function publicActions<
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
     multicall: (args) => multicall(client, args),
     prepareTransactionRequest: (args) =>
-      prepareTransactionRequest(client as any, args as any),
+      prepareTransactionRequest(client as any, args as any) as any,
     readContract: (args) => readContract(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
     simulateContract: (args) => simulateContract(client, args),
     verifyMessage: (args) => verifyMessage(client, args),
+    verifySiweMessage: (args) => verifySiweMessage(client, args),
     verifyTypedData: (args) => verifyTypedData(client, args),
     uninstallFilter: (args) => uninstallFilter(client, args),
     waitForTransactionReceipt: (args) =>

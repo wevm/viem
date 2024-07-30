@@ -1,7 +1,9 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
   type Abi,
   type AbiFunction,
   type AbiParameter,
+  type AbiEvent,
   type AbiStateMutability,
   type AbiParameterKind,
   type AbiParameterToPrimitiveType,
@@ -46,6 +48,11 @@ export {
   type GetContractEventsParameters,
   type GetContractEventsReturnType,
 } from './actions/public/getContractEvents.js'
+export {
+  type GetEip712DomainErrorType,
+  type GetEip712DomainParameters,
+  type GetEip712DomainReturnType,
+} from './actions/public/getEip712Domain.js'
 export {
   type AddChainErrorType,
   type AddChainParameters,
@@ -139,10 +146,16 @@ export type {
   GetBlockTransactionCountReturnType,
 } from './actions/public/getBlockTransactionCount.js'
 export type {
-  GetBytecodeErrorType,
-  GetBytecodeParameters,
-  GetBytecodeReturnType,
-} from './actions/public/getBytecode.js'
+  /** @deprecated Use `GetCodeErrorType` instead */
+  GetCodeErrorType as GetBytecodeErrorType,
+  /** @deprecated Use `GetCodeParameters` instead */
+  GetCodeParameters as GetBytecodeParameters,
+  /** @deprecated Use `GetCodeReturnType` instead  */
+  GetCodeReturnType as GetBytecodeReturnType,
+  GetCodeErrorType,
+  GetCodeParameters,
+  GetCodeReturnType,
+} from './actions/public/getCode.js'
 export type {
   GetChainIdErrorType,
   GetChainIdReturnType,
@@ -153,6 +166,11 @@ export type {
   GetEnsAddressReturnType,
 } from './actions/ens/getEnsAddress.js'
 export type {
+  GetEnsAvatarErrorType,
+  GetEnsAvatarParameters,
+  GetEnsAvatarReturnType,
+} from './actions/ens/getEnsAvatar.js'
+export type {
   GetEnsNameErrorType,
   GetEnsNameParameters,
   GetEnsNameReturnType,
@@ -162,6 +180,11 @@ export type {
   GetEnsResolverParameters,
   GetEnsResolverReturnType,
 } from './actions/ens/getEnsResolver.js'
+export type {
+  GetEnsTextErrorType,
+  GetEnsTextParameters,
+  GetEnsTextReturnType,
+} from './actions/ens/getEnsText.js'
 export type {
   GetFeeHistoryErrorType,
   GetFeeHistoryParameters,
@@ -416,11 +439,22 @@ export type {
   WatchAssetReturnType,
 } from './actions/wallet/watchAsset.js'
 export type {
-  VerifyHashErrorType,
-  VerifyHashParameters,
-  VerifyHashReturnType,
+  VerifyHashErrorType as VerifyHashActionErrorType,
+  VerifyHashParameters as VerifyHashActionParameters,
+  VerifyHashReturnType as VerifyHashActionReturnType,
 } from './actions/public/verifyHash.js'
 export type {
+  VerifyTypedDataErrorType as VerifyTypedDataActionErrorType,
+  VerifyTypedDataParameters as VerifyTypedDataActionParameters,
+  VerifyTypedDataReturnType as VerifyTypedDataActionReturnType,
+} from './actions/public/verifyTypedData.js'
+export type {
+  VerifyMessageErrorType as VerifyMessageActionErrorType,
+  VerifyMessageParameters as VerifyMessageActionParameters,
+  VerifyMessageReturnType as VerifyMessageActionReturnType,
+} from './actions/public/verifyMessage.js'
+export type {
+  WatchContractEventOnLogsFn,
   WatchContractEventOnLogsParameter,
   WatchContractEventErrorType,
   WatchContractEventParameters,
@@ -446,12 +480,14 @@ export type {
   ExtractChainFormatterParameters,
   ExtractChainFormatterReturnType,
 } from './types/chain.js'
+export type { GetTransactionRequestKzgParameter, Kzg } from './types/kzg.js'
 export {
   type Client,
   type ClientConfig,
   type CreateClientErrorType,
   type MulticallBatchOptions,
   createClient,
+  rpcSchema,
 } from './clients/createClient.js'
 export {
   type CustomTransport,
@@ -690,6 +726,8 @@ export {
   type ContractFunctionZeroDataErrorType,
   RawContractError,
   type RawContractErrorType,
+  CounterfactualDeploymentFailedError,
+  type CounterfactualDeploymentFailedErrorType,
 } from './errors/contract.js'
 export {
   BaseFeeScalarError,
@@ -819,6 +857,8 @@ export {
   type RpcRequestErrorType,
   TimeoutError,
   type TimeoutErrorType,
+  SocketClosedError,
+  type SocketClosedErrorType,
   WebSocketRequestError,
   type WebSocketRequestErrorType,
 } from './errors/request.js'
@@ -865,8 +905,19 @@ export {
   type StateAssignmentConflictErrorType,
 } from './errors/stateOverride.js'
 export type {
+  AbiEventParameterToPrimitiveType,
+  AbiEventParametersToPrimitiveTypes,
+  AbiEventTopicToPrimitiveType,
   AbiItem,
+  AbiItemArgs,
+  AbiItemName,
+  ContractConstructorArgs,
+  ContractEventArgsFromTopics,
+  EventDefinition,
   ExtractAbiFunctionForArgs,
+  ExtractAbiItem,
+  ExtractAbiItemForArgs,
+  ExtractAbiItemNames,
   ContractErrorArgs,
   ContractErrorName,
   ContractEventArgs,
@@ -877,6 +928,11 @@ export type {
   ContractFunctionName,
   GetEventArgs,
   GetValue,
+  LogTopicType,
+  MaybeAbiEventName,
+  MaybeExtractEventArgsFromAbi,
+  UnionWiden,
+  Widen,
 } from './types/contract.js'
 export type {
   AccessList,
@@ -907,6 +963,7 @@ export type {
   TransactionSerializedLegacy,
   TransactionType,
   TransactionRequestEIP4844,
+  TransactionRequestGeneric,
 } from './types/transaction.js'
 export type {
   ExactPartial,
@@ -949,13 +1006,15 @@ export type {
 } from './types/misc.js'
 export type {
   AddEthereumChainParameter,
+  BundlerRpcSchema,
+  DebugBundlerRpcSchema,
   EIP1193EventMap,
   EIP1193Events,
   EIP1193Parameters,
   EIP1193Provider,
   EIP1193RequestFn,
   EIP1474Methods,
-  ProviderRpcError as EIP1193ProviderRpcError,
+  ProviderRpcErrorType as EIP1193ProviderRpcErrorType,
   ProviderConnectInfo,
   ProviderMessage,
   PublicRpcSchema,
@@ -963,11 +1022,19 @@ export type {
   RpcSchema,
   RpcSchemaOverride,
   TestRpcSchema,
-  WatchAssetParams,
+  WalletCapabilities,
+  WalletCapabilitiesRecord,
+  WalletCallReceipt,
+  WalletGetCallsStatusReturnType,
+  WalletGrantPermissionsParameters,
+  WalletGrantPermissionsReturnType,
+  WalletSendCallsParameters,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,
+  WatchAssetParams,
 } from './types/eip1193.js'
+export { ProviderRpcError as EIP1193ProviderRpcError } from './types/eip1193.js'
 export type { BlobSidecar, BlobSidecars } from './types/eip4844.js'
 export type {
   FeeHistory,
@@ -977,10 +1044,9 @@ export type {
   FeeValuesLegacy,
   FeeValuesType,
 } from './types/fee.js'
-export type { Filter } from './types/filter.js'
+export type { Filter, FilterType } from './types/filter.js'
 export type { TypedDataDefinition } from './types/typedData.js'
 export type { GetTransportConfig, GetPollOptions } from './types/transport.js'
-export type { HDKey } from '@scure/bip32'
 export type { Log } from './types/log.js'
 export type {
   MulticallContracts,
@@ -990,6 +1056,7 @@ export type {
 export type {
   ParseAccount,
   DeriveAccount,
+  HDKey,
 } from './types/account.js'
 export type {
   Index,
@@ -1051,6 +1118,7 @@ export {
 export {
   type DecodeFunctionDataErrorType,
   type DecodeFunctionDataParameters,
+  type DecodeFunctionDataReturnType,
   decodeFunctionData,
 } from './utils/abi/decodeFunctionData.js'
 export {
@@ -1079,6 +1147,7 @@ export {
 export {
   type EncodeEventTopicsErrorType,
   type EncodeEventTopicsParameters,
+  type EncodeEventTopicsReturnType,
   encodeEventTopics,
 } from './utils/abi/encodeEventTopics.js'
 export {
@@ -1087,6 +1156,12 @@ export {
   type EncodeFunctionDataReturnType,
   encodeFunctionData,
 } from './utils/abi/encodeFunctionData.js'
+export {
+  type PrepareEncodeFunctionDataErrorType,
+  type PrepareEncodeFunctionDataParameters,
+  type PrepareEncodeFunctionDataReturnType,
+  prepareEncodeFunctionData,
+} from './utils/abi/prepareEncodeFunctionData.js'
 export {
   type EncodeFunctionResultErrorType,
   type EncodeFunctionResultParameters,
@@ -1125,6 +1200,7 @@ export {
 export {
   type GetAbiItemErrorType,
   type GetAbiItemParameters,
+  type GetAbiItemReturnType,
   getAbiItem,
 } from './utils/abi/getAbiItem.js'
 export {
@@ -1144,7 +1220,7 @@ export {
 } from './utils/transaction/getSerializedTransactionType.js'
 export {
   type GetTransactionType,
-  type GetTransationTypeErrorType,
+  type GetTransactionTypeErrorType,
   getTransactionType,
 } from './utils/transaction/getTransactionType.js'
 export {
@@ -1160,13 +1236,21 @@ export {
   compactSignatureToSignature,
 } from './utils/signature/compactSignatureToSignature.js'
 export {
-  type HexToCompactSignatureErrorType,
-  hexToCompactSignature,
-} from './utils/signature/hexToCompactSignature.js'
+  /** @deprecated Use `ParseCompactSignatureErrorType`. */
+  type ParseCompactSignatureErrorType as HexToCompactSignatureErrorType,
+  /** @deprecated Use `parseCompactSignature`. */
+  parseCompactSignature as hexToCompactSignature,
+  type ParseCompactSignatureErrorType,
+  parseCompactSignature,
+} from './utils/signature/parseCompactSignature.js'
 export {
-  type HexToSignatureErrorType,
-  hexToSignature,
-} from './utils/signature/hexToSignature.js'
+  /** @deprecated Use `ParseSignatureErrorType`. */
+  type ParseSignatureErrorType as HexToSignatureErrorType,
+  /** @deprecated Use `parseSignature`. */
+  parseSignature as hexToSignature,
+  type ParseSignatureErrorType,
+  parseSignature,
+} from './utils/signature/parseSignature.js'
 export {
   type RecoverAddressErrorType,
   type RecoverAddressParameters,
@@ -1186,6 +1270,12 @@ export {
   recoverPublicKey,
 } from './utils/signature/recoverPublicKey.js'
 export {
+  type RecoverTransactionAddressErrorType,
+  type RecoverTransactionAddressParameters,
+  type RecoverTransactionAddressReturnType,
+  recoverTransactionAddress,
+} from './utils/signature/recoverTransactionAddress.js'
+export {
   type RecoverTypedDataAddressErrorType,
   type RecoverTypedDataAddressParameters,
   type RecoverTypedDataAddressReturnType,
@@ -1196,13 +1286,23 @@ export {
   signatureToCompactSignature,
 } from './utils/signature/signatureToCompactSignature.js'
 export {
-  type CompactSignatureToHexErrorType,
-  compactSignatureToHex,
-} from './utils/signature/compactSignatureToHex.js'
+  /** @deprecated Use `SignatureToHexErrorType` instead. */
+  type SerializeCompactSignatureErrorType as CompactSignatureToHexErrorType,
+  /** @deprecated Use `serializeCompactSignature` instead. */
+  serializeCompactSignature as compactSignatureToHex,
+  type SerializeCompactSignatureErrorType,
+  serializeCompactSignature,
+} from './utils/signature/serializeCompactSignature.js'
 export {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from './utils/signature/signatureToHex.js'
+  /** @deprecated Use `SignatureToHexErrorType` instead. */
+  type SerializeSignatureErrorType as SignatureToHexErrorType,
+  /** @deprecated Use `serializeSignature` instead. */
+  serializeSignature as signatureToHex,
+  type SerializeSignatureParameters,
+  type SerializeSignatureReturnType,
+  type SerializeSignatureErrorType,
+  serializeSignature,
+} from './utils/signature/serializeSignature.js'
 export {
   bytesToRlp,
   type BytesToRlpErrorType,
@@ -1212,6 +1312,12 @@ export {
   type ToRlpErrorType,
   type ToRlpReturnType,
 } from './utils/encoding/toRlp.js'
+export {
+  type VerifyHashErrorType,
+  type VerifyHashParameters,
+  type VerifyHashReturnType,
+  verifyHash,
+} from './utils/signature/verifyHash.js'
 export {
   type VerifyMessageErrorType,
   type VerifyMessageParameters,
@@ -1224,6 +1330,24 @@ export {
   type VerifyTypedDataReturnType,
   verifyTypedData,
 } from './utils/signature/verifyTypedData.js'
+export {
+  type ParseErc6492SignatureErrorType,
+  type ParseErc6492SignatureParameters,
+  type ParseErc6492SignatureReturnType,
+  parseErc6492Signature,
+} from './utils/signature/parseErc6492Signature.js'
+export {
+  type IsErc6492SignatureErrorType,
+  type IsErc6492SignatureParameters,
+  type IsErc6492SignatureReturnType,
+  isErc6492Signature,
+} from './utils/signature/isErc6492Signature.js'
+export {
+  type SerializeErc6492SignatureErrorType,
+  type SerializeErc6492SignatureParameters,
+  type SerializeErc6492SignatureReturnType,
+  serializeErc6492Signature,
+} from './utils/signature/serializeErc6492Signature.js'
 export {
   type AssertRequestErrorType,
   assertRequest,
@@ -1287,8 +1411,11 @@ export {
   fromBytes,
 } from './utils/encoding/fromBytes.js'
 export {
-  type CcipFetchErrorType,
-  ccipFetch,
+  type CcipRequestParameters,
+  type CcipRequestErrorType,
+  ccipRequest,
+  /** @deprecated Use `ccipRequest`. */
+  ccipRequest as ccipFetch,
   type OffchainLookupErrorType,
   offchainLookup,
   offchainLookupAbiItem,
@@ -1475,19 +1602,37 @@ export {
   hashMessage,
 } from './utils/signature/hashMessage.js'
 export {
+  type ToPrefixedMessageErrorType,
+  toPrefixedMessage,
+} from './utils/signature/toPrefixedMessage.js'
+export {
+  type IsAddressOptions,
   type IsAddressErrorType,
   isAddress,
 } from './utils/address/isAddress.js'
 export {
+  type IsAddressEqualReturnType,
   type IsAddressEqualErrorType,
   isAddressEqual,
 } from './utils/address/isAddressEqual.js'
 export { type IsBytesErrorType, isBytes } from './utils/data/isBytes.js'
 export { type IsHashErrorType, isHash } from './utils/hash/isHash.js'
 export { type IsHexErrorType, isHex } from './utils/data/isHex.js'
-export { type Keccak256ErrorType, keccak256 } from './utils/hash/keccak256.js'
-export { type Sha256ErrorType, sha256 } from './utils/hash/sha256.js'
-export { type Ripemd160ErrorType, ripemd160 } from './utils/hash/ripemd160.js'
+export {
+  type Keccak256Hash,
+  type Keccak256ErrorType,
+  keccak256,
+} from './utils/hash/keccak256.js'
+export {
+  type Sha256Hash,
+  type Sha256ErrorType,
+  sha256,
+} from './utils/hash/sha256.js'
+export {
+  type Ripemd160Hash,
+  type Ripemd160ErrorType,
+  ripemd160,
+} from './utils/hash/ripemd160.js'
 export {
   type PadBytesErrorType,
   type PadErrorType,
@@ -1539,8 +1684,24 @@ export {
 export {
   type DomainSeparatorErrorType,
   type GetTypesForEIP712DomainErrorType,
+  type SerializeTypedDataErrorType,
   type ValidateTypedDataErrorType,
+  serializeTypedData,
   validateTypedData,
   domainSeparator,
   getTypesForEIP712Domain,
 } from './utils/typedData.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  type NonceManagerSource,
+  createNonceManager,
+  nonceManager,
+} from './utils/nonceManager.js'
+export type {
+  RpcEstimateUserOperationGasReturnType,
+  RpcGetUserOperationByHashReturnType,
+  RpcUserOperation,
+  RpcUserOperationReceipt,
+  RpcUserOperationRequest,
+} from './account-abstraction/types/rpc.js'

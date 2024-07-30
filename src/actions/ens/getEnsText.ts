@@ -87,10 +87,10 @@ export type GetEnsTextErrorType =
  *   name: normalize('wevm.eth'),
  *   key: 'com.twitter',
  * })
- * // 'wagmi_sh'
+ * // 'wevm_dev'
  */
-export async function getEnsText<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getEnsText<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockNumber,
     blockTag,

@@ -13,9 +13,13 @@ export const sapphireTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
+      name: 'Oasis Explorer',
+      url: 'https://explorer.oasis.io/testnet/sapphire',
+    },
+    blockscout: {
       name: 'Oasis Sapphire Testnet Explorer',
-      url: 'https://testnet.explorer.sapphire.oasis.dev',
-      apiUrl: 'https://testnet.explorer.sapphire.oasis.dev/api',
+      url: 'https://testnet.old-explorer.sapphire.oasis.dev',
+      apiUrl: 'https://testnet.old-explorer.sapphire.oasis.dev/api',
     },
   },
   testnet: true,

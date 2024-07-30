@@ -1,8 +1,5 @@
-import { startProxy } from '@viem/anvil'
-
-import { forkBlockNumber, forkUrl } from './src/constants.js'
-import { forkBlockNumberOptimism, forkUrlOptimism } from './src/opStack.js'
-import { forkBlockNumberZkSync, forkUrlZkSync } from './src/zksync.js'
+import * as executionInstances from './src/anvil.js'
+import * as bundlerInstances from './src/bundler.js'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) return
@@ -25,34 +22,9 @@ export default async function () {
   // We still need to remember to reset the anvil instance between test files. This is generally
   // handled in `setup.ts` but may require additional resetting (e.g. via `afterAll`), in case of
   // any custom per-test adjustments that persist beyond `anvil_reset`.
-  const shutdownMainnet = await startProxy({
-    port: Number(process.env.VITE_ANVIL_PORT || '8545'),
-    options: {
-      forkUrl,
-      forkBlockNumber,
-      noMining: true,
-      startTimeout: 20_000,
-    },
-  })
-  const shutdownOptimism = await startProxy({
-    port: Number(process.env.VITE_ANVIL_PORT_OPTIMISM || '8645'),
-    options: {
-      forkUrl: forkUrlOptimism,
-      forkBlockNumber: forkBlockNumberOptimism,
-      startTimeout: 20_000,
-    },
-  })
-  const shutdownZkSync = await startProxy({
-    port: Number(process.env.VITE_ANVIL_PORT_ZKSYNC || '8745'),
-    options: {
-      forkUrl: forkUrlZkSync,
-      forkBlockNumber: forkBlockNumberZkSync,
-      startTimeout: 20_000,
-    },
-  })
-  return () => {
-    shutdownMainnet()
-    shutdownOptimism()
-    shutdownZkSync()
-  }
+  const shutdown = await Promise.all([
+    ...Object.values(executionInstances).map((instance) => instance.start()),
+    ...Object.values(bundlerInstances).map((instance) => instance.start()),
+  ])
+  return () => Promise.all(shutdown.map((fn) => fn()))
 }

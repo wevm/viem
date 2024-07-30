@@ -25,87 +25,88 @@ import {
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreateEventFilterParameters<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbiEvents extends
+  abiEvent extends AbiEvent | undefined = undefined,
+  abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-  _Args extends
-    | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
+  //
+  _eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
+  _args extends
+    | MaybeExtractEventArgsFromAbi<abiEvents, _eventName>
     | undefined = undefined,
 > = {
   address?: Address | Address[] | undefined
-  fromBlock?: TFromBlock | BlockNumber | BlockTag | undefined
-  toBlock?: TToBlock | BlockNumber | BlockTag | undefined
+  fromBlock?: fromBlock | BlockNumber | BlockTag | undefined
+  toBlock?: toBlock | BlockNumber | BlockTag | undefined
 } & (MaybeExtractEventArgsFromAbi<
-  TAbiEvents,
-  _EventName
-> extends infer TEventFilterArgs
+  abiEvents,
+  _eventName
+> extends infer eventFilterArgs
   ?
       | {
           args:
-            | TEventFilterArgs
-            | (_Args extends TEventFilterArgs ? _Args : never)
-          event: TAbiEvent
-          events?: never | undefined
+            | eventFilterArgs
+            | (_args extends eventFilterArgs ? _args : never)
+          event: abiEvent
+          events?: undefined
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
            * @default false
            */
-          strict?: TStrict | undefined
+          strict?: strict | undefined
         }
       | {
-          args?: never | undefined
-          event?: TAbiEvent | undefined
-          events?: never | undefined
+          args?: undefined
+          event?: abiEvent | undefined
+          events?: undefined
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
            * @default false
            */
-          strict?: TStrict | undefined
+          strict?: strict | undefined
         }
       | {
-          args?: never | undefined
-          event?: never | undefined
-          events: TAbiEvents | undefined
+          args?: undefined
+          event?: undefined
+          events: abiEvents | undefined
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
            * @default false
            */
-          strict?: TStrict | undefined
+          strict?: strict | undefined
         }
       | {
-          args?: never | undefined
-          event?: never | undefined
-          events?: never | undefined
-          strict?: never | undefined
+          args?: undefined
+          event?: undefined
+          events?: undefined
+          strict?: undefined
         }
   : {
-      args?: never | undefined
-      event?: never | undefined
-      events?: never | undefined
-      strict?: never | undefined
+      args?: undefined
+      event?: undefined
+      events?: undefined
+      strict?: undefined
     })
 
 export type CreateEventFilterReturnType<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbiEvents extends
+  abiEvent extends AbiEvent | undefined = undefined,
+  abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-  _Args extends
-    | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
+  _eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
+  _args extends
+    | MaybeExtractEventArgsFromAbi<abiEvents, _eventName>
     | undefined = undefined,
 > = Prettify<
-  Filter<'event', TAbiEvents, _EventName, _Args, TStrict, TFromBlock, TToBlock>
+  Filter<'event', abiEvents, _eventName, _args, strict, fromBlock, toBlock>
 >
 
 export type CreateEventFilterErrorType =
@@ -138,21 +139,21 @@ export type CreateEventFilterErrorType =
  * })
  */
 export async function createEventFilter<
-  TChain extends Chain | undefined,
-  const TAbiEvent extends AbiEvent | undefined = undefined,
-  const TAbiEvents extends
+  chain extends Chain | undefined,
+  const abiEvent extends AbiEvent | undefined = undefined,
+  const abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,
-  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-  _Args extends
-    | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,
+  _eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
+  _args extends
+    | MaybeExtractEventArgsFromAbi<abiEvents, _eventName>
     | undefined = undefined,
 >(
-  client: Client<Transport, TChain>,
+  client: Client<Transport, chain>,
   {
     address,
     args,
@@ -162,23 +163,23 @@ export async function createEventFilter<
     strict,
     toBlock,
   }: CreateEventFilterParameters<
-    TAbiEvent,
-    TAbiEvents,
-    TStrict,
-    TFromBlock,
-    TToBlock,
-    _EventName,
-    _Args
+    abiEvent,
+    abiEvents,
+    strict,
+    fromBlock,
+    toBlock,
+    _eventName,
+    _args
   > = {} as any,
 ): Promise<
   CreateEventFilterReturnType<
-    TAbiEvent,
-    TAbiEvents,
-    TStrict,
-    TFromBlock,
-    TToBlock,
-    _EventName,
-    _Args
+    abiEvent,
+    abiEvents,
+    strict,
+    fromBlock,
+    toBlock,
+    _eventName,
+    _args
   >
 > {
   const events = events_ ?? (event ? [event] : undefined)
@@ -189,15 +190,15 @@ export async function createEventFilter<
 
   let topics: LogTopic[] = []
   if (events) {
-    topics = [
-      (events as AbiEvent[]).flatMap((event) =>
-        encodeEventTopics({
-          abi: [event],
-          eventName: (event as AbiEvent).name,
-          args,
-        } as EncodeEventTopicsParameters),
-      ),
-    ]
+    const encoded = (events as AbiEvent[]).flatMap((event) =>
+      encodeEventTopics({
+        abi: [event],
+        eventName: (event as AbiEvent).name,
+        args,
+      } as EncodeEventTopicsParameters),
+    )
+    // TODO: Clean up type casting
+    topics = [encoded as LogTopic]
     if (event) topics = topics[0] as LogTopic[]
   }
 
@@ -225,12 +226,12 @@ export async function createEventFilter<
     toBlock,
     type: 'event',
   } as unknown as CreateEventFilterReturnType<
-    TAbiEvent,
-    TAbiEvents,
-    TStrict,
-    TFromBlock,
-    TToBlock,
-    _EventName,
-    _Args
+    abiEvent,
+    abiEvents,
+    strict,
+    fromBlock,
+    toBlock,
+    _eventName,
+    _args
   >
 }

@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, expectTypeOf, test } from 'vitest'
 
 import * as chains from '../../chains/index.js'
 import { extractChain } from './extractChain.js'
@@ -8,6 +8,7 @@ test('default', async () => {
     chains: Object.values(chains),
     id: 1,
   })
+  expectTypeOf(mainnet).toEqualTypeOf<typeof chains.mainnet>()
   expect(mainnet).toMatchInlineSnapshot(`
     {
       "blockExplorers": {
@@ -54,6 +55,7 @@ test('default', async () => {
     chains: Object.values(chains),
     id: 10,
   })
+  expectTypeOf(optimism).toEqualTypeOf<typeof chains.optimism>()
   expect(optimism).toMatchInlineSnapshot(`
     {
       "blockExplorers": {
@@ -64,6 +66,11 @@ test('default', async () => {
         },
       },
       "contracts": {
+        "disputeGameFactory": {
+          "1": {
+            "address": "0xe5965Ab5962eDc7477C8520243A95517CD252fA9",
+          },
+        },
         "gasPriceOracle": {
           "address": "0x420000000000000000000000000000000000000F",
         },

@@ -1,7 +1,7 @@
 import { assertType, describe, expect, it, test } from 'vitest'
 
-import { accounts, forkBlockNumber } from '~test/src/constants.js'
-import { publicClient, testClient, walletClient } from '~test/src/utils.js'
+import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { holesky, zkSync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -11,38 +11,99 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
-import type { ZkSyncTransactionReceipt } from '../../chains/zksync/types/transaction.js'
 import { createClient } from '../../index.js'
 import { wait } from '../../utils/wait.js'
+import type { ZkSyncTransactionReceipt } from '../../zksync/types/transaction.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
 
+const client = anvilMainnet.getClient()
+
 test('gets transaction receipt', async () => {
-  const transaction = await getTransaction(publicClient, {
-    blockNumber: forkBlockNumber - 1n,
+  const transaction = await getTransaction(client, {
+    blockNumber: anvilMainnet.forkBlockNumber - 1n,
     index: 0,
   })
-  const receipt = await getTransactionReceipt(publicClient, {
+  const receipt = await getTransactionReceipt(client, {
     hash: transaction.hash,
   })
   assertType<TransactionReceipt>(receipt)
   expect(receipt).toMatchInlineSnapshot(`
     {
-      "blockHash": "0xb932f77cf770d1d1c8f861153eec1e990f5d56b6ffdb4ac06aef3cca51ef37d4",
-      "blockNumber": 16280769n,
+      "blockHash": "0xa93b995575bda48d4cf45a4f72593a48a744786b5e32e5ff92a21372f7a60875",
+      "blockNumber": 19868019n,
       "contractAddress": null,
-      "cumulativeGasUsed": 21000n,
-      "effectiveGasPrice": 33427926161n,
-      "from": "0x043022ef9fca1066024d19d681e2ccf44ff90de3",
-      "gasUsed": 21000n,
-      "logs": [],
-      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "cumulativeGasUsed": 86221n,
+      "effectiveGasPrice": 9036579667n,
+      "from": "0xae2fc483527b8ef99eb5d9b44875f005ba1fae13",
+      "gasUsed": 86221n,
+      "logs": [
+        {
+          "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "blockHash": "0xa93b995575bda48d4cf45a4f72593a48a744786b5e32e5ff92a21372f7a60875",
+          "blockNumber": 19868019n,
+          "data": "0x000000000000000000000000000000000000000000000008994d2b6873000000",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x0000000000000000000000006b75d8af000000e20b7a7ddf000ba900b4009a80",
+            "0x0000000000000000000000005ced44f03ff443bbe14d8ea23bc24425fb89e3ed",
+          ],
+          "transactionHash": "0x985ca9ceaecc90bded8a892e45e2127eab09746cd7dffee057fba12ee066e161",
+          "transactionIndex": 0,
+        },
+        {
+          "address": "0x594daad7d77592a2b97b725a7ad59d7e188b5bfa",
+          "blockHash": "0xa93b995575bda48d4cf45a4f72593a48a744786b5e32e5ff92a21372f7a60875",
+          "blockNumber": 19868019n,
+          "data": "0x0000000000000000000000000000000000000000015c7fc50000000000000000",
+          "logIndex": 1,
+          "removed": false,
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x0000000000000000000000005ced44f03ff443bbe14d8ea23bc24425fb89e3ed",
+            "0x0000000000000000000000006b75d8af000000e20b7a7ddf000ba900b4009a80",
+          ],
+          "transactionHash": "0x985ca9ceaecc90bded8a892e45e2127eab09746cd7dffee057fba12ee066e161",
+          "transactionIndex": 0,
+        },
+        {
+          "address": "0x5ced44f03ff443bbe14d8ea23bc24425fb89e3ed",
+          "blockHash": "0xa93b995575bda48d4cf45a4f72593a48a744786b5e32e5ff92a21372f7a60875",
+          "blockNumber": 19868019n,
+          "data": "0x000000000000000000000000000000000000000005ff6ad38106c3459dba67a900000000000000000000000000000000000000000000002e5eb2e56308fd8231",
+          "logIndex": 2,
+          "removed": false,
+          "topics": [
+            "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1",
+          ],
+          "transactionHash": "0x985ca9ceaecc90bded8a892e45e2127eab09746cd7dffee057fba12ee066e161",
+          "transactionIndex": 0,
+        },
+        {
+          "address": "0x5ced44f03ff443bbe14d8ea23bc24425fb89e3ed",
+          "blockHash": "0xa93b995575bda48d4cf45a4f72593a48a744786b5e32e5ff92a21372f7a60875",
+          "blockNumber": 19868019n,
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008994d2b68730000000000000000000000000000000000000000000000015c7fc500000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "logIndex": 3,
+          "removed": false,
+          "topics": [
+            "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822",
+            "0x0000000000000000000000006b75d8af000000e20b7a7ddf000ba900b4009a80",
+            "0x0000000000000000000000006b75d8af000000e20b7a7ddf000ba900b4009a80",
+          ],
+          "transactionHash": "0x985ca9ceaecc90bded8a892e45e2127eab09746cd7dffee057fba12ee066e161",
+          "transactionIndex": 0,
+        },
+      ],
+      "logsBloom": "0x00200000000000000800000080000000000000000000000000000000000000000000008000000020000000000000000002000000088000000000000000020000000000000000000000000008000000200000000000000000000000000000000000000000000000000000000000000000000000000000000080000010000000000000000000000000000000000000000400000800000000080000004000000000000000000000000000000000000000000000000000004000000000000800000008000002000000000000040000000000000000000000001000000000000000000000200000000000000000000000000000000000000000000000000000000000",
       "status": "success",
-      "to": "0x318a5fb4f1604fc46375a1db9a9018b6e423b345",
-      "transactionHash": "0xbf7d27700d053765c9638d3b9d39eb3c56bfc48377583e8be483d61f9f18a871",
+      "to": "0x6b75d8af000000e20b7a7ddf000ba900b4009a80",
+      "transactionHash": "0x985ca9ceaecc90bded8a892e45e2127eab09746cd7dffee057fba12ee066e161",
       "transactionIndex": 0,
-      "type": "legacy",
+      "type": "eip1559",
     }
   `)
 })
@@ -105,6 +166,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x00000000000000000000000000000000000000000000000000017b3627a0a300",
           "l1BatchNumber": 273767n,
           "logIndex": 0,
@@ -123,6 +185,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x00000000000000000000000000000000000000000000000000013949fc5ebec8",
           "l1BatchNumber": 273767n,
           "logIndex": 1,
@@ -141,6 +204,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x54de43b6ba21a5553697a2b78338e046dd7e0278",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
           "l1BatchNumber": 273767n,
           "logIndex": 2,
@@ -159,6 +223,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x0000000000000000000000000000000000000000000000000001228d38402ec8",
           "l1BatchNumber": 273767n,
           "logIndex": 3,
@@ -177,6 +242,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x0000000000000000000000000000000000000000000000000001228d38402ec8",
           "l1BatchNumber": 273767n,
           "logIndex": 4,
@@ -195,6 +261,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x9923573104957bf457a3c4df0e21c8b389dd43df",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x0000000000000000000000000000000000000000000000000000e523da9a7ec8",
           "l1BatchNumber": 273767n,
           "logIndex": 5,
@@ -211,6 +278,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x042b8289c97896529ec2fe49ba1a8b9c956a86cc",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000002200010000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000",
           "l1BatchNumber": 273767n,
           "logIndex": 6,
@@ -227,6 +295,7 @@ test('chain w/ custom block type', async () => {
           "address": "0xcb7ad38d45ab5bcf5880b0fa851263c29582c18a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x000000000000000000000000000000000000000000000000000000000000009e0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000001400000000000000000000000054de43b6ba21a5553697a2b78338e046dd7e027800000000000000000000000000000000000000000000000000003d695da5b000",
           "l1BatchNumber": 273767n,
           "logIndex": 7,
@@ -243,6 +312,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x042b8289c97896529ec2fe49ba1a8b9c956a86cc",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000d400000000000022d300a554de43b6ba21a5553697a2b78338e046dd7e0278009e921b486cc33580af7d8208df1619383470d5dcbe000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000014e665ced18b0998ede7236da308e311e9261dc984000000000000000000000000000000000000000000000000",
           "l1BatchNumber": 273767n,
           "logIndex": 8,
@@ -259,6 +329,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x54de43b6ba21a5553697a2b78338e046dd7e0278",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000014e665ced18b0998ede7236da308e311e9261dc984000000000000000000000000",
           "l1BatchNumber": 273767n,
           "logIndex": 9,
@@ -277,6 +348,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x000000000000000000000000000000000000000000000000000115d39774af00",
           "l1BatchNumber": 273767n,
           "logIndex": 10,
@@ -308,12 +380,12 @@ describe('e2e', () => {
   const targetAccount = accounts[1]
 
   it('gets transaction receipt', async () => {
-    const block = await getBlock(publicClient)
+    const block = await getBlock(client)
 
     const maxFeePerGas = block.baseFeePerGas! + parseGwei('10')
     const maxPriorityFeePerGas = parseGwei('10')
 
-    const hash = await sendTransaction(walletClient, {
+    const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -321,13 +393,13 @@ describe('e2e', () => {
       maxPriorityFeePerGas,
     })
 
-    expect(await getTransaction(publicClient, { hash })).toBeDefined()
+    expect(await getTransaction(client, { hash })).toBeDefined()
     await expect(() =>
-      getTransactionReceipt(publicClient, {
+      getTransactionReceipt(client, {
         hash,
       }),
     ).rejects.toThrowError('Transaction receipt with hash')
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
     await wait(500)
 
     const {
@@ -336,7 +408,7 @@ describe('e2e', () => {
       effectiveGasPrice,
       transactionHash,
       ...receipt
-    } = await getTransactionReceipt(publicClient, {
+    } = await getTransactionReceipt(client, {
       hash,
     })
 
@@ -346,13 +418,14 @@ describe('e2e', () => {
     expect(transactionHash).toBeDefined()
     expect(receipt).toMatchInlineSnapshot(`
       {
+        "blobGasPrice": 1n,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
-        "depositNonce": null,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gasUsed": 21000n,
         "logs": [],
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "root": "0x0000000000000000000000000000000000000000000000000000000000000000",
         "status": "success",
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "transactionIndex": 0,
@@ -364,12 +437,12 @@ describe('e2e', () => {
 
 test('throws if transaction not found', async () => {
   await expect(
-    getTransactionReceipt(publicClient, {
+    getTransactionReceipt(client, {
       hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [TransactionReceiptNotFoundError: Transaction receipt with hash "0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a" could not be found. The Transaction may not be processed on a block yet.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

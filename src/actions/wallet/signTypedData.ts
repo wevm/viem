@@ -18,12 +18,14 @@ import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
-import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
-import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
+import type { IsHexErrorType } from '../../utils/data/isHex.js'
+import type { StringifyErrorType } from '../../utils/stringify.js'
 import {
   type GetTypesForEIP712DomainErrorType,
+  type SerializeTypedDataErrorType,
   type ValidateTypedDataErrorType,
   getTypesForEIP712Domain,
+  serializeTypedData,
   validateTypedData,
 } from '../../utils/typedData.js'
 
@@ -47,6 +49,7 @@ export type SignTypedDataErrorType =
   | SignTypedDataErrorType_account
   | IsHexErrorType
   | RequestErrorType
+  | SerializeTypedDataErrorType
   | ErrorType
 
 /**
@@ -178,13 +181,10 @@ export async function signTypedData<
   // as we can't statically check this with TypeScript.
   validateTypedData({ domain, message, primaryType, types })
 
-  if (account.type === 'local')
+  if (account.signTypedData)
     return account.signTypedData({ domain, message, primaryType, types })
 
-  const typedData = stringify(
-    { domain: domain ?? {}, message, primaryType, types },
-    (_, value) => (isHex(value) ? value.toLowerCase() : value),
-  )
+  const typedData = serializeTypedData({ domain, message, primaryType, types })
   return client.request(
     {
       method: 'eth_signTypedData_v4',

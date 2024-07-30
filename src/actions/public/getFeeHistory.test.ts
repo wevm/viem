@@ -1,53 +1,54 @@
 import { expect, test } from 'vitest'
 
-import { forkBlockNumber } from '~test/src/constants.js'
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getFeeHistory } from './getFeeHistory.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
   expect(
-    await getFeeHistory(publicClient, {
+    await getFeeHistory(client, {
       blockCount: 4,
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       rewardPercentiles: [0, 50, 100],
     }),
   ).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": [
-        13539253648n,
-        13242020772n,
-        13091396207n,
-        12779459001n,
-        13197182029n,
+        7975081261n,
+        8971754480n,
+        9036579667n,
+        8758571930n,
+        8660467020n,
       ],
       "gasUsedRatio": [
-        0.4121863333333333,
-        0.45450103333333336,
-        0.4046894,
-        0.6307482666666666,
+        0.9998937,
+        0.5289019,
+        0.37694116666666666,
+        0.45519593333333336,
       ],
-      "oldestBlock": 16280767n,
+      "oldestBlock": 19868017n,
       "reward": [
         [
-          120746352n,
-          1500000000n,
-          36460746352n,
+          0n,
+          155751813n,
+          100000000000n,
         ],
         [
           0n,
-          1500000000n,
-          61757979228n,
-        ],
-        [
-          92613505n,
-          1500000000n,
-          20336529954n,
+          155751813n,
+          11028245520n,
         ],
         [
           0n,
-          1500000000n,
-          20228167552n,
+          300000000n,
+          18152944408993n,
+        ],
+        [
+          0n,
+          500000004n,
+          81241428070n,
         ],
       ],
     }
@@ -56,7 +57,7 @@ test('default', async () => {
 
 test('args: blockTag', async () => {
   expect(
-    await getFeeHistory(publicClient, {
+    await getFeeHistory(client, {
       blockCount: 4,
       blockTag: 'safe',
       rewardPercentiles: [0, 50, 100],
@@ -66,33 +67,33 @@ test('args: blockTag', async () => {
 
 test('args: blockCount', async () => {
   expect(
-    await getFeeHistory(publicClient, {
+    await getFeeHistory(client, {
       blockCount: 2,
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       rewardPercentiles: [0, 50, 100],
     }),
   ).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": [
-        13091396207n,
-        12779459001n,
-        13197182029n,
+        9036579667n,
+        8758571930n,
+        8660467020n,
       ],
       "gasUsedRatio": [
-        0.4046894,
-        0.6307482666666666,
+        0.37694116666666666,
+        0.45519593333333336,
       ],
-      "oldestBlock": 16280769n,
+      "oldestBlock": 19868019n,
       "reward": [
         [
-          92613505n,
-          1500000000n,
-          20336529954n,
+          0n,
+          300000000n,
+          18152944408993n,
         ],
         [
           0n,
-          1500000000n,
-          20228167552n,
+          500000004n,
+          81241428070n,
         ],
       ],
     }
@@ -101,37 +102,37 @@ test('args: blockCount', async () => {
 
 test('args: rewardPercentiles', async () => {
   expect(
-    await getFeeHistory(publicClient, {
+    await getFeeHistory(client, {
       blockCount: 2,
-      blockNumber: forkBlockNumber,
+      blockNumber: anvilMainnet.forkBlockNumber,
       rewardPercentiles: [0, 25, 50, 75, 100],
     }),
   ).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": [
-        13091396207n,
-        12779459001n,
-        13197182029n,
+        9036579667n,
+        8758571930n,
+        8660467020n,
       ],
       "gasUsedRatio": [
-        0.4046894,
-        0.6307482666666666,
+        0.37694116666666666,
+        0.45519593333333336,
       ],
-      "oldestBlock": 16280769n,
+      "oldestBlock": 19868019n,
       "reward": [
         [
-          92613505n,
-          1500000000n,
-          1500000000n,
-          2000000000n,
-          20336529954n,
+          0n,
+          66924164n,
+          300000000n,
+          1533517846n,
+          18152944408993n,
         ],
         [
           0n,
-          759000000n,
-          1500000000n,
-          1500000000n,
-          20228167552n,
+          66924164n,
+          500000004n,
+          2000000000n,
+          81241428070n,
         ],
       ],
     }

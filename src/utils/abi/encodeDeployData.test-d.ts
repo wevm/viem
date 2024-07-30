@@ -73,9 +73,25 @@ test('no const assertion', () => {
   })
 })
 
-test('abi has no constructor', () => {
-  // @ts-expect-error abi has no constructor
+test('abi has no constructor and no args', () => {
   encodeDeployData({
+    bytecode: '0x420',
+    abi: [
+      {
+        inputs: [],
+        name: 'Foo',
+        outputs: [],
+        type: 'error',
+      },
+    ],
+  })
+})
+
+test('abi has no constructor and includes args', () => {
+  encodeDeployData({
+    bytecode: '0x420',
+    // @ts-expect-error
+    args: [123n],
     abi: [
       {
         inputs: [],

@@ -45,17 +45,17 @@ export type CreateContractEventFilterParameters<
   toBlock?: toBlock | BlockNumber | BlockTag | undefined
 } & (undefined extends eventName
   ? {
-      args?: never | undefined
+      args?: undefined
     }
-  : MaybeExtractEventArgsFromAbi<abi, eventName> extends infer TEventFilterArgs
+  : MaybeExtractEventArgsFromAbi<abi, eventName> extends infer eventFilterArgs
     ? {
         args?:
-          | TEventFilterArgs
-          | (args extends TEventFilterArgs ? args : never)
+          | eventFilterArgs
+          | (args extends eventFilterArgs ? args : never)
           | undefined
       }
     : {
-        args?: never | undefined
+        args?: undefined
       })
 
 export type CreateContractEventFilterReturnType<

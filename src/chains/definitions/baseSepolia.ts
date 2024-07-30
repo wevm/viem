@@ -1,5 +1,5 @@
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../opStack/chainConfig.js'
 
 const sourceId = 11_155_111 // sepolia
 
@@ -23,6 +23,11 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',

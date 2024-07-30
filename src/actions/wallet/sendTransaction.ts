@@ -6,7 +6,12 @@ import {
 import type { SignTransactionErrorType } from '../../accounts/utils/signTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
+import {
+  AccountNotFoundError,
+  type AccountNotFoundErrorType,
+  AccountTypeNotSupportedError,
+  type AccountTypeNotSupportedErrorType,
+} from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
@@ -39,6 +44,7 @@ import {
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 import {
   type PrepareTransactionRequestErrorType,
+  defaultParameters,
   prepareTransactionRequest,
 } from './prepareTransactionRequest.js'
 import {
@@ -72,6 +78,8 @@ export type SendTransactionReturnType = Hash
 export type SendTransactionErrorType =
   | ParseAccountErrorType
   | GetTransactionErrorReturnType<
+      | AccountNotFoundErrorType
+      | AccountTypeNotSupportedErrorType
       | AssertCurrentChainErrorType
       | AssertRequestErrorType
       | GetChainIdErrorType
@@ -171,6 +179,36 @@ export async function sendTransaction<
       })
     }
 
+    if (account.type === 'json-rpc') {
+      const chainFormat = client.chain?.formatters?.transactionRequest?.format
+      const format = chainFormat || formatTransactionRequest
+
+      const request = format({
+        // Pick out extra data that might exist on the chain's transaction request type.
+        ...extract(rest, { format: chainFormat }),
+        accessList,
+        blobs,
+        chainId,
+        data,
+        from: account.address,
+        gas,
+        gasPrice,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to,
+        value,
+      } as TransactionRequest)
+      return await client.request(
+        {
+          method: 'eth_sendTransaction',
+          params: [request],
+        },
+        { retryCount: 0 },
+      )
+    }
+
     if (account.type === 'local') {
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await getAction(
@@ -190,6 +228,7 @@ export async function sendTransaction<
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        parameters: [...defaultParameters, 'sidecars'],
         to,
         value,
         ...rest,
@@ -208,33 +247,18 @@ export async function sendTransaction<
       })
     }
 
-    const chainFormat = client.chain?.formatters?.transactionRequest?.format
-    const format = chainFormat || formatTransactionRequest
+    if (account.type === 'smart')
+      throw new AccountTypeNotSupportedError({
+        metaMessages: [
+          'Consider using the `sendUserOperation` Action instead.',
+        ],
+        docsPath: '/docs/actions/bundler/sendUserOperation',
+        type: 'smart',
+      })
 
-    const request = format({
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      accessList,
-      blobs,
-      data,
-      from: account.address,
-      gas,
-      gasPrice,
-      maxFeePerBlobGas,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to,
-      value,
-    } as TransactionRequest)
-    return await client.request(
-      {
-        method: 'eth_sendTransaction',
-        params: [request],
-      },
-      { retryCount: 0 },
-    )
+    throw new Error('incompatible account type.')
   } catch (err) {
+    if (err instanceof AccountTypeNotSupportedError) throw err
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,

@@ -1,17 +1,23 @@
-import type { Abi } from 'abitype'
-import type { ErrorType } from '../../errors/utils.js'
+// TODO(v3): checksum address.
+
+import type { Abi, AbiEvent, AbiEventParameter, Address } from 'abitype'
 import {
   AbiEventSignatureNotFoundError,
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
-  type RpcLog,
-} from '../../index.js'
-import type { ContractEventName } from '../../types/contract.js'
+} from '../../errors/abi.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { ContractEventName, GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
+import type { RpcLog } from '../../types/rpc.js'
+import { isAddressEqual } from '../address/isAddressEqual.js'
+import { toBytes } from '../encoding/toBytes.js'
+import { keccak256 } from '../hash/keccak256.js'
 import {
   type DecodeEventLogErrorType,
   decodeEventLog,
 } from './decodeEventLog.js'
+import { getAbiItem } from './getAbiItem.js'
 
 export type ParseEventLogsParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -20,9 +26,23 @@ export type ParseEventLogsParameters<
     | ContractEventName<abi>[]
     | undefined = ContractEventName<abi>,
   strict extends boolean | undefined = boolean | undefined,
+  ///
+  allArgs = GetEventArgs<
+    abi,
+    eventName extends ContractEventName<abi>
+      ? eventName
+      : ContractEventName<abi>,
+    {
+      EnableUnion: true
+      IndexedOnly: false
+      Required: false
+    }
+  >,
 > = {
   /** Contract ABI. */
   abi: abi
+  /** Arguments for the event. */
+  args?: allArgs | undefined
   /** Contract event. */
   eventName?:
     | eventName
@@ -82,25 +102,45 @@ export function parseEventLogs<
     | ContractEventName<abi>
     | ContractEventName<abi>[]
     | undefined = undefined,
->({
-  abi,
-  eventName,
-  logs,
-  strict = true,
-}: ParseEventLogsParameters<abi, eventName, strict>): ParseEventLogsReturnType<
-  abi,
-  eventName,
-  strict
-> {
+>(
+  parameters: ParseEventLogsParameters<abi, eventName, strict>,
+): ParseEventLogsReturnType<abi, eventName, strict> {
+  const { abi, args, logs, strict = true } = parameters
+
+  const eventName = (() => {
+    if (!parameters.eventName) return undefined
+    if (Array.isArray(parameters.eventName)) return parameters.eventName
+    return [parameters.eventName as string]
+  })()
+
   return logs
     .map((log) => {
       try {
+        const abiItem = getAbiItem({
+          abi: abi as Abi,
+          name: log.topics[0] as string,
+        }) as AbiEvent
+        if (!abiItem) return null
+
         const event = decodeEventLog({
           ...log,
-          abi,
+          abi: [abiItem],
           strict,
         })
-        if (eventName && !eventName.includes(event.eventName!)) return null
+
+        // Check that the decoded event name matches the provided event name.
+        if (eventName && !eventName.includes(event.eventName)) return null
+
+        // Check that the decoded event args match the provided args.
+        if (
+          !includesArgs({
+            args: event.args,
+            inputs: abiItem.inputs,
+            matchArgs: args,
+          })
+        )
+          return null
+
         return { ...event, ...log }
       } catch (err) {
         let eventName: string | undefined
@@ -126,4 +166,55 @@ export function parseEventLogs<
     eventName,
     strict
   >
+}
+
+function includesArgs(parameters: {
+  args: unknown
+  inputs: AbiEvent['inputs']
+  matchArgs: unknown
+}) {
+  const { args, inputs, matchArgs } = parameters
+
+  if (!matchArgs) return true
+  if (!args) return false
+
+  function isEqual(input: AbiEventParameter, value: unknown, arg: unknown) {
+    try {
+      if (input.type === 'address')
+        return isAddressEqual(value as Address, arg as Address)
+      if (input.type === 'string' || input.type === 'bytes')
+        return keccak256(toBytes(value as string)) === arg
+      return value === arg
+    } catch {
+      return false
+    }
+  }
+
+  if (Array.isArray(args) && Array.isArray(matchArgs)) {
+    return matchArgs.every((value, index) => {
+      if (!value) return true
+      const input = inputs[index]
+      if (!input) return false
+      const value_ = Array.isArray(value) ? value : [value]
+      return value_.some((value) => isEqual(input, value, args[index]))
+    })
+  }
+
+  if (
+    typeof args === 'object' &&
+    !Array.isArray(args) &&
+    typeof matchArgs === 'object' &&
+    !Array.isArray(matchArgs)
+  )
+    return Object.entries(matchArgs).every(([key, value]) => {
+      if (!value) return true
+      const input = inputs.find((input) => input.name === key)
+      if (!input) return false
+      const value_ = Array.isArray(value) ? value : [value]
+      return value_.some((value) =>
+        isEqual(input, value, (args as Record<string, unknown>)[key]),
+      )
+    })
+
+  return false
 }

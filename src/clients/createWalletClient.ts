@@ -4,7 +4,7 @@ import type { Account } from '../accounts/types.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
-import type { WalletRpcSchema } from '../types/eip1193.js'
+import type { RpcSchema, WalletRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import {
   type Client,
@@ -22,15 +22,18 @@ export type WalletClientConfig<
     | Account
     | Address
     | undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
   Pick<
-    ClientConfig<transport, chain, accountOrAddress>,
+    ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
     | 'account'
     | 'cacheTime'
+    | 'ccipRead'
     | 'chain'
     | 'key'
     | 'name'
     | 'pollingInterval'
+    | 'rpcSchema'
     | 'transport'
   >
 >
@@ -39,12 +42,15 @@ export type WalletClient<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 > = Prettify<
   Client<
     transport,
     chain,
     account,
-    WalletRpcSchema,
+    rpcSchema extends RpcSchema
+      ? [...WalletRpcSchema, ...rpcSchema]
+      : WalletRpcSchema,
     WalletActions<chain, account>
   >
 >
@@ -91,9 +97,10 @@ export function createWalletClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 >(
-  parameters: WalletClientConfig<transport, chain, accountOrAddress>,
-): WalletClient<transport, chain, ParseAccount<accountOrAddress>>
+  parameters: WalletClientConfig<transport, chain, accountOrAddress, rpcSchema>,
+): WalletClient<transport, chain, ParseAccount<accountOrAddress>, rpcSchema>
 
 export function createWalletClient(
   parameters: WalletClientConfig,

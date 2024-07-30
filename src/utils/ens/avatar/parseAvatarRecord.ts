@@ -24,8 +24,18 @@ export type ParseAvatarRecordErrorType =
   | ParseAvatarUriErrorType
   | ErrorType
 
-export async function parseAvatarRecord<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+/*
+ * @description Parses an ENS avatar record.
+ *
+ * @example
+ * parseAvatarRecord('eip155:1/erc1155:0xb32979486938aa9694bfc898f35dbed459f44424/10063')
+ * 'https://ipfs.io/ipfs/QmSP4nq9fnN9dAiCj42ug9Wa79rqmQerZXZch82VqpiH7U/image.gif'
+ *
+ * @see https://docs.ens.domains/web/avatars
+ *
+ */
+export async function parseAvatarRecord<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     gatewayUrls,
     record,
@@ -39,7 +49,7 @@ export async function parseAvatarRecord<TChain extends Chain | undefined>(
   return parseAvatarUri({ uri: record, gatewayUrls })
 }
 
-export type ParseNftAvatarUriErrorType =
+type ParseNftAvatarUriErrorType =
   | ParseNftUriErrorType
   | GetNftTokenUriErrorType
   | ResolveAvatarUriErrorType
@@ -48,8 +58,8 @@ export type ParseNftAvatarUriErrorType =
   | GetMetadataAvatarUriErrorType
   | ErrorType
 
-async function parseNftAvatarUri<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+async function parseNftAvatarUri<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     gatewayUrls,
     record,

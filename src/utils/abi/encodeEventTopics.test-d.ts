@@ -1,4 +1,4 @@
-import { type Abi } from 'abitype'
+import type { Abi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import { seaportContractConfig } from '~test/src/abis.js'
@@ -25,13 +25,13 @@ test('defined inline', () => {
         inputs: [
           {
             indexed: false,
-            internalType: 'uint256',
+
             name: 'newCounter',
             type: 'uint256',
           },
           {
             indexed: true,
-            internalType: 'address',
+
             name: 'offerer',
             type: 'address',
           },
@@ -54,13 +54,13 @@ test('declared as Abi', () => {
       inputs: [
         {
           indexed: false,
-          internalType: 'uint256',
+
           name: 'newCounter',
           type: 'uint256',
         },
         {
           indexed: true,
-          internalType: 'address',
+
           name: 'offerer',
           type: 'address',
         },
@@ -88,13 +88,13 @@ test('no const assertion', () => {
       inputs: [
         {
           indexed: false,
-          internalType: 'uint256',
+
           name: 'newCounter',
           type: 'uint256',
         },
         {
           indexed: true,
-          internalType: 'address',
+
           name: 'offerer',
           type: 'address',
         },
@@ -122,13 +122,13 @@ test('single abi error, eventName not required', () => {
       inputs: [
         {
           indexed: false,
-          internalType: 'uint256',
+
           name: 'newCounter',
           type: 'uint256',
         },
         {
           indexed: true,
-          internalType: 'address',
+
           name: 'offerer',
           type: 'address',
         },

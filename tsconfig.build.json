@@ -3,9 +3,11 @@
   "extends": "./tsconfig.base.json",
   "include": ["src"],
   "exclude": [
+    "src/**/*.bench.ts",
+    "src/**/*.bench-d.ts",
     "src/**/*.test.ts",
     "src/**/*.test-d.ts",
-    "src/**/*.bench.ts"
+    "src/node/trustedSetups_esm.ts"
   ],
   "compilerOptions": {
     "moduleResolution": "node",

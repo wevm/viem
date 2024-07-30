@@ -102,7 +102,7 @@ export const [account] = await walletClient.getAddresses()
 
 `boolean`
 
-Wheather the signed message is valid for the given address.
+Whether the signed message is valid for the given address.
 
 ## Parameters
 
@@ -324,7 +324,7 @@ const valid = await publicClient.verifyTypedData({
 
 ### signature
 
-- **Type:** `Hex | ByteArray`
+- **Type:** `Hex | ByteArray | Signature`
 
 The signature of the typed data.
 

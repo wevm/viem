@@ -19,9 +19,9 @@ const request = await walletClient.prepareTransactionRequest({
   value: 1000000000000000000n
 })
 
-const signature = await walletClient.signTransaction(request)
+const serializedTransaction = await walletClient.signTransaction(request)
 
-const hash = await walletClient.sendRawTransaction({ serializedTransaction: signature }) // [!code focus]
+const hash = await walletClient.sendRawTransaction({ serializedTransaction }) // [!code focus]
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"

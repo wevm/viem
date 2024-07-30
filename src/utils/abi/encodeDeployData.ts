@@ -32,11 +32,12 @@ export type EncodeDeployDataParameters<
   abi: abi
   bytecode: Hex
 } & UnionEvaluate<
-  readonly [] extends allArgs
-    ? { args?: allArgs | undefined }
-    : { args: allArgs }
-> &
-  (hasConstructor extends true ? unknown : never)
+  hasConstructor extends false
+    ? { args?: undefined }
+    : readonly [] extends allArgs
+      ? { args?: allArgs | undefined }
+      : { args: allArgs }
+>
 
 export type EncodeDeployDataReturnType = Hex
 

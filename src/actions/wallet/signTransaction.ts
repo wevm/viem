@@ -15,7 +15,7 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import { type RpcTransactionRequest } from '../../types/rpc.js'
+import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
   TransactionSerializable,
@@ -81,7 +81,7 @@ export type SignTransactionErrorType =
  *   - Local Accounts: Signs locally. No JSON-RPC request.
  *
  * @param args - {@link SignTransactionParameters}
- * @returns The signed serialized tranasction. {@link SignTransactionReturnType}
+ * @returns The signed serialized transaction. {@link SignTransactionReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
@@ -155,7 +155,7 @@ export async function signTransaction<
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
 
-  if (account.type === 'local') {
+  if (account.signTransaction)
     return account.signTransaction(
       {
         ...transaction,
@@ -163,7 +163,6 @@ export async function signTransaction<
       } as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>
-  }
 
   return await client.request(
     {

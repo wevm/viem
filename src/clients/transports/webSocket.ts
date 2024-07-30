@@ -8,7 +8,10 @@ import type { Hash } from '../../types/misc.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { getSocket } from '../../utils/rpc/compat.js'
 import type { SocketRpcClient } from '../../utils/rpc/socket.js'
-import { getWebSocketRpcClient } from '../../utils/rpc/webSocket.js'
+import {
+  type GetWebSocketRpcClientOptions,
+  getWebSocketRpcClient,
+} from '../../utils/rpc/webSocket.js'
 import {
   type CreateTransportErrorType,
   type Transport,
@@ -39,10 +42,20 @@ type WebSocketTransportSubscribe = {
 }
 
 export type WebSocketTransportConfig = {
+  /**
+   * Whether or not to send keep-alive ping messages.
+   * @default true
+   */
+  keepAlive?: GetWebSocketRpcClientOptions['keepAlive'] | undefined
   /** The key of the WebSocket transport. */
   key?: TransportConfig['key'] | undefined
   /** The name of the WebSocket transport. */
   name?: TransportConfig['name'] | undefined
+  /**
+   * Whether or not to attempt to reconnect on socket failure.
+   * @default true
+   */
+  reconnect?: GetWebSocketRpcClientOptions['reconnect'] | undefined
   /** The max number of times to retry. */
   retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
@@ -76,7 +89,13 @@ export function webSocket(
   url?: string,
   config: WebSocketTransportConfig = {},
 ): WebSocketTransport {
-  const { key = 'webSocket', name = 'WebSocket JSON-RPC', retryDelay } = config
+  const {
+    keepAlive,
+    key = 'webSocket',
+    name = 'WebSocket JSON-RPC',
+    reconnect,
+    retryDelay,
+  } = config
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
     const retryCount = config.retryCount ?? retryCount_
     const timeout = timeout_ ?? config.timeout ?? 10_000
@@ -88,7 +107,10 @@ export function webSocket(
         name,
         async request({ method, params }) {
           const body = { method, params }
-          const rpcClient = await getWebSocketRpcClient(url_)
+          const rpcClient = await getWebSocketRpcClient(url_, {
+            keepAlive,
+            reconnect,
+          })
           const { error, result } = await rpcClient.requestAsync({
             body,
             timeout,

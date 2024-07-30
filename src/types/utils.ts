@@ -57,6 +57,11 @@ export type IsNarrowable<T, U> = IsNever<
  */
 export type IsNever<T> = [T] extends [never] ? true : false
 
+/** Removes `readonly` from all properties of an object. */
+export type Mutable<type extends object> = {
+  -readonly [key in keyof type]: type[key]
+}
+
 /**
  * @description Returns type {@link T} if it is an opaque type of {@link U}
  * @param T - Type to check
@@ -105,7 +110,7 @@ export type IsUndefined<T> = [undefined] extends [T] ? true : false
 export type MaybePromise<T> = T | Promise<T>
 
 /**
- * @description Makes attributes on the type T required if TRequired is true.
+ * @description Makes attributes on the type T required if required is true.
  *
  * @example
  * MaybeRequired<{ a: string, b?: number }, true>
@@ -114,7 +119,7 @@ export type MaybePromise<T> = T | Promise<T>
  * MaybeRequired<{ a: string, b?: number }, false>
  * => { a: string, b?: number }
  */
-export type MaybeRequired<T, TRequired extends boolean> = TRequired extends true
+export type MaybeRequired<T, required extends boolean> = required extends true
   ? ExactRequired<T>
   : T
 
@@ -134,16 +139,8 @@ type Assign_<T, U> = {
     : K]: K extends keyof U ? U[K] : T[K]
 }
 
-/**
- * @description Make properties K of type T never.
- *
- * @example
- * NeverBy<{ a: string, b: boolean, c: number }, 'a' | 'c'>
- * => { a: never, b: boolean, c: never }
- */
-export type NeverBy<T, K extends keyof T> = {
-  [U in keyof T]: U extends K ? never : T[U]
-}
+// TODO: Remove when peer dep `typescript@>=4.5` (NoInfer is native)
+export type NoInfer<type> = [type][type extends any ? 0 : never]
 
 /**
  * @description Constructs a type by excluding `undefined` from `T`.
@@ -151,9 +148,12 @@ export type NeverBy<T, K extends keyof T> = {
  * @example
  * NoUndefined<string | undefined>
  * => string
+ *
+ * @internal
  */
 export type NoUndefined<T> = T extends undefined ? never : T
 
+/** Strict version of built-in Omit type */
 export type Omit<type, keys extends keyof type> = Pick<
   type,
   Exclude<keyof type, keys>
@@ -181,6 +181,11 @@ export type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
 
+/** @internal */
+export type Evaluate<type> = {
+  [key in keyof type]: type[key]
+} & {}
+
 /**
  * @description Creates a type that is T with the required keys K.
  *
@@ -192,11 +197,29 @@ export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
   ExactRequired<Pick<T, K>>
 
 /**
+ * @description Returns truthy if `array` contains `value`.
+ *
+ * @example
+ * Some<[1, 2, 3], 2>
+ * => true
+ */
+export type Some<
+  array extends readonly unknown[],
+  value,
+> = array extends readonly [value, ...unknown[]]
+  ? true
+  : array extends readonly [unknown, ...infer rest]
+    ? Some<rest, value>
+    : false
+
+/**
  * @description Creates a type that extracts the values of T.
  *
  * @example
  * ValueOf<{ a: string, b: number }>
  * => string | number
+ *
+ * @internal
  */
 export type ValueOf<T> = T[keyof T]
 
@@ -242,12 +265,13 @@ export type OneOf<
   fallback extends object | undefined = undefined,
   ///
   keys extends KeyofUnion<union> = KeyofUnion<union>,
-> = union extends infer Item
+> = union extends infer item
   ? Prettify<
-      Item & {
-        [_K in Exclude<keys, keyof Item>]?: fallback extends object
-          ? // @ts-ignore
-            fallback[_K]
+      item & {
+        [key in Exclude<keys, keyof item>]?: fallback extends object
+          ? key extends keyof fallback
+            ? fallback[key]
+            : undefined
           : undefined
       }
     >
@@ -257,7 +281,10 @@ type KeyofUnion<type> = type extends type ? keyof type : never
 ///////////////////////////////////////////////////////////////////////////
 // Loose types
 
-/** Loose version of {@link Omit} */
+/**
+ * Loose version of {@link Omit}
+ * @internal
+ */
 export type LooseOmit<type, keys extends string> = Pick<
   type,
   Exclude<keyof type, keys>

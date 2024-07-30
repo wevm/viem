@@ -9,7 +9,7 @@ import type { Chain } from '../../types/chain.js'
 import type { Filter, FilterType } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
-import { type DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
+import type { DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
@@ -18,41 +18,33 @@ import {
 } from '../../utils/formatters/log.js'
 
 export type GetFilterChangesParameters<
-  TFilterType extends FilterType = FilterType,
-  TAbi extends Abi | readonly unknown[] | undefined = undefined,
-  TEventName extends string | undefined = undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  filterType extends FilterType = FilterType,
+  abi extends Abi | readonly unknown[] | undefined = undefined,
+  eventName extends string | undefined = undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
-  filter: Filter<
-    TFilterType,
-    TAbi,
-    TEventName,
-    any,
-    TStrict,
-    TFromBlock,
-    TToBlock
-  >
+  filter: Filter<filterType, abi, eventName, any, strict, fromBlock, toBlock>
 }
 
 export type GetFilterChangesReturnType<
-  TFilterType extends FilterType = FilterType,
-  TAbi extends Abi | readonly unknown[] | undefined = undefined,
-  TEventName extends string | undefined = undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-  _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
-    ? TEventName extends string
-      ? ExtractAbiEvent<TAbi, TEventName>
+  filterType extends FilterType = FilterType,
+  abi extends Abi | readonly unknown[] | undefined = undefined,
+  eventName extends string | undefined = undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
+  _AbiEvent extends AbiEvent | undefined = abi extends Abi
+    ? eventName extends string
+      ? ExtractAbiEvent<abi, eventName>
       : undefined
     : undefined,
   _Pending extends boolean =
-    | (TFromBlock extends 'pending' ? true : false)
-    | (TToBlock extends 'pending' ? true : false),
-> = TFilterType extends 'event'
-  ? Log<bigint, number, _Pending, _AbiEvent, TStrict, TAbi, TEventName>[]
+    | (fromBlock extends 'pending' ? true : false)
+    | (toBlock extends 'pending' ? true : false),
+> = filterType extends 'event'
+  ? Log<bigint, number, _Pending, _AbiEvent, strict, abi, eventName>[]
   : Hash[]
 
 export type GetFilterChangesErrorType =
@@ -144,34 +136,34 @@ export type GetFilterChangesErrorType =
  * const hashes = await getFilterChanges(client, { filter })
  */
 export async function getFilterChanges<
-  TTransport extends Transport,
-  TChain extends Chain | undefined,
-  TFilterType extends FilterType,
-  const TAbi extends Abi | readonly unknown[] | undefined,
-  TEventName extends string | undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  transport extends Transport,
+  chain extends Chain | undefined,
+  filterType extends FilterType,
+  const abi extends Abi | readonly unknown[] | undefined,
+  eventName extends string | undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
-  _client: Client<TTransport, TChain>,
+  _client: Client<transport, chain>,
   {
     filter,
   }: GetFilterChangesParameters<
-    TFilterType,
-    TAbi,
-    TEventName,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    filterType,
+    abi,
+    eventName,
+    strict,
+    fromBlock,
+    toBlock
   >,
 ): Promise<
   GetFilterChangesReturnType<
-    TFilterType,
-    TAbi,
-    TEventName,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    filterType,
+    abi,
+    eventName,
+    strict,
+    fromBlock,
+    toBlock
   >
 > {
   const strict = 'strict' in filter && filter.strict
@@ -183,34 +175,34 @@ export async function getFilterChanges<
 
   if (typeof logs[0] === 'string')
     return logs as GetFilterChangesReturnType<
-      TFilterType,
-      TAbi,
-      TEventName,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      filterType,
+      abi,
+      eventName,
+      strict,
+      fromBlock,
+      toBlock
     >
 
   const formattedLogs = logs.map((log) => formatLog(log as RpcLog))
   if (!('abi' in filter) || !filter.abi)
     return formattedLogs as GetFilterChangesReturnType<
-      TFilterType,
-      TAbi,
-      TEventName,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      filterType,
+      abi,
+      eventName,
+      strict,
+      fromBlock,
+      toBlock
     >
   return parseEventLogs({
     abi: filter.abi,
     logs: formattedLogs,
     strict,
   }) as unknown as GetFilterChangesReturnType<
-    TFilterType,
-    TAbi,
-    TEventName,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    filterType,
+    abi,
+    eventName,
+    strict,
+    fromBlock,
+    toBlock
   >
 }

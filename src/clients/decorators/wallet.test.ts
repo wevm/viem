@@ -2,12 +2,17 @@ import { describe, expect, test } from 'vitest'
 
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
-import { walletClient, walletClientWithAccount } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { avalanche } from '../../chains/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
 import { walletActions } from './wallet.js'
+
+const walletClient = anvilMainnet.getClient().extend(walletActions)
+const walletClientWithAccount = anvilMainnet
+  .getClient({ account: true })
+  .extend(walletActions)
 
 test('default', async () => {
   expect(walletActions(walletClient as any)).toMatchInlineSnapshot(`

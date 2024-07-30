@@ -7,25 +7,23 @@ import {
   test,
 } from 'vitest'
 
-import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
+import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
-import { accounts, address, forkBlockNumber } from '~test/src/constants.js'
-import {
-  deployErc20InvalidTransferEvent,
-  publicClient,
-  testClient,
-  walletClient,
-} from '~test/src/utils.js'
+import { accounts, address } from '~test/src/constants.js'
+import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'
 import type { Log } from '../../types/log.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
-import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getBlock } from './getBlock.js'
 import { getLogs } from './getLogs.js'
+
+const client = anvilMainnet.getClient()
 
 const event = {
   default: {
@@ -112,70 +110,61 @@ const event = {
 } as const
 
 beforeAll(async () => {
-  await impersonateAccount(testClient, {
+  await impersonateAccount(client, {
     address: address.vitalik,
   })
-  await impersonateAccount(testClient, {
+  await impersonateAccount(client, {
     address: address.usdcHolder,
   })
-  await setBalance(testClient, {
+  await setBalance(client, {
     address: address.usdcHolder,
     value: 10000000000000000000000n,
   })
-
-  return async () => {
-    await stopImpersonatingAccount(testClient, {
-      address: address.vitalik,
-    })
-    await impersonateAccount(testClient, {
-      address: address.usdcHolder,
-    })
-  }
 })
 
 test('default', async () => {
-  await mine(testClient, { blocks: 1 })
-  const logs = await getLogs(publicClient)
+  await mine(client, { blocks: 1 })
+  const logs = await getLogs(client)
   expect(logs).toMatchInlineSnapshot('[]')
 })
 
 describe('events', () => {
   test('no args', async () => {
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
-    const logs = await getLogs(publicClient)
+    const logs = await getLogs(client)
     assertType<Log[]>(logs)
     expect(logs.length).toBe(2)
   })
 
   test('args: event', async () => {
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
-    const logs = await getLogs(publicClient, {
+    const logs = await getLogs(client, {
       event: event.default,
     })
 
@@ -205,21 +194,21 @@ describe('events', () => {
   })
 
   test('args: events', async () => {
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'approve',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
-    const logs = await getLogs(publicClient, {
+    const logs = await getLogs(client, {
       events: [event.default, event.approve] as const,
     })
 
@@ -239,127 +228,137 @@ describe('events', () => {
   })
 
   test('args: fromBlock/toBlock', async () => {
-    const logs = await getLogs(publicClient, {
+    const logs = await getLogs(client, {
       event: event.default,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
-    expect(logs.length).toBe(1056)
+    expect(logs.length).toBe(973)
     expect(logs[0].eventName).toEqual('Transfer')
-    expect(logs[0].args).toEqual({
-      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
-      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
-      value: 1162592016924672n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        "value": 17991444454902871n,
+      }
+    `)
   })
 
   test('args: blockHash', async () => {
-    const block = await getBlock(publicClient, {
-      blockNumber: forkBlockNumber - 1n,
+    const block = await getBlock(client, {
+      blockNumber: anvilMainnet.forkBlockNumber - 1n,
     })
-    const logs = await getLogs(publicClient, {
+    const logs = await getLogs(client, {
       event: event.default,
       blockHash: block.hash!,
     })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
-    expect(logs.length).toBe(118)
+    expect(logs.length).toBe(161)
     expect(logs[0].eventName).toEqual('Transfer')
-    expect(logs[0].args).toEqual({
-      from: '0x97b9D2102A9a65A26E1EE82D59e42d1B73B68689',
-      to: '0x9493ACfA6Ce6F907E7C5Dc71288a611811Aa3677',
-      value: 995936118n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x6b75d8AF000000e20B7a7DDf000Ba900b4009A80",
+        "to": "0x5CEd44F03ff443BBE14d8eA23bc24425FB89E3ED",
+        "value": 158620485778292080640n,
+      }
+    `)
   })
 
   test('args: strict = true (named)', async () => {
-    const logs = await getLogs(publicClient, {
+    const logs = await getLogs(client, {
       event: event.default,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
       strict: true,
     })
 
     assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
-    expect(logs.length).toBe(783)
+    expect(logs.length).toBe(958)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from: `0x${string}`
       to: `0x${string}`
       value: bigint
     }>()
-    expect(logs[0].args).toEqual({
-      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
-      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
-      value: 1162592016924672n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        "value": 17991444454902871n,
+      }
+    `)
 
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
   })
 
   test('args: strict = false (named)', async () => {
-    const logs = await getLogs(publicClient, {
+    const logs = await getLogs(client, {
       event: event.default,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
 
     assertType<Log<bigint, number, boolean, typeof event.default, false>[]>(
       logs,
     )
-    expect(logs.length).toBe(1056)
+    expect(logs.length).toBe(973)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from?: `0x${string}`
       to?: `0x${string}`
       value?: bigint
     }>()
-    expect(logs[0].args).toEqual({
-      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
-      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
-      value: 1162592016924672n,
-    })
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      {
+        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        "value": 17991444454902871n,
+      }
+    `)
 
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
   })
 
   test('args: strict = true (unnamed)', async () => {
-    const logs = await getLogs(publicClient, {
+    const logs = await getLogs(client, {
       event: event.unnamed,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
       strict: true,
     })
 
     assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
-    expect(logs.length).toBe(783)
+    expect(logs.length).toBe(958)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       readonly [`0x${string}`, `0x${string}`, bigint]
     >()
-    expect(logs[0].args).toEqual([
-      '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
-      '0x393ADf60012809316659Af13A3117ec22D093a38',
-      1162592016924672n,
-    ])
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      [
+        "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        17991444454902871n,
+      ]
+    `)
 
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
   })
 
   test('args: strict = false (unnamed)', async () => {
-    const logs = await getLogs(publicClient, {
+    const logs = await getLogs(client, {
       event: event.unnamed,
-      fromBlock: forkBlockNumber - 5n,
-      toBlock: forkBlockNumber,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
     })
 
     assertType<Log<bigint, number, boolean, typeof event.unnamed, false>[]>(
       logs,
     )
-    expect(logs.length).toBe(1056)
+    expect(logs.length).toBe(973)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | readonly []
@@ -367,44 +366,46 @@ describe('events', () => {
       | readonly [`0x${string}`, `0x${string}`]
       | readonly [`0x${string}`]
     >()
-    expect(logs[0].args).toEqual([
-      '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
-      '0x393ADf60012809316659Af13A3117ec22D093a38',
-      1162592016924672n,
-    ])
+    expect(logs[0].args).toMatchInlineSnapshot(`
+      [
+        "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
+        "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
+        17991444454902871n,
+      ]
+    `)
 
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
   })
 
   test('args: singular `from`', async () => {
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.usdcHolder,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
-    const namedLogs = await getLogs(publicClient, {
+    const namedLogs = await getLogs(client, {
       event: event.default,
       args: {
         from: address.vitalik,
@@ -424,7 +425,7 @@ describe('events', () => {
       value: 1n,
     })
 
-    const unnamedLogs = await getLogs(publicClient, {
+    const unnamedLogs = await getLogs(client, {
       event: event.unnamed,
       args: [address.vitalik],
     })
@@ -444,33 +445,33 @@ describe('events', () => {
   })
 
   test('args: multiple `from`', async () => {
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.usdcHolder,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
-    const logs = await getLogs(publicClient, {
+    const logs = await getLogs(client, {
       event: event.default,
       args: {
         from: [address.usdcHolder, address.vitalik],
@@ -498,33 +499,33 @@ describe('events', () => {
   })
 
   test('args: singular `to`', async () => {
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.usdcHolder,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
-    const namedLogs = await getLogs(publicClient, {
+    const namedLogs = await getLogs(client, {
       event: event.default,
       args: {
         to: accounts[0].address,
@@ -538,7 +539,7 @@ describe('events', () => {
       value: 1n,
     })
 
-    const unnamedLogs = await getLogs(publicClient, {
+    const unnamedLogs = await getLogs(client, {
       event: event.unnamed,
       args: [null, accounts[0].address],
     })
@@ -552,33 +553,33 @@ describe('events', () => {
   })
 
   test('args: multiple `to`', async () => {
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.usdcHolder,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await writeContract(walletClient, {
+    await writeContract(client, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-    await mine(testClient, { blocks: 1 })
+    await mine(client, { blocks: 1 })
 
-    const namedLogs = await getLogs(publicClient, {
+    const namedLogs = await getLogs(client, {
       event: event.default,
       args: {
         to: [accounts[0].address, accounts[1].address],
@@ -604,7 +605,7 @@ describe('events', () => {
       value: 1n,
     })
 
-    const unnamedLogs = await getLogs(publicClient, {
+    const unnamedLogs = await getLogs(client, {
       event: event.unnamed,
       args: [null, [accounts[0].address, accounts[1].address]],
     })
@@ -633,33 +634,33 @@ describe('events', () => {
     test('indexed params mismatch', async () => {
       const { contractAddress } = await deployErc20InvalidTransferEvent()
 
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client, {
         abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client, {
         abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
-      const strictLogs = await getLogs(publicClient, {
+      const strictLogs = await getLogs(client, {
         event: event.default,
         strict: true,
       })
-      const looseLogs = await getLogs(publicClient, {
+      const looseLogs = await getLogs(client, {
         event: event.default,
       })
       expect(strictLogs.length).toBe(1)
@@ -669,33 +670,33 @@ describe('events', () => {
     test('non-indexed params mismatch', async () => {
       const { contractAddress } = await deployErc20InvalidTransferEvent()
 
-      await writeContract(walletClient, {
+      await writeContract(client, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client, {
         abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
-      await writeContract(walletClient, {
+      await writeContract(client, {
         abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
         account: address.vitalik,
       })
-      await mine(testClient, { blocks: 1 })
+      await mine(client, { blocks: 1 })
 
-      const strictLogs = await publicClient.getLogs({
+      const strictLogs = await getLogs(client, {
         event: event.invalid,
         strict: true,
       })
-      const looseLogs = await getLogs(publicClient, {
+      const looseLogs = await getLogs(client, {
         event: event.invalid,
       })
       expect(strictLogs.length).toBe(2)

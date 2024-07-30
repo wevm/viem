@@ -2,13 +2,18 @@ import type { Abi, Address } from 'abitype'
 
 import { type CallParameters, call } from '../actions/public/call.js'
 import type { Transport } from '../clients/transports/createTransport.js'
-import { type BaseError } from '../errors/base.js'
+import type { BaseError } from '../errors/base.js'
 import {
   OffchainLookupError,
+  type OffchainLookupErrorType as OffchainLookupErrorType_,
   OffchainLookupResponseMalformedError,
+  type OffchainLookupResponseMalformedErrorType,
   OffchainLookupSenderMismatchError,
 } from '../errors/ccip.js'
-import { HttpRequestError } from '../errors/request.js'
+import {
+  HttpRequestError,
+  type HttpRequestErrorType,
+} from '../errors/request.js'
 import type { Chain } from '../types/chain.js'
 import type { Hex } from '../types/misc.js'
 
@@ -49,10 +54,10 @@ export const offchainLookupAbiItem = {
   ],
 } as const satisfies Abi[number]
 
-export type OffchainLookupErrorType = ErrorType
+export type OffchainLookupErrorType = OffchainLookupErrorType_ | ErrorType
 
-export async function offchainLookup<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function offchainLookup<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockNumber,
     blockTag,
@@ -69,11 +74,17 @@ export async function offchainLookup<TChain extends Chain | undefined>(
   })
   const [sender, urls, callData, callbackSelector, extraData] = args
 
+  const { ccipRead } = client
+  const ccipRequest_ =
+    ccipRead && typeof ccipRead?.request === 'function'
+      ? ccipRead.request
+      : ccipRequest
+
   try {
     if (!isAddressEqual(to, sender))
       throw new OffchainLookupSenderMismatchError({ sender, to })
 
-    const result = await ccipFetch({ data: callData, sender, urls })
+    const result = await ccipRequest_({ data: callData, sender, urls })
 
     const { data: data_ } = await call(client, {
       blockNumber,
@@ -101,13 +112,24 @@ export async function offchainLookup<TChain extends Chain | undefined>(
   }
 }
 
-export type CcipFetchErrorType = ErrorType
+export type CcipRequestParameters = {
+  data: Hex
+  sender: Address
+  urls: readonly string[]
+}
 
-export async function ccipFetch({
+export type CcipRequestReturnType = Hex
+
+export type CcipRequestErrorType =
+  | HttpRequestErrorType
+  | OffchainLookupResponseMalformedErrorType
+  | ErrorType
+
+export async function ccipRequest({
   data,
   sender,
   urls,
-}: { data: Hex; sender: Address; urls: readonly string[] }) {
+}: CcipRequestParameters): Promise<CcipRequestReturnType> {
   let error = new Error('An unknown error occurred.')
 
   for (let i = 0; i < urls.length; i++) {

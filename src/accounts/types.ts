@@ -1,23 +1,32 @@
-import type { HDKey } from '@scure/bip32'
 import type { Address, TypedData } from 'abitype'
 
+import type { SmartAccount } from '../account-abstraction/accounts/types.js'
+import type { HDKey } from '../types/account.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerialized,
 } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
-import type { IsNarrowable } from '../types/utils.js'
+import type { IsNarrowable, OneOf, Prettify } from '../types/utils.js'
+import type { NonceManager } from '../utils/nonceManager.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
-export type Account<TAddress extends Address = Address> =
-  | JsonRpcAccount<TAddress>
-  | LocalAccount<string, TAddress>
+export type Account<address extends Address = Address> = OneOf<
+  JsonRpcAccount<address> | LocalAccount<string, address> | SmartAccount
+>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Sources
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 export type AccountSource = Address | CustomSource
 export type CustomSource = {
   address: Address
+  nonceManager?: NonceManager | undefined
+  // TODO(v3): Make `sign` required.
+  sign?: (({ hash }: { hash: Hash }) => Promise<Hash>) | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
   signTransaction: <
     serializer extends
@@ -46,24 +55,34 @@ export type CustomSource = {
   ) => Promise<Hash>
 }
 
-export type JsonRpcAccount<TAddress extends Address = Address> = {
-  address: TAddress
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Accounts
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+export type JsonRpcAccount<address extends Address = Address> = {
+  address: address
   type: 'json-rpc'
 }
 
 export type LocalAccount<
-  TSource extends string = 'custom',
-  TAddress extends Address = Address,
-> = CustomSource & {
-  address: TAddress
-  publicKey: Hex
-  source: TSource
-  type: 'local'
-}
+  source extends string = string,
+  address extends Address = Address,
+> = Prettify<
+  CustomSource & {
+    address: address
+    publicKey: Hex
+    source: source
+    type: 'local'
+  }
+>
 
-export type HDAccount = LocalAccount<'hd'> & {
-  getHdKey(): HDKey
-}
+export type HDAccount = Prettify<
+  LocalAccount<'hd'> & {
+    getHdKey(): HDKey
+    // TODO(v3): This will be redundant.
+    sign: NonNullable<CustomSource['sign']>
+  }
+>
 
 export type HDOptions =
   | {
@@ -73,14 +92,19 @@ export type HDOptions =
       addressIndex?: number | undefined
       /** The change index to use in the path (`"m/44'/60'/0'/${changeIndex}/0"`). */
       changeIndex?: number | undefined
-      path?: never | undefined
+      path?: undefined
     }
   | {
-      accountIndex?: never | undefined
-      addressIndex?: never | undefined
-      changeIndex?: never | undefined
+      accountIndex?: undefined
+      addressIndex?: undefined
+      changeIndex?: undefined
       /** The HD path. */
       path: `m/44'/60'/${string}`
     }
 
-export type PrivateKeyAccount = LocalAccount<'privateKey'>
+export type PrivateKeyAccount = Prettify<
+  LocalAccount<'privateKey'> & {
+    // TODO(v3): This will be redundant.
+    sign: NonNullable<CustomSource['sign']>
+  }
+>

@@ -16,18 +16,21 @@ export class HttpRequestError extends BaseError {
 
   constructor({
     body,
+    cause,
     details,
     headers,
     status,
     url,
   }: {
     body?: { [x: string]: unknown } | { [y: string]: unknown }[] | undefined
+    cause?: Error | undefined
     details?: string | undefined
     headers?: Headers | undefined
     status?: number | undefined
     url: string
   }) {
     super('HTTP request failed.', {
+      cause,
       details,
       metaMessages: [
         status && `Status: ${status}`,
@@ -50,16 +53,22 @@ export class WebSocketRequestError extends BaseError {
 
   constructor({
     body,
+    cause,
     details,
     url,
   }: {
-    body: { [key: string]: unknown }
-    details: string
+    body?: { [key: string]: unknown } | undefined
+    cause?: Error | undefined
+    details?: string | undefined
     url: string
   }) {
     super('WebSocket request failed.', {
+      cause,
       details,
-      metaMessages: [`URL: ${getUrl(url)}`, `Request body: ${stringify(body)}`],
+      metaMessages: [
+        `URL: ${getUrl(url)}`,
+        body && `Request body: ${stringify(body)}`,
+      ].filter(Boolean) as string[],
     })
   }
 }
@@ -87,6 +96,23 @@ export class RpcRequestError extends BaseError {
       metaMessages: [`URL: ${getUrl(url)}`, `Request body: ${stringify(body)}`],
     })
     this.code = error.code
+  }
+}
+
+export type SocketClosedErrorType = SocketClosedError & {
+  name: 'SocketClosedError'
+}
+export class SocketClosedError extends BaseError {
+  override name = 'SocketClosedError'
+
+  constructor({
+    url,
+  }: {
+    url?: string | undefined
+  } = {}) {
+    super('The socket has been closed.', {
+      metaMessages: [url && `URL: ${getUrl(url)}`].filter(Boolean) as string[],
+    })
   }
 }
 

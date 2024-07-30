@@ -9,19 +9,19 @@ type PadOptions = {
   dir?: 'left' | 'right' | undefined
   size?: number | null | undefined
 }
-export type PadReturnType<TValue extends ByteArray | Hex> = TValue extends Hex
+export type PadReturnType<value extends ByteArray | Hex> = value extends Hex
   ? Hex
   : ByteArray
 
 export type PadErrorType = PadHexErrorType | PadBytesErrorType | ErrorType
 
-export function pad<TValue extends ByteArray | Hex>(
-  hexOrBytes: TValue,
+export function pad<value extends ByteArray | Hex>(
+  hexOrBytes: value,
   { dir, size = 32 }: PadOptions = {},
-): PadReturnType<TValue> {
+): PadReturnType<value> {
   if (typeof hexOrBytes === 'string')
-    return padHex(hexOrBytes, { dir, size }) as PadReturnType<TValue>
-  return padBytes(hexOrBytes, { dir, size }) as PadReturnType<TValue>
+    return padHex(hexOrBytes, { dir, size }) as PadReturnType<value>
+  return padBytes(hexOrBytes, { dir, size }) as PadReturnType<value>
 }
 
 export type PadHexErrorType = SizeExceedsPaddingSizeErrorType | ErrorType

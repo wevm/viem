@@ -14,14 +14,14 @@ type To = 'hex' | 'bytes'
 
 export type ToBlobSidecarsParameters<
   data extends Hex | ByteArray | undefined = undefined,
-  blobs extends Hex[] | ByteArray[] | undefined = undefined,
+  blobs extends readonly Hex[] | readonly ByteArray[] | undefined = undefined,
   to extends To =
-    | (blobs extends Hex[] ? 'hex' : never)
-    | (blobs extends ByteArray[] ? 'bytes' : never),
+    | (blobs extends readonly Hex[] ? 'hex' : never)
+    | (blobs extends readonly ByteArray[] ? 'bytes' : never),
   ///
   _blobsType =
-    | (blobs extends Hex[] ? Hex[] : never)
-    | (blobs extends ByteArray[] ? ByteArray[] : never),
+    | (blobs extends readonly Hex[] ? readonly Hex[] : never)
+    | (blobs extends readonly ByteArray[] ? readonly ByteArray[] : never),
 > = {
   /** Return type. */
   to?: to | To | undefined
@@ -34,11 +34,11 @@ export type ToBlobSidecarsParameters<
     }
   | {
       /** Blobs. */
-      blobs: blobs | Hex[] | ByteArray[]
+      blobs: blobs | readonly Hex[] | readonly ByteArray[]
       /** Commitment for each blob. */
-      commitments: _blobsType | Hex[] | ByteArray[]
+      commitments: _blobsType | readonly Hex[] | readonly ByteArray[]
       /** Proof for each blob. */
-      proofs: _blobsType | Hex[] | ByteArray[]
+      proofs: _blobsType | readonly Hex[] | readonly ByteArray[]
     }
 >
 
@@ -81,12 +81,15 @@ export type ToBlobSidecarsErrorType =
  */
 export function toBlobSidecars<
   const data extends Hex | ByteArray | undefined = undefined,
-  const blobs extends Hex[] | ByteArray[] | undefined = undefined,
+  const blobs extends
+    | readonly Hex[]
+    | readonly ByteArray[]
+    | undefined = undefined,
   to extends To =
     | (data extends Hex ? 'hex' : never)
     | (data extends ByteArray ? 'bytes' : never)
-    | (blobs extends Hex[] ? 'hex' : never)
-    | (blobs extends ByteArray[] ? 'bytes' : never),
+    | (blobs extends readonly Hex[] ? 'hex' : never)
+    | (blobs extends readonly ByteArray[] ? 'bytes' : never),
 >(
   parameters: ToBlobSidecarsParameters<data, blobs, to>,
 ): ToBlobSidecarsReturnType<to> {

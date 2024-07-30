@@ -26,7 +26,7 @@ import type {
   TransactionSerializedGeneric,
   TransactionType,
 } from '../../types/transaction.js'
-import type { IsNarrowable } from '../../types/utils.js'
+import type { IsNarrowable, Mutable } from '../../types/utils.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
@@ -59,14 +59,14 @@ import {
 } from './getSerializedTransactionType.js'
 
 export type ParseTransactionReturnType<
-  TSerialized extends TransactionSerializedGeneric = TransactionSerialized,
-  TType extends TransactionType = GetSerializedTransactionType<TSerialized>,
-> = IsNarrowable<TSerialized, Hex> extends true
+  serialized extends TransactionSerializedGeneric = TransactionSerialized,
+  type extends TransactionType = GetSerializedTransactionType<serialized>,
+> = IsNarrowable<serialized, Hex> extends true
   ?
-      | (TType extends 'eip1559' ? TransactionSerializableEIP1559 : never)
-      | (TType extends 'eip2930' ? TransactionSerializableEIP2930 : never)
-      | (TType extends 'eip4844' ? TransactionSerializableEIP4844 : never)
-      | (TType extends 'legacy' ? TransactionSerializableLegacy : never)
+      | (type extends 'eip1559' ? TransactionSerializableEIP1559 : never)
+      | (type extends 'eip2930' ? TransactionSerializableEIP2930 : never)
+      | (type extends 'eip4844' ? TransactionSerializableEIP4844 : never)
+      | (type extends 'legacy' ? TransactionSerializableLegacy : never)
   : TransactionSerializable
 
 export type ParseTransactionErrorType =
@@ -77,31 +77,32 @@ export type ParseTransactionErrorType =
   | ParseTransactionLegacyErrorType
 
 export function parseTransaction<
-  const TSerialized extends TransactionSerializedGeneric,
->(serializedTransaction: TSerialized): ParseTransactionReturnType<TSerialized> {
+  const serialized extends TransactionSerializedGeneric,
+>(serializedTransaction: serialized): ParseTransactionReturnType<serialized> {
   const type = getSerializedTransactionType(serializedTransaction)
 
   if (type === 'eip1559')
     return parseTransactionEIP1559(
       serializedTransaction as TransactionSerializedEIP1559,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   if (type === 'eip2930')
     return parseTransactionEIP2930(
       serializedTransaction as TransactionSerializedEIP2930,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   if (type === 'eip4844')
     return parseTransactionEIP4844(
       serializedTransaction as TransactionSerializedEIP4844,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   return parseTransactionLegacy(
     serializedTransaction,
-  ) as ParseTransactionReturnType<TSerialized>
+  ) as ParseTransactionReturnType<serialized>
 }
 
 type ParseTransactionEIP4844ErrorType =
+  | ToTransactionArrayErrorType
   | AssertTransactionEIP4844ErrorType
   | ToTransactionArrayErrorType
   | HexToBigIntErrorType
@@ -204,6 +205,7 @@ function parseTransactionEIP4844(
 }
 
 type ParseTransactionEIP1559ErrorType =
+  | ToTransactionArrayErrorType
   | AssertTransactionEIP1559ErrorType
   | ToTransactionArrayErrorType
   | HexToBigIntErrorType
@@ -212,6 +214,7 @@ type ParseTransactionEIP1559ErrorType =
   | InvalidSerializedTransactionErrorType
   | IsHexErrorType
   | ParseEIP155SignatureErrorType
+  | ParseAccessListErrorType
   | ErrorType
 
 function parseTransactionEIP1559(
@@ -285,6 +288,7 @@ function parseTransactionEIP1559(
 }
 
 type ParseTransactionEIP2930ErrorType =
+  | ToTransactionArrayErrorType
   | AssertTransactionEIP2930ErrorType
   | ToTransactionArrayErrorType
   | HexToBigIntErrorType
@@ -293,6 +297,7 @@ type ParseTransactionEIP2930ErrorType =
   | InvalidSerializedTransactionErrorType
   | IsHexErrorType
   | ParseEIP155SignatureErrorType
+  | ParseAccessListErrorType
   | ErrorType
 
 function parseTransactionEIP2930(
@@ -422,27 +427,27 @@ function parseTransactionLegacy(
   if (chainId > 0) transaction.chainId = chainId
   else if (v !== 27n && v !== 28n) throw new InvalidLegacyVError({ v })
 
-  delete transaction.yParity
   transaction.v = v
   transaction.s = s as Hex
   transaction.r = r as Hex
+  transaction.yParity = v % 2n === 0n ? 1 : 0
 
   return transaction
 }
 
-export type ToTransactionArrayErrorType = FromRlpErrorType | ErrorType
+type ToTransactionArrayErrorType = FromRlpErrorType | ErrorType
 
 export function toTransactionArray(serializedTransaction: string) {
   return fromRlp(`0x${serializedTransaction.slice(4)}` as Hex, 'hex')
 }
 
-export type ParseAccessListErrorType =
+type ParseAccessListErrorType =
   | InvalidAddressErrorType
   | IsAddressErrorType
   | ErrorType
 
 export function parseAccessList(accessList_: RecursiveArray<Hex>): AccessList {
-  const accessList: AccessList = []
+  const accessList: Mutable<AccessList> = []
   for (let i = 0; i < accessList_.length; i++) {
     const [address, storageKeys] = accessList_[i] as [Hex, Hex[]]
 

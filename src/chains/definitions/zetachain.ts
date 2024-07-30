@@ -13,6 +13,12 @@ export const zetachain = /*#__PURE__*/ defineChain({
       http: ['https://zetachain-evm.blockpi.network/v1/rpc/public'],
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1632781,
+    },
+  },
   blockExplorers: {
     default: {
       name: 'ZetaScan',

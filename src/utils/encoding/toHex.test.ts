@@ -27,14 +27,14 @@ describe('converts numbers to hex', () => {
       `
       [IntegerOutOfRangeError: Number "4.2018273891273126e+26" is not in safe integer range (0 to 9007199254740991)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     expect(() => numberToHex(-69)).toThrowErrorMatchingInlineSnapshot(
       `
       [IntegerOutOfRangeError: Number "-69" is not in safe integer range (0 to 9007199254740991)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -53,7 +53,7 @@ describe('converts numbers to hex', () => {
       `
       [IntegerOutOfRangeError: Number "-7" is not in safe 8-bit unsigned integer range (0 to 255)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     expect(() =>
@@ -62,7 +62,7 @@ describe('converts numbers to hex', () => {
       `
       [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     expect(() =>
@@ -71,7 +71,7 @@ describe('converts numbers to hex', () => {
       `
       [IntegerOutOfRangeError: Number "65536" is not in safe 16-bit unsigned integer range (0 to 65535)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -101,7 +101,7 @@ describe('converts numbers to hex', () => {
       `
       [IntegerOutOfRangeError: Number "32768" is not in safe 16-bit signed integer range (-32768 to 32767)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     expect(() =>
@@ -110,7 +110,7 @@ describe('converts numbers to hex', () => {
       `
       [IntegerOutOfRangeError: Number "-32769" is not in safe 16-bit signed integer range (-32768 to 32767)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -138,7 +138,7 @@ describe('converts bigints to hex', () => {
       `
       [IntegerOutOfRangeError: Number "-69n" is not in safe integer range (above 0n)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -157,7 +157,7 @@ describe('converts bigints to hex', () => {
       `
       [IntegerOutOfRangeError: Number "-7n" is not in safe 8-bit unsigned integer range (0n to 255n)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     expect(() =>
@@ -166,7 +166,7 @@ describe('converts bigints to hex', () => {
       `
       [IntegerOutOfRangeError: Number "256n" is not in safe 8-bit unsigned integer range (0n to 255n)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     expect(() =>
@@ -175,7 +175,7 @@ describe('converts bigints to hex', () => {
       `
       [IntegerOutOfRangeError: Number "65536n" is not in safe 16-bit unsigned integer range (0n to 65535n)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     expect(() =>
@@ -184,7 +184,7 @@ describe('converts bigints to hex', () => {
       `
       [IntegerOutOfRangeError: Number "18446744073709551616n" is not in safe 64-bit unsigned integer range (0n to 18446744073709551615n)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -225,7 +225,7 @@ describe('converts bigints to hex', () => {
       `
       [IntegerOutOfRangeError: Number "170141183460469231731687303715884105728n" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728n to 170141183460469231731687303715884105727n)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     expect(() =>
@@ -237,7 +237,7 @@ describe('converts bigints to hex', () => {
       `
       [IntegerOutOfRangeError: Number "-170141183460469231731687303715884105729n" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728n to 170141183460469231731687303715884105727n)
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -272,7 +272,7 @@ describe('converts boolean to hex', () => {
       `
       [SizeOverflowError: Size cannot exceed 0 bytes. Given size: 1 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
     expect(() =>
@@ -280,7 +280,7 @@ describe('converts boolean to hex', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 0 bytes. Given size: 1 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -323,14 +323,14 @@ describe('converts string to hex', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(() =>
       stringToHex('Hello World!', { size: 8 }),
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -414,7 +414,7 @@ describe('converts bytes to hex', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(() =>
       bytesToHex(
@@ -426,7 +426,7 @@ describe('converts bytes to hex', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

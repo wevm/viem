@@ -1,5 +1,5 @@
+import { formatters } from '../../op-stack/formatters.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formatters } from '../opStack/formatters.js'
 
 const sourceId = 11_155_111 // sepolia
 
@@ -19,7 +19,7 @@ export const pgnTestnet = /*#__PURE__*/ defineChain({
       url: 'https://explorer.sepolia.publicgoods.network',
       apiUrl: 'https://explorer.sepolia.publicgoods.network/api',
     },
-    blocksout: {
+    blockscout: {
       name: 'PGN Testnet Explorer',
       url: 'https://explorer.sepolia.publicgoods.network',
       apiUrl: 'https://explorer.sepolia.publicgoods.network/api',

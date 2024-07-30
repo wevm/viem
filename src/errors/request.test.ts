@@ -1,11 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { forkBlockNumber } from '~test/src/constants.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { numberToHex } from '../utils/encoding/toHex.js'
 
 import {
   HttpRequestError,
   RpcRequestError,
+  SocketClosedError,
   TimeoutError,
   WebSocketRequestError,
 } from './request.js'
@@ -23,7 +24,7 @@ test('RpcRequestError', () => {
     Request body: {"foo":"bar"}
 
     Details: Error
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -32,7 +33,7 @@ test('HttpRequestError', () => {
     url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
-      params: [numberToHex(forkBlockNumber), false],
+      params: [numberToHex(anvilMainnet.forkBlockNumber), false],
     },
     status: 500,
     details: 'Some error',
@@ -42,10 +43,10 @@ test('HttpRequestError', () => {
 
     Status: 500
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
     Details: Some error
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -54,7 +55,7 @@ test('WebSocketRequestError', () => {
     url: 'ws://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
-      params: [numberToHex(forkBlockNumber), false],
+      params: [numberToHex(anvilMainnet.forkBlockNumber), false],
     },
     details: 'Some error',
   })
@@ -62,10 +63,23 @@ test('WebSocketRequestError', () => {
     [WebSocketRequestError: WebSocket request failed.
 
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
     Details: Some error
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
+  `)
+})
+
+test('SocketClosedError', () => {
+  const err = new SocketClosedError({
+    url: 'ws://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+  })
+  expect(err).toMatchInlineSnapshot(`
+    [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
+    Version: viem@x.y.z]
   `)
 })
 
@@ -74,16 +88,16 @@ test('TimeoutError', () => {
     url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
-      params: [numberToHex(forkBlockNumber), false],
+      params: [numberToHex(anvilMainnet.forkBlockNumber), false],
     },
   })
   expect(err).toMatchInlineSnapshot(`
     [TimeoutError: The request took too long to respond.
 
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
     Details: The request timed out.
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

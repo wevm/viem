@@ -4,7 +4,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import type { ByteArray, Hex } from '../../types/misc.js'
+import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import {
   type HashTypedDataErrorType,
@@ -24,7 +24,7 @@ export type VerifyTypedDataParameters<
     /** The address to verify the typed data for. */
     address: Address
     /** The signature to verify */
-    signature: Hex | ByteArray
+    signature: Hex | ByteArray | Signature
   }
 
 export type VerifyTypedDataReturnType = boolean
@@ -53,6 +53,8 @@ export async function verifyTypedData<
 ): Promise<VerifyTypedDataReturnType> {
   const {
     address,
+    factory,
+    factoryData,
     signature,
     message,
     primaryType,
@@ -63,6 +65,8 @@ export async function verifyTypedData<
   const hash = hashTypedData({ message, primaryType, types, domain })
   return verifyHash(client, {
     address,
+    factory: factory!,
+    factoryData: factoryData!,
     hash,
     signature,
     ...callRequest,

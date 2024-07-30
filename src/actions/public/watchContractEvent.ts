@@ -12,6 +12,7 @@ import {
 } from '../../errors/abi.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { BlockNumber } from '../../types/block.js'
 import type {
   ContractEventArgs,
   ContractEventName,
@@ -73,6 +74,8 @@ export type WatchContractEventParameters<
     | undefined
   /** Contract event. */
   eventName?: eventName | ContractEventName<abi> | undefined
+  /** Block to start listening from. */
+  fromBlock?: BlockNumber<bigint> | undefined
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
@@ -143,6 +146,7 @@ export function watchContractEvent<
     args,
     batch = true,
     eventName,
+    fromBlock,
     onError,
     onLogs,
     poll: poll_,
@@ -150,8 +154,17 @@ export function watchContractEvent<
     strict: strict_,
   } = parameters
 
-  const enablePolling =
-    typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
+  const enablePolling = (() => {
+    if (typeof poll_ !== 'undefined') return poll_
+    if (typeof fromBlock === 'bigint') return true
+    if (client.transport.type === 'webSocket') return false
+    if (
+      client.transport.type === 'fallback' &&
+      client.transport.transports[0].config.type === 'webSocket'
+    )
+      return false
+    return true
+  })()
 
   const pollContractEvent = () => {
     const strict = strict_ ?? false
@@ -164,10 +177,12 @@ export function watchContractEvent<
       eventName,
       pollingInterval,
       strict,
+      fromBlock,
     ])
 
     return observe(observerId, { onLogs, onError }, (emit) => {
       let previousBlockNumber: bigint
+      if (fromBlock !== undefined) previousBlockNumber = fromBlock - 1n
       let filter: Filter<'event', abi, eventName> | undefined
       let initialized = false
 
@@ -185,6 +200,7 @@ export function watchContractEvent<
                 args: args as any,
                 eventName: eventName as any,
                 strict: strict as any,
+                fromBlock,
               })) as Filter<'event', abi, eventName>
             } catch {}
             initialized = true
@@ -213,7 +229,7 @@ export function watchContractEvent<
               // If the block number has changed, we will need to fetch the logs.
               // If the block number doesn't exist, we are yet to reach the first poll interval,
               // so do not emit any logs.
-              if (previousBlockNumber && previousBlockNumber !== blockNumber) {
+              if (previousBlockNumber && previousBlockNumber < blockNumber) {
                 logs = await getAction(
                   client,
                   getContractEvents,
@@ -238,7 +254,7 @@ export function watchContractEvent<
             else for (const log of logs) emit.onLogs([log] as any)
           } catch (err) {
             // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
-            // Reinitalize the filter when this occurs
+            // Reinitialize the filter when this occurs
             if (filter && err instanceof InvalidInputRpcError)
               initialized = false
             emit.onError?.(err as Error)
@@ -280,6 +296,18 @@ export function watchContractEvent<
     return observe(observerId, { onLogs, onError }, (emit) => {
       ;(async () => {
         try {
+          const transport = (() => {
+            if (client.transport.type === 'fallback') {
+              const transport = client.transport.transports.find(
+                (transport: ReturnType<Transport>) =>
+                  transport.config.type === 'webSocket',
+              )
+              if (!transport) return client.transport
+              return transport.value
+            }
+            return client.transport
+          })()
+
           const topics: LogTopic[] = eventName
             ? encodeEventTopics({
                 abi: abi,
@@ -288,51 +316,50 @@ export function watchContractEvent<
               } as EncodeEventTopicsParameters)
             : []
 
-          const { unsubscribe: unsubscribe_ } =
-            await client.transport.subscribe({
-              params: ['logs', { address, topics }],
-              onData(data: any) {
-                if (!active) return
-                const log = data.result
-                try {
-                  const { eventName, args } = decodeEventLog({
-                    abi: abi,
-                    data: log.data,
-                    topics: log.topics as any,
-                    strict: strict_,
-                  })
-                  const formatted = formatLog(log, {
-                    args,
-                    eventName: eventName as string,
-                  })
-                  emit.onLogs([formatted] as any)
-                } catch (err) {
-                  let eventName: string | undefined
-                  let isUnnamed: boolean | undefined
-                  if (
-                    err instanceof DecodeLogDataMismatch ||
-                    err instanceof DecodeLogTopicsMismatch
-                  ) {
-                    // If strict mode is on, and log data/topics do not match event definition, skip.
-                    if (strict_) return
-                    eventName = err.abiItem.name
-                    isUnnamed = err.abiItem.inputs?.some(
-                      (x) => !('name' in x && x.name),
-                    )
-                  }
-
-                  // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
-                  const formatted = formatLog(log, {
-                    args: isUnnamed ? [] : {},
-                    eventName,
-                  })
-                  emit.onLogs([formatted] as any)
+          const { unsubscribe: unsubscribe_ } = await transport.subscribe({
+            params: ['logs', { address, topics }],
+            onData(data: any) {
+              if (!active) return
+              const log = data.result
+              try {
+                const { eventName, args } = decodeEventLog({
+                  abi: abi,
+                  data: log.data,
+                  topics: log.topics as any,
+                  strict: strict_,
+                })
+                const formatted = formatLog(log, {
+                  args,
+                  eventName: eventName as string,
+                })
+                emit.onLogs([formatted] as any)
+              } catch (err) {
+                let eventName: string | undefined
+                let isUnnamed: boolean | undefined
+                if (
+                  err instanceof DecodeLogDataMismatch ||
+                  err instanceof DecodeLogTopicsMismatch
+                ) {
+                  // If strict mode is on, and log data/topics do not match event definition, skip.
+                  if (strict_) return
+                  eventName = err.abiItem.name
+                  isUnnamed = err.abiItem.inputs?.some(
+                    (x) => !('name' in x && x.name),
+                  )
                 }
-              },
-              onError(error: Error) {
-                emit.onError?.(error)
-              },
-            })
+
+                // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+                const formatted = formatLog(log, {
+                  args: isUnnamed ? [] : {},
+                  eventName,
+                })
+                emit.onLogs([formatted] as any)
+              }
+            },
+            onError(error: Error) {
+              emit.onError?.(error)
+            },
+          })
           unsubscribe = unsubscribe_
           if (!active) unsubscribe()
         } catch (err) {

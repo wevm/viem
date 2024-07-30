@@ -23,12 +23,15 @@ test('exports utils', () => {
       "toAccount",
       "sign",
       "signatureToHex",
+      "serializeSignature",
       "signMessage",
       "signTransaction",
       "signTypedData",
       "parseAccount",
       "publicKeyToAddress",
       "privateKeyToAddress",
+      "createNonceManager",
+      "nonceManager",
     ]
   `)
 })

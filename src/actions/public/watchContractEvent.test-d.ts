@@ -2,12 +2,15 @@ import type { Abi, Address } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import { usdcContractConfig } from '~test/src/abis.js'
-import { publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import type { Log } from '../../types/log.js'
 import { watchContractEvent } from './watchContractEvent.js'
 
+const client = anvilMainnet.getClient()
+
 test('defined inline', () => {
-  watchContractEvent(publicClient, {
+  watchContractEvent(client, {
     abi: usdcContractConfig.abi,
     onLogs(logs) {
       expectTypeOf(logs[0].args).toEqualTypeOf<
@@ -30,7 +33,7 @@ test('defined inline', () => {
 })
 
 test('declared as Abi', () => {
-  watchContractEvent(publicClient, {
+  watchContractEvent(client, {
     abi: usdcContractConfig.abi as Abi,
     eventName: 'Foo',
     onLogs(logs) {

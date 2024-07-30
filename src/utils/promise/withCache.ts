@@ -1,19 +1,21 @@
 import type { ErrorType } from '../../errors/utils.js'
 
+/** @internal */
 export const promiseCache = /*#__PURE__*/ new Map()
+/** @internal */
 export const responseCache = /*#__PURE__*/ new Map()
 
 export type GetCacheErrorType = ErrorType
 
-export function getCache<TData>(cacheKey: string) {
-  const buildCache = <TData>(cacheKey: string, cache: Map<string, TData>) => ({
+export function getCache<data>(cacheKey: string) {
+  const buildCache = <data>(cacheKey: string, cache: Map<string, data>) => ({
     clear: () => cache.delete(cacheKey),
     get: () => cache.get(cacheKey),
-    set: (data: TData) => cache.set(cacheKey, data),
+    set: (data: data) => cache.set(cacheKey, data),
   })
 
-  const promise = buildCache<Promise<TData>>(cacheKey, promiseCache)
-  const response = buildCache<{ created: Date; data: TData }>(
+  const promise = buildCache<Promise<data>>(cacheKey, promiseCache)
+  const response = buildCache<{ created: Date; data: data }>(
     cacheKey,
     responseCache,
   )
@@ -28,7 +30,7 @@ export function getCache<TData>(cacheKey: string) {
   }
 }
 
-export type WithCacheParameters = {
+type WithCacheParameters = {
   /** The key to cache the data against. */
   cacheKey: string
   /** The time that cached data will remain in memory. Default: Infinity (no expiry) */
@@ -39,11 +41,11 @@ export type WithCacheParameters = {
  * @description Returns the result of a given promise, and caches the result for
  * subsequent invocations against a provided cache key.
  */
-export async function withCache<TData>(
-  fn: () => Promise<TData>,
-  { cacheKey, cacheTime = Infinity }: WithCacheParameters,
+export async function withCache<data>(
+  fn: () => Promise<data>,
+  { cacheKey, cacheTime = Number.POSITIVE_INFINITY }: WithCacheParameters,
 ) {
-  const cache = getCache<TData>(cacheKey)
+  const cache = getCache<data>(cacheKey)
 
   // If a response exists in the cache, and it's not expired, return it
   // and do not invoke the promise.

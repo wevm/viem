@@ -27,20 +27,20 @@ test('error: empty blob data', () => {
     `
     [EmptyBlobError: Blob data must not be empty.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
 
 test('error: blob data too big', () => {
   expect(() =>
-    toBlobs({ data: stringToHex('we are all gonna make it'.repeat(20000)) }),
+    toBlobs({ data: stringToHex('we are all gonna make it'.repeat(100000)) }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [BlobSizeTooLargeError: Blob size is too large.
 
-    Max: 253951 bytes
-    Given: 480000 bytes
+    Max: 761855 bytes
+    Given: 2400000 bytes
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

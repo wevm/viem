@@ -8,7 +8,7 @@ Verify that typed data was signed by the provided address.
 
 :::warning[Warning]
 This utility can only verify typed data that was signed by an Externally Owned Account (EOA).
-To verify messages from Contract Accounts (& EOA), use the [`publicClient.verifyMessage` Action](/docs/actions/public/verifyMessage) instead.
+To verify messages from Contract Accounts (& EOA), use the [`publicClient.verifyTypedData` Action](/docs/actions/public/verifyTypedData) instead.
 :::
 
 ## Usage
@@ -266,7 +266,7 @@ const valid = await verifyTypedData({
 
 ### signature
 
-- **Type:** `Hex | ByteArray`
+- **Type:** `Hex | ByteArray | Signature`
 
 The signature of the typed data.
 

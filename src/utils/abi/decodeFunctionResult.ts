@@ -127,7 +127,7 @@ export type DecodeFunctionResultErrorType =
 export function decodeFunctionResult<
   const abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi> | undefined = undefined,
-  args extends ContractFunctionArgs<
+  const args extends ContractFunctionArgs<
     abi,
     AbiStateMutability,
     functionName extends ContractFunctionName<abi>

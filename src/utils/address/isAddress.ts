@@ -5,6 +5,7 @@ import { checksumAddress } from './getAddress.js'
 
 const addressRegex = /^0x[a-fA-F0-9]{40}$/
 
+/** @internal */
 export const isAddressCache = /*#__PURE__*/ new LruMap<boolean>(8192)
 
 export type IsAddressOptions = {
@@ -20,9 +21,12 @@ export type IsAddressErrorType = ErrorType
 
 export function isAddress(
   address: string,
-  { strict = true }: IsAddressOptions = {},
+  options?: IsAddressOptions | undefined,
 ): address is Address {
-  if (isAddressCache.has(address)) return isAddressCache.get(address)!
+  const { strict = true } = options ?? {}
+  const cacheKey = `${address}.${strict}`
+
+  if (isAddressCache.has(cacheKey)) return isAddressCache.get(cacheKey)!
 
   const result = (() => {
     if (!addressRegex.test(address)) return false
@@ -30,6 +34,6 @@ export function isAddress(
     if (strict) return checksumAddress(address as Address) === address
     return true
   })()
-  isAddressCache.set(address, result)
+  isAddressCache.set(cacheKey, result)
   return result
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import { Address, Hash, createWalletClient, custom } from 'viem'
+import { type Address, type Hash, createWalletClient, custom } from 'viem'
 import { goerli } from 'viem/chains'
 import 'viem/window'
 

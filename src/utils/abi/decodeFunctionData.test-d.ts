@@ -1,4 +1,4 @@
-import { type Abi } from 'abitype'
+import type { Abi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'

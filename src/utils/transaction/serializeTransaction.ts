@@ -57,7 +57,7 @@ import {
 } from './assertTransaction.js'
 import {
   type GetTransactionType,
-  type GetTransationTypeErrorType,
+  type GetTransactionTypeErrorType,
   getTransactionType,
 } from './getTransactionType.js'
 import {
@@ -81,7 +81,7 @@ export type SerializeTransactionFn<
 >
 
 export type SerializeTransactionErrorType =
-  | GetTransationTypeErrorType
+  | GetTransactionTypeErrorType
   | SerializeTransactionEIP1559ErrorType
   | SerializeTransactionEIP2930ErrorType
   | SerializeTransactionEIP4844ErrorType
@@ -157,7 +157,11 @@ function serializeTransactionEIP4844(
   let blobVersionedHashes = transaction.blobVersionedHashes
   let sidecars = transaction.sidecars
   // If `blobs` are passed, we will need to compute the KZG commitments & proofs.
-  if (transaction.blobs) {
+  if (
+    transaction.blobs &&
+    (typeof blobVersionedHashes === 'undefined' ||
+      typeof sidecars === 'undefined')
+  ) {
     const blobs = (
       typeof transaction.blobs[0] === 'string'
         ? transaction.blobs
@@ -168,13 +172,15 @@ function serializeTransactionEIP4844(
       blobs,
       kzg,
     })
-    const proofs = blobsToProofs({ blobs, commitments, kzg })
-    blobVersionedHashes = commitmentsToVersionedHashes({
-      commitments,
-    })
 
-    if (sidecars !== false)
+    if (typeof blobVersionedHashes === 'undefined')
+      blobVersionedHashes = commitmentsToVersionedHashes({
+        commitments,
+      })
+    if (typeof sidecars === 'undefined') {
+      const proofs = blobsToProofs({ blobs, commitments, kzg })
       sidecars = toBlobSidecars({ blobs, commitments, proofs })
+    }
   }
 
   const serializedAccessList = serializeAccessList(accessList)
@@ -344,11 +350,14 @@ function serializeTransactionLegacy(
       return v
     })()
 
+    const r = trim(signature.r)
+    const s = trim(signature.s)
+
     serializedTransaction = [
       ...serializedTransaction,
       toHex(v),
-      signature.r,
-      signature.s,
+      r === '0x00' ? '0x' : r,
+      s === '0x00' ? '0x' : s,
     ]
   } else if (chainId > 0) {
     serializedTransaction = [
@@ -364,12 +373,17 @@ function serializeTransactionLegacy(
 
 export function toYParitySignatureArray(
   transaction: TransactionSerializableGeneric,
-  signature?: Signature | undefined,
+  signature_?: Signature | undefined,
 ) {
-  const { r, s, v, yParity } = signature ?? transaction
-  if (typeof r === 'undefined') return []
-  if (typeof s === 'undefined') return []
+  const signature = signature_ ?? transaction
+  const { v, yParity } = signature
+
+  if (typeof signature.r === 'undefined') return []
+  if (typeof signature.s === 'undefined') return []
   if (typeof v === 'undefined' && typeof yParity === 'undefined') return []
+
+  const r = trim(signature.r)
+  const s = trim(signature.s)
 
   const yParity_ = (() => {
     if (typeof yParity === 'number') return yParity ? toHex(1) : '0x'
@@ -378,5 +392,6 @@ export function toYParitySignatureArray(
 
     return v === 27n ? '0x' : toHex(1)
   })()
-  return [yParity_, trim(r), trim(s)]
+
+  return [yParity_, r === '0x00' ? '0x' : r, s === '0x00' ? '0x' : s]
 }

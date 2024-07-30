@@ -66,7 +66,14 @@ export type SimulateContractParameters<
 > &
   UnionOmit<
     CallParameters<derivedChain>,
-    'account' | 'batch' | 'to' | 'data' | 'value'
+    | 'account'
+    | 'batch'
+    | 'code'
+    | 'to'
+    | 'data'
+    | 'factory'
+    | 'factoryData'
+    | 'value'
   > &
   GetValue<
     abi,
@@ -184,7 +191,7 @@ export async function simulateContract<
   account extends Account | undefined,
   const abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
-  args extends ContractFunctionArgs<
+  const args extends ContractFunctionArgs<
     abi,
     'nonpayable' | 'payable',
     functionName

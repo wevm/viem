@@ -33,8 +33,9 @@ const ipfsHashRegex =
 const base64Regex = /^data:([a-zA-Z\-/+]*);base64,([^"].*)/
 const dataURIRegex = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/
 
-export type IsImageUriErrorType = ErrorType
+type IsImageUriErrorType = ErrorType
 
+/** @internal */
 export async function isImageUri(uri: string) {
   try {
     const res = await fetch(uri, { method: 'HEAD' })
@@ -66,8 +67,9 @@ export async function isImageUri(uri: string) {
   }
 }
 
-export type GetGatewayErrorType = ErrorType
+type GetGatewayErrorType = ErrorType
 
+/** @internal */
 export function getGateway(custom: string | undefined, defaultGateway: string) {
   if (!custom) return defaultGateway
   if (custom.endsWith('/')) return custom.slice(0, -1)
@@ -244,7 +246,7 @@ export function parseNftUri(uri_: string): ParsedNft {
     throw new EnsAvatarInvalidNftUriError({ reason: 'ERC namespace not found' })
 
   return {
-    chainID: parseInt(chainID),
+    chainID: Number.parseInt(chainID),
     namespace: erc_namespace.toLowerCase(),
     contractAddress: contractAddress as Address,
     tokenID,
@@ -256,8 +258,8 @@ export type GetNftTokenUriErrorType =
   | EnsAvatarUnsupportedNamespaceErrorType
   | ErrorType
 
-export async function getNftTokenUri<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getNftTokenUri<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { nft }: { nft: ParsedNft },
 ) {
   if (nft.namespace === 'erc721') {

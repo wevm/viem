@@ -1,9 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { dumpState } from './dumpState.js'
 
+const client = anvilMainnet.getClient()
+
 test('dumps state', async () => {
-  expect(await dumpState(testClient)).toBeDefined()
+  expect(await dumpState(client)).toBeDefined()
 })

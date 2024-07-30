@@ -196,6 +196,24 @@ import {
 } from 'viem'
 ```
 
+### Utilities: `isAddress` & `getAddress` perform checksum validation
+
+The `isAddress` utility function now performs checksum validation by default. 
+
+To opt-out of this behavior, you can pass `strict: false` or lowercase the address.
+
+```ts
+import { isAddress } from 'viem'
+
+isAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac', {
+  strict: false // [!code ++]
+})
+
+isAddress(
+  '0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac'.toLowerCase() // [!code ++]
+)
+```
+
 ## 1.x.x Breaking changes
 
 The 1.x.x release only includes very minor changes to the behavior in event log decoding, and removes the redundant ethers.js Wallet Adapter. If you do not directly use these APIs, you do not need to update any of your code for this version.
@@ -204,7 +222,7 @@ The 1.x.x release only includes very minor changes to the behavior in event log 
 
 The `ethersWalletToAccount` adapter has been removed.
 
-This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/privateKey) & [HD Accounts](https://viem.sh/docs/accounts/mnemonic).
+This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/local/privateKeyToAccount) & [HD Accounts](https://viem.sh/docs/accounts/local/mnemonicToAccount).
 
 If you still need it, you can copy + paste the [old implementation](https://github.com/wevm/viem/blob/a9a71507032db896295fa1f3fa2dd6c2bdc85137/src/adapters/ethers.ts).
 
@@ -350,7 +368,7 @@ const hash = await walletClient.sendTransaction({
 
 ### `recoverAddress`, `recoverMessageAddress`, `verifyMessage` are now async
 
-he following functions are now `async` functions instead of synchronous functions:
+The following functions are now `async` functions instead of synchronous functions:
 
 - `recoverAddress`
 - `recoverMessageAddress`
@@ -401,7 +419,7 @@ const client = createWalletClient({
 
 If you were using the Ethers Wallet adapter, you can use the `ethersWalletToAccount` function.
 
-> Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey) & [Mnemonic Account](/docs/accounts/mnemonic) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
+> Note: viem 0.2.0 now has a [Private Key](/docs/accounts/local/privateKeyToAccount) & [Mnemonic Account](/docs/accounts/local/mnemonicToAccount) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
 
 ```ts
 import { createWalletClient, custom } from 'viem'

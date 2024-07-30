@@ -1,4 +1,6 @@
 export type { Address } from 'abitype'
+
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { HDKey } from '@scure/bip32'
 export { wordlist as czech } from '@scure/bip39/wordlists/czech'
 export { wordlist as english } from '@scure/bip39/wordlists/english'
@@ -19,18 +21,22 @@ export {
   generatePrivateKey,
 } from './generatePrivateKey.js'
 export {
+  type HDKeyToAccountOptions,
   type HDKeyToAccountErrorType,
   hdKeyToAccount,
 } from './hdKeyToAccount.js'
 export {
+  type MnemonicToAccountOptions,
   type MnemonicToAccountErrorType,
   mnemonicToAccount,
 } from './mnemonicToAccount.js'
 export {
+  type PrivateKeyToAccountOptions,
   type PrivateKeyToAccountErrorType,
   privateKeyToAccount,
 } from './privateKeyToAccount.js'
 export { type ToAccountErrorType, toAccount } from './toAccount.js'
+
 export type {
   Account,
   AccountSource,
@@ -48,9 +54,13 @@ export {
   sign,
 } from './utils/sign.js'
 export {
-  type SignatureToHexErrorType,
-  signatureToHex,
-} from '../utils/signature/signatureToHex.js'
+  /** @deprecated Use `SignatureToHexErrorType` instead. */
+  type SerializeSignatureErrorType as SignatureToHexErrorType,
+  /** @deprecated Use `serializeSignature` instead. */
+  serializeSignature as signatureToHex,
+  type SerializeSignatureErrorType,
+  serializeSignature,
+} from '../utils/signature/serializeSignature.js'
 export {
   type SignMessageErrorType,
   type SignMessageParameters,
@@ -81,3 +91,10 @@ export {
   type PrivateKeyToAddressErrorType,
   privateKeyToAddress,
 } from './utils/privateKeyToAddress.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  type NonceManagerSource,
+  createNonceManager,
+  nonceManager,
+} from '../utils/nonceManager.js'

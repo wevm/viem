@@ -1,9 +1,7 @@
-import { createAnvil } from '@viem/anvil'
+import { anvil } from 'prool/instances'
 import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 
-import { forkBlockNumber, forkUrl, localIpcPath } from '~test/src/constants.js'
-import { anvilChain } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
@@ -13,27 +11,27 @@ import { http } from './http.js'
 import { type IpcTransport, ipc } from './ipc.js'
 
 const client = createClient({
-  chain: anvilChain,
-  transport: http('http://127.0.0.1:6969'),
+  chain: anvilMainnet.chain,
+  transport: http('http://127.0.0.1:6967'),
 }).extend(() => ({ mode: 'anvil' }))
 
-const anvil = createAnvil({
-  port: 6969,
-  ipc: localIpcPath,
-  forkBlockNumber,
-  forkUrl,
+const instance = anvil({
+  port: 6967,
+  ipc: anvilMainnet.rpcUrl.ipc,
+  forkBlockNumber: anvilMainnet.forkBlockNumber,
+  forkUrl: anvilMainnet.forkUrl,
 })
 
 beforeAll(async () => {
-  await anvil.start()
+  await instance.start()
 })
 
 afterAll(async () => {
-  await anvil.stop()
+  await instance.stop()
 })
 
 test('default', () => {
-  const transport = ipc(localIpcPath)
+  const transport = ipc(anvilMainnet.rpcUrl.ipc)
 
   assertType<IpcTransport>(transport)
   assertType<'ipc'>(transport({}).config.type)
@@ -43,7 +41,7 @@ test('default', () => {
 
 describe('config', () => {
   test('key', () => {
-    const transport = ipc(localIpcPath, {
+    const transport = ipc(anvilMainnet.rpcUrl.ipc, {
       key: 'mock',
     })
 
@@ -68,7 +66,7 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const transport = ipc(localIpcPath, {
+    const transport = ipc(anvilMainnet.rpcUrl.ipc, {
       name: 'Mock Transport',
     })
 
@@ -117,13 +115,13 @@ describe('config', () => {
 })
 
 test('getRpcClient', async () => {
-  const transport = ipc(localIpcPath)
+  const transport = ipc(anvilMainnet.rpcUrl.ipc)
   const socket = await transport({}).value?.getRpcClient()
   expect(socket).toBeDefined()
 })
 
 test('errors: rpc error', async () => {
-  const transport = ipc(localIpcPath, {
+  const transport = ipc(anvilMainnet.rpcUrl.ipc, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })({ chain: localhost })
@@ -138,12 +136,12 @@ test('errors: rpc error', async () => {
     Request body: {"method":"eth_wagmi"}
 
     Details: data did not match any variant of untagged enum EthRpcCall
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
 test('subscribe', async () => {
-  const transport = ipc(localIpcPath, {
+  const transport = ipc(anvilMainnet.rpcUrl.ipc, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })({})
@@ -174,7 +172,7 @@ test('subscribe', async () => {
 })
 
 test('throws on bogus subscription', async () => {
-  const transport = ipc(localIpcPath, {
+  const transport = ipc(anvilMainnet.rpcUrl.ipc, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })

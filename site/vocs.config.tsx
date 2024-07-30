@@ -4,11 +4,24 @@ import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
 
 export default defineConfig({
-  baseUrl: 'https://viem.sh',
+  // banner: {
+  //   backgroundColor: '#3a393b',
+  //   textColor: 'white',
+  //   content:
+  //     'Viem is participating in the Gitcoin Grants 20 round. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/27/20). Thank you. 🙏',
+  // },
+  baseUrl:
+    process.env.VERCEL_ENV === 'production'
+      ? 'https://viem.sh'
+      : process.env.VERCEL_URL,
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:
     'Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.',
+  editLink: {
+    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path',
+    text: 'Suggest changes to this page',
+  },
   head() {
     return (
       <>
@@ -30,6 +43,12 @@ export default defineConfig({
   iconUrl: { light: '/favicons/light.png', dark: '/favicons/dark.png' },
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
   rootDir: '.',
+  search: {
+    boostDocument(documentId) {
+      if (documentId.startsWith('pages/docs')) return 2
+      return 1
+    },
+  },
   sidebar,
   socials: [
     {
@@ -66,30 +85,30 @@ export default defineConfig({
       items: [
         [
           {
-            name: 'WalletConnect',
-            link: 'https://walletconnect.com',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg',
-          },
-          {
             name: 'Stripe',
             link: 'https://www.stripe.com',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg',
-          },
-        ],
-        [
-          {
-            name: 'PancakeSwap',
-            link: 'https://pancakeswap.finance/',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pancake-light.svg',
           },
           {
             name: 'zkSync',
             link: 'https://zksync.io',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Brave',
+            link: 'https://brave.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/brave-light.svg',
+          },
+          {
+            name: 'Linea',
+            link: 'https://linea.build',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-light.svg',
           },
         ],
       ],
@@ -110,6 +129,12 @@ export default defineConfig({
             link: 'https://twitter.com/context',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/context-light.svg',
+          },
+          {
+            name: 'WalletConnect',
+            link: 'https://walletconnect.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg',
           },
           {
             name: 'PartyDAO',
@@ -137,28 +162,20 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/privy-light.svg',
           },
+          {
+            name: 'PancakeSwap',
+            link: 'https://pancakeswap.finance/',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pancake-light.svg',
+          },
         ],
         [
-          {
-            name: 'Spruce',
-            link: 'https://spruceid.com',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/spruce-light.svg',
-          },
-          {
-            name: 'rollup.id',
-            link: 'https://rollup.id',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rollup.id-light.svg',
-          },
           {
             name: 'Celo',
             link: 'https://celo.org',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/celo-light.svg',
           },
-        ],
-        [
           {
             name: 'Rainbow',
             link: 'https://rainbow.me',
@@ -191,6 +208,18 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg',
           },
+          {
+            name: 'Syndicate',
+            link: 'https://syndicate.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/syndicate-light.svg',
+          },
+          {
+            name: 'Reservoir',
+            link: 'https://reservoir.tools',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/reservoir-light.svg',
+          },
         ],
       ],
     },
@@ -207,12 +236,20 @@ export default defineConfig({
       text: 'Extensions',
       items: [
         {
+          text: 'Account Abstraction',
+          link: '/account-abstraction',
+        },
+        {
           text: 'OP Stack',
           link: '/op-stack',
         },
         {
           text: 'zkSync',
           link: '/zksync',
+        },
+        {
+          text: 'Experimental',
+          link: '/experimental',
         },
       ],
     },

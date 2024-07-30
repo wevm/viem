@@ -40,10 +40,10 @@ export type ImpersonateAccountErrorType = RequestErrorType | ErrorType
  * })
  */
 export async function impersonateAccount<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
   { address }: ImpersonateAccountParameters,
 ) {
   await client.request({

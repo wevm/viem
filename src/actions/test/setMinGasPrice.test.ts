@@ -1,15 +1,17 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 
 import { setMinGasPrice } from './setMinGasPrice.js'
+
+const client = anvilMainnet.getClient()
 
 test.todo('set min gas price')
 
 test('errors when eip-1559 is not enabled', async () => {
   await expect(
-    setMinGasPrice(testClient, {
+    setMinGasPrice(client, {
       gasPrice: parseGwei('20'),
     }),
   ).rejects.toMatchInlineSnapshot(`
@@ -20,6 +22,6 @@ test('errors when eip-1559 is not enabled', async () => {
     Request body: {"method":"anvil_setMinGasPrice","params":["0x4a817c800"]}
 
     Details: anvil_setMinGasPrice is not supported when EIP-1559 is active
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

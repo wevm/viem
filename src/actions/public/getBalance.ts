@@ -18,10 +18,10 @@ export type GetBalanceParameters = {
   | {
       /** The balance of the account at a block number. */
       blockNumber?: bigint | undefined
-      blockTag?: never | undefined
+      blockTag?: undefined
     }
   | {
-      blockNumber?: never | undefined
+      blockNumber?: undefined
       /** The balance of the account at a block tag. */
       blockTag?: BlockTag | undefined
     }
@@ -69,8 +69,8 @@ export type GetBalanceErrorType =
  * })
  * // 10000000000000000000000n (wei)
  */
-export async function getBalance<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getBalance<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { address, blockNumber, blockTag = 'latest' }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined

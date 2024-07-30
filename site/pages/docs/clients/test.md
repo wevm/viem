@@ -104,7 +104,7 @@ const client = createTestClient({
 
 The Account to use for the Client. This will be used for Actions that require an `account` as an argument.
 
-Accepts a [JSON-RPC Account](/docs/accounts/jsonRpc) or [Local Account (Private Key, etc)](/docs/accounts/privateKey).
+Accepts a [JSON-RPC Account](/docs/accounts/jsonRpc) or [Local Account (Private Key, etc)](/docs/accounts/local/privateKeyToAccount).
 
 ```ts twoslash
 import { createTestClient, http } from 'viem'
@@ -192,4 +192,37 @@ const client = createTestClient({
   pollingInterval: 10_000,  // [!code focus]
   transport: http(),
 })
+```
+
+### rpcSchema (optional)
+
+- **Type:** `RpcSchema`
+- **Default:** `TestRpcSchema`
+
+Typed JSON-RPC schema for the client.
+
+```ts twoslash
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+// @noErrors
+// ---cut---
+import { rpcSchema } from 'viem'
+
+type CustomRpcSchema = [{ // [!code focus]
+  Method: 'eth_wagmi', // [!code focus]
+  Parameters: [string] // [!code focus]
+  ReturnType: string // [!code focus]
+}] // [!code focus]
+
+const client = createTestClient({
+  chain: foundry,
+  rpcSchema: rpcSchema<CustomRpcSchema>(), // [!code focus]
+  transport: http()
+})
+
+const result = await client.request({ // [!code focus]
+  method: 'eth_wa // [!code focus] 
+//               ^|
+  params: ['hello'], // [!code focus]
+}) // [!code focus]
 ```

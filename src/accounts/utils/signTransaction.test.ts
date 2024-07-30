@@ -1,8 +1,8 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { blobData, kzg } from '../../../test/src/kzg.js'
-import { walletClient } from '../../../test/src/utils.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
 import { concatHex, stringToHex, toHex, toRlp } from '../../index.js'
 import type {
@@ -21,6 +21,8 @@ import type { SerializeTransactionFn } from '../../utils/transaction/serializeTr
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { privateKeyToAccount } from '../privateKeyToAccount.js'
 import { signTransaction } from './signTransaction.js'
+
+const client = anvilMainnet.getClient()
 
 const base = {
   gas: 21000n,
@@ -58,7 +60,7 @@ describe('eip4844', async () => {
 
   test('w/ prepareTransactionRequest', async () => {
     const blobs = toBlobs({ data: stringToHex(blobData) })
-    const request = await prepareTransactionRequest(walletClient, {
+    const request = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(accounts[0].privateKey),
       blobs: blobs,
       kzg,
@@ -292,7 +294,7 @@ describe('eip2930', () => {
 
 describe('with custom EIP2718 serializer', () => {
   type ExampleTransaction = Omit<TransactionSerializableGeneric, 'type'> & {
-    type: 'cip42'
+    type: 'cip64'
     chainId: number
     additionalField: `0x${string}`
   }
@@ -331,7 +333,7 @@ describe('with custom EIP2718 serializer', () => {
 
     const example2718Transaction: ExampleTransaction = {
       ...base,
-      type: 'cip42',
+      type: 'cip64',
       additionalField: '0x0000',
       chainId: 42240,
     }

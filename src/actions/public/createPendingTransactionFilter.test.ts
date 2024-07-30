@@ -1,14 +1,18 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer, publicClient } from '~test/src/utils.js'
+import { createHttpServer } from '~test/src/utils.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
+
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  expect(await createPendingTransactionFilter(publicClient)).toBeDefined()
+  expect(await createPendingTransactionFilter(client)).toBeDefined()
 })
 
 test('fallback client: scopes request', async () => {

@@ -9,7 +9,7 @@ runs:
       run: gh repo clone wevm/wagmi
 
     - name: Set up pnpm
-      uses: pnpm/action-setup@v2
+      uses: pnpm/action-setup@v4
       with:
         package_json_file: ./wagmi/package.json
 
@@ -18,20 +18,25 @@ runs:
       with:
         cache: pnpm
         cache-dependency-path: ./wagmi/pnpm-lock.yaml
-        node-version: 20
+        node-version: 22
 
     - name: Build viem
       shell: bash
-      run: bun run build
+      run: pnpm build
 
     - name: Install dependencies
       shell: bash
-      run: pnpm install --ignore-scripts
+      run: pnpm install
       working-directory: ./wagmi
 
     - shell: bash
-      run: pnpm link --dir ../wagmi
-      working-directory: ./src
+      run: pnpm i viem@file:../src -w
+      working-directory: ./wagmi
+
+    - name: Build packages
+      shell: bash
+      run: pnpm build
+      working-directory: ./wagmi
 
     - name: Link packages
       shell: bash

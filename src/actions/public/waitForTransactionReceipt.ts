@@ -36,20 +36,20 @@ import {
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
 export type ReplacementReturnType<
-  TChain extends Chain | undefined = Chain | undefined,
+  chain extends Chain | undefined = Chain | undefined,
 > = {
   reason: ReplacementReason
   replacedTransaction: Transaction
   transaction: Transaction
-  transactionReceipt: GetTransactionReceiptReturnType<TChain>
+  transactionReceipt: GetTransactionReceiptReturnType<chain>
 }
 
 export type WaitForTransactionReceiptReturnType<
-  TChain extends Chain | undefined = Chain | undefined,
-> = GetTransactionReceiptReturnType<TChain>
+  chain extends Chain | undefined = Chain | undefined,
+> = GetTransactionReceiptReturnType<chain>
 
 export type WaitForTransactionReceiptParameters<
-  TChain extends Chain | undefined = Chain | undefined,
+  chain extends Chain | undefined = Chain | undefined,
 > = {
   /**
    * The number of confirmations (blocks that have passed) to wait before resolving.
@@ -59,7 +59,7 @@ export type WaitForTransactionReceiptParameters<
   /** The hash of the transaction. */
   hash: Hash
   /** Optional callback to emit if the transaction has been replaced. */
-  onReplaced?: ((response: ReplacementReturnType<TChain>) => void) | undefined
+  onReplaced?: ((response: ReplacementReturnType<chain>) => void) | undefined
   /**
    * Polling frequency (in ms). Defaults to the client's pollingInterval config.
    * @default client.pollingInterval
@@ -88,7 +88,7 @@ export type WaitForTransactionReceiptErrorType =
   | ErrorType
 
 /**
- * Waits for the [Transaction](https://viem.sh/docs/glossary/terms#transaction) to be included on a [Block](https://viem.sh/docs/glossary/terms#block) (one confirmation), and then returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms#transaction-receipt). If the Transaction reverts, then the action will throw an error.
+ * Waits for the [Transaction](https://viem.sh/docs/glossary/terms#transaction) to be included on a [Block](https://viem.sh/docs/glossary/terms#block) (one confirmation), and then returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms#transaction-receipt).
  *
  * - Docs: https://viem.sh/docs/actions/public/waitForTransactionReceipt
  * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/sending-transactions
@@ -126,9 +126,9 @@ export type WaitForTransactionReceiptErrorType =
  * })
  */
 export async function waitForTransactionReceipt<
-  TChain extends Chain | undefined,
+  chain extends Chain | undefined,
 >(
-  client: Client<Transport, TChain>,
+  client: Client<Transport, chain>,
   {
     confirmations = 1,
     hash,
@@ -137,13 +137,14 @@ export async function waitForTransactionReceipt<
     retryCount = 6,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
     timeout,
-  }: WaitForTransactionReceiptParameters<TChain>,
-): Promise<WaitForTransactionReceiptReturnType<TChain>> {
+  }: WaitForTransactionReceiptParameters<chain>,
+): Promise<WaitForTransactionReceiptReturnType<chain>> {
   const observerId = stringify(['waitForTransactionReceipt', client.uid, hash])
 
-  let transaction: GetTransactionReturnType<TChain> | undefined
-  let replacedTransaction: GetTransactionReturnType<TChain> | undefined
-  let receipt: GetTransactionReceiptReturnType<TChain>
+  let count = 0
+  let transaction: GetTransactionReturnType<chain> | undefined
+  let replacedTransaction: GetTransactionReturnType<chain> | undefined
+  let receipt: GetTransactionReceiptReturnType<chain>
   let retrying = false
 
   return new Promise((resolve, reject) => {
@@ -167,15 +168,21 @@ export async function waitForTransactionReceipt<
           poll: true,
           pollingInterval,
           async onBlockNumber(blockNumber_) {
-            if (retrying) return
-
-            let blockNumber = blockNumber_
-
             const done = (fn: () => void) => {
               _unwatch()
               fn()
               _unobserve()
             }
+
+            let blockNumber = blockNumber_
+
+            if (retrying) return
+            if (count > retryCount)
+              done(() =>
+                emit.reject(
+                  new WaitForTransactionReceiptTimeoutError({ hash }),
+                ),
+              )
 
             try {
               // If we already have a valid receipt, let's check if we have enough
@@ -203,7 +210,7 @@ export async function waitForTransactionReceipt<
                       client,
                       getTransaction,
                       'getTransaction',
-                    )({ hash })) as GetTransactionReturnType<TChain>
+                    )({ hash })) as GetTransactionReturnType<chain>
                     if (transaction.blockNumber)
                       blockNumber = transaction.blockNumber
                   },
@@ -325,6 +332,8 @@ export async function waitForTransactionReceipt<
               } else {
                 done(() => emit.reject(err))
               }
+            } finally {
+              count++
             }
           },
         })

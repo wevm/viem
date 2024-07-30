@@ -17,12 +17,12 @@ export type GetStorageAtParameters = {
   slot: Hex
 } & (
   | {
-      blockNumber?: never | undefined
+      blockNumber?: undefined
       blockTag?: BlockTag | undefined
     }
   | {
       blockNumber?: bigint | undefined
-      blockTag?: never | undefined
+      blockTag?: undefined
     }
 )
 
@@ -57,8 +57,8 @@ export type GetStorageAtErrorType =
  *   slot: toHex(0),
  * })
  */
-export async function getStorageAt<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getStorageAt<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { address, blockNumber, blockTag = 'latest', slot }: GetStorageAtParameters,
 ): Promise<GetStorageAtReturnType> {
   const blockNumberHex =

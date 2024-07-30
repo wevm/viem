@@ -1,6 +1,6 @@
 import type { Address, TypedData } from 'abitype'
 
-import type { ByteArray, Hex } from '../../types/misc.js'
+import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import {
@@ -21,7 +21,7 @@ export type VerifyTypedDataParameters<
   /** The address to verify the typed data for. */
   address: Address
   /** The signature to verify */
-  signature: Hex | ByteArray
+  signature: Hex | ByteArray | Signature
 }
 
 export type VerifyTypedDataReturnType = boolean

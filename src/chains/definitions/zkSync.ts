@@ -1,5 +1,5 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../zksync/chainConfig.js'
+import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const zkSync = /*#__PURE__*/ defineChain({
   ...chainConfig,
@@ -22,6 +22,10 @@ export const zkSync = /*#__PURE__*/ defineChain({
       name: 'Etherscan',
       url: 'https://era.zksync.network/',
       apiUrl: 'https://api-era.zksync.network/api',
+    },
+    native: {
+      name: 'zkSync Explorer',
+      url: 'https://explorer.zksync.io/',
     },
   },
   contracts: {

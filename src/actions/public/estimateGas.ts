@@ -9,6 +9,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
@@ -25,6 +26,7 @@ import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
+import { serializeStateOverride } from '../../utils/stateOverride.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -35,22 +37,19 @@ import {
   prepareTransactionRequest,
 } from '../wallet/prepareTransactionRequest.js'
 
-export type FormattedEstimateGas<
-  TChain extends Chain | undefined = Chain | undefined,
-> = FormattedTransactionRequest<TChain>
-
 export type EstimateGasParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-> = UnionOmit<FormattedEstimateGas<TChain>, 'from'> & {
+  chain extends Chain | undefined = Chain | undefined,
+> = UnionOmit<FormattedEstimateGas<chain>, 'from'> & {
   account?: Account | Address | undefined
+  stateOverride?: StateOverride | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
         blockNumber?: bigint | undefined
-        blockTag?: never | undefined
+        blockTag?: undefined
       }
     | {
-        blockNumber?: never | undefined
+        blockNumber?: undefined
         /**
          * The balance of the account at a block tag.
          * @default 'latest'
@@ -58,6 +57,8 @@ export type EstimateGasParameters<
         blockTag?: BlockTag | undefined
       }
   )
+type FormattedEstimateGas<chain extends Chain | undefined = Chain | undefined> =
+  FormattedTransactionRequest<chain>
 
 export type EstimateGasReturnType = bigint
 
@@ -94,11 +95,11 @@ export type EstimateGasErrorType = GetEstimateGasErrorReturnType<
  * })
  */
 export async function estimateGas<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: EstimateGasParameters<TChain>,
+  client: Client<Transport, chain, account>,
+  args: EstimateGasParameters<chain>,
 ): Promise<EstimateGasReturnType> {
   const account_ = args.account ?? client.account
   const account = account_ ? parseAccount(account_) : undefined
@@ -107,6 +108,7 @@ export async function estimateGas<
     const {
       accessList,
       blobs,
+      blobVersionedHashes,
       blockNumber,
       blockTag,
       data,
@@ -118,17 +120,20 @@ export async function estimateGas<
       nonce,
       to,
       value,
+      stateOverride,
       ...rest
-    } =
-      account?.type === 'local'
-        ? ((await prepareTransactionRequest(
-            client,
-            args as PrepareTransactionRequestParameters,
-          )) as EstimateGasParameters)
-        : args
+    } = (await prepareTransactionRequest(client, {
+      ...args,
+      parameters:
+        // Some RPC Providers do not compute versioned hashes from blobs. We will need
+        // to compute them.
+        account?.type === 'local' ? undefined : ['blobVersionedHashes'],
+    } as PrepareTransactionRequestParameters)) as EstimateGasParameters
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
+
+    const rpcStateOverride = serializeStateOverride(stateOverride)
 
     assertRequest(args as AssertRequestParameters)
 
@@ -141,6 +146,7 @@ export async function estimateGas<
       from: account?.address,
       accessList,
       blobs,
+      blobVersionedHashes,
       data,
       gas,
       gasPrice,
@@ -154,7 +160,11 @@ export async function estimateGas<
 
     const balance = await client.request({
       method: 'eth_estimateGas',
-      params: block ? [request, block] : [request],
+      params: rpcStateOverride
+        ? [request, block ?? 'latest', rpcStateOverride]
+        : block
+          ? [request, block]
+          : [request],
     })
     return BigInt(balance)
   } catch (err) {

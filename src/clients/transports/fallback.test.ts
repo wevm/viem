@@ -117,7 +117,7 @@ describe('request', () => {
 
     let transport = fallback([http(server1.url), http(server3.url)])({
       chain: localhost,
-    })
+    }) as ReturnType<FallbackTransport>
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
 
     // ensure `retryCount` on transport is adhered
@@ -188,7 +188,7 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2],
+      Version: viem@x.y.z],
           "method": "eth_blockNumber",
           "params": undefined,
           "status": "error",
@@ -201,7 +201,7 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2],
+      Version: viem@x.y.z],
           "method": "eth_blockNumber",
           "params": undefined,
           "status": "error",
@@ -496,6 +496,7 @@ describe('client', () => {
         "account": undefined,
         "batch": undefined,
         "cacheTime": 4000,
+        "ccipRead": undefined,
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -645,7 +646,7 @@ describe('client', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: sad times
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(count).toBe(8)
   })
@@ -749,7 +750,7 @@ describe('rankTransports', () => {
     const transport2 = http(server2.url, { key: '2' })
     const transport3 = http(server3.url, { key: '3' })
 
-    const rankedTransports: Transport[][] = []
+    const rankedTransports: (readonly Transport[])[] = []
 
     rankTransports({
       chain: localhost,

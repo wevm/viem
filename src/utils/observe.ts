@@ -6,14 +6,16 @@ type Callbacks = Record<string, Callback>
 
 export type ObserveErrorType = ErrorType
 
+/** @internal */
 export const listenersCache = /*#__PURE__*/ new Map<
   string,
   { id: number; fns: Callbacks }[]
 >()
+/** @internal */
 export const cleanupCache = /*#__PURE__*/ new Map<string, () => void>()
 
-type EmitFunction<TCallbacks extends Callbacks> = (
-  emit: TCallbacks,
+type EmitFunction<callbacks extends Callbacks> = (
+  emit: callbacks,
 ) => MaybePromise<void | (() => void)>
 
 let callbackCount = 0
@@ -23,10 +25,10 @@ let callbackCount = 0
  * is set up under the same observer id, the function will only be called once
  * for both instances of the observer.
  */
-export function observe<TCallbacks extends Callbacks>(
+export function observe<callbacks extends Callbacks>(
   observerId: string,
-  callbacks: TCallbacks,
-  fn: EmitFunction<TCallbacks>,
+  callbacks: callbacks,
+  fn: EmitFunction<callbacks>,
 ) {
   const callbackId = ++callbackCount
 
@@ -54,15 +56,15 @@ export function observe<TCallbacks extends Callbacks>(
 
   if (listeners && listeners.length > 0) return unwatch
 
-  const emit: TCallbacks = {} as TCallbacks
+  const emit: callbacks = {} as callbacks
   for (const key in callbacks) {
     emit[key] = ((
-      ...args: Parameters<NonNullable<TCallbacks[keyof TCallbacks]>>
+      ...args: Parameters<NonNullable<callbacks[keyof callbacks]>>
     ) => {
       const listeners = getListeners()
       if (listeners.length === 0) return
       for (const listener of listeners) listener.fns[key]?.(...args)
-    }) as TCallbacks[Extract<keyof TCallbacks, string>]
+    }) as callbacks[Extract<keyof callbacks, string>]
   }
 
   const cleanup = fn(emit)

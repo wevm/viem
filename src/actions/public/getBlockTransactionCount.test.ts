@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { accounts, forkBlockNumber } from '~test/src/constants.js'
-import { publicClient, testClient, walletClient } from '~test/src/utils.js'
+import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
@@ -9,44 +9,46 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 import { getBlock } from './getBlock.js'
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  expect(await getBlockTransactionCount(publicClient)).toBeDefined()
+  expect(await getBlockTransactionCount(client)).toBeDefined()
 })
 
 test('args: blockNumber', async () => {
   expect(
-    await getBlockTransactionCount(publicClient, {
-      blockNumber: forkBlockNumber - 1n,
+    await getBlockTransactionCount(client, {
+      blockNumber: anvilMainnet.forkBlockNumber - 1n,
     }),
-  ).toBe(120)
+  ).toBe(124)
 })
 
 test('args: blockHash', async () => {
-  const block = await getBlock(publicClient, {
-    blockNumber: forkBlockNumber - 1n,
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber - 1n,
   })
   expect(
-    await getBlockTransactionCount(publicClient, {
+    await getBlockTransactionCount(client, {
       blockHash: block.hash!,
     }),
-  ).toBe(120)
+  ).toBe(124)
 })
 
 test('args: blockTag', async () => {
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
   expect(
-    await getBlockTransactionCount(publicClient, {
+    await getBlockTransactionCount(client, {
       blockTag: 'latest',
     }),
   ).toBe(0)
-  await sendTransaction(walletClient, {
+  await sendTransaction(client, {
     account: accounts[0].address,
     to: accounts[1].address,
     value: parseEther('1'),
   })
-  await mine(testClient, { blocks: 1 })
+  await mine(client, { blocks: 1 })
   expect(
-    await getBlockTransactionCount(publicClient, {
+    await getBlockTransactionCount(client, {
       blockTag: 'latest',
     }),
   ).toBe(1)

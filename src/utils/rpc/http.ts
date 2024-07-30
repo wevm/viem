@@ -14,30 +14,34 @@ import { stringify } from '../stringify.js'
 import { idCache } from './id.js'
 
 export type HttpRpcClientOptions = {
-  // Request configuration to pass to `fetch`.
+  /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
-  // A callback to handle the response.
+  /** A callback to handle the request. */
+  onRequest?: ((request: Request) => Promise<void> | void) | undefined
+  /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
-  // The timeout (in ms) for the request.
+  /** The timeout (in ms) for the request. */
   timeout?: number | undefined
 }
 
 export type HttpRequestParameters<
-  TBody extends RpcRequest | RpcRequest[] = RpcRequest,
+  body extends RpcRequest | RpcRequest[] = RpcRequest,
 > = {
-  // The RPC request body.
-  body: TBody
-  // Request configuration to pass to `fetch`.
+  /** The RPC request body. */
+  body: body
+  /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
-  // A callback to handle the response.
+  /** A callback to handle the response. */
+  onRequest?: ((request: Request) => Promise<void> | void) | undefined
+  /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
-  // The timeout (in ms) for the request.
+  /** The timeout (in ms) for the request. */
   timeout?: HttpRpcClientOptions['timeout'] | undefined
 }
 
 export type HttpRequestReturnType<
-  TBody extends RpcRequest | RpcRequest[] = RpcRequest,
-> = TBody extends RpcRequest[] ? RpcResponse[] : RpcResponse
+  body extends RpcRequest | RpcRequest[] = RpcRequest,
+> = body extends RpcRequest[] ? RpcResponse[] : RpcResponse
 
 export type HttpRequestErrorType =
   | HttpRequestErrorType_
@@ -46,9 +50,9 @@ export type HttpRequestErrorType =
   | ErrorType
 
 export type HttpRpcClient = {
-  request<TBody extends RpcRequest | RpcRequest[]>(
-    params: HttpRequestParameters<TBody>,
-  ): Promise<HttpRequestReturnType<TBody>>
+  request<body extends RpcRequest | RpcRequest[]>(
+    params: HttpRequestParameters<body>,
+  ): Promise<HttpRequestReturnType<body>>
 }
 
 export function getHttpRpcClient(
@@ -59,20 +63,22 @@ export function getHttpRpcClient(
     async request(params) {
       const {
         body,
-        fetchOptions = {},
+        onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
       } = params
-      const {
-        headers,
-        method,
-        signal: signal_,
-      } = { ...options.fetchOptions, ...fetchOptions }
+
+      const fetchOptions = {
+        ...(options.fetchOptions ?? {}),
+        ...(params.fetchOptions ?? {}),
+      }
+
+      const { headers, method, signal: signal_ } = fetchOptions
 
       try {
         const response = await withTimeout(
           async ({ signal }) => {
-            const response = await fetch(url, {
+            const init: RequestInit = {
               ...fetchOptions,
               body: Array.isArray(body)
                 ? stringify(
@@ -88,12 +94,15 @@ export function getHttpRpcClient(
                     ...body,
                   }),
               headers: {
-                ...headers,
                 'Content-Type': 'application/json',
+                ...headers,
               },
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),
-            })
+            }
+            const request = new Request(url, init)
+            if (onRequest) await onRequest(request)
+            const response = await fetch(url, init)
             return response
           },
           {
@@ -108,10 +117,11 @@ export function getHttpRpcClient(
         let data: any
         if (
           response.headers.get('Content-Type')?.startsWith('application/json')
-        ) {
+        )
           data = await response.json()
-        } else {
+        else {
           data = await response.text()
+          data = JSON.parse(data || '{}')
         }
 
         if (!response.ok) {
@@ -130,7 +140,7 @@ export function getHttpRpcClient(
         if (err instanceof TimeoutError) throw err
         throw new HttpRequestError({
           body,
-          details: (err as Error).message,
+          cause: err as Error,
           url,
         })
       }

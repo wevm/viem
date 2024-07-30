@@ -1,7 +1,10 @@
 import {
   NegativeOffsetError,
+  type NegativeOffsetErrorType,
   PositionOutOfBoundsError,
+  type PositionOutOfBoundsErrorType,
   RecursiveReadLimitExceededError,
+  type RecursiveReadLimitExceededErrorType,
 } from '../errors/cursor.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { ByteArray } from '../types/misc.js'
@@ -13,6 +16,7 @@ export type Cursor = {
   positionReadCount: Map<number, number>
   recursiveReadCount: number
   recursiveReadLimit: number
+  remaining: number
   assertReadLimit(position?: number): void
   assertPosition(position: number): void
   decrementPosition(offset: number): void
@@ -40,19 +44,21 @@ export type Cursor = {
   _touch(): void
 }
 
-export type CreateCursorErrorType = ErrorType
-
-export type CursorErrorType =
+type CursorErrorType =
   | CursorAssertPositionErrorType
   | CursorDecrementPositionErrorType
   | CursorIncrementPositionErrorType
   | ErrorType
 
-export type CursorAssertPositionErrorType = PositionOutOfBoundsError | ErrorType
+type CursorAssertPositionErrorType = PositionOutOfBoundsErrorType | ErrorType
 
-export type CursorDecrementPositionErrorType = NegativeOffsetError | ErrorType
+type CursorDecrementPositionErrorType = NegativeOffsetError | ErrorType
 
-export type CursorIncrementPositionErrorType = NegativeOffsetError | ErrorType
+type CursorIncrementPositionErrorType = NegativeOffsetError | ErrorType
+
+type StaticCursorErrorType =
+  | NegativeOffsetErrorType
+  | RecursiveReadLimitExceededErrorType
 
 const staticCursor: Cursor = {
   bytes: new Uint8Array(),
@@ -60,7 +66,7 @@ const staticCursor: Cursor = {
   position: 0,
   positionReadCount: new Map(),
   recursiveReadCount: 0,
-  recursiveReadLimit: Infinity,
+  recursiveReadLimit: Number.POSITIVE_INFINITY,
   assertReadLimit() {
     if (this.recursiveReadCount >= this.recursiveReadLimit)
       throw new RecursiveReadLimitExceededError({
@@ -196,6 +202,9 @@ const staticCursor: Cursor = {
     this.position += 4
     return value
   },
+  get remaining() {
+    return this.bytes.length - this.position
+  },
   setPosition(position) {
     const oldPosition = this.position
     this.assertPosition(position)
@@ -203,7 +212,7 @@ const staticCursor: Cursor = {
     return () => (this.position = oldPosition)
   },
   _touch() {
-    if (this.recursiveReadLimit === Infinity) return
+    if (this.recursiveReadLimit === Number.POSITIVE_INFINITY) return
     const count = this.getReadCount()
     this.positionReadCount.set(this.position, count + 1)
     if (count > 0) this.recursiveReadCount++
@@ -211,6 +220,11 @@ const staticCursor: Cursor = {
 }
 
 type CursorConfig = { recursiveReadLimit?: number | undefined }
+
+export type CreateCursorErrorType =
+  | CursorErrorType
+  | StaticCursorErrorType
+  | ErrorType
 
 export function createCursor(
   bytes: ByteArray,

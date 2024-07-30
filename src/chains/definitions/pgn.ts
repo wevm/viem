@@ -1,5 +1,5 @@
+import { formatters } from '../../op-stack/formatters.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { formatters } from '../opStack/formatters.js'
 
 const sourceId = 1 // mainnet
 
@@ -19,7 +19,7 @@ export const pgn = /*#__PURE__*/ defineChain({
       url: 'https://explorer.publicgoods.network',
       apiUrl: 'https://explorer.publicgoods.network/api',
     },
-    blocksout: {
+    blockscout: {
       name: 'PGN Explorer',
       url: 'https://explorer.publicgoods.network',
       apiUrl: 'https://explorer.publicgoods.network/api',

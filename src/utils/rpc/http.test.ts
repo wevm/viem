@@ -1,34 +1,22 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import type { IncomingHttpHeaders } from 'http'
+import type { IncomingHttpHeaders } from 'node:http'
 
-import { forkBlockNumber, localHttpUrl } from '~test/src/constants.js'
-import { createHttpServer, publicClient, testClient } from '~test/src/utils.js'
+import { createHttpServer } from '~test/src/utils.js'
 
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
+
 import { numberToHex } from '../encoding/toHex.js'
 import * as withTimeout from '../promise/withTimeout.js'
 import { wait } from '../wait.js'
 import { getHttpRpcClient } from './http.js'
 
+const client = anvilMainnet.getClient()
+
 describe('request', () => {
   test('valid request', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
-    expect(
-      await client.request({
-        body: { method: 'web3_clientVersion' },
-      }),
-    ).toMatchInlineSnapshot(`
-      {
-        "id": 0,
-        "jsonrpc": "2.0",
-        "result": "anvil/v0.2.0",
-      }
-    `)
-  })
-
-  test('valid request w/ incremented id', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
     expect(
       await client.request({
         body: { method: 'web3_clientVersion' },
@@ -42,8 +30,23 @@ describe('request', () => {
     `)
   })
 
+  test('valid request w/ incremented id', async () => {
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
+    expect(
+      await client.request({
+        body: { method: 'web3_clientVersion' },
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "id": 3,
+        "jsonrpc": "2.0",
+        "result": "anvil/v0.2.0",
+      }
+    `)
+  })
+
   test('invalid rpc params', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
     await expect(
       client.request({
         body: { method: 'eth_getBlockByHash', params: ['0x0', false] },
@@ -55,7 +58,7 @@ describe('request', () => {
           "code": -32602,
           "message": "Odd number of digits",
         },
-        "id": 2,
+        "id": 5,
         "jsonrpc": "2.0",
       }
     `,
@@ -63,7 +66,7 @@ describe('request', () => {
   })
 
   test('invalid request', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
     await expect(
       client.request({
         body: { method: 'eth_wagmi' },
@@ -74,43 +77,46 @@ describe('request', () => {
           "code": -32601,
           "message": "Method not found",
         },
-        "id": 3,
+        "id": 7,
         "jsonrpc": "2.0",
       }
     `)
   })
 
   test('serial requests', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
     const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
         await client.request({
           body: {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(forkBlockNumber - BigInt(i)), false],
+            params: [
+              numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
+              false,
+            ],
           },
         }),
       )
     }
     expect(response.map((r: any) => r.result.number)).toEqual(
       Array.from({ length: 10 }).map((_, i) =>
-        numberToHex(forkBlockNumber - BigInt(i)),
+        numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
       ),
     )
   })
 
   test('parallel requests', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
+    const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
     await wait(500)
 
-    await mine(testClient, { blocks: 100 })
-    const blockNumber = await getBlockNumber(publicClient)
+    await mine(client, { blocks: 100 })
+    const blockNumber = await getBlockNumber(client)
 
     const response = await Promise.all(
       Array.from({ length: 50 }).map(async (_, i) => {
-        return await client.request({
+        return await rpcClient.request({
           body: {
             method: 'eth_getBlockByNumber',
             params: [numberToHex(blockNumber - BigInt(i)), false],
@@ -124,6 +130,42 @@ describe('request', () => {
       ),
     )
     await wait(500)
+  })
+
+  test('no application/json header', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    expect(
+      await client.request({
+        body: { method: 'web3_clientVersion' },
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "result": "0x1",
+      }
+    `)
+    await server.close()
+
+    const server2 = await createHttpServer((_, res) => {
+      res.end('bogus')
+    })
+    const client2 = getHttpRpcClient(server2.url)
+    await expect(() =>
+      client2.request({
+        body: { method: 'web3_clientVersion' },
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [HttpRequestError: HTTP request failed.
+
+      URL: http://localhost
+      Request body: {"method":"web3_clientVersion"}
+
+      Details: Unexpected token 'b', "bogus" is not valid JSON
+      Version: viem@x.y.z]
+    `)
+    await server2.close()
   })
 
   test('fetchOptions', async () => {
@@ -147,6 +189,32 @@ describe('request', () => {
       }),
     ).toBeDefined()
     expect(headers['x-wagmi']).toBeDefined()
+
+    await server.close()
+  })
+
+  test('onRequest', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const requests: Request[] = []
+    const client = getHttpRpcClient(server.url, {
+      onRequest: (request) => {
+        requests.push(request)
+      },
+    })
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+    })
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+      onRequest: (request) => {
+        requests.push(request)
+      },
+    })
+
+    expect(requests.length).toBe(2)
 
     await server.close()
   })
@@ -191,7 +259,7 @@ describe('request', () => {
       client.request({
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(forkBlockNumber), false],
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -199,10 +267,10 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
       Details: "ngmi"
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -218,7 +286,7 @@ describe('request', () => {
       client.request({
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(forkBlockNumber), false],
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -227,23 +295,44 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
 
+  test('fetch error', async () => {
+    vi.stubGlobal('fetch', () => {
+      throw new Error('foo', { cause: new Error('bar') })
+    })
+
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
+
+    try {
+      await client.request({
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
+        },
+      })
+    } catch (error) {
+      expect((error as Error).cause).toMatchInlineSnapshot('[Error: foo]')
+    }
+
+    vi.unstubAllGlobals()
+  })
+
   // TODO: This is flaky.
   test.skip('timeout', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
     await expect(() =>
       client.request({
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(forkBlockNumber), false],
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
         },
         timeout: 1,
       }),
@@ -255,7 +344,7 @@ describe('request', () => {
       Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
 
       Details: The request timed out.
-      Version: viem@1.0.2"
+      Version: viem@x.y.z"
     `,
     )
   })
@@ -271,7 +360,7 @@ describe('request', () => {
       client.request({
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(forkBlockNumber), false],
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
         },
         timeout: 10000,
       }),
@@ -279,10 +368,10 @@ describe('request', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
       Details: foo
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     mock.mockRestore()
@@ -291,7 +380,7 @@ describe('request', () => {
 
 describe('http (batch)', () => {
   test('valid request', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
     expect(
       await client.request({
@@ -303,12 +392,12 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 70,
+          "id": 91,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
         {
-          "id": 71,
+          "id": 92,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -317,7 +406,7 @@ describe('http (batch)', () => {
   })
 
   test('invalid rpc params', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
     expect(
       await client.request({
@@ -329,7 +418,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 72,
+          "id": 94,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -338,7 +427,7 @@ describe('http (batch)', () => {
             "code": -32602,
             "message": "Odd number of digits",
           },
-          "id": 73,
+          "id": 95,
           "jsonrpc": "2.0",
         },
       ]
@@ -346,7 +435,7 @@ describe('http (batch)', () => {
   })
 
   test('invalid request', async () => {
-    const client = getHttpRpcClient(localHttpUrl)
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
     expect(
       await client.request({
@@ -355,7 +444,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 74,
+          "id": 97,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -364,7 +453,7 @@ describe('http (batch)', () => {
             "code": -32601,
             "message": "Method not found",
           },
-          "id": 75,
+          "id": 98,
           "jsonrpc": "2.0",
         },
       ]
@@ -387,7 +476,7 @@ describe('http (batch)', () => {
           { method: 'web3_clientVersion' },
           {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(forkBlockNumber), false],
+            params: [numberToHex(anvilMainnet.forkBlockNumber), false],
           },
         ],
       }),
@@ -396,10 +485,10 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
 
       Details: "ngmi"
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -417,7 +506,7 @@ describe('http (batch)', () => {
           { method: 'web3_clientVersion' },
           {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(forkBlockNumber), false],
+            params: [numberToHex(anvilMainnet.forkBlockNumber), false],
           },
         ],
       }),
@@ -427,10 +516,10 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -448,7 +537,7 @@ describe('http (batch)', () => {
           { method: 'web3_clientVersion' },
           {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(forkBlockNumber), false],
+            params: [numberToHex(anvilMainnet.forkBlockNumber), false],
           },
         ],
         timeout: 10000,
@@ -457,10 +546,10 @@ describe('http (batch)', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
 
       Details: foo
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     mock.mockRestore()

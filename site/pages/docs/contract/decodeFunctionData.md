@@ -44,16 +44,6 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
-```
-
 :::
 
 ### Extracting Arguments
@@ -64,7 +54,6 @@ If your calldata includes argument(s) after the 4byte function signature, you ca
 
 ```ts [example.ts]
 import { decodeFunctionData } from 'viem'
-import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
 // [!code word:args:1]
@@ -87,16 +76,6 @@ export const wagmiAbi = [
   },
   ...
 ] as const;
-```
-
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
 ```
 
 :::

@@ -3,6 +3,7 @@ import { BaseError } from '../../errors/base.js'
 import { ContractFunctionRevertedError } from '../../errors/contract.js'
 import type { ErrorType } from '../../errors/utils.js'
 
+/** @internal */
 export type IsNullUniversalResolverErrorErrorType = ErrorType
 
 /*

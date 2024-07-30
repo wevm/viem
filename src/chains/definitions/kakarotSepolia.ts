@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const kakarotSepolia = /*#__PURE__*/ defineChain({
-  id: 107107114116,
+  id: 1802203764,
   name: 'Kakarot Sepolia',
   nativeCurrency: {
     name: 'Ether',

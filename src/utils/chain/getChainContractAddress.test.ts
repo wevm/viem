@@ -40,7 +40,7 @@ test('no contract', () => {
     This could be due to any of the following:
     - The chain does not have the contract "multicall3" configured.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -65,6 +65,6 @@ test('block number is less than created block number', () => {
     This could be due to any of the following:
     - The contract "multicall3" was not deployed until block 123456789 (current block 69420).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

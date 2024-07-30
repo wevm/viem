@@ -2,7 +2,7 @@
 
 You can build your own viem Client by using the `createClient` function and optionally extending (`.extend`) it – this is how viem's internal Clients ([Public](/docs/clients/public), [Wallet](/docs/clients/wallet), and [Test](/docs/clients/test)) are built.
 
-Building your own Client is useful if you have specific requirements for how the Client should behave, and if you want to extend that Client with custom functionality (ie. create an [EIP-4337 Bundler](/docs/third-party/account-abstraction) Client, or [geth Debug](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-debug) Client).
+Building your own Client is useful if you have specific requirements for how the Client should behave, and if you want to extend that Client with custom functionality (ie. create a [geth Debug](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-debug) Client).
 
 The `createClient` function sets up a base viem Client with a given [Transport](/docs/clients/intro) configured with a [Chain](/docs/chains/introduction). After that, you can extend the Client with custom properties (that could be Actions or other configuration).
 
@@ -114,7 +114,7 @@ const client = createClient({
 
 The Account to use for the Client. This will be used for Actions that require an `account` as an argument.
 
-Accepts a [JSON-RPC Account](/docs/accounts/jsonRpc) or [Local Account (Private Key, etc)](/docs/accounts/privateKey).
+Accepts a [JSON-RPC Account](/docs/accounts/jsonRpc) or [Local Account (Private Key, etc)](/docs/accounts/local/privateKeyToAccount).
 
 ```ts twoslash
 import { createClient, http } from 'viem'
@@ -267,4 +267,37 @@ const client = createClient({
   pollingInterval: 10_000, // [!code focus]
   transport: http(),
 })
+```
+
+### rpcSchema (optional)
+
+- **Type:** `RpcSchema`
+- **Default:** `WalletRpcSchema`
+
+Typed JSON-RPC schema for the client.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// @noErrors
+// ---cut---
+import { rpcSchema } from 'viem'
+
+type CustomRpcSchema = [{ // [!code focus]
+  Method: 'eth_wagmi', // [!code focus]
+  Parameters: [string] // [!code focus]
+  ReturnType: string // [!code focus]
+}] // [!code focus]
+
+const client = createClient({
+  chain: mainnet,
+  rpcSchema: rpcSchema<CustomRpcSchema>(), // [!code focus]
+  transport: http()
+})
+
+const result = await client.request({ // [!code focus]
+  method: 'eth_wa // [!code focus] 
+//               ^|
+  params: ['hello'], // [!code focus]
+}) // [!code focus]
 ```

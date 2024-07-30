@@ -27,7 +27,7 @@ The below list is not exhaustive, and is a work in progress. If you have an idea
 - ENS
   - [x] Address from ENS Name
   - [x] ENS Name from Address
-  - [ ] Fetch ENS Resolver
+  - [x] Fetch ENS Resolver
 - Filters & Logs
   - [x] Blocks
   - [x] Pending Transactions

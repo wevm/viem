@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { localHttpUrl } from '~test/src/constants.js'
-import { anvilChain, publicClient } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mainnet } from '../../chains/index.js'
+
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import { MethodNotSupportedRpcError } from '../../errors/rpc.js'
@@ -13,31 +13,33 @@ import {
 } from './estimateMaxPriorityFeePerGas.js'
 import * as getBlock from './getBlock.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  expect(await estimateMaxPriorityFeePerGas(publicClient)).toBeDefined()
+  expect(await estimateMaxPriorityFeePerGas(client)).toBeDefined()
 })
 
 test('fallback', async () => {
-  const client = publicClient
-  client.request = buildRequest(({ method, params }) => {
+  const client_1 = client
+  client_1.request = buildRequest(({ method, params }) => {
     if (method === 'eth_maxPriorityFeePerGas')
       throw new MethodNotSupportedRpcError(new Error('unsupported'))
 
     return client.transport.request({ method, params })
   })
 
-  expect(await estimateMaxPriorityFeePerGas(client)).toBeDefined()
+  expect(await estimateMaxPriorityFeePerGas(client_1)).toBeDefined()
 })
 
 test('args: chain `defaultPriorityFee` override', async () => {
   // value
   const client_1 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_1, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: 69420n,
         },
@@ -47,12 +49,12 @@ test('args: chain `defaultPriorityFee` override', async () => {
 
   // sync fn
   const client_2 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_2, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: () => 69420n,
         },
@@ -62,12 +64,12 @@ test('args: chain `defaultPriorityFee` override', async () => {
 
   // async fn
   const client_3 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_3, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => 69420n,
         },
@@ -77,12 +79,12 @@ test('args: chain `defaultPriorityFee` override', async () => {
 
   // zero base fee
   const client_4 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_4, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: 0n,
         },
@@ -92,12 +94,12 @@ test('args: chain `defaultPriorityFee` override', async () => {
 
   // async zero base fee
   const client_5 = createPublicClient({
-    transport: http(localHttpUrl),
+    transport: http(anvilMainnet.rpcUrl.http),
   })
   expect(
     await estimateMaxPriorityFeePerGas(client_5, {
       chain: {
-        ...anvilChain,
+        ...anvilMainnet.chain,
         fees: {
           defaultPriorityFee: async () => 0n,
         },
@@ -110,7 +112,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // value
   const client_1 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: 69420n,
       },
@@ -122,7 +124,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // sync fn
   const client_2 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: () => 69420n,
       },
@@ -134,7 +136,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // async fn
   const client_3 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: async () => 69420n,
       },
@@ -146,7 +148,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // zero base fee
   const client_4 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: 0n,
       },
@@ -158,7 +160,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
   // async zero base fee
   const client_5 = createPublicClient({
     chain: {
-      ...anvilChain,
+      ...anvilMainnet.chain,
       fees: {
         defaultPriorityFee: async () => 0n,
       },
@@ -174,11 +176,11 @@ test('chain does not support eip1559', async () => {
   } as any)
 
   await expect(() =>
-    estimateMaxPriorityFeePerGas(publicClient),
+    estimateMaxPriorityFeePerGas(client),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -187,7 +189,7 @@ test('maxPriorityFeePerGas < 0', async () => {
     baseFeePerGas: 999999999999999999999n,
   } as any)
 
-  expect(await estimateMaxPriorityFeePerGas(publicClient)).toBe(0n)
+  expect(await estimateMaxPriorityFeePerGas(client)).toBe(0n)
 })
 
 describe('mainnet smoke', () => {
@@ -211,9 +213,9 @@ describe('mainnet smoke', () => {
 
 describe('internal_estimateMaxPriorityFeePerGas', () => {
   test('args: block', async () => {
-    const block = await getBlock.getBlock(publicClient)
+    const block = await getBlock.getBlock(client)
     const maxPriorityFeePerGas = await internal_estimateMaxPriorityFeePerGas(
-      publicClient,
+      client,
       {
         block,
       },

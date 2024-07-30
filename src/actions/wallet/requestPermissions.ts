@@ -42,10 +42,10 @@ export type RequestPermissionsErrorType = RequestErrorType | ErrorType
  * })
  */
 export async function requestPermissions<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
+  client: Client<Transport, chain, account>,
   permissions: RequestPermissionsParameters,
 ) {
   return client.request(

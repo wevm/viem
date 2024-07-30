@@ -54,10 +54,12 @@ export function fromBlobs<
       let consume = 31
       if (blob.length - cursor.position < 31)
         consume = blob.length - cursor.position
-      const bytes = cursor.readBytes(consume)
 
-      for (const byte of bytes) {
-        if (byte === 0x80) {
+      for (const _ in Array.from({ length: consume })) {
+        const byte = cursor.readByte()
+        const isTerminator =
+          byte === 0x80 && !cursor.inspectBytes(cursor.remaining).includes(0x80)
+        if (isTerminator) {
           active = false
           break
         }

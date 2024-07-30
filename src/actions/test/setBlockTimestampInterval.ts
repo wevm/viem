@@ -36,10 +36,10 @@ export type SetBlockTimestampIntervalErrorType = RequestErrorType | ErrorType
  * await setBlockTimestampInterval(client, { interval: 5 })
  */
 export async function setBlockTimestampInterval<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
   { interval }: SetBlockTimestampIntervalParameters,
 ) {
   const interval_ = (() => {

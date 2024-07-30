@@ -5,41 +5,41 @@ import type { Transaction } from './transaction.js'
 import type { Withdrawal } from './withdrawal.js'
 
 export type Block<
-  TQuantity = bigint,
-  TIncludeTransactions extends boolean = boolean,
-  TBlockTag extends BlockTag = BlockTag,
-  TTransaction = Transaction<
+  quantity = bigint,
+  includeTransactions extends boolean = boolean,
+  blockTag extends BlockTag = BlockTag,
+  transaction = Transaction<
     bigint,
     number,
-    TBlockTag extends 'pending' ? true : false
+    blockTag extends 'pending' ? true : false
   >,
 > = {
   /** Base fee per gas */
-  baseFeePerGas: TQuantity | null
+  baseFeePerGas: quantity | null
   /** Total used blob gas by all transactions in this block */
-  blobGasUsed: TQuantity
+  blobGasUsed: quantity
   /** Difficulty for this block */
-  difficulty: TQuantity
+  difficulty: quantity
   /** Excess blob gas */
-  excessBlobGas: TQuantity
+  excessBlobGas: quantity
   /** "Extra data" field of this block */
   extraData: Hex
   /** Maximum gas allowed in this block */
-  gasLimit: TQuantity
+  gasLimit: quantity
   /** Total used gas by all transactions in this block */
-  gasUsed: TQuantity
+  gasUsed: quantity
   /** Block hash or `null` if pending */
-  hash: TBlockTag extends 'pending' ? null : Hash
+  hash: blockTag extends 'pending' ? null : Hash
   /** Logs bloom filter or `null` if pending */
-  logsBloom: TBlockTag extends 'pending' ? null : Hex
+  logsBloom: blockTag extends 'pending' ? null : Hex
   /** Address that received this block’s mining rewards */
   miner: Address
   /** Unique identifier for the block. */
   mixHash: Hash
   /** Proof-of-work hash or `null` if pending */
-  nonce: TBlockTag extends 'pending' ? null : Hex
+  nonce: blockTag extends 'pending' ? null : Hex
   /** Block number or `null` if pending */
-  number: TBlockTag extends 'pending' ? null : TQuantity
+  number: blockTag extends 'pending' ? null : quantity
   /** Parent block hash */
   parentHash: Hash
   /** Root of the this block’s receipts trie */
@@ -48,15 +48,15 @@ export type Block<
   /** SHA3 of the uncles data in this block */
   sha3Uncles: Hash
   /** Size of this block in bytes */
-  size: TQuantity
+  size: quantity
   /** Root of this block’s final state trie */
   stateRoot: Hash
   /** Unix timestamp of when this block was collated */
-  timestamp: TQuantity
+  timestamp: quantity
   /** Total difficulty of the chain until this block */
-  totalDifficulty: TQuantity | null
+  totalDifficulty: quantity | null
   /** List of transaction objects or hashes */
-  transactions: TIncludeTransactions extends true ? TTransaction[] : Hash[]
+  transactions: includeTransactions extends true ? transaction[] : Hash[]
   /** Root of this block’s transaction trie */
   transactionsRoot: Hash
   /** List of uncle hashes */
@@ -67,13 +67,13 @@ export type Block<
   withdrawalsRoot?: Hex | undefined
 }
 
-export type BlockIdentifier<TQuantity = bigint> = {
+export type BlockIdentifier<quantity = bigint> = {
   /** Whether or not to throw an error if the block is not in the canonical chain as described below. Only allowed in conjunction with the blockHash tag. Defaults to false. */
   requireCanonical?: boolean | undefined
 } & (
   | {
       /** The block in the canonical chain with this number */
-      blockNumber: BlockNumber<TQuantity>
+      blockNumber: BlockNumber<quantity>
     }
   | {
       /** The block uniquely identified by this hash. The `blockNumber` and `blockHash` properties are mutually exclusive; exactly one of them must be set. */
@@ -81,17 +81,17 @@ export type BlockIdentifier<TQuantity = bigint> = {
     }
 )
 
-export type BlockNumber<TQuantity = bigint> = TQuantity
+export type BlockNumber<quantity = bigint> = quantity
 
 export type BlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'
 
 export type Uncle<
-  TQuantity = bigint,
-  TIncludeTransactions extends boolean = boolean,
-  TBlockTag extends BlockTag = BlockTag,
-  TTransaction = Transaction<
+  quantity = bigint,
+  includeTransactions extends boolean = boolean,
+  blockTag extends BlockTag = BlockTag,
+  transaction = Transaction<
     bigint,
     number,
-    TBlockTag extends 'pending' ? true : false
+    blockTag extends 'pending' ? true : false
   >,
-> = Block<TQuantity, TIncludeTransactions, TBlockTag, TTransaction>
+> = Block<quantity, includeTransactions, blockTag, transaction>

@@ -18,27 +18,28 @@ import {
   createTransport,
 } from './createTransport.js'
 
-export type BatchOptions = {
-  /** The maximum number of JSON-RPC requests to send in a batch. @default 1_000 */
-  batchSize?: number | undefined
-  /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
-  wait?: number | undefined
-}
-
 export type HttpTransportConfig = {
   /**
    * Whether to enable Batch JSON-RPC.
    * @link https://www.jsonrpc.org/specification#batch
    */
-  batch?: boolean | BatchOptions | undefined
+  batch?:
+    | boolean
+    | {
+        /** The maximum number of JSON-RPC requests to send in a batch. @default 1_000 */
+        batchSize?: number | undefined
+        /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
+        wait?: number | undefined
+      }
+    | undefined
   /**
    * Request configuration to pass to `fetch`.
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
    */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
-  /**
-   * A callback to handle the response from `fetch`.
-   */
+  /** A callback to handle the response from `fetch`. */
+  onFetchRequest?: HttpRpcClientOptions['onRequest'] | undefined
+  /** A callback to handle the response from `fetch`. */
   onFetchResponse?: HttpRpcClientOptions['onResponse'] | undefined
   /** The key of the HTTP transport. */
   key?: TransportConfig['key'] | undefined
@@ -78,6 +79,7 @@ export function http(
     fetchOptions,
     key = 'http',
     name = 'HTTP JSON-RPC',
+    onFetchRequest,
     onFetchResponse,
     retryDelay,
   } = config
@@ -91,6 +93,7 @@ export function http(
 
     const rpcClient = getHttpRpcClient(url_, {
       fetchOptions,
+      onRequest: onFetchRequest,
       onResponse: onFetchResponse,
       timeout,
     })
@@ -103,7 +106,7 @@ export function http(
           const body = { method, params }
 
           const { schedule } = createBatchScheduler({
-            id: `${url}`,
+            id: url_,
             wait,
             shouldSplitBatch(requests) {
               return requests.length > batchSize
