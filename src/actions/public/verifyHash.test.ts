@@ -1,14 +1,20 @@
 import { describe, expect, test } from 'vitest'
 
 import {
+  SoladyAccount07,
   SoladyAccountFactory07,
-  SoladyTestAccount,
 } from '~contracts/generated.js'
 import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deploySoladyAccount_07 } from '~test/src/utils.js'
-import { toSoladySmartAccount } from '~viem/account-abstraction/index.js'
+import {
+  entryPoint07Abi,
+  entryPoint07Address,
+  toPackedUserOperation,
+} from '~viem/account-abstraction/index.js'
+import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
+import { bundlerMainnet } from '../../../test/src/bundler.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zkSync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
@@ -184,30 +190,33 @@ describe('smart account', async () => {
   })
 
   test('deployed w/ owner update encoded as factory + factoryData', async () => {
-    const { factoryAddress } = await deploySoladyAccount_07()
+    const [account] = await getSmartAccounts_07()
 
-    const { request, result: verifier } = await simulateContract(client, {
-      account: localAccount,
-      abi: SoladyAccountFactory07.abi,
-      address: factoryAddress,
-      functionName: 'createAccount',
-      args: [localAccount.address, pad('0x0')],
-    })
-    await writeContract(client, request)
-    await mine(client, { blocks: 1 })
-
-    const account = await toSoladySmartAccount({
-      client,
-      owner: localAccount.address,
-      factoryAddress,
-    })
     const newOwner = privateKeyToAccount(accounts[1].privateKey)
+    const bundlerClient = bundlerMainnet.getBundlerClient({ client })
 
-    const factory = account.address
+    const op = await bundlerClient.prepareUserOperation({
+      account,
+      calls: [
+        {
+          to: account.address,
+          value: 0n,
+          data: encodeFunctionData({
+            abi: SoladyAccount07.abi,
+            functionName: 'transferOwnership',
+            args: [newOwner.address],
+          }),
+        },
+      ],
+    })
+    const opSignature = await account.signUserOperation(op)
+    op.signature = opSignature
+
+    const factory = entryPoint07Address
     const factoryData = encodeFunctionData({
-      abi: SoladyTestAccount.abi,
-      functionName: 'forceTransferOwnership',
-      args: [newOwner.address],
+      abi: entryPoint07Abi,
+      functionName: 'handleOps',
+      args: [[toPackedUserOperation(op)], account.address],
     })
 
     const signature = await signMessageErc1271(client, {
@@ -215,12 +224,12 @@ describe('smart account', async () => {
       factory,
       factoryData,
       message: 'hello world',
-      verifier,
+      verifier: account.address,
     })
 
     expect(
       verifyHash(client, {
-        address: verifier,
+        address: account.address,
         factory,
         factoryData,
         hash: hashMessage('hello world'),
