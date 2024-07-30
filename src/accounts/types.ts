@@ -2,6 +2,7 @@ import type { Address, TypedData } from 'abitype'
 
 import type { SmartAccount } from '../account-abstraction/accounts/types.js'
 import type { HDKey } from '../types/account.js'
+import type { Authorization } from '../types/authorization.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
   TransactionSerializable,
@@ -13,7 +14,6 @@ import type { NonceManager } from '../utils/nonceManager.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { SignAuthorizationReturnType } from './utils/signAuthorization.js'
-import type { Authorization } from '../types/authorization.js'
 
 export type Account<address extends Address = Address> = OneOf<
   JsonRpcAccount<address> | LocalAccount<string, address> | SmartAccount
