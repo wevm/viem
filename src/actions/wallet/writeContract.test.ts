@@ -1,18 +1,21 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { Payable } from '~contracts/generated.js'
+import { EIP7702, Payable } from '~contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
-import { deployPayable } from '~test/src/utils.js'
+import { deploy, deployPayable } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 import { http } from '../../clients/transports/http.js'
+import { signAuthorization } from '../../experimental/index.js'
+import { decodeEventLog, keccak256 } from '../../utils/index.js'
 import { getTransaction } from '../public/getTransaction.js'
+import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { simulateContract } from '../public/simulateContract.js'
 import { mine } from '../test/mine.js'
-
 import { writeContract } from './writeContract.js'
 
 const client = anvilMainnet.getClient().extend(walletActions)
@@ -127,6 +130,49 @@ describe('args: chain', () => {
 
       Version: viem@x.y.z]
     `)
+  })
+})
+
+test('args: authorizationList', async () => {
+  const invoker = privateKeyToAccount(accounts[0].privateKey)
+  const authority = privateKeyToAccount(accounts[1].privateKey)
+
+  const { contractAddress } = await deploy(client, {
+    abi: EIP7702.abi,
+    bytecode: EIP7702.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
+  const hash = await writeContract(client, {
+    abi: EIP7702.abi,
+    account: invoker,
+    address: authority.address,
+    authorizationList: [authorization],
+    functionName: 'exec',
+    args: ['0xdeadbeef'],
+  })
+  expect(hash).toBeDefined()
+
+  await mine(client, { blocks: 1 })
+
+  const receipt = await getTransactionReceipt(client, { hash })
+  const log = receipt.logs[0]
+  expect(log.address).toBe(authority.address.toLowerCase())
+  expect(
+    decodeEventLog({
+      abi: EIP7702.abi,
+      ...log,
+    }),
+  ).toEqual({
+    args: {
+      data: keccak256('0xdeadbeef'),
+      from: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    },
+    eventName: 'WeGucci',
   })
 })
 

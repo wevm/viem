@@ -440,6 +440,13 @@ const { result } = await publicClient.simulateContract({
 })
 ```
 
+### authorizationList (optional)
+
+- **Type:** `AuthorizationList`
+
+Signed EIP-7702 Authorization list.
+
+<!-- TODO(7702): example -->
 
 ### args (optional)
 
