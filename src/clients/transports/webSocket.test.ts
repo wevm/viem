@@ -185,6 +185,39 @@ test('subscribe', async () => {
   expect(blocks.length).toBe(1)
 })
 
+test('throws on socket closure', async () => {
+  const transport = webSocket(anvilMainnet.rpcUrl.ws, {
+    key: 'jsonRpc',
+    name: 'JSON RPC',
+  })({})
+  if (!transport.value) return
+
+  let error: Error | undefined
+  const { subscriptionId } = await transport.value.subscribe({
+    params: ['newHeads'],
+    onData: () => {},
+    onError: (error_) => {
+      error = error_
+    },
+  })
+
+  // Make sure we are subscribed.
+  expect(subscriptionId).toBeDefined()
+
+  await wait(100)
+  const { socket } = await transport.value.getRpcClient()
+  socket.close()
+  await wait(100)
+
+  expect(error).toMatchInlineSnapshot(`
+    [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('throws on bogus subscription', async () => {
   const transport = webSocket(anvilMainnet.rpcUrl.ws, {
     key: 'jsonRpc',
