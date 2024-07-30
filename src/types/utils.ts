@@ -187,9 +187,8 @@ export type Evaluate<type> = {
  * RequiredBy<{ a?: string, b: number }, 'a'>
  * => { a: string, b: number }
  */
-export type RequiredBy<T, K extends keyof T> = K extends never
-  ? T
-  : Omit<T, K> & ExactRequired<Pick<T, K>>
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
+  ExactRequired<Pick<T, K>>
 
 /**
  * @description Returns truthy if `array` contains `value`.

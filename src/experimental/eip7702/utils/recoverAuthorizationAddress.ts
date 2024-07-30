@@ -6,7 +6,7 @@ import type {
   SignedAuthorization,
 } from '../../../types/authorization.js'
 import type { ByteArray, Hex, Signature } from '../../../types/misc.js'
-import type { OneOf, RequiredBy } from '../../../types/utils.js'
+import type { OneOf } from '../../../types/utils.js'
 import {
   type RecoverAddressErrorType,
   recoverAddress,
