@@ -231,6 +231,7 @@ test('exports', () => {
       "HttpRequestError",
       "RpcRequestError",
       "TimeoutError",
+      "SocketClosedError",
       "WebSocketRequestError",
       "InvalidAddressError",
       "FeeConflictError",
