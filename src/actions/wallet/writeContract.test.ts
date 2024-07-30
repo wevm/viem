@@ -176,6 +176,18 @@ test('overloaded function', async () => {
   ).toBeDefined()
 })
 
+test('payable overloaded function', async () => {
+  expect(
+    await writeContract(client, {
+      ...wagmiContractConfig,
+      account: accounts[0].address,
+      functionName: 'mint',
+      args: [69420n, 1n],
+      value: 1n,
+    }),
+  ).toBeDefined()
+})
+
 test('w/ simulateContract', async () => {
   const { request } = await simulateContract(client, {
     ...wagmiContractConfig,

@@ -77,6 +77,7 @@ export type SimulateContractParameters<
   > &
   GetValue<
     abi,
+    'nonpayable' | 'payable',
     functionName,
     CallParameters<derivedChain> extends CallParameters
       ? CallParameters<derivedChain>['value']

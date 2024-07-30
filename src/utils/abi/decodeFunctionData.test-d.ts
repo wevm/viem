@@ -31,7 +31,7 @@ test('default', () => {
         functionName: 'isApprovedForAll'
       }
     | {
-        args: readonly [] | readonly [bigint]
+        args: readonly [] | readonly [bigint] | readonly [bigint, bigint]
         functionName: 'mint'
       }
     | {
