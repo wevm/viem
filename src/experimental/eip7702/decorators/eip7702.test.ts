@@ -21,12 +21,12 @@ describe('smoke test', () => {
   test('getCapabilities', async () => {
     expect(
       await client.signAuthorization({
-        authorization: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+        contractAddress: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
       }),
     ).toMatchInlineSnapshot(`
       {
-        "address": "0xA0Cf798816D4b9b9866b5330EEa46a18382f251e",
         "chainId": 1,
+        "contractAddress": "0xA0Cf798816D4b9b9866b5330EEa46a18382f251e",
         "nonce": 663,
         "r": "0xd800df0d5b8a572b4780736f6ca3ef795d42caed68a1c5777ca16e9a609366e8",
         "s": "0x5ad1b9ecb4fb6209e0806686a5afc2870c62266bbd8cb5c1cf280ee52dae2c9a",

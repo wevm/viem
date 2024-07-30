@@ -1,4 +1,3 @@
-import type { Address } from 'abitype'
 import type { Account } from '../../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -28,10 +27,7 @@ import { getAction } from '../../../utils/getAction.js'
 
 export type SignAuthorizationParameters<
   account extends Account | undefined = Account | undefined,
-> = GetAccountParameter<account> & {
-  /** The authorization to sign. */
-  authorization: Address | PartialBy<Authorization, 'chainId' | 'nonce'>
-}
+> = GetAccountParameter<account> & PartialBy<Authorization, 'chainId' | 'nonce'>
 
 export type SignAuthorizationReturnType = SignAuthorizationReturnType_account
 
@@ -66,7 +62,7 @@ export type SignAuthorizationErrorType =
  * })
  * const signature = await signAuthorization(client, {
  *   account: privateKeyToAccount('0x..'),
- *   authorization: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  * })
  *
  * @example
@@ -82,7 +78,7 @@ export type SignAuthorizationErrorType =
  *   transport: http(),
  * })
  * const signature = await signAuthorization(client, {
- *   authorization: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  * })
  */
 export async function signAuthorization<
@@ -92,7 +88,12 @@ export async function signAuthorization<
   client: Client<Transport, chain, account>,
   parameters: SignAuthorizationParameters<account>,
 ): Promise<SignAuthorizationReturnType> {
-  const { account: account_ = client.account } = parameters
+  const {
+    account: account_ = client.account,
+    contractAddress,
+    chainId,
+    nonce,
+  } = parameters
 
   if (!account_)
     throw new AccountNotFoundError({
@@ -109,11 +110,11 @@ export async function signAuthorization<
       type: account.type,
     })
 
-  const authorization = (() => {
-    if (typeof parameters.authorization === 'string')
-      return { address: parameters.authorization }
-    return parameters.authorization
-  })()
+  const authorization = {
+    contractAddress,
+    chainId,
+    nonce,
+  } as Authorization
 
   if (typeof authorization.chainId === 'undefined')
     authorization.chainId =
@@ -131,7 +132,5 @@ export async function signAuthorization<
     })
   }
 
-  return account.experimental_signAuthorization({
-    authorization: authorization as Authorization,
-  })
+  return account.experimental_signAuthorization(authorization)
 }

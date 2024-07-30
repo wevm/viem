@@ -16,7 +16,7 @@ describe('eip7702', () => {
       assertTransactionEIP7702({
         authorizationList: [
           {
-            address: '0x0000000000000000000000000000000000000000',
+            contractAddress: '0x0000000000000000000000000000000000000000',
             chainId: 0,
             nonce: 0,
             r: '0x',
@@ -38,7 +38,7 @@ describe('eip7702', () => {
       assertTransactionEIP7702({
         authorizationList: [
           {
-            address: '0x000000000000000000000000000000000000000z',
+            contractAddress: '0x000000000000000000000000000000000000000z',
             chainId: 1,
             nonce: 0,
             r: '0x',
@@ -63,7 +63,7 @@ describe('eip7702', () => {
       assertTransactionEIP7702({
         authorizationList: [
           {
-            address: '0x0000000000000000000000000000000000000000',
+            contractAddress: '0x0000000000000000000000000000000000000000',
             chainId: 1,
             nonce: 0,
             r: '0x',

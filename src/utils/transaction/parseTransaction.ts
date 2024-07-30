@@ -576,12 +576,12 @@ export function parseAuthorizationList(
 ): SignedAuthorizationList {
   const authorizationList: Mutable<SignedAuthorizationList> = []
   for (let i = 0; i < serializedAuthorizationList.length; i++) {
-    const [chainId, address, nonce, yParity, r, s] =
+    const [chainId, contractAddress, nonce, yParity, r, s] =
       serializedAuthorizationList[i]
 
     authorizationList.push({
       chainId: hexToNumber(chainId),
-      address: address,
+      contractAddress,
       nonce: hexToNumber(nonce),
       ...parseEIP155Signature([yParity, r, s]),
     })

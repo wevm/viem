@@ -18,13 +18,12 @@ import {
 
 type To = 'object' | 'bytes' | 'hex'
 
-export type SignAuthorizationParameters<to extends To = 'object'> = {
-  /** The authorization to sign. */
-  authorization: Authorization
-  /** The private key to sign with. */
-  privateKey: Hex
-  to?: SignParameters<to>['to'] | undefined
-}
+export type SignAuthorizationParameters<to extends To = 'object'> =
+  Authorization & {
+    /** The private key to sign with. */
+    privateKey: Hex
+    to?: SignParameters<to>['to'] | undefined
+  }
 
 export type SignAuthorizationReturnType<to extends To = 'object'> = Prettify<
   to extends 'object' ? SignedAuthorization : SignReturnType<to>
@@ -41,15 +40,23 @@ export type SignAuthorizationErrorType =
 export async function experimental_signAuthorization<to extends To = 'object'>(
   parameters: SignAuthorizationParameters<to>,
 ): Promise<SignAuthorizationReturnType<to>> {
-  const { authorization, privateKey, to = 'object' } = parameters
+  const {
+    contractAddress,
+    chainId,
+    nonce,
+    privateKey,
+    to = 'object',
+  } = parameters
   const signature = await sign({
-    hash: hashAuthorization(authorization),
+    hash: hashAuthorization({ contractAddress, chainId, nonce }),
     privateKey,
     to,
   })
   if (to === 'object')
     return {
-      ...authorization,
+      contractAddress,
+      chainId,
+      nonce,
       ...(signature as Signature),
     } as any
   return signature as any

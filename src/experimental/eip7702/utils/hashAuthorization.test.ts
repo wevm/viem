@@ -5,7 +5,7 @@ import { hashAuthorization } from './hashAuthorization.js'
 test('default', () => {
   expect(
     hashAuthorization({
-      address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+      contractAddress: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
       chainId: 1,
       nonce: 40,
     }),
@@ -16,7 +16,7 @@ test('default', () => {
   expect(
     hashAuthorization({
       chainId: 69,
-      address: wagmiContractConfig.address,
+      contractAddress: wagmiContractConfig.address,
       nonce: 420,
     }),
   ).toMatchInlineSnapshot(
@@ -28,7 +28,7 @@ test('args: to', () => {
   expect(
     hashAuthorization({
       chainId: 1,
-      address: wagmiContractConfig.address,
+      contractAddress: wagmiContractConfig.address,
       nonce: 0,
       to: 'bytes',
     }),
@@ -74,7 +74,7 @@ test('args: to', () => {
   expect(
     hashAuthorization({
       chainId: 69,
-      address: wagmiContractConfig.address,
+      contractAddress: wagmiContractConfig.address,
       nonce: 420,
       to: 'bytes',
     }),

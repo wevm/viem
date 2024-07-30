@@ -20,10 +20,10 @@ export function serializeAuthorizationList(
 
   const serializedAuthorizationList = []
   for (const authorization of authorizationList) {
-    const { address, chainId, nonce, ...signature } = authorization
+    const { contractAddress, chainId, nonce, ...signature } = authorization
     serializedAuthorizationList.push([
       toHex(chainId),
-      address,
+      contractAddress,
       [nonce ? toHex(nonce) : '0x'],
       ...toYParitySignatureArray({}, signature),
     ])

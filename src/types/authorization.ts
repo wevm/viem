@@ -4,9 +4,9 @@ import type { ExactPartial } from './utils.js'
 
 export type Authorization<uint32 = number, signed extends boolean = false> = {
   /** Address of the contract to set as code for the Authority. */
-  chainId: uint32
+  contractAddress: Address
   /** Chain ID to authorize. */
-  address: Address
+  chainId: uint32
   /** Nonce of the Authority to authorize. */
   nonce: uint32
 } & (signed extends true ? Signature : ExactPartial<Signature>)

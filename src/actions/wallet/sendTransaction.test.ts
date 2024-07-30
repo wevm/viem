@@ -840,7 +840,7 @@ describe('local account', () => {
 
     const authorization = await signAuthorization(client, {
       account: authority,
-      authorization: contractAddress!,
+      contractAddress: contractAddress!,
     })
 
     const hash = await sendTransaction(client, {

@@ -12,10 +12,8 @@ import type { IsNarrowable, OneOf, Prettify } from '../types/utils.js'
 import type { NonceManager } from '../utils/nonceManager.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import type {
-  SignAuthorizationParameters,
-  SignAuthorizationReturnType,
-} from './utils/signAuthorization.js'
+import type { SignAuthorizationReturnType } from './utils/signAuthorization.js'
+import type { Authorization } from '../types/authorization.js'
 
 export type Account<address extends Address = Address> = OneOf<
   JsonRpcAccount<address> | LocalAccount<string, address> | SmartAccount
@@ -32,9 +30,7 @@ export type CustomSource = {
   // TODO(v3): Make `sign` required.
   sign?: ((parameters: { hash: Hash }) => Promise<Hex>) | undefined
   experimental_signAuthorization?:
-    | ((parameters: {
-        authorization: SignAuthorizationParameters['authorization']
-      }) => Promise<SignAuthorizationReturnType>)
+    | ((parameters: Authorization) => Promise<SignAuthorizationReturnType>)
     | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hex>
   signTransaction: <

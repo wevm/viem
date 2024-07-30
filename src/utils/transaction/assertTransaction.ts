@@ -47,8 +47,9 @@ export function assertTransactionEIP7702(
   const { authorizationList } = transaction
   if (authorizationList) {
     for (const authorization of authorizationList) {
-      const { address, chainId } = authorization
-      if (!isAddress(address)) throw new InvalidAddressError({ address })
+      const { contractAddress, chainId } = authorization
+      if (!isAddress(contractAddress))
+        throw new InvalidAddressError({ address: contractAddress })
       if (chainId <= 0) throw new InvalidChainIdError({ chainId })
     }
   }

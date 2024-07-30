@@ -36,7 +36,7 @@ describe('eip7702', () => {
     ...base,
     authorizationList: [
       {
-        address: wagmiContractConfig.address.toLowerCase() as Address,
+        contractAddress: wagmiContractConfig.address.toLowerCase() as Address,
         chainId: 1,
         nonce: 420,
         r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
@@ -45,7 +45,7 @@ describe('eip7702', () => {
         yParity: 0,
       },
       {
-        address: '0x0000000000000000000000000000000000000000',
+        contractAddress: '0x0000000000000000000000000000000000000000',
         chainId: 10,
         nonce: 69,
         r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',

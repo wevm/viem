@@ -37,19 +37,16 @@ test('sign', async () => {
 
 test('sign authorization', async () => {
   const account = privateKeyToAccount(accounts[0].privateKey)
-  const authorization = {
-    address: wagmiContractConfig.address,
+  const signedAuthorization = await account.experimental_signAuthorization({
+    contractAddress: wagmiContractConfig.address,
     chainId: 1,
     nonce: 0,
-  } as const
-  const signedAuthorization = await account.experimental_signAuthorization({
-    authorization,
   })
   expect(signedAuthorization).toMatchInlineSnapshot(
     `
     {
-      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
+      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
       "r": "0x623129c9fcc520bee4b19fbb5148b178d67e1c854d2baee0e64cd518aad5549f",
       "s": "0x17997fb5ef9d7521c09f0208b1082a9fecbeabdad90ef0a806a50d1b9c7b5d66",

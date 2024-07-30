@@ -89,7 +89,7 @@ export function serializeAuthorizationList(
   return authorizationList.map(
     (authorization) =>
       ({
-        address: authorization.address,
+        address: authorization.contractAddress,
         r: authorization.r,
         s: authorization.s,
         chainId: numberToHex(authorization.chainId),

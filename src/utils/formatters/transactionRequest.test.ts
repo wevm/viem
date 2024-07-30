@@ -172,7 +172,7 @@ test('eip7702 transaction', () => {
       ...base,
       authorizationList: [
         {
-          address: '0x0000000000000000000000000000000000000000',
+          contractAddress: '0x0000000000000000000000000000000000000000',
           chainId: 1,
           nonce: 0,
           r: '0x1',
@@ -210,7 +210,7 @@ test('eip7702 transaction', () => {
       ...base,
       authorizationList: [
         {
-          address: '0x0000000000000000000000000000000000000000',
+          contractAddress: '0x0000000000000000000000000000000000000000',
           chainId: 1,
           nonce: 0,
           r: '0x1',

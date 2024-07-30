@@ -9,11 +9,9 @@ import { recoverAuthorizationAddress } from './recoverAuthorizationAddress.js'
 
 test('default', async () => {
   const signedAuthorization = await experimental_signAuthorization({
-    authorization: {
-      address: wagmiContractConfig.address,
-      chainId: 1,
-      nonce: 0,
-    },
+    contractAddress: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 0,
     privateKey: accounts[0].privateKey,
   })
   expect(
@@ -25,12 +23,12 @@ test('default', async () => {
 
 test('args: signature', async () => {
   const authorization = {
-    address: wagmiContractConfig.address,
+    contractAddress: wagmiContractConfig.address,
     chainId: 1,
     nonce: 0,
   } as const
   const signature = await experimental_signAuthorization({
-    authorization,
+    ...authorization,
     privateKey: accounts[0].privateKey,
   })
   expect(
@@ -43,12 +41,12 @@ test('args: signature', async () => {
 
 test('args: signature (hex)', async () => {
   const authorization = {
-    address: wagmiContractConfig.address,
+    contractAddress: wagmiContractConfig.address,
     chainId: 1,
     nonce: 0,
   } as const
   const signature = await experimental_signAuthorization({
-    authorization,
+    ...authorization,
     privateKey: accounts[0].privateKey,
     to: 'hex',
   })
