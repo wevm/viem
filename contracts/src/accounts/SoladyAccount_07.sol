@@ -12,4 +12,15 @@ contract SoladyAccount07 is ERC4337 {
     {
         return ("SoladyAccount", "1");
     }
+
+    function forceTransferOwnership(address newOwner) public payable virtual {
+        /// @solidity memory-safe-assembly
+        assembly {
+            if iszero(shl(96, newOwner)) {
+                mstore(0x00, 0x7448fbae) // `NewOwnerIsZeroAddress()`.
+                revert(0x1c, 0x04)
+            }
+        }
+        _setOwner(newOwner);
+    }
 }

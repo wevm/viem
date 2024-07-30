@@ -79,10 +79,6 @@ export async function verifyHash<chain extends Chain | undefined>(
     // If the signature is already wrapped, return the signature.
     if (isErc6492Signature(signatureHex)) return signatureHex
 
-    const bytecode = await getAction(client, getCode, 'getCode')({ address })
-    // If the Smart Account is deployed, return the plain signature.
-    if (bytecode) return signatureHex
-
     // If the Smart Account is not deployed, wrap the signature with a 6492 wrapper
     // to perform counterfactual validation.
     return serializeErc6492Signature({

@@ -6,9 +6,9 @@ import {
 } from '~contracts/generated.js'
 import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '~test/src/anvil.js'
-import { bundlerMainnet } from '~test/src/bundler.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deploySoladyAccount_07 } from '~test/src/utils.js'
+import { toSoladySmartAccount } from '~viem/account-abstraction/index.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zkSync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
@@ -28,12 +28,6 @@ import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
-import {
-  entryPoint07Abi,
-  toPackedUserOperation,
-  toSoladySmartAccount,
-} from '~viem/account-abstraction/index.js'
-import { entryPoint07Address } from '~viem/constants/address.js'
 
 const client = anvilMainnet.getClient()
 
@@ -213,32 +207,16 @@ describe('smart account', async () => {
       factoryAddress,
     })
     const newOwner = privateKeyToAccount(accounts[1].privateKey)
-    const bundlerClient = bundlerMainnet.getBundlerClient({ client })
-    const op = await bundlerClient.prepareUserOperation({
-      account,
-      calls: [
-        {
-          to: account.address,
-          value: 0n,
-          data: encodeFunctionData({
-            abi: SoladyAccount07.abi,
-            functionName: 'transferOwnership',
-            args: [newOwner.address],
-          }),
-        },
-      ],
-    })
-    const opSignature = await account.signUserOperation(op)
-    op.signature = opSignature
+
     const fauxFactoryData = encodeFunctionData({
-      abi: entryPoint07Abi,
-      functionName: 'handleOps',
-      args: [[toPackedUserOperation(op)], account.address],
+      abi: SoladyAccount07.abi,
+      functionName: 'forceTransferOwnership',
+      args: [newOwner.address],
     })
-    const fauxFactory = entryPoint07Address
+    const fauxFactory = account.address
 
     const signature = await signMessageErc1271(client, {
-      account: localAccount,
+      account: newOwner,
       factory: fauxFactory,
       factoryData: fauxFactoryData,
       message: 'hello world',
