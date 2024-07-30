@@ -55,7 +55,7 @@ describe('entryPointVersion: 0.7', async () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "callGasLimit": 141653n,
+        "callGasLimit": 141675n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 53438n,
@@ -91,7 +91,7 @@ describe('entryPointVersion: 0.7', async () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "callGasLimit": 141653n,
+        "callGasLimit": 141675n,
         "paymasterPostOpGasLimit": 1n,
         "paymasterVerificationGasLimit": 20150n,
         "preVerificationGas": 59826n,
@@ -130,7 +130,7 @@ describe('entryPointVersion: 0.7', async () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "callGasLimit": 141653n,
+        "callGasLimit": 141675n,
         "paymasterPostOpGasLimit": 1n,
         "paymasterVerificationGasLimit": 20150n,
         "preVerificationGas": 59826n,
