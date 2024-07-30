@@ -33,7 +33,6 @@ contract VerifySig {
         bytes32 _hash,
         bytes memory _signature
     ) public returns (bool) {
-        bytes memory contractCode = address(_signer).code;
         // The order here is strictly defined in https://eips.ethereum.org/EIPS/eip-6492
         // - ERC-6492 suffix check and verification first, while being permissive in case the contract is already deployed so as to not invalidate old sigs
         // - ERC-1271 verification if there's contract code
@@ -47,16 +46,18 @@ contract VerifySig {
                 (address, bytes, bytes)
             );
 
-            if (contractCode.length == 0) {
-                (bool success, ) = create2Factory.call(factoryCalldata);
+            (bool success, ) = create2Factory.call(factoryCalldata);
+
+            if (_signer.code.length == 0) {
                 require(success, "SignatureValidator: deployment");
             }
+
             return
                 IERC1271Wallet(_signer).isValidSignature(_hash, originalSig) ==
                 ERC1271_SUCCESS;
         }
 
-        if (contractCode.length > 0) {
+        if (_signer.code.length > 0) {
             return
                 IERC1271Wallet(_signer).isValidSignature(_hash, _signature) ==
                 ERC1271_SUCCESS;
