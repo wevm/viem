@@ -5,7 +5,6 @@ import { accounts } from '~test/src/constants.js'
 import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { verifyAuthorization } from '../../experimental/eip7702/utils/verifyAuthorization.js'
 import { experimental_signAuthorization } from './signAuthorization.js'
-import { parseSignature } from '../../utils/signature/parseSignature.js'
 
 test('default', async () => {
   const authorization = {

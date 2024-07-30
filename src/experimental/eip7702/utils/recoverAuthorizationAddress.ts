@@ -1,7 +1,10 @@
 import type { Address } from 'abitype'
 
+import { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Authorization } from '../../../types/authorization.js'
+import type { ByteArray, Hex, Signature } from '../../../types/misc.js'
+import type { OneOf, PartialBy } from '../../../types/utils.js'
 import {
   type RecoverAddressErrorType,
   recoverAddress,
@@ -10,9 +13,6 @@ import {
   type HashAuthorizationErrorType,
   hashAuthorization,
 } from './hashAuthorization.js'
-import type { ByteArray, Hex, Signature } from '../../../types/misc.js'
-import type { OneOf, PartialBy } from '../../../types/utils.js'
-import { BaseError } from '../../../errors/base.js'
 
 export type RecoverAuthorizationAddressParameters = {
   /**
