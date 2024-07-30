@@ -17,7 +17,7 @@ import {
 
 export type VerifyAuthorizationParameters =
   RecoverAuthorizationAddressParameters & {
-    /** The address that signed the Authorization tuple. */
+    /** The address that signed the Authorization object. */
     address: Address
   }
 
@@ -30,7 +30,7 @@ export type VerifyAuthorizationErrorType =
   | ErrorType
 
 /**
- * Verify that an "authorization tuple" was signed by the provided address.
+ * Verify that an Authorization object was signed by the provided address.
  *
  * - Docs {@link https://viem.sh/docs/utilities/verifyAuthorization}
  *

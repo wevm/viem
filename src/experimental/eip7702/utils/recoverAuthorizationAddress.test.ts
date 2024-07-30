@@ -41,7 +41,7 @@ test('args: signature', async () => {
   ).toBe(getAddress(accounts[0].address))
 })
 
-test('behavior: infer missing properties from signature', async () => {
+test('args: signature (hex)', async () => {
   const authorization = {
     address: wagmiContractConfig.address,
     chainId: 1,
@@ -50,12 +50,11 @@ test('behavior: infer missing properties from signature', async () => {
   const signature = await experimental_signAuthorization({
     authorization,
     privateKey: accounts[0].privateKey,
+    to: 'hex',
   })
   expect(
     await recoverAuthorizationAddress({
-      authorization: {
-        address: authorization.address,
-      },
+      authorization,
       signature,
     }),
   ).toBe(getAddress(accounts[0].address))

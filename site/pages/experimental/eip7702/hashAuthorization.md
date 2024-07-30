@@ -1,10 +1,10 @@
 ---
-description: Calculates an Authorization tuple hash in EIP-7702 format.
+description: Calculates an Authorization object hash in EIP-7702 format.
 ---
 
 # hashAuthorization
 
-Calculates an "authorization tuple" hash in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
+Calculates an Authorization hash in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
 
 ## Import
 
@@ -29,7 +29,7 @@ hashAuthorization({
 
 [`Hash`](/docs/glossary/types#hash)
 
-The hashed authorization tuple.
+The hashed Authorization.
 
 ## Parameters
 

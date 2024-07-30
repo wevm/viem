@@ -31,13 +31,13 @@ import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { getBalance } from '../public/getBalance.js'
 import { getBlock } from '../public/getBlock.js'
 import { getTransaction } from '../public/getTransaction.js'
-import { getTransactionCount } from '../public/getTransactionCount.js'
 import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { mine } from '../test/mine.js'
 import { reset } from '../test/reset.js'
 import { setBalance } from '../test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
 import { sendTransaction } from './sendTransaction.js'
+import { signAuthorization } from '../../experimental/index.js'
 
 const client = anvilMainnet.getClient()
 const clientWithAccount = anvilMainnet.getClient({
@@ -838,16 +838,9 @@ describe('local account', () => {
       bytecode: EIP7702.bytecode.object,
     })
 
-    const nonce = await getTransactionCount(client, {
-      address: authority.address,
-    })
-
-    const authorization = await authority.experimental_signAuthorization({
-      authorization: {
-        address: contractAddress!,
-        chainId: client.chain.id,
-        nonce,
-      },
+    const authorization = await signAuthorization(client, {
+      account: authority,
+      authorization: contractAddress!,
     })
 
     const hash = await sendTransaction(client, {

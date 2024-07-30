@@ -39,7 +39,7 @@ export type HashAuthorizationErrorType =
   | ErrorType
 
 /**
- * Calculates an "authorization tuple" hash in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
+ * Computes an Authorization hash in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
  */
 export function hashAuthorization<to extends To = 'hex'>(
   parameters: HashAuthorizationParameters<to>,
