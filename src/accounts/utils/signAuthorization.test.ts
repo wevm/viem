@@ -5,6 +5,7 @@ import { accounts } from '~test/src/constants.js'
 import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { verifyAuthorization } from '../../experimental/eip7702/utils/verifyAuthorization.js'
 import { experimental_signAuthorization } from './signAuthorization.js'
+import { parseSignature } from '../../utils/signature/parseSignature.js'
 
 test('default', async () => {
   const authorization = {
@@ -12,12 +13,12 @@ test('default', async () => {
     chainId: 1,
     nonce: 0,
   }
-  const signature = await experimental_signAuthorization({
+  const signedAuthorization = await experimental_signAuthorization({
     authorization,
     privateKey: accounts[0].privateKey,
   })
 
-  expect(signature).toMatchInlineSnapshot(
+  expect(signedAuthorization).toMatchInlineSnapshot(
     `
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
@@ -33,8 +34,7 @@ test('default', async () => {
   expect(
     await verifyAuthorization({
       address: accounts[0].address,
-      authorization,
-      signature,
+      authorization: signedAuthorization,
     }),
   ).toBe(true)
 })

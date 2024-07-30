@@ -8,11 +8,27 @@ import { getAddress } from '../../../utils/address/getAddress.js'
 import { recoverAuthorizationAddress } from './recoverAuthorizationAddress.js'
 
 test('default', async () => {
+  const signedAuthorization = await experimental_signAuthorization({
+    authorization: {
+      address: wagmiContractConfig.address,
+      chainId: 1,
+      nonce: 0,
+    },
+    privateKey: accounts[0].privateKey,
+  })
+  expect(
+    await recoverAuthorizationAddress({
+      authorization: signedAuthorization,
+    }),
+  ).toBe(getAddress(accounts[0].address))
+})
+
+test('args: signature', async () => {
   const authorization = {
     address: wagmiContractConfig.address,
     chainId: 1,
     nonce: 0,
-  }
+  } as const
   const signature = await experimental_signAuthorization({
     authorization,
     privateKey: accounts[0].privateKey,
@@ -20,6 +36,26 @@ test('default', async () => {
   expect(
     await recoverAuthorizationAddress({
       authorization,
+      signature,
+    }),
+  ).toBe(getAddress(accounts[0].address))
+})
+
+test('behavior: infer missing properties from signature', async () => {
+  const authorization = {
+    address: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 0,
+  } as const
+  const signature = await experimental_signAuthorization({
+    authorization,
+    privateKey: accounts[0].privateKey,
+  })
+  expect(
+    await recoverAuthorizationAddress({
+      authorization: {
+        address: authorization.address,
+      },
       signature,
     }),
   ).toBe(getAddress(accounts[0].address))
