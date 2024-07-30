@@ -27,7 +27,6 @@ import { recoverAddress } from '../../utils/signature/recoverAddress.js'
 import { serializeErc6492Signature } from '../../utils/signature/serializeErc6492Signature.js'
 import { serializeSignature } from '../../utils/signature/serializeSignature.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
-import { getCode } from './getCode.js'
 
 export type VerifyHashParameters = Pick<
   CallParameters,

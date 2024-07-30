@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
 import {
-  SoladyAccount07,
   SoladyAccountFactory07,
+  SoladyTestAccount,
 } from '~contracts/generated.js'
 import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '~test/src/anvil.js'
@@ -209,7 +209,7 @@ describe('smart account', async () => {
     const newOwner = privateKeyToAccount(accounts[1].privateKey)
 
     const fauxFactoryData = encodeFunctionData({
-      abi: SoladyAccount07.abi,
+      abi: SoladyTestAccount.abi,
       functionName: 'forceTransferOwnership',
       args: [newOwner.address],
     })
