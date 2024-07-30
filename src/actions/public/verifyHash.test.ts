@@ -28,7 +28,11 @@ import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
-import { entryPoint07Abi } from '~viem/account-abstraction/index.js'
+import {
+  entryPoint07Abi,
+  toPackedUserOperation,
+  toSoladySmartAccount,
+} from '~viem/account-abstraction/index.js'
 import { entryPoint07Address } from '~viem/constants/address.js'
 
 const client = anvilMainnet.getClient()
@@ -206,6 +210,7 @@ describe('smart account', async () => {
     const account = await toSoladySmartAccount({
       client,
       owner: localAccount.address,
+      factoryAddress,
     })
     const newOwner = privateKeyToAccount(accounts[1].privateKey)
     const bundlerClient = bundlerMainnet.getBundlerClient({ client })
@@ -228,7 +233,7 @@ describe('smart account', async () => {
     const fauxFactoryData = encodeFunctionData({
       abi: entryPoint07Abi,
       functionName: 'handleOps',
-      args: [[op], account.address],
+      args: [[toPackedUserOperation(op)], account.address],
     })
     const fauxFactory = entryPoint07Address
 
