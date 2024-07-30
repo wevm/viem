@@ -156,7 +156,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -169,7 +169,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -182,7 +182,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -195,7 +195,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -214,7 +214,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -242,7 +242,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -264,7 +264,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -277,7 +277,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -296,7 +296,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -318,7 +318,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -331,7 +331,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -344,7 +344,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -357,7 +357,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -404,7 +404,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -432,7 +432,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.5.4)(zod@3.22.4)
+        version: 2.18.5(typescript@5.5.4)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -454,7 +454,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -473,7 +473,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -507,7 +507,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.18.4(typescript@5.4.2)(zod@3.22.4)
+        version: 2.18.5(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -3229,6 +3229,7 @@ packages:
 
   bun@1.1.12:
     resolution: {integrity: sha512-NZzeZuZk7VwCs8VAXnXUHCPOlTS/IyHCscChtT1M1FLSwhBcVMsGVStYlXaaoqsinBKgp0CGJdhnJw2gR3NkDw==}
+    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -6743,14 +6744,6 @@ packages:
 
   vfile@6.0.1:
     resolution: {integrity: sha512-1bYqc7pt6NIADBJ98UiG0Bn/CHIVOoZ/IyEkqIruLg0mE1BKzkOXY2D6CSqQIcKqgadppE5lrxgWXJmXd7zZJw==}
-
-  viem@2.18.4:
-    resolution: {integrity: sha512-JGdN+PgBnZMbm7fc9o0SfHvL0CKyfrlhBUtaz27V+PeHO43Kgc9Zd4WyIbM8Brafq4TvVcnriRFW/FVGOzwEJw==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   viem@2.18.5:
     resolution: {integrity: sha512-hIV5+kzI1f6fOzmZWuycjH+9F/qcEQ3BOyF0/m1cc+pd2+PMdJ/yccL4MeKAUDc1mun5KGjub9HhJsu+9Ndd3Q==}
@@ -14329,7 +14322,7 @@ snapshots:
       unist-util-stringify-position: 4.0.0
       vfile-message: 4.0.2
 
-  viem@2.18.4(typescript@5.4.2)(zod@3.22.4):
+  viem@2.18.5(typescript@5.4.2)(zod@3.22.4):
     dependencies:
       '@adraffy/ens-normalize': 1.10.0
       '@noble/curves': 1.4.0
@@ -14342,24 +14335,6 @@ snapshots:
       ws: 8.17.1
     optionalDependencies:
       typescript: 5.4.2
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
-  viem@2.18.4(typescript@5.5.4)(zod@3.22.4):
-    dependencies:
-      '@adraffy/ens-normalize': 1.10.0
-      '@noble/curves': 1.4.0
-      '@noble/hashes': 1.4.0
-      '@scure/bip32': 1.4.0
-      '@scure/bip39': 1.3.0
-      abitype: 1.0.5(typescript@5.5.4)(zod@3.22.4)
-      isows: 1.0.4(ws@8.17.1)
-      webauthn-p256: 0.0.5
-      ws: 8.17.1
-    optionalDependencies:
-      typescript: 5.5.4
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -14378,6 +14353,24 @@ snapshots:
       ws: 8.17.1
     optionalDependencies:
       typescript: 5.5.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+
+  viem@2.18.5(typescript@5.5.4)(zod@3.22.4):
+    dependencies:
+      '@adraffy/ens-normalize': 1.10.0
+      '@noble/curves': 1.4.0
+      '@noble/hashes': 1.4.0
+      '@scure/bip32': 1.4.0
+      '@scure/bip39': 1.3.0
+      abitype: 1.0.5(typescript@5.5.4)(zod@3.22.4)
+      isows: 1.0.4(ws@8.17.1)
+      webauthn-p256: 0.0.5
+      ws: 8.17.1
+    optionalDependencies:
+      typescript: 5.5.4
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
