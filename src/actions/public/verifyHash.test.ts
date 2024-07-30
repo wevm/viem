@@ -196,11 +196,6 @@ describe('smart account', async () => {
     await writeContract(client, request)
     await mine(client, { blocks: 1 })
 
-    // Situation: user has signed a userOp updating the owner of this account
-    // but this op has not yet landed onchain.
-    // We will encode a handleOps call on the entrypoint as the factory calldata,
-    // and the entrypoint as the factory address.
-
     const account = await toSoladySmartAccount({
       client,
       owner: localAccount.address,
@@ -208,17 +203,17 @@ describe('smart account', async () => {
     })
     const newOwner = privateKeyToAccount(accounts[1].privateKey)
 
-    const fauxFactoryData = encodeFunctionData({
+    const factory = account.address
+    const factoryData = encodeFunctionData({
       abi: SoladyTestAccount.abi,
       functionName: 'forceTransferOwnership',
       args: [newOwner.address],
     })
-    const fauxFactory = account.address
 
     const signature = await signMessageErc1271(client, {
       account: newOwner,
-      factory: fauxFactory,
-      factoryData: fauxFactoryData,
+      factory,
+      factoryData,
       message: 'hello world',
       verifier,
     })
@@ -226,8 +221,8 @@ describe('smart account', async () => {
     expect(
       verifyHash(client, {
         address: verifier,
-        factory: fauxFactory,
-        factoryData: fauxFactoryData,
+        factory,
+        factoryData,
         hash: hashMessage('hello world'),
         signature,
       }),
