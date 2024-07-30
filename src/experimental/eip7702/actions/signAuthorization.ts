@@ -8,6 +8,8 @@ import type {
   SignAuthorizationErrorType as SignAuthorizationErrorType_account,
   SignAuthorizationReturnType as SignAuthorizationReturnType_account,
 } from '../../../accounts/utils/signAuthorization.js'
+import { getChainId } from '../../../actions/public/getChainId.js'
+import { getTransactionCount } from '../../../actions/public/getTransactionCount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import {
@@ -22,9 +24,7 @@ import type { Authorization } from '../../../types/authorization.js'
 import type { Chain } from '../../../types/chain.js'
 import type { PartialBy } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
-import { getChainId } from '../../../actions/public/getChainId.js'
 import { getAction } from '../../../utils/getAction.js'
-import { getTransactionCount } from '../../../actions/public/getTransactionCount.js'
 
 export type SignAuthorizationParameters<
   account extends Account | undefined = Account | undefined,

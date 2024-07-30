@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
-import { eip7702Actions } from './eip7702.js'
-import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import { accounts } from '../../../../test/src/constants.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { accounts } from '../../../../test/src/constants.js'
+import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
+import { eip7702Actions } from './eip7702.js'
 
 const client = anvilMainnet
   .getClient({ account: privateKeyToAccount(accounts[0].privateKey) })
