@@ -1,5 +1,13 @@
 # viem
 
+## 2.18.6
+
+### Patch Changes
+
+- [`889371e`](https://github.com/wevm/viem/commit/889371e3d62b8c6044c463f933bc49c4f00e742b) Thanks [@jxom](https://github.com/jxom)! - Hooked `onError` up to WebSocket `subscribe`.
+
+- [#2552](https://github.com/wevm/viem/pull/2552) [`84e7d30`](https://github.com/wevm/viem/commit/84e7d30dec0a45503dd6a6b30893e369c75ab92a) Thanks [@wilsoncusack](https://github.com/wilsoncusack)! - Fixed ERC6492 verification for case where prepare data may need to be called.
+
 ## 2.18.5
 
 ### Patch Changes
