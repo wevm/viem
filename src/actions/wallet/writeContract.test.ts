@@ -12,7 +12,6 @@ import { http } from '../../clients/transports/http.js'
 import { getTransaction } from '../public/getTransaction.js'
 import { simulateContract } from '../public/simulateContract.js'
 import { mine } from '../test/mine.js'
-
 import { writeContract } from './writeContract.js'
 
 const client = anvilMainnet.getClient().extend(walletActions)
@@ -172,6 +171,18 @@ test('overloaded function', async () => {
       account: accounts[0].address,
       functionName: 'mint',
       args: [13371337n],
+    }),
+  ).toBeDefined()
+})
+
+test('payable overloaded function', async () => {
+  expect(
+    await writeContract(client, {
+      ...wagmiContractConfig,
+      account: accounts[0].address,
+      functionName: 'mint',
+      args: [69420n, 1n],
+      value: 1n,
     }),
   ).toBeDefined()
 })

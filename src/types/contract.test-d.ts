@@ -221,19 +221,23 @@ test('GetEventArgs', () => {
 
 test('GetValue', () => {
   // payable
-  type Result = GetValue<typeof seaportAbi, 'fulfillAdvancedOrder'>
+  type Result = GetValue<typeof seaportAbi, 'payable', 'fulfillAdvancedOrder'>
   expectTypeOf<Result>().toEqualTypeOf<{ value?: bigint }>()
 
   // other
-  expectTypeOf<GetValue<typeof seaportAbi, 'getOrderStatus'>>().toEqualTypeOf<{
+  expectTypeOf<
+    GetValue<typeof seaportAbi, 'view', 'getOrderStatus'>
+  >().toEqualTypeOf<{
     value?: never
   }>()
-  expectTypeOf<GetValue<typeof seaportAbi, 'cancel'>>().toEqualTypeOf<{
+  expectTypeOf<
+    GetValue<typeof seaportAbi, 'nonpayable', 'cancel'>
+  >().toEqualTypeOf<{
     value?: never
   }>()
 
   // unknown abi
-  expectTypeOf<GetValue<Abi, 'foo'>>().toEqualTypeOf<{
+  expectTypeOf<GetValue<Abi, 'nonpayable' | 'payable', 'foo'>>().toEqualTypeOf<{
     value?: bigint | undefined
   }>()
   const abi = [
@@ -244,7 +248,9 @@ test('GetValue', () => {
       outputs: [{ type: 'uint256' }],
     },
   ]
-  expectTypeOf<GetValue<typeof abi, 'foo'>>().toEqualTypeOf<{
+  expectTypeOf<
+    GetValue<typeof abi, 'nonpayable' | 'payable', 'foo'>
+  >().toEqualTypeOf<{
     value?: bigint | undefined
   }>()
 })

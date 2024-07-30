@@ -151,4 +151,4 @@ export type WriteContractFunctionParameters<
     | (functionName extends allFunctionNames ? functionName : never) // infer value
   args?: (abi extends Abi ? UnionWiden<args> : never) | allArgs | undefined
 } & (readonly [] extends allArgs ? {} : { args: Widen<args> }) &
-  GetValue<abi, functionName>
+  GetValue<abi, mutability, functionName>
