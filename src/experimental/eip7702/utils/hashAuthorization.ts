@@ -21,10 +21,7 @@ import {
 
 type To = 'hex' | 'bytes'
 
-export type HashAuthorizationParameters<to extends To> = Authorization<
-  number,
-  false
-> & {
+export type HashAuthorizationParameters<to extends To> = Authorization & {
   /** Output format. @default "hex" */
   to?: to | To | undefined
 }

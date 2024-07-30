@@ -84,8 +84,8 @@ export const defineTransactionRequest = /*#__PURE__*/ defineFormatter(
 //////////////////////////////////////////////////////////////////////////////
 
 export function serializeAuthorizationList(
-  authorizationList: AuthorizationList,
-): AuthorizationList<Hex> {
+  authorizationList: AuthorizationList<number, boolean>,
+): AuthorizationList<Hex, boolean> {
   return authorizationList.map(
     (authorization) =>
       ({
@@ -102,5 +102,5 @@ export function serializeAuthorizationList(
           ? { v: numberToHex(authorization.v) }
           : {}),
       }) as any,
-  ) as AuthorizationList<Hex>
+  ) as AuthorizationList<Hex, boolean>
 }

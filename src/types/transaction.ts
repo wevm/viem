@@ -1,6 +1,9 @@
 import type { Address } from 'abitype'
 
-import type { AuthorizationList } from './authorization.js'
+import type {
+  AuthorizationList,
+  SignedAuthorizationList,
+} from './authorization.js'
 import type { BlobSidecar } from './eip4844.js'
 import type {
   FeeValuesEIP1559,
@@ -250,7 +253,7 @@ export type TransactionRequestEIP7702<
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    authorizationList: AuthorizationList<index>
+    authorizationList: AuthorizationList<index, boolean>
   }
 
 export type TransactionRequest<quantity = bigint, index = number> = OneOf<
@@ -360,7 +363,7 @@ export type TransactionSerializableEIP7702<
 > = TransactionSerializableBase<quantity, index> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    authorizationList: AuthorizationList<index, true>
+    authorizationList: SignedAuthorizationList
     chainId: number
     type?: 'eip7702' | undefined
     yParity?: number | undefined
@@ -379,7 +382,7 @@ export type TransactionSerializableGeneric<
   index = number,
 > = TransactionSerializableBase<quantity, index> & {
   accessList?: AccessList | undefined
-  authorizationList?: AuthorizationList<index> | undefined
+  authorizationList?: AuthorizationList<index, boolean> | undefined
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
   chainId?: number | undefined

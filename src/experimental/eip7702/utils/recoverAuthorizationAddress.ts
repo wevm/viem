@@ -2,7 +2,10 @@ import type { Address } from 'abitype'
 
 import { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Authorization } from '../../../types/authorization.js'
+import type {
+  Authorization,
+  SignedAuthorization,
+} from '../../../types/authorization.js'
 import type { ByteArray, Hex, Signature } from '../../../types/misc.js'
 import type { OneOf, PartialBy } from '../../../types/utils.js'
 import {
@@ -22,14 +25,13 @@ export type RecoverAuthorizationAddressParameters = {
    * - If a signed `authorization` is provided, the `signature` property does not need to be provided.
    */
   authorization: OneOf<
-    | PartialBy<Authorization<number, false>, 'chainId' | 'nonce'>
-    | Authorization<number, true>
+    PartialBy<Authorization, 'chainId' | 'nonce'> | SignedAuthorization
   >
   /** Signature of the Authorization. Not required if the `authorization` is signed. */
   signature?:
     | Hex
     | ByteArray
-    | OneOf<Signature | Authorization<number, true>>
+    | OneOf<Signature | SignedAuthorization>
     | undefined
 }
 

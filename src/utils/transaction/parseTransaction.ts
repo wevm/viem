@@ -10,8 +10,8 @@ import {
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
-  AuthorizationList,
   SerializedAuthorizationList,
+  SignedAuthorizationList,
 } from '../../types/authorization.js'
 import type { Hex, Signature } from '../../types/misc.js'
 import type {
@@ -573,8 +573,8 @@ type ParseAuthorizationListErrorType =
 
 export function parseAuthorizationList(
   serializedAuthorizationList: SerializedAuthorizationList,
-): AuthorizationList<number, true> {
-  const authorizationList: Mutable<AuthorizationList<number, true>> = []
+): SignedAuthorizationList {
+  const authorizationList: Mutable<SignedAuthorizationList> = []
   for (let i = 0; i < serializedAuthorizationList.length; i++) {
     const [chainId, address, nonce, yParity, r, s] =
       serializedAuthorizationList[i]

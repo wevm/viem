@@ -3,7 +3,10 @@ import {
   type HashAuthorizationErrorType,
   hashAuthorization,
 } from '../../experimental/eip7702/utils/hashAuthorization.js'
-import type { Authorization } from '../../types/authorization.js'
+import type {
+  Authorization,
+  SignedAuthorization,
+} from '../../types/authorization.js'
 import type { Hex, Signature } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import {
@@ -17,14 +20,14 @@ type To = 'object' | 'bytes' | 'hex'
 
 export type SignAuthorizationParameters<to extends To = 'object'> = {
   /** The authorization to sign. */
-  authorization: Authorization<number, false>
+  authorization: Authorization
   /** The private key to sign with. */
   privateKey: Hex
   to?: SignParameters<to>['to'] | undefined
 }
 
 export type SignAuthorizationReturnType<to extends To = 'object'> = Prettify<
-  to extends 'object' ? Authorization<number, true> : SignReturnType<to>
+  to extends 'object' ? SignedAuthorization : SignReturnType<to>
 >
 
 export type SignAuthorizationErrorType =
