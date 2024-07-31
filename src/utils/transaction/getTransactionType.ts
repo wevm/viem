@@ -24,67 +24,11 @@ import type {
 } from '../../types/transaction.js'
 import type {
   Assign,
-  Exact,
   ExactPartial,
   IsNever,
   OneOf,
+  ValueOf,
 } from '../../types/utils.js'
-
-type BaseProperties = {
-  accessList?: undefined
-  authorizationList?: undefined
-  blobs?: undefined
-  blobVersionedHashes?: undefined
-  gasPrice?: undefined
-  maxFeePerBlobGas?: undefined
-  maxFeePerGas?: undefined
-  maxPriorityFeePerGas?: undefined
-  sidecars?: undefined
-}
-
-type LegacyProperties = Assign<BaseProperties, FeeValuesLegacy>
-type EIP1559Properties = Assign<
-  BaseProperties,
-  OneOf<
-    | {
-        maxFeePerGas: FeeValuesEIP1559['maxFeePerGas']
-      }
-    | {
-        maxPriorityFeePerGas: FeeValuesEIP1559['maxPriorityFeePerGas']
-      },
-    FeeValuesEIP1559
-  > & {
-    accessList?: TransactionSerializableEIP2930['accessList'] | undefined
-  }
->
-type EIP2930Properties = Assign<
-  BaseProperties,
-  ExactPartial<FeeValuesLegacy> & {
-    accessList: TransactionSerializableEIP2930['accessList']
-  }
->
-export type EIP4844Properties = Assign<
-  BaseProperties,
-  ExactPartial<FeeValuesEIP4844> &
-    OneOf<
-      | {
-          blobs: TransactionSerializableEIP4844['blobs']
-        }
-      | {
-          blobVersionedHashes: TransactionSerializableEIP4844['blobVersionedHashes']
-        }
-      | {
-          sidecars: TransactionSerializableEIP4844['sidecars']
-        },
-      TransactionSerializableEIP4844
-    >
->
-type EIP7702Properties = Assign<
-  BaseProperties,
-  ExactPartial<FeeValuesEIP1559> & {
-    authorizationList: TransactionSerializableEIP7702['authorizationList']
-  }
->
 
 export type GetTransactionType<
   transaction extends OneOf<
@@ -92,32 +36,32 @@ export type GetTransactionType<
   > = TransactionSerializableGeneric,
   result =
     | (transaction extends
-        | Exact<TransactionSerializableLegacy, transaction>
-        | Exact<TransactionRequestLegacy, transaction>
+        | MatchKeys<TransactionSerializableLegacy, transaction>
+        | MatchKeys<TransactionRequestLegacy, transaction>
         | LegacyProperties
         ? 'legacy'
         : never)
     | (transaction extends
-        | Exact<TransactionSerializableEIP1559, transaction>
-        | Exact<TransactionRequestEIP1559, transaction>
+        | MatchKeys<TransactionSerializableEIP1559, transaction>
+        | MatchKeys<TransactionRequestEIP1559, transaction>
         | EIP1559Properties
         ? 'eip1559'
         : never)
     | (transaction extends
-        | Exact<TransactionSerializableEIP2930, transaction>
-        | Exact<TransactionRequestEIP2930, transaction>
+        | MatchKeys<TransactionSerializableEIP2930, transaction>
+        | MatchKeys<TransactionRequestEIP2930, transaction>
         | EIP2930Properties
         ? 'eip2930'
         : never)
     | (transaction extends
-        | Exact<TransactionSerializableEIP4844, transaction>
-        | Exact<TransactionRequestEIP4844, transaction>
+        | MatchKeys<TransactionSerializableEIP4844, transaction>
+        | MatchKeys<TransactionRequestEIP4844, transaction>
         | EIP4844Properties
         ? 'eip4844'
         : never)
     | (transaction extends
-        | Exact<TransactionSerializableEIP7702, transaction>
-        | Exact<TransactionRequestEIP7702, transaction>
+        | MatchKeys<TransactionSerializableEIP7702, transaction>
+        | MatchKeys<TransactionRequestEIP7702, transaction>
         | EIP7702Properties
         ? 'eip7702'
         : never)
@@ -167,3 +111,70 @@ export function getTransactionType<
 
   throw new InvalidSerializableTransactionError({ transaction })
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Types
+
+type MatchKeys<T extends object, U extends object> = ValueOf<
+  Required<{
+    [K in keyof U]: K extends keyof T ? K : undefined
+  }>
+> extends string
+  ? T
+  : never
+
+type BaseProperties = {
+  accessList?: undefined
+  authorizationList?: undefined
+  blobs?: undefined
+  blobVersionedHashes?: undefined
+  gasPrice?: undefined
+  maxFeePerBlobGas?: undefined
+  maxFeePerGas?: undefined
+  maxPriorityFeePerGas?: undefined
+  sidecars?: undefined
+}
+
+type LegacyProperties = Assign<BaseProperties, FeeValuesLegacy>
+type EIP1559Properties = Assign<
+  BaseProperties,
+  OneOf<
+    | {
+        maxFeePerGas: FeeValuesEIP1559['maxFeePerGas']
+      }
+    | {
+        maxPriorityFeePerGas: FeeValuesEIP1559['maxPriorityFeePerGas']
+      },
+    FeeValuesEIP1559
+  > & {
+    accessList?: TransactionSerializableEIP2930['accessList'] | undefined
+  }
+>
+type EIP2930Properties = Assign<
+  BaseProperties,
+  ExactPartial<FeeValuesLegacy> & {
+    accessList: TransactionSerializableEIP2930['accessList']
+  }
+>
+type EIP4844Properties = Assign<
+  BaseProperties,
+  ExactPartial<FeeValuesEIP4844> &
+    OneOf<
+      | {
+          blobs: TransactionSerializableEIP4844['blobs']
+        }
+      | {
+          blobVersionedHashes: TransactionSerializableEIP4844['blobVersionedHashes']
+        }
+      | {
+          sidecars: TransactionSerializableEIP4844['sidecars']
+        },
+      TransactionSerializableEIP4844
+    >
+>
+type EIP7702Properties = Assign<
+  BaseProperties,
+  ExactPartial<FeeValuesEIP1559> & {
+    authorizationList: TransactionSerializableEIP7702['authorizationList']
+  }
+>

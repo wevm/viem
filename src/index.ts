@@ -966,7 +966,6 @@ export type {
   TransactionRequestGeneric,
 } from './types/transaction.js'
 export type {
-  Exact,
   ExactPartial,
   ExactRequired,
   IsNever,

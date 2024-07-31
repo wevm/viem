@@ -62,15 +62,6 @@ export type Mutable<type extends object> = {
   -readonly [key in keyof type]: type[key]
 }
 
-// TODO(7702): jsdoc
-export type Exact<T extends object, U extends object> = ValueOf<
-  Required<{
-    [K in keyof U]: K extends keyof T ? K : undefined
-  }>
-> extends string
-  ? T
-  : never
-
 /**
  * @description Evaluates boolean "or" condition for {@link T} properties.
  * @param T - Type to check
