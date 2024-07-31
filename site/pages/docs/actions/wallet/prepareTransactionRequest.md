@@ -180,7 +180,37 @@ const request = await walletClient.prepareTransactionRequest({
 
 Signed EIP-7702 Authorization list.
 
-<!-- TODO(7702): example -->
+```ts twoslash
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+import { eip7702Actions } from 'viem/experimental'
+
+const account = privateKeyToAccount('0x...')
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: http(),
+}).extend(eip7702Actions())
+// ---cut---
+const authorization = await walletClient.signAuthorization({ 
+  account,
+  contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', 
+}) 
+
+const request = await walletClient.prepareTransactionRequest({
+  account,
+  authorizationList: [authorization], // [!code focus]
+  data: '0xdeadbeef',
+  to: account.address,
+})
+```
+
+:::note
+**References**
+- [EIP-7702 Overview](/experimental/eip7702)
+- [`signAuthorization` Docs](/experimental/eip7702/signAuthorization)
+:::
 
 ### blobs (optional)
 

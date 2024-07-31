@@ -1254,6 +1254,19 @@ export const sidebar = {
         text: 'EIP-7702',
         items: [
           {
+            text: 'Guides',
+            items: [
+              {
+                text: 'Extending Client with EIP-7702',
+                link: '/experimental/eip7702/client',
+              },
+              {
+                text: 'Sending EIP-7702 Transactions',
+                link: '/experimental/eip7702/sending-eip7702-transactions',
+              },
+            ],
+          },
+          {
             text: 'Actions',
             items: [
               {

@@ -446,7 +446,25 @@ const { result } = await publicClient.simulateContract({
 
 Signed EIP-7702 Authorization list.
 
-<!-- TODO(7702): example -->
+```ts
+const authorization = await walletClient.signAuthorization({ 
+  contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', 
+}) 
+
+const { result } = await publicClient.simulateContract({
+  address: account.address,
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
+  authorizationList: [authorization], // [!code focus]
+})
+```
+
+:::note
+**References**
+- [EIP-7702 Overview](/experimental/eip7702)
+- [`signAuthorization` Docs](/experimental/eip7702/signAuthorization)
+:::
 
 ### args (optional)
 
