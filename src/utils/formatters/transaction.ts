@@ -1,4 +1,6 @@
 import type { ErrorType } from '../../errors/utils.js'
+import type { SignedAuthorizationList } from '../../experimental/eip7702/types/authorization.js'
+import type { RpcAuthorizationList } from '../../experimental/eip7702/types/rpc.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -45,7 +47,6 @@ export const transactionType = {
 export type FormatTransactionErrorType = ErrorType
 
 export function formatTransaction(transaction: ExactPartial<RpcTransaction>) {
-  // TODO(7702): add `authorizationList`.
   const transaction_ = {
     ...transaction,
     blockHash: transaction.blockHash ? transaction.blockHash : null,
@@ -76,6 +77,11 @@ export function formatTransaction(transaction: ExactPartial<RpcTransaction>) {
     value: transaction.value ? BigInt(transaction.value) : undefined,
     v: transaction.v ? BigInt(transaction.v) : undefined,
   } as Transaction
+
+  if (transaction.authorizationList)
+    transaction_.authorizationList = formatAuthorizationList(
+      transaction.authorizationList,
+    )
 
   transaction_.yParity = (() => {
     // If `yParity` is provided, we will use it.
@@ -115,3 +121,27 @@ export const defineTransaction = /*#__PURE__*/ defineFormatter(
   'transaction',
   formatTransaction,
 )
+
+//////////////////////////////////////////////////////////////////////////////
+
+function formatAuthorizationList(
+  authorizationList: RpcAuthorizationList,
+): SignedAuthorizationList {
+  return authorizationList.map(
+    (authorization) =>
+      ({
+        contractAddress: (authorization as any).address,
+        r: authorization.r,
+        s: authorization.s,
+        chainId: Number(authorization.chainId),
+        nonce: Number(authorization.nonce),
+        ...(typeof authorization.yParity !== 'undefined'
+          ? { yParity: Number(authorization.yParity) }
+          : {}),
+        ...(typeof authorization.v !== 'undefined' &&
+        typeof authorization.yParity === 'undefined'
+          ? { v: Number(authorization.v) }
+          : {}),
+      }) as any,
+  ) as SignedAuthorizationList
+}

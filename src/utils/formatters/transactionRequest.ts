@@ -1,10 +1,11 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { AuthorizationList } from '../../experimental/eip7702/types/authorization.js'
+import type { RpcAuthorizationList } from '../../experimental/eip7702/types/rpc.js'
 import type {
   Chain,
   ExtractChainFormatterParameters,
 } from '../../types/chain.js'
-import type { ByteArray, Hex } from '../../types/misc.js'
+import type { ByteArray } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial } from '../../types/utils.js'
@@ -85,7 +86,7 @@ export const defineTransactionRequest = /*#__PURE__*/ defineFormatter(
 
 function formatAuthorizationList(
   authorizationList: AuthorizationList<number, boolean>,
-): AuthorizationList<Hex, boolean> {
+): RpcAuthorizationList {
   return authorizationList.map(
     (authorization) =>
       ({
@@ -102,5 +103,5 @@ function formatAuthorizationList(
           ? { v: numberToHex(authorization.v) }
           : {}),
       }) as any,
-  ) as AuthorizationList<Hex, boolean>
+  ) as RpcAuthorizationList
 }

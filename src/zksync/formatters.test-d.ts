@@ -131,7 +131,13 @@ describe('smoke', () => {
     })
 
     expectTypeOf(transaction.type).toEqualTypeOf<
-      'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip712' | 'priority'
+      | 'legacy'
+      | 'eip2930'
+      | 'eip1559'
+      | 'eip4844'
+      | 'eip7702'
+      | 'eip712'
+      | 'priority'
     >()
   })
 

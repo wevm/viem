@@ -58,6 +58,10 @@ export {
   type SerializedAuthorizationList,
 } from './eip7702/types/authorization.js'
 export {
+  type RpcAuthorizationList,
+  type RpcAuthorization,
+} from './eip7702/types/rpc.js'
+export {
   type HashAuthorizationParameters,
   type HashAuthorizationReturnType,
   type HashAuthorizationErrorType,

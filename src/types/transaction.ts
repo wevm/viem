@@ -32,6 +32,7 @@ export type TransactionType =
   | 'eip1559'
   | 'eip2930'
   | 'eip4844'
+  | 'eip7702'
   | (string & {})
 
 export type TransactionReceipt<
@@ -121,6 +122,7 @@ export type TransactionLegacy<
 > = Omit<TransactionBase<quantity, index, isPending>, 'yParity'> & {
   /** EIP-2930 Access List. */
   accessList?: undefined
+  authorizationList?: undefined
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId?: index | undefined
@@ -136,6 +138,7 @@ export type TransactionEIP2930<
 > = TransactionBase<quantity, index, isPending> & {
   /** EIP-2930 Access List. */
   accessList: AccessList
+  authorizationList?: undefined
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId: index
@@ -150,6 +153,7 @@ export type TransactionEIP1559<
 > = TransactionBase<quantity, index, isPending> & {
   /** EIP-2930 Access List. */
   accessList: AccessList
+  authorizationList?: undefined
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId: index
@@ -164,12 +168,29 @@ export type TransactionEIP4844<
 > = TransactionBase<quantity, index, isPending> & {
   /** EIP-2930 Access List. */
   accessList: AccessList
+  authorizationList?: undefined
   /** List of versioned blob hashes associated with the transaction's blobs. */
   blobVersionedHashes: readonly Hex[]
   /** Chain ID that this transaction is valid on. */
   chainId: index
   type: type
 } & FeeValuesEIP4844<quantity>
+
+export type TransactionEIP7702<
+  quantity = bigint,
+  index = number,
+  isPending extends boolean = boolean,
+  type = 'eip7702',
+> = TransactionBase<quantity, index, isPending> & {
+  /** EIP-2930 Access List. */
+  accessList: AccessList
+  /** Authorization list for the transaction. */
+  authorizationList: SignedAuthorizationList
+  blobVersionedHashes?: undefined
+  /** Chain ID that this transaction is valid on. */
+  chainId: index
+  type: type
+} & FeeValuesEIP1559<quantity>
 
 export type Transaction<
   quantity = bigint,
@@ -180,6 +201,7 @@ export type Transaction<
   | TransactionEIP2930<quantity, index, isPending>
   | TransactionEIP1559<quantity, index, isPending>
   | TransactionEIP4844<quantity, index, isPending>
+  | TransactionEIP7702<quantity, index, isPending>
 >
 
 ////////////////////////////////////////////////////////////////////////////////////////////

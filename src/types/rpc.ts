@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import type { RpcAuthorizationList } from '../experimental/eip7702/types/rpc.js'
 import type {
   Block,
   BlockIdentifier,
@@ -15,6 +16,7 @@ import type {
   TransactionEIP1559,
   TransactionEIP2930,
   TransactionEIP4844,
+  TransactionEIP7702,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequestEIP1559,
@@ -59,7 +61,10 @@ export type RpcTransactionRequest = OneOf<
   | TransactionRequestEIP2930<Quantity, Index, '0x1'>
   | TransactionRequestEIP1559<Quantity, Index, '0x2'>
   | TransactionRequestEIP4844<Quantity, Index, '0x3'>
-  | TransactionRequestEIP7702<Quantity, Index, '0x4'>
+  | (Omit<
+      TransactionRequestEIP7702<Quantity, Index, '0x4'>,
+      'authorizationList'
+    > & { authorizationList?: RpcAuthorizationList | undefined })
 >
 // `yParity` is optional on the RPC type as some nodes do not return it
 // for 1559 & 2930 transactions (they should!).
@@ -75,6 +80,13 @@ export type RpcTransaction<pending extends boolean = boolean> = OneOf<
     >
   | PartialBy<
       Omit<TransactionEIP4844<Quantity, Index, pending, '0x3'>, 'typeHex'>,
+      'yParity'
+    >
+  | PartialBy<
+      Omit<
+        TransactionEIP7702<Quantity, Index, pending, '0x4'>,
+        'authorizationList' | 'typeHex'
+      > & { authorizationList?: RpcAuthorizationList | undefined },
       'yParity'
     >
 >

@@ -23,7 +23,6 @@ import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
   decodeEventLog,
   encodeFunctionData,
-  keccak256,
   nonceManager,
 } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
