@@ -1567,4 +1567,34 @@ describe('subscribe', () => {
       unwatch()
     })
   })
+
+  test(
+    'https://github.com/wevm/viem/issues/2563',
+    async () => {
+      let error: Error | undefined
+      const unwatch = watchContractEvent(webSocketClient, {
+        ...usdcContractConfig,
+        onError: (error_) => {
+          error = error_
+        },
+        onLogs: () => {},
+      })
+
+      await wait(100)
+      const { socket } = await webSocketClient.transport.getRpcClient()
+      socket.close()
+      await wait(100)
+
+      expect(error).toMatchInlineSnapshot(`
+        [SocketClosedError: The socket has been closed.
+
+        URL: http://localhost
+
+        Version: viem@x.y.z]
+      `)
+
+      unwatch()
+    },
+    { timeout: 10_000 },
+  )
 })

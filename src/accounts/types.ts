@@ -26,8 +26,8 @@ export type CustomSource = {
   address: Address
   nonceManager?: NonceManager | undefined
   // TODO(v3): Make `sign` required.
-  sign?: (({ hash }: { hash: Hash }) => Promise<Hash>) | undefined
-  signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
+  sign?: (({ hash }: { hash: Hash }) => Promise<Hex>) | undefined
+  signMessage: ({ message }: { message: SignableMessage }) => Promise<Hex>
   signTransaction: <
     serializer extends
       SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
@@ -42,17 +42,17 @@ export type CustomSource = {
   ) => Promise<
     IsNarrowable<
       TransactionSerialized<GetTransactionType<transaction>>,
-      Hash
+      Hex
     > extends true
       ? TransactionSerialized<GetTransactionType<transaction>>
-      : Hash
+      : Hex
   >
   signTypedData: <
     const typedData extends TypedData | Record<string, unknown>,
     primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   >(
     typedDataDefinition: TypedDataDefinition<typedData, primaryType>,
-  ) => Promise<Hash>
+  ) => Promise<Hex>
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
