@@ -5,9 +5,14 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports.biome": "explicit"
-  },
+  "javascript.preferences.autoImportFileExcludePatterns": [
+    "**/node_modules/**",
+    "**/_types/**"
+  ],
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "**/node_modules/**",
+    "**/_types/**"
+  ],
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },

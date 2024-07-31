@@ -40,6 +40,7 @@ export { blast } from './definitions/blast.js'
 export { blastSepolia } from './definitions/blastSepolia.js'
 export { bob } from './definitions/bob.js'
 export { boba } from './definitions/boba.js'
+export { bobaSepolia } from './definitions/bobaSepolia.js'
 export { bronos } from './definitions/bronos.js'
 export { bronosTestnet } from './definitions/bronosTestnet.js'
 export { bsc } from './definitions/bsc.js'
@@ -59,6 +60,7 @@ export { confluxESpaceTestnet } from './definitions/confluxESpaceTestnet.js'
 export { coreDao } from './definitions/coreDao.js'
 export { crab } from './definitions/crab.js'
 export { cronos } from './definitions/cronos.js'
+export { cronoszkEVMTestnet } from './definitions/cronoszkEVMTestnet.js'
 export { cronosTestnet } from './definitions/cronosTestnet.js'
 export { crossbell } from './definitions/crossbell.js'
 export { cyber } from './definitions/cyber.js'
@@ -99,10 +101,12 @@ export { flareTestnet } from './definitions/flareTestnet.js'
 export { flowPreviewnet } from './definitions/flowPreviewnet.js'
 export { flowMainnet } from './definitions/flowMainnet.js'
 export { flowTestnet } from './definitions/flowTestnet.js'
+export { forma } from './definitions/forma.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
 export { fraxtal } from './definitions/fraxtal.js'
 export { fraxtalTestnet } from './definitions/fraxtalTestnet.js'
+export { funkiMainnet } from './definitions/funkiMainnet.js'
 export { funkiSepolia } from './definitions/funkiSepolia.js'
 export { fuse } from './definitions/fuse.js'
 export { fuseSparknet } from './definitions/fuseSparknet.js'
@@ -115,6 +119,7 @@ export { gobi } from './definitions/gobi.js'
 export { goerli } from './definitions/goerli.js'
 export { gnosis } from './definitions/gnosis.js'
 export { gnosisChiado } from './definitions/gnosisChiado.js'
+export { gravity } from './definitions/gravity.js'
 export { ham } from './definitions/ham.js'
 export { hardhat } from './definitions/hardhat.js'
 export { harmonyOne } from './definitions/harmonyOne.js'
@@ -220,6 +225,8 @@ export { reyaNetwork } from './definitions/reyaNetwork.js'
 export { rollux } from './definitions/rollux.js'
 export { rolluxTestnet } from './definitions/rolluxTestnet.js'
 export { ronin } from './definitions/ronin.js'
+export { root } from './definitions/root.js'
+export { rootPorcini } from './definitions/rootPorcini.js'
 export { rootstock } from './definitions/rootstock.js'
 export { rootstockTestnet } from './definitions/rootstockTestnet.js'
 export { rss3 } from './definitions/rss3.js'
@@ -251,6 +258,7 @@ export { skaleNebulaTestnet } from './definitions/skale/nebulaTestnet.js'
 export { skaleRazor } from './definitions/skale/razor.js'
 export { skaleTitan } from './definitions/skale/titan.js'
 export { skaleTitanTestnet } from './definitions/skale/titanTestnet.js'
+export { sketchpad } from './definitions/sketchpad.js'
 export { songbird } from './definitions/songbird.js'
 export { songbirdTestnet } from './definitions/songbirdTestnet.js'
 export { spicy } from './definitions/spicy.js'
@@ -322,6 +330,13 @@ export type {
   UnionLooseOmit,
 } from '../types/utils.js'
 export type {
+  SerializeTransactionCIP64ReturnType,
+  assertTransactionCIP42 as assertTransactionCIP42Celo,
+  assertTransactionCIP64 as assertTransactionCIP64Celo,
+  serializeTransaction as serializeTransactionCelo,
+  serializers as serializersCelo,
+} from '../celo/serializers.js'
+export type {
   CeloBlock,
   CeloRpcBlock,
   CeloRpcTransaction,
@@ -386,6 +401,7 @@ export type {
 } from '../zksync/types/log.js'
 export type {
   TransactionRequestEIP712,
+  TransactionRequest as ZkSyncTransactionRequest_internal,
   ZkSyncEIP712TransactionSignable,
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionEIP712,
@@ -404,4 +420,7 @@ export type {
   ZkSyncTransactionSerialized,
   ZkSyncTransactionSerializedEIP712,
   ZkSyncTransactionType,
+  ZkSyncRawBlockTransactions,
+  ZkSyncRpcTransactionReceipt,
+  ZkSyncTransactionDetails,
 } from '../zksync/types/transaction.js'

@@ -108,7 +108,7 @@ export const wagmiContract = {
       type: 'function',
     },
     {
-      inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+      inputs: [{ name: 'tokenId', type: 'uint256' }],
       name: 'mint',
       outputs: [],
       stateMutability: 'nonpayable',

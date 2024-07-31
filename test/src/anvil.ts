@@ -119,6 +119,7 @@ type DefineAnvilReturnType<chain extends Chain> = {
     undefined,
     { mode: 'anvil' }
   >
+  port: number
   rpcUrl: {
     http: string
     ipc: string
@@ -238,6 +239,7 @@ function defineAnvil<const chain extends Chain>(
       ).extend(() => ({ mode: 'anvil' })) as never
     },
     rpcUrl,
+    port,
     async restart() {
       await fetch(`${rpcUrl.http}/restart`)
     },

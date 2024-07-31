@@ -476,7 +476,7 @@ const signature = await walletClient.signTypedData({
     contents: 'Hello, Bob!',
   },
   verifierDomain: { // [!code focus]
-    name: 'Mock4337Account', // [!code focus]
+    name: 'SoladyAccount', // [!code focus]
     version: '1', // [!code focus]
     chainId: 1, // [!code focus]
     verifyingContract: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2' // [!code focus]

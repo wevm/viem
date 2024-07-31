@@ -155,7 +155,7 @@ export async function signTransaction<
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
 
-  if (account.type === 'local') {
+  if (account.signTransaction)
     return account.signTransaction(
       {
         ...transaction,
@@ -163,7 +163,6 @@ export async function signTransaction<
       } as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>
-  }
 
   return await client.request(
     {

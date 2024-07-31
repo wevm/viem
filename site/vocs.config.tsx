@@ -10,7 +10,10 @@ export default defineConfig({
   //   content:
   //     'Viem is participating in the Gitcoin Grants 20 round. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/27/20). Thank you. 🙏',
   // },
-  baseUrl: 'https://viem.sh',
+  baseUrl:
+    process.env.VERCEL_ENV === 'production'
+      ? 'https://viem.sh'
+      : process.env.VERCEL_URL,
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:
@@ -93,11 +96,19 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
           },
+        ],
+        [
           {
             name: 'Brave',
             link: 'https://brave.com',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/brave-light.svg',
+          },
+          {
+            name: 'Linea',
+            link: 'https://linea.build',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-light.svg',
           },
         ],
       ],
@@ -224,6 +235,10 @@ export default defineConfig({
     {
       text: 'Extensions',
       items: [
+        {
+          text: 'Account Abstraction',
+          link: '/account-abstraction',
+        },
         {
           text: 'OP Stack',
           link: '/op-stack',

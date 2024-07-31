@@ -1,5 +1,87 @@
 # viem
 
+## 2.18.6
+
+### Patch Changes
+
+- [`889371e`](https://github.com/wevm/viem/commit/889371e3d62b8c6044c463f933bc49c4f00e742b) Thanks [@jxom](https://github.com/jxom)! - Hooked `onError` up to WebSocket `subscribe`.
+
+- [#2552](https://github.com/wevm/viem/pull/2552) [`84e7d30`](https://github.com/wevm/viem/commit/84e7d30dec0a45503dd6a6b30893e369c75ab92a) Thanks [@wilsoncusack](https://github.com/wilsoncusack)! - Fixed ERC6492 verification for case where prepare data may need to be called.
+
+## 2.18.5
+
+### Patch Changes
+
+- [`5babc8d2`](https://github.com/wevm/viem/commit/5babc8d2bc408467912db7fc8de10123944b7d47) Thanks [@jxom](https://github.com/jxom)! - Added more robust WebSocket socket closure handling.
+
+- [#2555](https://github.com/wevm/viem/pull/2555) [`9be9b2cc`](https://github.com/wevm/viem/commit/9be9b2cc99e5aa26e67dbfaaf11f0dd6aa8c49f3) Thanks [@mycodecrafting](https://github.com/mycodecrafting)! - Added Forma mainnet and Sketchpad testnet chains.
+
+## 2.18.4
+
+### Patch Changes
+
+- [`5a528d9b`](https://github.com/wevm/viem/commit/5a528d9b24cbdd495371ce69a290ad9358e4c358) Thanks [@jxom](https://github.com/jxom)! - Propagated `message` + `cause` to root `Error` instance.
+
+## 2.18.3
+
+### Patch Changes
+
+- [#2545](https://github.com/wevm/viem/pull/2545) [`6811b47`](https://github.com/wevm/viem/commit/6811b472ae9e84940e8570240ebe000b16bf3284) Thanks [@ezynda3](https://github.com/ezynda3)! - Added Gravity Alpha Mainnet chain.
+
+## 2.18.2
+
+### Patch Changes
+
+- [#2516](https://github.com/wevm/viem/pull/2516) [`44281e8`](https://github.com/wevm/viem/commit/44281e85e28f893df6e722ebadfe74b2a9bf93e2) Thanks [@izayl](https://github.com/izayl)! - Added `keepAlive` property to `webSocket` transport to send keep-alive ping messages (defaults to `true`).
+
+## 2.18.1
+
+### Patch Changes
+
+- [#2530](https://github.com/wevm/viem/pull/2530) [`d6cc8f6b`](https://github.com/wevm/viem/commit/d6cc8f6bad61ca7f3bf04605de826530d23f1602) Thanks [@Si-Ki](https://github.com/Si-Ki)! - Added cronoszkEVMTestnet chain.
+
+- [#2533](https://github.com/wevm/viem/pull/2533) [`a5d4ec4b`](https://github.com/wevm/viem/commit/a5d4ec4bdc73fc12a3078dc66eac884b41573a7a) Thanks [@jxom](https://github.com/jxom)! - Fixed support for filtering contract logs via its events on `abi` + `args`.
+
+- [`62ff31dd`](https://github.com/wevm/viem/commit/62ff31dde0caaa96702187f42049cf8ea67e7cdd) Thanks [@tmm](https://github.com/tmm)! - Fixed missing import.
+
+- [#2533](https://github.com/wevm/viem/pull/2533) [`a5d4ec4b`](https://github.com/wevm/viem/commit/a5d4ec4bdc73fc12a3078dc66eac884b41573a7a) Thanks [@jxom](https://github.com/jxom)! - Added `args` as a property to `parseEventLogs` to filter event logs by its arguments.
+
+## 2.18.0
+
+### Minor Changes
+
+- [#2510](https://github.com/wevm/viem/pull/2510) [`070c0d1b`](https://github.com/wevm/viem/commit/070c0d1bd85ff3e77fdaf6b7f4ce4aee8d19c71a) Thanks [@jxom](https://github.com/jxom)! - Added an **ERC-4337 Account Abstraction** extension. [See Docs](https://viem.sh/account-abstraction).
+
+## 2.17.11
+
+### Patch Changes
+
+- [`37d837cc`](https://github.com/wevm/viem/commit/37d837cc0bfccbeac7d8be5ffe25cb71c57ac764) Thanks [@tmm](https://github.com/tmm)! - Fixed internal type errors.
+
+- [#2526](https://github.com/wevm/viem/pull/2526) [`e426cae2`](https://github.com/wevm/viem/commit/e426cae239a6bf8bb73ad4cd6861d23edbe07240) Thanks [@Si-Ki](https://github.com/Si-Ki)! - Added `bobaSepolia` chain.
+
+## 2.17.10
+
+### Patch Changes
+
+- [#2513](https://github.com/wevm/viem/pull/2513) [`3af06fe`](https://github.com/wevm/viem/commit/3af06fe23dda1f44d43b3d3cec5d985894c2840a) Thanks [@hoangtan282](https://github.com/hoangtan282)! - Added Funki Mainnet.
+
+- [#2519](https://github.com/wevm/viem/pull/2519) [`01cdac1`](https://github.com/wevm/viem/commit/01cdac14d508fbae50a31492e244b7adbe858bab) Thanks [@cbfyi](https://github.com/cbfyi)! - Added dispute game factory address for Base Sepolia.
+
+- [#2515](https://github.com/wevm/viem/pull/2515) [`b7e4fa5`](https://github.com/wevm/viem/commit/b7e4fa518b1798741cf029f34ed3154695ab3a16) Thanks [@JoeyKhd](https://github.com/JoeyKhd)! - Added Root Network chain.
+
+## 2.17.9
+
+### Patch Changes
+
+- [`b71e656e`](https://github.com/wevm/viem/commit/b71e656e08dadc44e2c1eccb5f505f70ce4d3aaf) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
+## 2.17.8
+
+### Patch Changes
+
+- [`690cb9a7`](https://github.com/wevm/viem/commit/690cb9a78a801edf7ea3ab1d8cf1a0cd794fc32a) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
 ## 2.17.7
 
 ### Patch Changes
@@ -2443,7 +2525,7 @@
 
 - [#576](https://github.com/wevm/viem/pull/576) [`7d42767`](https://github.com/wevm/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `ethersWalletToAccount` adapter.
 
-  This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/privateKey) & [HD Accounts](https://viem.sh/docs/accounts/mnemonic).
+  This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/local/privateKeyToAccount) & [HD Accounts](https://viem.sh/docs/accounts/local/mnemonicToAccount).
 
   If you still need it, you can copy + paste the [old implementation](https://github.com/wevm/viem/blob/a9a71507032db896295fa1f3fa2dd6c2bdc85137/src/adapters/ethers.ts).
 
@@ -2941,7 +3023,7 @@
 
   If you were using the Ethers Wallet adapter, you can use the `ethersWalletToAccount` function.
 
-  > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey) & [Mnemonic Account](/docs/accounts/mnemonic) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
+  > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/local/privateKeyToAccount) & [Mnemonic Account](/docs/accounts/local/mnemonicToAccount) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
 
   ```diff
   import { createWalletClient, custom } from 'viem'

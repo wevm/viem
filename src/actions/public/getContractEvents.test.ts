@@ -108,6 +108,49 @@ test('args: abi', async () => {
   expect(logs.length).toBe(3)
 })
 
+test('args: args', async () => {
+  await writeContract(client, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
+    account: address.usdcHolder,
+  })
+  await writeContract(client, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[1].address, 1n],
+    account: address.usdcHolder,
+  })
+  await writeContract(client, {
+    ...daiContractConfig,
+    functionName: 'transfer',
+    args: [accounts[1].address, 1n],
+    account: address.daiHolder,
+  })
+  await writeContract(client, {
+    ...usdcContractConfig,
+    functionName: 'approve',
+    args: [accounts[1].address, 1n],
+    account: address.usdcHolder,
+  })
+  await mine(client, { blocks: 1 })
+
+  const logs = await getContractEvents(client, {
+    abi: erc20Abi,
+    args: {
+      from: address.daiHolder,
+      to: accounts[1].address,
+    },
+  })
+  expect(logs.length).toBe(1)
+  expect(logs[0].eventName).toEqual('Transfer')
+  expect(logs[0].args).toEqual({
+    from: getAddress(address.daiHolder),
+    to: getAddress(accounts[1].address),
+    value: 1n,
+  })
+})
+
 test('args: eventName', async () => {
   await writeContract(client, {
     ...usdcContractConfig,

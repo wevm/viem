@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import {
-  Mock4337Account,
-  Mock4337AccountFactory,
   OffchainLookupExample,
+  SoladyAccount07,
+  SoladyAccountFactory07,
 } from '~contracts/generated.js'
 import {
   baycContractConfig,
@@ -14,8 +14,8 @@ import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
-  deployMock4337Account,
   deployOffchainLookupExample,
+  deploySoladyAccount_07,
   mainnetClient,
 } from '~test/src/utils.js'
 
@@ -113,16 +113,9 @@ describe('ccip', () => {
         data: calldata,
         to: contractAddress!,
       }),
-    ).rejects.toMatchInlineSnapshot(`
-      [CallExecutionError: Execution reverted with reason: custom error 556f1830:000000000000000000000000fb6dab62…00000000000000000000000000000000 (576 bytes).
-
-      Raw Call Arguments:
-        to:    0xfb6dab6200b8958c2655c3747708f82243d3f32e
-        data:  0xbf40fac1000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000096a786f6d2e7669656d0000000000000000000000000000000000000000000000
-
-      Details: execution reverted: custom error 556f1830:000000000000000000000000fb6dab62…00000000000000000000000000000000 (576 bytes)
-      Version: viem@x.y.z]
-    `)
+    ).rejects.toThrowError(
+      'Execution reverted with reason: custom error 556f1830',
+    )
 
     await server.close()
   })
@@ -1039,21 +1032,21 @@ describe('batch call', () => {
 
 describe('deployless call (factory)', () => {
   test('default', async () => {
-    const { factoryAddress } = await deployMock4337Account()
+    const { factoryAddress } = await deploySoladyAccount_07()
 
     const address = await readContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factoryAddress,
       functionName: 'getAddress',
       args: [pad('0x0')],
     })
     const data = encodeFunctionData({
-      abi: Mock4337Account.abi,
+      abi: SoladyAccount07.abi,
       functionName: 'eip712Domain',
     })
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
     })
@@ -1064,24 +1057,35 @@ describe('deployless call (factory)', () => {
       factoryData,
       to: address,
     })
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "data": "0x0f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000b8e1b1e362872b237526e74b227077b0aee8e22300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000000f4d6f636b343333374163636f756e740000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000131000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      }
-    `)
 
-    const decoded = decodeFunctionResult({
-      abi: Mock4337Account.abi,
+    const [
+      fields,
+      name,
+      version,
+      chainId,
+      verifyingContract,
+      salt,
+      extensions,
+    ] = decodeFunctionResult({
+      abi: SoladyAccount07.abi,
       data: result.data!,
       functionName: 'eip712Domain',
     })
-    expect(decoded).toMatchInlineSnapshot(`
+
+    expect(verifyingContract).toBeDefined()
+    expect([
+      fields,
+      name,
+      version,
+      chainId,
+      salt,
+      extensions,
+    ]).toMatchInlineSnapshot(`
       [
         "0x0f",
-        "Mock4337Account",
+        "SoladyAccount",
         "1",
         1n,
-        "0xB8e1B1e362872b237526e74B227077B0aeE8e223",
         "0x0000000000000000000000000000000000000000000000000000000000000000",
         [],
       ]
