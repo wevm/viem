@@ -939,71 +939,7 @@ describe('local account', () => {
           ],
         ],
       }),
-    })
-    expect(hash).toBeDefined()
-
-    await mine(client, { blocks: 1 })
-
-    const receipt = await getTransactionReceipt(client, { hash })
-    const log = receipt.logs[0]
-    expect(log.address).toBe(authority.address.toLowerCase())
-    expect(
-      decodeEventLog({
-        abi: BatchCall.abi,
-        ...log,
-      }),
-    ).toEqual({
-      args: {
-        data: '0x',
-        to: recipient.address,
-        value: parseEther('1'),
-      },
-      eventName: 'CallEmitted',
-    })
-
-    expect(
-      await getBalance(client, {
-        address: recipient.address,
-      }),
-    ).toBe(balance_recipient + parseEther('1'))
-  })
-
-  test('args: authorizationList (multiple authorizations)', async () => {
-    const authority = privateKeyToAccount(accounts[1].privateKey)
-    const recipient = privateKeyToAccount(
-      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
-    )
-
-    const balance_recipient = await getBalance(client, {
-      address: recipient.address,
-    })
-
-    const { contractAddress } = await deploy(client, {
-      abi: BatchCall.abi,
-      bytecode: BatchCall.bytecode.object,
-    })
-
-    const authorization = await signAuthorization(client, {
-      account: authority,
-      contractAddress: contractAddress!,
-    })
-
-    const hash = await sendTransaction(client, {
-      account: authority,
-      authorizationList: [authorization],
-      data: encodeFunctionData({
-        abi: BatchCall.abi,
-        functionName: 'execute',
-        args: [
-          [
-            {
-              to: recipient.address,
-              data: '0x',
-              value: parseEther('1'),
-            },
-          ],
-        ],
-      }),
+      to: authority.address,
     })
     expect(hash).toBeDefined()
 

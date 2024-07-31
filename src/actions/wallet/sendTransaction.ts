@@ -255,9 +255,9 @@ export async function sendTransaction<
         maxPriorityFeePerGas,
         nonce,
         parameters: [...defaultParameters, 'sidecars'],
-        to,
         value,
         ...rest,
+        to,
       } as any)
 
       const serializer = chain?.serializers?.transaction
