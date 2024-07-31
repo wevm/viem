@@ -73,7 +73,7 @@ import { walletClient } from './client'
 
 const authorization = await walletClient.signAuthorization({
   account: privateKeyToAccount('0x...'), // [!code focus]
-  authorization: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
+  contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 }) 
 ```
 

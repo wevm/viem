@@ -832,6 +832,16 @@ describe('local account', () => {
   test('args: authorizationList', async () => {
     const invoker = privateKeyToAccount(accounts[0].privateKey)
     const authority = privateKeyToAccount(accounts[1].privateKey)
+    const recipient = privateKeyToAccount(
+      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
+    )
+
+    const balance_authority = await getBalance(client, {
+      address: authority.address,
+    })
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
 
     const { contractAddress } = await deploy(client, {
       abi: EIP7702.abi,
@@ -848,8 +858,16 @@ describe('local account', () => {
       authorizationList: [authorization],
       data: encodeFunctionData({
         abi: EIP7702.abi,
-        functionName: 'exec',
-        args: ['0xdeadbeef'],
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
       }),
       to: authority.address,
     })
@@ -867,15 +885,34 @@ describe('local account', () => {
       }),
     ).toEqual({
       args: {
-        data: keccak256('0xdeadbeef'),
-        from: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
       },
-      eventName: 'WeGucci',
+      eventName: 'CallEmitted',
     })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
+    expect(
+      await getBalance(client, {
+        address: authority.address,
+      }),
+    ).toBe(balance_authority - parseEther('1'))
   })
 
   test('args: authorizationList (authority as invoker)', async () => {
     const authority = privateKeyToAccount(accounts[1].privateKey)
+    const recipient = privateKeyToAccount(
+      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
+    )
+
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
 
     const { contractAddress } = await deploy(client, {
       abi: EIP7702.abi,
@@ -892,8 +929,16 @@ describe('local account', () => {
       authorizationList: [authorization],
       data: encodeFunctionData({
         abi: EIP7702.abi,
-        functionName: 'exec',
-        args: ['0xdeadbeef'],
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
       }),
     })
     expect(hash).toBeDefined()
@@ -910,11 +955,18 @@ describe('local account', () => {
       }),
     ).toEqual({
       args: {
-        data: keccak256('0xdeadbeef'),
-        from: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
       },
-      eventName: 'WeGucci',
+      eventName: 'CallEmitted',
     })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
   })
 
   test('args: blobs', async () => {

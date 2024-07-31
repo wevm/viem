@@ -11,12 +11,13 @@ import { createWalletClient } from '../../clients/createWalletClient.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 import { http } from '../../clients/transports/http.js'
 import { signAuthorization } from '../../experimental/index.js'
-import { decodeEventLog, keccak256 } from '../../utils/index.js'
+import { decodeEventLog, parseEther } from '../../utils/index.js'
 import { getTransaction } from '../public/getTransaction.js'
 import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { simulateContract } from '../public/simulateContract.js'
 import { mine } from '../test/mine.js'
 import { writeContract } from './writeContract.js'
+import { getBalance } from '../public/getBalance.js'
 
 const client = anvilMainnet.getClient().extend(walletActions)
 const clientWithAccount = anvilMainnet.getClient({
@@ -136,6 +137,16 @@ describe('args: chain', () => {
 test('args: authorizationList', async () => {
   const invoker = privateKeyToAccount(accounts[0].privateKey)
   const authority = privateKeyToAccount(accounts[1].privateKey)
+  const recipient = privateKeyToAccount(
+    '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
+  )
+
+  const balance_authority = await getBalance(client, {
+    address: authority.address,
+  })
+  const balance_recipient = await getBalance(client, {
+    address: recipient.address,
+  })
 
   const { contractAddress } = await deploy(client, {
     abi: EIP7702.abi,
@@ -152,8 +163,16 @@ test('args: authorizationList', async () => {
     account: invoker,
     address: authority.address,
     authorizationList: [authorization],
-    functionName: 'exec',
-    args: ['0xdeadbeef'],
+    functionName: 'execute',
+    args: [
+      [
+        {
+          to: recipient.address,
+          data: '0x',
+          value: parseEther('1'),
+        },
+      ],
+    ],
   })
   expect(hash).toBeDefined()
 
@@ -169,11 +188,23 @@ test('args: authorizationList', async () => {
     }),
   ).toEqual({
     args: {
-      data: keccak256('0xdeadbeef'),
-      from: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      data: '0x',
+      to: recipient.address,
+      value: parseEther('1'),
     },
-    eventName: 'WeGucci',
+    eventName: 'CallEmitted',
   })
+
+  expect(
+    await getBalance(client, {
+      address: recipient.address,
+    }),
+  ).toBe(balance_recipient + parseEther('1'))
+  expect(
+    await getBalance(client, {
+      address: authority.address,
+    }),
+  ).toBe(balance_authority - parseEther('1'))
 })
 
 test('args: dataSuffix', async () => {

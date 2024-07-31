@@ -45,6 +45,7 @@ export const transactionType = {
 export type FormatTransactionErrorType = ErrorType
 
 export function formatTransaction(transaction: ExactPartial<RpcTransaction>) {
+  // TODO(7702): add `authorizationList`.
   const transaction_ = {
     ...transaction,
     blockHash: transaction.blockHash ? transaction.blockHash : null,

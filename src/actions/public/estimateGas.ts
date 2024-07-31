@@ -193,11 +193,12 @@ export async function estimateGas<
     })
 
     return (() => {
-      // TODO: Remove this once https://github.com/ethereum/execution-apis/issues/561 is resolved.
+      // TODO(7702): Remove this once https://github.com/ethereum/execution-apis/issues/561 is resolved.
       //       Authorization list schema is not implemented on JSON-RPC spec yet, so we need to
       //       manually buffer the gas.
+      // TODO(7702): Perform `eth_estimateGas` over `authorizationList` as a workaround.
       if (authorizationList)
-        return BigInt(result) + BigInt(5_000 * authorizationList.length)
+        return BigInt(result) + BigInt(100_000 * authorizationList.length)
       return BigInt(result)
     })()
   } catch (err) {
