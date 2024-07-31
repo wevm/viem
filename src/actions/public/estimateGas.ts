@@ -7,6 +7,10 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError } from '../../errors/base.js'
+import {
+  type RecoverAuthorizationAddressErrorType,
+  recoverAuthorizationAddress,
+} from '../../experimental/eip7702/utils/recoverAuthorizationAddress.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { StateOverride } from '../../types/stateOverride.js'
@@ -36,10 +40,6 @@ import {
   type PrepareTransactionRequestParameters,
   prepareTransactionRequest,
 } from '../wallet/prepareTransactionRequest.js'
-import {
-  type RecoverAuthorizationAddressErrorType,
-  recoverAuthorizationAddress,
-} from '../../experimental/eip7702/utils/recoverAuthorizationAddress.js'
 
 export type EstimateGasParameters<
   chain extends Chain | undefined = Chain | undefined,
