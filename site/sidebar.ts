@@ -1254,6 +1254,10 @@ export const sidebar = {
         text: 'EIP-7702',
         items: [
           {
+            text: 'Overview',
+            link: '/experimental/eip7702',
+          },
+          {
             text: 'Guides',
             items: [
               {
