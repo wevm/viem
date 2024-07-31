@@ -12,8 +12,12 @@ import {
   AccountTypeNotSupportedError,
   type AccountTypeNotSupportedErrorType,
 } from '../../errors/account.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
+import {
+  type RecoverAuthorizationAddressErrorType,
+  recoverAuthorizationAddress,
+} from '../../experimental/eip7702/utils/recoverAuthorizationAddress.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { GetChainParameter } from '../../types/chain.js'
@@ -85,6 +89,7 @@ export type SendTransactionErrorType =
       | GetChainIdErrorType
       | PrepareTransactionRequestErrorType
       | SendRawTransactionErrorType
+      | RecoverAuthorizationAddressErrorType
       | SignTransactionErrorType
       | RequestErrorType
     >
@@ -148,6 +153,7 @@ export async function sendTransaction<
     account: account_ = client.account,
     chain = client.chain,
     accessList,
+    authorizationList,
     blobs,
     data,
     gas,
@@ -156,7 +162,6 @@ export async function sendTransaction<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-    to,
     value,
     ...rest
   } = parameters
@@ -179,6 +184,25 @@ export async function sendTransaction<
       })
     }
 
+    const to = await (async () => {
+      // If `to` exists on the parameters, use that.
+      if (parameters.to) return parameters.to
+
+      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
+      // address of the first authorization in the list.
+      if (authorizationList && authorizationList.length > 0)
+        return await recoverAuthorizationAddress({
+          authorization: authorizationList[0],
+        }).catch(() => {
+          throw new BaseError(
+            '`to` is required. Could not infer from `authorizationList`.',
+          )
+        })
+
+      // Otherwise, we are sending a deployment transaction.
+      return undefined
+    })()
+
     if (account.type === 'json-rpc') {
       const chainFormat = client.chain?.formatters?.transactionRequest?.format
       const format = chainFormat || formatTransactionRequest
@@ -187,6 +211,7 @@ export async function sendTransaction<
         // Pick out extra data that might exist on the chain's transaction request type.
         ...extract(rest, { format: chainFormat }),
         accessList,
+        authorizationList,
         blobs,
         chainId,
         data,
@@ -218,6 +243,7 @@ export async function sendTransaction<
       )({
         account,
         accessList,
+        authorizationList,
         blobs,
         chain,
         chainId,
@@ -256,7 +282,10 @@ export async function sendTransaction<
         type: 'smart',
       })
 
-    throw new Error('incompatible account type.')
+    throw new AccountTypeNotSupportedError({
+      docsPath: '/docs/actions/wallet/sendTransaction',
+      type: (account as { type: string }).type,
+    })
   } catch (err) {
     if (err instanceof AccountTypeNotSupportedError) throw err
     throw getTransactionError(err as BaseError, {

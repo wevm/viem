@@ -13,6 +13,10 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
 import { estimateGas } from './estimateGas.js'
 import * as getBlock from './getBlock.js'
+import { deploy } from '../../../test/src/utils.js'
+import { EIP7702, VerifyingPaymaster } from '../../../contracts/generated.js'
+import { signAuthorization } from '../../experimental/index.js'
+import { encodeDeployData } from '../../utils/index.js'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
@@ -48,19 +52,25 @@ test('args: account', async () => {
 })
 
 test('args: authorizationList', async () => {
+  const authority = privateKeyToAccount(accounts[1].privateKey)
+
+  const { contractAddress } = await deploy(client, {
+    abi: EIP7702.abi,
+    bytecode: EIP7702.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
   expect(
     await estimateGas(client, {
       account: accounts[0].address,
-      authorizationList: [
-        {
-          contractAddress: '0x0000000000000000000000000000000000000000',
-          chainId: 1,
-          nonce: 0,
-        },
-      ],
-      to: accounts[1].address,
+      authorizationList: [authorization],
+      data: '0xdeadbeef',
     }),
-  ).toMatchInlineSnapshot('26000n')
+  ).toMatchInlineSnapshot('26064n')
 })
 
 test('args: blockNumber', async () => {
@@ -167,6 +177,30 @@ test('args: override', async () => {
       ],
     }),
   ).toMatchInlineSnapshot('51594n')
+})
+
+test('error: cannot infer `to` from `authorizationList`', async () => {
+  await expect(() =>
+    estimateGas(client, {
+      account: accounts[0].address,
+      authorizationList: [
+        {
+          chainId: 1,
+          nonce: 0,
+          contractAddress: '0x0000000000000000000000000000000000000000',
+        },
+      ],
+      data: '0xdeadbeef',
+    }),
+  ).rejects.toMatchInlineSnapshot(`
+    [EstimateGasExecutionError: \`to\` is required. Could not infer from \`authorizationList\`
+
+    Estimate Gas Arguments:
+      from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      data:  0xdeadbeef
+
+    Version: viem@x.y.z]
+  `)
 })
 
 describe('local account', () => {

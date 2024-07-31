@@ -6,7 +6,7 @@ import {
 } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { StateOverride } from '../../types/stateOverride.js'
@@ -36,6 +36,10 @@ import {
   type PrepareTransactionRequestParameters,
   prepareTransactionRequest,
 } from '../wallet/prepareTransactionRequest.js'
+import {
+  type RecoverAuthorizationAddressErrorType,
+  recoverAuthorizationAddress,
+} from '../../experimental/eip7702/utils/recoverAuthorizationAddress.js'
 
 export type EstimateGasParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -66,6 +70,7 @@ export type EstimateGasErrorType = GetEstimateGasErrorReturnType<
   | ParseAccountErrorType
   | NumberToHexErrorType
   | RequestErrorType
+  | RecoverAuthorizationAddressErrorType
   | AssertRequestErrorType
 >
 
@@ -119,7 +124,6 @@ export async function estimateGas<
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      to,
       value,
       stateOverride,
       ...rest
@@ -135,6 +139,25 @@ export async function estimateGas<
     const block = blockNumberHex || blockTag
 
     const rpcStateOverride = serializeStateOverride(stateOverride)
+
+    const to = await (async () => {
+      // If `to` exists on the parameters, use that.
+      if (rest.to) return rest.to
+
+      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
+      // address of the first authorization in the list.
+      if (authorizationList && authorizationList.length > 0)
+        return await recoverAuthorizationAddress({
+          authorization: authorizationList[0],
+        }).catch(() => {
+          throw new BaseError(
+            '`to` is required. Could not infer from `authorizationList`',
+          )
+        })
+
+      // Otherwise, we are sending a deployment transaction.
+      return undefined
+    })()
 
     assertRequest(args as AssertRequestParameters)
 

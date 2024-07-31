@@ -874,6 +874,49 @@ describe('local account', () => {
     })
   })
 
+  test('args: authorizationList (authority as invoker)', async () => {
+    const authority = privateKeyToAccount(accounts[1].privateKey)
+
+    const { contractAddress } = await deploy(client, {
+      abi: EIP7702.abi,
+      bytecode: EIP7702.bytecode.object,
+    })
+
+    const authorization = await signAuthorization(client, {
+      account: authority,
+      contractAddress: contractAddress!,
+    })
+
+    const hash = await sendTransaction(client, {
+      account: authority,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: EIP7702.abi,
+        functionName: 'exec',
+        args: ['0xdeadbeef'],
+      }),
+    })
+    expect(hash).toBeDefined()
+
+    await mine(client, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(client, { hash })
+    const log = receipt.logs[0]
+    expect(log.address).toBe(authority.address.toLowerCase())
+    expect(
+      decodeEventLog({
+        abi: EIP7702.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: keccak256('0xdeadbeef'),
+        from: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+      },
+      eventName: 'WeGucci',
+    })
+  })
+
   test('args: blobs', async () => {
     const blobs = toBlobs({
       data: stringToHex(blobData),
@@ -1029,10 +1072,10 @@ describe('local account', () => {
       ])
 
       expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(681)
-      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(112)
+      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(113)
       expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(682)
       expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(683)
-      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(113)
+      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(114)
 
       const hash_6 = await sendTransaction(client, {
         account: account_1,
@@ -1261,6 +1304,50 @@ describe('errors', () => {
         maxFeePerGas:          10 gwei
         maxPriorityFeePerGas:  11 gwei
 
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+
+  test('error: cannot infer `to` from `authorizationList`', async () => {
+    await expect(() =>
+      sendTransaction(client, {
+        account: sourceAccount.address,
+        authorizationList: [
+          {
+            chainId: 1,
+            nonce: 0,
+            contractAddress: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: \`to\` is required. Could not infer from \`authorizationList\`.
+
+      Request Arguments:
+        from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+
+  test('error: unsupported account type', async () => {
+    await expect(() =>
+      sendTransaction(client, {
+        // @ts-expect-error
+        account: {
+          address: '0x0000000000000000000000000000000000000000',
+          type: 'foo',
+        },
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [AccountTypeNotSupportedError: Account type "foo" is not supported.
+
+      Docs: https://viem.sh/docs/actions/wallet/sendTransaction
       Version: viem@x.y.z]
     `,
     )
