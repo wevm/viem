@@ -1,5 +1,13 @@
 # viem
 
+## 2.18.7
+
+### Patch Changes
+
+- [`55ef649`](https://github.com/wevm/viem/commit/55ef649e060c791fbf21fa4fa180fcf411c36799) Thanks [@jxom](https://github.com/jxom)! - Fixed chain config for `lisk`.
+
+- [#2571](https://github.com/wevm/viem/pull/2571) [`39c0ce0`](https://github.com/wevm/viem/commit/39c0ce04c4e757c33eb635a4d72029eb28bb5438) Thanks [@j6i](https://github.com/j6i)! - Added Shape Sepolia chain.
+
 ## 2.18.6
 
 ### Patch Changes
