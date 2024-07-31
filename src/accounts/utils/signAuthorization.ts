@@ -1,12 +1,12 @@
 import type { ErrorType } from '../../errors/utils.js'
+import type {
+  Authorization,
+  SignedAuthorization,
+} from '../../experimental/eip7702/types/authorization.js'
 import {
   type HashAuthorizationErrorType,
   hashAuthorization,
 } from '../../experimental/eip7702/utils/hashAuthorization.js'
-import type {
-  Authorization,
-  SignedAuthorization,
-} from '../../types/authorization.js'
 import type { Hex, Signature } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import {

@@ -50,6 +50,14 @@ export {
   signAuthorization,
 } from './eip7702/actions/signAuthorization.js'
 export {
+  type Authorization,
+  type SignedAuthorization,
+  type AuthorizationList,
+  type SignedAuthorizationList,
+  type SerializedAuthorization,
+  type SerializedAuthorizationList,
+} from './eip7702/types/authorization.js'
+export {
   type HashAuthorizationParameters,
   type HashAuthorizationReturnType,
   type HashAuthorizationErrorType,
@@ -61,6 +69,11 @@ export {
   type RecoverAuthorizationAddressErrorType,
   recoverAuthorizationAddress,
 } from './eip7702/utils/recoverAuthorizationAddress.js'
+export {
+  type SerializeAuthorizationListReturnType,
+  type SerializeAuthorizationListErrorType,
+  serializeAuthorizationList,
+} from './eip7702/utils/serializeAuthorizationList.js'
 export {
   type VerifyAuthorizationParameters,
   type VerifyAuthorizationReturnType,

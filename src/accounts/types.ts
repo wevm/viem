@@ -1,8 +1,8 @@
 import type { Address, TypedData } from 'abitype'
 
 import type { SmartAccount } from '../account-abstraction/accounts/types.js'
+import type { Authorization } from '../experimental/eip7702/types/authorization.js'
 import type { HDKey } from '../types/account.js'
-import type { Authorization } from '../types/authorization.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
   TransactionSerializable,

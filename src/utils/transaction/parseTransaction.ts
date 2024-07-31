@@ -12,7 +12,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type {
   SerializedAuthorizationList,
   SignedAuthorizationList,
-} from '../../types/authorization.js'
+} from '../../experimental/eip7702/types/authorization.js'
 import type { Hex, Signature } from '../../types/misc.js'
 import type {
   AccessList,
@@ -571,7 +571,7 @@ type ParseAuthorizationListErrorType =
   | ParseEIP155SignatureErrorType
   | ErrorType
 
-export function parseAuthorizationList(
+function parseAuthorizationList(
   serializedAuthorizationList: SerializedAuthorizationList,
 ): SignedAuthorizationList {
   const authorizationList: Mutable<SignedAuthorizationList> = []

@@ -1,10 +1,10 @@
-import type { ErrorType } from '../../errors/utils.js'
+import type { ErrorType } from '../../../errors/utils.js'
+import { toHex } from '../../../utils/encoding/toHex.js'
+import { toYParitySignatureArray } from '../../../utils/transaction/serializeTransaction.js'
 import type {
   AuthorizationList,
   SerializedAuthorizationList,
-} from '../../types/authorization.js'
-import { toHex } from '../encoding/toHex.js'
-import { toYParitySignatureArray } from './serializeTransaction.js'
+} from '../types/authorization.js'
 
 export type SerializeAuthorizationListReturnType = SerializedAuthorizationList
 

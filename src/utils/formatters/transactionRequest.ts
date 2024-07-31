@@ -1,5 +1,5 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { AuthorizationList } from '../../types/authorization.js'
+import type { AuthorizationList } from '../../experimental/eip7702/types/authorization.js'
 import type {
   Chain,
   ExtractChainFormatterParameters,
@@ -35,7 +35,7 @@ export function formatTransactionRequest(
   const rpcRequest = {} as RpcTransactionRequest
 
   if (typeof request.authorizationList !== 'undefined')
-    rpcRequest.authorizationList = serializeAuthorizationList(
+    rpcRequest.authorizationList = formatAuthorizationList(
       request.authorizationList,
     )
   if (typeof request.accessList !== 'undefined')
@@ -83,7 +83,7 @@ export const defineTransactionRequest = /*#__PURE__*/ defineFormatter(
 
 //////////////////////////////////////////////////////////////////////////////
 
-export function serializeAuthorizationList(
+function formatAuthorizationList(
   authorizationList: AuthorizationList<number, boolean>,
 ): AuthorizationList<Hex, boolean> {
   return authorizationList.map(

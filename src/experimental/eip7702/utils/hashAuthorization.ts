@@ -1,5 +1,4 @@
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Authorization } from '../../../types/authorization.js'
 import type { ByteArray, Hex } from '../../../types/misc.js'
 import {
   type ConcatHexErrorType,
@@ -18,6 +17,7 @@ import {
   type Keccak256ErrorType,
   keccak256,
 } from '../../../utils/hash/keccak256.js'
+import type { Authorization } from '../types/authorization.js'
 
 type To = 'hex' | 'bytes'
 

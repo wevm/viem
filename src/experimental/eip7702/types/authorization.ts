@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
-import type { Hex, Signature } from './misc.js'
-import type { ExactPartial } from './utils.js'
+import type { Hex, Signature } from '../../../types/misc.js'
+import type { ExactPartial } from '../../../types/utils.js'
 
 export type Authorization<uint32 = number, signed extends boolean = false> = {
   /** Address of the contract to set as code for the Authority. */

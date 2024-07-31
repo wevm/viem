@@ -19,11 +19,11 @@ import {
 } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { GetAccountParameter } from '../../../types/account.js'
-import type { Authorization } from '../../../types/authorization.js'
 import type { Chain } from '../../../types/chain.js'
 import type { PartialBy } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { getAction } from '../../../utils/getAction.js'
+import type { Authorization } from '../types/authorization.js'
 
 export type SignAuthorizationParameters<
   account extends Account | undefined = Account | undefined,

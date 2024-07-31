@@ -48,6 +48,10 @@ import { type ToHexErrorType, bytesToHex, toHex } from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
 
 import {
+  type SerializeAuthorizationListErrorType,
+  serializeAuthorizationList,
+} from '../../experimental/eip7702/utils/serializeAuthorizationList.js'
+import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
   type AssertTransactionEIP4844ErrorType,
@@ -68,10 +72,6 @@ import {
   type SerializeAccessListErrorType,
   serializeAccessList,
 } from './serializeAccessList.js'
-import {
-  type SerializeAuthorizationListErrorType,
-  serializeAuthorizationList,
-} from './serializeAuthorizationList.js'
 
 export type SerializedTransactionReturnType<
   transaction extends TransactionSerializable = TransactionSerializable,
