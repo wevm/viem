@@ -11,12 +11,12 @@ import { deploy } from '../../../test/src/utils.js'
 import { signAuthorization } from '../../experimental/index.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { toHex } from '../../utils/encoding/toHex.js'
+import { encodeFunctionData } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
 import { estimateGas } from './estimateGas.js'
 import * as getBlock from './getBlock.js'
-import { encodeFunctionData } from '../../utils/index.js'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
