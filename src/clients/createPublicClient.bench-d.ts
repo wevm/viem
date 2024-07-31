@@ -10,7 +10,7 @@ test('createPublicClient', () => {
   createPublicClient({
     transport: http('https://cloudflare-eth.com'),
   })
-  attest.instantiations([12236, 'instantiations'])
+  attest.instantiations([13956, 'instantiations'])
 })
 
 test('createClient.extend + publicActions', () => {
