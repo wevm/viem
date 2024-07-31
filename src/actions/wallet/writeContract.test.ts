@@ -12,12 +12,12 @@ import { walletActions } from '../../clients/decorators/wallet.js'
 import { http } from '../../clients/transports/http.js'
 import { signAuthorization } from '../../experimental/index.js'
 import { decodeEventLog, parseEther } from '../../utils/index.js'
+import { getBalance } from '../public/getBalance.js'
 import { getTransaction } from '../public/getTransaction.js'
 import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { simulateContract } from '../public/simulateContract.js'
 import { mine } from '../test/mine.js'
 import { writeContract } from './writeContract.js'
-import { getBalance } from '../public/getBalance.js'
 
 const client = anvilMainnet.getClient().extend(walletActions)
 const clientWithAccount = anvilMainnet.getClient({
