@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-contract EIP7702 {
+contract BatchCall {
     struct Call {
         bytes data;
         address to;

@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { EIP7702 } from '../../../contracts/generated.js'
+import { BatchCall } from '../../../contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { deploy } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
@@ -182,8 +182,8 @@ test('gets transaction (eip7702)', async () => {
   const authority = privateKeyToAccount(accounts[1].privateKey)
 
   const { contractAddress } = await deploy(client, {
-    abi: EIP7702.abi,
-    bytecode: EIP7702.bytecode.object,
+    abi: BatchCall.abi,
+    bytecode: BatchCall.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -195,7 +195,7 @@ test('gets transaction (eip7702)', async () => {
     account: authority,
     authorizationList: [authorization],
     data: encodeFunctionData({
-      abi: EIP7702.abi,
+      abi: BatchCall.abi,
       functionName: 'execute',
       args: [
         [
@@ -231,16 +231,16 @@ test('gets transaction (eip7702)', async () => {
       "blockNumber": 19868022n,
       "chainId": 1,
       "from": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-      "gas": 122080n,
+      "gas": 87312n,
       "gasPrice": 8599866030n,
-      "hash": "0x42ee87405237a77a478c7998c3f5359a1d3b83b7ce80064512c8b75fe5c707a0",
+      "hash": "0x5c00e6b61f404b926d8ecfe9de5042be82dbff06d9df43651d710ecd09b0fba3",
       "input": "0xa6d0ad61000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000000",
       "maxFeePerBlobGas": undefined,
       "maxFeePerGas": 11392560424n,
       "maxPriorityFeePerGas": 1000000000n,
       "nonce": 112,
-      "r": "0x35d1ae5a6d30766759f8b81114ecc48dc6d051bb81507bccf0c486d7bacba05c",
-      "s": "0x47e808b52bba676b895291d9e0f9c07591f0d184e643ed3f57a1d8d23df972dc",
+      "r": "0x9f6268ab14164a997a553089e993ab28bc7bdee62b147fb0a13dc18b9d485903",
+      "s": "0x54a1d590b4dc376c59c0dbe833bec0801de77cc75c6d4d90af515b91643b91b6",
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "transactionIndex": 0,
       "type": "eip7702",

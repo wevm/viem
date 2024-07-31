@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { EIP7702, Payable } from '~contracts/generated.js'
+import { BatchCall, Payable } from '~contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { deploy, deployPayable } from '~test/src/utils.js'
@@ -149,8 +149,8 @@ test('args: authorizationList', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: EIP7702.abi,
-    bytecode: EIP7702.bytecode.object,
+    abi: BatchCall.abi,
+    bytecode: BatchCall.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -159,7 +159,7 @@ test('args: authorizationList', async () => {
   })
 
   const hash = await writeContract(client, {
-    abi: EIP7702.abi,
+    abi: BatchCall.abi,
     account: invoker,
     address: authority.address,
     authorizationList: [authorization],
@@ -183,7 +183,7 @@ test('args: authorizationList', async () => {
   expect(log.address).toBe(authority.address.toLowerCase())
   expect(
     decodeEventLog({
-      abi: EIP7702.abi,
+      abi: BatchCall.abi,
       ...log,
     }),
   ).toEqual({

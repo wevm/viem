@@ -6,7 +6,7 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { maxUint256 } from '../../constants/number.js'
 
-import { EIP7702 } from '../../../contracts/generated.js'
+import { BatchCall } from '../../../contracts/generated.js'
 import { deploy } from '../../../test/src/utils.js'
 import { signAuthorization } from '../../experimental/index.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
@@ -16,6 +16,7 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
 import { estimateGas } from './estimateGas.js'
 import * as getBlock from './getBlock.js'
+import { encodeFunctionData } from '../../utils/index.js'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
@@ -54,8 +55,8 @@ test('args: authorizationList', async () => {
   const authority = privateKeyToAccount(accounts[1].privateKey)
 
   const { contractAddress } = await deploy(client, {
-    abi: EIP7702.abi,
-    bytecode: EIP7702.bytecode.object,
+    abi: BatchCall.abi,
+    bytecode: BatchCall.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -67,9 +68,21 @@ test('args: authorizationList', async () => {
     await estimateGas(client, {
       account: accounts[0].address,
       authorizationList: [authorization],
-      data: '0xdeadbeef',
+      data: encodeFunctionData({
+        abi: BatchCall.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              data: '0x',
+              to: '0x0000000000000000000000000000000000000000',
+              value: 1n,
+            },
+          ],
+        ],
+      }),
     }),
-  ).toMatchInlineSnapshot('26064n')
+  ).toMatchInlineSnapshot('87132n')
 })
 
 test('args: blockNumber', async () => {

@@ -40,6 +40,7 @@ import {
   type PrepareTransactionRequestParameters,
   prepareTransactionRequest,
 } from '../wallet/prepareTransactionRequest.js'
+import { getBalance } from './getBalance.js'
 
 export type EstimateGasParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -183,24 +184,52 @@ export async function estimateGas<
       value,
     } as TransactionRequest)
 
-    const result = await client.request({
-      method: 'eth_estimateGas',
-      params: rpcStateOverride
-        ? [request, block ?? 'latest', rpcStateOverride]
-        : block
-          ? [request, block]
-          : [request],
-    })
+    function estimateGas_rpc(parameters: {
+      block: any
+      request: any
+      rpcStateOverride: any
+    }) {
+      const { block, request, rpcStateOverride } = parameters
+      return client.request({
+        method: 'eth_estimateGas',
+        params: rpcStateOverride
+          ? [request, block ?? 'latest', rpcStateOverride]
+          : block
+            ? [request, block]
+            : [request],
+      })
+    }
 
-    return (() => {
-      // TODO(7702): Remove this once https://github.com/ethereum/execution-apis/issues/561 is resolved.
-      //       Authorization list schema is not implemented on JSON-RPC spec yet, so we need to
-      //       manually buffer the gas.
-      // TODO(7702): Perform `eth_estimateGas` over `authorizationList` as a workaround.
-      if (authorizationList)
-        return BigInt(result) + BigInt(100_000 * authorizationList.length)
-      return BigInt(result)
-    })()
+    let estimate = BigInt(
+      await estimateGas_rpc({ block, request, rpcStateOverride }),
+    )
+
+    // TODO(7702): Remove this once https://github.com/ethereum/execution-apis/issues/561 is resolved.
+    //       Authorization list schema is not implemented on JSON-RPC spec yet, so we need to
+    //       manually estimate the gas.
+    if (authorizationList) {
+      const value = await getBalance(client, { address: request.from })
+      const estimates = await Promise.all(
+        authorizationList.map(async (authorization) => {
+          const { contractAddress } = authorization
+          const estimate = await estimateGas_rpc({
+            block,
+            request: {
+              authorizationList: undefined,
+              data,
+              from: account?.address,
+              to: contractAddress,
+              value: numberToHex(value),
+            },
+            rpcStateOverride,
+          }).catch(() => 100_000n)
+          return 2n * BigInt(estimate)
+        }),
+      )
+      estimate += estimates.reduce((acc, curr) => acc + curr, 0n)
+    }
+
+    return estimate
   } catch (err) {
     throw getEstimateGasError(err as BaseError, {
       ...args,

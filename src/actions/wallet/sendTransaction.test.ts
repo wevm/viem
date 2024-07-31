@@ -6,7 +6,7 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
-import { EIP7702 } from '../../../contracts/generated.js'
+import { BatchCall } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { deploy } from '../../../test/src/utils.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
@@ -843,8 +843,8 @@ describe('local account', () => {
     })
 
     const { contractAddress } = await deploy(client, {
-      abi: EIP7702.abi,
-      bytecode: EIP7702.bytecode.object,
+      abi: BatchCall.abi,
+      bytecode: BatchCall.bytecode.object,
     })
 
     const authorization = await signAuthorization(client, {
@@ -856,7 +856,7 @@ describe('local account', () => {
       account: invoker,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: EIP7702.abi,
+        abi: BatchCall.abi,
         functionName: 'execute',
         args: [
           [
@@ -879,7 +879,7 @@ describe('local account', () => {
     expect(log.address).toBe(authority.address.toLowerCase())
     expect(
       decodeEventLog({
-        abi: EIP7702.abi,
+        abi: BatchCall.abi,
         ...log,
       }),
     ).toEqual({
@@ -914,8 +914,8 @@ describe('local account', () => {
     })
 
     const { contractAddress } = await deploy(client, {
-      abi: EIP7702.abi,
-      bytecode: EIP7702.bytecode.object,
+      abi: BatchCall.abi,
+      bytecode: BatchCall.bytecode.object,
     })
 
     const authorization = await signAuthorization(client, {
@@ -927,7 +927,7 @@ describe('local account', () => {
       account: authority,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: EIP7702.abi,
+        abi: BatchCall.abi,
         functionName: 'execute',
         args: [
           [
@@ -949,7 +949,72 @@ describe('local account', () => {
     expect(log.address).toBe(authority.address.toLowerCase())
     expect(
       decodeEventLog({
-        abi: EIP7702.abi,
+        abi: BatchCall.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
+      },
+      eventName: 'CallEmitted',
+    })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
+  })
+
+  test('args: authorizationList (multiple authorizations)', async () => {
+    const authority = privateKeyToAccount(accounts[1].privateKey)
+    const recipient = privateKeyToAccount(
+      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
+    )
+
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
+
+    const { contractAddress } = await deploy(client, {
+      abi: BatchCall.abi,
+      bytecode: BatchCall.bytecode.object,
+    })
+
+    const authorization = await signAuthorization(client, {
+      account: authority,
+      contractAddress: contractAddress!,
+    })
+
+    const hash = await sendTransaction(client, {
+      account: authority,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCall.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
+      }),
+    })
+    expect(hash).toBeDefined()
+
+    await mine(client, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(client, { hash })
+    const log = receipt.logs[0]
+    expect(log.address).toBe(authority.address.toLowerCase())
+    expect(
+      decodeEventLog({
+        abi: BatchCall.abi,
         ...log,
       }),
     ).toEqual({
