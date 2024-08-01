@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts } from '../../../../test/src/constants.js'
@@ -8,6 +8,10 @@ import { signAuthorization } from './signAuthorization.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
 const client = anvilMainnet.getClient()
+
+beforeAll(async () => {
+  await anvilMainnet.restart()
+})
 
 test('default', async () => {
   const authorization = await signAuthorization(client, {
