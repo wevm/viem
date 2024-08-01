@@ -9,7 +9,7 @@ EIP-7702 is a proposal to add a new Transaction type to set bytecode of an Exter
 The main difference between an EIP-7702 Transaction and other transactions is the inclusion of a **"authorization list"** property, a set of `(chain_id, contract_address, nonce, y_parity, r, s)` tuples that depict what Contract bytecode(s) should be injected onto the Externally Owned Account during execution. 
 
 :::note
-In Viem, you won't need to worry about constructing these Authorization Tuples manually as you can use [`signAuthorization`](/experimental/eip7702/signAuthorization) to generate them and use them in [Transaction APIs](/experimental/eip7702/sending-eip7702-transactions).
+In Viem, you won't need to worry about constructing these Authorization Tuples manually as you can use [`signAuthorization`](/experimental/eip7702/signAuthorization) to generate them and use them in [Transaction APIs](/experimental/eip7702/contract-writes).
 :::
 
 Applications of EIP-7702 include:
@@ -21,4 +21,5 @@ Applications of EIP-7702 include:
 ## Next Steps
 
 - [Extending Client with EIP-7702](/experimental/eip7702/client)
-- [Sending EIP-7702 Transactions](/experimental/eip7702/sending-eip7702-transactions)
+- [Contract Writes](/experimental/eip7702/contract-writes)
+- [Sending Transactions](/experimental/eip7702/sending-transactions)

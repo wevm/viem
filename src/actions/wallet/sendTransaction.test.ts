@@ -6,7 +6,7 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
-import { BatchCall } from '../../../contracts/generated.js'
+import { BatchCallInvoker } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { deploy } from '../../../test/src/utils.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
@@ -843,8 +843,8 @@ describe('local account', () => {
     })
 
     const { contractAddress } = await deploy(client, {
-      abi: BatchCall.abi,
-      bytecode: BatchCall.bytecode.object,
+      abi: BatchCallInvoker.abi,
+      bytecode: BatchCallInvoker.bytecode.object,
     })
 
     const authorization = await signAuthorization(client, {
@@ -856,7 +856,7 @@ describe('local account', () => {
       account: invoker,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: BatchCall.abi,
+        abi: BatchCallInvoker.abi,
         functionName: 'execute',
         args: [
           [
@@ -879,7 +879,7 @@ describe('local account', () => {
     expect(log.address).toBe(authority.address.toLowerCase())
     expect(
       decodeEventLog({
-        abi: BatchCall.abi,
+        abi: BatchCallInvoker.abi,
         ...log,
       }),
     ).toEqual({
@@ -914,8 +914,8 @@ describe('local account', () => {
     })
 
     const { contractAddress } = await deploy(client, {
-      abi: BatchCall.abi,
-      bytecode: BatchCall.bytecode.object,
+      abi: BatchCallInvoker.abi,
+      bytecode: BatchCallInvoker.bytecode.object,
     })
 
     const authorization = await signAuthorization(client, {
@@ -927,7 +927,7 @@ describe('local account', () => {
       account: authority,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: BatchCall.abi,
+        abi: BatchCallInvoker.abi,
         functionName: 'execute',
         args: [
           [
@@ -950,7 +950,7 @@ describe('local account', () => {
     expect(log.address).toBe(authority.address.toLowerCase())
     expect(
       decodeEventLog({
-        abi: BatchCall.abi,
+        abi: BatchCallInvoker.abi,
         ...log,
       }),
     ).toEqual({

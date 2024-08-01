@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { BatchCall, Payable } from '~contracts/generated.js'
+import { BatchCallInvoker, Payable } from '~contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { deploy, deployPayable } from '~test/src/utils.js'
@@ -149,8 +149,8 @@ test('args: authorizationList', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCall.abi,
-    bytecode: BatchCall.bytecode.object,
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -159,7 +159,7 @@ test('args: authorizationList', async () => {
   })
 
   const hash = await writeContract(client, {
-    abi: BatchCall.abi,
+    abi: BatchCallInvoker.abi,
     account: invoker,
     address: authority.address,
     authorizationList: [authorization],
@@ -183,7 +183,7 @@ test('args: authorizationList', async () => {
   expect(log.address).toBe(authority.address.toLowerCase())
   expect(
     decodeEventLog({
-      abi: BatchCall.abi,
+      abi: BatchCallInvoker.abi,
       ...log,
     }),
   ).toEqual({
@@ -218,8 +218,8 @@ test('args: authorizationList (authority as invoker)', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCall.abi,
-    bytecode: BatchCall.bytecode.object,
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -228,7 +228,7 @@ test('args: authorizationList (authority as invoker)', async () => {
   })
 
   const hash = await writeContract(client, {
-    abi: BatchCall.abi,
+    abi: BatchCallInvoker.abi,
     account: authority,
     address: authority.address,
     authorizationList: [authorization],
@@ -252,7 +252,7 @@ test('args: authorizationList (authority as invoker)', async () => {
   expect(log.address).toBe(authority.address.toLowerCase())
   expect(
     decodeEventLog({
-      abi: BatchCall.abi,
+      abi: BatchCallInvoker.abi,
       ...log,
     }),
   ).toEqual({

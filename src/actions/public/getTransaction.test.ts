@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { BatchCall } from '../../../contracts/generated.js'
+import { BatchCallInvoker } from '../../../contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { deploy } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
@@ -182,8 +182,8 @@ test('gets transaction (eip7702)', async () => {
   const authority = privateKeyToAccount(accounts[1].privateKey)
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCall.abi,
-    bytecode: BatchCall.bytecode.object,
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -195,7 +195,7 @@ test('gets transaction (eip7702)', async () => {
     account: authority,
     authorizationList: [authorization],
     data: encodeFunctionData({
-      abi: BatchCall.abi,
+      abi: BatchCallInvoker.abi,
       functionName: 'execute',
       args: [
         [

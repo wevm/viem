@@ -1261,12 +1261,16 @@ export const sidebar = {
             text: 'Guides',
             items: [
               {
-                text: 'Extending Client with EIP-7702',
+                text: 'Extending Client',
                 link: '/experimental/eip7702/client',
               },
               {
-                text: 'Sending EIP-7702 Transactions',
-                link: '/experimental/eip7702/sending-eip7702-transactions',
+                text: 'Contract Writes',
+                link: '/experimental/eip7702/contract-writes',
+              },
+              {
+                text: 'Sending Transactions',
+                link: '/experimental/eip7702/sending-transactions',
               },
             ],
           },

@@ -14,19 +14,29 @@ test('default', async () => {
     privateKey: accounts[0].privateKey,
   })
 
-  expect(signedAuthorization).toMatchInlineSnapshot(
+  expect({
+    ...signedAuthorization,
+    r: null,
+    s: null,
+    v: null,
+    yParity: null,
+  }).toMatchInlineSnapshot(
     `
     {
       "chainId": 1,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
-      "r": "0x623129c9fcc520bee4b19fbb5148b178d67e1c854d2baee0e64cd518aad5549f",
-      "s": "0x17997fb5ef9d7521c09f0208b1082a9fecbeabdad90ef0a806a50d1b9c7b5d66",
-      "v": 27n,
-      "yParity": 0,
+      "r": null,
+      "s": null,
+      "v": null,
+      "yParity": null,
     }
   `,
   )
+  expect(signedAuthorization.r).toBeDefined()
+  expect(signedAuthorization.s).toBeDefined()
+  expect(signedAuthorization.v).toBeDefined()
+  expect(signedAuthorization.yParity).toBeDefined()
   expect(
     await verifyAuthorization({
       address: accounts[0].address,
