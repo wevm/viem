@@ -1,10 +1,10 @@
 # Contract Writes with EIP-7702
 
-The guide below demonstrates how to send EIP-7702 Transactions to invoke Contract functions on an Externally Owned Account.
+The guide below demonstrates how to perform Contract Writes with EIP-7702 to invoke Contract functions on an Externally Owned Account.
 
 ## Overview
 
-Here is an end-to-end overview of how to broadcast an EIP-7702 Transaction to send a batch of Calls. We will break it down into [Steps](#steps) below.
+Here is an end-to-end overview of how to perform a Contract Write to send a batch of Calls. We will break it down into [Steps](#steps) below.
 
 :::code-group
 
@@ -296,7 +296,7 @@ export const client = createWalletClient({
 
 :::
 
-### 5. Perform Batch Calls
+### 5. Invoke Contract Function
 
 Using our [Contract Instance](/docs/contract/getContract), we can now call the `execute` function on it to perform batch calls.
 
