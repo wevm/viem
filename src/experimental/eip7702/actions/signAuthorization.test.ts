@@ -5,12 +5,16 @@ import { accounts } from '../../../../test/src/constants.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { verifyAuthorization } from '../utils/verifyAuthorization.js'
 import { signAuthorization } from './signAuthorization.js'
+import { reset } from '../../../actions/index.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
 const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
-  await anvilMainnet.restart()
+  await reset(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 })
 
 test('default', async () => {
