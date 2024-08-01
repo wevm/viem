@@ -80,7 +80,7 @@ const proveReceipt = await publicClientL1.waitForTransactionReceipt({
 
 // Wait until the withdrawal is ready to finalize.
 await publicClientL1.waitToFinalize({
-  targetChain: walletClientL2.chain
+  targetChain: walletClientL2.chain,
   withdrawalHash: withdrawal.withdrawalHash,
 })
 
