@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add B3 Sepolia chain
+Added B3 Sepolia chain.
