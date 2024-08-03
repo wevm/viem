@@ -5,6 +5,7 @@ export const abstractTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 11_124,
   name: 'Abstract Testnet',
+  network: 'abstract-testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'ETH',
