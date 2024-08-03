@@ -1,4 +1,4 @@
-import type { MessageEvent } from 'isows'
+import { type MessageEvent, WebSocket } from 'isows'
 
 import {
   SocketClosedError,
@@ -24,7 +24,6 @@ export async function getWebSocketRpcClient(
 
   return getSocketRpcClient({
     async getSocket({ onClose, onError, onOpen, onResponse }) {
-      const WebSocket = await import('isows').then((module) => module.WebSocket)
       const socket = new WebSocket(url)
 
       function onClose_() {
