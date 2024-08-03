@@ -1,6 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
+import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const abstractTestnet = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 11_124,
   name: 'Abstract Testnet',
   nativeCurrency: {
