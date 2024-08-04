@@ -240,7 +240,7 @@ const signature = await account.signTransaction({
 
 ### to (optional)
 
-- **Type:** `number`
+- **Type:** `Address`
 
 The transaction recipient.
 
