@@ -587,7 +587,7 @@ describe('errors', () => {
         factory: wagmiContractConfig.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: Cannot provide both \`code\` & \`factory\`/\`factoryData\` as parameters.
+      [BaseError: Cannot provide both \`code\` & \`factory\`/\`factoryData\` as parameters.
 
       Version: viem@x.y.z]
     `)
@@ -600,7 +600,7 @@ describe('errors', () => {
         to: '0x0000000000000000000000000000000000000000',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: Cannot provide both \`code\` & \`to\` as parameters.
+      [BaseError: Cannot provide both \`code\` & \`to\` as parameters.
 
       Version: viem@x.y.z]
     `)

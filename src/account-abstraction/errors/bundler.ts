@@ -7,7 +7,6 @@ export type AccountNotDeployedErrorType = AccountNotDeployedError & {
 }
 export class AccountNotDeployedError extends BaseError {
   static message = /aa20/
-  override name = 'AccountNotDeployedError'
   constructor({
     cause,
   }: {
@@ -20,6 +19,7 @@ export class AccountNotDeployedError extends BaseError {
         '- No `factory`/`factoryData` or `initCode` properties are provided for Smart Account deployment.',
         '- An incorrect `sender` address is provided.',
       ],
+      name: 'AccountNotDeployedError',
     })
   }
 }
@@ -31,8 +31,6 @@ export type ExecutionRevertedErrorType = ExecutionRevertedError & {
 export class ExecutionRevertedError extends BaseError {
   static code = -32521
   static message = /execution reverted/
-
-  override name = 'ExecutionRevertedError'
 
   constructor({
     cause,
@@ -47,6 +45,7 @@ export class ExecutionRevertedError extends BaseError {
       }.`,
       {
         cause,
+        name: 'ExecutionRevertedError',
       },
     )
   }
@@ -58,7 +57,6 @@ export type FailedToSendToBeneficiaryErrorType =
   }
 export class FailedToSendToBeneficiaryError extends BaseError {
   static message = /aa91/
-  override name = 'FailedToSendToBeneficiaryError'
   constructor({
     cause,
   }: {
@@ -66,6 +64,7 @@ export class FailedToSendToBeneficiaryError extends BaseError {
   }) {
     super('Failed to send funds to beneficiary.', {
       cause,
+      name: 'FailedToSendToBeneficiaryError',
     })
   }
 }
@@ -75,7 +74,6 @@ export type GasValuesOverflowErrorType = GasValuesOverflowError & {
 }
 export class GasValuesOverflowError extends BaseError {
   static message = /aa94/
-  override name = 'GasValuesOverflowError'
   constructor({
     cause,
   }: {
@@ -87,6 +85,7 @@ export class GasValuesOverflowError extends BaseError {
         'This could arise when:',
         '- one of the gas values exceeded 2**120 (uint120)',
       ].filter(Boolean) as string[],
+      name: 'GasValuesOverflowError',
     })
   }
 }
@@ -96,7 +95,6 @@ export type HandleOpsOutOfGasErrorType = HandleOpsOutOfGasError & {
 }
 export class HandleOpsOutOfGasError extends BaseError {
   static message = /aa95/
-  override name = 'HandleOpsOutOfGasError'
   constructor({
     cause,
   }: {
@@ -106,6 +104,7 @@ export class HandleOpsOutOfGasError extends BaseError {
       'The `handleOps` function was called by the Bundler with a gas limit too low.',
       {
         cause,
+        name: 'HandleOpsOutOfGasError',
       },
     )
   }
@@ -116,7 +115,6 @@ export type InitCodeFailedErrorType = InitCodeFailedError & {
 }
 export class InitCodeFailedError extends BaseError {
   static message = /aa13/
-  override name = 'InitCodeFailedError'
   constructor({
     cause,
     factory,
@@ -139,6 +137,7 @@ export class InitCodeFailedError extends BaseError {
         factoryData && `factoryData: ${factoryData}`,
         initCode && `initCode: ${initCode}`,
       ].filter(Boolean) as string[],
+      name: 'InitCodeFailedError',
     })
   }
 }
@@ -149,7 +148,6 @@ export type InitCodeMustCreateSenderErrorType =
   }
 export class InitCodeMustCreateSenderError extends BaseError {
   static message = /aa15/
-  override name = 'InitCodeMustCreateSenderError'
   constructor({
     cause,
     factory,
@@ -173,6 +171,7 @@ export class InitCodeMustCreateSenderError extends BaseError {
           factoryData && `factoryData: ${factoryData}`,
           initCode && `initCode: ${initCode}`,
         ].filter(Boolean) as string[],
+        name: 'InitCodeMustCreateSenderError',
       },
     )
   }
@@ -184,7 +183,6 @@ export type InitCodeMustReturnSenderErrorType =
   }
 export class InitCodeMustReturnSenderError extends BaseError {
   static message = /aa14/
-  override name = 'InitCodeMustReturnSenderError'
   constructor({
     cause,
     factory,
@@ -210,6 +208,7 @@ export class InitCodeMustReturnSenderError extends BaseError {
           initCode && `initCode: ${initCode}`,
           sender && `sender: ${sender}`,
         ].filter(Boolean) as string[],
+        name: 'InitCodeMustReturnSenderError',
       },
     )
   }
@@ -220,7 +219,6 @@ export type InsufficientPrefundErrorType = InsufficientPrefundError & {
 }
 export class InsufficientPrefundError extends BaseError {
   static message = /aa21/
-  override name = 'InsufficientPrefundError'
   constructor({
     cause,
   }: {
@@ -235,6 +233,7 @@ export class InsufficientPrefundError extends BaseError {
           '- the Smart Account does not have sufficient funds to cover the required prefund, or',
           '- a Paymaster was not provided',
         ].filter(Boolean) as string[],
+        name: 'InsufficientPrefundError',
       },
     )
   }
@@ -245,7 +244,6 @@ export type InternalCallOnlyErrorType = InternalCallOnlyError & {
 }
 export class InternalCallOnlyError extends BaseError {
   static message = /aa92/
-  override name = 'InternalCallOnlyError'
   constructor({
     cause,
   }: {
@@ -253,6 +251,7 @@ export class InternalCallOnlyError extends BaseError {
   }) {
     super('Bundler attempted to call an invalid function on the EntryPoint.', {
       cause,
+      name: 'InternalCallOnlyError',
     })
   }
 }
@@ -262,7 +261,6 @@ export type InvalidAggregatorErrorType = InvalidAggregatorError & {
 }
 export class InvalidAggregatorError extends BaseError {
   static message = /aa96/
-  override name = 'InvalidAggregatorError'
   constructor({
     cause,
   }: {
@@ -272,6 +270,7 @@ export class InvalidAggregatorError extends BaseError {
       'Bundler used an invalid aggregator for handling aggregated User Operations.',
       {
         cause,
+        name: 'InvalidAggregatorError',
       },
     )
   }
@@ -282,7 +281,6 @@ export type InvalidAccountNonceErrorType = InvalidAccountNonceError & {
 }
 export class InvalidAccountNonceError extends BaseError {
   static message = /aa25/
-  override name = 'InvalidAccountNonceError'
   constructor({
     cause,
     nonce,
@@ -293,6 +291,7 @@ export class InvalidAccountNonceError extends BaseError {
     super('Invalid Smart Account nonce used for User Operation.', {
       cause,
       metaMessages: [nonce && `nonce: ${nonce}`].filter(Boolean) as string[],
+      name: 'InvalidAccountNonceError',
     })
   }
 }
@@ -302,7 +301,6 @@ export type InvalidBeneficiaryErrorType = InvalidBeneficiaryError & {
 }
 export class InvalidBeneficiaryError extends BaseError {
   static message = /aa90/
-  override name = 'InvalidBeneficiaryError'
   constructor({
     cause,
   }: {
@@ -310,6 +308,7 @@ export class InvalidBeneficiaryError extends BaseError {
   }) {
     super('Bundler has not set a beneficiary address.', {
       cause,
+      name: 'InvalidBeneficiaryError',
     })
   }
 }
@@ -320,8 +319,6 @@ export type InvalidFieldsErrorType = InvalidFieldsError & {
 export class InvalidFieldsError extends BaseError {
   static code = -32602
 
-  override name = 'InvalidFieldsError'
-
   constructor({
     cause,
   }: {
@@ -329,6 +326,7 @@ export class InvalidFieldsError extends BaseError {
   }) {
     super('Invalid fields set on User Operation.', {
       cause,
+      name: 'InvalidFieldsError',
     })
   }
 }
@@ -338,7 +336,6 @@ export type InvalidPaymasterAndDataErrorType = InvalidPaymasterAndDataError & {
 }
 export class InvalidPaymasterAndDataError extends BaseError {
   static message = /aa93/
-  override name = 'InvalidPaymasterAndDataError'
   constructor({
     cause,
     paymasterAndData,
@@ -353,6 +350,7 @@ export class InvalidPaymasterAndDataError extends BaseError {
         '- the `paymasterAndData` property is of an incorrect length\n',
         paymasterAndData && `paymasterAndData: ${paymasterAndData}`,
       ].filter(Boolean) as string[],
+      name: 'InvalidPaymasterAndDataError',
     })
   }
 }
@@ -365,8 +363,6 @@ export class PaymasterDepositTooLowError extends BaseError {
   static code = -32508
   static message = /aa31/
 
-  override name = 'PaymasterDepositTooLowError'
-
   constructor({
     cause,
   }: {
@@ -378,6 +374,7 @@ export class PaymasterDepositTooLowError extends BaseError {
         'This could arise when:',
         '- the Paymaster has deposited less than the expected amount via the `deposit` function',
       ].filter(Boolean) as string[],
+      name: 'PaymasterDepositTooLowError',
     })
   }
 }
@@ -388,7 +385,6 @@ export type PaymasterFunctionRevertedErrorType =
   }
 export class PaymasterFunctionRevertedError extends BaseError {
   static message = /aa33/
-  override name = 'PaymasterFunctionRevertedError'
   constructor({
     cause,
   }: {
@@ -396,6 +392,7 @@ export class PaymasterFunctionRevertedError extends BaseError {
   }) {
     super('The `validatePaymasterUserOp` function on the Paymaster reverted.', {
       cause,
+      name: 'PaymasterFunctionRevertedError',
     })
   }
 }
@@ -405,7 +402,6 @@ export type PaymasterNotDeployedErrorType = PaymasterNotDeployedError & {
 }
 export class PaymasterNotDeployedError extends BaseError {
   static message = /aa30/
-  override name = 'PaymasterNotDeployedError'
   constructor({
     cause,
   }: {
@@ -413,6 +409,7 @@ export class PaymasterNotDeployedError extends BaseError {
   }) {
     super('The Paymaster contract has not been deployed.', {
       cause,
+      name: 'PaymasterNotDeployedError',
     })
   }
 }
@@ -424,13 +421,12 @@ export type PaymasterRateLimitErrorType = PaymasterRateLimitError & {
 export class PaymasterRateLimitError extends BaseError {
   static code = -32504
 
-  override name = 'PaymasterRateLimitError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(
       'UserOperation rejected because paymaster (or signature aggregator) is throttled/banned.',
       {
         cause,
+        name: 'PaymasterRateLimitError',
       },
     )
   }
@@ -443,13 +439,12 @@ export type PaymasterStakeTooLowErrorType = PaymasterStakeTooLowError & {
 export class PaymasterStakeTooLowError extends BaseError {
   static code = -32505
 
-  override name = 'PaymasterStakeTooLowError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(
       'UserOperation rejected because paymaster (or signature aggregator) is throttled/banned.',
       {
         cause,
+        name: 'PaymasterStakeTooLowError',
       },
     )
   }
@@ -461,7 +456,6 @@ export type PaymasterPostOpFunctionRevertedErrorType =
   }
 export class PaymasterPostOpFunctionRevertedError extends BaseError {
   static message = /aa50/
-  override name = 'PaymasterPostOpFunctionRevertedError'
   constructor({
     cause,
   }: {
@@ -469,6 +463,7 @@ export class PaymasterPostOpFunctionRevertedError extends BaseError {
   }) {
     super('Paymaster `postOp` function reverted.', {
       cause,
+      name: 'PaymasterPostOpFunctionRevertedError',
     })
   }
 }
@@ -479,7 +474,6 @@ export type SenderAlreadyConstructedErrorType =
   }
 export class SenderAlreadyConstructedError extends BaseError {
   static message = /aa10/
-  override name = 'SenderAlreadyConstructedError'
   constructor({
     cause,
     factory,
@@ -499,6 +493,7 @@ export class SenderAlreadyConstructedError extends BaseError {
         factoryData && '`factoryData`',
         initCode && '`initCode`',
       ].filter(Boolean) as string[],
+      name: 'SenderAlreadyConstructedError',
     })
   }
 }
@@ -510,13 +505,12 @@ export type SignatureCheckFailedErrorType = SignatureCheckFailedError & {
 export class SignatureCheckFailedError extends BaseError {
   static code = -32507
 
-  override name = 'SignatureCheckFailedError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(
       'UserOperation rejected because account signature check failed (or paymaster signature, if the paymaster uses its data as signature).',
       {
         cause,
+        name: 'SignatureCheckFailedError',
       },
     )
   }
@@ -528,7 +522,6 @@ export type SmartAccountFunctionRevertedErrorType =
   }
 export class SmartAccountFunctionRevertedError extends BaseError {
   static message = /aa23/
-  override name = 'SmartAccountFunctionRevertedError'
   constructor({
     cause,
   }: {
@@ -536,6 +529,7 @@ export class SmartAccountFunctionRevertedError extends BaseError {
   }) {
     super('The `validateUserOp` function on the Smart Account reverted.', {
       cause,
+      name: 'SmartAccountFunctionRevertedError',
     })
   }
 }
@@ -548,13 +542,12 @@ export type UnsupportedSignatureAggregatorErrorType =
 export class UnsupportedSignatureAggregatorError extends BaseError {
   static code = -32506
 
-  override name = 'UnsupportedSignatureAggregatorError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(
       'UserOperation rejected because account specified unsupported signature aggregator.',
       {
         cause,
+        name: 'UnsupportedSignatureAggregatorError',
       },
     )
   }
@@ -565,7 +558,6 @@ export type UserOperationExpiredErrorType = UserOperationExpiredError & {
 }
 export class UserOperationExpiredError extends BaseError {
   static message = /aa22/
-  override name = 'UserOperationExpiredError'
   constructor({
     cause,
   }: {
@@ -577,6 +569,7 @@ export class UserOperationExpiredError extends BaseError {
         'This could arise when:',
         '- the `validAfter` or `validUntil` values returned from `validateUserOp` on the Smart Account are not satisfied',
       ].filter(Boolean) as string[],
+      name: 'UserOperationExpiredError',
     })
   }
 }
@@ -587,7 +580,6 @@ export type UserOperationPaymasterExpiredErrorType =
   }
 export class UserOperationPaymasterExpiredError extends BaseError {
   static message = /aa32/
-  override name = 'UserOperationPaymasterExpiredError'
   constructor({
     cause,
   }: {
@@ -599,6 +591,7 @@ export class UserOperationPaymasterExpiredError extends BaseError {
         'This could arise when:',
         '- the `validAfter` or `validUntil` values returned from `validatePaymasterUserOp` on the Paymaster are not satisfied',
       ].filter(Boolean) as string[],
+      name: 'UserOperationPaymasterExpiredError',
     })
   }
 }
@@ -608,7 +601,6 @@ export type UserOperationSignatureErrorType = UserOperationSignatureError & {
 }
 export class UserOperationSignatureError extends BaseError {
   static message = /aa24/
-  override name = 'UserOperationSignatureError'
   constructor({
     cause,
   }: {
@@ -620,6 +612,7 @@ export class UserOperationSignatureError extends BaseError {
         'This could arise when:',
         '- the `signature` for the User Operation is incorrectly computed, and unable to be verified by the Smart Account',
       ].filter(Boolean) as string[],
+      name: 'UserOperationSignatureError',
     })
   }
 }
@@ -630,7 +623,6 @@ export type UserOperationPaymasterSignatureErrorType =
   }
 export class UserOperationPaymasterSignatureError extends BaseError {
   static message = /aa34/
-  override name = 'UserOperationPaymasterSignatureError'
   constructor({
     cause,
   }: {
@@ -642,6 +634,7 @@ export class UserOperationPaymasterSignatureError extends BaseError {
         'This could arise when:',
         '- the `signature` for the User Operation is incorrectly computed, and unable to be verified by the Paymaster',
       ].filter(Boolean) as string[],
+      name: 'UserOperationPaymasterSignatureError',
     })
   }
 }
@@ -654,13 +647,12 @@ export type UserOperationRejectedByEntryPointErrorType =
 export class UserOperationRejectedByEntryPointError extends BaseError {
   static code = -32500
 
-  override name = 'UserOperationRejectedByEntryPointError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(
       "User Operation rejected by EntryPoint's `simulateValidation` during account creation or validation.",
       {
         cause,
+        name: 'UserOperationRejectedByEntryPointError',
       },
     )
   }
@@ -674,11 +666,10 @@ export type UserOperationRejectedByPaymasterErrorType =
 export class UserOperationRejectedByPaymasterError extends BaseError {
   static code = -32501
 
-  override name = 'UserOperationRejectedByPaymasterError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super("User Operation rejected by Paymaster's `validatePaymasterUserOp`.", {
       cause,
+      name: 'UserOperationRejectedByPaymasterError',
     })
   }
 }
@@ -691,11 +682,10 @@ export type UserOperationRejectedByOpCodeErrorType =
 export class UserOperationRejectedByOpCodeError extends BaseError {
   static code = -32502
 
-  override name = 'UserOperationRejectedByOpCodeError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super('User Operation rejected with op code validation error.', {
       cause,
+      name: 'UserOperationRejectedByOpCodeError',
     })
   }
 }
@@ -708,13 +698,12 @@ export type UserOperationOutOfTimeRangeErrorType =
 export class UserOperationOutOfTimeRangeError extends BaseError {
   static code = -32503
 
-  override name = 'UserOperationOutOfTimeRangeError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(
       'UserOperation out of time-range: either wallet or paymaster returned a time-range, and it is already expired (or will expire soon).',
       {
         cause,
+        name: 'UserOperationOutOfTimeRangeError',
       },
     )
   }
@@ -724,13 +713,12 @@ export type UnknownBundlerErrorType = UnknownBundlerError & {
   name: 'UnknownBundlerError'
 }
 export class UnknownBundlerError extends BaseError {
-  override name = 'UnknownBundlerError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(
       `An error occurred while executing user operation: ${cause?.shortMessage}`,
       {
         cause,
+        name: 'UnknownBundlerError',
       },
     )
   }
@@ -742,7 +730,6 @@ export type VerificationGasLimitExceededErrorType =
   }
 export class VerificationGasLimitExceededError extends BaseError {
   static message = /aa40/
-  override name = 'VerificationGasLimitExceededError'
   constructor({
     cause,
   }: {
@@ -754,6 +741,7 @@ export class VerificationGasLimitExceededError extends BaseError {
         'This could arise when:',
         '- the gas used for verification exceeded the `verificationGasLimit`',
       ].filter(Boolean) as string[],
+      name: 'VerificationGasLimitExceededError',
     })
   }
 }
@@ -764,7 +752,6 @@ export type VerificationGasLimitTooLowErrorType =
   }
 export class VerificationGasLimitTooLowError extends BaseError {
   static message = /aa41/
-  override name = 'VerificationGasLimitTooLowError'
   constructor({
     cause,
   }: {
@@ -776,6 +763,7 @@ export class VerificationGasLimitTooLowError extends BaseError {
         'This could arise when:',
         '- the `verificationGasLimit` is too low to verify the User Operation',
       ].filter(Boolean) as string[],
+      name: 'VerificationGasLimitTooLowError',
     })
   }
 }

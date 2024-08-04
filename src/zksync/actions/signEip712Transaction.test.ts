@@ -38,7 +38,7 @@ test('errors: no eip712 domain fn', async () => {
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
-    [ViemError: \`getEip712Domain\` not found on chain.
+    [BaseError: \`getEip712Domain\` not found on chain.
 
     Version: viem@x.y.z]
   `,
@@ -54,7 +54,7 @@ test('errors: no serializer fn', async () => {
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
-    [ViemError: transaction serializer not found on chain.
+    [BaseError: transaction serializer not found on chain.
 
     Version: viem@x.y.z]
   `,
@@ -70,7 +70,7 @@ test('errors: no account', async () => {
     [AccountNotFoundError: Could not find an Account to execute with this Action.
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-    Docs: https://viem.sh/docs/actions/wallet/signTransaction#account
+    Docs: https://viem.sh/docs/actions/wallet/signTransaction
     Version: viem@x.y.z]
   `,
   )
