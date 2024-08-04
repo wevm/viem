@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fix Abstract testnet config
+Added ZKsync config to Abstract Testnet chain.
