@@ -97,6 +97,7 @@ export {
   signTransaction,
 } from './actions/signTransaction.js'
 
+// biome-ignore lint/performance/noReExportAll: intentionally re-exporting
 export * from './chains.js'
 
 export { chainConfig } from './chainConfig.js'
@@ -120,26 +121,39 @@ export { serializeTransaction } from './serializers.js'
 
 export type {
   ZksyncBlock,
+  ZkSyncBlock,
   ZksyncRpcBlock,
+  ZkSyncRpcBlock,
 } from './types/block.js'
 export type { ChainEIP712 } from './types/chain.js'
 export type {
   EIP712Domain,
   EIP712DomainFn,
   ZksyncEip712Meta,
+  ZkSyncEip712Meta,
 } from './types/eip712.js'
 export type {
   CommonDataRawBlockTransaction,
   RawBlockTransactions,
   PublicZksyncRpcSchema,
+  PublicZkSyncRpcSchema,
 } from './types/eip1193.js'
-export type { ZksyncFeeValues } from './types/fee.js'
+export type {
+  ZksyncFeeValues,
+  ZkSyncFeeValues
+} from './types/fee.js'
 export type {
   ZksyncL2ToL1Log,
+  ZkSyncL2ToL1Log,
   ZksyncLog,
+  ZkSyncLog,
   ZksyncRpcL2ToL1Log,
+  ZkSyncRpcL2ToL1Log,
   ZksyncRpcLog,
+  ZkSyncRpcLog,
 } from './types/log.js'
+
+// biome-ignore lint/performance/noReExportAll: intentionally re-exporting
 export type * from './types/transaction.js'
 
 export {
