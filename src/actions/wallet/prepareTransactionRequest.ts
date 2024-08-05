@@ -38,6 +38,7 @@ import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
   TransactionRequestLegacy,
   TransactionSerializable,
 } from '../../types/transaction.js'
@@ -142,7 +143,8 @@ export type PrepareTransactionRequestReturnType<
     | (_transactionType extends 'legacy' ? TransactionRequestLegacy : never)
     | (_transactionType extends 'eip1559' ? TransactionRequestEIP1559 : never)
     | (_transactionType extends 'eip2930' ? TransactionRequestEIP2930 : never)
-    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never),
+    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never)
+    | (_transactionType extends 'eip7702' ? TransactionRequestEIP7702 : never),
 > = Prettify<
   UnionRequiredBy<
     Extract<

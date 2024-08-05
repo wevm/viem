@@ -14,12 +14,14 @@ import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
+  TransactionSerializableEIP7702,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
+  TransactionSerializedEIP7702,
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
@@ -46,13 +48,19 @@ import { type ToHexErrorType, bytesToHex, toHex } from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
 
 import {
+  type SerializeAuthorizationListErrorType,
+  serializeAuthorizationList,
+} from '../../experimental/eip7702/utils/serializeAuthorizationList.js'
+import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
   type AssertTransactionEIP4844ErrorType,
+  type AssertTransactionEIP7702ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionEIP4844,
+  assertTransactionEIP7702,
   assertTransactionLegacy,
 } from './assertTransaction.js'
 import {
@@ -85,6 +93,7 @@ export type SerializeTransactionErrorType =
   | SerializeTransactionEIP1559ErrorType
   | SerializeTransactionEIP2930ErrorType
   | SerializeTransactionEIP4844ErrorType
+  | SerializeTransactionEIP7702ErrorType
   | SerializeTransactionLegacyErrorType
   | ErrorType
 
@@ -116,10 +125,67 @@ export function serializeTransaction<
       signature,
     ) as SerializedTransactionReturnType<transaction>
 
+  if (type === 'eip7702')
+    return serializeTransactionEIP7702(
+      transaction as TransactionSerializableEIP7702,
+      signature,
+    ) as SerializedTransactionReturnType<transaction>
+
   return serializeTransactionLegacy(
     transaction as TransactionSerializableLegacy,
     signature as SignatureLegacy,
   ) as SerializedTransactionReturnType<transaction>
+}
+
+type SerializeTransactionEIP7702ErrorType =
+  | AssertTransactionEIP7702ErrorType
+  | SerializeAuthorizationListErrorType
+  | ConcatHexErrorType
+  | InvalidLegacyVErrorType
+  | ToHexErrorType
+  | ToRlpErrorType
+  | SerializeAccessListErrorType
+  | ErrorType
+
+function serializeTransactionEIP7702(
+  transaction: TransactionSerializableEIP7702,
+  signature?: Signature | undefined,
+): TransactionSerializedEIP7702 {
+  const {
+    authorizationList,
+    chainId,
+    gas,
+    nonce,
+    to,
+    value,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    accessList,
+    data,
+  } = transaction
+
+  assertTransactionEIP7702(transaction)
+
+  const serializedAccessList = serializeAccessList(accessList)
+  const serializedAuthorizationList =
+    serializeAuthorizationList(authorizationList)
+
+  return concatHex([
+    '0x04',
+    toRlp([
+      toHex(chainId),
+      nonce ? toHex(nonce) : '0x',
+      maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
+      maxFeePerGas ? toHex(maxFeePerGas) : '0x',
+      gas ? toHex(gas) : '0x',
+      to ?? '0x',
+      value ? toHex(value) : '0x',
+      data ?? '0x',
+      serializedAccessList,
+      serializedAuthorizationList,
+      ...toYParitySignatureArray(transaction, signature),
+    ]),
+  ]) as TransactionSerializedEIP7702
 }
 
 type SerializeTransactionEIP4844ErrorType =

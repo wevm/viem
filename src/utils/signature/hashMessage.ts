@@ -5,7 +5,7 @@ import { toPrefixedMessage } from './toPrefixedMessage.js'
 
 type To = 'hex' | 'bytes'
 
-export type HashMessage<to extends To> =
+export type HashMessageReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray : never)
   | (to extends 'hex' ? Hex : never)
 
@@ -14,6 +14,6 @@ export type HashMessageErrorType = Keccak256ErrorType | ErrorType
 export function hashMessage<to extends To = 'hex'>(
   message: SignableMessage,
   to_?: to | undefined,
-): HashMessage<to> {
+): HashMessageReturnType<to> {
   return keccak256(toPrefixedMessage(message), to_)
 }

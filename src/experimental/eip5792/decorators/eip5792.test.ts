@@ -4,7 +4,7 @@ import { wagmiContractConfig } from '~test/src/abis.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
-import { walletActionsEip5792 } from './eip5792.js'
+import { eip5792Actions } from './eip5792.js'
 
 const client = createClient({
   transport: custom({
@@ -45,10 +45,10 @@ const client = createClient({
       return null
     },
   }),
-}).extend(walletActionsEip5792())
+}).extend(eip5792Actions())
 
 test('default', async () => {
-  expect(walletActionsEip5792()(client)).toMatchInlineSnapshot(`
+  expect(eip5792Actions()(client)).toMatchInlineSnapshot(`
     {
       "getCallsStatus": [Function],
       "getCapabilities": [Function],
