@@ -22,7 +22,7 @@ export const zksyncSepoliaTestnet = /*#__PURE__*/ defineChain({
     native: {
       name: 'ZKsync Explorer',
       url: 'https://sepolia.explorer.zksync.io/',
-      blockExplorerApi: "https://block-explorer-api.sepolia.zksync.dev/api",
+      blockExplorerApi: 'https://block-explorer-api.sepolia.zksync.dev/api',
     },
   },
   contracts: {
@@ -32,6 +32,3 @@ export const zksyncSepoliaTestnet = /*#__PURE__*/ defineChain({
   },
   testnet: true,
 })
-
-/** @deprecated Use `zksyncSepoliaTestnet` instead */
-export const zkSyncSepoliaTestnet = zksyncSepoliaTestnet

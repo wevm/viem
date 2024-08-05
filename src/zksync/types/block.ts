@@ -30,8 +30,6 @@ export type ZksyncBlock<
     l1BatchTimestamp: bigint | null
   }
 >
-/** @deprecated Use `ZksyncBlock` instead */
-export type ZkSyncBlock = ZksyncBlock
 
 export type ZksyncBlockDetails = {
   number: number
@@ -54,8 +52,6 @@ export type ZksyncBlockDetails = {
   operatorAddress: Address
   protocolVersion?: string
 }
-/** @deprecated Use `ZksyncBlockDetails` instead */
-export type ZkSyncBlockDetails = ZksyncBlockDetails
 
 export type ZksyncRpcBlock<
   blockTag extends BlockTag = BlockTag,

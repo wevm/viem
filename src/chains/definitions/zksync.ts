@@ -35,6 +35,3 @@ export const zksync = /*#__PURE__*/ defineChain({
     },
   },
 })
-
-/** @deprecated Use `zksync` instead */
-export const zkSync = zksync

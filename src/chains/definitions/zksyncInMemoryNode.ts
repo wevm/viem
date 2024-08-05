@@ -14,6 +14,3 @@ export const zksyncInMemoryNode = /*#__PURE__*/ defineChain({
   },
   testnet: true,
 })
-
-/** @deprecated Use `zksyncInMemoryNode` instead */
-export const zkSyncInMemoryNode = zksyncInMemoryNode

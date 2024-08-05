@@ -14,6 +14,3 @@ export const zksyncLocalNode = /*#__PURE__*/ defineChain({
   },
   testnet: true,
 })
-
-/** @deprecated Use `zksyncLocalNode` instead */
-export const zkSyncLocalNode = zksyncLocalNode
