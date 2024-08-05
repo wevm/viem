@@ -348,7 +348,7 @@ describe('converts hex to bytes', () => {
     expect(() =>
       fromHex('0x420fggf11a', 'bytes'),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: Invalid byte sequence ("gg" in "420fggf11a").
+      [BaseError: Invalid byte sequence ("gg" in "420fggf11a").
 
       Version: viem@x.y.z]
     `)

@@ -90,7 +90,7 @@ test('default', () => {
       type: 'eip712',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: \`paymasterInput\` must be provided when \`paymaster\` is defined
+    [BaseError: \`paymasterInput\` must be provided when \`paymaster\` is defined
 
     Version: viem@x.y.z]
   `)
@@ -102,7 +102,7 @@ test('default', () => {
       type: 'eip712',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: \`paymaster\` must be provided when \`paymasterInput\` is defined
+    [BaseError: \`paymaster\` must be provided when \`paymasterInput\` is defined
 
     Version: viem@x.y.z]
   `)

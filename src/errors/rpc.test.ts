@@ -87,7 +87,7 @@ test('ProviderRpcError', () => {
       },
     ),
   ).toMatchInlineSnapshot(`
-    [ProviderRpcError: An internal error was received.
+    [RpcRequestError: An internal error was received.
 
     URL: http://localhost
     Request body: {"foo":"bar"}

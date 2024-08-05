@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { BaseError } from './base.js'
+import { BaseError, setErrorConfig } from './base.js'
 
 test('BaseError', () => {
   expect(new BaseError('An error occurred.')).toMatchInlineSnapshot(`
-    [ViemError: An error occurred.
+    [BaseError: An error occurred.
 
     Version: viem@x.y.z]
   `)
@@ -12,14 +12,14 @@ test('BaseError', () => {
   expect(
     new BaseError('An error occurred.', { details: 'details' }),
   ).toMatchInlineSnapshot(`
-    [ViemError: An error occurred.
+    [BaseError: An error occurred.
 
     Details: details
     Version: viem@x.y.z]
   `)
 
   expect(new BaseError('', { details: 'details' })).toMatchInlineSnapshot(`
-    [ViemError: An error occurred.
+    [BaseError: An error occurred.
 
     Details: details
     Version: viem@x.y.z]
@@ -33,7 +33,7 @@ test('BaseError (w/ docsPath)', () => {
       docsPath: '/lol',
     }),
   ).toMatchInlineSnapshot(`
-    [ViemError: An error occurred.
+    [BaseError: An error occurred.
 
     Docs: https://viem.sh/lol
     Details: details
@@ -44,7 +44,7 @@ test('BaseError (w/ docsPath)', () => {
       cause: new BaseError('error', { docsPath: '/docs' }),
     }),
   ).toMatchInlineSnapshot(`
-    [ViemError: An error occurred.
+    [BaseError: An error occurred.
 
     Docs: https://viem.sh/docs
     Version: viem@x.y.z]
@@ -55,7 +55,7 @@ test('BaseError (w/ docsPath)', () => {
       docsPath: '/lol',
     }),
   ).toMatchInlineSnapshot(`
-    [ViemError: An error occurred.
+    [BaseError: An error occurred.
 
     Docs: https://viem.sh/lol
     Version: viem@x.y.z]
@@ -64,12 +64,11 @@ test('BaseError (w/ docsPath)', () => {
     new BaseError('An error occurred.', {
       details: 'details',
       docsPath: '/lol',
-      docsSlug: 'test',
     }),
   ).toMatchInlineSnapshot(`
-    [ViemError: An error occurred.
+    [BaseError: An error occurred.
 
-    Docs: https://viem.sh/lol#test
+    Docs: https://viem.sh/lol
     Details: details
     Version: viem@x.y.z]
   `)
@@ -81,12 +80,11 @@ test('BaseError (w/ docsBaseUrl)', () => {
       docsBaseUrl: 'https://test',
       details: 'details',
       docsPath: '/lol',
-      docsSlug: 'test',
     }),
   ).toMatchInlineSnapshot(`
-    [ViemError: An error occurred.
+    [BaseError: An error occurred.
 
-    Docs: https://test/lol#test
+    Docs: https://test/lol
     Details: details
     Version: viem@x.y.z]
   `)
@@ -99,7 +97,7 @@ test('BaseError (w/ metaMessages)', () => {
       metaMessages: ['Reason: idk', 'Cause: lol'],
     }),
   ).toMatchInlineSnapshot(`
-    [ViemError: An error occurred.
+    [BaseError: An error occurred.
 
     Reason: idk
     Cause: lol
@@ -119,8 +117,8 @@ test('inherited BaseError', () => {
       cause: err,
     }),
   ).toMatchInlineSnapshot(`
-    [ViemError: An internal error occurred.
-    
+    [BaseError: An internal error occurred.
+
     Docs: https://viem.sh/lol
     Details: details
     Version: viem@x.y.z]
@@ -135,8 +133,8 @@ test('inherited Error', () => {
       docsPath: '/lol',
     }),
   ).toMatchInlineSnapshot(`
-    [ViemError: An internal error occurred.
-    
+    [BaseError: An internal error occurred.
+
     Docs: https://viem.sh/lol
     Details: details
     Version: viem@x.y.z]
@@ -151,7 +149,7 @@ test('walk: no predicate fn (walks to leaf)', () => {
     cause: new FooError('test2', { cause: new BarError('test3') }),
   })
   expect(err.walk()).toMatchInlineSnapshot(`
-    [ViemError: test3
+    [BaseError: test3
 
     Version: viem@x.y.z]
   `)
@@ -165,7 +163,7 @@ test('walk: predicate fn', () => {
     cause: new FooError('test2', { cause: new BarError('test3') }),
   })
   expect(err.walk((err) => err instanceof FooError)).toMatchInlineSnapshot(`
-    [ViemError: test2
+    [BaseError: test2
 
     Version: viem@x.y.z]
   `)
@@ -179,4 +177,35 @@ test('walk: predicate fn (no match)', () => {
     cause: new Error('test2', { cause: new BarError('test3') }),
   })
   expect(err.walk((err) => err instanceof FooError)).toBeNull()
+})
+
+test('setErrorConfig', () => {
+  class FooError extends BaseError {
+    constructor() {
+      super('An error occurred', {
+        name: 'FooError',
+      })
+    }
+  }
+
+  setErrorConfig({
+    getDocsUrl({ name }) {
+      if (name === 'FooError') return 'https://sweetlib.com/xyz'
+      return undefined
+    },
+    version: 'sweetlib@1.2.3',
+  })
+
+  expect(new BaseError('An error occurred.')).toMatchInlineSnapshot(`
+    [BaseError: An error occurred.
+
+    Version: sweetlib@1.2.3]
+  `)
+
+  expect(new FooError()).toMatchInlineSnapshot(`
+    [FooError: An error occurred
+
+    Docs: https://sweetlib.com/xyz
+    Version: sweetlib@1.2.3]
+  `)
 })

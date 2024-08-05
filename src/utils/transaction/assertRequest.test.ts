@@ -21,7 +21,7 @@ test('fee cap too high', () => {
   expect(() =>
     assertRequest({ maxFeePerGas: 2n ** 256n - 1n + 1n }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+    [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
     Version: viem@x.y.z]
   `)
