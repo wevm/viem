@@ -20,6 +20,7 @@ Below is a very basic example of how to encode event topics without arguments.
 
 ```ts [example.ts]
 import { encodeEventTopics } from 'viem'
+import { wagmiAbi } from './abi.ts'
 
 const topics = encodeEventTopics({
   abi: wagmiAbi,

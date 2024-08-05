@@ -20,7 +20,7 @@ Given an ABI (`abi`) and a function (`functionName`), pass through the values (`
 
 ```ts [example.ts]
 import { encodeFunctionResult } from 'viem';
-
+import { wagmiAbi } from './abi.ts'
 const data = encodeFunctionResult({
   abi: wagmiAbi,
   functionName: 'ownerOf',
