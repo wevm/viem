@@ -22,6 +22,7 @@ import {
   SmartAccountFunctionRevertedError,
   UnknownBundlerError,
   UserOperationExpiredError,
+  UserOperationRejectedByEntryPointError,
   UserOperationPaymasterExpiredError,
   UserOperationPaymasterSignatureError,
   UserOperationSignatureError,
@@ -413,6 +414,18 @@ test('UserOperationPaymasterExpiredError', () => {
 
     This could arise when:
     - the \`validAfter\` or \`validUntil\` values returned from \`validatePaymasterUserOp\` on the Paymaster are not satisfied
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UserOperationRejectedByEntryPointError', () => {
+  expect(
+    new UserOperationRejectedByEntryPointError({
+      cause: new BaseError('test'),
+    }),
+  ).toMatchInlineSnapshot(`
+    [UserOperationRejectedByEntryPointError: User Operation rejected by EntryPoint's \`simulateValidation\` during account creation or validation.
 
     Version: viem@x.y.z]
   `)
