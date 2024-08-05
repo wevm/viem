@@ -13,6 +13,8 @@ export type ZksyncEip712Meta = {
   customSignature?: Hex | undefined
   paymasterParams?: PaymasterParams | undefined
 }
+/** @deprecated Use `ZksyncEip712Meta` instead */
+export type ZkSyncEip712Meta = ZksyncEip712Meta
 
 type EIP712FieldType = 'uint256' | 'bytes' | 'bytes32[]'
 type EIP712Field = { name: string; type: EIP712FieldType }

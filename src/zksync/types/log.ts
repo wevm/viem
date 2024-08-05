@@ -20,6 +20,8 @@ export type ZksyncLog<
   transactionLogIndex: index
   logType: Hex | null
 }
+/** @deprecated Use `ZksyncLog` instead */
+export type ZkSyncLog = ZksyncLog
 
 export type ZksyncRpcLog = RpcLog_ & {
   l1BatchNumber: Hex | null
@@ -27,6 +29,8 @@ export type ZksyncRpcLog = RpcLog_ & {
   transactionLogIndex: Hex
   logType: Hex | null
 }
+/** @deprecated Use `ZksyncRpcLog` instead */
+export type ZkSyncRpcLog = ZksyncRpcLog
 
 export type ZksyncL2ToL1Log = {
   blockNumber: bigint
@@ -41,6 +45,8 @@ export type ZksyncL2ToL1Log = {
   transactionHash: string
   logIndex: bigint
 }
+/** @deprecated Use `ZksyncL2ToL1Log` instead */
+export type ZkSyncL2ToL1Log = ZksyncL2ToL1Log
 
 export type ZksyncRpcL2ToL1Log = {
   blockNumber: Hex
@@ -55,3 +61,5 @@ export type ZksyncRpcL2ToL1Log = {
   transactionHash: Hex
   logIndex: Hex
 }
+/** @deprecated Use `ZksyncRpcL2ToL1Log` instead */
+export type ZkSyncRpcL2ToL1Log = ZksyncRpcL2ToL1Log

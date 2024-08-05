@@ -97,10 +97,7 @@ export {
   signTransaction,
 } from './actions/signTransaction.js'
 
-export {
-  zksync,
-  zksyncSepoliaTestnet,
-} from './chains.js'
+export * from './chains.js'
 
 export { chainConfig } from './chainConfig.js'
 
@@ -143,29 +140,7 @@ export type {
   ZksyncRpcL2ToL1Log,
   ZksyncRpcLog,
 } from './types/log.js'
-export type {
-  TransactionRequestEIP712,
-  ZksyncEIP712TransactionSignable,
-  ZksyncRawBlockTransactions,
-  ZksyncRpcTransaction,
-  ZksyncRpcTransactionEIP712,
-  ZksyncRpcTransactionPriority,
-  ZksyncRpcTransactionReceiptOverrides,
-  ZksyncRpcTransactionRequest,
-  ZksyncRpcTransactionRequestEIP712,
-  ZksyncTransaction,
-  ZksyncTransactionEIP712,
-  ZksyncTransactionReceipt,
-  ZksyncTransactionReceiptOverrides,
-  ZksyncTransactionRequest,
-  ZksyncTransactionRequestEIP712,
-  ZksyncTransactionSerializable,
-  ZksyncTransactionSerializableEIP712,
-  ZksyncTransactionSerialized,
-  ZksyncTransactionSerializedEIP712,
-  ZksyncTransactionType,
-  ZksyncTransactionDetails,
-} from './types/transaction.js'
+export type * from './types/transaction.js'
 
 export {
   type GetApprovalBasedPaymasterInputParameters,

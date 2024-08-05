@@ -159,3 +159,5 @@ export type PublicZksyncRpcSchema = [
     ReturnType: Address
   },
 ]
+/** @deprecated Use `PublicZksyncRpcSchema` instead */
+export type PublicZkSyncRpcSchema = PublicZksyncRpcSchema

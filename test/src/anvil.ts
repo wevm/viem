@@ -70,6 +70,8 @@ export const anvilZksync = defineAnvil({
   forkBlockNumber: 25734n,
   port: 8745,
 })
+/** @deprecated Use `anvilZksync` instead */
+export const anvilZkSync = anvilZksync
 
 ////////////////////////////////////////////////////////////
 // Utilities

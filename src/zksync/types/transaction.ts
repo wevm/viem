@@ -58,6 +58,8 @@ export type ZksyncTransactionEIP712<pending extends boolean = boolean> =
     FeeValuesEIP1559 & {
       type: 'eip712' | 'priority'
     }
+/** @deprecated Use `ZksyncTransactionEIP712` instead */
+export type ZkSyncTransactionEIP712 = ZksyncTransactionEIP712;
 
 type Transaction<pending extends boolean = boolean> = Transaction_<
   bigint,
@@ -70,6 +72,8 @@ export type ZksyncTransaction<pending extends boolean = boolean> =
   | Transaction<pending>
   | TransactionPriority<pending>
   | ZksyncTransactionEIP712<pending>
+/** @deprecated Use `ZksyncTransaction` instead */
+export type ZkSyncTransaction = ZksyncTransaction;
 
 // Transaction (RPC)
 
@@ -95,6 +99,8 @@ export type ZksyncRpcTransactionPriority<pending extends boolean = boolean> =
       chainId: Hex
       type: PriorityType
     }
+/** @deprecated Use `ZksyncRpcTransactionPriority` instead */
+export type ZkSyncRpcTransactionPriority = ZksyncRpcTransactionPriority;
 
 export type ZksyncRpcTransactionEIP712<pending extends boolean = boolean> =
   TransactionBase<Quantity, Index, pending> &
@@ -104,6 +110,8 @@ export type ZksyncRpcTransactionEIP712<pending extends boolean = boolean> =
       chainId: Hex
       type: EIP712Type
     }
+/** @deprecated Use `ZksyncRpcTransactionEIP712` instead */
+export type ZkSyncRpcTransactionEIP712 = ZksyncRpcTransactionEIP712;
 
 export type ZksyncRpcTransaction<pending extends boolean = boolean> = UnionOmit<
   | RpcTransactionLegacy<pending>
@@ -113,6 +121,8 @@ export type ZksyncRpcTransaction<pending extends boolean = boolean> = UnionOmit<
   | ZksyncRpcTransactionEIP712<pending>,
   'typeHex'
 >
+/** @deprecated Use `ZksyncRpcTransaction` instead */
+export type ZkSyncRpcTransaction = ZksyncRpcTransaction;
 
 // Transaction Request
 // https://era.zksync.io/docs/reference/concepts/transactions
@@ -141,10 +151,14 @@ export type ZksyncTransactionRequestEIP712<
     | { paymaster: Address; paymasterInput: Hex }
     | { paymaster?: undefined; paymasterInput?: undefined }
   )
+/** @deprecated Use `ZksyncTransactionRequestEIP712` instead */
+export type ZkSyncTransactionRequestEIP712 = ZksyncTransactionRequestEIP712
 
 export type ZksyncTransactionRequest<quantity = bigint, index = number> =
   | TransactionRequest<quantity, index>
   | ZksyncTransactionRequestEIP712<quantity, index>
+/** @deprecated Use `ZksyncTransactionRequest` instead */
+export type ZkSyncTransactionRequest = ZksyncTransactionRequest
 
 type RpcTransactionRequest = RpcTransactionRequest_ & { eip712Meta?: undefined }
 
@@ -156,12 +170,18 @@ export type ZksyncRpcTransactionRequestEIP712 = TransactionRequestBase<
     eip712Meta: ZksyncEip712Meta
     type: EIP712Type | PriorityType
   }
+/** @deprecated Use `ZksyncRpcTransactionRequestEIP712` instead */
+export type ZkSyncRpcTransactionRequestEIP712 = ZksyncRpcTransactionRequestEIP712;
 
 export type ZksyncRpcTransactionRequest =
   | RpcTransactionRequest
   | ZksyncRpcTransactionRequestEIP712
+/** @deprecated Use `ZksyncRpcTransactionRequest` instead */
+export type ZkSyncRpcTransactionRequest = ZksyncRpcTransactionRequest
 
 export type ZksyncTransactionType = TransactionType | 'eip712' | 'priority'
+/** @deprecated Use `ZksyncTransactionType` instead */
+export type ZkSyncTransactionType = ZksyncTransactionType
 
 // Transaction Receipt
 // https://era.zksync.io/docs/api/js/types#transactionreceipt
@@ -173,9 +193,13 @@ export type ZksyncRpcTransactionReceiptOverrides = {
   l2ToL1Logs: ZksyncRpcL2ToL1Log[]
   root: Hex
 }
+/** @deprecated Use `ZksyncRpcTransactionReceiptOverrides` instead */
+export type ZkSyncRpcTransactionReceiptOverrides = ZksyncRpcTransactionReceiptOverrides
 
 export type ZksyncRpcTransactionReceipt = Omit<RpcTransactionReceipt, 'logs'> &
   ZksyncRpcTransactionReceiptOverrides
+/** @deprecated Use `ZksyncRpcTransactionReceipt` instead */
+export type ZkSyncRpcTransactionReceipt = ZksyncRpcTransactionReceipt
 
 export type ZksyncTransactionReceiptOverrides = {
   l1BatchNumber: bigint | null
@@ -183,26 +207,36 @@ export type ZksyncTransactionReceiptOverrides = {
   logs: ZksyncLog[]
   l2ToL1Logs: ZksyncL2ToL1Log[]
 }
+/** @deprecated Use `ZksyncTransactionReceiptOverrides` instead */
+export type ZkSyncTransactionReceiptOverrides = ZksyncTransactionReceiptOverrides
 
 export type ZksyncTransactionReceipt<
   status = 'success' | 'reverted',
   type = ZksyncTransactionType,
 > = Omit<TransactionReceipt<bigint, number, status, type>, 'logs'> &
   ZksyncTransactionReceiptOverrides
+/** @deprecated Use `ZksyncTransactionReceipt` instead */
+export type ZkSyncTransactionReceipt = ZksyncTransactionReceipt
 
 // Serializers
 
 export type ZksyncTransactionSerializable = OneOf<
   TransactionSerializable | ZksyncTransactionSerializableEIP712
 >
+/** @deprecated Use `ZksyncTransactionSerializable` instead */
+export type ZkSyncTransactionSerializable = ZksyncTransactionSerializable
 
 export type ZksyncTransactionSerialized<
   type extends TransactionType = 'eip712',
 > = type extends 'eip712'
   ? ZksyncTransactionSerializedEIP712
   : TransactionSerialized<type>
+/** @deprecated Use `ZksyncTransactionSerialized` instead */
+export type ZkSyncTransactionSerialized = ZksyncTransactionSerialized
 
 export type ZksyncTransactionSerializedEIP712 = `0x71${string}`
+/** @deprecated Use `ZksyncTransactionSerializedEIP712` instead */
+export type ZkSyncTransactionSerializedEIP712 = ZksyncTransactionSerializedEIP712
 
 export type ZksyncTransactionSerializableEIP712<
   quantity = bigint,
@@ -216,6 +250,8 @@ export type ZksyncTransactionSerializableEIP712<
   customSignature?: Hex | undefined
   type?: 'eip712' | undefined
 }
+/** @deprecated Use `ZksyncTransactionSerializableEIP712` instead */
+export type ZkSyncTransactionSerializableEIP712 = ZksyncTransactionSerializableEIP712
 
 // EIP712 Signer
 
@@ -234,6 +270,8 @@ export type ZksyncEIP712TransactionSignable = {
   factoryDeps: Hex[]
   paymasterInput: Hex
 }
+/** @deprecated Use `ZksyncEIP712TransactionSignable` instead */
+export type ZkSyncEIP712TransactionSignable = ZksyncEIP712TransactionSignable
 
 export type TransactionRequestEIP712<
   quantity = bigint,
@@ -308,6 +346,8 @@ export type ZksyncRawBlockTransactions = {
   receivedTimestampMs: number
   rawBytes?: string | undefined
 }[]
+/** @deprecated Use `ZksyncRawBlockTransactions` instead */
+export type ZkSyncRawBlockTransactions = ZksyncRawBlockTransactions
 
 export type ZksyncTransactionDetails = {
   isL1Originated: boolean
@@ -320,3 +360,5 @@ export type ZksyncTransactionDetails = {
   ethProveTxHash?: Hash | undefined
   ethExecuteTxHash?: Hash | undefined
 }
+/** @deprecated Use `ZksyncTransactionDetails` instead */
+export type ZkSyncTransactionDetails = ZksyncTransactionDetails
