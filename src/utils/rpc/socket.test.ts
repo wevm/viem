@@ -569,6 +569,85 @@ test('request (error)', async () => {
   socketClient.close()
 })
 
+test('request (error on close - subscription)', async () => {
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onClose, onResponse }) {
+      return {
+        close() {
+          onClose()
+        },
+        async request({ body }) {
+          onResponse({ id: body.id!, jsonrpc: '2.0', result: '0xabc' })
+          await wait(100)
+          onClose()
+        },
+      }
+    },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  const error = await new Promise((res) => {
+    socketClient.request({
+      body: { method: 'eth_subscribe' },
+      onError: (error) => {
+        res(error)
+      },
+      onResponse: () => {},
+    })
+  })
+
+  expect(error).toMatchInlineSnapshot(`
+    [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('request (error on close)', async () => {
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onClose, onResponse }) {
+      return {
+        close() {
+          onClose()
+        },
+        async request() {
+          await wait(100)
+          onResponse({ id: 0, jsonrpc: '2.0', result: '0xabc' })
+        },
+      }
+    },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  const [error] = await Promise.all([
+    new Promise((res) => {
+      socketClient.request({
+        body: { method: 'test' },
+        onError: (error) => {
+          res(error)
+        },
+        onResponse: () => {},
+      })
+    }),
+    (async () => {
+      await wait(50)
+      socketClient.close()
+    })(),
+  ])
+
+  expect(error).toMatchInlineSnapshot(`
+    [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('requestAsync', async () => {
   const socketClient = await getSocketRpcClient({
     key: 'test-socket',
@@ -588,10 +667,10 @@ test('requestAsync', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 25,
+      "id": 29,
       "jsonrpc": "2.0",
       "result": {
-        "id": 25,
+        "id": 29,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -599,4 +678,40 @@ test('requestAsync', async () => {
   `)
 
   socketClient.close()
+})
+
+test('requestAsync (error on close)', async () => {
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onClose, onResponse }) {
+      return {
+        close() {
+          onClose()
+        },
+        async request({ body }) {
+          await wait(100)
+          onResponse({ id: body.id!, jsonrpc: '2.0', result: '0xabc' })
+        },
+      }
+    },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  await expect(() =>
+    Promise.all([
+      socketClient.requestAsync({
+        body: { method: 'test' },
+      }),
+      (async () => {
+        await wait(50)
+        socketClient.close()
+      })(),
+    ]),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
+    Version: viem@x.y.z]
+  `)
 })

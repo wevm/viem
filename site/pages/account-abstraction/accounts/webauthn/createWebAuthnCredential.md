@@ -69,11 +69,11 @@ import * as passkey from 'react-native-passkeys' // [!code focus]
 
 const credential = await createWebAuthnCredential({
   name: 'Example',
+  createFn: passkey.create, // [!code focus]
 })
 
 const account = toWebAuthnAccount({
   credential,
-  createFn: passkey.create, // [!code focus]
 })
 ```
 

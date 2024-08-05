@@ -5,7 +5,6 @@ export type Eip712DomainNotFoundErrorType = Eip712DomainNotFoundError & {
   name: 'Eip712DomainNotFoundError'
 }
 export class Eip712DomainNotFoundError extends BaseError {
-  override name = 'Eip712DomainNotFoundError'
   constructor({ address }: { address: Address }) {
     super(`No EIP-712 domain found on contract "${address}".`, {
       metaMessages: [
@@ -14,6 +13,7 @@ export class Eip712DomainNotFoundError extends BaseError {
         '- `eip712Domain()` function exists on the contract.',
         '- `eip712Domain()` function matches signature to ERC-5267 specification.',
       ],
+      name: 'Eip712DomainNotFoundError',
     })
   }
 }

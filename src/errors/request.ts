@@ -7,8 +7,6 @@ export type HttpRequestErrorType = HttpRequestError & {
   name: 'HttpRequestError'
 }
 export class HttpRequestError extends BaseError {
-  override name = 'HttpRequestError'
-
   body?: { [x: string]: unknown } | { [y: string]: unknown }[] | undefined
   headers?: Headers | undefined
   status?: number | undefined
@@ -37,6 +35,7 @@ export class HttpRequestError extends BaseError {
         `URL: ${getUrl(url)}`,
         body && `Request body: ${stringify(body)}`,
       ].filter(Boolean) as string[],
+      name: 'HttpRequestError',
     })
     this.body = body
     this.headers = headers
@@ -49,20 +48,25 @@ export type WebSocketRequestErrorType = WebSocketRequestError & {
   name: 'WebSocketRequestError'
 }
 export class WebSocketRequestError extends BaseError {
-  override name = 'WebSocketRequestError'
-
   constructor({
     body,
+    cause,
     details,
     url,
   }: {
-    body: { [key: string]: unknown }
-    details: string
+    body?: { [key: string]: unknown } | undefined
+    cause?: Error | undefined
+    details?: string | undefined
     url: string
   }) {
     super('WebSocket request failed.', {
+      cause,
       details,
-      metaMessages: [`URL: ${getUrl(url)}`, `Request body: ${stringify(body)}`],
+      metaMessages: [
+        `URL: ${getUrl(url)}`,
+        body && `Request body: ${stringify(body)}`,
+      ].filter(Boolean) as string[],
+      name: 'WebSocketRequestError',
     })
   }
 }
@@ -71,8 +75,6 @@ export type RpcRequestErrorType = RpcRequestError & {
   name: 'RpcRequestError'
 }
 export class RpcRequestError extends BaseError {
-  override name = 'RpcRequestError'
-
   code: number
 
   constructor({
@@ -88,8 +90,25 @@ export class RpcRequestError extends BaseError {
       cause: error as any,
       details: error.message,
       metaMessages: [`URL: ${getUrl(url)}`, `Request body: ${stringify(body)}`],
+      name: 'RpcRequestError',
     })
     this.code = error.code
+  }
+}
+
+export type SocketClosedErrorType = SocketClosedError & {
+  name: 'SocketClosedError'
+}
+export class SocketClosedError extends BaseError {
+  constructor({
+    url,
+  }: {
+    url?: string | undefined
+  } = {}) {
+    super('The socket has been closed.', {
+      metaMessages: [url && `URL: ${getUrl(url)}`].filter(Boolean) as string[],
+      name: 'SocketClosedError',
+    })
   }
 }
 
@@ -97,8 +116,6 @@ export type TimeoutErrorType = TimeoutError & {
   name: 'TimeoutError'
 }
 export class TimeoutError extends BaseError {
-  override name = 'TimeoutError'
-
   constructor({
     body,
     url,
@@ -109,6 +126,7 @@ export class TimeoutError extends BaseError {
     super('The request took too long to respond.', {
       details: 'The request timed out.',
       metaMessages: [`URL: ${getUrl(url)}`, `Request body: ${stringify(body)}`],
+      name: 'TimeoutError',
     })
   }
 }

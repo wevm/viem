@@ -5,8 +5,6 @@ export type InvalidEip712TransactionErrorType =
     name: 'InvalidEip712TransactionError'
   }
 export class InvalidEip712TransactionError extends BaseError {
-  override name = 'InvalidEip712TransactionError'
-
   constructor() {
     super(
       [
@@ -16,6 +14,7 @@ export class InvalidEip712TransactionError extends BaseError {
         '  - include `type: "eip712"`',
         '  - include one of the following: `customSignature`, `paymaster`, `paymasterInput`, `gasPerPubdata`, `factoryDeps`',
       ].join('\n'),
+      { name: 'InvalidEip712TransactionError' },
     )
   }
 }

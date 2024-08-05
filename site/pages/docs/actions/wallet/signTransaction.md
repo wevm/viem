@@ -139,7 +139,8 @@ The access list.
 ```ts twoslash
 // [!include ~/snippets/walletClient.ts]
 // ---cut---
-const signature = await publicClient.signTransaction({
+// @noErrors
+const signature = await walletClient.signTransaction({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',

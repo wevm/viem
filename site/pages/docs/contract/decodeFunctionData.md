@@ -22,6 +22,7 @@ Below is a very basic example of how to decode a function to calldata.
 
 ```ts [example.ts]
 import { decodeFunctionData } from 'viem'
+import { wagmiAbi } from './abi.ts'
 
 const { functionName } = decodeFunctionData({
   abi: wagmiAbi,

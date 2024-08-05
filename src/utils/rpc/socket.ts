@@ -1,4 +1,4 @@
-import { TimeoutError } from '../../errors/request.js'
+import { SocketClosedError, TimeoutError } from '../../errors/request.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
 import {
@@ -134,6 +134,12 @@ export async function getSocketRpcClient<socket extends {}>(
       async function setup() {
         const result = await getSocket({
           onClose() {
+            // Notify all requests and subscriptions of the closure error.
+            for (const request of requests.values())
+              request.onError?.(new SocketClosedError({ url }))
+            for (const subscription of subscriptions.values())
+              subscription.onError?.(new SocketClosedError({ url }))
+
             // Clear all requests and subscriptions.
             requests.clear()
             subscriptions.clear()

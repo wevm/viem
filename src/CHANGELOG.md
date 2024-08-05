@@ -1,5 +1,49 @@
 # viem
 
+## 2.18.8
+
+### Patch Changes
+
+- [#2577](https://github.com/wevm/viem/pull/2577) [`7abfb47`](https://github.com/wevm/viem/commit/7abfb47a78febcfccefb9ecb3aa061e00eb92f32) Thanks [@qiwu7](https://github.com/qiwu7)! - Added B3 Sepolia chain.
+
+- [#2576](https://github.com/wevm/viem/pull/2576) [`4172928`](https://github.com/wevm/viem/commit/4172928f5dfa3645b7d441d2af0959b6f275bffb) Thanks [@jonathangus](https://github.com/jonathangus)! - Added Abstract Testnet
+
+## 2.18.7
+
+### Patch Changes
+
+- [`55ef649`](https://github.com/wevm/viem/commit/55ef649e060c791fbf21fa4fa180fcf411c36799) Thanks [@jxom](https://github.com/jxom)! - Fixed chain config for `lisk`.
+
+- [#2571](https://github.com/wevm/viem/pull/2571) [`39c0ce0`](https://github.com/wevm/viem/commit/39c0ce04c4e757c33eb635a4d72029eb28bb5438) Thanks [@j6i](https://github.com/j6i)! - Added Shape Sepolia chain.
+
+## 2.18.6
+
+### Patch Changes
+
+- [`889371e`](https://github.com/wevm/viem/commit/889371e3d62b8c6044c463f933bc49c4f00e742b) Thanks [@jxom](https://github.com/jxom)! - Hooked `onError` up to WebSocket `subscribe`.
+
+- [#2552](https://github.com/wevm/viem/pull/2552) [`84e7d30`](https://github.com/wevm/viem/commit/84e7d30dec0a45503dd6a6b30893e369c75ab92a) Thanks [@wilsoncusack](https://github.com/wilsoncusack)! - Fixed ERC6492 verification for case where prepare data may need to be called.
+
+## 2.18.5
+
+### Patch Changes
+
+- [`5babc8d2`](https://github.com/wevm/viem/commit/5babc8d2bc408467912db7fc8de10123944b7d47) Thanks [@jxom](https://github.com/jxom)! - Added more robust WebSocket socket closure handling.
+
+- [#2555](https://github.com/wevm/viem/pull/2555) [`9be9b2cc`](https://github.com/wevm/viem/commit/9be9b2cc99e5aa26e67dbfaaf11f0dd6aa8c49f3) Thanks [@mycodecrafting](https://github.com/mycodecrafting)! - Added Forma mainnet and Sketchpad testnet chains.
+
+## 2.18.4
+
+### Patch Changes
+
+- [`5a528d9b`](https://github.com/wevm/viem/commit/5a528d9b24cbdd495371ce69a290ad9358e4c358) Thanks [@jxom](https://github.com/jxom)! - Propagated `message` + `cause` to root `Error` instance.
+
+## 2.18.3
+
+### Patch Changes
+
+- [#2545](https://github.com/wevm/viem/pull/2545) [`6811b47`](https://github.com/wevm/viem/commit/6811b472ae9e84940e8570240ebe000b16bf3284) Thanks [@ezynda3](https://github.com/ezynda3)! - Added Gravity Alpha Mainnet chain.
+
 ## 2.18.2
 
 ### Patch Changes

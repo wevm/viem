@@ -43,7 +43,7 @@ import { publicClient } from './client'
 
 const logs = await publicClient.getLogs({  // [!code focus:99]
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  event: parseAbiItem('event Transfer(address indexed, address indexed, uint256)'),
+  event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256)'),
   args: {
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'

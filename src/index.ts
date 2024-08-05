@@ -710,7 +710,7 @@ export {
   UnsupportedPackedAbiType,
   type UnsupportedPackedAbiTypeErrorType,
 } from './errors/abi.js'
-export { BaseError, type BaseErrorType } from './errors/base.js'
+export { BaseError, type BaseErrorType, setErrorConfig } from './errors/base.js'
 export {
   BlockNotFoundError,
   type BlockNotFoundErrorType,
@@ -857,6 +857,8 @@ export {
   type RpcRequestErrorType,
   TimeoutError,
   type TimeoutErrorType,
+  SocketClosedError,
+  type SocketClosedErrorType,
   WebSocketRequestError,
   type WebSocketRequestErrorType,
 } from './errors/request.js'

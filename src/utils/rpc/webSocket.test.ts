@@ -416,7 +416,6 @@ describe('request', () => {
       URL: http://localhost
       Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
 
-      Details: Socket is closed.
       Version: viem@x.y.z]
     `,
     )
@@ -445,7 +444,6 @@ describe('request', () => {
       URL: http://localhost
       Request body: {"jsonrpc":"2.0","id":13,"method":"wagmi_lol"}
 
-      Details: Socket is closed.
       Version: viem@x.y.z]
     `,
     )

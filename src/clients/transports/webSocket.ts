@@ -144,6 +144,11 @@ export function webSocket(
                   method: 'eth_subscribe',
                   params,
                 },
+                onError(error) {
+                  reject(error)
+                  onError?.(error)
+                  return
+                },
                 onResponse(response) {
                   if (response.error) {
                     reject(response.error)

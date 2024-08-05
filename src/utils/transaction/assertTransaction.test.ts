@@ -67,7 +67,7 @@ describe('eip4844', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Version: viem@x.y.z]
     `)
@@ -82,7 +82,7 @@ describe('eip1559', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Version: viem@x.y.z]
     `)
@@ -134,7 +134,7 @@ describe('eip2930', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Version: viem@x.y.z]
     `)
@@ -170,7 +170,7 @@ describe('eip2930', () => {
         maxPriorityFeePerGas: parseGwei('1') as unknown as undefined,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
+      [BaseError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
 
       Version: viem@x.y.z]
     `)
@@ -185,7 +185,7 @@ describe('legacy', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Version: viem@x.y.z]
     `)
@@ -222,7 +222,7 @@ test('invalid transaction type', () => {
       maxPriorityFeePerGas: parseGwei('1') as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
+    [BaseError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
 
     Version: viem@x.y.z]
   `)
@@ -232,7 +232,7 @@ test('invalid transaction type', () => {
       maxFeePerGas: parseGwei('1') as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid Legacy Transaction attribute.
+    [BaseError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid Legacy Transaction attribute.
 
     Version: viem@x.y.z]
   `)
@@ -242,7 +242,7 @@ test('invalid transaction type', () => {
       accessList: [] as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: \`accessList\` is not a valid Legacy Transaction attribute.
+    [BaseError: \`accessList\` is not a valid Legacy Transaction attribute.
 
     Version: viem@x.y.z]
   `)

@@ -1,10 +1,20 @@
 import { describe, expect, test } from 'vitest'
 
-import { SoladyAccountFactory07 } from '~contracts/generated.js'
+import {
+  SoladyAccount07,
+  SoladyAccountFactory07,
+} from '~contracts/generated.js'
 import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deploySoladyAccount_07 } from '~test/src/utils.js'
+import {
+  entryPoint07Abi,
+  entryPoint07Address,
+  toPackedUserOperation,
+} from '~viem/account-abstraction/index.js'
+import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
+import { bundlerMainnet } from '../../../test/src/bundler.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
@@ -172,6 +182,55 @@ describe('smart account', async () => {
       verifyHash(client, {
         address: verifier,
         factory: factoryAddress,
+        factoryData,
+        hash: hashMessage('hello world'),
+        signature,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('deployed w/ owner update encoded as factory + factoryData', async () => {
+    const [account] = await getSmartAccounts_07()
+
+    const newOwner = privateKeyToAccount(accounts[1].privateKey)
+    const bundlerClient = bundlerMainnet.getBundlerClient({ client })
+
+    const op = await bundlerClient.prepareUserOperation({
+      account,
+      calls: [
+        {
+          to: account.address,
+          value: 0n,
+          data: encodeFunctionData({
+            abi: SoladyAccount07.abi,
+            functionName: 'transferOwnership',
+            args: [newOwner.address],
+          }),
+        },
+      ],
+    })
+    const opSignature = await account.signUserOperation(op)
+    op.signature = opSignature
+
+    const factory = entryPoint07Address
+    const factoryData = encodeFunctionData({
+      abi: entryPoint07Abi,
+      functionName: 'handleOps',
+      args: [[toPackedUserOperation(op)], account.address],
+    })
+
+    const signature = await signMessageErc1271(client, {
+      account: newOwner,
+      factory,
+      factoryData,
+      message: 'hello world',
+      verifier: account.address,
+    })
+
+    expect(
+      verifyHash(client, {
+        address: account.address,
+        factory,
         factoryData,
         hash: hashMessage('hello world'),
         signature,

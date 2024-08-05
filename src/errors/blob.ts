@@ -7,10 +7,10 @@ export type BlobSizeTooLargeErrorType = BlobSizeTooLargeError & {
   name: 'BlobSizeTooLargeError'
 }
 export class BlobSizeTooLargeError extends BaseError {
-  override name = 'BlobSizeTooLargeError'
   constructor({ maxSize, size }: { maxSize: number; size: number }) {
     super('Blob size is too large.', {
       metaMessages: [`Max: ${maxSize} bytes`, `Given: ${size} bytes`],
+      name: 'BlobSizeTooLargeError',
     })
   }
 }
@@ -19,9 +19,8 @@ export type EmptyBlobErrorType = EmptyBlobError & {
   name: 'EmptyBlobError'
 }
 export class EmptyBlobError extends BaseError {
-  override name = 'EmptyBlobError'
   constructor() {
-    super('Blob data must not be empty.')
+    super('Blob data must not be empty.', { name: 'EmptyBlobError' })
   }
 }
 
@@ -30,7 +29,6 @@ export type InvalidVersionedHashSizeErrorType =
     name: 'InvalidVersionedHashSizeError'
   }
 export class InvalidVersionedHashSizeError extends BaseError {
-  override name = 'InvalidVersionedHashSizeError'
   constructor({
     hash,
     size,
@@ -40,6 +38,7 @@ export class InvalidVersionedHashSizeError extends BaseError {
   }) {
     super(`Versioned hash "${hash}" size is invalid.`, {
       metaMessages: ['Expected: 32', `Received: ${size}`],
+      name: 'InvalidVersionedHashSizeError',
     })
   }
 }
@@ -49,7 +48,6 @@ export type InvalidVersionedHashVersionErrorType =
     name: 'InvalidVersionedHashVersionError'
   }
 export class InvalidVersionedHashVersionError extends BaseError {
-  override name = 'InvalidVersionedHashVersionError'
   constructor({
     hash,
     version,
@@ -62,6 +60,7 @@ export class InvalidVersionedHashVersionError extends BaseError {
         `Expected: ${versionedHashVersionKzg}`,
         `Received: ${version}`,
       ],
+      name: 'InvalidVersionedHashVersionError',
     })
   }
 }
