@@ -10,8 +10,6 @@ export type UserOperationExecutionErrorType = UserOperationExecutionError & {
 export class UserOperationExecutionError extends BaseError {
   override cause: BaseError
 
-  override name = 'UserOperationExecutionError'
-
   constructor(
     cause: BaseError,
     {
@@ -69,6 +67,7 @@ export class UserOperationExecutionError extends BaseError {
         'Request Arguments:',
         prettyArgs,
       ].filter(Boolean) as string[],
+      name: 'UserOperationExecutionError',
     })
     this.cause = cause
   }
@@ -79,10 +78,10 @@ export type UserOperationReceiptNotFoundErrorType =
     name: 'UserOperationReceiptNotFoundError'
   }
 export class UserOperationReceiptNotFoundError extends BaseError {
-  override name = 'UserOperationReceiptNotFoundError'
   constructor({ hash }: { hash: Hash }) {
     super(
       `User Operation receipt with hash "${hash}" could not be found. The User Operation may not have been processed yet.`,
+      { name: 'UserOperationReceiptNotFoundError' },
     )
   }
 }
@@ -91,9 +90,10 @@ export type UserOperationNotFoundErrorType = UserOperationNotFoundError & {
   name: 'UserOperationNotFoundError'
 }
 export class UserOperationNotFoundError extends BaseError {
-  override name = 'UserOperationNotFoundError'
   constructor({ hash }: { hash: Hash }) {
-    super(`User Operation with hash "${hash}" could not be found.`)
+    super(`User Operation with hash "${hash}" could not be found.`, {
+      name: 'UserOperationNotFoundError',
+    })
   }
 }
 
@@ -102,10 +102,10 @@ export type WaitForUserOperationReceiptTimeoutErrorType =
     name: 'WaitForUserOperationReceiptTimeoutError'
   }
 export class WaitForUserOperationReceiptTimeoutError extends BaseError {
-  override name = 'WaitForUserOperationReceiptTimeoutError'
   constructor({ hash }: { hash: Hash }) {
     super(
       `Timed out while waiting for User Operation with hash "${hash}" to be confirmed.`,
+      { name: 'WaitForUserOperationReceiptTimeoutError' },
     )
   }
 }

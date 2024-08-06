@@ -527,7 +527,7 @@ export const sidebar = {
               link: '/op-stack',
             },
             {
-              text: 'zkSync',
+              text: 'ZKsync',
               link: '/zksync',
             },
           ],
@@ -1251,6 +1251,58 @@ export const sidebar = {
         ],
       },
       {
+        text: 'EIP-7702',
+        items: [
+          {
+            text: 'Overview',
+            link: '/experimental/eip7702',
+          },
+          {
+            text: 'Guides',
+            items: [
+              {
+                text: 'Extending Client',
+                link: '/experimental/eip7702/client',
+              },
+              {
+                text: 'Contract Writes',
+                link: '/experimental/eip7702/contract-writes',
+              },
+              {
+                text: 'Sending Transactions',
+                link: '/experimental/eip7702/sending-transactions',
+              },
+            ],
+          },
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'signAuthorization',
+                link: '/experimental/eip7702/signAuthorization',
+              },
+            ],
+          },
+          {
+            text: 'Utilities',
+            items: [
+              {
+                text: 'hashAuthorization',
+                link: '/experimental/eip7702/hashAuthorization',
+              },
+              {
+                text: 'recoverAuthorizationAddress',
+                link: '/experimental/eip7702/recoverAuthorizationAddress',
+              },
+              {
+                text: 'verifyAuthorization',
+                link: '/experimental/eip7702/verifyAuthorization',
+              },
+            ],
+          },
+        ],
+      },
+      {
         text: 'ERC-7715',
         items: [
           {
@@ -1523,7 +1575,7 @@ export const sidebar = {
     backLink: true,
     items: [
       {
-        text: 'zkSync',
+        text: 'ZKsync',
         items: [
           {
             text: 'Getting Started',

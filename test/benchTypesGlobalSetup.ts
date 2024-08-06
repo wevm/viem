@@ -1,6 +1,6 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { setup } from '@arktype/attest'
+import { setup } from '@ark/attest'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -14,4 +14,4 @@ export default function () {
 }
 
 // biome-ignore lint/performance/noBarrelFile: <explanation>
-export { teardown } from '@arktype/attest'
+export { teardown } from '@ark/attest'

@@ -126,7 +126,7 @@ test('trim spaces', () => {
 test('error: invalid signatures', () => {
   expect(() => normalizeSignature('bar')).toThrowErrorMatchingInlineSnapshot(
     `
-    [ViemError: Unable to normalize signature.
+    [BaseError: Unable to normalize signature.
 
     Version: viem@x.y.z]
   `,
@@ -135,7 +135,7 @@ test('error: invalid signatures', () => {
   expect(() =>
     normalizeSignature('bar(uint foo'),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: Unable to normalize signature.
+    [BaseError: Unable to normalize signature.
 
     Version: viem@x.y.z]
   `)
@@ -143,7 +143,7 @@ test('error: invalid signatures', () => {
   expect(() =>
     normalizeSignature('baruint foo)'),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: Unable to normalize signature.
+    [BaseError: Unable to normalize signature.
 
     Version: viem@x.y.z]
   `)
@@ -151,7 +151,7 @@ test('error: invalid signatures', () => {
   expect(() =>
     normalizeSignature('bar(uint foo, (uint baz)'),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: Unable to normalize signature.
+    [BaseError: Unable to normalize signature.
 
     Version: viem@x.y.z]
   `)

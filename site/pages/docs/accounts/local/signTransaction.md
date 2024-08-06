@@ -82,7 +82,29 @@ const signature = await account.signTransaction({
       storageKeys: ['0x1'],
     },
   ],
-  type: 'eip1559'
+  chainId: 1,
+})
+```
+
+### authorizationList (optional)
+
+- **Type:** `AuthorizationList`
+
+Signed EIP-7702 Authorization list.
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const authorization = await account.experimental_signAuthorization({
+  address: '0x...',
+  chainId: 1,
+  nonce: 1,
+})
+
+const signature = await account.signTransaction({
+  authorizationList: [authorization], // [!code focus]
+  chainId: 1,
 })
 ```
 
@@ -240,7 +262,7 @@ const signature = await account.signTransaction({
 
 ### to (optional)
 
-- **Type:** `number`
+- **Type:** `Address`
 
 The transaction recipient.
 

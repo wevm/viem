@@ -18,6 +18,7 @@ import { encodeErrorResult } from 'viem'
 
 ```ts [example.ts]
 import { decodeErrorResult } from 'viem'
+import { wagmiAbi } from './abi.ts'
 
 const value = encodeErrorResult({
   abi: wagmiAbi,

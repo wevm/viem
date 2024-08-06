@@ -170,6 +170,7 @@ test('exports', () => {
       "InvalidDefinitionTypeError",
       "UnsupportedPackedAbiType",
       "BaseError",
+      "setErrorConfig",
       "BlockNotFoundError",
       "CallExecutionError",
       "ContractFunctionExecutionError",

@@ -98,9 +98,18 @@ export {
 } from './actions/signTransaction.js'
 
 export {
-  zkSync,
-  zkSyncTestnet,
-  zkSyncSepoliaTestnet,
+  /** @deprecated Use `zksync` instead */
+  zksync as zkSync,
+  zksync,
+  /** @deprecated Use `zksync` instead */
+  zksyncInMemoryNode as zkSyncInMemoryNode,
+  zksyncInMemoryNode,
+  /** @deprecated Use `zksync` instead */
+  zksyncLocalNode as zkSyncLocalNode,
+  zksyncLocalNode,
+  /** @deprecated Use `zksync` instead */
+  zksyncSepoliaTestnet as zkSyncSepoliaTestnet,
+  zksyncSepoliaTestnet,
 } from './chains.js'
 
 export { chainConfig } from './chainConfig.js'
@@ -123,49 +132,119 @@ export {
 export { serializeTransaction } from './serializers.js'
 
 export type {
-  ZkSyncBlock,
-  ZkSyncRpcBlock,
+  /** @deprecated Use `ZksyncBlock` instead */
+  ZksyncBlock as ZkSyncBlock,
+  ZksyncBlock,
+  /** @deprecated Use `ZksyncRpcBlock` instead */
+  ZksyncRpcBlock as ZkSyncRpcBlock,
+  ZksyncRpcBlock,
+  ZksyncBatchDetails,
+  ZksyncBlockDetails,
+  ZksyncNumberParameter,
 } from './types/block.js'
 export type { ChainEIP712 } from './types/chain.js'
 export type {
   EIP712Domain,
   EIP712DomainFn,
-  ZkSyncEip712Meta,
+  /** @deprecated Use `ZksyncEip712Meta` instead */
+  ZksyncEip712Meta as ZkSyncEip712Meta,
+  ZksyncEip712Meta,
 } from './types/eip712.js'
 export type {
   CommonDataRawBlockTransaction,
   RawBlockTransactions,
-  PublicZkSyncRpcSchema,
+  PublicZksyncRpcSchema,
+  /** @deprecated Use `PublicZksyncRpcSchema` instead */
+  PublicZksyncRpcSchema as PublicZkSyncRpcSchema,
 } from './types/eip1193.js'
-export type { ZkSyncFeeValues } from './types/fee.js'
 export type {
-  ZkSyncL2ToL1Log,
-  ZkSyncLog,
-  ZkSyncRpcL2ToL1Log,
-  ZkSyncRpcLog,
+  /** @deprecated Use `ZksyncFeeValues` instead */
+  ZksyncFeeValues as ZkSyncFeeValues,
+  ZksyncFeeValues,
+} from './types/fee.js'
+export type {
+  /** @deprecated Use `ZksyncL2ToL1Log` instead */
+  ZksyncL2ToL1Log as ZkSyncL2ToL1Log,
+  ZksyncL2ToL1Log,
+  /** @deprecated Use `ZksyncLog` instead */
+  ZksyncLog as ZkSyncLog,
+  ZksyncLog,
+  /** @deprecated Use `ZksyncRpcL2ToL1Log` instead */
+  ZksyncRpcL2ToL1Log as ZkSyncRpcL2ToL1Log,
+  ZksyncRpcL2ToL1Log,
+  /** @deprecated Use `ZkSyncRpcLog` instead */
+  ZksyncRpcLog as ZkSyncRpcLog,
+  ZksyncRpcLog,
 } from './types/log.js'
+
 export type {
   TransactionRequestEIP712,
-  ZkSyncEIP712TransactionSignable,
-  ZkSyncRawBlockTransactions,
-  ZkSyncRpcTransaction,
-  ZkSyncRpcTransactionEIP712,
-  ZkSyncRpcTransactionPriority,
-  ZkSyncRpcTransactionReceiptOverrides,
-  ZkSyncRpcTransactionRequest,
-  ZkSyncRpcTransactionRequestEIP712,
-  ZkSyncTransaction,
-  ZkSyncTransactionEIP712,
-  ZkSyncTransactionReceipt,
-  ZkSyncTransactionReceiptOverrides,
-  ZkSyncTransactionRequest,
-  ZkSyncTransactionRequestEIP712,
-  ZkSyncTransactionSerializable,
-  ZkSyncTransactionSerializableEIP712,
-  ZkSyncTransactionSerialized,
-  ZkSyncTransactionSerializedEIP712,
-  ZkSyncTransactionType,
-  ZkSyncTransactionDetails,
+  /** @deprecated Use `ZksyncTransactionRequest_internal` instead */
+  TransactionRequest as ZkSyncTransactionRequest_internal,
+  TransactionRequest as ZksyncTransactionRequest_internal,
+  /** @deprecated Use `ZksyncEIP712TransactionSignable` instead */
+  ZksyncEIP712TransactionSignable as ZkSyncEIP712TransactionSignable,
+  ZksyncEIP712TransactionSignable,
+  /** @deprecated Use `ZksyncRpcTransaction` instead */
+  ZksyncRpcTransaction as ZkSyncRpcTransaction,
+  ZksyncRpcTransaction,
+  /** @deprecated Use `ZksyncRpcTransactionEIP712` instead */
+  ZksyncRpcTransactionEIP712 as ZkSyncRpcTransactionEIP712,
+  ZksyncRpcTransactionEIP712,
+  /** @deprecated Use `ZksyncRpcTransactionPriority` instead */
+  ZksyncRpcTransactionPriority as ZkSyncRpcTransactionPriority,
+  ZksyncRpcTransactionPriority,
+  /** @deprecated Use `ZksyncRpcTransactionReceiptOverrides` instead */
+  ZksyncRpcTransactionReceiptOverrides as ZkSyncRpcTransactionReceiptOverrides,
+  ZksyncRpcTransactionReceiptOverrides,
+  /** @deprecated Use `ZksyncRpcTransactionRequest` instead */
+  ZksyncRpcTransactionRequest as ZkSyncRpcTransactionRequest,
+  ZksyncRpcTransactionRequest,
+  /** @deprecated Use `ZksyncRpcTransactionRequestEIP712` instead */
+  ZksyncRpcTransactionRequestEIP712 as ZkSyncRpcTransactionRequestEIP712,
+  ZksyncRpcTransactionRequestEIP712,
+  /** @deprecated Use `ZksyncTransaction` instead */
+  ZksyncTransaction as ZkSyncTransaction,
+  ZksyncTransaction,
+  /** @deprecated Use `ZksyncTransactionEIP712` instead */
+  ZksyncTransactionEIP712 as ZkSyncTransactionEIP712,
+  ZksyncTransactionEIP712,
+  /** @deprecated Use `ZksyncTransactionReceipt` instead */
+  ZksyncTransactionReceipt as ZkSyncTransactionReceipt,
+  ZksyncTransactionReceipt,
+  /** @deprecated Use `ZksyncTransactionReceiptOverrides` instead */
+  ZksyncTransactionReceiptOverrides as ZkSyncTransactionReceiptOverrides,
+  ZksyncTransactionReceiptOverrides,
+  /** @deprecated Use `ZksyncTransactionRequest` instead */
+  ZksyncTransactionRequest as ZkSyncTransactionRequest,
+  ZksyncTransactionRequest,
+  /** @deprecated Use `ZksyncTransactionRequestEIP712` instead */
+  ZksyncTransactionRequestEIP712 as ZkSyncTransactionRequestEIP712,
+  ZksyncTransactionRequestEIP712,
+  /** @deprecated Use `ZksyncTransactionSerializable` instead */
+  ZksyncTransactionSerializable as ZkSyncTransactionSerializable,
+  ZksyncTransactionSerializable,
+  /** @deprecated Use `ZksyncTransactionSerializableEIP712` instead */
+  ZksyncTransactionSerializableEIP712 as ZkSyncTransactionSerializableEIP712,
+  ZksyncTransactionSerializableEIP712,
+  /** @deprecated Use `ZksyncTransactionSerialized` instead */
+  ZksyncTransactionSerialized as ZkSyncTransactionSerialized,
+  ZksyncTransactionSerialized,
+  /** @deprecated Use `ZksyncTransactionSerializedEIP712` instead */
+  ZksyncTransactionSerializedEIP712 as ZkSyncTransactionSerializedEIP712,
+  ZksyncTransactionSerializedEIP712,
+  /** @deprecated Use `ZksyncTransactionType` instead */
+  ZksyncTransactionType as ZkSyncTransactionType,
+  ZksyncTransactionType,
+  /** @deprecated Use `ZksyncRawBlockTransactions` instead */
+  ZksyncRawBlockTransactions as ZkSyncRawBlockTransactions,
+  ZksyncRawBlockTransactions,
+  /** @deprecated Use `ZksyncRpcTransactionReceipt` instead */
+  ZksyncRpcTransactionReceipt as ZkSyncRpcTransactionReceipt,
+  ZksyncRpcTransactionReceipt,
+  /** @deprecated Use `ZksyncTransactionDetails` instead */
+  ZksyncTransactionDetails as ZkSyncTransactionDetails,
+  ZksyncTransactionDetails,
 } from './types/transaction.js'
 
 export {

@@ -1002,7 +1002,7 @@ describe('converts hex to bytes', () => {
 
   test('error: invalid hex', () => {
     expect(() => hexToBytes('0xabcdefgh')).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: Invalid byte sequence ("gh" in "abcdefgh").
+      [BaseError: Invalid byte sequence ("gh" in "abcdefgh").
 
       Version: viem@x.y.z]
     `)

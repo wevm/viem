@@ -1,5 +1,21 @@
 # viem
 
+## 2.18.8
+
+### Patch Changes
+
+- [#2577](https://github.com/wevm/viem/pull/2577) [`7abfb47`](https://github.com/wevm/viem/commit/7abfb47a78febcfccefb9ecb3aa061e00eb92f32) Thanks [@qiwu7](https://github.com/qiwu7)! - Added B3 Sepolia chain.
+
+- [#2576](https://github.com/wevm/viem/pull/2576) [`4172928`](https://github.com/wevm/viem/commit/4172928f5dfa3645b7d441d2af0959b6f275bffb) Thanks [@jonathangus](https://github.com/jonathangus)! - Added Abstract Testnet
+
+## 2.18.7
+
+### Patch Changes
+
+- [`55ef649`](https://github.com/wevm/viem/commit/55ef649e060c791fbf21fa4fa180fcf411c36799) Thanks [@jxom](https://github.com/jxom)! - Fixed chain config for `lisk`.
+
+- [#2571](https://github.com/wevm/viem/pull/2571) [`39c0ce0`](https://github.com/wevm/viem/commit/39c0ce04c4e757c33eb635a4d72029eb28bb5438) Thanks [@j6i](https://github.com/j6i)! - Added Shape Sepolia chain.
+
 ## 2.18.6
 
 ### Patch Changes

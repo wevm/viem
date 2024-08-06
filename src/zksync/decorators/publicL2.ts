@@ -82,17 +82,17 @@ export type PublicActionsL2<
   account extends Account | undefined = Account | undefined,
 > = {
   /**
-   * Returns the addresses of the default zkSync Era bridge contracts on both L1 and L2.
+   * Returns the addresses of the default zksync Era bridge contracts on both L1 and L2.
    *
-   * @returns The Addresses of the default zkSync Era bridge contracts on both L1 and L2. {@link DefaultBridgeAddressesReturnType}
+   * @returns The Addresses of the default zksync Era bridge contracts on both L1 and L2. {@link DefaultBridgeAddressesReturnType}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -107,11 +107,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -126,11 +126,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -140,17 +140,17 @@ export type PublicActionsL2<
   getL1ChainId: () => Promise<GetL1ChainIdReturnType>
 
   /**
-   * Returns the address of a Main zkSync Contract.
+   * Returns the address of a Main zksync Contract.
    *
    * @returns The Address. {@link Address}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -166,11 +166,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -188,11 +188,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -203,18 +203,18 @@ export type PublicActionsL2<
   ) => Promise<GetRawBlockTransactionsReturnType>
 
   /**
-   * Returns additional zkSync-specific information about the L2 block.
+   * Returns additional zksync-specific information about the L2 block.
    *
-   * @returns zkSync-specific information about the L2 block {@link BaseBlockDetails}
+   * @returns zksync-specific information about the L2 block {@link BaseBlockDetails}
    * @param args - {@link GetBlockDetailsParameters}
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -232,11 +232,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -254,11 +254,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -275,11 +275,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -294,11 +294,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -314,11 +314,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -336,11 +336,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -358,11 +358,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -380,11 +380,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *
@@ -400,11 +400,11 @@ export type PublicActionsL2<
    *
    * @example
    * import { createPublicClient, http } from 'viem'
-   * import { zkSyncLocalNode } from 'viem/chains'
+   * import { zksyncLocalNode } from 'viem/chains'
    * import { publicActionsL2 } from 'viem/zksync'
    *
    * const client = createPublicClient({
-   *   chain: zkSyncLocalNode,
+   *   chain: zksyncLocalNode,
    *   transport: http(),
    * }).extend(publicActionsL2())
    *

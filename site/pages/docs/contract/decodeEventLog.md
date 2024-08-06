@@ -18,6 +18,7 @@ import { decodeEventLog } from 'viem'
 
 ```ts [example.ts]
 import { decodeEventLog } from 'viem'
+import { wagmiAbi } from './abi.ts'
 
 const topics = decodeEventLog({
   abi: wagmiAbi,

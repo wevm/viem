@@ -2,21 +2,21 @@ import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 
-import { anvilZkSync } from '../../../test/src/anvil.js'
+import { anvilZksync } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import type { TransactionRequest } from '../../index.js'
-import type { ZkSyncTransactionRequestEIP712 } from '../../zksync/index.js'
+import type { ZksyncTransactionRequestEIP712 } from '../../zksync/index.js'
 import { signTransaction } from './signTransaction.js'
 
 const sourceAccount = accounts[0]
 
-const client = anvilZkSync.getClient()
+const client = anvilZksync.getClient()
 
 const base: TransactionRequest = {
   from: '0x0000000000000000000000000000000000000000',
   type: 'eip1559',
 }
-const eip712: ZkSyncTransactionRequestEIP712 = {
+const eip712: ZksyncTransactionRequestEIP712 = {
   from: '0x0000000000000000000000000000000000000000',
   paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
   paymasterInput:
@@ -30,7 +30,7 @@ test('eip712', async () => {
       ...eip712,
     }),
   ).toMatchInlineSnapshot(
-    `"0x71f8c880808080808000820144808082014494000000000000000000000000000000000000000082c350c0b841bb509f381d29a038bd2f700bd6a1f1138edfd7a3cf7234c13a03b01a023a30aa53e6bd5e6a50fdcdcf74587c9395b8a314690abbc85aadab5ebcb7678994eacf1bf85b94fd9ae5ebb0f6656f4b77a0e99dcbc5138d54b0bab8448c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000"`,
+    `"0x71f8c880808080808000820144808082014494000000000000000000000000000000000000000082c350c0b841edc8fb1e839969b2072865653798be4b4e6ea7181ec97c5e32867bad5838224e1d247fb2f2f07c1bc70bf789d43404771ac496f4fc57c5e6398c1fa6fe6f62861cf85b94fd9ae5ebb0f6656f4b77a0e99dcbc5138d54b0bab8448c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000"`,
   )
 })
 

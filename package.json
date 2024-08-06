@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.3",
-    "@arktype/attest": "0.8.0",
+    "@ark/attest": "^0.10.2",
     "@biomejs/biome": "^1.8.0",
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.2",
@@ -64,7 +64,7 @@
     "ethers": "^6.0.2",
     "glob": "^10.4.1",
     "knip": "^5.17.4",
-    "prool": "^0.0.15",
+    "prool": "^0.0.16",
     "publint": "^0.2.8",
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.8.1",
@@ -163,7 +163,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "31 kB",
+      "limit": "31.5 kB",
       "import": "*"
     },
     {
@@ -187,7 +187,7 @@
     {
       "name": "import { getEnsAvatar } from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "22.7 kB",
+      "limit": "23 kB",
       "import": "{ getEnsAvatar }"
     },
     {

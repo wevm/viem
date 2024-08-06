@@ -63,21 +63,6 @@ export type Mutable<type extends object> = {
 }
 
 /**
- * @description Returns type {@link T} if it is an opaque type of {@link U}
- * @param T - Type to check
- * @param U - Type to against
- *
- * @example
- * type Result = Opaque<string, 'foo'>
- * //   ^? never
- *
- * @example
- * type Result = Opaque<string, string>
- * //   ^? string
- */
-export type Opaque<T, U> = IsNarrowable<T, U> extends true ? T : never
-
-/**
  * @description Evaluates boolean "or" condition for {@link T} properties.
  * @param T - Type to check
  *
