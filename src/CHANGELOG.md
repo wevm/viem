@@ -1,5 +1,11 @@
 # viem
 
+## 2.19.1
+
+### Patch Changes
+
+- [`91aafc0`](https://github.com/wevm/viem/commit/91aafc0442cc5f96db3818f94b4d38d62eebe856) Thanks [@jxom](https://github.com/jxom)! - Added `name` to `ResourceNotFoundRpcErrorType`
+
 ## 2.19.0
 
 ### Minor Changes
