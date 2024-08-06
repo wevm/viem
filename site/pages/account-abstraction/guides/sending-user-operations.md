@@ -78,7 +78,7 @@ Next, we will need to set up a Bundler Client. A Bundler is required to submit U
 
 ```ts twoslash
 import { createPublicClient, http } from 'viem'
-import { createBundlerClient } from 'viem/account-abstraction' // [!code focus]
+import { createBundlerClient } from 'viem/account-abstraction' // [!code ++] // [!code focus]
 import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
@@ -86,10 +86,10 @@ const client = createPublicClient({
   transport: http(),
 })
 
-const bundlerClient = createBundlerClient({ // [!code focus]
-  client, // [!code focus]
-  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code focus]
-}) // [!code focus]
+const bundlerClient = createBundlerClient({ // [!code ++] // [!code focus]
+  client, // [!code ++] // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code ++] // [!code focus]
+}) // [!code ++] // [!code focus]
 ```
 
 :::info
@@ -107,7 +107,7 @@ We will also need to set up an Owner for the Smart Account which will be used to
 import { createPublicClient, http } from 'viem'
 import { createBundlerClient } from 'viem/account-abstraction'
 import { mainnet } from 'viem/chains'
-import { privateKeyToAccount } from 'viem/accounts' // [!code focus]
+import { privateKeyToAccount } from 'viem/accounts' // [!code ++] // [!code focus]
 
 const client = createPublicClient({
   chain: mainnet,
@@ -119,7 +119,7 @@ const bundlerClient = createBundlerClient({
   transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
-const owner = privateKeyToAccount('0x...') // [!code focus]
+const owner = privateKeyToAccount('0x...') // [!code ++] // [!code focus]
 ```
 
 [See `privateKeyToAccount` Docs](/docs/accounts/local/privateKeyToAccount)
@@ -131,10 +131,10 @@ Next, we will instantiate a Smart Account. For this example, we will use [`toCoi
 ```ts twoslash
 // @noErrors
 import { createPublicClient, http } from 'viem'
-import { // [!code focus]
-  createBundlerClient, // [!code focus]
-  toCoinbaseSmartAccount // [!code focus]
-} from 'viem/account-abstraction' // [!code focus]
+import { // [!code ++] // [!code focus]
+  createBundlerClient, // [!code ++] // [!code focus]
+  toCoinbaseSmartAccount // [!code ++] // [!code focus]
+} from 'viem/account-abstraction' // [!code ++] // [!code focus]
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -150,10 +150,10 @@ const bundlerClient = createBundlerClient({
 
 const owner = privateKeyToAccount('0x...')
 
-const account = await toCoinbaseSmartAccount({ // [!code focus]
-  client, // [!code focus]
-  owners: [owner] // [!code focus]
-}) // [!code focus]
+const account = await toCoinbaseSmartAccount({ // [!code ++] // [!code focus]
+  client, // [!code ++] // [!code focus]
+  owners: [owner] // [!code ++] // [!code focus]
+}) // [!code ++] // [!code focus]
 ```
 
 :::tip
@@ -192,15 +192,15 @@ const account = await toCoinbaseSmartAccount({
   owners: [owner]
 }) 
 
-const hash = await bundlerClient.sendUserOperation({ // [!code focus]
-  account, // [!code focus]
-  calls: [{ // [!code focus]
-    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
-    value: parseEther('0.001') // [!code focus]
-  }] // [!code focus]
-}) // [!code focus]
+const hash = await bundlerClient.sendUserOperation({ // [!code ++] // [!code focus]
+  account, // [!code ++] // [!code focus]
+  calls: [{ // [!code ++] // [!code focus]
+    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code ++] // [!code focus]
+    value: parseEther('0.001') // [!code ++] // [!code focus]
+  }] // [!code ++] // [!code focus]
+}) // [!code ++] // [!code focus]
 
-const receipt = await bundlerClient.waitForUserOperationReceipt({ hash }) // [!code focus]
+const receipt = await bundlerClient.waitForUserOperationReceipt({ hash }) // [!code ++] // [!code focus]
 ```
 
 :::tip

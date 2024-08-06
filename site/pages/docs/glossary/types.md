@@ -146,7 +146,7 @@ Legacy transaction hex value – a "0x"-prefixed string: `"0x${string}"`
 
 ## `TransactionType`
 
-All types of transactions. `"eip1559" | "eip2930" | "eip4844" | "legacy"`
+All types of transactions. `"eip1559" | "eip2930" | "eip4844" | "eip7702" | "legacy"`
 
 ## `TransactionRequest`
 

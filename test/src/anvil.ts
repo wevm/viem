@@ -250,6 +250,7 @@ function defineAnvil<const chain extends Chain>(
         instance: anvil({
           forkUrl,
           forkBlockNumber,
+          hardfork: 'Prague',
           ...options,
         }),
         port,

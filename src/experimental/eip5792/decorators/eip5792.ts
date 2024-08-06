@@ -28,7 +28,7 @@ import {
   writeContracts,
 } from '../actions/writeContracts.js'
 
-export type WalletActionsEip5792<
+export type Eip5792Actions<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
@@ -44,12 +44,12 @@ export type WalletActionsEip5792<
    * @example
    * import { createWalletClient, custom } from 'viem'
    * import { mainnet } from 'viem/chains'
-   * import { walletActionsEip5792 } from 'viem/experimental'
+   * import { eip5792Actions } from 'viem/experimental'
    *
    * const client = createWalletClient({
    *   chain: mainnet,
    *   transport: custom(window.ethereum),
-   * }).extend(walletActionsEip5792())
+   * }).extend(eip5792Actions())
    *
    * const { receipts, status } = await client.getCallsStatus({ id: '0xdeadbeef' })
    */
@@ -68,12 +68,12 @@ export type WalletActionsEip5792<
    * @example
    * import { createWalletClient, custom } from 'viem'
    * import { mainnet } from 'viem/chains'
-   * import { walletActionsEip5792 } from 'viem/experimental'
+   * import { eip5792Actions } from 'viem/experimental'
    *
    * const client = createWalletClient({
    *   chain: mainnet,
    *   transport: custom(window.ethereum),
-   * }).extend(walletActionsEip5792())
+   * }).extend(eip5792Actions())
    *
    * const capabilities = await client.getCapabilities({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -96,12 +96,12 @@ export type WalletActionsEip5792<
    * @example
    * import { createWalletClient, custom } from 'viem'
    * import { mainnet } from 'viem/chains'
-   * import { walletActionsEip5792 } from 'viem/experimental'
+   * import { eip5792Actions } from 'viem/experimental'
    *
    * const client = createWalletClient({
    *   chain: mainnet,
    *   transport: custom(window.ethereum),
-   * }).extend(walletActionsEip5792())
+   * }).extend(eip5792Actions())
    *
    * const id = await client.sendCalls({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -133,12 +133,12 @@ export type WalletActionsEip5792<
    * @example
    * import { createWalletClient, custom } from 'viem'
    * import { mainnet } from 'viem/chains'
-   * import { walletActionsEip5792 } from 'viem/experimental'
+   * import { eip5792Actions } from 'viem/experimental'
    *
    * const client = createWalletClient({
    *   chain: mainnet,
    *   transport: custom(window.ethereum),
-   * }).extend(walletActionsEip5792())
+   * }).extend(eip5792Actions())
    *
    * await client.showCallsStatus({ id: '0xdeadbeef' })
    */
@@ -210,23 +210,23 @@ export type WalletActionsEip5792<
  * @example
  * import { createPublicClient, createWalletClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { walletActionsEip5792 } from 'viem/experimental'
+ * import { eip5792Actions } from 'viem/experimental'
  *
  * const walletClient = createWalletClient({
  *   chain: mainnet,
  *   transport: http(),
- * }).extend(walletActionsEip5792())
+ * }).extend(eip5792Actions())
  *
  * const hash = await walletClient.sendCalls({...})
  */
-export function walletActionsEip5792() {
+export function eip5792Actions() {
   return <
     transport extends Transport,
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   >(
     client: Client<transport, chain, account>,
-  ): WalletActionsEip5792<chain, account> => {
+  ): Eip5792Actions<chain, account> => {
     return {
       getCallsStatus: (parameters) => getCallsStatus(client, parameters),
       getCapabilities: ((parameters: any) =>
