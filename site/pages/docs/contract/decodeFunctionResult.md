@@ -54,14 +54,7 @@ If your `abi` contains only one ABI item, you can omit the `functionName` (it be
 
 ```ts [example.ts]
 import { decodeFunctionResult } from 'viem'
-
-const abiItem = {
-  inputs: [{ name: 'tokenId', type: 'uint256' }],
-  name: 'ownerOf',
-  outputs: [{ name: '', type: 'address' }],
-  stateMutability: 'view',
-  type: 'function',
-}
+import { abiItem } from './abi.ts'
 
 const value = decodeFunctionResult({
   abi: [abiItem],
@@ -70,7 +63,16 @@ const value = decodeFunctionResult({
 })
 // '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
 ```
+```ts [abi.ts]
+const abiItem = {
+  inputs: [{ name: 'tokenId', type: 'uint256' }],
+  name: 'ownerOf',
+  outputs: [{ name: '', type: 'address' }],
+  stateMutability: 'view',
+  type: 'function',
+}
 
+```
 :::
 
 
@@ -96,6 +98,7 @@ const value = decodeFunctionResult({
  *  sender: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
  *  z: 69
  * }
+ */
 ```
 
 ```ts [abi.ts]
