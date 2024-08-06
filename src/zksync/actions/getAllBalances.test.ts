@@ -2,13 +2,13 @@ import { expect, test } from 'vitest'
 import {
   mockAddress,
   mockClientPublicActionsL2,
-  zkSyncClientLocalNode,
-  zkSyncClientLocalNodeWithAccount,
+  zksyncClientLocalNode,
+  zksyncClientLocalNodeWithAccount,
 } from '../../../test/src/zksync.js'
 import { getAllBalances } from './getAllBalances.js'
 
-const client = { ...zkSyncClientLocalNode }
-const clientWithAccount = zkSyncClientLocalNodeWithAccount
+const client = { ...zksyncClientLocalNode }
+const clientWithAccount = zksyncClientLocalNodeWithAccount
 
 mockClientPublicActionsL2(client)
 mockClientPublicActionsL2(clientWithAccount)

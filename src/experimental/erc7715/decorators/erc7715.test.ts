@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
-import { walletActionsErc7715 } from './erc7715.js'
+import { erc7715Actions } from './erc7715.js'
 
 const client = createClient({
   transport: custom({
@@ -17,10 +17,10 @@ const client = createClient({
       return null
     },
   }),
-}).extend(walletActionsErc7715())
+}).extend(erc7715Actions())
 
 test('default', async () => {
-  expect(walletActionsErc7715()(client)).toMatchInlineSnapshot(`
+  expect(erc7715Actions()(client)).toMatchInlineSnapshot(`
     {
       "grantPermissions": [Function],
     }

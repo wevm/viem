@@ -1,44 +1,44 @@
 ---
-description:  Getting tarted with the zkSync in Viem
+description:  Getting tarted with the ZKsync in Viem
 ---
 
-# Getting Started with zkSync
+# Getting Started with ZKsync
 
-Viem provides first-class support for the [zkSync](https://zksync.io) chain.
+Viem provides first-class support for the [ZKsync](https://zksync.io) chain.
 
-zkSync is a Layer-2 protocol that scales Ethereum with cutting-edge ZK tech.
+ZKsync is a Layer-2 protocol that scales Ethereum with cutting-edge ZK tech.
 
 ## Quick Start
 
 ### 1. Set up your Client & Transport
 
-Firstly, set up your [Client](/docs/clients/intro) with a desired [Transport](/docs/clients/intro) & [zkSync Chain](./zksync/chains.md) and extend it with zkSync EIP712 actions.
+Firstly, set up your [Client](/docs/clients/intro) with a desired [Transport](/docs/clients/intro) & [ZKsync Chain](./zksync/chains.md) and extend it with ZKsync EIP712 actions.
 
 ```ts twoslash
 import 'viem/window'
 // ---cut---
 import { createWalletClient, custom } from 'viem'
-import { zkSync } from 'viem/chains'
+import { zksync } from 'viem/chains'
 import { eip712WalletActions } from 'viem/zksync'
 
 const walletClient = createWalletClient({ // [!code hl]
-  chain: zkSync, // [!code hl]
+  chain: zksync, // [!code hl]
   transport: custom(window.ethereum!), // [!code hl]
 }).extend(eip712WalletActions()) // [!code hl]
 ```
 
 ### 2. Use Actions
 
-Now that you have a Client set up, you can [send a transaction](./zksync/actions/sendTransaction.md) on zkSync using a [paymaster](https://docs.zksync.io/build/developer-reference/account-abstraction.html#paymasters)!
+Now that you have a Client set up, you can [send a transaction](./zksync/actions/sendTransaction.md) on ZKsync using a [paymaster](https://docs.zksync.io/build/developer-reference/account-abstraction.html#paymasters)!
 
 ```ts twoslash
 import 'viem/window'
 import { createWalletClient, custom } from 'viem'
-import { zkSync } from 'viem/chains'
+import { zksync } from 'viem/chains'
 import { eip712WalletActions } from 'viem/zksync'
 
 const walletClient = createWalletClient({
-  chain: zkSync,
+  chain: zksync,
   transport: custom(window.ethereum!),
 }).extend(eip712WalletActions())
 // ---cut---
@@ -56,12 +56,12 @@ const hash = await walletClient.sendTransaction({
 ```ts twoslash
 import 'viem/window'
 import { createWalletClient, custom, parseAbi } from 'viem'
-import { zkSync } from 'viem/chains'
+import { zksync } from 'viem/chains'
 import { eip712WalletActions } from 'viem/zksync'
 
 const walletClient = createWalletClient({
   account: '0x',
-  chain: zkSync,
+  chain: zksync,
   transport: custom(window.ethereum!),
 }).extend(eip712WalletActions())
 // ---cut---

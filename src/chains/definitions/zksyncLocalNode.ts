@@ -1,15 +1,15 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../../zksync/chainConfig.js'
 
-export const zkSyncInMemoryNode = /*#__PURE__*/ defineChain({
+export const zksyncLocalNode = /*#__PURE__*/ defineChain({
   ...chainConfig,
-  id: 260,
-  name: 'zkSync InMemory Node',
-  network: 'zksync-in-memory-node',
+  id: 270,
+  name: 'ZKsync CLI Local Node',
+  network: 'zksync-cli-local-node',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['http://localhost:8011'],
+      http: ['http://localhost:3050'],
     },
   },
   testnet: true,

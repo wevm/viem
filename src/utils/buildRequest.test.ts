@@ -192,7 +192,7 @@ describe('behavior', () => {
           Promise.reject(new BaseError('foo', { details: 'bar' })),
         )({ method: 'eth_test' }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [ViemError: foo
+        [BaseError: foo
 
         Details: bar
         Version: viem@x.y.z]

@@ -1,13 +1,13 @@
 import type { Address, TypedDataDomain } from 'abitype'
 import type { Hex } from '../../types/misc.js'
-import type { ZkSyncTransactionSerializable } from './transaction.js'
+import type { ZksyncTransactionSerializable } from './transaction.js'
 
 type PaymasterParams = {
   paymaster: Address
   paymasterInput: number[]
 }
 
-export type ZkSyncEip712Meta = {
+export type ZksyncEip712Meta = {
   gasPerPubdata?: Hex | undefined
   factoryDeps?: Hex[] | undefined
   customSignature?: Hex | undefined
@@ -26,6 +26,6 @@ export type EIP712Domain<transactionSignable> = {
 
 export type EIP712DomainFn<
   transactionSerializable extends
-    ZkSyncTransactionSerializable = ZkSyncTransactionSerializable,
+    ZksyncTransactionSerializable = ZksyncTransactionSerializable,
   transactionSignable = {},
 > = (transaction: transactionSerializable) => EIP712Domain<transactionSignable>

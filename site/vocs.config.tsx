@@ -91,7 +91,7 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg',
           },
           {
-            name: 'zkSync',
+            name: 'ZKsync',
             link: 'https://zksync.io',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
@@ -244,7 +244,7 @@ export default defineConfig({
           link: '/op-stack',
         },
         {
-          text: 'zkSync',
+          text: 'ZKsync',
           link: '/zksync',
         },
         {

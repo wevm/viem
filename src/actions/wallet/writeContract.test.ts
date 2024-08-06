@@ -1,18 +1,22 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { Payable } from '~contracts/generated.js'
+import { BatchCallInvoker, Payable } from '~contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
-import { deployPayable } from '~test/src/utils.js'
+import { deploy, deployPayable } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 import { http } from '../../clients/transports/http.js'
+import { signAuthorization } from '../../experimental/index.js'
+import { decodeEventLog, parseEther } from '../../utils/index.js'
+import { getBalance } from '../public/getBalance.js'
 import { getTransaction } from '../public/getTransaction.js'
+import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { simulateContract } from '../public/simulateContract.js'
 import { mine } from '../test/mine.js'
-
 import { writeContract } from './writeContract.js'
 
 const client = anvilMainnet.getClient().extend(walletActions)
@@ -128,6 +132,143 @@ describe('args: chain', () => {
       Version: viem@x.y.z]
     `)
   })
+})
+
+test('args: authorizationList', async () => {
+  const invoker = privateKeyToAccount(accounts[0].privateKey)
+  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const recipient = privateKeyToAccount(
+    '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
+  )
+
+  const balance_authority = await getBalance(client, {
+    address: authority.address,
+  })
+  const balance_recipient = await getBalance(client, {
+    address: recipient.address,
+  })
+
+  const { contractAddress } = await deploy(client, {
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
+  const hash = await writeContract(client, {
+    abi: BatchCallInvoker.abi,
+    account: invoker,
+    address: authority.address,
+    authorizationList: [authorization],
+    functionName: 'execute',
+    args: [
+      [
+        {
+          to: recipient.address,
+          data: '0x',
+          value: parseEther('1'),
+        },
+      ],
+    ],
+  })
+  expect(hash).toBeDefined()
+
+  await mine(client, { blocks: 1 })
+
+  const receipt = await getTransactionReceipt(client, { hash })
+  const log = receipt.logs[0]
+  expect(log.address).toBe(authority.address.toLowerCase())
+  expect(
+    decodeEventLog({
+      abi: BatchCallInvoker.abi,
+      ...log,
+    }),
+  ).toEqual({
+    args: {
+      data: '0x',
+      to: recipient.address,
+      value: parseEther('1'),
+    },
+    eventName: 'CallEmitted',
+  })
+
+  expect(
+    await getBalance(client, {
+      address: recipient.address,
+    }),
+  ).toBe(balance_recipient + parseEther('1'))
+  expect(
+    await getBalance(client, {
+      address: authority.address,
+    }),
+  ).toBe(balance_authority - parseEther('1'))
+})
+
+test('args: authorizationList (authority as invoker)', async () => {
+  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const recipient = privateKeyToAccount(
+    '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
+  )
+
+  const balance_recipient = await getBalance(client, {
+    address: recipient.address,
+  })
+
+  const { contractAddress } = await deploy(client, {
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
+  const hash = await writeContract(client, {
+    abi: BatchCallInvoker.abi,
+    account: authority,
+    address: authority.address,
+    authorizationList: [authorization],
+    functionName: 'execute',
+    args: [
+      [
+        {
+          to: recipient.address,
+          data: '0x',
+          value: parseEther('1'),
+        },
+      ],
+    ],
+  })
+  expect(hash).toBeDefined()
+
+  await mine(client, { blocks: 1 })
+
+  const receipt = await getTransactionReceipt(client, { hash })
+  const log = receipt.logs[0]
+  expect(log.address).toBe(authority.address.toLowerCase())
+  expect(
+    decodeEventLog({
+      abi: BatchCallInvoker.abi,
+      ...log,
+    }),
+  ).toEqual({
+    args: {
+      data: '0x',
+      to: recipient.address,
+      value: parseEther('1'),
+    },
+    eventName: 'CallEmitted',
+  })
+
+  expect(
+    await getBalance(client, {
+      address: recipient.address,
+    }),
+  ).toBe(balance_recipient + parseEther('1'))
 })
 
 test('args: dataSuffix', async () => {

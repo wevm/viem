@@ -129,7 +129,7 @@ Check out the following places for more viem-related content:
 <a href="https://zksync.io">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-dark.svg">
-    <img alt="zksync logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg" width="auto" height="50">
+    <img alt="ZKsync logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg" width="auto" height="50">
   </picture>
 </a>
 <a href="https://twitter.com/prtyDAO">

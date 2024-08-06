@@ -81,6 +81,7 @@ test('legacy fees', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -117,6 +118,7 @@ test('args: account', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -153,6 +155,7 @@ test('args: chain', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -190,6 +193,7 @@ test('args: chainId', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -224,6 +228,7 @@ test('args: nonce', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -263,6 +268,7 @@ test('args: gasPrice', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -299,6 +305,7 @@ test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -332,6 +339,7 @@ test('args: maxFeePerGas', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -404,6 +412,7 @@ test('args: maxPriorityFeePerGas', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -438,6 +447,7 @@ test('args: maxPriorityFeePerGas === 0', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -494,6 +504,7 @@ test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -565,6 +576,7 @@ test('args: type', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -605,6 +617,7 @@ test('args: blobs', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -647,6 +660,7 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -673,6 +687,7 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -702,6 +717,7 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -732,6 +748,7 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
@@ -779,6 +796,7 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],

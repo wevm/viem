@@ -4,7 +4,6 @@ export type AccountNotFoundErrorType = AccountNotFoundError & {
   name: 'AccountNotFoundError'
 }
 export class AccountNotFoundError extends BaseError {
-  override name = 'AccountNotFoundError'
   constructor({ docsPath }: { docsPath?: string | undefined } = {}) {
     super(
       [
@@ -14,6 +13,7 @@ export class AccountNotFoundError extends BaseError {
       {
         docsPath,
         docsSlug: 'account',
+        name: 'AccountNotFoundError',
       },
     )
   }
@@ -23,7 +23,6 @@ export type AccountTypeNotSupportedErrorType = AccountTypeNotSupportedError & {
   name: 'AccountTypeNotSupportedError'
 }
 export class AccountTypeNotSupportedError extends BaseError {
-  override name = 'AccountTypeNotSupportedError'
   constructor({
     docsPath,
     metaMessages,
@@ -36,6 +35,7 @@ export class AccountTypeNotSupportedError extends BaseError {
     super(`Account type "${type}" is not supported.`, {
       docsPath,
       metaMessages,
+      name: 'AccountTypeNotSupportedError',
     })
   }
 }

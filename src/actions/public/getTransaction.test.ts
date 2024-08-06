@@ -1,11 +1,15 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { BatchCallInvoker } from '../../../contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { deploy } from '../../../test/src/utils.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, holesky } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-import { createClient } from '../../index.js'
+import { signAuthorization } from '../../experimental/index.js'
+import { createClient, encodeFunctionData } from '../../index.js'
 import type { Transaction } from '../../types/transaction.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
@@ -170,6 +174,80 @@ test('gets transaction (eip4844)', async () => {
       "v": 1n,
       "value": 0n,
       "yParity": 1,
+    }
+  `)
+})
+
+test('gets transaction (eip7702)', async () => {
+  const authority = privateKeyToAccount(accounts[1].privateKey)
+
+  const { contractAddress } = await deploy(client, {
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
+  const hash = await sendTransaction(client, {
+    account: authority,
+    authorizationList: [authorization],
+    data: encodeFunctionData({
+      abi: BatchCallInvoker.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            data: '0x',
+            value: parseEther('1'),
+          },
+        ],
+      ],
+    }),
+  })
+
+  await mine(client, { blocks: 1 })
+
+  const transaction = await getTransaction(client, {
+    hash,
+  })
+  expect({ ...transaction, blockHash: null }).toMatchInlineSnapshot(`
+    {
+      "accessList": [],
+      "authorizationList": [
+        {
+          "chainId": 1,
+          "contractAddress": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+          "nonce": 112,
+          "r": "0x1ae3cd78a7f079fcb58415a5a1a647c9785c0a4d1993139f881b5659f7f88c6",
+          "s": "0x5c9e71244dcbc2b197b76972817a4585af95e06d4cf7d2ec70c685ce3c586390",
+          "yParity": 0,
+        },
+      ],
+      "blockHash": null,
+      "blockNumber": 19868022n,
+      "chainId": 1,
+      "from": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "gas": 87312n,
+      "gasPrice": 8599866030n,
+      "hash": "0x5c00e6b61f404b926d8ecfe9de5042be82dbff06d9df43651d710ecd09b0fba3",
+      "input": "0xa6d0ad61000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000000",
+      "maxFeePerBlobGas": undefined,
+      "maxFeePerGas": 11392560424n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "nonce": 112,
+      "r": "0x9f6268ab14164a997a553089e993ab28bc7bdee62b147fb0a13dc18b9d485903",
+      "s": "0x54a1d590b4dc376c59c0dbe833bec0801de77cc75c6d4d90af515b91643b91b6",
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "transactionIndex": 0,
+      "type": "eip7702",
+      "typeHex": "0x4",
+      "v": 0n,
+      "value": 0n,
+      "yParity": 0,
     }
   `)
 })

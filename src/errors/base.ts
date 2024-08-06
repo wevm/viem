@@ -1,4 +1,27 @@
-import { getVersion } from './utils.js'
+import { version } from './version.js'
+
+type ErrorConfig = {
+  getDocsUrl?: ((args: BaseErrorParameters) => string | undefined) | undefined
+  version?: string | undefined
+}
+
+let errorConfig: ErrorConfig = {
+  getDocsUrl: ({
+    docsBaseUrl,
+    docsPath = '',
+    docsSlug,
+  }: BaseErrorParameters) =>
+    docsPath
+      ? `${docsBaseUrl ?? 'https://viem.sh'}${docsPath}${
+          docsSlug ? `#${docsSlug}` : ''
+        }`
+      : undefined,
+  version,
+}
+
+export function setErrorConfig(config: ErrorConfig) {
+  errorConfig = config
+}
 
 type BaseErrorParameters = {
   cause?: BaseError | Error | undefined
@@ -7,9 +30,10 @@ type BaseErrorParameters = {
   docsPath?: string | undefined
   docsSlug?: string | undefined
   metaMessages?: string[] | undefined
+  name?: string | undefined
 }
 
-export type BaseErrorType = BaseError & { name: 'ViemError' }
+export type BaseErrorType = BaseError & { name: 'BaseError' }
 export class BaseError extends Error {
   details: string
   docsPath?: string | undefined
@@ -17,34 +41,28 @@ export class BaseError extends Error {
   shortMessage: string
   version: string
 
-  override name = 'ViemError'
+  override name = 'BaseError'
 
   constructor(shortMessage: string, args: BaseErrorParameters = {}) {
-    const details =
-      args.cause instanceof BaseError
-        ? args.cause.details
-        : args.cause?.message
-          ? args.cause.message
-          : args.details!
-    const docsPath =
-      args.cause instanceof BaseError
-        ? args.cause.docsPath || args.docsPath
-        : args.docsPath
-    const version = getVersion()
+    const details = (() => {
+      if (args.cause instanceof BaseError) return args.cause.details
+      if (args.cause?.message) return args.cause.message
+      return args.details!
+    })()
+    const docsPath = (() => {
+      if (args.cause instanceof BaseError)
+        return args.cause.docsPath || args.docsPath
+      return args.docsPath
+    })()
+    const docsUrl = errorConfig.getDocsUrl?.({ ...args, docsPath })
 
     const message = [
       shortMessage || 'An error occurred.',
       '',
       ...(args.metaMessages ? [...args.metaMessages, ''] : []),
-      ...(docsPath
-        ? [
-            `Docs: ${args.docsBaseUrl ?? 'https://viem.sh'}${docsPath}${
-              args.docsSlug ? `#${args.docsSlug}` : ''
-            }`,
-          ]
-        : []),
+      ...(docsUrl ? [`Docs: ${docsUrl}`] : []),
       ...(details ? [`Details: ${details}`] : []),
-      `Version: ${version}`,
+      ...(errorConfig.version ? [`Version: ${errorConfig.version}`] : []),
     ].join('\n')
 
     super(message, args.cause ? { cause: args.cause } : undefined)
@@ -52,6 +70,7 @@ export class BaseError extends Error {
     this.details = details
     this.docsPath = docsPath
     this.metaMessages = args.metaMessages
+    this.name = args.name ?? this.name
     this.shortMessage = shortMessage
     this.version = version
   }

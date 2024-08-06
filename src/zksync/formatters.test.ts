@@ -3,13 +3,13 @@ import { describe, expect, test } from 'vitest'
 import { getBlock } from '../actions/public/getBlock.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.js'
-import { zkSync } from '../chains/index.js'
+import { zksync } from '../chains/index.js'
 import { createPublicClient } from '../clients/createPublicClient.js'
 import { http } from '../clients/transports/http.js'
 
 describe('block', () => {
   test('formatter', async () => {
-    const { block } = zkSync.formatters!
+    const { block } = zksync.formatters!
 
     expect(
       block.format({
@@ -275,7 +275,7 @@ describe('block', () => {
 
   test('action', async () => {
     const client = createPublicClient({
-      chain: zkSync,
+      chain: zksync,
       transport: http(),
     })
 
@@ -343,7 +343,7 @@ describe('block', () => {
 
 describe('transaction', () => {
   test('formatter', () => {
-    const { transaction } = zkSync.formatters!
+    const { transaction } = zksync.formatters!
 
     expect(
       transaction.format({
@@ -513,7 +513,7 @@ describe('transaction', () => {
 
   test('action - Priority', async () => {
     const client = createPublicClient({
-      chain: zkSync,
+      chain: zksync,
       transport: http(),
     })
 
@@ -551,7 +551,7 @@ describe('transaction', () => {
 
   test('action - Legacy', async () => {
     const client = createPublicClient({
-      chain: zkSync,
+      chain: zksync,
       transport: http(),
     })
 
@@ -587,7 +587,7 @@ describe('transaction', () => {
 
   test('action - EIP1559', async () => {
     const client = createPublicClient({
-      chain: zkSync,
+      chain: zksync,
       transport: http(),
     })
 
@@ -626,7 +626,7 @@ describe('transaction', () => {
 
   test('action - EIP712', async () => {
     const client = createPublicClient({
-      chain: zkSync,
+      chain: zksync,
       transport: http(),
     })
 
@@ -667,7 +667,7 @@ describe('transaction', () => {
 
 describe('transaction receipt', () => {
   test('formatter', () => {
-    const { transactionReceipt } = zkSync.formatters!
+    const { transactionReceipt } = zksync.formatters!
 
     expect(
       transactionReceipt.format({
@@ -1176,7 +1176,7 @@ describe('transaction receipt', () => {
 
   test('action', async () => {
     const client = createPublicClient({
-      chain: zkSync,
+      chain: zksync,
       transport: http(),
     })
 
@@ -1411,7 +1411,7 @@ describe('transaction receipt', () => {
 
 describe('transactionRequest', () => {
   test('formatter', () => {
-    const { transactionRequest } = zkSync.formatters!
+    const { transactionRequest } = zksync.formatters!
 
     const baseRequest = {
       from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9' as `0x${string}`,

@@ -1790,7 +1790,7 @@ test('https://github.com/wevm/viem/issues/1960', () => {
       [['true']],
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: Invalid boolean value: "true" (type: string). Expected: \`true\` or \`false\`.
+    [BaseError: Invalid boolean value: "true" (type: string). Expected: \`true\` or \`false\`.
 
     Version: viem@x.y.z]
   `)

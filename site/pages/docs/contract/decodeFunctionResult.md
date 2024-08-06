@@ -20,6 +20,7 @@ Given an ABI (`abi`) and a function (`functionName`), pass through the encoded c
 
 ```ts [example.ts]
 import { decodeFunctionResult } from 'viem'
+import { wagmiAbi } from './abi.ts'
 
 const value = decodeFunctionResult({
   abi: wagmiAbi,

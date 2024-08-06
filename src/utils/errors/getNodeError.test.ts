@@ -40,7 +40,7 @@ test('FeeCapTooHigh', () => {
     ),
   })
   expect(result).toMatchInlineSnapshot(`
-    [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 1231287389123781293712897312893791283921738912378912 gwei) cannot be higher than the maximum allowed value (2^256-1).
+    [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 1231287389123781293712897312893791283921738912378912 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
     Details: fee cap higher than 2^256-1
     Version: viem@x.y.z]
@@ -64,7 +64,7 @@ test('FeeCapTooLow', () => {
     maxFeePerGas: parseGwei('1'),
   })
   expect(result).toMatchInlineSnapshot(`
-    [FeeCapTooLow: The fee cap (\`maxFeePerGas\` = 1 gwei) cannot be lower than the block base fee.
+    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` = 1 gwei) cannot be lower than the block base fee.
 
     Details: max fee per gas less than block base fee
     Version: viem@x.y.z]

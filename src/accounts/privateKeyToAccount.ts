@@ -12,6 +12,7 @@ import {
   publicKeyToAddress,
 } from './utils/publicKeyToAddress.js'
 import { type SignErrorType, sign } from './utils/sign.js'
+import { experimental_signAuthorization } from './utils/signAuthorization.js'
 import { type SignMessageErrorType, signMessage } from './utils/signMessage.js'
 import {
   type SignTransactionErrorType,
@@ -54,6 +55,9 @@ export function privateKeyToAccount(
     nonceManager,
     async sign({ hash }) {
       return sign({ hash, privateKey, to: 'hex' })
+    },
+    async experimental_signAuthorization(authorization) {
+      return experimental_signAuthorization({ ...authorization, privateKey })
     },
     async signMessage({ message }) {
       return signMessage({ message, privateKey })

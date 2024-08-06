@@ -5,16 +5,16 @@ import type { ExactPartial } from '../../types/utils.js'
 import { isAddress } from '../../utils/address/isAddress.js'
 import { InvalidEip712TransactionError } from '../errors/transaction.js'
 import type {
-  ZkSyncTransactionSerializable,
-  ZkSyncTransactionSerializableEIP712,
+  ZksyncTransactionSerializable,
+  ZksyncTransactionSerializableEIP712,
 } from '../types/transaction.js'
 import { isEIP712Transaction } from './isEip712Transaction.js'
 
 export function assertEip712Transaction(
-  transaction: ExactPartial<ZkSyncTransactionSerializable>,
+  transaction: ExactPartial<ZksyncTransactionSerializable>,
 ) {
   const { chainId, to, from, paymaster, paymasterInput } =
-    transaction as ZkSyncTransactionSerializableEIP712
+    transaction as ZksyncTransactionSerializableEIP712
 
   if (!isEIP712Transaction(transaction))
     throw new InvalidEip712TransactionError()
