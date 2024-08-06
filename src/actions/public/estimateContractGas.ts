@@ -53,7 +53,6 @@ export type EstimateContractGasParameters<
   UnionOmit<EstimateGasParameters<chain>, 'data' | 'to' | 'value'> &
   GetValue<
     abi,
-    'nonpayable' | 'payable',
     functionName,
     EstimateGasParameters<chain> extends EstimateGasParameters
       ? EstimateGasParameters<chain>['value']

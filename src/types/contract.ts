@@ -303,19 +303,10 @@ export type EventDefinition = `${string}(${string})`
 
 export type GetValue<
   abi extends Abi | readonly unknown[],
-  mutability extends AbiStateMutability = AbiStateMutability,
-  functionName extends ContractFunctionName<
-    abi,
-    mutability
-  > = ContractFunctionName<abi, mutability>,
+  functionName extends string,
   valueType = TransactionRequest['value'],
-  args extends ContractFunctionArgs<
-    abi,
-    mutability,
-    functionName
-  > = ContractFunctionArgs<abi, mutability, functionName>,
   abiFunction extends AbiFunction = abi extends Abi
-    ? ExtractAbiFunctionForArgs<abi, mutability, functionName, args>
+    ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
   _Narrowable extends boolean = IsNarrowable<abi, Abi>,
 > = _Narrowable extends true

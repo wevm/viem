@@ -8,7 +8,6 @@ import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
-  GetValue,
   UnionWiden,
   Widen,
 } from '../../../types/contract.js'
@@ -24,6 +23,7 @@ import {
   type SendCallsReturnType,
   sendCalls,
 } from './sendCalls.js'
+import type { GetMutabilityAwareValue } from '~viem/actions/public/simulateContract.js'
 
 export type WriteContractsParameters<
   contracts extends
@@ -151,4 +151,4 @@ export type WriteContractFunctionParameters<
     | (functionName extends allFunctionNames ? functionName : never) // infer value
   args?: (abi extends Abi ? UnionWiden<args> : never) | allArgs | undefined
 } & (readonly [] extends allArgs ? {} : { args: Widen<args> }) &
-  GetValue<abi, mutability, functionName>
+  GetMutabilityAwareValue<abi, mutability, functionName>

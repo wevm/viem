@@ -266,3 +266,37 @@ test('chain formatters', async () => {
     `0x${string}` | undefined
   >()
 })
+
+test('https://github.com/wevm/viem/issues/2531', async () => {
+  const abi = parseAbi([
+    'function safeTransferFrom(address, address, uint256)',
+    'function safeTransferFrom(address, address, uint256, bytes) payable',
+  ]);
+
+  const res1 = await simulateContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'safeTransferFrom',
+    args: ['0x', '0x', 123n],
+    // @ts-expect-error
+    value: 123n,
+  })
+  assertType<void>(res1.result)
+  expectTypeOf(res1.request.abi).toEqualTypeOf(
+    parseAbi(['function safeTransferFrom(address, address, uint256)']),
+  )
+
+  const res2 = await simulateContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'safeTransferFrom',
+    args: ['0x', '0x', 123n, '0x'],
+    value: 123n,
+  })
+  assertType<void>(res2.result)
+  expectTypeOf(res2.request.abi).toEqualTypeOf(
+    parseAbi([
+      'function safeTransferFrom(address, address, uint256, bytes) payable',
+    ]),
+  )
+})

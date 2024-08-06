@@ -57,7 +57,6 @@ export type EstimateContractL1GasParameters<
   > &
   GetValue<
     abi,
-    'nonpayable' | 'payable',
     functionName,
     EstimateL1GasParameters<
       chain,
