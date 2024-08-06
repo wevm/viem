@@ -236,6 +236,7 @@ export class InvalidInputRpcError extends RpcError {
  */
 export type ResourceNotFoundRpcErrorType = ResourceNotFoundRpcError & {
   code: -32001
+  name: 'ResourceNotFoundRpcError'
 }
 export class ResourceNotFoundRpcError extends RpcError {
   override name = 'ResourceNotFoundRpcError'
