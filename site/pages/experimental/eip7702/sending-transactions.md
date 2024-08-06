@@ -10,14 +10,16 @@ Here is an end-to-end overview of how to broadcast an EIP-7702 Transaction to se
 
 ```ts twoslash [example.ts]
 import { parseEther } from 'viem'
-import { client } from './config'
+import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
- 
-const authorization = await client.signAuthorization({
+
+// 1. Authorize injection of the Contract's bytecode into our Account.
+const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-const hash = await client.sendTransaction({
+// 2. Invoke the Contract's `execute` function to perform batch calls.
+const hash = await walletClient.sendTransaction({
   authorizationList: [authorization],
   data: encodeFunctionData({
     abi,
@@ -35,7 +37,7 @@ const hash = await client.sendTransaction({
       },  
     ],
   }),
-  to: client.account.address,
+  to: walletClient.account.address,
 })
 ```
 
@@ -74,15 +76,15 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts] filename="config.ts"
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' 
 import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account,
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
@@ -109,7 +111,20 @@ contract BatchCallInvoker {
 
 :::
 
+:::warning
+EIP-7702 is currently not supported on Ethereum anvil or Testnets. For this example, we are using the `anvil` chain which interfaces with an [Anvil node](https://book.getfoundry.sh/anvil/) (a local Ethereum network).
+:::
+
 ## Steps
+
+### 0. Install & Run Anvil
+
+EIP-7702 is currently not supported on Ethereum Mainnet or Testnets, so let's set up an EIP-7702 compatible network. We will use an [Anvil node](https://book.getfoundry.sh/anvil/) for this example. If you are using an existing EIP-7702 compatible network, you can skip this step.
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+anvil --hardfork prague
+```
 
 ### 1. Set up Smart Contract
 
@@ -145,15 +160,15 @@ This code snippet uses the [Extending Client](/experimental/eip7702/client) guid
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account,
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
@@ -162,17 +177,15 @@ export const client = createWalletClient({
 
 We will need to sign an Authorization to authorize the injection of the Contract's bytecode onto the Account.
 
-In the example below, we are:
-- using the `account` attached to the `client` to sign the Authorization – this will be the Account that the Contract's bytecode will be injected into.
-- creating a `contract.ts` file to store our deployed Contract artifacts (ABI and deployed Address).
+In the example below, we are using the `account` attached to the `walletClient` to sign the Authorization – this will be the Account that the Contract's bytecode will be injected into.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client } from './config'
+import { walletClient } from './config'
 import { contractAddress } from './contract'
  
-const authorization = await client.signAuthorization({ // [!code focus]
+const authorization = await walletClient.signAuthorization({ // [!code focus]
   contractAddress, // [!code focus]
 }) // [!code focus]
 ```
@@ -212,15 +225,15 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account,
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
@@ -235,14 +248,14 @@ We can now perform batch calls by sending a Transaction to the Account (`account
 
 ```ts twoslash [example.ts]
 import { encodeFunctionData, parseEther } from 'viem'
-import { client } from './config'
+import { walletClient } from './config'
 import { contractAddress } from './contract'
  
-const authorization = await client.signAuthorization({
+const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-const hash = await client.sendTransaction({ // [!code focus]
+const hash = await walletClient.sendTransaction({ // [!code focus]
   authorizationList: [authorization], // [!code focus]
   data: encodeFunctionData({ // [!code focus]
     abi, // [!code focus]
@@ -260,7 +273,7 @@ const hash = await client.sendTransaction({ // [!code focus]
       }, // [!code focus]
     ], // [!code focus]
   }), // [!code focus]
-  to: client.account.address, // [!code focus]
+  to: walletClient.account.address, // [!code focus]
 }) // [!code focus]
 ```
 
@@ -299,15 +312,15 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account,
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
@@ -323,7 +336,7 @@ We can also utilize an Invoker Account to execute a call on behalf of the author
 ```ts twoslash [config.ts]
 // @noErrors
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { eip7702Actions } from 'viem/experimental'
 
@@ -331,24 +344,24 @@ export const account = privateKeyToAccount('0x...')
 
 export const invoker = privateKeyToAccount('0x...') // [!code ++]
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account, // [!code --]
   account: invoker, // [!code ++]
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
 
 ```ts twoslash [example.ts]
 import { encodeFunctionData{ parseEther } from 'viem'
-import { client } from './config'
+import { walletClient } from './config'
 import { contractAddress } from './contract'
  
-const authorization = await client.signAuthorization({
+const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-const hash = await client.sendTransaction({
+const hash = await walletClient.sendTransaction({
   authorizationList: [authorization],
   data: encodeFunctionData({
     abi,
@@ -366,7 +379,7 @@ const hash = await client.sendTransaction({
       },
     ],
   }),
-  to: client.account.address,
+  to: walletClient.account.address,
 })
 ```
 

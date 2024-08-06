@@ -9,18 +9,31 @@ Here is an end-to-end overview of how to extend a Viem Client with EIP-7702 Acti
 ```ts twoslash
 // @noErrors
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { eip7702Actions } from 'viem/experimental'
  
-const client = createWalletClient({
-  chain: mainnet,
+const walletClient = createWalletClient({
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
  
-const authorization = await client.signAuthorization({/* ... */})
+const authorization = await walletClient.signAuthorization({/* ... */})
 ```
 
+:::warning
+EIP-7702 is currently not supported on Ethereum Mainnet or Testnets. For this example, we are using the `anvil` chain which interfaces with an [Anvil node](https://book.getfoundry.sh/anvil/) (a local Ethereum network).
+:::
+
 ## Steps
+
+### 0. Install & Run Anvil
+
+EIP-7702 is currently not supported on Ethereum Mainnet or Testnets, so let's set up an EIP-7702 compatible network. We will use an [Anvil node](https://book.getfoundry.sh/anvil/) for this example. If you are using an existing EIP-7702 compatible network, you can skip this step.
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+anvil --hardfork prague
+```
 
 ### 1. Set up a Client
 
@@ -28,10 +41,10 @@ We will need to set up a Client to sign EIP-7702 Authorizations.
 
 ```ts twoslash
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
  
-const client = createWalletClient({
-  chain: mainnet,
+const walletClient = createWalletClient({
+  chain: anvil,
   transport: http(),
 })
 ```
@@ -44,13 +57,13 @@ Next, we will import the experimental EIP-7702 Actions and extend them on our Cl
 
 ```ts twoslash
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { eip7702Actions } from 'viem/experimental' // [!code ++] // [!code focus]
+import { anvil } from 'viem/chains'
+import { eip7702Actions } from 'viem/experimental' // [!code focus]
  
-const client = createWalletClient({
-  chain: mainnet,
+const walletClient = createWalletClient({
+  chain: anvil,
   transport: http(),
-}).extend(eip7702Actions()) // [!code ++] // [!code focus]
+}).extend(eip7702Actions()) // [!code focus]
 ```
 
 ### 3. Use EIP-7702 Actions
@@ -60,13 +73,13 @@ Now we can use EIP-7702 Actions like [`signAuthorization`](/experimental/eip7702
 ```ts twoslash
 // @noErrors
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { eip7702Actions } from 'viem/experimental' 
  
-const client = createWalletClient({
-  chain: mainnet,
+const walletClient = createWalletClient({
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions()) 
 
-const authorization = await client.signAuthorization({/* ... */}) // [!code ++] // [!code focus]
+const authorization = await walletClient.signAuthorization({/* ... */}) // [!code focus]
 ```

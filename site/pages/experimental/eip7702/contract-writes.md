@@ -10,19 +10,22 @@ Here is an end-to-end overview of how to perform a Contract Write to send a batc
 
 ```ts twoslash [example.ts]
 import { getContract, parseEther } from 'viem'
-import { client } from './config'
+import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
- 
-const authorization = await client.signAuthorization({
+
+// 1. Set up a Contract Instance pointing to our Account.
+const batchCallInvoker = getContract({
+  abi,
+  address: walletClient.account.address,
+  client: walletClient,
+})
+
+// 2. Authorize injection of the Contract's bytecode into our Account.
+const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-const batchCallInvoker = getContract({
-  abi,
-  address: client.account.address,
-  client,
-})
-
+// 3. Invoke the Contract's `execute` function to perform batch calls.
 const hash = await batchCallInvoker.write.execute([{
   data: '0x',
   to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
@@ -33,6 +36,7 @@ const hash = await batchCallInvoker.write.execute([{
   value: parseEther('0.002'), 
 }], {
   authorizationList: [authorization],
+  //                  ↑ 4. Pass the Authorization as an option.
 })
 ```
 
@@ -71,15 +75,15 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts] filename="config.ts"
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' 
 import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account,
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
@@ -106,7 +110,20 @@ contract BatchCallInvoker {
 
 :::
 
+:::warning
+EIP-7702 is currently not supported on Ethereum anvil or Testnets. For this example, we are using the `anvil` chain which interfaces with an [Anvil node](https://book.getfoundry.sh/anvil/) (a local Ethereum network).
+:::
+
 ## Steps
+
+### 0. Install & Run Anvil
+
+EIP-7702 is currently not supported on Ethereum Mainnet or Testnets, so let's set up an EIP-7702 compatible network. We will use an [Anvil node](https://book.getfoundry.sh/anvil/) for this example. If you are using an existing EIP-7702 compatible network, you can skip this step.
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+anvil --hardfork prague
+```
 
 ### 1. Set up Smart Contract
 
@@ -142,34 +159,107 @@ This code snippet uses the [Extending Client](/experimental/eip7702/client) guid
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account,
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
 
-### 3. Authorize Contract Bytecode Injection
+### 3. Instantiate a Contract Instance
 
-We will need to sign an Authorization to authorize the injection of the Contract's bytecode onto the Account.
-
-In the example below, we are:
-- using the `account` attached to the `client` to sign the Authorization – this will be the Account that the Contract's bytecode will be injected into.
-- creating a `contract.ts` file to store our deployed Contract artifacts (ABI and deployed Address).
+We will instantiate a [Contract Instance](/docs/contract/getContract) for our `BatchCallInvoker` contract.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client } from './config'
-import { contractAddress } from './contract'
+import { getContract } from 'viem'
+import { walletClient } from './config'
+import { abi } from './contract'
+
+const batchCallInvoker = getContract({ // [!code focus]
+  abi, // [!code focus]
+  address: walletClient.account.address, // [!code focus]
+  walletClient, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [contract.ts] filename="contract.ts"
+export const abi = [
+  {
+    "type": "function",
+    "name": "execute",
+    "inputs": [
+      {
+        "name": "calls",
+        "type": "tuple[]",
+        "components": [
+          {
+            "name": "data",
+            "type": "bytes",
+          },
+          {
+            "name": "to",
+            "type": "address",
+          },
+          {
+            "name": "value",
+            "type": "uint256",
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+] as const
+
+export const contractAddress = '0x...'
+```
+
+```ts twoslash [config.ts]
+import { createWalletClient, http } from 'viem'
+import { anvil } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+import { eip7702Actions } from 'viem/experimental'
+
+export const account = privateKeyToAccount('0x...')
  
-const authorization = await client.signAuthorization({ // [!code focus]
+export const walletClient = createWalletClient({
+  account,
+  chain: anvil,
+  transport: http(),
+}).extend(eip7702Actions())
+```
+
+:::
+
+### 4. Authorize Contract Bytecode Injection
+
+We will need to sign an Authorization to authorize the injection of the Contract's bytecode onto the Account.
+
+In the example below, we are using the `account` attached to the `walletClient` to sign the Authorization – this will be the Account that the Contract's bytecode will be injected into.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { getContract } from 'viem'
+import { walletClient } from './config'
+import { abi, contractAddress } from './contract'
+
+const batchCallInvoker = getContract({
+  abi,
+  address: walletClient.account.address,
+  walletClient,
+})
+ 
+const authorization = await walletClient.signAuthorization({ // [!code focus]
   contractAddress, // [!code focus]
 }) // [!code focus]
 ```
@@ -209,87 +299,15 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account,
-  chain: mainnet,
-  transport: http(),
-}).extend(eip7702Actions())
-```
-
-:::
-
-### 4. Instantiate a Contract Instance
-
-We will instantiate a [Contract Instance](/docs/contract/getContract) for our `BatchCallInvoker` contract.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { getContract } from 'viem'
-import { client } from './config'
-import { contractAddress } from './contract'
- 
-const authorization = await client.signAuthorization({
-  contractAddress,
-})
-
-const batchCallInvoker = getContract({ // [!code ++] // [!code focus]
-  abi, // [!code ++] // [!code focus]
-  address: client.account.address, // [!code ++] // [!code focus]
-  client, // [!code ++] // [!code focus]
-}) // [!code ++] // [!code focus]
-```
-
-```ts twoslash [contract.ts] filename="contract.ts"
-export const abi = [
-  {
-    "type": "function",
-    "name": "execute",
-    "inputs": [
-      {
-        "name": "calls",
-        "type": "tuple[]",
-        "components": [
-          {
-            "name": "data",
-            "type": "bytes",
-          },
-          {
-            "name": "to",
-            "type": "address",
-          },
-          {
-            "name": "value",
-            "type": "uint256",
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-] as const
-
-export const contractAddress = '0x...'
-```
-
-```ts twoslash [config.ts]
-import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
-
-export const account = privateKeyToAccount('0x...')
- 
-export const client = createWalletClient({
-  account,
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
@@ -304,30 +322,30 @@ Using our [Contract Instance](/docs/contract/getContract), we can now call the `
 
 ```ts twoslash [example.ts]
 import { getContract, parseEther } from 'viem'
-import { client } from './config'
-import { contractAddress } from './contract'
- 
-const authorization = await client.signAuthorization({
-  contractAddress,
-})
+import { walletClient } from './config'
+import { abi, contractAddress } from './contract'
 
 const batchCallInvoker = getContract({
   abi,
-  address: client.account.address,
-  client,
+  address: walletClient.account.address,
+  walletClient,
+})
+ 
+const authorization = await walletClient.signAuthorization({
+  contractAddress,
 })
 
-const hash = await batchCallInvoker.write.execute([{ // [!code ++] // [!code focus]
-  data: '0x', // [!code ++] // [!code focus]
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code ++] // [!code focus]
-  value: parseEther('0.001'), // [!code ++] // [!code focus]
-}, { // [!code ++] // [!code focus]
-  data: '0x', // [!code ++] // [!code focus]
-  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code ++] // [!code focus]
-  value: parseEther('0.002'), // [!code ++] // [!code focus]
-}], { // [!code ++] // [!code focus]
-  authorizationList: [authorization], // [!code ++] // [!code focus]
-}) // [!code ++] // [!code focus]
+const hash = await batchCallInvoker.write.execute([{ // [!code focus]
+  data: '0x', // [!code focus]
+  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
+  value: parseEther('0.001'), // [!code focus]
+}, { // [!code focus]
+  data: '0x', // [!code focus]
+  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+  value: parseEther('0.002'), // [!code focus]
+}], { // [!code focus]
+  authorizationList: [authorization], // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [contract.ts] filename="contract.ts"
@@ -365,15 +383,15 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account,
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
@@ -386,16 +404,16 @@ We can also use the [`writeContract` Action](/docs/contract/writeContract) inste
 ```ts twoslash
 // @noErrors
 import { parseEther } from 'viem'
-import { client } from './config'
+import { walletClient } from './config'
 import { contractAddress } from './contract'
  
-const authorization = await client.signAuthorization({
+const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-const hash = await client.writeContract({
+const hash = await walletClient.writeContract({
   abi,
-  address: client.account.address,
+  address: walletClient.account.address,
   authorizationList: [authorization],
   functionName: 'execute',
   args: [{
@@ -416,48 +434,48 @@ We can also utilize an Invoker Account to execute a call on behalf of the author
 ```ts twoslash [config.ts]
 // @noErrors
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { anvil } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
 
-export const invoker = privateKeyToAccount('0x...') // [!code ++]
+export const invoker = privateKeyToAccount('0x...')
  
-export const client = createWalletClient({
+export const walletClient = createWalletClient({
   account, // [!code --]
   account: invoker, // [!code ++]
-  chain: mainnet,
+  chain: anvil,
   transport: http(),
 }).extend(eip7702Actions())
 ```
 
 ```ts twoslash [example.ts]
 import { getContract, parseEther } from 'viem'
-import { client } from './config'
-import { contractAddress } from './contract'
- 
-const authorization = await client.signAuthorization({
-  contractAddress,
-})
+import { walletClient } from './config'
+import { abi, contractAddress } from './contract'
 
 const batchCallInvoker = getContract({
   abi,
-  address: client.account.address,
-  client,
+  address: walletClient.account.address,
+  walletClient,
+})
+ 
+const authorization = await walletClient.signAuthorization({
+  contractAddress,
 })
 
-const hash = await batchCallInvoker.write.execute([{ // [!code ++] // [!code focus]
-  data: '0x', // [!code ++] // [!code focus]
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code ++] // [!code focus]
-  value: parseEther('0.001'), // [!code ++] // [!code focus]
-}, { // [!code ++] // [!code focus]
-  data: '0x', // [!code ++] // [!code focus]
-  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code ++] // [!code focus]
-  value: parseEther('0.002'), // [!code ++] // [!code focus]
-}], { // [!code ++] // [!code focus]
-  authorizationList: [authorization], // [!code ++] // [!code focus]
-}) // [!code ++] // [!code focus]
+const hash = await batchCallInvoker.write.execute([{ // [!code focus]
+  data: '0x', // [!code focus]
+  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
+  value: parseEther('0.001'), // [!code focus]
+}, { // [!code focus]
+  data: '0x', // [!code focus]
+  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+  value: parseEther('0.002'), // [!code focus]
+}], { // [!code focus]
+  authorizationList: [authorization], // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [contract.ts] filename="contract.ts"

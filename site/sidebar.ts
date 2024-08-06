@@ -1217,12 +1217,12 @@ export const sidebar = {
             text: 'Getting Started',
             link: '/experimental',
           },
-          { text: 'Client', link: '/experimental/client' },
         ],
       },
       {
         text: 'EIP-5792',
         items: [
+          { text: 'Client', link: '/experimental/eip5792/client' },
           {
             text: 'Actions',
             items: [
@@ -1306,6 +1306,10 @@ export const sidebar = {
         text: 'ERC-7715',
         items: [
           {
+            text: 'Client',
+            link: '/experimental/erc7715/client',
+          },
+          {
             text: 'Actions',
             items: [
               {
@@ -1319,6 +1323,10 @@ export const sidebar = {
       {
         text: 'Solady',
         items: [
+          {
+            text: 'Client',
+            link: '/experimental/solady/client',
+          },
           {
             text: 'Actions',
             items: [
