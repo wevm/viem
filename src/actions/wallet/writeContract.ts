@@ -14,7 +14,6 @@ import type {
   ContractFunctionArgs,
   ContractFunctionName,
   ContractFunctionParameters,
-  GetValue,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify, UnionEvaluate, UnionOmit } from '../../types/utils.js'
@@ -25,6 +24,7 @@ import {
 } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import type { GetMutabilityAwareValue } from '../public/simulateContract.js'
 import {
   type SendTransactionErrorType,
   type SendTransactionReturnType,
@@ -59,10 +59,12 @@ export type WriteContractParameters<
   GetChainParameter<chain, chainOverride> &
   Prettify<
     GetAccountParameter<account> &
-      GetValue<
+      GetMutabilityAwareValue<
         abi,
+        'nonpayable' | 'payable',
         functionName,
-        FormattedTransactionRequest<derivedChain>['value']
+        FormattedTransactionRequest<derivedChain>['value'],
+        args
       > & {
         /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
         dataSuffix?: Hex | undefined
