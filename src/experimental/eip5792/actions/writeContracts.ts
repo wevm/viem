@@ -7,7 +7,8 @@ import type { Account, GetAccountParameter } from '../../../types/account.js'
 import type { Chain, GetChainParameter } from '../../../types/chain.js'
 import type {
   ContractFunctionArgs,
-  ContractFunctionName, GetValue,
+  ContractFunctionName,
+  GetValue,
   UnionWiden,
   Widen,
 } from '../../../types/contract.js'

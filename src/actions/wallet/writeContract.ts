@@ -24,12 +24,12 @@ import {
 } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import type { GetMutabilityAwareValue } from '../public/simulateContract.js'
 import {
   type SendTransactionErrorType,
   type SendTransactionReturnType,
   sendTransaction,
 } from './sendTransaction.js'
-import type { GetMutabilityAwareValue } from '../public/simulateContract.js'
 
 export type WriteContractParameters<
   abi extends Abi | readonly unknown[] = Abi,

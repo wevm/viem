@@ -271,7 +271,7 @@ test('https://github.com/wevm/viem/issues/2531', async () => {
   const abi = parseAbi([
     'function safeTransferFrom(address, address, uint256)',
     'function safeTransferFrom(address, address, uint256, bytes) payable',
-  ]);
+  ])
 
   const res1 = await simulateContract(client, {
     address: '0x',

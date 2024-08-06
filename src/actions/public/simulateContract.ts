@@ -39,9 +39,9 @@ import {
 } from '../../utils/errors/getContractError.js'
 import type { WriteContractParameters } from '../wallet/writeContract.js'
 
+import type { TransactionRequest } from '~viem/types/transaction.js'
 import { getAction } from '../../utils/getAction.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
-import type { TransactionRequest } from '~viem/types/transaction.js'
 
 export type GetMutabilityAwareValue<
   abi extends Abi | readonly unknown[],
@@ -113,7 +113,7 @@ export type SimulateContractParameters<
     CallParameters<derivedChain> extends CallParameters
       ? CallParameters<derivedChain>['value']
       : CallParameters['value'],
-      args
+    args
   >
 
 export type SimulateContractReturnType<
