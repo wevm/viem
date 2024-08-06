@@ -29,7 +29,7 @@ import {
   type SendTransactionReturnType,
   sendTransaction,
 } from './sendTransaction.js'
-import type { GetMutabilityAwareValue } from '~viem/actions/public/simulateContract.js'
+import type { GetMutabilityAwareValue } from '../public/simulateContract.js'
 
 export type WriteContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
