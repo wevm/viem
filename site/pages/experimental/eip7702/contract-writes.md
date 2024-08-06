@@ -431,25 +431,6 @@ We can also utilize an Invoker Account to execute a call on behalf of the author
 
 :::code-group
 
-```ts twoslash [config.ts]
-// @noErrors
-import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
-import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
-
-export const account = privateKeyToAccount('0x...')
-
-export const invoker = privateKeyToAccount('0x...')
- 
-export const walletClient = createWalletClient({
-  account, // [!code --]
-  account: invoker, // [!code ++]
-  chain: anvil,
-  transport: http(),
-}).extend(eip7702Actions())
-```
-
 ```ts twoslash [example.ts]
 import { getContract, parseEther } from 'viem'
 import { walletClient } from './config'
@@ -465,17 +446,36 @@ const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-const hash = await batchCallInvoker.write.execute([{ // [!code focus]
-  data: '0x', // [!code focus]
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
-  value: parseEther('0.001'), // [!code focus]
-}, { // [!code focus]
-  data: '0x', // [!code focus]
-  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
-  value: parseEther('0.002'), // [!code focus]
-}], { // [!code focus]
-  authorizationList: [authorization], // [!code focus]
-}) // [!code focus]
+const invoker = privateKeyToAccount('0x...') // [!code ++]
+
+const hash = await batchCallInvoker.write.execute([{
+  data: '0x',
+  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+  value: parseEther('0.001'),
+}, {
+  data: '0x',
+  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  value: parseEther('0.002'),
+}], {
+  account: invoker, // [!code ++]
+  authorizationList: [authorization],
+})
+```
+
+```ts twoslash [config.ts]
+// @noErrors
+import { createWalletClient, http } from 'viem'
+import { anvil } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+import { eip7702Actions } from 'viem/experimental'
+
+export const account = privateKeyToAccount('0x...')
+ 
+export const walletClient = createWalletClient({
+  account,
+  chain: anvil,
+  transport: http(),
+}).extend(eip7702Actions())
 ```
 
 ```ts twoslash [contract.ts] filename="contract.ts"

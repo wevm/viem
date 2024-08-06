@@ -333,25 +333,6 @@ We can also utilize an Invoker Account to execute a call on behalf of the author
 
 :::code-group
 
-```ts twoslash [config.ts]
-// @noErrors
-import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
-import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
-
-export const account = privateKeyToAccount('0x...')
-
-export const invoker = privateKeyToAccount('0x...') // [!code ++]
- 
-export const walletClient = createWalletClient({
-  account, // [!code --]
-  account: invoker, // [!code ++]
-  chain: anvil,
-  transport: http(),
-}).extend(eip7702Actions())
-```
-
 ```ts twoslash [example.ts]
 import { encodeFunctionData{ parseEther } from 'viem'
 import { walletClient } from './config'
@@ -361,7 +342,10 @@ const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
+const invoker = privateKeyToAccount('0x...') // [!code ++]
+
 const hash = await walletClient.sendTransaction({
+  account: invoker, // [!code ++]
   authorizationList: [authorization],
   data: encodeFunctionData({
     abi,
@@ -381,6 +365,22 @@ const hash = await walletClient.sendTransaction({
   }),
   to: walletClient.account.address,
 })
+```
+
+```ts twoslash [config.ts]
+// @noErrors
+import { createWalletClient, http } from 'viem'
+import { anvil } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+import { eip7702Actions } from 'viem/experimental'
+
+export const account = privateKeyToAccount('0x...')
+ 
+export const walletClient = createWalletClient({
+  account,
+  chain: anvil,
+  transport: http(),
+}).extend(eip7702Actions())
 ```
 
 ```ts twoslash [contract.ts] filename="contract.ts"
