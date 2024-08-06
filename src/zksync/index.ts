@@ -138,6 +138,9 @@ export type {
   /** @deprecated Use `ZksyncRpcBlock` instead */
   ZksyncRpcBlock as ZkSyncRpcBlock,
   ZksyncRpcBlock,
+  ZksyncBatchDetails,
+  ZksyncBlockDetails,
+  ZksyncNumberParameter,
 } from './types/block.js'
 export type { ChainEIP712 } from './types/chain.js'
 export type {
@@ -151,7 +154,8 @@ export type {
   CommonDataRawBlockTransaction,
   RawBlockTransactions,
   PublicZksyncRpcSchema,
-  PublicZkSyncRpcSchema,
+  /** @deprecated Use `PublicZksyncRpcSchema` instead */
+  PublicZksyncRpcSchema as PublicZkSyncRpcSchema,
 } from './types/eip1193.js'
 export type {
   /** @deprecated Use `ZksyncFeeValues` instead */

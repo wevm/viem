@@ -12,8 +12,6 @@ export type ZksyncBatchDetails = Omit<
   l1GasPrice: number
   l2FairGasPrice: number
 }
-/** @deprecated Use `ZksyncBatchDetails` instead */
-export type ZkSyncBatchDetails = ZksyncBatchDetails
 
 export type ZksyncBlock<
   includeTransactions extends boolean = boolean,
@@ -67,11 +65,7 @@ export type ZksyncRpcBlock<
     l1BatchTimestamp: Hex | null
   }
 >
-/** @deprecated Use `ZksyncRpcBlock` instead */
-export type ZkSyncRpcBlock = ZksyncRpcBlock
 
 export type ZksyncNumberParameter = {
   number: number
 }
-/** @deprecated Use `ZksyncNumberParameter` instead */
-export type ZkSyncNumberParameter = ZksyncNumberParameter
