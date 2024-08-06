@@ -6777,8 +6777,8 @@ packages:
       typescript:
         optional: true
 
-  viem@2.18.7:
-    resolution: {integrity: sha512-0Xy5ypk+n4lYthsvC96jsZE97quKoq1t53RrbhKElmq84Dt705uUjQDgH0/LqAV02Oe6341M3jPTU9JLbs2K2Q==}
+  viem@2.18.8:
+    resolution: {integrity: sha512-Fi5d9fd/LBiVtJ5eV2c99yrdt4dJH5Vbkf2JajwCqHYuV4ErSk/sm+L6Ru3rzT67rfRHSOQibTZxByEBua/WLw==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -8467,7 +8467,7 @@ snapshots:
       pino-http: 8.6.1
       pino-pretty: 10.3.1
       prom-client: 14.2.0
-      viem: 2.18.7(typescript@5.5.2)(zod@3.22.4)
+      viem: 2.18.8(typescript@5.5.2)(zod@3.22.4)
       yargs: 17.7.2
       zod: 3.22.4
       zod-validation-error: 1.5.0(zod@3.22.4)
@@ -14401,7 +14401,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.18.7(typescript@5.5.2)(zod@3.22.4):
+  viem@2.18.8(typescript@5.5.2)(zod@3.22.4):
     dependencies:
       '@adraffy/ens-normalize': 1.10.0
       '@noble/curves': 1.4.0
