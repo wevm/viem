@@ -16,7 +16,7 @@ import {
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { bundlerMainnet } from '../../../test/src/bundler.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { zkSync } from '../../chains/index.js'
+import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import { serializeErc6492Signature } from '../../experimental/index.js'
@@ -363,7 +363,7 @@ test('unexpected errors still get thrown', async () => {
 
 test('https://github.com/wevm/viem/issues/2484', async () => {
   const client = createClient({
-    chain: zkSync,
+    chain: zksync,
     transport: http(),
   })
 

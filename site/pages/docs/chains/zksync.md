@@ -1,29 +1,29 @@
-# zkSync [Integrating with zkSync in Viem]
+# ZKsync [Integrating with ZKsync in Viem]
 
-Viem provides first-class support for chains implemented on [zkSync](https://zksync.io/).
+Viem provides first-class support for chains implemented on [ZKsync](https://zksync.io/).
 
 ## Chains
 
-The following Viem chains are implemented on zkSync:
+The following Viem chains are implemented on ZKsync:
 
 ```ts
 import {
-  zkSync, // [!code hl]
-  zkSyncTestnet, // [!code hl]
+  zksync, // [!code hl]
+  zksyncSepoliaTestnet, // [!code hl]
 } from 'viem/chains'
 ```
 
 ### Configuration
 
-Viem exports zkSync's chain [formatters](/docs/chains/formatters) & [serializers](/docs/chains/serializers) via `chainConfig`. This is useful if you need to define another chain which is implemented on zkSync.
+Viem exports ZKsync's chain [formatters](/docs/chains/formatters) & [serializers](/docs/chains/serializers) via `chainConfig`. This is useful if you need to define another chain which is implemented on ZKsync.
 
 ```ts
 import { defineChain } from 'viem'
-import { chainConfig } from 'viem/zkSync'
+import { chainConfig } from 'viem/zksync'
 
 export const zkSyncExample = defineChain({
   ...chainConfig,
-  name: 'zkSync Example',
+  name: 'ZKsync Example',
   // ...
 })
 ```
@@ -34,7 +34,7 @@ export const zkSyncExample = defineChain({
 
 Serializes a transaction object. Supports EIP-712, EIP-1559, EIP-2930, and Legacy transactions.
 
-zkSync-flavored version of [Viem's `serializeTransaction`](/docs/utilities/serializeTransaction).
+ZKsync-flavored version of [Viem's `serializeTransaction`](/docs/utilities/serializeTransaction).
 
 #### Parameters
 
@@ -42,7 +42,7 @@ zkSync-flavored version of [Viem's `serializeTransaction`](/docs/utilities/seria
 - `signature` (`Signature`): Optional signature to include.
 
 ```ts
-import { serializeTransaction } from 'viem/celo'
+import { serializeTransaction } from 'viem/zksync'
 
 const serialized = serializeTransaction({
   chainId: 1,

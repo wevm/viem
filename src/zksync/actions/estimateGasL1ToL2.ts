@@ -4,7 +4,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { ChainEIP712 } from '../types/chain.js'
-import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
+import type { PublicZksyncRpcSchema } from '../types/eip1193.js'
 
 export type EstimateGasL1ToL2Parameters<
   chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
@@ -17,7 +17,7 @@ export async function estimateGasL1ToL2<
   chain extends ChainEIP712 | undefined,
   account extends Account | undefined,
 >(
-  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZksyncRpcSchema>,
   parameters: EstimateGasL1ToL2Parameters<chain, account>,
 ): Promise<EstimateGasL1ToL2ReturnType> {
   const { account: account_, ...request } = parameters

@@ -2,24 +2,24 @@ import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 
-import { anvilZkSync } from '../../../test/src/anvil.js'
+import { anvilZksync } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import type { EIP1193RequestFn } from '../../index.js'
-import type { ZkSyncTransactionRequestEIP712 } from '../../zksync/index.js'
+import type { ZksyncTransactionRequestEIP712 } from '../../zksync/index.js'
 import { sendEip712Transaction } from './sendEip712Transaction.js'
 
 const sourceAccount = accounts[0]
 
-const client = anvilZkSync.getClient()
+const client = anvilZksync.getClient()
 
 client.request = (async ({ method, params }) => {
   if (method === 'eth_sendRawTransaction')
     return '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
   if (method === 'eth_estimateGas') return 158774n
-  return anvilZkSync.getClient().request({ method, params } as any)
+  return anvilZksync.getClient().request({ method, params } as any)
 }) as EIP1193RequestFn
 
-const base: ZkSyncTransactionRequestEIP712 = {
+const base: ZksyncTransactionRequestEIP712 = {
   from: '0x0000000000000000000000000000000000000000',
   paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
   paymasterInput:
@@ -63,7 +63,7 @@ test('errors: invalid eip712 tx', async () => {
       - include one of the following: \`customSignature\`, \`paymaster\`, \`paymasterInput\`, \`gasPerPubdata\`, \`factoryDeps\`
 
     Request Arguments:
-      chain:  zkSync Era (Local) (id: 324)
+      chain:  zksync Era (Local) (id: 324)
       from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
     Version: viem@x.y.z]
