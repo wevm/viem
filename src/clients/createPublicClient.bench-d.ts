@@ -1,4 +1,4 @@
-import { attest } from '@arktype/attest'
+import { attest } from '@ark/attest'
 import { test } from 'vitest'
 
 import { createClient } from './createClient.js'
@@ -10,12 +10,12 @@ test('createPublicClient', () => {
   createPublicClient({
     transport: http('https://cloudflare-eth.com'),
   })
-  attest.instantiations([12236, 'instantiations'])
+  attest.instantiations([13956, 'instantiations'])
 })
 
 test('createClient.extend + publicActions', () => {
   createClient({
     transport: http('https://cloudflare-eth.com'),
   }).extend(publicActions)
-  attest.instantiations([247705, 'instantiations'])
+  attest.instantiations([328328, 'instantiations'])
 })

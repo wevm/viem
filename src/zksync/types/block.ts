@@ -3,17 +3,17 @@ import type { Block, BlockTag } from '../../types/block.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
 import type { Assign } from '../../types/utils.js'
-import type { ZkSyncRpcTransaction, ZkSyncTransaction } from './transaction.js'
+import type { ZksyncRpcTransaction, ZksyncTransaction } from './transaction.js'
 
-export type ZkSyncBatchDetails = Omit<
-  ZkSyncBlockDetails,
+export type ZksyncBatchDetails = Omit<
+  ZksyncBlockDetails,
   'operatorAddress' | 'protocolVersion'
 > & {
   l1GasPrice: number
   l2FairGasPrice: number
 }
 
-export type ZkSyncBlock<
+export type ZksyncBlock<
   includeTransactions extends boolean = boolean,
   blockTag extends BlockTag = BlockTag,
 > = Assign<
@@ -21,7 +21,7 @@ export type ZkSyncBlock<
     bigint,
     includeTransactions,
     blockTag,
-    ZkSyncTransaction<blockTag extends 'pending' ? true : false>
+    ZksyncTransaction<blockTag extends 'pending' ? true : false>
   >,
   {
     l1BatchNumber: bigint | null
@@ -29,7 +29,7 @@ export type ZkSyncBlock<
   }
 >
 
-export type ZkSyncBlockDetails = {
+export type ZksyncBlockDetails = {
   number: number
   timestamp: number
   l1BatchNumber: number
@@ -51,14 +51,14 @@ export type ZkSyncBlockDetails = {
   protocolVersion?: string
 }
 
-export type ZkSyncRpcBlock<
+export type ZksyncRpcBlock<
   blockTag extends BlockTag = BlockTag,
   includeTransactions extends boolean = boolean,
 > = Assign<
   RpcBlock<
     blockTag,
     includeTransactions,
-    ZkSyncRpcTransaction<blockTag extends 'pending' ? true : false>
+    ZksyncRpcTransaction<blockTag extends 'pending' ? true : false>
   >,
   {
     l1BatchNumber: Hex | null
@@ -66,6 +66,6 @@ export type ZkSyncRpcBlock<
   }
 >
 
-export type ZkSyncNumberParameter = {
+export type ZksyncNumberParameter = {
   number: number
 }

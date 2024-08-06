@@ -43,11 +43,11 @@ export type SendTransactionErrorType = core_SendTransactionErrorType
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
- * import { zkSync } from 'viem/chains'
+ * import { zksync } from 'viem/chains'
  * import { sendTransaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
- *   chain: zkSync,
+ *   chain: zksync,
  *   transport: custom(window.ethereum),
  * })
  * const hash = await sendTransaction(client, {
@@ -60,12 +60,12 @@ export type SendTransactionErrorType = core_SendTransactionErrorType
  * // Account Hoisting
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { zkSync } from 'viem/chains'
+ * import { zksync } from 'viem/chains'
  * import { sendTransaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),
- *   chain: zkSync,
+ *   chain: zksync,
  *   transport: http(),
  * })
  * const hash = await sendTransaction(client, {

@@ -31,9 +31,79 @@ export {
   writeContracts,
 } from './eip5792/actions/writeContracts.js'
 export {
-  type WalletActionsEip5792,
-  walletActionsEip5792,
+  /** @deprecated use `Eip5792Actions` instead. */
+  type Eip5792Actions as WalletActionsEip5792,
+  /** @deprecated use `eip5792Actions` instead. */
+  eip5792Actions as walletActionsEip5792,
+  type Eip5792Actions,
+  eip5792Actions,
 } from './eip5792/decorators/eip5792.js'
+
+export {
+  type Eip7702Actions,
+  eip7702Actions,
+} from './eip7702/decorators/eip7702.js'
+export {
+  type SignAuthorizationParameters,
+  type SignAuthorizationReturnType,
+  type SignAuthorizationErrorType,
+  signAuthorization,
+} from './eip7702/actions/signAuthorization.js'
+export {
+  type Authorization,
+  type SignedAuthorization,
+  type AuthorizationList,
+  type SignedAuthorizationList,
+  type SerializedAuthorization,
+  type SerializedAuthorizationList,
+} from './eip7702/types/authorization.js'
+export {
+  type RpcAuthorizationList,
+  type RpcAuthorization,
+} from './eip7702/types/rpc.js'
+export {
+  type HashAuthorizationParameters,
+  type HashAuthorizationReturnType,
+  type HashAuthorizationErrorType,
+  hashAuthorization,
+} from './eip7702/utils/hashAuthorization.js'
+export {
+  type RecoverAuthorizationAddressParameters,
+  type RecoverAuthorizationAddressReturnType,
+  type RecoverAuthorizationAddressErrorType,
+  recoverAuthorizationAddress,
+} from './eip7702/utils/recoverAuthorizationAddress.js'
+export {
+  type SerializeAuthorizationListReturnType,
+  type SerializeAuthorizationListErrorType,
+  serializeAuthorizationList,
+} from './eip7702/utils/serializeAuthorizationList.js'
+export {
+  type VerifyAuthorizationParameters,
+  type VerifyAuthorizationReturnType,
+  type VerifyAuthorizationErrorType,
+  verifyAuthorization,
+} from './eip7702/utils/verifyAuthorization.js'
+
+export {
+  type GrantPermissionsParameters,
+  type GrantPermissionsReturnType,
+  grantPermissions,
+} from './erc7715/actions/grantPermissions.js'
+export {
+  /** @deprecated use `Erc7715Actions` instead. */
+  type Erc7715Actions as WalletActionsErc7715,
+  /** @deprecated use `erc7715Actions` instead. */
+  erc7715Actions as walletActionsErc7715,
+  type Erc7715Actions,
+  erc7715Actions,
+} from './erc7715/decorators/erc7715.js'
+
+export {
+  type SoladyActions,
+  type SoladyActionsParameters,
+  soladyActions,
+} from './solady/decorators/solady.js'
 
 export {
   /** @deprecated This is no longer experimental – use `import type { ParseErc6492SignatureErrorType } from 'viem'` instead. */
@@ -65,19 +135,3 @@ export {
   /** @deprecated This is no longer experimental – use `import { serializeErc6492Signature } from 'viem'` instead. */
   serializeErc6492Signature,
 } from '../utils/signature/serializeErc6492Signature.js'
-
-export {
-  type GrantPermissionsParameters,
-  type GrantPermissionsReturnType,
-  grantPermissions,
-} from './erc7715/actions/grantPermissions.js'
-export {
-  type WalletActionsErc7715,
-  walletActionsErc7715,
-} from './erc7715/decorators/erc7715.js'
-
-export {
-  type SoladyActions,
-  type SoladyActionsParameters,
-  soladyActions,
-} from './solady/decorators/solady.js'

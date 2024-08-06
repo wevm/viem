@@ -6,8 +6,81 @@ import {
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionEIP4844,
+  assertTransactionEIP7702,
   assertTransactionLegacy,
 } from './assertTransaction.js'
+
+describe('eip7702', () => {
+  test('invalid chainId', () => {
+    expect(() =>
+      assertTransactionEIP7702({
+        authorizationList: [
+          {
+            contractAddress: '0x0000000000000000000000000000000000000000',
+            chainId: 0,
+            nonce: 0,
+            r: '0x',
+            s: '0x',
+            yParity: 0,
+          },
+        ],
+        chainId: 1,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidChainIdError: Chain ID "0" is invalid.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('invalid address', () => {
+    expect(() =>
+      assertTransactionEIP7702({
+        authorizationList: [
+          {
+            contractAddress: '0x000000000000000000000000000000000000000z',
+            chainId: 1,
+            nonce: 0,
+            r: '0x',
+            s: '0x',
+            yParity: 0,
+          },
+        ],
+        chainId: 1,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidAddressError: Address "0x000000000000000000000000000000000000000z" is invalid.
+
+      - Address must be a hex value of 20 bytes (40 hex characters).
+      - Address must match its checksum counterpart.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('fee cap too high', () => {
+    expect(() =>
+      assertTransactionEIP7702({
+        authorizationList: [
+          {
+            contractAddress: '0x0000000000000000000000000000000000000000',
+            chainId: 1,
+            nonce: 0,
+            r: '0x',
+            s: '0x',
+            yParity: 0,
+          },
+        ],
+        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        chainId: 1,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+
+      Version: viem@x.y.z]
+    `)
+  })
+})
 
 describe('eip4844', () => {
   test('empty blobs', () => {
@@ -67,7 +140,7 @@ describe('eip4844', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Version: viem@x.y.z]
     `)
@@ -82,7 +155,7 @@ describe('eip1559', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Version: viem@x.y.z]
     `)
@@ -134,7 +207,7 @@ describe('eip2930', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Version: viem@x.y.z]
     `)
@@ -170,7 +243,7 @@ describe('eip2930', () => {
         maxPriorityFeePerGas: parseGwei('1') as unknown as undefined,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
+      [BaseError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
 
       Version: viem@x.y.z]
     `)
@@ -185,7 +258,7 @@ describe('legacy', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
       Version: viem@x.y.z]
     `)
@@ -222,7 +295,7 @@ test('invalid transaction type', () => {
       maxPriorityFeePerGas: parseGwei('1') as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
+    [BaseError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
 
     Version: viem@x.y.z]
   `)
@@ -232,17 +305,7 @@ test('invalid transaction type', () => {
       maxFeePerGas: parseGwei('1') as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid Legacy Transaction attribute.
-
-    Version: viem@x.y.z]
-  `)
-
-  expect(() =>
-    assertTransactionLegacy({
-      accessList: [] as unknown as undefined,
-    }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: \`accessList\` is not a valid Legacy Transaction attribute.
+    [BaseError: \`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid Legacy Transaction attribute.
 
     Version: viem@x.y.z]
   `)

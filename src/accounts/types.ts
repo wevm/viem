@@ -1,6 +1,7 @@
 import type { Address, TypedData } from 'abitype'
 
 import type { SmartAccount } from '../account-abstraction/accounts/types.js'
+import type { Authorization } from '../experimental/eip7702/types/authorization.js'
 import type { HDKey } from '../types/account.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
@@ -12,6 +13,7 @@ import type { IsNarrowable, OneOf, Prettify } from '../types/utils.js'
 import type { NonceManager } from '../utils/nonceManager.js'
 import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
+import type { SignAuthorizationReturnType } from './utils/signAuthorization.js'
 
 export type Account<address extends Address = Address> = OneOf<
   JsonRpcAccount<address> | LocalAccount<string, address> | SmartAccount
@@ -26,7 +28,10 @@ export type CustomSource = {
   address: Address
   nonceManager?: NonceManager | undefined
   // TODO(v3): Make `sign` required.
-  sign?: (({ hash }: { hash: Hash }) => Promise<Hex>) | undefined
+  sign?: ((parameters: { hash: Hash }) => Promise<Hex>) | undefined
+  experimental_signAuthorization?:
+    | ((parameters: Authorization) => Promise<SignAuthorizationReturnType>)
+    | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hex>
   signTransaction: <
     serializer extends
@@ -34,7 +39,7 @@ export type CustomSource = {
     transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
   >(
     transaction: transaction,
-    args?:
+    options?:
       | {
           serializer?: serializer | undefined
         }
@@ -51,7 +56,7 @@ export type CustomSource = {
     const typedData extends TypedData | Record<string, unknown>,
     primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   >(
-    typedDataDefinition: TypedDataDefinition<typedData, primaryType>,
+    parameters: TypedDataDefinition<typedData, primaryType>,
   ) => Promise<Hex>
 }
 
@@ -106,5 +111,8 @@ export type PrivateKeyAccount = Prettify<
   LocalAccount<'privateKey'> & {
     // TODO(v3): This will be redundant.
     sign: NonNullable<CustomSource['sign']>
+    experimental_signAuthorization: NonNullable<
+      CustomSource['experimental_signAuthorization']
+    >
   }
 >

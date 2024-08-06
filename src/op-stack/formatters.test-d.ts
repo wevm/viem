@@ -69,7 +69,7 @@ describe('smoke', () => {
     })
 
     expectTypeOf(transaction.type).toEqualTypeOf<
-      'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'deposit'
+      'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | 'deposit'
     >()
     expectTypeOf(
       transaction.type === 'deposit' && transaction.isSystemTx,

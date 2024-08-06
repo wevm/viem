@@ -28,11 +28,11 @@ const hash = await walletClient.sendRawTransaction(signature)
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { zkSync } from 'viem/chains'
+import { zksync } from 'viem/chains'
 import { eip712WalletActions } from 'viem/zksync'
 
 export const walletClient = createWalletClient({
-  chain: zkSync,
+  chain: zksync,
   transport: custom(window.ethereum)
 }).extend(eip712WalletActions())
 

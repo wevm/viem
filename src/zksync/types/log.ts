@@ -3,7 +3,7 @@ import type { Log as Log_ } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
 import type { RpcLog as RpcLog_ } from '../../types/rpc.js'
 
-export type ZkSyncLog<
+export type ZksyncLog<
   quantity = bigint,
   index = number,
   pending extends boolean = boolean,
@@ -21,14 +21,14 @@ export type ZkSyncLog<
   logType: Hex | null
 }
 
-export type ZkSyncRpcLog = RpcLog_ & {
+export type ZksyncRpcLog = RpcLog_ & {
   l1BatchNumber: Hex | null
   // These are returned but doesn't appear in Log structure neither is mentioned in https://era.zksync.io/docs/api/js/types
   transactionLogIndex: Hex
   logType: Hex | null
 }
 
-export type ZkSyncL2ToL1Log = {
+export type ZksyncL2ToL1Log = {
   blockNumber: bigint
   blockHash: string
   l1BatchNumber: bigint
@@ -42,7 +42,7 @@ export type ZkSyncL2ToL1Log = {
   logIndex: bigint
 }
 
-export type ZkSyncRpcL2ToL1Log = {
+export type ZksyncRpcL2ToL1Log = {
   blockNumber: Hex
   blockHash: Hex
   l1BatchNumber: Hex

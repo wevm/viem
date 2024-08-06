@@ -500,7 +500,7 @@ describe('sign', async () => {
         hash: keccak256('0xdeadbeef'),
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [ViemError: \`owner\` does not support raw sign.
+      [BaseError: \`owner\` does not support raw sign.
 
       Version: viem@x.y.z]
     `)

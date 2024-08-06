@@ -52,7 +52,7 @@ export type DeployContractErrorType =
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { zkSync } from 'viem/chains'
+ * import { zksync } from 'viem/chains'
  * import { deployContract } from 'viem/zksync'
  *
  * const client = createWalletClient({

@@ -1,10 +1,10 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../../zksync/chainConfig.js'
 
-export const zkSync = /*#__PURE__*/ defineChain({
+export const zksync = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 324,
-  name: 'zkSync Era',
+  name: 'ZKsync Era',
   network: 'zksync-era',
   nativeCurrency: {
     decimals: 18,
@@ -24,8 +24,9 @@ export const zkSync = /*#__PURE__*/ defineChain({
       apiUrl: 'https://api-era.zksync.network/api',
     },
     native: {
-      name: 'zkSync Explorer',
+      name: 'ZKsync Explorer',
       url: 'https://explorer.zksync.io/',
+      apiUrl: 'https://block-explorer-api.mainnet.zksync.io/api',
     },
   },
   contracts: {
