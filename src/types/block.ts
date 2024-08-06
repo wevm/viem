@@ -31,7 +31,7 @@ export type Block<
   /** Block hash or `null` if pending */
   hash: blockTag extends 'pending' ? null : Hash
   /** Logs bloom filter or `null` if pending */
-  logsBloom: blockTag extends 'pending' ? null : Hex
+  logsBloom: blockTag extends 'pending' ? null : Hex | ''
   /** Address that received this block’s mining rewards */
   miner: Address
   /** Unique identifier for the block. */

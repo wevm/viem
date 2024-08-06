@@ -28,7 +28,7 @@ test('includeTransactions = true', async () => {
 test('blockTag = "latest" & includeTransactions = true', async () => {
   const block = await getBlock(client, { includeTransactions: true })
   expectTypeOf(block.hash).toEqualTypeOf<Hex>()
-  expectTypeOf(block.logsBloom).toEqualTypeOf<Hex>()
+  expectTypeOf(block.logsBloom).toEqualTypeOf<Hex | ''>()
   expectTypeOf(block.nonce).toEqualTypeOf<Hex>()
   expectTypeOf(block.number).toEqualTypeOf<bigint>()
   expectTypeOf(block.transactions[0].blockHash).toEqualTypeOf<Hex>()
@@ -62,7 +62,7 @@ describe('chain w/ formatter', () => {
   test('blockTag = "latest" & includeTransactions = true', async () => {
     const block = await getBlock(client, { includeTransactions: true })
     expectTypeOf(block.hash).toEqualTypeOf<Hex>()
-    expectTypeOf(block.logsBloom).toEqualTypeOf<Hex>()
+    expectTypeOf(block.logsBloom).toEqualTypeOf<Hex | ''>()
     expectTypeOf(block.nonce).toEqualTypeOf<Hex>()
     expectTypeOf(block.number).toEqualTypeOf<bigint>()
     expectTypeOf(block.transactions[0].blockHash).toEqualTypeOf<Hex>()
