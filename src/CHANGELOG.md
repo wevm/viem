@@ -1,5 +1,39 @@
 # viem
 
+## 2.19.0
+
+### Minor Changes
+
+- [#2570](https://github.com/wevm/viem/pull/2570) [`fee80a9a`](https://github.com/wevm/viem/commit/fee80a9ae3e425354f21a6de5fa397244577eb28) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added EIP-7702 Extension. [See Docs](https://viem.sh/experimental/eip7702)
+
+- [#2586](https://github.com/wevm/viem/pull/2586) [`0b1693aa`](https://github.com/wevm/viem/commit/0b1693aa51468cfe77dae74ad44bd89dfd21fd0e) Thanks [@tmm](https://github.com/tmm)! - Renamed "zkSync" to "ZKsync":
+
+  - Context: "zkSync" was officially renamed to "ZKsync" a while ago.
+  - Variable names: `zkSync` -> `zksync` (for simplicity and consistency between folder/file names and variables).
+  - Types: `ZkSync` -> `Zksync`.
+  - Old naming still remains in Viem, however is marked as `@deprecated` and will be removed in the next major release.
+
+  Removed deprecated `zkSyncTestnet` chain.
+
+- [#2583](https://github.com/wevm/viem/pull/2583) [`b5aa9651`](https://github.com/wevm/viem/commit/b5aa9651c7618b3ee5e952857f330e12f3bb9fbf) Thanks [@jxom](https://github.com/jxom)! - Added ability for consumer (libraries built on top of Viem) to globally configure properties on `BaseError`.
+
+  ```ts
+  import { setErrorConfig } from 'viem'
+
+  setErrorConfig({
+    getDocsUrl({ name }) {
+      return `https://examplelib.com?error=${name}`
+    }
+    version: 'examplelib@1.2.3'
+  })
+  ```
+
+### Patch Changes
+
+- [#2581](https://github.com/wevm/viem/pull/2581) [`837507f6`](https://github.com/wevm/viem/commit/837507f6dcc41e928419b2377e00913fc75033f9) Thanks [@cygaar](https://github.com/cygaar)! - Added ZKsync config to Abstract Testnet chain.
+
+- [#2561](https://github.com/wevm/viem/pull/2561) [`1c5d64a3`](https://github.com/wevm/viem/commit/1c5d64a36e88be963a9724d3abdd6f55b8c2e7b9) Thanks [@Yuripetusko](https://github.com/Yuripetusko)! - Fixed #2560: infer the correct payable `value` type on function overloads by matching function against `args`.
+
 ## 2.18.8
 
 ### Patch Changes
