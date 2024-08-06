@@ -63,7 +63,7 @@ test('errors: invalid eip712 tx', async () => {
       - include one of the following: \`customSignature\`, \`paymaster\`, \`paymasterInput\`, \`gasPerPubdata\`, \`factoryDeps\`
 
     Request Arguments:
-      chain:  zksync Era (Local) (id: 324)
+      chain:  ZKsync Era (Local) (id: 324)
       from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
     Version: viem@x.y.z]
