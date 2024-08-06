@@ -39,7 +39,7 @@ import {
 } from '../../utils/errors/getContractError.js'
 import type { WriteContractParameters } from '../wallet/writeContract.js'
 
-import type { TransactionRequest } from '~viem/types/transaction.js'
+import type { TransactionRequest } from '../../types/transaction.js'
 import { getAction } from '../../utils/getAction.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
