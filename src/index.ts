@@ -557,6 +557,11 @@ export {
   erc4626Abi,
 } from './constants/abis.js'
 export { zeroAddress } from './constants/address.js'
+export {
+  deploylessCallViaBytecodeBytecode,
+  deploylessCallViaFactoryBytecode,
+  universalSignatureValidatorByteCode,
+} from './constants/contracts.js'
 export { etherUnits, gweiUnits, weiUnits } from './constants/unit.js'
 export {
   maxInt8,
