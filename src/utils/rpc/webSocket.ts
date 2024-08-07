@@ -4,13 +4,13 @@ import {
   SocketClosedError,
   WebSocketRequestError,
 } from '../../errors/request.js'
+import type { RpcRequest } from '../../types/rpc.js'
 import {
   type GetSocketRpcClientParameters,
   type Socket,
   type SocketRpcClient,
   getSocketRpcClient,
 } from './socket.js'
-import type { RpcRequest } from '../../types/rpc.js'
 
 export type GetWebSocketRpcClientOptions = Pick<
   GetSocketRpcClientParameters,
@@ -72,7 +72,11 @@ export async function getWebSocketRpcClient(
                 cause: new SocketClosedError({ url: socket.url }),
               })
 
-            const body = <RpcRequest>({ jsonrpc: "2.0", method: "net_version", params: [] })
+            const body = <RpcRequest>{
+              jsonrpc: '2.0',
+              method: 'net_version',
+              params: [],
+            }
             socket.send(JSON.stringify(body))
           } catch (error) {
             onError(error as Error)
