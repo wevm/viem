@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add multicall configuration for iotex testnet
+Added multicall configuration for iotex testnet.
