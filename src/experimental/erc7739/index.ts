@@ -13,14 +13,8 @@ export {
 } from './actions/signTypedData.js'
 export {
   type Erc7739Actions,
-  /** @deprecated Use `Erc7739Actions` instead. */
-  type Erc7739Actions as SoladyActions,
   type Erc7739ActionsParameters,
-  /** @deprecated Use `erc7739Actions` instead. */
-  type Erc7739ActionsParameters as SoladyActionsParameters,
   erc7739Actions,
-  /** @deprecated Use `erc7739Actions` instead. */
-  erc7739Actions as soladyActions,
 } from './decorators/erc7739.js'
 export {
   type HashMessageErrorType,
