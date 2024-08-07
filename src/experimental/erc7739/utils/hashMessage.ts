@@ -25,7 +25,7 @@ export type HashMessageErrorType =
   | ErrorType
 
 /**
- * Generates a signable hash for a Solady ERC-1271 personal sign message.
+ * Generates a signable hash for a ERC-7739 personal sign message.
  *
  * @example
  * ```ts

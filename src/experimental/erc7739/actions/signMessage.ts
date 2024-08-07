@@ -48,11 +48,11 @@ export type SignMessageReturnType = Hex
 export type SignMessageErrorType = ErrorType
 
 /**
- * Signs a [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal sign message via Solady's [ERC1271 `PersonalSign` format](https://github.com/Vectorized/solady/blob/678c9163550810b08f0ffb09624c9f7532392303/src/accounts/ERC1271.sol#L154-L166).
+ * Signs a [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal sign message via [ERC-7739 `PersonalSign` format](https://eips.ethereum.org/EIPS/eip-7702).
  *
- * This Action is suitable to sign messages for Smart Accounts that implement (or conform to) Solady's [ERC1271.sol](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC1271.sol).
+ * This Action is suitable to sign messages for Smart Accounts that implement (or conform to) [ERC-7739](https://eips.ethereum.org/EIPS/eip-7702) (e.g. Solady's [ERC1271.sol](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC1271.sol)).
  *
- * - Docs: https://viem.sh/experimental/solady/signMessage
+ * - Docs: https://viem.sh/experimental/erc7739/signMessage
  *
  * With the calculated signature, you can:
  * - use [`verifyMessage`](https://viem.sh/docs/utilities/verifyMessage) to verify the signature,
@@ -64,7 +64,7 @@ export type SignMessageErrorType = ErrorType
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { signMessage } from 'viem/experimental/solady'
+ * import { signMessage } from 'viem/experimental/erc7739'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
@@ -82,7 +82,7 @@ export type SignMessageErrorType = ErrorType
  * import { createWalletClient, custom } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { mainnet } from 'viem/chains'
- * import { signMessage } from 'viem/experimental/solady'
+ * import { signMessage } from 'viem/experimental/erc7739'
  *
  * const client = createWalletClient({
  *   account: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
@@ -113,7 +113,7 @@ export async function signMessage<
 
   if (!account_)
     throw new AccountNotFoundError({
-      docsPath: '/experimental/solady/signMessage',
+      docsPath: '/experimental/erc7739/signMessage',
     })
   const account = parseAccount(account_)
 

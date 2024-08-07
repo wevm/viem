@@ -13,9 +13,9 @@ import {
   writeContract,
 } from '../../../actions/index.js'
 import { pad } from '../../../utils/index.js'
-import { soladyActions } from './solady.js'
+import { erc7739Actions } from './erc7739.js'
 
-const client = anvilMainnet.getClient().extend(soladyActions())
+const client = anvilMainnet.getClient().extend(erc7739Actions())
 
 let verifier: Address
 beforeAll(async () => {
@@ -33,7 +33,7 @@ beforeAll(async () => {
 })
 
 test('default', () => {
-  expect(soladyActions()(client)).toMatchInlineSnapshot(`
+  expect(erc7739Actions()(client)).toMatchInlineSnapshot(`
     {
       "signMessage": [Function],
       "signTypedData": [Function],
@@ -57,7 +57,7 @@ test('signMessage', async () => {
 
   const clientWithAccount = anvilMainnet
     .getClient({ account: true })
-    .extend(soladyActions({ verifier }))
+    .extend(erc7739Actions({ verifier }))
   const result_2 = await clientWithAccount.signMessage({
     message: 'Hello, world!',
   })
@@ -88,7 +88,7 @@ test('signTypedData', async () => {
 
   const clientWithAccount = anvilMainnet
     .getClient({ account: true })
-    .extend(soladyActions({ verifier }))
+    .extend(erc7739Actions({ verifier }))
   const result_2 = await clientWithAccount.signTypedData({
     ...typedData.complex,
     primaryType: 'Mail',

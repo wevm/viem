@@ -4,7 +4,7 @@ description: Hashes EIP-712 typed data via Solady's ERC-1271 format.
 
 # hashTypedData
 
-Hashes [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data via Solady's [ERC-1271 `TypedDataSign` format](https://github.com/Vectorized/solady/blob/678c9163550810b08f0ffb09624c9f7532392303/src/accounts/ERC1271.sol#L130-L151).
+Hashes [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data via [ERC-7739 `TypedDataSign` format](https://eips.ethereum.org/EIPS/eip-7739).
 
 ## Import
 

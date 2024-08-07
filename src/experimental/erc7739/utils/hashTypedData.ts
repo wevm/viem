@@ -27,7 +27,7 @@ export type HashTypedDataReturnType = Hex
 export type HashTypedDataErrorType = HashTypedDataErrorType_ | ErrorType
 
 /**
- * Generates a signable hash for Solady ERC-1271 typed data.
+ * Generates a signable hash for ERC-7739 typed data.
  *
  * @example
  * ```ts

@@ -1,17 +1,17 @@
 # wrapTypedDataSignature
 
-Wraps a EIP-712 typed data signature into Solady's ERC-1271 format for verification.
+Wraps a EIP-712 typed data signature into via [ERC-7739](https://eips.ethereum.org/EIPS/eip-7739) format for verification.
 
 ## Import
 
 ```ts
-import { wrapTypedDataSignature } from 'viem/experimental/solady'
+import { wrapTypedDataSignature } from 'viem/experimental/erc7739'
 ```
 
 ## Usage
 
 ```ts
-import { wrapTypedDataSignature } from 'viem/experimental/solady'
+import { wrapTypedDataSignature } from 'viem/experimental/erc7739'
 
 wrapTypedDataSignature({
   domain: {

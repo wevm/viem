@@ -4,9 +4,9 @@ description: Signs a personal sign message via Solady's ERC-1271 format.
 
 # signMessage
 
-Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal sign message via Solady's [ERC-1271 `PersonalSign` format](https://github.com/Vectorized/solady/blob/678c9163550810b08f0ffb09624c9f7532392303/src/accounts/ERC1271.sol#L154-L166).
+Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal sign message via [ERC-7739 `PersonalSign` format](https://eips.ethereum.org/EIPS/eip-7739).
 
-This Action is suitable to sign messages for contracts (e.g. ERC-4337 Smart Accounts) that implement (or conform to) Solady's [ERC1271.sol](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC1271.sol).
+This Action is suitable to sign messages for contracts (e.g. ERC-4337 Smart Accounts) that implement (or conform to) [ERC-7739](https://eips.ethereum.org/EIPS/eip-7739) (e.g. Solady's [ERC1271.sol](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC1271.sol)).
 
 With the calculated signature, you can use [`verifyMessage`](/docs/actions/public/verifyMessage) to verify the signature
 
@@ -38,12 +38,12 @@ const signature_2 = await walletClient.signMessage({
 ```ts twoslash [config.ts] filename="config.ts"
 import { createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { soladyActions } from 'viem/experimental'
+import { erc7739Actions } from 'viem/experimental'
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: http(),
-}).extend(soladyActions())
+}).extend(erc7739Actions())
 
 export const [account] = await walletClient.getAddresses()
 // @log: ↑ JSON-RPC Account
@@ -72,7 +72,7 @@ const signature = await walletClient.signMessage({ // [!code focus:99]
 
 ```ts [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
-import { soladyActions } from 'viem/experimental'
+import { erc7739Actions } from 'viem/experimental'
 
 // Retrieve Account from an EIP-1193 Provider.
 const [account] = await window.ethereum.request({ 
@@ -82,7 +82,7 @@ const [account] = await window.ethereum.request({
 export const walletClient = createWalletClient({
   account,
   transport: custom(window.ethereum!)
-}).extend(soladyActions({ 
+}).extend(erc7739Actions({ 
   verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2' 
 }))
 ```
@@ -90,12 +90,12 @@ export const walletClient = createWalletClient({
 ```ts twoslash [config.ts (Local Account)] filename="config.ts"
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { soladyActions } from 'viem/experimental'
+import { erc7739Actions } from 'viem/experimental'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'),
   transport: http()
-}).extend(soladyActions({ 
+}).extend(erc7739Actions({ 
   verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2' 
 }))
 ```

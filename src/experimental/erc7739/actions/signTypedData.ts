@@ -58,11 +58,11 @@ export type SignTypedDataReturnType = Hex
 export type SignTypedDataErrorType = ErrorType
 
 /**
- * Signs an [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data message via Solady's [ERC1271 `TypedDataSign` format](https://github.com/Vectorized/solady/blob/678c9163550810b08f0ffb09624c9f7532392303/src/accounts/ERC1271.sol#L130-L151).
+ * Signs an [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data message via [ERC-7739 `TypedDataSign` format](https://eips.ethereum.org/EIPS/eip-7702).
  *
- * This Action is suitable to sign messages for Smart Accounts that implement (or conform to) Solady's [ERC1271.sol](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC1271.sol).
+ * This Action is suitable to sign messages for Smart Accounts that implement (or conform to) [ERC-7739](https://eips.ethereum.org/EIPS/eip-7702) (e.g. Solady's [ERC1271.sol](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC1271.sol)).
  *
- * - Docs: https://viem.sh/experimental/solady/signTypedData
+ * - Docs: https://viem.sh/experimental/erc7739/signTypedData
  *
  * @param client - Client to use
  * @param parameters - {@link SignTypedDataParameters}
@@ -71,7 +71,7 @@ export type SignTypedDataErrorType = ErrorType
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { signTypedData } from 'viem/experimental/solady'
+ * import { signTypedData } from 'viem/experimental/erc7739'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
@@ -116,7 +116,7 @@ export type SignTypedDataErrorType = ErrorType
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { mainnet } from 'viem/chains'
- * import { signTypedData } from 'viem/experimental/solady'
+ * import { signTypedData } from 'viem/experimental/erc7739'
  *
  * const client = createWalletClient({
  *   account: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb'
@@ -184,7 +184,7 @@ export async function signTypedData<
 
   if (!account_)
     throw new AccountNotFoundError({
-      docsPath: '/experimental/solady/signTypedData',
+      docsPath: '/experimental/erc7739/signTypedData',
     })
   const account = parseAccount(account_!)
 

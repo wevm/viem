@@ -26,7 +26,7 @@ export type WrapTypedDataSignatureReturnType = Hex
 export type WrapTypedDataSignatureErrorType = IsHexErrorType
 
 /**
- * Wraps a typed data signature for Solady's ERC-1271 implementation.
+ * Wraps a typed data signature for ERC-7739.
  *
  * @example
  * ```ts

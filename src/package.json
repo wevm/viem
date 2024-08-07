@@ -65,10 +65,15 @@
       "import": "./_esm/experimental/index.js",
       "default": "./_cjs/experimental/index.js"
     },
+    "./experimental/erc7739": {
+      "types": "./_types/experimental/erc7739/index.d.ts",
+      "import": "./_esm/experimental/erc7739/index.js",
+      "default": "./_cjs/experimental/erc7739/index.js"
+    },
     "./experimental/solady": {
-      "types": "./_types/experimental/solady/index.d.ts",
-      "import": "./_esm/experimental/solady/index.js",
-      "default": "./_cjs/experimental/solady/index.js"
+      "types": "./_types/experimental/erc7739/index.d.ts",
+      "import": "./_esm/experimental/erc7739/index.js",
+      "default": "./_cjs/experimental/erc7739/index.js"
     },
     "./node": {
       "types": "./_types/node/index.d.ts",

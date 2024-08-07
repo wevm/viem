@@ -1321,22 +1321,22 @@ export const sidebar = {
         ],
       },
       {
-        text: 'Solady',
+        text: 'ERC-7739',
         items: [
           {
             text: 'Client',
-            link: '/experimental/solady/client',
+            link: '/experimental/erc7739/client',
           },
           {
             text: 'Actions',
             items: [
               {
                 text: 'signMessage',
-                link: '/experimental/solady/signMessage',
+                link: '/experimental/erc7739/signMessage',
               },
               {
                 text: 'signTypedData',
-                link: '/experimental/solady/signTypedData',
+                link: '/experimental/erc7739/signTypedData',
               },
             ],
           },

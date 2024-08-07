@@ -100,10 +100,10 @@ export {
 } from './erc7715/decorators/erc7715.js'
 
 export {
-  type SoladyActions,
-  type SoladyActionsParameters,
-  soladyActions,
-} from './solady/decorators/solady.js'
+  type Erc7739Actions,
+  type Erc7739ActionsParameters,
+  erc7739Actions,
+} from './erc7739/decorators/erc7739.js'
 
 export {
   /** @deprecated This is no longer experimental – use `import type { ParseErc6492SignatureErrorType } from 'viem'` instead. */
