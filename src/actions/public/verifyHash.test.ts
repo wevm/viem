@@ -19,8 +19,8 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
-import { serializeErc6492Signature } from '../../experimental/index.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/erc7739/actions/signMessage.js'
+import { serializeErc6492Signature } from '../../experimental/index.js'
 import type { Hex } from '../../types/misc.js'
 import {
   encodeFunctionData,
