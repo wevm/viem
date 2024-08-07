@@ -72,7 +72,7 @@ export async function getWebSocketRpcClient(
                 cause: new SocketClosedError({ url: socket.url }),
               })
 
-            const body = <RpcRequest>{
+            const body: RpcRequest = {
               jsonrpc: '2.0',
               method: 'net_version',
               params: [],
