@@ -221,6 +221,29 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/reservoir-light.svg',
           },
         ],
+        [
+          {
+            name: 'Uniswap',
+            link: 'https://uniswap.org',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg',
+          },
+          {
+            name: '',
+            image: '',
+            link: 'https://github.com/sponsors/wevm',
+          },
+          {
+            name: '',
+            image: '',
+            link: 'https://github.com/sponsors/wevm',
+          },
+          {
+            name: '',
+            image: '',
+            link: 'https://github.com/sponsors/wevm',
+          },
+        ],
       ],
     },
   ],
