@@ -1594,6 +1594,15 @@ export const sidebar = {
         ],
       },
       {
+        text: 'Accounts',
+        items: [
+          {
+            text: 'toSmartAccount',
+            link: '/zksync/accounts/toSmartAccount',
+          },
+        ],
+      },
+      {
         text: 'EIP-712 Actions',
         items: [
           {
