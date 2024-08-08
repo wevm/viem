@@ -3,6 +3,7 @@ import type { Address } from 'abitype'
 import { toAccount } from '../../accounts/toAccount.js'
 import type { LocalAccount } from '../../accounts/types.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { Hex } from '../../types/misc.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { keccak256 } from '../../utils/index.js'
 import { hashMessage } from '../../utils/signature/hashMessage.js'
@@ -10,7 +11,6 @@ import { hashTypedData } from '../../utils/signature/hashTypedData.js'
 import { serializeTransaction } from '../serializers.js'
 import type { ZksyncSmartAccount } from '../types/account.js'
 import type { ZksyncTransactionSerializableEIP712 } from '../types/transaction.js'
-import type { Hex } from '../../types/misc.js'
 
 export type ToSmartAccountParameters = {
   /** Address of the deployed Account's Contract implementation. */
