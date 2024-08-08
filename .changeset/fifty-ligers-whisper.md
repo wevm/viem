@@ -2,4 +2,5 @@
 "viem": patch
 ---
 
-feat: refactor bob and add bob sepolia
+Added Bob Sepolia chain.
+Added OP Stack addresses to Bob chain.
