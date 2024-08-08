@@ -63,6 +63,7 @@ export async function verifyTypedData<
     ...callRequest
   } = parameters as VerifyTypedDataParameters
   const hash = hashTypedData({ message, primaryType, types, domain })
+
   return verifyHash(client, {
     address,
     factory: factory!,
