@@ -27,7 +27,7 @@ const account = toSmartAccount({
 
 - **Type:** `Hex`
 
-Address of the deployed multisig Contract.
+Address of the deployed Account's Contract implementation.
 
 ```ts
 const account = toSmartAccount({

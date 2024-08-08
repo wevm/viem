@@ -11,16 +11,18 @@ import { serializeTransaction } from '../../utils/transaction/serializeTransacti
 import type { ZksyncSmartAccount } from '../types/account.js'
 
 export type ToSmartAccountParameters = {
+  /** Address of the deployed Account's Contract implementation. */
   address: Address
+  /** Owners of the Smart Account. */
   owners: readonly LocalAccount[]
 }
 
 export type ToSmartAccountErrorType = ErrorType
 
 /**
- * @description Creates an Account from private keys.
+ * @description Creates a [ZKsync Smart Account](https://docs.zksync.io/build/developer-reference/account-abstraction/building-smart-accounts) from a Contract Address and an array of owner(s).
  *
- * @returns A Private Key Account.
+ * @returns A ZKsync Smart Account.
  */
 export function toSmartAccount(
   parameters: ToSmartAccountParameters,
