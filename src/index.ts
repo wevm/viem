@@ -555,6 +555,7 @@ export {
   erc20Abi_bytes32,
   erc721Abi,
   erc4626Abi,
+  universalSignatureValidatorAbi
 } from './constants/abis.js'
 export { zeroAddress } from './constants/address.js'
 export {
