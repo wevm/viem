@@ -1,8 +1,10 @@
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
 export const bobSepolia = defineChain({
+  ...chainConfig,
   id: 808813,
   name: 'BOB Sepolia',
   nativeCurrency: {
@@ -27,6 +29,7 @@ export const bobSepolia = defineChain({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 35677,
