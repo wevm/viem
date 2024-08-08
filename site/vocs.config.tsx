@@ -4,12 +4,12 @@ import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
 
 export default defineConfig({
-  // banner: {
-  //   backgroundColor: '#3a393b',
-  //   textColor: 'white',
-  //   content:
-  //     'Viem is participating in the Gitcoin Grants 20 round. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/27/20). Thank you. 🙏',
-  // },
+  banner: {
+    backgroundColor: '#3a393b',
+    textColor: 'white',
+    content:
+      'Viem is participating in Gitcoin Grants round 21. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/389/73). Thank you. 🙏',
+  },
   baseUrl:
     process.env.VERCEL_ENV === 'production'
       ? 'https://viem.sh'
