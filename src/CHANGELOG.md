@@ -1,5 +1,21 @@
 # viem
 
+## 2.19.2
+
+### Patch Changes
+
+- [`d22855b`](https://github.com/wevm/viem/commit/d22855b03ec89beb04a1f5479612f311adc592f9) Thanks [@jxom](https://github.com/jxom)! - Exported `deploylessCallViaBytecodeBytecode`, `deploylessCallViaFactoryBytecode`, `universalSignatureValidatorByteCode`.
+
+- [#2593](https://github.com/wevm/viem/pull/2593) [`2aa381d`](https://github.com/wevm/viem/commit/2aa381dda8d15695fe130f8f553f32b90d2dca33) Thanks [@zongzheng123](https://github.com/zongzheng123)! - Added multicall configuration for iotex testnet.
+
+- [`8ef99aa`](https://github.com/wevm/viem/commit/8ef99aa0c7bfacf2022ed63602e4874adefe3cdd) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Deprecated `soladyActions` in favor of `erc7739Actions`.
+
+- [#2594](https://github.com/wevm/viem/pull/2594) [`4b3c1e6`](https://github.com/wevm/viem/commit/4b3c1e65e18ddab78f83ecfae96bde11a0d42495) Thanks [@kirillovmr](https://github.com/kirillovmr)! - Fixed websocket ping request not conforming to jsonrpc schema.
+
+- [`a6d087e`](https://github.com/wevm/viem/commit/a6d087e8121cdf04ad2321e9a0eb9c5eb37267c7) Thanks [@jxom](https://github.com/jxom)! - Fixed ABI inference on `prepareEncodeFunctionData`
+
+- [#2589](https://github.com/wevm/viem/pull/2589) [`171ede1`](https://github.com/wevm/viem/commit/171ede1f6ebb9c1c463beb2332f51c15769f50fd) Thanks [@venables](https://github.com/venables)! - Added multicall to X Layer chain.
+
 ## 2.19.1
 
 ### Patch Changes
