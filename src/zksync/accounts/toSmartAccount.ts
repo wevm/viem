@@ -10,6 +10,7 @@ import { hashTypedData } from '../../utils/signature/hashTypedData.js'
 import { serializeTransaction } from '../serializers.js'
 import type { ZksyncSmartAccount } from '../types/account.js'
 import type { ZksyncTransactionSerializableEIP712 } from '../types/transaction.js'
+import type { Hex } from '../../types/misc.js'
 
 export type ToSmartAccountParameters = {
   /** Address of the deployed Account's Contract implementation. */
@@ -30,15 +31,17 @@ export function toSmartAccount(
 ): ZksyncSmartAccount {
   const { address, owners } = parameters
 
+  async function sign({ hash }: { hash: Hex }) {
+    return concatHex(
+      await Promise.all(owners.map((owner) => owner.sign!({ hash }))),
+    )
+  }
+
   const account = toAccount({
     address,
-    async sign({ hash }) {
-      return concatHex(
-        await Promise.all(owners.map((owner) => owner.sign!({ hash }))),
-      )
-    },
+    sign,
     async signMessage({ message }) {
-      return this.sign!({
+      return sign({
         hash: hashMessage(message),
       })
     },
@@ -50,13 +53,13 @@ export function toSmartAccount(
 
       return serializeTransaction({
         ...signableTransaction,
-        customSignature: await this.sign!({
+        customSignature: await sign({
           hash: keccak256(serializeTransaction(signableTransaction)),
         }),
       })
     },
     async signTypedData(typedData) {
-      return this.sign!({
+      return sign({
         hash: hashTypedData(typedData),
       })
     },
