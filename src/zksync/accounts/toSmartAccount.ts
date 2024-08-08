@@ -4,11 +4,11 @@ import { toAccount } from '../../accounts/toAccount.js'
 import type { LocalAccount } from '../../accounts/types.js'
 import type { ErrorType } from '../../errors/utils.js'
 import { concatHex } from '../../utils/data/concat.js'
+import { keccak256 } from '../../utils/index.js'
 import { hashMessage } from '../../utils/signature/hashMessage.js'
 import { hashTypedData } from '../../utils/signature/hashTypedData.js'
-import type { ZksyncSmartAccount } from '../types/account.js'
 import { serializeTransaction } from '../serializers.js'
-import { keccak256 } from '../../utils/index.js'
+import type { ZksyncSmartAccount } from '../types/account.js'
 import type { ZksyncTransactionSerializableEIP712 } from '../types/transaction.js'
 
 export type ToSmartAccountParameters = {
