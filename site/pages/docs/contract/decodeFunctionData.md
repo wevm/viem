@@ -22,10 +22,11 @@ Below is a very basic example of how to decode a function to calldata.
 
 ```ts [example.ts]
 import { decodeFunctionData } from 'viem'
+import { wagmiAbi } from './abi.ts'
 
 const { functionName } = decodeFunctionData({
   abi: wagmiAbi,
-  data: '0xc2985578'
+  data: '0x18160ddd'
 })
 // { functionName: 'totalSupply' }
 ```
@@ -59,9 +60,9 @@ import { wagmiAbi } from './abi'
 // [!code word:args:1]
 const { functionName, args } = decodeFunctionData({
   abi: wagmiAbi,
-  data: '0x0423a1320000000000000000000000000000000000000000000000000000000000000001'
+  data: '0x70a08231000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c2'
 })
-// { functionName: 'balanceOf', args: [1n] }
+// { functionName: 'balanceOf', args: ["0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2"] }
 ```
 
 ```ts [abi.ts]
@@ -114,7 +115,7 @@ The contract's ABI.
 ```ts
 const { functionName } = decodeFunctionData({
   abi: wagmiAbi, // [!code focus]
-  data: '0xc2985578'
+  data: '0x18160ddd'
 })
 ```
 
@@ -127,6 +128,6 @@ The encoded calldata.
 ```ts
 const { functionName } = decodeFunctionData({
   abi: wagmiAbi,
-  data: '0xc2985578' // [!code focus]
+  data: '0x18160ddd' // [!code focus]
 })
 ```

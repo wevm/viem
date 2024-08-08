@@ -6,13 +6,13 @@ export type BytecodeLengthExceedsMaxSizeErrorType =
   }
 
 export class BytecodeLengthExceedsMaxSizeError extends BaseError {
-  override name = 'BytecodeLengthExceedsMaxSizeError'
   constructor({
     givenLength,
     maxBytecodeSize,
   }: { givenLength: number; maxBytecodeSize: bigint }) {
     super(
       `Bytecode cannot be longer than ${maxBytecodeSize} bytes. Given length: ${givenLength}`,
+      { name: 'BytecodeLengthExceedsMaxSizeError' },
     )
   }
 }
@@ -23,10 +23,10 @@ export type BytecodeLengthInWordsMustBeOddErrorType =
   }
 
 export class BytecodeLengthInWordsMustBeOddError extends BaseError {
-  override name = 'BytecodeLengthInWordsMustBeOddError'
   constructor({ givenLengthInWords }: { givenLengthInWords: number }) {
     super(
       `Bytecode length in 32-byte words must be odd. Given length in words: ${givenLengthInWords}`,
+      { name: 'BytecodeLengthInWordsMustBeOddError' },
     )
   }
 }
@@ -37,10 +37,10 @@ export type BytecodeLengthMustBeDivisibleBy32ErrorType =
   }
 
 export class BytecodeLengthMustBeDivisibleBy32Error extends BaseError {
-  override name = 'BytecodeLengthMustBeDivisibleBy32Error'
   constructor({ givenLength }: { givenLength: number }) {
     super(
       `The bytecode length in bytes must be divisible by 32. Given length: ${givenLength}`,
+      { name: 'BytecodeLengthMustBeDivisibleBy32Error' },
     )
   }
 }

@@ -94,7 +94,8 @@ export async function signMessage<
       docsPath: '/docs/actions/wallet/signMessage',
     })
   const account = parseAccount(account_)
-  if (account.type === 'local') return account.signMessage({ message })
+
+  if (account.signMessage) return account.signMessage({ message })
 
   const message_ = (() => {
     if (typeof message === 'string') return stringToHex(message)

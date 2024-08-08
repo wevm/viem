@@ -1,10 +1,10 @@
 ---
-description: Returns the address of a Main zkSync Contract.
+description: Returns the address of a Main ZKsync Contract.
 ---
 
 # getMainContractAddress
 
-Returns the address of a Main zkSync Contract.
+Returns the address of a Main ZKsync Contract.
 
 ## Usage
 
@@ -18,11 +18,11 @@ const address = await client.getMainContractAddress();
 
 ```ts [config.ts]
 import { createPublicClient, http } from 'viem'
-import { zkSync } from 'viem/chains'
+import { zksync } from 'viem/chains'
 import { publicActionsL2 } from 'viem/zksync'
 
 export const client = createPublicClient({
-  chain: zkSync,
+  chain: zksync,
   transport: http(),
 }).extend(publicActionsL2())
 ```
@@ -32,4 +32,4 @@ export const client = createPublicClient({
 
 `Address`
 
-Main zkSync Era smart contract address.
+Main ZKsync Era smart contract address.

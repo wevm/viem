@@ -1,4 +1,4 @@
-import { attest } from '@arktype/attest'
+import { attest } from '@ark/attest'
 import { test } from 'vitest'
 
 import { usdcContractConfig } from '../../../test/src/abis.js'
@@ -15,6 +15,6 @@ test('return type', () => {
     functionName: 'balanceOf',
     args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
   })
-  attest.instantiations([39383, 'instantiations'])
+  attest.instantiations([53192, 'instantiations'])
   attest<Promise<bigint>>(res)
 })

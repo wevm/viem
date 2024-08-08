@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 import { signTransaction } from '../accounts/utils/signTransaction.js'
-import { zkSync } from '../chains/index.js'
+import { zksync } from '../chains/index.js'
 import { BaseError } from '../errors/base.js'
 import { InvalidChainIdError } from '../errors/chain.js'
 import { InvalidAddressError } from '../index.js'
@@ -12,11 +12,11 @@ import {
   parseTransaction,
 } from '../index.js'
 import { serializeTransaction } from './serializers.js'
-import type { ZkSyncTransactionSerializableEIP712 } from './types/transaction.js'
+import type { ZksyncTransactionSerializableEIP712 } from './types/transaction.js'
 
 const baseTransaction: TransactionSerializableEIP1559 = {
   to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
-  chainId: zkSync.id,
+  chainId: zksync.id,
   nonce: 7,
   maxFeePerGas: 250000000n,
   maxPriorityFeePerGas: 2n,
@@ -24,7 +24,7 @@ const baseTransaction: TransactionSerializableEIP1559 = {
   data: '0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000017900000000000000000000000000000000000000000000000000000000000000',
 }
 
-const baseEip712: ZkSyncTransactionSerializableEIP712 = {
+const baseEip712: ZksyncTransactionSerializableEIP712 = {
   ...baseTransaction,
   from: '0xf760bdd822fccf93c44be68d94c45133002b3037',
   gasPerPubdata: 50000n,
@@ -38,7 +38,7 @@ const baseEip712: ZkSyncTransactionSerializableEIP712 = {
 }
 
 test('default', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseEip712,
     gas: 158774n,
   }
@@ -49,7 +49,7 @@ test('default', () => {
 })
 
 test('gas', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseEip712,
     gas: 69420n,
   }
@@ -60,7 +60,7 @@ test('gas', () => {
 })
 
 test('gasPerPubdata', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseTransaction,
     from: '0xf760bdd822fccf93c44be68d94c45133002b3037',
     gasPerPubdata: 50000n,
@@ -73,7 +73,7 @@ test('gasPerPubdata', () => {
 })
 
 test('factoryDeps', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseTransaction,
     from: '0xf760bdd822fccf93c44be68d94c45133002b3037',
     factoryDeps: ['0xABCDEF', '0x123456'],
@@ -86,7 +86,7 @@ test('factoryDeps', () => {
 })
 
 test('customSignature', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseTransaction,
     from: '0xf760bdd822fccf93c44be68d94c45133002b3037',
     customSignature: '0xABCDEF',
@@ -99,7 +99,7 @@ test('customSignature', () => {
 })
 
 test('paymaster', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseTransaction,
     from: '0xf760bdd822fccf93c44be68d94c45133002b3037',
     paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',
@@ -114,7 +114,7 @@ test('paymaster', () => {
 })
 
 test('without nonce', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseEip712,
     nonce: undefined,
   }
@@ -125,7 +125,7 @@ test('without nonce', () => {
 })
 
 test('without fees', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseEip712,
     maxFeePerGas: undefined,
     maxPriorityFeePerGas: undefined,
@@ -137,7 +137,7 @@ test('without fees', () => {
 })
 
 test('without to', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseEip712,
     to: undefined,
   }
@@ -148,7 +148,7 @@ test('without to', () => {
 })
 
 test('without value', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseEip712,
     value: undefined,
   }
@@ -159,7 +159,7 @@ test('without value', () => {
 })
 
 test('without data', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseEip712,
     data: undefined,
   }
@@ -170,7 +170,7 @@ test('without data', () => {
 })
 
 test('without from', () => {
-  const transaction: ZkSyncTransactionSerializableEIP712 = {
+  const transaction: ZksyncTransactionSerializableEIP712 = {
     ...baseEip712,
     // @ts-expect-error
     from: undefined,
@@ -195,7 +195,7 @@ test('signed with customSignature', async () => {
 
 describe('invalid params', () => {
   test('invalid paymaster', () => {
-    const transaction: ZkSyncTransactionSerializableEIP712 = {
+    const transaction: ZksyncTransactionSerializableEIP712 = {
       ...baseEip712,
       paymaster: '0xdeadbeef',
     }
@@ -205,7 +205,7 @@ describe('invalid params', () => {
   })
 
   test('invalid chain', () => {
-    const transaction: ZkSyncTransactionSerializableEIP712 = {
+    const transaction: ZksyncTransactionSerializableEIP712 = {
       ...baseEip712,
       paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',
       chainId: -1,
@@ -216,7 +216,7 @@ describe('invalid params', () => {
   })
 
   test('invalid to', () => {
-    const transaction: ZkSyncTransactionSerializableEIP712 = {
+    const transaction: ZksyncTransactionSerializableEIP712 = {
       ...baseEip712,
       paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',
       to: '0xdeadbeef',
@@ -227,7 +227,7 @@ describe('invalid params', () => {
   })
 
   test('invalid from', () => {
-    const transaction: ZkSyncTransactionSerializableEIP712 = {
+    const transaction: ZksyncTransactionSerializableEIP712 = {
       ...baseEip712,
       paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',
       from: '0xdeadbeef',
@@ -238,7 +238,7 @@ describe('invalid params', () => {
   })
 
   test('missing paymaster', () => {
-    const transaction: ZkSyncTransactionSerializableEIP712 = {
+    const transaction: ZksyncTransactionSerializableEIP712 = {
       ...baseTransaction,
       from: '0xf760bdd822fccf93c44be68d94c45133002b3037',
       paymasterInput:
@@ -249,7 +249,7 @@ describe('invalid params', () => {
   })
 
   test('missing paymasterInput', () => {
-    const transaction: ZkSyncTransactionSerializableEIP712 = {
+    const transaction: ZksyncTransactionSerializableEIP712 = {
       ...baseTransaction,
       from: '0xf760bdd822fccf93c44be68d94c45133002b3037',
       paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',

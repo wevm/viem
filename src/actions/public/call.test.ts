@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import {
-  Mock4337Account,
-  Mock4337AccountFactory,
   OffchainLookupExample,
+  SoladyAccount07,
+  SoladyAccountFactory07,
 } from '~contracts/generated.js'
 import {
   baycContractConfig,
@@ -14,8 +14,8 @@ import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
-  deployMock4337Account,
   deployOffchainLookupExample,
+  deploySoladyAccount_07,
   mainnetClient,
 } from '~test/src/utils.js'
 
@@ -587,7 +587,7 @@ describe('errors', () => {
         factory: wagmiContractConfig.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: Cannot provide both \`code\` & \`factory\`/\`factoryData\` as parameters.
+      [BaseError: Cannot provide both \`code\` & \`factory\`/\`factoryData\` as parameters.
 
       Version: viem@x.y.z]
     `)
@@ -600,7 +600,7 @@ describe('errors', () => {
         to: '0x0000000000000000000000000000000000000000',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ViemError: Cannot provide both \`code\` & \`to\` as parameters.
+      [BaseError: Cannot provide both \`code\` & \`to\` as parameters.
 
       Version: viem@x.y.z]
     `)
@@ -1032,21 +1032,21 @@ describe('batch call', () => {
 
 describe('deployless call (factory)', () => {
   test('default', async () => {
-    const { factoryAddress } = await deployMock4337Account()
+    const { factoryAddress } = await deploySoladyAccount_07()
 
     const address = await readContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factoryAddress,
       functionName: 'getAddress',
       args: [pad('0x0')],
     })
     const data = encodeFunctionData({
-      abi: Mock4337Account.abi,
+      abi: SoladyAccount07.abi,
       functionName: 'eip712Domain',
     })
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
     })
@@ -1067,7 +1067,7 @@ describe('deployless call (factory)', () => {
       salt,
       extensions,
     ] = decodeFunctionResult({
-      abi: Mock4337Account.abi,
+      abi: SoladyAccount07.abi,
       data: result.data!,
       functionName: 'eip712Domain',
     })
@@ -1083,7 +1083,7 @@ describe('deployless call (factory)', () => {
     ]).toMatchInlineSnapshot(`
       [
         "0x0f",
-        "Mock4337Account",
+        "SoladyAccount",
         "1",
         1n,
         "0x0000000000000000000000000000000000000000000000000000000000000000",

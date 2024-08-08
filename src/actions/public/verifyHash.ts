@@ -27,7 +27,6 @@ import { recoverAddress } from '../../utils/signature/recoverAddress.js'
 import { serializeErc6492Signature } from '../../utils/signature/serializeErc6492Signature.js'
 import { serializeSignature } from '../../utils/signature/serializeSignature.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
-import { getCode } from './getCode.js'
 
 export type VerifyHashParameters = Pick<
   CallParameters,
@@ -78,10 +77,6 @@ export async function verifyHash<chain extends Chain | undefined>(
 
     // If the signature is already wrapped, return the signature.
     if (isErc6492Signature(signatureHex)) return signatureHex
-
-    const bytecode = await getAction(client, getCode, 'getCode')({ address })
-    // If the Smart Account is deployed, return the plain signature.
-    if (bytecode) return signatureHex
 
     // If the Smart Account is not deployed, wrap the signature with a 6492 wrapper
     // to perform counterfactual validation.

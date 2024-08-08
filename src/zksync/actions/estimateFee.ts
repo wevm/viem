@@ -5,8 +5,8 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import type { ChainEIP712 } from '../types/chain.js'
-import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
-import type { ZkSyncFee } from '../types/fee.js'
+import type { PublicZksyncRpcSchema } from '../types/eip1193.js'
+import type { ZksyncFee } from '../types/fee.js'
 
 export type EstimateFeeParameters<
   chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
@@ -14,13 +14,13 @@ export type EstimateFeeParameters<
   chainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
 > = SendTransactionParameters<chain, account, chainOverride>
 
-export type EstimateFeeReturnType = ZkSyncFee
+export type EstimateFeeReturnType = ZksyncFee
 
 export async function estimateFee<
   chain extends ChainEIP712 | undefined,
   account extends Account | undefined,
 >(
-  client: Client<Transport, chain, account, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZksyncRpcSchema>,
   parameters: EstimateFeeParameters<chain, account>,
 ): Promise<EstimateFeeReturnType> {
   const { account: account_, ...request } = parameters

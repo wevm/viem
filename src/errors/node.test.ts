@@ -25,14 +25,14 @@ test('FeeCapTooHighError', () => {
     ),
   })
   expect(error).toMatchInlineSnapshot(`
-    [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 420124124012041204024020140124120401281273891237128937128937128737912371283791 gwei) cannot be higher than the maximum allowed value (2^256-1).
+    [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 420124124012041204024020140124120401281273891237128937128937128737912371283791 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
     Version: viem@x.y.z]
   `)
 
   error = new FeeCapTooHighError({ cause: new BaseError('foo') })
   expect(error).toMatchInlineSnapshot(`
-    [FeeCapTooHigh: The fee cap (\`maxFeePerGas\`) cannot be higher than the maximum allowed value (2^256-1).
+    [FeeCapTooHighError: The fee cap (\`maxFeePerGas\`) cannot be higher than the maximum allowed value (2^256-1).
 
     Version: viem@x.y.z]
   `)
@@ -44,14 +44,14 @@ test('FeeCapTooLowError', () => {
     maxFeePerGas: parseGwei('1'),
   })
   expect(error).toMatchInlineSnapshot(`
-    [FeeCapTooLow: The fee cap (\`maxFeePerGas\` = 1 gwei) cannot be lower than the block base fee.
+    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` = 1 gwei) cannot be lower than the block base fee.
 
     Version: viem@x.y.z]
   `)
 
   error = new FeeCapTooLowError({ cause: new BaseError('foo') })
   expect(error).toMatchInlineSnapshot(`
-    [FeeCapTooLow: The fee cap (\`maxFeePerGas\` gwei) cannot be lower than the block base fee.
+    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` gwei) cannot be lower than the block base fee.
 
     Version: viem@x.y.z]
   `)

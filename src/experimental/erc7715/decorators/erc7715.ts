@@ -8,7 +8,7 @@ import {
   grantPermissions,
 } from '../actions/grantPermissions.js'
 
-export type WalletActionsErc7715 = {
+export type Erc7715Actions = {
   /**
    * Request permissions from a wallet to perform actions on behalf of a user.
    *
@@ -17,12 +17,12 @@ export type WalletActionsErc7715 = {
    * @example
    * import { createWalletClient, custom } from 'viem'
    * import { mainnet } from 'viem/chains'
-   * import { walletActionsErc7715 } from 'viem/experimental'
+   * import { erc7715Actions } from 'viem/experimental'
    *
    * const client = createWalletClient({
    *   chain: mainnet,
    *   transport: custom(window.ethereum),
-   * }).extend(walletActionsErc7715())
+   * }).extend(erc7715Actions())
    *
    * const result = await client.grantPermissions({
    *   expiry: 1716846083638,
@@ -56,23 +56,23 @@ export type WalletActionsErc7715 = {
  * @example
  * import { createPublicClient, createWalletClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { walletActionsErc7715 } from 'viem/experimental'
+ * import { erc7715Actions } from 'viem/experimental'
  *
  * const walletClient = createWalletClient({
  *   chain: mainnet,
  *   transport: http(),
- * }).extend(walletActionsErc7715())
+ * }).extend(erc7715Actions())
  *
  * const result = await walletClient.grantPermissions({...})
  */
-export function walletActionsErc7715() {
+export function erc7715Actions() {
   return <
     transport extends Transport,
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   >(
     client: Client<transport, chain, account>,
-  ): WalletActionsErc7715 => {
+  ): Erc7715Actions => {
     return {
       grantPermissions: (parameters) => grantPermissions(client, parameters),
     }

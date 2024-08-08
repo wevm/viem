@@ -1,4 +1,4 @@
-import { attest } from '@arktype/attest'
+import { attest } from '@ark/attest'
 import { test } from 'vitest'
 
 import { createClient } from './createClient.js'
@@ -10,7 +10,7 @@ test('createWalletClient', () => {
   createWalletClient({
     transport: http('https://cloudflare-eth.com'),
   })
-  attest.instantiations([1408, 'instantiations'])
+  attest.instantiations([3000, 'instantiations'])
 })
 
 test('createClient.extend + walletActions', () => {

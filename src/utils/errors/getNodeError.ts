@@ -71,12 +71,11 @@ export function getNodeError(
           (e) => (e as { code: number }).code === ExecutionRevertedError.code,
         )
       : err
-  if (executionRevertedError instanceof BaseError) {
+  if (executionRevertedError instanceof BaseError)
     return new ExecutionRevertedError({
       cause: err,
       message: executionRevertedError.details,
     }) as any
-  }
   if (ExecutionRevertedError.nodeMessage.test(message))
     return new ExecutionRevertedError({
       cause: err,

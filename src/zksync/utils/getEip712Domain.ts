@@ -2,26 +2,26 @@ import { toHex } from '../../utils/encoding/toHex.js'
 import { gasPerPubdataDefault } from '../constants/number.js'
 import type { EIP712DomainFn } from '../types/eip712.js'
 import type {
-  ZkSyncEIP712TransactionSignable,
-  ZkSyncTransactionSerializable,
-  ZkSyncTransactionSerializableEIP712,
+  ZksyncEIP712TransactionSignable,
+  ZksyncTransactionSerializable,
+  ZksyncTransactionSerializableEIP712,
 } from '../types/transaction.js'
 import { assertEip712Transaction } from './assertEip712Transaction.js'
 import { hashBytecode } from './hashBytecode.js'
 
 export const getEip712Domain: EIP712DomainFn<
-  ZkSyncTransactionSerializable,
-  ZkSyncEIP712TransactionSignable
+  ZksyncTransactionSerializable,
+  ZksyncEIP712TransactionSignable
 > = (transaction) => {
   assertEip712Transaction(transaction)
 
   const message = transactionToMessage(
-    transaction as ZkSyncTransactionSerializableEIP712,
+    transaction as ZksyncTransactionSerializableEIP712,
   )
 
   return {
     domain: {
-      name: 'zkSync',
+      name: 'zksync',
       version: '2',
       chainId: transaction.chainId,
     },
@@ -51,8 +51,8 @@ export const getEip712Domain: EIP712DomainFn<
 // Utilities
 
 function transactionToMessage(
-  transaction: ZkSyncTransactionSerializableEIP712,
-): ZkSyncEIP712TransactionSignable {
+  transaction: ZksyncTransactionSerializableEIP712,
+): ZksyncEIP712TransactionSignable {
   const {
     gas,
     nonce,

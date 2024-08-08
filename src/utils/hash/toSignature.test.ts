@@ -16,7 +16,7 @@ test('creates function signature', () => {
   expect(toSignature('processInvestment(address,uint256,bool)')).toEqual(
     'processInvestment(address,uint256,bool)',
   )
-  expect(toSignature('processAccount(uint256 , address )')).toEqual(
+  expect(toSignature('processAccount(uint256 , address)')).toEqual(
     'processAccount(uint256,address)',
   )
   expect(toSignature('claimed()')).toEqual('claimed()')
@@ -101,27 +101,23 @@ test('creates function signature from `AbiFunction`', () => {
         {
           components: [
             {
-              internalType: 'uint64',
               name: 'position',
               type: 'uint64',
             },
             {
-              internalType: 'address',
               name: 'owner',
               type: 'address',
             },
             {
-              internalType: 'enum UsingStratagemsTypes.Color',
               name: 'color',
               type: 'uint8',
             },
             {
-              internalType: 'uint8',
               name: 'life',
               type: 'uint8',
             },
           ],
-          internalType: 'struct IStratagemsDebug.SimpleCell[]',
+
           name: 'cells',
           type: 'tuple[]',
         },
@@ -136,48 +132,44 @@ test('creates function signature from `AbiFunction`', () => {
   expect(
     toSignature({
       inputs: [
-        { internalType: 'string', name: 'name', type: 'string' },
-        { internalType: 'string', name: 'symbol', type: 'string' },
-        { internalType: 'uint64', name: 'editionSize', type: 'uint64' },
-        { internalType: 'uint16', name: 'royaltyBPS', type: 'uint16' },
+        { name: 'name', type: 'string' },
+        { name: 'symbol', type: 'string' },
+        { name: 'editionSize', type: 'uint64' },
+        { name: 'royaltyBPS', type: 'uint16' },
         {
-          internalType: 'address payable',
           name: 'fundsRecipient',
           type: 'address',
         },
-        { internalType: 'address', name: 'defaultAdmin', type: 'address' },
+        { name: 'defaultAdmin', type: 'address' },
         {
           components: [
             {
-              internalType: 'uint104',
               name: 'publicSalePrice',
               type: 'uint104',
             },
             {
-              internalType: 'uint32',
               name: 'maxSalePurchasePerAddress',
               type: 'uint32',
             },
-            { internalType: 'uint64', name: 'publicSaleStart', type: 'uint64' },
-            { internalType: 'uint64', name: 'publicSaleEnd', type: 'uint64' },
-            { internalType: 'uint64', name: 'presaleStart', type: 'uint64' },
-            { internalType: 'uint64', name: 'presaleEnd', type: 'uint64' },
+            { name: 'publicSaleStart', type: 'uint64' },
+            { name: 'publicSaleEnd', type: 'uint64' },
+            { name: 'presaleStart', type: 'uint64' },
+            { name: 'presaleEnd', type: 'uint64' },
             {
-              internalType: 'bytes32',
               name: 'presaleMerkleRoot',
               type: 'bytes32',
             },
           ],
-          internalType: 'struct IERC721Drop.SalesConfiguration',
+
           name: 'saleConfig',
           type: 'tuple',
         },
-        { internalType: 'string', name: 'description', type: 'string' },
-        { internalType: 'string', name: 'animationURI', type: 'string' },
-        { internalType: 'string', name: 'imageURI', type: 'string' },
+        { name: 'description', type: 'string' },
+        { name: 'animationURI', type: 'string' },
+        { name: 'imageURI', type: 'string' },
       ],
       name: 'createEdition',
-      outputs: [{ internalType: 'address', name: '', type: 'address' }],
+      outputs: [{ name: '', type: 'address' }],
       stateMutability: 'nonpayable',
       type: 'function',
     }),
@@ -189,49 +181,41 @@ test('creates function signature from `AbiFunction`', () => {
     toSignature({
       inputs: [
         {
-          internalType: 'address',
           name: 't',
           type: 'address',
         },
         {
-          internalType: 'address',
           name: 'ah',
           type: 'address',
         },
         {
-          internalType: 'address',
           name: '_owner',
           type: 'address',
         },
         {
           components: [
             {
-              internalType: 'uint256',
               name: 'maxBid',
               type: 'uint256',
             },
             {
-              internalType: 'uint256',
               name: 'minBid',
               type: 'uint256',
             },
             {
-              internalType: 'uint256',
               name: 'bidWindow',
               type: 'uint256',
             },
             {
-              internalType: 'uint256',
               name: 'tip',
               type: 'uint256',
             },
             {
-              internalType: 'address',
               name: 'receiver',
               type: 'address',
             },
           ],
-          internalType: 'struct IBidder.Config',
+
           name: 'cfg',
           type: 'tuple',
         },
@@ -239,7 +223,6 @@ test('creates function signature from `AbiFunction`', () => {
       name: 'clone',
       outputs: [
         {
-          internalType: 'address',
           name: '',
           type: 'address',
         },
@@ -254,16 +237,16 @@ test('creates function signature from `AbiFunction`', () => {
   expect(
     toSignature({
       inputs: [
-        { internalType: 'address', name: 'payer', type: 'address' },
-        { internalType: 'address', name: 'recipient', type: 'address' },
-        { internalType: 'uint256', name: 'tokenAmount', type: 'uint256' },
-        { internalType: 'address', name: 'tokenAddress', type: 'address' },
-        { internalType: 'uint256', name: 'startTime', type: 'uint256' },
-        { internalType: 'uint256', name: 'stopTime', type: 'uint256' },
-        { internalType: 'uint8', name: 'nonce', type: 'uint8' },
+        { name: 'payer', type: 'address' },
+        { name: 'recipient', type: 'address' },
+        { name: 'tokenAmount', type: 'uint256' },
+        { name: 'tokenAddress', type: 'address' },
+        { name: 'startTime', type: 'uint256' },
+        { name: 'stopTime', type: 'uint256' },
+        { name: 'nonce', type: 'uint8' },
       ],
       name: 'createStream',
-      outputs: [{ internalType: 'address', name: 'stream', type: 'address' }],
+      outputs: [{ name: 'stream', type: 'address' }],
       stateMutability: 'nonpayable',
       type: 'function',
     }),
@@ -446,7 +429,7 @@ test('creates event signature for `AbiEvent`', () => {
       inputs: [
         {
           indexed: false,
-          internalType: 'uint256',
+
           name: 'smolRecipeId',
           type: 'uint256',
         },
@@ -455,33 +438,31 @@ test('creates event signature for `AbiEvent`', () => {
             {
               components: [
                 {
-                  internalType: 'uint24',
                   name: 'background',
                   type: 'uint24',
                 },
-                { internalType: 'uint24', name: 'body', type: 'uint24' },
-                { internalType: 'uint24', name: 'clothes', type: 'uint24' },
-                { internalType: 'uint24', name: 'mouth', type: 'uint24' },
-                { internalType: 'uint24', name: 'glasses', type: 'uint24' },
-                { internalType: 'uint24', name: 'hat', type: 'uint24' },
-                { internalType: 'uint24', name: 'hair', type: 'uint24' },
-                { internalType: 'uint24', name: 'skin', type: 'uint24' },
-                { internalType: 'uint8', name: 'gender', type: 'uint8' },
-                { internalType: 'uint8', name: 'headSize', type: 'uint8' },
+                { name: 'body', type: 'uint24' },
+                { name: 'clothes', type: 'uint24' },
+                { name: 'mouth', type: 'uint24' },
+                { name: 'glasses', type: 'uint24' },
+                { name: 'hat', type: 'uint24' },
+                { name: 'hair', type: 'uint24' },
+                { name: 'skin', type: 'uint24' },
+                { name: 'gender', type: 'uint8' },
+                { name: 'headSize', type: 'uint8' },
               ],
-              internalType: 'struct Smol',
+
               name: 'smol',
               type: 'tuple',
             },
-            { internalType: 'bool', name: 'exists', type: 'bool' },
+            { name: 'exists', type: 'bool' },
             {
-              internalType: 'uint8',
               name: 'smolInputAmount',
               type: 'uint8',
             },
           ],
           indexed: false,
-          internalType: 'struct Transmolgrifier.SmolData',
+
           name: 'smolData',
           type: 'tuple',
         },

@@ -6,8 +6,12 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { maxUint256 } from '../../constants/number.js'
 
+import { BatchCallInvoker } from '../../../contracts/generated.js'
+import { deploy } from '../../../test/src/utils.js'
+import { signAuthorization } from '../../experimental/index.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { toHex } from '../../utils/encoding/toHex.js'
+import { encodeFunctionData } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
@@ -45,6 +49,40 @@ test('args: account', async () => {
       value: parseEther('1'),
     }),
   ).toMatchInlineSnapshot('21000n')
+})
+
+test('args: authorizationList', async () => {
+  const authority = privateKeyToAccount(accounts[1].privateKey)
+
+  const { contractAddress } = await deploy(client, {
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
+  expect(
+    await estimateGas(client, {
+      account: accounts[0].address,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCallInvoker.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              data: '0x',
+              to: '0x0000000000000000000000000000000000000000',
+              value: 1n,
+            },
+          ],
+        ],
+      }),
+    }),
+  ).toMatchInlineSnapshot('87132n')
 })
 
 test('args: blockNumber', async () => {
@@ -151,6 +189,30 @@ test('args: override', async () => {
       ],
     }),
   ).toMatchInlineSnapshot('51594n')
+})
+
+test('error: cannot infer `to` from `authorizationList`', async () => {
+  await expect(() =>
+    estimateGas(client, {
+      account: accounts[0].address,
+      authorizationList: [
+        {
+          chainId: 1,
+          nonce: 0,
+          contractAddress: '0x0000000000000000000000000000000000000000',
+        },
+      ],
+      data: '0xdeadbeef',
+    }),
+  ).rejects.toMatchInlineSnapshot(`
+    [EstimateGasExecutionError: \`to\` is required. Could not infer from \`authorizationList\`
+
+    Estimate Gas Arguments:
+      from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      data:  0xdeadbeef
+
+    Version: viem@x.y.z]
+  `)
 })
 
 describe('local account', () => {

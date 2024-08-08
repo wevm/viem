@@ -1,4 +1,5 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
-export { zkSync } from '../chains/definitions/zkSync.js'
-export { zkSyncTestnet } from '../chains/definitions/zkSyncTestnet.js'
-export { zkSyncSepoliaTestnet } from '../chains/definitions/zkSyncSepoliaTestnet.js'
+export { zksync } from '../chains/definitions/zksync.js'
+export { zksyncInMemoryNode } from '../chains/definitions/zksyncInMemoryNode.js'
+export { zksyncLocalNode } from '../chains/definitions/zksyncLocalNode.js'
+export { zksyncSepoliaTestnet } from '../chains/definitions/zksyncSepoliaTestnet.js'

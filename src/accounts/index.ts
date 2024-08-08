@@ -36,6 +36,7 @@ export {
   privateKeyToAccount,
 } from './privateKeyToAccount.js'
 export { type ToAccountErrorType, toAccount } from './toAccount.js'
+
 export type {
   Account,
   AccountSource,
@@ -60,6 +61,12 @@ export {
   type SerializeSignatureErrorType,
   serializeSignature,
 } from '../utils/signature/serializeSignature.js'
+export {
+  type SignAuthorizationErrorType,
+  type SignAuthorizationParameters,
+  type SignAuthorizationReturnType,
+  experimental_signAuthorization,
+} from './utils/signAuthorization.js'
 export {
   type SignMessageErrorType,
   type SignMessageParameters,

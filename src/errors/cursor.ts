@@ -4,9 +4,10 @@ export type NegativeOffsetErrorType = NegativeOffsetError & {
   name: 'NegativeOffsetError'
 }
 export class NegativeOffsetError extends BaseError {
-  override name = 'NegativeOffsetError'
   constructor({ offset }: { offset: number }) {
-    super(`Offset \`${offset}\` cannot be negative.`)
+    super(`Offset \`${offset}\` cannot be negative.`, {
+      name: 'NegativeOffsetError',
+    })
   }
 }
 
@@ -14,10 +15,10 @@ export type PositionOutOfBoundsErrorType = PositionOutOfBoundsError & {
   name: 'PositionOutOfBoundsError'
 }
 export class PositionOutOfBoundsError extends BaseError {
-  override name = 'PositionOutOfBoundsError'
   constructor({ length, position }: { length: number; position: number }) {
     super(
       `Position \`${position}\` is out of bounds (\`0 < position < ${length}\`).`,
+      { name: 'PositionOutOfBoundsError' },
     )
   }
 }
@@ -27,10 +28,10 @@ export type RecursiveReadLimitExceededErrorType =
     name: 'RecursiveReadLimitExceededError'
   }
 export class RecursiveReadLimitExceededError extends BaseError {
-  override name = 'RecursiveReadLimitExceededError'
   constructor({ count, limit }: { count: number; limit: number }) {
     super(
       `Recursive read limit of \`${limit}\` exceeded (recursive read count: \`${count}\`).`,
+      { name: 'RecursiveReadLimitExceededError' },
     )
   }
 }

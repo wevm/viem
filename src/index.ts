@@ -439,9 +439,9 @@ export type {
   WatchAssetReturnType,
 } from './actions/wallet/watchAsset.js'
 export type {
-  VerifyHashErrorType,
-  VerifyHashParameters,
-  VerifyHashReturnType,
+  VerifyHashErrorType as VerifyHashActionErrorType,
+  VerifyHashParameters as VerifyHashActionParameters,
+  VerifyHashReturnType as VerifyHashActionReturnType,
 } from './actions/public/verifyHash.js'
 export type {
   VerifyTypedDataErrorType as VerifyTypedDataActionErrorType,
@@ -555,8 +555,14 @@ export {
   erc20Abi_bytes32,
   erc721Abi,
   erc4626Abi,
+  universalSignatureValidatorAbi,
 } from './constants/abis.js'
 export { zeroAddress } from './constants/address.js'
+export {
+  deploylessCallViaBytecodeBytecode,
+  deploylessCallViaFactoryBytecode,
+  universalSignatureValidatorByteCode,
+} from './constants/contracts.js'
 export { etherUnits, gweiUnits, weiUnits } from './constants/unit.js'
 export {
   maxInt8,
@@ -710,7 +716,7 @@ export {
   UnsupportedPackedAbiType,
   type UnsupportedPackedAbiTypeErrorType,
 } from './errors/abi.js'
-export { BaseError, type BaseErrorType } from './errors/base.js'
+export { BaseError, type BaseErrorType, setErrorConfig } from './errors/base.js'
 export {
   BlockNotFoundError,
   type BlockNotFoundErrorType,
@@ -857,6 +863,8 @@ export {
   type RpcRequestErrorType,
   TimeoutError,
   type TimeoutErrorType,
+  SocketClosedError,
+  type SocketClosedErrorType,
   WebSocketRequestError,
   type WebSocketRequestErrorType,
 } from './errors/request.js'
@@ -939,36 +947,61 @@ export type {
   TransactionEIP1559,
   TransactionEIP2930,
   TransactionEIP4844,
+  TransactionEIP7702,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequest,
   TransactionRequestBase,
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
+  TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
+  TransactionRequestGeneric,
   TransactionRequestLegacy,
   TransactionSerializable,
   TransactionSerializableBase,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
+  TransactionSerializableEIP7702,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
+  TransactionSerializedEIP7702,
   TransactionSerializedGeneric,
   TransactionSerializedLegacy,
   TransactionType,
-  TransactionRequestEIP4844,
-  TransactionRequestGeneric,
 } from './types/transaction.js'
 export type {
+  Assign,
+  Branded,
+  Evaluate,
+  IsNarrowable,
+  IsUndefined,
+  IsUnion,
+  LooseOmit,
+  MaybePartial,
+  MaybePromise,
+  MaybeRequired,
+  Mutable,
+  NoInfer,
+  NoUndefined,
+  Omit,
+  Or,
+  PartialBy,
+  RequiredBy,
+  Some,
+  UnionEvaluate,
+  UnionLooseOmit,
+  ValueOf,
+  Prettify,
   ExactPartial,
   ExactRequired,
   IsNever,
   OneOf,
-  Opaque,
   UnionOmit,
   UnionPartialBy,
   UnionPick,
@@ -1004,6 +1037,8 @@ export type {
 } from './types/misc.js'
 export type {
   AddEthereumChainParameter,
+  BundlerRpcSchema,
+  DebugBundlerRpcSchema,
   EIP1193EventMap,
   EIP1193Events,
   EIP1193Parameters,
@@ -1294,6 +1329,8 @@ export {
   type SerializeSignatureErrorType as SignatureToHexErrorType,
   /** @deprecated Use `serializeSignature` instead. */
   serializeSignature as signatureToHex,
+  type SerializeSignatureParameters,
+  type SerializeSignatureReturnType,
   type SerializeSignatureErrorType,
   serializeSignature,
 } from './utils/signature/serializeSignature.js'
@@ -1306,6 +1343,12 @@ export {
   type ToRlpErrorType,
   type ToRlpReturnType,
 } from './utils/encoding/toRlp.js'
+export {
+  type VerifyHashErrorType,
+  type VerifyHashParameters,
+  type VerifyHashReturnType,
+  verifyHash,
+} from './utils/signature/verifyHash.js'
 export {
   type VerifyMessageErrorType,
   type VerifyMessageParameters,
@@ -1686,3 +1729,10 @@ export {
   createNonceManager,
   nonceManager,
 } from './utils/nonceManager.js'
+export type {
+  RpcEstimateUserOperationGasReturnType,
+  RpcGetUserOperationByHashReturnType,
+  RpcUserOperation,
+  RpcUserOperationReceipt,
+  RpcUserOperationRequest,
+} from './account-abstraction/types/rpc.js'

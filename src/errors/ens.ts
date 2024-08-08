@@ -5,7 +5,6 @@ export type EnsAvatarInvalidMetadataErrorType =
     name: 'EnsAvatarInvalidMetadataError'
   }
 export class EnsAvatarInvalidMetadataError extends BaseError {
-  override name = 'EnsAvatarInvalidMetadataError'
   constructor({ data }: { data: any }) {
     super(
       'Unable to extract image from metadata. The metadata may be malformed or invalid.',
@@ -15,6 +14,7 @@ export class EnsAvatarInvalidMetadataError extends BaseError {
           '',
           `Provided data: ${JSON.stringify(data)}`,
         ],
+        name: 'EnsAvatarInvalidMetadataError',
       },
     )
   }
@@ -24,9 +24,10 @@ export type EnsAvatarInvalidNftUriErrorType = EnsAvatarInvalidNftUriError & {
   name: 'EnsAvatarInvalidNftUriError'
 }
 export class EnsAvatarInvalidNftUriError extends BaseError {
-  override name = 'EnsAvatarInvalidNftUriError'
   constructor({ reason }: { reason: string }) {
-    super(`ENS NFT avatar URI is invalid. ${reason}`)
+    super(`ENS NFT avatar URI is invalid. ${reason}`, {
+      name: 'EnsAvatarInvalidNftUriError',
+    })
   }
 }
 
@@ -34,10 +35,10 @@ export type EnsAvatarUriResolutionErrorType = EnsAvatarUriResolutionError & {
   name: 'EnsAvatarUriResolutionError'
 }
 export class EnsAvatarUriResolutionError extends BaseError {
-  override name = 'EnsAvatarUriResolutionError'
   constructor({ uri }: { uri: string }) {
     super(
       `Unable to resolve ENS avatar URI "${uri}". The URI may be malformed, invalid, or does not respond with a valid image.`,
+      { name: 'EnsAvatarUriResolutionError' },
     )
   }
 }
@@ -47,10 +48,10 @@ export type EnsAvatarUnsupportedNamespaceErrorType =
     name: 'EnsAvatarUnsupportedNamespaceError'
   }
 export class EnsAvatarUnsupportedNamespaceError extends BaseError {
-  override name = 'EnsAvatarUnsupportedNamespaceError'
   constructor({ namespace }: { namespace: string }) {
     super(
       `ENS NFT avatar namespace "${namespace}" is not supported. Must be "erc721" or "erc1155".`,
+      { name: 'EnsAvatarUnsupportedNamespaceError' },
     )
   }
 }

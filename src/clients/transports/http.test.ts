@@ -492,7 +492,7 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_wagmi' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [MethodNotFoundRpcError: The method does not exist / is not available.
+      [MethodNotFoundRpcError: The method "eth_wagmi" does not exist / is not available.
 
       URL: http://localhost
       Request body: {"method":"eth_wagmi"}
@@ -506,7 +506,7 @@ describe('request', () => {
 test('no url', () => {
   expect(() => http()({})).toThrowErrorMatchingInlineSnapshot(
     `
-    [ViemError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
+    [UrlRequiredError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
     Docs: https://viem.sh/docs/clients/intro
     Version: viem@x.y.z]

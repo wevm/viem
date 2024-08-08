@@ -4,7 +4,7 @@ import {
   type AssertRequestErrorType,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
-import type { zkSync } from '../../zksync/chains.js'
+import type { zksync } from '../../zksync/chains.js'
 import type { SendTransactionParameters } from '../actions/sendTransaction.js'
 import {
   InvalidEip712TransactionError,
@@ -13,7 +13,7 @@ import {
 import { isEIP712Transaction } from './isEip712Transaction.js'
 
 export type AssertEip712RequestParameters = ExactPartial<
-  SendTransactionParameters<typeof zkSync>
+  SendTransactionParameters<typeof zksync>
 >
 
 /** @internal */
