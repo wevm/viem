@@ -2,9 +2,9 @@ import { expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/src/constants.js'
 
-import { toSmartAccount } from './toSmartAccount.js'
-import { parseEther, parseGwei } from '../../utils/index.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { parseEther, parseGwei } from '../../utils/index.js'
+import { toSmartAccount } from './toSmartAccount.js'
 
 test('default', () => {
   expect(
