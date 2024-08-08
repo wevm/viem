@@ -46,6 +46,7 @@ test('exports', () => {
       "deploylessCallViaBytecodeBytecode",
       "deploylessCallViaFactoryBytecode",
       "universalSignatureValidatorByteCode",
+      "universalSignatureValidatorAbi",
       "etherUnits",
       "gweiUnits",
       "weiUnits",
