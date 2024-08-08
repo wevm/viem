@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 const sourceId = 11_155_111 // sepolia
 
 export const bobSepolia = defineChain({
-  id: 111,
+  id: 808813,
   name: 'BOB Sepolia',
   nativeCurrency: {
     decimals: 18,
@@ -12,19 +12,24 @@ export const bobSepolia = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://testnet.rpc.gobob.xyz']
+      http: ['https://bob-sepolia.rpc.gobob.xyz'],
+      webSocket: ['wss://bob-sepolia.rpc.gobob.xyz']
     },
+    public: {
+      http: ['https://bob-sepolia.rpc.gobob.xyz'],
+      webSocket: ['wss://bob-sepolia.rpc.gobob.xyz']
+    }
   },
   blockExplorers: {
     default: {
       name: 'BOB Sepolia Explorer',
-      url: 'https://testnet-explorer.gobob.xyz'
-    },
+      url: 'https://bob-sepolia.explorer.gobob.xyz'
+    }
   },
   contracts: {
     multicall3: {
-      address: '0x089b191d95417817389c8eD9075b51a38ca46DE8',
-      blockCreated: 2469044
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 35677
     },
     l2OutputOracle: {
       [sourceId]: {
