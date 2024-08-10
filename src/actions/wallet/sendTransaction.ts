@@ -175,15 +175,6 @@ export async function sendTransaction<
   try {
     assertRequest(parameters as AssertRequestParameters)
 
-    let chainId: number | undefined
-    if (chain !== null) {
-      chainId = await getAction(client, getChainId, 'getChainId')({})
-      assertCurrentChain({
-        currentChainId: chainId,
-        chain,
-      })
-    }
-
     const to = await (async () => {
       // If `to` exists on the parameters, use that.
       if (parameters.to) return parameters.to
@@ -204,6 +195,15 @@ export async function sendTransaction<
     })()
 
     if (account.type === 'json-rpc') {
+      let chainId: number | undefined
+      if (chain !== null) {
+        chainId = await getAction(client, getChainId, 'getChainId')({})
+        assertCurrentChain({
+          currentChainId: chainId,
+          chain,
+        })
+      }
+
       const chainFormat = client.chain?.formatters?.transactionRequest?.format
       const format = chainFormat || formatTransactionRequest
 
@@ -246,7 +246,6 @@ export async function sendTransaction<
         authorizationList,
         blobs,
         chain,
-        chainId,
         data,
         gas,
         gasPrice,
