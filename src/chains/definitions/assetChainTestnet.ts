@@ -15,7 +15,7 @@ export const assetChainTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Asset Chain Testnet Explorer',
       url: 'https://scan-testnet.assetchain.org',
-      apiUrl:'https://scan-testnet.assetchain.org/api'
+      apiUrl: 'https://scan-testnet.assetchain.org/api',
     },
   },
   testnet: true,
