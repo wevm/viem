@@ -1,5 +1,11 @@
 # viem
 
+## 2.19.4
+
+### Patch Changes
+
+- [`fa13ec7`](https://github.com/wevm/viem/commit/fa13ec75f354964bd03676d08250953f7abc1708) Thanks [@jxom](https://github.com/jxom)! - Removed redundant chain assertion for Local Accounts.
+
 ## 2.19.3
 
 ### Patch Changes
