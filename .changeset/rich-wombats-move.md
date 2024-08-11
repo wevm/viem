@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add assetchain testnet chain
+Added AssetChain Testnet chain.
