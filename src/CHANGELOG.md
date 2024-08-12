@@ -1,5 +1,13 @@
 # viem
 
+## 2.19.5
+
+### Patch Changes
+
+- [#2608](https://github.com/wevm/viem/pull/2608) [`cff2aac6`](https://github.com/wevm/viem/commit/cff2aac683f4e2e60e8ce84e3933f02b31311ed0) Thanks [@HighGecko](https://github.com/HighGecko)! - Added IOTA, IOTA Testnet and CHIPS chains.
+
+- [#2609](https://github.com/wevm/viem/pull/2609) [`bf0fe9c6`](https://github.com/wevm/viem/commit/bf0fe9c653697a2eadc16ec2ce53d149b10d68a8) Thanks [@CeoFred](https://github.com/CeoFred)! - Added AssetChain Testnet chain.
+
 ## 2.19.4
 
 ### Patch Changes
