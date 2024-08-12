@@ -18,8 +18,13 @@ import {
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
-import type { LineaEstimateGasReturnType } from '../types/fee.js'
 import type { LineaEstimateGasRpcSchema } from '../types/rpc.js'
+
+type LineaEstimateGasReturnType = {
+  gasLimit: bigint
+  baseFeePerGas: bigint
+  priorityFeePerGas: bigint
+}
 
 /**
  * Estimates the gas, gas fee per gas and priority fee per gas necessary to complete a transaction without submitting it to the network.
@@ -43,7 +48,7 @@ import type { LineaEstimateGasRpcSchema } from '../types/rpc.js'
  *   value: 0n,
  * })
  */
-export async function lineaEstimateGas<
+export async function estimateGas<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(
