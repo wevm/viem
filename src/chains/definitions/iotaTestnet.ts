@@ -12,14 +12,14 @@ export const iotaTestnet = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://json-rpc.evm.testnet.iotaledger.net'],
-      webSocket: ['wss://ws.json-rpc.evm.testnet.iotaledger.net']
+      webSocket: ['wss://ws.json-rpc.evm.testnet.iotaledger.net'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Explorer',
       url: 'https://explorer.evm.testnet.iotaledger.net',
-      apiUrl: 'https://iota-testnet-evm.public.blastapi.io',
+      apiUrl: 'https://explorer.evm.testnet.iotaledger.net/api',
     },
   },
   testnet: true,

@@ -12,14 +12,14 @@ export const iota = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://json-rpc.evm.iotaledger.net'],
-      webSocket: ['wss://ws.json-rpc.evm.iotaledger.net']
+      webSocket: ['wss://ws.json-rpc.evm.iotaledger.net'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Explorer',
       url: 'https://explorer.evm.iota.org',
-      apiUrl: 'https://iota-mainnet-evm.public.blastapi.io ',
+      apiUrl: 'https://explorer.evm.iota.org/api',
     },
   },
 })
