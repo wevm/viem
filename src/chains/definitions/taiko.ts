@@ -20,11 +20,6 @@ export const taiko = /*#__PURE__*/ defineChain({
       url: 'https://taikoscan.io',
       apiUrl: 'https://api.taikoscan.io/api',
     },
-    routescan: {
-      name: 'Routescan',
-      url: 'https://taikoscan.network',
-      apiUrl: 'https://taikoscan.network/api',
-    },
   },
   contracts: {
     multicall3: {
