@@ -1,5 +1,5 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
-export { lineaEstimateGas } from './actions/lineaEstimateGas.js'
-export { lineaEstimateFeesPerGas } from './actions/lineaEstimateFeesPerGas.js'
+export { estimateGas } from './actions/lineaEstimateGas.js'
+export { lineaEstimateFeesPerGas } from './utils/estimateFeesPerGas.js'
 
 export { linea, lineaTestnet } from './chains.js'

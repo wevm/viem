@@ -1,4 +1,7 @@
-import type { LineaEstimateGasReturnType } from './fee.js'
+import type { BlockNumber, BlockTag } from '../../types/block.js'
+import type { Hex } from '../../types/misc.js'
+import type { RpcStateOverride } from '../../types/rpc.js'
+import type { TransactionRequest } from '../../types/transaction.js'
 
 export type LineaEstimateGasRpcSchema =
   /**
@@ -13,6 +16,17 @@ export type LineaEstimateGasRpcSchema =
    */
   {
     Method: 'linea_estimateGas'
-    Parameters?: any
-    ReturnType: LineaEstimateGasReturnType
+    Parameters?:
+      | [transaction: TransactionRequest]
+      | [transaction: TransactionRequest, block: Hex | BlockNumber | BlockTag]
+      | [
+          transaction: TransactionRequest,
+          block: BlockNumber | BlockTag,
+          stateOverride: RpcStateOverride,
+        ]
+    ReturnType: {
+      gasLimit: bigint
+      baseFeePerGas: bigint
+      priorityFeePerGas: bigint
+    }
   }

@@ -6,15 +6,22 @@ import {
   type ChainEstimateFeesPerGasFnParameters,
   type Client,
   Eip1559FeesNotSupportedError,
+  type EstimateFeesPerGasReturnType,
   type EstimateGasParameters,
   type Transport,
 } from '../../index.js'
 import { getAction } from '../../utils/getAction.js'
-import type {
-  LineaEstimateFeesPerGasReturnType,
-  LineaEstimateGasReturnType,
-} from '../types/fee.js'
-import { lineaEstimateGas } from './lineaEstimateGas.js'
+import { estimateGas } from '../actions/lineaEstimateGas.js'
+
+type LineaEstimateFeesPerGasReturnType = {
+  gasLimit: bigint
+} & EstimateFeesPerGasReturnType
+
+type LineaEstimateGasReturnType = {
+  gasLimit: bigint
+  baseFeePerGas: bigint
+  priorityFeePerGas: bigint
+}
 
 /**
  * Returns an estimate for the fees per gas (in wei) for a
@@ -55,7 +62,7 @@ export async function lineaEstimateFeesPerGas({
   try {
     lineaEstimateGasResponse = await getAction(
       client,
-      lineaEstimateGas,
+      estimateGas,
       'lineaEstimateGas',
     )({
       data: request.data,

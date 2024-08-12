@@ -1,7 +1,8 @@
-import { lineaEstimateFeesPerGas } from '../../linea/index.js'
+import { chainConfig } from '../../linea/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const linea = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 59_144,
   name: 'Linea Mainnet',
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
@@ -25,22 +26,4 @@ export const linea = /*#__PURE__*/ defineChain({
     },
   },
   testnet: false,
-  fees: {
-    // Override the fees calculation to accurately price the fees
-    // on Linea using the rpc call linea_estimateGas
-    estimateFeesPerGas: lineaEstimateFeesPerGas,
-    async defaultPriorityFee(args): Promise<bigint> {
-      const { maxPriorityFeePerGas } = await lineaEstimateFeesPerGas({
-        client: args.client,
-        request: args.request,
-        type: 'eip1559',
-      } as any)
-
-      if (maxPriorityFeePerGas === undefined) {
-        throw new Error('maxPriorityFeePerGas is undefined')
-      }
-
-      return maxPriorityFeePerGas
-    },
-  },
 })
