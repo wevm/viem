@@ -1,5 +1,15 @@
 # viem
 
+## 2.19.4
+
+### Patch Changes
+
+- [`e708c5bd`](https://github.com/wevm/viem/commit/e708c5bd5dea9ee97fefaf6c4bf1d70080898851) Thanks [@jxom](https://github.com/jxom)! - Updated zkSync `getEip712Domain` name.
+
+- [#2606](https://github.com/wevm/viem/pull/2606) [`44cc5ecd`](https://github.com/wevm/viem/commit/44cc5ecd6bca2ee81ab2db0cd4ae273310f37302) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated Taiko block explorer.
+
+- [`9aaa159f`](https://github.com/wevm/viem/commit/9aaa159f8e3f0aef45248368a2dd65a16e101c90) Thanks [@jxom](https://github.com/jxom)! - Removed redundant chain assertion for Local Accounts.
+
 ## 2.19.3
 
 ### Patch Changes
