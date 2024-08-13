@@ -93,7 +93,7 @@ const bundlerClient = createBundlerClient({ // [!code ++] // [!code focus]
 ```
 
 :::info
-The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io) or another Bundler service.
+The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io), [Biconomy's Bundler](https://www.biconomy.io/) or another Bundler service.
 :::
 
 [See `createBundlerClient` Docs](/account-abstraction/clients/bundler)

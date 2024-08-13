@@ -23,11 +23,12 @@ const client = createPublicClient({
 const bundlerClient = createBundlerClient({ // [!code focus]
   client, // [!code focus]
   transport: http('https://public.pimlico.io/v2/1/rpc') // [!code focus]
+  //transport: http('https://bundler.biconomy.io/api/v2/11155111/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44'),
 }) // [!code focus]
 ```
 
 :::info
-The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io) or another Bundler service.
+The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io), [Biconomy's Bundler](https://www.biconomy.io/) or another Bundler service.
 :::
 
 ## Parameters
