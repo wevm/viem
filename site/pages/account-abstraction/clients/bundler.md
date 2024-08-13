@@ -23,7 +23,6 @@ const client = createPublicClient({
 const bundlerClient = createBundlerClient({ // [!code focus]
   client, // [!code focus]
   transport: http('https://public.pimlico.io/v2/1/rpc') // [!code focus]
-  //transport: http('https://bundler.biconomy.io/api/v2/11155111/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44'),
 }) // [!code focus]
 ```
 
