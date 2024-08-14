@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const curtis = /*#__PURE__*/ defineChain({
-  id: 33111,
+  id: 33_111,
   name: 'Curtis',
   nativeCurrency: { name: 'ApeCoin', symbol: 'APE', decimals: 18 },
   rpcUrls: {
@@ -11,9 +11,8 @@ export const curtis = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Curtis explorer',
-      url: 'https://curtis.explorer.caldera.xyz/',
-      apiUrl: 'https://api.curtis.explorer.caldera.xyz/api',
+      name: 'Curtis Explorer',
+      url: 'https://explorer.curtis.apechain.com',
     },
   },
   testnet: true,
