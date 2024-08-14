@@ -2,25 +2,14 @@ import { expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/src/constants.js'
 
-import { concatHex, parseEther, parseGwei } from '../../utils/index.js'
-import { toSmartAccount } from './toSmartAccount.js'
-import { sign as sign_ } from '../../accounts/index.js'
-import type { Hex } from '../../types/misc.js'
-
-async function sign({ hash }: { hash: Hex }) {
-  const privateKeys = [accounts[0].privateKey, accounts[1].privateKey]
-  return concatHex(
-    await Promise.all(
-      privateKeys.map((privateKey) => sign_({ hash, privateKey, to: 'hex' })),
-    ),
-  )
-}
+import { parseEther, parseGwei } from '../../utils/index.js'
+import { toMultisigSmartAccount } from './toMultisigSmartAccount.js'
 
 test('default', () => {
   expect(
-    toSmartAccount({
+    toMultisigSmartAccount({
       address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      sign,
+      privateKeys: [accounts[0].privateKey, accounts[1].privateKey],
     }),
   ).toMatchInlineSnapshot(`
     {
@@ -38,9 +27,9 @@ test('default', () => {
 })
 
 test('sign', async () => {
-  const account = toSmartAccount({
+  const account = toMultisigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    sign,
+    privateKeys: [accounts[0].privateKey, accounts[1].privateKey],
   })
   expect(
     await account.sign({
@@ -52,9 +41,9 @@ test('sign', async () => {
 })
 
 test('sign message', async () => {
-  const account = toSmartAccount({
+  const account = toMultisigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    sign,
+    privateKeys: [accounts[0].privateKey, accounts[1].privateKey],
   })
   expect(
     await account.signMessage({ message: 'hello world' }),
@@ -64,9 +53,9 @@ test('sign message', async () => {
 })
 
 test('sign transaction', async () => {
-  const account = toSmartAccount({
+  const account = toMultisigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    sign,
+    privateKeys: [accounts[0].privateKey, accounts[1].privateKey],
   })
   expect(
     await account.signTransaction({
@@ -82,9 +71,9 @@ test('sign transaction', async () => {
 })
 
 test('sign typed data', async () => {
-  const account = toSmartAccount({
+  const account = toMultisigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    sign,
+    privateKeys: [accounts[0].privateKey, accounts[1].privateKey],
   })
   expect(
     await account.signTypedData({ ...typedData.basic, primaryType: 'Mail' }),

@@ -1594,10 +1594,18 @@ export const sidebar = {
         ],
       },
       {
-        text: 'Accounts',
+        text: 'Smart Accounts',
         items: [
           {
-            text: 'toSmartAccount',
+            text: 'Singlesig',
+            link: '/zksync/accounts/toSinglesigSmartAccount',
+          },
+          {
+            text: 'Multisig',
+            link: '/zksync/accounts/toMultisigSmartAccount',
+          },
+          {
+            text: 'Custom',
             link: '/zksync/accounts/toSmartAccount',
           },
         ],

@@ -1,10 +1,8 @@
 import type { Address } from 'abitype'
 
 import { toAccount } from '../../accounts/toAccount.js'
-import type { LocalAccount } from '../../accounts/types.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Hex } from '../../types/misc.js'
-import { concatHex } from '../../utils/data/concat.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import { keccak256 } from '../../utils/index.js'
 import { hashMessage } from '../../utils/signature/hashMessage.js'
 import { hashTypedData } from '../../utils/signature/hashTypedData.js'
@@ -15,27 +13,20 @@ import type { ZksyncTransactionSerializableEIP712 } from '../types/transaction.j
 export type ToSmartAccountParameters = {
   /** Address of the deployed Account's Contract implementation. */
   address: Address
-  /** Owners of the Smart Account. */
-  owners: readonly LocalAccount[]
+  /** Function to sign a hash. */
+  sign: (parameters: { hash: Hash }) => Promise<Hex>
 }
 
 export type ToSmartAccountErrorType = ErrorType
 
 /**
- * @description Creates a [ZKsync Smart Account](https://docs.zksync.io/build/developer-reference/account-abstraction/building-smart-accounts) from a Contract Address and an array of owner(s).
- *
- * @returns A ZKsync Smart Account.
+ * Creates a [ZKsync Smart Account](https://docs.zksync.io/build/developer-reference/account-abstraction/building-smart-accounts)
+ * from a Contract Address and a custom sign function.
  */
 export function toSmartAccount(
   parameters: ToSmartAccountParameters,
 ): ZksyncSmartAccount {
-  const { address, owners } = parameters
-
-  async function sign({ hash }: { hash: Hex }) {
-    return concatHex(
-      await Promise.all(owners.map((owner) => owner.sign!({ hash }))),
-    )
-  }
+  const { address, sign } = parameters
 
   const account = toAccount({
     address,

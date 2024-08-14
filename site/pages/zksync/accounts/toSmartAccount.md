@@ -4,20 +4,19 @@ description: Creates a ZKsync Smart Account
 
 # toSmartAccount (ZKsync)
 
-Creates a [ZKsync Smart Account](https://docs.zksync.io/build/developer-reference/account-abstraction/building-smart-accounts) from a Contract Address and an array of owner(s).
+Creates a [ZKsync Smart Account](https://docs.zksync.io/build/developer-reference/account-abstraction/building-smart-accounts) from a Contract Address and a custom sign function.
 
 ## Usage
 
 ```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
 import { toSmartAccount } from 'viem/zksync'
 
 const account = toSmartAccount({
   address: '0xf39Fd6e51aad8F6F4ce6aB8827279cffFb92266', 
-  owners: [
-    privateKeyToAccount('0x...'), 
-    privateKeyToAccount('0x...')
-  ]
+  async sign({ hash }) {
+    // ... signing logic
+    return '0x...'
+  }
 })
 ```
 
@@ -32,25 +31,23 @@ Address of the deployed Account's Contract implementation.
 ```ts
 const account = toSmartAccount({
   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
-  owners: [
-    privateKeyToAccount('0x...'), 
-    privateKeyToAccount('0x...')
-  ]
+  async sign({ hash }) {
+    // ...
+  }
 })
 ```
 
-### privateKeys
+### sign
 
-- **Type:** `LocalAccount[]`
+- **Type:** `({ hash: Hex }) => Hex`
 
-Owners of the Smart Account. Must be a set of [Local Accounts](/docs/accounts/local) (Private Key, Mnemonic, etc).
+Custom sign function for the Smart Account.
 
 ```ts
 const account = toSmartAccount({
   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 
-  owners: [ // [!code focus]
-    privateKeyToAccount('0x...'), // [!code focus]
-    privateKeyToAccount('0x...') // [!code focus]
-  ] // [!code focus]
+  async sign({ hash }) { // [!code focus]
+    // ... // [!code focus]
+  } // [!code focus]
 })
 ```

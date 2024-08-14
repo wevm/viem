@@ -4,6 +4,14 @@ export {
   type ToSmartAccountParameters,
   toSmartAccount,
 } from './accounts/toSmartAccount.js'
+export {
+  type ToMultisigSmartAccountParameters,
+  toMultisigSmartAccount,
+} from './accounts/toMultisigSmartAccount.js'
+export {
+  type ToSinglesigSmartAccountParameters,
+  toSinglesigSmartAccount,
+} from './accounts/toSinglesigSmartAccount.js'
 
 export {
   type DeployContractErrorType,
