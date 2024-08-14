@@ -2,10 +2,10 @@ import { expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/src/constants.js'
 
-import { concatHex, parseEther, parseGwei } from '../../utils/index.js'
-import { toSmartAccount } from './toSmartAccount.js'
 import { sign as sign_ } from '../../accounts/index.js'
 import type { Hex } from '../../types/misc.js'
+import { concatHex, parseEther, parseGwei } from '../../utils/index.js'
+import { toSmartAccount } from './toSmartAccount.js'
 
 async function sign({ hash }: { hash: Hex }) {
   const privateKeys = [accounts[0].privateKey, accounts[1].privateKey]

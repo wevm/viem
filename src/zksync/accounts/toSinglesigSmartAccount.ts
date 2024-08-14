@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
 
-import { toSmartAccount } from './toSmartAccount.js'
-import type { ZksyncSmartAccount } from '../types/account.js'
 import { sign } from '../../accounts/utils/sign.js'
 import type { Hex } from '../../types/misc.js'
+import type { ZksyncSmartAccount } from '../types/account.js'
+import { toSmartAccount } from './toSmartAccount.js'
 
 export type ToSinglesigSmartAccountParameters = {
   /** Address of the deployed Account's Contract implementation. */
