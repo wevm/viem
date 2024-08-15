@@ -1,13 +1,13 @@
-import { parseAbi, type Abi } from 'abitype'
+import { type Abi, parseAbi } from 'abitype'
 
 import { getCode } from '../../actions/public/getCode.js'
+import { readContract } from '../../actions/public/readContract.js'
 import type { Prettify } from '../../types/utils.js'
 import { getAction } from '../../utils/getAction.js'
 import { createNonceManager } from '../../utils/nonceManager.js'
 import { serializeErc6492Signature } from '../../utils/signature/serializeErc6492Signature.js'
 import type { EntryPointVersion } from '../types/entryPointVersion.js'
 import type { SmartAccount, SmartAccountImplementation } from './types.js'
-import { readContract } from '../../actions/public/readContract.js'
 
 export type ToSmartAccountParameters<
   entryPointAbi extends Abi | readonly unknown[] = Abi,
