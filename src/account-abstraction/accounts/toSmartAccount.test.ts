@@ -966,3 +966,28 @@ test('return value: `getFactoryArgs`', async () => {
     }
   `)
 })
+
+test('return value: `getNonce`', async () => {
+  const { factoryAddress } = await deploySoladyAccount_07()
+
+  const account = await toSoladySmartAccount({
+    client,
+    factoryAddress,
+    owner: accounts[1].address,
+  })
+  expect(await account.getNonce()).toBeDefined()
+})
+
+test('return value: `getNonce` (implementation override)', async () => {
+  const { factoryAddress } = await deploySoladyAccount_07()
+
+  const account = await toSoladySmartAccount({
+    client,
+    factoryAddress,
+    owner: accounts[1].address,
+    async getNonce() {
+      return 69n
+    },
+  })
+  expect(await account.getNonce()).toBe(69n)
+})

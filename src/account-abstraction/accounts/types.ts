@@ -88,9 +88,11 @@ export type SmartAccountImplementation<
    * // 1n
    * ```
    */
-  getNonce: (
-    parameters?: { key?: bigint | undefined } | undefined,
-  ) => Promise<bigint>
+  getNonce?:
+    | ((
+        parameters?: { key?: bigint | undefined } | undefined,
+      ) => Promise<bigint>)
+    | undefined
   /**
    * Retrieves the User Operation "stub" signature for gas estimation.
    *
@@ -184,6 +186,16 @@ export type SmartAccount<
     {
       /** Address of the Smart Account. */
       address: Address
+      /**
+       * Retrieves the nonce of the Account.
+       *
+       * @example
+       * ```ts
+       * const nonce = await account.getNonce()
+       * // 1n
+       * ```
+       */
+      getNonce: NonNullable<SmartAccountImplementation['getNonce']>
       /** Whether or not the Smart Account has been deployed. */
       isDeployed: () => Promise<boolean>
       /** Type of account. */

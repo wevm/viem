@@ -1,4 +1,4 @@
-import type { Abi } from 'abitype'
+import { parseAbi, type Abi } from 'abitype'
 
 import { getCode } from '../../actions/public/getCode.js'
 import type { Prettify } from '../../types/utils.js'
@@ -7,6 +7,7 @@ import { createNonceManager } from '../../utils/nonceManager.js'
 import { serializeErc6492Signature } from '../../utils/signature/serializeErc6492Signature.js'
 import type { EntryPointVersion } from '../types/entryPointVersion.js'
 import type { SmartAccount, SmartAccountImplementation } from './types.js'
+import { readContract } from '../../actions/public/readContract.js'
 
 export type ToSmartAccountParameters<
   entryPointAbi extends Abi | readonly unknown[] = Abi,
@@ -64,7 +65,19 @@ export async function toSmartAccount<
             client: implementation.client,
           }),
         )
-      return await implementation.getNonce({ ...parameters, key })
+
+      if (implementation.getNonce)
+        return await implementation.getNonce({ ...parameters, key })
+
+      const nonce = await readContract(implementation.client, {
+        abi: parseAbi([
+          'function getNonce(address, uint192) pure returns (uint256)',
+        ]),
+        address: implementation.entryPoint.address,
+        functionName: 'getNonce',
+        args: [address, key],
+      })
+      return nonce
     },
     async isDeployed() {
       if (deployed) return true
