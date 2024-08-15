@@ -1,5 +1,15 @@
 # viem
 
+## 2.19.6
+
+### Patch Changes
+
+- [#2619](https://github.com/wevm/viem/pull/2619) [`ccaddcd9`](https://github.com/wevm/viem/commit/ccaddcd909b5f957f9b8352f7646f349402bb776) Thanks [@nialexsan](https://github.com/nialexsan)! - Added Multicall contract to Flow Testnet.
+
+- [#2620](https://github.com/wevm/viem/pull/2620) [`a8c78cb4`](https://github.com/wevm/viem/commit/a8c78cb4cbd5224259482114c6d65ce5b0b10f6b) Thanks [@jxom](https://github.com/jxom)! - Made `getNonce` optional on `SmartAccountImplementation`.
+
+- [#2614](https://github.com/wevm/viem/pull/2614) [`3749838f`](https://github.com/wevm/viem/commit/3749838fdd915ebccc56505ecd5a8047bfb8f38d) Thanks [@joshuanwankwo](https://github.com/joshuanwankwo)! - Added Curtis chain
+
 ## 2.19.5
 
 ### Patch Changes
