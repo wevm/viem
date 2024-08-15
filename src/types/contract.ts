@@ -131,14 +131,14 @@ export type ContractEventArgsFromTopics<
 export type Widen<type> =
   | ([unknown] extends [type] ? unknown : never)
   | (type extends Function ? type : never)
-  | (type extends ResolvedRegister['BigIntType'] ? bigint : never)
+  | (type extends ResolvedRegister['bigIntType'] ? bigint : never)
   | (type extends boolean ? boolean : never)
-  | (type extends ResolvedRegister['IntType'] ? number : never)
+  | (type extends ResolvedRegister['intType'] ? number : never)
   | (type extends string
-      ? type extends ResolvedRegister['AddressType']
-        ? ResolvedRegister['AddressType']
-        : type extends ResolvedRegister['BytesType']['inputs']
-          ? ResolvedRegister['BytesType']
+      ? type extends Hex
+        ? Hex
+        : type extends ResolvedRegister['bytesType']['inputs']
+          ? ResolvedRegister['bytesType']
           : string
       : never)
   | (type extends readonly [] ? readonly [] : never)
