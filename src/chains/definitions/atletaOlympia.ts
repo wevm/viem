@@ -1,9 +1,9 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const atletaOlympiaTestnet = /*#__PURE__*/ defineChain({
+export const atletaOlympia = /*#__PURE__*/ defineChain({
   id: 2340,
-  name: 'Atleta Olympia Testnet',
-  nativeCurrency: { decimals: 18, name: 'ATLA', symbol: 'ATLA' },
+  name: 'Atleta Olympia',
+  nativeCurrency: { decimals: 18, name: 'Atla', symbol: 'ATLA' },
   rpcUrls: {
     default: {
       http: [
@@ -15,9 +15,9 @@ export const atletaOlympiaTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Atleta Olympia Testnet Explorer',
+      name: 'Atleta Olympia Explorer',
       url: 'https://blockscout.atleta.network/',
-      apiUrl: 'https://blockscout.atleta.network//api',
+      apiUrl: 'https://blockscout.atleta.network/api',
     },
   },
   testnet: true,
