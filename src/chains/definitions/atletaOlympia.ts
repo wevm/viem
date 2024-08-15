@@ -16,15 +16,15 @@ export const atletaOlympia = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Atleta Olympia Explorer',
-      url: 'https://blockscout.atleta.network/',
+      url: 'https://blockscout.atleta.network',
       apiUrl: 'https://blockscout.atleta.network/api',
     },
   },
-  testnet: true,
   contracts: {
     multicall3: {
       address: '0x1472ec6392180fb84F345d2455bCC75B26577115',
       blockCreated: 1076473,
     },
   },
+  testnet: true,
 })
