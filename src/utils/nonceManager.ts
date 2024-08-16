@@ -96,6 +96,7 @@ export function createNonceManager(
       const key = getKey({ address, chainId })
       deltaMap.delete(key)
       promiseMap.delete(key)
+      nonceMap.delete(key)
     },
   }
 }
