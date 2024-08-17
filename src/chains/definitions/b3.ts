@@ -1,10 +1,10 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-const sourceId = 168_587_773 // base-sepolia
+const sourceId = 8453 // base
 
-export const b3Sepolia = /*#__PURE__*/ defineChain({
-  id: 1993,
-  name: 'B3 Sepolia',
+export const b3 = /*#__PURE__*/ defineChain({
+  id: 8333,
+  name: 'B3',
   nativeCurrency: {
     name: 'Ether',
     symbol: 'ETH',
@@ -12,15 +12,14 @@ export const b3Sepolia = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://sepolia.b3.fun/http'],
+      http: ['https://mainnet-rpc.b3.fun/http'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://sepolia.explorer.b3.fun',
+      url: 'https://explorer.b3.fun',
     },
   },
-  testnet: true,
   sourceId,
 })
