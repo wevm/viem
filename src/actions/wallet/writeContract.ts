@@ -12,6 +12,7 @@ import {
   type AccountNotFoundErrorType,
 } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
+import { ExecutionRevertedError } from '../../errors/node.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
@@ -43,7 +44,6 @@ import {
   type SendTransactionReturnType,
   sendTransaction,
 } from './sendTransaction.js'
-import { ExecutionRevertedError } from '../../errors/node.js'
 
 export type WriteContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
