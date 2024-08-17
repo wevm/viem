@@ -243,11 +243,7 @@ export function watchEvent<
               // The fall back exists because some RPC Providers do not support filters.
 
               // Fetch the block number to use for `getLogs`.
-              const blockNumber = await getAction(
-                client,
-                getBlockNumber,
-                'getBlockNumber',
-              )({})
+              const blockNumber = await getBlockNumber(client)
 
               // If the block number has changed, we will need to fetch the logs.
               // If the block number doesn't exist, we are yet to reach the first poll interval,

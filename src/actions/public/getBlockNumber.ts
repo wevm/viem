@@ -3,6 +3,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type GetCacheErrorType,
   getCache,
@@ -52,6 +53,13 @@ export function getBlockNumberCache(id: string) {
  * // 69420n
  */
 export async function getBlockNumber<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  params: GetBlockNumberParameters = {},
+): Promise<GetBlockNumberReturnType> {
+  return getAction(client, _getBlockNumber, 'getBlockNumber')(params)
+}
+
+export async function _getBlockNumber<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   { cacheTime = client.cacheTime }: GetBlockNumberParameters = {},
 ): Promise<GetBlockNumberReturnType> {
