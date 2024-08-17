@@ -113,6 +113,7 @@ export {
   type GetBlockParameters,
   type GetBlockReturnType,
   getBlock,
+  _getBlock,
 } from './public/getBlock.js'
 export {
   type GetBlockNumberErrorType,

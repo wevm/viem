@@ -258,11 +258,7 @@ export async function prepareTransactionRequest<
   let block: Block | undefined
   async function getBlock(): Promise<Block> {
     if (block) return block
-    block = await getAction(
-      client,
-      getBlock_,
-      'getBlock',
-    )({ blockTag: 'latest' })
+    block = await getBlock_(client, { blockTag: 'latest' })
     return block
   }
 
