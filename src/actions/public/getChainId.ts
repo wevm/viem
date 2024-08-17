@@ -8,6 +8,7 @@ import {
   type HexToNumberErrorType,
   hexToNumber,
 } from '../../utils/encoding/fromHex.js'
+import { getAction } from '../../utils/getAction.js'
 
 export type GetChainIdReturnType = number
 
@@ -38,6 +39,13 @@ export type GetChainIdErrorType =
  * // 1
  */
 export async function getChainId<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(client: Client<Transport, chain, account>): Promise<GetChainIdReturnType> {
+  return getAction(client, _getChainId, 'getChainId')({})
+}
+
+export async function _getChainId<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(client: Client<Transport, chain, account>): Promise<GetChainIdReturnType> {

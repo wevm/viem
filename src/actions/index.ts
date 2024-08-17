@@ -130,6 +130,7 @@ export {
   type GetChainIdErrorType,
   type GetChainIdReturnType,
   getChainId,
+  _getChainId,
 } from './public/getChainId.js'
 export {
   /** @deprecated Use `GetCodeErrorType` instead */
