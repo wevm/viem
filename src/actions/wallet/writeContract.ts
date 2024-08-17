@@ -43,6 +43,7 @@ import {
   type SendTransactionReturnType,
   sendTransaction,
 } from './sendTransaction.js'
+import { ExecutionRevertedError } from '../../errors/node.js'
 
 export type WriteContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -194,7 +195,7 @@ export async function writeContract<
   } as EncodeFunctionDataParameters)
 
   try {
-    return getAction(
+    return await getAction(
       client,
       sendTransaction,
       'sendTransaction',
