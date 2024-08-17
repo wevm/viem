@@ -1,8 +1,18 @@
 import type { Abi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import {
+  AccountNotFoundError,
+  type AccountNotFoundErrorType,
+} from '../../errors/account.js'
+import type { BaseError } from '../../errors/base.js'
+import { ExecutionRevertedError } from '../../errors/node.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
@@ -22,6 +32,10 @@ import {
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import {
+  type GetContractErrorReturnType,
+  getContractError,
+} from '../../utils/errors/getContractError.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import type { GetMutabilityAwareValue } from '../public/simulateContract.js'
@@ -81,7 +95,9 @@ export type WriteContractReturnType = SendTransactionReturnType
 
 export type WriteContractErrorType =
   | EncodeFunctionDataErrorType
-  | SendTransactionErrorType
+  | AccountNotFoundErrorType
+  | ParseAccountErrorType
+  | GetContractErrorReturnType<SendTransactionErrorType>
   | ErrorType
 
 /**
@@ -156,20 +172,47 @@ export async function writeContract<
     chainOverride
   >,
 ): Promise<WriteContractReturnType> {
-  const { abi, address, args, dataSuffix, functionName, ...request } =
-    parameters as WriteContractParameters
+  const {
+    abi,
+    account: account_ = client.account,
+    address,
+    args,
+    dataSuffix,
+    functionName,
+    ...request
+  } = parameters as WriteContractParameters
+
+  if (!account_)
+    throw new AccountNotFoundError({
+      docsPath: '/docs/contract/writeContract',
+    })
+  const account = parseAccount(account_)
+
   const data = encodeFunctionData({
     abi,
     args,
     functionName,
   } as EncodeFunctionDataParameters)
-  return getAction(
-    client,
-    sendTransaction,
-    'sendTransaction',
-  )({
-    data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
-    to: address,
-    ...request,
-  })
+
+  try {
+    return await getAction(
+      client,
+      sendTransaction,
+      'sendTransaction',
+    )({
+      data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
+      to: address,
+      account,
+      ...request,
+    })
+  } catch (error) {
+    throw getContractError(error as BaseError, {
+      abi,
+      address,
+      args,
+      docsPath: '/docs/contract/writeContract',
+      functionName,
+      sender: account.address,
+    })
+  }
 }
