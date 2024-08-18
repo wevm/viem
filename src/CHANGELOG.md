@@ -1,5 +1,19 @@
 # viem
 
+## 2.19.7
+
+### Patch Changes
+
+- [#2624](https://github.com/wevm/viem/pull/2624) [`46dd252`](https://github.com/wevm/viem/commit/46dd2523a96d8372b0d0cb5ffe56c613bf073048) Thanks [@holic](https://github.com/holic)! - Improved `writeContract` error handling.
+
+- [#2628](https://github.com/wevm/viem/pull/2628) [`a040bc4`](https://github.com/wevm/viem/commit/a040bc430293604cd8532c3f6349a56b2a5d366a) Thanks [@boavenn](https://github.com/boavenn)! - Added cronoszkEVM chain.
+
+- [`918bed5`](https://github.com/wevm/viem/commit/918bed5ee48b39b08d8ab8e879722358cc91ec56) Thanks [@jxom](https://github.com/jxom)! - Update 7702 implementation to be compatible with devnet3.
+
+- [#2629](https://github.com/wevm/viem/pull/2629) [`34093e1`](https://github.com/wevm/viem/commit/34093e12076639f110017cb5f9196884608eb76c) Thanks [@KONFeature](https://github.com/KONFeature)! - Exported `PaymasterRpcSchema`.
+
+- [#2625](https://github.com/wevm/viem/pull/2625) [`507eed7`](https://github.com/wevm/viem/commit/507eed7284c2ac6867fef850a0e2923b9078671e) Thanks [@qiwu7](https://github.com/qiwu7)! - Added B3 chain
+
 ## 2.19.6
 
 ### Patch Changes
