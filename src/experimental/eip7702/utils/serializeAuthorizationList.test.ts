@@ -22,9 +22,7 @@ test('default', () => {
       [
         "0x1",
         "0x0000000000000000000000000000000000000000",
-        [
-          "0x",
-        ],
+        "0x0",
         "0x",
         "0x",
         "0x",
@@ -48,9 +46,7 @@ test('default', () => {
       [
         "0x1",
         "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-        [
-          "0x45",
-        ],
+        "0x45",
         "0x1",
         "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
         "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
@@ -82,9 +78,7 @@ test('default', () => {
       [
         "0x1",
         "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-        [
-          "0x45",
-        ],
+        "0x45",
         "0x1",
         "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
         "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
@@ -92,9 +86,7 @@ test('default', () => {
       [
         "0x45",
         "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-        [
-          "0x1a4",
-        ],
+        "0x1a4",
         "0x",
         "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
         "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
