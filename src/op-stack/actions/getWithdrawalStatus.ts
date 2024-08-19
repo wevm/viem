@@ -236,6 +236,9 @@ export async function getWithdrawalStatus<
   if (checkWithdrawalResult.status === 'rejected') {
     const error = checkWithdrawalResult.reason as ReadContractErrorType
     if (error.cause instanceof ContractFunctionRevertedError) {
+      if (error.cause.data?.errorName === 'InvalidGameType')
+        return 'ready-to-prove'
+
       const errorMessage = error.cause.data?.args?.[0]
       if (
         errorMessage === 'OptimismPortal: withdrawal has not been proven yet' ||
