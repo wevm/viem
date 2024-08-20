@@ -236,11 +236,9 @@ export async function getWithdrawalStatus<
   if (checkWithdrawalResult.status === 'rejected') {
     const error = checkWithdrawalResult.reason as ReadContractErrorType
     if (error.cause instanceof ContractFunctionRevertedError) {
-      if (error.cause.data?.errorName === 'InvalidGameType')
-        return 'ready-to-prove'
-
       const errorMessage = error.cause.data?.args?.[0]
       if (
+        errorMessage === 'OptimismPortal: invalid game type' ||
         errorMessage === 'OptimismPortal: withdrawal has not been proven yet' ||
         errorMessage ===
           'OptimismPortal: withdrawal has not been proven by proof submitter address yet'
@@ -254,6 +252,9 @@ export async function getWithdrawalStatus<
         errorMessage === 'OptimismPortal: output proposal in air-gap'
       )
         return 'waiting-to-finalize'
+
+      if (error.cause.data?.errorName === 'InvalidGameType')
+        return 'ready-to-prove'
     }
     throw checkWithdrawalResult.reason
   }
