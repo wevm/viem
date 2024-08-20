@@ -50,8 +50,14 @@ export async function setCode<
   client: TestClient<TestClientMode, Transport, chain, account, false>,
   { address, bytecode }: SetCodeParameters,
 ) {
-  await client.request({
-    method: `${client.mode}_setCode`,
-    params: [address, bytecode],
-  })
+  if (client.mode === 'ganache')
+    await client.request({
+      method: 'evm_setAccountCode',
+      params: [address, bytecode],
+    })
+  else
+    await client.request({
+      method: `${client.mode}_setCode`,
+      params: [address, bytecode],
+    })
 }

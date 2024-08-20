@@ -1345,6 +1345,20 @@ export type TestRpcSchema<mode extends string> = [
     ReturnType: void
   },
   /**
+   * @description Modifies the bytecode stored at an account's address.
+   * @link https://ganache.dev/#evm_setAccountCode
+   */
+  {
+    Method: `evm_setAccountCode`
+    Parameters: [
+      /** The address of the contract. */
+      address: Address,
+      /** Data bytecode. */
+      data: string,
+    ]
+    ReturnType: void
+  },
+  /**
    * @description Enables or disables, based on the single boolean argument, the automatic mining of new blocks with each new transaction submitted to the network.
    * @link https://hardhat.org/hardhat-network/docs/reference#evm_setautomine
    */
