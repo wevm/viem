@@ -7,7 +7,7 @@ description: Verifies a typed data signature
 Verify that typed data was signed by the provided address.
 
 :::info 
-**Why should I use this over the [`verifyTypedData`](/docs/utilities/verifyTypedData.md) util?**
+**Why should I use this over the [`verifyTypedData`](/docs/utilities/verifyTypedData) util?**
 
 This Action supports verifying typed data that was signed by either a Smart Contract Account or Externally Owned Account (via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492)). The [`verifyTypedData`](/docs/utilities/verifyTypedData.md) util only supports Externally Owned Accounts. This is getting increasingly important as more wallets implement [Account Abstraction](https://eips.ethereum.org/EIPS/eip-4337). 
 :::
