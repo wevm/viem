@@ -1,5 +1,11 @@
 # viem
 
+## 2.19.8
+
+### Patch Changes
+
+- [#2631](https://github.com/wevm/viem/pull/2631) [`b36cb2db`](https://github.com/wevm/viem/commit/b36cb2dbe7c83c36c54810839506399cf2882945) Thanks [@jxom](https://github.com/jxom)! - **OP Stack:** Handled case for `InvalidGameType` error on `getWithdrawalStatus`
+
 ## 2.19.7
 
 ### Patch Changes
