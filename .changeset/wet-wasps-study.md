@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add support for evm_setAccountCode
+Added support for `'evm_setAccountCode'` to `setCode` action.
