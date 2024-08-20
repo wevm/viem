@@ -1335,7 +1335,7 @@ export type TestRpcSchema<mode extends string> = [
    * @link https://ganache.dev/#evm_setAccountBalance
    */
   {
-    Method: `evm_setAccountBalance`
+    Method: 'evm_setAccountBalance'
     Parameters: [
       /** The address of the target account. */
       address: Address,
@@ -1345,11 +1345,25 @@ export type TestRpcSchema<mode extends string> = [
     ReturnType: void
   },
   /**
+   * @description Modifies the bytecode stored at an account's address.
+   * @link https://ganache.dev/#evm_setAccountCode
+   */
+  {
+    Method: 'evm_setAccountCode'
+    Parameters: [
+      /** The address of the contract. */
+      address: Address,
+      /** Data bytecode. */
+      data: string,
+    ]
+    ReturnType: void
+  },
+  /**
    * @description Enables or disables, based on the single boolean argument, the automatic mining of new blocks with each new transaction submitted to the network.
    * @link https://hardhat.org/hardhat-network/docs/reference#evm_setautomine
    */
   {
-    Method: `evm_setAutomine`
+    Method: 'evm_setAutomine'
     Parameters: [boolean]
     ReturnType: void
   },
@@ -1367,7 +1381,7 @@ export type TestRpcSchema<mode extends string> = [
    * @link https://github.com/trufflesuite/ganache/blob/ef1858d5d6f27e4baeb75cccd57fb3dc77a45ae8/src/chains/ethereum/ethereum/RPC-METHODS.md#evm_increasetime
    */
   {
-    Method: `evm_increaseTime`
+    Method: 'evm_increaseTime'
     Parameters: [seconds: Quantity]
     ReturnType: Quantity
   },
