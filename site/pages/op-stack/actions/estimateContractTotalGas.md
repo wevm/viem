@@ -147,7 +147,7 @@ const gas = await publicClient.estimateContractTotalGas({
 
 - **Type:** [`Address`](/docs/glossary/types#address)
 
-Address of the Gas Price Oracle predeploy contract.
+Address of the Gas Price Oracle pre-deploy contract.
 
 ```ts
 const gas = await publicClient.estimateContractTotalGas({
