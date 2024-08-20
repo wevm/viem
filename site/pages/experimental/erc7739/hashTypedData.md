@@ -149,7 +149,7 @@ const hash = hashTypedData({
 
 **Type:** Inferred `string`.
 
-The primary type to extract from `types` and use in `value`.
+The primary type is to extract from `types` and use in `value`.
 
 ```ts
 const hash = hashTypedData({
