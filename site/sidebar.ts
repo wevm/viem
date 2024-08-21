@@ -1594,6 +1594,23 @@ export const sidebar = {
         ],
       },
       {
+        text: 'Smart Accounts',
+        items: [
+          {
+            text: 'Singlesig',
+            link: '/zksync/accounts/toSinglesigSmartAccount',
+          },
+          {
+            text: 'Multisig',
+            link: '/zksync/accounts/toMultisigSmartAccount',
+          },
+          {
+            text: 'Custom',
+            link: '/zksync/accounts/toSmartAccount',
+          },
+        ],
+      },
+      {
         text: 'EIP-712 Actions',
         items: [
           {

@@ -45,7 +45,9 @@ export default defineConfig({
   rootDir: '.',
   search: {
     boostDocument(documentId) {
-      if (documentId.startsWith('pages/docs')) return 2
+      if (documentId.startsWith('pages/docs')) return 3
+      if (documentId.startsWith('pages/account-abstraction')) return 2
+      if (documentId.startsWith('pages/experimental')) return 2
       return 1
     },
   },

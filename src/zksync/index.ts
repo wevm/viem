@@ -1,5 +1,19 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
+  type ToSmartAccountErrorType,
+  type ToSmartAccountParameters,
+  toSmartAccount,
+} from './accounts/toSmartAccount.js'
+export {
+  type ToMultisigSmartAccountParameters,
+  toMultisigSmartAccount,
+} from './accounts/toMultisigSmartAccount.js'
+export {
+  type ToSinglesigSmartAccountParameters,
+  toSinglesigSmartAccount,
+} from './accounts/toSinglesigSmartAccount.js'
+
+export {
   type DeployContractErrorType,
   type DeployContractParameters,
   type DeployContractReturnType,
@@ -131,6 +145,7 @@ export {
 
 export { serializeTransaction } from './serializers.js'
 
+export type { ZksyncSmartAccount } from './types/account.js'
 export type {
   /** @deprecated Use `ZksyncBlock` instead */
   ZksyncBlock as ZkSyncBlock,
