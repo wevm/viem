@@ -1,5 +1,13 @@
 # viem
 
+## 2.19.9
+
+### Patch Changes
+
+- [#2598](https://github.com/wevm/viem/pull/2598) [`627274b`](https://github.com/wevm/viem/commit/627274b0cf70906d6d521f53e3290a87bcaee2b3) Thanks [@jxom](https://github.com/jxom)! - Added ZKsync `toSmartAccount`.
+
+- [#2636](https://github.com/wevm/viem/pull/2636) [`5f60093`](https://github.com/wevm/viem/commit/5f6009360eaa41caf7318deb832dae7484190b5b) Thanks [@saeta-eth](https://github.com/saeta-eth)! - Added support for `'evm_setAccountCode'` to `setCode` action.
+
 ## 2.19.8
 
 ### Patch Changes
