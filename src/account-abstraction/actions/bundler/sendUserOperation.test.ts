@@ -205,8 +205,8 @@ describe('entryPointVersion: 0.7', async () => {
 
   test('error: no account', async () => {
     await expect(() =>
+      // @ts-expect-error
       sendUserOperation(bundlerClient, {
-        // @ts-expect-error
         calls: [
           {
             to: '0x0000000000000000000000000000000000000000',

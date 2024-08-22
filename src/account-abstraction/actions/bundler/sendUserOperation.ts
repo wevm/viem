@@ -48,37 +48,34 @@ export type SendUserOperationParameters<
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = GetSmartAccountParameter<account, accountOverride, false> &
-  OneOf<
-    // Accept a full-formed User Operation.
-    | UserOperation
-    // Accept a partially-formed User Operation (UserOperationRequest) to be filled.
-    | (_derivedAccount extends SmartAccount
-        ? Assign<
-            UserOperationRequest<_derivedVersion>,
-            OneOf<
-              { calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }
-            > & {
-              paymaster?:
-                | Address
-                | true
-                | {
-                    /** Retrieves paymaster-related User Operation properties to be used for sending the User Operation. */
-                    getPaymasterData?:
-                      | PaymasterActions['getPaymasterData']
-                      | undefined
-                    /** Retrieves paymaster-related User Operation properties to be used for gas estimation. */
-                    getPaymasterStubData?:
-                      | PaymasterActions['getPaymasterStubData']
-                      | undefined
-                  }
-                | undefined
-              /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
-              paymasterContext?: unknown | undefined
-            }
-          >
-        : {})
-  > &
-  // Allow the EntryPoint address to be overridden, if not Account is provided, it will need to be required.
+  (
+    | UserOperation // Accept a full-formed User Operation.
+    | Assign<
+        // Accept a partially-formed User Operation (UserOperationRequest) to be filled.
+        UserOperationRequest<_derivedVersion>,
+        OneOf<
+          { calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }
+        > & {
+          paymaster?:
+            | Address
+            | true
+            | {
+                /** Retrieves paymaster-related User Operation properties to be used for sending the User Operation. */
+                getPaymasterData?:
+                  | PaymasterActions['getPaymasterData']
+                  | undefined
+                /** Retrieves paymaster-related User Operation properties to be used for gas estimation. */
+                getPaymasterStubData?:
+                  | PaymasterActions['getPaymasterStubData']
+                  | undefined
+              }
+            | undefined
+          /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
+          paymasterContext?: unknown | undefined
+        }
+      >
+  ) &
+  // Allow the EntryPoint address to be overridden, if no Account is provided, it will need to be required.
   MaybeRequired<
     { entryPointAddress?: Address },
     _derivedAccount extends undefined ? true : false

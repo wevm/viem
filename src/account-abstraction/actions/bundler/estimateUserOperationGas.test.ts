@@ -825,9 +825,9 @@ describe('entryPointVersion: 0.6', async () => {
 
 test('error: account not defined', async () => {
   await expect(() =>
+    // @ts-expect-error
     estimateUserOperationGas(bundlerClient, {
       account: undefined,
-      // @ts-expect-error
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       ...fees,
     }),
