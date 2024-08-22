@@ -1242,10 +1242,6 @@ export const sidebar = {
                 text: 'showCallsStatus',
                 link: '/experimental/eip5792/showCallsStatus',
               },
-              {
-                text: 'writeContracts',
-                link: '/experimental/eip5792/writeContracts',
-              },
             ],
           },
         ],
