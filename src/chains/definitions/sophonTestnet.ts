@@ -1,19 +1,14 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const sophonTestnet = /*#__PURE__*/ defineChain({
-  id: 531050104,
+  id: 531_050_104,
   name: 'Sophon Testnet',
-  network: 'sophon',
   nativeCurrency: {
     decimals: 18,
     name: 'Sophon',
-    symbol: 'SOPH',
+    symbol: 'ETH',
   },
   rpcUrls: {
-    public: {
-      http: ['https://rpc.testnet.sophon.xyz'],
-      webSocket: ['wss://rpc.testnet.sophon.xyz/ws'],
-    },
     default: {
       http: ['https://rpc.testnet.sophon.xyz'],
       webSocket: ['wss://rpc.testnet.sophon.xyz/ws'],
