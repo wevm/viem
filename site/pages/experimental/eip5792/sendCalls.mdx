@@ -123,7 +123,7 @@ const id = await walletClient.sendCalls({ // [!code focus:99]
       value: parseEther('1')
     },
     {
-      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
       abi,
       functionName: 'approve',
       args: [
@@ -132,7 +132,7 @@ const id = await walletClient.sendCalls({ // [!code focus:99]
       ],
     },
     {
-      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
       abi,
       functionName: 'transferFrom',
       args: [
