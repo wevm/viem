@@ -207,18 +207,15 @@ export type WalletSendCallsParameters<
   quantity extends Quantity | bigint = Quantity,
 > = [
   {
-    calls: OneOf<
-      | {
-          to: Address
-          data?: Hex | undefined
-          value?: quantity | undefined
-        }
-      | {
-          data: Hex
-        }
-    >[]
+    calls: readonly {
+      chainId?: chainId | undefined
+      to?: Address | undefined
+      data?: Hex | undefined
+      value?: quantity | undefined
+    }[]
     capabilities?: capabilities | undefined
-    chainId: chainId
+    /** @deprecated Use `chainId` on `calls` instead. */
+    chainId?: chainId | undefined
     from: Address
     version: string
   },
