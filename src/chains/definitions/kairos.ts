@@ -1,21 +1,21 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const klaytnBaobab = /*#__PURE__*/ defineChain({
+export const kairos = /*#__PURE__*/ defineChain({
   id: 1_001,
-  name: 'Klaytn Baobab Testnet',
-  network: 'klaytn-baobab',
+  name: 'Kairos Testnet',
+  network: 'kairos',
   nativeCurrency: {
     decimals: 18,
-    name: 'Baobab Klaytn',
-    symbol: 'KLAY',
+    name: 'Kairos KAIA',
+    symbol: 'KAIA',
   },
   rpcUrls: {
-    default: { http: ['https://public-en-baobab.klaytn.net'] },
+    default: { http: ['https://public-en-kairos.node.kaia.io'] },
   },
   blockExplorers: {
     default: {
-      name: 'KlaytnScope',
-      url: 'https://baobab.klaytnscope.com',
+      name: 'KaiaScope',
+      url: 'https://kairos.kaiascope.com',
     },
   },
   contracts: {

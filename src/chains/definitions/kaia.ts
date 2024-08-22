@@ -1,20 +1,20 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const klaytn = /*#__PURE__*/ defineChain({
+export const kaia = /*#__PURE__*/ defineChain({
   id: 8_217,
-  name: 'Klaytn',
+  name: 'Kaia',
   nativeCurrency: {
     decimals: 18,
-    name: 'Klaytn',
-    symbol: 'KLAY',
+    name: 'Kaia',
+    symbol: 'KAIA',
   },
   rpcUrls: {
-    default: { http: ['https://public-en-cypress.klaytn.net'] },
+    default: { http: ['https://public-en.node.kaia.io'] },
   },
   blockExplorers: {
     default: {
-      name: 'KlaytnScope',
-      url: 'https://scope.klaytn.com',
+      name: 'KaiaScope',
+      url: 'https://kaiascope.com/',
     },
   },
   contracts: {
