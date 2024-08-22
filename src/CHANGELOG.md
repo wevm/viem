@@ -1,5 +1,23 @@
 # viem
 
+## 2.20.0
+
+### Minor Changes
+
+- [#2641](https://github.com/wevm/viem/pull/2641) [`89d11ed`](https://github.com/wevm/viem/commit/89d11edb558656bc3c97f0c410a448f99f92a1f4) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Deprecated `writeContracts`. Use `sendCalls` instead.
+
+- [#2641](https://github.com/wevm/viem/pull/2641) [`89d11ed`](https://github.com/wevm/viem/commit/89d11edb558656bc3c97f0c410a448f99f92a1f4) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Updated `sendCalls` to match the updated EIP-5792 spec (`chainId` per call).
+
+- [#2641](https://github.com/wevm/viem/pull/2641) [`89d11ed`](https://github.com/wevm/viem/commit/89d11edb558656bc3c97f0c410a448f99f92a1f4) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Updated `sendCalls` to also accept contract function interface.
+
+### Patch Changes
+
+- [#2638](https://github.com/wevm/viem/pull/2638) [`9cbd082`](https://github.com/wevm/viem/commit/9cbd0820533c278bb4e40ff390a7091a607152b3) Thanks [@jxom](https://github.com/jxom)! - Added \`nonceKeyManager\` as a property to \`toSmartAccount\`.
+
+- [#2638](https://github.com/wevm/viem/pull/2638) [`9cbd082`](https://github.com/wevm/viem/commit/9cbd0820533c278bb4e40ff390a7091a607152b3) Thanks [@jxom](https://github.com/jxom)! - Added ability to pass full-formed User Operations to `sendUserOperation` and `estimateUserOperationGas`.
+
+- [#2639](https://github.com/wevm/viem/pull/2639) [`9a1c6ab`](https://github.com/wevm/viem/commit/9a1c6abe6c89c444c8fc28cea1fc6ef9759ae53b) Thanks [@jxom](https://github.com/jxom)! - **OP Stack:** Tweaked proof submitter logic.
+
 ## 2.19.9
 
 ### Patch Changes
