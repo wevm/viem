@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added botanix testnet chain
+Added Botanix Testnet.
