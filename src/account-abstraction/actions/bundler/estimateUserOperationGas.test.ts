@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest'
 import { ErrorsExample } from '../../../../contracts/generated.js'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
@@ -16,6 +16,8 @@ import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'
 import { createPaymasterClient } from '../../clients/createPaymasterClient.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
+import { prepareUserOperation } from './prepareUserOperation.js'
+import type { UserOperation } from '../../types/userOperation.js'
 
 const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient()
@@ -139,6 +141,39 @@ describe('entryPointVersion: 0.7', async () => {
     `)
   })
 
+  test('behavior: prepared user operation', async () => {
+    const request = {
+      ...(await prepareUserOperation(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+        ],
+        ...fees,
+      })),
+      account: undefined,
+    } as const
+
+    expectTypeOf(request).toMatchTypeOf<UserOperation>()
+
+    expect(
+      await estimateUserOperationGas(bundlerClient, {
+        ...request,
+        entryPointAddress: account.entryPoint?.address,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "callGasLimit": 80000n,
+        "paymasterPostOpGasLimit": 0n,
+        "paymasterVerificationGasLimit": 0n,
+        "preVerificationGas": 51722n,
+        "verificationGasLimit": 259060n,
+      }
+    `)
+  })
+
   test('error: insufficient funds', async () => {
     await expect(() =>
       estimateUserOperationGas(bundlerClient, {
@@ -160,7 +195,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761076688711039842254848
+        nonce:                 30902162761095135455113551806464
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -198,7 +233,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761095135455113551806464
+        nonce:                 30902162761113582199187261358080
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -235,7 +270,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761113582199187261358080
+        nonce:                 30902162761132028943260970909696
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -273,7 +308,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761132028943260970909696
+        nonce:                 30902162761150475687334680461312
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -314,7 +349,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761150475687334680461312
+        nonce:                 30902162761168922431408390012928
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -355,7 +390,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761168922431408390012928
+        nonce:                 30902162761187369175482099564544
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -396,7 +431,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761187369175482099564544
+        nonce:                 30902162761205815919555809116160
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -437,7 +472,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761205815919555809116160
+        nonce:                 30902162761224262663629518667776
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -478,7 +513,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761224262663629518667776
+        nonce:                 30902162761242709407703228219392
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -521,7 +556,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761242709407703228219392
+        nonce:                 30902162761261156151776937771008
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -564,7 +599,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761261156151776937771008
+        nonce:                 30902162761279602895850647322624
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -642,7 +677,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0x
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761279602895850647322624
+        nonce:                 30902162761298049639924356874240
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -689,7 +724,7 @@ describe('entryPointVersion: 0.7', async () => {
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000002
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761298049639924356874240
+        nonce:                 30902162761316496383998066425856
         sender:                0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
@@ -723,6 +758,37 @@ describe('entryPointVersion: 0.6', async () => {
     `)
   })
 
+  test('behavior: prepared user operation', async () => {
+    const request = {
+      ...(await prepareUserOperation(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+        ],
+        ...fees,
+      })),
+      account: undefined,
+    } as const
+
+    expectTypeOf(request).toMatchTypeOf<UserOperation>()
+
+    expect(
+      await estimateUserOperationGas(bundlerClient, {
+        ...request,
+        entryPointAddress: account.entryPoint.address,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "callGasLimit": 80000n,
+        "preVerificationGas": 55233n,
+        "verificationGasLimit": 258801n,
+      }
+    `)
+  })
+
   test('error: aa13', async () => {
     await expect(() =>
       estimateUserOperationGas(bundlerClient, {
@@ -746,7 +812,7 @@ describe('entryPointVersion: 0.6', async () => {
         initCode:              0x0000000000000000000000000000000000000000deadbeef
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
-        nonce:                 30902162761039795222892423151616
+        nonce:                 30902162761058241966966132703232
         paymasterAndData:      0x
         sender:                0x6edf7db791fC4D438D4A683E857B2fE1a84947Ce
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
@@ -760,8 +826,8 @@ describe('entryPointVersion: 0.6', async () => {
 test('error: account not defined', async () => {
   await expect(() =>
     estimateUserOperationGas(bundlerClient, {
-      // @ts-expect-error
       account: undefined,
+      // @ts-expect-error
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       ...fees,
     }),

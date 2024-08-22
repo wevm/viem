@@ -11,6 +11,7 @@ import type {
   UserOperation,
   UserOperationRequest,
 } from '../types/userOperation.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 
 type Call = {
   to: Hex
@@ -102,6 +103,8 @@ export type SmartAccountImplementation<
    * ```
    */
   getStubSignature: () => Promise<Hex>
+  /** Custom nonce key manager. */
+  nonceKeyManager?: NonceManager | undefined
   /**
    * Signs a hash via the Smart Account's owner.
    *

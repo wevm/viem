@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
   createVerifyingPaymasterServer,
@@ -25,6 +25,8 @@ import { toCoinbaseSmartAccount } from '../../accounts/implementations/toCoinbas
 import { createBundlerClient } from '../../clients/createBundlerClient.js'
 import { createPaymasterClient } from '../../clients/createPaymasterClient.js'
 import { sendUserOperation } from './sendUserOperation.js'
+import { prepareUserOperation } from './prepareUserOperation.js'
+import type { UserOperation } from '../../types/userOperation.js'
 
 const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient({ client })
@@ -154,10 +156,57 @@ describe('entryPointVersion: 0.7', async () => {
     await mine(client, { blocks: 1 })
   })
 
+  test('behavior: prepared user operation', async () => {
+    const request = {
+      ...(await prepareUserOperation(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: alice,
+            value: parseEther('1'),
+          },
+          {
+            to: bob,
+            value: parseEther('2'),
+          },
+        ],
+        ...fees,
+      })),
+      account: undefined,
+    } as const
+    const signature = await account.signUserOperation(request)
+
+    expectTypeOf(request).toMatchTypeOf<UserOperation>()
+
+    const hash = await sendUserOperation(bundlerClient, {
+      ...request,
+      entryPointAddress: account.entryPoint.address,
+      signature,
+    })
+    expect(hash).toBeDefined()
+
+    await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
+    await mine(client, { blocks: 1 })
+
+    expect(await getBalance(client, { address: alice })).toMatchInlineSnapshot(
+      '10001000000000000000000n',
+    )
+    expect(await getBalance(client, { address: bob })).toMatchInlineSnapshot(
+      '10002000000000000000000n',
+    )
+    expect(
+      await readContract(client, {
+        ...wagmiContractConfig,
+        functionName: 'ownerOf',
+        args: [69420451n],
+      }),
+    ).toBe(account.address)
+  })
+
   test('error: no account', async () => {
     await expect(() =>
-      // @ts-expect-error
       sendUserOperation(bundlerClient, {
+        // @ts-expect-error
         calls: [
           {
             to: '0x0000000000000000000000000000000000000000',
@@ -289,7 +338,7 @@ describe('entryPointVersion: 0.7', async () => {
         callGasLimit:                   80000
         maxFeePerGas:                   15 gwei
         maxPriorityFeePerGas:           2 gwei
-        nonce:                          30902162761076688711039842254848
+        nonce:                          30902162761095135455113551806464
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
         preVerificationGas:             50692

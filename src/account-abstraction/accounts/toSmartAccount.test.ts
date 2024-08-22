@@ -4,8 +4,9 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
 import { deploySoladyAccount_07 } from '../../../test/src/utils.js'
 import { mine, writeContract } from '../../actions/index.js'
-import { pad } from '../../utils/index.js'
+import { createNonceManager, pad } from '../../utils/index.js'
 import { toSoladySmartAccount } from './implementations/toSoladySmartAccount.js'
+import { toSmartAccount } from './toSmartAccount.js'
 
 const client = anvilMainnet.getClient({ account: true })
 
@@ -912,6 +913,40 @@ test('default', async () => {
   `)
 })
 
+test('args: nonceKeyManager', async () => {
+  const { factoryAddress } = await deploySoladyAccount_07()
+
+  const nonceKeyManager = createNonceManager({
+    source: {
+      get() {
+        return 69
+      },
+      set() {},
+    },
+  })
+
+  const implementation = await toSoladySmartAccount({
+    client,
+    factoryAddress,
+    owner: accounts[1].address,
+  })
+  const account = await toSmartAccount({
+    ...implementation,
+    async getNonce(parameters) {
+      return parameters!.key as bigint
+    },
+    nonceKeyManager,
+  })
+
+  const nonces = await Promise.all([
+    account.getNonce(),
+    account.getNonce(),
+    account.getNonce(),
+  ])
+
+  expect(nonces).toEqual([69n, 70n, 71n])
+})
+
 test('return value: `isDeployed`', async () => {
   const { factoryAddress } = await deploySoladyAccount_07()
 
@@ -946,7 +981,7 @@ test('return value: `getFactoryArgs`', async () => {
 
   expect(await account.getFactoryArgs()).toMatchInlineSnapshot(`
     {
-      "factory": "0xd73bab8f06db28c87932571f87d0d2c0fdf13d94",
+      "factory": "0x82a9286db983093ff234cefcea1d8fa66382876b",
       "factoryData": "0xf14ddffc00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000000000000000000",
     }
   `)
