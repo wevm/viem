@@ -197,11 +197,18 @@ export async function getWithdrawalStatus<
     return seconds > 0 ? 'waiting-to-finalize' : 'ready-to-finalize'
   }
 
+  const numProofSubmitters = await readContract(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'numProofSubmitters',
+    args: [withdrawal.withdrawalHash],
+  }).catch(() => 1n)
+
   const proofSubmitter = await readContract(client, {
     abi: portal2Abi,
     address: portalAddress,
     functionName: 'proofSubmitters',
-    args: [withdrawal.withdrawalHash, 0n],
+    args: [withdrawal.withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => withdrawal.sender)
 
   const [disputeGameResult, checkWithdrawalResult, finalizedResult] =
