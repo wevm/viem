@@ -31,20 +31,22 @@ export async function toSmartAccount<
 >(
   implementation: implementation,
 ): Promise<ToSmartAccountReturnType<implementation>> {
-  const { extend, ...rest } = implementation
+  const {
+    extend,
+    nonceKeyManager = createNonceManager({
+      source: {
+        get() {
+          return Date.now()
+        },
+        set() {},
+      },
+    }),
+    ...rest
+  } = implementation
 
   let deployed = false
 
   const address = await implementation.getAddress()
-
-  const nonceKeyManager = createNonceManager({
-    source: {
-      get() {
-        return Date.now()
-      },
-      set() {},
-    },
-  })
 
   return {
     ...extend,

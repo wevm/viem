@@ -5,6 +5,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Hash, Hex, SignableMessage } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import type { Assign, ExactPartial, UnionPartialBy } from '../../types/utils.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 import type { EntryPointVersion } from '../types/entryPointVersion.js'
 import type {
   EstimateUserOperationGasReturnType,
@@ -102,6 +103,8 @@ export type SmartAccountImplementation<
    * ```
    */
   getStubSignature: () => Promise<Hex>
+  /** Custom nonce key manager. */
+  nonceKeyManager?: NonceManager | undefined
   /**
    * Signs a hash via the Smart Account's owner.
    *
