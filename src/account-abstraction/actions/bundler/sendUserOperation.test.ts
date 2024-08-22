@@ -24,9 +24,9 @@ import { pad, parseEther, parseGwei } from '../../../utils/index.js'
 import { toCoinbaseSmartAccount } from '../../accounts/implementations/toCoinbaseSmartAccount.js'
 import { createBundlerClient } from '../../clients/createBundlerClient.js'
 import { createPaymasterClient } from '../../clients/createPaymasterClient.js'
-import { sendUserOperation } from './sendUserOperation.js'
-import { prepareUserOperation } from './prepareUserOperation.js'
 import type { UserOperation } from '../../types/userOperation.js'
+import { prepareUserOperation } from './prepareUserOperation.js'
+import { sendUserOperation } from './sendUserOperation.js'
 
 const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient({ client })

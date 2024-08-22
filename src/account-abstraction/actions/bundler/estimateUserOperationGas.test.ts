@@ -15,9 +15,9 @@ import { mine, writeContract } from '../../../actions/index.js'
 import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'
 import { createPaymasterClient } from '../../clients/createPaymasterClient.js'
+import type { UserOperation } from '../../types/userOperation.js'
 import { estimateUserOperationGas } from './estimateUserOperationGas.js'
 import { prepareUserOperation } from './prepareUserOperation.js'
-import type { UserOperation } from '../../types/userOperation.js'
 
 const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient()
