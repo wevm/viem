@@ -30,7 +30,6 @@ export function isAddress(
 
   const result = (() => {
     if (!addressRegex.test(address)) return false
-    if (address.toLowerCase() === address) return true
     if (strict) return checksumAddress(address as Address) === address
     return true
   })()
