@@ -258,11 +258,7 @@ export async function prepareTransactionRequest<
   let block: Block | undefined
   async function getBlock(): Promise<Block> {
     if (block) return block
-    block = await getAction(
-      client,
-      getBlock_,
-      'getBlock',
-    )({ blockTag: 'latest' })
+    block = await getBlock_(client, { blockTag: 'latest' })
     return block
   }
 
@@ -271,7 +267,7 @@ export async function prepareTransactionRequest<
     if (chainId) return chainId
     if (chain) return chain.id
     if (typeof args.chainId !== 'undefined') return args.chainId
-    const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
+    const chainId_ = await getChainId_(client)
     chainId = chainId_
     return chainId
   }

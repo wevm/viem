@@ -113,12 +113,14 @@ export {
   type GetBlockParameters,
   type GetBlockReturnType,
   getBlock,
+  _getBlock,
 } from './public/getBlock.js'
 export {
   type GetBlockNumberErrorType,
   type GetBlockNumberParameters,
   type GetBlockNumberReturnType,
   getBlockNumber,
+  _getBlockNumber,
 } from './public/getBlockNumber.js'
 export {
   type GetBlockTransactionCountErrorType,
@@ -130,6 +132,7 @@ export {
   type GetChainIdErrorType,
   type GetChainIdReturnType,
   getChainId,
+  _getChainId,
 } from './public/getChainId.js'
 export {
   /** @deprecated Use `GetCodeErrorType` instead */

@@ -25,7 +25,7 @@ import {
   type EstimateMaxPriorityFeePerGasErrorType,
   internal_estimateMaxPriorityFeePerGas,
 } from './estimateMaxPriorityFeePerGas.js'
-import { getBlock } from './getBlock.js'
+import { type GetBlockErrorType, getBlock } from './getBlock.js'
 import { type GetGasPriceErrorType, getGasPrice } from './getGasPrice.js'
 
 export type EstimateFeesPerGasParameters<
@@ -52,6 +52,7 @@ export type EstimateFeesPerGasReturnType<
 
 export type EstimateFeesPerGasErrorType =
   | BaseFeeScalarErrorType
+  | GetBlockErrorType
   | EstimateMaxPriorityFeePerGasErrorType
   | GetGasPriceErrorType
   | Eip1559FeesNotSupportedErrorType
@@ -126,9 +127,7 @@ export async function internal_estimateFeesPerGas<
     (base * BigInt(Math.ceil(baseFeeMultiplier * denominator))) /
     BigInt(denominator)
 
-  const block = block_
-    ? block_
-    : await getAction(client, getBlock, 'getBlock')({})
+  const block = block_ ? block_ : await getBlock(client)
 
   if (typeof chain?.fees?.estimateFeesPerGas === 'function') {
     const fees = (await chain.fees.estimateFeesPerGas({

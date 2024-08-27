@@ -20,6 +20,7 @@ import {
   type FormattedBlock,
   formatBlock,
 } from '../../utils/formatters/block.js'
+import { getAction } from '../../utils/getAction.js'
 
 export type GetBlockParameters<
   includeTransactions extends boolean = false,
@@ -88,6 +89,18 @@ export type GetBlockErrorType =
  * const block = await getBlock(client)
  */
 export async function getBlock<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  includeTransactions extends boolean = false,
+  blockTag extends BlockTag = 'latest',
+>(
+  client: Client<Transport, chain, account>,
+  params: GetBlockParameters<includeTransactions, blockTag> = {},
+): Promise<GetBlockReturnType<chain, includeTransactions, blockTag>> {
+  return getAction(client, _getBlock, 'getBlock')(params)
+}
+
+export async function _getBlock<
   chain extends Chain | undefined,
   account extends Account | undefined,
   includeTransactions extends boolean = false,

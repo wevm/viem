@@ -30,7 +30,6 @@ export type EstimateMaxPriorityFeePerGasErrorType =
   | GetBlockErrorType
   | HexToBigIntErrorType
   | RequestErrorType
-  | GetBlockErrorType
   | GetGasPriceErrorType
   | Eip1559FeesNotSupportedErrorType
   | ErrorType
@@ -87,7 +86,7 @@ export async function internal_estimateMaxPriorityFeePerGas<
 ): Promise<EstimateMaxPriorityFeePerGasReturnType> {
   const { block: block_, chain = client.chain, request } = args || {}
   if (typeof chain?.fees?.defaultPriorityFee === 'function') {
-    const block = block_ || (await getAction(client, getBlock, 'getBlock')({}))
+    const block = block_ || (await getBlock(client))
     return chain.fees.defaultPriorityFee({
       block,
       client,

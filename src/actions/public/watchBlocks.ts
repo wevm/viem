@@ -145,11 +145,7 @@ export function watchBlocks<
       poll(
         async () => {
           try {
-            const block = await getAction(
-              client,
-              getBlock,
-              'getBlock',
-            )({
+            const block = await getBlock(client, {
               blockTag,
               includeTransactions,
             })

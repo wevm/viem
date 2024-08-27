@@ -259,11 +259,7 @@ export async function waitForTransactionReceipt<
                   retrying = true
                   const block = await withRetry(
                     () =>
-                      getAction(
-                        client,
-                        getBlock,
-                        'getBlock',
-                      )({
+                      getBlock(client, {
                         blockNumber,
                         includeTransactions: true,
                       }),
