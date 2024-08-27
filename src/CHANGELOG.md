@@ -1,5 +1,23 @@
 # viem
 
+## 2.20.1
+
+### Patch Changes
+
+- [#2646](https://github.com/wevm/viem/pull/2646) [`50bde96b`](https://github.com/wevm/viem/commit/50bde96b39e4e2980e995f5288ea9b6a2f62a530) Thanks [@thobbyAk](https://github.com/thobbyAk)! - Added Botanix Testnet.
+
+- [#2644](https://github.com/wevm/viem/pull/2644) [`2eb817a2`](https://github.com/wevm/viem/commit/2eb817a25bfe0bfdb36df02c7907f38b889f474a) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Added Sophon Testnet.
+
+- [#2656](https://github.com/wevm/viem/pull/2656) [`df905fe5`](https://github.com/wevm/viem/commit/df905fe5dd87e1a2a78494eba1845c6012606a51) Thanks [@Jabher](https://github.com/Jabher)! - Added Holesky API URL.
+
+- [#2654](https://github.com/wevm/viem/pull/2654) [`02415bce`](https://github.com/wevm/viem/commit/02415bcef331eeeee18f5e427766048b6fb33a96) Thanks [@lyszhang](https://github.com/lyszhang)! - Added Hashkey Chain testnet.
+
+- [#2657](https://github.com/wevm/viem/pull/2657) [`f31e93ec`](https://github.com/wevm/viem/commit/f31e93ec5ad65e551bb3a152f138aff3a157b9f6) Thanks [@jeanregisser](https://github.com/jeanregisser)! - Exported `portuguese` wordlist.
+
+- [#2643](https://github.com/wevm/viem/pull/2643) [`8ac740e9`](https://github.com/wevm/viem/commit/8ac740e9cec18a3138a771053eeb45397179885a) Thanks [@0oooooooo0](https://github.com/0oooooooo0)! - Added kaia chain.
+
+- [#2655](https://github.com/wevm/viem/pull/2655) [`4d874283`](https://github.com/wevm/viem/commit/4d8742836f53753e3ab1312c8aa3a66284253d22) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Added multicall3 to Sophon Testnet.
+
 ## 2.20.0
 
 ### Minor Changes
