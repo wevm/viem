@@ -6,7 +6,7 @@ export const sophonTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: {
     decimals: 18,
     name: 'Sophon',
-    symbol: 'ETH',
+    symbol: 'SOPH',
   },
   rpcUrls: {
     default: {
