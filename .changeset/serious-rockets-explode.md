@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Export Portuguese wordlist
+Exported `portuguese` wordlist.
