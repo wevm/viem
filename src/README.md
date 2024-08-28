@@ -231,6 +231,12 @@ Check out the following places for more viem-related content:
     <img alt="uniswap logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg" width="auto" height="50">
   </picture>
 </a>
+<a href="https://biconomy.io">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/biconomy-dark.svg">
+    <img alt="biconomy logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/biconomy-light.svg" width="auto" height="50">
+  </picture>
+</a>
 
 ## Contributing
 
