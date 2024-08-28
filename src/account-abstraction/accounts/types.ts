@@ -5,6 +5,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Hash, Hex, SignableMessage } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import type { Assign, ExactPartial, UnionPartialBy } from '../../types/utils.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 import type { EntryPointVersion } from '../types/entryPointVersion.js'
 import type {
   EstimateUserOperationGasReturnType,
@@ -88,9 +89,11 @@ export type SmartAccountImplementation<
    * // 1n
    * ```
    */
-  getNonce: (
-    parameters?: { key?: bigint | undefined } | undefined,
-  ) => Promise<bigint>
+  getNonce?:
+    | ((
+        parameters?: { key?: bigint | undefined } | undefined,
+      ) => Promise<bigint>)
+    | undefined
   /**
    * Retrieves the User Operation "stub" signature for gas estimation.
    *
@@ -100,6 +103,8 @@ export type SmartAccountImplementation<
    * ```
    */
   getStubSignature: () => Promise<Hex>
+  /** Custom nonce key manager. */
+  nonceKeyManager?: NonceManager | undefined
   /**
    * Signs a hash via the Smart Account's owner.
    *
@@ -184,6 +189,16 @@ export type SmartAccount<
     {
       /** Address of the Smart Account. */
       address: Address
+      /**
+       * Retrieves the nonce of the Account.
+       *
+       * @example
+       * ```ts
+       * const nonce = await account.getNonce()
+       * // 1n
+       * ```
+       */
+      getNonce: NonNullable<SmartAccountImplementation['getNonce']>
       /** Whether or not the Smart Account has been deployed. */
       isDeployed: () => Promise<boolean>
       /** Type of account. */

@@ -1,9 +1,13 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { BatchCallInvoker, Payable } from '~contracts/generated.js'
+import {
+  BatchCallInvoker,
+  ErrorsExample,
+  Payable,
+} from '~contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
-import { deploy, deployPayable } from '~test/src/utils.js'
+import { deploy, deployErrorExample, deployPayable } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { optimism } from '../../chains/index.js'
@@ -55,7 +59,7 @@ test('client chain mismatch', async () => {
       functionName: 'mint',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+    [ContractFunctionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
     Current Chain ID:  1
     Expected Chain ID: 10 – OP Mainnet
@@ -64,7 +68,13 @@ test('client chain mismatch', async () => {
       from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
       data:  0x1249c58b
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  mint()
+      sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+    Docs: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
 })
@@ -81,14 +91,20 @@ test('no chain', async () => {
       functionName: 'mint',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [TransactionExecutionError: No chain was provided to the request.
+    [ContractFunctionExecutionError: No chain was provided to the request.
     Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
 
     Request Arguments:
       from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
       data:  0x1249c58b
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  mint()
+      sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+    Docs: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
 })
@@ -118,7 +134,7 @@ describe('args: chain', () => {
         chain: optimism,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+      [ContractFunctionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
       Current Chain ID:  1
       Expected Chain ID: 10 – OP Mainnet
@@ -128,7 +144,13 @@ describe('args: chain', () => {
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:   0x1249c58b
+       
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  mint()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Docs: https://viem.sh/docs/contract/writeContract
       Version: viem@x.y.z]
     `)
   })
@@ -281,7 +303,10 @@ test('args: dataSuffix', async () => {
     dataSuffix: '0x12345678',
   })
   expect(spy).toHaveBeenCalledWith({
-    account: accounts[0].address,
+    account: {
+      address: accounts[0].address,
+      type: 'json-rpc',
+    },
     data: '0x1249c58b12345678',
     to: wagmiContractConfig.address,
   })
@@ -381,7 +406,7 @@ test('w/ simulateContract (args chain mismatch)', async () => {
   await expect(() =>
     writeContract(client, request),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+    [ContractFunctionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
     Current Chain ID:  1
     Expected Chain ID: 10 – OP Mainnet
@@ -391,7 +416,13 @@ test('w/ simulateContract (args chain mismatch)', async () => {
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
       data:   0x1249c58b
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  mint()
+      sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+    Docs: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
 })
@@ -410,7 +441,7 @@ test('w/ simulateContract (client chain mismatch)', async () => {
   await expect(() =>
     writeContract(client, request),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+    [ContractFunctionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
     Current Chain ID:  1
     Expected Chain ID: 10 – OP Mainnet
@@ -419,7 +450,186 @@ test('w/ simulateContract (client chain mismatch)', async () => {
       from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
       data:  0x1249c58b
+     
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  mint()
+      sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+    Docs: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
+})
+
+describe('behavior: contract revert', () => {
+  test('revert', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      writeContract(client, {
+        abi: ErrorsExample.abi,
+        address: contractAddress!,
+        functionName: 'revertWrite',
+        account: privateKeyToAccount(accounts[0].privateKey),
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "revertWrite" reverted with the following reason:
+      This is a revert message
+
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  revertWrite()
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('assert', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      writeContract(client, {
+        abi: ErrorsExample.abi,
+        address: contractAddress!,
+        functionName: 'assertWrite',
+        account: privateKeyToAccount(accounts[0].privateKey),
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "assertWrite" reverted with the following reason:
+      An \`assert\` condition failed.
+
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  assertWrite()
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('overflow', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      writeContract(client, {
+        abi: ErrorsExample.abi,
+        address: contractAddress!,
+        functionName: 'overflowWrite',
+        account: privateKeyToAccount(accounts[0].privateKey),
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "overflowWrite" reverted with the following reason:
+      Arithmetic operation resulted in underflow or overflow.
+
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  overflowWrite()
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('divide by zero', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      writeContract(client, {
+        abi: ErrorsExample.abi,
+        address: contractAddress!,
+        functionName: 'divideByZeroWrite',
+        account: privateKeyToAccount(accounts[0].privateKey),
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "divideByZeroWrite" reverted with the following reason:
+      Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
+
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  divideByZeroWrite()
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('require', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      writeContract(client, {
+        abi: ErrorsExample.abi,
+        address: contractAddress!,
+        functionName: 'requireWrite',
+        account: privateKeyToAccount(accounts[0].privateKey),
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "requireWrite" reverted.
+
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  requireWrite()
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('custom error: simple', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      writeContract(client, {
+        abi: ErrorsExample.abi,
+        address: contractAddress!,
+        functionName: 'simpleCustomWrite',
+        account: privateKeyToAccount(accounts[0].privateKey),
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "simpleCustomWrite" reverted.
+
+      Error: SimpleError(string message)
+                        (bugger)
+       
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  simpleCustomWrite()
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('custom error: complex', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      writeContract(client, {
+        abi: ErrorsExample.abi,
+        address: contractAddress!,
+        functionName: 'complexCustomWrite',
+        account: privateKeyToAccount(accounts[0].privateKey),
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "complexCustomWrite" reverted.
+
+      Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
+                         ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
+       
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  complexCustomWrite()
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@x.y.z]
+    `)
+  })
 })

@@ -42,6 +42,8 @@ export const accounts = [
   {
     address: '0xa0ee7a142d267c1f36714e4a8f75612f20a79720',
     balance: 10000000000000000000000n,
+    privateKey:
+      '0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6',
   },
 ] as const
 

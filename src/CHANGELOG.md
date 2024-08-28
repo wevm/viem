@@ -1,5 +1,79 @@
 # viem
 
+## 2.20.1
+
+### Patch Changes
+
+- [#2646](https://github.com/wevm/viem/pull/2646) [`50bde96b`](https://github.com/wevm/viem/commit/50bde96b39e4e2980e995f5288ea9b6a2f62a530) Thanks [@thobbyAk](https://github.com/thobbyAk)! - Added Botanix Testnet.
+
+- [#2644](https://github.com/wevm/viem/pull/2644) [`2eb817a2`](https://github.com/wevm/viem/commit/2eb817a25bfe0bfdb36df02c7907f38b889f474a) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Added Sophon Testnet.
+
+- [#2656](https://github.com/wevm/viem/pull/2656) [`df905fe5`](https://github.com/wevm/viem/commit/df905fe5dd87e1a2a78494eba1845c6012606a51) Thanks [@Jabher](https://github.com/Jabher)! - Added Holesky API URL.
+
+- [#2654](https://github.com/wevm/viem/pull/2654) [`02415bce`](https://github.com/wevm/viem/commit/02415bcef331eeeee18f5e427766048b6fb33a96) Thanks [@lyszhang](https://github.com/lyszhang)! - Added Hashkey Chain testnet.
+
+- [#2657](https://github.com/wevm/viem/pull/2657) [`f31e93ec`](https://github.com/wevm/viem/commit/f31e93ec5ad65e551bb3a152f138aff3a157b9f6) Thanks [@jeanregisser](https://github.com/jeanregisser)! - Exported `portuguese` wordlist.
+
+- [#2643](https://github.com/wevm/viem/pull/2643) [`8ac740e9`](https://github.com/wevm/viem/commit/8ac740e9cec18a3138a771053eeb45397179885a) Thanks [@0oooooooo0](https://github.com/0oooooooo0)! - Added kaia chain.
+
+- [#2655](https://github.com/wevm/viem/pull/2655) [`4d874283`](https://github.com/wevm/viem/commit/4d8742836f53753e3ab1312c8aa3a66284253d22) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Added multicall3 to Sophon Testnet.
+
+## 2.20.0
+
+### Minor Changes
+
+- [#2641](https://github.com/wevm/viem/pull/2641) [`89d11ed`](https://github.com/wevm/viem/commit/89d11edb558656bc3c97f0c410a448f99f92a1f4) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Deprecated `writeContracts`. Use `sendCalls` instead.
+
+- [#2641](https://github.com/wevm/viem/pull/2641) [`89d11ed`](https://github.com/wevm/viem/commit/89d11edb558656bc3c97f0c410a448f99f92a1f4) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Updated `sendCalls` to match the updated EIP-5792 spec (`chainId` per call).
+
+- [#2641](https://github.com/wevm/viem/pull/2641) [`89d11ed`](https://github.com/wevm/viem/commit/89d11edb558656bc3c97f0c410a448f99f92a1f4) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Updated `sendCalls` to also accept contract function interface.
+
+### Patch Changes
+
+- [#2638](https://github.com/wevm/viem/pull/2638) [`9cbd082`](https://github.com/wevm/viem/commit/9cbd0820533c278bb4e40ff390a7091a607152b3) Thanks [@jxom](https://github.com/jxom)! - Added \`nonceKeyManager\` as a property to \`toSmartAccount\`.
+
+- [#2638](https://github.com/wevm/viem/pull/2638) [`9cbd082`](https://github.com/wevm/viem/commit/9cbd0820533c278bb4e40ff390a7091a607152b3) Thanks [@jxom](https://github.com/jxom)! - Added ability to pass full-formed User Operations to `sendUserOperation` and `estimateUserOperationGas`.
+
+- [#2639](https://github.com/wevm/viem/pull/2639) [`9a1c6ab`](https://github.com/wevm/viem/commit/9a1c6abe6c89c444c8fc28cea1fc6ef9759ae53b) Thanks [@jxom](https://github.com/jxom)! - **OP Stack:** Tweaked proof submitter logic.
+
+## 2.19.9
+
+### Patch Changes
+
+- [#2598](https://github.com/wevm/viem/pull/2598) [`627274b`](https://github.com/wevm/viem/commit/627274b0cf70906d6d521f53e3290a87bcaee2b3) Thanks [@jxom](https://github.com/jxom)! - Added ZKsync `toSmartAccount`.
+
+- [#2636](https://github.com/wevm/viem/pull/2636) [`5f60093`](https://github.com/wevm/viem/commit/5f6009360eaa41caf7318deb832dae7484190b5b) Thanks [@saeta-eth](https://github.com/saeta-eth)! - Added support for `'evm_setAccountCode'` to `setCode` action.
+
+## 2.19.8
+
+### Patch Changes
+
+- [#2631](https://github.com/wevm/viem/pull/2631) [`b36cb2db`](https://github.com/wevm/viem/commit/b36cb2dbe7c83c36c54810839506399cf2882945) Thanks [@jxom](https://github.com/jxom)! - **OP Stack:** Handled case for `InvalidGameType` error on `getWithdrawalStatus`
+
+## 2.19.7
+
+### Patch Changes
+
+- [#2624](https://github.com/wevm/viem/pull/2624) [`46dd252`](https://github.com/wevm/viem/commit/46dd2523a96d8372b0d0cb5ffe56c613bf073048) Thanks [@holic](https://github.com/holic)! - Improved `writeContract` error handling.
+
+- [#2628](https://github.com/wevm/viem/pull/2628) [`a040bc4`](https://github.com/wevm/viem/commit/a040bc430293604cd8532c3f6349a56b2a5d366a) Thanks [@boavenn](https://github.com/boavenn)! - Added cronoszkEVM chain.
+
+- [`918bed5`](https://github.com/wevm/viem/commit/918bed5ee48b39b08d8ab8e879722358cc91ec56) Thanks [@jxom](https://github.com/jxom)! - Update 7702 implementation to be compatible with devnet3.
+
+- [#2629](https://github.com/wevm/viem/pull/2629) [`34093e1`](https://github.com/wevm/viem/commit/34093e12076639f110017cb5f9196884608eb76c) Thanks [@KONFeature](https://github.com/KONFeature)! - Exported `PaymasterRpcSchema`.
+
+- [#2625](https://github.com/wevm/viem/pull/2625) [`507eed7`](https://github.com/wevm/viem/commit/507eed7284c2ac6867fef850a0e2923b9078671e) Thanks [@qiwu7](https://github.com/qiwu7)! - Added B3 chain
+
+## 2.19.6
+
+### Patch Changes
+
+- [#2619](https://github.com/wevm/viem/pull/2619) [`ccaddcd9`](https://github.com/wevm/viem/commit/ccaddcd909b5f957f9b8352f7646f349402bb776) Thanks [@nialexsan](https://github.com/nialexsan)! - Added Multicall contract to Flow Testnet.
+
+- [#2620](https://github.com/wevm/viem/pull/2620) [`a8c78cb4`](https://github.com/wevm/viem/commit/a8c78cb4cbd5224259482114c6d65ce5b0b10f6b) Thanks [@jxom](https://github.com/jxom)! - Made `getNonce` optional on `SmartAccountImplementation`.
+
+- [#2614](https://github.com/wevm/viem/pull/2614) [`3749838f`](https://github.com/wevm/viem/commit/3749838fdd915ebccc56505ecd5a8047bfb8f38d) Thanks [@joshuanwankwo](https://github.com/joshuanwankwo)! - Added Curtis chain
+
 ## 2.19.5
 
 ### Patch Changes

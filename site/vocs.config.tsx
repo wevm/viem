@@ -4,12 +4,12 @@ import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
 
 export default defineConfig({
-  banner: {
-    backgroundColor: '#3a393b',
-    textColor: 'white',
-    content:
-      'Viem is participating in Gitcoin Grants round 21. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/389/73). Thank you. 🙏',
-  },
+  // banner: {
+  //   backgroundColor: '#3a393b',
+  //   textColor: 'white',
+  //   content:
+  //     'Viem is participating in Gitcoin Grants round 21. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/389/73). Thank you. 🙏',
+  // },
   baseUrl:
     process.env.VERCEL_ENV === 'production'
       ? 'https://viem.sh'
@@ -45,7 +45,9 @@ export default defineConfig({
   rootDir: '.',
   search: {
     boostDocument(documentId) {
-      if (documentId.startsWith('pages/docs')) return 2
+      if (documentId.startsWith('pages/docs')) return 3
+      if (documentId.startsWith('pages/account-abstraction')) return 2
+      if (documentId.startsWith('pages/experimental')) return 2
       return 1
     },
   },
@@ -229,9 +231,10 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg',
           },
           {
-            name: '',
-            image: '',
-            link: 'https://github.com/sponsors/wevm',
+            name: 'Biconomy',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/biconomy-light.svg',
+            link: 'https://biconomy.io',
           },
           {
             name: '',

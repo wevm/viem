@@ -1049,6 +1049,7 @@ export type {
   ProviderConnectInfo,
   ProviderMessage,
   PublicRpcSchema,
+  PaymasterRpcSchema,
   NetworkSync,
   RpcSchema,
   RpcSchemaOverride,
