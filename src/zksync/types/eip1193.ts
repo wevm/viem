@@ -65,7 +65,27 @@ export type RawBlockTransactions = {
   raw_bytes?: string
 }[]
 
-export type PublicZksyncRpcSchema = [
+export type PublicZkSyncRpcSchema = [
+  {
+    Method: 'zks_sendRawTransactionWithDetailedOutput'
+    Parameters: [Hash]
+    ReturnType: SendRawTransactionWithDetailedReturnType
+  },
+  {
+    Method: 'zks_getConfirmedTokens'
+    Parameters: [number, number]
+    ReturnType: GetConfirmedTokensReturnType
+  },
+  {
+    Method: 'zks_getFeeParams'
+    Parameters: []
+    ReturnType: GetFeeParamsReturnType
+  },
+  {
+    Method: 'zks_getProtocolVersion'
+    Parameters: [number | undefined]
+    ReturnType: GetProtocolVersionReturnType
+  },
   {
     Method: 'zks_estimateFee'
     Parameters: [TransactionRequest]
@@ -131,7 +151,7 @@ export type PublicZksyncRpcSchema = [
   {
     Method: 'zks_getL1BatchDetails'
     Parameters: [number]
-    ReturnType: ZksyncBatchDetails
+    ReturnType: ZkSyncBatchDetails
   },
   {
     Method: 'zks_getRawBlockTransactions'
@@ -141,12 +161,12 @@ export type PublicZksyncRpcSchema = [
   {
     Method: 'zks_getBlockDetails'
     Parameters: [number]
-    ReturnType: ZksyncBlockDetails
+    ReturnType: ZkSyncBlockDetails
   },
   {
     Method: 'zks_getTransactionDetails'
     Parameters: [Hash]
-    ReturnType: ZksyncTransactionDetails
+    ReturnType: ZkSyncTransactionDetails
   },
   {
     Method: 'zks_getBridgehubContract'

@@ -202,5 +202,8 @@
       "limit": "31 kB",
       "import": "{ verifySiweMessage }"
     }
-  ]
+  ],
+  "dependencies": {
+    "nopt": "^7.2.1"
+  }
 }
