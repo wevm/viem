@@ -523,3 +523,4 @@ export type {
   ZksyncTransactionDetails as ZkSyncTransactionDetails,
   ZksyncTransactionDetails,
 } from '../zksync/types/transaction.js'
+export { storyTestnet } from './definitions/storyTestnet.js'
