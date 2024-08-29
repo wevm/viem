@@ -9,12 +9,12 @@ export const storyTestnet = /*#__PURE__*/ defineChain({
     symbol: 'IP',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.partner.testnet.storyprotocol.net'] },
+    default: { http: ['https://testnet.storyrpc.io'] },
   },
   blockExplorers: {
     default: {
       name: 'Story Testnet Explorer',
-      url: 'https://explorer.testnet.storyprotocol.net',
+      url: 'https://testnet.storyscan.xyz',
     },
   },
   testnet: true,
