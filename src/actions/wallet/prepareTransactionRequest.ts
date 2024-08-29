@@ -65,6 +65,7 @@ import {
   getTransactionType,
 } from '../../utils/transaction/getTransactionType.js'
 import { getChainId as getChainId_ } from '../public/getChainId.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 
 export const defaultParameters = [
   'blobVersionedHashes',
@@ -96,6 +97,15 @@ export type PrepareTransactionRequestRequest<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
   GetTransactionRequestKzgParameter & {
+    /**
+     * Nonce manager to use for the transaction request.
+     */
+    nonceManager?: NonceManager | undefined
+    /**
+     * Parameters to prepare for the transaction request.
+     *
+     * @default ['blobVersionedHashes', 'chainId', 'fees', 'gas', 'nonce', 'type']
+     */
     parameters?: readonly PrepareTransactionRequestParameterType[] | undefined
   }
 
@@ -248,6 +258,7 @@ export async function prepareTransactionRequest<
     gas,
     kzg,
     nonce,
+    nonceManager,
     parameters = defaultParameters,
     type,
   } = args
@@ -306,9 +317,9 @@ export async function prepareTransactionRequest<
   if (parameters.includes('chainId')) request.chainId = await getChainId()
 
   if (parameters.includes('nonce') && typeof nonce === 'undefined' && account) {
-    if (account.nonceManager) {
+    if (nonceManager) {
       const chainId = await getChainId()
-      request.nonce = await account.nonceManager.consume({
+      request.nonce = await nonceManager.consume({
         address: account.address,
         chainId,
         client,

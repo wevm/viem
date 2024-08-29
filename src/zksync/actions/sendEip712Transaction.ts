@@ -106,6 +106,7 @@ export async function sendEip712Transaction<
     // Prepare the request for signing (assign appropriate fees, etc.)
     const request = await prepareTransactionRequest(client, {
       ...parameters,
+      nonceManager: account.nonceManager,
       parameters: ['gas', 'nonce', 'fees'],
     } as any)
 

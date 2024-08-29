@@ -966,6 +966,7 @@ test('behavior: nonce manager', async () => {
 
   const args = {
     account,
+    nonceManager: account.nonceManager,
     to: targetAccount.address,
     value: parseEther('1'),
     parameters: ['nonce'],
