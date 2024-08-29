@@ -70,6 +70,11 @@
       "import": "./_esm/experimental/erc7739/index.js",
       "default": "./_cjs/experimental/erc7739/index.js"
     },
+    "./linea": {
+      "types": "./_types/linea/index.d.ts",
+      "import": "./_esm/linea/index.js",
+      "default": "./_cjs/linea/index.js"
+    },
     "./node": {
       "types": "./_types/node/index.d.ts",
       "import": "./_esm/node/index.js",

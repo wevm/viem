@@ -231,14 +231,16 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg',
           },
           {
-            name: '',
-            image: '',
-            link: 'https://github.com/sponsors/wevm',
+            name: 'Biconomy',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/biconomy-light.svg',
+            link: 'https://biconomy.io',
           },
           {
-            name: '',
-            image: '',
-            link: 'https://github.com/sponsors/wevm',
+            name: 'Thirdweb',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/thirdweb-light.svg',
+            link: 'https://thirdweb.com',
           },
           {
             name: '',

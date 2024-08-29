@@ -150,7 +150,8 @@ export type InsufficientFundsErrorType = InsufficientFundsError & {
   name: 'InsufficientFundsError'
 }
 export class InsufficientFundsError extends BaseError {
-  static nodeMessage = /insufficient funds/
+  static nodeMessage =
+    /insufficient funds|exceeds transaction sender account balance/
   constructor({ cause }: { cause?: BaseError | undefined } = {}) {
     super(
       [
