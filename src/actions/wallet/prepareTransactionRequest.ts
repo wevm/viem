@@ -55,6 +55,7 @@ import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVers
 import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -65,7 +66,6 @@ import {
   getTransactionType,
 } from '../../utils/transaction/getTransactionType.js'
 import { getChainId as getChainId_ } from '../public/getChainId.js'
-import type { NonceManager } from '../../utils/nonceManager.js'
 
 export const defaultParameters = [
   'blobVersionedHashes',
