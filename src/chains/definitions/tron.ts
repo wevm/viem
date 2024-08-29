@@ -8,9 +8,6 @@ export const tron = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://api.trongrid.io/jsonrpc'],
     },
-    ankr: {
-      http: ['https://rpc.ankr.com/tron_jsonrpc'],
-    },
   },
   blockExplorers: {
     default: {
