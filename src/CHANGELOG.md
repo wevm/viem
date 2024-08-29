@@ -1,5 +1,27 @@
 # viem
 
+## 2.21.0
+
+### Minor Changes
+
+- [#2665](https://github.com/wevm/viem/pull/2665) [`2e05c52`](https://github.com/wevm/viem/commit/2e05c52abea485475afa72523a4da0410cd4316c) Thanks [@jxom](https://github.com/jxom)! - Added built-in support for Linea gas & fee estimations.
+
+- [#2665](https://github.com/wevm/viem/pull/2665) [`2e05c52`](https://github.com/wevm/viem/commit/2e05c52abea485475afa72523a4da0410cd4316c) Thanks [@jxom](https://github.com/jxom)! - Deprecated `chain.fees.defaultPriorityFee`, use `chain.fees.maxPriorityFeePerGas` instead.
+
+### Patch Changes
+
+- [#2670](https://github.com/wevm/viem/pull/2670) [`d1ca95c`](https://github.com/wevm/viem/commit/d1ca95ce1dd2f8849c2cece5b2b4bbd56838d241) Thanks [@crystalbit](https://github.com/crystalbit)! - Added Fluence, Fluence Testnet, and Fluence Stage.
+
+- [#2662](https://github.com/wevm/viem/pull/2662) [`d88eb42`](https://github.com/wevm/viem/commit/d88eb42d42d880957993f0afe4dca563b39e6e1c) Thanks [@parseb](https://github.com/parseb)! - Added Soneium Minato testnet
+
+- [`dc3c0a0`](https://github.com/wevm/viem/commit/dc3c0a00296f53dca01f4cd58046107d216f30ee) Thanks [@jxom](https://github.com/jxom)! - Added `nonceManager` parameter to `prepareTransactionRequest`.
+
+- [#2664](https://github.com/wevm/viem/pull/2664) [`5c3ed45`](https://github.com/wevm/viem/commit/5c3ed45ca7d32bf6b5cb96dc0f90fd30cb903680) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Tron chain
+
+- [#2666](https://github.com/wevm/viem/pull/2666) [`e026509`](https://github.com/wevm/viem/commit/e026509d86233ce7d70bde6f372ebf0cce3bc7a3) Thanks [@cong1223](https://github.com/cong1223)! - Added storyTestnet
+
+- [#2660](https://github.com/wevm/viem/pull/2660) [`2813fbd`](https://github.com/wevm/viem/commit/2813fbd218a54c99d92f1e29e5ca1b2961a06071) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Adjusted sophon native token symbol.
+
 ## 2.20.1
 
 ### Patch Changes
