@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from 'vitest'
-import { createClient } from '../clients/createClient.js'
-import { lineaSepolia } from './chains.js'
-import { http } from '../clients/transports/http.js'
+import { address } from '../../test/src/constants.js'
 import { internal_estimateFeesPerGas } from '../actions/public/estimateFeesPerGas.js'
+import { createClient } from '../clients/createClient.js'
+import { http } from '../clients/transports/http.js'
 import { parseEther } from '../utils/index.js'
 import * as estimateGas from './actions/estimateGas.js'
 import * as chainConfig from './chainConfig.js'
-import { address } from '../../test/src/constants.js'
+import { lineaSepolia } from './chains.js'
 
 const client = createClient({
   chain: lineaSepolia,

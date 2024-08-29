@@ -1,27 +1,27 @@
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { EstimateGasParameters as EstimateGasParameters_base } from '../../actions/public/estimateGas.js'
 import {
   type PrepareTransactionRequestParameters,
   prepareTransactionRequest,
 } from '../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
-import type { EstimateGasParameters as EstimateGasParameters_base } from '../../actions/public/estimateGas.js'
+import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { TransactionRequest } from '../../types/transaction.js'
+import type { Filter } from '../../types/utils.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
+import { getCallError } from '../../utils/errors/getCallError.js'
 import { extract } from '../../utils/formatters/extract.js'
 import { formatTransactionRequest } from '../../utils/formatters/transactionRequest.js'
-import { getCallError } from '../../utils/errors/getCallError.js'
 import {
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
 import type { LineaRpcSchema } from '../types/rpc.js'
-import type { Filter } from '../../types/utils.js'
-import type { GetAccountParameter } from '../../types/account.js'
-import { AccountNotFoundError } from '../../errors/account.js'
 
 export type EstimateGasParameters<
   chain extends Chain | undefined = Chain | undefined,

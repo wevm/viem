@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { parseEther } from '../../utils/unit/parseEther.js'
-import { estimateGas } from './estimateGas.js'
+import { accounts } from '../../../test/src/constants.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { lineaSepolia } from '../chains.js'
-import { accounts } from '../../../test/src/constants.js'
+import { estimateGas } from './estimateGas.js'
 
 const client = createClient({
   chain: lineaSepolia,
