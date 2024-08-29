@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const soneiumMinato = defineChain({
   id: 1946,
-  name: 'Soneium Minato testnet',
+  name: 'Soneium Minato',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
