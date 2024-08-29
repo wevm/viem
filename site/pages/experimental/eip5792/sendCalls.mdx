@@ -101,6 +101,82 @@ export const walletClient = createWalletClient({
 
 :::
 
+### Contract Calls
+
+The `calls` property also accepts **Contract Calls**, and can be used via the `abi`, `functionName`, and `args` properties.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseAbi } from 'viem'
+import { walletClient } from './config'
+
+const abi = parseAbi([
+  'function approve(address, uint256) returns (bool)',
+  'function transferFrom(address, address, uint256) returns (bool)',
+])
+ 
+const id = await walletClient.sendCalls({ // [!code focus:99]
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi,
+      functionName: 'approve',
+      args: [
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        100n
+      ],
+    },
+    {
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi,
+      functionName: 'transferFrom',
+      args: [
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        '0x0000000000000000000000000000000000000000',
+        100n
+      ],
+    },
+  ],
+})
+```
+
+```ts twoslash [abi.ts] filename="abi.ts"
+export const wagmiAbi = [
+  // ...
+  {
+    inputs: [],
+    name: "mint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  // ...
+] as const;
+```
+
+```ts [config.ts] filename="config.ts"
+import 'viem/window'
+import { createWalletClient, custom } from 'viem'
+import { walletActionsEip5792 } from 'viem/experimental'
+
+// Retrieve Account from an EIP-1193 Provider.
+const [account] = await window.ethereum!.request({ 
+  method: 'eth_requestAccounts' 
+})
+
+export const walletClient = createWalletClient({
+  account,
+  transport: custom(window.ethereum!)
+}).extend(walletActionsEip5792())
+```
+
+:::
+
 ## Returns
 
 `string`

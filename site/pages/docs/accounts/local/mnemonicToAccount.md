@@ -56,6 +56,7 @@ Available wordlists:
 - `italian`
 - `japanese`
 - `korean`
+- `portuguese`
 - `simplifiedChinese`
 - `spanish`
 - `traditionalChinese`

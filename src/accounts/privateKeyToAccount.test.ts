@@ -48,8 +48,8 @@ test('sign authorization', async () => {
       "chainId": 1,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
-      "r": "0x623129c9fcc520bee4b19fbb5148b178d67e1c854d2baee0e64cd518aad5549f",
-      "s": "0x17997fb5ef9d7521c09f0208b1082a9fecbeabdad90ef0a806a50d1b9c7b5d66",
+      "r": "0x1b633d8fa4b6822d010b17bdec4bd305eb024d302588edf0618fd04b26d686fd",
+      "s": "0x2633183f08457bbb7355b26280a122c7e6f5e38d5a23ece2cccf3068b6dd06ca",
       "v": 27n,
       "yParity": 0,
     }

@@ -1,4 +1,4 @@
-import { type Abi, type Address, type TypedData, parseAbi } from 'abitype'
+import type { Abi, Address, TypedData } from 'abitype'
 
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import { readContract } from '../../../actions/public/readContract.js'
@@ -34,6 +34,7 @@ export type ToSoladySmartAccountParameters<
       }
     | undefined
   factoryAddress?: Address | undefined
+  getNonce?: SmartAccountImplementation['getNonce'] | undefined
   owner: Address | Account
   salt?: Hex | undefined
 }
@@ -86,6 +87,7 @@ export async function toSoladySmartAccount<
       version: '0.7',
     },
     factoryAddress = '0x5d82735936c6Cd5DE57cC3c1A799f6B2E6F933Df',
+    getNonce,
     salt = '0x0',
   } = parameters
 
@@ -103,6 +105,7 @@ export async function toSoladySmartAccount<
   return toSmartAccount({
     client,
     entryPoint,
+    getNonce,
 
     extend: { abi, factory },
 
@@ -142,19 +145,6 @@ export async function toSoladySmartAccount<
         args: [owner.address, pad(salt)],
       })
       return { factory: factory.address, factoryData }
-    },
-
-    async getNonce({ key = 0n } = {}) {
-      const address = await this.getAddress()
-      const nonce = await readContract(client, {
-        abi: parseAbi([
-          'function getNonce(address, uint192) pure returns (uint256)',
-        ]),
-        address: entryPoint.address,
-        functionName: 'getNonce',
-        args: [address, key],
-      })
-      return nonce
     },
 
     async getStubSignature() {

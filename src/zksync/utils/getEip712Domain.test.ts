@@ -39,7 +39,7 @@ test('default', () => {
     {
       "domain": {
         "chainId": 324,
-        "name": "zksync",
+        "name": "zkSync",
         "version": "2",
       },
       "message": {

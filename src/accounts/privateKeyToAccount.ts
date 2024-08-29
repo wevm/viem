@@ -66,7 +66,7 @@ export function privateKeyToAccount(
       return signTransaction({ privateKey, transaction, serializer })
     },
     async signTypedData(typedData) {
-      return signTypedData({ ...typedData, privateKey })
+      return signTypedData({ ...typedData, privateKey } as any)
     },
   })
 

@@ -12,7 +12,7 @@ export const b3Sepolia = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://sepolia.b3.fun'],
+      http: ['https://sepolia.b3.fun/http'],
     },
   },
   blockExplorers: {

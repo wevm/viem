@@ -467,11 +467,14 @@ export type {
 } from './actions/wallet/writeContract.js'
 export type {
   Chain,
+  ChainConfig,
   ChainContract,
+  ChainEstimateFeesPerGasFn,
   ChainFees,
   ChainFeesFnParameters,
   ChainFormatter,
   ChainEstimateFeesPerGasFnParameters,
+  ChainMaxPriorityFeePerGasFn,
   DeriveChain,
   GetChainParameter,
   ChainFormatters,
@@ -1049,6 +1052,7 @@ export type {
   ProviderConnectInfo,
   ProviderMessage,
   PublicRpcSchema,
+  PaymasterRpcSchema,
   NetworkSync,
   RpcSchema,
   RpcSchemaOverride,

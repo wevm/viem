@@ -128,11 +128,18 @@ export async function getTimeToFinalize<
     return { period: Number(period), seconds, timestamp }
   }
 
+  const numProofSubmitters = await readContract(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'numProofSubmitters',
+    args: [withdrawalHash],
+  }).catch(() => 1n)
+
   const proofSubmitter = await readContract(client, {
     abi: portal2Abi,
     address: portalAddress,
     functionName: 'proofSubmitters',
-    args: [withdrawalHash, 0n],
+    args: [withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => undefined)
 
   const [[_disputeGameProxy, proveTimestamp], proofMaturityDelaySeconds] =

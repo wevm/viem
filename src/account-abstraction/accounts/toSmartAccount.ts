@@ -1,6 +1,7 @@
-import type { Abi } from 'abitype'
+import { type Abi, parseAbi } from 'abitype'
 
 import { getCode } from '../../actions/public/getCode.js'
+import { readContract } from '../../actions/public/readContract.js'
 import type { Prettify } from '../../types/utils.js'
 import { getAction } from '../../utils/getAction.js'
 import { createNonceManager } from '../../utils/nonceManager.js'
@@ -30,20 +31,22 @@ export async function toSmartAccount<
 >(
   implementation: implementation,
 ): Promise<ToSmartAccountReturnType<implementation>> {
-  const { extend, ...rest } = implementation
+  const {
+    extend,
+    nonceKeyManager = createNonceManager({
+      source: {
+        get() {
+          return Date.now()
+        },
+        set() {},
+      },
+    }),
+    ...rest
+  } = implementation
 
   let deployed = false
 
   const address = await implementation.getAddress()
-
-  const nonceKeyManager = createNonceManager({
-    source: {
-      get() {
-        return Date.now()
-      },
-      set() {},
-    },
-  })
 
   return {
     ...extend,
@@ -64,7 +67,19 @@ export async function toSmartAccount<
             client: implementation.client,
           }),
         )
-      return await implementation.getNonce({ ...parameters, key })
+
+      if (implementation.getNonce)
+        return await implementation.getNonce({ ...parameters, key })
+
+      const nonce = await readContract(implementation.client, {
+        abi: parseAbi([
+          'function getNonce(address, uint192) pure returns (uint256)',
+        ]),
+        address: implementation.entryPoint.address,
+        functionName: 'getNonce',
+        args: [address, key],
+      })
+      return nonce
     },
     async isDeployed() {
       if (deployed) return true

@@ -8,7 +8,7 @@ export default defineConfig({
   //   backgroundColor: '#3a393b',
   //   textColor: 'white',
   //   content:
-  //     'Viem is participating in the Gitcoin Grants 20 round. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/27/20). Thank you. 🙏',
+  //     'Viem is participating in Gitcoin Grants round 21. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/389/73). Thank you. 🙏',
   // },
   baseUrl:
     process.env.VERCEL_ENV === 'production'
@@ -45,7 +45,9 @@ export default defineConfig({
   rootDir: '.',
   search: {
     boostDocument(documentId) {
-      if (documentId.startsWith('pages/docs')) return 2
+      if (documentId.startsWith('pages/docs')) return 3
+      if (documentId.startsWith('pages/account-abstraction')) return 2
+      if (documentId.startsWith('pages/experimental')) return 2
       return 1
     },
   },
@@ -219,6 +221,31 @@ export default defineConfig({
             link: 'https://reservoir.tools',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/reservoir-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Uniswap',
+            link: 'https://uniswap.org',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg',
+          },
+          {
+            name: 'Biconomy',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/biconomy-light.svg',
+            link: 'https://biconomy.io',
+          },
+          {
+            name: 'Thirdweb',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/thirdweb-light.svg',
+            link: 'https://thirdweb.com',
+          },
+          {
+            name: '',
+            image: '',
+            link: 'https://github.com/sponsors/wevm',
           },
         ],
       ],

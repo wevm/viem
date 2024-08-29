@@ -82,7 +82,7 @@ test('args: authorizationList', async () => {
         ],
       }),
     }),
-  ).toMatchInlineSnapshot('87132n')
+  ).toMatchInlineSnapshot('100168n')
 })
 
 test('args: blockNumber', async () => {

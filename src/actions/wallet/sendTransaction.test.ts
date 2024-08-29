@@ -830,7 +830,7 @@ describe('local account', () => {
 
   test('args: authorizationList', async () => {
     const invoker = privateKeyToAccount(accounts[0].privateKey)
-    const authority = privateKeyToAccount(accounts[1].privateKey)
+    const authority = privateKeyToAccount(accounts[9].privateKey)
     const recipient = privateKeyToAccount(
       '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
     )
@@ -904,7 +904,7 @@ describe('local account', () => {
   })
 
   test('args: authorizationList (authority as invoker)', async () => {
-    const authority = privateKeyToAccount(accounts[1].privateKey)
+    const authority = privateKeyToAccount(accounts[9].privateKey)
     const recipient = privateKeyToAccount(
       '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
     )
@@ -1124,10 +1124,10 @@ describe('local account', () => {
       ])
 
       expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(681)
-      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(113)
+      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(112)
       expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(682)
       expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(683)
-      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(114)
+      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(113)
 
       const hash_6 = await sendTransaction(client, {
         account: account_1,

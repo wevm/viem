@@ -7,6 +7,7 @@ import {
   type Eip1559FeesNotSupportedErrorType,
 } from '../../errors/fee.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { Account } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type {
   Chain,
@@ -99,7 +100,7 @@ export async function internal_estimateFeesPerGas<
   client: Client<Transport, chain>,
   args: EstimateFeesPerGasParameters<chain, chainOverride, type> & {
     block?: Block | undefined
-    request?: PrepareTransactionRequestParameters | undefined
+    request?: PrepareTransactionRequestParameters<Chain, Account> | undefined
   },
 ): Promise<EstimateFeesPerGasReturnType<type>> {
   const {
