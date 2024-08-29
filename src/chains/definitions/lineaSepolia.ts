@@ -1,6 +1,8 @@
+import { chainConfig } from '../../linea/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const lineaSepolia = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 59_141,
   name: 'Linea Sepolia Testnet',
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },

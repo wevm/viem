@@ -55,6 +55,10 @@
     {
       "source": "/:match/accounts/signTypedData",
       "destination": "/:match/accounts/local/signTypedData"
+    },
+    {
+      "source": "/:match/experimental/eip5792/writeContracts",
+      "destination": "/:match/experimental/eip5792/sendCalls#contract-calls"
     }
   ]
 }

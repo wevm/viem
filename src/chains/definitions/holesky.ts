@@ -13,6 +13,7 @@ export const holesky = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://holesky.etherscan.io',
+      apiUrl: 'https://api-holesky.etherscan.io/api',
     },
   },
   contracts: {

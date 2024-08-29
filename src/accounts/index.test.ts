@@ -12,6 +12,7 @@ test('exports utils', () => {
       "italian",
       "japanese",
       "korean",
+      "portuguese",
       "simplifiedChinese",
       "spanish",
       "traditionalChinese",

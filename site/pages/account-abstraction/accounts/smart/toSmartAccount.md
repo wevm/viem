@@ -2,7 +2,7 @@
 description: Creates a Smart Account with a provided Account Implementation.
 ---
 
-# Custom
+# toSmartAccount
 
 The `toSmartAccount` function allows you to create a Smart Account with a custom Account Implementation.
 

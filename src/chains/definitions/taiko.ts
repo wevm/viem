@@ -17,8 +17,8 @@ export const taiko = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Taikoscan',
-      url: 'https://taikoscan.network',
-      apiUrl: 'https://taikoscan.network/api',
+      url: 'https://taikoscan.io',
+      apiUrl: 'https://api.taikoscan.io/api',
     },
   },
   contracts: {

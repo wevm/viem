@@ -1,4 +1,4 @@
-import { type Address, type TypedData, parseAbi } from 'abitype'
+import type { Address, TypedData } from 'abitype'
 import {
   type WebAuthnData,
   parseSignature as parseP256Signature,
@@ -130,19 +130,6 @@ export async function toCoinbaseSmartAccount(
         args: [owners_bytes, nonce],
       })
       return { factory: factory.address, factoryData }
-    },
-
-    async getNonce({ key = 0n } = {}) {
-      const address = await this.getAddress()
-      const nonce = await readContract(client, {
-        abi: parseAbi([
-          'function getNonce(address, uint192) pure returns (uint256)',
-        ]),
-        address: entryPoint.address,
-        functionName: 'getNonce',
-        args: [address, key],
-      })
-      return nonce
     },
 
     async getStubSignature() {

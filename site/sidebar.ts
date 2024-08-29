@@ -1242,10 +1242,6 @@ export const sidebar = {
                 text: 'showCallsStatus',
                 link: '/experimental/eip5792/showCallsStatus',
               },
-              {
-                text: 'writeContracts',
-                link: '/experimental/eip5792/writeContracts',
-              },
             ],
           },
         ],
@@ -1591,6 +1587,23 @@ export const sidebar = {
           },
           { text: 'Client', link: '/zksync/client' },
           { text: 'Chains', link: '/zksync/chains' },
+        ],
+      },
+      {
+        text: 'Smart Accounts',
+        items: [
+          {
+            text: 'Singlesig',
+            link: '/zksync/accounts/toSinglesigSmartAccount',
+          },
+          {
+            text: 'Multisig',
+            link: '/zksync/accounts/toMultisigSmartAccount',
+          },
+          {
+            text: 'Custom',
+            link: '/zksync/accounts/toSmartAccount',
+          },
         ],
       },
       {

@@ -7,7 +7,7 @@ import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
-import type { Assign, OneOf } from '../../../types/utils.js'
+import type { Assign, MaybeRequired, OneOf } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { getAction } from '../../../utils/getAction.js'
 import type { SmartAccount } from '../../accounts/types.js'
@@ -47,27 +47,39 @@ export type SendUserOperationParameters<
   >,
   _derivedVersion extends
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
-> = Assign<
-  UserOperationRequest<_derivedVersion>,
-  OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }> & {
-    paymaster?:
-      | Address
-      | true
-      | {
-          /** Retrieves paymaster-related User Operation properties to be used for sending the User Operation. */
-          getPaymasterData?: PaymasterActions['getPaymasterData'] | undefined
-          /** Retrieves paymaster-related User Operation properties to be used for gas estimation. */
-          getPaymasterStubData?:
-            | PaymasterActions['getPaymasterStubData']
+> = GetSmartAccountParameter<account, accountOverride, false> &
+  (
+    | UserOperation // Accept a full-formed User Operation.
+    | Assign<
+        // Accept a partially-formed User Operation (UserOperationRequest) to be filled.
+        UserOperationRequest<_derivedVersion>,
+        OneOf<
+          { calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }
+        > & {
+          paymaster?:
+            | Address
+            | true
+            | {
+                /** Retrieves paymaster-related User Operation properties to be used for sending the User Operation. */
+                getPaymasterData?:
+                  | PaymasterActions['getPaymasterData']
+                  | undefined
+                /** Retrieves paymaster-related User Operation properties to be used for gas estimation. */
+                getPaymasterStubData?:
+                  | PaymasterActions['getPaymasterStubData']
+                  | undefined
+              }
             | undefined
+          /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
+          paymasterContext?: unknown | undefined
         }
-      | undefined
-    /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
-    paymasterContext?: unknown
-  }
-> &
-  GetSmartAccountParameter<account, accountOverride>
-
+      >
+  ) &
+  // Allow the EntryPoint address to be overridden, if no Account is provided, it will need to be required.
+  MaybeRequired<
+    { entryPointAddress?: Address },
+    _derivedAccount extends undefined ? true : false
+  >
 export type SendUserOperationReturnType = Hex
 
 export type SendUserOperationErrorType =
@@ -111,20 +123,21 @@ export async function sendUserOperation<
   client: Client<Transport, Chain | undefined, account>,
   parameters: SendUserOperationParameters<account, accountOverride, calls>,
 ) {
-  const { account: account_ = client.account } = parameters
+  const { account: account_ = client.account, entryPointAddress } = parameters
 
-  if (!account_) throw new AccountNotFoundError()
-  const account = parseAccount(account_)
+  if (!account_ && !parameters.sender) throw new AccountNotFoundError()
+  const account = account_ ? parseAccount(account_) : undefined
 
-  const request = await getAction(
-    client,
-    prepareUserOperation,
-    'prepareUserOperation',
-  )(parameters as unknown as PrepareUserOperationParameters)
+  const request = account
+    ? await getAction(
+        client,
+        prepareUserOperation,
+        'prepareUserOperation',
+      )(parameters as unknown as PrepareUserOperationParameters)
+    : parameters
 
-  const signature =
-    parameters.signature ||
-    (await account.signUserOperation(request as UserOperation))
+  const signature = (parameters.signature ||
+    (await account?.signUserOperation(request as UserOperation)))!
 
   const rpcParameters = formatUserOperationRequest({
     ...request,
@@ -135,14 +148,18 @@ export async function sendUserOperation<
     return await client.request(
       {
         method: 'eth_sendUserOperation',
-        params: [rpcParameters, account.entryPoint.address],
+        params: [
+          rpcParameters,
+          (entryPointAddress ?? account?.entryPoint.address)!,
+        ],
       },
       { retryCount: 0 },
     )
   } catch (error) {
+    const calls = (parameters as any).calls
     throw getUserOperationError(error as BaseError, {
       ...(request as UserOperation),
-      calls: parameters.calls,
+      ...(calls ? { calls } : {}),
       signature,
     })
   }
