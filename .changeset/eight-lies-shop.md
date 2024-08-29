@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added three chains: Fluence, Fluence Testnet, Fluence Stage
+Added Fluence, Fluence Testnet, and Fluence Stage.
