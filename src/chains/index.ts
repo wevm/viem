@@ -284,6 +284,7 @@ export { spicy } from './definitions/spicy.js'
 export { shardeumSphinx } from './definitions/shardeumSphinx.js'
 export { shibarium } from './definitions/shibarium.js'
 export { shibariumTestnet } from './definitions/shibariumTestnet.js'
+export { storyTestnet } from './definitions/storyTestnet.js'
 export { stratis } from './definitions/stratis.js'
 export { syscoin } from './definitions/syscoin.js'
 export { syscoinTestnet } from './definitions/syscoinTestnet.js'
@@ -523,4 +524,3 @@ export type {
   ZksyncTransactionDetails as ZkSyncTransactionDetails,
   ZksyncTransactionDetails,
 } from '../zksync/types/transaction.js'
-export { storyTestnet } from './definitions/storyTestnet.js'
