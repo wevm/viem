@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const storyTestnet = /*#__PURE__*/ defineChain({
   id: 1513,
-  name: 'Story Partner Testnet',
+  name: 'Story Testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'IP',
