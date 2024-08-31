@@ -1,5 +1,13 @@
 # viem
 
+## 2.21.1
+
+### Patch Changes
+
+- [#2674](https://github.com/wevm/viem/pull/2674) [`962d3697`](https://github.com/wevm/viem/commit/962d36970b3f46a8705a4ce3f513f3eae20623f1) Thanks [@Haypierre](https://github.com/Haypierre)! - Added ZKsync config to Sophon testnet chain.
+
+- [#2678](https://github.com/wevm/viem/pull/2678) [`5c258595`](https://github.com/wevm/viem/commit/5c25859584b0fd675f0f9660e9227453edfc6e64) Thanks [@joaquim-verges](https://github.com/joaquim-verges)! - **Extension (ZKsync):** Exported `encodeDeployData` and `hashBytecode`.
+
 ## 2.21.0
 
 ### Minor Changes
