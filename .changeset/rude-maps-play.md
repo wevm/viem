@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed Sophon testnet chain.
+Added ZKsync config to Sophon testnet chain.
