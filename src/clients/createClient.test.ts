@@ -578,10 +578,8 @@ describe('extends', () => {
 
   test('action composition', async () => {
     const calls: string[] = []
-    const extended = createClient({
-      chain: localhost,
-      transport: http(),
-    })
+    const extended = anvilMainnet
+      .getClient()
       .extend((client) => ({
         async getChainId() {
           calls.push('first')
@@ -601,7 +599,7 @@ describe('extends', () => {
         },
       }))
 
-    expect(await extended.getChainId()).toBe(localhost.id)
+    expect(await extended.getChainId()).toBe(anvilMainnet.chain.id)
     expect(calls).toEqual(['third', 'second', 'first'])
   })
 })
