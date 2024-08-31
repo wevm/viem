@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Export `encodeDeployData` and `hashBytecode` from `viem/zksync`
+**Extension (ZKsync):** Exported `encodeDeployData` and `hashBytecode`.
