@@ -1,11 +1,11 @@
-import { createPublicClient, http, parseEther, type Hex } from 'viem'
+import { http, type Hex, createPublicClient, parseEther } from 'viem'
 import {
   createBundlerClient,
   createPaymasterClient,
   toCoinbaseSmartAccount,
 } from 'viem/account-abstraction'
-import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
 
 const client = createPublicClient({
   chain: sepolia,
