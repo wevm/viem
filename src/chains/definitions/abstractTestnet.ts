@@ -21,7 +21,7 @@ export const getAbstractEip712Domain: EIP712DomainFn<
 
   return {
     domain: {
-      name: 'Abstract',
+      name: 'Abstract', // Use 'Abstract' rather than 'zkSync'
       version: '2',
       chainId: transaction.chainId,
     },
@@ -67,6 +67,6 @@ export const abstractTestnet = /*#__PURE__*/ defineChain({
   },
   testnet: true,
   custom: {
-    getAbstractEip712Domain, // Use Abstract's specific EIP712 domain
+    getEip712Domain: getAbstractEip712Domain, // Use Abstract's specific EIP712 domain
   },
 })
