@@ -96,7 +96,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,linea,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": ["node/trustedSetups_cjs.ts"]
@@ -163,7 +163,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "32.2 kB",
+      "limit": "38 kB",
       "import": "*"
     },
     {

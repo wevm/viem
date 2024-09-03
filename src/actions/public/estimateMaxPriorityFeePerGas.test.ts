@@ -31,7 +31,7 @@ test('fallback', async () => {
   expect(await estimateMaxPriorityFeePerGas(client_1)).toBeDefined()
 })
 
-test('args: chain `defaultPriorityFee` override', async () => {
+test('args: chain `priorityFee` override', async () => {
   // value
   const client_1 = createPublicClient({
     transport: http(anvilMainnet.rpcUrl.http),
@@ -41,7 +41,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
       chain: {
         ...anvilMainnet.chain,
         fees: {
-          defaultPriorityFee: 69420n,
+          maxPriorityFeePerGas: 69420n,
         },
       },
     }),
@@ -56,7 +56,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
       chain: {
         ...anvilMainnet.chain,
         fees: {
-          defaultPriorityFee: () => 69420n,
+          maxPriorityFeePerGas: () => 69420n,
         },
       },
     }),
@@ -71,7 +71,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
       chain: {
         ...anvilMainnet.chain,
         fees: {
-          defaultPriorityFee: async () => 69420n,
+          maxPriorityFeePerGas: async () => 69420n,
         },
       },
     }),
@@ -86,7 +86,7 @@ test('args: chain `defaultPriorityFee` override', async () => {
       chain: {
         ...anvilMainnet.chain,
         fees: {
-          defaultPriorityFee: 0n,
+          maxPriorityFeePerGas: 0n,
         },
       },
     }),
@@ -101,20 +101,50 @@ test('args: chain `defaultPriorityFee` override', async () => {
       chain: {
         ...anvilMainnet.chain,
         fees: {
-          defaultPriorityFee: async () => 0n,
+          maxPriorityFeePerGas: async () => 0n,
         },
       },
     }),
   ).toBe(0n)
+
+  // fallback
+  const client_6 = createPublicClient({
+    transport: http(anvilMainnet.rpcUrl.http),
+  })
+  expect(
+    await estimateMaxPriorityFeePerGas(client_6, {
+      chain: {
+        ...anvilMainnet.chain,
+        fees: {
+          maxPriorityFeePerGas: async () => null,
+        },
+      },
+    }),
+  ).toBeDefined()
+
+  // deprecated `defaultPriorityFee`
+  const client_7 = createPublicClient({
+    transport: http(anvilMainnet.rpcUrl.http),
+  })
+  expect(
+    await estimateMaxPriorityFeePerGas(client_7, {
+      chain: {
+        ...anvilMainnet.chain,
+        fees: {
+          defaultPriorityFee: async () => 69420n,
+        },
+      },
+    }),
+  ).toBe(69420n)
 })
 
-test('client: chain `defaultPriorityFee` override', async () => {
+test('client: chain `priorityFee` override', async () => {
   // value
   const client_1 = createPublicClient({
     chain: {
       ...anvilMainnet.chain,
       fees: {
-        defaultPriorityFee: 69420n,
+        maxPriorityFeePerGas: 69420n,
       },
     },
     transport: http(),
@@ -126,7 +156,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
     chain: {
       ...anvilMainnet.chain,
       fees: {
-        defaultPriorityFee: () => 69420n,
+        maxPriorityFeePerGas: () => 69420n,
       },
     },
     transport: http(),
@@ -138,7 +168,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
     chain: {
       ...anvilMainnet.chain,
       fees: {
-        defaultPriorityFee: async () => 69420n,
+        maxPriorityFeePerGas: async () => 69420n,
       },
     },
     transport: http(),
@@ -150,7 +180,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
     chain: {
       ...anvilMainnet.chain,
       fees: {
-        defaultPriorityFee: 0n,
+        maxPriorityFeePerGas: 0n,
       },
     },
     transport: http(),
@@ -162,7 +192,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
     chain: {
       ...anvilMainnet.chain,
       fees: {
-        defaultPriorityFee: async () => 0n,
+        maxPriorityFeePerGas: async () => 0n,
       },
     },
     transport: http(),

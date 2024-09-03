@@ -370,6 +370,23 @@ const request = await walletClient.prepareTransactionRequest({
 })
 ```
 
+### nonceManager (optional)
+
+- **Type:** `NonceManager | undefined`
+
+Nonce Manager to consume and increment the Account nonce for the transaction request.
+
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+const request = await walletClient.prepareTransactionRequest({
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1000000000000000000n,
+  nonceManager: account.nonceManager // [!code focus]
+})
+```
+
 ### parameters (optional)
 
 - **Type:** `("fees" | "gas" | "nonce" | "type")[]`
