@@ -10,10 +10,6 @@ export const beam = /*#__PURE__*/ defineChain({
     symbol: 'BEAM',
   },
   rpcUrls: {
-    public: {
-      http: ['https://build.onbeam.com/rpc'],
-      webSocket: ['wss://build.onbeam.com/ws'],
-    },
     default: {
       http: ['https://build.onbeam.com/rpc'],
       webSocket: ['wss://build.onbeam.com/ws'],

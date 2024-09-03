@@ -17,10 +17,6 @@ export const bobSepolia = defineChain({
       http: ['https://bob-sepolia.rpc.gobob.xyz'],
       webSocket: ['wss://bob-sepolia.rpc.gobob.xyz'],
     },
-    public: {
-      http: ['https://bob-sepolia.rpc.gobob.xyz'],
-      webSocket: ['wss://bob-sepolia.rpc.gobob.xyz'],
-    },
   },
   blockExplorers: {
     default: {

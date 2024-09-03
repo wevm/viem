@@ -18,11 +18,6 @@ export const metis = /*#__PURE__*/ defineChain({
       apiUrl:
         'https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan/api',
     },
-    blockscout: {
-      name: 'Andromeda Explorer',
-      url: 'https://andromeda-explorer.metis.io',
-      apiUrl: 'https://andromeda-explorer.metis.io/api',
-    },
   },
   contracts: {
     multicall3: {

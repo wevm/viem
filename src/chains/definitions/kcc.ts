@@ -13,9 +13,6 @@ export const kcc = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://kcc-rpc.com'],
     },
-    public: {
-      http: ['https://kcc-rpc.com'],
-    },
   },
   blockExplorers: {
     default: { name: 'KCC Explorer', url: 'https://explorer.kcc.io' },
