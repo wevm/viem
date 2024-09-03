@@ -25,17 +25,19 @@ const hash = await walletClient.sendTransaction({
     abi,
     functionName: 'execute',
     args: [
-      {
-        data: '0x',
-        to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
-        value: parseEther('0.001'),
-      },
-      {
-        data: '0x',
-        to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
-        value: parseEther('0.002'), 
-      },  
-    ],
+      [
+        {
+          data: '0x',
+          to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+          value: parseEther('0.001'),
+        },
+        {
+          data: '0x',
+          to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
+          value: parseEther('0.002'), 
+        },  
+      ],
+    ]
   }),
   to: walletClient.account.address,
 })
@@ -261,17 +263,19 @@ const hash = await walletClient.sendTransaction({ // [!code focus]
     abi, // [!code focus]
     functionName: 'execute', // [!code focus]
     args: [ // [!code focus]
-      { // [!code focus]
-        data: '0x', // [!code focus]
-        to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
-        value: parseEther('0.001'), // [!code focus]
-      }, // [!code focus]
-      { // [!code focus]
-        data: '0x', // [!code focus]
-        to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
-        value: parseEther('0.002'), // [!code focus]
-      }, // [!code focus]
-    ], // [!code focus]
+      [ // [!code focus]
+        { // [!code focus]
+          data: '0x', // [!code focus]
+          to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
+          value: parseEther('0.001'), // [!code focus]
+        }, // [!code focus]
+        { // [!code focus]
+          data: '0x', // [!code focus]
+          to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+          value: parseEther('0.002'), // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    ] // [!code focus]
   }), // [!code focus]
   to: walletClient.account.address, // [!code focus]
 }) // [!code focus]
@@ -351,17 +355,19 @@ const hash = await walletClient.sendTransaction({
     abi,
     functionName: 'execute',
     args: [
-      {
-        data: '0x',
-        to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
-        value: parseEther('0.001'),
-      },
-      {
-        data: '0x',
-        to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
-        value: parseEther('0.002'),
-      },
-    ],
+      [
+        {
+          data: '0x',
+          to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+          value: parseEther('0.001'),
+        },
+        {
+         data: '0x',
+          to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+          value: parseEther('0.002'),
+        },
+      ],
+    ]
   }),
   to: walletClient.account.address,
 })
