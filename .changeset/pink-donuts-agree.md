@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Remove Flow Previewnet
+Deprecated Flow Previewnet.
