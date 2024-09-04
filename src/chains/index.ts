@@ -108,6 +108,7 @@ export { filecoinCalibration } from './definitions/filecoinCalibration.js'
 export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
+/** @deprecated */
 export { flowPreviewnet } from './definitions/flowPreviewnet.js'
 export { flowMainnet } from './definitions/flowMainnet.js'
 export { flowTestnet } from './definitions/flowTestnet.js'
