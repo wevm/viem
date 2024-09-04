@@ -1,5 +1,19 @@
 # viem
 
+## 2.21.2
+
+### Patch Changes
+
+- [#2682](https://github.com/wevm/viem/pull/2682) [`68be3ba0`](https://github.com/wevm/viem/commit/68be3ba0a6942818f8e0c17ca419e8b5b9e93151) Thanks [@KONFeature](https://github.com/KONFeature)! - Exported `getPaymasterData` and `getPaymasterStubData`.
+
+- [`7f18a3cf`](https://github.com/wevm/viem/commit/7f18a3cfd7478200be6a25b282628656b274ec88) Thanks [@tmm](https://github.com/tmm)! - Bumped scure-bip39.
+
+- [#2686](https://github.com/wevm/viem/pull/2686) [`e7431e88`](https://github.com/wevm/viem/commit/e7431e88b0e8b83719c91f5a6a57da1a10076a1c) Thanks [@sakulstra](https://github.com/sakulstra)! - Fixed Metis Explorer API URL.
+
+- [#2672](https://github.com/wevm/viem/pull/2672) [`a541519c`](https://github.com/wevm/viem/commit/a541519c12bdd7fb91e3534cc3a9c576a33b8acb) Thanks [@bthaile](https://github.com/bthaile)! - Deprecated Flow Previewnet.
+
+- [`c11d92ff`](https://github.com/wevm/viem/commit/c11d92ffdc0b333f6a6a7bd8d716a45c5ae0dc0d) Thanks [@tmm](https://github.com/tmm)! - Removed non-default chain properties.
+
 ## 2.21.1
 
 ### Patch Changes
