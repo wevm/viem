@@ -1,9 +1,9 @@
-import { maxUint256 } from '~viem/constants/number.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
 } from '../../accounts/utils/parseAccount.js'
 import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
+import { maxUint256 } from '../../constants/number.js'
 import {
   InvalidAddressError,
   type InvalidAddressErrorType,

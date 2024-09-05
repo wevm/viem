@@ -1,4 +1,4 @@
-import { maxUint256 } from '~viem/constants/number.js'
+import { maxUint256 } from '../constants/number.js'
 import { InvalidAddressError } from '../errors/address.js'
 import { BaseError } from '../errors/base.js'
 import { InvalidChainIdError } from '../errors/chain.js'

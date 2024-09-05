@@ -1,5 +1,5 @@
-import { maxUint256 } from '~viem/constants/number.js'
 import { versionedHashVersionKzg } from '../../constants/kzg.js'
+import { maxUint256 } from '../../constants/number.js'
 import {
   InvalidAddressError,
   type InvalidAddressErrorType,
