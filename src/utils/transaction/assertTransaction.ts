@@ -1,3 +1,4 @@
+import { maxUint256 } from '~viem/constants/number.js'
 import { versionedHashVersionKzg } from '../../constants/kzg.js'
 import {
   InvalidAddressError,
@@ -99,7 +100,7 @@ export function assertTransactionEIP1559(
   const { chainId, maxPriorityFeePerGas, maxFeePerGas, to } = transaction
   if (chainId <= 0) throw new InvalidChainIdError({ chainId })
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
-  if (maxFeePerGas && maxFeePerGas > 2n ** 256n - 1n)
+  if (maxFeePerGas && maxFeePerGas > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
     maxPriorityFeePerGas &&
@@ -128,7 +129,7 @@ export function assertTransactionEIP2930(
     throw new BaseError(
       '`maxFeePerGas`/`maxPriorityFeePerGas` is not a valid EIP-2930 Transaction attribute.',
     )
-  if (gasPrice && gasPrice > 2n ** 256n - 1n)
+  if (gasPrice && gasPrice > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
 }
 
@@ -152,6 +153,6 @@ export function assertTransactionLegacy(
     throw new BaseError(
       '`maxFeePerGas`/`maxPriorityFeePerGas` is not a valid Legacy Transaction attribute.',
     )
-  if (gasPrice && gasPrice > 2n ** 256n - 1n)
+  if (gasPrice && gasPrice > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
 }

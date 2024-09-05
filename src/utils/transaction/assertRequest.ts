@@ -1,3 +1,4 @@
+import { maxUint256 } from '~viem/constants/number.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
@@ -53,7 +54,7 @@ export function assertRequest(args: AssertRequestParameters) {
   )
     throw new FeeConflictError()
 
-  if (maxFeePerGas && maxFeePerGas > 2n ** 256n - 1n)
+  if (maxFeePerGas && maxFeePerGas > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
     maxPriorityFeePerGas &&
