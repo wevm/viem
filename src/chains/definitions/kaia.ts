@@ -15,6 +15,7 @@ export const kaia = /*#__PURE__*/ defineChain({
     default: {
       name: 'KaiaScope',
       url: 'https://kaiascope.com',
+      apiUrl: 'https://api-cypress.klaytnscope.com/api',
     },
   },
   contracts: {
