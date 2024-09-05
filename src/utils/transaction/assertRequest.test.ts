@@ -2,6 +2,7 @@ import { expect, test } from 'vitest'
 
 import { parseGwei } from '../unit/parseGwei.js'
 
+import { maxUint256 } from '~viem/constants/number.js'
 import { assertRequest } from './assertRequest.js'
 
 test('invalid address', () => {
@@ -19,7 +20,7 @@ test('invalid address', () => {
 
 test('fee cap too high', () => {
   expect(() =>
-    assertRequest({ maxFeePerGas: 2n ** 256n - 1n + 1n }),
+    assertRequest({ maxFeePerGas: maxUint256 + 1n }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
