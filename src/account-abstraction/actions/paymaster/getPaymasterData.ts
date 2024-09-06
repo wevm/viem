@@ -127,17 +127,11 @@ export async function getPaymasterData(
     })
   return {
     ...rest,
-    ...(paymasterPostOpGasLimit
-      ? {
-          paymasterPostOpGasLimit: hexToBigInt(paymasterPostOpGasLimit),
-        }
-      : {}),
-    ...(paymasterVerificationGasLimit
-      ? {
-          paymasterVerificationGasLimit: hexToBigInt(
-            paymasterVerificationGasLimit,
-          ),
-        }
-      : {}),
+    ...(paymasterPostOpGasLimit && {
+      paymasterPostOpGasLimit: hexToBigInt(paymasterPostOpGasLimit),
+    }),
+    ...(paymasterVerificationGasLimit && {
+      paymasterVerificationGasLimit: hexToBigInt(paymasterVerificationGasLimit),
+    }),
   } as unknown as GetPaymasterDataReturnType
 }
