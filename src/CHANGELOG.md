@@ -10,6 +10,8 @@
 
 - [#2698](https://github.com/wevm/viem/pull/2698) [`02734f32`](https://github.com/wevm/viem/commit/02734f3216ed15353ae2b39738c89a06faba533b) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Update Polygon's native token from MATIC to POL
 
+- [`c5ecc8f`](https://github.com/wevm/viem/commit/c5ecc8f54d21b21bc36f722fe9b240dc75527971) Thanks [@jxom](https://github.com/jxom)! - Added extra error handling in unit parsing.
+
 ## 2.21.2
 
 ### Patch Changes
