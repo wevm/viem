@@ -46,6 +46,8 @@ export type GetPaymasterDataParameters = OneOf<
         | 'sender'
         | 'preVerificationGas'
         | 'verificationGasLimit'
+        | 'paymasterPostOpGasLimit'
+        | 'paymasterVerificationGasLimit'
       >,
       | 'callGasLimit'
       | 'factory'
@@ -67,8 +69,8 @@ export type GetPaymasterDataReturnType = Prettify<
     | {
         paymaster: Address
         paymasterData: Hex
-        paymasterVerificationGasLimit: bigint
-        paymasterPostOpGasLimit: bigint
+        paymasterPostOpGasLimit?: bigint | undefined
+        paymasterVerificationGasLimit?: bigint | undefined
       }
   >
 >
