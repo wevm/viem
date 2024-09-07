@@ -100,3 +100,16 @@ test('decimals < fraction length', () => {
   expect(parseUnits('69.59000000059', 9)).toMatchInlineSnapshot('69590000001n')
   expect(parseUnits('69.59000002359', 9)).toMatchInlineSnapshot('69590000024n')
 })
+
+test('error: scientific notation', () => {
+  expect(() => parseUnits('1.234e5', 3)).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidDecimalNumberError: Number \`1.234e5\` is not a valid decimal number.
+
+    Version: viem@x.y.z]
+  `)
+  expect(() => parseUnits('1.234e-5', 3)).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidDecimalNumberError: Number \`1.234e-5\` is not a valid decimal number.
+
+    Version: viem@x.y.z]
+  `)
+})
