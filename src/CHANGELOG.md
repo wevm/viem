@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.3
+
+### Patch Changes
+
+- [#2693](https://github.com/wevm/viem/pull/2693) [`764f259f`](https://github.com/wevm/viem/commit/764f259f016dda7817def229adedea65cd6b9d63) Thanks [@kyscott18](https://github.com/kyscott18)! - Fixed LRU algorithm to update touched keys.
+
+- [#2692](https://github.com/wevm/viem/pull/2692) [`70814af6`](https://github.com/wevm/viem/commit/70814af6fb6ef90ee68c74b12998295a229c5435) Thanks [@frapsMatheus](https://github.com/frapsMatheus)! - Replaced instances of `2n ** 256n - 1n` with the `maxUint256` constant.
+
+- [#2698](https://github.com/wevm/viem/pull/2698) [`02734f32`](https://github.com/wevm/viem/commit/02734f3216ed15353ae2b39738c89a06faba533b) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Update Polygon's native token from MATIC to POL
+
 ## 2.21.2
 
 ### Patch Changes
