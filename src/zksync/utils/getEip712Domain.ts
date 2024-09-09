@@ -6,15 +6,12 @@ import type {
   ZksyncTransactionSerializable,
   ZksyncTransactionSerializableEIP712,
 } from '../types/transaction.js'
-import { assertEip712Transaction } from './assertEip712Transaction.js'
 import { hashBytecode } from './hashBytecode.js'
 
 export const getEip712Domain: EIP712DomainFn<
   ZksyncTransactionSerializable,
   ZksyncEIP712TransactionSignable
 > = (transaction) => {
-  assertEip712Transaction(transaction)
-
   const message = transactionToMessage(
     transaction as ZksyncTransactionSerializableEIP712,
   )
