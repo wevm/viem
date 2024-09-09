@@ -62,7 +62,7 @@ export type SignAuthorizationErrorType =
  * })
  * const signature = await signAuthorization(client, {
  *   account: privateKeyToAccount('0x..'),
- *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   contractAddress: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  * })
  *
  * @example
@@ -78,7 +78,7 @@ export type SignAuthorizationErrorType =
  *   transport: http(),
  * })
  * const signature = await signAuthorization(client, {
- *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   contractAddress: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  * })
  */
 export async function signAuthorization<
