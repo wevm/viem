@@ -81,16 +81,14 @@ import { recoverAuthorizationAddress } from 'viem/experimental'
 import { walletClient } from './client'
   // ---cut---
 const signature = await walletClient.signAuthorization({
-  authorization: {
-    address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-    chainId: 1,
-    nonce: 0,
-  }
+  contractAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+  chainId: 1,
+  nonce: 0,
 })
 
 const address = await recoverAuthorizationAddress({
   authorization: {
-    address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+    contractAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     chainId: 1,
     nonce: 0,
   },
