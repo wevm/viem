@@ -26,21 +26,6 @@ export const shapeSepolia = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 1,
     },
-    portal: {
-      [sourceId]: {
-        address: '0xeffE2C6cA9Ab797D418f0D91eA60807713f3536f',
-      },
-    },
-    l1StandardBridge: {
-      [sourceId]: {
-        address: '0x5376f1D543dcbB5BD416c56C189e4cB7399fCcCB',
-      },
-    },
-    l2OutputOracle: {
-      [sourceId]: {
-        address: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
-      },
-    },
   },
   testnet: true,
   sourceId,
