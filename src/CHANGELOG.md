@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.4
+
+### Patch Changes
+
+- [`9de10f8`](https://github.com/wevm/viem/commit/9de10f83937e9b76316d31c567d6e0ff879d569d) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Updated `getPaymasterData` + `getPaymasterStubData` return types to match ERC-7677 specification.
+
+- [#2659](https://github.com/wevm/viem/pull/2659) [`24bdc50`](https://github.com/wevm/viem/commit/24bdc504ae0197c771dba1e63dbbecabfdfa723f) Thanks [@owen-reorg](https://github.com/owen-reorg)! - Added OP Stack addresses to opBNB Chain.
+
+- [#2708](https://github.com/wevm/viem/pull/2708) [`6dfadec`](https://github.com/wevm/viem/commit/6dfadecf597ded6a0579ff919b94abc36bc7f325) Thanks [@0x-jj](https://github.com/0x-jj)! - Updated Shape Sepolia definition.
+
 ## 2.21.3
 
 ### Patch Changes
