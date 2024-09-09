@@ -28,17 +28,17 @@ export const opBNBTestnet = /*#__PURE__*/ defineChain({
     },
     l2OutputOracle: {
       [sourceId]: {
-        address: "0xFf2394Bb843012562f4349C6632a0EcB92fC8810",
+        address: '0xFf2394Bb843012562f4349C6632a0EcB92fC8810',
       },
     },
     portal: {
       [sourceId]: {
-        address: "0x4386C8ABf2009aC0c263462Da568DD9d46e52a31",
+        address: '0x4386C8ABf2009aC0c263462Da568DD9d46e52a31',
       },
     },
     l1StandardBridge: {
       [sourceId]: {
-        address: "0x677311Fd2cCc511Bbc0f581E8d9a07B033D5E840",
+        address: '0x677311Fd2cCc511Bbc0f581E8d9a07B033D5E840',
       },
     },
   },
