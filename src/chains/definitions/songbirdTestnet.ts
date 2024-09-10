@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const songbirdTestnet = /*#__PURE__*/ defineChain({
   id: 16,
-  name: 'Coston',
+  name: 'Songbird Testnet Coston',
   nativeCurrency: {
     decimals: 18,
     name: 'costonflare',
