@@ -149,6 +149,12 @@
       "import": "{ privateKeyToAccount }"
     },
     {
+      "name": "import { mnemonicToAccount } from 'viem/accounts'",
+      "path": "./src/_esm/accounts/index.js",
+      "limit": "30 kB",
+      "import": "{ mnemonicToAccount }"
+    },
+    {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
       "limit": "51 kB",
