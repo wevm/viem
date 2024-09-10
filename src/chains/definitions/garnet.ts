@@ -5,7 +5,7 @@ const sourceId = 17000 // Holesky testnet
 
 export const garnet = defineChain({
   ...chainConfig,
-  name: 'Garnet Holesky',
+  name: 'Garnet Testnet',
   testnet: true,
   id: 17069,
   sourceId,
