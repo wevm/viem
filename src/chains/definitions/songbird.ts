@@ -5,7 +5,7 @@ export const songbird = /*#__PURE__*/ defineChain({
   name: 'Songbird Canary-Network',
   nativeCurrency: {
     decimals: 18,
-    name: 'songbird',
+    name: 'Songbird',
     symbol: 'SGB',
   },
   rpcUrls: {

@@ -5,7 +5,7 @@ export const songbirdTestnet = /*#__PURE__*/ defineChain({
   name: 'Songbird Testnet Coston',
   nativeCurrency: {
     decimals: 18,
-    name: 'costonflare',
+    name: 'Coston Flare',
     symbol: 'CFLR',
   },
   rpcUrls: {
