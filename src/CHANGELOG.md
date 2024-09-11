@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.5
+
+### Patch Changes
+
+- [`175e90b3`](https://github.com/wevm/viem/commit/175e90b33487017108af7563f030a54cd427c7c3) Thanks [@jxom](https://github.com/jxom)! - Restructured exports for wordlists.
+
+- [`4e9ea723`](https://github.com/wevm/viem/commit/4e9ea723d87aebd9c02dbe28ed85e862e537d757) Thanks [@jxom](https://github.com/jxom)! - Improved performance of `parseEventLogs`
+
+- [#2712](https://github.com/wevm/viem/pull/2712) [`aa57cf1a`](https://github.com/wevm/viem/commit/aa57cf1ad36554f3c50d3b2c88ee0b58410ccbf3) Thanks [@RareData](https://github.com/RareData)! - Updated naming for Flare chains.
+
 ## 2.21.4
 
 ### Patch Changes
