@@ -1,5 +1,14 @@
 # viem
 
+## 2.21.6
+
+### Patch Changes
+
+- [#2715](https://github.com/wevm/viem/pull/2715) [`ca2909a1`](https://github.com/wevm/viem/commit/ca2909a1cf15e0e0647b868ca1732ceb3ae44b19) Thanks [@bh2smith](https://github.com/bh2smith)! - Updated Sepolia RPC URL.
+
+- [#2713](https://github.com/wevm/viem/pull/2713) [`35220f1c`](https://github.com/wevm/viem/commit/35220f1cbb327be29ccaf0c7d1cef5275f81bea8) Thanks [@holic](https://github.com/holic)! - Added Garnet chain.
+  Updated Redstone chain.
+
 ## 2.21.5
 
 ### Patch Changes
