@@ -1,7 +1,7 @@
 import { chainConfig } from '../../celo/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-const sourceId = 11_155_111 // sepolia 
+const sourceId = 11_155_111 // sepolia
 
 export const celoAlfajores = /*#__PURE__*/ defineChain({
   ...chainConfig,
