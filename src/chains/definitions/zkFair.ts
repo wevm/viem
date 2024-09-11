@@ -13,9 +13,6 @@ export const zkFair = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://rpc.zkfair.io'],
     },
-    public: {
-      http: ['https://rpc.zkfair.io'],
-    },
   },
   blockExplorers: {
     default: {

@@ -10,10 +10,6 @@ export const acala = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    public: {
-      http: ['https://eth-rpc-acala.aca-api.network'],
-      webSocket: ['wss://eth-rpc-acala.aca-api.network'],
-    },
     default: {
       http: ['https://eth-rpc-acala.aca-api.network'],
       webSocket: ['wss://eth-rpc-acala.aca-api.network'],

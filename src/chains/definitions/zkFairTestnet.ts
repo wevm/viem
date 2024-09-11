@@ -13,9 +13,6 @@ export const zkFairTestnet = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://testnet-rpc.zkfair.io'],
     },
-    public: {
-      http: ['https://testnet-rpc.zkfair.io'],
-    },
   },
   blockExplorers: {
     default: {

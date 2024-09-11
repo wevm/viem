@@ -2,7 +2,7 @@
 description: Retrieves information about a User Operation given a hash.
 ---
 
-# getUserOperationReceipt
+# getUserOperation
 
 Retrieves information about a User Operation given a hash.
 

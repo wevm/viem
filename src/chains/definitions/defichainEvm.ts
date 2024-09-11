@@ -13,9 +13,6 @@ export const defichainEvm = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://eth.mainnet.ocean.jellyfishsdk.com'],
     },
-    public: {
-      http: ['https://eth.mainnet.ocean.jellyfishsdk.com'],
-    },
   },
   blockExplorers: {
     default: {

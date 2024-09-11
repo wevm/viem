@@ -7,7 +7,6 @@ export const bitTorrentTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'BitTorrent', symbol: 'BTT', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://testrpc.bittorrentchain.io'] },
-    public: { http: ['https://testrpc.bittorrentchain.io'] },
   },
   blockExplorers: {
     default: {

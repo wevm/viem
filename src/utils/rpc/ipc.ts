@@ -60,7 +60,10 @@ export async function getIpcRpcClient(
       let lastRemaining = Buffer.alloc(0)
       function onData(buffer: Buffer) {
         const [messages, remaining] = extractMessages(
-          Buffer.concat([lastRemaining, buffer]),
+          Buffer.concat([
+            Uint8Array.from(lastRemaining),
+            Uint8Array.from(buffer),
+          ]),
         )
         for (const message of messages) {
           const response = JSON.parse(Buffer.from(message).toString())

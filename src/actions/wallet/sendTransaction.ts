@@ -253,6 +253,7 @@ export async function sendTransaction<
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceManager: account.nonceManager,
         parameters: [...defaultParameters, 'sidecars'],
         value,
         ...rest,

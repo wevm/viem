@@ -2,16 +2,19 @@ export type { Address } from 'abitype'
 
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { HDKey } from '@scure/bip32'
-export { wordlist as czech } from '@scure/bip39/wordlists/czech'
-export { wordlist as english } from '@scure/bip39/wordlists/english'
-export { wordlist as french } from '@scure/bip39/wordlists/french'
-export { wordlist as italian } from '@scure/bip39/wordlists/italian'
-export { wordlist as japanese } from '@scure/bip39/wordlists/japanese'
-export { wordlist as korean } from '@scure/bip39/wordlists/korean'
-export { wordlist as portuguese } from '@scure/bip39/wordlists/portuguese'
-export { wordlist as simplifiedChinese } from '@scure/bip39/wordlists/simplified-chinese'
-export { wordlist as spanish } from '@scure/bip39/wordlists/spanish'
-export { wordlist as traditionalChinese } from '@scure/bip39/wordlists/traditional-chinese'
+
+export {
+  czech,
+  english,
+  french,
+  italian,
+  japanese,
+  korean,
+  portuguese,
+  simplifiedChinese,
+  spanish,
+  traditionalChinese,
+} from './wordlists.js'
 
 export {
   type GenerateMnemonicErrorType,

@@ -1,5 +1,81 @@
 # viem
 
+## 2.21.5
+
+### Patch Changes
+
+- [`175e90b3`](https://github.com/wevm/viem/commit/175e90b33487017108af7563f030a54cd427c7c3) Thanks [@jxom](https://github.com/jxom)! - Restructured exports for wordlists.
+
+- [`4e9ea723`](https://github.com/wevm/viem/commit/4e9ea723d87aebd9c02dbe28ed85e862e537d757) Thanks [@jxom](https://github.com/jxom)! - Improved performance of `parseEventLogs`
+
+- [#2712](https://github.com/wevm/viem/pull/2712) [`aa57cf1a`](https://github.com/wevm/viem/commit/aa57cf1ad36554f3c50d3b2c88ee0b58410ccbf3) Thanks [@RareData](https://github.com/RareData)! - Updated naming for Flare chains.
+
+## 2.21.4
+
+### Patch Changes
+
+- [`9de10f8`](https://github.com/wevm/viem/commit/9de10f83937e9b76316d31c567d6e0ff879d569d) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Updated `getPaymasterData` + `getPaymasterStubData` return types to match ERC-7677 specification.
+
+- [#2659](https://github.com/wevm/viem/pull/2659) [`24bdc50`](https://github.com/wevm/viem/commit/24bdc504ae0197c771dba1e63dbbecabfdfa723f) Thanks [@owen-reorg](https://github.com/owen-reorg)! - Added OP Stack addresses to opBNB Chain.
+
+- [#2708](https://github.com/wevm/viem/pull/2708) [`6dfadec`](https://github.com/wevm/viem/commit/6dfadecf597ded6a0579ff919b94abc36bc7f325) Thanks [@0x-jj](https://github.com/0x-jj)! - Updated Shape Sepolia definition.
+
+## 2.21.3
+
+### Patch Changes
+
+- [#2693](https://github.com/wevm/viem/pull/2693) [`764f259f`](https://github.com/wevm/viem/commit/764f259f016dda7817def229adedea65cd6b9d63) Thanks [@kyscott18](https://github.com/kyscott18)! - Fixed LRU algorithm to update touched keys.
+
+- [#2692](https://github.com/wevm/viem/pull/2692) [`70814af6`](https://github.com/wevm/viem/commit/70814af6fb6ef90ee68c74b12998295a229c5435) Thanks [@frapsMatheus](https://github.com/frapsMatheus)! - Replaced instances of `2n ** 256n - 1n` with the `maxUint256` constant.
+
+- [#2698](https://github.com/wevm/viem/pull/2698) [`02734f32`](https://github.com/wevm/viem/commit/02734f3216ed15353ae2b39738c89a06faba533b) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Update Polygon's native token from MATIC to POL
+
+- [`c5ecc8f`](https://github.com/wevm/viem/commit/c5ecc8f54d21b21bc36f722fe9b240dc75527971) Thanks [@jxom](https://github.com/jxom)! - Added extra error handling in unit parsing.
+
+## 2.21.2
+
+### Patch Changes
+
+- [#2682](https://github.com/wevm/viem/pull/2682) [`68be3ba0`](https://github.com/wevm/viem/commit/68be3ba0a6942818f8e0c17ca419e8b5b9e93151) Thanks [@KONFeature](https://github.com/KONFeature)! - Exported `getPaymasterData` and `getPaymasterStubData`.
+
+- [`7f18a3cf`](https://github.com/wevm/viem/commit/7f18a3cfd7478200be6a25b282628656b274ec88) Thanks [@tmm](https://github.com/tmm)! - Bumped scure-bip39.
+
+- [#2686](https://github.com/wevm/viem/pull/2686) [`e7431e88`](https://github.com/wevm/viem/commit/e7431e88b0e8b83719c91f5a6a57da1a10076a1c) Thanks [@sakulstra](https://github.com/sakulstra)! - Fixed Metis Explorer API URL.
+
+- [#2672](https://github.com/wevm/viem/pull/2672) [`a541519c`](https://github.com/wevm/viem/commit/a541519c12bdd7fb91e3534cc3a9c576a33b8acb) Thanks [@bthaile](https://github.com/bthaile)! - Deprecated Flow Previewnet.
+
+- [`c11d92ff`](https://github.com/wevm/viem/commit/c11d92ffdc0b333f6a6a7bd8d716a45c5ae0dc0d) Thanks [@tmm](https://github.com/tmm)! - Removed non-default chain properties.
+
+## 2.21.1
+
+### Patch Changes
+
+- [#2674](https://github.com/wevm/viem/pull/2674) [`962d3697`](https://github.com/wevm/viem/commit/962d36970b3f46a8705a4ce3f513f3eae20623f1) Thanks [@Haypierre](https://github.com/Haypierre)! - Added ZKsync config to Sophon testnet chain.
+
+- [#2678](https://github.com/wevm/viem/pull/2678) [`5c258595`](https://github.com/wevm/viem/commit/5c25859584b0fd675f0f9660e9227453edfc6e64) Thanks [@joaquim-verges](https://github.com/joaquim-verges)! - **Extension (ZKsync):** Exported `encodeDeployData` and `hashBytecode`.
+
+## 2.21.0
+
+### Minor Changes
+
+- [#2665](https://github.com/wevm/viem/pull/2665) [`2e05c52`](https://github.com/wevm/viem/commit/2e05c52abea485475afa72523a4da0410cd4316c) Thanks [@jxom](https://github.com/jxom)! - Added built-in support for Linea gas & fee estimations.
+
+- [#2665](https://github.com/wevm/viem/pull/2665) [`2e05c52`](https://github.com/wevm/viem/commit/2e05c52abea485475afa72523a4da0410cd4316c) Thanks [@jxom](https://github.com/jxom)! - Deprecated `chain.fees.defaultPriorityFee`, use `chain.fees.maxPriorityFeePerGas` instead.
+
+### Patch Changes
+
+- [#2670](https://github.com/wevm/viem/pull/2670) [`d1ca95c`](https://github.com/wevm/viem/commit/d1ca95ce1dd2f8849c2cece5b2b4bbd56838d241) Thanks [@crystalbit](https://github.com/crystalbit)! - Added Fluence, Fluence Testnet, and Fluence Stage.
+
+- [#2662](https://github.com/wevm/viem/pull/2662) [`d88eb42`](https://github.com/wevm/viem/commit/d88eb42d42d880957993f0afe4dca563b39e6e1c) Thanks [@parseb](https://github.com/parseb)! - Added Soneium Minato testnet
+
+- [`dc3c0a0`](https://github.com/wevm/viem/commit/dc3c0a00296f53dca01f4cd58046107d216f30ee) Thanks [@jxom](https://github.com/jxom)! - Added `nonceManager` parameter to `prepareTransactionRequest`.
+
+- [#2664](https://github.com/wevm/viem/pull/2664) [`5c3ed45`](https://github.com/wevm/viem/commit/5c3ed45ca7d32bf6b5cb96dc0f90fd30cb903680) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Tron chain
+
+- [#2666](https://github.com/wevm/viem/pull/2666) [`e026509`](https://github.com/wevm/viem/commit/e026509d86233ce7d70bde6f372ebf0cce3bc7a3) Thanks [@cong1223](https://github.com/cong1223)! - Added storyTestnet
+
+- [#2660](https://github.com/wevm/viem/pull/2660) [`2813fbd`](https://github.com/wevm/viem/commit/2813fbd218a54c99d92f1e29e5ca1b2961a06071) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Adjusted sophon native token symbol.
+
 ## 2.20.1
 
 ### Patch Changes

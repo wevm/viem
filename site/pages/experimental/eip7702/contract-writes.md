@@ -26,7 +26,7 @@ const authorization = await walletClient.signAuthorization({
 })
 
 // 3. Invoke the Contract's `execute` function to perform batch calls.
-const hash = await batchCallInvoker.write.execute([{
+const hash = await batchCallInvoker.write.execute([[{
   data: '0x',
   to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
   value: parseEther('0.001'), 
@@ -34,7 +34,7 @@ const hash = await batchCallInvoker.write.execute([{
   data: '0x',
   to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
   value: parseEther('0.002'), 
-}], {
+}]], {
   authorizationList: [authorization],
   //                  ↑ 4. Pass the Authorization as an option.
 })
@@ -335,7 +335,7 @@ const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-const hash = await batchCallInvoker.write.execute([{ // [!code focus]
+const hash = await batchCallInvoker.write.execute([[{ // [!code focus]
   data: '0x', // [!code focus]
   to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
   value: parseEther('0.001'), // [!code focus]
@@ -343,7 +343,7 @@ const hash = await batchCallInvoker.write.execute([{ // [!code focus]
   data: '0x', // [!code focus]
   to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
   value: parseEther('0.002'), // [!code focus]
-}], { // [!code focus]
+}]], { // [!code focus]
   authorizationList: [authorization], // [!code focus]
 }) // [!code focus]
 ```
@@ -416,11 +416,11 @@ const hash = await walletClient.writeContract({
   address: walletClient.account.address,
   authorizationList: [authorization],
   functionName: 'execute',
-  args: [{
+  args: [[{
     data: '0x',
     to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
     value: parseEther('0.001'),
-  }],
+  }]],
 })
 ```
 :::
@@ -448,7 +448,7 @@ const authorization = await walletClient.signAuthorization({
 
 const invoker = privateKeyToAccount('0x...') // [!code ++]
 
-const hash = await batchCallInvoker.write.execute([{
+const hash = await batchCallInvoker.write.execute([[{
   data: '0x',
   to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
   value: parseEther('0.001'),
@@ -456,7 +456,7 @@ const hash = await batchCallInvoker.write.execute([{
   data: '0x',
   to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
   value: parseEther('0.002'),
-}], {
+}]], {
   account: invoker, // [!code ++]
   authorizationList: [authorization],
 })

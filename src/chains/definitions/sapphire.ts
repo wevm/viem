@@ -16,11 +16,6 @@ export const sapphire = /*#__PURE__*/ defineChain({
       name: 'Oasis Explorer',
       url: 'https://explorer.oasis.io/mainnet/sapphire',
     },
-    blockscout: {
-      name: 'Oasis Sapphire Explorer',
-      url: 'https://old-explorer.sapphire.oasis.io',
-      apiUrl: 'https://old-explorer.sapphire.oasis.io/api',
-    },
   },
   contracts: {
     multicall3: {
