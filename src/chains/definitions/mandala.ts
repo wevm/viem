@@ -10,10 +10,6 @@ export const mandala = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    public: {
-      http: ['https://eth-rpc-tc9.aca-staging.network'],
-      webSocket: ['wss://eth-rpc-tc9.aca-staging.network'],
-    },
     default: {
       http: ['https://eth-rpc-tc9.aca-staging.network'],
       webSocket: ['wss://eth-rpc-tc9.aca-staging.network'],

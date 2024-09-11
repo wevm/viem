@@ -18,7 +18,7 @@ import { hashAuthorization } from 'viem/experimental'
 import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
-  address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+  contractAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
   chainId: 1,
   nonce: 0,
 })
@@ -43,7 +43,7 @@ Address of the contract to set as code for the Authority.
 import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
-  address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
+  contractAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
   chainId: 1,
   nonce: 0,
 }) 
@@ -59,7 +59,7 @@ Chain ID to authorize.
 import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
-  address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+  contractAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
   chainId: 1, // [!code focus]
   nonce: 0,
 }) 
@@ -75,7 +75,7 @@ Nonce of the Authority to authorize.
 import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
-  address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+  contractAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
   chainId: 1,
   nonce: 0, // [!code focus]
 }) 
@@ -92,7 +92,7 @@ Output format.
 import { hashAuthorization } from 'viem/experimental'
 
 hashAuthorization({
-  address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+  contractAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
   chainId: 1,
   nonce: 0, 
   to: 'bytes', // [!code focus]

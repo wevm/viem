@@ -13,11 +13,11 @@ import type { RpcLog } from '../../types/rpc.js'
 import { isAddressEqual } from '../address/isAddressEqual.js'
 import { toBytes } from '../encoding/toBytes.js'
 import { keccak256 } from '../hash/keccak256.js'
+import { toEventSelector } from '../hash/toEventSelector.js'
 import {
   type DecodeEventLogErrorType,
   decodeEventLog,
 } from './decodeEventLog.js'
-import { getAbiItem } from './getAbiItem.js'
 
 export type ParseEventLogsParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -116,10 +116,11 @@ export function parseEventLogs<
   return logs
     .map((log) => {
       try {
-        const abiItem = getAbiItem({
-          abi: abi as Abi,
-          name: log.topics[0] as string,
-        }) as AbiEvent
+        const abiItem = (abi as Abi).find(
+          (abiItem) =>
+            abiItem.type === 'event' &&
+            log.topics[0] === toEventSelector(abiItem),
+        ) as AbiEvent
         if (!abiItem) return null
 
         const event = decodeEventLog({

@@ -219,6 +219,7 @@ test('exports', () => {
       "EnsAvatarUriResolutionError",
       "EnsAvatarInvalidNftUriError",
       "EnsAvatarUnsupportedNamespaceError",
+      "InvalidDecimalNumberError",
       "EstimateGasExecutionError",
       "ExecutionRevertedError",
       "FeeCapTooHighError",

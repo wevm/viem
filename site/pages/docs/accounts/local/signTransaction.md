@@ -97,7 +97,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 // ---cut---
 const authorization = await account.experimental_signAuthorization({
-  address: '0x...',
+  contractAddress: '0x...',
   chainId: 1,
   nonce: 1,
 })

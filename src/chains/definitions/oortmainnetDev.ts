@@ -12,10 +12,6 @@ export const oortMainnetDev = /*#__PURE__*/ defineChain({
     default: { http: ['https://dev-rpc.oortech.com'] },
   },
   blockExplorers: {
-    oort: {
-      name: 'OORT MainnetDev Explorer',
-      url: 'https://dev-scan.oortech.com',
-    },
     default: {
       name: 'OORT MainnetDev Explorer',
       url: 'https://dev-scan.oortech.com',

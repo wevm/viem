@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { parseGwei } from '../unit/parseGwei.js'
 
+import { maxUint256 } from '~viem/constants/number.js'
 import {
   assertTransactionEIP1559,
   assertTransactionEIP2930,
@@ -71,7 +72,7 @@ describe('eip7702', () => {
             yParity: 0,
           },
         ],
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
@@ -136,7 +137,7 @@ describe('eip4844', () => {
         blobVersionedHashes: [
           '0x01febabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
         ],
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
@@ -151,7 +152,7 @@ describe('eip1559', () => {
   test('fee cap too high', () => {
     expect(() =>
       assertTransactionEIP1559({
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
@@ -203,7 +204,7 @@ describe('eip2930', () => {
   test('fee cap too high', () => {
     expect(() =>
       assertTransactionEIP2930({
-        gasPrice: 2n ** 256n - 1n + 1n,
+        gasPrice: maxUint256 + 1n,
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
@@ -254,7 +255,7 @@ describe('legacy', () => {
   test('fee cap too high', () => {
     expect(() =>
       assertTransactionLegacy({
-        gasPrice: 2n ** 256n - 1n + 1n,
+        gasPrice: maxUint256 + 1n,
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`

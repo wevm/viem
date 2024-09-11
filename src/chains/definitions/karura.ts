@@ -10,10 +10,6 @@ export const karura = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    public: {
-      http: ['https://eth-rpc-karura.aca-api.network'],
-      webSocket: ['wss://eth-rpc-karura.aca-api.network'],
-    },
     default: {
       http: ['https://eth-rpc-karura.aca-api.network'],
       webSocket: ['wss://eth-rpc-karura.aca-api.network'],

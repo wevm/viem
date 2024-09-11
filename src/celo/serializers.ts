@@ -1,3 +1,4 @@
+import { maxUint256 } from '../constants/number.js'
 import { InvalidAddressError } from '../errors/address.js'
 import { BaseError } from '../errors/base.js'
 import { InvalidChainIdError } from '../errors/chain.js'
@@ -75,8 +76,8 @@ function serializeTransactionCIP64(
   ]) as SerializeTransactionCIP64ReturnType
 }
 
-// maxFeePerGas must be less than 2^256 - 1
-const MAX_MAX_FEE_PER_GAS = 2n ** 256n - 1n
+// maxFeePerGas must be less than maxUint256
+const MAX_MAX_FEE_PER_GAS = maxUint256
 
 export function assertTransactionCIP42(
   transaction: TransactionSerializableCIP42,

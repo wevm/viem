@@ -5,7 +5,7 @@ export const flare = /*#__PURE__*/ defineChain({
   name: 'Flare Mainnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'flare',
+    name: 'Flare',
     symbol: 'FLR',
   },
   rpcUrls: {

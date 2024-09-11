@@ -67,7 +67,7 @@ export type GetPaymasterStubDataReturnType = Prettify<
     | {
         paymaster: Address
         paymasterData: Hex
-        paymasterVerificationGasLimit: bigint
+        paymasterVerificationGasLimit?: bigint | undefined
         paymasterPostOpGasLimit: bigint
       }
   > & {

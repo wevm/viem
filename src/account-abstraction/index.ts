@@ -79,6 +79,19 @@ export {
 } from './actions/bundler/waitForUserOperationReceipt.js'
 
 export {
+  type GetPaymasterDataParameters,
+  type GetPaymasterDataReturnType,
+  type GetPaymasterDataErrorType,
+  getPaymasterData,
+} from './actions/paymaster/getPaymasterData.js'
+export {
+  type GetPaymasterStubDataParameters,
+  type GetPaymasterStubDataReturnType,
+  type GetPaymasterStubDataErrorType,
+  getPaymasterStubData,
+} from './actions/paymaster/getPaymasterStubData.js'
+
+export {
   type BundlerActions,
   bundlerActions,
 } from './clients/decorators/bundler.js'

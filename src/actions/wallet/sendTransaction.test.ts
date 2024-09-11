@@ -6,6 +6,7 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
+import { maxUint256 } from '~viem/constants/number.js'
 import { BatchCallInvoker } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { deploy } from '../../../test/src/utils.js'
@@ -1174,7 +1175,7 @@ describe('errors', () => {
       sendTransaction(client, {
         to: targetAccount.address,
         value: parseEther('1'),
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [AccountNotFoundError: Could not find an Account to execute with this Action.
@@ -1193,7 +1194,7 @@ describe('errors', () => {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TransactionExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
