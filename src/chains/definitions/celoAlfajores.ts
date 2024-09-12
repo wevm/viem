@@ -27,7 +27,7 @@ export const celoAlfajores = /*#__PURE__*/ defineChain({
       name: 'CeloScan',
       url: 'https://alfajores.celoscan.io/',
       apiUrl: 'https://api-alfajores.celoscan.io/api',
-    }
+    },
   },
   contracts: {
     ...chainConfig.contracts,
@@ -37,7 +37,7 @@ export const celoAlfajores = /*#__PURE__*/ defineChain({
     },
     portal: {
       [sourceId]: {
-        address: "0x969d247cB586C0bF02212B9ae6e690e8b0d762bA"
+        address: '0x969d247cB586C0bF02212B9ae6e690e8b0d762bA',
       },
     },
     disputeGameFactory: {
@@ -59,7 +59,7 @@ export const celoAlfajores = /*#__PURE__*/ defineChain({
       [sourceId]: {
         address: '0x4200000000000000000000000000000000000010',
       },
-    }
+    },
   },
   testnet: true,
 })
