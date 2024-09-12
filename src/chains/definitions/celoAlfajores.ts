@@ -23,6 +23,11 @@ export const celoAlfajores = /*#__PURE__*/ defineChain({
       url: 'https://explorer.celo.org/alfajores',
       apiUrl: 'https://explorer.celo.org/api',
     },
+    celoscan: {
+      name: 'CeloScan',
+      url: 'https://alfajores.celoscan.io/',
+      apiUrl: 'https://api-alfajores.celoscan.io/api',
+    }
   },
   contracts: {
     ...chainConfig.contracts,
@@ -30,26 +35,31 @@ export const celoAlfajores = /*#__PURE__*/ defineChain({
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 14569001,
     },
+    portal: {
+      [sourceId]: {
+        address: "0x969d247cB586C0bF02212B9ae6e690e8b0d762bA"
+      },
+    },
     disputeGameFactory: {
       [sourceId]: {
-        address: '0x831f39053688f05698ad0fB5f4DE7e56B2949c55',
+        address: '0xB0C46509E24a0745d201114016fD666D6D1E3f8e',
       },
     },
     l2OutputOracle: {
       [sourceId]: {
-        address: '0x419577592C884868C3ed85B97169b93362581855',
-      },
-    },
-    portal: {
-      [sourceId]: {
-        address: '0xB29597c6866c6C2870348f1035335B75eEf79d07',
+        address: '0x58eeeEC56C6e92b1898367fa7372ab3f6483F054',
       },
     },
     l1StandardBridge: {
       [sourceId]: {
-        address: '0x9FEBd0F16b97e0AEF9151AF07106d733E87B1be4',
+        address: '0x65E8f629B13535f902020668Fe73aEc24e52F5D8',
       },
     },
+    l2StandardBridge: {
+      [sourceId]: {
+        address: '0x4200000000000000000000000000000000000010',
+      },
+    }
   },
   testnet: true,
 })
