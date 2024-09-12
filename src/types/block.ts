@@ -65,6 +65,8 @@ export type Block<
   withdrawals?: Withdrawal[] | undefined
   /** Root of the this block’s withdrawals trie */
   withdrawalsRoot?: Hex | undefined
+  /** Root of the parent beacon chain block */
+  parentBeaconBlockRoot?: Hex | undefined
 }
 
 export type BlockIdentifier<quantity = bigint> = {
