@@ -23,11 +23,6 @@ export const celoAlfajores = /*#__PURE__*/ defineChain({
       url: 'https://explorer.celo.org/alfajores',
       apiUrl: 'https://explorer.celo.org/api',
     },
-    celoscan: {
-      name: 'CeloScan',
-      url: 'https://alfajores.celoscan.io/',
-      apiUrl: 'https://api-alfajores.celoscan.io/api',
-    },
   },
   contracts: {
     ...chainConfig.contracts,

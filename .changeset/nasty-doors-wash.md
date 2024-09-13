@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-update celo alfajores chain to include op contract addresses and celoscan
+update celo alfajores chain to include op contract addresses
