@@ -20,4 +20,10 @@ export const abstractTestnet = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
+  contracts: {
+    multicall3: {
+      address: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
+      blockCreated: 358349,
+    },
+  },
 })
