@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.7
+
+### Patch Changes
+
+- [`644f72d`](https://github.com/wevm/viem/commit/644f72db0ac08808918917b2610e403d9bd1bb64) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `hashAuthorization` & `serializeAuthorizationList` did not RLP-serialize zeroish nonces correctly.
+
+- [#2719](https://github.com/wevm/viem/pull/2719) [`7fdb149`](https://github.com/wevm/viem/commit/7fdb14929f2446555315df4cf1b99bc086dd8d6b) Thanks [@sammdec](https://github.com/sammdec)! - Added `parentBeaconBlockRoot` to `Block` type.
+
+- [#2722](https://github.com/wevm/viem/pull/2722) [`0b5c7b6`](https://github.com/wevm/viem/commit/0b5c7b6e273cb00834099ec78e4e9555a3c34d5e) Thanks [@coffeexcoin](https://github.com/coffeexcoin)! - Added multicall3 contract for Abstract Testnet.
+
 ## 2.21.6
 
 ### Patch Changes
