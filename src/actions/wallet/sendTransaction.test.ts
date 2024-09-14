@@ -10,6 +10,7 @@ import { maxUint256 } from '~viem/constants/number.js'
 import { BatchCallInvoker } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { deploy } from '../../../test/src/utils.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { signAuthorization } from '../../experimental/index.js'
@@ -1405,4 +1406,49 @@ describe('errors', () => {
     `,
     )
   })
+})
+
+test('https://github.com/wevm/viem/issues/2721', async () => {
+  const invoker = privateKeyToAccount(generatePrivateKey())
+  const authority = privateKeyToAccount(generatePrivateKey())
+  const recipient = privateKeyToAccount(generatePrivateKey())
+
+  await setBalance(client, {
+    address: invoker.address,
+    value: parseEther('100'),
+  })
+  await setBalance(client, {
+    address: authority.address,
+    value: parseEther('100'),
+  })
+
+  const { contractAddress } = await deploy(client, {
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
+  const hash = await sendTransaction(client, {
+    account: invoker,
+    authorizationList: [authorization],
+    data: encodeFunctionData({
+      abi: BatchCallInvoker.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: recipient.address,
+            data: '0x',
+            value: parseEther('1'),
+          },
+        ],
+      ],
+    }),
+    to: authority.address,
+  })
+  expect(hash).toBeDefined()
 })
