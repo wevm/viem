@@ -40,6 +40,8 @@ export type Block<
   nonce: blockTag extends 'pending' ? null : Hex
   /** Block number or `null` if pending */
   number: blockTag extends 'pending' ? null : quantity
+  /** Root of the parent beacon chain block */
+  parentBeaconBlockRoot?: Hex | undefined
   /** Parent block hash */
   parentHash: Hash
   /** Root of the this block’s receipts trie */
