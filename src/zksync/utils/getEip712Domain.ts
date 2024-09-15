@@ -50,7 +50,7 @@ export const getEip712Domain: EIP712DomainFn<
 //////////////////////////////////////////////////////////////////////////////
 // Utilities
 
-export function transactionToMessage(
+function transactionToMessage(
   transaction: ZksyncTransactionSerializableEIP712,
 ): ZksyncEIP712TransactionSignable {
   const {
