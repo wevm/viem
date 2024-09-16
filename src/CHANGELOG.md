@@ -1,5 +1,13 @@
 # viem
 
+## 2.21.8
+
+### Patch Changes
+
+- [#2724](https://github.com/wevm/viem/pull/2724) [`c2b2c78`](https://github.com/wevm/viem/commit/c2b2c7887eb27ffe1e1db534036a0bb7ef3cad5c) Thanks [@cygaar](https://github.com/cygaar)! - Reverted custom Abstract EIP712 domain changes.
+
+- [`2fa3d00`](https://github.com/wevm/viem/commit/2fa3d004467945efc548ac23a659c32a1e206cc4) Thanks [@jxom](https://github.com/jxom)! - Fixed zeroish log filter argument parsing.
+
 ## 2.21.7
 
 ### Patch Changes
