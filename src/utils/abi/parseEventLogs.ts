@@ -193,7 +193,7 @@ function includesArgs(parameters: {
 
   if (Array.isArray(args) && Array.isArray(matchArgs)) {
     return matchArgs.every((value, index) => {
-      if (!value) return true
+      if (value === null) return true
       const input = inputs[index]
       if (!input) return false
       const value_ = Array.isArray(value) ? value : [value]
@@ -208,7 +208,7 @@ function includesArgs(parameters: {
     !Array.isArray(matchArgs)
   )
     return Object.entries(matchArgs).every(([key, value]) => {
-      if (!value) return true
+      if (value === null) return true
       const input = inputs.find((input) => input.name === key)
       if (!input) return false
       const value_ = Array.isArray(value) ? value : [value]
