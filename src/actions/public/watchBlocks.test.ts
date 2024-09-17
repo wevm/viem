@@ -623,6 +623,8 @@ describe('poll', () => {
       })
       expect(error).toMatchInlineSnapshot('[Error: foo]')
       unwatch()
+
+      vi.restoreAllMocks()
     })
   })
 })
@@ -652,6 +654,27 @@ describe('subscribe', () => {
     expect(blocks.length).toBe(5)
     expect(prevBlocks.length).toBe(4)
     expect(typeof blocks[0].number).toBe('bigint')
+  })
+
+  describe('emitOnBegin', () => {
+    test('watches for new blocks', async () => {
+      const blocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(webSocketClient, {
+        emitOnBegin: true,
+        onBlock: (block) => blocks.push(block),
+      })
+      await wait(800)
+      await mine(client, { blocks: 1 })
+      await wait(200)
+      await mine(client, { blocks: 1 })
+      await wait(200)
+      await mine(client, { blocks: 1 })
+      await wait(200)
+      await mine(client, { blocks: 1 })
+      await wait(200)
+      unwatch()
+      expect(blocks.length).toBe(5)
+    })
   })
 
   describe('behavior', () => {
