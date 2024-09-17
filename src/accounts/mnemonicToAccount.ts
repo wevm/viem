@@ -7,7 +7,7 @@ import {
   type HDKeyToAccountOptions,
   hdKeyToAccount,
 } from './hdKeyToAccount.js'
-import type { HDAccount, HDOptions } from './types.js'
+import type { HDAccount } from './types.js'
 
 export type MnemonicToAccountOptions = HDKeyToAccountOptions
 
@@ -20,7 +20,7 @@ export type MnemonicToAccountErrorType = HDKeyToAccountErrorType | ErrorType
  */
 export function mnemonicToAccount(
   mnemonic: string,
-  opts: HDOptions = {},
+  opts: MnemonicToAccountOptions = {},
 ): HDAccount {
   const seed = mnemonicToSeedSync(mnemonic)
   return hdKeyToAccount(HDKey.fromMasterSeed(seed), opts)
