@@ -56,7 +56,7 @@ export type PackedUserOperation = {
   nonce: bigint
   /** Concatenation of paymaster fields (or empty). */
   paymasterAndData: Hex
-  /** Extra gas to pay the bunder. */
+  /** Extra gas to pay the Bundler. */
   preVerificationGas: bigint
   /** The account making the operation. */
   sender: Address
@@ -93,7 +93,7 @@ export type UserOperation<
           paymasterPostOpGasLimit?: uint256 | undefined
           /** The amount of gas to allocate for the paymaster validation code. */
           paymasterVerificationGasLimit?: uint256 | undefined
-          /** Extra gas to pay the bunder. */
+          /** Extra gas to pay the Bundler. */
           preVerificationGas: uint256
           /** The account making the operation. */
           sender: Address
@@ -119,7 +119,7 @@ export type UserOperation<
           nonce: uint256
           /** Paymaster address with calldata. */
           paymasterAndData?: Hex | undefined
-          /** Extra gas to pay the bunder. */
+          /** Extra gas to pay the Bundler. */
           preVerificationGas: uint256
           /** The account making the operation. */
           sender: Address

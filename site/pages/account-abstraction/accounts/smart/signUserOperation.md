@@ -408,7 +408,7 @@ const signature = await account.signUserOperation({
 
 - **Type:** `bigint`
 
-Extra gas to pay the bunder.
+Extra gas to pay the Bundler.
 
 ```ts twoslash
 import { toCoinbaseSmartAccount } from 'viem/account-abstraction'
