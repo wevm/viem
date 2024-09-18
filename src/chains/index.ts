@@ -314,7 +314,9 @@ export { wanchain } from './definitions/wanchain.js'
 export { wanchainTestnet } from './definitions/wanchainTestnet.js'
 export { wemix } from './definitions/wemix.js'
 export { wemixTestnet } from './definitions/wemixTestnet.js'
-export {
+export { worldchain } from './definitions/worldchain.js'
+export { worldchainsepolia } from './definitions/worldchainsepolia.js'
+export { 
   xLayerTestnet,
   /** @deprecated Use `xLayerTestnet` */
   x1Testnet,
