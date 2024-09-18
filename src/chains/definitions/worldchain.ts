@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const worldchain = /*#__PURE__*/ defineChain({
   id: 480,
@@ -7,10 +7,12 @@ export const worldchain = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://worldchain-mainnet.g.alchemy.com/public'] },
-    public: { http: ['https://worldchain-mainnet.g.alchemy.com/public'] },
   },
   blockExplorers: {
-    default: { name: 'World Chain Explorer', url: 'https://worldchain-mainnet.explorer.alchemy.com/' },
+    default: {
+      name: 'World Chain Explorer',
+      url: 'https://worldchain-mainnet.explorer.alchemy.com',
+    },
   },
   testnet: false,
 })
