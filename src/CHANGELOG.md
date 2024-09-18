@@ -1,5 +1,13 @@
 # viem
 
+## 2.21.9
+
+### Patch Changes
+
+- [`312160a`](https://github.com/wevm/viem/commit/312160a384c4a9f5937d9213829e1d7b5d067b8f) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `watchBlock` would not respect the `emitOnBegin` property for WebSocket Transports.
+
+- [`b509c6e`](https://github.com/wevm/viem/commit/b509c6e6dbc4ff7a8f5fc202c3956d01b63efe3d) Thanks [@jxom](https://github.com/jxom)! - Fixed `mnemonicToAccount` options type.
+
 ## 2.21.8
 
 ### Patch Changes
