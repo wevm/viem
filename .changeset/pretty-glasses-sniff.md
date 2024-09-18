@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed \`mnemonicToAccount\` options type.
+Fixed `mnemonicToAccount` options type.
