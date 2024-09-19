@@ -18,7 +18,7 @@ Viem exports ZKsync's chain [formatters](/docs/chains/formatters) & [serializers
 import { defineChain } from 'viem'
 import { chainConfig } from 'viem/zksync'
 
-export const opStackExample = defineChain({
+export const zkStackExample = defineChain({
   ...chainConfig,
   name: 'ZKsync Example',
   // ...

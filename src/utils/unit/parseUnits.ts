@@ -1,3 +1,4 @@
+import { InvalidDecimalNumberError } from '../../errors/unit.js'
 import type { ErrorType } from '../../errors/utils.js'
 
 export type ParseUnitsErrorType = ErrorType
@@ -14,6 +15,9 @@ export type ParseUnitsErrorType = ErrorType
  * // 420000000000n
  */
 export function parseUnits(value: string, decimals: number) {
+  if (!/^(-?)([0-9]*)\.?([0-9]*)$/.test(value))
+    throw new InvalidDecimalNumberError({ value })
+
   let [integer, fraction = '0'] = value.split('.')
 
   const negative = integer.startsWith('-')

@@ -1,5 +1,94 @@
 # viem
 
+## 2.21.9
+
+### Patch Changes
+
+- [`312160a`](https://github.com/wevm/viem/commit/312160a384c4a9f5937d9213829e1d7b5d067b8f) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `watchBlock` would not respect the `emitOnBegin` property for WebSocket Transports.
+
+- [`b509c6e`](https://github.com/wevm/viem/commit/b509c6e6dbc4ff7a8f5fc202c3956d01b63efe3d) Thanks [@jxom](https://github.com/jxom)! - Fixed `mnemonicToAccount` options type.
+
+## 2.21.8
+
+### Patch Changes
+
+- [#2724](https://github.com/wevm/viem/pull/2724) [`c2b2c78`](https://github.com/wevm/viem/commit/c2b2c7887eb27ffe1e1db534036a0bb7ef3cad5c) Thanks [@cygaar](https://github.com/cygaar)! - Reverted custom Abstract EIP712 domain changes.
+
+- [`2fa3d00`](https://github.com/wevm/viem/commit/2fa3d004467945efc548ac23a659c32a1e206cc4) Thanks [@jxom](https://github.com/jxom)! - Fixed zeroish log filter argument parsing.
+
+## 2.21.7
+
+### Patch Changes
+
+- [`644f72d`](https://github.com/wevm/viem/commit/644f72db0ac08808918917b2610e403d9bd1bb64) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `hashAuthorization` & `serializeAuthorizationList` did not RLP-serialize zeroish nonces correctly.
+
+- [#2719](https://github.com/wevm/viem/pull/2719) [`7fdb149`](https://github.com/wevm/viem/commit/7fdb14929f2446555315df4cf1b99bc086dd8d6b) Thanks [@sammdec](https://github.com/sammdec)! - Added `parentBeaconBlockRoot` to `Block` type.
+
+- [#2722](https://github.com/wevm/viem/pull/2722) [`0b5c7b6`](https://github.com/wevm/viem/commit/0b5c7b6e273cb00834099ec78e4e9555a3c34d5e) Thanks [@coffeexcoin](https://github.com/coffeexcoin)! - Added multicall3 contract for Abstract Testnet.
+
+## 2.21.6
+
+### Patch Changes
+
+- [#2715](https://github.com/wevm/viem/pull/2715) [`ca2909a1`](https://github.com/wevm/viem/commit/ca2909a1cf15e0e0647b868ca1732ceb3ae44b19) Thanks [@bh2smith](https://github.com/bh2smith)! - Updated Sepolia RPC URL.
+
+- [#2713](https://github.com/wevm/viem/pull/2713) [`35220f1c`](https://github.com/wevm/viem/commit/35220f1cbb327be29ccaf0c7d1cef5275f81bea8) Thanks [@holic](https://github.com/holic)! - Added Garnet chain.
+  Updated Redstone chain.
+
+## 2.21.5
+
+### Patch Changes
+
+- [`175e90b3`](https://github.com/wevm/viem/commit/175e90b33487017108af7563f030a54cd427c7c3) Thanks [@jxom](https://github.com/jxom)! - Restructured exports for wordlists.
+
+- [`4e9ea723`](https://github.com/wevm/viem/commit/4e9ea723d87aebd9c02dbe28ed85e862e537d757) Thanks [@jxom](https://github.com/jxom)! - Improved performance of `parseEventLogs`
+
+- [#2712](https://github.com/wevm/viem/pull/2712) [`aa57cf1a`](https://github.com/wevm/viem/commit/aa57cf1ad36554f3c50d3b2c88ee0b58410ccbf3) Thanks [@RareData](https://github.com/RareData)! - Updated naming for Flare chains.
+
+## 2.21.4
+
+### Patch Changes
+
+- [`9de10f8`](https://github.com/wevm/viem/commit/9de10f83937e9b76316d31c567d6e0ff879d569d) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Updated `getPaymasterData` + `getPaymasterStubData` return types to match ERC-7677 specification.
+
+- [#2659](https://github.com/wevm/viem/pull/2659) [`24bdc50`](https://github.com/wevm/viem/commit/24bdc504ae0197c771dba1e63dbbecabfdfa723f) Thanks [@owen-reorg](https://github.com/owen-reorg)! - Added OP Stack addresses to opBNB Chain.
+
+- [#2708](https://github.com/wevm/viem/pull/2708) [`6dfadec`](https://github.com/wevm/viem/commit/6dfadecf597ded6a0579ff919b94abc36bc7f325) Thanks [@0x-jj](https://github.com/0x-jj)! - Updated Shape Sepolia definition.
+
+## 2.21.3
+
+### Patch Changes
+
+- [#2693](https://github.com/wevm/viem/pull/2693) [`764f259f`](https://github.com/wevm/viem/commit/764f259f016dda7817def229adedea65cd6b9d63) Thanks [@kyscott18](https://github.com/kyscott18)! - Fixed LRU algorithm to update touched keys.
+
+- [#2692](https://github.com/wevm/viem/pull/2692) [`70814af6`](https://github.com/wevm/viem/commit/70814af6fb6ef90ee68c74b12998295a229c5435) Thanks [@frapsMatheus](https://github.com/frapsMatheus)! - Replaced instances of `2n ** 256n - 1n` with the `maxUint256` constant.
+
+- [#2698](https://github.com/wevm/viem/pull/2698) [`02734f32`](https://github.com/wevm/viem/commit/02734f3216ed15353ae2b39738c89a06faba533b) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Update Polygon's native token from MATIC to POL
+
+- [`c5ecc8f`](https://github.com/wevm/viem/commit/c5ecc8f54d21b21bc36f722fe9b240dc75527971) Thanks [@jxom](https://github.com/jxom)! - Added extra error handling in unit parsing.
+
+## 2.21.2
+
+### Patch Changes
+
+- [#2682](https://github.com/wevm/viem/pull/2682) [`68be3ba0`](https://github.com/wevm/viem/commit/68be3ba0a6942818f8e0c17ca419e8b5b9e93151) Thanks [@KONFeature](https://github.com/KONFeature)! - Exported `getPaymasterData` and `getPaymasterStubData`.
+
+- [`7f18a3cf`](https://github.com/wevm/viem/commit/7f18a3cfd7478200be6a25b282628656b274ec88) Thanks [@tmm](https://github.com/tmm)! - Bumped scure-bip39.
+
+- [#2686](https://github.com/wevm/viem/pull/2686) [`e7431e88`](https://github.com/wevm/viem/commit/e7431e88b0e8b83719c91f5a6a57da1a10076a1c) Thanks [@sakulstra](https://github.com/sakulstra)! - Fixed Metis Explorer API URL.
+
+- [#2672](https://github.com/wevm/viem/pull/2672) [`a541519c`](https://github.com/wevm/viem/commit/a541519c12bdd7fb91e3534cc3a9c576a33b8acb) Thanks [@bthaile](https://github.com/bthaile)! - Deprecated Flow Previewnet.
+
+- [`c11d92ff`](https://github.com/wevm/viem/commit/c11d92ffdc0b333f6a6a7bd8d716a45c5ae0dc0d) Thanks [@tmm](https://github.com/tmm)! - Removed non-default chain properties.
+
+## 2.21.1
+
+### Patch Changes
+
+- [#2674](https://github.com/wevm/viem/pull/2674) [`962d3697`](https://github.com/wevm/viem/commit/962d36970b3f46a8705a4ce3f513f3eae20623f1) Thanks [@Haypierre](https://github.com/Haypierre)! - Added ZKsync config to Sophon testnet chain.
+
+- [#2678](https://github.com/wevm/viem/pull/2678) [`5c258595`](https://github.com/wevm/viem/commit/5c25859584b0fd675f0f9660e9227453edfc6e64) Thanks [@joaquim-verges](https://github.com/joaquim-verges)! - **Extension (ZKsync):** Exported `encodeDeployData` and `hashBytecode`.
+
 ## 2.21.0
 
 ### Minor Changes

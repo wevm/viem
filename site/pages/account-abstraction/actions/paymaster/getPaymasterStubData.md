@@ -292,7 +292,7 @@ const paymasterArgs = await paymasterClient.getPaymasterStubData({
 
 - **Type:** `bigint`
 
-Extra gas to pay the Bunder.
+Extra gas to pay the Bundler.
 
 ```ts twoslash
 import { paymasterClient } from './config'

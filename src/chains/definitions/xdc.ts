@@ -12,10 +12,6 @@ export const xdc = /*#__PURE__*/ defineChain({
     default: { http: ['https://rpc.xinfin.network'] },
   },
   blockExplorers: {
-    xinfin: {
-      name: 'XinFin',
-      url: 'https://explorer.xinfin.network',
-    },
     default: {
       name: 'Blocksscan',
       url: 'https://xdc.blocksscan.io',

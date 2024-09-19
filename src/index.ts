@@ -826,6 +826,10 @@ export {
   type EnsAvatarUriResolutionErrorType,
 } from './errors/ens.js'
 export {
+  type InvalidDecimalNumberErrorType,
+  InvalidDecimalNumberError,
+} from './errors/unit.js'
+export {
   EstimateGasExecutionError,
   type EstimateGasExecutionErrorType,
 } from './errors/estimateGas.js'

@@ -2,10 +2,10 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const flareTestnet = /*#__PURE__*/ defineChain({
   id: 114,
-  name: 'Coston2',
+  name: 'Flare Testnet Coston2',
   nativeCurrency: {
     decimals: 18,
-    name: 'coston2flare',
+    name: 'Coston2 Flare',
     symbol: 'C2FLR',
   },
   rpcUrls: {

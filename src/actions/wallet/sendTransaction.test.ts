@@ -6,9 +6,11 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
+import { maxUint256 } from '~viem/constants/number.js'
 import { BatchCallInvoker } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { deploy } from '../../../test/src/utils.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { signAuthorization } from '../../experimental/index.js'
@@ -1174,7 +1176,7 @@ describe('errors', () => {
       sendTransaction(client, {
         to: targetAccount.address,
         value: parseEther('1'),
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [AccountNotFoundError: Could not find an Account to execute with this Action.
@@ -1193,7 +1195,7 @@ describe('errors', () => {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TransactionExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
@@ -1404,4 +1406,49 @@ describe('errors', () => {
     `,
     )
   })
+})
+
+test('https://github.com/wevm/viem/issues/2721', async () => {
+  const invoker = privateKeyToAccount(generatePrivateKey())
+  const authority = privateKeyToAccount(generatePrivateKey())
+  const recipient = privateKeyToAccount(generatePrivateKey())
+
+  await setBalance(client, {
+    address: invoker.address,
+    value: parseEther('100'),
+  })
+  await setBalance(client, {
+    address: authority.address,
+    value: parseEther('100'),
+  })
+
+  const { contractAddress } = await deploy(client, {
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
+  const hash = await sendTransaction(client, {
+    account: invoker,
+    authorizationList: [authorization],
+    data: encodeFunctionData({
+      abi: BatchCallInvoker.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: recipient.address,
+            data: '0x',
+            value: parseEther('1'),
+          },
+        ],
+      ],
+    }),
+    to: authority.address,
+  })
+  expect(hash).toBeDefined()
 })

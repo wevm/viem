@@ -58,7 +58,7 @@ test('args: to (hex)', async () => {
   })
 
   expect(signature).toMatchInlineSnapshot(
-    `"0x1b633d8fa4b6822d010b17bdec4bd305eb024d302588edf0618fd04b26d686fd2633183f08457bbb7355b26280a122c7e6f5e38d5a23ece2cccf3068b6dd06ca1b"`,
+    `"0xff5d79daa56d5aae2657e8950af71377f8c2860255a9c915948c071ef9286def17318a10ff56f0000a350a210fdb312ba22260a64f38dddc135912a6c4795c1d1b"`,
   )
   expect(
     await verifyAuthorization({

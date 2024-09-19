@@ -202,9 +202,26 @@ export function watchBlocks<
 
   const subscribeBlocks = () => {
     let active = true
+    let emitFetched = true
     let unsubscribe = () => (active = false)
     ;(async () => {
       try {
+        if (emitOnBegin) {
+          getAction(
+            client,
+            getBlock,
+            'getBlock',
+          )({
+            blockTag,
+            includeTransactions,
+          }).then((block) => {
+            if (!active) return
+            if (!emitFetched) return
+            onBlock(block as any, undefined)
+            emitFetched = false
+          })
+        }
+
         const transport = (() => {
           if (client.transport.type === 'fallback') {
             const transport = client.transport.transports.find(
@@ -225,6 +242,7 @@ export function watchBlocks<
               client.chain?.formatters?.block?.format || formatBlock
             const block = format(data.result)
             onBlock(block, prevBlock as any)
+            emitFetched = false
             prevBlock = block
           },
           onError(error: Error) {

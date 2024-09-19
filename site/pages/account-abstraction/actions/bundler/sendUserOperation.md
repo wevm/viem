@@ -518,7 +518,7 @@ const hash = await bundlerClient.sendUserOperation({
 
 - **Type:** `bigint`
 
-Extra gas to pay the Bunder.
+Extra gas to pay the Bundler.
 
 ```ts twoslash
 import { account, bundlerClient } from './config'

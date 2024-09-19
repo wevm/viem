@@ -34,6 +34,7 @@ import {
   createClient,
   decodeFunctionResult,
   encodeAbiParameters,
+  maxUint256,
   multicall3Abi,
   pad,
   parseEther,
@@ -247,7 +248,7 @@ describe('errors', () => {
         data: `${mintWithParams4bytes}${fourTwenty}`,
         account: sourceAccount.address,
         to: wagmiContractAddress,
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [CallExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).

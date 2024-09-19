@@ -116,11 +116,15 @@ export function decodeEventLog<
   const [signature, ...argTopics] = topics
   if (!signature) throw new AbiEventSignatureEmptyTopicsError({ docsPath })
 
-  const abiItem = abi.find(
-    (x) =>
-      x.type === 'event' &&
-      signature === toEventSelector(formatAbiItem(x) as EventDefinition),
-  )
+  const abiItem = (() => {
+    if (abi.length === 1) return abi[0]
+    return abi.find(
+      (x) =>
+        x.type === 'event' &&
+        signature === toEventSelector(formatAbiItem(x) as EventDefinition),
+    )
+  })()
+
   if (!(abiItem && 'name' in abiItem) || abiItem.type !== 'event')
     throw new AbiEventSignatureNotFoundError(signature, { docsPath })
 

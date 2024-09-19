@@ -514,7 +514,7 @@ const userOperation = await bundlerClient.prepareUserOperation({
 
 - **Type:** `bigint`
 
-Extra gas to pay the Bunder.
+Extra gas to pay the Bundler.
 
 ```ts twoslash
 import { bundlerClient } from './config'

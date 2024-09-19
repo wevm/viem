@@ -20,6 +20,15 @@ export {
   deployContract,
 } from './actions/deployContract.js'
 export {
+  type EncodeDeployDataParameters,
+  type EncodeDeployDataErrorType,
+  encodeDeployData,
+} from './utils/abi/encodeDeployData.js'
+export {
+  type HashBytecodeErrorType,
+  hashBytecode,
+} from './utils/hashBytecode.js'
+export {
   type EstimateFeeParameters,
   type EstimateFeeReturnType,
   estimateFee,
