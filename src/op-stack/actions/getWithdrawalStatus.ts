@@ -248,7 +248,9 @@ export async function getWithdrawalStatus<
         errorMessage === 'OptimismPortal: invalid game type' ||
         errorMessage === 'OptimismPortal: withdrawal has not been proven yet' ||
         errorMessage ===
-          'OptimismPortal: withdrawal has not been proven by proof submitter address yet'
+          'OptimismPortal: withdrawal has not been proven by proof submitter address yet' ||
+        errorMessage ===
+          'OptimismPortal: dispute game created before respected game type was updated'
       )
         return 'ready-to-prove'
       if (
