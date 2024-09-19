@@ -1,5 +1,11 @@
 # viem
 
+## 2.21.10
+
+### Patch Changes
+
+- [#2738](https://github.com/wevm/viem/pull/2738) [`15c71b6`](https://github.com/wevm/viem/commit/15c71b6dacc3abe9ed0ac0fc9c21c9b70c2072e5) Thanks [@johncpalmer](https://github.com/johncpalmer)! - Added World Chain
+
 ## 2.21.9
 
 ### Patch Changes
