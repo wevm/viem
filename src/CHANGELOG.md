@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.11
+
+### Patch Changes
+
+- [#2742](https://github.com/wevm/viem/pull/2742) [`38e411d`](https://github.com/wevm/viem/commit/38e411d379aef6171c35c01afe10cf9f52dfb430) Thanks [@dbeal-eth](https://github.com/dbeal-eth)! - Added Cannon chain.
+
+- [#2729](https://github.com/wevm/viem/pull/2729) [`91e34c8`](https://github.com/wevm/viem/commit/91e34c8da4b00fb1649e552450eba3794a9e8887) Thanks [@ezynda3](https://github.com/ezynda3)! - Fixed BSC Testnet API URL.
+
+- [#2747](https://github.com/wevm/viem/pull/2747) [`ce6a84d`](https://github.com/wevm/viem/commit/ce6a84db20708d747a16ffac67206b0929174e36) Thanks [@nitaliano](https://github.com/nitaliano)! - **OP Stack**: Fixed bug in getWithdrawalStatus for pre fault proof withdrawals
+
 ## 2.21.10
 
 ### Patch Changes
