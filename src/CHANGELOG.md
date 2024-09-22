@@ -1,5 +1,13 @@
 # viem
 
+## 2.21.12
+
+### Patch Changes
+
+- [#2752](https://github.com/wevm/viem/pull/2752) [`ba36b3d`](https://github.com/wevm/viem/commit/ba36b3d822aac4c6e9652a5a6e88ee3248c9098a) Thanks [@jeff-0402](https://github.com/jeff-0402)! - Added Orderly chain.
+
+- [#2750](https://github.com/wevm/viem/pull/2750) [`5c07596`](https://github.com/wevm/viem/commit/5c075965d2695b78bb3cb44cdbe9e27715e184cd) Thanks [@jaybbbb](https://github.com/jaybbbb)! - Added Silicon chains.
+
 ## 2.21.11
 
 ### Patch Changes
