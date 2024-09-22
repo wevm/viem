@@ -16,10 +16,4 @@ export const siliconSepolia = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
-  contracts: {
-    multicall3: {
-      address: '0x291201dcF97e902c13B6AD26b334F3a64Fc5E5a9',
-      blockCreated: 993694,
-    },
-  },
 })
