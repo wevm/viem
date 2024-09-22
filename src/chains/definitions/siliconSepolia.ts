@@ -6,7 +6,10 @@ export const siliconSepolia = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc-sepolia.silicon.network', 'https://silicon-testnet.nodeinfra.com'],
+      http: [
+        'https://rpc-sepolia.silicon.network',
+        'https://silicon-testnet.nodeinfra.com',
+      ],
     },
   },
   blockExplorers: {

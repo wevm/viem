@@ -6,7 +6,10 @@ export const silicon = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.silicon.network', 'https://silicon-mainnet.nodeinfra.com'],
+      http: [
+        'https://rpc.silicon.network',
+        'https://silicon-mainnet.nodeinfra.com',
+      ],
     },
   },
   blockExplorers: {
