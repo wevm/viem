@@ -15,10 +15,4 @@ export const silicon = /*#__PURE__*/ defineChain({
       url: 'https://scope.silicon.network',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0x291201dcF97e902c13B6AD26b334F3a64Fc5E5a9',
-      blockCreated: 596061,
-    },
-  },
 })
