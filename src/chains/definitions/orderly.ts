@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const orderly = /*#__PURE__*/ defineChain({
-  id: 4460,
+  id: 291,
   name: 'Orderly',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
