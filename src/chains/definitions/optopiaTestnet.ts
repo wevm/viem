@@ -13,5 +13,5 @@ export const optopiaTestnet = /*#__PURE__*/ defineChain({
       url: 'https://scan-testnet.optopia.ai',
     },
   },
-  testnet: false,
+  testnet: true,
 })
