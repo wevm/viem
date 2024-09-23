@@ -10,7 +10,7 @@ export const kinto = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Kava EVM Explorer',
+      name: 'Kinto Explorer',
       url: 'https://explorer.kinto.xyz',
     },
   },
