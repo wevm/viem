@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added mint chain.
+Added Mint chain.
