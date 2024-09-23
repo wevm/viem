@@ -3,6 +3,8 @@ export type { Chain } from '../types/chain.js'
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { abstractTestnet } from './definitions/abstractTestnet.js'
 export { acala } from './definitions/acala.js'
+export { alienx } from './definitions/alienX.js'
+export { alienxHalTestnet } from './definitions/alienXHalTestnet.js'
 export { ancient8 } from './definitions/ancient8.js'
 export { ancient8Sepolia } from './definitions/ancient8Sepolia.js'
 export { anvil } from './definitions/anvil.js'
