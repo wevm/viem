@@ -155,6 +155,7 @@ export { kakarotSepolia } from './definitions/kakarotSepolia.js'
 export { kava } from './definitions/kava.js'
 export { kavaTestnet } from './definitions/kavaTestnet.js'
 export { kcc } from './definitions/kcc.js'
+export { kinto } from './definitions/kinto.js'
 /** @deprecated Use `kaia` instead. */
 export { klaytn } from './definitions/klaytn.js'
 /** @deprecated Use `kairos` instead. */
