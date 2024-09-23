@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add swan chain.
+Added Swan chain.
