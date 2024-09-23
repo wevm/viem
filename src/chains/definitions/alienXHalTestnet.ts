@@ -13,5 +13,5 @@ export const alienxHalTestnet = /*#__PURE__*/ defineChain({
       url: 'https://hal-explorer.alienxchain.io',
     },
   },
-  testnet: false,
+  testnet: true,
 })
