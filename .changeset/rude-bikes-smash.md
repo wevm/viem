@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added kinto chain
+Added Kinto chain.
