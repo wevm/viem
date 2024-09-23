@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add AlienX chain.
+Added AlienX chain.
