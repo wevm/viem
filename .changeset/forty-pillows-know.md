@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added \`delegate\` parameter to \`signAuthorization\`.
+Added `delegate` parameter to `signAuthorization`.
