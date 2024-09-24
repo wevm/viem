@@ -331,9 +331,9 @@ export const walletClient = createWalletClient({
 
 :::
 
-### 5. Optional: Use an Invoker
+### 5. Optional: Use a Delegate
 
-We can also utilize an Invoker Account to execute a call on behalf of the authorizing Account. This is useful for cases where we want to "sponsor" the Transaction for the user (i.e. pay for their gas fees).
+We can also utilize an Delegate Account to execute a call on behalf of the authorizing Account. This is useful for cases where we want to "sponsor" the Transaction for the user (i.e. pay for their gas fees).
 
 :::code-group
 
@@ -342,14 +342,16 @@ import { encodeFunctionData{ parseEther } from 'viem'
 import { walletClient } from './config'
 import { contractAddress } from './contract'
  
+const delegate = privateKeyToAccount('0x...') // [!code ++]
+
 const authorization = await walletClient.signAuthorization({
   contractAddress,
+  delegate, // [!code ++]
 })
 
-const invoker = privateKeyToAccount('0x...') // [!code ++]
 
 const hash = await walletClient.sendTransaction({
-  account: invoker, // [!code ++]
+  account: delegate, // [!code ++]
   authorizationList: [authorization],
   data: encodeFunctionData({
     abi,

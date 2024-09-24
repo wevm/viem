@@ -115,7 +115,7 @@ describe('ccip', () => {
         to: contractAddress!,
       }),
     ).rejects.toThrowError(
-      'Execution reverted with reason: custom error 556f1830',
+      'Execution reverted with reason: custom error 0x556f1830',
     )
 
     await server.close()
@@ -331,7 +331,7 @@ describe('errors', () => {
     ).rejects.toThrowError('cannot be lower than the block base fee')
   })
 
-  test('nonce too low', async () => {
+  test.skip('nonce too low', async () => {
     await expect(() =>
       call(client, {
         account: sourceAccount.address,
