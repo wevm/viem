@@ -1,5 +1,11 @@
 # viem
 
+## 2.21.14
+
+### Patch Changes
+
+- [`c7c737a4`](https://github.com/wevm/viem/commit/c7c737a472a7b5a46b12340071f9e9480d3975dd) Thanks [@jxom](https://github.com/jxom)! - Added `delegate` parameter to `signAuthorization`.
+
 ## 2.21.13
 
 ### Patch Changes
