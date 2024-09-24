@@ -1,7 +1,7 @@
 {
   // This configuration is used for local development and type checking.
   "extends": "./tsconfig.base.json",
-  "include": ["src", "test/src"],
+  "include": ["src", "test/src", "src/chains/definitions/elysiumTestnet.ts"],
   "exclude": [],
   "references": [{ "path": "./scripts/tsconfig.json" }],
   "compilerOptions": {

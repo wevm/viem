@@ -369,6 +369,7 @@ export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
 export { zircuitTestnet } from './definitions/zircuitTestnet.js'
+export {elysiumTestnet} from './definitions/elysiumTestnet.js';
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".
