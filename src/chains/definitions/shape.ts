@@ -10,7 +10,14 @@ export const shape = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://internal-shaper-explorer.alchemypreview.com'],
+      http: ['https://mainnet.shape.network'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'blockscout',
+      url: 'https://internal-shaper-explorer.alchemypreview.com',
+      apiUrl: 'https://internal-shaper-explorer.alchemypreview.com/api/v2',
     },
   },
   contracts: {
