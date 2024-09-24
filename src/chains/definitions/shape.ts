@@ -13,13 +13,6 @@ export const shape = /*#__PURE__*/ defineChain({
       http: ['https://mainnet.shape.network'],
     },
   },
-  blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://internal-shaper-explorer.alchemypreview.com',
-      apiUrl: 'https://internal-shaper-explorer.alchemypreview.com/api/v2',
-    },
-  },
   contracts: {
     ...chainConfig.contracts,
     multicall3: {
