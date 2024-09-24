@@ -1,5 +1,27 @@
 # viem
 
+## 2.21.14
+
+### Patch Changes
+
+- [`c7c737a4`](https://github.com/wevm/viem/commit/c7c737a472a7b5a46b12340071f9e9480d3975dd) Thanks [@jxom](https://github.com/jxom)! - Added `delegate` parameter to `signAuthorization`.
+
+## 2.21.13
+
+### Patch Changes
+
+- [#2759](https://github.com/wevm/viem/pull/2759) [`81967929`](https://github.com/wevm/viem/commit/81967929e7e5b105753ae68dbbd24bbbb59f1e1b) Thanks [@codespool](https://github.com/codespool)! - Updated AstarZkEVM RPC URL.
+
+- [#2756](https://github.com/wevm/viem/pull/2756) [`5e1a13de`](https://github.com/wevm/viem/commit/5e1a13de8d116d176393b4ac93d7933d8d16a676) Thanks [@jeff-0402](https://github.com/jeff-0402)! - Added Mint chain.
+
+- [#2761](https://github.com/wevm/viem/pull/2761) [`9ed514a9`](https://github.com/wevm/viem/commit/9ed514a95a73bb248d15d670fd34c3af92a8e956) Thanks [@tom-jordan1](https://github.com/tom-jordan1)! - Added AlienX chain.
+
+- [#2760](https://github.com/wevm/viem/pull/2760) [`b70fc5e8`](https://github.com/wevm/viem/commit/b70fc5e8fd768d6866cc42a1de515d39d2b81bc2) Thanks [@tom-jordan1](https://github.com/tom-jordan1)! - Added Swan chain.
+
+- [#2757](https://github.com/wevm/viem/pull/2757) [`60dacc16`](https://github.com/wevm/viem/commit/60dacc16bf2804ee0e70f7eb51401dd06030dc8d) Thanks [@jeff-0402](https://github.com/jeff-0402)! - Added Kinto chain.
+
+- [#2762](https://github.com/wevm/viem/pull/2762) [`02d69e6f`](https://github.com/wevm/viem/commit/02d69e6f92dedcd5454dc9abdbdd94fb68c0da59) Thanks [@ezynda3](https://github.com/ezynda3)! - Added missing API URL for `xLayer`.
+
 ## 2.21.12
 
 ### Patch Changes

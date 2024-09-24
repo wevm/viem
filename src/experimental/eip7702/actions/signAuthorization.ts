@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import type { Account } from '../../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -21,13 +22,18 @@ import type { ErrorType } from '../../../errors/utils.js'
 import type { GetAccountParameter } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import type { PartialBy } from '../../../types/utils.js'
+import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { getAction } from '../../../utils/getAction.js'
 import type { Authorization } from '../types/authorization.js'
 
 export type SignAuthorizationParameters<
   account extends Account | undefined = Account | undefined,
-> = GetAccountParameter<account> & PartialBy<Authorization, 'chainId' | 'nonce'>
+> = GetAccountParameter<account> &
+  PartialBy<Authorization, 'chainId' | 'nonce'> & {
+    /** Delegate of the EIP-7702 Authorization Transaction. @default `account` */
+    delegate?: Address | Account | undefined
+  }
 
 export type SignAuthorizationReturnType = SignAuthorizationReturnType_account
 
@@ -93,6 +99,7 @@ export async function signAuthorization<
     contractAddress,
     chainId,
     nonce,
+    delegate: delegate_,
   } = parameters
 
   if (!account_)
@@ -100,6 +107,8 @@ export async function signAuthorization<
       docsPath: '/experimental/eip7702/signAuthorization',
     })
   const account = parseAccount(account_)
+
+  const delegate = delegate_ ? parseAccount(delegate_) : undefined
 
   if (!account.experimental_signAuthorization)
     throw new AccountTypeNotSupportedError({
@@ -130,6 +139,8 @@ export async function signAuthorization<
       address: account.address,
       blockTag: 'pending',
     })
+    if (!delegate || isAddressEqual(account.address, delegate.address))
+      authorization.nonce += 1
   }
 
   return account.experimental_signAuthorization(authorization)

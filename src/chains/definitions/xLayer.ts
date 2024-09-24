@@ -15,6 +15,7 @@ export const xLayer = /*#__PURE__*/ defineChain({
     default: {
       name: 'OKLink',
       url: 'https://www.oklink.com/xlayer',
+      apiUrl: 'https://www.oklink.com/api/v5/explorer/xlayer/api',
     },
   },
   contracts: {

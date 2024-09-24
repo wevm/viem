@@ -73,7 +73,7 @@ test('behavior: address as authorization', async () => {
     {
       "chainId": 1,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-      "nonce": 663,
+      "nonce": 664,
       "r": null,
       "s": null,
       "v": null,
@@ -110,7 +110,7 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
     {
       "chainId": 1,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-      "nonce": 663,
+      "nonce": 664,
       "r": null,
       "s": null,
       "v": null,
@@ -148,7 +148,7 @@ test('behavior: partial authorization: no nonce', async () => {
     {
       "chainId": 10,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-      "nonce": 663,
+      "nonce": 664,
       "r": null,
       "s": null,
       "v": null,
@@ -198,6 +198,38 @@ test('behavior: partial authorization: no chainId', async () => {
   expect(authorization.s).toBeDefined()
   expect(authorization.v).toBeDefined()
   expect(authorization.yParity).toBeDefined()
+  expect(
+    await verifyAuthorization({
+      address: account.address,
+      authorization,
+    }),
+  ).toBe(true)
+})
+
+test('behavior: delegate', async () => {
+  const authorization = await signAuthorization(client, {
+    account,
+    contractAddress: wagmiContractConfig.address,
+    delegate: '0x0000000000000000000000000000000000000000',
+  })
+
+  expect(authorization.nonce).toBe(663)
+  expect(
+    await verifyAuthorization({
+      address: account.address,
+      authorization,
+    }),
+  ).toBe(true)
+})
+
+test('behavior: account as delegate', async () => {
+  const authorization = await signAuthorization(client, {
+    account,
+    contractAddress: wagmiContractConfig.address,
+    delegate: account,
+  })
+
+  expect(authorization.nonce).toBe(664)
   expect(
     await verifyAuthorization({
       address: account.address,

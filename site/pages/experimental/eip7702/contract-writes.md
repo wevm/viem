@@ -425,9 +425,9 @@ const hash = await walletClient.writeContract({
 ```
 :::
 
-### 6. Optional: Use an Invoker
+### 6. Optional: Use a Delegate
 
-We can also utilize an Invoker Account to execute a call on behalf of the authorizing Account. This is useful for cases where we want to "sponsor" the Transaction for the user (i.e. pay for their gas fees).
+We can also utilize an Delegate Account to execute a call on behalf of the authorizing Account. This is useful for cases where we want to "sponsor" the Transaction for the user (i.e. pay for their gas fees).
 
 :::code-group
 
@@ -442,11 +442,13 @@ const batchCallInvoker = getContract({
   walletClient,
 })
  
+const delegate = privateKeyToAccount('0x...') // [!code ++]
+
 const authorization = await walletClient.signAuthorization({
   contractAddress,
+  delegate, // [!code ++]
 })
 
-const invoker = privateKeyToAccount('0x...') // [!code ++]
 
 const hash = await batchCallInvoker.write.execute([[{
   data: '0x',
@@ -457,7 +459,7 @@ const hash = await batchCallInvoker.write.execute([[{
   to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
   value: parseEther('0.002'),
 }]], {
-  account: invoker, // [!code ++]
+  account: delegate, // [!code ++]
   authorizationList: [authorization],
 })
 ```
