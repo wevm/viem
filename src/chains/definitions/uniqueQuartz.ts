@@ -17,5 +17,4 @@ export const uniqueQuartz = /*#__PURE__*/ defineChain({
       url: 'https://quartz.subscan.io/',
     },
   },
-  chainNamespace: 'eip155',
 })
