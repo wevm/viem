@@ -93,6 +93,7 @@ export { edgeless } from './definitions/edgeless.js'
 export { edgelessTestnet } from './definitions/edgelessTestnet.js'
 export { edgeware } from './definitions/edgeware.js'
 export { edgewareTestnet } from './definitions/edgewareTestnet.js'
+export { elysiumTestnet} from './definitions/elysiumTestnet.js';
 export { eon } from './definitions/eon.js'
 export { eos } from './definitions/eos.js'
 export { eosTestnet } from './definitions/eosTestnet.js'
