@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Snax chain.
+Added Snax chain.
