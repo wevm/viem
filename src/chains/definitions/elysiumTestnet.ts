@@ -13,14 +13,13 @@ export const elysiumTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.atlantischain.network/','https://elysium-test-rpc.vulcanforged.com'],
-      webSocket: ['wss://atlantischain.network/'],
+      http: ['https://elysium-test-rpc.vulcanforged.com'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Elysium testnet explorer',
-      url: 'https://blockscout.atlantischain.network/'
+      url: 'https://elysium-explorer.vulcanforged.com'
     },
   },
   testnet: true,
