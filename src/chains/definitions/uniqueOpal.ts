@@ -17,6 +17,5 @@ export const uniqueOpal = /*#__PURE__*/ defineChain({
       url: 'https://opal.subscan.io/',
     },
   },
-  chainNamespace: 'eip155',
   testnet: true,
 })
