@@ -17,5 +17,4 @@ export const unique = /*#__PURE__*/ defineChain({
       url: 'https://unique.subscan.io/',
     },
   },
-  chainNamespace: 'eip155',
 })
