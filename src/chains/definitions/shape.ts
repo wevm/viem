@@ -15,9 +15,9 @@ export const shape = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'blockscout',
-      url: 'https://internal-shaper-explorer.alchemypreview.com',
-      apiUrl: 'https://internal-shaper-explorer.alchemypreview.com/api',
+      name: 'shapescan',
+      url: 'https://shapescan.xyz',
+      apiUrl: 'https://shapescan.xyz/api',
     },
   },
   contracts: {
