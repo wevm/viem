@@ -579,7 +579,7 @@ test('https://github.com/wevm/viem/issues/2775', async () => {
     URL: http://localhost
     Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
-    Details: Not Found
+    Details: "default backend - 404"
     Version: viem@x.y.z]
   `,
   )

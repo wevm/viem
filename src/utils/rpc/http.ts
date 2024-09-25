@@ -125,7 +125,7 @@ export function getHttpRpcClient(
             data = JSON.parse(data || '{}')
           } catch (err) {
             if (response.ok) throw err
-            data = {}
+            data = { error: data }
           }
         }
 
