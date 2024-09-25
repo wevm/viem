@@ -121,7 +121,12 @@ export function getHttpRpcClient(
           data = await response.json()
         else {
           data = await response.text()
-          data = JSON.parse(data || '{}')
+          try {
+            data = JSON.parse(data || '{}')
+          } catch (err) {
+            if (response.ok) throw err
+            data = {}
+          }
         }
 
         if (!response.ok) {

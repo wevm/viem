@@ -555,3 +555,32 @@ describe('http (batch)', () => {
     mock.mockRestore()
   })
 })
+
+test('https://github.com/wevm/viem/issues/2775', async () => {
+  const server = await createHttpServer((_req, res) => {
+    res.writeHead(404)
+    res.end('default backend - 404')
+  })
+
+  const client = getHttpRpcClient(server.url)
+
+  await expect(() =>
+    client.request({
+      body: {
+        method: 'eth_getBlockByNumber',
+        params: [numberToHex(anvilMainnet.forkBlockNumber), false],
+      },
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `
+    [HttpRequestError: HTTP request failed.
+
+    Status: 404
+    URL: http://localhost
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
+
+    Details: Not Found
+    Version: viem@x.y.z]
+  `,
+  )
+})
