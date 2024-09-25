@@ -1,7 +1,6 @@
 import { chainConfig } from '../../op-stack/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-
 export const elysiumTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 1338,
@@ -19,7 +18,7 @@ export const elysiumTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Elysium testnet explorer',
-      url: 'https://elysium-explorer.vulcanforged.com'
+      url: 'https://elysium-explorer.vulcanforged.com',
     },
   },
   testnet: true,
