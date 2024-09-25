@@ -68,7 +68,9 @@ export function getNodeError(
   const executionRevertedError =
     err instanceof BaseError
       ? err.walk(
-          (e) => (e as { code: number } | null | undefined)?.code === ExecutionRevertedError.code,
+          (e) =>
+            (e as { code: number } | null | undefined)?.code ===
+            ExecutionRevertedError.code,
         )
       : err
   if (executionRevertedError instanceof BaseError)
