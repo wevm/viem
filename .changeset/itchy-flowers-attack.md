@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Shape chain.
+Added Shape chain.
