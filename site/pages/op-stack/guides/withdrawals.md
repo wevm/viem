@@ -302,7 +302,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
