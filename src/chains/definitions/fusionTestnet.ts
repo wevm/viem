@@ -16,5 +16,11 @@ export const fusionTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet.fsnscan.com',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 10428309,
+    },
+  },
   testnet: true,
 })
