@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const bounceBitTestnet = /*#__PURE__*/ defineChain({
-  id: 6001,
+  id: 6000,
   name: 'BounceBit Testnet',
   nativeCurrency: { name: 'BounceBit', symbol: 'BB', decimals: 18 },
   rpcUrls: {
@@ -13,5 +13,5 @@ export const bounceBitTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet.bbscan.io',
     },
   },
-  testnet: false,
+  testnet: true,
 })
