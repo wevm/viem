@@ -1,5 +1,27 @@
 # viem
 
+## 2.21.15
+
+### Patch Changes
+
+- [#2776](https://github.com/wevm/viem/pull/2776) [`c40e999a`](https://github.com/wevm/viem/commit/c40e999a996b950995fd49e149112e93109f854a) Thanks [@Svg70](https://github.com/Svg70)! - Added Unique chains.
+
+- [#2772](https://github.com/wevm/viem/pull/2772) [`679eccfa`](https://github.com/wevm/viem/commit/679eccfa1883ed24fc1b41866387eade526e70a2) Thanks [@tom-jordan1](https://github.com/tom-jordan1)! - Added SuperLumio chain.
+
+- [#2764](https://github.com/wevm/viem/pull/2764) [`e0a63169`](https://github.com/wevm/viem/commit/e0a631695095243364123ce5dd63691e4e913d04) Thanks [@j6i](https://github.com/j6i)! - Added Shape chain.
+
+- [#2769](https://github.com/wevm/viem/pull/2769) [`ed22d380`](https://github.com/wevm/viem/commit/ed22d3808d8ce0ce0e2498c74cf14a089561a1b5) Thanks [@tuna1207](https://github.com/tuna1207)! - Fixed undefined reference in `getNodeError`.
+
+- [#2774](https://github.com/wevm/viem/pull/2774) [`000a2dcc`](https://github.com/wevm/viem/commit/000a2dccd27894294d1b06634a0e0723b88dddce) Thanks [@aqeelVaival](https://github.com/aqeelVaival)! - Added `elysiumTestnet` chain.
+
+- [`aadeada3`](https://github.com/wevm/viem/commit/aadeada3823ec2a216416bbb4c83465259c32909) Thanks [@jxom](https://github.com/jxom)! - Added default `timeout` to `waitForTransactionReceipt`.
+
+- [#2770](https://github.com/wevm/viem/pull/2770) [`c4868b5e`](https://github.com/wevm/viem/commit/c4868b5effce7a7c03a8fd7ea3eeea2ad15ebab1) Thanks [@jeff-0402](https://github.com/jeff-0402)! - Added Optopia chain.
+
+- [#2768](https://github.com/wevm/viem/pull/2768) [`44faceea`](https://github.com/wevm/viem/commit/44faceeadebfe4c9335b44cfc3a310bb229d484a) Thanks [@barrasso](https://github.com/barrasso)! - Added Snax chain.
+
+- [`e2b2a48b`](https://github.com/wevm/viem/commit/e2b2a48b98ad431d4fb9f2e8fdf5b718a77b251d) Thanks [@jxom](https://github.com/jxom)! - Added better handling for HTTP error text responses.
+
 ## 2.21.14
 
 ### Patch Changes
