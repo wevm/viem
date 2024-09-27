@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added missing multicall3 for `areon`.
+Added Multicall address for `areon`.
