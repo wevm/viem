@@ -338,11 +338,11 @@ export { unreal } from './definitions/unreal.js'
 export { vechain } from './definitions/vechain.js'
 export { wanchain } from './definitions/wanchain.js'
 export { wanchainTestnet } from './definitions/wanchainTestnet.js'
+export { weaveVMAlphanet } from './definitions/weavevmAlphanet.js'
 export { wemix } from './definitions/wemix.js'
 export { wemixTestnet } from './definitions/wemixTestnet.js'
 export { worldchain } from './definitions/worldchain.js'
 export { worldchainSepolia } from './definitions/worldchainSepolia.js'
-export { weaveVMAlphanet } from './definitions/weavevmAlphanet.js'
 export {
   xLayerTestnet,
   /** @deprecated Use `xLayerTestnet` */
