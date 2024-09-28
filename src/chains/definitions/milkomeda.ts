@@ -6,7 +6,7 @@ export const milkomeda = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Cardano', symbol: 'mADA', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['wss://rpc-mainnet-cardano-evm.c1.milkomeda.com'],
+      http: ['https://rpc-mainnet-cardano-evm.c1.milkomeda.com'],
       webSocket: ['wss://rpc-mainnet-cardano-evm.c1.milkomeda.com'],
     },
   },
