@@ -138,7 +138,7 @@ test('sends transaction (w/ serializer)', async () => {
   })
 
   const serializer = vi.fn(
-    (
+    async (
       txn: TransactionSerializable & {
         additionalField?: Hex
       },
@@ -238,7 +238,7 @@ test('client chain mismatch', async () => {
 
     Current Chain ID:  1
     Expected Chain ID: 42220 – Celo
-     
+
     Request Arguments:
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
@@ -366,12 +366,12 @@ describe('args: gasPrice', () => {
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
        - pay for the value to send.
-       
+
       The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
        - \`gas\` is the amount of gas needed for transaction to execute,
        - \`gas fee\` is the gas fee,
        - \`value\` is the amount of ether to send to the recipient.
-       
+
       Request Arguments:
         from:      0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:        0x70997970c51812dc3a010c7d01b50e0d17dc79c8
@@ -440,12 +440,12 @@ describe('args: maxFeePerGas', () => {
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
        - pay for the value to send.
-       
+
       The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
        - \`gas\` is the amount of gas needed for transaction to execute,
        - \`gas fee\` is the gas fee,
        - \`value\` is the amount of ether to send to the recipient.
-       
+
       Request Arguments:
         from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
@@ -594,7 +594,7 @@ describe('args: chain', async () => {
 
       Current Chain ID:  1
       Expected Chain ID: 10 – OP Mainnet
-       
+
       Request Arguments:
         chain:  OP Mainnet (id: 10)
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -811,12 +811,12 @@ describe('local account', () => {
         This error could arise when the account does not have enough funds to:
          - pay for the total gas fee,
          - pay for the value to send.
-         
+
         The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
          - \`gas\` is the amount of gas needed for transaction to execute,
          - \`gas fee\` is the gas fee,
          - \`value\` is the amount of ether to send to the recipient.
-         
+
         Request Arguments:
           from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
           to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
@@ -1323,12 +1323,12 @@ describe('errors', () => {
       This error could arise when the account does not have enough funds to:
        - pay for the total gas fee,
        - pay for the value to send.
-       
+
       The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
        - \`gas\` is the amount of gas needed for transaction to execute,
        - \`gas fee\` is the gas fee,
        - \`value\` is the amount of ether to send to the recipient.
-       
+
       Request Arguments:
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8

@@ -16,9 +16,9 @@ async function sign({ hash }: { hash: Hex }) {
   )
 }
 
-test('default', () => {
+test('default', async () => {
   expect(
-    toSmartAccount({
+    await toSmartAccount({
       address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       sign,
     }),
@@ -38,7 +38,7 @@ test('default', () => {
 })
 
 test('sign', async () => {
-  const account = toSmartAccount({
+  const account = await toSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     sign,
   })
@@ -52,7 +52,7 @@ test('sign', async () => {
 })
 
 test('sign message', async () => {
-  const account = toSmartAccount({
+  const account = await toSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     sign,
   })
@@ -64,7 +64,7 @@ test('sign message', async () => {
 })
 
 test('sign transaction', async () => {
-  const account = toSmartAccount({
+  const account = await toSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     sign,
   })
@@ -82,7 +82,7 @@ test('sign transaction', async () => {
 })
 
 test('sign typed data', async () => {
-  const account = toSmartAccount({
+  const account = await toSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     sign,
   })

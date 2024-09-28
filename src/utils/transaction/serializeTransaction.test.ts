@@ -61,8 +61,8 @@ describe('eip7702', () => {
     chainId: 1,
   } as const satisfies TransactionSerializableEIP7702
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseEip7702)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseEip7702)
     assertType<TransactionSerializedEIP7702>(serialized)
     expect(serialized).toMatchInlineSnapshot(
       `"0x04f8e3018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
@@ -73,9 +73,9 @@ describe('eip7702', () => {
     })
   })
 
-  test('signature', () => {
+  test('signature', async () => {
     expect(
-      serializeTransaction(baseEip7702, {
+      await serializeTransaction(baseEip7702, {
         r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
         s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
         yParity: 1,
@@ -84,7 +84,7 @@ describe('eip7702', () => {
       `"0x04f90126018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe01a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip7702,
 
         {
@@ -97,7 +97,7 @@ describe('eip7702', () => {
       `"0x04f90126018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip7702,
 
         {
@@ -110,7 +110,7 @@ describe('eip7702', () => {
       `"0x04f90126018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip7702,
 
         {
@@ -134,8 +134,8 @@ describe('eip4844', () => {
     chainId: 1,
   } as const satisfies TransactionSerializableEIP4844
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseEip4844)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseEip4844)
     assertType<TransactionSerializedEIP4844>(serialized)
     expect(serialized).toEqual(
       '0x03f84a018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080e1a001adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -146,9 +146,9 @@ describe('eip4844', () => {
     })
   })
 
-  test('signature', () => {
+  test('signature', async () => {
     expect(
-      serializeTransaction(baseEip4844, {
+      await serializeTransaction(baseEip4844, {
         r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
         s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
         yParity: 1,
@@ -157,7 +157,7 @@ describe('eip4844', () => {
       '0x03f88d018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080e1a001adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef01a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip4844,
 
         {
@@ -170,7 +170,7 @@ describe('eip4844', () => {
       '0x03f88d018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080e1a001adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip4844,
 
         {
@@ -183,7 +183,7 @@ describe('eip4844', () => {
       '0x03f88d018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080e1a001adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip4844,
 
         {
@@ -197,7 +197,7 @@ describe('eip4844', () => {
     )
   })
 
-  test('network wrapper (blobVersionedHashes + sidecars)', () => {
+  test('network wrapper (blobVersionedHashes + sidecars)', async () => {
     const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
     const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
     const transaction = {
@@ -205,7 +205,7 @@ describe('eip4844', () => {
       blobVersionedHashes,
       sidecars,
     } satisfies TransactionSerializableEIP4844
-    const serialized = serializeTransaction(transaction)
+    const serialized = await serializeTransaction(transaction)
     assertType<TransactionSerializedEIP4844>(serialized)
     expect(serialized).toMatchSnapshot()
     expect(parseTransaction(serialized)).toEqual({
@@ -214,7 +214,7 @@ describe('eip4844', () => {
     })
   })
 
-  test('network wrapper (blobs + blobVersionedHashes + sidecars)', () => {
+  test('network wrapper (blobs + blobVersionedHashes + sidecars)', async () => {
     const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
     const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
     const transaction = {
@@ -222,7 +222,7 @@ describe('eip4844', () => {
       blobVersionedHashes,
       sidecars,
     } satisfies TransactionSerializableEIP4844
-    const serialized = serializeTransaction({
+    const serialized = await serializeTransaction({
       ...transaction,
       blobs: toBlobs({ data: stringToHex('abcd') }),
     } as unknown as TransactionSerializableEIP4844)
@@ -233,7 +233,7 @@ describe('eip4844', () => {
     })
   })
 
-  test('network wrapper (blobs + kzg)', () => {
+  test('network wrapper (blobs + kzg)', async () => {
     const transaction = {
       ...baseEip4844,
       blobVersionedHashes: undefined,
@@ -241,7 +241,7 @@ describe('eip4844', () => {
       blobs: toBlobs({ data: stringToHex(blobData) }),
       kzg,
     } satisfies TransactionSerializableEIP4844
-    const serialized = serializeTransaction(transaction)
+    const serialized = await serializeTransaction(transaction)
     assertType<TransactionSerializedEIP4844>(serialized)
     expect(serialized).toMatchSnapshot()
   })
@@ -255,8 +255,8 @@ describe('eip1559', () => {
     maxPriorityFeePerGas: parseGwei('2'),
   }
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseEip1559)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseEip1559)
     assertType<TransactionSerializedEIP1559>(serialized)
     expect(serialized).toEqual(
       '0x02ef0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
@@ -267,7 +267,7 @@ describe('eip1559', () => {
     })
   })
 
-  test('default (all zeros)', () => {
+  test('default (all zeros)', async () => {
     const baseEip1559Zero = {
       to: accounts[1].address,
       nonce: 0,
@@ -277,7 +277,7 @@ describe('eip1559', () => {
       value: 0n,
     } satisfies TransactionSerializableEIP1559
 
-    const serialized = serializeTransaction(baseEip1559Zero)
+    const serialized = await serializeTransaction(baseEip1559Zero)
 
     expect(serialized).toEqual(
       '0x02dd01808080809470997970c51812dc3a010c7d01b50e0d17dc79c88080c0',
@@ -289,39 +289,39 @@ describe('eip1559', () => {
     })
   })
 
-  test('minimal (w/ maxFeePerGas)', () => {
+  test('minimal (w/ maxFeePerGas)', async () => {
     const args = {
       chainId: 1,
       maxFeePerGas: 1n,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual('0x02c90180800180808080c0')
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
   })
 
-  test('minimal (w/ type)', () => {
+  test('minimal (w/ type)', async () => {
     const args = {
       chainId: 1,
       type: 'eip1559',
     } as const
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual('0x02c90180808080808080c0')
     expect(parseTransaction(serialized)).toEqual(args)
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const args = {
       ...baseEip1559,
       gas: 21001n,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual(
       '0x02f101820311847735940084773594008252099470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
     )
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
   })
 
-  test('args: accessList', () => {
+  test('args: accessList', async () => {
     const args = {
       ...baseEip1559,
       accessList: [
@@ -334,19 +334,19 @@ describe('eip1559', () => {
         },
       ],
     } satisfies TransactionSerializableEIP1559
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual(
       '0x02f88b0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f85bf859940000000000000000000000000000000000000000f842a00000000000000000000000000000000000000000000000000000000000000001a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const args = {
       ...baseEip1559,
       data: '0x1234',
     } satisfies TransactionSerializableEIP1559
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual(
       '0x02f10182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a7640000821234c0',
     )
@@ -355,10 +355,10 @@ describe('eip1559', () => {
 
   test('signed', async () => {
     const signature = await sign({
-      hash: keccak256(serializeTransaction(baseEip1559)),
+      hash: keccak256(await serializeTransaction(baseEip1559)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(baseEip1559, signature)
+    const serialized = await serializeTransaction(baseEip1559, signature)
     expect(serialized).toEqual(
       '0x02f8720182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c001a0ce18214ff9d06ecaacb61811f9d6dc2be922e8cebddeaf6df0b30d5c498f6d33a05f0487c6dbbf2139f7c705d8054dbb16ecac8ae6256ce2c4c6f2e7ef35b3a496',
     )
@@ -370,9 +370,9 @@ describe('eip1559', () => {
     })
   })
 
-  test('signature', () => {
+  test('signature', async () => {
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip1559,
 
         {
@@ -385,7 +385,7 @@ describe('eip1559', () => {
       '0x02f8720182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c001a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip1559,
 
         {
@@ -398,7 +398,7 @@ describe('eip1559', () => {
       '0x02f8720182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip1559,
 
         {
@@ -411,7 +411,7 @@ describe('eip1559', () => {
       '0x02f8720182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c080a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip1559,
 
         {
@@ -425,21 +425,22 @@ describe('eip1559', () => {
     )
   })
 
-  describe('errors', () => {
+  describe('errors', async () => {
     test('invalid access list (invalid address)', () => {
-      expect(() =>
-        serializeTransaction({
-          ...baseEip1559,
-          accessList: [
-            {
-              address:
-                '0x0000000000000000000000000000000000000000000000000000000000000001',
-              storageKeys: [
-                '0x0000000000000000000000000000000000000000000000000000000000000001',
-              ],
-            },
-          ],
-        }),
+      expect(
+        async () =>
+          await serializeTransaction({
+            ...baseEip1559,
+            accessList: [
+              {
+                address:
+                  '0x0000000000000000000000000000000000000000000000000000000000000001',
+                storageKeys: [
+                  '0x0000000000000000000000000000000000000000000000000000000000000001',
+                ],
+              },
+            ],
+          }),
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidAddressError: Address "0x0000000000000000000000000000000000000000000000000000000000000001" is invalid.
 
@@ -450,20 +451,21 @@ describe('eip1559', () => {
       `)
     })
 
-    test('invalid access list (invalid storage key)', () => {
-      expect(() =>
-        serializeTransaction({
-          ...baseEip1559,
-          accessList: [
-            {
-              address:
-                '0x0000000000000000000000000000000000000000000000000000000000000001',
-              storageKeys: [
-                '0x00000000000000000000000000000000000000000000000000000000000001',
-              ],
-            },
-          ],
-        }),
+    test('invalid access list (invalid storage key)', async () => {
+      expect(
+        async () =>
+          await serializeTransaction({
+            ...baseEip1559,
+            accessList: [
+              {
+                address:
+                  '0x0000000000000000000000000000000000000000000000000000000000000001',
+                storageKeys: [
+                  '0x00000000000000000000000000000000000000000000000000000000000001',
+                ],
+              },
+            ],
+          }),
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidStorageKeySizeError: Size for storage key "0x00000000000000000000000000000000000000000000000000000000000001" is invalid. Expected 32 bytes. Got 31 bytes.
 
@@ -488,8 +490,8 @@ describe('eip2930', () => {
     gasPrice: parseGwei('2'),
   } satisfies TransactionSerializableEIP2930
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseEip2930)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseEip2930)
     assertType<TransactionSerializedEIP2930>(serialized)
     expect(serialized).toEqual(
       '0x01f863018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
@@ -500,7 +502,7 @@ describe('eip2930', () => {
     })
   })
 
-  test('default (all zeros)', () => {
+  test('default (all zeros)', async () => {
     const baseEip2930Zero = {
       to: accounts[1].address,
       nonce: 0,
@@ -510,7 +512,7 @@ describe('eip2930', () => {
       accessList: [],
     } satisfies TransactionSerializableEIP2930
 
-    const serialized = serializeTransaction(baseEip2930Zero)
+    const serialized = await serializeTransaction(baseEip2930Zero)
 
     expect(serialized).toEqual(
       '0x01dc018080809470997970c51812dc3a010c7d01b50e0d17dc79c88080c0',
@@ -523,7 +525,7 @@ describe('eip2930', () => {
     })
   })
 
-  test('minimal (w/ accessList & gasPrice)', () => {
+  test('minimal (w/ accessList & gasPrice)', async () => {
     const args = {
       chainId: 1,
       accessList: [
@@ -536,41 +538,41 @@ describe('eip2930', () => {
       ],
       gasPrice: parseGwei('2'),
     } satisfies TransactionSerializableEIP2930
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual(
       '0x01f8450180847735940080808080f838f7940000000000000000000000000000000000000000e1a00000000000000000000000000000000000000000000000000000000000000001',
     )
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
 
-  test('minimal (w/ type)', () => {
+  test('minimal (w/ type)', async () => {
     const args = {
       chainId: 1,
       type: 'eip2930',
     } satisfies TransactionSerializableEIP2930
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual('0x01c801808080808080c0')
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const args = {
       ...baseEip2930,
       gas: 21001n,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual(
       '0x01f8650182031184773594008252099470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const args = {
       ...baseEip2930,
       data: '0x1234',
     } satisfies TransactionSerializableEIP2930
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual(
       '0x01f865018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a7640000821234f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
@@ -579,10 +581,10 @@ describe('eip2930', () => {
 
   test('signed', async () => {
     const signature = await sign({
-      hash: keccak256(serializeTransaction(baseEip2930)),
+      hash: keccak256(await serializeTransaction(baseEip2930)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(baseEip2930, signature)
+    const serialized = await serializeTransaction(baseEip2930, signature)
     expect(serialized).toEqual(
       '0x01f8a6018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe01a0dc7b3483c0b183823f07d77247c60678d861080acdc4fb8b9fd131770b475c40a040f16567391132746735aff4d5a3fa5ae42ff3d5d538e341870e0259dc40741a',
     )
@@ -594,9 +596,9 @@ describe('eip2930', () => {
     })
   })
 
-  test('signature', () => {
+  test('signature', async () => {
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip2930,
 
         {
@@ -609,7 +611,7 @@ describe('eip2930', () => {
       '0x01f8a6018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe01a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip2930,
 
         {
@@ -622,7 +624,7 @@ describe('eip2930', () => {
       '0x01f8a6018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip2930,
 
         {
@@ -635,7 +637,7 @@ describe('eip2930', () => {
       '0x01f8a6018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseEip2930,
 
         {
@@ -651,18 +653,19 @@ describe('eip2930', () => {
 
   describe('errors', () => {
     test('invalid access list (invalid address)', () => {
-      expect(() =>
-        serializeTransaction({
-          ...baseEip2930,
-          accessList: [
-            {
-              address: '0x0',
-              storageKeys: [
-                '0x0000000000000000000000000000000000000000000000000000000000000001',
-              ],
-            },
-          ],
-        }),
+      expect(
+        async () =>
+          await serializeTransaction({
+            ...baseEip2930,
+            accessList: [
+              {
+                address: '0x0',
+                storageKeys: [
+                  '0x0000000000000000000000000000000000000000000000000000000000000001',
+                ],
+              },
+            ],
+          }),
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidAddressError: Address "0x0" is invalid.
 
@@ -674,7 +677,7 @@ describe('eip2930', () => {
     })
 
     test('invalid access list (invalid storage key)', () => {
-      expect(() =>
+      expect(async () =>
         serializeTransaction({
           ...baseEip2930,
           accessList: [
@@ -701,8 +704,8 @@ describe('legacy', () => {
     gasPrice: parseGwei('2'),
   }
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseLegacy)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseLegacy)
     assertType<TransactionSerializedLegacy>(serialized)
     expect(serialized).toEqual(
       '0xe88203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080',
@@ -713,7 +716,7 @@ describe('legacy', () => {
     })
   })
 
-  test('default (all zeros)', () => {
+  test('default (all zeros)', async () => {
     const baseLegacyZero = {
       to: accounts[1].address,
       nonce: 0,
@@ -721,7 +724,7 @@ describe('legacy', () => {
       gasPrice: 0n,
     } satisfies TransactionSerializableLegacy
 
-    const serialized = serializeTransaction(baseLegacyZero)
+    const serialized = await serializeTransaction(baseLegacyZero)
 
     expect(serialized).toEqual(
       '0xda8080809470997970c51812dc3a010c7d01b50e0d17dc79c88080',
@@ -733,54 +736,54 @@ describe('legacy', () => {
     })
   })
 
-  test('minimal (w/ gasPrice)', () => {
+  test('minimal (w/ gasPrice)', async () => {
     const args = {
       gasPrice: parseGwei('2'),
     } satisfies TransactionSerializableLegacy
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual('0xca80847735940080808080')
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
   })
 
-  test('minimal (w/ type)', () => {
+  test('minimal (w/ type)', async () => {
     const args = {
       type: 'legacy',
     } satisfies TransactionSerializableLegacy
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual('0xc6808080808080')
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const args = {
       ...baseLegacy,
       gas: 21001n,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual(
       '0xea82031184773594008252099470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080',
     )
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const args = {
       ...baseLegacy,
       data: '0x1234',
     } satisfies TransactionSerializableLegacy
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual(
       '0xea8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a7640000821234',
     )
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
   })
 
-  test('args: chainId', () => {
+  test('args: chainId', async () => {
     const args = {
       ...baseLegacy,
       chainId: 69,
     } satisfies TransactionSerializableLegacy
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(serialized).toEqual(
       '0xeb8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080458080',
     )
@@ -789,10 +792,10 @@ describe('legacy', () => {
 
   test('signed', async () => {
     const signature = await sign({
-      hash: keccak256(serializeTransaction(baseLegacy)),
+      hash: keccak256(await serializeTransaction(baseLegacy)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(baseLegacy, signature)
+    const serialized = await serializeTransaction(baseLegacy, signature)
     expect(serialized).toEqual(
       '0xf86b8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a7640000801ca06cb0e8d21e5baf998fb9a05f47acd83692dc148f90b81b332a152f020da0ae98a0344e49bacb1ef7af7c2ffed9e88d3f0ae0aa4945c9da0a660a03717dd5621f98',
     )
@@ -804,9 +807,9 @@ describe('legacy', () => {
     })
   })
 
-  test('signature', () => {
+  test('signature', async () => {
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseLegacy,
 
         {
@@ -819,7 +822,7 @@ describe('legacy', () => {
       '0xf86b8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a7640000801ca060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         baseLegacy,
 
         {
@@ -839,10 +842,10 @@ describe('legacy', () => {
       chainId: 69,
     }
     const signature = await sign({
-      hash: keccak256(serializeTransaction(args)),
+      hash: keccak256(await serializeTransaction(args)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(args, signature)
+    const serialized = await serializeTransaction(args, signature)
     expect(serialized).toEqual(
       '0xf86c8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a76400008081ada02f43314322cf4c5dd645b028aa0b0dadff0fb73c41a6f0620ff1dfb11601ac30a066f37a65e139fa4b6df33a42ab5ccaeaa7a109382e7430caefd1deee63962626',
     )
@@ -856,17 +859,18 @@ describe('legacy', () => {
   })
 
   describe('errors', () => {
-    test('invalid v', () => {
-      expect(() =>
-        serializeTransaction(
-          baseLegacy,
+    test('invalid v', async () => {
+      expect(
+        async () =>
+          await serializeTransaction(
+            baseLegacy,
 
-          {
-            r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-            s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-            v: 29n,
-          },
-        ),
+            {
+              r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+              s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+              v: 29n,
+            },
+          ),
       ).toThrowErrorMatchingInlineSnapshot(`
         [InvalidLegacyVError: Invalid \`v\` value "29". Expected 27 or 28.
 
@@ -877,8 +881,9 @@ describe('legacy', () => {
 })
 
 test('cannot infer type from transaction object', () => {
-  expect(() =>
-    serializeTransaction({ chainId: 1, data: '0x1234', nonce: 69 }),
+  expect(
+    async () =>
+      await serializeTransaction({ chainId: 1, data: '0x1234', nonce: 69 }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidSerializableTransactionError: Cannot infer a transaction type from provided transaction.
 
@@ -902,9 +907,9 @@ test('cannot infer type from transaction object', () => {
 })
 
 describe('github', () => {
-  test('https://github.com/wevm/viem/issues/1433', () => {
+  test('https://github.com/wevm/viem/issues/1433', async () => {
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         {
           blockHash: null,
           blockNumber: null,
@@ -936,7 +941,7 @@ describe('github', () => {
     )
 
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         {
           blockHash: null,
           blockNumber: null,
@@ -968,7 +973,7 @@ describe('github', () => {
     )
 
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         {
           blockHash: null,
           blockNumber: null,
@@ -1000,7 +1005,7 @@ describe('github', () => {
     )
 
     expect(
-      serializeTransaction(
+      await serializeTransaction(
         {
           blockHash: null,
           blockNumber: null,
@@ -1053,7 +1058,7 @@ describe('github', () => {
       typeHex: '0x0',
     } as const
 
-    const serialized = serializeTransaction({ ...tx, data: tx.input }, tx)
+    const serialized = await serializeTransaction({ ...tx, data: tx.input }, tx)
 
     expect(keccak256(serialized)).toEqual(
       '0x6ed21df69b02678dfb290ef2a43d490303562eb387f70795766b37bfa9d09bd2',
@@ -1061,7 +1066,7 @@ describe('github', () => {
   })
 
   test('https://github.com/wevm/viem/issues/2394', async () => {
-    const serialized = serializeTransaction(
+    const serialized = await serializeTransaction(
       {
         chainId: 17000,
         gas: BigInt('0x52080'),

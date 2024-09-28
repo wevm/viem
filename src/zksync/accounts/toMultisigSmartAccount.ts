@@ -17,9 +17,9 @@ export type ToMultisigSmartAccountParameters = {
  * Creates a [ZKsync Smart Account](https://docs.zksync.io/build/developer-reference/account-abstraction/building-smart-accounts)
  * from a Contract Address and an array of Private Keys belonging to the owners.
  */
-export function toMultisigSmartAccount(
+export async function toMultisigSmartAccount(
   parameters: ToMultisigSmartAccountParameters,
-): ZksyncSmartAccount {
+): Promise<ZksyncSmartAccount> {
   const { address, privateKeys } = parameters
 
   return toSmartAccount({

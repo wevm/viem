@@ -16,9 +16,9 @@ export type ToSinglesigSmartAccountParameters = {
  * Creates a [ZKsync Smart Account](https://docs.zksync.io/build/developer-reference/account-abstraction/building-smart-accounts)
  * from a Contract Address and a Private Key belonging to the owner.
  */
-export function toSinglesigSmartAccount(
+export async function toSinglesigSmartAccount(
   parameters: ToSinglesigSmartAccountParameters,
-): ZksyncSmartAccount {
+): Promise<ZksyncSmartAccount> {
   const { address, privateKey } = parameters
 
   return toSmartAccount({

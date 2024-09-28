@@ -20,7 +20,7 @@ import type {
 } from './types.js'
 import { isCIP64, isEmpty, isPresent } from './utils.js'
 
-export function serializeTransaction(
+export async function serializeTransaction(
   transaction: CeloTransactionSerializable,
   signature?: Signature | undefined,
 ) {

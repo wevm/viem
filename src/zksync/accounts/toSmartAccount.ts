@@ -23,9 +23,9 @@ export type ToSmartAccountErrorType = ErrorType
  * Creates a [ZKsync Smart Account](https://docs.zksync.io/build/developer-reference/account-abstraction/building-smart-accounts)
  * from a Contract Address and a custom sign function.
  */
-export function toSmartAccount(
+export async function toSmartAccount(
   parameters: ToSmartAccountParameters,
-): ZksyncSmartAccount {
+): Promise<ZksyncSmartAccount> {
   const { address, sign } = parameters
 
   const account = toAccount({
@@ -45,7 +45,7 @@ export function toSmartAccount(
       return serializeTransaction({
         ...signableTransaction,
         customSignature: await sign({
-          hash: keccak256(serializeTransaction(signableTransaction)),
+          hash: keccak256(await serializeTransaction(signableTransaction)),
         }),
       })
     },

@@ -13,9 +13,9 @@ export type GetL2TransactionHashesReturnType = Hex[]
 
 export type GetL2TransactionHashesErrorType = ErrorType
 
-export function getL2TransactionHashes({
+export async function getL2TransactionHashes({
   logs,
-}: GetL2TransactionHashesParameters): GetL2TransactionHashesReturnType {
+}: GetL2TransactionHashesParameters): Promise<GetL2TransactionHashesReturnType> {
   const extractedLogs = extractTransactionDepositedLogs({ logs })
-  return extractedLogs.map((log) => getL2TransactionHash({ log }))
+  return Promise.all(extractedLogs.map((log) => getL2TransactionHash({ log })))
 }

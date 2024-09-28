@@ -13,68 +13,68 @@ describe('deposit', () => {
     type: 'deposit',
   } as const satisfies TransactionSerializableDeposit
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseTransaction)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseTransaction)
     const transaction = parseTransaction(serialized)
     expect(transaction).toEqual(baseTransaction)
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const tx = {
       ...baseTransaction,
       data: '0xdeadbeef',
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     const transaction = parseTransaction(serialized)
     expect(transaction).toEqual(tx)
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const tx = {
       ...baseTransaction,
       gas: 69420n,
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     const transaction = parseTransaction(serialized)
     expect(transaction).toEqual(tx)
   })
 
-  test('args: isSystemTx', () => {
+  test('args: isSystemTx', async () => {
     const tx = {
       ...baseTransaction,
       isSystemTx: true,
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     const transaction = parseTransaction(serialized)
     expect(transaction).toEqual(tx)
   })
 
-  test('args: mint', () => {
+  test('args: mint', async () => {
     const tx = {
       ...baseTransaction,
       mint: 69420n,
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     const transaction = parseTransaction(serialized)
     expect(transaction).toEqual(tx)
   })
 
-  test('args: to', () => {
+  test('args: to', async () => {
     const tx = {
       ...baseTransaction,
       to: '0xaabbccddeeff00112233445566778899aabbccdd',
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     const transaction = parseTransaction(serialized)
     expect(transaction).toEqual(tx)
   })
 
-  test('args: value', () => {
+  test('args: value', async () => {
     const tx = {
       ...baseTransaction,
       value: 69420n,
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     const transaction = parseTransaction(serialized)
     expect(transaction).toEqual(tx)
   })
@@ -107,7 +107,7 @@ describe('eip1559', () => {
       value: parseEther('1'),
     } as const
 
-    const serialized = serializeTransaction(transaction)
+    const serialized = await serializeTransaction(transaction)
     expect(parseTransaction(serialized)).toEqual(transaction)
   })
 })

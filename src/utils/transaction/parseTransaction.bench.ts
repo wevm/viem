@@ -15,15 +15,15 @@ const base = {
   value: parseEther('1'),
 } satisfies TransactionSerializableBase
 
-const legacy = serializeTransaction(
+const legacy = await serializeTransaction(
   { ...base, gasPrice: 1n },
   { r: '0x1', s: '0x2', yParity: 1 },
 )
-const eip1559 = serializeTransaction(
+const eip1559 = await serializeTransaction(
   { ...base, chainId: 1, maxFeePerGas: 1n },
   { r: '0x1', s: '0x2', yParity: 1 },
 )
-const eip2930 = serializeTransaction(
+const eip2930 = await serializeTransaction(
   { ...base, chainId: 1, gasPrice: 1n, accessList: [] },
   { r: '0x1', s: '0x2', yParity: 1 },
 )

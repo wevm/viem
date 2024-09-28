@@ -90,6 +90,7 @@ export async function signTransaction<
   client: Client<Transport, chain, account>,
   args: SignTransactionParameters<chain, account, chainOverride>,
 ): Promise<SignTransactionReturnType> {
-  if (isEIP712Transaction(args)) return signEip712Transaction(client, args)
+  if (isEIP712Transaction(args))
+    return await signEip712Transaction(client, args)
   return await signTransaction_(client, args as any)
 }

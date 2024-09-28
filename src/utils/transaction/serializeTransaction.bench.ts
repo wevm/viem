@@ -15,8 +15,8 @@ const base = {
 } satisfies TransactionSerializableBase
 
 describe('Serialize Transaction (Legacy)', () => {
-  bench('viem: `serializeTransaction`', () => {
-    serializeTransaction(
+  bench('viem: `serializeTransaction`', async () => {
+    await serializeTransaction(
       { ...base, gasPrice: 1n },
       { r: '0x1', s: '0x2', v: 28n },
     )
@@ -33,8 +33,8 @@ describe('Serialize Transaction (Legacy)', () => {
 })
 
 describe('Serialize Transaction (EIP1559)', () => {
-  bench('viem: `serializeTransaction`', () => {
-    serializeTransaction(
+  bench('viem: `serializeTransaction`', async () => {
+    await serializeTransaction(
       { ...base, chainId: 1, maxFeePerGas: 1n },
       { r: '0x1', s: '0x2', v: 28n },
     )
@@ -52,8 +52,8 @@ describe('Serialize Transaction (EIP1559)', () => {
 })
 
 describe('Serialize Transaction (EIP2930)', () => {
-  bench('viem: `serializeTransaction`', () => {
-    serializeTransaction(
+  bench('viem: `serializeTransaction`', async () => {
+    await serializeTransaction(
       { ...base, chainId: 1, gasPrice: 1n, accessList: [] },
       { r: '0x1', s: '0x2', v: 28n },
     )

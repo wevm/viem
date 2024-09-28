@@ -259,7 +259,7 @@ describe('invalid params', () => {
   })
 })
 
-test('other', () => {
+test('other', async () => {
   const transaction: TransactionSerializableEIP1559 = {
     to: accounts[0].address,
     chainId: 1,
@@ -268,7 +268,7 @@ test('other', () => {
     maxPriorityFeePerGas: parseGwei('2'),
     value: parseEther('1'),
   }
-  const serialized = serializeTransaction(transaction)
+  const serialized = await serializeTransaction(transaction)
   expect(serialized).toMatchInlineSnapshot(
     '"0x02ed0180847735940084773594008094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0"',
   )

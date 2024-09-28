@@ -14,7 +14,7 @@ import type {
 import { assertEip712Transaction } from './utils/assertEip712Transaction.js'
 import { isEIP712Transaction } from './utils/isEip712Transaction.js'
 
-export function serializeTransaction(
+export async function serializeTransaction(
   transaction: ZksyncTransactionSerializable,
   signature?: Signature | undefined,
 ) {

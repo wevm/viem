@@ -7,7 +7,7 @@ test('default', async () => {
     hash: '0x11fcc5e645f504064fd4e45120f6543115149449dfb44b7887000f3ed18b738a',
   })
 
-  const l2Hashes = getL2TransactionHashes(receipt)
+  const l2Hashes = await getL2TransactionHashes(receipt)
 
   expect(l2Hashes).toMatchInlineSnapshot(`
     [

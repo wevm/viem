@@ -43,9 +43,9 @@ const baseCip64 = {
 } as TransactionSerializableCIP64
 
 describe('cip64', () => {
-  test('should be able to serialize a cip64 transaction', () => {
+  test('should be able to serialize a cip64 transaction', async () => {
     // sanity checks the serialized value, but then rely on the parser
-    const serialized = serializeTransaction(baseCip64)
+    const serialized = await serializeTransaction(baseCip64)
     const reparsed = parseTransaction(serialized)
     const reserialized = serializeTransaction(reparsed)
     expect(serialized).toEqual(
@@ -55,7 +55,7 @@ describe('cip64', () => {
     expect(serialized).toEqual(reserialized)
   })
 
-  test('args: accessList', () => {
+  test('args: accessList', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       accessList: [
@@ -69,109 +69,109 @@ describe('cip64', () => {
       ],
     }
 
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       data: '0x1234',
     }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       gas: 69420n,
     }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
   })
 
-  test('args: gas (absent)', () => {
+  test('args: gas (absent)', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       gas: undefined,
     }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
   })
 
-  test('args: maxFeePerGas (absent)', () => {
+  test('args: maxFeePerGas (absent)', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       type: 'cip64',
       maxFeePerGas: undefined,
     }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
   })
 
-  test('args: maxPriorityFeePerGas (absent)', () => {
+  test('args: maxPriorityFeePerGas (absent)', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       type: 'cip64',
       maxPriorityFeePerGas: undefined,
     }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
   })
 
-  test('args: nonce (absent)', () => {
+  test('args: nonce (absent)', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       nonce: undefined,
     }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
   })
 
-  test('args: to (absent)', () => {
+  test('args: to (absent)', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       to: undefined,
     }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
   })
 
-  test('args: value (absent)', () => {
+  test('args: value (absent)', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       value: undefined,
     }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
   })
 
-  test('type is undefined but has cip64 fields (feeCurrency, but not gateway*)', () => {
+  test('type is undefined but has cip64 fields (feeCurrency, but not gateway*)', async () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
       feeCurrency: '0xd8763cba276a3738e6de85b4b3bf5fded6d6ca73',
       type: undefined,
     }
-    expect(parseTransaction(serializeTransaction(transaction))).toEqual({
+    expect(parseTransaction(await serializeTransaction(transaction))).toEqual({
       ...transaction,
       type: 'cip64',
     })
@@ -223,13 +223,15 @@ describe('cip64', () => {
     expect(parseTransaction(tx1)).toEqual({ ...baseCip64, type: 'cip64' })
   })
 
-  test('CIP-42 transaction should be discarded and sent as CIP-64', () => {
+  test('CIP-42 transaction should be discarded and sent as CIP-64', async () => {
     const transaction: TransactionSerializableCIP42 = {
       ...baseCip42,
       type: 'cip42',
     }
 
-    expect(parseTransaction(serializeTransaction(transaction as any))).toEqual({
+    expect(
+      parseTransaction(await serializeTransaction(transaction as any)),
+    ).toEqual({
       ...transaction,
       gatewayFee: undefined,
       gatewayFeeRecipient: undefined,
@@ -331,8 +333,8 @@ describe('not cip42', () => {
     value: parseEther('1'),
   }
 
-  test('it calls the standard serializeTransaction', () => {
-    const serialized = serializeTransaction(transaction)
+  test('it calls the standard serializeTransaction', async () => {
+    const serialized = await serializeTransaction(transaction)
     expect(serialized).toEqual(
       '0x02ed0180847735940084773594008094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
@@ -348,7 +350,7 @@ describe('not cip42', () => {
 })
 
 describe('op-stack based transactions', () => {
-  test('serializes deposit transactions', () => {
+  test('serializes deposit transactions', async () => {
     const opDepositTransaction = {
       from: '0x977f82a600a1414e583f7f13623f1ac5d58b1c0b',
       sourceHash:
@@ -356,7 +358,7 @@ describe('op-stack based transactions', () => {
       type: 'deposit',
     } as const satisfies TransactionSerializableDeposit
 
-    const serialized = serializeTransaction(opDepositTransaction)
+    const serialized = await serializeTransaction(opDepositTransaction)
     expect(serialized.startsWith('0x7e')).toBe(true)
     expect(serialized).toEqual(
       '0x7ef83ca018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808080808080',

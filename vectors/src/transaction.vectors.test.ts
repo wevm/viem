@@ -63,8 +63,8 @@ describe('parseTransaction', () => {
 
 describe('serializeTransaction', () => {
   transactions.forEach(({ name, serialized, transaction }) => {
-    test(`${name}`, () => {
-      expect(serializeTransaction(transaction)).toEqual(serialized)
+    test(`${name}`, async () => {
+      expect(await serializeTransaction(transaction)).toEqual(serialized)
     })
   })
 })

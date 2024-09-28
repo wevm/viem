@@ -5,9 +5,9 @@ import { accounts, typedData } from '~test/src/constants.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
 import { toSinglesigSmartAccount } from './toSinglesigSmartAccount.js'
 
-test('default', () => {
+test('default', async () => {
   expect(
-    toSinglesigSmartAccount({
+    await toSinglesigSmartAccount({
       address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       privateKey: accounts[0].privateKey,
     }),
@@ -27,7 +27,7 @@ test('default', () => {
 })
 
 test('sign', async () => {
-  const account = toSinglesigSmartAccount({
+  const account = await toSinglesigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     privateKey: accounts[0].privateKey,
   })
@@ -41,7 +41,7 @@ test('sign', async () => {
 })
 
 test('sign message', async () => {
-  const account = toSinglesigSmartAccount({
+  const account = await toSinglesigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     privateKey: accounts[0].privateKey,
   })
@@ -53,7 +53,7 @@ test('sign message', async () => {
 })
 
 test('sign transaction', async () => {
-  const account = toSinglesigSmartAccount({
+  const account = await toSinglesigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     privateKey: accounts[0].privateKey,
   })
@@ -71,7 +71,7 @@ test('sign transaction', async () => {
 })
 
 test('sign typed data', async () => {
-  const account = toSinglesigSmartAccount({
+  const account = await toSinglesigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     privateKey: accounts[0].privateKey,
   })

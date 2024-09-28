@@ -19,7 +19,7 @@ test('default', async () => {
     logIndex: 109,
   } as const
 
-  const l2Hash = getL2TransactionHash({ log: log as any })
+  const l2Hash = await getL2TransactionHash({ log: log as any })
 
   expect(l2Hash).toEqual(
     '0x0a60b983815ed475c5919609025204a479654d93afc610feca7d99ae0befc329',
@@ -33,7 +33,7 @@ test('e2e', async () => {
 
   const [log] = extractTransactionDepositedLogs(receipt)
 
-  const l2Hash = getL2TransactionHash({ log })
+  const l2Hash = await getL2TransactionHash({ log })
 
   expect(l2Hash).toEqual(
     '0x173cecf8eb5ec89d653bdd4714e4c81697ff7e9285ebf02c562e46b19dfdf424',

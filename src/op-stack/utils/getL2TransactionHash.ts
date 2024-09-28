@@ -26,7 +26,9 @@ export type GetL2TransactionHashReturnType = Hex
 
 export type GetL2TransactionHashErrorType = ErrorType
 
-export function getL2TransactionHash({ log }: GetL2TransactionHashParameters) {
+export async function getL2TransactionHash({
+  log,
+}: GetL2TransactionHashParameters) {
   const sourceHash = getSourceHash({
     domain: 'userDeposit',
     l1BlockHash: log.blockHash,
@@ -37,7 +39,7 @@ export function getL2TransactionHash({ log }: GetL2TransactionHashParameters) {
   )
 
   return keccak256(
-    serializeTransaction({
+    await serializeTransaction({
       from: log.args.from,
       to: isCreation ? undefined : log.args.to,
       sourceHash,

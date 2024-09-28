@@ -57,37 +57,37 @@ describe('eip7702', () => {
     chainId: 1,
   } as const satisfies TransactionSerializableEIP7702
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseEip7702)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseEip7702)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP7702>(transaction)
     expect(transaction).toEqual({ ...baseEip7702, type: 'eip7702' })
   })
 
-  test('args: fees', () => {
+  test('args: fees', async () => {
     const args = {
       ...baseEip7702,
       maxFeePerGas: parseGwei('2'),
       maxPriorityFeePerGas: parseGwei('1'),
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP7702>(transaction)
     expect(transaction).toEqual({ ...args, type: 'eip7702' })
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const args = {
       ...baseEip7702,
       gas: 69n,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP7702>(transaction)
     expect(transaction).toEqual({ ...args, type: 'eip7702' })
   })
 
-  test('args: accessList', () => {
+  test('args: accessList', async () => {
     const args = {
       ...baseEip7702,
       accessList: [
@@ -100,18 +100,18 @@ describe('eip7702', () => {
         },
       ],
     } as const satisfies TransactionSerializableEIP7702
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP7702>(transaction)
     expect(transaction).toEqual({ ...args, type: 'eip7702' })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const args = {
       ...baseEip7702,
       data: '0x1234',
     } satisfies TransactionSerializableEIP7702
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP7702>(transaction)
     expect(transaction).toEqual({ ...args, type: 'eip7702' })
@@ -119,10 +119,10 @@ describe('eip7702', () => {
 
   test('signed', async () => {
     const signature = await sign({
-      hash: keccak256(serializeTransaction(baseEip7702)),
+      hash: keccak256(await serializeTransaction(baseEip7702)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(baseEip7702, signature)
+    const serialized = await serializeTransaction(baseEip7702, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...baseEip7702,
       ...signature,
@@ -254,38 +254,38 @@ describe('eip4844', () => {
     chainId: 1,
   } as const satisfies TransactionSerializableEIP4844
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseEip4844)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseEip4844)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP4844>(transaction)
     expect(transaction).toEqual({ ...baseEip4844, type: 'eip4844' })
   })
 
-  test('args: fees', () => {
+  test('args: fees', async () => {
     const args = {
       ...baseEip4844,
       maxFeePerBlobGas: parseGwei('2'),
       maxFeePerGas: parseGwei('2'),
       maxPriorityFeePerGas: parseGwei('1'),
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP4844>(transaction)
     expect(transaction).toEqual({ ...args, type: 'eip4844' })
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const args = {
       ...baseEip4844,
       gas: 69n,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP4844>(transaction)
     expect(transaction).toEqual({ ...args, type: 'eip4844' })
   })
 
-  test('args: accessList', () => {
+  test('args: accessList', async () => {
     const args = {
       ...baseEip4844,
       accessList: [
@@ -298,24 +298,24 @@ describe('eip4844', () => {
         },
       ],
     } as const satisfies TransactionSerializableEIP4844
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP4844>(transaction)
     expect(transaction).toEqual({ ...args, type: 'eip4844' })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const args = {
       ...baseEip4844,
       data: '0x1234',
     } satisfies TransactionSerializableEIP4844
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP4844>(transaction)
     expect(transaction).toEqual({ ...args, type: 'eip4844' })
   })
 
-  test('args: sidecar', () => {
+  test('args: sidecar', async () => {
     const args = {
       ...baseEip4844,
       sidecars: [
@@ -331,7 +331,7 @@ describe('eip4844', () => {
         },
       ],
     } as const satisfies TransactionSerializableEIP4844
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP4844>(transaction)
     expect(transaction).toEqual({ ...args, type: 'eip4844' })
@@ -339,10 +339,10 @@ describe('eip4844', () => {
 
   test('signed', async () => {
     const signature = await sign({
-      hash: keccak256(serializeTransaction(baseEip4844)),
+      hash: keccak256(await serializeTransaction(baseEip4844)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(baseEip4844, signature)
+    const serialized = await serializeTransaction(baseEip4844, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...baseEip4844,
       ...signature,
@@ -475,32 +475,32 @@ describe('eip1559', () => {
     maxPriorityFeePerGas: parseGwei('2'),
   }
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseEip1559)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseEip1559)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP1559>(transaction)
     expect(transaction).toEqual({ ...baseEip1559, type: 'eip1559' })
   })
 
-  test('minimal', () => {
+  test('minimal', async () => {
     const args = {
       chainId: 1,
       maxFeePerGas: 1n,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const args = {
       ...baseEip1559,
       gas: 21001n,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
   })
 
-  test('args: accessList', () => {
+  test('args: accessList', async () => {
     const args = {
       ...baseEip1559,
       accessList: [
@@ -513,25 +513,25 @@ describe('eip1559', () => {
         },
       ],
     } satisfies TransactionSerializableEIP1559
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const args = {
       ...baseEip1559,
       data: '0x1234',
     } satisfies TransactionSerializableEIP1559
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
   })
 
   test('signed', async () => {
     const signature = await sign({
-      hash: keccak256(serializeTransaction(baseEip1559)),
+      hash: keccak256(await serializeTransaction(baseEip1559)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(baseEip1559, signature)
+    const serialized = await serializeTransaction(baseEip1559, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...baseEip1559,
       ...signature,
@@ -759,14 +759,14 @@ describe('eip2930', () => {
     gasPrice: parseGwei('2'),
   } as TransactionSerializableEIP2930
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseEip2930)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseEip2930)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableEIP2930>(transaction)
     expect(transaction).toEqual({ ...baseEip2930, type: 'eip2930' })
   })
 
-  test('minimal', () => {
+  test('minimal', async () => {
     const args = {
       chainId: 1,
       gasPrice: 1n,
@@ -779,43 +779,43 @@ describe('eip2930', () => {
         },
       ],
     } satisfies TransactionSerializableEIP2930
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const args = {
       ...baseEip2930,
       gas: 21001n,
     } satisfies TransactionSerializableEIP2930
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const args = {
       ...baseEip2930,
       data: '0x1234',
     } satisfies TransactionSerializableEIP2930
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const args = {
       ...baseEip2930,
       data: '0x1234',
     } satisfies TransactionSerializableEIP2930
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
 
   test('signed', async () => {
     const signature = await sign({
-      hash: keccak256(serializeTransaction(baseEip2930)),
+      hash: keccak256(await serializeTransaction(baseEip2930)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(baseEip2930, signature)
+    const serialized = await serializeTransaction(baseEip2930, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...baseEip2930,
       ...signature,
@@ -884,46 +884,46 @@ describe('legacy', () => {
     gasPrice: parseGwei('2'),
   }
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseLegacy)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseLegacy)
     const transaction = parseTransaction(serialized)
     assertType<TransactionSerializableLegacy>(transaction)
     expect(transaction).toEqual({ ...baseLegacy, type: 'legacy' })
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const args = {
       ...baseLegacy,
       gas: 21001n,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const args = {
       ...baseLegacy,
       data: '0x1234',
     } satisfies TransactionSerializableLegacy
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
   })
 
-  test('args: chainId', () => {
+  test('args: chainId', async () => {
     const args = {
       ...baseLegacy,
       chainId: 69,
     } satisfies TransactionSerializableLegacy
-    const serialized = serializeTransaction(args)
+    const serialized = await serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
   })
 
   test('signed', async () => {
     const signature = await sign({
-      hash: keccak256(serializeTransaction(baseLegacy)),
+      hash: keccak256(await serializeTransaction(baseLegacy)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(baseLegacy, signature)
+    const serialized = await serializeTransaction(baseLegacy, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
       ...signature,
@@ -938,10 +938,10 @@ describe('legacy', () => {
       chainId: 69,
     }
     const signature = await sign({
-      hash: keccak256(serializeTransaction(args)),
+      hash: keccak256(await serializeTransaction(args)),
       privateKey: accounts[0].privateKey,
     })
-    const serialized = serializeTransaction(args, signature)
+    const serialized = await serializeTransaction(args, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...args,
       ...signature,
@@ -1146,10 +1146,10 @@ describe('errors', () => {
   })
 })
 
-test('toTransactionArray', () => {
+test('toTransactionArray', async () => {
   expect(
     toTransactionArray(
-      serializeTransaction({
+      await serializeTransaction({
         ...base,
         chainId: 1,
         maxFeePerGas: 1n,

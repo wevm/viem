@@ -21,67 +21,67 @@ describe('deposit', async () => {
     type: 'deposit',
   } as const satisfies TransactionSerializableDeposit
 
-  test('default', () => {
-    const serialized = serializeTransaction(baseTransaction)
+  test('default', async () => {
+    const serialized = await serializeTransaction(baseTransaction)
     expect(parseTransaction(serialized)).toEqual(baseTransaction)
   })
 
-  test('args: data', () => {
+  test('args: data', async () => {
     const tx = {
       ...baseTransaction,
       data: '0xdeadbeef',
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     expect(parseTransaction(serialized)).toEqual(tx)
   })
 
-  test('args: gas', () => {
+  test('args: gas', async () => {
     const tx = {
       ...baseTransaction,
       gas: 69420n,
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     expect(parseTransaction(serialized)).toEqual(tx)
   })
 
-  test('args: isSystemTx', () => {
+  test('args: isSystemTx', async () => {
     const tx = {
       ...baseTransaction,
       isSystemTx: true,
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     expect(parseTransaction(serialized)).toEqual(tx)
   })
 
-  test('args: mint', () => {
+  test('args: mint', async () => {
     const tx = {
       ...baseTransaction,
       mint: 69420n,
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     expect(parseTransaction(serialized)).toEqual(tx)
   })
 
-  test('args: to', () => {
+  test('args: to', async () => {
     const tx = {
       ...baseTransaction,
       to: '0xaabbccddeeff00112233445566778899aabbccdd',
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     expect(parseTransaction(serialized)).toEqual(tx)
   })
 
-  test('args: value', () => {
+  test('args: value', async () => {
     const tx = {
       ...baseTransaction,
       value: 69420n,
     } as const satisfies TransactionSerializableDeposit
-    const serialized = serializeTransaction(tx)
+    const serialized = await serializeTransaction(tx)
     expect(parseTransaction(serialized)).toEqual(tx)
   })
 
-  test('args: no type', () => {
-    const serialized = serializeTransaction({
+  test('args: no type', async () => {
+    const serialized = await serializeTransaction({
       ...baseTransaction,
       type: undefined,
     } as any)
@@ -90,12 +90,14 @@ describe('deposit', async () => {
     )
   })
 
-  test('error: invalid to', () => {
+  test('error: invalid to', async () => {
     const tx = {
       ...baseTransaction,
       to: '0xaabbccddeeff00112233445566778899aabbccd',
     } as const satisfies TransactionSerializableDeposit
-    expect(() => serializeTransaction(tx)).toThrowErrorMatchingInlineSnapshot(
+    expect(
+      async () => await serializeTransaction(tx),
+    ).toThrowErrorMatchingInlineSnapshot(
       `
       [InvalidAddressError: Address "0xaabbccddeeff00112233445566778899aabbccd" is invalid.
 
@@ -107,12 +109,14 @@ describe('deposit', async () => {
     )
   })
 
-  test('error: invalid from', () => {
+  test('error: invalid from', async () => {
     const tx = {
       ...baseTransaction,
       from: '0xaabbccddeeff00112233445566778899aabbccd',
     } as const satisfies TransactionSerializableDeposit
-    expect(() => serializeTransaction(tx)).toThrowErrorMatchingInlineSnapshot(
+    expect(
+      async () => await serializeTransaction(tx),
+    ).toThrowErrorMatchingInlineSnapshot(
       `
       [InvalidAddressError: Address "0xaabbccddeeff00112233445566778899aabbccd" is invalid.
 
@@ -137,7 +141,7 @@ describe('deposit', async () => {
     })
     expect(
       keccak256(
-        serializeTransaction({
+        await serializeTransaction({
           ...tx_1,
           data: tx_1.input,
           sourceHash: tx_1.sourceHash!,
@@ -153,7 +157,7 @@ describe('deposit', async () => {
     })
     expect(
       keccak256(
-        serializeTransaction({
+        await serializeTransaction({
           ...tx_2,
           data: tx_2.input,
           sourceHash: tx_2.sourceHash!,
@@ -169,7 +173,7 @@ describe('deposit', async () => {
     })
     expect(
       keccak256(
-        serializeTransaction({
+        await serializeTransaction({
           ...tx_3,
           data: tx_3.input,
           sourceHash: tx_3.sourceHash!,
@@ -185,7 +189,7 @@ describe('deposit', async () => {
     })
     expect(
       keccak256(
-        serializeTransaction({
+        await serializeTransaction({
           ...tx_4,
           data: tx_4.input,
           sourceHash: tx_4.sourceHash!,
@@ -208,7 +212,7 @@ describe('eip1559', async () => {
       value: parseEther('1'),
     } as const
 
-    const serialized = serializeTransaction(transaction)
+    const serialized = await serializeTransaction(transaction)
     expect(parseTransaction(serialized)).toEqual(transaction)
   })
 })

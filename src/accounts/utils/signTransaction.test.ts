@@ -333,7 +333,7 @@ describe('with custom EIP2718 serializer', () => {
 
   test('default', async () => {
     const exampleSerializer: SerializeTransactionFn<ExampleTransaction> = vi.fn(
-      (transaction) => {
+      async (transaction) => {
         const {
           chainId,
           nonce,

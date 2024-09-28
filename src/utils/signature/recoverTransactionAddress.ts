@@ -42,7 +42,7 @@ export async function recoverTransactionAddress(
     yParity: transaction.yParity!,
   }
 
-  const serialized = serializeTransaction({
+  const serialized = await serializeTransaction({
     ...transaction,
     r: undefined,
     s: undefined,

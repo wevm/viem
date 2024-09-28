@@ -108,7 +108,7 @@ export async function estimateL1Fee<
 
   assertRequest(request as AssertRequestParameters)
 
-  const transaction = serializeTransaction({
+  const transaction = await serializeTransaction({
     ...request,
     type: 'eip1559',
   } as TransactionSerializable)

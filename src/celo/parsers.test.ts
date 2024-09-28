@@ -39,8 +39,8 @@ const transaction = {
   value: parseEther('1'),
 }
 
-test('should return same result as standard parser when not CIP42 or CIP64', () => {
-  const serialized = serializeTransaction_(transaction)
+test('should return same result as standard parser when not CIP42 or CIP64', async () => {
+  const serialized = await serializeTransaction_(transaction)
 
   expect(parseTransaction(serialized)).toEqual(parseTransaction_(serialized))
 })
@@ -206,7 +206,7 @@ describe('should parse a CIP64 transaction', () => {
     type: 'cip64',
   } as TransactionSerializableCIP64
 
-  test('when type is not specified, but the fields match CIP64', () => {
+  test('when type is not specified, but the fields match CIP64', async () => {
     const transactionWithoutType = {
       ...transaction,
       feeCurrency: '0x765de816845861e75a25fca122bb6898b8b1282a',
@@ -214,7 +214,7 @@ describe('should parse a CIP64 transaction', () => {
       chainId: 42270,
     } as TransactionSerializableCIP64
 
-    const serialized = serializeTransaction(transactionWithoutType)
+    const serialized = await serializeTransaction(transactionWithoutType)
 
     expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
@@ -231,7 +231,7 @@ describe('should parse a CIP64 transaction', () => {
     `)
   })
 
-  test('with access list', () => {
+  test('with access list', async () => {
     const transactionWithAccessList: TransactionSerializableCIP64 = {
       ...transactionCip64,
       accessList: [
@@ -245,7 +245,7 @@ describe('should parse a CIP64 transaction', () => {
       ],
     }
 
-    const serialized = serializeTransaction(transactionWithAccessList)
+    const serialized = await serializeTransaction(transactionWithAccessList)
 
     expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
@@ -270,13 +270,13 @@ describe('should parse a CIP64 transaction', () => {
         }
       `)
   })
-  test('with data as 0x', () => {
+  test('with data as 0x', async () => {
     const transactionWithData: TransactionSerializableCIP64 = {
       ...transactionCip64,
       data: '0x',
     }
 
-    const serialized = serializeTransaction(transactionWithData)
+    const serialized = await serializeTransaction(transactionWithData)
 
     expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {
@@ -292,13 +292,13 @@ describe('should parse a CIP64 transaction', () => {
         }
       `)
   })
-  test('with data', () => {
+  test('with data', async () => {
     const transactionWithData: TransactionSerializableCIP64 = {
       ...transactionCip64,
       data: '0x1234',
     }
 
-    const serialized = serializeTransaction(transactionWithData)
+    const serialized = await serializeTransaction(transactionWithData)
 
     expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
         {

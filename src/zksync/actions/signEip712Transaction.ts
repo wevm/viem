@@ -138,7 +138,7 @@ export async function signEip712Transaction<
     account,
   })
 
-  return chain?.serializers?.transaction(
+  return (await chain?.serializers?.transaction(
     {
       chainId,
       ...transaction,
@@ -146,5 +146,5 @@ export async function signEip712Transaction<
       type: 'eip712' as any,
     },
     { r: '0x0', s: '0x0', v: 0n },
-  ) as SignEip712TransactionReturnType
+  )) as SignEip712TransactionReturnType
 }

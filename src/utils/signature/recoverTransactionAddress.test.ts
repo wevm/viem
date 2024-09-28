@@ -47,7 +47,7 @@ test('default', async () => {
 })
 
 test('signature (hex)', async () => {
-  const serializedTransaction = serializeTransaction(transaction)
+  const serializedTransaction = await serializeTransaction(transaction)
   const signature = await sign({
     hash: keccak256(serializedTransaction),
     privateKey: accounts[0].privateKey,
@@ -60,7 +60,7 @@ test('signature (hex)', async () => {
 })
 
 test('signature (bytes)', async () => {
-  const serializedTransaction = serializeTransaction(transaction)
+  const serializedTransaction = await serializeTransaction(transaction)
   const signature = await sign({
     hash: keccak256(serializedTransaction),
     privateKey: accounts[0].privateKey,
@@ -81,7 +81,7 @@ test('4844 tx', async () => {
     sidecars,
   } satisfies TransactionSerializableEIP4844
 
-  const signableTransaction = serializeTransaction({
+  const signableTransaction = await serializeTransaction({
     ...transaction4844,
     sidecars: false,
   })
@@ -89,7 +89,10 @@ test('4844 tx', async () => {
     hash: keccak256(signableTransaction),
     privateKey: accounts[0].privateKey,
   })
-  const serializedTransaction = serializeTransaction(transaction4844, signature)
+  const serializedTransaction = await serializeTransaction(
+    transaction4844,
+    signature,
+  )
 
   const address = await recoverTransactionAddress({
     serializedTransaction,
@@ -127,7 +130,7 @@ test('via `getTransaction`', async () => {
     blockNumber: anvilMainnet.forkBlockNumber - 10n,
     index: 0,
   })
-  const serializedTransaction = serializeTransaction({
+  const serializedTransaction = await serializeTransaction({
     ...transaction,
     data: transaction.input,
   })

@@ -27,7 +27,7 @@ test('default', () => {
 })
 
 test('sign', async () => {
-  const account = toMultisigSmartAccount({
+  const account = await toMultisigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     privateKeys: [accounts[0].privateKey, accounts[1].privateKey],
   })
@@ -41,7 +41,7 @@ test('sign', async () => {
 })
 
 test('sign message', async () => {
-  const account = toMultisigSmartAccount({
+  const account = await toMultisigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     privateKeys: [accounts[0].privateKey, accounts[1].privateKey],
   })
@@ -53,7 +53,7 @@ test('sign message', async () => {
 })
 
 test('sign transaction', async () => {
-  const account = toMultisigSmartAccount({
+  const account = await toMultisigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     privateKeys: [accounts[0].privateKey, accounts[1].privateKey],
   })
@@ -71,7 +71,7 @@ test('sign transaction', async () => {
 })
 
 test('sign typed data', async () => {
-  const account = toMultisigSmartAccount({
+  const account = await toMultisigSmartAccount({
     address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     privateKeys: [accounts[0].privateKey, accounts[1].privateKey],
   })

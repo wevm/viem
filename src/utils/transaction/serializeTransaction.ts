@@ -97,14 +97,14 @@ export type SerializeTransactionErrorType =
   | SerializeTransactionLegacyErrorType
   | ErrorType
 
-export function serializeTransaction<
+export async function serializeTransaction<
   const transaction extends TransactionSerializable,
   ///
   _transactionType extends TransactionType = GetTransactionType<transaction>,
 >(
   transaction: transaction,
   signature?: Signature | undefined,
-): SerializedTransactionReturnType<transaction, _transactionType> {
+): Promise<SerializedTransactionReturnType<transaction, _transactionType>> {
   const type = getTransactionType(transaction) as GetTransactionType
 
   if (type === 'eip1559')
