@@ -15,4 +15,5 @@ export const visionTestnet = /*#__PURE__*/ defineChain({
       url: 'https://visionscan.org/?chain=vpioneer',
     },
   },
+  testnet: true,
 })

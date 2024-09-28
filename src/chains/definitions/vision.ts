@@ -15,4 +15,5 @@ export const vision = /*#__PURE__*/ defineChain({
       url: 'https://visionscan.org',
     },
   },
+  testnet: false,
 })
