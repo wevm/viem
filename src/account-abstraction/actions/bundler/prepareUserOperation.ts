@@ -466,6 +466,8 @@ export async function prepareUserOperation<
     })(),
     (async () => {
       if (!properties.includes('signature')) return undefined
+      if (typeof parameters.signature !== 'undefined')
+        return parameters.signature
       return account.getStubSignature()
     })(),
   ])
