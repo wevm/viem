@@ -7,6 +7,7 @@ import {
   type EstimateFeesPerGasErrorType,
   estimateFeesPerGas,
 } from '../../../actions/public/estimateFeesPerGas.js'
+import { getChainId as getChainId_ } from '../../../actions/public/getChainId.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
@@ -492,7 +493,14 @@ export async function prepareUserOperation<
   // Fill User Operation with paymaster-related properties for **gas estimation**.
   ////////////////////////////////////////////////////////////////////////////////
 
-  // console.log('wat')
+  let chainId: number | undefined
+  async function getChainId(): Promise<number> {
+    if (chainId) return chainId
+    if (client.chain) return client.chain.id
+    const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
+    chainId = chainId_
+    return chainId
+  }
 
   // If the User Operation is intended to be sponsored, we will need to fill the paymaster-related
   // User Operation properties required to estimate the User Operation gas.
@@ -508,7 +516,7 @@ export async function prepareUserOperation<
       sponsor,
       ...paymasterArgs
     } = await getPaymasterStubData({
-      chainId: client.chain!.id!,
+      chainId: await getChainId(),
       entryPointAddress: account.entryPoint.address,
       context: paymasterContext,
       ...(request as UserOperation),
@@ -606,7 +614,7 @@ export async function prepareUserOperation<
   ) {
     // Retrieve paymaster-related User Operation properties to be used for **sending** the User Operation.
     const paymaster = await getPaymasterData({
-      chainId: client.chain!.id!,
+      chainId: await getChainId(),
       entryPointAddress: account.entryPoint.address,
       context: paymasterContext,
       ...(request as UserOperation),
