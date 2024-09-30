@@ -1,5 +1,29 @@
 # viem
 
+## 2.21.16
+
+### Patch Changes
+
+- [`8abeb36c`](https://github.com/wevm/viem/commit/8abeb36c9fb6072c6e12ce3662299bfb4c7a28fa) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction**: Fixed nullish chain handling for paymaster data in `prepareUserOperation`.
+
+- [#2780](https://github.com/wevm/viem/pull/2780) [`e0e0955c`](https://github.com/wevm/viem/commit/e0e0955c6cbe1c32c2ea35f5d39662ec25f392cf) Thanks [@sina-london](https://github.com/sina-london)! - Added fusion chain
+
+- [#2786](https://github.com/wevm/viem/pull/2786) [`4d692d47`](https://github.com/wevm/viem/commit/4d692d478b450148f9040a8301f08f817d700e43) Thanks [@sina-london](https://github.com/sina-london)! - Added BounceBit chain.
+
+- [#2791](https://github.com/wevm/viem/pull/2791) [`e171fb72`](https://github.com/wevm/viem/commit/e171fb72b90dc30a45367445823602119afdea79) Thanks [@sandyup](https://github.com/sandyup)! - Added vision chain.
+
+- [#2789](https://github.com/wevm/viem/pull/2789) [`b61a2316`](https://github.com/wevm/viem/commit/b61a231670a603f14151975d5eb92837581f8f86) Thanks [@sina-london](https://github.com/sina-london)! - Added viction chain.
+
+- [`be2298cb`](https://github.com/wevm/viem/commit/be2298cbae6655d8d1622fbaf5f51e9a3c69b0d3) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction**: Allowed override of `signature` property in `prepareUserOperation`.
+
+- [#2779](https://github.com/wevm/viem/pull/2779) [`9a7461ec`](https://github.com/wevm/viem/commit/9a7461ec0377c8d9c53a8e152c553066408c2433) Thanks [@tom-jordan1](https://github.com/tom-jordan1)! - Added hychain.
+
+- [#2787](https://github.com/wevm/viem/pull/2787) [`1a515531`](https://github.com/wevm/viem/commit/1a515531d6c0f1e3fc036b40622435bd84bbd80d) Thanks [@peterhappynow](https://github.com/peterhappynow)! - Added multicall3 contract for Flare Mainnet.
+
+- [#2781](https://github.com/wevm/viem/pull/2781) [`9d7d1602`](https://github.com/wevm/viem/commit/9d7d1602aa103f9db15f2b696944430c8ef643f7) Thanks [@peterhappynow](https://github.com/peterhappynow)! - Added Multicall address for `areon`.
+
+- [#2788](https://github.com/wevm/viem/pull/2788) [`320e2dc4`](https://github.com/wevm/viem/commit/320e2dc468248168691e6d3f3e2705d33e52c423) Thanks [@maxknivets](https://github.com/maxknivets)! - Added WeaveVM Alphanet chain.
+
 ## 2.21.15
 
 ### Patch Changes
