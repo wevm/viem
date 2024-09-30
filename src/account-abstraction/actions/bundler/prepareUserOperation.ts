@@ -496,7 +496,7 @@ export async function prepareUserOperation<
 
   // If no chain is passed, we get the chainId using bundlerClient.
   let chainId!: number
-  if(typeof client.chain === 'undefined') {
+  if (typeof client.chain === 'undefined') {
     chainId = await bundlerClient.getChainId()
   } else {
     chainId = client.chain.id
