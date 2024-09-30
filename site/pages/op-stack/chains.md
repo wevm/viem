@@ -15,6 +15,7 @@ import {
   zora, // [!code hl]
   zoraSepolia, // [!code hl]
   zoraTestnet, // [!code hl]
+  soneiumMinato, // [!code hl]
 } from 'viem/chains'
 ```
 
