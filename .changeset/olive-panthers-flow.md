@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-celo-alfajores: add op contracts to config, update block explorer to blockscout
+Added OP Stack contracts to Celo Alfajores.
