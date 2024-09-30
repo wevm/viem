@@ -341,10 +341,10 @@ describe('entryPointVersion: 0.7', async () => {
         nonce:                          30902162761095135455113551806464
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
-        preVerificationGas:             50692
+        preVerificationGas:             48501
         sender:                         0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:                      0xdeadbeef
-        verificationGasLimit:           84007
+        verificationGasLimit:           79159
 
       Details: UserOperation reverted with reason: AA24 signature error
       Version: viem@x.y.z]
