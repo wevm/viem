@@ -134,6 +134,7 @@ const transaction = await publicClient.waitForTransactionReceipt(
 ### timeout (optional)
 
 - **Type:** `number`
+- **Default:** `180_000`
 
 Optional timeout (in milliseconds) to wait before stopping polling.
 

@@ -648,7 +648,7 @@ describe('node errors', () => {
     ).rejects.toThrowError('cannot be lower than the block base fee')
   })
 
-  test('nonce too low', async () => {
+  test.skip('nonce too low', async () => {
     await expect(() =>
       simulateContract(client, {
         ...wagmiContractConfig,

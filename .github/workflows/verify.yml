@@ -241,7 +241,7 @@ jobs:
         working-directory: ./wagmi
 
       - name: Check types
-        run: pnpm typecheck
+        run: pnpm check:types
         working-directory: ./wagmi
 
       - name: Check build

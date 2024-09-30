@@ -831,7 +831,73 @@ describe('local account', () => {
   })
 
   test('args: authorizationList', async () => {
-    const invoker = privateKeyToAccount(accounts[0].privateKey)
+    const authority = privateKeyToAccount(accounts[9].privateKey)
+    const recipient = privateKeyToAccount(
+      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
+    )
+
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
+
+    const { contractAddress } = await deploy(client, {
+      abi: BatchCallInvoker.abi,
+      bytecode: BatchCallInvoker.bytecode.object,
+    })
+
+    const authorization = await signAuthorization(client, {
+      account: authority,
+      contractAddress: contractAddress!,
+    })
+
+    const hash = await sendTransaction(client, {
+      account: authority,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCallInvoker.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
+      }),
+      to: authority.address,
+    })
+    expect(hash).toBeDefined()
+
+    await mine(client, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(client, { hash })
+    const log = receipt.logs[0]
+    expect(log.address).toBe(authority.address.toLowerCase())
+    expect(
+      decodeEventLog({
+        abi: BatchCallInvoker.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
+      },
+      eventName: 'CallEmitted',
+    })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
+  })
+
+  test('args: authorizationList (delegate)', async () => {
+    const delegate = privateKeyToAccount(accounts[0].privateKey)
     const authority = privateKeyToAccount(accounts[9].privateKey)
     const recipient = privateKeyToAccount(
       '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
@@ -852,10 +918,11 @@ describe('local account', () => {
     const authorization = await signAuthorization(client, {
       account: authority,
       contractAddress: contractAddress!,
+      delegate,
     })
 
     const hash = await sendTransaction(client, {
-      account: invoker,
+      account: delegate,
       authorizationList: [authorization],
       data: encodeFunctionData({
         abi: BatchCallInvoker.abi,
@@ -903,72 +970,6 @@ describe('local account', () => {
         address: authority.address,
       }),
     ).toBe(balance_authority - parseEther('1'))
-  })
-
-  test('args: authorizationList (authority as invoker)', async () => {
-    const authority = privateKeyToAccount(accounts[9].privateKey)
-    const recipient = privateKeyToAccount(
-      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
-    )
-
-    const balance_recipient = await getBalance(client, {
-      address: recipient.address,
-    })
-
-    const { contractAddress } = await deploy(client, {
-      abi: BatchCallInvoker.abi,
-      bytecode: BatchCallInvoker.bytecode.object,
-    })
-
-    const authorization = await signAuthorization(client, {
-      account: authority,
-      contractAddress: contractAddress!,
-    })
-
-    const hash = await sendTransaction(client, {
-      account: authority,
-      authorizationList: [authorization],
-      data: encodeFunctionData({
-        abi: BatchCallInvoker.abi,
-        functionName: 'execute',
-        args: [
-          [
-            {
-              to: recipient.address,
-              data: '0x',
-              value: parseEther('1'),
-            },
-          ],
-        ],
-      }),
-      to: authority.address,
-    })
-    expect(hash).toBeDefined()
-
-    await mine(client, { blocks: 1 })
-
-    const receipt = await getTransactionReceipt(client, { hash })
-    const log = receipt.logs[0]
-    expect(log.address).toBe(authority.address.toLowerCase())
-    expect(
-      decodeEventLog({
-        abi: BatchCallInvoker.abi,
-        ...log,
-      }),
-    ).toEqual({
-      args: {
-        data: '0x',
-        to: recipient.address,
-        value: parseEther('1'),
-      },
-      eventName: 'CallEmitted',
-    })
-
-    expect(
-      await getBalance(client, {
-        address: recipient.address,
-      }),
-    ).toBe(balance_recipient + parseEther('1'))
   })
 
   test('args: blobs', async () => {
@@ -1284,7 +1285,7 @@ describe('errors', () => {
     )
   })
 
-  test('nonce too low', async () => {
+  test.skip('nonce too low', async () => {
     await expect(() =>
       sendTransaction(client, {
         account: sourceAccount.address,

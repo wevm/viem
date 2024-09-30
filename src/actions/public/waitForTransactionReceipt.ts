@@ -75,7 +75,10 @@ export type WaitForTransactionReceiptParameters<
    * @default `({ count }) => ~~(1 << count) * 200` (exponential backoff)
    */
   retryDelay?: WithRetryParameters['delay'] | undefined
-  /** Optional timeout (in milliseconds) to wait before stopping polling. */
+  /**
+   * Optional timeout (in milliseconds) to wait before stopping polling.
+   * @default 180_000
+   */
   timeout?: number | undefined
 }
 
@@ -136,12 +139,11 @@ export async function waitForTransactionReceipt<
     pollingInterval = client.pollingInterval,
     retryCount = 6,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
-    timeout,
+    timeout = 180_000,
   }: WaitForTransactionReceiptParameters<chain>,
 ): Promise<WaitForTransactionReceiptReturnType<chain>> {
   const observerId = stringify(['waitForTransactionReceipt', client.uid, hash])
 
-  let count = 0
   let transaction: GetTransactionReturnType<chain> | undefined
   let replacedTransaction: GetTransactionReturnType<chain> | undefined
   let receipt: GetTransactionReceiptReturnType<chain>
@@ -177,12 +179,6 @@ export async function waitForTransactionReceipt<
             let blockNumber = blockNumber_
 
             if (retrying) return
-            if (count > retryCount)
-              done(() =>
-                emit.reject(
-                  new WaitForTransactionReceiptTimeoutError({ hash }),
-                ),
-              )
 
             try {
               // If we already have a valid receipt, let's check if we have enough
@@ -332,8 +328,6 @@ export async function waitForTransactionReceipt<
               } else {
                 done(() => emit.reject(err))
               }
-            } finally {
-              count++
             }
           },
         })

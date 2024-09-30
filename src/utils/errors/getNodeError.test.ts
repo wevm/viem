@@ -297,6 +297,23 @@ test('ExecutionRevertedError', () => {
   `)
 })
 
+test('UnknownNodeError check with null cause in error chain', () => {
+  const error = new TransactionRejectedRpcError(
+    new Error('null cause', { cause: null }),
+  )
+  const result = getNodeError(error, {
+    account: address.vitalik,
+    maxFeePerGas: parseGwei('10'),
+    maxPriorityFeePerGas: parseGwei('11'),
+  })
+  expect(result).toMatchInlineSnapshot(`
+    [UnknownNodeError: An error occurred while executing: Transaction creation failed.
+
+    Details: null cause
+    Version: viem@x.y.z]
+  `)
+})
+
 test('Unknown node error', () => {
   const error = new TransactionRejectedRpcError(
     new RpcRequestError({

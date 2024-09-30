@@ -6,13 +6,11 @@ If you want to contribute, but aren't sure where to start, you can create a [new
 
 If you are contributing to add a new chain to `viem/chains`, please read the [Chains section](#chains).
 
-> **Note**
->
-> **Please ask first before starting work on any significant new features.**
->
-> It's never a fun experience to have your pull request declined after investing time and effort into a new feature. To avoid this from happening, we request that contributors create a [feature request](https://github.com/wevm/viem/discussions/new?category=ideas) to first discuss any API changes or significant new ideas.
+## Rules
 
-<br>
+1. Significant changes to the API or implementation must be reviewed before a Pull Request is created. Create a [Feature Request](https://github.com/wevm/viem/discussions/new?category=ideas) first to discuss any API changes or new ideas. 
+2. Contributors must be humans, not bots.
+3. Contributor GitHub Accounts must have at least one non-trivial contribution to another repository.
 
 ## Basic guide
 
