@@ -25,6 +25,7 @@ export const optimismGoerli = /*#__PURE__*/ defineChain({
     l2OutputOracle: {
       [sourceId]: {
         address: '0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0',
+        blockCreated: 26384000
       },
     },
     multicall3: {
@@ -34,11 +35,13 @@ export const optimismGoerli = /*#__PURE__*/ defineChain({
     portal: {
       [sourceId]: {
         address: '0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383',
+        blockCreated: 26384000
       },
     },
     l1StandardBridge: {
       [sourceId]: {
         address: '0x636Af16bf2f682dD3109e60102b8E1A089FedAa8',
+        blockCreated: 26384000
       },
     },
   },
