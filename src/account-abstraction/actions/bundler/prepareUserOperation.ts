@@ -494,6 +494,14 @@ export async function prepareUserOperation<
 
   // console.log('wat')
 
+  // If no chain is passed, we get the chainId using bundlerClient.
+  let chainId!: number
+  if(typeof client.chain === 'undefined') {
+    chainId = await bundlerClient.getChainId()
+  } else {
+    chainId = client.chain.id
+  }
+
   // If the User Operation is intended to be sponsored, we will need to fill the paymaster-related
   // User Operation properties required to estimate the User Operation gas.
   let isPaymasterPopulated = false
@@ -508,7 +516,7 @@ export async function prepareUserOperation<
       sponsor,
       ...paymasterArgs
     } = await getPaymasterStubData({
-      chainId: client.chain!.id!,
+      chainId: chainId,
       entryPointAddress: account.entryPoint.address,
       context: paymasterContext,
       ...(request as UserOperation),
@@ -606,7 +614,7 @@ export async function prepareUserOperation<
   ) {
     // Retrieve paymaster-related User Operation properties to be used for **sending** the User Operation.
     const paymaster = await getPaymasterData({
-      chainId: client.chain!.id!,
+      chainId: chainId,
       entryPointAddress: account.entryPoint.address,
       context: paymasterContext,
       ...(request as UserOperation),
