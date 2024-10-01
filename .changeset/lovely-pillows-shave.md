@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added `assetChain`.
+Added `assetChain` chain.
