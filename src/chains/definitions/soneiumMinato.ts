@@ -6,8 +6,7 @@ const sourceId = 11_155_111 // sepolia
 export const soneiumMinato = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 1946,
-  network: 'Minato',
-  name: 'Soneium testnet Minato',
+  name: 'Soneium Minato Testnet',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
