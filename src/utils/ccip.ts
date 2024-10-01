@@ -56,8 +56,8 @@ export const offchainLookupAbiItem = {
 
 export type OffchainLookupErrorType = OffchainLookupErrorType_ | ErrorType
 
-export async function offchainLookup<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function offchainLookup<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockNumber,
     blockTag,

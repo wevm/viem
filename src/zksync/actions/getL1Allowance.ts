@@ -11,8 +11,8 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 
 export type GetL1AllowanceParameters<
-  TAccount extends Account | undefined = Account | undefined,
-> = GetAccountParameter<TAccount> & {
+  account extends Account | undefined = Account | undefined,
+> = GetAccountParameter<account> & {
   bridgeAddress: Address
   blockTag?: BlockTag
   token: Address
@@ -23,11 +23,11 @@ export type GetL1AllowanceReturnType = bigint
 export type GetL1AllowanceErrorType = AccountNotFoundError | BaseError
 
 export async function getL1Allowance<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  parameters: GetL1AllowanceParameters<TAccount>,
+  client: Client<Transport, chain, account>,
+  parameters: GetL1AllowanceParameters<account>,
 ): Promise<GetL1AllowanceReturnType> {
   const { token, bridgeAddress, blockTag, account: account_ } = parameters
 

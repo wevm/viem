@@ -86,8 +86,8 @@ import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 export type WalletActions<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
 > = {
   /**
    * Adds an EVM chain to the wallet.
@@ -136,7 +136,7 @@ export type WalletActions<
     const abi extends Abi | readonly unknown[],
     chainOverride extends Chain | undefined,
   >(
-    args: DeployContractParameters<abi, TChain, TAccount, chainOverride>,
+    args: DeployContractParameters<abi, chain, account, chainOverride>,
   ) => Promise<DeployContractReturnType>
   /**
    * Returns a list of account addresses owned by the wallet or client.
@@ -235,28 +235,27 @@ export type WalletActions<
    * })
    */
   prepareTransactionRequest: <
-    const TRequest extends PrepareTransactionRequestRequest<
-      TChain,
-      TChainOverride
+    const request extends PrepareTransactionRequestRequest<
+      chain,
+      chainOverride
     >,
-    TChainOverride extends Chain | undefined = undefined,
-    TAccountOverride extends Account | Address | undefined = undefined,
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | Address | undefined = undefined,
   >(
     args: PrepareTransactionRequestParameters<
-      TChain,
-      TAccount,
-      TChainOverride,
-      TAccountOverride,
-      TRequest
+      chain,
+      account,
+      chainOverride,
+      accountOverride,
+      request
     >,
   ) => Promise<
     PrepareTransactionRequestReturnType<
-      Chain,
-      TAccount,
-      TChainOverride,
-      TAccountOverride,
-      // @ts-expect-error
-      TRequest
+      chain,
+      account,
+      chainOverride,
+      accountOverride,
+      request
     >
   >
   /**
@@ -376,10 +375,10 @@ export type WalletActions<
    * })
    */
   sendTransaction: <
-    const TRequest extends SendTransactionRequest<TChain, TChainOverride>,
-    TChainOverride extends Chain | undefined = undefined,
+    const request extends SendTransactionRequest<chain, chainOverride>,
+    chainOverride extends Chain | undefined = undefined,
   >(
-    args: SendTransactionParameters<TChain, TAccount, TChainOverride, TRequest>,
+    args: SendTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SendTransactionReturnType>
   /**
    * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
@@ -425,7 +424,7 @@ export type WalletActions<
    * })
    */
   signMessage: (
-    args: SignMessageParameters<TAccount>,
+    args: SignMessageParameters<account>,
   ) => Promise<SignMessageReturnType>
   /**
    * Signs a transaction.
@@ -470,8 +469,8 @@ export type WalletActions<
    * })
    * const signature = await client.signTransaction(request)
    */
-  signTransaction: <TChainOverride extends Chain | undefined>(
-    args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
+  signTransaction: <chainOverride extends Chain | undefined>(
+    args: SignTransactionParameters<chain, account, chainOverride>,
   ) => Promise<SignTransactionReturnType>
   /**
    * Signs typed data and calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
@@ -570,10 +569,10 @@ export type WalletActions<
    * })
    */
   signTypedData: <
-    const TTypedData extends TypedData | { [key: string]: unknown },
-    TPrimaryType extends string,
+    const typedData extends TypedData | { [key: string]: unknown },
+    primaryType extends string,
   >(
-    args: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
+    args: SignTypedDataParameters<typedData, primaryType, account>,
   ) => Promise<SignTypedDataReturnType>
   /**
    * Switch the target chain in a wallet.
@@ -676,26 +675,24 @@ export type WalletActions<
       'payable' | 'nonpayable',
       functionName
     >,
-    TChainOverride extends Chain | undefined = undefined,
+    chainOverride extends Chain | undefined = undefined,
   >(
     args: WriteContractParameters<
       abi,
       functionName,
       args,
-      TChain,
-      TAccount,
-      TChainOverride
+      chain,
+      account,
+      chainOverride
     >,
   ) => Promise<WriteContractReturnType>
 }
 
 export function walletActions<
-  TTransport extends Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
->(
-  client: Client<TTransport, TChain, TAccount>,
-): WalletActions<TChain, TAccount> {
+  transport extends Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+>(client: Client<transport, chain, account>): WalletActions<chain, account> {
   return {
     addChain: (args) => addChain(client, args),
     deployContract: (args) => deployContract(client, args),

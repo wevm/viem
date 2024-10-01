@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { blobData, kzg } from '../../../test/src/kzg.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
@@ -15,7 +16,10 @@ import {
   parseGwei,
   stringToHex,
 } from '../../index.js'
-import type { TransactionRequestEIP4844 } from '../../types/transaction.js'
+import type {
+  TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
+} from '../../types/transaction.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { mine } from '../index.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
@@ -30,6 +34,46 @@ const base = {
   gas: 21000n,
   nonce: 785,
 } satisfies TransactionRequestBase
+
+describe('eip7702', async () => {
+  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const authorization = await authority.experimental_signAuthorization({
+    contractAddress: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 420,
+  })
+
+  const baseEip7702 = {
+    ...base,
+    authorizationList: [authorization],
+    to: '0x0000000000000000000000000000000000000000',
+    type: 'eip7702',
+  } as const satisfies TransactionRequestEIP7702
+
+  // TODO: Anvil does not support sign 7702 over JSON-RPC yet.
+  test.todo('default: json-rpc')
+
+  test('default: local', async () => {
+    const signature = await signTransaction(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      ...baseEip7702,
+    })
+    expect(signature).toMatchInlineSnapshot(
+      `"0x04f8c40182031180808252089400000000000000000000000000000000000000008080c0f85ef85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a08d7765afec6e09d93be91a1324f0dbbd6bcb96f4b37e8645a4c65d08a979ab69a070b81c53368b35a58af8630903c57d2b106842f9a081e3dc607c0c0cd990c77d01a0d2e4cf87a02ffd9a6cf0854ff5036b987847c562bf7a5f79fe2d322fba51e3eda002b72b1124ca8c2e43d8895601055cf4af7bf1cd0f757451483cc4dc5cdfb4a3"`,
+    )
+  })
+
+  test('w/ prepareTransactionRequest', async () => {
+    const request = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      ...baseEip7702,
+    })
+    const signature = await signTransaction(client, request)
+    expect(signature).toMatchInlineSnapshot(
+      `"0x04f8cd01820311843b9aca008502ae1107ec8252089400000000000000000000000000000000000000008080c0f85ef85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a08d7765afec6e09d93be91a1324f0dbbd6bcb96f4b37e8645a4c65d08a979ab69a070b81c53368b35a58af8630903c57d2b106842f9a081e3dc607c0c0cd990c77d01a00c0d98a5aa820287d07cd20b5b05a1a5c19f50ff3b0e700c795313522515a21fa00450425c5f5a9b6862d9c1f9513b6254d38391eee7d3147f67f9b7bb6d3b94c2"`,
+    )
+  })
+})
 
 describe('eip4844', () => {
   const baseEip4844 = {
@@ -73,7 +117,7 @@ describe('eip1559', () => {
       ...baseEip1559,
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x02f855018203118085016b25dda6825208808080c001a0894d2e76b7b356750c81d8912d2f7e18dffa7cc49a3ceaa124f586814f981b59a016ab3f7fb02995af583cc345a7a5f1268da9c016dc1ac203a8565e0e7502af12"`,
+      `"0x02f855018203118085023fcf074c825208808080c080a0377bbfa08e94c5e78aecb79096d2198c1493cb2f1947052c437e1f976cb2dbe4a017ce1425a8efbe51ff2e283bec62522824b2ebdaa503ce22409699097300458c"`,
     )
   })
 
@@ -410,9 +454,9 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [AccountNotFoundError: Could not find an Account to execute with this Action.
-      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-      Docs: https://viem.sh/docs/actions/wallet/signTransaction#account
+      Docs: https://viem.sh/docs/actions/wallet/signTransaction
       Version: viem@x.y.z]
     `)
   })

@@ -12,7 +12,7 @@
       "CHANGELOG.md",
       "bun.lockb",
       "cache",
-      "test/contracts",
+      "contracts",
       "test/kzg/*.json",
       "test/kzg/*.txt",
       "coverage",
@@ -21,6 +21,7 @@
       "generated.ts",
       "vectors/*.json",
       "vectors/**/*.test.ts",
+      "wagmi",
       "site/dist"
     ]
   },

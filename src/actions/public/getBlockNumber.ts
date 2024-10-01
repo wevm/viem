@@ -51,8 +51,8 @@ export function getBlockNumberCache(id: string) {
  * const blockNumber = await getBlockNumber(client)
  * // 69420n
  */
-export async function getBlockNumber<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getBlockNumber<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { cacheTime = client.cacheTime }: GetBlockNumberParameters = {},
 ): Promise<GetBlockNumberReturnType> {
   const blockNumberHex = await withCache(

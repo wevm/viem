@@ -5,9 +5,8 @@ export type GameNotFoundErrorType = GameNotFoundError & {
   name: 'GameNotFoundError'
 }
 export class GameNotFoundError extends BaseError {
-  override name = 'GameNotFoundError'
   constructor() {
-    super('Dispute game not found.')
+    super('Dispute game not found.', { name: 'GameNotFoundError' })
   }
 }
 
@@ -16,10 +15,10 @@ export type ReceiptContainsNoWithdrawalsErrorType =
     name: 'ReceiptContainsNoWithdrawalsError'
   }
 export class ReceiptContainsNoWithdrawalsError extends BaseError {
-  override name = 'ReceiptContainsNoWithdrawalsError'
   constructor({ hash }: { hash: Hex }) {
     super(
       `The provided transaction receipt with hash "${hash}" contains no withdrawals.`,
+      { name: 'ReceiptContainsNoWithdrawalsError' },
     )
   }
 }

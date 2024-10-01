@@ -47,6 +47,7 @@ test('InvalidSerializableTransactionError', () => {
     - an EIP-1559 Transaction with \`maxFeePerGas\`, or
     - an EIP-2930 Transaction with \`gasPrice\` & \`accessList\`, or
     - an EIP-4844 Transaction with \`blobs\`, \`blobVersionedHashes\`, \`sidecars\`, or
+    - an EIP-7702 Transaction with \`authorizationList\`, or
     - a Legacy Transaction with \`gasPrice\`
 
     Version: viem@x.y.z]
@@ -204,7 +205,7 @@ describe('TransactionExecutionError', () => {
         chain:  Polygon (id: 137)
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
-        value:  0.00000000000000042 MATIC
+        value:  0.00000000000000042 POL
         data:   0x123
         gas:    420
         nonce:  69
@@ -236,7 +237,7 @@ describe('TransactionExecutionError', () => {
         chain:  Polygon (id: 137)
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
-        value:  0.00000000000000042 MATIC
+        value:  0.00000000000000042 POL
         data:   0x123
         gas:    420
         nonce:  69

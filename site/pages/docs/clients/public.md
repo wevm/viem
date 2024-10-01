@@ -59,7 +59,7 @@ const publicClient = createPublicClient({
 })
 ```
 
-> You can also [customize the `multicall` options](#batch-multicall-batchsize-optional).
+> You can also [customize the `multicall` options](#batchmulticallbatchsize-optional).
 
 Now, when you start to utilize `readContract` Actions, the Public Client will batch and send over those requests at the end of the message queue (or custom time period) in a single `eth_call` multicall request:
 

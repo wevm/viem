@@ -1,26 +1,26 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { Assign, Prettify } from '../../types/utils.js'
+import type { Prettify } from '../../types/utils.js'
 
 export type DefineFormatterErrorType = ErrorType
 
-export function defineFormatter<TType extends string, TParameters, TReturnType>(
-  type: TType,
-  format: (_: TParameters) => TReturnType,
+export function defineFormatter<type extends string, parameters, returnType>(
+  type: type,
+  format: (_: parameters) => returnType,
 ) {
   return <
-    TOverrideParameters,
-    TOverrideReturnType,
-    TExclude extends (keyof TParameters | keyof TOverrideParameters)[] = [],
+    parametersOverride,
+    returnTypeOverride,
+    exclude extends (keyof parameters | keyof parametersOverride)[] = [],
   >({
     exclude,
     format: overrides,
   }: {
-    exclude?: TExclude | undefined
-    format: (_: TOverrideParameters) => TOverrideReturnType
+    exclude?: exclude | undefined
+    format: (_: parametersOverride) => returnTypeOverride
   }) => {
     return {
       exclude,
-      format: (args: Assign<TParameters, TOverrideParameters>) => {
+      format: (args: parametersOverride) => {
         const formatted = format(args as any)
         if (exclude) {
           for (const key of exclude) {
@@ -30,8 +30,8 @@ export function defineFormatter<TType extends string, TParameters, TReturnType>(
         return {
           ...formatted,
           ...overrides(args),
-        } as Prettify<Assign<TReturnType, TOverrideReturnType>> & {
-          [_key in TExclude[number]]: never
+        } as Prettify<returnTypeOverride> & {
+          [_key in exclude[number]]: never
         }
       },
       type,

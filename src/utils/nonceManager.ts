@@ -78,7 +78,8 @@ export function createNonceManager(
           try {
             const nonce = await source.get({ address, chainId, client })
             const previousNonce = nonceMap.get(key) ?? 0
-            if (nonce <= previousNonce) return previousNonce + 1
+            if (previousNonce > 0 && nonce <= previousNonce)
+              return previousNonce + 1
             nonceMap.delete(key)
             return nonce
           } finally {

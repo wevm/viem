@@ -30,9 +30,9 @@ export type GetGasPriceErrorType = RequestErrorType | ErrorType
  * const gasPrice = await getGasPrice(client)
  */
 export async function getGasPrice<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
->(client: Client<Transport, TChain, TAccount>): Promise<GetGasPriceReturnType> {
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(client: Client<Transport, chain, account>): Promise<GetGasPriceReturnType> {
   const gasPrice = await client.request({
     method: 'eth_gasPrice',
   })

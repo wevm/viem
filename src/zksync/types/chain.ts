@@ -1,19 +1,19 @@
 import type { ChainFormatters } from '../../types/chain.js'
 import type { Chain, ChainFormatter } from '../../types/chain.js'
 import type { EIP712DomainFn } from './eip712.js'
-import type { ZkSyncTransactionSerializable } from './transaction.js'
+import type { ZksyncTransactionSerializable } from './transaction.js'
 
 export type ChainEIP712<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
   TransactionSignable = {},
   ///
   transactionSerializable extends
-    ZkSyncTransactionSerializable = formatters extends ChainFormatters
+    ZksyncTransactionSerializable = formatters extends ChainFormatters
     ? formatters['transactionRequest'] extends ChainFormatter
-      ? ZkSyncTransactionSerializable &
+      ? ZksyncTransactionSerializable &
           Parameters<formatters['transactionRequest']['format']>[0]
-      : ZkSyncTransactionSerializable
-    : ZkSyncTransactionSerializable,
+      : ZksyncTransactionSerializable
+    : ZksyncTransactionSerializable,
 > = Chain<
   formatters,
   {

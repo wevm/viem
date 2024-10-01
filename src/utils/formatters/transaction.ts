@@ -1,4 +1,6 @@
 import type { ErrorType } from '../../errors/utils.js'
+import type { SignedAuthorizationList } from '../../experimental/eip7702/types/authorization.js'
+import type { RpcAuthorizationList } from '../../experimental/eip7702/types/rpc.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -18,19 +20,19 @@ type TransactionPendingDependencies =
   | 'transactionIndex'
 
 export type FormattedTransaction<
-  TChain extends Chain | undefined = undefined,
-  TBlockTag extends BlockTag = BlockTag,
+  chain extends Chain | undefined = undefined,
+  blockTag extends BlockTag = BlockTag,
   _FormatterReturnType = ExtractChainFormatterReturnType<
-    TChain,
+    chain,
     'transaction',
     Transaction
   >,
   _ExcludedPendingDependencies extends string = TransactionPendingDependencies &
-    ExtractChainFormatterExclude<TChain, 'transaction'>,
+    ExtractChainFormatterExclude<chain, 'transaction'>,
 > = UnionLooseOmit<_FormatterReturnType, TransactionPendingDependencies> & {
   [_K in _ExcludedPendingDependencies]: never
 } & Pick<
-    Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>,
+    Transaction<bigint, number, blockTag extends 'pending' ? true : false>,
     TransactionPendingDependencies
   >
 
@@ -39,6 +41,7 @@ export const transactionType = {
   '0x1': 'eip2930',
   '0x2': 'eip1559',
   '0x3': 'eip4844',
+  '0x4': 'eip7702',
 } as const satisfies Record<Hex, TransactionType>
 
 export type FormatTransactionErrorType = ErrorType
@@ -74,6 +77,11 @@ export function formatTransaction(transaction: ExactPartial<RpcTransaction>) {
     value: transaction.value ? BigInt(transaction.value) : undefined,
     v: transaction.v ? BigInt(transaction.v) : undefined,
   } as Transaction
+
+  if (transaction.authorizationList)
+    transaction_.authorizationList = formatAuthorizationList(
+      transaction.authorizationList,
+    )
 
   transaction_.yParity = (() => {
     // If `yParity` is provided, we will use it.
@@ -113,3 +121,27 @@ export const defineTransaction = /*#__PURE__*/ defineFormatter(
   'transaction',
   formatTransaction,
 )
+
+//////////////////////////////////////////////////////////////////////////////
+
+function formatAuthorizationList(
+  authorizationList: RpcAuthorizationList,
+): SignedAuthorizationList {
+  return authorizationList.map(
+    (authorization) =>
+      ({
+        contractAddress: (authorization as any).address,
+        r: authorization.r,
+        s: authorization.s,
+        chainId: Number(authorization.chainId),
+        nonce: Number(authorization.nonce),
+        ...(typeof authorization.yParity !== 'undefined'
+          ? { yParity: Number(authorization.yParity) }
+          : {}),
+        ...(typeof authorization.v !== 'undefined' &&
+        typeof authorization.yParity === 'undefined'
+          ? { v: Number(authorization.v) }
+          : {}),
+      }) as any,
+  ) as SignedAuthorizationList
+}

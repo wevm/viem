@@ -48,13 +48,22 @@ export type VerifyMessageErrorType =
  * @param parameters - {@link VerifyMessageParameters}
  * @returns Whether or not the signature is valid. {@link VerifyMessageReturnType}
  */
-export async function verifyMessage<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
-  { address, message, signature, ...callRequest }: VerifyMessageParameters,
+export async function verifyMessage<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  {
+    address,
+    message,
+    factory,
+    factoryData,
+    signature,
+    ...callRequest
+  }: VerifyMessageParameters,
 ): Promise<VerifyMessageReturnType> {
   const hash = hashMessage(message)
   return verifyHash(client, {
     address,
+    factory: factory!,
+    factoryData: factoryData!,
     hash,
     signature,
     ...callRequest,

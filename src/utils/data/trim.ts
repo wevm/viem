@@ -4,16 +4,16 @@ import type { ByteArray, Hex } from '../../types/misc.js'
 type TrimOptions = {
   dir?: 'left' | 'right' | undefined
 }
-export type TrimReturnType<TValue extends ByteArray | Hex> = TValue extends Hex
+export type TrimReturnType<value extends ByteArray | Hex> = value extends Hex
   ? Hex
   : ByteArray
 
 export type TrimErrorType = ErrorType
 
-export function trim<TValue extends ByteArray | Hex>(
-  hexOrBytes: TValue,
+export function trim<value extends ByteArray | Hex>(
+  hexOrBytes: value,
   { dir = 'left' }: TrimOptions = {},
-): TrimReturnType<TValue> {
+): TrimReturnType<value> {
   let data: any =
     typeof hexOrBytes === 'string' ? hexOrBytes.replace('0x', '') : hexOrBytes
 
@@ -32,7 +32,7 @@ export function trim<TValue extends ByteArray | Hex>(
     if (data.length === 1 && dir === 'right') data = `${data}0`
     return `0x${
       data.length % 2 === 1 ? `0${data}` : data
-    }` as TrimReturnType<TValue>
+    }` as TrimReturnType<value>
   }
-  return data as TrimReturnType<TValue>
+  return data as TrimReturnType<value>
 }

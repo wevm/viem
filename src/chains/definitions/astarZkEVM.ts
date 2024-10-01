@@ -7,7 +7,7 @@ export const astarZkEVM = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.startale.com/astar-zkevm'],
+      http: ['https://rpc-zkevm.astar.network'],
     },
   },
   blockExplorers: {

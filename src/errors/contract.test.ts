@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { ErrorsExample } from '~test/contracts/generated.js'
+import { ErrorsExample } from '~contracts/generated.js'
 import { baycContractConfig } from '~test/src/abis.js'
 import { address } from '~test/src/constants.js'
 import { polygon } from '../chains/index.js'
@@ -122,7 +122,7 @@ describe('CallExecutionError', () => {
       Raw Call Arguments:
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
-        value:  0.00000000000000042 MATIC
+        value:  0.00000000000000042 POL
         data:   0x123
         gas:    420
         nonce:  69
@@ -153,7 +153,7 @@ describe('CallExecutionError', () => {
       Raw Call Arguments:
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
-        value:  0.00000000000000042 MATIC
+        value:  0.00000000000000042 POL
         data:   0x123
         gas:    420
         nonce:  69
@@ -295,7 +295,6 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: An unknown error occurred while executing the contract function "foo".
 
-      Contract Call:
 
       Version: viem@x.y.z]
     `)
@@ -310,7 +309,6 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: Internal error.
 
-      Contract Call:
 
       Version: viem@x.y.z]
     `)

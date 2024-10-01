@@ -8,9 +8,9 @@ import { type ToHexErrorType, toHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 
-export type Sha256Hash<TTo extends To> =
-  | (TTo extends 'bytes' ? ByteArray : never)
-  | (TTo extends 'hex' ? Hex : never)
+export type Sha256Hash<to extends To> =
+  | (to extends 'bytes' ? ByteArray : never)
+  | (to extends 'hex' ? Hex : never)
 
 export type Sha256ErrorType =
   | IsHexErrorType
@@ -18,14 +18,14 @@ export type Sha256ErrorType =
   | ToHexErrorType
   | ErrorType
 
-export function sha256<TTo extends To = 'hex'>(
+export function sha256<to extends To = 'hex'>(
   value: Hex | ByteArray,
-  to_?: TTo | undefined,
-): Sha256Hash<TTo> {
+  to_?: to | undefined,
+): Sha256Hash<to> {
   const to = to_ || 'hex'
   const bytes = noble_sha256(
     isHex(value, { strict: false }) ? toBytes(value) : value,
   )
-  if (to === 'bytes') return bytes as Sha256Hash<TTo>
-  return toHex(bytes) as Sha256Hash<TTo>
+  if (to === 'bytes') return bytes as Sha256Hash<to>
+  return toHex(bytes) as Sha256Hash<to>
 }

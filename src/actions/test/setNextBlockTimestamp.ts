@@ -37,10 +37,10 @@ export type SetNextBlockTimestampErrorType = RequestErrorType | ErrorType
  * await setNextBlockTimestamp(client, { timestamp: 1671744314n })
  */
 export async function setNextBlockTimestamp<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
   { timestamp }: SetNextBlockTimestampParameters,
 ) {
   await client.request({

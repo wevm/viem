@@ -197,11 +197,18 @@ export async function getWithdrawalStatus<
     return seconds > 0 ? 'waiting-to-finalize' : 'ready-to-finalize'
   }
 
+  const numProofSubmitters = await readContract(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'numProofSubmitters',
+    args: [withdrawal.withdrawalHash],
+  }).catch(() => 1n)
+
   const proofSubmitter = await readContract(client, {
     abi: portal2Abi,
     address: portalAddress,
     functionName: 'proofSubmitters',
-    args: [withdrawal.withdrawalHash, 0n],
+    args: [withdrawal.withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => withdrawal.sender)
 
   const [disputeGameResult, checkWithdrawalResult, finalizedResult] =
@@ -238,9 +245,12 @@ export async function getWithdrawalStatus<
     if (error.cause instanceof ContractFunctionRevertedError) {
       const errorMessage = error.cause.data?.args?.[0]
       if (
+        errorMessage === 'OptimismPortal: invalid game type' ||
         errorMessage === 'OptimismPortal: withdrawal has not been proven yet' ||
         errorMessage ===
-          'OptimismPortal: withdrawal has not been proven by proof submitter address yet'
+          'OptimismPortal: withdrawal has not been proven by proof submitter address yet' ||
+        errorMessage ===
+          'OptimismPortal: dispute game created before respected game type was updated'
       )
         return 'ready-to-prove'
       if (
@@ -251,6 +261,9 @@ export async function getWithdrawalStatus<
         errorMessage === 'OptimismPortal: output proposal in air-gap'
       )
         return 'waiting-to-finalize'
+
+      if (error.cause.data?.errorName === 'InvalidGameType')
+        return 'ready-to-prove'
     }
     throw checkWithdrawalResult.reason
   }

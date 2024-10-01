@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.15.1",
+  "version": "2.21.16",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -24,6 +24,11 @@
       "types": "./_types/index.d.ts",
       "import": "./_esm/index.js",
       "default": "./_cjs/index.js"
+    },
+    "./account-abstraction": {
+      "types": "./_types/account-abstraction/index.d.ts",
+      "import": "./_esm/account-abstraction/index.js",
+      "default": "./_cjs/account-abstraction/index.js"
     },
     "./accounts": {
       "types": "./_types/accounts/index.d.ts",
@@ -59,6 +64,16 @@
       "types": "./_types/experimental/index.d.ts",
       "import": "./_esm/experimental/index.js",
       "default": "./_cjs/experimental/index.js"
+    },
+    "./experimental/erc7739": {
+      "types": "./_types/experimental/erc7739/index.d.ts",
+      "import": "./_esm/experimental/erc7739/index.js",
+      "default": "./_cjs/experimental/erc7739/index.js"
+    },
+    "./linea": {
+      "types": "./_types/linea/index.d.ts",
+      "import": "./_esm/linea/index.js",
+      "default": "./_cjs/linea/index.js"
     },
     "./node": {
       "types": "./_types/node/index.d.ts",
@@ -106,6 +121,7 @@
       "chains/utils": ["./_types/chains/utils.d.ts"],
       "ens": ["./_types/ens/index.d.ts"],
       "experimental": ["./_types/experimental/index.d.ts"],
+      "experimental/solady": ["./_types/experimental/solady/index.d.ts"],
       "node": ["./_types/node/index.d.ts"],
       "op-stack": ["./_types/op-stack/index.d.ts"],
       "siwe": ["./_types/siwe/index.d.ts"],
@@ -124,12 +140,13 @@
   },
   "dependencies": {
     "@adraffy/ens-normalize": "1.10.0",
-    "@noble/curves": "1.2.0",
-    "@noble/hashes": "1.3.2",
-    "@scure/bip32": "1.3.2",
-    "@scure/bip39": "1.2.1",
-    "abitype": "1.0.0",
+    "@noble/curves": "1.4.0",
+    "@noble/hashes": "1.4.0",
+    "@scure/bip32": "1.4.0",
+    "@scure/bip39": "1.4.0",
+    "abitype": "1.0.5",
     "isows": "1.0.4",
+    "webauthn-p256": "0.0.5",
     "ws": "8.17.1"
   },
   "license": "MIT",

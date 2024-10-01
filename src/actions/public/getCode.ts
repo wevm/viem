@@ -55,8 +55,8 @@ export type GetCodeErrorType =
  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
  * })
  */
-export async function getCode<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getCode<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { address, blockNumber, blockTag = 'latest' }: GetCodeParameters,
 ): Promise<GetCodeReturnType> {
   const blockNumberHex =

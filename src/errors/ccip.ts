@@ -10,7 +10,6 @@ export type OffchainLookupErrorType = OffchainLookupError & {
   name: 'OffchainLookupError'
 }
 export class OffchainLookupError extends BaseError {
-  override name = 'OffchainLookupError'
   constructor({
     callbackSelector,
     cause,
@@ -44,6 +43,7 @@ export class OffchainLookupError extends BaseError {
           `  Callback selector: ${callbackSelector}`,
           `  Extra data: ${extraData}`,
         ].flat(),
+        name: 'OffchainLookupError',
       },
     )
   }
@@ -54,7 +54,6 @@ export type OffchainLookupResponseMalformedErrorType =
     name: 'OffchainLookupResponseMalformedError'
   }
 export class OffchainLookupResponseMalformedError extends BaseError {
-  override name = 'OffchainLookupResponseMalformedError'
   constructor({ result, url }: { result: any; url: string }) {
     super(
       'Offchain gateway response is malformed. Response data must be a hex value.',
@@ -63,6 +62,7 @@ export class OffchainLookupResponseMalformedError extends BaseError {
           `Gateway URL: ${getUrl(url)}`,
           `Response: ${stringify(result)}`,
         ],
+        name: 'OffchainLookupResponseMalformedError',
       },
     )
   }
@@ -74,7 +74,6 @@ export type OffchainLookupSenderMismatchErrorType =
     name: 'OffchainLookupSenderMismatchError'
   }
 export class OffchainLookupSenderMismatchError extends BaseError {
-  override name = 'OffchainLookupSenderMismatchError'
   constructor({ sender, to }: { sender: Address; to: Address }) {
     super(
       'Reverted sender address does not match target contract address (`to`).',
@@ -83,6 +82,7 @@ export class OffchainLookupSenderMismatchError extends BaseError {
           `Contract address: ${to}`,
           `OffchainLookup sender address: ${sender}`,
         ],
+        name: 'OffchainLookupSenderMismatchError',
       },
     )
   }

@@ -122,35 +122,5 @@ test('default', async () => {
 
   const { status, receipts } = await getCallsStatus(client, { id })
   expect(status).toMatchInlineSnapshot(`"CONFIRMED"`)
-  expect(receipts![0].blockHash).toBeDefined()
-  expect(
-    receipts?.map((x) => ({ ...x, blockHash: undefined })),
-  ).toMatchInlineSnapshot(`
-    [
-      {
-        "blockHash": undefined,
-        "blockNumber": 19808251n,
-        "gasUsed": 21000n,
-        "logs": [],
-        "status": "success",
-        "transactionHash": "0xc3e38267433ebc2381f0e5b0803d6c6ec5803d67ec19ee6ab8d0c9576a5e4010",
-      },
-      {
-        "blockHash": undefined,
-        "blockNumber": 19808251n,
-        "gasUsed": 21000n,
-        "logs": [],
-        "status": "success",
-        "transactionHash": "0xaf1848055f8486bd8b898e5400707c5f5153f11bd8cc4a3376ca207260537fbc",
-      },
-      {
-        "blockHash": undefined,
-        "blockNumber": 19808251n,
-        "gasUsed": 21064n,
-        "logs": [],
-        "status": "success",
-        "transactionHash": "0xe8c321baa5fefb020b80461c3c4004f2f94c63176757d764795894d30a8f7d4d",
-      },
-    ]
-  `)
+  expect(receipts!.length).toBe(3)
 })

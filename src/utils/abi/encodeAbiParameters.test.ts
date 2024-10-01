@@ -1784,14 +1784,13 @@ test('https://github.com/wevm/viem/issues/1960', () => {
         {
           name: 'boolz',
           type: 'bool[]',
-          internalType: 'bool[]',
         },
       ] as const,
       // @ts-expect-error
       [['true']],
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [ViemError: Invalid boolean value: "true" (type: string). Expected: \`true\` or \`false\`.
+    [BaseError: Invalid boolean value: "true" (type: string). Expected: \`true\` or \`false\`.
 
     Version: viem@x.y.z]
   `)

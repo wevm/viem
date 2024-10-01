@@ -36,20 +36,20 @@ import {
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
 export type ReplacementReturnType<
-  TChain extends Chain | undefined = Chain | undefined,
+  chain extends Chain | undefined = Chain | undefined,
 > = {
   reason: ReplacementReason
   replacedTransaction: Transaction
   transaction: Transaction
-  transactionReceipt: GetTransactionReceiptReturnType<TChain>
+  transactionReceipt: GetTransactionReceiptReturnType<chain>
 }
 
 export type WaitForTransactionReceiptReturnType<
-  TChain extends Chain | undefined = Chain | undefined,
-> = GetTransactionReceiptReturnType<TChain>
+  chain extends Chain | undefined = Chain | undefined,
+> = GetTransactionReceiptReturnType<chain>
 
 export type WaitForTransactionReceiptParameters<
-  TChain extends Chain | undefined = Chain | undefined,
+  chain extends Chain | undefined = Chain | undefined,
 > = {
   /**
    * The number of confirmations (blocks that have passed) to wait before resolving.
@@ -59,7 +59,7 @@ export type WaitForTransactionReceiptParameters<
   /** The hash of the transaction. */
   hash: Hash
   /** Optional callback to emit if the transaction has been replaced. */
-  onReplaced?: ((response: ReplacementReturnType<TChain>) => void) | undefined
+  onReplaced?: ((response: ReplacementReturnType<chain>) => void) | undefined
   /**
    * Polling frequency (in ms). Defaults to the client's pollingInterval config.
    * @default client.pollingInterval
@@ -75,7 +75,10 @@ export type WaitForTransactionReceiptParameters<
    * @default `({ count }) => ~~(1 << count) * 200` (exponential backoff)
    */
   retryDelay?: WithRetryParameters['delay'] | undefined
-  /** Optional timeout (in milliseconds) to wait before stopping polling. */
+  /**
+   * Optional timeout (in milliseconds) to wait before stopping polling.
+   * @default 180_000
+   */
   timeout?: number | undefined
 }
 
@@ -126,9 +129,9 @@ export type WaitForTransactionReceiptErrorType =
  * })
  */
 export async function waitForTransactionReceipt<
-  TChain extends Chain | undefined,
+  chain extends Chain | undefined,
 >(
-  client: Client<Transport, TChain>,
+  client: Client<Transport, chain>,
   {
     confirmations = 1,
     hash,
@@ -136,15 +139,14 @@ export async function waitForTransactionReceipt<
     pollingInterval = client.pollingInterval,
     retryCount = 6,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
-    timeout,
-  }: WaitForTransactionReceiptParameters<TChain>,
-): Promise<WaitForTransactionReceiptReturnType<TChain>> {
+    timeout = 180_000,
+  }: WaitForTransactionReceiptParameters<chain>,
+): Promise<WaitForTransactionReceiptReturnType<chain>> {
   const observerId = stringify(['waitForTransactionReceipt', client.uid, hash])
 
-  let count = 0
-  let transaction: GetTransactionReturnType<TChain> | undefined
-  let replacedTransaction: GetTransactionReturnType<TChain> | undefined
-  let receipt: GetTransactionReceiptReturnType<TChain>
+  let transaction: GetTransactionReturnType<chain> | undefined
+  let replacedTransaction: GetTransactionReturnType<chain> | undefined
+  let receipt: GetTransactionReceiptReturnType<chain>
   let retrying = false
 
   return new Promise((resolve, reject) => {
@@ -177,12 +179,6 @@ export async function waitForTransactionReceipt<
             let blockNumber = blockNumber_
 
             if (retrying) return
-            if (count > retryCount)
-              done(() =>
-                emit.reject(
-                  new WaitForTransactionReceiptTimeoutError({ hash }),
-                ),
-              )
 
             try {
               // If we already have a valid receipt, let's check if we have enough
@@ -210,7 +206,7 @@ export async function waitForTransactionReceipt<
                       client,
                       getTransaction,
                       'getTransaction',
-                    )({ hash })) as GetTransactionReturnType<TChain>
+                    )({ hash })) as GetTransactionReturnType<chain>
                     if (transaction.blockNumber)
                       blockNumber = transaction.blockNumber
                   },
@@ -332,8 +328,6 @@ export async function waitForTransactionReceipt<
               } else {
                 done(() => emit.reject(err))
               }
-            } finally {
-              count++
             }
           },
         })

@@ -33,10 +33,10 @@ export type DumpStateErrorType = RequestErrorType | ErrorType
  * await dumpState(client)
  */
 export async function dumpState<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
 ): Promise<DumpStateReturnType> {
   return client.request({
     method: `${client.mode}_dumpState`,

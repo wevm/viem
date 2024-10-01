@@ -26,25 +26,25 @@ import {
 } from '../utils/assertEip712Request.js'
 
 type FormattedTransactionRequest<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
 > = ExtractChainFormatterParameters<
-  TChain,
+  chain,
   'transactionRequest',
   TransactionRequestEIP712
 >
 
 export type SignEip712TransactionParameters<
-  TChain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
 > = UnionOmit<
   FormattedTransactionRequest<
-    TChainOverride extends ChainEIP712 ? TChainOverride : TChain
+    chainOverride extends ChainEIP712 ? chainOverride : chain
   >,
   'from'
 > &
-  GetAccountParameter<TAccount> &
-  GetChainParameter<TChain, TChainOverride>
+  GetAccountParameter<account> &
+  GetChainParameter<chain, chainOverride>
 
 export type SignEip712TransactionReturnType = SignTransactionReturnType
 
@@ -54,15 +54,15 @@ export type SignEip712TransactionErrorType = SignTransactionErrorType
  * Signs an EIP712 transaction.
  *
  * @param args - {@link SignTransactionParameters}
- * @returns The signed serialized tranasction. {@link SignTransactionReturnType}
+ * @returns The signed serialized transaction. {@link SignTransactionReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
- * import { zkSync } from 'viem/chains'
+ * import { zksync } from 'viem/chains'
  * import { signEip712Transaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
- *   chain: zkSync,
+ *   chain: zksync,
  *   transport: custom(window.ethereum),
  * })
  * const signature = await signEip712Transaction(client, {
@@ -75,12 +75,12 @@ export type SignEip712TransactionErrorType = SignTransactionErrorType
  * // Account Hoisting
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { zkSync } from 'viem/chains'
+ * import { zksync } from 'viem/chains'
  * import { signEip712Transaction } from 'viem/zksync'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),
- *   chain: zkSync,
+ *   chain: zksync,
  *   transport: custom(window.ethereum),
  * })
  * const signature = await signEip712Transaction(client, {
@@ -89,12 +89,12 @@ export type SignEip712TransactionErrorType = SignTransactionErrorType
  * })
  */
 export async function signEip712Transaction<
-  TChain extends ChainEIP712 | undefined,
-  TAccount extends Account | undefined,
-  TChainOverride extends ChainEIP712 | undefined,
+  chain extends ChainEIP712 | undefined,
+  account extends Account | undefined,
+  chainOverride extends ChainEIP712 | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: SignEip712TransactionParameters<TChain, TAccount, TChainOverride>,
+  client: Client<Transport, chain, account>,
+  args: SignEip712TransactionParameters<chain, account, chainOverride>,
 ): Promise<SignEip712TransactionReturnType> {
   const {
     account: account_ = client.account,

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import type { Address } from 'abitype'
-import { zkSyncLocalNode } from '../../../src/chains/index.js'
+import { zksyncLocalNode } from '../../../src/chains/index.js'
 import { getZksyncMockProvider } from '../../../test/src/zksync.js'
 import {
   mockAccountBalances,
@@ -29,7 +29,7 @@ const mockedZksyncClient = createPublicClient({
   transport: custom(
     getZksyncMockProvider(async ({ method }) => mockRequestReturnData(method)),
   ),
-  chain: zkSyncLocalNode,
+  chain: zksyncLocalNode,
 }).extend(publicActionsL2())
 
 test('getL1ChainId', async () => {

@@ -15,24 +15,24 @@ import { type FormattedTransaction, formatTransaction } from './transaction.js'
 type BlockPendingDependencies = 'hash' | 'logsBloom' | 'nonce' | 'number'
 
 export type FormattedBlock<
-  TChain extends Chain | undefined = undefined,
-  TIncludeTransactions extends boolean = boolean,
-  TBlockTag extends BlockTag = BlockTag,
+  chain extends Chain | undefined = undefined,
+  includeTransactions extends boolean = boolean,
+  blockTag extends BlockTag = BlockTag,
   _FormatterReturnType = ExtractChainFormatterReturnType<
-    TChain,
+    chain,
     'block',
-    Block<bigint, TIncludeTransactions>
+    Block<bigint, includeTransactions>
   >,
   _ExcludedPendingDependencies extends string = BlockPendingDependencies &
-    ExtractChainFormatterExclude<TChain, 'block'>,
+    ExtractChainFormatterExclude<chain, 'block'>,
   _Formatted = Omit<_FormatterReturnType, BlockPendingDependencies> & {
     [_key in _ExcludedPendingDependencies]: never
   } & Pick<
-      Block<bigint, TIncludeTransactions, TBlockTag>,
+      Block<bigint, includeTransactions, blockTag>,
       BlockPendingDependencies
     >,
-  _Transactions = TIncludeTransactions extends true
-    ? Prettify<FormattedTransaction<TChain, TBlockTag>>[]
+  _Transactions = includeTransactions extends true
+    ? Prettify<FormattedTransaction<chain, blockTag>>[]
     : Hash[],
 > = Omit<_Formatted, 'transactions'> & {
   transactions: _Transactions

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { OffchainLookupExample } from '~test/contracts/generated.js'
+import { OffchainLookupExample } from '~contracts/generated.js'
 import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import {

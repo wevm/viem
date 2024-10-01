@@ -6,6 +6,7 @@ import { numberToHex } from '../utils/encoding/toHex.js'
 import {
   HttpRequestError,
   RpcRequestError,
+  SocketClosedError,
   TimeoutError,
   WebSocketRequestError,
 } from './request.js'
@@ -42,7 +43,7 @@ test('HttpRequestError', () => {
 
     Status: 500
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
     Details: Some error
     Version: viem@x.y.z]
@@ -62,9 +63,22 @@ test('WebSocketRequestError', () => {
     [WebSocketRequestError: WebSocket request failed.
 
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
     Details: Some error
+    Version: viem@x.y.z]
+  `)
+})
+
+test('SocketClosedError', () => {
+  const err = new SocketClosedError({
+    url: 'ws://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+  })
+  expect(err).toMatchInlineSnapshot(`
+    [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
     Version: viem@x.y.z]
   `)
 })
@@ -81,7 +95,7 @@ test('TimeoutError', () => {
     [TimeoutError: The request took too long to respond.
 
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
     Details: The request timed out.
     Version: viem@x.y.z]

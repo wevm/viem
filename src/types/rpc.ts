@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import type { RpcAuthorizationList } from '../experimental/eip7702/types/rpc.js'
 import type {
   Block,
   BlockIdentifier,
@@ -15,11 +16,13 @@ import type {
   TransactionEIP1559,
   TransactionEIP2930,
   TransactionEIP4844,
+  TransactionEIP7702,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
   TransactionRequestLegacy,
 } from './transaction.js'
 import type { Omit, OneOf, PartialBy } from './utils.js'
@@ -27,13 +30,19 @@ import type { Omit, OneOf, PartialBy } from './utils.js'
 export type Index = `0x${string}`
 export type Quantity = `0x${string}`
 export type Status = '0x0' | '0x1'
-export type TransactionType = '0x0' | '0x1' | '0x2' | (string & {})
+export type TransactionType =
+  | '0x0'
+  | '0x1'
+  | '0x2'
+  | '0x3'
+  | '0x4'
+  | (string & {})
 
 export type RpcBlock<
-  TBlockTag extends BlockTag = BlockTag,
-  TIncludeTransactions extends boolean = boolean,
-  TTransaction = RpcTransaction<TBlockTag extends 'pending' ? true : false>,
-> = Block<Quantity, TIncludeTransactions, TBlockTag, TTransaction>
+  blockTag extends BlockTag = BlockTag,
+  includeTransactions extends boolean = boolean,
+  transaction = RpcTransaction<blockTag extends 'pending' ? true : false>,
+> = Block<Quantity, includeTransactions, blockTag, transaction>
 export type RpcBlockNumber = BlockNumber<Quantity>
 export type RpcBlockIdentifier = BlockIdentifier<Quantity>
 export type RpcUncle = Uncle<Quantity>
@@ -52,21 +61,32 @@ export type RpcTransactionRequest = OneOf<
   | TransactionRequestEIP2930<Quantity, Index, '0x1'>
   | TransactionRequestEIP1559<Quantity, Index, '0x2'>
   | TransactionRequestEIP4844<Quantity, Index, '0x3'>
+  | (Omit<
+      TransactionRequestEIP7702<Quantity, Index, '0x4'>,
+      'authorizationList'
+    > & { authorizationList?: RpcAuthorizationList | undefined })
 >
 // `yParity` is optional on the RPC type as some nodes do not return it
 // for 1559 & 2930 transactions (they should!).
-export type RpcTransaction<TPending extends boolean = boolean> = OneOf<
-  | Omit<TransactionLegacy<Quantity, Index, TPending, '0x0'>, 'typeHex'>
+export type RpcTransaction<pending extends boolean = boolean> = OneOf<
+  | Omit<TransactionLegacy<Quantity, Index, pending, '0x0'>, 'typeHex'>
   | PartialBy<
-      Omit<TransactionEIP2930<Quantity, Index, TPending, '0x1'>, 'typeHex'>,
+      Omit<TransactionEIP2930<Quantity, Index, pending, '0x1'>, 'typeHex'>,
       'yParity'
     >
   | PartialBy<
-      Omit<TransactionEIP1559<Quantity, Index, TPending, '0x2'>, 'typeHex'>,
+      Omit<TransactionEIP1559<Quantity, Index, pending, '0x2'>, 'typeHex'>,
       'yParity'
     >
   | PartialBy<
-      Omit<TransactionEIP4844<Quantity, Index, TPending, '0x3'>, 'typeHex'>,
+      Omit<TransactionEIP4844<Quantity, Index, pending, '0x3'>, 'typeHex'>,
+      'yParity'
+    >
+  | PartialBy<
+      Omit<
+        TransactionEIP7702<Quantity, Index, pending, '0x4'>,
+        'authorizationList' | 'typeHex'
+      > & { authorizationList?: RpcAuthorizationList | undefined },
       'yParity'
     >
 >

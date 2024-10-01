@@ -8,12 +8,12 @@ import { describe, expect, test } from 'vitest'
 
 import {
   ErrorsExample,
-  Mock4337Account,
-  Mock4337AccountFactory,
-} from '~test/contracts/generated.js'
+  SoladyAccount07,
+  SoladyAccountFactory07,
+} from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
-import { deployErrorExample, deployMock4337Account } from '~test/src/utils.js'
+import { deployErrorExample, deploySoladyAccount_07 } from '~test/src/utils.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
@@ -92,7 +92,7 @@ describe('wagmi', () => {
         blockNumber: anvilMainnet.forkBlockNumber,
         functionName: 'totalSupply',
       }),
-    ).toEqual(631n)
+    ).toEqual(648n)
   })
 
   test('overloaded function', async () => {
@@ -197,35 +197,50 @@ describe('bayc', () => {
 
 describe('deployless read (factory)', () => {
   test('default', async () => {
-    const { factoryAddress: factory } = await deployMock4337Account()
+    const { factoryAddress: factory } = await deploySoladyAccount_07()
 
     const address = await readContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factory,
       functionName: 'getAddress',
       args: [pad('0x0')],
     })
     const factoryData = encodeFunctionData({
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
     })
 
-    const result = await readContract(client, {
+    const [
+      fields,
+      name,
+      version,
+      chainId,
+      verifyingContract,
+      salt,
+      extensions,
+    ] = await readContract(client, {
       address,
-      abi: Mock4337Account.abi,
+      abi: SoladyAccount07.abi,
       functionName: 'eip712Domain',
       factory,
       factoryData,
     })
-    expect(result).toMatchInlineSnapshot(`
+    expect(verifyingContract).toBeDefined()
+    expect([
+      fields,
+      name,
+      version,
+      chainId,
+      salt,
+      extensions,
+    ]).toMatchInlineSnapshot(`
       [
         "0x0f",
-        "Mock4337Account",
+        "SoladyAccount",
         "1",
         1n,
-        "0x8a00708a83D977494139D21D618C6C2A71fA8ed1",
         "0x0000000000000000000000000000000000000000000000000000000000000000",
         [],
       ]

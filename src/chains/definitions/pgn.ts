@@ -19,11 +19,6 @@ export const pgn = /*#__PURE__*/ defineChain({
       url: 'https://explorer.publicgoods.network',
       apiUrl: 'https://explorer.publicgoods.network/api',
     },
-    blocksout: {
-      name: 'PGN Explorer',
-      url: 'https://explorer.publicgoods.network',
-      apiUrl: 'https://explorer.publicgoods.network/api',
-    },
   },
   contracts: {
     l2OutputOracle: {

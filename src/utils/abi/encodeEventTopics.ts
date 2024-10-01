@@ -66,6 +66,8 @@ export type EncodeEventTopicsParameters<
 > &
   (hasEvents extends true ? unknown : never)
 
+export type EncodeEventTopicsReturnType = [Hex, ...(Hex | Hex[] | null)[]]
+
 export type EncodeEventTopicsErrorType =
   | AbiEventNotFoundErrorType
   | EncodeArgErrorType
@@ -77,7 +79,9 @@ export type EncodeEventTopicsErrorType =
 export function encodeEventTopics<
   const abi extends Abi | readonly unknown[],
   eventName extends ContractEventName<abi> | undefined = undefined,
->(parameters: EncodeEventTopicsParameters<abi, eventName>) {
+>(
+  parameters: EncodeEventTopicsParameters<abi, eventName>,
+): EncodeEventTopicsReturnType {
   const { abi, eventName, args } = parameters as EncodeEventTopicsParameters
 
   let abiItem = abi[0]
@@ -93,7 +97,7 @@ export function encodeEventTopics<
   const definition = formatAbiItem(abiItem)
   const signature = toEventSelector(definition as EventDefinition)
 
-  let topics: Hex[] = []
+  let topics: (Hex | Hex[] | null)[] = []
   if (args && 'inputs' in abiItem) {
     const indexedInputs = abiItem.inputs?.filter(
       (param) => 'indexed' in param && param.indexed,
@@ -106,15 +110,13 @@ export function encodeEventTopics<
 
     if (args_.length > 0) {
       topics =
-        indexedInputs?.map((param, i) =>
-          Array.isArray(args_[i])
-            ? args_[i].map((_: any, j: number) =>
-                encodeArg({ param, value: args_[i][j] }),
-              )
-            : args_[i]
-              ? encodeArg({ param, value: args_[i] })
-              : null,
-        ) ?? []
+        indexedInputs?.map((param, i) => {
+          if (Array.isArray(args_[i]))
+            return args_[i].map((_: any, j: number) =>
+              encodeArg({ param, value: args_[i][j] }),
+            )
+          return args_[i] ? encodeArg({ param, value: args_[i] }) : null
+        }) ?? []
     }
   }
   return [signature, ...topics]

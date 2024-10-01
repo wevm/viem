@@ -4,8 +4,8 @@ export const btr = /*#__PURE__*/ defineChain({
   id: 200901,
   name: 'Bitlayer',
   nativeCurrency: {
-    name: 'Ether',
-    symbol: 'ETH',
+    name: 'Bitcoin',
+    symbol: 'BTC',
     decimals: 18,
   },
   rpcUrls: {
@@ -20,9 +20,8 @@ export const btr = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'btrscan',
+      name: 'Bitlayer(BTR) Scan',
       url: 'https://www.btrscan.com',
-      apiUrl: 'https://www.btrscan.com/apis',
     },
   },
 })

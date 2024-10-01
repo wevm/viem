@@ -12,11 +12,13 @@ import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
   TransactionRequestGeneric,
   TransactionRequestLegacy,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
+  TransactionSerializableEIP7702,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
@@ -25,11 +27,105 @@ import type {
   ExactPartial,
   IsNever,
   OneOf,
-  Opaque,
+  ValueOf,
 } from '../../types/utils.js'
+
+export type GetTransactionType<
+  transaction extends OneOf<
+    TransactionSerializableGeneric | TransactionRequestGeneric
+  > = TransactionSerializableGeneric,
+  result =
+    | (transaction extends
+        | MatchKeys<TransactionSerializableLegacy, transaction>
+        | MatchKeys<TransactionRequestLegacy, transaction>
+        | LegacyProperties
+        ? 'legacy'
+        : never)
+    | (transaction extends
+        | MatchKeys<TransactionSerializableEIP1559, transaction>
+        | MatchKeys<TransactionRequestEIP1559, transaction>
+        | EIP1559Properties
+        ? 'eip1559'
+        : never)
+    | (transaction extends
+        | MatchKeys<TransactionSerializableEIP2930, transaction>
+        | MatchKeys<TransactionRequestEIP2930, transaction>
+        | EIP2930Properties
+        ? 'eip2930'
+        : never)
+    | (transaction extends
+        | MatchKeys<TransactionSerializableEIP4844, transaction>
+        | MatchKeys<TransactionRequestEIP4844, transaction>
+        | EIP4844Properties
+        ? 'eip4844'
+        : never)
+    | (transaction extends
+        | MatchKeys<TransactionSerializableEIP7702, transaction>
+        | MatchKeys<TransactionRequestEIP7702, transaction>
+        | EIP7702Properties
+        ? 'eip7702'
+        : never)
+    | (transaction['type'] extends TransactionSerializableGeneric['type']
+        ? Extract<transaction['type'], string>
+        : never),
+> = IsNever<keyof transaction> extends true
+  ? string
+  : IsNever<result> extends false
+    ? result
+    : string
+
+export type GetTransactionTypeErrorType =
+  | InvalidSerializableTransactionErrorType
+  | ErrorType
+
+export function getTransactionType<
+  const transaction extends OneOf<
+    TransactionSerializableGeneric | TransactionRequestGeneric
+  >,
+>(transaction: transaction): GetTransactionType<transaction> {
+  if (transaction.type)
+    return transaction.type as GetTransactionType<transaction>
+
+  if (typeof transaction.authorizationList !== 'undefined')
+    return 'eip7702' as any
+
+  if (
+    typeof transaction.blobs !== 'undefined' ||
+    typeof transaction.blobVersionedHashes !== 'undefined' ||
+    typeof transaction.maxFeePerBlobGas !== 'undefined' ||
+    typeof transaction.sidecars !== 'undefined'
+  )
+    return 'eip4844' as any
+
+  if (
+    typeof transaction.maxFeePerGas !== 'undefined' ||
+    typeof transaction.maxPriorityFeePerGas !== 'undefined'
+  ) {
+    return 'eip1559' as any
+  }
+
+  if (typeof transaction.gasPrice !== 'undefined') {
+    if (typeof transaction.accessList !== 'undefined') return 'eip2930' as any
+    return 'legacy' as any
+  }
+
+  throw new InvalidSerializableTransactionError({ transaction })
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Types
+
+type MatchKeys<T extends object, U extends object> = ValueOf<
+  Required<{
+    [K in keyof U]: K extends keyof T ? K : undefined
+  }>
+> extends string
+  ? T
+  : never
 
 type BaseProperties = {
   accessList?: undefined
+  authorizationList?: undefined
   blobs?: undefined
   blobVersionedHashes?: undefined
   gasPrice?: undefined
@@ -76,70 +172,9 @@ type EIP4844Properties = Assign<
       TransactionSerializableEIP4844
     >
 >
-
-export type GetTransactionType<
-  transaction extends OneOf<
-    TransactionSerializableGeneric | TransactionRequestGeneric
-  > = TransactionSerializableGeneric,
-  result =
-    | (transaction extends
-        | Opaque<TransactionSerializableLegacy, transaction>
-        | Opaque<TransactionRequestLegacy, transaction>
-        | LegacyProperties
-        ? 'legacy'
-        : never)
-    | (transaction extends
-        | Opaque<TransactionSerializableEIP1559, transaction>
-        | Opaque<TransactionRequestEIP1559, transaction>
-        | EIP1559Properties
-        ? 'eip1559'
-        : never)
-    | (transaction extends
-        | Opaque<TransactionSerializableEIP2930, transaction>
-        | Opaque<TransactionRequestEIP2930, transaction>
-        | EIP2930Properties
-        ? 'eip2930'
-        : never)
-    | (transaction extends
-        | Opaque<TransactionSerializableEIP4844, transaction>
-        | Opaque<TransactionRequestEIP4844, transaction>
-        | EIP4844Properties
-        ? 'eip4844'
-        : never)
-    | (transaction['type'] extends string ? transaction['type'] : never),
-> = IsNever<result> extends false ? result : string
-
-export type GetTransationTypeErrorType =
-  | InvalidSerializableTransactionErrorType
-  | ErrorType
-
-export function getTransactionType<
-  const transaction extends OneOf<
-    TransactionSerializableGeneric | TransactionRequestGeneric
-  >,
->(transaction: transaction): GetTransactionType<transaction> {
-  if (transaction.type)
-    return transaction.type as GetTransactionType<transaction>
-
-  if (
-    typeof transaction.blobs !== 'undefined' ||
-    typeof transaction.blobVersionedHashes !== 'undefined' ||
-    typeof transaction.maxFeePerBlobGas !== 'undefined' ||
-    typeof transaction.sidecars !== 'undefined'
-  )
-    return 'eip4844' as any
-
-  if (
-    typeof transaction.maxFeePerGas !== 'undefined' ||
-    typeof transaction.maxPriorityFeePerGas !== 'undefined'
-  ) {
-    return 'eip1559' as any
+type EIP7702Properties = Assign<
+  BaseProperties,
+  ExactPartial<FeeValuesEIP1559> & {
+    authorizationList: TransactionSerializableEIP7702['authorizationList']
   }
-
-  if (typeof transaction.gasPrice !== 'undefined') {
-    if (typeof transaction.accessList !== 'undefined') return 'eip2930' as any
-    return 'legacy' as any
-  }
-
-  throw new InvalidSerializableTransactionError({ transaction })
-}
+>

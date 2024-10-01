@@ -38,6 +38,7 @@ import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
   TransactionRequestLegacy,
   TransactionSerializable,
 } from '../../types/transaction.js'
@@ -54,6 +55,7 @@ import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVers
 import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -95,6 +97,15 @@ export type PrepareTransactionRequestRequest<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
   GetTransactionRequestKzgParameter & {
+    /**
+     * Nonce manager to use for the transaction request.
+     */
+    nonceManager?: NonceManager | undefined
+    /**
+     * Parameters to prepare for the transaction request.
+     *
+     * @default ['blobVersionedHashes', 'chainId', 'fees', 'gas', 'nonce', 'type']
+     */
     parameters?: readonly PrepareTransactionRequestParameterType[] | undefined
   }
 
@@ -142,7 +153,8 @@ export type PrepareTransactionRequestReturnType<
     | (_transactionType extends 'legacy' ? TransactionRequestLegacy : never)
     | (_transactionType extends 'eip1559' ? TransactionRequestEIP1559 : never)
     | (_transactionType extends 'eip2930' ? TransactionRequestEIP2930 : never)
-    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never),
+    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never)
+    | (_transactionType extends 'eip7702' ? TransactionRequestEIP7702 : never),
 > = Prettify<
   UnionRequiredBy<
     Extract<
@@ -246,6 +258,7 @@ export async function prepareTransactionRequest<
     gas,
     kzg,
     nonce,
+    nonceManager,
     parameters = defaultParameters,
     type,
   } = args
@@ -304,9 +317,9 @@ export async function prepareTransactionRequest<
   if (parameters.includes('chainId')) request.chainId = await getChainId()
 
   if (parameters.includes('nonce') && typeof nonce === 'undefined' && account) {
-    if (account.nonceManager) {
+    if (nonceManager) {
       const chainId = await getChainId()
-      request.nonce = await account.nonceManager.consume({
+      request.nonce = await nonceManager.consume({
         address: account.address,
         chainId,
         client,

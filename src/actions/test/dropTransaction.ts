@@ -39,10 +39,10 @@ export type DropTransactionErrorType = RequestErrorType | ErrorType
  * })
  */
 export async function dropTransaction<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
   { hash }: DropTransactionParameters,
 ) {
   await client.request({

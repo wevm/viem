@@ -6,9 +6,18 @@ import {
 import type { SignTransactionErrorType } from '../../accounts/utils/signTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
-import type { BaseError } from '../../errors/base.js'
+import {
+  AccountNotFoundError,
+  type AccountNotFoundErrorType,
+  AccountTypeNotSupportedError,
+  type AccountTypeNotSupportedErrorType,
+} from '../../errors/account.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
+import {
+  type RecoverAuthorizationAddressErrorType,
+  recoverAuthorizationAddress,
+} from '../../experimental/eip7702/utils/recoverAuthorizationAddress.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { GetChainParameter } from '../../types/chain.js'
@@ -73,11 +82,14 @@ export type SendTransactionReturnType = Hash
 export type SendTransactionErrorType =
   | ParseAccountErrorType
   | GetTransactionErrorReturnType<
+      | AccountNotFoundErrorType
+      | AccountTypeNotSupportedErrorType
       | AssertCurrentChainErrorType
       | AssertRequestErrorType
       | GetChainIdErrorType
       | PrepareTransactionRequestErrorType
       | SendRawTransactionErrorType
+      | RecoverAuthorizationAddressErrorType
       | SignTransactionErrorType
       | RequestErrorType
     >
@@ -141,6 +153,7 @@ export async function sendTransaction<
     account: account_ = client.account,
     chain = client.chain,
     accessList,
+    authorizationList,
     blobs,
     data,
     gas,
@@ -149,7 +162,6 @@ export async function sendTransaction<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-    to,
     value,
     ...rest
   } = parameters
@@ -163,13 +175,63 @@ export async function sendTransaction<
   try {
     assertRequest(parameters as AssertRequestParameters)
 
-    let chainId: number | undefined
-    if (chain !== null) {
-      chainId = await getAction(client, getChainId, 'getChainId')({})
-      assertCurrentChain({
-        currentChainId: chainId,
-        chain,
-      })
+    const to = await (async () => {
+      // If `to` exists on the parameters, use that.
+      if (parameters.to) return parameters.to
+
+      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
+      // address of the first authorization in the list.
+      if (authorizationList && authorizationList.length > 0)
+        return await recoverAuthorizationAddress({
+          authorization: authorizationList[0],
+        }).catch(() => {
+          throw new BaseError(
+            '`to` is required. Could not infer from `authorizationList`.',
+          )
+        })
+
+      // Otherwise, we are sending a deployment transaction.
+      return undefined
+    })()
+
+    if (account.type === 'json-rpc') {
+      let chainId: number | undefined
+      if (chain !== null) {
+        chainId = await getAction(client, getChainId, 'getChainId')({})
+        assertCurrentChain({
+          currentChainId: chainId,
+          chain,
+        })
+      }
+
+      const chainFormat = client.chain?.formatters?.transactionRequest?.format
+      const format = chainFormat || formatTransactionRequest
+
+      const request = format({
+        // Pick out extra data that might exist on the chain's transaction request type.
+        ...extract(rest, { format: chainFormat }),
+        accessList,
+        authorizationList,
+        blobs,
+        chainId,
+        data,
+        from: account.address,
+        gas,
+        gasPrice,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to,
+        value,
+      } as TransactionRequest)
+      return await client.request(
+        {
+          method: 'eth_sendTransaction',
+          params: [request],
+        },
+        { retryCount: 0 },
+      )
     }
 
     if (account.type === 'local') {
@@ -181,9 +243,9 @@ export async function sendTransaction<
       )({
         account,
         accessList,
+        authorizationList,
         blobs,
         chain,
-        chainId,
         data,
         gas,
         gasPrice,
@@ -191,10 +253,11 @@ export async function sendTransaction<
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceManager: account.nonceManager,
         parameters: [...defaultParameters, 'sidecars'],
-        to,
         value,
         ...rest,
+        to,
       } as any)
 
       const serializer = chain?.serializers?.transaction
@@ -210,33 +273,21 @@ export async function sendTransaction<
       })
     }
 
-    const chainFormat = client.chain?.formatters?.transactionRequest?.format
-    const format = chainFormat || formatTransactionRequest
+    if (account.type === 'smart')
+      throw new AccountTypeNotSupportedError({
+        metaMessages: [
+          'Consider using the `sendUserOperation` Action instead.',
+        ],
+        docsPath: '/docs/actions/bundler/sendUserOperation',
+        type: 'smart',
+      })
 
-    const request = format({
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      accessList,
-      blobs,
-      data,
-      from: account.address,
-      gas,
-      gasPrice,
-      maxFeePerBlobGas,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to,
-      value,
-    } as TransactionRequest)
-    return await client.request(
-      {
-        method: 'eth_sendTransaction',
-        params: [request],
-      },
-      { retryCount: 0 },
-    )
+    throw new AccountTypeNotSupportedError({
+      docsPath: '/docs/actions/wallet/sendTransaction',
+      type: (account as { type: string }).type,
+    })
   } catch (err) {
+    if (err instanceof AccountTypeNotSupportedError) throw err
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,

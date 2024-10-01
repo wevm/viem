@@ -28,11 +28,13 @@ import {
   ERC20InvalidTransferEvent,
   EnsAvatarTokenUri,
   ErrorsExample,
-  Mock4337Account,
-  Mock4337AccountFactory,
   OffchainLookupExample,
   Payable,
-} from '../contracts/generated.js'
+  SoladyAccount06,
+  SoladyAccount07,
+  SoladyAccountFactory06,
+  SoladyAccountFactory07,
+} from '../../contracts/generated.js'
 import {
   baycContractConfig,
   ensRegistryConfig,
@@ -71,7 +73,7 @@ export function createHttpServer(
   })
 }
 
-export async function deploy<const TAbi extends Abi | readonly unknown[]>(
+export async function deploy<const abi extends Abi | readonly unknown[]>(
   client: TestClient<
     TestClientMode,
     Transport,
@@ -79,7 +81,7 @@ export async function deploy<const TAbi extends Abi | readonly unknown[]>(
     Account | undefined,
     false
   >,
-  args: DeployContractParameters<TAbi, (typeof client)['chain'], Account>,
+  args: DeployContractParameters<abi, (typeof client)['chain'], Account>,
 ) {
   const hash = await deployContract(client, {
     account: accounts[0].address,
@@ -137,14 +139,30 @@ export async function deployPayable() {
   })
 }
 
-export async function deployMock4337Account() {
+export async function deploySoladyAccount_07() {
   const { contractAddress: implementationAddress } = await deploy(client, {
-    abi: Mock4337Account.abi,
-    bytecode: Mock4337Account.bytecode.object,
+    abi: SoladyAccount07.abi,
+    bytecode: SoladyAccount07.bytecode.object,
   })
   const { contractAddress: factoryAddress } = await deploy(client, {
-    abi: Mock4337AccountFactory.abi,
-    bytecode: Mock4337AccountFactory.bytecode.object,
+    abi: SoladyAccountFactory07.abi,
+    bytecode: SoladyAccountFactory07.bytecode.object,
+    args: [implementationAddress!],
+  })
+  return {
+    implementationAddress: implementationAddress!,
+    factoryAddress: factoryAddress!,
+  }
+}
+
+export async function deploySoladyAccount_06() {
+  const { contractAddress: implementationAddress } = await deploy(client, {
+    abi: SoladyAccount06.abi,
+    bytecode: SoladyAccount06.bytecode.object,
+  })
+  const { contractAddress: factoryAddress } = await deploy(client, {
+    abi: SoladyAccountFactory06.abi,
+    bytecode: SoladyAccountFactory06.bytecode.object,
     args: [implementationAddress!],
   })
   return {

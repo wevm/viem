@@ -1542,17 +1542,14 @@ test('exports abis', () => {
         {
           "inputs": [
             {
-              "internalType": "address",
               "name": "_signer",
               "type": "address",
             },
             {
-              "internalType": "bytes32",
               "name": "_hash",
               "type": "bytes32",
             },
             {
-              "internalType": "bytes",
               "name": "_signature",
               "type": "bytes",
             },

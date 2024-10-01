@@ -445,19 +445,19 @@ test('data + event params mismatch', () => {
           inputs: [
             {
               indexed: true,
-              internalType: 'address',
+
               name: 'from',
               type: 'address',
             },
             {
               indexed: false,
-              internalType: 'address',
+
               name: 'to',
               type: 'address',
             },
             {
               indexed: false,
-              internalType: 'uint256',
+
               name: 'id',
               type: 'uint256',
             },
@@ -577,19 +577,19 @@ test('strict', () => {
           inputs: [
             {
               indexed: true,
-              internalType: 'address',
+
               name: 'from',
               type: 'address',
             },
             {
               indexed: false,
-              internalType: 'address',
+
               name: 'to',
               type: 'address',
             },
             {
               indexed: false,
-              internalType: 'uint256',
+
               name: 'id',
               type: 'uint256',
             },
@@ -670,31 +670,31 @@ describe('GitHub repros', () => {
             inputs: [
               {
                 indexed: false,
-                internalType: 'address',
+
                 name: 'voter',
                 type: 'address',
               },
               {
                 indexed: false,
-                internalType: 'bytes32',
+
                 name: 'proposalId',
                 type: 'bytes32',
               },
               {
                 indexed: false,
-                internalType: 'uint256',
+
                 name: 'support',
                 type: 'uint256',
               },
               {
                 indexed: false,
-                internalType: 'uint256',
+
                 name: 'weight',
                 type: 'uint256',
               },
               {
                 indexed: false,
-                internalType: 'string',
+
                 name: 'reason',
                 type: 'string',
               },
@@ -733,19 +733,19 @@ describe('GitHub repros', () => {
               inputs: [
                 {
                   indexed: true,
-                  internalType: 'address',
+
                   name: 'from',
                   type: 'address',
                 },
                 {
                   indexed: true,
-                  internalType: 'address',
+
                   name: 'to',
                   type: 'address',
                 },
                 {
                   indexed: true,
-                  internalType: 'uint256',
+
                   name: 'id',
                   type: 'uint256',
                 },
@@ -781,19 +781,19 @@ describe('GitHub repros', () => {
               inputs: [
                 {
                   indexed: true,
-                  internalType: 'address',
+
                   name: 'from',
                   type: 'address',
                 },
                 {
                   indexed: false,
-                  internalType: 'address',
+
                   name: 'to',
                   type: 'address',
                 },
                 {
                   indexed: false,
-                  internalType: 'uint256',
+
                   name: 'id',
                   type: 'uint256',
                 },
@@ -830,19 +830,19 @@ describe('GitHub repros', () => {
               inputs: [
                 {
                   indexed: true,
-                  internalType: 'uint256',
+
                   name: 'nounId',
                   type: 'uint256',
                 },
                 {
                   indexed: false,
-                  internalType: 'uint256',
+
                   name: 'startTime',
                   type: 'uint256',
                 },
                 {
                   indexed: false,
-                  internalType: 'uint256',
+
                   name: 'endTime',
                   type: 'uint256',
                 },
@@ -880,6 +880,17 @@ test("errors: event doesn't exist", () => {
             },
           ],
           name: 'Bar',
+          type: 'event',
+        },
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'message',
+              type: 'string',
+            },
+          ],
+          name: 'Baz',
           type: 'event',
         },
       ],

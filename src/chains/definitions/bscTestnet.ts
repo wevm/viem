@@ -15,7 +15,7 @@ export const bscTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'BscScan',
       url: 'https://testnet.bscscan.com',
-      apiUrl: 'https://testnet.bscscan.com/api',
+      apiUrl: 'https://api-testnet.bscscan.com/api',
     },
   },
   contracts: {

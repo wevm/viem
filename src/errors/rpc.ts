@@ -20,10 +20,11 @@ export type RpcErrorCode =
   | -32006 // JSON-RPC version not supported
   | -32042 // Method not found
 
-type RpcErrorOptions<TCode extends number = RpcErrorCode> = {
-  code?: TCode | (number & {}) | undefined
+type RpcErrorOptions<code extends number = RpcErrorCode> = {
+  code?: code | (number & {}) | undefined
   docsPath?: string | undefined
   metaMessages?: string[] | undefined
+  name?: string | undefined
   shortMessage: string
 }
 
@@ -33,25 +34,30 @@ type RpcErrorOptions<TCode extends number = RpcErrorCode> = {
  * - EIP https://eips.ethereum.org/EIPS/eip-1474
  */
 export type RpcErrorType = RpcError & { name: 'RpcError' }
-export class RpcError<TCode extends number = RpcErrorCode> extends BaseError {
-  override name = 'RpcError'
-
-  code: TCode | (number & {})
+export class RpcError<code_ extends number = RpcErrorCode> extends BaseError {
+  code: code_ | (number & {})
 
   constructor(
     cause: Error,
-    { code, docsPath, metaMessages, shortMessage }: RpcErrorOptions<TCode>,
+    {
+      code,
+      docsPath,
+      metaMessages,
+      name,
+      shortMessage,
+    }: RpcErrorOptions<code_>,
   ) {
     super(shortMessage, {
       cause,
       docsPath,
       metaMessages:
         metaMessages || (cause as { metaMessages?: string[] })?.metaMessages,
+      name: name || 'RpcError',
     })
-    this.name = cause.name
+    this.name = name || cause.name
     this.code = (
       cause instanceof RpcRequestError ? cause.code : code ?? unknownErrorCode
-    ) as TCode
+    ) as code_
   }
 }
 
@@ -74,8 +80,6 @@ export type ProviderRpcErrorType = ProviderRpcError & {
 export class ProviderRpcError<
   T = undefined,
 > extends RpcError<ProviderRpcErrorCode> {
-  override name = 'ProviderRpcError'
-
   data?: T | undefined
 
   constructor(
@@ -102,12 +106,12 @@ export type ParseRpcErrorType = ParseRpcError & {
   name: 'ParseRpcError'
 }
 export class ParseRpcError extends RpcError {
-  override name = 'ParseRpcError'
   static code = -32700 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: ParseRpcError.code,
+      name: 'ParseRpcError',
       shortMessage:
         'Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.',
     })
@@ -124,12 +128,12 @@ export type InvalidRequestRpcErrorType = InvalidRequestRpcError & {
   name: 'InvalidRequestRpcError'
 }
 export class InvalidRequestRpcError extends RpcError {
-  override name = 'InvalidRequestRpcError'
   static code = -32600 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: InvalidRequestRpcError.code,
+      name: 'InvalidRequestRpcError',
       shortMessage: 'JSON is not a valid request object.',
     })
   }
@@ -145,13 +149,13 @@ export type MethodNotFoundRpcErrorType = MethodNotFoundRpcError & {
   name: 'MethodNotFoundRpcError'
 }
 export class MethodNotFoundRpcError extends RpcError {
-  override name = 'MethodNotFoundRpcError'
   static code = -32601 as const
 
-  constructor(cause: Error) {
+  constructor(cause: Error, { method }: { method?: string } = {}) {
     super(cause, {
       code: MethodNotFoundRpcError.code,
-      shortMessage: 'The method does not exist / is not available.',
+      name: 'MethodNotFoundRpcError',
+      shortMessage: `The method${method ? ` "${method}"` : ''} does not exist / is not available.`,
     })
   }
 }
@@ -166,12 +170,12 @@ export type InvalidParamsRpcErrorType = InvalidParamsRpcError & {
   name: 'InvalidParamsRpcError'
 }
 export class InvalidParamsRpcError extends RpcError {
-  override name = 'InvalidParamsRpcError'
   static code = -32602 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: InvalidParamsRpcError.code,
+      name: 'InvalidParamsRpcError',
       shortMessage: [
         'Invalid parameters were provided to the RPC method.',
         'Double check you have provided the correct parameters.',
@@ -190,12 +194,12 @@ export type InternalRpcErrorType = InternalRpcError & {
   name: 'InternalRpcError'
 }
 export class InternalRpcError extends RpcError {
-  override name = 'InternalRpcError'
   static code = -32603 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: InternalRpcError.code,
+      name: 'InternalRpcError',
       shortMessage: 'An internal error was received.',
     })
   }
@@ -211,12 +215,12 @@ export type InvalidInputRpcErrorType = InvalidInputRpcError & {
   name: 'InvalidInputRpcError'
 }
 export class InvalidInputRpcError extends RpcError {
-  override name = 'InvalidInputRpcError'
   static code = -32000 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: InvalidInputRpcError.code,
+      name: 'InvalidInputRpcError',
       shortMessage: [
         'Missing or invalid parameters.',
         'Double check you have provided the correct parameters.',
@@ -241,6 +245,7 @@ export class ResourceNotFoundRpcError extends RpcError {
   constructor(cause: Error) {
     super(cause, {
       code: ResourceNotFoundRpcError.code,
+      name: 'ResourceNotFoundRpcError',
       shortMessage: 'Requested resource not found.',
     })
   }
@@ -256,12 +261,12 @@ export type ResourceUnavailableRpcErrorType = ResourceUnavailableRpcError & {
   name: 'ResourceUnavailableRpcError'
 }
 export class ResourceUnavailableRpcError extends RpcError {
-  override name = 'ResourceUnavailableRpcError'
   static code = -32002 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: ResourceUnavailableRpcError.code,
+      name: 'ResourceUnavailableRpcError',
       shortMessage: 'Requested resource not available.',
     })
   }
@@ -277,12 +282,12 @@ export type TransactionRejectedRpcErrorType = TransactionRejectedRpcError & {
   name: 'TransactionRejectedRpcError'
 }
 export class TransactionRejectedRpcError extends RpcError {
-  override name = 'TransactionRejectedRpcError'
   static code = -32003 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: TransactionRejectedRpcError.code,
+      name: 'TransactionRejectedRpcError',
       shortMessage: 'Transaction creation failed.',
     })
   }
@@ -298,13 +303,13 @@ export type MethodNotSupportedRpcErrorType = MethodNotSupportedRpcError & {
   name: 'MethodNotSupportedRpcError'
 }
 export class MethodNotSupportedRpcError extends RpcError {
-  override name = 'MethodNotSupportedRpcError'
   static code = -32004 as const
 
-  constructor(cause: Error) {
+  constructor(cause: Error, { method }: { method?: string } = {}) {
     super(cause, {
       code: MethodNotSupportedRpcError.code,
-      shortMessage: 'Method is not implemented.',
+      name: 'MethodNotSupportedRpcError',
+      shortMessage: `Method${method ? ` "${method}"` : ''} is not implemented.`,
     })
   }
 }
@@ -319,12 +324,12 @@ export type LimitExceededRpcErrorType = LimitExceededRpcError & {
   name: 'LimitExceededRpcError'
 }
 export class LimitExceededRpcError extends RpcError {
-  override name = 'LimitExceededRpcError'
   static code = -32005 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: LimitExceededRpcError.code,
+      name: 'LimitExceededRpcError',
       shortMessage: 'Request exceeds defined limit.',
     })
   }
@@ -341,12 +346,12 @@ export type JsonRpcVersionUnsupportedErrorType =
     name: 'JsonRpcVersionUnsupportedError'
   }
 export class JsonRpcVersionUnsupportedError extends RpcError {
-  override name = 'JsonRpcVersionUnsupportedError'
   static code = -32006 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: JsonRpcVersionUnsupportedError.code,
+      name: 'JsonRpcVersionUnsupportedError',
       shortMessage: 'Version of JSON-RPC protocol is not supported.',
     })
   }
@@ -362,12 +367,12 @@ export type UserRejectedRequestErrorType = UserRejectedRequestError & {
   name: 'UserRejectedRequestError'
 }
 export class UserRejectedRequestError extends ProviderRpcError {
-  override name = 'UserRejectedRequestError'
   static code = 4001 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: UserRejectedRequestError.code,
+      name: 'UserRejectedRequestError',
       shortMessage: 'User rejected the request.',
     })
   }
@@ -383,12 +388,12 @@ export type UnauthorizedProviderErrorType = UnauthorizedProviderError & {
   name: 'UnauthorizedProviderError'
 }
 export class UnauthorizedProviderError extends ProviderRpcError {
-  override name = 'UnauthorizedProviderError'
   static code = 4100 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: UnauthorizedProviderError.code,
+      name: 'UnauthorizedProviderError',
       shortMessage:
         'The requested method and/or account has not been authorized by the user.',
     })
@@ -406,13 +411,13 @@ export type UnsupportedProviderMethodErrorType =
     name: 'UnsupportedProviderMethodError'
   }
 export class UnsupportedProviderMethodError extends ProviderRpcError {
-  override name = 'UnsupportedProviderMethodError'
   static code = 4200 as const
 
-  constructor(cause: Error) {
+  constructor(cause: Error, { method }: { method?: string } = {}) {
     super(cause, {
       code: UnsupportedProviderMethodError.code,
-      shortMessage: 'The Provider does not support the requested method.',
+      name: 'UnsupportedProviderMethodError',
+      shortMessage: `The Provider does not support the requested method${method ? ` " ${method}"` : ''}.`,
     })
   }
 }
@@ -427,12 +432,12 @@ export type ProviderDisconnectedErrorType = ProviderDisconnectedError & {
   name: 'ProviderDisconnectedError'
 }
 export class ProviderDisconnectedError extends ProviderRpcError {
-  override name = 'ProviderDisconnectedError'
   static code = 4900 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: ProviderDisconnectedError.code,
+      name: 'ProviderDisconnectedError',
       shortMessage: 'The Provider is disconnected from all chains.',
     })
   }
@@ -448,12 +453,12 @@ export type ChainDisconnectedErrorType = ChainDisconnectedError & {
   name: 'ChainDisconnectedError'
 }
 export class ChainDisconnectedError extends ProviderRpcError {
-  override name = 'ChainDisconnectedError'
   static code = 4901 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: ChainDisconnectedError.code,
+      name: 'ChainDisconnectedError',
       shortMessage: 'The Provider is not connected to the requested chain.',
     })
   }
@@ -469,12 +474,12 @@ export type SwitchChainErrorType = SwitchChainError & {
   name: 'SwitchChainError'
 }
 export class SwitchChainError extends ProviderRpcError {
-  override name = 'SwitchChainError'
   static code = 4902 as const
 
   constructor(cause: Error) {
     super(cause, {
       code: SwitchChainError.code,
+      name: 'SwitchChainError',
       shortMessage: 'An error occurred when attempting to switch chain.',
     })
   }
@@ -487,10 +492,9 @@ export type UnknownRpcErrorType = UnknownRpcError & {
   name: 'UnknownRpcError'
 }
 export class UnknownRpcError extends RpcError {
-  override name = 'UnknownRpcError'
-
   constructor(cause: Error) {
     super(cause, {
+      name: 'UnknownRpcError',
       shortMessage: 'An unknown RPC error occurred.',
     })
   }

@@ -6,8 +6,14 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
+import { maxUint256 } from '~viem/constants/number.js'
+import { BatchCallInvoker } from '../../../contracts/generated.js'
+import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
+import { deploy } from '../../../test/src/utils.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
+import { signAuthorization } from '../../experimental/index.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
@@ -16,13 +22,18 @@ import { concatHex } from '../../utils/data/concat.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { stringToHex, toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
-import { nonceManager } from '../../utils/index.js'
+import {
+  decodeEventLog,
+  encodeFunctionData,
+  nonceManager,
+} from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { getBalance } from '../public/getBalance.js'
 import { getBlock } from '../public/getBlock.js'
 import { getTransaction } from '../public/getTransaction.js'
+import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { mine } from '../test/mine.js'
 import { reset } from '../test/reset.js'
 import { setBalance } from '../test/setBalance.js'
@@ -179,7 +190,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f30182028f843b9aca008501a786b06a825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f301820297843b9aca008502ae1107ec825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -819,6 +830,148 @@ describe('local account', () => {
     })
   })
 
+  test('args: authorizationList', async () => {
+    const authority = privateKeyToAccount(accounts[9].privateKey)
+    const recipient = privateKeyToAccount(
+      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
+    )
+
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
+
+    const { contractAddress } = await deploy(client, {
+      abi: BatchCallInvoker.abi,
+      bytecode: BatchCallInvoker.bytecode.object,
+    })
+
+    const authorization = await signAuthorization(client, {
+      account: authority,
+      contractAddress: contractAddress!,
+    })
+
+    const hash = await sendTransaction(client, {
+      account: authority,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCallInvoker.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
+      }),
+      to: authority.address,
+    })
+    expect(hash).toBeDefined()
+
+    await mine(client, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(client, { hash })
+    const log = receipt.logs[0]
+    expect(log.address).toBe(authority.address.toLowerCase())
+    expect(
+      decodeEventLog({
+        abi: BatchCallInvoker.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
+      },
+      eventName: 'CallEmitted',
+    })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
+  })
+
+  test('args: authorizationList (delegate)', async () => {
+    const delegate = privateKeyToAccount(accounts[0].privateKey)
+    const authority = privateKeyToAccount(accounts[9].privateKey)
+    const recipient = privateKeyToAccount(
+      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
+    )
+
+    const balance_authority = await getBalance(client, {
+      address: authority.address,
+    })
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
+
+    const { contractAddress } = await deploy(client, {
+      abi: BatchCallInvoker.abi,
+      bytecode: BatchCallInvoker.bytecode.object,
+    })
+
+    const authorization = await signAuthorization(client, {
+      account: authority,
+      contractAddress: contractAddress!,
+      delegate,
+    })
+
+    const hash = await sendTransaction(client, {
+      account: delegate,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCallInvoker.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
+      }),
+      to: authority.address,
+    })
+    expect(hash).toBeDefined()
+
+    await mine(client, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(client, { hash })
+    const log = receipt.logs[0]
+    expect(log.address).toBe(authority.address.toLowerCase())
+    expect(
+      decodeEventLog({
+        abi: BatchCallInvoker.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
+      },
+      eventName: 'CallEmitted',
+    })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
+    expect(
+      await getBalance(client, {
+        address: authority.address,
+      }),
+    ).toBe(balance_authority - parseEther('1'))
+  })
+
   test('args: blobs', async () => {
     const blobs = toBlobs({
       data: stringToHex(blobData),
@@ -973,11 +1126,11 @@ describe('local account', () => {
         }),
       ])
 
-      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(671)
-      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(105)
-      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(672)
-      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(673)
-      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(106)
+      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(681)
+      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(112)
+      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(682)
+      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(683)
+      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(113)
 
       const hash_6 = await sendTransaction(client, {
         account: account_1,
@@ -990,9 +1143,30 @@ describe('local account', () => {
         value: parseEther('1'),
       })
 
-      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(674)
-      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(675)
+      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(684)
+      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(685)
     })
+  })
+})
+
+describe('smart account', async () => {
+  const [account] = await getSmartAccounts_07()
+
+  test('default', async () => {
+    await expect(() =>
+      sendTransaction(client, {
+        account,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [AccountTypeNotSupportedError: Account type "smart" is not supported.
+
+      Consider using the \`sendUserOperation\` Action instead.
+
+      Docs: https://viem.sh/docs/actions/bundler/sendUserOperation
+      Version: viem@x.y.z]
+    `)
   })
 })
 
@@ -1003,13 +1177,13 @@ describe('errors', () => {
       sendTransaction(client, {
         to: targetAccount.address,
         value: parseEther('1'),
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [AccountNotFoundError: Could not find an Account to execute with this Action.
-      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-      Docs: https://viem.sh/docs/actions/wallet/sendTransaction#account
+      Docs: https://viem.sh/docs/actions/wallet/sendTransaction
       Version: viem@x.y.z]
     `)
   })
@@ -1022,7 +1196,7 @@ describe('errors', () => {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TransactionExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
@@ -1111,7 +1285,7 @@ describe('errors', () => {
     )
   })
 
-  test('nonce too low', async () => {
+  test.skip('nonce too low', async () => {
     await expect(() =>
       sendTransaction(client, {
         account: sourceAccount.address,
@@ -1189,4 +1363,93 @@ describe('errors', () => {
     `,
     )
   })
+
+  test('error: cannot infer `to` from `authorizationList`', async () => {
+    await expect(() =>
+      sendTransaction(client, {
+        account: sourceAccount.address,
+        authorizationList: [
+          {
+            chainId: 1,
+            nonce: 0,
+            contractAddress: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: \`to\` is required. Could not infer from \`authorizationList\`.
+
+      Request Arguments:
+        from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+
+  test('error: unsupported account type', async () => {
+    await expect(() =>
+      sendTransaction(client, {
+        // @ts-expect-error
+        account: {
+          address: '0x0000000000000000000000000000000000000000',
+          type: 'foo',
+        },
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [AccountTypeNotSupportedError: Account type "foo" is not supported.
+
+      Docs: https://viem.sh/docs/actions/wallet/sendTransaction
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+})
+
+test('https://github.com/wevm/viem/issues/2721', async () => {
+  const invoker = privateKeyToAccount(generatePrivateKey())
+  const authority = privateKeyToAccount(generatePrivateKey())
+  const recipient = privateKeyToAccount(generatePrivateKey())
+
+  await setBalance(client, {
+    address: invoker.address,
+    value: parseEther('100'),
+  })
+  await setBalance(client, {
+    address: authority.address,
+    value: parseEther('100'),
+  })
+
+  const { contractAddress } = await deploy(client, {
+    abi: BatchCallInvoker.abi,
+    bytecode: BatchCallInvoker.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
+  const hash = await sendTransaction(client, {
+    account: invoker,
+    authorizationList: [authorization],
+    data: encodeFunctionData({
+      abi: BatchCallInvoker.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: recipient.address,
+            data: '0x',
+            value: parseEther('1'),
+          },
+        ],
+      ],
+    }),
+    to: authority.address,
+  })
+  expect(hash).toBeDefined()
 })

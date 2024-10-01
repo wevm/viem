@@ -39,7 +39,7 @@ export const publicClient = createPublicClient({
 
 `bigint`
 
-The gas estimate (in wei).
+The gas estimate (in gas).
 
 ## Parameters
 

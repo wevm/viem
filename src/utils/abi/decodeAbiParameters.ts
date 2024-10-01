@@ -36,9 +36,9 @@ import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 import { getArrayComponents } from './encodeAbiParameters.js'
 
 export type DecodeAbiParametersReturnType<
-  TParams extends readonly AbiParameter[] = readonly AbiParameter[],
+  params extends readonly AbiParameter[] = readonly AbiParameter[],
 > = AbiParametersToPrimitiveTypes<
-  TParams extends readonly AbiParameter[] ? TParams : AbiParameter[]
+  params extends readonly AbiParameter[] ? params : AbiParameter[]
 >
 
 export type DecodeAbiParametersErrorType =
@@ -50,11 +50,11 @@ export type DecodeAbiParametersErrorType =
   | ErrorType
 
 export function decodeAbiParameters<
-  const TParams extends readonly AbiParameter[],
+  const params extends readonly AbiParameter[],
 >(
-  params: TParams,
+  params: params,
   data: ByteArray | Hex,
-): DecodeAbiParametersReturnType<TParams> {
+): DecodeAbiParametersReturnType<params> {
   const bytes = typeof data === 'string' ? hexToBytes(data) : data
   const cursor = createCursor(bytes)
 
@@ -78,7 +78,7 @@ export function decodeAbiParameters<
     consumed += consumed_
     values.push(data)
   }
-  return values as DecodeAbiParametersReturnType<TParams>
+  return values as DecodeAbiParametersReturnType<params>
 }
 
 type DecodeParameterErrorType =

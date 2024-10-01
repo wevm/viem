@@ -69,7 +69,7 @@ export type PrepareEncodeFunctionDataReturnType<
   abi: abi extends Abi
     ? functionName extends ContractFunctionName<abi>
       ? [ExtractAbiFunction<abi, functionName>]
-      : Abi
+      : abi
     : Abi
   functionName: Hex
 }

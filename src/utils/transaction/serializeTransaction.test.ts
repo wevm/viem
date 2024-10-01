@@ -7,16 +7,20 @@ import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
+  TransactionSerializableEIP7702,
   TransactionSerializableLegacy,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
+  TransactionSerializedEIP7702,
   TransactionSerializedLegacy,
 } from '../../types/transaction.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
 
+import type { Address } from 'abitype'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { blobData, kzg } from '../../../test/src/kzg.js'
 import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
@@ -30,6 +34,96 @@ const base = {
   nonce: 785,
   value: parseEther('1'),
 } satisfies TransactionSerializableBase
+
+describe('eip7702', () => {
+  const baseEip7702 = {
+    ...base,
+    authorizationList: [
+      {
+        contractAddress: wagmiContractConfig.address.toLowerCase() as Address,
+        chainId: 1,
+        nonce: 420,
+        r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        v: 27n,
+        yParity: 0,
+      },
+      {
+        contractAddress: '0x0000000000000000000000000000000000000000',
+        chainId: 10,
+        nonce: 69,
+        r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        v: 28n,
+        yParity: 1,
+      },
+    ],
+    chainId: 1,
+  } as const satisfies TransactionSerializableEIP7702
+
+  test('default', () => {
+    const serialized = serializeTransaction(baseEip7702)
+    assertType<TransactionSerializedEIP7702>(serialized)
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x04f8e3018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
+    )
+    expect(parseTransaction(serialized)).toEqual({
+      ...baseEip7702,
+      type: 'eip7702',
+    })
+  })
+
+  test('signature', () => {
+    expect(
+      serializeTransaction(baseEip7702, {
+        r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        yParity: 1,
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x04f90126018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe01a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
+    )
+    expect(
+      serializeTransaction(
+        baseEip7702,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          yParity: 0,
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      `"0x04f90126018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
+    )
+    expect(
+      serializeTransaction(
+        baseEip7702,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          v: 0n,
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      `"0x04f90126018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe80a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
+    )
+    expect(
+      serializeTransaction(
+        baseEip7702,
+
+        {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          v: 1n,
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      `"0x04f90126018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe01a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
+    )
+  })
+})
 
 describe('eip4844', () => {
   const baseEip4844 = {
@@ -800,6 +894,7 @@ test('cannot infer type from transaction object', () => {
     - an EIP-1559 Transaction with \`maxFeePerGas\`, or
     - an EIP-2930 Transaction with \`gasPrice\` & \`accessList\`, or
     - an EIP-4844 Transaction with \`blobs\`, \`blobVersionedHashes\`, \`sidecars\`, or
+    - an EIP-7702 Transaction with \`authorizationList\`, or
     - a Legacy Transaction with \`gasPrice\`
 
     Version: viem@x.y.z]

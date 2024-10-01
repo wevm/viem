@@ -5,7 +5,7 @@ import {
   optimism,
   optimismSepolia,
   sepolia,
-  zkSync,
+  zksync,
 } from '../../src/chains/index.js'
 import { ipc } from '../../src/clients/transports/ipc.js'
 import {
@@ -27,7 +27,7 @@ import { accounts, poolId } from './constants.js'
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
-  forkBlockNumber: 19808250n,
+  forkBlockNumber: 19868020n,
   noMining: true,
   port: 8545,
 })
@@ -61,8 +61,8 @@ export const anvilOptimismSepolia = defineAnvil({
   port: 8945,
 })
 
-export const anvilZkSync = defineAnvil({
-  chain: zkSync,
+export const anvilZksync = defineAnvil({
+  chain: zksync,
   forkUrl: getEnv(
     'VITE_ANVIL_FORK_URL_ZKSYNC',
     'https://mainnet.era.zksync.io',
@@ -119,6 +119,7 @@ type DefineAnvilReturnType<chain extends Chain> = {
     undefined,
     { mode: 'anvil' }
   >
+  port: number
   rpcUrl: {
     http: string
     ipc: string
@@ -238,6 +239,7 @@ function defineAnvil<const chain extends Chain>(
       ).extend(() => ({ mode: 'anvil' })) as never
     },
     rpcUrl,
+    port,
     async restart() {
       await fetch(`${rpcUrl.http}/restart`)
     },
@@ -246,6 +248,7 @@ function defineAnvil<const chain extends Chain>(
         instance: anvil({
           forkUrl,
           forkBlockNumber,
+          hardfork: 'Prague',
           ...options,
         }),
         port,

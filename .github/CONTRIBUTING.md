@@ -6,20 +6,18 @@ If you want to contribute, but aren't sure where to start, you can create a [new
 
 If you are contributing to add a new chain to `viem/chains`, please read the [Chains section](#chains).
 
-> **Note**
->
-> **Please ask first before starting work on any significant new features.**
->
-> It's never a fun experience to have your pull request declined after investing time and effort into a new feature. To avoid this from happening, we request that contributors create a [feature request](https://github.com/wevm/viem/discussions/new?category=ideas) to first discuss any API changes or significant new ideas.
+## Rules
 
-<br>
+1. Significant changes to the API or implementation must be reviewed before a Pull Request is created. Create a [Feature Request](https://github.com/wevm/viem/discussions/new?category=ideas) first to discuss any API changes or new ideas. 
+2. Contributors must be humans, not bots.
+3. Contributor GitHub Accounts must have at least one non-trivial contribution to another repository.
 
 ## Basic guide
 
 This guide is intended to help you get started with contributing. By following these steps, you will understand the development process and workflow.
 
 1. [Cloning the repository](#cloning-the-repository)
-2. [Installing Node.js and Bun](#installing-nodejs-and-bun)
+2. [Installing Node.js and pnpm](#installing-nodejs-and-pnpm)
 3. [Installing Foundry](#installing-foundry)
 4. [Installing dependencies](#installing-dependencies)
 5. [Running the test suite](#running-the-test-suite)
@@ -49,21 +47,21 @@ gh repo clone wevm/viem -- --recurse-submodules
 
 ---
 
-### Installing Node.js and Bun
+### Installing Node.js and pnpm
 
-wagmi uses [Bun workspaces](https://bun.sh/docs/install/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **Bun v1 or higher**.
+wagmi uses [pnpm workspaces](https://bun.sh/docs/install/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **pnpm v9.1.0 or higher**.
 
-You can run the following commands in your terminal to check your local Node.js and Bun versions:
+You can run the following commands in your terminal to check your local Node.js and pnpm versions:
 
 ```bash
 node -v
-bun -v
+pnpm -v
 ```
 
-If the versions are not correct or you don't have Node.js or Bun installed, download and follow their setup instructions:
+If the versions are not correct or you don't have Node.js or pnpm installed, download and follow their setup instructions:
 
 - Install Node.js using [fnm](https://github.com/Schniz/fnm) or from the [official website](https://nodejs.org)
-- Install [Bun](https://bun.sh/docs/installation)
+- Install [pnpm](https://pnpm.io/installation)
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
@@ -92,10 +90,10 @@ curl -L https://foundry.paradigm.xyz | bash
 Once in the project's root directory, run the following command to install the project's dependencies:
 
 ```bash
-bun install
+pnpm install
 ```
 
-After the install completes, Bun links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
+After the install completes, pnpm links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>

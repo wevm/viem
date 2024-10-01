@@ -9,9 +9,9 @@ import { accounts, address, typedData } from '~test/src/constants.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
-import { Mock4337AccountFactory } from '../../../test/contracts/generated.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { deployMock4337Account } from '../../../test/src/utils.js'
+import { SoladyAccountFactory07 } from '~contracts/generated.js'
+import { anvilMainnet } from '~test/src/anvil.js'
+import { deploySoladyAccount_07 } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { signMessage } from '../../accounts/utils/signMessage.js'
 import {
@@ -185,11 +185,11 @@ describe('smoke test', () => {
   })
 
   test('getEip712Domain', async () => {
-    const { factoryAddress } = await deployMock4337Account()
+    const { factoryAddress } = await deploySoladyAccount_07()
 
     const { result: address, request } = await simulateContract(client, {
       account: accounts[0].address,
-      abi: Mock4337AccountFactory.abi,
+      abi: SoladyAccountFactory07.abi,
       address: factoryAddress,
       functionName: 'createAccount',
       args: [accounts[0].address, pad('0x0')],
@@ -197,17 +197,21 @@ describe('smoke test', () => {
     await writeContract(client, request)
     await mine(client, { blocks: 1 })
 
-    expect(await client.getEip712Domain({ address })).toMatchInlineSnapshot(`
+    const { domain, ...rest } = await client.getEip712Domain({ address })
+    const { verifyingContract, ...restDomain } = domain
+    expect(verifyingContract).toBeDefined()
+    expect(rest).toMatchInlineSnapshot(`
       {
-        "domain": {
-          "chainId": 1,
-          "name": "Mock4337Account",
-          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "verifyingContract": "0x8a00708a83D977494139D21D618C6C2A71fA8ed1",
-          "version": "1",
-        },
         "extensions": [],
         "fields": "0x0f",
+      }
+    `)
+    expect(restDomain).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "name": "SoladyAccount",
+        "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "version": "1",
       }
     `)
   })

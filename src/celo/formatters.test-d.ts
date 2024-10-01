@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
+import type { Address } from 'abitype'
 import { getBlock } from '../actions/public/getBlock.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { prepareTransactionRequest } from '../actions/wallet/prepareTransactionRequest.js'
@@ -10,52 +11,43 @@ import { createPublicClient } from '../clients/createPublicClient.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'
 import type { Hash } from '../types/misc.js'
-import type { RpcBlock } from '../types/rpc.js'
-import type { TransactionRequest } from '../types/transaction.js'
-import type { Assign, ExactPartial } from '../types/utils.js'
 import { formatters } from './formatters.js'
-import type {
-  CeloBlockOverrides,
-  CeloRpcTransaction,
-  CeloTransactionRequest,
-} from './types.js'
+import type { CeloRpcBlock, CeloTransactionRequest } from './types.js'
 
 describe('block', () => {
-  expectTypeOf(formatters.block.format).parameter(0).toEqualTypeOf<
-    Assign<
-      ExactPartial<RpcBlock>,
-      CeloBlockOverrides & {
-        transactions: readonly `0x${string}`[] | readonly CeloRpcTransaction[]
-      }
-    >
-  >()
+  expectTypeOf(formatters.block.format)
+    .parameter(0)
+    .toEqualTypeOf<CeloRpcBlock>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['difficulty']
-  >().toEqualTypeOf<never>()
+  >().toEqualTypeOf<bigint | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['gasLimit']
-  >().toEqualTypeOf<never>()
+  >().toEqualTypeOf<bigint | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['mixHash']
-  >().toEqualTypeOf<never>()
+  >().toEqualTypeOf<undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['nonce']
-  >().toEqualTypeOf<never>()
+  >().toEqualTypeOf<bigint | null | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['uncles']
-  >().toEqualTypeOf<never>()
+  >().toEqualTypeOf<undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.block.format>['randomness']
-  >().toEqualTypeOf<{
-    committed: `0x${string}`
-    revealed: `0x${string}`
-  }>()
+  >().toEqualTypeOf<
+    | {
+        committed: `0x${string}`
+        revealed: `0x${string}`
+      }
+    | undefined
+  >()
 })
 
 describe('transaction', () => {
   expectTypeOf<
     ReturnType<typeof formatters.transaction.format>['feeCurrency']
-  >().toEqualTypeOf<`0x${string}` | null>()
+  >().toEqualTypeOf<Address | null | undefined>()
   expectTypeOf<
     ReturnType<typeof formatters.transaction.format>['gatewayFee']
   >().toEqualTypeOf<bigint | null | undefined>()
@@ -67,9 +59,7 @@ describe('transaction', () => {
 describe('transactionRequest', () => {
   expectTypeOf(formatters.transactionRequest.format)
     .parameter(0)
-    .toEqualTypeOf<
-      Assign<ExactPartial<TransactionRequest>, CeloTransactionRequest>
-    >()
+    .toEqualTypeOf<CeloTransactionRequest>()
   expectTypeOf<
     ReturnType<typeof formatters.transactionRequest.format>['feeCurrency']
   >().toEqualTypeOf<`0x${string}` | undefined>()
@@ -85,15 +75,18 @@ describe('smoke', () => {
       blockNumber: 16645775n,
     })
 
-    expectTypeOf(block.difficulty).toEqualTypeOf<never>()
-    expectTypeOf(block.gasLimit).toEqualTypeOf<never>()
-    expectTypeOf(block.mixHash).toEqualTypeOf<never>()
-    expectTypeOf(block.nonce).toEqualTypeOf<never>()
-    expectTypeOf(block.uncles).toEqualTypeOf<never>()
-    expectTypeOf(block.randomness).toEqualTypeOf<{
-      committed: `0x${string}`
-      revealed: `0x${string}`
-    }>()
+    expectTypeOf(block.randomness).toEqualTypeOf<
+      | {
+          committed: `0x${string}`
+          revealed: `0x${string}`
+        }
+      | undefined
+    >()
+    expectTypeOf(block.difficulty).toEqualTypeOf<bigint | undefined>()
+    expectTypeOf(block.gasLimit).toEqualTypeOf<bigint | undefined>()
+    expectTypeOf(block.mixHash).toEqualTypeOf<undefined>()
+    expectTypeOf(block.nonce).toEqualTypeOf<Hash>()
+    expectTypeOf(block.uncles).toEqualTypeOf<undefined>()
     expectTypeOf(block.transactions).toEqualTypeOf<Hash[]>()
 
     const block_includeTransactions = await getBlock(client, {
@@ -102,7 +95,7 @@ describe('smoke', () => {
     })
     expectTypeOf(
       block_includeTransactions.transactions[0].feeCurrency,
-    ).toEqualTypeOf<`0x${string}` | null>()
+    ).toEqualTypeOf<Address | null | undefined>()
     expectTypeOf(
       block_includeTransactions.transactions[0].gatewayFee,
     ).toEqualTypeOf<bigint | null | undefined>()
@@ -137,7 +130,9 @@ describe('smoke', () => {
       index: 0,
     })
 
-    expectTypeOf(transaction.feeCurrency).toEqualTypeOf<`0x${string}` | null>()
+    expectTypeOf(transaction.feeCurrency).toEqualTypeOf<
+      Address | null | undefined
+    >()
     expectTypeOf(transaction.gatewayFee).toEqualTypeOf<
       bigint | null | undefined
     >()
@@ -145,7 +140,14 @@ describe('smoke', () => {
       `0x${string}` | null | undefined
     >()
     expectTypeOf(transaction.type).toEqualTypeOf<
-      'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'cip42' | 'cip64'
+      | 'legacy'
+      | 'eip2930'
+      | 'eip1559'
+      | 'eip4844'
+      | 'eip7702'
+      | 'cip42'
+      | 'cip64'
+      | 'deposit'
     >()
   })
 

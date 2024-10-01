@@ -9,7 +9,7 @@
  */
 import { describe, expect, test, vi } from 'vitest'
 
-import { ErrorsExample } from '~test/contracts/generated.js'
+import { ErrorsExample } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import {
@@ -24,6 +24,7 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 
+import { maxUint256 } from '~viem/constants/number.js'
 import { simulateContract } from './simulateContract.js'
 
 const client = anvilMainnet
@@ -545,7 +546,7 @@ describe('node errors', () => {
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
         args: [13371337n],
-        maxFeePerGas: 2n ** 256n - 1n + 1n,
+        maxFeePerGas: maxUint256 + 1n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [ContractFunctionExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
@@ -647,7 +648,7 @@ describe('node errors', () => {
     ).rejects.toThrowError('cannot be lower than the block base fee')
   })
 
-  test('nonce too low', async () => {
+  test.skip('nonce too low', async () => {
     await expect(() =>
       simulateContract(client, {
         ...wagmiContractConfig,

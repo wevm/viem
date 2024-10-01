@@ -11,6 +11,8 @@ import {
   type PublicKeyToAddressErrorType,
   publicKeyToAddress,
 } from './utils/publicKeyToAddress.js'
+import { type SignErrorType, sign } from './utils/sign.js'
+import { experimental_signAuthorization } from './utils/signAuthorization.js'
 import { type SignMessageErrorType, signMessage } from './utils/signMessage.js'
 import {
   type SignTransactionErrorType,
@@ -29,6 +31,7 @@ export type PrivateKeyToAccountErrorType =
   | ToAccountErrorType
   | ToHexErrorType
   | PublicKeyToAddressErrorType
+  | SignErrorType
   | SignMessageErrorType
   | SignTransactionErrorType
   | SignTypedDataErrorType
@@ -50,6 +53,12 @@ export function privateKeyToAccount(
   const account = toAccount({
     address,
     nonceManager,
+    async sign({ hash }) {
+      return sign({ hash, privateKey, to: 'hex' })
+    },
+    async experimental_signAuthorization(authorization) {
+      return experimental_signAuthorization({ ...authorization, privateKey })
+    },
     async signMessage({ message }) {
       return signMessage({ message, privateKey })
     },
@@ -57,7 +66,7 @@ export function privateKeyToAccount(
       return signTransaction({ privateKey, transaction, serializer })
     },
     async signTypedData(typedData) {
-      return signTypedData({ ...typedData, privateKey })
+      return signTypedData({ ...typedData, privateKey } as any)
     },
   })
 

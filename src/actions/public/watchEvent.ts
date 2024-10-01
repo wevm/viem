@@ -39,35 +39,37 @@ import { type GetLogsParameters, getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
 
 export type WatchEventOnLogsParameter<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbiEvents extends
+  abiEvent extends AbiEvent | undefined = undefined,
+  abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = Log<bigint, number, false, TAbiEvent, TStrict, TAbiEvents, TEventName>[]
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
+> = Log<bigint, number, false, abiEvent, strict, abiEvents, eventName>[]
 export type WatchEventOnLogsFn<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbiEvents extends
+  abiEvent extends AbiEvent | undefined = undefined,
+  abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  //
+  _eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
 > = (
-  logs: WatchEventOnLogsParameter<TAbiEvent, TAbiEvents, TStrict, _EventName>,
+  logs: WatchEventOnLogsParameter<abiEvent, abiEvents, strict, _eventName>,
 ) => void
 
 export type WatchEventParameters<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbiEvents extends
+  abiEvent extends AbiEvent | undefined = undefined,
+  abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  TTransport extends Transport = Transport,
-  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  transport extends Transport = Transport,
+  //
+  _eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
 > = {
   /** The address of the contract. */
   address?: Address | Address[] | undefined
@@ -76,28 +78,28 @@ export type WatchEventParameters<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
-  onLogs: WatchEventOnLogsFn<TAbiEvent, TAbiEvents, TStrict, _EventName>
-} & GetPollOptions<TTransport> &
+  onLogs: WatchEventOnLogsFn<abiEvent, abiEvents, strict, _eventName>
+} & GetPollOptions<transport> &
   (
     | {
-        event: TAbiEvent
+        event: abiEvent
         events?: undefined
-        args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName> | undefined
+        args?: MaybeExtractEventArgsFromAbi<abiEvents, _eventName> | undefined
         /**
          * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
          * @default false
          */
-        strict?: TStrict | undefined
+        strict?: strict | undefined
       }
     | {
         event?: undefined
-        events?: TAbiEvents | undefined
+        events?: abiEvents | undefined
         args?: undefined
         /**
          * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
          * @default false
          */
-        strict?: TStrict | undefined
+        strict?: strict | undefined
       }
     | {
         event?: undefined
@@ -147,17 +149,17 @@ export type WatchEventErrorType =
  * })
  */
 export function watchEvent<
-  TChain extends Chain | undefined,
-  const TAbiEvent extends AbiEvent | undefined = undefined,
-  const TAbiEvents extends
+  chain extends Chain | undefined,
+  const abiEvent extends AbiEvent | undefined = undefined,
+  const abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  TTransport extends Transport = Transport,
-  _EventName extends string | undefined = undefined,
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  transport extends Transport = Transport,
+  _eventName extends string | undefined = undefined,
 >(
-  client: Client<TTransport, TChain>,
+  client: Client<transport, chain>,
   {
     address,
     args,
@@ -170,7 +172,7 @@ export function watchEvent<
     poll: poll_,
     pollingInterval = client.pollingInterval,
     strict: strict_,
-  }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
+  }: WatchEventParameters<abiEvent, abiEvents, strict, transport>,
 ): WatchEventReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
@@ -200,7 +202,7 @@ export function watchEvent<
     return observe(observerId, { onLogs, onError }, (emit) => {
       let previousBlockNumber: bigint
       if (fromBlock !== undefined) previousBlockNumber = fromBlock - 1n
-      let filter: Filter<'event', TAbiEvents, _EventName, any>
+      let filter: Filter<'event', abiEvents, _eventName, any>
       let initialized = false
 
       const unwatch = poll(
@@ -220,8 +222,8 @@ export function watchEvent<
                 fromBlock,
               } as unknown as CreateEventFilterParameters)) as unknown as Filter<
                 'event',
-                TAbiEvents,
-                _EventName
+                abiEvents,
+                _eventName
               >
             } catch {}
             initialized = true
@@ -274,7 +276,7 @@ export function watchEvent<
             else for (const log of logs) emit.onLogs([log] as any)
           } catch (err) {
             // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
-            // Reinitalize the filter when this occurs
+            // Reinitialize the filter when this occurs
             if (filter && err instanceof InvalidInputRpcError)
               initialized = false
             emit.onError?.(err as Error)
@@ -318,15 +320,15 @@ export function watchEvent<
         const events_ = events ?? (event ? [event] : undefined)
         let topics: LogTopic[] = []
         if (events_) {
-          topics = [
-            (events_ as AbiEvent[]).flatMap((event) =>
-              encodeEventTopics({
-                abi: [event],
-                eventName: (event as AbiEvent).name,
-                args,
-              } as EncodeEventTopicsParameters),
-            ),
-          ]
+          const encoded = (events_ as AbiEvent[]).flatMap((event) =>
+            encodeEventTopics({
+              abi: [event],
+              eventName: (event as AbiEvent).name,
+              args,
+            } as EncodeEventTopicsParameters),
+          )
+          // TODO: Clean up type casting
+          topics = [encoded as LogTopic]
           if (event) topics = topics[0] as LogTopic[]
         }
 

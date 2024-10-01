@@ -52,7 +52,7 @@ export const wagmiAbi = [
 ```
 
 ```ts [config.ts]
-import { createWalletClient, custom } from 'viem'
+import { createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -113,7 +113,7 @@ export const wagmiAbi = [
 ```
 
 ```ts [config.ts]
-import { createWalletClient, custom } from 'viem'
+import { createWalletClient, custom, http} from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -168,7 +168,7 @@ export const wagmiAbi = [
 ```
 
 ```ts [config.ts]
-import { createWalletClient, custom } from 'viem'
+import { createWalletClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -282,6 +282,32 @@ await walletClient.writeContract({
   }],
 })
 ```
+
+### authorizationList (optional)
+
+- **Type:** `AuthorizationList`
+
+Signed EIP-7702 Authorization list.
+
+```ts
+const authorization = await walletClient.signAuthorization({ 
+  contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', 
+}) 
+
+await walletClient.writeContract({
+  address: account.address,
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
+  authorizationList: [authorization], // [!code focus]
+})
+```
+
+:::note
+**References**
+- [EIP-7702 Overview](/experimental/eip7702)
+- [`signAuthorization` Docs](/experimental/eip7702/signAuthorization)
+:::
 
 ### args (optional)
 

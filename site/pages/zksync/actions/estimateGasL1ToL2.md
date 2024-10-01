@@ -21,11 +21,11 @@ const gas = await client.estimateGasL1ToL2({
 
 ```ts [config.ts]
 import { createPublicClient, http } from 'viem'
-import { zkSync } from 'viem/chains'
+import { zksync } from 'viem/chains'
 import { publicActionsL2 } from 'viem/zksync'
 
 export const client = createPublicClient({
-  chain: zkSync,
+  chain: zksync,
   transport: http(),
 }).extend(publicActionsL2())
 ```
@@ -166,7 +166,7 @@ const gas = await walletClient.estimateGasL1ToL2({
 
 - **Type:** `Account | Address`
 
-Address of the paymaster account that will pay the gass. The `paymasterInput` field is required with this one.
+Address of the paymaster account that will pay the gas. The `paymasterInput` field is required with this one.
 
 ```ts
 const gas = await walletClient.estimateGasL1ToL2({

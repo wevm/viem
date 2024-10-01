@@ -238,7 +238,7 @@ describe('getContractError', () => {
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
-      [ViemError: An RPC error occurred
+      [BaseError: An RPC error occurred
 
       Details: rarararar i am an error lmaoaoo
       Version: viem@x.y.z]
@@ -261,7 +261,7 @@ describe('getContractError', () => {
       Version: viem@x.y.z]
     `)
     expect(error2.cause).toMatchInlineSnapshot(`
-      [ViemError: An RPC error occurred
+      [BaseError: An RPC error occurred
 
       Version: viem@x.y.z]
     `)
@@ -283,7 +283,7 @@ describe('getContractError', () => {
       Version: viem@x.y.z]
     `)
     expect(error3.cause).toMatchInlineSnapshot(`
-      [ViemError: An error occurred.
+      [BaseError: An error occurred.
 
       Version: viem@x.y.z]
     `)

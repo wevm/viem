@@ -30,38 +30,39 @@ import {
 } from '../../utils/formatters/log.js'
 
 export type GetLogsParameters<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbiEvents extends
+  abiEvent extends AbiEvent | undefined = undefined,
+  abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
+  //
+  _eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
 > = {
   /** Address or list of addresses from which logs originated */
   address?: Address | Address[] | undefined
 } & (
   | {
-      event: TAbiEvent
+      event: abiEvent
       events?: undefined
-      args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName> | undefined
+      args?: MaybeExtractEventArgsFromAbi<abiEvents, _eventName> | undefined
       /**
        * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
        * @default false
        */
-      strict?: TStrict | undefined
+      strict?: strict | undefined
     }
   | {
       event?: undefined
-      events: TAbiEvents
+      events: abiEvents
       args?: undefined
       /**
        * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
        * @default false
        */
-      strict?: TStrict | undefined
+      strict?: strict | undefined
     }
   | {
       event?: undefined
@@ -73,9 +74,9 @@ export type GetLogsParameters<
   (
     | {
         /** Block number or tag after which to include logs */
-        fromBlock?: TFromBlock | BlockNumber | BlockTag | undefined
+        fromBlock?: fromBlock | BlockNumber | BlockTag | undefined
         /** Block number or tag before which to include logs */
-        toBlock?: TToBlock | BlockNumber | BlockTag | undefined
+        toBlock?: toBlock | BlockNumber | BlockTag | undefined
         blockHash?: undefined
       }
     | {
@@ -87,19 +88,20 @@ export type GetLogsParameters<
   )
 
 export type GetLogsReturnType<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbiEvents extends
+  abiEvent extends AbiEvent | undefined = undefined,
+  abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-  _Pending extends boolean =
-    | (TFromBlock extends 'pending' ? true : false)
-    | (TToBlock extends 'pending' ? true : false),
-> = Log<bigint, number, _Pending, TAbiEvent, TStrict, TAbiEvents, _EventName>[]
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
+  //
+  _eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
+  _pending extends boolean =
+    | (fromBlock extends 'pending' ? true : false)
+    | (toBlock extends 'pending' ? true : false),
+> = Log<bigint, number, _pending, abiEvent, strict, abiEvents, _eventName>[]
 
 export type GetLogsErrorType =
   | DecodeEventLogErrorType
@@ -132,17 +134,17 @@ export type GetLogsErrorType =
  * const logs = await getLogs(client)
  */
 export async function getLogs<
-  TChain extends Chain | undefined,
-  const TAbiEvent extends AbiEvent | undefined = undefined,
-  const TAbiEvents extends
+  chain extends Chain | undefined,
+  const abiEvent extends AbiEvent | undefined = undefined,
+  const abiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
-    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
-  TStrict extends boolean | undefined = undefined,
-  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
-  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  strict extends boolean | undefined = undefined,
+  fromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  toBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
-  client: Client<Transport, TChain>,
+  client: Client<Transport, chain>,
   {
     address,
     blockHash,
@@ -152,30 +154,22 @@ export async function getLogs<
     events: events_,
     args,
     strict: strict_,
-  }: GetLogsParameters<
-    TAbiEvent,
-    TAbiEvents,
-    TStrict,
-    TFromBlock,
-    TToBlock
-  > = {},
-): Promise<
-  GetLogsReturnType<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
-> {
+  }: GetLogsParameters<abiEvent, abiEvents, strict, fromBlock, toBlock> = {},
+): Promise<GetLogsReturnType<abiEvent, abiEvents, strict, fromBlock, toBlock>> {
   const strict = strict_ ?? false
   const events = events_ ?? (event ? [event] : undefined)
 
   let topics: LogTopic[] = []
   if (events) {
-    topics = [
-      (events as AbiEvent[]).flatMap((event) =>
-        encodeEventTopics({
-          abi: [event],
-          eventName: (event as AbiEvent).name,
-          args,
-        } as EncodeEventTopicsParameters),
-      ),
-    ]
+    const encoded = (events as AbiEvent[]).flatMap((event) =>
+      encodeEventTopics({
+        abi: [event],
+        eventName: (event as AbiEvent).name,
+        args: events_ ? undefined : args,
+      } as EncodeEventTopicsParameters),
+    )
+    // TODO: Clean up type casting
+    topics = [encoded as LogTopic]
     if (event) topics = topics[0] as LogTopic[]
   }
 
@@ -203,21 +197,22 @@ export async function getLogs<
   const formattedLogs = logs.map((log) => formatLog(log))
   if (!events)
     return formattedLogs as GetLogsReturnType<
-      TAbiEvent,
-      TAbiEvents,
-      TStrict,
-      TFromBlock,
-      TToBlock
+      abiEvent,
+      abiEvents,
+      strict,
+      fromBlock,
+      toBlock
     >
   return parseEventLogs({
     abi: events,
+    args: args as any,
     logs: formattedLogs,
     strict,
   }) as unknown as GetLogsReturnType<
-    TAbiEvent,
-    TAbiEvents,
-    TStrict,
-    TFromBlock,
-    TToBlock
+    abiEvent,
+    abiEvents,
+    strict,
+    fromBlock,
+    toBlock
   >
 }

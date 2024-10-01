@@ -1,7 +1,10 @@
 export type { Chain } from '../types/chain.js'
 
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
+export { abstractTestnet } from './definitions/abstractTestnet.js'
 export { acala } from './definitions/acala.js'
+export { alienx } from './definitions/alienX.js'
+export { alienxHalTestnet } from './definitions/alienXHalTestnet.js'
 export { ancient8 } from './definitions/ancient8.js'
 export { ancient8Sepolia } from './definitions/ancient8Sepolia.js'
 export { anvil } from './definitions/anvil.js'
@@ -9,17 +12,23 @@ export { apexTestnet } from './definitions/apexTestnet.js'
 export { arbitrum } from './definitions/arbitrum.js'
 export { arbitrumGoerli } from './definitions/arbitrumGoerli.js'
 export { arbitrumNova } from './definitions/arbitrumNova.js'
+export { assetChain } from './definitions/assetChain.js'
+export { assetChainTestnet } from './definitions/assetChainTestnet.js'
 export { astar } from './definitions/astar.js'
 export { astarZkEVM } from './definitions/astarZkEVM.js'
 export { astarZkyoto } from './definitions/astarZkyoto.js'
 export { arbitrumSepolia } from './definitions/arbitrumSepolia.js'
 export { areonNetwork } from './definitions/areonNetwork.js'
 export { areonNetworkTestnet } from './definitions/areonNetworkTestnet.js'
+export { artelaTestnet } from './definitions/artelaTestnet.js'
+export { atletaOlympia } from './definitions/atletaOlympia.js'
 export { aurora } from './definitions/aurora.js'
 export { auroraTestnet } from './definitions/auroraTestnet.js'
 export { auroria } from './definitions/auroria.js'
 export { avalanche } from './definitions/avalanche.js'
 export { avalancheFuji } from './definitions/avalancheFuji.js'
+export { b3Sepolia } from './definitions/b3Sepolia.js'
+export { b3 } from './definitions/b3.js'
 export { bahamut } from './definitions/bahamut.js'
 export { base } from './definitions/base.js'
 export { baseGoerli } from './definitions/baseGoerli.js'
@@ -38,7 +47,12 @@ export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js'
 export { blast } from './definitions/blast.js'
 export { blastSepolia } from './definitions/blastSepolia.js'
 export { bob } from './definitions/bob.js'
+export { bobSepolia } from './definitions/bobSepolia.js'
 export { boba } from './definitions/boba.js'
+export { bobaSepolia } from './definitions/bobaSepolia.js'
+export { botanixTestnet } from './definitions/botanixTestnet.js'
+export { bounceBit } from './definitions/bounceBit.js'
+export { bounceBitTestnet } from './definitions/bounceBitTestnet.js'
 export { bronos } from './definitions/bronos.js'
 export { bronosTestnet } from './definitions/bronosTestnet.js'
 export { bsc } from './definitions/bsc.js'
@@ -48,20 +62,28 @@ export { btr } from './definitions/btr.js'
 export { btrTestnet } from './definitions/btrTestnet.js'
 export { bxn } from './definitions/bxn.js'
 export { bxnTestnet } from './definitions/bxnTestnet.js'
+export { cannon } from './definitions/cannon.js'
 export { canto } from './definitions/canto.js'
 export { celo } from './definitions/celo.js'
 export { celoAlfajores } from './definitions/celoAlfajores.js'
 export { chiliz } from './definitions/chiliz.js'
+export { chips } from './definitions/chips.js'
 export { classic } from './definitions/classic.js'
 export { confluxESpace } from './definitions/confluxESpace.js'
 export { confluxESpaceTestnet } from './definitions/confluxESpaceTestnet.js'
 export { coreDao } from './definitions/coreDao.js'
+export { crab } from './definitions/crab.js'
 export { cronos } from './definitions/cronos.js'
+export { cronoszkEVM } from './definitions/cronoszkEVM.js'
+export { cronoszkEVMTestnet } from './definitions/cronoszkEVMTestnet.js'
 export { cronosTestnet } from './definitions/cronosTestnet.js'
 export { crossbell } from './definitions/crossbell.js'
+export { curtis } from './definitions/curtis.js'
 export { cyber } from './definitions/cyber.js'
 export { cyberTestnet } from './definitions/cyberTestnet.js'
 export { darwinia } from './definitions/darwinia.js'
+export { dchain } from './definitions/dchain.js'
+export { dchainTestnet } from './definitions/dchainTestnet.js'
 export { defichainEvm } from './definitions/defichainEvm.js'
 export { defichainEvmTestnet } from './definitions/defichainEvmTestnet.js'
 export { degen } from './definitions/degen.js'
@@ -69,13 +91,16 @@ export { dfk } from './definitions/dfk.js'
 export { dodochainTestnet } from './definitions/dodochainTestnet.js'
 export { dogechain } from './definitions/dogechain.js'
 export { dreyerxMainnet } from './definitions/dreyerxMainnet.js'
+export { dreyerxTestnet } from './definitions/dreyerxTestnet.js'
 export { edgeless } from './definitions/edgeless.js'
 export { edgelessTestnet } from './definitions/edgelessTestnet.js'
 export { edgeware } from './definitions/edgeware.js'
 export { edgewareTestnet } from './definitions/edgewareTestnet.js'
+export { elysiumTestnet } from './definitions/elysiumTestnet.js'
 export { eon } from './definitions/eon.js'
 export { eos } from './definitions/eos.js'
 export { eosTestnet } from './definitions/eosTestnet.js'
+export { etherlink } from './definitions/etherlink.js'
 export { etherlinkTestnet } from './definitions/etherlinkTestnet.js'
 export { evmos } from './definitions/evmos.js'
 export { evmosTestnet } from './definitions/evmosTestnet.js'
@@ -90,43 +115,64 @@ export { filecoinCalibration } from './definitions/filecoinCalibration.js'
 export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
+/** @deprecated */
 export { flowPreviewnet } from './definitions/flowPreviewnet.js'
 export { flowMainnet } from './definitions/flowMainnet.js'
 export { flowTestnet } from './definitions/flowTestnet.js'
+export { fluence } from './definitions/fluence.js'
+export { fluenceStage } from './definitions/fluenceStage.js'
+export { fluenceTestnet } from './definitions/fluenceTestnet.js'
+export { forma } from './definitions/forma.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
 export { fraxtal } from './definitions/fraxtal.js'
 export { fraxtalTestnet } from './definitions/fraxtalTestnet.js'
+export { funkiMainnet } from './definitions/funkiMainnet.js'
 export { funkiSepolia } from './definitions/funkiSepolia.js'
 export { fuse } from './definitions/fuse.js'
 export { fuseSparknet } from './definitions/fuseSparknet.js'
+export { fusion } from './definitions/fusion.js'
+export { fusionTestnet } from './definitions/fusionTestnet.js'
 export { iotex } from './definitions/iotex.js'
 export { iotexTestnet } from './definitions/iotexTestnet.js'
 export { jbc } from './definitions/jbc.js'
 export { jbcTestnet } from './definitions/jbcTestnet.js'
 export { karura } from './definitions/karura.js'
+export { garnet } from './definitions/garnet.js'
 export { gobi } from './definitions/gobi.js'
 export { goerli } from './definitions/goerli.js'
 export { gnosis } from './definitions/gnosis.js'
 export { gnosisChiado } from './definitions/gnosisChiado.js'
+export { gravity } from './definitions/gravity.js'
 export { ham } from './definitions/ham.js'
 export { hardhat } from './definitions/hardhat.js'
 export { harmonyOne } from './definitions/harmonyOne.js'
+export { hashkeyTestnet } from './definitions/hashkeyChainTestnet.js'
 export { haqqMainnet } from './definitions/haqqMainnet.js'
 export { haqqTestedge2 } from './definitions/haqqTestedge2.js'
 export { hedera } from './definitions/hedera.js'
 export { hederaTestnet } from './definitions/hederaTestnet.js'
 export { hederaPreviewnet } from './definitions/hederaPreviewnet.js'
 export { holesky } from './definitions/holesky.js'
+export { hychain } from './definitions/hychain.js'
+export { hychainTestnet } from './definitions/hychainTestnet.js'
 export { immutableZkEvm } from './definitions/immutableZkEvm.js'
 export { immutableZkEvmTestnet } from './definitions/immutableZkEvmTestnet.js'
 export { inEVM } from './definitions/inEVM.js'
+export { iota } from './definitions/iota.js'
+export { iotaTestnet } from './definitions/iotaTestnet.js'
 export { kakarotSepolia } from './definitions/kakarotSepolia.js'
 export { kava } from './definitions/kava.js'
 export { kavaTestnet } from './definitions/kavaTestnet.js'
 export { kcc } from './definitions/kcc.js'
+export { kinto } from './definitions/kinto.js'
+/** @deprecated Use `kaia` instead. */
 export { klaytn } from './definitions/klaytn.js'
+/** @deprecated Use `kairos` instead. */
 export { klaytnBaobab } from './definitions/klaytnBaobab.js'
+export { kaia } from './definitions/kaia.js'
+export { kairos } from './definitions/kairos.js'
+export { koi } from './definitions/koi.js'
 export { kroma } from './definitions/kroma.js'
 export { kromaSepolia } from './definitions/kromaSepolia.js'
 export { l3x } from './definitions/l3x.js'
@@ -144,6 +190,7 @@ export { localhost } from './definitions/localhost.js'
 export { lukso } from './definitions/lukso.js'
 export { luksoTestnet } from './definitions/luksoTestnet.js'
 export { lycan } from './definitions/lycan.js'
+export { lyra } from './definitions/lyra.js'
 export { mainnet } from './definitions/mainnet.js'
 export { mandala } from './definitions/mandala.js'
 export { manta } from './definitions/manta.js'
@@ -162,6 +209,7 @@ export { metis } from './definitions/metis.js'
 export { metisGoerli } from './definitions/metisGoerli.js'
 export { mev } from './definitions/mev.js'
 export { mevTestnet } from './definitions/mevTestnet.js'
+export { mint } from './definitions/mint.js'
 export { mintSepoliaTestnet } from './definitions/mintSepoliaTestnet.js'
 export { mode } from './definitions/mode.js'
 export { modeTestnet } from './definitions/modeTestnet.js'
@@ -169,6 +217,7 @@ export { moonbaseAlpha } from './definitions/moonbaseAlpha.js'
 export { moonbeam } from './definitions/moonbeam.js'
 export { moonbeamDev } from './definitions/moonbeamDev.js'
 export { moonriver } from './definitions/moonriver.js'
+export { morphHolesky } from './definitions/morphHolesky.js'
 export { morphSepolia } from './definitions/morphSepolia.js'
 export { nautilus } from './definitions/nautilus.js'
 export { neonDevnet } from './definitions/neonDevnet.js'
@@ -181,9 +230,13 @@ export { okc } from './definitions/okc.js'
 export { optimism } from './definitions/optimism.js'
 export { optimismGoerli } from './definitions/optimismGoerli.js'
 export { optimismSepolia } from './definitions/optimismSepolia.js'
+export { optopia } from './definitions/optopia.js'
+export { optopiaTestnet } from './definitions/optopiaTestnet.js'
 export { opBNB } from './definitions/opBNB.js'
 export { opBNBTestnet } from './definitions/opBNBTestnet.js'
 export { oortMainnetDev } from './definitions/oortmainnetDev.js'
+export { orderly } from './definitions/orderly.js'
+export { orderlySepolia } from './definitions/orderlySepolia.js'
 export { otimDevnet } from './definitions/otimDevnet.js'
 export { palm } from './definitions/palm.js'
 export { palmTestnet } from './definitions/palmTestnet.js'
@@ -204,12 +257,15 @@ export { pulsechain } from './definitions/pulsechain.js'
 export { pulsechainV4 } from './definitions/pulsechainV4.js'
 export { qMainnet } from './definitions/qMainnet.js'
 export { qTestnet } from './definitions/qTestnet.js'
+export { real } from './definitions/real.js'
 export { redbellyTestnet } from './definitions/redbellyTestnet.js'
 export { redstone } from './definitions/redstone.js'
 export { reyaNetwork } from './definitions/reyaNetwork.js'
 export { rollux } from './definitions/rollux.js'
 export { rolluxTestnet } from './definitions/rolluxTestnet.js'
 export { ronin } from './definitions/ronin.js'
+export { root } from './definitions/root.js'
+export { rootPorcini } from './definitions/rootPorcini.js'
 export { rootstock } from './definitions/rootstock.js'
 export { rootstockTestnet } from './definitions/rootstockTestnet.js'
 export { rss3 } from './definitions/rss3.js'
@@ -223,7 +279,10 @@ export { scroll } from './definitions/scroll.js'
 export { scrollSepolia } from './definitions/scrollSepolia.js'
 export { sei } from './definitions/sei.js'
 export { seiDevnet } from './definitions/seiDevnet.js'
+export { seiTestnet } from './definitions/seiTestnet.js'
 export { sepolia } from './definitions/sepolia.js'
+export { shape } from './definitions/shape.js'
+export { shapeSepolia } from './definitions/shapeSepolia.js'
 export { shimmer } from './definitions/shimmer.js'
 export { shimmerTestnet } from './definitions/shimmerTestnet.js'
 export { skaleBlockBrawlers } from './definitions/skale/brawl.js'
@@ -240,12 +299,25 @@ export { skaleNebulaTestnet } from './definitions/skale/nebulaTestnet.js'
 export { skaleRazor } from './definitions/skale/razor.js'
 export { skaleTitan } from './definitions/skale/titan.js'
 export { skaleTitanTestnet } from './definitions/skale/titanTestnet.js'
+export { sketchpad } from './definitions/sketchpad.js'
+export { snax } from './definitions/snax.js'
+export { snaxTestnet } from './definitions/snaxTestnet.js'
+export { soneiumMinato } from './definitions/soneiumMinato.js'
 export { songbird } from './definitions/songbird.js'
 export { songbirdTestnet } from './definitions/songbirdTestnet.js'
+export { sophonTestnet } from './definitions/sophonTestnet.js'
 export { spicy } from './definitions/spicy.js'
 export { shardeumSphinx } from './definitions/shardeumSphinx.js'
 export { shibarium } from './definitions/shibarium.js'
+export { shibariumTestnet } from './definitions/shibariumTestnet.js'
+export { storyTestnet } from './definitions/storyTestnet.js'
+export { silicon } from './definitions/silicon.js'
+export { siliconSepolia } from './definitions/siliconSepolia.js'
 export { stratis } from './definitions/stratis.js'
+export { superlumio } from './definitions/superlumio.js'
+export { swan } from './definitions/swan.js'
+export { swanProximaTestnet } from './definitions/swanProximaTestnet.js'
+export { swanSaturnTestnet } from './definitions/swanSaturnTestnet.js'
 export { syscoin } from './definitions/syscoin.js'
 export { syscoinTestnet } from './definitions/syscoinTestnet.js'
 export { taraxa } from './definitions/taraxa.js'
@@ -261,11 +333,23 @@ export { telosTestnet } from './definitions/telosTestnet.js'
 export { tenet } from './definitions/tenet.js'
 export { thaiChain } from './definitions/thaiChain.js'
 export { thunderTestnet } from './definitions/thunderTestnet.js'
+export { tron } from './definitions/tron.js'
+export { unique } from './definitions/unique.js'
+export { uniqueQuartz } from './definitions/uniqueQuartz.js'
+export { uniqueOpal } from './definitions/uniqueOpal.js'
+export { unreal } from './definitions/unreal.js'
 export { vechain } from './definitions/vechain.js'
+export { viction } from './definitions/viction.js'
+export { victionTestnet } from './definitions/victionTestnet.js'
+export { vision } from './definitions/vision.js'
+export { visionTestnet } from './definitions/visionTestnet.js'
 export { wanchain } from './definitions/wanchain.js'
 export { wanchainTestnet } from './definitions/wanchainTestnet.js'
+export { weaveVMAlphanet } from './definitions/weavevmAlphanet.js'
 export { wemix } from './definitions/wemix.js'
 export { wemixTestnet } from './definitions/wemixTestnet.js'
+export { worldchain } from './definitions/worldchain.js'
+export { worldchainSepolia } from './definitions/worldchainSepolia.js'
 export {
   xLayerTestnet,
   /** @deprecated Use `xLayerTestnet` */
@@ -276,6 +360,7 @@ export { xai } from './definitions/xai.js'
 export { xaiTestnet } from './definitions/xaiTestnet.js'
 export { xdc } from './definitions/xdc.js'
 export { xdcTestnet } from './definitions/xdcTestnet.js'
+export { xrSepolia } from './definitions/xrSepolia.js'
 export { yooldoVerse } from './definitions/yooldoVerse.js'
 export { yooldoVerseTestnet } from './definitions/yooldoVerseTestnet.js'
 export { zetachain } from './definitions/zetachain.js'
@@ -285,14 +370,32 @@ export { zilliqa } from './definitions/zilliqa.js'
 export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
 export { zkFair } from './definitions/zkFair.js'
 export { zkFairTestnet } from './definitions/zkFairTestnet.js'
-export { zkSync } from './definitions/zkSync.js'
-export { zkSyncInMemoryNode } from './definitions/zkSyncInMemoryNode.js'
-export { zkSyncLocalNode } from './definitions/zkSyncLocalNode.js'
-export { zkSyncSepoliaTestnet } from './definitions/zkSyncSepoliaTestnet.js'
-export { zkSyncTestnet } from './definitions/zkSyncTestnet.js'
+export { zkLinkNova } from './definitions/zkLinkNova.js'
+export { zkLinkNovaSepoliaTestnet } from './definitions/zkLinkNovaSepoliaTestnet.js'
+export {
+  /** @deprecated Use `zksync` instead */
+  zksync as zkSync,
+  zksync,
+} from './definitions/zksync.js'
+export {
+  /** @deprecated Use `zksync` instead */
+  zksyncInMemoryNode as zkSyncInMemoryNode,
+  zksyncInMemoryNode,
+} from './definitions/zksyncInMemoryNode.js'
+export {
+  /** @deprecated Use `zksync` instead */
+  zksyncLocalNode as zkSyncLocalNode,
+  zksyncLocalNode,
+} from './definitions/zksyncLocalNode.js'
+export {
+  /** @deprecated Use `zksync` instead */
+  zksyncSepoliaTestnet as zkSyncSepoliaTestnet,
+  zksyncSepoliaTestnet,
+} from './definitions/zksyncSepoliaTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
+export { zircuitTestnet } from './definitions/zircuitTestnet.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".
@@ -305,10 +408,15 @@ export type {
   UnionLooseOmit,
 } from '../types/utils.js'
 export type {
+  SerializeTransactionCIP64ReturnType,
+  assertTransactionCIP42 as assertTransactionCIP42Celo,
+  assertTransactionCIP64 as assertTransactionCIP64Celo,
+  serializeTransaction as serializeTransactionCelo,
+  serializers as serializersCelo,
+} from '../celo/serializers.js'
+export type {
   CeloBlock,
-  CeloBlockOverrides,
   CeloRpcBlock,
-  CeloRpcBlockOverrides,
   CeloRpcTransaction,
   CeloRpcTransactionRequest,
   CeloTransaction,
@@ -357,38 +465,104 @@ export type {
   TransactionSerializedDeposit,
 } from '../op-stack/types/transaction.js'
 export type {
-  ZkSyncBlock,
-  ZkSyncBlockOverrides,
-  ZkSyncRpcBlock,
-  ZkSyncRpcBlockOverrides,
+  /** @deprecated Use `ZksyncBlock` instead */
+  ZksyncBlock as ZkSyncBlock,
+  ZksyncBlock,
+  /** @deprecated Use `ZksyncRpcBlock` instead */
+  ZksyncRpcBlock as ZkSyncRpcBlock,
+  ZksyncRpcBlock,
 } from '../zksync/types/block.js'
 export type { ChainEIP712 } from '../zksync/types/chain.js'
-export type { ZkSyncEip712Meta } from '../zksync/types/eip712.js'
-export type { ZkSyncFeeValues } from '../zksync/types/fee.js'
 export type {
-  ZkSyncL2ToL1Log,
-  ZkSyncLog,
-  ZkSyncRpcL2ToL1Log,
-  ZkSyncRpcLog,
+  /** @deprecated Use `ZksyncEip712Meta` instead */
+  ZksyncEip712Meta as ZkSyncEip712Meta,
+  ZksyncEip712Meta,
+} from '../zksync/types/eip712.js'
+export type {
+  /** @deprecated Use `ZksyncFeeValues` instead */
+  ZksyncFeeValues as ZkSyncFeeValues,
+  ZksyncFeeValues,
+} from '../zksync/types/fee.js'
+export type {
+  /** @deprecated Use `ZksyncL2ToL1Log` instead */
+  ZksyncL2ToL1Log as ZkSyncL2ToL1Log,
+  ZksyncL2ToL1Log,
+  /** @deprecated Use `ZksyncLog` instead */
+  ZksyncLog as ZkSyncLog,
+  ZksyncLog,
+  /** @deprecated Use `ZksyncRpcL2ToL1Log` instead */
+  ZksyncRpcL2ToL1Log as ZkSyncRpcL2ToL1Log,
+  ZksyncRpcL2ToL1Log,
+  /** @deprecated Use `ZkSyncRpcLog` instead */
+  ZksyncRpcLog as ZkSyncRpcLog,
+  ZksyncRpcLog,
 } from '../zksync/types/log.js'
 export type {
   TransactionRequestEIP712,
-  ZkSyncEIP712TransactionSignable,
-  ZkSyncRpcTransaction,
-  ZkSyncRpcTransactionEIP712,
-  ZkSyncRpcTransactionPriority,
-  ZkSyncRpcTransactionReceiptOverrides,
-  ZkSyncRpcTransactionRequest,
-  ZkSyncRpcTransactionRequestEIP712,
-  ZkSyncTransaction,
-  ZkSyncTransactionEIP712,
-  ZkSyncTransactionReceipt,
-  ZkSyncTransactionReceiptOverrides,
-  ZkSyncTransactionRequest,
-  ZkSyncTransactionRequestEIP712,
-  ZkSyncTransactionSerializable,
-  ZkSyncTransactionSerializableEIP712,
-  ZkSyncTransactionSerialized,
-  ZkSyncTransactionSerializedEIP712,
-  ZkSyncTransactionType,
+  /** @deprecated Use `ZksyncTransactionRequest_internal` instead */
+  TransactionRequest as ZkSyncTransactionRequest_internal,
+  TransactionRequest as ZksyncTransactionRequest_internal,
+  /** @deprecated Use `ZksyncEIP712TransactionSignable` instead */
+  ZksyncEIP712TransactionSignable as ZkSyncEIP712TransactionSignable,
+  ZksyncEIP712TransactionSignable,
+  /** @deprecated Use `ZksyncRpcTransaction` instead */
+  ZksyncRpcTransaction as ZkSyncRpcTransaction,
+  ZksyncRpcTransaction,
+  /** @deprecated Use `ZksyncRpcTransactionEIP712` instead */
+  ZksyncRpcTransactionEIP712 as ZkSyncRpcTransactionEIP712,
+  ZksyncRpcTransactionEIP712,
+  /** @deprecated Use `ZksyncRpcTransactionPriority` instead */
+  ZksyncRpcTransactionPriority as ZkSyncRpcTransactionPriority,
+  ZksyncRpcTransactionPriority,
+  /** @deprecated Use `ZksyncRpcTransactionReceiptOverrides` instead */
+  ZksyncRpcTransactionReceiptOverrides as ZkSyncRpcTransactionReceiptOverrides,
+  ZksyncRpcTransactionReceiptOverrides,
+  /** @deprecated Use `ZksyncRpcTransactionRequest` instead */
+  ZksyncRpcTransactionRequest as ZkSyncRpcTransactionRequest,
+  ZksyncRpcTransactionRequest,
+  /** @deprecated Use `ZksyncRpcTransactionRequestEIP712` instead */
+  ZksyncRpcTransactionRequestEIP712 as ZkSyncRpcTransactionRequestEIP712,
+  ZksyncRpcTransactionRequestEIP712,
+  /** @deprecated Use `ZksyncTransaction` instead */
+  ZksyncTransaction as ZkSyncTransaction,
+  ZksyncTransaction,
+  /** @deprecated Use `ZksyncTransactionEIP712` instead */
+  ZksyncTransactionEIP712 as ZkSyncTransactionEIP712,
+  ZksyncTransactionEIP712,
+  /** @deprecated Use `ZksyncTransactionReceipt` instead */
+  ZksyncTransactionReceipt as ZkSyncTransactionReceipt,
+  ZksyncTransactionReceipt,
+  /** @deprecated Use `ZksyncTransactionReceiptOverrides` instead */
+  ZksyncTransactionReceiptOverrides as ZkSyncTransactionReceiptOverrides,
+  ZksyncTransactionReceiptOverrides,
+  /** @deprecated Use `ZksyncTransactionRequest` instead */
+  ZksyncTransactionRequest as ZkSyncTransactionRequest,
+  ZksyncTransactionRequest,
+  /** @deprecated Use `ZksyncTransactionRequestEIP712` instead */
+  ZksyncTransactionRequestEIP712 as ZkSyncTransactionRequestEIP712,
+  ZksyncTransactionRequestEIP712,
+  /** @deprecated Use `ZksyncTransactionSerializable` instead */
+  ZksyncTransactionSerializable as ZkSyncTransactionSerializable,
+  ZksyncTransactionSerializable,
+  /** @deprecated Use `ZksyncTransactionSerializableEIP712` instead */
+  ZksyncTransactionSerializableEIP712 as ZkSyncTransactionSerializableEIP712,
+  ZksyncTransactionSerializableEIP712,
+  /** @deprecated Use `ZksyncTransactionSerialized` instead */
+  ZksyncTransactionSerialized as ZkSyncTransactionSerialized,
+  ZksyncTransactionSerialized,
+  /** @deprecated Use `ZksyncTransactionSerializedEIP712` instead */
+  ZksyncTransactionSerializedEIP712 as ZkSyncTransactionSerializedEIP712,
+  ZksyncTransactionSerializedEIP712,
+  /** @deprecated Use `ZksyncTransactionType` instead */
+  ZksyncTransactionType as ZkSyncTransactionType,
+  ZksyncTransactionType,
+  /** @deprecated Use `ZksyncRawBlockTransactions` instead */
+  ZksyncRawBlockTransactions as ZkSyncRawBlockTransactions,
+  ZksyncRawBlockTransactions,
+  /** @deprecated Use `ZksyncRpcTransactionReceipt` instead */
+  ZksyncRpcTransactionReceipt as ZkSyncRpcTransactionReceipt,
+  ZksyncRpcTransactionReceipt,
+  /** @deprecated Use `ZksyncTransactionDetails` instead */
+  ZksyncTransactionDetails as ZkSyncTransactionDetails,
+  ZksyncTransactionDetails,
 } from '../zksync/types/transaction.js'

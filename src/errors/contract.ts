@@ -27,8 +27,6 @@ export type CallExecutionErrorType = CallExecutionError & {
 export class CallExecutionError extends BaseError {
   override cause: BaseError
 
-  override name = 'CallExecutionError'
-
   constructor(
     cause: BaseError,
     {
@@ -81,6 +79,7 @@ export class CallExecutionError extends BaseError {
         'Raw Call Arguments:',
         prettyArgs,
       ].filter(Boolean) as string[],
+      name: 'CallExecutionError',
     })
     this.cause = cause
   }
@@ -98,8 +97,6 @@ export class ContractFunctionExecutionError extends BaseError {
   formattedArgs?: string | undefined
   functionName: string
   sender?: Address | undefined
-
-  override name = 'ContractFunctionExecutionError'
 
   constructor(
     cause: BaseError,
@@ -152,9 +149,10 @@ export class ContractFunctionExecutionError extends BaseError {
         docsPath,
         metaMessages: [
           ...(cause.metaMessages ? [...cause.metaMessages, ' '] : []),
-          'Contract Call:',
+          prettyArgs && 'Contract Call:',
           prettyArgs,
         ].filter(Boolean) as string[],
+        name: 'ContractFunctionExecutionError',
       },
     )
     this.abi = abi
@@ -171,8 +169,6 @@ export type ContractFunctionRevertedErrorType =
     name: 'ContractFunctionRevertedError'
   }
 export class ContractFunctionRevertedError extends BaseError {
-  override name = 'ContractFunctionRevertedError'
-
   data?: DecodeErrorResultReturnType | undefined
   reason?: string | undefined
   signature?: Hex | undefined
@@ -251,6 +247,7 @@ export class ContractFunctionRevertedError extends BaseError {
       {
         cause,
         metaMessages,
+        name: 'ContractFunctionRevertedError',
       },
     )
 
@@ -265,7 +262,6 @@ export type ContractFunctionZeroDataErrorType =
     name: 'ContractFunctionZeroDataError'
   }
 export class ContractFunctionZeroDataError extends BaseError {
-  override name = 'ContractFunctionZeroDataError'
   constructor({ functionName }: { functionName: string }) {
     super(`The contract function "${functionName}" returned no data ("0x").`, {
       metaMessages: [
@@ -274,6 +270,7 @@ export class ContractFunctionZeroDataError extends BaseError {
         '  - The parameters passed to the contract function may be invalid, or',
         '  - The address is not a contract.',
       ],
+      name: 'ContractFunctionZeroDataError',
     })
   }
 }
@@ -283,7 +280,6 @@ export type CounterfactualDeploymentFailedErrorType =
     name: 'CounterfactualDeploymentFailedError'
   }
 export class CounterfactualDeploymentFailedError extends BaseError {
-  override name = 'CounterfactualDeploymentFailedError'
   constructor({ factory }: { factory?: Address | undefined }) {
     super(
       `Deployment for counterfactual contract call failed${
@@ -295,6 +291,7 @@ export class CounterfactualDeploymentFailedError extends BaseError {
           '- The `factory` is a valid contract deployment factory (ie. Create2 Factory, ERC-4337 Factory, etc).',
           '- The `factoryData` is a valid encoded function call for contract deployment function on the factory.',
         ],
+        name: 'CounterfactualDeploymentFailedError',
       },
     )
   }
@@ -305,7 +302,6 @@ export type RawContractErrorType = RawContractError & {
 }
 export class RawContractError extends BaseError {
   code = 3
-  override name = 'RawContractError'
 
   data?: Hex | { data?: Hex | undefined } | undefined
 
@@ -316,7 +312,7 @@ export class RawContractError extends BaseError {
     data?: Hex | { data?: Hex | undefined } | undefined
     message?: string | undefined
   }) {
-    super(message || '')
+    super(message || '', { name: 'RawContractError' })
     this.data = data
   }
 }

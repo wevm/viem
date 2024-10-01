@@ -1,4 +1,5 @@
 import { versionedHashVersionKzg } from '../../constants/kzg.js'
+import { maxUint256 } from '../../constants/number.js'
 import {
   InvalidAddressError,
   type InvalidAddressErrorType,
@@ -27,12 +28,34 @@ import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
+  TransactionSerializableEIP7702,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { size } from '../data/size.js'
 import { slice } from '../data/slice.js'
 import { hexToNumber } from '../encoding/fromHex.js'
+
+export type AssertTransactionEIP7702ErrorType =
+  | AssertTransactionEIP1559ErrorType
+  | InvalidAddressErrorType
+  | InvalidChainIdErrorType
+  | ErrorType
+
+export function assertTransactionEIP7702(
+  transaction: TransactionSerializableEIP7702,
+) {
+  const { authorizationList } = transaction
+  if (authorizationList) {
+    for (const authorization of authorizationList) {
+      const { contractAddress, chainId } = authorization
+      if (!isAddress(contractAddress))
+        throw new InvalidAddressError({ address: contractAddress })
+      if (chainId <= 0) throw new InvalidChainIdError({ chainId })
+    }
+  }
+  assertTransactionEIP1559(transaction as {} as TransactionSerializableEIP1559)
+}
 
 export type AssertTransactionEIP4844ErrorType =
   | AssertTransactionEIP1559ErrorType
@@ -77,7 +100,7 @@ export function assertTransactionEIP1559(
   const { chainId, maxPriorityFeePerGas, maxFeePerGas, to } = transaction
   if (chainId <= 0) throw new InvalidChainIdError({ chainId })
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
-  if (maxFeePerGas && maxFeePerGas > 2n ** 256n - 1n)
+  if (maxFeePerGas && maxFeePerGas > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
     maxPriorityFeePerGas &&
@@ -106,7 +129,7 @@ export function assertTransactionEIP2930(
     throw new BaseError(
       '`maxFeePerGas`/`maxPriorityFeePerGas` is not a valid EIP-2930 Transaction attribute.',
     )
-  if (gasPrice && gasPrice > 2n ** 256n - 1n)
+  if (gasPrice && gasPrice > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
 }
 
@@ -121,14 +144,8 @@ export type AssertTransactionLegacyErrorType =
 export function assertTransactionLegacy(
   transaction: TransactionSerializableLegacy,
 ) {
-  const {
-    chainId,
-    maxPriorityFeePerGas,
-    gasPrice,
-    maxFeePerGas,
-    to,
-    accessList,
-  } = transaction
+  const { chainId, maxPriorityFeePerGas, gasPrice, maxFeePerGas, to } =
+    transaction
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
   if (typeof chainId !== 'undefined' && chainId <= 0)
     throw new InvalidChainIdError({ chainId })
@@ -136,10 +153,6 @@ export function assertTransactionLegacy(
     throw new BaseError(
       '`maxFeePerGas`/`maxPriorityFeePerGas` is not a valid Legacy Transaction attribute.',
     )
-  if (gasPrice && gasPrice > 2n ** 256n - 1n)
+  if (gasPrice && gasPrice > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
-  if (accessList)
-    throw new BaseError(
-      '`accessList` is not a valid Legacy Transaction attribute.',
-    )
 }

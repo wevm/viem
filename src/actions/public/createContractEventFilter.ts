@@ -47,11 +47,11 @@ export type CreateContractEventFilterParameters<
   ? {
       args?: undefined
     }
-  : MaybeExtractEventArgsFromAbi<abi, eventName> extends infer TEventFilterArgs
+  : MaybeExtractEventArgsFromAbi<abi, eventName> extends infer eventFilterArgs
     ? {
         args?:
-          | TEventFilterArgs
-          | (args extends TEventFilterArgs ? args : never)
+          | eventFilterArgs
+          | (args extends eventFilterArgs ? args : never)
           | undefined
       }
     : {

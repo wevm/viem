@@ -39,11 +39,9 @@ export type GetAddressesErrorType =
  * const accounts = await getAddresses(client)
  */
 export async function getAddresses<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined = undefined,
->(
-  client: Client<Transport, TChain, TAccount>,
-): Promise<GetAddressesReturnType> {
+  chain extends Chain | undefined,
+  account extends Account | undefined = undefined,
+>(client: Client<Transport, chain, account>): Promise<GetAddressesReturnType> {
   if (client.account?.type === 'local') return [client.account.address]
   const addresses = await client.request(
     { method: 'eth_accounts' },

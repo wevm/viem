@@ -20,6 +20,7 @@ import { decodeDeployData } from 'viem'
 
 ```ts [example.ts]
 import { decodeDeployData } from 'viem'
+import { wagmiAbi } from './abi.ts'
 
 const { args } = decodeDeployData({
   abi: wagmiAbi,
@@ -29,7 +30,7 @@ const { args } = decodeDeployData({
 // { args: [69420n], bytecode: '0x6080604...' }
 ```
 
-```ts
+```ts [abi.ts]
 export const wagmiAbi = [
   ...
   {
