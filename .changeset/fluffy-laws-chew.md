@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add zircuit mainnet chain
+Added Zircuit chain.
