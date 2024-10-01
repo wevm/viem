@@ -12,10 +12,10 @@ import {
   optimism, // [!code hl]
   optimismGoerli, // [!code hl]
   optimismSepolia, // [!code hl]
+  soneiumMinato, // [!code hl]
   zora, // [!code hl]
   zoraSepolia, // [!code hl]
   zoraTestnet, // [!code hl]
-  soneiumMinato, // [!code hl]
 } from 'viem/chains'
 ```
 
