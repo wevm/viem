@@ -125,7 +125,7 @@ test('default', async () => {
   expect(parsedLogs.length).toBe(1135)
   expect(parsedLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xc56c7a0eaa804f854b536a5f3d5f49d2ec4b12b8",
+      "address": "0xc56C7A0eAA804f854B536A5F3D5f49D2EC4B12b8",
       "args": {
         "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
         "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
@@ -865,7 +865,7 @@ test('args: eventName', async () => {
   expect(transferLogs.length).toBe(958)
   expect(transferLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xc56c7a0eaa804f854b536a5f3d5f49d2ec4b12b8",
+      "address": "0xc56C7A0eAA804f854B536A5F3D5f49D2EC4B12b8",
       "args": {
         "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
         "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
@@ -895,7 +895,7 @@ test('args: eventName', async () => {
   expect(approvalLogs.length).toBe(177)
   expect(approvalLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xc56c7a0eaa804f854b536a5f3d5f49d2ec4b12b8",
+      "address": "0xc56C7A0eAA804f854B536A5F3D5f49D2EC4B12b8",
       "args": {
         "owner": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
         "spender": "0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f",
@@ -925,7 +925,7 @@ test('args: eventName', async () => {
   expect(contractLogs.length).toBe(1135)
   expect(contractLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xc56c7a0eaa804f854b536a5f3d5f49d2ec4b12b8",
+      "address": "0xc56C7A0eAA804f854B536A5F3D5f49D2EC4B12b8",
       "args": {
         "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
         "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
@@ -962,7 +962,7 @@ test('args: strict', async () => {
   expect(parsedLogs.length).toBe(1152)
   expect(parsedLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xc56c7a0eaa804f854b536a5f3d5f49d2ec4b12b8",
+      "address": "0xc56C7A0eAA804f854B536A5F3D5f49D2EC4B12b8",
       "args": {
         "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
         "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
