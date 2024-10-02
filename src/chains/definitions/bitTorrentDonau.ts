@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const bitTorrentTestnet = /*#__PURE__*/ defineChain({
-  id: 1028,
+  id: 1029,
   name: 'BitTorrent Chain Donau',
   network: 'bittorrent-chain-donau',
   nativeCurrency: { name: 'BitTorrent', symbol: 'BTT', decimals: 18 },
