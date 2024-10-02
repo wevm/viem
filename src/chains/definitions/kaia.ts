@@ -14,7 +14,7 @@ export const kaia = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'KaiaScan',
-      url: 'https://kaiascan.com/',
+      url: 'https://kaiascan.com',
       apiUrl: 'https://api-cypress.klaytnscope.com/api',
     },
   },
