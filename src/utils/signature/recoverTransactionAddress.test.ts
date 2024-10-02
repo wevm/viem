@@ -134,7 +134,7 @@ test('via `getTransaction`', async () => {
   const address = await recoverTransactionAddress({
     serializedTransaction,
   })
-  expect(address.toLowerCase()).toBe(transaction.from)
+  expect(address).toBe(transaction.from)
 })
 
 test('legacy', async () => {
