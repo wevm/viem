@@ -43,6 +43,8 @@ export { bevmMainnet } from './definitions/bevmMainnet.js'
 export { bitkub } from './definitions/bitkub.js'
 export { bitkubTestnet } from './definitions/bitkubTestnet.js'
 export { bitTorrent } from './definitions/bitTorrent.js'
+export { bitTorrentDonau } from './definitions/bitTorrentDonau.js'
+/** @deprecated Use `bitTorrentDonau` instead. */
 export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js'
 export { blast } from './definitions/blast.js'
 export { blastSepolia } from './definitions/blastSepolia.js'
