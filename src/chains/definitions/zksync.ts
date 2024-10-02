@@ -33,5 +33,9 @@ export const zksync = /*#__PURE__*/ defineChain({
     multicall3: {
       address: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
     },
+    universalSignatureVerifier: {
+      address: '0x872146211f996755C8729042093ffb8660F8b129',
+      blockCreated: 45659388,
+    },
   },
 })

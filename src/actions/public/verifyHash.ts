@@ -1,10 +1,12 @@
 import type { Address } from 'abitype'
 
+import { encodeFunctionData, hexToBool } from '~viem/utils/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { universalSignatureValidatorAbi } from '../../constants/abis.js'
 import { universalSignatureValidatorByteCode } from '../../constants/contracts.js'
 import { CallExecutionError } from '../../errors/contract.js'
+import type { InvalidHexBooleanError } from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
@@ -15,10 +17,6 @@ import {
 } from '../../utils/abi/encodeDeployData.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
-import {
-  type IsBytesEqualErrorType,
-  isBytesEqual,
-} from '../../utils/data/isBytesEqual.js'
 import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
 import { type ToHexErrorType, bytesToHex } from '../../utils/encoding/toHex.js'
 import { getAction } from '../../utils/getAction.js'
@@ -46,7 +44,7 @@ export type VerifyHashErrorType =
   | CallErrorType
   | IsHexErrorType
   | ToHexErrorType
-  | IsBytesEqualErrorType
+  | InvalidHexBooleanError
   | EncodeDeployDataErrorType
   | ErrorType
 
@@ -88,20 +86,29 @@ export async function verifyHash<chain extends Chain | undefined>(
   })()
 
   try {
-    const { data } = await getAction(
-      client,
-      call,
-      'call',
-    )({
-      data: encodeDeployData({
-        abi: universalSignatureValidatorAbi,
-        args: [address, hash, wrappedSignature],
-        bytecode: universalSignatureValidatorByteCode,
-      }),
-      ...rest,
-    } as unknown as CallParameters)
+    const callParameters: CallParameters = client.chain?.contracts
+      ?.universalSignatureVerifier
+      ? ({
+          to: client.chain.contracts.universalSignatureVerifier.address,
+          data: encodeFunctionData({
+            abi: universalSignatureValidatorAbi,
+            functionName: 'isValidUniversalSig',
+            args: [address, hash, wrappedSignature],
+          }),
+          ...rest,
+        } as unknown as CallParameters)
+      : ({
+          data: encodeDeployData({
+            abi: universalSignatureValidatorAbi,
+            args: [address, hash, wrappedSignature],
+            bytecode: universalSignatureValidatorByteCode,
+          }),
+          ...rest,
+        } as unknown as CallParameters)
 
-    return isBytesEqual(data ?? '0x0', '0x1')
+    const { data } = await getAction(client, call, 'call')(callParameters)
+
+    return hexToBool(data ?? '0x0')
   } catch (error) {
     // Fallback attempt to verify the signature via ECDSA recovery.
     try {
