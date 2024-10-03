@@ -30,8 +30,11 @@ export const fees: ChainFees<typeof formatters> = {
       ),
     ])
 
+    const suggestedMaxFeePerGas =
+      params.multiply(maxFeePerGas) + maxPriorityFeePerGas
+
     return {
-      maxFeePerGas,
+      maxFeePerGas: suggestedMaxFeePerGas,
       maxPriorityFeePerGas,
     }
   },
