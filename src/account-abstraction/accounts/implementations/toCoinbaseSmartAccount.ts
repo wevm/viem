@@ -116,12 +116,12 @@ export async function toCoinbaseSmartAccount(
     },
 
     async getAddress() {
-      address ??= await readContract(client, {
+      if (address) return address
+      return await readContract(client, {
         ...factory,
         functionName: 'getAddress',
         args: [owners_bytes, nonce],
       })
-      return address
     },
 
     async getFactoryArgs() {
