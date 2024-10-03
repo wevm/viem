@@ -497,7 +497,9 @@ describe('args: args', () => {
       abi,
       logs,
       args: {
+        owner: null,
         spender: '0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f',
+        value: undefined,
       },
     })
     expect(parsedLogs).toMatchInlineSnapshot(`
