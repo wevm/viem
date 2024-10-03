@@ -6,13 +6,16 @@ export const zircuitTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://zircuit1.p2pify.com'],
+      http: [
+        'https://zircuit1-testnet.p2pify.com',
+        'https://zircuit1-testnet.liquify.com',
+      ],
     },
   },
   blockExplorers: {
     default: {
-      name: 'Zircuit Explorer',
-      url: 'https://explorer.zircuit.com',
+      name: 'Zircuit Testnet Explorer',
+      url: 'https://explorer.testnet.zircuit.com',
     },
   },
   contracts: {
@@ -21,4 +24,5 @@ export const zircuitTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 6040287,
     },
   },
+  testnet: true,
 })
