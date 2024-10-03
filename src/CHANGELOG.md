@@ -1,5 +1,19 @@
 # viem
 
+## 2.21.18
+
+### Patch Changes
+
+- [#2811](https://github.com/wevm/viem/pull/2811) [`03df7fbe`](https://github.com/wevm/viem/commit/03df7fbe0da3332a3ceee645d7ec6ede2a832010) Thanks [@shazarre](https://github.com/shazarre)! - Fixed Celo maxFeePerGas calculation for fee currency transactions.
+
+- [#2817](https://github.com/wevm/viem/pull/2817) [`7c3653b2`](https://github.com/wevm/viem/commit/7c3653b2a1dda1876be396c587bf39da630dca72) Thanks [@0xArdy](https://github.com/0xArdy)! - Fixed Mode and Lisk chain definitions
+
+- [#2813](https://github.com/wevm/viem/pull/2813) [`3e971248`](https://github.com/wevm/viem/commit/3e97124837095b53bfbbd7d9f5614c0afff276e6) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Hemi Sepolia chain.
+
+- [`da5a7b6f`](https://github.com/wevm/viem/commit/da5a7b6f54ecd813379259f6d5ceab56a4e7aac3) Thanks [@jxom](https://github.com/jxom)! - Added `mode` property to `TestClient.extends`.
+
+- [#2818](https://github.com/wevm/viem/pull/2818) [`ce989d81`](https://github.com/wevm/viem/commit/ce989d81abefb825278d0748aef9e0ee6be79c91) Thanks [@GuillermoEscobero](https://github.com/GuillermoEscobero)! - Fixed Zircuit Testnet explorer and RPC URLs.
+
 ## 2.21.17
 
 ### Patch Changes
