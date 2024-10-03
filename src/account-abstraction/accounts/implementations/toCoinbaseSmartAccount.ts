@@ -71,6 +71,7 @@ export async function toCoinbaseSmartAccount(
   parameters: ToCoinbaseSmartAccountParameters,
 ): Promise<ToCoinbaseSmartAccountReturnType> {
   const { client, owners, nonce = 0n } = parameters
+  
   let address = parameters.address
 
   const entryPoint = {
