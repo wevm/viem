@@ -72,7 +72,7 @@ export async function toCoinbaseSmartAccount(
 ): Promise<ToCoinbaseSmartAccountReturnType> {
   const { client, owners, nonce = 0n } = parameters
 
-  const address = parameters.address
+  let address = parameters.address
 
   const entryPoint = {
     abi: entryPoint06Abi,
@@ -117,12 +117,12 @@ export async function toCoinbaseSmartAccount(
     },
 
     async getAddress() {
-      if (address) return address
-      return await readContract(client, {
+      address ??= await readContract(client, {
         ...factory,
         functionName: 'getAddress',
         args: [owners_bytes, nonce],
       })
+      return address
     },
 
     async getFactoryArgs() {
