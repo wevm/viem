@@ -409,7 +409,7 @@ export async function prepareUserOperation<
           bundlerClient,
           userOperation: request as UserOperation,
         })
-        request = {
+        return {
           ...request,
           ...fees,
         }
