@@ -17,5 +17,5 @@ export const matchainTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet.matchscan.io',
     },
   },
-  testnet: true
+  testnet: true,
 })
