@@ -246,7 +246,7 @@ export const universalSignatureValidatorAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    name: 'isValidUniversalSig',
+    name: 'isValidSig',
   },
 ] as const
 

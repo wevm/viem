@@ -20,7 +20,7 @@ contract VerifySig {
     /**
      * @notice Verifies that the signature is valid for that signer and hash
      */
-    function isValidUniversalSig(
+    function isValidSig(
         address _signer,
         bytes32 _hash,
         bytes memory _signature

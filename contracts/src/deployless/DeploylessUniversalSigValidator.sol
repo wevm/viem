@@ -7,9 +7,9 @@ import { VerifySig } from "../UniversalSigValidator.sol";
 
 contract DeploylessVerifySig is VerifySig {
     constructor(address _signer, bytes32 _hash, bytes memory _signature) {
-        bool isValidSig = isValidUniversalSig(_signer, _hash, _signature);
+        bool isValid = isValidSig(_signer, _hash, _signature);
         assembly {
-            mstore(0, isValidSig)
+            mstore(0, isValid)
             return(31, 1)
         }
     }

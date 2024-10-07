@@ -92,7 +92,7 @@ export async function verifyHash<chain extends Chain | undefined>(
           to: client.chain.contracts.universalSignatureVerifier.address,
           data: encodeFunctionData({
             abi: universalSignatureValidatorAbi,
-            functionName: 'isValidUniversalSig',
+            functionName: 'isValidSig',
             args: [address, hash, wrappedSignature],
           }),
           ...rest,
