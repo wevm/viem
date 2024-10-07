@@ -13,6 +13,7 @@ Useful for obtaining the address of a message that was signed with [`signMessage
 :::code-group
 
 ```ts [example.ts]
+import { recoverMessageAddress } from 'viem';
 import { account, walletClient } from './config'
  
 const signature = await walletClient.signMessage({

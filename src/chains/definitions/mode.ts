@@ -1,8 +1,10 @@
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
 export const mode = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 34443,
   name: 'Mode Mainnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -18,6 +20,7 @@ export const mode = /*#__PURE__*/ defineChain({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 2465882,

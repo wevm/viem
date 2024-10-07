@@ -14,8 +14,8 @@ export const kairos = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'KaiaScope',
-      url: 'https://kairos.kaiascope.com',
+      name: 'KaiaScan',
+      url: 'https://kairos.kaiascan.io',
     },
   },
   contracts: {

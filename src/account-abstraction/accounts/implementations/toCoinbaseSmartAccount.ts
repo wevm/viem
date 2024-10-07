@@ -70,7 +70,9 @@ export type CoinbaseSmartAccountImplementation = Assign<
 export async function toCoinbaseSmartAccount(
   parameters: ToCoinbaseSmartAccountParameters,
 ): Promise<ToCoinbaseSmartAccountReturnType> {
-  const { address, client, owners, nonce = 0n } = parameters
+  const { client, owners, nonce = 0n } = parameters
+
+  let address = parameters.address
 
   const entryPoint = {
     abi: entryPoint06Abi,
@@ -115,12 +117,12 @@ export async function toCoinbaseSmartAccount(
     },
 
     async getAddress() {
-      if (address) return address
-      return await readContract(client, {
+      address ??= await readContract(client, {
         ...factory,
         functionName: 'getAddress',
         args: [owners_bytes, nonce],
       })
+      return address
     },
 
     async getFactoryArgs() {

@@ -1,5 +1,53 @@
 # viem
 
+## 2.21.19
+
+### Patch Changes
+
+- [#2825](https://github.com/wevm/viem/pull/2825) [`66d7a1c9`](https://github.com/wevm/viem/commit/66d7a1c9685faa5c14b8ab7a6d02d5cbf5911319) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added Matchain.
+
+- [`44ae1a55`](https://github.com/wevm/viem/commit/44ae1a5549e704486f2643c67f222ab3ce87cd47) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Tweaked address caching in `toCoinbaseSmartAccount`.
+
+- [#2827](https://github.com/wevm/viem/pull/2827) [`3fd43329`](https://github.com/wevm/viem/commit/3fd4332902b1181ae5332c2311bb3ba8725ad37b) Thanks [@posquit0](https://github.com/posquit0)! - Added bsquared chains
+
+- [#2826](https://github.com/wevm/viem/pull/2826) [`4b1c3f1a`](https://github.com/wevm/viem/commit/4b1c3f1a0ab5972451f509a30616cd0826e418da) Thanks [@posquit0](https://github.com/posquit0)! - Added bitlayer chains
+
+- [`04850399`](https://github.com/wevm/viem/commit/04850399fcc41a06c0aab7500f654665ead0c828) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [`a965c5aa`](https://github.com/wevm/viem/commit/a965c5aa2f30a62b321d5cc5c908229b7c3a34aa) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Fixed User Operation fee estimation when a Bundler Client contains custom `estimateFeesPerGas` hook.
+
+- [#2822](https://github.com/wevm/viem/pull/2822) [`2bc5ff14`](https://github.com/wevm/viem/commit/2bc5ff146b52405c62f9d6996f66e0b39840b6ea) Thanks [@swetshaw](https://github.com/swetshaw)! - Added Kakarot Starknet Sepolia chain.
+
+## 2.21.18
+
+### Patch Changes
+
+- [#2811](https://github.com/wevm/viem/pull/2811) [`03df7fbe`](https://github.com/wevm/viem/commit/03df7fbe0da3332a3ceee645d7ec6ede2a832010) Thanks [@shazarre](https://github.com/shazarre)! - Fixed Celo maxFeePerGas calculation for fee currency transactions.
+
+- [#2817](https://github.com/wevm/viem/pull/2817) [`7c3653b2`](https://github.com/wevm/viem/commit/7c3653b2a1dda1876be396c587bf39da630dca72) Thanks [@0xArdy](https://github.com/0xArdy)! - Fixed Mode and Lisk chain definitions
+
+- [#2813](https://github.com/wevm/viem/pull/2813) [`3e971248`](https://github.com/wevm/viem/commit/3e97124837095b53bfbbd7d9f5614c0afff276e6) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Hemi Sepolia chain.
+
+- [`da5a7b6f`](https://github.com/wevm/viem/commit/da5a7b6f54ecd813379259f6d5ceab56a4e7aac3) Thanks [@jxom](https://github.com/jxom)! - Added `mode` property to `TestClient.extends`.
+
+- [#2818](https://github.com/wevm/viem/pull/2818) [`ce989d81`](https://github.com/wevm/viem/commit/ce989d81abefb825278d0748aef9e0ee6be79c91) Thanks [@GuillermoEscobero](https://github.com/GuillermoEscobero)! - Fixed Zircuit Testnet explorer and RPC URLs.
+
+## 2.21.17
+
+### Patch Changes
+
+- [`2bf96a29`](https://github.com/wevm/viem/commit/2bf96a292e7a253716e32a4daddf5287375f9937) Thanks [@jxom](https://github.com/jxom)! - Accounted for undefined indexed arguments in `parseEventLogs`.
+
+- [#2803](https://github.com/wevm/viem/pull/2803) [`08da9bd5`](https://github.com/wevm/viem/commit/08da9bd54776744dab82cfb574b6a9bca37c4bda) Thanks [@kevinb1003](https://github.com/kevinb1003)! - Added Zircuit chain.
+
+- [#2800](https://github.com/wevm/viem/pull/2800) [`be02ea54`](https://github.com/wevm/viem/commit/be02ea54044b6645aa756a0cbb08f4d41fbebaa9) Thanks [@CeoFred](https://github.com/CeoFred)! - Added `assetChain` chain.
+
+- [#2798](https://github.com/wevm/viem/pull/2798) [`0f83248f`](https://github.com/wevm/viem/commit/0f83248faf93ccab82f768c04eafb230d3d5bbc4) Thanks [@aaronmgdr](https://github.com/aaronmgdr)! - Added OP Stack contracts to Celo Alfajores.
+
+- [#2799](https://github.com/wevm/viem/pull/2799) [`5b50774c`](https://github.com/wevm/viem/commit/5b50774c1069db7183ccfa4468290b1c87678182) Thanks [@impelcrypto](https://github.com/impelcrypto)! - Updated Soneium Minato Testnet
+
+- [#2805](https://github.com/wevm/viem/pull/2805) [`74be4c3b`](https://github.com/wevm/viem/commit/74be4c3bcbbbab6c4d21e856f11701a17816e001) Thanks [@0oooooooo0](https://github.com/0oooooooo0)! - Updated Kaia Chain explorer.
+
 ## 2.21.16
 
 ### Patch Changes

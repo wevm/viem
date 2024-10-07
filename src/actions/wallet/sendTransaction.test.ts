@@ -874,7 +874,7 @@ describe('local account', () => {
 
     const receipt = await getTransactionReceipt(client, { hash })
     const log = receipt.logs[0]
-    expect(log.address).toBe(authority.address.toLowerCase())
+    expect(log.address).toBe(authority.address)
     expect(
       decodeEventLog({
         abi: BatchCallInvoker.abi,
@@ -945,7 +945,7 @@ describe('local account', () => {
 
     const receipt = await getTransactionReceipt(client, { hash })
     const log = receipt.logs[0]
-    expect(log.address).toBe(authority.address.toLowerCase())
+    expect(log.address).toBe(authority.address)
     expect(
       decodeEventLog({
         abi: BatchCallInvoker.abi,

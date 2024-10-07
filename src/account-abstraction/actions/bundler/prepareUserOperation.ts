@@ -409,7 +409,7 @@ export async function prepareUserOperation<
           bundlerClient,
           userOperation: request as UserOperation,
         })
-        request = {
+        return {
           ...request,
           ...fees,
         }
@@ -424,7 +424,7 @@ export async function prepareUserOperation<
 
       // Otherwise, we will need to estimate the fees to fill the fee properties.
       try {
-        const client_ = 'client' in client ? (client.client as Client) : client
+        const client_ = bundlerClient.client ?? client
         const fees = await getAction(
           client_,
           estimateFeesPerGas,
@@ -567,7 +567,7 @@ export async function prepareUserOperation<
         typeof request.paymasterVerificationGasLimit === 'undefined')
     ) {
       const gas = await getAction(
-        client,
+        bundlerClient,
         estimateUserOperationGas,
         'estimateUserOperationGas',
       )({

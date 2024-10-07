@@ -30,8 +30,8 @@ describe('celo/fees', () => {
     const requestMock = vi.spyOn(client, 'request')
     // @ts-ignore
     requestMock.mockImplementation((request) => {
-      if (request.method === 'eth_gasPrice') return '11619349802'
-      if (request.method === 'eth_maxPriorityFeePerGas') return '2323869960'
+      if (request.method === 'eth_gasPrice') return '15057755162'
+      if (request.method === 'eth_maxPriorityFeePerGas') return '602286'
       return
     })
 
@@ -39,6 +39,7 @@ describe('celo/fees', () => {
 
     const fees = await celoestimateFeesPerGasFn({
       client,
+      multiply: (value: bigint) => (value * 150n) / 100n,
       request: {
         feeCurrency: '0xfee',
       },
@@ -46,8 +47,8 @@ describe('celo/fees', () => {
 
     expect(fees).toMatchInlineSnapshot(`
         {
-          "maxFeePerGas": 11619349802n,
-          "maxPriorityFeePerGas": 2323869960n,
+          "maxFeePerGas": 22587235029n,
+          "maxPriorityFeePerGas": 602286n,
         }
       `)
     expect(requestMock).toHaveBeenCalledWith({

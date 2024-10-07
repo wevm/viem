@@ -198,7 +198,7 @@ test('args: authorizationList', async () => {
 
   const receipt = await getTransactionReceipt(client, { hash })
   const log = receipt.logs[0]
-  expect(log.address).toBe(authority.address.toLowerCase())
+  expect(log.address).toBe(authority.address)
   expect(
     decodeEventLog({
       abi: BatchCallInvoker.abi,
@@ -267,7 +267,7 @@ test('args: authorizationList (delegate)', async () => {
 
   const receipt = await getTransactionReceipt(client, { hash })
   const log = receipt.logs[0]
-  expect(log.address).toBe(authority.address.toLowerCase())
+  expect(log.address).toBe(authority.address)
   expect(
     decodeEventLog({
       abi: BatchCallInvoker.abi,

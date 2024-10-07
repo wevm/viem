@@ -1911,7 +1911,7 @@ describe('return value: getFactoryArgs', () => {
     expect(signature).toMatchInlineSnapshot(
       `
       {
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xfb6dAB6200b8958C2655C3747708F82243d3F32E",
         "factoryData": "0xf14ddffc00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000000000000000000",
       }
     `,

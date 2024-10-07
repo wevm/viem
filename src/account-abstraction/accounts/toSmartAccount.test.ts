@@ -981,7 +981,7 @@ test('return value: `getFactoryArgs`', async () => {
 
   expect(await account.getFactoryArgs()).toMatchInlineSnapshot(`
     {
-      "factory": "0x82a9286db983093ff234cefcea1d8fa66382876b",
+      "factory": "0x82A9286dB983093Ff234cefCea1d8fA66382876B",
       "factoryData": "0xf14ddffc00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000000000000000000",
     }
   `)
