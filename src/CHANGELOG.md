@@ -1,5 +1,23 @@
 # viem
 
+## 2.21.19
+
+### Patch Changes
+
+- [#2825](https://github.com/wevm/viem/pull/2825) [`66d7a1c9`](https://github.com/wevm/viem/commit/66d7a1c9685faa5c14b8ab7a6d02d5cbf5911319) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added Matchain.
+
+- [`44ae1a55`](https://github.com/wevm/viem/commit/44ae1a5549e704486f2643c67f222ab3ce87cd47) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Tweaked address caching in `toCoinbaseSmartAccount`.
+
+- [#2827](https://github.com/wevm/viem/pull/2827) [`3fd43329`](https://github.com/wevm/viem/commit/3fd4332902b1181ae5332c2311bb3ba8725ad37b) Thanks [@posquit0](https://github.com/posquit0)! - Added bsquared chains
+
+- [#2826](https://github.com/wevm/viem/pull/2826) [`4b1c3f1a`](https://github.com/wevm/viem/commit/4b1c3f1a0ab5972451f509a30616cd0826e418da) Thanks [@posquit0](https://github.com/posquit0)! - Added bitlayer chains
+
+- [`04850399`](https://github.com/wevm/viem/commit/04850399fcc41a06c0aab7500f654665ead0c828) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [`a965c5aa`](https://github.com/wevm/viem/commit/a965c5aa2f30a62b321d5cc5c908229b7c3a34aa) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Fixed User Operation fee estimation when a Bundler Client contains custom `estimateFeesPerGas` hook.
+
+- [#2822](https://github.com/wevm/viem/pull/2822) [`2bc5ff14`](https://github.com/wevm/viem/commit/2bc5ff146b52405c62f9d6996f66e0b39840b6ea) Thanks [@swetshaw](https://github.com/swetshaw)! - Added Kakarot Starknet Sepolia chain.
+
 ## 2.21.18
 
 ### Patch Changes
