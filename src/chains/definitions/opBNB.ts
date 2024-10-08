@@ -17,7 +17,7 @@ export const opBNB = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'opBNB (BSCScan)',
-      url: 'https://opbnb.bscscan.com/',
+      url: 'https://opbnb.bscscan.com',
       apiUrl: 'https://api-opbnb.bscscan.com/api'
     },
   },
