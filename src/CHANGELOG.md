@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.20
+
+### Patch Changes
+
+- [#2828](https://github.com/wevm/viem/pull/2828) [`fa546476`](https://github.com/wevm/viem/commit/fa5464766509a1806b0726ddea11e3ea2af34500) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated opBNB Explorer URLs.
+
+- [#2832](https://github.com/wevm/viem/pull/2832) [`4c928cba`](https://github.com/wevm/viem/commit/4c928cbaa01f89ba78989efa390579cb60a6759c) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added MAP Protocol chain.
+
+- [#2830](https://github.com/wevm/viem/pull/2830) [`690f6f50`](https://github.com/wevm/viem/commit/690f6f507c86657336c102dec29d6740b3653691) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Go Chain.
+
 ## 2.21.19
 
 ### Patch Changes
