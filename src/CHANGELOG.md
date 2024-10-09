@@ -1,5 +1,11 @@
 # viem
 
+## 2.21.21
+
+### Patch Changes
+
+- [#2834](https://github.com/wevm/viem/pull/2834) [`10dcb7ab`](https://github.com/wevm/viem/commit/10dcb7ab6ac5ecf1e46e8afa3245ffc21e245365) Thanks [@LordMarkDev](https://github.com/LordMarkDev)! - Added Zenchain Testnet
+
 ## 2.21.20
 
 ### Patch Changes
