@@ -156,7 +156,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -169,7 +169,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.5.4)(zod@3.22.4)
+        version: 2.21.19(typescript@5.5.4)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -182,7 +182,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -195,7 +195,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -208,7 +208,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -227,7 +227,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -255,7 +255,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -277,7 +277,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -290,7 +290,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -309,7 +309,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -331,7 +331,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -344,7 +344,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -357,7 +357,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -370,7 +370,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -417,7 +417,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -445,7 +445,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.5.4)(zod@3.22.4)
+        version: 2.21.19(typescript@5.5.4)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -467,7 +467,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -486,7 +486,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -520,7 +520,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       viem:
         specifier: latest
-        version: 2.21.18(typescript@5.4.2)(zod@3.22.4)
+        version: 2.21.19(typescript@5.4.2)(zod@3.22.4)
     devDependencies:
       '@types/react':
         specifier: ^18.0.27
@@ -586,9 +586,6 @@ importers:
   test: {}
 
 packages:
-
-  '@adraffy/ens-normalize@1.10.0':
-    resolution: {integrity: sha512-nA9XHtlAkYfJxY7bce8DcN7eKxWWCWkU+1GR9d+U6MbNpfwQp8TI7vqOsBsMcHoT4mBu2kypKoSKnghEzOOq5Q==}
 
   '@adraffy/ens-normalize@1.11.0':
     resolution: {integrity: sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==}
@@ -1493,9 +1490,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@noble/curves@1.4.0':
-    resolution: {integrity: sha512-p+4cb332SFCrReJkCYe8Xzm0OWi4Jji5jVdIZRL/PmacmDkFNw6MrrV+gGpiPxLHbV+zKFRywUWbaseT+tZRXg==}
-
   '@noble/curves@1.6.0':
     resolution: {integrity: sha512-TlaHRXDehJuRNR9TfZDNQ45mMEd5dwUwmicsafcIX4SsNiqnCHKjE/1alYPd/lDRVhxdhUAlv8uEhMCI5zjIJQ==}
     engines: {node: ^14.21.3 || >=16}
@@ -2346,9 +2340,6 @@ packages:
   '@scure/base@1.1.8':
     resolution: {integrity: sha512-6CyAclxj3Nb0XT7GHK6K4zK6k2xJm6E4Ft0Ohjt4WgegiFUHEtFb2CGzmPmGBwoIhrLsqNLYfLr04Y1GePrzZg==}
 
-  '@scure/bip32@1.4.0':
-    resolution: {integrity: sha512-sVUpc0Vq3tXCkDGYVWGIZTRfnvu8LoTDaev7vbwh0omSvVORONr960MQWdKqJDCReIEmTj3PAr73O3aoxz7OPg==}
-
   '@scure/bip32@1.5.0':
     resolution: {integrity: sha512-8EnFYkqEQdnkuGBVpCzKxyIwDCBLDVj3oiX0EKUFre/tOjL/Hqba1D6n/8RcmaQy4f95qQFrO2A8Sr6ybh4NRw==}
 
@@ -2833,17 +2824,6 @@ packages:
       typescript: '>=5.0.4'
       zod: ^3 >=3.19.1
     peerDependenciesMeta:
-      zod:
-        optional: true
-
-  abitype@1.0.5:
-    resolution: {integrity: sha512-YzDhti7cjlfaBhHutMaboYB21Ha3rXR9QTkNJFzYC4kC8YclaiwPBBBJY8ejFdu2wnJeZCVZSMlQJ7fi8S6hsw==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-      zod: ^3 >=3.22.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
       zod:
         optional: true
 
@@ -4441,11 +4421,6 @@ packages:
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
-
-  isows@1.0.4:
-    resolution: {integrity: sha512-hEzjY+x9u9hPmBom9IIAqdJCwNLax+xrPb51vEPpERoFlIxgmZcHzsT5jKG06nvInKOBGvReAVz80Umed5CczQ==}
-    peerDependencies:
-      ws: '*'
 
   isows@1.0.6:
     resolution: {integrity: sha512-lPHCayd40oW98/I0uvgaHKWCSvkzY27LjWLbtzOm64yQ+G3Q5npjjbdppU65iZXkK1Zt+kH9pfegli0AYfwYYw==}
@@ -6658,8 +6633,8 @@ packages:
   vfile@6.0.1:
     resolution: {integrity: sha512-1bYqc7pt6NIADBJ98UiG0Bn/CHIVOoZ/IyEkqIruLg0mE1BKzkOXY2D6CSqQIcKqgadppE5lrxgWXJmXd7zZJw==}
 
-  viem@2.21.18:
-    resolution: {integrity: sha512-CuZpymwBsuK2/YNDJE06EXxpfYs71X4v5ZwiGV5RczLKOwfHa/XuM3+GKbAoKCVeQ/tFt5n8XeHsMnbvEAauTg==}
+  viem@2.21.19:
+    resolution: {integrity: sha512-FdlkN+UI1IU5sYOmzvygkxsUNjDRD5YHht3gZFu2X9xFv6Z3h9pXq9ycrYQ3F17lNfb41O2Ot4/aqbUkwOv9dA==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -6789,9 +6764,6 @@ packages:
   webauthn-p256@0.0.10:
     resolution: {integrity: sha512-EeYD+gmIT80YkSIDb2iWq0lq2zbHo1CxHlQTeJ+KkCILWpVy3zASH3ByD4bopzfk0uCwXxLqKGLqp2W4O28VFA==}
 
-  webauthn-p256@0.0.5:
-    resolution: {integrity: sha512-drMGNWKdaixZNobeORVIqq7k5DsRC9FnG201K2QjeOoQLmtSDaSsVZdkg6n5jUALJKcAG++zBPJXmv6hy0nWFg==}
-
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
@@ -6869,18 +6841,6 @@ packages:
 
   ws@8.16.0:
     resolution: {integrity: sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
-  ws@8.17.1:
-    resolution: {integrity: sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -6998,8 +6958,6 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
-
-  '@adraffy/ens-normalize@1.10.0': {}
 
   '@adraffy/ens-normalize@1.11.0': {}
 
@@ -7904,10 +7862,6 @@ snapshots:
   '@next/swc-win32-x64-msvc@13.5.4':
     optional: true
 
-  '@noble/curves@1.4.0':
-    dependencies:
-      '@noble/hashes': 1.4.0
-
   '@noble/curves@1.6.0':
     dependencies:
       '@noble/hashes': 1.5.0
@@ -8274,7 +8228,7 @@ snapshots:
       pino-http: 8.6.1
       pino-pretty: 10.3.1
       prom-client: 14.2.0
-      viem: 2.21.18(typescript@5.6.2)(zod@3.22.4)
+      viem: 2.21.19(typescript@5.6.2)(zod@3.22.4)
       yargs: 17.7.2
       zod: 3.22.4
       zod-validation-error: 1.5.0(zod@3.22.4)
@@ -8776,12 +8730,6 @@ snapshots:
     optional: true
 
   '@scure/base@1.1.8': {}
-
-  '@scure/bip32@1.4.0':
-    dependencies:
-      '@noble/curves': 1.4.0
-      '@noble/hashes': 1.4.0
-      '@scure/base': 1.1.8
 
   '@scure/bip32@1.5.0':
     dependencies:
@@ -9712,24 +9660,19 @@ snapshots:
     optionalDependencies:
       zod: 3.22.4
 
-  abitype@1.0.5(typescript@5.4.2)(zod@3.22.4):
+  abitype@1.0.6(typescript@5.4.2)(zod@3.22.4):
     optionalDependencies:
       typescript: 5.4.2
-      zod: 3.22.4
-
-  abitype@1.0.5(typescript@5.5.4)(zod@3.22.4):
-    optionalDependencies:
-      typescript: 5.5.4
-      zod: 3.22.4
-
-  abitype@1.0.5(typescript@5.6.2)(zod@3.22.4):
-    optionalDependencies:
-      typescript: 5.6.2
       zod: 3.22.4
 
   abitype@1.0.6(typescript@5.4.5)(zod@3.22.4):
     optionalDependencies:
       typescript: 5.4.5
+      zod: 3.22.4
+
+  abitype@1.0.6(typescript@5.5.4)(zod@3.22.4):
+    optionalDependencies:
+      typescript: 5.5.4
       zod: 3.22.4
 
   abitype@1.0.6(typescript@5.6.2)(zod@3.22.4):
@@ -11484,10 +11427,6 @@ snapshots:
   isarray@2.0.5: {}
 
   isexe@2.0.0: {}
-
-  isows@1.0.4(ws@8.17.1):
-    dependencies:
-      ws: 8.17.1
 
   isows@1.0.6(ws@8.18.0):
     dependencies:
@@ -14155,17 +14094,17 @@ snapshots:
       unist-util-stringify-position: 4.0.0
       vfile-message: 4.0.2
 
-  viem@2.21.18(typescript@5.4.2)(zod@3.22.4):
+  viem@2.21.19(typescript@5.4.2)(zod@3.22.4):
     dependencies:
-      '@adraffy/ens-normalize': 1.10.0
-      '@noble/curves': 1.4.0
-      '@noble/hashes': 1.4.0
-      '@scure/bip32': 1.4.0
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/curves': 1.6.0
+      '@noble/hashes': 1.5.0
+      '@scure/bip32': 1.5.0
       '@scure/bip39': 1.4.0
-      abitype: 1.0.5(typescript@5.4.2)(zod@3.22.4)
-      isows: 1.0.4(ws@8.17.1)
-      webauthn-p256: 0.0.5
-      ws: 8.17.1
+      abitype: 1.0.6(typescript@5.4.2)(zod@3.22.4)
+      isows: 1.0.6(ws@8.18.0)
+      webauthn-p256: 0.0.10
+      ws: 8.18.0
     optionalDependencies:
       typescript: 5.4.2
     transitivePeerDependencies:
@@ -14173,17 +14112,17 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.21.18(typescript@5.5.4)(zod@3.22.4):
+  viem@2.21.19(typescript@5.5.4)(zod@3.22.4):
     dependencies:
-      '@adraffy/ens-normalize': 1.10.0
-      '@noble/curves': 1.4.0
-      '@noble/hashes': 1.4.0
-      '@scure/bip32': 1.4.0
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/curves': 1.6.0
+      '@noble/hashes': 1.5.0
+      '@scure/bip32': 1.5.0
       '@scure/bip39': 1.4.0
-      abitype: 1.0.5(typescript@5.5.4)(zod@3.22.4)
-      isows: 1.0.4(ws@8.17.1)
-      webauthn-p256: 0.0.5
-      ws: 8.17.1
+      abitype: 1.0.6(typescript@5.5.4)(zod@3.22.4)
+      isows: 1.0.6(ws@8.18.0)
+      webauthn-p256: 0.0.10
+      ws: 8.18.0
     optionalDependencies:
       typescript: 5.5.4
     transitivePeerDependencies:
@@ -14191,17 +14130,17 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.21.18(typescript@5.6.2)(zod@3.22.4):
+  viem@2.21.19(typescript@5.6.2)(zod@3.22.4):
     dependencies:
-      '@adraffy/ens-normalize': 1.10.0
-      '@noble/curves': 1.4.0
-      '@noble/hashes': 1.4.0
-      '@scure/bip32': 1.4.0
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/curves': 1.6.0
+      '@noble/hashes': 1.5.0
+      '@scure/bip32': 1.5.0
       '@scure/bip39': 1.4.0
-      abitype: 1.0.5(typescript@5.6.2)(zod@3.22.4)
-      isows: 1.0.4(ws@8.17.1)
-      webauthn-p256: 0.0.5
-      ws: 8.17.1
+      abitype: 1.0.6(typescript@5.6.2)(zod@3.22.4)
+      isows: 1.0.6(ws@8.18.0)
+      webauthn-p256: 0.0.10
+      ws: 8.18.0
     optionalDependencies:
       typescript: 5.6.2
     transitivePeerDependencies:
@@ -14428,11 +14367,6 @@ snapshots:
       '@noble/curves': 1.6.0
       '@noble/hashes': 1.5.0
 
-  webauthn-p256@0.0.5:
-    dependencies:
-      '@noble/curves': 1.6.0
-      '@noble/hashes': 1.5.0
-
   webidl-conversions@3.0.1: {}
 
   webpack-sources@3.2.3: {}
@@ -14532,8 +14466,6 @@ snapshots:
   ws@7.5.9: {}
 
   ws@8.16.0: {}
-
-  ws@8.17.1: {}
 
   ws@8.18.0: {}
 
