@@ -347,7 +347,7 @@ export { tenet } from './definitions/tenet.js'
 export { thaiChain } from './definitions/thaiChain.js'
 export { thunderTestnet } from './definitions/thunderTestnet.js'
 export { tron } from './definitions/tron.js'
-export { unichainSepolia } from './definitions/unichainSepolia.js';
+export { unichainSepolia } from './definitions/unichainSepolia.js'
 export { unique } from './definitions/unique.js'
 export { uniqueQuartz } from './definitions/uniqueQuartz.js'
 export { uniqueOpal } from './definitions/uniqueOpal.js'
