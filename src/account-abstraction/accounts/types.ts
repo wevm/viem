@@ -48,6 +48,16 @@ export type SmartAccountImplementation<
    */
   getAddress: () => Promise<Address>
   /**
+   * Decodes calldata into structured calls.
+   *
+   * @example
+   * ```ts
+   * const calls = await account.decodeCalls('0x...')
+   * // [{ to: '0x...', data: '0x...', value: 100n }, ...]
+   * ```
+   */
+  decodeCalls?: ((data: Hex) => Promise<readonly Call[]>) | undefined
+  /**
    * Encodes the calls into calldata for executing a User Operation.
    *
    * @example

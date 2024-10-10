@@ -5,12 +5,14 @@ import { readContract } from '../../../actions/public/readContract.js'
 import { signMessage as signMessage_ } from '../../../actions/wallet/signMessage.js'
 import type { Client } from '../../../clients/createClient.js'
 import { entryPoint07Address } from '../../../constants/address.js'
+import { BaseError } from '../../../errors/base.js'
 import { signMessage } from '../../../experimental/erc7739/actions/signMessage.js'
 import { signTypedData } from '../../../experimental/erc7739/actions/signTypedData.js'
 import type { Account } from '../../../types/account.js'
 import type { Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
 import type { Prettify } from '../../../types/utils.js'
+import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { pad } from '../../../utils/data/pad.js'
 import { getAction } from '../../../utils/getAction.js'
@@ -108,6 +110,25 @@ export async function toSoladySmartAccount<
     getNonce,
 
     extend: { abi, factory },
+
+    async decodeCalls(data) {
+      const result = decodeFunctionData({
+        abi,
+        data,
+      })
+
+      if (result.functionName === 'execute')
+        return [
+          { to: result.args[0], value: result.args[1], data: result.args[2] },
+        ]
+      if (result.functionName === 'executeBatch')
+        return result.args[0].map((arg) => ({
+          to: arg.target,
+          value: arg.value,
+          data: arg.data,
+        }))
+      throw new BaseError(`unable to decode calls for "${result.functionName}"`)
+    },
 
     async encodeCalls(calls) {
       if (calls.length === 1)
