@@ -31,6 +31,7 @@ test('default', async () => {
       "abi": null,
       "address": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
       "client": null,
+      "decodeCalls": [Function],
       "encodeCalls": [Function],
       "entryPoint": {
         "abi": [
