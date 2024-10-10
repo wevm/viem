@@ -1,5 +1,19 @@
 # viem
 
+## 2.21.22
+
+### Patch Changes
+
+- [#2838](https://github.com/wevm/viem/pull/2838) [`f0695c5`](https://github.com/wevm/viem/commit/f0695c5c8c9fb29b78a7ca8c07b176191e550e39) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Superposition chain.
+
+- [#2840](https://github.com/wevm/viem/pull/2840) [`e9cf6ee`](https://github.com/wevm/viem/commit/e9cf6eea9bf15ee57a6db42a2502eda6a733e149) Thanks [@akshatmittal](https://github.com/akshatmittal)! - Added Unichain Sepolia Testnet chain.
+
+- [`0ff9db8`](https://github.com/wevm/viem/commit/0ff9db844c9b2f11f3f726da20b132c0dc11d37f) Thanks [@jxom](https://github.com/jxom)! - Added `decodeCalls` as an optional property on `toSmartAccount`.
+
+- [#2837](https://github.com/wevm/viem/pull/2837) [`2f46c00`](https://github.com/wevm/viem/commit/2f46c00e62c90f406da666b3544c427867135a84) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Electroneum chain.
+
+- [`95b316c`](https://github.com/wevm/viem/commit/95b316cb29375c9041ec5a92558cc975f41e9ba3) Thanks [@jxom](https://github.com/jxom)! - Added `stateOverride` to `estimateUserOperationGas` & `prepareUserOperation`.
+
 ## 2.21.21
 
 ### Patch Changes
