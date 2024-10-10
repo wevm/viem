@@ -65,6 +65,11 @@ type RankOptions = {
         stability?: number | undefined
       }
     | undefined
+  /**
+   * The method to use for ranking transports.
+   * @default 'net_listening'
+   */
+  rankMethod?: string | undefined
 }
 
 export type FallbackTransportConfig = {
@@ -177,6 +182,7 @@ export function fallback<const transports extends readonly Transport[]>(
         timeout: rankOptions.timeout,
         transports,
         weights: rankOptions.weights,
+        rankMethod: rankOptions.rankMethod,
       })
     }
     return transport
@@ -204,6 +210,7 @@ export function rankTransports({
   timeout = 1_000,
   transports,
   weights = {},
+  rankMethod = 'net_listening',
 }: {
   chain?: Chain | undefined
   interval: RankOptions['interval']
@@ -212,6 +219,7 @@ export function rankTransports({
   timeout?: RankOptions['timeout'] | undefined
   transports: readonly Transport[]
   weights?: RankOptions['weights'] | undefined
+  rankMethod?: string | undefined
 }) {
   const { stability: stabilityWeight = 0.7, latency: latencyWeight = 0.3 } =
     weights
@@ -230,7 +238,7 @@ export function rankTransports({
         let end: number
         let success: number
         try {
-          await transport_.request({ method: 'net_listening' })
+          await transport_.request({ method: rankMethod })
           success = 1
         } catch {
           success = 0
