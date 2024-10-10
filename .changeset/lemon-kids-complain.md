@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Unichain Sepolia Testnet
+Added Unichain Sepolia Testnet chain.
