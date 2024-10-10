@@ -258,3 +258,56 @@ test('dropped tx', async () => {
   })
   expect(await nonceManager.get(args)).toBe(10)
 })
+
+test('nonceManager reset', async () => {
+  const nonceManager = createNonceManager({
+    source: jsonRpc(),
+  })
+
+  const args = {
+    address: account.address,
+    chainId: mainnetClient.chain.id,
+    client: mainnetClient,
+  }
+
+  const nonce_1 = await nonceManager.consume(args)
+  expect(nonce_1).toBe(10)
+  const hash_1 = await sendTransaction(mainnetClient, {
+    account,
+    to: account.address,
+    nonce: nonce_1,
+    value: 0n,
+  })
+  expect(
+    (await getTransaction(mainnetClient, { hash: hash_1 })).nonce,
+  ).toMatchObject(10)
+  expect(await nonceManager.get(args)).toBe(11)
+
+  const nonce_2 = await nonceManager.consume(args)
+  expect(nonce_2).toBe(11)
+  expect(() =>
+    sendTransaction(mainnetClient, {
+      account,
+      to: account.address,
+      nonce: nonce_2,
+      value: parseEther('100'),
+    }).catch((error) => {
+      nonceManager.reset(args)
+      throw error
+    }),
+  ).rejects.toThrowError('Insufficient funds for gas * price + value')
+  expect(await nonceManager.get(args)).toBe(11)
+
+  const nonce_3 = await nonceManager.consume(args)
+  expect(nonce_3).toBe(11)
+  const hash_3 = await sendTransaction(mainnetClient, {
+    account,
+    to: account.address,
+    nonce: nonce_3,
+    value: 0n,
+  })
+  expect(
+    (await getTransaction(mainnetClient, { hash: hash_3 })).nonce,
+  ).toMatchObject(11)
+  expect(await nonceManager.get(args)).toBe(12)
+})
