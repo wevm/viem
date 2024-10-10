@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 const sourceId = 11_155_111 // sepolia
 
 export const unichainSepolia = /*#__PURE__*/ defineChain({
-  id: 168_587_773,
+  id: 1301,
   name: 'Unichain Sepolia',
   nativeCurrency: {
     name: 'Ether',
