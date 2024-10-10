@@ -34,6 +34,7 @@ import {
   SoladyAccount07,
   SoladyAccountFactory06,
   SoladyAccountFactory07,
+  VerifySig,
 } from '../../contracts/generated.js'
 import {
   baycContractConfig,
@@ -169,6 +170,13 @@ export async function deploySoladyAccount_06() {
     implementationAddress: implementationAddress!,
     factoryAddress: factoryAddress!,
   }
+}
+
+export async function deployUniversalSignatureVerifier() {
+  return deploy(client, {
+    abi: VerifySig.abi,
+    bytecode: VerifySig.bytecode.object,
+  })
 }
 
 export async function setVitalikResolver() {
