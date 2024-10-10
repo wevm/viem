@@ -12,6 +12,7 @@ import { BaseError } from '../../../errors/base.js'
 import type { Hash, Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
 import type { Assign, OneOf, Prettify } from '../../../types/utils.js'
+import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { encodePacked } from '../../../utils/abi/encodePacked.js'
@@ -48,7 +49,10 @@ export type CoinbaseSmartAccountImplementation = Assign<
     '0.6',
     { abi: typeof abi; factory: { abi: typeof factoryAbi; address: Address } }
   >,
-  { sign: NonNullable<SmartAccountImplementation['sign']> }
+  {
+    decodeCalls: NonNullable<SmartAccountImplementation['decodeCalls']>
+    sign: NonNullable<SmartAccountImplementation['sign']>
+  }
 >
 
 /**
@@ -95,6 +99,25 @@ export async function toCoinbaseSmartAccount(
     entryPoint,
 
     extend: { abi, factory },
+
+    async decodeCalls(data) {
+      const result = decodeFunctionData({
+        abi,
+        data,
+      })
+
+      if (result.functionName === 'execute')
+        return [
+          { to: result.args[0], value: result.args[1], data: result.args[2] },
+        ]
+      if (result.functionName === 'executeBatch')
+        return result.args[0].map((arg) => ({
+          to: arg.target,
+          value: arg.value,
+          data: arg.data,
+        }))
+      throw new BaseError(`unable to decode calls for "${result.functionName}"`)
+    },
 
     async encodeCalls(calls) {
       if (calls.length === 1)

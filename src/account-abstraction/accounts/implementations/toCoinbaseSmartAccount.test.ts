@@ -11,7 +11,12 @@ import {
   verifyTypedData,
   writeContract,
 } from '../../../actions/index.js'
-import { keccak256, pad, parseEther } from '../../../utils/index.js'
+import {
+  encodeFunctionData,
+  keccak256,
+  pad,
+  parseEther,
+} from '../../../utils/index.js'
 import { estimateUserOperationGas } from '../../actions/bundler/estimateUserOperationGas.js'
 import { prepareUserOperation } from '../../actions/bundler/prepareUserOperation.js'
 import { sendUserOperation } from '../../actions/bundler/sendUserOperation.js'
@@ -78,6 +83,75 @@ describe('return value: encodeCalls', () => {
     expect(callData).toMatchInlineSnapshot(
       `"0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000045000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004deadbeef00000000000000000000000000000000000000000000000000000000"`,
     )
+  })
+})
+
+describe('return value: decodeCalls', () => {
+  test('single', async () => {
+    const account = await toCoinbaseSmartAccount({
+      client,
+      owners: [owner],
+    })
+
+    const calls = [
+      {
+        to: '0x0000000000000000000000000000000000000000',
+        value: 69n,
+        data: '0xdeadbeef',
+      },
+    ] as const
+
+    const data = await account.encodeCalls(calls)
+    const decoded = await account.decodeCalls(data)
+    expect(decoded).toEqual(calls)
+  })
+
+  test('batch', async () => {
+    const account = await toCoinbaseSmartAccount({
+      client,
+      owners: [owner],
+    })
+
+    const calls = [
+      {
+        data: '0x',
+        to: '0x0000000000000000000000000000000000000000',
+        value: 0n,
+      },
+      {
+        data: '0x',
+        to: '0x0000000000000000000000000000000000000000',
+        value: 69n,
+      },
+      {
+        to: '0x0000000000000000000000000000000000000000',
+        value: 69n,
+        data: '0xdeadbeef',
+      },
+    ] as const
+
+    const data = await account.encodeCalls(calls)
+    const decoded = await account.decodeCalls(data)
+    expect(decoded).toEqual(calls)
+  })
+
+  test('invalid data', async () => {
+    const account = await toCoinbaseSmartAccount({
+      client,
+      owners: [owner],
+    })
+
+    const data = encodeFunctionData({
+      abi: account.abi,
+      functionName: 'entryPoint',
+    })
+    await expect(() =>
+      account.decodeCalls?.(data),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [BaseError: unable to decode calls for "entryPoint"
+
+      Version: viem@x.y.z]
+    `)
   })
 })
 
