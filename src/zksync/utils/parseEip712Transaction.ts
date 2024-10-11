@@ -1,16 +1,16 @@
-import { BaseError } from '~viem/errors/base.js'
-import type { Hex } from '~viem/types/misc.js'
+import { BaseError } from '../../errors/base.js'
+import type { Hex } from '../../types/misc.js'
 import {
   fromHex,
   fromRlp,
   hexToBigInt,
   hexToNumber,
-} from '~viem/utils/index.js'
-import type { ZksyncTransactionSerializable } from '../types/transaction.js'
+} from '../../utils/index.js'
+import type { ZksyncTransactionSerializableEIP712 } from '../types/transaction.js'
 
 export function parseEip712Transaction(
   transaction: Hex,
-): ZksyncTransactionSerializable {
+): ZksyncTransactionSerializableEIP712 {
   {
     const payload: Uint8Array = fromHex(transaction, 'bytes')
     if (payload[0] !== 113) {
@@ -23,7 +23,7 @@ export function parseEip712Transaction(
 
 function constructEip712Transaction(
   bytes: Uint8Array,
-): ZksyncTransactionSerializable {
+): ZksyncTransactionSerializableEIP712 {
   type PaymasterParams = {
     paymaster: Hex
     paymasterInput: Hex
