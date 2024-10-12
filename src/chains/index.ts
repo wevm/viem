@@ -169,6 +169,8 @@ export { immutableZkEvmTestnet } from './definitions/immutableZkEvmTestnet.js'
 export { inEVM } from './definitions/inEVM.js'
 export { iota } from './definitions/iota.js'
 export { iotaTestnet } from './definitions/iotaTestnet.js'
+/** @deprecated Use `kakarotStarknetSepolia` instead. */
+export { kakarotSepolia } from './definitions/kakarotSepolia.js'
 export { kakarotStarknetSepolia } from './definitions/kakarotStarknetSepolia.js'
 export { kava } from './definitions/kava.js'
 export { kavaTestnet } from './definitions/kavaTestnet.js'
