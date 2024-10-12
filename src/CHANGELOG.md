@@ -1,5 +1,13 @@
 # viem
 
+## 2.21.23
+
+### Patch Changes
+
+- [#2843](https://github.com/wevm/viem/pull/2843) [`47c167b0`](https://github.com/wevm/viem/commit/47c167b0898d400814b5f3b62ebaf6594ceca75e) Thanks [@Kharabet](https://github.com/Kharabet)! - Added guruTestnet chain.
+
+- [#2841](https://github.com/wevm/viem/pull/2841) [`5b8090ee`](https://github.com/wevm/viem/commit/5b8090ee4f6b828d290acaf596b88c5c2f78e565) Thanks [@dienho12](https://github.com/dienho12)! - Added DOSChain and DOSChain Testnet chain.
+
 ## 2.21.22
 
 ### Patch Changes
