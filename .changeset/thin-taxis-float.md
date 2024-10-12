@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add guruTestnet chain.
+Added guruTestnet chain.
