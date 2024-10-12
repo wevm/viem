@@ -94,6 +94,8 @@ export { degen } from './definitions/degen.js'
 export { dfk } from './definitions/dfk.js'
 export { dodochainTestnet } from './definitions/dodochainTestnet.js'
 export { dogechain } from './definitions/dogechain.js'
+export { dosChain } from './definitions/dosChain.js'
+export { dosChainTestnet } from './definitions/dosChainTestnet.js'
 export { dreyerxMainnet } from './definitions/dreyerxMainnet.js'
 export { dreyerxTestnet } from './definitions/dreyerxTestnet.js'
 export { edgeless } from './definitions/edgeless.js'
@@ -413,8 +415,6 @@ export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
 export { zircuit } from './definitions/zircuit.js'
 export { zircuitTestnet } from './definitions/zircuitTestnet.js'
-export { dosChain } from './definitions/dosChain.js'
-export { dosChainTestnet } from './definitions/dosChainTestnet.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".
