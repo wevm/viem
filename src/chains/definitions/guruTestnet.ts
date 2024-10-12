@@ -20,11 +20,5 @@ export const guruTestnet = /*#__PURE__*/ defineChain({
       url: 'https://scan.gurunetwork.ai',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0xbd8c7f4064f121fa8bea8ac4ee1e7c9aec8ca7ba',
-      blockCreated: 5677926,
-    },
-  },
   testnet: true,
 })
