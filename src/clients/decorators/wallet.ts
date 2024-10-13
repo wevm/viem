@@ -55,6 +55,7 @@ import {
 } from '../../actions/wallet/signMessage.js'
 import {
   type SignTransactionParameters,
+  type SignTransactionRequest,
   type SignTransactionReturnType,
   signTransaction,
 } from '../../actions/wallet/signTransaction.js'
@@ -469,9 +470,15 @@ export type WalletActions<
    * })
    * const signature = await client.signTransaction(request)
    */
-  signTransaction: <chainOverride extends Chain | undefined>(
-    args: SignTransactionParameters<chain, account, chainOverride>,
-  ) => Promise<SignTransactionReturnType>
+  signTransaction: <
+    chainOverride extends Chain | undefined,
+    const request extends SignTransactionRequest<
+      chain,
+      chainOverride
+    > = SignTransactionRequest<chain, chainOverride>,
+  >(
+    args: SignTransactionParameters<chain, account, chainOverride, request>,
+  ) => Promise<SignTransactionReturnType<request>>
   /**
    * Signs typed data and calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
    *
