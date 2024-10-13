@@ -6,6 +6,7 @@ import {
 } from '../../errors/request.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
+import type { MaybePromise } from '../../types/utils.js'
 import {
   type WithTimeoutErrorType,
   withTimeout,
@@ -13,14 +14,12 @@ import {
 import { stringify } from '../stringify.js'
 import { idCache } from './id.js'
 
-type OnRequestReturnType = void | undefined | Request
-
 export type HttpRpcClientOptions = {
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
   /** A callback to handle the request. */
   onRequest?:
-    | ((request: Request) => Promise<OnRequestReturnType> | OnRequestReturnType)
+    | ((request: Request) => MaybePromise<void | undefined | Request>)
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
@@ -37,7 +36,7 @@ export type HttpRequestParameters<
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
   /** A callback to handle the response. */
   onRequest?:
-    | ((request: Request) => Promise<OnRequestReturnType> | OnRequestReturnType)
+    | ((request: Request) => MaybePromise<void | undefined | Request>)
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
@@ -106,12 +105,9 @@ export function getHttpRpcClient(
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),
             }
-            let overrideRequest: Request | undefined | void
-            const request = new Request(url, init)
-            if (onRequest) {
-              overrideRequest = await onRequest(request)
-            }
-            const response = await fetch(overrideRequest ?? request)
+            let request = new Request(url, init)
+            request = (await onRequest?.(request)) ?? request
+            const response = await fetch(request)
             return response
           },
           {
