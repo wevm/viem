@@ -8,12 +8,14 @@ import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Chain } from '../../types/chain.js'
 
-import { signTransaction } from './signTransaction.js'
 import type {
-  TransactionSerializedLegacy,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
+  TransactionSerializedEIP4844,
+  TransactionSerializedEIP7702,
+  TransactionSerializedLegacy,
 } from '~viem/index.js'
+import { signTransaction } from './signTransaction.js'
 
 const walletClient = createWalletClient({
   account: '0x',
@@ -82,6 +84,44 @@ test('legacy', () => {
     maxPriorityFeePerGas: 0n,
     type: 'legacy',
   })
+})
+
+test('eip7702', () => {
+  const signature1 = signTransaction(walletClient, {
+    authorizationList: [],
+  })
+  const signature2 = signTransaction(walletClient, {
+    authorizationList: [],
+    type: 'eip7702',
+  })
+
+  expectTypeOf(signature1).toEqualTypeOf<
+    Promise<TransactionSerializedEIP7702>
+  >()
+  expectTypeOf(signature2).toEqualTypeOf<
+    Promise<TransactionSerializedEIP7702>
+  >()
+})
+
+test('eip4844', () => {
+  const signature1 = signTransaction(walletClient, {
+    blobs: [],
+    maxFeePerBlobGas: 0n,
+    to: '0x0000000000000000000000000000000000000000',
+  })
+  const signature2 = signTransaction(walletClient, {
+    blobs: [],
+    maxFeePerBlobGas: 0n,
+    to: '0x0000000000000000000000000000000000000000',
+    type: 'eip4844',
+  })
+
+  expectTypeOf(signature1).toEqualTypeOf<
+    Promise<TransactionSerializedEIP4844>
+  >()
+  expectTypeOf(signature2).toEqualTypeOf<
+    Promise<TransactionSerializedEIP4844>
+  >()
 })
 
 test('eip1559', () => {
