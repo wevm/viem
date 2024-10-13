@@ -124,7 +124,7 @@ test('const: 4844 attributes', () => {
   ).toEqualTypeOf<'eip4844'>()
   expectTypeOf(getTransactionType({ sidecars: [] })).toEqualTypeOf<'eip4844'>()
   expectTypeOf(
-    getTransactionType({ blobVersionedHashes: [] }),
+    getTransactionType({ accessList: [], blobVersionedHashes: [] }),
   ).toEqualTypeOf<'eip4844'>()
 })
 
@@ -148,6 +148,10 @@ test('const: 7702 attributes', () => {
     }),
   ).toEqualTypeOf<'eip7702'>()
   expectTypeOf(
-    getTransactionType({ authorizationList: [], maxPriorityFeePerGas: 1n }),
+    getTransactionType({
+      accessList: [],
+      authorizationList: [],
+      maxPriorityFeePerGas: 1n,
+    }),
   ).toEqualTypeOf<'eip7702'>()
 })
