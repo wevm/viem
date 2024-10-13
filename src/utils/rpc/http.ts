@@ -37,9 +37,7 @@ export type HttpRequestParameters<
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
   /** A callback to handle the response. */
   onRequest?:
-    | ((
-        request: Request,
-      ) => Promise<void | undefined | Request> | void | undefined | Request)
+    | ((request: Request) => Promise<OnRequestReturnType> | OnRequestReturnType)
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
