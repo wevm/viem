@@ -773,7 +773,6 @@ describe('entryPointVersion: 0.7', async () => {
           functionName: 'mint',
         },
       ],
-      ...fees,
     })
 
     expect({
