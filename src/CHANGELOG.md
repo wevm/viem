@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.24
+
+### Patch Changes
+
+- [#2846](https://github.com/wevm/viem/pull/2846) [`38def97b`](https://github.com/wevm/viem/commit/38def97bf2786f4ed0c68afc94d0f2078c842ec3) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added Elastos chain.
+
+- [#2847](https://github.com/wevm/viem/pull/2847) [`bd23492e`](https://github.com/wevm/viem/commit/bd23492e1b36b9f7bb2ccc412a9e165e809d1bb2) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added loop chain.
+
+- [`65cd2c68`](https://github.com/wevm/viem/commit/65cd2c68ff5fd815ecc408a8f511120da5e01c0c) Thanks [@jxom](https://github.com/jxom)! - Added Odyssey Testnet.
+
 ## 2.21.23
 
 ### Patch Changes
