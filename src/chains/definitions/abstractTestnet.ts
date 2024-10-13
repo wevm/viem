@@ -26,7 +26,7 @@ export const abstractTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 358349,
     },
     universalSignatureVerifier: {
-      address: '0x872146211f996755C8729042093ffb8660F8b129',
+      address: '0xfB688330379976DA81eB64Fe4BF50d7401763B9C',
       blockCreated: 431682,
     },
   },
