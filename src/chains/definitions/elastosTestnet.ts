@@ -11,7 +11,7 @@ export const elastosTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Elastos Explorer',    
+      name: 'Elastos Explorer',
       url: 'https://esc-testnet.elastos.io',
     },
   },
