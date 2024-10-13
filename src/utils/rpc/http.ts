@@ -16,12 +16,12 @@ import { idCache } from './id.js'
 export type HttpRpcClientOptions = {
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
-  /** A callback to handle the request init. */
-  onRequestInit?:
-    | ((url: string, init: RequestInit) => Promise<void> | void)
-    | undefined
   /** A callback to handle the request. */
-  onRequest?: ((request: Request) => Promise<void> | void) | undefined
+  onRequest?:
+    | ((
+        request: Request,
+      ) => Promise<void | undefined | Request> | void | undefined | Request)
+    | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
   /** The timeout (in ms) for the request. */
@@ -35,12 +35,12 @@ export type HttpRequestParameters<
   body: body
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
-  /** A callback to handle the request init. */
-  onRequestInit?:
-    | ((url: string, init: RequestInit) => Promise<void> | void)
-    | undefined
   /** A callback to handle the response. */
-  onRequest?: ((request: Request) => Promise<void> | void) | undefined
+  onRequest?:
+    | ((
+        request: Request,
+      ) => Promise<void | undefined | Request> | void | undefined | Request)
+    | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
   /** The timeout (in ms) for the request. */
@@ -72,7 +72,6 @@ export function getHttpRpcClient(
       const {
         body,
         onRequest = options.onRequest,
-        onRequestInit = options.onRequestInit,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
       } = params
@@ -109,10 +108,12 @@ export function getHttpRpcClient(
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),
             }
-            if (onRequestInit) await onRequestInit(url, init)
+            let overrideRequest: Request | undefined | void
             const request = new Request(url, init)
-            if (onRequest) await onRequest(request)
-            const response = await fetch(request)
+            if (onRequest) {
+              overrideRequest = await onRequest(request)
+            }
+            const response = await fetch(overrideRequest ?? request)
             return response
           },
           {

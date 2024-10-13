@@ -220,7 +220,7 @@ describe('request', () => {
     await server.close()
   })
 
-  test('onRequestInit can modify request', async () => {
+  test('onRequest can return an override request', async () => {
     let headers: IncomingHttpHeaders = {}
     const server = await createHttpServer((req, res) => {
       headers = req.headers
@@ -228,13 +228,14 @@ describe('request', () => {
     })
 
     const client = getHttpRpcClient(server.url, {
-      onRequestInit: (_url, init) => {
+      onRequest: async (request) => {
         // simulate a middleware that hashes the body - example might be authenticated service such
         // as flashbots RPC which requires an auth header that is a signature of the request body
-        const headers = (init.headers as Record<string, string>) || {}
-        headers['x-body-hash'] = init?.body
-          ? keccak256(toHex(init.body.toString()))
-          : ''
+        const newRequest = request.clone()
+        const text = await request.text()
+        newRequest.headers.set('x-body-hash', keccak256(toHex(text)))
+
+        return newRequest
       },
     })
     await client.request({
