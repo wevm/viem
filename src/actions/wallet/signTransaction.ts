@@ -23,6 +23,7 @@ import type {
   TransactionType,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
+import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type AssertCurrentChainErrorType,
@@ -61,11 +62,8 @@ export type SignTransactionParameters<
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request>
 
-export type SignTransactionReturnType<
-  transactionType extends TransactionType | undefined,
-> = TransactionSerialized<
-  transactionType extends TransactionType ? transactionType : TransactionType
->
+export type SignTransactionReturnType<transactionType extends TransactionType> =
+  TransactionSerialized<transactionType>
 
 export type SignTransactionErrorType =
   | ParseAccountErrorType
@@ -128,10 +126,11 @@ export async function signTransaction<
     chain,
     chainOverride
   > = SignTransactionRequest<chain, chainOverride>,
+  transactionType extends TransactionType = GetTransactionType<request>,
 >(
   client: Client<Transport, chain, account>,
   parameters: SignTransactionParameters<chain, account, chainOverride, request>,
-): Promise<SignTransactionReturnType<request['type']>> {
+): Promise<SignTransactionReturnType<transactionType>> {
   const {
     account: account_ = client.account,
     chain = client.chain,
@@ -167,7 +166,7 @@ export async function signTransaction<
         chainId,
       } as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
-    ) as Promise<SignTransactionReturnType<request['type']>>
+    ) as Promise<SignTransactionReturnType<transactionType>>
 
   return await client.request(
     {
