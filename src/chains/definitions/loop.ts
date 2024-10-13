@@ -19,5 +19,5 @@ export const loop = /*#__PURE__*/ defineChain({
       url: 'https://explorer.mainnetloop.com/',
     },
   },
-  testnet: false
+  testnet: false,
 })
