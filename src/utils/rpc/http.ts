@@ -21,6 +21,7 @@ export type HttpRpcClientOptions = {
   onRequest?:
     | ((
         request: Request,
+        init: RequestInit,
       ) => MaybePromise<
         void | undefined | (RequestInit & { url?: string | undefined })
       >)
@@ -42,6 +43,7 @@ export type HttpRequestParameters<
   onRequest?:
     | ((
         request: Request,
+        init: RequestInit,
       ) => MaybePromise<
         void | undefined | (RequestInit & { url?: string | undefined })
       >)
@@ -114,7 +116,7 @@ export function getHttpRpcClient(
               signal: signal_ || (timeout > 0 ? signal : null),
             }
             const request = new Request(url, init)
-            const args = (await onRequest?.(request)) ?? { ...init, url }
+            const args = (await onRequest?.(request, init)) ?? { ...init, url }
             const response = await fetch(args.url ?? url, args)
             return response
           },
