@@ -13,14 +13,14 @@ import {
 import { stringify } from '../stringify.js'
 import { idCache } from './id.js'
 
+export type OnRequestReturnType = void | undefined | Request
+
 export type HttpRpcClientOptions = {
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
   /** A callback to handle the request. */
   onRequest?:
-    | ((
-        request: Request,
-      ) => Promise<void | undefined | Request> | void | undefined | Request)
+    | ((request: Request) => Promise<OnRequestReturnType> | OnRequestReturnType)
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
