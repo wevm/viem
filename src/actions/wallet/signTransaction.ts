@@ -23,7 +23,6 @@ import type {
   TransactionType,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
-import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type AssertCurrentChainErrorType,
@@ -40,6 +39,7 @@ import {
   type AssertRequestErrorType,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
+import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 
 type SignTransactionRequest<
