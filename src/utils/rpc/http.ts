@@ -19,7 +19,11 @@ export type HttpRpcClientOptions = {
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
   /** A callback to handle the request. */
   onRequest?:
-    | ((request: Request) => MaybePromise<void | undefined | Request>)
+    | ((
+        request: Request,
+      ) => MaybePromise<
+        void | undefined | (RequestInit & { url?: string | undefined })
+      >)
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
@@ -36,7 +40,11 @@ export type HttpRequestParameters<
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
   /** A callback to handle the response. */
   onRequest?:
-    | ((request: Request) => MaybePromise<void | undefined | Request>)
+    | ((
+        request: Request,
+      ) => MaybePromise<
+        void | undefined | (RequestInit & { url?: string | undefined })
+      >)
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
@@ -105,9 +113,9 @@ export function getHttpRpcClient(
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),
             }
-            let request = new Request(url, init)
-            request = (await onRequest?.(request)) ?? request
-            const response = await fetch(request)
+            const request = new Request(url, init)
+            const args = (await onRequest?.(request)) ?? { ...init, url }
+            const response = await fetch(args.url ?? url, args)
             return response
           },
           {
