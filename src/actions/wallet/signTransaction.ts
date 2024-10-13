@@ -20,7 +20,6 @@ import type {
   TransactionRequest,
   TransactionSerializable,
   TransactionSerialized,
-  TransactionType,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
@@ -42,7 +41,7 @@ import {
 import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 
-type SignTransactionRequest<
+export type SignTransactionRequest<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   ///
@@ -62,8 +61,9 @@ export type SignTransactionParameters<
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request>
 
-export type SignTransactionReturnType<transactionType extends TransactionType> =
-  TransactionSerialized<transactionType>
+export type SignTransactionReturnType<
+  request extends SignTransactionRequest = SignTransactionRequest,
+> = TransactionSerialized<GetTransactionType<request>>
 
 export type SignTransactionErrorType =
   | ParseAccountErrorType
@@ -126,11 +126,10 @@ export async function signTransaction<
     chain,
     chainOverride
   > = SignTransactionRequest<chain, chainOverride>,
-  transactionType extends TransactionType = GetTransactionType<request>,
 >(
   client: Client<Transport, chain, account>,
   parameters: SignTransactionParameters<chain, account, chainOverride, request>,
-): Promise<SignTransactionReturnType<transactionType>> {
+): Promise<SignTransactionReturnType<request>> {
   const {
     account: account_ = client.account,
     chain = client.chain,
@@ -166,7 +165,7 @@ export async function signTransaction<
         chainId,
       } as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
-    ) as Promise<SignTransactionReturnType<transactionType>>
+    ) as Promise<SignTransactionReturnType<request>>
 
   return await client.request(
     {
