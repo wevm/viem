@@ -29,6 +29,10 @@ export const zksyncSepoliaTestnet = /*#__PURE__*/ defineChain({
     multicall3: {
       address: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
     },
+    universalSignatureVerifier: {
+      address: '0xfB688330379976DA81eB64Fe4BF50d7401763B9C',
+      blockCreated: 3855712,
+    },
   },
   testnet: true,
 })
