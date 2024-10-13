@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Narrow the return type of signTransaction.
+Narrowed return type of `signTransaction`.
