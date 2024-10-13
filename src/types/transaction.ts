@@ -216,7 +216,7 @@ export type TransactionRequestBase<
   /** Contract code or a hashed method call with encoded args */
   data?: Hex | undefined
   /** Transaction sender */
-  from: Address
+  from?: Address | undefined
   /** Gas provided for transaction execution */
   gas?: quantity | undefined
   /** Unique number identifying this transaction */
