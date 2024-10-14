@@ -29,18 +29,21 @@ test('behavior: caches', async () => {
 
 test('behavior: caches blockNumber within cacheTime', async () => {
   const cacheTime = 100
-  const a = await getBlockNumber(client, { cacheTime })
-  await mine(client, { blocks: 1 })
+  vi.useFakeTimers()
 
-  // Advance time by half of cacheTime
-  await wait(cacheTime / 2)
+  const a = await getBlockNumber(client, { cacheTime })
+  mine(client, { blocks: 1 })
+
+  vi.advanceTimersByTime(cacheTime / 2)
   const b = await getBlockNumber(client)
   // Within cacheTime, the block number should be the same
   expect(a).toBe(b)
 
-  // Advance time by the remaining half to exceed cacheTime
-  await wait(cacheTime / 2)
+  // Advance time by the remaining half plus 1ms to ensure the cache is invalidated
+  vi.advanceTimersByTime(1 + cacheTime / 2)
   const c = await getBlockNumber(client)
   // After cacheTime has passed, the block number should be different
   expect(a).not.toBe(c)
+
+  vi.useRealTimers()
 })
