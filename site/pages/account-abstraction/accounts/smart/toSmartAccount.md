@@ -30,6 +30,9 @@ const account = await toSmartAccount({
     version: '0.7',
   },
   
+  async decodeCalls(data) {
+    // Decode calls from calldata as defined by the Smart Account contract.
+  },
   async encodeCalls(calls) {
     // Encode calls as defined by the Smart Account contract.
   },

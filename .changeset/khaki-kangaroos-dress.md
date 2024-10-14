@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added Go Chain.
+Added Shiden chain.

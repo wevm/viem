@@ -15,7 +15,7 @@ import { createWalletClient } from '../../clients/createWalletClient.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 import { http } from '../../clients/transports/http.js'
 import { signAuthorization } from '../../experimental/index.js'
-import { decodeEventLog, parseEther } from '../../utils/index.js'
+import { decodeEventLog, getAddress, parseEther } from '../../utils/index.js'
 import { getBalance } from '../public/getBalance.js'
 import { getTransaction } from '../public/getTransaction.js'
 import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
@@ -198,7 +198,7 @@ test('args: authorizationList', async () => {
 
   const receipt = await getTransactionReceipt(client, { hash })
   const log = receipt.logs[0]
-  expect(log.address).toBe(authority.address)
+  expect(getAddress(log.address)).toBe(authority.address)
   expect(
     decodeEventLog({
       abi: BatchCallInvoker.abi,
@@ -267,7 +267,7 @@ test('args: authorizationList (delegate)', async () => {
 
   const receipt = await getTransactionReceipt(client, { hash })
   const log = receipt.logs[0]
-  expect(log.address).toBe(authority.address)
+  expect(getAddress(log.address)).toBe(authority.address)
   expect(
     decodeEventLog({
       abi: BatchCallInvoker.abi,

@@ -31,6 +31,7 @@ test('default', async () => {
       "abi": null,
       "address": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
       "client": null,
+      "decodeCalls": [Function],
       "encodeCalls": [Function],
       "entryPoint": {
         "abi": [
@@ -981,7 +982,7 @@ test('return value: `getFactoryArgs`', async () => {
 
   expect(await account.getFactoryArgs()).toMatchInlineSnapshot(`
     {
-      "factory": "0x82A9286dB983093Ff234cefCea1d8fA66382876B",
+      "factory": "0x82a9286db983093ff234cefcea1d8fa66382876b",
       "factoryData": "0xf14ddffc00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000000000000000000",
     }
   `)

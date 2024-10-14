@@ -224,6 +224,30 @@ export const universalSignatureValidatorAbi = [
     stateMutability: 'nonpayable',
     type: 'constructor',
   },
+  {
+    inputs: [
+      {
+        name: '_signer',
+        type: 'address',
+      },
+      {
+        name: '_hash',
+        type: 'bytes32',
+      },
+      {
+        name: '_signature',
+        type: 'bytes',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+    name: 'isValidSig',
+  },
 ] as const
 
 /** [ERC-20 Token Standard](https://ethereum.org/en/developers/docs/standards/tokens/erc-20) */

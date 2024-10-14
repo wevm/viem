@@ -7,7 +7,10 @@ import {
 import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts, address } from '~test/src/constants.js'
-import { deploySoladyAccount_07 } from '~test/src/utils.js'
+import {
+  deploySoladyAccount_07,
+  deployUniversalSignatureVerifier,
+} from '~test/src/utils.js'
 import {
   entryPoint07Abi,
   entryPoint07Address,
@@ -142,6 +145,94 @@ describe('smart account', async () => {
 
     expect(
       verifyHash(client, {
+        address: verifier,
+        factory: factoryAddress,
+        factoryData,
+        hash: hashMessage('hello world'),
+        signature,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('undeployed with predeployed verifier (via arg)', async () => {
+    const { factoryAddress } = await deploySoladyAccount_07()
+    const { contractAddress: universalSignatureVerifierAddress } =
+      await deployUniversalSignatureVerifier()
+
+    const { result: verifier } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+
+    const factoryData = encodeFunctionData({
+      abi: SoladyAccountFactory07.abi,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+
+    const signature = await signMessageErc1271(client, {
+      account: localAccount,
+      factory: factoryAddress,
+      factoryData,
+      message: 'hello world',
+      verifier,
+    })
+
+    expect(
+      verifyHash(client, {
+        address: verifier,
+        factory: factoryAddress,
+        factoryData,
+        hash: hashMessage('hello world'),
+        signature,
+        universalSignatureVerifierAddress: universalSignatureVerifierAddress!,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('undeployed with predeployed verifier (via client)', async () => {
+    const { factoryAddress } = await deploySoladyAccount_07()
+    const { contractAddress: verifySig } =
+      await deployUniversalSignatureVerifier()
+
+    const overrideClient = {
+      ...client,
+      chain: {
+        ...client.chain,
+        contracts: {
+          ...client.chain.contracts,
+          universalSignatureVerifier: { address: verifySig },
+        },
+      },
+    }
+
+    const { result: verifier } = await simulateContract(overrideClient, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+
+    const factoryData = encodeFunctionData({
+      abi: SoladyAccountFactory07.abi,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+
+    const signature = await signMessageErc1271(overrideClient, {
+      account: localAccount,
+      factory: factoryAddress,
+      factoryData,
+      message: 'hello world',
+      verifier,
+    })
+
+    expect(
+      verifyHash(overrideClient, {
         address: verifier,
         factory: factoryAddress,
         factoryData,

@@ -15,6 +15,7 @@ import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { ContractFunctionParameters } from '../../../types/contract.js'
 import type { Hex } from '../../../types/misc.js'
+import type { StateOverride } from '../../../types/stateOverride.js'
 import type {
   Assign,
   OneOf,
@@ -169,6 +170,8 @@ export type PrepareUserOperationRequest<
       | undefined
     /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
     paymasterContext?: unknown | undefined
+    /** State overrides for the User Operation call. */
+    stateOverride?: StateOverride | undefined
   }
 >
 
@@ -281,6 +284,7 @@ export async function prepareUserOperation<
   const {
     account: account_ = client.account,
     parameters: properties = defaultParameters,
+    stateOverride,
   } = parameters
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -402,6 +406,13 @@ export async function prepareUserOperation<
     (async () => {
       if (!properties.includes('fees')) return undefined
 
+      // If we have sufficient properties for fees, return them.
+      if (
+        typeof parameters.maxFeePerGas === 'bigint' &&
+        typeof parameters.maxPriorityFeePerGas === 'bigint'
+      )
+        return request
+
       // If the Bundler Client has a `estimateFeesPerGas` hook, run it.
       if (bundlerClient?.userOperation?.estimateFeesPerGas) {
         const fees = await bundlerClient.userOperation.estimateFeesPerGas({
@@ -414,13 +425,6 @@ export async function prepareUserOperation<
           ...fees,
         }
       }
-
-      // If we have sufficient properties for fees, return them.
-      if (
-        typeof parameters.maxFeePerGas === 'bigint' &&
-        typeof parameters.maxPriorityFeePerGas === 'bigint'
-      )
-        return request
 
       // Otherwise, we will need to estimate the fees to fill the fee properties.
       try {
@@ -577,6 +581,7 @@ export async function prepareUserOperation<
         callGasLimit: 0n,
         preVerificationGas: 0n,
         verificationGasLimit: 0n,
+        stateOverride,
         ...(request.paymaster
           ? {
               paymasterPostOpGasLimit: 0n,

@@ -10,6 +10,7 @@ import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
+import type { StateOverride } from '../../../types/stateOverride.js'
 import type {
   Assign,
   MaybeRequired,
@@ -18,6 +19,7 @@ import type {
 } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { getAction } from '../../../utils/getAction.js'
+import { serializeStateOverride } from '../../../utils/stateOverride.js'
 import type { SmartAccount } from '../../accounts/types.js'
 import type { PaymasterActions } from '../../clients/decorators/paymaster.js'
 import type {
@@ -92,7 +94,10 @@ export type EstimateUserOperationGasParameters<
   MaybeRequired<
     { entryPointAddress?: Address },
     _derivedAccount extends undefined ? true : false
-  >
+  > & {
+    /** State overrides for the User Operation call. */
+    stateOverride?: StateOverride | undefined
+  }
 
 export type EstimateUserOperationGasReturnType<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -153,10 +158,16 @@ export async function estimateUserOperationGas<
     calls
   >,
 ): Promise<EstimateUserOperationGasReturnType<account, accountOverride>> {
-  const { account: account_ = client.account, entryPointAddress } = parameters
+  const {
+    account: account_ = client.account,
+    entryPointAddress,
+    stateOverride,
+  } = parameters
 
   if (!account_ && !parameters.sender) throw new AccountNotFoundError()
   const account = account_ ? parseAccount(account_) : undefined
+
+  const rpcStateOverride = serializeStateOverride(stateOverride)
 
   const request = account
     ? await getAction(
@@ -170,12 +181,13 @@ export async function estimateUserOperationGas<
     : parameters
 
   try {
+    const params = [
+      formatUserOperationRequest(request as UserOperation),
+      (entryPointAddress ?? account?.entryPoint?.address)!,
+    ] as const
     const result = await client.request({
       method: 'eth_estimateUserOperationGas',
-      params: [
-        formatUserOperationRequest(request as UserOperation),
-        (entryPointAddress ?? account?.entryPoint?.address)!,
-      ],
+      params: rpcStateOverride ? [...params, rpcStateOverride] : [...params],
     })
     return formatUserOperationGas(result) as EstimateUserOperationGasReturnType<
       account,
