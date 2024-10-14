@@ -7,6 +7,27 @@ import type {
 } from '../index.js'
 import type { formatters } from './formatters.js'
 
+type RequestGetCodeParams = {
+  Method: 'eth_getCode'
+  Parameters: [Address, 'latest']
+  ReturnType: Hex
+}
+/*
+ * This checks if we're in L2 context, it's a port of the technique used in
+ * https://github.com/celo-org/celo-monorepo/blob/da9b4955c1fdc8631980dc4adf9b05e0524fc228/packages/protocol/contracts-0.8/common/IsL2Check.sol#L17
+ */
+const isCel2 = async (client: Client) => {
+  const proxyAdminAddress = '0x4200000000000000000000000000000000000018'
+  const code = await client.request<RequestGetCodeParams>({
+    method: 'eth_getCode',
+    params: [proxyAdminAddress, 'latest'],
+  })
+  if (typeof code === 'string') {
+    return code !== '0x' && code.length > 2
+  }
+  return false
+}
+
 export const fees: ChainFees<typeof formatters> = {
   /*
    * Estimates the fees per gas for a transaction.
@@ -22,7 +43,7 @@ export const fees: ChainFees<typeof formatters> = {
   ) => {
     if (!params.request?.feeCurrency) return null
 
-    const [maxFeePerGas, maxPriorityFeePerGas] = await Promise.all([
+    const [gasPrice, maxPriorityFeePerGas] = await Promise.all([
       estimateFeePerGasInFeeCurrency(params.client, params.request.feeCurrency),
       estimateMaxPriorityFeePerGasInFeeCurrency(
         params.client,
@@ -30,11 +51,18 @@ export const fees: ChainFees<typeof formatters> = {
       ),
     ])
 
-    const suggestedMaxFeePerGas =
-      params.multiply(maxFeePerGas) + maxPriorityFeePerGas
+    let maxFeePerGas: bigint;
+    if (await isCel2(params.client)) {
+      // eth_gasPrice for cel2 returns baseFeePerGas + maxPriorityFeePerGas
+      maxFeePerGas =
+        params.multiply(gasPrice - maxPriorityFeePerGas) + maxPriorityFeePerGas
+    } else {
+      // eth_gasPrice for Celo L1 returns (baseFeePerGas * multiplier), where the multiplier is 2 by default.
+      maxFeePerGas = gasPrice + maxPriorityFeePerGas
+    }
 
     return {
-      maxFeePerGas: suggestedMaxFeePerGas,
+      maxFeePerGas: maxFeePerGas,
       maxPriorityFeePerGas,
     }
   },
