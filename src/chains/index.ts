@@ -393,6 +393,7 @@ export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
 export { zkFair } from './definitions/zkFair.js'
 export { zkFairTestnet } from './definitions/zkFairTestnet.js'
 export { zkLinkNova } from './definitions/zkLinkNova.js'
+export { ql1 } from './definitions/ql1.js'
 export { zkLinkNovaSepoliaTestnet } from './definitions/zkLinkNovaSepoliaTestnet.js'
 export {
   /** @deprecated Use `zksync` instead */
