@@ -11,6 +11,7 @@ import {
   verifyTypedData,
   writeContract,
 } from '../../../actions/index.js'
+import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { pad } from '../../../utils/data/pad.js'
 import { toSoladySmartAccount } from './toSoladySmartAccount.js'
 
@@ -41,6 +42,7 @@ test('default', async () => {
       "abi": null,
       "address": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
       "client": null,
+      "decodeCalls": [Function],
       "encodeCalls": [Function],
       "entryPoint": {
         "abi": [
@@ -1843,6 +1845,78 @@ describe('return value: getAddress', () => {
   })
 })
 
+describe('return value: decodeCalls', () => {
+  test('single', async () => {
+    const account = await toSoladySmartAccount({
+      client,
+      factoryAddress,
+      owner: accounts[1].address,
+    })
+
+    const calls = [
+      {
+        to: '0x0000000000000000000000000000000000000000',
+        value: 69n,
+        data: '0xdeadbeef',
+      },
+    ] as const
+
+    const data = await account.encodeCalls(calls)
+    const decoded = await account.decodeCalls?.(data)
+    expect(decoded).toEqual(calls)
+  })
+
+  test('batch', async () => {
+    const account = await toSoladySmartAccount({
+      client,
+      factoryAddress,
+      owner: accounts[1].address,
+    })
+
+    const calls = [
+      {
+        data: '0x',
+        to: '0x0000000000000000000000000000000000000000',
+        value: 0n,
+      },
+      {
+        data: '0x',
+        to: '0x0000000000000000000000000000000000000000',
+        value: 69n,
+      },
+      {
+        to: '0x0000000000000000000000000000000000000000',
+        value: 69n,
+        data: '0xdeadbeef',
+      },
+    ] as const
+
+    const data = await account.encodeCalls(calls)
+    const decoded = await account.decodeCalls?.(data)
+    expect(decoded).toEqual(calls)
+  })
+
+  test('invalid data', async () => {
+    const account = await toSoladySmartAccount({
+      client,
+      factoryAddress,
+      owner: accounts[1].address,
+    })
+
+    const data = encodeFunctionData({
+      abi: account.abi,
+      functionName: 'entryPoint',
+    })
+    await expect(() =>
+      account.decodeCalls?.(data),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [BaseError: unable to decode calls for "entryPoint"
+
+      Version: viem@x.y.z]
+    `)
+  })
+})
+
 describe('return value: encodeCalls', () => {
   test('single', async () => {
     const account = await toSoladySmartAccount({
@@ -1911,7 +1985,7 @@ describe('return value: getFactoryArgs', () => {
     expect(signature).toMatchInlineSnapshot(
       `
       {
-        "factory": "0xfb6dAB6200b8958C2655C3747708F82243d3F32E",
+        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
         "factoryData": "0xf14ddffc00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000000000000000000",
       }
     `,

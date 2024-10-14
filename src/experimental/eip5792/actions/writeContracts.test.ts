@@ -184,7 +184,7 @@ test('default', async () => {
         "gasUsed": 78394n,
         "logs": [
           {
-            "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+            "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
             "blockTimestamp": "0x63abc18c",
@@ -210,7 +210,7 @@ test('default', async () => {
         "gasUsed": 61294n,
         "logs": [
           {
-            "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+            "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
             "blockTimestamp": "0x63abc18c",
@@ -236,7 +236,7 @@ test('default', async () => {
         "gasUsed": 61294n,
         "logs": [
           {
-            "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+            "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
             "blockTimestamp": "0x63abc18c",

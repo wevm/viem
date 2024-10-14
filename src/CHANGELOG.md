@@ -1,5 +1,65 @@
 # viem
 
+## 2.21.25
+
+### Patch Changes
+
+- [#2844](https://github.com/wevm/viem/pull/2844) [`3140383`](https://github.com/wevm/viem/commit/31403839f81d153751cc8670ae0553576794f97d) Thanks [@coffeexcoin](https://github.com/coffeexcoin)! - Added ability for `onRequest` on the `http` transport to return request options.
+
+- [#2853](https://github.com/wevm/viem/pull/2853) [`840531e`](https://github.com/wevm/viem/commit/840531e4e4502d25c3b09a462aa416428fca9e18) Thanks [@marthendalnunes](https://github.com/marthendalnunes)! - Narrowed return type of `signTransaction`.
+
+- [#2850](https://github.com/wevm/viem/pull/2850) [`9e26e16`](https://github.com/wevm/viem/commit/9e26e166daf5a2b3525ce183b439b3ae40f517e9) Thanks [@plusminushalf](https://github.com/plusminushalf)! - **Account Abstraction:** Updated precedence of user-defined fee parameters in `prepareUserOperation`.
+
+- [#2854](https://github.com/wevm/viem/pull/2854) [`1006a71`](https://github.com/wevm/viem/commit/1006a712aa6899f9d9d136d41d5dac2ea59f2dcc) Thanks [@jxom](https://github.com/jxom)! - Converted `from` to an optional parameter on `TransactionRequest`.
+
+## 2.21.24
+
+### Patch Changes
+
+- [#2846](https://github.com/wevm/viem/pull/2846) [`38def97b`](https://github.com/wevm/viem/commit/38def97bf2786f4ed0c68afc94d0f2078c842ec3) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added Elastos chain.
+
+- [#2847](https://github.com/wevm/viem/pull/2847) [`bd23492e`](https://github.com/wevm/viem/commit/bd23492e1b36b9f7bb2ccc412a9e165e809d1bb2) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added loop chain.
+
+- [`65cd2c68`](https://github.com/wevm/viem/commit/65cd2c68ff5fd815ecc408a8f511120da5e01c0c) Thanks [@jxom](https://github.com/jxom)! - Added Odyssey Testnet.
+
+## 2.21.23
+
+### Patch Changes
+
+- [#2843](https://github.com/wevm/viem/pull/2843) [`47c167b0`](https://github.com/wevm/viem/commit/47c167b0898d400814b5f3b62ebaf6594ceca75e) Thanks [@Kharabet](https://github.com/Kharabet)! - Added guruTestnet chain.
+
+- [#2841](https://github.com/wevm/viem/pull/2841) [`5b8090ee`](https://github.com/wevm/viem/commit/5b8090ee4f6b828d290acaf596b88c5c2f78e565) Thanks [@dienho12](https://github.com/dienho12)! - Added DOSChain and DOSChain Testnet chain.
+
+## 2.21.22
+
+### Patch Changes
+
+- [#2838](https://github.com/wevm/viem/pull/2838) [`f0695c5`](https://github.com/wevm/viem/commit/f0695c5c8c9fb29b78a7ca8c07b176191e550e39) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Superposition chain.
+
+- [#2840](https://github.com/wevm/viem/pull/2840) [`e9cf6ee`](https://github.com/wevm/viem/commit/e9cf6eea9bf15ee57a6db42a2502eda6a733e149) Thanks [@akshatmittal](https://github.com/akshatmittal)! - Added Unichain Sepolia Testnet chain.
+
+- [`0ff9db8`](https://github.com/wevm/viem/commit/0ff9db844c9b2f11f3f726da20b132c0dc11d37f) Thanks [@jxom](https://github.com/jxom)! - Added `decodeCalls` as an optional property on `toSmartAccount`.
+
+- [#2837](https://github.com/wevm/viem/pull/2837) [`2f46c00`](https://github.com/wevm/viem/commit/2f46c00e62c90f406da666b3544c427867135a84) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Electroneum chain.
+
+- [`95b316c`](https://github.com/wevm/viem/commit/95b316cb29375c9041ec5a92558cc975f41e9ba3) Thanks [@jxom](https://github.com/jxom)! - Added `stateOverride` to `estimateUserOperationGas` & `prepareUserOperation`.
+
+## 2.21.21
+
+### Patch Changes
+
+- [#2834](https://github.com/wevm/viem/pull/2834) [`10dcb7ab`](https://github.com/wevm/viem/commit/10dcb7ab6ac5ecf1e46e8afa3245ffc21e245365) Thanks [@LordMarkDev](https://github.com/LordMarkDev)! - Added Zenchain Testnet
+
+## 2.21.20
+
+### Patch Changes
+
+- [#2828](https://github.com/wevm/viem/pull/2828) [`fa546476`](https://github.com/wevm/viem/commit/fa5464766509a1806b0726ddea11e3ea2af34500) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated opBNB Explorer URLs.
+
+- [#2832](https://github.com/wevm/viem/pull/2832) [`4c928cba`](https://github.com/wevm/viem/commit/4c928cbaa01f89ba78989efa390579cb60a6759c) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added MAP Protocol chain.
+
+- [#2830](https://github.com/wevm/viem/pull/2830) [`690f6f50`](https://github.com/wevm/viem/commit/690f6f507c86657336c102dec29d6740b3653691) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Go Chain.
+
 ## 2.21.19
 
 ### Patch Changes
