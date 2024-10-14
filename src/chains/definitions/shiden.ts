@@ -11,7 +11,7 @@ export const shiden = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://shiden.public.blastapi.io'],
-      webSocket: ['wss://shiden-rpc.dwellir.com']
+      webSocket: ['wss://shiden-rpc.dwellir.com'],
     },
   },
   blockExplorers: {

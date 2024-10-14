@@ -11,7 +11,7 @@ export const ultron = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Ultron Scan',    
+      name: 'Ultron Scan',
       url: 'https://ulxscan.com',
     },
   },
