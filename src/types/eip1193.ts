@@ -22,6 +22,7 @@ import type {
   RpcTransactionRequest as TransactionRequest,
   RpcUncle as Uncle,
 } from './rpc.js'
+import type { AccessList } from './transaction.js'
 import type { ExactPartial, OneOf, PartialBy, Prettify } from './utils.js'
 
 //////////////////////////////////////////////////
@@ -643,6 +644,26 @@ export type PublicRpcSchema = [
           stateOverrideSet: RpcStateOverride,
         ]
     ReturnType: Hex
+  },
+  /**
+   * @description Executes a new message call immediately without submitting a transaction to the network
+   *
+   * @example
+   * provider.request({ method: 'eth_call', params: [{ to: '0x...', data: '0x...' }] })
+   * // => '0x...'
+   */
+  {
+    Method: 'eth_createAccessList'
+    Parameters:
+      | [transaction: ExactPartial<TransactionRequest>]
+      | [
+          transaction: ExactPartial<TransactionRequest>,
+          block: BlockNumber | BlockTag | BlockIdentifier,
+        ]
+    ReturnType: {
+      accessList: AccessList
+      gasUsed: Quantity
+    }
   },
   /**
    * @description Returns the chain ID associated with the current network
