@@ -25,6 +25,7 @@ import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
   decodeEventLog,
   encodeFunctionData,
+  getAddress,
   nonceManager,
 } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -874,7 +875,7 @@ describe('local account', () => {
 
     const receipt = await getTransactionReceipt(client, { hash })
     const log = receipt.logs[0]
-    expect(log.address).toBe(authority.address)
+    expect(getAddress(log.address)).toBe(authority.address)
     expect(
       decodeEventLog({
         abi: BatchCallInvoker.abi,
@@ -945,7 +946,7 @@ describe('local account', () => {
 
     const receipt = await getTransactionReceipt(client, { hash })
     const log = receipt.logs[0]
-    expect(log.address).toBe(authority.address)
+    expect(getAddress(log.address)).toBe(authority.address)
     expect(
       decodeEventLog({
         abi: BatchCallInvoker.abi,

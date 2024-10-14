@@ -36,14 +36,14 @@ test('inspects txpool (pending)', async () => {
   const txpool1 = await inspectTxpool(client)
   expect(Object.values(txpool1.pending).length).toBe(2)
   expect(Object.values(txpool1.queued).length).toBe(0)
-  expect(txpool1.pending[getAddress(accounts[0].address)]).toBeDefined()
-  expect(txpool1.pending[getAddress(accounts[2].address)]).toBeDefined()
+  expect(txpool1.pending[accounts[0].address]).toBeDefined()
+  expect(txpool1.pending[accounts[2].address]).toBeDefined()
 
   await mine(client, { blocks: 1 })
 
   const txpool2 = await inspectTxpool(client)
   expect(Object.values(txpool2.pending).length).toBe(0)
   expect(Object.values(txpool2.queued).length).toBe(0)
-  expect(txpool2.pending[getAddress(accounts[0].address)]).toBeUndefined()
-  expect(txpool2.pending[getAddress(accounts[2].address)]).toBeUndefined()
+  expect(txpool2.pending[accounts[0].address]).toBeUndefined()
+  expect(txpool2.pending[accounts[2].address]).toBeUndefined()
 })
