@@ -34,13 +34,13 @@ test('behavior: caches blockNumber within cacheTime', async () => {
 
   // Advance time by half of cacheTime
   await wait(cacheTime / 2)
-  const b = await getBlockNumber(client, { cacheTime })
+  const b = await getBlockNumber(client)
   // Within cacheTime, the block number should be the same
   expect(a).toBe(b)
 
   // Advance time by the remaining half plus 1ms to exceed cacheTime
-  await wait(cacheTime / 2 + 1)
-  const c = await getBlockNumber(client, { cacheTime })
+  await wait(cacheTime / 2)
+  const c = await getBlockNumber(client)
   // After cacheTime has passed, the block number should be different
   expect(a).not.toBe(c)
 })
