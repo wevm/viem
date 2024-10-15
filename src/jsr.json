@@ -16,7 +16,6 @@
     "./op-stack": "./op-stack/index.ts",
     "./siwe": "./siwe/index.ts",
     "./utils": "./utils/index.ts",
-    "./window": "./window/index.ts",
     "./zksync": "./zksync/index.ts"
   },
   "publish": {
