@@ -3,7 +3,7 @@
   "version": "2.21.25",
   "exports": {
     ".": "./index.ts",
-    "./accounts-abstraction": "./accounts-abstraction/index.ts",
+    "./accounts-abstraction": "./account-abstraction/index.ts",
     "./accounts": "./accounts/index.ts",
     "./actions": "./actions/index.ts",
     "./celo": "./celo/index.ts",
