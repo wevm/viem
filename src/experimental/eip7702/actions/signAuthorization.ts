@@ -31,8 +31,13 @@ export type SignAuthorizationParameters<
   account extends Account | undefined = Account | undefined,
 > = GetAccountParameter<account> &
   PartialBy<Authorization, 'chainId' | 'nonce'> & {
-    /** Delegate of the EIP-7702 Authorization Transaction. @default `account` */
-    delegate?: Address | Account | undefined
+    /**
+     * Whether the EIP-7702 Transaction will be executed by another Account.
+     *
+     * If not specified, it will be assumed that the EIP-7702 Transaction will
+     * be executed by the Account that signed the Authorization.
+     */
+    delegate?: true | Address | Account | undefined
   }
 
 export type SignAuthorizationReturnType = SignAuthorizationReturnType_account
@@ -108,7 +113,11 @@ export async function signAuthorization<
     })
   const account = parseAccount(account_)
 
-  const delegate = delegate_ ? parseAccount(delegate_) : undefined
+  const delegate = (() => {
+    if (typeof delegate_ === 'boolean') return delegate_
+    if (delegate_) return parseAccount(delegate_)
+    return undefined
+  })()
 
   if (!account.experimental_signAuthorization)
     throw new AccountTypeNotSupportedError({
@@ -139,7 +148,10 @@ export async function signAuthorization<
       address: account.address,
       blockTag: 'pending',
     })
-    if (!delegate || isAddressEqual(account.address, delegate.address))
+    if (
+      !delegate ||
+      (delegate !== true && isAddressEqual(account.address, delegate.address))
+    )
       authorization.nonce += 1
   }
 

@@ -127,21 +127,12 @@ export const defineTransaction = /*#__PURE__*/ defineFormatter(
 function formatAuthorizationList(
   authorizationList: RpcAuthorizationList,
 ): SignedAuthorizationList {
-  return authorizationList.map(
-    (authorization) =>
-      ({
-        contractAddress: (authorization as any).address,
-        r: authorization.r,
-        s: authorization.s,
-        chainId: Number(authorization.chainId),
-        nonce: Number(authorization.nonce),
-        ...(typeof authorization.yParity !== 'undefined'
-          ? { yParity: Number(authorization.yParity) }
-          : {}),
-        ...(typeof authorization.v !== 'undefined' &&
-        typeof authorization.yParity === 'undefined'
-          ? { v: Number(authorization.v) }
-          : {}),
-      }) as any,
-  ) as SignedAuthorizationList
+  return authorizationList.map((authorization) => ({
+    contractAddress: (authorization as any).address,
+    chainId: Number(authorization.chainId),
+    nonce: Number(authorization.nonce),
+    r: authorization.r,
+    s: authorization.s,
+    yParity: Number(authorization.yParity),
+  })) as SignedAuthorizationList
 }

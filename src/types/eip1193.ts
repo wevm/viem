@@ -1781,6 +1781,18 @@ export type WalletRpcSchema = [
     ReturnType: string
   },
   /**
+   * @description Creates, signs, and sends a new transaction to the network
+   * @link https://eips.ethereum.org/EIPS/eip-1474
+   * @example
+   * provider.request({ method: 'wallet_sendTransaction', params: [{ from: '0x...', to: '0x...', value: '0x...' }] })
+   * // => '0x...'
+   */
+  {
+    Method: 'wallet_sendTransaction'
+    Parameters: [transaction: TransactionRequest]
+    ReturnType: Hash
+  },
+  /**
    * @description Requests for the wallet to show information about a call batch
    * that was sent via `wallet_sendCalls`.
    * @link https://eips.ethereum.org/EIPS/eip-5792

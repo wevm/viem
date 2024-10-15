@@ -441,14 +441,13 @@ const batchCallInvoker = getContract({
   address: walletClient.account.address,
   walletClient,
 })
- 
+
 const delegate = privateKeyToAccount('0x...') // [!code ++]
 
 const authorization = await walletClient.signAuthorization({
   contractAddress,
   delegate, // [!code ++]
 })
-
 
 const hash = await batchCallInvoker.write.execute([[{
   data: '0x',

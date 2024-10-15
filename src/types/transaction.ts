@@ -275,7 +275,7 @@ export type TransactionRequestEIP7702<
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    authorizationList: AuthorizationList<index, boolean>
+    authorizationList?: AuthorizationList<index, boolean> | undefined
   }
 
 export type TransactionRequest<quantity = bigint, index = number> = OneOf<

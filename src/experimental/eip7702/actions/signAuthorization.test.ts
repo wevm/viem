@@ -206,11 +206,27 @@ test('behavior: partial authorization: no chainId', async () => {
   ).toBe(true)
 })
 
-test('behavior: delegate', async () => {
+test('behavior: delegate is address', async () => {
   const authorization = await signAuthorization(client, {
     account,
     contractAddress: wagmiContractConfig.address,
     delegate: '0x0000000000000000000000000000000000000000',
+  })
+
+  expect(authorization.nonce).toBe(663)
+  expect(
+    await verifyAuthorization({
+      address: account.address,
+      authorization,
+    }),
+  ).toBe(true)
+})
+
+test('behavior: delegate is truthy', async () => {
+  const authorization = await signAuthorization(client, {
+    account,
+    contractAddress: wagmiContractConfig.address,
+    delegate: true,
   })
 
   expect(authorization.nonce).toBe(663)
