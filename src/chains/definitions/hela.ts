@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const hela = /*#__PURE__*/ defineChain({
   id: 8668,
   name: 'Hela Mainnet',
-  network: 'Hela Mainnet',
   nativeCurrency: {
     name: 'HLUSD',
     symbol: 'HLUSD',
