@@ -1,5 +1,29 @@
 # viem
 
+## 2.21.26
+
+### Patch Changes
+
+- [#2857](https://github.com/wevm/viem/pull/2857) [`b42b1db`](https://github.com/wevm/viem/commit/b42b1dbe8aa6ace4eb196a4897aad799842a1645) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Shiden chain.
+
+- [#2864](https://github.com/wevm/viem/pull/2864) [`987924c`](https://github.com/wevm/viem/commit/987924c753e5c2259a3811d1903ef4b54e78626a) Thanks [@wanderer](https://github.com/wanderer)! - Added missing exports to `jsr.json`.
+
+- [#2860](https://github.com/wevm/viem/pull/2860) [`3effd71`](https://github.com/wevm/viem/commit/3effd7143207ffee50406bb77ef870483d30d70f) Thanks [@vpontis](https://github.com/vpontis)! - Updated internal `keepAliveTimer` type.
+
+- [#2858](https://github.com/wevm/viem/pull/2858) [`235ee2c`](https://github.com/wevm/viem/commit/235ee2cceca00dce5d3c733263bb8eb3cdf1352b) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Ultron Mainnet.
+
+## 2.21.25
+
+### Patch Changes
+
+- [#2844](https://github.com/wevm/viem/pull/2844) [`3140383`](https://github.com/wevm/viem/commit/31403839f81d153751cc8670ae0553576794f97d) Thanks [@coffeexcoin](https://github.com/coffeexcoin)! - Added ability for `onRequest` on the `http` transport to return request options.
+
+- [#2853](https://github.com/wevm/viem/pull/2853) [`840531e`](https://github.com/wevm/viem/commit/840531e4e4502d25c3b09a462aa416428fca9e18) Thanks [@marthendalnunes](https://github.com/marthendalnunes)! - Narrowed return type of `signTransaction`.
+
+- [#2850](https://github.com/wevm/viem/pull/2850) [`9e26e16`](https://github.com/wevm/viem/commit/9e26e166daf5a2b3525ce183b439b3ae40f517e9) Thanks [@plusminushalf](https://github.com/plusminushalf)! - **Account Abstraction:** Updated precedence of user-defined fee parameters in `prepareUserOperation`.
+
+- [#2854](https://github.com/wevm/viem/pull/2854) [`1006a71`](https://github.com/wevm/viem/commit/1006a712aa6899f9d9d136d41d5dac2ea59f2dcc) Thanks [@jxom](https://github.com/jxom)! - Converted `from` to an optional parameter on `TransactionRequest`.
+
 ## 2.21.24
 
 ### Patch Changes

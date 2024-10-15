@@ -9,62 +9,24 @@ import type {
   FeeValuesLegacy,
 } from '../../index.js'
 import type {
-  TransactionRequestEIP1559,
-  TransactionRequestEIP2930,
-  TransactionRequestEIP4844,
-  TransactionRequestEIP7702,
   TransactionRequestGeneric,
-  TransactionRequestLegacy,
-  TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
   TransactionSerializableGeneric,
-  TransactionSerializableLegacy,
 } from '../../types/transaction.js'
-import type {
-  Assign,
-  ExactPartial,
-  IsNever,
-  OneOf,
-  ValueOf,
-} from '../../types/utils.js'
+import type { Assign, ExactPartial, IsNever, OneOf } from '../../types/utils.js'
 
 export type GetTransactionType<
   transaction extends OneOf<
     TransactionSerializableGeneric | TransactionRequestGeneric
   > = TransactionSerializableGeneric,
   result =
-    | (transaction extends
-        | MatchKeys<TransactionSerializableLegacy, transaction>
-        | MatchKeys<TransactionRequestLegacy, transaction>
-        | LegacyProperties
-        ? 'legacy'
-        : never)
-    | (transaction extends
-        | MatchKeys<TransactionSerializableEIP1559, transaction>
-        | MatchKeys<TransactionRequestEIP1559, transaction>
-        | EIP1559Properties
-        ? 'eip1559'
-        : never)
-    | (transaction extends
-        | MatchKeys<TransactionSerializableEIP2930, transaction>
-        | MatchKeys<TransactionRequestEIP2930, transaction>
-        | EIP2930Properties
-        ? 'eip2930'
-        : never)
-    | (transaction extends
-        | MatchKeys<TransactionSerializableEIP4844, transaction>
-        | MatchKeys<TransactionRequestEIP4844, transaction>
-        | EIP4844Properties
-        ? 'eip4844'
-        : never)
-    | (transaction extends
-        | MatchKeys<TransactionSerializableEIP7702, transaction>
-        | MatchKeys<TransactionRequestEIP7702, transaction>
-        | EIP7702Properties
-        ? 'eip7702'
-        : never)
+    | (transaction extends LegacyProperties ? 'legacy' : never)
+    | (transaction extends EIP1559Properties ? 'eip1559' : never)
+    | (transaction extends EIP2930Properties ? 'eip2930' : never)
+    | (transaction extends EIP4844Properties ? 'eip4844' : never)
+    | (transaction extends EIP7702Properties ? 'eip7702' : never)
     | (transaction['type'] extends TransactionSerializableGeneric['type']
         ? Extract<transaction['type'], string>
         : never),
@@ -115,14 +77,6 @@ export function getTransactionType<
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Types
 
-type MatchKeys<T extends object, U extends object> = ValueOf<
-  Required<{
-    [K in keyof U]: K extends keyof T ? K : undefined
-  }>
-> extends string
-  ? T
-  : never
-
 type BaseProperties = {
   accessList?: undefined
   authorizationList?: undefined
@@ -151,13 +105,13 @@ type EIP1559Properties = Assign<
   }
 >
 type EIP2930Properties = Assign<
-  BaseProperties,
-  ExactPartial<FeeValuesLegacy> & {
+  ExactPartial<LegacyProperties>,
+  {
     accessList: TransactionSerializableEIP2930['accessList']
   }
 >
 type EIP4844Properties = Assign<
-  BaseProperties,
+  ExactPartial<EIP1559Properties>,
   ExactPartial<FeeValuesEIP4844> &
     OneOf<
       | {
@@ -173,8 +127,8 @@ type EIP4844Properties = Assign<
     >
 >
 type EIP7702Properties = Assign<
-  BaseProperties,
-  ExactPartial<FeeValuesEIP1559> & {
+  ExactPartial<EIP1559Properties>,
+  {
     authorizationList: TransactionSerializableEIP7702['authorizationList']
   }
 >
