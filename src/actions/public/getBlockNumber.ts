@@ -32,7 +32,7 @@ export function getBlockNumberCache(id: string) {
  * Returns the number of the most recent block seen.
  *
  * - Docs: https://viem.sh/docs/actions/public/getBlockNumber
- * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/fetching-blocks
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_fetching-blocks
  * - JSON-RPC Methods: [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber)
  *
  * @param client - Client to use
