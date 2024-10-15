@@ -154,6 +154,25 @@ const authorization = await walletClient.signAuthorization({
 }) 
 ```
 
+### delegate (optional)
+
+- **Type:** `true | Address | Account`
+
+Whether the EIP-7702 Transaction will be executed by another Account.
+
+If not specified, it will be assumed that the EIP-7702 Transaction will be executed by the Account that signed the Authorization.
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { walletClient } from './client'
+
+const authorization = await walletClient.signAuthorization({
+  account: privateKeyToAccount('0x...'),
+  contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  delegate: true, // [!code focus]
+}) 
+```
+
 ### nonce (optional)
 
 - **Type:** `Address`

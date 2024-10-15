@@ -341,14 +341,13 @@ We can also utilize an Delegate Account to execute a call on behalf of the autho
 import { encodeFunctionData{ parseEther } from 'viem'
 import { walletClient } from './config'
 import { contractAddress } from './contract'
- 
+
 const delegate = privateKeyToAccount('0x...') // [!code ++]
 
 const authorization = await walletClient.signAuthorization({
   contractAddress,
   delegate, // [!code ++]
 })
-
 
 const hash = await walletClient.sendTransaction({
   account: delegate, // [!code ++]

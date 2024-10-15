@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { Hex, Signature } from '../../../types/misc.js'
+import type { Hex } from '../../../types/misc.js'
 
 export type RpcAuthorization = {
   /** Address of the contract to set as code for the Authority. */
@@ -8,5 +8,11 @@ export type RpcAuthorization = {
   chainId: Hex
   /** Nonce of the Authority to authorize. */
   nonce: Hex
-} & Signature
+  /** ECDSA r value. */
+  r: Hex
+  /** ECDSA s value. */
+  s: Hex
+  /** y parity. */
+  yParity: Hex
+}
 export type RpcAuthorizationList = readonly RpcAuthorization[]
