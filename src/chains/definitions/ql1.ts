@@ -10,9 +10,7 @@ export const ql1 = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://rpc.qom.one',
-      ],
+      http: ['https://rpc.qom.one'],
     },
   },
   blockExplorers: {
