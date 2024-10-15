@@ -1,5 +1,17 @@
 # viem
 
+## 2.21.26
+
+### Patch Changes
+
+- [#2857](https://github.com/wevm/viem/pull/2857) [`b42b1db`](https://github.com/wevm/viem/commit/b42b1dbe8aa6ace4eb196a4897aad799842a1645) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Shiden chain.
+
+- [#2864](https://github.com/wevm/viem/pull/2864) [`987924c`](https://github.com/wevm/viem/commit/987924c753e5c2259a3811d1903ef4b54e78626a) Thanks [@wanderer](https://github.com/wanderer)! - Added missing exports to `jsr.json`.
+
+- [#2860](https://github.com/wevm/viem/pull/2860) [`3effd71`](https://github.com/wevm/viem/commit/3effd7143207ffee50406bb77ef870483d30d70f) Thanks [@vpontis](https://github.com/vpontis)! - Updated internal `keepAliveTimer` type.
+
+- [#2858](https://github.com/wevm/viem/pull/2858) [`235ee2c`](https://github.com/wevm/viem/commit/235ee2cceca00dce5d3c733263bb8eb3cdf1352b) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Ultron Mainnet.
+
 ## 2.21.25
 
 ### Patch Changes
