@@ -20,5 +20,5 @@ export const hela = /*#__PURE__*/ defineChain({
       url: 'https://mainnet-blockexplorer.helachain.com',
     },
   },
-  testnet: true,
+  testnet: false,
 })
