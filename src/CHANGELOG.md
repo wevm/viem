@@ -1,5 +1,17 @@
 # viem
 
+## 2.21.27
+
+### Patch Changes
+
+- [#2859](https://github.com/wevm/viem/pull/2859) [`5889209f`](https://github.com/wevm/viem/commit/5889209f74b00a3441b582e0bb29237ba94cdc1a) Thanks [@RobotMasterxo](https://github.com/RobotMasterxo)! - Added ql1 chain
+
+- [#2867](https://github.com/wevm/viem/pull/2867) [`67617516`](https://github.com/wevm/viem/commit/676175167c6e8129361abcb24b8e95952072baa3) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Chang Chain Foundation Mainnet.
+
+- [`5c9ed2f2`](https://github.com/wevm/viem/commit/5c9ed2f22270512d65ea76ad6087d2512cd21ba2) Thanks [@jxom](https://github.com/jxom)! - Tweaked EIP-7702 types.
+
+- [#2868](https://github.com/wevm/viem/pull/2868) [`8e74ea59`](https://github.com/wevm/viem/commit/8e74ea5946eb21d2fd815ee21d3a713ba881ee40) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Hela chain.
+
 ## 2.21.26
 
 ### Patch Changes
