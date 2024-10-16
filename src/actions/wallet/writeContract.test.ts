@@ -22,6 +22,7 @@ import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { simulateContract } from '../public/simulateContract.js'
 import { mine } from '../test/mine.js'
 import { writeContract } from './writeContract.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
 
 const client = anvilMainnet.getClient().extend(walletActions)
 const clientWithAccount = anvilMainnet.getClient({
@@ -460,6 +461,33 @@ test('w/ simulateContract (client chain mismatch)', async () => {
     Docs: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
+})
+
+test('behavior: transport supports `wallet_sendTransaction`', async () => {
+  const request = client.request
+  client.request = (parameters: any) => {
+    if (parameters.method === 'eth_sendTransaction')
+      throw new InvalidInputRpcError(new Error())
+    return request(parameters)
+  }
+
+  expect(
+    await writeContract(client, {
+      ...wagmiContractConfig,
+      account: accounts[0].address,
+      functionName: 'mint',
+    }),
+  ).toBeDefined()
+})
+
+test('behavior: nullish account', async () => {
+  expect(
+    await writeContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'mint',
+      account: null,
+    }),
+  ).toBeDefined()
 })
 
 describe('behavior: contract revert', () => {

@@ -607,7 +607,7 @@ describe('args: chain', async () => {
     `)
   })
 
-  test('behavior: nullish account, transport supports `wallet_sendTransaction`', async () => {
+  test('behavior: transport supports `wallet_sendTransaction`', async () => {
     await setup()
 
     const request = client.request
@@ -616,6 +616,18 @@ describe('args: chain', async () => {
         throw new InvalidInputRpcError(new Error())
       return request(parameters)
     }
+
+    expect(
+      await sendTransaction(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: 0n,
+      }),
+    ).toBeDefined()
+  })
+
+  test('behavior: nullish account', async () => {
+    await setup()
 
     expect(
       await sendTransaction(client, {
