@@ -42,6 +42,7 @@ import {
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import { LruMap } from '../../utils/lru.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -57,6 +58,8 @@ import {
   type SendRawTransactionErrorType,
   sendRawTransaction,
 } from './sendRawTransaction.js'
+
+const supportsWalletNamespace = new LruMap<boolean>(128)
 
 export type SendTransactionRequest<
   chain extends Chain | undefined = Chain | undefined,
@@ -228,23 +231,34 @@ export async function sendTransaction<
         value,
       } as TransactionRequest)
 
+      const method = supportsWalletNamespace.get(client.uid)
+        ? 'wallet_sendTransaction'
+        : 'eth_sendTransaction'
+
       try {
         return await client.request({
-          method: 'eth_sendTransaction',
+          method,
           params: [params],
         })
       } catch (e) {
         const error = e as BaseError
-        // If the transport does not support the input, attempt to use the
+        // If the transport does not support the method or input, attempt to use the
         // `wallet_sendTransaction` method.
         if (
           error.name === 'InvalidInputRpcError' ||
-          error.name === 'InvalidParamsRpcError'
+          error.name === 'InvalidParamsRpcError' ||
+          error.name === 'MethodNotFoundRpcError' ||
+          error.name === 'MethodNotSupportedRpcError'
         )
-          return await client.request({
-            method: 'wallet_sendTransaction',
-            params: [params],
-          })
+          return await client
+            .request({
+              method: 'wallet_sendTransaction',
+              params: [params],
+            })
+            .then((hash) => {
+              supportsWalletNamespace.set(client.uid, true)
+              return hash
+            })
         throw error
       }
     }
