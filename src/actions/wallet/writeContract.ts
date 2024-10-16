@@ -1,4 +1,4 @@
-import type { Abi } from 'abitype'
+import type { Abi, Address } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import {
@@ -71,7 +71,7 @@ export type WriteContractParameters<
 > &
   GetChainParameter<chain, chainOverride> &
   Prettify<
-    GetAccountParameter<account> &
+    GetAccountParameter<account, Account | Address, true, true> &
       GetMutabilityAwareValue<
         abi,
         'nonpayable' | 'payable',

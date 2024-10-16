@@ -160,7 +160,7 @@ export class TransactionExecutionError extends BaseError {
       to,
       value,
     }: Omit<SendTransactionParameters, 'account' | 'chain'> & {
-      account: Account
+      account: Account | null
       chain?: Chain | undefined
       docsPath?: string | undefined
     },

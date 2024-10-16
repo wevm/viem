@@ -40,6 +40,7 @@ import { reset } from '../test/reset.js'
 import { setBalance } from '../test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
 import { sendTransaction } from './sendTransaction.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
 
 const client = anvilMainnet.getClient()
 const clientWithAccount = anvilMainnet.getClient({
@@ -604,6 +605,25 @@ describe('args: chain', async () => {
 
       Version: viem@x.y.z]
     `)
+  })
+
+  test('behavior: nullish account, transport supports `wallet_sendTransaction`', async () => {
+    await setup()
+
+    const request = client.request
+    client.request = (parameters: any) => {
+      if (parameters.method === 'eth_sendTransaction')
+        throw new InvalidInputRpcError(new Error())
+      return request(parameters)
+    }
+
+    expect(
+      await sendTransaction(client, {
+        account: null,
+        to: targetAccount.address,
+        value: 0n,
+      }),
+    ).toBeDefined()
   })
 })
 

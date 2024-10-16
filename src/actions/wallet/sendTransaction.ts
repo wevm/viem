@@ -1,3 +1,5 @@
+import type { Address } from 'abitype'
+
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -73,7 +75,7 @@ export type SendTransactionParameters<
     chainOverride
   > = SendTransactionRequest<chain, chainOverride>,
 > = request &
-  GetAccountParameter<account> &
+  GetAccountParameter<account, Account | Address, true, true> &
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request>
 
@@ -166,11 +168,11 @@ export async function sendTransaction<
     ...rest
   } = parameters
 
-  if (!account_)
+  if (typeof account_ === 'undefined')
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/sendTransaction',
     })
-  const account = parseAccount(account_)
+  const account = account_ ? parseAccount(account_) : null
 
   try {
     assertRequest(parameters as AssertRequestParameters)
@@ -194,7 +196,7 @@ export async function sendTransaction<
       return undefined
     })()
 
-    if (account.type === 'json-rpc') {
+    if (account?.type === 'json-rpc' || account === null) {
       let chainId: number | undefined
       if (chain !== null) {
         chainId = await getAction(client, getChainId, 'getChainId')({})
@@ -207,7 +209,7 @@ export async function sendTransaction<
       const chainFormat = client.chain?.formatters?.transactionRequest?.format
       const format = chainFormat || formatTransactionRequest
 
-      const request = format({
+      const params = format({
         // Pick out extra data that might exist on the chain's transaction request type.
         ...extract(rest, { format: chainFormat }),
         accessList,
@@ -215,7 +217,7 @@ export async function sendTransaction<
         blobs,
         chainId,
         data,
-        from: account.address,
+        from: account?.address,
         gas,
         gasPrice,
         maxFeePerBlobGas,
@@ -225,16 +227,26 @@ export async function sendTransaction<
         to,
         value,
       } as TransactionRequest)
-      return await client.request(
-        {
+
+      try {
+        return await client.request({
           method: 'eth_sendTransaction',
-          params: [request],
-        },
-        { retryCount: 0 },
-      )
+          params: [params],
+        })
+      } catch (e) {
+        const error = e as BaseError
+        // If the transport does not support the input, attempt to use the
+        // `wallet_sendTransaction` method.
+        if (error.name === 'InvalidInputRpcError')
+          return await client.request({
+            method: 'wallet_sendTransaction',
+            params: [params],
+          })
+        throw error
+      }
     }
 
-    if (account.type === 'local') {
+    if (account?.type === 'local') {
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await getAction(
         client,
@@ -273,7 +285,7 @@ export async function sendTransaction<
       })
     }
 
-    if (account.type === 'smart')
+    if (account?.type === 'smart')
       throw new AccountTypeNotSupportedError({
         metaMessages: [
           'Consider using the `sendUserOperation` Action instead.',
@@ -284,7 +296,7 @@ export async function sendTransaction<
 
     throw new AccountTypeNotSupportedError({
       docsPath: '/docs/actions/wallet/sendTransaction',
-      type: (account as { type: string }).type,
+      type: (account as any)?.type,
     })
   } catch (err) {
     if (err instanceof AccountTypeNotSupportedError) throw err

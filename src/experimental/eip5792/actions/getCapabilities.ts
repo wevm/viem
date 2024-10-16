@@ -1,9 +1,11 @@
+import type { Address } from 'abitype'
+
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Account, GetAccountParameter } from '../../../types/account.js'
+import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import type {
   WalletCapabilities,
@@ -12,9 +14,9 @@ import type {
 import type { Prettify } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 
-export type GetCapabilitiesParameters<
-  account extends Account | undefined = Account | undefined,
-> = GetAccountParameter<account>
+export type GetCapabilitiesParameters = {
+  account?: Account | Address | undefined
+}
 
 export type GetCapabilitiesReturnType = Prettify<
   WalletCapabilitiesRecord<WalletCapabilities, number>
@@ -42,24 +44,11 @@ export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
  * })
  * const capabilities = await getCapabilities(client)
  */
-export async function getCapabilities<
-  chain extends Chain | undefined,
-  account extends Account | undefined = undefined,
->(
-  ...parameters: account extends Account
-    ?
-        | [client: Client<Transport, chain, account>]
-        | [
-            client: Client<Transport, chain, account>,
-            parameters: GetCapabilitiesParameters<account>,
-          ]
-    : [
-        client: Client<Transport, chain, account>,
-        parameters: GetCapabilitiesParameters<account>,
-      ]
+export async function getCapabilities<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: GetCapabilitiesParameters = {},
 ): Promise<GetCapabilitiesReturnType> {
-  const [client, args] = parameters
-  const account_raw = args?.account ?? client.account
+  const account_raw = parameters?.account ?? client.account
 
   if (!account_raw) throw new AccountNotFoundError()
   const account = parseAccount(account_raw)

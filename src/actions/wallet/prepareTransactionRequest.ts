@@ -122,7 +122,7 @@ export type PrepareTransactionRequestParameters<
     chainOverride
   > = PrepareTransactionRequestRequest<chain, chainOverride>,
 > = request &
-  GetAccountParameter<account, accountOverride, false> &
+  GetAccountParameter<account, accountOverride, false, true> &
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request> & { chainId?: number | undefined }
 
