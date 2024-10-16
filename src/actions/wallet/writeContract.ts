@@ -181,11 +181,11 @@ export async function writeContract<
     ...request
   } = parameters as WriteContractParameters
 
-  if (!account_)
+  if (typeof account_ === 'undefined')
     throw new AccountNotFoundError({
       docsPath: '/docs/contract/writeContract',
     })
-  const account = parseAccount(account_)
+  const account = account_ ? parseAccount(account_) : null
 
   const data = encodeFunctionData({
     abi,
@@ -211,7 +211,7 @@ export async function writeContract<
       args,
       docsPath: '/docs/contract/writeContract',
       functionName,
-      sender: account.address,
+      sender: account?.address,
     })
   }
 }
