@@ -237,7 +237,10 @@ export async function sendTransaction<
         const error = e as BaseError
         // If the transport does not support the input, attempt to use the
         // `wallet_sendTransaction` method.
-        if (error.name === 'InvalidInputRpcError')
+        if (
+          error.name === 'InvalidInputRpcError' ||
+          error.name === 'InvalidParamsRpcError'
+        )
           return await client.request({
             method: 'wallet_sendTransaction',
             params: [params],
