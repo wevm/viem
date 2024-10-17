@@ -14,6 +14,7 @@ import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 import { http } from '../../clients/transports/http.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
 import { signAuthorization } from '../../experimental/index.js'
 import { decodeEventLog, getAddress, parseEther } from '../../utils/index.js'
 import { getBalance } from '../public/getBalance.js'
@@ -460,6 +461,33 @@ test('w/ simulateContract (client chain mismatch)', async () => {
     Docs: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
+})
+
+test('behavior: transport supports `wallet_sendTransaction`', async () => {
+  const request = client.request
+  client.request = (parameters: any) => {
+    if (parameters.method === 'eth_sendTransaction')
+      throw new InvalidInputRpcError(new Error())
+    return request(parameters)
+  }
+
+  expect(
+    await writeContract(client, {
+      ...wagmiContractConfig,
+      account: accounts[0].address,
+      functionName: 'mint',
+    }),
+  ).toBeDefined()
+})
+
+test('behavior: nullish account', async () => {
+  expect(
+    await writeContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'mint',
+      account: null,
+    }),
+  ).toBeDefined()
 })
 
 describe('behavior: contract revert', () => {

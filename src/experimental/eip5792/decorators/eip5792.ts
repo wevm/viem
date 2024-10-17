@@ -80,9 +80,7 @@ export type Eip5792Actions<
    * })
    */
   getCapabilities: (
-    ...parameters: account extends Account
-      ? [] | [parameters: GetCapabilitiesParameters<account>]
-      : [parameters: GetCapabilitiesParameters<undefined>]
+    parameters?: GetCapabilitiesParameters,
   ) => Promise<GetCapabilitiesReturnType>
   /**
    * Requests the connected wallet to send a batch of calls.
