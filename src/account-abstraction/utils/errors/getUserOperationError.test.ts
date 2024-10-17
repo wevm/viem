@@ -563,3 +563,50 @@ test('bundler error', () => {
     Version: viem@x.y.z]
   `)
 })
+
+test('bundler error (execution reverted without calls)', () => {
+  const error = new RpcRequestError({
+    body: {},
+    error: {
+      code: -32521,
+      message: 'UserOperation reverted during simulation with reason: 0x',
+    },
+    url: '',
+  })
+  const result = getUserOperationError(error, {
+    callData: '0xdeadbeef',
+    callGasLimit: 1n,
+    nonce: 1n,
+    preVerificationGas: 1n,
+    verificationGasLimit: 1n,
+    signature: '0xdeadbeef',
+    sender: '0xdeadbeef',
+    factory: '0x0000000000000000000000000000000000000000',
+    factoryData: '0xdeadbeef',
+    maxFeePerGas: 1n,
+    maxPriorityFeePerGas: 2n,
+    paymasterData: '0xdeadbeef',
+    paymaster: '0xffff',
+  })
+  expect(result).toMatchInlineSnapshot(`
+    [UserOperationExecutionError: Execution reverted with reason: UserOperation reverted during simulation with reason: 0x.
+
+    Request Arguments:
+      callData:              0xdeadbeef
+      callGasLimit:          1
+      factory:               0x0000000000000000000000000000000000000000
+      factoryData:           0xdeadbeef
+      maxFeePerGas:          0.000000001 gwei
+      maxPriorityFeePerGas:  0.000000002 gwei
+      nonce:                 1
+      paymaster:             0xffff
+      paymasterData:         0xdeadbeef
+      preVerificationGas:    1
+      sender:                0xdeadbeef
+      signature:             0xdeadbeef
+      verificationGasLimit:  1
+
+    Details: UserOperation reverted during simulation with reason: 0x
+    Version: viem@x.y.z]
+  `)
+})
