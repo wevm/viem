@@ -116,6 +116,7 @@ export async function getWithdrawalStatus<
 >(
   client: Client<Transport, chain, account>,
   parameters: GetWithdrawalStatusParameters<chain, chainOverride>,
+  logIndex = 0
 ): Promise<GetWithdrawalStatusReturnType> {
   const {
     chain = client.chain,
@@ -132,7 +133,7 @@ export async function getWithdrawalStatus<
     return Object.values(targetChain.contracts.portal)[0].address
   })()
 
-  const [withdrawal] = getWithdrawals(receipt)
+  const withdrawal = getWithdrawals(receipt)[logIndex]
 
   if (!withdrawal)
     throw new ReceiptContainsNoWithdrawalsError({
