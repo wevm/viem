@@ -56,7 +56,7 @@ export class RpcError<code_ extends number = RpcErrorCode> extends BaseError {
     })
     this.name = name || cause.name
     this.code = (
-      cause instanceof RpcRequestError ? cause.code : code ?? unknownErrorCode
+      cause instanceof RpcRequestError ? cause.code : (code ?? unknownErrorCode)
     ) as code_
   }
 }
