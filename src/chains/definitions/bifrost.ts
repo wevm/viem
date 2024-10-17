@@ -12,7 +12,7 @@ export const bifrost = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Bifrost Blockscout',
-      url: 'https://explorer.mainnet.bifrostnetwork.com/',
+      url: 'https://explorer.mainnet.bifrostnetwork.com',
     },
   },
   testnet: false,
