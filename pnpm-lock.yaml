@@ -52,7 +52,7 @@ importers:
         version: 20.16.12
       '@vitest/coverage-v8':
         specifier: ^1.0.4
-        version: 1.0.4(vitest@1.0.4(@types/node@20.16.12)(@vitest/ui@1.0.4)(terser@5.31.0))
+        version: 1.0.4(vitest@1.0.4)
       '@vitest/ui':
         specifier: ^1.0.4
         version: 1.0.4(vitest@1.0.4)
@@ -7844,7 +7844,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@1.0.4(vitest@1.0.4(@types/node@20.16.12)(@vitest/ui@1.0.4)(terser@5.31.0))':
+  '@vitest/coverage-v8@1.0.4(vitest@1.0.4)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
