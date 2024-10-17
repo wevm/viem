@@ -212,7 +212,7 @@ export async function sendTransaction<
       const chainFormat = client.chain?.formatters?.transactionRequest?.format
       const format = chainFormat || formatTransactionRequest
 
-      const params = format({
+      const request = format({
         // Pick out extra data that might exist on the chain's transaction request type.
         ...extract(rest, { format: chainFormat }),
         accessList,
@@ -236,10 +236,13 @@ export async function sendTransaction<
         : 'eth_sendTransaction'
 
       try {
-        return await client.request({
-          method,
-          params: [params],
-        })
+        return await client.request(
+          {
+            method,
+            params: [request],
+          },
+          { retryCount: 0 },
+        )
       } catch (e) {
         const error = e as BaseError
         // If the transport does not support the method or input, attempt to use the
@@ -251,10 +254,13 @@ export async function sendTransaction<
           error.name === 'MethodNotSupportedRpcError'
         )
           return await client
-            .request({
-              method: 'wallet_sendTransaction',
-              params: [params],
-            })
+            .request(
+              {
+                method: 'wallet_sendTransaction',
+                params: [request],
+              },
+              { retryCount: 0 },
+            )
             .then((hash) => {
               supportsWalletNamespace.set(client.uid, true)
               return hash
