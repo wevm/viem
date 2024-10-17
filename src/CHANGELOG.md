@@ -1,5 +1,17 @@
 # viem
 
+## 2.21.29
+
+### Patch Changes
+
+- [#2876](https://github.com/wevm/viem/pull/2876) [`3759bee5c0df3e90f9e2a9cc89da707502370dbd`](https://github.com/wevm/viem/commit/3759bee5c0df3e90f9e2a9cc89da707502370dbd) Thanks [@m1guelpf](https://github.com/m1guelpf)! - Added `Content-Type` header to CCIP `POST` requests.
+
+- [#2878](https://github.com/wevm/viem/pull/2878) [`58a0f1b0ddefbb117fceaf6e7939c026d84aa108`](https://github.com/wevm/viem/commit/58a0f1b0ddefbb117fceaf6e7939c026d84aa108) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Bifrost Mainnet.
+
+- [#2879](https://github.com/wevm/viem/pull/2879) [`8b34dd7563d771de249edfe7ec536254039b0808`](https://github.com/wevm/viem/commit/8b34dd7563d771de249edfe7ec536254039b0808) Thanks [@lwin-kyaw](https://github.com/lwin-kyaw)! - Fixed `getUserOperationError` runtime error.
+
+- [#2880](https://github.com/wevm/viem/pull/2880) [`93af33e9ba7e27680567a7e46c96892cd2df992e`](https://github.com/wevm/viem/commit/93af33e9ba7e27680567a7e46c96892cd2df992e) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Dymension chain.
+
 ## 2.21.28
 
 ### Patch Changes
