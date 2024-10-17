@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    name: Lint
+  check:
+    name: Check
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -18,11 +18,11 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Lint repo
-        run: pnpm lint:repo
+      - name: Check repo
+        run: pnpm check:repo
 
-      - name: Lint code
-        run: pnpm lint
+      - name: Check code
+        run: pnpm check
       
       - uses: stefanzweifel/git-auto-commit-action@v5
         env:
@@ -34,7 +34,7 @@ jobs:
 
   build:
     name: Build
-    needs: lint
+    needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -61,7 +61,7 @@ jobs:
 
   types:
     name: Types
-    needs: lint
+    needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
@@ -84,7 +84,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Check types
-        run: pnpm typecheck
+        run: pnpm check:types
 
       - name: Bench types
         if: matrix.version != '5.0.4'
@@ -187,7 +187,7 @@ jobs:
 
       - name: Install Playwright Browsers
         if: ${{ matrix.runtime == 'next' || matrix.runtime == 'vite' }}
-        run: pnpx playwright@1.40.1 install --with-deps
+        run: pnpx playwright@1.41.2 install --with-deps
 
       - name: Build
         run: pnpm build

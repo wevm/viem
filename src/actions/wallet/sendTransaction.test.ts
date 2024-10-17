@@ -13,6 +13,7 @@ import { deploy } from '../../../test/src/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
 import { signAuthorization } from '../../experimental/index.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
@@ -604,6 +605,37 @@ describe('args: chain', async () => {
 
       Version: viem@x.y.z]
     `)
+  })
+
+  test('behavior: transport supports `wallet_sendTransaction`', async () => {
+    await setup()
+
+    const request = client.request
+    client.request = (parameters: any) => {
+      if (parameters.method === 'eth_sendTransaction')
+        throw new InvalidInputRpcError(new Error())
+      return request(parameters)
+    }
+
+    expect(
+      await sendTransaction(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: 0n,
+      }),
+    ).toBeDefined()
+  })
+
+  test('behavior: nullish account', async () => {
+    await setup()
+
+    expect(
+      await sendTransaction(client, {
+        account: null,
+        to: targetAccount.address,
+        value: 0n,
+      }),
+    ).toBeDefined()
   })
 })
 

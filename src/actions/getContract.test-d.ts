@@ -328,12 +328,12 @@ test('with and without wallet client `account`', () => {
 
   expectTypeOf(contractWithAccount.write.approve)
     .parameter(1)
-    .extract<{ account?: Account | Address | undefined }>()
+    .extract<{ account?: Account | Address | null | undefined }>()
     // @ts-expect-error
     .toBeNever()
   expectTypeOf(contractWithoutAccount.write.approve)
     .parameter(1)
-    .extract<{ account: Account | Address }>()
+    .extract<{ account: Account | Address | null }>()
     // @ts-expect-error
     .toBeNever()
 })

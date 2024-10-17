@@ -88,7 +88,7 @@ describe('extend', () => {
 
     client.extend(() => ({
       async sendTransaction(args) {
-        expectTypeOf(args.account).toEqualTypeOf<Address | Account>()
+        expectTypeOf(args.account).toEqualTypeOf<Address | Account | null>()
         expectTypeOf(args.to).toEqualTypeOf<Address | null | undefined>()
         expectTypeOf(args.value).toEqualTypeOf<bigint | undefined>()
         return '0x'

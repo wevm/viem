@@ -16,7 +16,7 @@ let errorConfig: ErrorConfig = {
           docsSlug ? `#${docsSlug}` : ''
         }`
       : undefined,
-  version,
+  version: `viem@${version}`,
 }
 
 export function setErrorConfig(config: ErrorConfig) {
