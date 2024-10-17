@@ -1,5 +1,13 @@
 # viem
 
+## 2.21.28
+
+### Patch Changes
+
+- [#2870](https://github.com/wevm/viem/pull/2870) [`5734c4cc`](https://github.com/wevm/viem/commit/5734c4cc587dff7126229cbeaed222d2800027de) Thanks [@swetshaw](https://github.com/swetshaw)! - Updated Kararot Starknet Sepolia chain.
+
+- [#2875](https://github.com/wevm/viem/pull/2875) [`fc9b81c3`](https://github.com/wevm/viem/commit/fc9b81c3f5a52a530f9b3aa9b470dafb117992ac) Thanks [@jxom](https://github.com/jxom)! - Added support for `wallet_sendTransaction`.
+
 ## 2.21.27
 
 ### Patch Changes
