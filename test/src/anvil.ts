@@ -213,6 +213,9 @@ function defineAnvil<const chain extends Chain>(
                 ],
               },
             ]
+          if (method === 'wallet_sendTransaction') {
+            method = 'eth_sendTransaction'
+          }
 
           return request({ method, params }, opts)
         },

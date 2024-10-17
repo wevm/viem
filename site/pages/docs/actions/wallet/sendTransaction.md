@@ -87,11 +87,11 @@ The [Transaction](/docs/glossary/terms#transaction) hash.
 
 ### account
 
-- **Type:** `Account | Address`
+- **Type:** `Account | Address | null`
 
 The Account to send the transaction from.
 
-Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc). If set to `null`, it is assumed that the transport will handle filling the sender of the transaction.
 
 ```ts twoslash
 // [!include ~/snippets/walletClient.ts]
