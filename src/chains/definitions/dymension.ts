@@ -11,7 +11,7 @@ export const dymension = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://dymension-evm-rpc.publicnode.com'],
-      webSocket: ['wss://dymension-evm-rpc.publicnode.com']
+      webSocket: ['wss://dymension-evm-rpc.publicnode.com'],
     },
   },
   blockExplorers: {
