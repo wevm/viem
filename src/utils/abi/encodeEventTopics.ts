@@ -105,7 +105,7 @@ export function encodeEventTopics<
     const args_ = Array.isArray(args)
       ? args
       : Object.values(args).length > 0
-        ? indexedInputs?.map((x: any) => (args as any)[x.name]) ?? []
+        ? (indexedInputs?.map((x: any) => (args as any)[x.name]) ?? [])
         : []
 
     if (args_.length > 0) {
