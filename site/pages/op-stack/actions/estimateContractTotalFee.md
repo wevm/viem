@@ -4,7 +4,7 @@ description: Estimates the total (L1 + L2) fee to execute an L2 contract write.
 
 # estimateContractTotalFee
 
-Estimates the total ([L1 data](https://community.optimism.io/docs/developers/build/transaction-fees/#the-l1-data-fee) + L2) fee to execute an L2 contract write.
+Estimates the total ([L1 data](https://docs.optimism.io/stack/transactions/fees#l1-data-fee) + L2) fee to execute an L2 contract write.
 
 Invokes the `getL1Fee` method on the [Gas Price Oracle](https://github.com/ethereum-optimism/optimism/blob/233ede59d16cb01bdd8e7ff662a153a4c3178bdd/packages/contracts/contracts/L2/predeploys/OVM_GasPriceOracle.sol) predeploy contract.
 
