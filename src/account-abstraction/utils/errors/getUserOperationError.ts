@@ -55,7 +55,7 @@ export function getUserOperationError<err extends ErrorType<string>>(
       err as {} as BaseError,
       args as GetBundlerErrorParameters,
     )
-    if (cause instanceof ExecutionRevertedError) {
+    if (calls && cause instanceof ExecutionRevertedError) {
       const revertData = getRevertData(cause)
       const contractCalls = calls?.filter(
         (call: any) => call.abi || call.data,
