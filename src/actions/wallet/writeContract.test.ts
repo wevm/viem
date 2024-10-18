@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import {
-  BatchCallInvoker,
+  BatchCallDelegation,
   ErrorsExample,
   Payable,
 } from '~contracts/generated.js'
@@ -168,8 +168,8 @@ test('args: authorizationList', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallInvoker.abi,
-    bytecode: BatchCallInvoker.bytecode.object,
+    abi: BatchCallDelegation.abi,
+    bytecode: BatchCallDelegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -178,7 +178,7 @@ test('args: authorizationList', async () => {
   })
 
   const hash = await writeContract(client, {
-    abi: BatchCallInvoker.abi,
+    abi: BatchCallDelegation.abi,
     account: authority,
     address: authority.address,
     authorizationList: [authorization],
@@ -202,7 +202,7 @@ test('args: authorizationList', async () => {
   expect(getAddress(log.address)).toBe(authority.address)
   expect(
     decodeEventLog({
-      abi: BatchCallInvoker.abi,
+      abi: BatchCallDelegation.abi,
       ...log,
     }),
   ).toEqual({
@@ -236,8 +236,8 @@ test('args: authorizationList (delegate)', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallInvoker.abi,
-    bytecode: BatchCallInvoker.bytecode.object,
+    abi: BatchCallDelegation.abi,
+    bytecode: BatchCallDelegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -247,7 +247,7 @@ test('args: authorizationList (delegate)', async () => {
   })
 
   const hash = await writeContract(client, {
-    abi: BatchCallInvoker.abi,
+    abi: BatchCallDelegation.abi,
     account: delegate,
     address: authority.address,
     authorizationList: [authorization],
@@ -271,7 +271,7 @@ test('args: authorizationList (delegate)', async () => {
   expect(getAddress(log.address)).toBe(authority.address)
   expect(
     decodeEventLog({
-      abi: BatchCallInvoker.abi,
+      abi: BatchCallDelegation.abi,
       ...log,
     }),
   ).toEqual({
