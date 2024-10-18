@@ -73,6 +73,29 @@ export type ZksyncTransaction<pending extends boolean = boolean> =
 
 // Transaction (RPC)
 
+export type TransactionWithDetailedOutput = {
+  transactionHash: Hash
+  storageLogs: Array<{
+    address: Address
+    key: string
+    writtenValue: string
+  }>
+  events: Array<{
+    address: Address
+    topics: Hex[]
+    data: Hex
+    blockHash: Hash | null
+    blockNumber: bigint | null
+    l1BatchNumber: bigint | null
+    transactionHash: Hash
+    transactionIndex: bigint
+    logIndex: bigint | null
+    transactionLogIndex: bigint | null
+    logType: string | null
+    removed: boolean
+  }>
+}
+
 type RpcTransactionOverrides = {
   l1BatchNumber: Hex | null
   l1BatchTxIndex: Hex | null
