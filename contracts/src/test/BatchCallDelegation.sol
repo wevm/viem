@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-contract BatchCallInvoker {
+contract BatchCallDelegation {
     struct Call {
         bytes data;
         address to;

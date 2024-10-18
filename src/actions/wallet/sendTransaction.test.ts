@@ -7,7 +7,7 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
 import { maxUint256 } from '~viem/constants/number.js'
-import { BatchCallInvoker } from '../../../contracts/generated.js'
+import { BatchCallDelegation } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { deploy } from '../../../test/src/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
@@ -874,8 +874,8 @@ describe('local account', () => {
     })
 
     const { contractAddress } = await deploy(client, {
-      abi: BatchCallInvoker.abi,
-      bytecode: BatchCallInvoker.bytecode.object,
+      abi: BatchCallDelegation.abi,
+      bytecode: BatchCallDelegation.bytecode.object,
     })
 
     const authorization = await signAuthorization(client, {
@@ -887,7 +887,7 @@ describe('local account', () => {
       account: authority,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: BatchCallInvoker.abi,
+        abi: BatchCallDelegation.abi,
         functionName: 'execute',
         args: [
           [
@@ -910,7 +910,7 @@ describe('local account', () => {
     expect(getAddress(log.address)).toBe(authority.address)
     expect(
       decodeEventLog({
-        abi: BatchCallInvoker.abi,
+        abi: BatchCallDelegation.abi,
         ...log,
       }),
     ).toEqual({
@@ -944,8 +944,8 @@ describe('local account', () => {
     })
 
     const { contractAddress } = await deploy(client, {
-      abi: BatchCallInvoker.abi,
-      bytecode: BatchCallInvoker.bytecode.object,
+      abi: BatchCallDelegation.abi,
+      bytecode: BatchCallDelegation.bytecode.object,
     })
 
     const authorization = await signAuthorization(client, {
@@ -958,7 +958,7 @@ describe('local account', () => {
       account: delegate,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: BatchCallInvoker.abi,
+        abi: BatchCallDelegation.abi,
         functionName: 'execute',
         args: [
           [
@@ -981,7 +981,7 @@ describe('local account', () => {
     expect(getAddress(log.address)).toBe(authority.address)
     expect(
       decodeEventLog({
-        abi: BatchCallInvoker.abi,
+        abi: BatchCallDelegation.abi,
         ...log,
       }),
     ).toEqual({
@@ -1443,12 +1443,12 @@ describe('errors', () => {
 })
 
 test('https://github.com/wevm/viem/issues/2721', async () => {
-  const invoker = privateKeyToAccount(generatePrivateKey())
+  const delegate = privateKeyToAccount(generatePrivateKey())
   const authority = privateKeyToAccount(generatePrivateKey())
   const recipient = privateKeyToAccount(generatePrivateKey())
 
   await setBalance(client, {
-    address: invoker.address,
+    address: delegate.address,
     value: parseEther('100'),
   })
   await setBalance(client, {
@@ -1457,8 +1457,8 @@ test('https://github.com/wevm/viem/issues/2721', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallInvoker.abi,
-    bytecode: BatchCallInvoker.bytecode.object,
+    abi: BatchCallDelegation.abi,
+    bytecode: BatchCallDelegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -1467,10 +1467,10 @@ test('https://github.com/wevm/viem/issues/2721', async () => {
   })
 
   const hash = await sendTransaction(client, {
-    account: invoker,
+    account: delegate,
     authorizationList: [authorization],
     data: encodeFunctionData({
-      abi: BatchCallInvoker.abi,
+      abi: BatchCallDelegation.abi,
       functionName: 'execute',
       args: [
         [
