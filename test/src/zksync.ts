@@ -1,3 +1,4 @@
+import { zkSyncLocalNodeL1 } from '~viem/chains/definitions/zkSyncLocalNodeL1.js'
 import { zksyncLocalNode } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { http } from '~viem/index.js'
@@ -11,6 +12,12 @@ export const zksyncClientLocalNode = createClient({
 export const zksyncClientLocalNodeWithAccount = createClient({
   account: accounts[0].address,
   chain: zksyncLocalNode,
+  transport: http(),
+})
+
+export const zkSyncClientLocalNodeWithAccountL1 = createClient({
+  account: accounts[0].address,
+  chain: zkSyncLocalNodeL1,
   transport: http(),
 })
 
