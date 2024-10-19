@@ -225,7 +225,7 @@ test('https://github.com/wevm/viem/issues/2888', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidStructTypeError: Struct type "bytes32" is invalid.
 
-    Struct name must not be a Solidity type.
+    Struct type must not be a Solidity type.
 
     Version: viem@x.y.z]
   `)
