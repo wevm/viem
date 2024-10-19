@@ -120,7 +120,7 @@ export async function getWithdrawalStatus<
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetWithdrawalStatusParameters<chain, chainOverride>
+  parameters: GetWithdrawalStatusParameters<chain, chainOverride>,
 ): Promise<GetWithdrawalStatusReturnType> {
   const {
     chain = client.chain,
