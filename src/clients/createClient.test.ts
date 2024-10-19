@@ -1,11 +1,10 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '../../test/src/anvil.js'
-import { getChainId } from '../actions/public/getChainId.js'
 import { localhost, mainnet } from '../chains/index.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { getAction } from '../utils/getAction.js'
-import { createClient } from './createClient.js'
+import { type Client, createClient } from './createClient.js'
 import { publicActions } from './decorators/public.js'
 import { createTransport } from './transports/createTransport.js'
 import { custom } from './transports/custom.js'
@@ -577,29 +576,62 @@ describe('extends', () => {
   })
 
   test('action composition', async () => {
-    const calls: string[] = []
-    const extended = anvilMainnet
-      .getClient()
+    let calls: string[] = []
+
+    async function getChainId(_client: Client) {
+      calls.push('getChainId:base')
+      return 1337
+    }
+
+    async function estimateGas(client: Client) {
+      calls.push('estimateGas:base')
+      await getAction(client, getChainId, 'getChainId')({})
+      return 1000n
+    }
+
+    const extended = createClient({
+      chain: localhost,
+      transport: http(),
+    })
+      .extend((client) => ({
+        getChainId: () => getChainId(client),
+        estimateGas: () => estimateGas(client),
+      }))
       .extend((client) => ({
         async getChainId() {
-          calls.push('first')
+          calls.push('getChainId:first')
           return getAction(client, getChainId, 'getChainId')({})
+        },
+        async estimateGas() {
+          calls.push('estimateGas:first')
+          return getAction(client, estimateGas, 'estimateGas')({})
         },
       }))
       .extend((client) => ({
         async getChainId() {
-          calls.push('second')
+          calls.push('getChainId:second')
           return getAction(client, getChainId, 'getChainId')({})
         },
-      }))
-      .extend((client) => ({
-        async getChainId() {
-          calls.push('third')
-          return getAction(client, getChainId, 'getChainId')({})
+        async estimateGas() {
+          calls.push('estimateGas:second')
+          return getAction(client, estimateGas, 'estimateGas')({})
         },
       }))
 
-    expect(await extended.getChainId()).toBe(anvilMainnet.chain.id)
-    expect(calls).toEqual(['third', 'second', 'first'])
+    expect(await extended.getChainId()).toBe(1337)
+    expect(calls).toEqual([
+      'getChainId:second',
+      'getChainId:first',
+      'getChainId:base',
+    ])
+
+    calls = []
+    expect(await extended.estimateGas()).toBe(1000n)
+    expect(calls).toEqual([
+      'estimateGas:second',
+      'estimateGas:first',
+      'estimateGas:base',
+      'getChainId:base',
+    ])
   })
 })
