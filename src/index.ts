@@ -917,6 +917,10 @@ export {
   StateAssignmentConflictError,
   type StateAssignmentConflictErrorType,
 } from './errors/stateOverride.js'
+export {
+  type InvalidStructTypeErrorType,
+  InvalidStructTypeError,
+} from './errors/typedData.js'
 export type {
   AbiEventParameterToPrimitiveType,
   AbiEventParametersToPrimitiveTypes,
