@@ -2,10 +2,10 @@ import type { TypedData, TypedDataDomain, TypedDataParameter } from 'abitype'
 
 import { BytesSizeMismatchError } from '../errors/abi.js'
 import { InvalidAddressError } from '../errors/address.js'
+import { InvalidStructTypeError } from '../errors/typedData.js'
+import type { ErrorType } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
-
-import type { ErrorType } from '../errors/utils.js'
 import { type IsAddressErrorType, isAddress } from './address/isAddress.js'
 import { type SizeErrorType, size } from './data/size.js'
 import { type NumberToHexErrorType, numberToHex } from './encoding/toHex.js'
@@ -110,7 +110,10 @@ export function validateTypedData<
       }
 
       const struct = types[type]
-      if (struct) validateData(struct, value as Record<string, unknown>)
+      if (struct) {
+        validateReference(type)
+        validateData(struct, value as Record<string, unknown>)
+      }
     }
   }
 
@@ -153,4 +156,18 @@ export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
       EIP712Domain: getTypesForEIP712Domain({ domain }),
     },
   })
+}
+
+/** @internal */
+function validateReference(type: string) {
+  // Struct type must not be a Solidity type.
+  if (
+    type === 'address' ||
+    type === 'bool' ||
+    type === 'string' ||
+    type.startsWith('bytes') ||
+    type.startsWith('uint') ||
+    type.startsWith('int')
+  )
+    throw new InvalidStructTypeError({ type })
 }

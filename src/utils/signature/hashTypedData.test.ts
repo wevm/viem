@@ -206,3 +206,27 @@ test('typed message with data', () => {
     '"0xd2669f23b7849020ad41bcbff5b51372793f91320e0f901641945568ed7322be"',
   )
 })
+
+test('https://github.com/wevm/viem/issues/2888', () => {
+  expect(() =>
+    hashTypedData({
+      domain: { name: 'Domain' },
+      types: {
+        Message: [{ name: 'contents', type: 'bytes32' }],
+        bytes32: [],
+        address: [],
+      },
+      primaryType: 'Message',
+      message: {
+        contents:
+          '0x1111111111111111111111111111111111111111111111111111111111111111',
+      },
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidStructTypeError: Struct type "bytes32" is invalid.
+
+    Struct name must not be a Solidity type.
+
+    Version: viem@x.y.z]
+  `)
+})
