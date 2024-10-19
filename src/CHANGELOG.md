@@ -1,5 +1,19 @@
 # viem
 
+## 2.21.30
+
+### Patch Changes
+
+- [#2885](https://github.com/wevm/viem/pull/2885) [`c53eb7459f4abadd6addba04ab4534e9befc8b05`](https://github.com/wevm/viem/commit/c53eb7459f4abadd6addba04ab4534e9befc8b05) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added Step Network.
+
+- [#2883](https://github.com/wevm/viem/pull/2883) [`67e664c88b74e16b1b93894911c5453063387db3`](https://github.com/wevm/viem/commit/67e664c88b74e16b1b93894911c5453063387db3) Thanks [@realwater](https://github.com/realwater)! - Added tiktrixTestnet chain
+
+- [#2884](https://github.com/wevm/viem/pull/2884) [`1a4c08170e2caf0c2f23208c4cc9200eab3ec54a`](https://github.com/wevm/viem/commit/1a4c08170e2caf0c2f23208c4cc9200eab3ec54a) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added ThunderCore Mainnet.
+
+- [#2873](https://github.com/wevm/viem/pull/2873) [`ab21126152443fdad3e829135b009e871eab23ba`](https://github.com/wevm/viem/commit/ab21126152443fdad3e829135b009e871eab23ba) Thanks [@nicholaspai](https://github.com/nicholaspai)! - **OP Stack:** Added `logIndex` as a parameter to `getWithdrawalStatus`.
+
+- [`c2cd08162b81c64f4fc5812d4f4f863408eb4afa`](https://github.com/wevm/viem/commit/c2cd08162b81c64f4fc5812d4f4f863408eb4afa) Thanks [@jxom](https://github.com/jxom)! - Added validation to typed data type references.
+
 ## 2.21.29
 
 ### Patch Changes
