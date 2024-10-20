@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.31
+
+### Patch Changes
+
+- [#2895](https://github.com/wevm/viem/pull/2895) [`4170a3dd5acda9ca1184e6e94f2da56ab640ea6a`](https://github.com/wevm/viem/commit/4170a3dd5acda9ca1184e6e94f2da56ab640ea6a) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added Sanko chain.
+
+- [#2890](https://github.com/wevm/viem/pull/2890) [`8e45821d0bcd98a134dd13c0c3373280d00f3dd4`](https://github.com/wevm/viem/commit/8e45821d0bcd98a134dd13c0c3373280d00f3dd4) Thanks [@excelon-team](https://github.com/excelon-team)! - Added Excelon Mainnet chain.
+
+- [#2893](https://github.com/wevm/viem/pull/2893) [`6219548112d60a3187031534bcb77cd0c20dd550`](https://github.com/wevm/viem/commit/6219548112d60a3187031534bcb77cd0c20dd550) Thanks [@akshatmittal](https://github.com/akshatmittal)! - Added Ape Chain.
+
 ## 2.21.30
 
 ### Patch Changes
