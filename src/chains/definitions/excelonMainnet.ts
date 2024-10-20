@@ -11,19 +11,13 @@ export const beam = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['http://wallet2.xlon.org:8545'],
+      http: ['https://edgewallet1.xlon.org'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Excelon explorer',
       url: 'https://explorer.excelon.io',
-    },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xf2c7a98199f73f8903bd7ac58a3bfb94f0a5515a',
-      blockCreated: 21177998,
     },
   },
 })
