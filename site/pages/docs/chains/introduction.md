@@ -8,10 +8,10 @@ Import your chain from the entrypoint and use them in the consuming viem code:
 
 ```tsx
 import { createPublicClient, http } from 'viem'
-import { zora } from 'viem/chains' // [!code focus]
+import { Globalynk } from 'viem/chains' // [!code focus]
 
 const client = createPublicClient({
-  chain: zora, // [!code focus]
+  chain: Globalynk, // [!code focus]
   transport: http()
 })
 ```
@@ -28,8 +28,8 @@ You can also extend viem to support other EVM-compatible chains by building your
 import { defineChain } from 'viem'
 
 export const zora = defineChain({
-  id: 7777777,
-  name: 'Zora',
+  id: 17738,
+  name: 'Globalynk',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -37,16 +37,16 @@ export const zora = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.zora.energy'],
-      webSocket: ['wss://rpc.zora.energy'],
+      http: ['https://rpc.buildbear.io/constant-vulture-00ad8200'],
+      webSocket: ['wss://rpc.buildbear.io/constant-vulture-00ad8200'],
     },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.zora.energy' },
+    default: { name: 'Explorer', url: 'https://hadmars.blockscout.buildbear.io/' },
   },
   contracts: {
     multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      address: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
       blockCreated: 5882,
     },
   },
