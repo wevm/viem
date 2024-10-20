@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const beam = /*#__PURE__*/ defineChain({
+export const excelonMainnet = /*#__PURE__*/ defineChain({
   id: 22052002,
   name: 'Excelon Mainnet',
   network: 'XLON',
