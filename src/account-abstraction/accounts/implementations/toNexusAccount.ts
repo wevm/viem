@@ -1,12 +1,12 @@
-import type { TypedDataDomain } from "abitype"
-import type { TypedDataParameter } from "abitype"
+import type { TypedDataDomain } from 'abitype'
+import type { TypedDataParameter } from 'abitype'
+import type { TypedData } from 'abitype'
 import {
   type AbiParameter,
   type Address,
   type Hex,
   type PublicClient,
   type SignableMessage,
-  type TypedData,
   type TypedDataDefinition,
   type UnionPartialBy,
   concat,
@@ -21,35 +21,39 @@ import {
   toBytes,
   toHex,
   validateTypedData,
-} from "viem"
+} from 'viem'
 import {
   type SmartAccount,
   type SmartAccountImplementation,
   type UserOperation,
   entryPoint07Address,
   getUserOperationHash,
-  toSmartAccount
-} from "viem/account-abstraction"
-import { entryPoint07Abi } from "../../constants/abis.js"
-import type { LocalAccount } from "../../../accounts/types.js"
-import { getCode, readContract, simulateContract } from "../../../actions/index.js"
-import type { Client } from "../../../clients/createClient.js"
-import type { Assign, Prettify } from "../../../types/utils.js"
+  toSmartAccount,
+} from 'viem/account-abstraction'
+import type { LocalAccount } from '../../../accounts/types.js'
+import {
+  getCode,
+  readContract,
+  simulateContract,
+} from '../../../actions/index.js'
+import type { Client } from '../../../clients/createClient.js'
+import type { Assign, Prettify } from '../../../types/utils.js'
+import { entryPoint07Abi } from '../../constants/abis.js'
 /**
  * Parameters for creating a Nexus Smart Account
  */
 export type ToNexusSmartAccountParameters = {
-  client: Client,
+  client: Client
   /** The blockchain network */
-//   chain: Chain
+  //   chain: Chain
   /** The transport configuration */
-//   transport: ClientConfig["transport"]
+  //   transport: ClientConfig["transport"]
   /** The signer account or address */
-  signer: LocalAccount,
+  signer: LocalAccount
   /** Optional index for the account */
   index?: bigint | undefined
   /** Optional active validation module */
-//   activeValidationModule?: ToValidationModuleReturnType
+  //   activeValidationModule?: ToValidationModuleReturnType
   /** Optional factory address */
   factoryAddress?: Address
   /** Optional K1 validator address */
@@ -60,41 +64,43 @@ export type ToNexusSmartAccountParameters = {
  * Nexus Smart Account type
  */
 export type NexusAccount = Prettify<
+  SmartAccount<NexusSmartAccountImplementation>
 >
 
 export type NexusSmartAccountImplementation = Assign<
-  SmartAccountImplementation<
-    typeof entryPoint07Abi,
-    '0.7'
-  >,
-  { 
-    encodeCalls: NonNullable<SmartAccountImplementation['encodeCalls']>,
-    encodeExecute: (call: Call) => Promise<Hex>,
-    encodeExecuteBatch: (calls: readonly Call[]) => Promise<Hex>,
-    signUserOperation: NonNullable<SmartAccountImplementation['signUserOperation']>,
-    signTypedData: NonNullable<SmartAccountImplementation['signTypedData']>,
-    signMessage: NonNullable<SmartAccountImplementation['signMessage']>,
-    getStubSignature: NonNullable<SmartAccountImplementation['getStubSignature']>,
+  SmartAccountImplementation<typeof entryPoint07Abi, '0.7'>,
+  {
+    encodeCalls: NonNullable<SmartAccountImplementation['encodeCalls']>
+    encodeExecute: (call: Call) => Promise<Hex>
+    encodeExecuteBatch: (calls: readonly Call[]) => Promise<Hex>
+    signUserOperation: NonNullable<
+      SmartAccountImplementation['signUserOperation']
+    >
+    signTypedData: NonNullable<SmartAccountImplementation['signTypedData']>
+    signMessage: NonNullable<SmartAccountImplementation['signMessage']>
+    getStubSignature: NonNullable<
+      SmartAccountImplementation['getStubSignature']
+    >
     getNonce: NonNullable<SmartAccountImplementation['getNonce']>
-   }
+  }
 >
 
 // define mode and exec type enums
-export const CALLTYPE_SINGLE = "0x00" // 1 byte
-export const CALLTYPE_BATCH = "0x01" // 1 byte
-export const EXECTYPE_DEFAULT = "0x00" // 1 byte
-export const EXECTYPE_TRY = "0x01" // 1 byte
-export const EXECTYPE_DELEGATE = "0xFF" // 1 byte
-export const MODE_DEFAULT = "0x00000000" // 4 bytes
-export const UNUSED = "0x00000000" // 4 bytes
-export const MODE_PAYLOAD = "0x00000000000000000000000000000000000000000000" // 22 bytes
+export const CALLTYPE_SINGLE = '0x00' // 1 byte
+export const CALLTYPE_BATCH = '0x01' // 1 byte
+export const EXECTYPE_DEFAULT = '0x00' // 1 byte
+export const EXECTYPE_TRY = '0x01' // 1 byte
+export const EXECTYPE_DELEGATE = '0xFF' // 1 byte
+export const MODE_DEFAULT = '0x00000000' // 4 bytes
+export const UNUSED = '0x00000000' // 4 bytes
+export const MODE_PAYLOAD = '0x00000000000000000000000000000000000000000000' // 22 bytes
 
 export const EXECUTE_SINGLE = concat([
   CALLTYPE_SINGLE,
   EXECTYPE_DEFAULT,
   MODE_DEFAULT,
   UNUSED,
-  MODE_PAYLOAD
+  MODE_PAYLOAD,
 ])
 
 export const EXECUTE_BATCH = concat([
@@ -102,7 +108,7 @@ export const EXECUTE_BATCH = concat([
   EXECTYPE_DEFAULT,
   MODE_DEFAULT,
   UNUSED,
-  MODE_PAYLOAD
+  MODE_PAYLOAD,
 ])
 
 export type Call = {
@@ -111,9 +117,10 @@ export type Call = {
   value?: bigint | undefined
 }
 
-export const MODE_VALIDATION = "0x00"
-export const K1ValidatorAddress = "0x00000004171351c442B202678c48D8AB5B321E8f";
-export const K1ValidatorFactoryAddress = "0x00000bb19a3579F4D779215dEf97AFbd0e30DB55";
+export const MODE_VALIDATION = '0x00'
+export const K1ValidatorAddress = '0x00000004171351c442B202678c48D8AB5B321E8f'
+export const K1ValidatorFactoryAddress =
+  '0x00000bb19a3579F4D779215dEf97AFbd0e30DB55'
 
 /**
  * @description Create a Nexus Smart Account.
@@ -133,7 +140,7 @@ export const K1ValidatorFactoryAddress = "0x00000bb19a3579F4D779215dEf97AFbd0e30
  * })
  */
 export const toNexusAccount = async (
-  parameters: ToNexusSmartAccountParameters
+  parameters: ToNexusSmartAccountParameters,
 ): Promise<NexusAccount> => {
   const {
     // chain,
@@ -153,28 +160,29 @@ export const toNexusAccount = async (
     version: '0.7',
   } as const
 
-//   const masterClient = createWalletClient({
-//     account: _signer as LocalAccount,
-//     chain,
-//     transport,
-//     key,
-//     name
-//   })
-//     .extend(walletActions)
-//     .extend(publicActions)
+  //   const masterClient = createWalletClient({
+  //     account: _signer as LocalAccount,
+  //     chain,
+  //     transport,
+  //     key,
+  //     name
+  //   })
+  //     .extend(walletActions)
+  //     .extend(publicActions)
 
-//   const signerAddress = masterClient.account.address
-//   const entryPointContract = getContract({
-//     address: entryPoint07Address,
-//     abi: entryPoint07Abi,
-//     client
-//   })
-
+  //   const signerAddress = masterClient.account.address
+  //   const entryPointContract = getContract({
+  //     address: entryPoint07Address,
+  //     abi: entryPoint07Abi,
+  //     client
+  //   })
 
   const factoryData = encodeFunctionData({
-    abi: parseAbi(["function createAccount(address,uint256,address[],uint8) external returns (address)"]),
-    functionName: "createAccount",
-    args: [_signer.address, index, [], 0]
+    abi: parseAbi([
+      'function createAccount(address,uint256,address[],uint8) external returns (address)',
+    ]),
+    functionName: 'createAccount',
+    args: [_signer.address, index, [], 0],
   })
 
   let _accountAddress: Address
@@ -188,27 +196,33 @@ export const toNexusAccount = async (
     try {
       _accountAddress = (await readContract(client, {
         address: factoryAddress,
-        abi: parseAbi(["function computeAccountAddress(address,uint256,address[],uint8) external returns (address)"]),
-        functionName: "computeAccountAddress",
-        args: [_signer.address, index, [], 0n]
+        abi: parseAbi([
+          'function computeAccountAddress(address,uint256,address[],uint8) external returns (address)',
+        ]),
+        functionName: 'computeAccountAddress',
+        args: [_signer.address, index, [], 0n],
       })) as Address
     } catch (e: any) {
-      if (e.shortMessage?.includes('The contract function "computeAccountAddress" returned no data ("0x")')) {
-        throw new Error("Account has not yet been deployed")
+      if (
+        e.shortMessage?.includes(
+          'The contract function "computeAccountAddress" returned no data ("0x")',
+        )
+      ) {
+        throw new Error('Account has not yet been deployed')
       }
     }
 
     return _accountAddress
   }
 
-//   let defaultedActiveModule =
-//     activeValidationModule ??
-//     (await toK1ValidatorModule({
-//       nexusAccountAddress: await getAddress(),
-//       initData: signerAddress,
-//       deInitData: "0x",
-//       client: masterClient
-//     }))
+  //   let defaultedActiveModule =
+  //     activeValidationModule ??
+  //     (await toK1ValidatorModule({
+  //       nexusAccountAddress: await getAddress(),
+  //       initData: signerAddress,
+  //       deInitData: "0x",
+  //       client: masterClient
+  //     }))
 
   /**
    * @description Gets the counterfactual address of the account
@@ -218,19 +232,19 @@ export const toNexusAccount = async (
   const getCounterFactualAddress = async (): Promise<Address> => {
     if (_accountAddress) return _accountAddress
     try {
-     await simulateContract(client, {
+      await simulateContract(client, {
         address: entryPoint07Address,
         abi: entryPoint07Abi,
-        functionName: "getSenderAddress",
-        args: [getInitCode()]
+        functionName: 'getSenderAddress',
+        args: [getInitCode()],
       })
     } catch (e: any) {
-      if (e?.cause?.data?.errorName === "SenderAddressResult") {
+      if (e?.cause?.data?.errorName === 'SenderAddressResult') {
         _accountAddress = e?.cause.data.args[0] as Address
         return _accountAddress
       }
     }
-    throw new Error("Failed to get counterfactual account address")
+    throw new Error('Failed to get counterfactual account address')
   }
 
   /**
@@ -255,19 +269,19 @@ export const toNexusAccount = async (
    * @returns The hash of the user operation
    */
   const getUserOpHash = async (
-    userOp: UnionPartialBy<UserOperation, "sender"> & {
-    chainId?: number | undefined;
-}
+    userOp: UnionPartialBy<UserOperation, 'sender'> & {
+      chainId?: number | undefined
+    },
   ): Promise<Hex> => {
-     return getUserOperationHash({
-        chainId: client.chain!.id,
-        entryPointAddress: entryPoint.address,
-        entryPointVersion: entryPoint.version,
-        userOperation: {
-          ...(userOp as unknown as UserOperation),
-          sender: await getAddress(),
-        },
-      })
+    return getUserOperationHash({
+      chainId: client.chain!.id,
+      entryPointAddress: entryPoint.address,
+      entryPointVersion: entryPoint.version,
+      userOperation: {
+        ...(userOp as unknown as UserOperation),
+        sender: await getAddress(),
+      },
+    })
   }
 
   /**
@@ -278,33 +292,33 @@ export const toNexusAccount = async (
    */
   const encodeExecuteBatch = async (
     calls: readonly Call[],
-    mode = EXECUTE_BATCH
+    mode = EXECUTE_BATCH,
   ): Promise<Hex> => {
     const executionAbiParams: AbiParameter = {
-      type: "tuple[]",
+      type: 'tuple[]',
       components: [
-        { name: "target", type: "address" },
-        { name: "value", type: "uint256" },
-        { name: "callData", type: "bytes" }
-      ]
+        { name: 'target', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'callData', type: 'bytes' },
+      ],
     }
 
     const executions = calls.map((tx) => ({
       target: tx.to,
-      callData: tx.data ?? "0x",
-      value: BigInt(tx.value ?? 0n)
+      callData: tx.data ?? '0x',
+      value: BigInt(tx.value ?? 0n),
     }))
 
     const executionCalldataPrep = encodeAbiParameters(
       [executionAbiParams],
-      [executions]
+      [executions],
     )
     return encodeFunctionData({
       abi: parseAbi([
-        "function execute(bytes32 mode, bytes calldata executionCalldata) external"
+        'function execute(bytes32 mode, bytes calldata executionCalldata) external',
       ]),
-      functionName: "execute",
-      args: [mode, executionCalldataPrep]
+      functionName: 'execute',
+      args: [mode, executionCalldataPrep],
     })
   }
 
@@ -316,19 +330,19 @@ export const toNexusAccount = async (
    */
   const encodeExecute = async (
     call: Call,
-    mode = EXECUTE_SINGLE
+    mode = EXECUTE_SINGLE,
   ): Promise<Hex> => {
     const executionCalldata = encodePacked(
-      ["address", "uint256", "bytes"],
-      [call.to as Hex, BigInt(call.value ?? 0n), (call.data ?? "0x") as Hex]
+      ['address', 'uint256', 'bytes'],
+      [call.to as Hex, BigInt(call.value ?? 0n), (call.data ?? '0x') as Hex],
     )
 
     return encodeFunctionData({
       abi: parseAbi([
-        "function execute(bytes32 mode, bytes calldata executionCalldata) external"
+        'function execute(bytes32 mode, bytes calldata executionCalldata) external',
       ]),
-      functionName: "execute",
-      args: [mode, executionCalldata]
+      functionName: 'execute',
+      args: [mode, executionCalldata],
     })
   }
 
@@ -340,32 +354,32 @@ export const toNexusAccount = async (
   const getNonce = async (): Promise<bigint> => {
     try {
       const key: string = concat([
-        "0x000000",
+        '0x000000',
         MODE_VALIDATION,
-        K1ValidatorAddress
+        K1ValidatorAddress,
       ])
       const accountAddress = await getAddress()
       return await readContract(client, {
         address: accountAddress,
         abi: entryPoint07Abi,
-        functionName: "getNonce",
-        args: [accountAddress, BigInt(key)]
+        functionName: 'getNonce',
+        args: [accountAddress, BigInt(key)],
       })
-    } catch (e) {
+    } catch (_e) {
       return BigInt(0)
     }
   }
 
-//   /**
-//    * @description Changes the active module for the account
-//    * @param newModule - The new module to set as active
-//    * @returns void
-//    */
-//   const setActiveValidationModule = (
-//     validationModule: ToValidationModuleReturnType
-//   ): void => {
-//     defaultedActiveModule = validationModule
-//   }
+  //   /**
+  //    * @description Changes the active module for the account
+  //    * @param newModule - The new module to set as active
+  //    * @returns void
+  //    */
+  //   const setActiveValidationModule = (
+  //     validationModule: ToValidationModuleReturnType
+  //   ): void => {
+  //     defaultedActiveModule = validationModule
+  //   }
 
   /**
    * @description Signs a message
@@ -374,38 +388,38 @@ export const toNexusAccount = async (
    * @returns The signature
    */
   const signMessage = async ({
-    message
+    message,
   }: { message: SignableMessage }): Promise<Hex> => {
     const tempSignature = await _signer.signMessage({
-      message
+      message,
     })
 
     const signature = encodePacked(
-      ["address", "bytes"],
-      [K1ValidatorAddress, tempSignature]
+      ['address', 'bytes'],
+      [K1ValidatorAddress, tempSignature],
     )
     const MAGIC_BYTES =
-  "0x6492649264926492649264926492649264926492649264926492649264926492"
+      '0x6492649264926492649264926492649264926492649264926492649264926492'
 
     const erc6492Signature = concat([
       encodeAbiParameters(
         [
           {
-            type: "address",
-            name: "create2Factory"
+            type: 'address',
+            name: 'create2Factory',
           },
           {
-            type: "bytes",
-            name: "factoryCalldata"
+            type: 'bytes',
+            name: 'factoryCalldata',
           },
           {
-            type: "bytes",
-            name: "originalERC1271Signature"
-          }
+            type: 'bytes',
+            name: 'originalERC1271Signature',
+          },
         ],
-        [factoryAddress, factoryData, signature]
+        [factoryAddress, factoryData, signature],
       ),
-      MAGIC_BYTES
+      MAGIC_BYTES,
     ])
 
     const accountIsDeployed = await isDeployed()
@@ -419,16 +433,16 @@ export const toNexusAccount = async (
    */
   async function signTypedData<
     const typedData extends TypedData | Record<string, unknown>,
-    primaryType extends keyof typedData | "EIP712Domain" = keyof typedData
+    primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   >(parameters: TypedDataDefinition<typedData, primaryType>): Promise<Hex> {
     const { message, primaryType, types: _types, domain } = parameters
 
-    if (!domain) throw new Error("Missing domain")
-    if (!message) throw new Error("Missing message")
+    if (!domain) throw new Error('Missing domain')
+    if (!message) throw new Error('Missing message')
 
     const types = {
       EIP712Domain: getTypesForEIP712Domain({ domain }),
-      ..._types
+      ..._types,
     }
 
     // @ts-ignore: Comes from nexus parent typehash
@@ -439,38 +453,36 @@ export const toNexusAccount = async (
       domain,
       message,
       primaryType,
-      types
+      types,
     })
 
     const appDomainSeparator = domainSeparator({ domain })
     const accountDomainStructFields = await getAccountDomainStructFields(
       client as PublicClient,
-      await getAddress()
+      await getAddress(),
     )
 
     const parentStructHash = keccak256(
       encodePacked(
-        ["bytes", "bytes"],
+        ['bytes', 'bytes'],
         [
-          encodeAbiParameters(parseAbiParameters(["bytes32, bytes32"]), [
+          encodeAbiParameters(parseAbiParameters(['bytes32, bytes32']), [
             keccak256(toBytes(PARENT_TYPEHASH)),
-            messageStuff
+            messageStuff,
           ]),
-          accountDomainStructFields
-        ]
-      )
+          accountDomainStructFields,
+        ],
+      ),
     )
 
     const wrappedTypedHash = eip712WrapHash(
       parentStructHash,
-      appDomainSeparator
+      appDomainSeparator,
     )
 
-    let signature = await signMessage(
-      {
-        message: { raw: wrappedTypedHash }
-      }
-    )
+    let signature = await signMessage({
+      message: { raw: wrappedTypedHash },
+    })
 
     const contentsType = toBytes(typeToString(types as TypedDataWith712)[1])
 
@@ -479,12 +491,12 @@ export const toNexusAccount = async (
       appDomainSeparator,
       messageStuff,
       toHex(contentsType),
-      toHex(contentsType.length, { size: 2 })
+      toHex(contentsType.length, { size: 2 }),
     ])
 
     signature = encodePacked(
-      ["address", "bytes"],
-      [K1ValidatorAddress, signatureData]
+      ['address', 'bytes'],
+      [K1ValidatorAddress, signatureData],
     )
 
     return signature
@@ -500,34 +512,33 @@ export const toNexusAccount = async (
         : encodeExecuteBatch(calls)
     },
     getFactoryArgs: async () => ({ factory: factoryAddress, factoryData }),
-    getStubSignature: async (): Promise<Hex> => {   
-      const dynamicPart = K1ValidatorAddress.substring(2).padEnd(40, "0")
+    getStubSignature: async (): Promise<Hex> => {
+      const dynamicPart = K1ValidatorAddress.substring(2).padEnd(40, '0')
       return `0x0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000${dynamicPart}000000000000000000000000000000000000000000000000000000000000004181d4b4981670cb18f99f0b4a66446df1bf5b204d24cfcb659bf38ba27a4359b5711649ec2423c5e1247245eba2964679b6a1dbb85c992ae40b9b00c6935b02ff1b00000000000000000000000000000000000000000000000000000000000000`
     },
     signMessage,
     signTypedData,
     signUserOperation: async (
-      parameters: UnionPartialBy<UserOperation, "sender"> & {
+      parameters: UnionPartialBy<UserOperation, 'sender'> & {
         chainId?: number | undefined
-      }
+      },
     ): Promise<Hex> => {
-      const { chainId = client.chain!.id, ...userOpWithoutSender } =
-        parameters
+      const { chainId = client.chain!.id, ...userOpWithoutSender } = parameters
       const address = await getCounterFactualAddress()
 
       const userOperation = {
         ...userOpWithoutSender,
-        sender: address
+        sender: address,
       }
 
       const hash = getUserOperationHash({
         chainId,
         entryPointAddress: entryPoint07Address,
-        entryPointVersion: "0.7",
-        userOperation
+        entryPointVersion: '0.7',
+        userOperation,
       })
       const signature = await _signer.signMessage({
-        message: { raw: hash as Hex }
+        message: { raw: hash as Hex },
       })
       return signature as Hex
     },
@@ -540,29 +551,29 @@ export const toNexusAccount = async (
       encodeExecute,
       encodeExecuteBatch,
       getUserOpHash,
-    //   setActiveValidationModule,
-    //   getActiveValidationModule: () => defaultedActiveModule,
+      //   setActiveValidationModule,
+      //   getActiveValidationModule: () => defaultedActiveModule,
       factoryData,
-      factoryAddress
-    }
+      factoryAddress,
+    },
   })
 }
 
 export function getTypesForEIP712Domain({
-  domain
+  domain,
 }: { domain?: TypedDataDomain | undefined }): TypedDataParameter[] {
   return [
-    typeof domain?.name === "string" && { name: "name", type: "string" },
-    domain?.version && { name: "version", type: "string" },
-    typeof domain?.chainId === "number" && {
-      name: "chainId",
-      type: "uint256"
+    typeof domain?.name === 'string' && { name: 'name', type: 'string' },
+    domain?.version && { name: 'version', type: 'string' },
+    typeof domain?.chainId === 'number' && {
+      name: 'chainId',
+      type: 'uint256',
     },
     domain?.verifyingContract && {
-      name: "verifyingContract",
-      type: "address"
+      name: 'verifyingContract',
+      type: 'address',
     },
-    domain?.salt && { name: "salt", type: "bytes32" }
+    domain?.salt && { name: 'salt', type: 'bytes32' },
   ].filter(Boolean) as TypedDataParameter[]
 }
 
@@ -570,21 +581,19 @@ export type TypedDataWith712 = {
   EIP712Domain: TypedDataParameter[]
 } & TypedData
 
-
 export function typeToString(typeDef: TypedDataWith712): string[] {
   return Object.entries(typeDef).map(([key, fields]) => {
     const fieldStrings = (fields ?? [])
       .map((field) => `${field.type} ${field.name}`)
-      .join(",")
+      .join(',')
     return `${key}(${fieldStrings})`
   })
 }
 
-
 export const PARENT_TYPEHASH =
-  "TypedDataSign(Contents contents,bytes1 fields,string name,string version,uint256 chainId,address verifyingContract,bytes32 salt,uint256[] extensions)Contents(bytes32 stuff)"
+  'TypedDataSign(Contents contents,bytes1 fields,string name,string version,uint256 chainId,address verifyingContract,bytes32 salt,uint256[] extensions)Contents(bytes32 stuff)'
 export const eip712WrapHash = (typedHash: Hex, appDomainSeparator: Hex): Hex =>
-  keccak256(concat(["0x1901", appDomainSeparator, typedHash]))
+  keccak256(concat(['0x1901', appDomainSeparator, typedHash]))
 export type EIP712DomainReturn = [
   Hex,
   string,
@@ -592,26 +601,26 @@ export type EIP712DomainReturn = [
   bigint,
   Address,
   Hex,
-  bigint[]
+  bigint[],
 ]
 
 export const getAccountDomainStructFields = async (
   publicClient: PublicClient,
-  accountAddress: Address
+  accountAddress: Address,
 ) => {
   const accountDomainStructFields = (await publicClient.readContract({
     address: accountAddress,
     abi: parseAbi([
-      "function eip712Domain() public view returns (bytes1 fields, string memory name, string memory version, uint256 chainId, address verifyingContract, bytes32 salt, uint256[] memory extensions)"
+      'function eip712Domain() public view returns (bytes1 fields, string memory name, string memory version, uint256 chainId, address verifyingContract, bytes32 salt, uint256[] memory extensions)',
     ]),
-    functionName: "eip712Domain"
+    functionName: 'eip712Domain',
   })) as EIP712DomainReturn
 
   const [fields, name, version, chainId, verifyingContract, salt, extensions] =
     accountDomainStructFields
 
   const params = parseAbiParameters([
-    "bytes1, bytes32, bytes32, uint256, address, bytes32, bytes32"
+    'bytes1, bytes32, bytes32, uint256, address, bytes32, bytes32',
   ])
 
   return encodeAbiParameters(params, [
@@ -621,6 +630,6 @@ export const getAccountDomainStructFields = async (
     chainId,
     verifyingContract,
     salt,
-    keccak256(encodePacked(["uint256[]"], [extensions]))
+    keccak256(encodePacked(['uint256[]'], [extensions])),
   ])
 }
