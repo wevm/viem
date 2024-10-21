@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet, anvilSepolia } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
@@ -34,12 +34,14 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { getBalance } from '../public/getBalance.js'
 import { getBlock } from '../public/getBlock.js'
+import { getCode } from '../public/getCode.js'
 import { getTransaction } from '../public/getTransaction.js'
 import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { mine } from '../test/mine.js'
 import { reset } from '../test/reset.js'
 import { setBalance } from '../test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
+import { setNonce } from '../test/setNonce.js'
 import { sendTransaction } from './sendTransaction.js'
 
 const client = anvilMainnet.getClient()
@@ -865,9 +867,7 @@ describe('local account', () => {
 
   test('args: authorizationList', async () => {
     const authority = privateKeyToAccount(accounts[9].privateKey)
-    const recipient = privateKeyToAccount(
-      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
-    )
+    const recipient = privateKeyToAccount(generatePrivateKey())
 
     const balance_recipient = await getBalance(client, {
       address: recipient.address,
@@ -932,9 +932,7 @@ describe('local account', () => {
   test('args: authorizationList (delegate)', async () => {
     const delegate = privateKeyToAccount(accounts[0].privateKey)
     const authority = privateKeyToAccount(accounts[9].privateKey)
-    const recipient = privateKeyToAccount(
-      '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
-    )
+    const recipient = privateKeyToAccount(generatePrivateKey())
 
     const balance_authority = await getBalance(client, {
       address: authority.address,
@@ -1003,6 +1001,74 @@ describe('local account', () => {
         address: authority.address,
       }),
     ).toBe(balance_authority - parseEther('1'))
+  })
+
+  test('args: authorizationList (cross-chain)', async () => {
+    const delegate = privateKeyToAccount(accounts[0].privateKey)
+    const authority = privateKeyToAccount(generatePrivateKey())
+    const recipient = privateKeyToAccount(generatePrivateKey())
+
+    const client_sepolia = anvilSepolia.getClient({ account: delegate })
+
+    // deploy on mainnet
+    const { contractAddress, hash } = await deploy(client, {
+      abi: BatchCallDelegation.abi,
+      bytecode: BatchCallDelegation.bytecode.object,
+    })
+
+    const { nonce } = await getTransaction(client, { hash })
+
+    // deploy on sepolia
+    await setNonce(client_sepolia, { address: delegate.address, nonce })
+    await deploy(client_sepolia, {
+      abi: BatchCallDelegation.abi,
+      bytecode: BatchCallDelegation.bytecode.object,
+    })
+
+    // sign authorization with `0` chain id (all chains)
+    const authorization = await signAuthorization(client, {
+      account: authority,
+      chainId: 0,
+      contractAddress: contractAddress!,
+      delegate,
+    })
+
+    const args = {
+      account: delegate,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCallDelegation.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: 0n,
+            },
+          ],
+        ],
+      }),
+      to: authority.address,
+    } as const
+
+    // execute transactions on mainnet and sepolia
+    const hash_mainnet = await sendTransaction(client, args)
+    const hash_sepolia = await sendTransaction(client_sepolia, args)
+
+    await mine(client, { blocks: 1 })
+    await mine(client_sepolia, { blocks: 1 })
+
+    // check if receipts contain logs
+    const receipt_mainnet = await getTransactionReceipt(client, {
+      hash: hash_mainnet,
+    })
+    const receipt_sepolia = await getTransactionReceipt(client_sepolia, {
+      hash: hash_sepolia,
+    })
+
+    expect(receipt_mainnet.logs.length).toBeGreaterThan(0)
+    expect(receipt_sepolia.logs.length).toBeGreaterThan(0)
   })
 
   test('args: blobs', async () => {
@@ -1159,10 +1225,10 @@ describe('local account', () => {
         }),
       ])
 
-      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(681)
+      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(683)
       expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(112)
-      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(682)
-      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(683)
+      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(684)
+      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(685)
       expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(113)
 
       const hash_6 = await sendTransaction(client, {
@@ -1176,8 +1242,8 @@ describe('local account', () => {
         value: parseEther('1'),
       })
 
-      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(684)
-      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(685)
+      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(686)
+      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(687)
     })
   })
 })

@@ -92,7 +92,7 @@ export async function deploy<const abi extends Abi | readonly unknown[]>(
   const { contractAddress } = await getTransactionReceipt(client, {
     hash,
   })
-  return { contractAddress }
+  return { contractAddress, hash }
 }
 
 export async function deployBAYC() {
