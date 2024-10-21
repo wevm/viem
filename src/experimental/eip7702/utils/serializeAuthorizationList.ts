@@ -22,7 +22,7 @@ export function serializeAuthorizationList(
   for (const authorization of authorizationList) {
     const { contractAddress, chainId, nonce, ...signature } = authorization
     serializedAuthorizationList.push([
-      toHex(chainId),
+      chainId ? toHex(chainId) : '0x',
       contractAddress,
       nonce ? toHex(nonce) : '0x',
       ...toYParitySignatureArray({}, signature),

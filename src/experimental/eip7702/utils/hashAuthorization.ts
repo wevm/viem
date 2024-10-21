@@ -49,7 +49,7 @@ export function hashAuthorization<to extends To = 'hex'>(
     concatHex([
       '0x05',
       toRlp([
-        numberToHex(chainId),
+        chainId ? numberToHex(chainId) : '0x',
         contractAddress,
         nonce ? numberToHex(nonce) : '0x',
       ]),
