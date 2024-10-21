@@ -9,6 +9,7 @@ import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { deploy, deployErrorExample, deployPayable } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
@@ -159,9 +160,7 @@ describe('args: chain', () => {
 
 test('args: authorizationList', async () => {
   const authority = privateKeyToAccount(accounts[1].privateKey)
-  const recipient = privateKeyToAccount(
-    '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
-  )
+  const recipient = privateKeyToAccount(generatePrivateKey())
 
   const balance_recipient = await getBalance(client, {
     address: recipient.address,
@@ -224,9 +223,7 @@ test('args: authorizationList', async () => {
 test('args: authorizationList (delegate)', async () => {
   const delegate = privateKeyToAccount(accounts[0].privateKey)
   const authority = privateKeyToAccount(accounts[1].privateKey)
-  const recipient = privateKeyToAccount(
-    '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
-  )
+  const recipient = privateKeyToAccount(generatePrivateKey())
 
   const balance_authority = await getBalance(client, {
     address: authority.address,
