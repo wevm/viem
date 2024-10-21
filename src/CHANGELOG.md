@@ -1,5 +1,11 @@
 # viem
 
+## 2.21.32
+
+### Patch Changes
+
+- [`d461c657b4f7ed8c0e255254356d8e5b2b65e173`](https://github.com/wevm/viem/commit/d461c657b4f7ed8c0e255254356d8e5b2b65e173) Thanks [@jxom](https://github.com/jxom)! - Added ability to pass a `0` chain ID to EIP-7702 Authorizations.
+
 ## 2.21.31
 
 ### Patch Changes
