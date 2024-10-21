@@ -36,6 +36,7 @@ export type ToCoinbaseSmartAccountParameters = {
   address?: Address | undefined
   client: Client
   owners: readonly OneOf<LocalAccount | WebAuthnAccount>[]
+  ownerIndex?: number | undefined
   nonce?: bigint | undefined
 }
 
@@ -74,7 +75,7 @@ export type CoinbaseSmartAccountImplementation = Assign<
 export async function toCoinbaseSmartAccount(
   parameters: ToCoinbaseSmartAccountParameters,
 ): Promise<ToCoinbaseSmartAccountReturnType> {
-  const { client, owners, nonce = 0n } = parameters
+  const { client, owners, nonce = 0n, ownerIndex = 0 } = parameters
 
   let address = parameters.address
 
@@ -163,6 +164,7 @@ export async function toCoinbaseSmartAccount(
       return wrapSignature({
         signature:
           '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c',
+        ownerIndex,
       })
     },
 
@@ -179,6 +181,7 @@ export async function toCoinbaseSmartAccount(
 
       return wrapSignature({
         signature,
+        ownerIndex,
       })
     },
 
@@ -196,6 +199,7 @@ export async function toCoinbaseSmartAccount(
 
       return wrapSignature({
         signature,
+        ownerIndex,
       })
     },
 
@@ -219,6 +223,7 @@ export async function toCoinbaseSmartAccount(
 
       return wrapSignature({
         signature,
+        ownerIndex,
       })
     },
 
@@ -240,6 +245,7 @@ export async function toCoinbaseSmartAccount(
 
       return wrapSignature({
         signature,
+        ownerIndex,
       })
     },
 
