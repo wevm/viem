@@ -9,30 +9,6 @@ test('default', () => {
   expect(
     serializeAuthorizationList([
       {
-        contractAddress: '0x0000000000000000000000000000000000000000',
-        chainId: 1,
-        nonce: 0,
-        r: '0x00',
-        s: '0x00',
-        yParity: 0,
-      },
-    ]),
-  ).toMatchInlineSnapshot(`
-    [
-      [
-        "0x1",
-        "0x0000000000000000000000000000000000000000",
-        "0x",
-        "0x",
-        "0x",
-        "0x",
-      ],
-    ]
-  `)
-
-  expect(
-    serializeAuthorizationList([
-      {
         contractAddress: wagmiContractConfig.address,
         chainId: 1,
         nonce: 69,
@@ -50,6 +26,30 @@ test('default', () => {
         "0x1",
         "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
         "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+      ],
+    ]
+  `)
+
+  expect(
+    serializeAuthorizationList([
+      {
+        contractAddress: '0x0000000000000000000000000000000000000000',
+        chainId: 0,
+        nonce: 0,
+        r: '0x00',
+        s: '0x00',
+        yParity: 0,
+      },
+    ]),
+  ).toMatchInlineSnapshot(`
+    [
+      [
+        "0x",
+        "0x0000000000000000000000000000000000000000",
+        "0x",
+        "0x",
+        "0x",
+        "0x",
       ],
     ]
   `)

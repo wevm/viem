@@ -51,7 +51,7 @@ export function assertTransactionEIP7702(
       const { contractAddress, chainId } = authorization
       if (!isAddress(contractAddress))
         throw new InvalidAddressError({ address: contractAddress })
-      if (chainId <= 0) throw new InvalidChainIdError({ chainId })
+      if (chainId < 0) throw new InvalidChainIdError({ chainId })
     }
   }
   assertTransactionEIP1559(transaction as {} as TransactionSerializableEIP1559)

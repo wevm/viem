@@ -22,6 +22,16 @@ test('default', () => {
   ).toMatchInlineSnapshot(
     `"0x9aeacccc1b8571dfc4fb4ba734dbde6e94d6c0188484413585144a755c359aac"`,
   )
+
+  expect(
+    hashAuthorization({
+      contractAddress: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+      chainId: 0,
+      nonce: 0,
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x70f22b957bc18cbaa757a12cc3e5fa5268b98b24afe15a35a76e6874748a8bfa"`,
+  )
 })
 
 test('args: to', () => {
