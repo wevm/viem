@@ -828,4 +828,36 @@ describe('rankTransports', () => {
       ]
     `)
   })
+
+  test('custom rankMethod', async () => {
+    // TODO: properly test this
+    const server = await createHttpServer((req, res) => {
+      req.setEncoding('utf8')
+      req.on('data', (body) => {
+        const { method } = JSON.parse(body)
+        expect(method).toBe('eth_blockNumber')
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+    })
+
+    const transport1 = http(server.url, { key: '1' })
+    const transport2 = http(server.url, { key: '2' })
+    const transport3 = http(server.url, { key: '3' })
+
+    const rankedTransports: (readonly Transport[])[] = []
+
+    rankTransports({
+      chain: localhost,
+      interval: 100,
+      sampleCount: 3,
+      timeout: 500,
+      transports: [transport1, transport2, transport3],
+      onTransports(transports) {
+        rankedTransports.push(transports)
+      },
+      rankMethod: 'eth_blockNumber',
+    })
+
+  })
 })
