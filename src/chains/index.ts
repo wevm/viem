@@ -394,7 +394,8 @@ export { xdcTestnet } from './definitions/xdcTestnet.js'
 export { xLayer } from './definitions/xLayer.js'
 export {
   /** @deprecated Use `xLayerTestnet` */
-  x1Testnet, xLayerTestnet
+  x1Testnet,
+  xLayerTestnet,
 } from './definitions/xLayerTestnet.js'
 export { xrSepolia } from './definitions/xrSepolia.js'
 export { yooldoVerse } from './definitions/yooldoVerse.js'
@@ -414,22 +415,22 @@ export { zkLinkNovaSepoliaTestnet } from './definitions/zkLinkNovaSepoliaTestnet
 export {
   /** @deprecated Use `zksync` instead */
   zksync as zkSync,
-  zksync
+  zksync,
 } from './definitions/zksync.js'
 export {
   /** @deprecated Use `zksync` instead */
   zksyncInMemoryNode as zkSyncInMemoryNode,
-  zksyncInMemoryNode
+  zksyncInMemoryNode,
 } from './definitions/zksyncInMemoryNode.js'
 export {
   /** @deprecated Use `zksync` instead */
   zksyncLocalNode as zkSyncLocalNode,
-  zksyncLocalNode
+  zksyncLocalNode,
 } from './definitions/zksyncLocalNode.js'
 export {
   /** @deprecated Use `zksync` instead */
   zksyncSepoliaTestnet as zkSyncSepoliaTestnet,
-  zksyncSepoliaTestnet
+  zksyncSepoliaTestnet,
 } from './definitions/zksyncSepoliaTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
@@ -443,7 +444,7 @@ export type {
   assertTransactionCIP42 as assertTransactionCIP42Celo,
   assertTransactionCIP64 as assertTransactionCIP64Celo,
   serializeTransaction as serializeTransactionCelo,
-  serializers as serializersCelo
+  serializers as serializersCelo,
 } from '../celo/serializers.js'
 export type {
   CeloBlock,
@@ -451,8 +452,11 @@ export type {
   CeloRpcTransaction,
   CeloRpcTransactionRequest,
   CeloTransaction,
-  CeloTransactionRequest, CeloTransactionSerializable,
-  CeloTransactionSerialized, CeloTransactionType, RpcTransactionCIP42,
+  CeloTransactionRequest,
+  CeloTransactionSerializable,
+  CeloTransactionSerialized,
+  CeloTransactionType,
+  RpcTransactionCIP42,
   RpcTransactionCIP64,
   RpcTransactionRequestCIP64,
   TransactionCIP42,
@@ -461,18 +465,21 @@ export type {
   TransactionSerializableCIP42,
   TransactionSerializableCIP64,
   TransactionSerializedCIP42,
-  TransactionSerializedCIP64
+  TransactionSerializedCIP64,
 } from '../celo/types.js'
 export type {
   SerializeTransactionDepositReturnType,
   SerializeTransactionErrorType,
-  SerializeTransactionReturnType, assertTransactionDeposit as assertTransactionDepositOpStack, serializeTransaction as serializeTransactionOpStack, serializers as serializersOpStack
+  SerializeTransactionReturnType,
+  assertTransactionDeposit as assertTransactionDepositOpStack,
+  serializeTransaction as serializeTransactionOpStack,
+  serializers as serializersOpStack,
 } from '../op-stack/serializers.js'
 export type {
   OpStackBlock,
   OpStackBlockOverrides,
   OpStackRpcBlock,
-  OpStackRpcBlockOverrides
+  OpStackRpcBlockOverrides,
 } from '../op-stack/types/block.js'
 export type {
   OpStackDepositTransaction,
@@ -487,31 +494,33 @@ export type {
   OpStackTransactionSerialized,
   OpStackTransactionType,
   TransactionSerializableDeposit,
-  TransactionSerializedDeposit
+  TransactionSerializedDeposit,
 } from '../op-stack/types/transaction.js'
 export type {
   Assign,
   Omit,
   PartialBy,
   Prettify,
-  UnionLooseOmit
+  UnionLooseOmit,
 } from '../types/utils.js'
 export type {
   /** @deprecated Use `ZksyncBlock` instead */
   ZksyncBlock as ZkSyncBlock,
   /** @deprecated Use `ZksyncRpcBlock` instead */
-  ZksyncRpcBlock as ZkSyncRpcBlock, ZksyncBlock, ZksyncRpcBlock
+  ZksyncRpcBlock as ZkSyncRpcBlock,
+  ZksyncBlock,
+  ZksyncRpcBlock,
 } from '../zksync/types/block.js'
 export type { ChainEIP712 } from '../zksync/types/chain.js'
 export type {
   /** @deprecated Use `ZksyncEip712Meta` instead */
   ZksyncEip712Meta as ZkSyncEip712Meta,
-  ZksyncEip712Meta
+  ZksyncEip712Meta,
 } from '../zksync/types/eip712.js'
 export type {
   /** @deprecated Use `ZksyncFeeValues` instead */
   ZksyncFeeValues as ZkSyncFeeValues,
-  ZksyncFeeValues
+  ZksyncFeeValues,
 } from '../zksync/types/fee.js'
 export type {
   /** @deprecated Use `ZksyncL2ToL1Log` instead */
@@ -521,7 +530,11 @@ export type {
   /** @deprecated Use `ZksyncRpcL2ToL1Log` instead */
   ZksyncRpcL2ToL1Log as ZkSyncRpcL2ToL1Log,
   /** @deprecated Use `ZkSyncRpcLog` instead */
-  ZksyncRpcLog as ZkSyncRpcLog, ZksyncL2ToL1Log, ZksyncLog, ZksyncRpcL2ToL1Log, ZksyncRpcLog
+  ZksyncRpcLog as ZkSyncRpcLog,
+  ZksyncL2ToL1Log,
+  ZksyncLog,
+  ZksyncRpcL2ToL1Log,
+  ZksyncRpcLog,
 } from '../zksync/types/log.js'
 export type {
   TransactionRequestEIP712,
@@ -568,6 +581,27 @@ export type {
   /** @deprecated Use `ZksyncTransactionSerializedEIP712` instead */
   ZksyncTransactionSerializedEIP712 as ZkSyncTransactionSerializedEIP712,
   /** @deprecated Use `ZksyncTransactionType` instead */
-  ZksyncTransactionType as ZkSyncTransactionType, ZksyncEIP712TransactionSignable, ZksyncRawBlockTransactions, ZksyncRpcTransaction, ZksyncRpcTransactionEIP712, ZksyncRpcTransactionPriority, ZksyncRpcTransactionReceipt, ZksyncRpcTransactionReceiptOverrides, ZksyncRpcTransactionRequest, ZksyncRpcTransactionRequestEIP712, ZksyncTransaction, ZksyncTransactionDetails, ZksyncTransactionEIP712, ZksyncTransactionReceipt, ZksyncTransactionReceiptOverrides, ZksyncTransactionRequest, ZksyncTransactionRequestEIP712, TransactionRequest as ZksyncTransactionRequest_internal, ZksyncTransactionSerializable, ZksyncTransactionSerializableEIP712, ZksyncTransactionSerialized, ZksyncTransactionSerializedEIP712, ZksyncTransactionType
+  ZksyncTransactionType as ZkSyncTransactionType,
+  ZksyncEIP712TransactionSignable,
+  ZksyncRawBlockTransactions,
+  ZksyncRpcTransaction,
+  ZksyncRpcTransactionEIP712,
+  ZksyncRpcTransactionPriority,
+  ZksyncRpcTransactionReceipt,
+  ZksyncRpcTransactionReceiptOverrides,
+  ZksyncRpcTransactionRequest,
+  ZksyncRpcTransactionRequestEIP712,
+  ZksyncTransaction,
+  ZksyncTransactionDetails,
+  ZksyncTransactionEIP712,
+  ZksyncTransactionReceipt,
+  ZksyncTransactionReceiptOverrides,
+  ZksyncTransactionRequest,
+  ZksyncTransactionRequestEIP712,
+  TransactionRequest as ZksyncTransactionRequest_internal,
+  ZksyncTransactionSerializable,
+  ZksyncTransactionSerializableEIP712,
+  ZksyncTransactionSerialized,
+  ZksyncTransactionSerializedEIP712,
+  ZksyncTransactionType,
 } from '../zksync/types/transaction.js'
-
