@@ -4,7 +4,7 @@ description: Generates ABI encoded data.
 
 # encodeAbiParameters
 
-Generates ABI encoded data using the [ABI specification](https://docs.soliditylang.org/en/latest/abi-spec.html#types), given a set of ABI parameters (`inputs`/`outputs`) and their corresponding values.
+Generates ABI encoded data using the [ABI specification](https://docs.soliditylang.org/en/latest/abi-spec.html), given a set of ABI parameters (`inputs`/`outputs`) and their corresponding values.
 
 The `encodeAbiParameters` function is used by the other contract encoding utilities (ie. `encodeFunctionData`, `encodeEventTopics`, etc).
 
