@@ -18,6 +18,11 @@ export {
   toSoladySmartAccount,
 } from './accounts/implementations/toSoladySmartAccount.js'
 export {
+  type ToNexusSmartAccountParameters,
+  type ToNexusSmartAccountReturnType,
+  toNexusAccount,
+} from './accounts/implementations/toNexusAccount.js'
+export {
   type ToSmartAccountParameters,
   type ToSmartAccountReturnType,
   toSmartAccount,
