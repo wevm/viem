@@ -1,36 +1,48 @@
 // types
-import {type Address, type AbiParameter, type TypedDataParameter } from 'abitype';
-import {type RpcSchema} from '../../../types/eip1193.js';
-import {type Account} from '../../../types/account.js';
-import {type Chain } from '../../../types/chain.js';
-import {
-  type SmartAccount,
-  type SmartAccountImplementation,
-} from '../types.js'
-import {type UserOperation} from '../../types/userOperation.js';
-import {type TypedData} from 'abitype';
-import {type TypedDataDefinition} from '../../../types/typedData.js';
-import {type Hex, type SignableMessage} from '../../../types/misc.js';
-import {type Transport} from '../../../clients/transports/createTransport.js';
-import {type PublicClient} from '../../../clients/createPublicClient.js';
-import {type ClientConfig, createClient} from '../../../clients/createClient.js';
-import type { Prettify, UnionPartialBy } from '../../../types/utils.js'
+import type { AbiParameter, Address, TypedDataParameter } from 'abitype'
+import type { TypedData } from 'abitype'
 import type { LocalAccount } from '../../../accounts/types.js'
+import {
+  type ClientConfig,
+  createClient,
+} from '../../../clients/createClient.js'
+import type { PublicClient } from '../../../clients/createPublicClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { Account } from '../../../types/account.js'
+import type { Chain } from '../../../types/chain.js'
+import type { RpcSchema } from '../../../types/eip1193.js'
+import type { Hex, SignableMessage } from '../../../types/misc.js'
+import type { TypedDataDefinition } from '../../../types/typedData.js'
+import type { Prettify, UnionPartialBy } from '../../../types/utils.js'
+import type { UserOperation } from '../../types/userOperation.js'
+import type { SmartAccount, SmartAccountImplementation } from '../types.js'
 
 // actions
-import {getContract} from '../../../actions/getContract.js';
-import {getCode} from '../../../actions/public/getCode.js';
-import {getUserOperationHash} from '../../utils/userOperation/getUserOperationHash.js';
+import { getContract } from '../../../actions/getContract.js'
+import { getCode } from '../../../actions/public/getCode.js'
+import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
 
 // accounts
-import {toSmartAccount} from '../toSmartAccount.js';
+import { toSmartAccount } from '../toSmartAccount.js'
 
 // constants
-import {entryPoint07Address} from '../../constants/address.js';
+import { entryPoint07Address } from '../../constants/address.js'
 
-// utils
-import {concatHex, concat, domainSeparator, encodeAbiParameters, encodeFunctionData, parseAbi, parseAbiParameters, toBytes, toHex, encodePacked, keccak256} from '../../../index.js';
 import { readContract } from '../../../actions/index.js'
+// utils
+import {
+  concat,
+  concatHex,
+  domainSeparator,
+  encodeAbiParameters,
+  encodeFunctionData,
+  encodePacked,
+  keccak256,
+  parseAbi,
+  parseAbiParameters,
+  toBytes,
+  toHex,
+} from '../../../index.js'
 import { getTypesForEIP712Domain } from '../../../utils/typedData.js'
 import { entryPoint07Abi } from '../../constants/abis.js'
 
@@ -190,7 +202,7 @@ export const toNexusAccount = async (
     abi: entryPoint07Abi,
     client: {
       public: client,
-    }
+    },
   })
 
   const factoryData = encodeFunctionData({
@@ -280,27 +292,29 @@ export const toNexusAccount = async (
    * const nonce = await getNonce()
    * console.log(nonce) // 1n
    */
-  const getNonce = async (parameters?: { key?: bigint | undefined } | undefined): Promise<bigint> => {
+  const getNonce = async (
+    parameters?: { key?: bigint | undefined } | undefined,
+  ): Promise<bigint> => {
     try {
       const TIMESTAMP_ADJUSTMENT = 16777215n
       const defaultedKey = BigInt(parameters?.key ?? 0n) % TIMESTAMP_ADJUSTMENT
-      const defaultedValidationMode = "0x00"
+      const defaultedValidationMode = '0x00'
       const key: string = concat([
         toHex(defaultedKey, { size: 3 }),
         defaultedValidationMode,
-        k1ValidatorAddress
+        k1ValidatorAddress,
       ])
 
       const accountAddress = await getAddress()
       return await entryPointContract.read.getNonce([
         accountAddress,
-        BigInt(key)
+        BigInt(key),
       ])
-    } catch (e) {
+    } catch (_e) {
       return 0n
     }
   }
-  
+
   /**
    * @description Checks if the account is deployed
    * @returns True if the account is deployed, false otherwise
@@ -433,7 +447,7 @@ export const toNexusAccount = async (
    * @description Signs typed data
    * @param parameters - The typed data parameters
    * @returns The signature
-  */
+   */
   async function signTypedData<
     const TTypedData extends TypedData | Record<string, unknown>,
     TPrimaryType extends keyof TTypedData | 'EIP712Domain' = keyof TTypedData,
@@ -531,8 +545,7 @@ export const toNexusAccount = async (
         chainId?: number | undefined
       },
     ): Promise<Hex> => {
-      const { chainId = chain.id, ...userOpWithoutSender } =
-        parameters
+      const { chainId = chain.id, ...userOpWithoutSender } = parameters
       const address = await getCounterFactualAddress()
 
       const userOperation = {
@@ -559,8 +572,8 @@ export const toNexusAccount = async (
       encodeExecuteBatch,
       factoryData,
       factoryAddress,
-      signer
-    }
+      signer,
+    },
   })
 }
 
@@ -663,7 +676,7 @@ export function sanitizeSignature(signature: Hex): Hex {
     const correctV = potentiallyIncorrectV + 27
     signature_ = signature_.slice(0, -2) + correctV.toString(16)
   }
-  if (signature.slice(0, 2) !== "0x") {
+  if (signature.slice(0, 2) !== '0x') {
     signature_ = `0x${signature_}`
   }
   return signature_ as Hex

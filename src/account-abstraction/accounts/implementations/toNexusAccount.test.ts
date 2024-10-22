@@ -1,10 +1,13 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import { type ToNexusSmartAccountReturnType, toNexusAccount } from './toNexusAccount.js'
-import { baseSepolia } from '../../../chains/index.js'
 import { accounts } from '~test/src/constants.js'
 import { http } from '~viem/clients/transports/http.js'
+import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
+import { baseSepolia } from '../../../chains/index.js'
+import {
+  type ToNexusSmartAccountReturnType,
+  toNexusAccount,
+} from './toNexusAccount.js'
 
 const owner = privateKeyToAccount(accounts[0].privateKey)
 
@@ -50,7 +53,7 @@ describe('signer type support', () => {
       chain: baseSepolia,
       transport: http(),
     })
-    const signature = account.signMessage({message: 'hello world'});
-    expect(signature).toBeDefined();
+    const signature = account.signMessage({ message: 'hello world' })
+    expect(signature).toBeDefined()
   })
 })
