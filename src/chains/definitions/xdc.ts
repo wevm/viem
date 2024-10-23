@@ -13,7 +13,7 @@ export const xdc = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: "xdcscan",
+      name: "XDCScan",
       url: "https://xdcscan.com",
     },
   },
