@@ -43,7 +43,10 @@ export const anvilSepolia = defineAnvil({
 
 export const anvilBaseSepolia = defineAnvil({
   chain: baseSepolia,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL_BASE_SEPOLIA', 'https://sepolia.base.org'),
+  forkUrl: getEnv(
+    'VITE_ANVIL_FORK_URL_BASE_SEPOLIA',
+    'https://sepolia.base.org',
+  ),
   forkBlockNumber: 16742514n,
   noMining: true,
   port: 8245,

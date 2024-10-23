@@ -1,23 +1,23 @@
-import { beforeAll, beforeEach, describe, test, expect, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { bundlerBaseSepolia } from '~test/src/bundler.js'
 import { accounts } from '~test/src/constants.js'
+import { estimateUserOperationGas } from '~viem/account-abstraction/actions/bundler/estimateUserOperationGas.js'
+import { prepareUserOperation } from '~viem/account-abstraction/actions/bundler/prepareUserOperation.js'
+import { sendUserOperation } from '~viem/account-abstraction/actions/bundler/sendUserOperation.js'
+import { getCode, mine, sendTransaction } from '~viem/actions/index.js'
 import { http } from '~viem/clients/transports/http.js'
+import { parseEther } from '~viem/utils/index.js'
+import { anvilBaseSepolia } from '../../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { baseSepolia } from '../../../chains/index.js'
 import {
   type ToNexusSmartAccountReturnType,
   toNexusAccount,
 } from './toNexusAccount.js'
-import { anvilBaseSepolia } from '../../../../test/src/anvil.js'
-import { getCode, mine, sendTransaction } from '~viem/actions/index.js'
-import { parseEther } from '~viem/utils/index.js'
-import { prepareUserOperation } from '~viem/account-abstraction/actions/bundler/prepareUserOperation.js'
-import { bundlerBaseSepolia } from '~test/src/bundler.js'
-import { sendUserOperation } from '~viem/account-abstraction/actions/bundler/sendUserOperation.js'
-import { estimateUserOperationGas } from '~viem/account-abstraction/actions/bundler/estimateUserOperationGas.js'
 
 const owner = privateKeyToAccount(accounts[0].privateKey)
-const client = anvilBaseSepolia.getClient({account: true})
+const client = anvilBaseSepolia.getClient({ account: true })
 const bundlerClient = bundlerBaseSepolia.getBundlerClient({ client })
 
 let account: ToNexusSmartAccountReturnType
@@ -28,18 +28,18 @@ beforeAll(async () => {
     chain: baseSepolia,
     transport: http(),
   })
-
-  
 })
 
 describe('deployments', () => {
   test('it should be deployed', async () => {
-    const k1Validator = "0x00000004171351c442B202678c48D8AB5B321E8f";
-    const k1ValidatorFactory = "0x00000bb19a3579F4D779215dEf97AFbd0e30DB55";
-    const k1ValidatorCode = await getCode(client, {address: k1Validator});
-    const k1ValidatorFactoryCode = await getCode(client, {address: k1ValidatorFactory});
-    expect(k1ValidatorCode).toBeDefined();
-    expect(k1ValidatorFactoryCode).toBeDefined();
+    const k1Validator = '0x00000004171351c442B202678c48D8AB5B321E8f'
+    const k1ValidatorFactory = '0x00000bb19a3579F4D779215dEf97AFbd0e30DB55'
+    const k1ValidatorCode = await getCode(client, { address: k1Validator })
+    const k1ValidatorFactoryCode = await getCode(client, {
+      address: k1ValidatorFactory,
+    })
+    expect(k1ValidatorCode).toBeDefined()
+    expect(k1ValidatorFactoryCode).toBeDefined()
   })
 })
 
@@ -81,7 +81,6 @@ describe('signer type support', () => {
 })
 
 describe('bundler client actions', async () => {
-
   const account = await toNexusAccount({
     signer: owner,
     chain: baseSepolia,
@@ -141,7 +140,6 @@ describe('bundler client actions', async () => {
       maxFeePerGas: 22785120848n,
       maxPriorityFeePerGas: 2000000000n,
     })
-    console.log(hash, "HASH");
     expect(hash).toBeDefined()
   })
 
@@ -160,7 +158,6 @@ describe('bundler client actions', async () => {
       maxFeePerGas: 22785120848n,
       maxPriorityFeePerGas: 2000000000n,
     })
-    console.log(hash, "HASH");
     expect(hash).toBeDefined()
     expect(hash).toMatchInlineSnapshot(
       `"0x3ecfa7dc9b70e00bfd24f983f45cddff10c831a8815df2e76946aa7230292333"`,
