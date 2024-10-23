@@ -1,5 +1,5 @@
 import type { ErrorType } from '../../errors/utils.js'
-import { withResolvers } from './withResolvers.js'
+import { type PromiseWithResolvers, withResolvers } from './withResolvers.js'
 
 type Resolved<returnType extends readonly unknown[] = any> = [
   result: returnType[number],
