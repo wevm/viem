@@ -107,7 +107,7 @@ export async function estimateGas<
   client: Client<Transport, chain, account>,
   args: EstimateGasParameters<chain>,
 ): Promise<EstimateGasReturnType> {
-  const account_ = args.account ?? client.account
+  const { account: account_ = client.account } = args
   const account = account_ ? parseAccount(account_) : undefined
 
   try {
