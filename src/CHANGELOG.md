@@ -1,5 +1,17 @@
 # viem
 
+## 2.21.33
+
+### Patch Changes
+
+- [`d21d9d031442ddb65ea6e633029fb4f43235a27f`](https://github.com/wevm/viem/commit/d21d9d031442ddb65ea6e633029fb4f43235a27f) Thanks [@jxom](https://github.com/jxom)! - Fixed gas estimation issue for OP Stack withdrawals.
+
+- [#2897](https://github.com/wevm/viem/pull/2897) [`40514f93c9147c26cc47f25421adcec8230d6c40`](https://github.com/wevm/viem/commit/40514f93c9147c26cc47f25421adcec8230d6c40) Thanks [@catbutter](https://github.com/catbutter)! - Added DustBoy IoT chain.
+
+- [#2908](https://github.com/wevm/viem/pull/2908) [`903d1e4256101253e4fbd6659ae5c2180464427a`](https://github.com/wevm/viem/commit/903d1e4256101253e4fbd6659ae5c2180464427a) Thanks [@qi-0826](https://github.com/qi-0826)! - Added LAVITA Mainnet.
+
+- [#2907](https://github.com/wevm/viem/pull/2907) [`d3047ead21b4785c83aae35e896120b1dc390ecf`](https://github.com/wevm/viem/commit/d3047ead21b4785c83aae35e896120b1dc390ecf) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Bitrock Mainnet.
+
 ## 2.21.32
 
 ### Patch Changes

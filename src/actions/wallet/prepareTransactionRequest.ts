@@ -262,7 +262,7 @@ export async function prepareTransactionRequest<
     parameters = defaultParameters,
     type,
   } = args
-  const account = account_ ? parseAccount(account_) : undefined
+  const account = account_ ? parseAccount(account_) : account_
 
   const request = { ...args, ...(account ? { from: account?.address } : {}) }
 
@@ -412,7 +412,7 @@ export async function prepareTransactionRequest<
       ...request,
       account: account
         ? { address: account.address, type: 'json-rpc' }
-        : undefined,
+        : account,
     } as EstimateGasParameters)
 
   assertRequest(request as AssertRequestParameters)
