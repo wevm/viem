@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.34
+
+### Patch Changes
+
+- [#2917](https://github.com/wevm/viem/pull/2917) [`b3f8199f5560fb64b2c84de75b7f8d6b30990262`](https://github.com/wevm/viem/commit/b3f8199f5560fb64b2c84de75b7f8d6b30990262) Thanks [@0xPenryn](https://github.com/0xPenryn)! - Updated World Chain (Mainnet and Sepolia)
+
+- [`80f43544f82e8621ad71e74441b900967dfc306c`](https://github.com/wevm/viem/commit/80f43544f82e8621ad71e74441b900967dfc306c) Thanks [@jxom](https://github.com/jxom)! - Resolved timer leak in `waitForTransactionReceipt`.
+
+- [#2915](https://github.com/wevm/viem/pull/2915) [`8032ffa98db644cb3abcd13eedbd05b41e74637f`](https://github.com/wevm/viem/commit/8032ffa98db644cb3abcd13eedbd05b41e74637f) Thanks [@iltumio](https://github.com/iltumio)! - **Linea Extension:** Fixed `estimateGas` infinite loop.
+
 ## 2.21.33
 
 ### Patch Changes
