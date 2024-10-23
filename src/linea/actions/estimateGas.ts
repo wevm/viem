@@ -1,10 +1,6 @@
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { EstimateGasParameters as EstimateGasParameters_base } from '../../actions/public/estimateGas.js'
-import {
-  type PrepareTransactionRequestParameters,
-  prepareTransactionRequest,
-} from '../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
@@ -82,13 +78,7 @@ export async function estimateGas<
       to,
       value,
       ...rest
-    } =
-      account?.type === 'local'
-        ? ((await prepareTransactionRequest(
-            client,
-            args as PrepareTransactionRequestParameters,
-          )) as EstimateGasParameters)
-        : args
+    } = args
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
