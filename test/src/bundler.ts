@@ -5,7 +5,7 @@ import {
   type BundlerClientConfig,
   createBundlerClient,
 } from '../../src/account-abstraction/clients/createBundlerClient.js'
-import { mainnet } from '../../src/chains/index.js'
+import { baseSepolia, mainnet } from '../../src/chains/index.js'
 import {
   http,
   type Chain,
@@ -15,13 +15,19 @@ import {
   type Transport,
 } from '../../src/index.js'
 import type { DebugBundlerRpcSchema } from '../../src/types/eip1193.js'
-import { anvilMainnet } from './anvil.js'
+import { anvilBaseSepolia, anvilMainnet } from './anvil.js'
 import { accounts, poolId } from './constants.js'
 
 export const bundlerMainnet = defineBundler({
   chain: mainnet,
   rpcUrl: (key) => `http://localhost:${anvilMainnet.port}/${key}`,
   port: 4337,
+})
+
+export const bundlerBaseSepolia = defineBundler({
+  chain: baseSepolia,
+  rpcUrl: (key) => `http://localhost:${anvilBaseSepolia.port}/${key}`,
+  port: 4338,
 })
 
 ////////////////////////////////////////////////////////////

@@ -1,6 +1,7 @@
 import { createServer } from 'prool'
 import { type AnvilParameters, anvil } from 'prool/instances'
 import {
+  baseSepolia,
   mainnet,
   optimism,
   optimismSepolia,
@@ -38,6 +39,14 @@ export const anvilSepolia = defineAnvil({
   forkBlockNumber: 5858117n,
   noMining: true,
   port: 8845,
+})
+
+export const anvilBaseSepolia = defineAnvil({
+  chain: baseSepolia,
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL_BASE_SEPOLIA', 'https://sepolia.base.org'),
+  forkBlockNumber: 16742514n,
+  noMining: true,
+  port: 8245,
 })
 
 export const anvilOptimism = defineAnvil({
