@@ -11,7 +11,7 @@ export const velas = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Velas Explorer',    
+      name: 'Velas Explorer',
       url: 'https://evmexplorer.velas.com',
     },
   },
