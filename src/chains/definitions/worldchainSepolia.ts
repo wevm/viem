@@ -4,6 +4,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 const sourceId = 11_155_111 // sepolia
 
 export const worldchainSepolia = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 4801,
   name: 'World Chain Sepolia',
   network: 'worldchain-sepolia',

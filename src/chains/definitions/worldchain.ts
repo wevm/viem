@@ -4,6 +4,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 const sourceId = 1 // mainnet
 
 export const worldchain = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 480,
   name: 'World Chain',
   network: 'worldchain',
