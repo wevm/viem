@@ -2,7 +2,10 @@ import type { TypedData, TypedDataDomain, TypedDataParameter } from 'abitype'
 
 import { BytesSizeMismatchError } from '../errors/abi.js'
 import { InvalidAddressError } from '../errors/address.js'
-import { InvalidStructTypeError } from '../errors/typedData.js'
+import {
+  InvalidPrimaryTypeError,
+  InvalidStructTypeError,
+} from '../errors/typedData.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
@@ -121,7 +124,10 @@ export function validateTypedData<
   if (types.EIP712Domain && domain) validateData(types.EIP712Domain, domain)
 
   // Validate message types.
-  if (primaryType !== 'EIP712Domain') validateData(types[primaryType], message)
+  if (primaryType !== 'EIP712Domain') {
+    if (types[primaryType]) validateData(types[primaryType], message)
+    else throw new InvalidPrimaryTypeError({ primaryType, types })
+  }
 }
 
 export type GetTypesForEIP712DomainErrorType = ErrorType
