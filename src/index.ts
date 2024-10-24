@@ -918,6 +918,8 @@ export {
   type StateAssignmentConflictErrorType,
 } from './errors/stateOverride.js'
 export {
+  type InvalidPrimaryTypeErrorType,
+  InvalidPrimaryTypeError,
   type InvalidStructTypeErrorType,
   InvalidStructTypeError,
 } from './errors/typedData.js'
