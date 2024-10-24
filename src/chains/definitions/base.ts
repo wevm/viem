@@ -22,6 +22,11 @@ export const base = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x56315b90c40730925ec5485cf004d835058518A0',
