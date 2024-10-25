@@ -1,5 +1,21 @@
 # viem
 
+## 2.21.35
+
+### Patch Changes
+
+- [#2923](https://github.com/wevm/viem/pull/2923) [`d887dba1e694ffdcd413a752b148f6ae05487d17`](https://github.com/wevm/viem/commit/d887dba1e694ffdcd413a752b148f6ae05487d17) Thanks [@cbfyi](https://github.com/cbfyi)! - Added Dispute Game Factory contract for Base.
+
+- [`335f7e852bb526ea23564afacc46b5d6b74dae7a`](https://github.com/wevm/viem/commit/335f7e852bb526ea23564afacc46b5d6b74dae7a) Thanks [@jxom](https://github.com/jxom)! - Added validation for typed data `primaryType`.
+
+- [#2925](https://github.com/wevm/viem/pull/2925) [`7fbb016204d4c310ee96bf53e631257f8f3e770e`](https://github.com/wevm/viem/commit/7fbb016204d4c310ee96bf53e631257f8f3e770e) Thanks [@0xArdy](https://github.com/0xArdy)! - Updated World Chain (Mainnet and Testnet) and Unichain Sepolia chain definitions
+
+- [#2922](https://github.com/wevm/viem/pull/2922) [`f6339079cc075c7e069f062c18dbdd2d4306c996`](https://github.com/wevm/viem/commit/f6339079cc075c7e069f062c18dbdd2d4306c996) Thanks [@oxSaturn](https://github.com/oxSaturn)! - Added multicall3 for iota.
+
+- [#2919](https://github.com/wevm/viem/pull/2919) [`5ff60a39c642b4715d9142a1435d14d7896be5d1`](https://github.com/wevm/viem/commit/5ff60a39c642b4715d9142a1435d14d7896be5d1) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Velas chain.
+
+- [#2924](https://github.com/wevm/viem/pull/2924) [`d2632d2e9eb572c5346e535d1b22eb7568a47bc1`](https://github.com/wevm/viem/commit/d2632d2e9eb572c5346e535d1b22eb7568a47bc1) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Genesys Mainnet.
+
 ## 2.21.34
 
 ### Patch Changes
