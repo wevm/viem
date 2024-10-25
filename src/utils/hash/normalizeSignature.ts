@@ -1,13 +1,44 @@
+import type {
+  AbiEvent,
+  AbiFunction,
+  ParseAbiItem,
+  SignatureAbiItem,
+} from 'abitype'
 import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 
-type NormalizeSignatureParameters = string
-type NormalizeSignatureReturnType = string
+/**
+ * TODO: ParseAbiItem<Signature> is too strict here since
+ *       1. normalizeSignature allows loose formatting (ex: spacing)
+ *       2. normalization doesn't require the string to conform to abitype's human-readable encoding
+ *       ex: 'function  bar( )' should still results in `bar()` as the result
+ *       ex: `event foo(tuple(uint16, uint16))` results in a broken type response
+ *       for now, we return`string` in cases where abitype fails
+ *                but this doesn't handle error cases where abitype is just wrong like
+ * TODO: Some obvious errors get the return type `string`
+ *       this is because we fallback to `string` if `ParseAbiItem<Signature>` fails
+ *       but it could fail because not because it's too strict, but because the string is plain incorrect
+ *       ex: normalizeSignature('bar') falls back to `string` as the response type
+ *           since it can't tell if this is wrong since `ParseAbiItem<Signature>` is too strict or if it really is invalid
+ * TODO: Some normalizations are missing
+ *       ex 1: (JS wrong, type correct) 'event Barry(uint foo)' results in type `Barry(uint256)`, but the real return value is `Barry(uint)`.
+ *       ex 2: (Both wrong) tuples doesn't get removed `foo(tuple(uint16, uint16))` does not get normalized to 'foo((uint16, uint16))'
+ */
+export type ToSignature<Signature extends string> =
+  ParseAbiItem<Signature> extends never
+    ? string
+    : ParseAbiItem<Signature> extends AbiFunction | AbiEvent
+      ? SignatureAbiItem<ParseAbiItem<Signature>>
+      : never
+
+type NormalizeSignatureParameters<Signature extends string> = Signature
+type NormalizeSignatureReturnType<Signature extends string> =
+  ToSignature<Signature>
 export type NormalizeSignatureErrorType = ErrorType
 
-export function normalizeSignature(
-  signature: NormalizeSignatureParameters,
-): NormalizeSignatureReturnType {
+export function normalizeSignature<Signature extends string>(
+  signature: NormalizeSignatureParameters<Signature>,
+): NormalizeSignatureReturnType<Signature> {
   let active = true
   let current = ''
   let level = 0
@@ -60,5 +91,5 @@ export function normalizeSignature(
 
   if (!valid) throw new BaseError('Unable to normalize signature.')
 
-  return result
+  return result as NormalizeSignatureReturnType<Signature>
 }
