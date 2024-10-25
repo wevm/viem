@@ -61,9 +61,9 @@ Celo-flavored version of [Viem's `serializeTransaction`](/docs/utilities/seriali
 import { serializeTransaction } from 'viem/celo'
 
 const serialized = serializeTransaction({
-  chainId: 44220,
+  chainId: 42220,
   gas: 21001n,
-  feeCurrency: "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B" 
+  feeCurrency: "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B" // whitelisted adapter for USDC
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'),
   nonce: 69,
