@@ -10,7 +10,6 @@ The following Viem chains are implemented on Celo:
 import {
   celo, // [!code hl]
   celoAlfajores, // [!code hl]
-  celoCannoli, // [!code hl]
 } from 'viem/chains'
 ```
 
@@ -33,7 +32,7 @@ export const celoExample = defineChain({
 
 ### `parseTransaction`
 
-Parses a serialized RLP-encoded transaction. Supports signed & unsigned CIP-42, CIP-64, EIP-1559, EIP-2930 and Legacy Transactions.
+Parses a serialized RLP-encoded transaction. Supports signed & unsigned CIP-64, EIP-1559, EIP-2930 and Legacy Transactions.
 
 Celo-flavored version of [Viem's `parseTransaction`](/docs/utilities/parseTransaction).
 
@@ -49,7 +48,7 @@ const transaction = parseTransaction('0x7cf84682a4ec8084773594008477359400809476
 
 ### `serializeTransaction`
 
-Serializes a transaction object. Supports CIP-42, CIP-64, EIP-1559, EIP-2930, and Legacy transactions.
+Serializes a transaction object. Supports CIP-64, EIP-1559, EIP-2930, and Legacy transactions.
 
 Celo-flavored version of [Viem's `serializeTransaction`](/docs/utilities/serializeTransaction).
 
@@ -62,10 +61,9 @@ Celo-flavored version of [Viem's `serializeTransaction`](/docs/utilities/seriali
 import { serializeTransaction } from 'viem/celo'
 
 const serialized = serializeTransaction({
-  chainId: 1,
+  chainId: 44220,
   gas: 21001n,
-  gatewayFee: parseGwei('3'),
-  gatewayFeeRecipient: '0x1234512345123451234512345123451234512345',
+  feeCurrency: "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B" 
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'),
   nonce: 69,
