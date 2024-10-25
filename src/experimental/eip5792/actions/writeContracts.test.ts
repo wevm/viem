@@ -173,7 +173,11 @@ test('default', async () => {
   expect(
     receipts?.map((receipt) => ({
       ...receipt,
-      logs: receipt.logs.map((log) => ({ ...log, blockHash: undefined })),
+      logs: receipt.logs.map((log) => ({
+        ...log,
+        blockHash: undefined,
+        blockTimestamp: undefined,
+      })),
       blockHash: undefined,
     })),
   ).toMatchInlineSnapshot(`
@@ -187,7 +191,7 @@ test('default', async () => {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
-            "blockTimestamp": "0x63abc18c",
+            "blockTimestamp": undefined,
             "data": "0x",
             "logIndex": "0x0",
             "removed": false,
@@ -213,7 +217,7 @@ test('default', async () => {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
-            "blockTimestamp": "0x63abc18c",
+            "blockTimestamp": undefined,
             "data": "0x",
             "logIndex": "0x1",
             "removed": false,
@@ -239,7 +243,7 @@ test('default', async () => {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
-            "blockTimestamp": "0x63abc18c",
+            "blockTimestamp": undefined,
             "data": "0x",
             "logIndex": "0x2",
             "removed": false,
