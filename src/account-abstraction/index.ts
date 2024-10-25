@@ -18,6 +18,11 @@ export {
   toSoladySmartAccount,
 } from './accounts/implementations/toSoladySmartAccount.js'
 export {
+  type ToNexusSmartAccountParameters,
+  type ToNexusSmartAccountReturnType,
+  toNexusAccount,
+} from './accounts/implementations/toNexusAccount.js'
+export {
   type ToSmartAccountParameters,
   type ToSmartAccountReturnType,
   toSmartAccount,
@@ -28,10 +33,10 @@ export {
   type ToWebAuthnAccountErrorType,
   toWebAuthnAccount,
 } from './accounts/toWebAuthnAccount.js'
-export {
-  type SmartAccount,
-  type SmartAccountImplementation,
-  type WebAuthnAccount,
+export type {
+  SmartAccount,
+  SmartAccountImplementation,
+  WebAuthnAccount,
 } from './accounts/types.js'
 
 export {

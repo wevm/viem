@@ -49,17 +49,17 @@ export {
   type SignAuthorizationErrorType,
   signAuthorization,
 } from './eip7702/actions/signAuthorization.js'
-export {
-  type Authorization,
-  type SignedAuthorization,
-  type AuthorizationList,
-  type SignedAuthorizationList,
-  type SerializedAuthorization,
-  type SerializedAuthorizationList,
+export type {
+  Authorization,
+  SignedAuthorization,
+  AuthorizationList,
+  SignedAuthorizationList,
+  SerializedAuthorization,
+  SerializedAuthorizationList,
 } from './eip7702/types/authorization.js'
-export {
-  type RpcAuthorizationList,
-  type RpcAuthorization,
+export type {
+  RpcAuthorizationList,
+  RpcAuthorization,
 } from './eip7702/types/rpc.js'
 export {
   type HashAuthorizationParameters,
