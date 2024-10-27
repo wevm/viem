@@ -20,5 +20,5 @@ export const morph = /*#__PURE__*/ defineChain({
       url: 'https://explorer.morphl2.io',
     },
   },
-  testnet: false
+  testnet: false,
 })
