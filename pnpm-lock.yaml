@@ -52,7 +52,7 @@ importers:
         version: 20.16.12
       '@vitest/coverage-v8':
         specifier: ^1.0.4
-        version: 1.0.4(vitest@1.0.4(@types/node@20.16.12)(@vitest/ui@1.0.4)(terser@5.31.0))
+        version: 1.0.4(vitest@1.0.4)
       '@vitest/ui':
         specifier: ^1.0.4
         version: 1.0.4(vitest@1.0.4)
@@ -2727,7 +2727,6 @@ packages:
 
   bun@1.1.30:
     resolution: {integrity: sha512-ysRL1pq10Xba0jqVLPrKU3YIv0ohfp3cTajCPtpjCyppbn3lfiAVNpGoHfyaxS17OlPmWmR67UZRPw/EueQuug==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -5559,6 +5558,14 @@ packages:
       typescript:
         optional: true
 
+  viem@2.21.35:
+    resolution: {integrity: sha512-f3EFc5JILeA9veuNymUN8HG/nKP9ykC0NCgwFrZWuxcCc822GaP0IEnkRBsHGqmjwbz//FxJFmvtx7TBcdVs0A==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   viem@file:src:
     resolution: {directory: src, type: directory}
     peerDependencies:
@@ -6961,7 +6968,7 @@ snapshots:
       pino-http: 8.6.1
       pino-pretty: 10.3.1
       prom-client: 14.2.0
-      viem: 2.21.34(typescript@5.6.2)(zod@3.22.4)
+      viem: 2.21.35(typescript@5.6.2)(zod@3.22.4)
       yargs: 17.7.2
       zod: 3.22.4
       zod-validation-error: 1.5.0(zod@3.22.4)
@@ -7837,7 +7844,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@1.0.4(vitest@1.0.4(@types/node@20.16.12)(@vitest/ui@1.0.4)(terser@5.31.0))':
+  '@vitest/coverage-v8@1.0.4(vitest@1.0.4)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -11572,7 +11579,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.21.34(typescript@5.6.2)(zod@3.22.4):
+  viem@2.21.35(typescript@5.6.2)(zod@3.22.4):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/curves': 1.6.0
