@@ -434,11 +434,15 @@ describe('args: blockTag', () => {
         "mixHash",
         "nonce",
         "baseFeePerGas",
+        "withdrawalsRoot",
         "blobGasUsed",
         "excessBlobGas",
+        "parentBeaconBlockRoot",
+        "requestsHash",
         "uncles",
         "transactions",
         "size",
+        "withdrawals",
       ]
     `)
   })
