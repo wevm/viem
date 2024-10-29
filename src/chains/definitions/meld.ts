@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const meld = /*#__PURE__*/ defineChain({
     id: 333000333,
     name: "Meld",
-    network: "meld",
     nativeCurrency: {
       decimals: 18,
       name: "Meld",
@@ -11,7 +10,6 @@ export const meld = /*#__PURE__*/ defineChain({
     },
     rpcUrls: {
       default: { http: ["https://rpc-1.meld.com"] },
-      public: { http: ["https://rpc-1.meld.com"] },
     },
     blockExplorers: {
       default: { name: "MELDscan", url: "https://meldscan.io" },
