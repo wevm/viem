@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.36
+
+### Patch Changes
+
+- [#2936](https://github.com/wevm/viem/pull/2936) [`bad30f7494cc5432ba4c525cfefa08e482fa5cae`](https://github.com/wevm/viem/commit/bad30f7494cc5432ba4c525cfefa08e482fa5cae) Thanks [@CaityGossland](https://github.com/CaityGossland)! - Added meld chain.
+
+- [#2932](https://github.com/wevm/viem/pull/2932) [`86096f0e0955d0824bf23bb201ec2f3fa11db8a9`](https://github.com/wevm/viem/commit/86096f0e0955d0824bf23bb201ec2f3fa11db8a9) Thanks [@qi-0826](https://github.com/qi-0826)! - Add THAT Mainnet chain.
+
+- [#2931](https://github.com/wevm/viem/pull/2931) [`f1ee5154b3bdfa0bb9991929023a3da3898b06dd`](https://github.com/wevm/viem/commit/f1ee5154b3bdfa0bb9991929023a3da3898b06dd) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Tomb Mainnet.
+
 ## 2.21.35
 
 ### Patch Changes
