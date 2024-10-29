@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.37
+
+### Patch Changes
+
+- [#2940](https://github.com/wevm/viem/pull/2940) [`c1ef3b7902a67aed76cac72ba469ff8c709287a6`](https://github.com/wevm/viem/commit/c1ef3b7902a67aed76cac72ba469ff8c709287a6) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Theta chain.
+
+- [#2941](https://github.com/wevm/viem/pull/2941) [`3bf2526a650a4208e95d4623a7bbc1d9f3fb893e`](https://github.com/wevm/viem/commit/3bf2526a650a4208e95d4623a7bbc1d9f3fb893e) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Glide Protocol.
+
+- [#2942](https://github.com/wevm/viem/pull/2942) [`12347cf1f91f9a7d04a619b7c2f1b202842d43f5`](https://github.com/wevm/viem/commit/12347cf1f91f9a7d04a619b7c2f1b202842d43f5) Thanks [@ink-alexander](https://github.com/ink-alexander)! - Added Ink Sepolia chain configurations
+
 ## 2.21.36
 
 ### Patch Changes
