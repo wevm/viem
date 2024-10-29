@@ -11,7 +11,7 @@ export const theta = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Theta Explorer',    
+      name: 'Theta Explorer',
       url: 'https://explorer.thetatoken.org',
     },
   },
