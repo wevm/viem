@@ -10,7 +10,6 @@ export const xdc = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://rpc.xdcrpc.com'] },
-    xinfin: { http: ['https://erpc.xinfin.network'] },
   },
   blockExplorers: {
     default: {
