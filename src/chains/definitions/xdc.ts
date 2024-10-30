@@ -20,7 +20,7 @@ export const xdc = /*#__PURE__*/ defineChain({
     blocksscan: {
       name: 'Blocksscan',
       url: 'https://xdcscan.io',
-    }
+    },
   },
   contracts: {
     multicall3: {

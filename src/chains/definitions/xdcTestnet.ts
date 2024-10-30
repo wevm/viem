@@ -19,12 +19,12 @@ export const xdcTestnet = /*#__PURE__*/ defineChain({
     blocksscan: {
       name: 'Blocksscan',
       url: 'https://apothem.blocksscan.io',
-    }
+    },
   },
   contracts: {
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 59765389,
-    }
+    },
   },
 })
