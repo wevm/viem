@@ -10,12 +10,17 @@ export const xdc = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://rpc.xdcrpc.com'] },
+    xinfin: { http: ['https://erpc.xinfin.network'] },
   },
   blockExplorers: {
     default: {
       name: 'XDCScan',
       url: 'https://xdcscan.com',
     },
+    blocksscan: {
+      name: 'Blocksscan',
+      url: 'https://xdcscan.io',
+    }
   },
   contracts: {
     multicall3: {
