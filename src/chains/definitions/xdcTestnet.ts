@@ -16,10 +16,6 @@ export const xdcTestnet = /*#__PURE__*/ defineChain({
       name: 'XDCScan',
       url: 'https://testnet.xdcscan.com',
     },
-    blocksscan: {
-      name: 'Blocksscan',
-      url: 'https://apothem.blocksscan.io',
-    },
   },
   contracts: {
     multicall3: {
