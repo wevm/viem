@@ -15,5 +15,9 @@ export const ultron = /*#__PURE__*/ defineChain({
       url: 'https://ulxscan.com',
     },
   },
+  multicall3: {
+    address: '0xd4293a20D46211657F13C186Da6cb3125516141f',
+    blockCreated: 10892598,
+  },
   testnet: false,
 })

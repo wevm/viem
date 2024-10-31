@@ -15,5 +15,9 @@ export const ultronTestnet = /*#__PURE__*/ defineChain({
       url: 'https://explorer.ultron-dev.io',
     },
   },
+  multicall3: {
+    address: '0x1926Ada2bee7214730066841E487D82c68AC91D3',
+    blockCreated: 2559331,
+  },
   testnet: true,
 })
