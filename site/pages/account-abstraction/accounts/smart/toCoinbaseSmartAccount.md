@@ -90,7 +90,7 @@ const account = await toCoinbaseSmartAccount({
 
 - **Type:** `number`
 
-Index of the owner to use as the signer for the Smart Account.
+Index of the owner to use for signing messages & User Operations.
 
 ```ts
 const account = await toCoinbaseSmartAccount({
