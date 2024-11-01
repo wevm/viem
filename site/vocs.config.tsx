@@ -78,6 +78,12 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/paradigm-light.svg',
           },
+          {
+            name: 'Ithaca',
+            link: 'https://ithaca.xyz',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/ithaca-light.svg',
+          },
         ],
       ],
     },
