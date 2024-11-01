@@ -1,5 +1,17 @@
 # viem
 
+## 2.21.38
+
+### Patch Changes
+
+- [#2944](https://github.com/wevm/viem/pull/2944) [`a41f29ddec7cb6310ac42e069b390fe6bb14e4fa`](https://github.com/wevm/viem/commit/a41f29ddec7cb6310ac42e069b390fe6bb14e4fa) Thanks [@pro100skm](https://github.com/pro100skm)! - Updated XDC Testnet Block Explorer URL.
+
+- [#2950](https://github.com/wevm/viem/pull/2950) [`f6a22e9e7e494319872eeab08afd72b99de2d959`](https://github.com/wevm/viem/commit/f6a22e9e7e494319872eeab08afd72b99de2d959) Thanks [@qi-0826](https://github.com/qi-0826)! - Added KardiaChain Mainnet.
+
+- [#2949](https://github.com/wevm/viem/pull/2949) [`ca1ef339b2495c37866ce219a2fbcfd4a170611b`](https://github.com/wevm/viem/commit/ca1ef339b2495c37866ce219a2fbcfd4a170611b) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Saakuru Mainnet.
+
+- [#2896](https://github.com/wevm/viem/pull/2896) [`c0367c84f9f8c04968b413ed89eb0f18883d6b24`](https://github.com/wevm/viem/commit/c0367c84f9f8c04968b413ed89eb0f18883d6b24) Thanks [@stephancill](https://github.com/stephancill)! - Added `ownerIndex` parameter to `toCoinbaseSmartWallet`.
+
 ## 2.21.37
 
 ### Patch Changes
