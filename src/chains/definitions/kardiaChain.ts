@@ -12,7 +12,7 @@ export const kardiaChain = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'KardiaChain Explorer',
-      url: 'https://explorer.kardiachain.io/',
+      url: 'https://explorer.kardiachain.io',
     },
   },
   testnet: false,
