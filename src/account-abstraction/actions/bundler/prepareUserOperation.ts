@@ -362,7 +362,7 @@ export async function prepareUserOperation<
   // Concurrently prepare properties required to fill the User Operation.
   ////////////////////////////////////////////////////////////////////////////////
 
-  const [callData, factory, fees, nonce, signature] = await Promise.all([
+  const [callData, factory, fees, nonce] = await Promise.all([
     (async () => {
       if (parameters.calls)
         return account.encodeCalls(
@@ -468,12 +468,6 @@ export async function prepareUserOperation<
       if (typeof parameters.nonce === 'bigint') return parameters.nonce
       return account.getNonce()
     })(),
-    (async () => {
-      if (!properties.includes('signature')) return undefined
-      if (typeof parameters.signature !== 'undefined')
-        return parameters.signature
-      return account.getStubSignature()
-    })(),
   ])
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -485,7 +479,19 @@ export async function prepareUserOperation<
     request = { ...request, ...(factory as any) }
   if (typeof fees !== 'undefined') request = { ...request, ...(fees as any) }
   if (typeof nonce !== 'undefined') request.nonce = nonce
-  if (typeof signature !== 'undefined') request.signature = signature
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Fill User Operation with the `signature` property.
+  ////////////////////////////////////////////////////////////////////////////////
+
+  if (properties.includes('signature')) {
+    if (typeof parameters.signature !== 'undefined')
+      request.signature = parameters.signature
+    else
+      request.signature = await account.getStubSignature(
+        request as UserOperation,
+      )
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   // `initCode` is required to be filled with EntryPoint 0.6.

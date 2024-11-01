@@ -112,7 +112,7 @@ export type SmartAccountImplementation<
    * // '0x...'
    * ```
    */
-  getStubSignature: () => Promise<Hex>
+  getStubSignature: (parameters?: UserOperationRequest) => Promise<Hex>
   /** Custom nonce key manager. */
   nonceKeyManager?: NonceManager | undefined
   /**
