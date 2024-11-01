@@ -173,7 +173,11 @@ test('default', async () => {
   expect(
     receipts?.map((receipt) => ({
       ...receipt,
-      logs: receipt.logs.map((log) => ({ ...log, blockHash: undefined })),
+      logs: receipt.logs.map((log) => ({
+        ...log,
+        blockHash: undefined,
+        blockTimestamp: undefined,
+      })),
       blockHash: undefined,
     })),
   ).toMatchInlineSnapshot(`
@@ -184,10 +188,10 @@ test('default', async () => {
         "gasUsed": 78394n,
         "logs": [
           {
-            "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+            "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
-            "blockTimestamp": "0x63abc18c",
+            "blockTimestamp": undefined,
             "data": "0x",
             "logIndex": "0x0",
             "removed": false,
@@ -210,10 +214,10 @@ test('default', async () => {
         "gasUsed": 61294n,
         "logs": [
           {
-            "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+            "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
-            "blockTimestamp": "0x63abc18c",
+            "blockTimestamp": undefined,
             "data": "0x",
             "logIndex": "0x1",
             "removed": false,
@@ -236,10 +240,10 @@ test('default', async () => {
         "gasUsed": 61294n,
         "logs": [
           {
-            "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+            "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
-            "blockTimestamp": "0x63abc18c",
+            "blockTimestamp": undefined,
             "data": "0x",
             "logIndex": "0x2",
             "removed": false,

@@ -59,14 +59,12 @@ function Example() {
         <div>Connected: {account}</div>
         <button onClick={mint}>Mint</button>
         {receipt && (
-          <>
-            <div>
-              Receipt:{' '}
-              <pre>
-                <code>{stringify(receipt, null, 2)}</code>
-              </pre>
-            </div>
-          </>
+          <div>
+            Receipt:{' '}
+            <pre>
+              <code>{stringify(receipt, null, 2)}</code>
+            </pre>
+          </div>
         )}
       </>
     )

@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import {
-  BatchCallInvoker,
+  BatchCallDelegation,
   ErrorsExample,
   Payable,
 } from '~contracts/generated.js'
@@ -9,13 +9,15 @@ import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { deploy, deployErrorExample, deployPayable } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 import { http } from '../../clients/transports/http.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
 import { signAuthorization } from '../../experimental/index.js'
-import { decodeEventLog, parseEther } from '../../utils/index.js'
+import { decodeEventLog, getAddress, parseEther } from '../../utils/index.js'
 import { getBalance } from '../public/getBalance.js'
 import { getTransaction } from '../public/getTransaction.js'
 import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
@@ -158,17 +160,15 @@ describe('args: chain', () => {
 
 test('args: authorizationList', async () => {
   const authority = privateKeyToAccount(accounts[1].privateKey)
-  const recipient = privateKeyToAccount(
-    '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
-  )
+  const recipient = privateKeyToAccount(generatePrivateKey())
 
   const balance_recipient = await getBalance(client, {
     address: recipient.address,
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallInvoker.abi,
-    bytecode: BatchCallInvoker.bytecode.object,
+    abi: BatchCallDelegation.abi,
+    bytecode: BatchCallDelegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -177,7 +177,7 @@ test('args: authorizationList', async () => {
   })
 
   const hash = await writeContract(client, {
-    abi: BatchCallInvoker.abi,
+    abi: BatchCallDelegation.abi,
     account: authority,
     address: authority.address,
     authorizationList: [authorization],
@@ -198,10 +198,10 @@ test('args: authorizationList', async () => {
 
   const receipt = await getTransactionReceipt(client, { hash })
   const log = receipt.logs[0]
-  expect(log.address).toBe(authority.address)
+  expect(getAddress(log.address)).toBe(authority.address)
   expect(
     decodeEventLog({
-      abi: BatchCallInvoker.abi,
+      abi: BatchCallDelegation.abi,
       ...log,
     }),
   ).toEqual({
@@ -223,9 +223,7 @@ test('args: authorizationList', async () => {
 test('args: authorizationList (delegate)', async () => {
   const delegate = privateKeyToAccount(accounts[0].privateKey)
   const authority = privateKeyToAccount(accounts[1].privateKey)
-  const recipient = privateKeyToAccount(
-    '0x4a751f9ddcef30fd28648f415480f74eb418bd5145a56586a32e8c959c330742',
-  )
+  const recipient = privateKeyToAccount(generatePrivateKey())
 
   const balance_authority = await getBalance(client, {
     address: authority.address,
@@ -235,8 +233,8 @@ test('args: authorizationList (delegate)', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallInvoker.abi,
-    bytecode: BatchCallInvoker.bytecode.object,
+    abi: BatchCallDelegation.abi,
+    bytecode: BatchCallDelegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -246,7 +244,7 @@ test('args: authorizationList (delegate)', async () => {
   })
 
   const hash = await writeContract(client, {
-    abi: BatchCallInvoker.abi,
+    abi: BatchCallDelegation.abi,
     account: delegate,
     address: authority.address,
     authorizationList: [authorization],
@@ -267,10 +265,10 @@ test('args: authorizationList (delegate)', async () => {
 
   const receipt = await getTransactionReceipt(client, { hash })
   const log = receipt.logs[0]
-  expect(log.address).toBe(authority.address)
+  expect(getAddress(log.address)).toBe(authority.address)
   expect(
     decodeEventLog({
-      abi: BatchCallInvoker.abi,
+      abi: BatchCallDelegation.abi,
       ...log,
     }),
   ).toEqual({
@@ -460,6 +458,33 @@ test('w/ simulateContract (client chain mismatch)', async () => {
     Docs: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
+})
+
+test('behavior: transport supports `wallet_sendTransaction`', async () => {
+  const request = client.request
+  client.request = (parameters: any) => {
+    if (parameters.method === 'eth_sendTransaction')
+      throw new InvalidInputRpcError(new Error())
+    return request(parameters)
+  }
+
+  expect(
+    await writeContract(client, {
+      ...wagmiContractConfig,
+      account: accounts[0].address,
+      functionName: 'mint',
+    }),
+  ).toBeDefined()
+})
+
+test('behavior: nullish account', async () => {
+  expect(
+    await writeContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'mint',
+      account: null,
+    }),
+  ).toBeDefined()
 })
 
 describe('behavior: contract revert', () => {

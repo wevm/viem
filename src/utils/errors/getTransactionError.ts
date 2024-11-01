@@ -19,7 +19,7 @@ export type GetTransactionErrorParameters = Omit<
   SendTransactionParameters,
   'account' | 'chain'
 > & {
-  account: Account
+  account: Account | null
   chain?: Chain | undefined
   docsPath?: string | undefined
 }

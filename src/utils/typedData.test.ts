@@ -436,6 +436,50 @@ describe('validateTypedData', () => {
     `)
   })
 
+  test('primaryType: invalid', () => {
+    expect(() =>
+      validateTypedData({
+        // @ts-expect-error
+        primaryType: 'Cheese',
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          Mail: [
+            { name: 'from', type: 'Person' },
+            { name: 'to', type: 'Person' },
+            { name: 'contents', type: 'string' },
+          ],
+          Person: [
+            { name: 'name', type: 'string' },
+            { name: 'wallet', type: 'address' },
+          ],
+        },
+        message: {
+          from: {
+            name: 'Cow',
+            wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+          },
+          to: {
+            name: 'Bob',
+            wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+          },
+          contents: 'Hello, Bob!',
+        },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [BaseError: Invalid primary type \`Cheese\` must be one of \`["EIP712Domain","Mail","Person"]\`.
+
+      Check that the primary type is a key in \`types\`.
+
+      Docs: https://viem.sh/api/glossary/Errors#typeddatainvalidprimarytypeerror
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('EIP712Domain as primaryType', () => {
     validateTypedData({
       domain: {

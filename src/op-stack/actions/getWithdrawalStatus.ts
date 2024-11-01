@@ -62,6 +62,11 @@ export type GetWithdrawalStatusParameters<
      * @default 100
      */
     gameLimit?: number
+    /**
+     * The relative index of the withdrawal in the transaction receipt logs.
+     * @default 0
+     */
+    logIndex?: number
     receipt: TransactionReceipt
   }
 export type GetWithdrawalStatusReturnType =
@@ -122,6 +127,7 @@ export async function getWithdrawalStatus<
     gameLimit = 100,
     receipt,
     targetChain: targetChain_,
+    logIndex = 0,
   } = parameters
 
   const targetChain = targetChain_ as unknown as TargetChain
@@ -132,7 +138,7 @@ export async function getWithdrawalStatus<
     return Object.values(targetChain.contracts.portal)[0].address
   })()
 
-  const [withdrawal] = getWithdrawals(receipt)
+  const withdrawal = getWithdrawals(receipt)[logIndex]
 
   if (!withdrawal)
     throw new ReceiptContainsNoWithdrawalsError({

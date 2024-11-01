@@ -406,6 +406,13 @@ export async function prepareUserOperation<
     (async () => {
       if (!properties.includes('fees')) return undefined
 
+      // If we have sufficient properties for fees, return them.
+      if (
+        typeof parameters.maxFeePerGas === 'bigint' &&
+        typeof parameters.maxPriorityFeePerGas === 'bigint'
+      )
+        return request
+
       // If the Bundler Client has a `estimateFeesPerGas` hook, run it.
       if (bundlerClient?.userOperation?.estimateFeesPerGas) {
         const fees = await bundlerClient.userOperation.estimateFeesPerGas({
@@ -418,13 +425,6 @@ export async function prepareUserOperation<
           ...fees,
         }
       }
-
-      // If we have sufficient properties for fees, return them.
-      if (
-        typeof parameters.maxFeePerGas === 'bigint' &&
-        typeof parameters.maxPriorityFeePerGas === 'bigint'
-      )
-        return request
 
       // Otherwise, we will need to estimate the fees to fill the fee properties.
       try {

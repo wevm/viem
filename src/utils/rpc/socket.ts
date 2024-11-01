@@ -128,7 +128,7 @@ export async function getSocketRpcClient<socket extends {}>(
 
       let error: Error | Event | undefined
       let socket: Socket<{}>
-      let keepAliveTimer: Timer | undefined
+      let keepAliveTimer: ReturnType<typeof setInterval> | undefined
 
       // Set up socket implementation.
       async function setup() {

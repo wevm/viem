@@ -13,8 +13,8 @@ export const xdcTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Blocksscan',
-      url: 'https://apothem.blocksscan.io',
+      name: 'XDCScan',
+      url: 'https://testnet.xdcscan.com',
     },
   },
   contracts: {

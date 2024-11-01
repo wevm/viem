@@ -4,7 +4,7 @@ The guide below demonstrates how to send EIP-7702 Transactions to invoke Contrac
 
 ## Overview
 
-Here is an end-to-end overview of how to broadcast an EIP-7702 Transaction to send a batch of Calls. We will break it down into [Steps](#steps) below.
+Here is an end-to-end overview of how to broadcast an EIP-7702 Transaction to emit a simple event on the EOA's designated contract. We will break it down into [Steps](#steps) below.
 
 :::code-group
 
@@ -91,10 +91,10 @@ export const walletClient = createWalletClient({
 }).extend(eip7702Actions())
 ```
 
-```solidity [BatchCallInvoker.sol]
+```solidity [BatchCallDelegation.sol]
 pragma solidity ^0.8.20;
 
-contract BatchCallInvoker {
+contract BatchCallDelegation {
   struct Call {
     bytes data;
     address to;
@@ -130,14 +130,14 @@ anvil --hardfork prague
 
 ### 1. Set up Smart Contract
 
-We will need to set up a Smart Contract to interact with. For the purposes of this guide, we will [create](https://book.getfoundry.sh/reference/forge/forge-init) and [deploy](https://book.getfoundry.sh/forge/deploying) a `BatchCallInvoker.sol` contract, however, you can use any existing deployed contract.
+We will need to set up a Smart Contract to interact with. For the purposes of this guide, we will [create](https://book.getfoundry.sh/reference/forge/forge-init) and [deploy](https://book.getfoundry.sh/forge/deploying) a `BatchCallDelegation.sol` contract, however, you can use any existing deployed contract.
 
 Firstly, [deploy a Contract](https://book.getfoundry.sh/forge/deploying) to the Network with the following source:
 
-```solidity [BatchCallInvoker.sol]
+```solidity [BatchCallDelegation.sol]
 pragma solidity ^0.8.20;
 
-contract BatchCallInvoker {
+contract BatchCallDelegation {
   struct Call {
     bytes data;
     address to;
@@ -153,6 +153,14 @@ contract BatchCallInvoker {
   }
 }
 ```
+
+:::warning
+
+**DO NOT USE IN PRODUCTION**
+
+This contract is for demonstration purposes only to show how EIP-7702 works. If a [delegate is executing calls](#5-optional-use-a-delegate) on behalf of the Account, it does not implement a nonce & signature verification mechanism to prevent replay attacks.
+
+:::
 
 ### 2. Set up Client & Account
 
@@ -175,9 +183,9 @@ export const walletClient = createWalletClient({
 }).extend(eip7702Actions())
 ```
 
-### 3. Authorize Contract Bytecode Injection
+### 3. Authorize Contract Designation
 
-We will need to sign an Authorization to authorize the injection of the Contract's bytecode onto the Account.
+We will need to sign an Authorization to designate the Contract to the Account.
 
 In the example below, we are using the `account` attached to the `walletClient` to sign the Authorization – this will be the Account that the Contract's bytecode will be injected into.
 
@@ -338,17 +346,16 @@ We can also utilize an Delegate Account to execute a call on behalf of the autho
 :::code-group
 
 ```ts twoslash [example.ts]
-import { encodeFunctionData{ parseEther } from 'viem'
+import { encodeFunctionData, parseEther } from 'viem'
 import { walletClient } from './config'
 import { contractAddress } from './contract'
- 
+
 const delegate = privateKeyToAccount('0x...') // [!code ++]
 
 const authorization = await walletClient.signAuthorization({
   contractAddress,
   delegate, // [!code ++]
 })
-
 
 const hash = await walletClient.sendTransaction({
   account: delegate, // [!code ++]

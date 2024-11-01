@@ -18,7 +18,7 @@ describe('eip7702', () => {
         authorizationList: [
           {
             contractAddress: '0x0000000000000000000000000000000000000000',
-            chainId: 0,
+            chainId: -1,
             nonce: 0,
             r: '0x',
             s: '0x',
@@ -28,7 +28,7 @@ describe('eip7702', () => {
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [InvalidChainIdError: Chain ID "0" is invalid.
+      [InvalidChainIdError: Chain ID "-1" is invalid.
 
       Version: viem@x.y.z]
     `)

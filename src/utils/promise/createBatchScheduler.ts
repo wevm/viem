@@ -1,16 +1,16 @@
 import type { ErrorType } from '../../errors/utils.js'
+import { type PromiseWithResolvers, withResolvers } from './withResolvers.js'
 
 type Resolved<returnType extends readonly unknown[] = any> = [
   result: returnType[number],
   results: returnType,
 ]
 
-type PendingPromise<returnType extends readonly unknown[] = any> = {
-  resolve?: ((data: Resolved<returnType>) => void) | undefined
-  reject?: ((reason?: unknown) => void) | undefined
+type SchedulerItem = {
+  args: unknown
+  resolve: PromiseWithResolvers<unknown>['resolve']
+  reject: PromiseWithResolvers<unknown>['reject']
 }
-
-type SchedulerItem = { args: unknown; pendingPromise: PendingPromise }
 
 type BatchResultsCompareFn<result = unknown> = (a: result, b: result) => number
 
@@ -65,14 +65,14 @@ export function createBatchScheduler<
       .then((data) => {
         if (sort && Array.isArray(data)) data.sort(sort)
         for (let i = 0; i < scheduler.length; i++) {
-          const { pendingPromise } = scheduler[i]
-          pendingPromise.resolve?.([data[i], data])
+          const { resolve } = scheduler[i]
+          resolve?.([data[i], data])
         }
       })
       .catch((err) => {
         for (let i = 0; i < scheduler.length; i++) {
-          const { pendingPromise } = scheduler[i]
-          pendingPromise.reject?.(err)
+          const { reject } = scheduler[i]
+          reject?.(err)
         }
       })
   }
@@ -90,11 +90,7 @@ export function createBatchScheduler<
   return {
     flush,
     async schedule(args: parameters) {
-      const pendingPromise: PendingPromise<returnType> = {}
-      const promise = new Promise<Resolved<returnType>>((resolve, reject) => {
-        pendingPromise.resolve = resolve
-        pendingPromise.reject = reject
-      })
+      const { promise, resolve, reject } = withResolvers()
 
       const split = shouldSplitBatch?.([...getBatchedArgs(), args])
 
@@ -102,11 +98,11 @@ export function createBatchScheduler<
 
       const hasActiveScheduler = getScheduler().length > 0
       if (hasActiveScheduler) {
-        setScheduler({ args, pendingPromise })
+        setScheduler({ args, resolve, reject })
         return promise
       }
 
-      setScheduler({ args, pendingPromise })
+      setScheduler({ args, resolve, reject })
       setTimeout(exec, wait)
       return promise
     },

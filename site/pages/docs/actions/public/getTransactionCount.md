@@ -47,7 +47,7 @@ const transactionCount = await publicClient.getTransactionCount({
 })
 ```
 
-### blockNumber
+### blockNumber (optional)
 
 - **Type:** `bigint`
 
@@ -62,7 +62,7 @@ const transactionCount = await publicClient.getTransactionCount({
 })
 ```
 
-### blockTag
+### blockTag (optional)
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
@@ -80,10 +80,6 @@ const transactionCount = await publicClient.getTransactionCount({
 ## Notes
 
 - The transaction count of an account can also be used as a nonce.
-
-## Example
-
-<iframe frameBorder="0" width="100%" height="500px" src="https://replit.com/@jxom/getBlockNumber?embed=true"></iframe>
 
 ## JSON-RPC Method
 

@@ -216,7 +216,7 @@ export type TransactionRequestBase<
   /** Contract code or a hashed method call with encoded args */
   data?: Hex | undefined
   /** Transaction sender */
-  from: Address
+  from?: Address | undefined
   /** Gas provided for transaction execution */
   gas?: quantity | undefined
   /** Unique number identifying this transaction */
@@ -275,7 +275,7 @@ export type TransactionRequestEIP7702<
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    authorizationList: AuthorizationList<index, boolean>
+    authorizationList?: AuthorizationList<index, boolean> | undefined
   }
 
 export type TransactionRequest<quantity = bigint, index = number> = OneOf<

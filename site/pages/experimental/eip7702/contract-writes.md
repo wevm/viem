@@ -9,34 +9,33 @@ Here is an end-to-end overview of how to perform a Contract Write to send a batc
 :::code-group
 
 ```ts twoslash [example.ts]
-import { getContract, parseEther } from 'viem'
+import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
-// 1. Set up a Contract Instance pointing to our Account.
-const batchCallInvoker = getContract({
-  abi,
-  address: walletClient.account.address,
-  client: walletClient,
-})
-
-// 2. Authorize injection of the Contract's bytecode into our Account.
+// 1. Authorize injection of the Contract's bytecode into our Account.
 const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-// 3. Invoke the Contract's `execute` function to perform batch calls.
-const hash = await batchCallInvoker.write.execute([[{
-  data: '0x',
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
-  value: parseEther('0.001'), 
-}, {
-  data: '0x',
-  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
-  value: parseEther('0.002'), 
-}]], {
+// 2. Invoke the Contract's `execute` function to perform batch calls.
+const hash = await walletClient.writeContract({
+  abi,
+  address: walletClient.account.address,
+  functionName: 'execute',
+  args: [[
+    {
+      data: '0x',
+      to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
+      value: parseEther('0.001'), 
+    }, {
+      data: '0x',
+      to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
+      value: parseEther('0.002'), 
+    }
+  ]],
   authorizationList: [authorization],
-  //                  ↑ 4. Pass the Authorization as an option.
+  //                  ↑ 3. Pass the Authorization as an option.
 })
 ```
 
@@ -88,10 +87,10 @@ export const walletClient = createWalletClient({
 }).extend(eip7702Actions())
 ```
 
-```solidity [BatchCallInvoker.sol]
+```solidity [BatchCallDelegation.sol]
 pragma solidity ^0.8.20;
 
-contract BatchCallInvoker {
+contract BatchCallDelegation {
   struct Call {
     bytes data;
     address to;
@@ -127,14 +126,14 @@ anvil --hardfork prague
 
 ### 1. Set up Smart Contract
 
-We will need to set up a Smart Contract to interact with. For the purposes of this guide, we will [create](https://book.getfoundry.sh/reference/forge/forge-init) and [deploy](https://book.getfoundry.sh/forge/deploying) a `BatchCallInvoker.sol` contract, however, you can use any existing deployed contract.
+We will need to set up a Smart Contract to interact with. For the purposes of this guide, we will [create](https://book.getfoundry.sh/reference/forge/forge-init) and [deploy](https://book.getfoundry.sh/forge/deploying) a `BatchCallDelegation.sol` contract, however, you can use any existing deployed contract.
 
 Firstly, [deploy a Contract](https://book.getfoundry.sh/forge/deploying) to the Network with the following source:
 
-```solidity [BatchCallInvoker.sol]
+```solidity [BatchCallDelegation.sol]
 pragma solidity ^0.8.20;
 
-contract BatchCallInvoker {
+contract BatchCallDelegation {
   struct Call {
     bytes data;
     address to;
@@ -150,6 +149,14 @@ contract BatchCallInvoker {
   }
 }
 ```
+
+:::warning
+
+**DO NOT USE IN PRODUCTION**
+
+This contract is for demonstration purposes only to show how EIP-7702 works. If a [delegate is executing calls](#5-optional-use-a-delegate) on behalf of the Account, it does not implement a nonce & signature verification mechanism to prevent replay attacks.
+
+:::
 
 ### 2. Set up Client & Account
 
@@ -172,92 +179,17 @@ export const walletClient = createWalletClient({
 }).extend(eip7702Actions())
 ```
 
-### 3. Instantiate a Contract Instance
+### 3. Authorize Contract Designation
 
-We will instantiate a [Contract Instance](/docs/contract/getContract) for our `BatchCallInvoker` contract.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { getContract } from 'viem'
-import { walletClient } from './config'
-import { abi } from './contract'
-
-const batchCallInvoker = getContract({ // [!code focus]
-  abi, // [!code focus]
-  address: walletClient.account.address, // [!code focus]
-  walletClient, // [!code focus]
-}) // [!code focus]
-```
-
-```ts twoslash [contract.ts] filename="contract.ts"
-export const abi = [
-  {
-    "type": "function",
-    "name": "execute",
-    "inputs": [
-      {
-        "name": "calls",
-        "type": "tuple[]",
-        "components": [
-          {
-            "name": "data",
-            "type": "bytes",
-          },
-          {
-            "name": "to",
-            "type": "address",
-          },
-          {
-            "name": "value",
-            "type": "uint256",
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-] as const
-
-export const contractAddress = '0x...'
-```
-
-```ts twoslash [config.ts]
-import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
-import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
-
-export const account = privateKeyToAccount('0x...')
- 
-export const walletClient = createWalletClient({
-  account,
-  chain: anvil,
-  transport: http(),
-}).extend(eip7702Actions())
-```
-
-:::
-
-### 4. Authorize Contract Bytecode Injection
-
-We will need to sign an Authorization to authorize the injection of the Contract's bytecode onto the Account.
+We will need to sign an Authorization to designate the Contract to the Account.
 
 In the example below, we are using the `account` attached to the `walletClient` to sign the Authorization – this will be the Account that the Contract's bytecode will be injected into.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { getContract } from 'viem'
 import { walletClient } from './config'
-import { abi, contractAddress } from './contract'
-
-const batchCallInvoker = getContract({
-  abi,
-  address: walletClient.account.address,
-  walletClient,
-})
+import { contractAddress } from './contract'
  
 const authorization = await walletClient.signAuthorization({ // [!code focus]
   contractAddress, // [!code focus]
@@ -314,36 +246,36 @@ export const walletClient = createWalletClient({
 
 :::
 
-### 5. Invoke Contract Function
+### 4. Invoke Contract Function
 
 Using our [Contract Instance](/docs/contract/getContract), we can now call the `execute` function on it to perform batch calls.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { getContract, parseEther } from 'viem'
+import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
-
-const batchCallInvoker = getContract({
-  abi,
-  address: walletClient.account.address,
-  walletClient,
-})
  
 const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-const hash = await batchCallInvoker.write.execute([[{ // [!code focus]
-  data: '0x', // [!code focus]
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
-  value: parseEther('0.001'), // [!code focus]
-}, { // [!code focus]
-  data: '0x', // [!code focus]
-  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
-  value: parseEther('0.002'), // [!code focus]
-}]], { // [!code focus]
+const hash = await walletClient.writeContract({ // [!code focus]
+  abi, // [!code focus]
+  address: walletClient.account.address, // [!code focus]
+  functionName: 'execute', // [!code focus]
+  args: [[ // [!code focus]
+    { // [!code focus]
+      data: '0x', // [!code focus]
+      to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',  // [!code focus]
+      value: parseEther('0.001'),  // [!code focus]
+    }, { // [!code focus]
+      data: '0x', // [!code focus]
+      to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',  // [!code focus]
+      value: parseEther('0.002'),  // [!code focus]
+    } // [!code focus]
+  ]], // [!code focus]
   authorizationList: [authorization], // [!code focus]
 }) // [!code focus]
 ```
@@ -398,33 +330,6 @@ export const walletClient = createWalletClient({
 
 :::
 
-:::tip
-We can also use the [`writeContract` Action](/docs/contract/writeContract) instead of instantiating a Contract Instance.
-
-```ts twoslash
-// @noErrors
-import { parseEther } from 'viem'
-import { walletClient } from './config'
-import { contractAddress } from './contract'
- 
-const authorization = await walletClient.signAuthorization({
-  contractAddress,
-})
-
-const hash = await walletClient.writeContract({
-  abi,
-  address: walletClient.account.address,
-  authorizationList: [authorization],
-  functionName: 'execute',
-  args: [[{
-    data: '0x',
-    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
-    value: parseEther('0.001'),
-  }]],
-})
-```
-:::
-
 ### 6. Optional: Use a Delegate
 
 We can also utilize an Delegate Account to execute a call on behalf of the authorizing Account. This is useful for cases where we want to "sponsor" the Transaction for the user (i.e. pay for their gas fees).
@@ -432,16 +337,10 @@ We can also utilize an Delegate Account to execute a call on behalf of the autho
 :::code-group
 
 ```ts twoslash [example.ts]
-import { getContract, parseEther } from 'viem'
+import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
-const batchCallInvoker = getContract({
-  abi,
-  address: walletClient.account.address,
-  walletClient,
-})
- 
 const delegate = privateKeyToAccount('0x...') // [!code ++]
 
 const authorization = await walletClient.signAuthorization({
@@ -449,17 +348,21 @@ const authorization = await walletClient.signAuthorization({
   delegate, // [!code ++]
 })
 
-
-const hash = await batchCallInvoker.write.execute([[{
-  data: '0x',
-  to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
-  value: parseEther('0.001'),
-}, {
-  data: '0x',
-  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
-  value: parseEther('0.002'),
-}]], {
-  account: delegate, // [!code ++]
+const hash = await walletClient.writeContract({
+  abi,
+  address: walletClient.account.address,
+  functionName: 'execute',
+  args: [[
+    {
+      data: '0x',
+      to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
+      value: parseEther('0.001'), 
+    }, {
+      data: '0x',
+      to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
+      value: parseEther('0.002'), 
+    }
+  ]],
   authorizationList: [authorization],
 })
 ```

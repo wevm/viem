@@ -4,7 +4,7 @@ description: Estimates the L1 + L2 fee to execute an L2 transaction.
 
 # estimateTotalFee
 
-Estimates the [L1 data fee](https://community.optimism.io/docs/developers/build/transaction-fees/#the-l1-data-fee) + L2 fee to execute an L2 transaction.
+Estimates the [L1 data fee](https://docs.optimism.io/stack/transactions/fees#l1-data-fee) + L2 fee to execute an L2 transaction.
 
 It is the sum of [`estimateL1Fee`](/op-stack/actions/estimateL1Fee) (L1 Gas) and [`estimateGas`](/docs/actions/public/estimateGas.md) * [`getGasPrice`](/docs/actions/public/getGasPrice.md) (L2 Gas * L2 Gas Price).
 
