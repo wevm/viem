@@ -189,6 +189,7 @@ export { karura } from './definitions/karura.js'
 /** @deprecated Use `kakarotStarknetSepolia` instead. */
 export { kakarotSepolia } from './definitions/kakarotSepolia.js'
 export { kakarotStarknetSepolia } from './definitions/kakarotStarknetSepolia.js'
+export { kardiaChain } from './definitions/kardiaChain.js'
 export { kava } from './definitions/kava.js'
 export { kavaTestnet } from './definitions/kavaTestnet.js'
 export { kcc } from './definitions/kcc.js'
