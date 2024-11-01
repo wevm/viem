@@ -86,6 +86,20 @@ const account = await toCoinbaseSmartAccount({
 })
 ```
 
+### ownerIndex (optional)
+
+- **Type:** `number`
+
+Index of the owner to use as the signer for the Smart Account.
+
+```ts
+const account = await toCoinbaseSmartAccount({
+  client,
+  owners: [privateKeyToAccount('0x...'), privateKeyToAccount('0x...')],
+  ownerIndex: 1, // [!code focus]
+})
+```
+
 ### nonce (optional)
 
 - **Type:** `bigint`

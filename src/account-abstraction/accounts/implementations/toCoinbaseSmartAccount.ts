@@ -93,7 +93,7 @@ export async function toCoinbaseSmartAccount(
     owner.type === 'webAuthn' ? owner.publicKey : pad(owner.address),
   )
 
-  const owner = owners[ownerIndex]
+  const owner = owners[ownerIndex] ?? owners[0]
 
   return toSmartAccount({
     client,
