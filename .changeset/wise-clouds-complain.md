@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-feat: expose `ownerIndex` in `toCoinbaseSmartWallet` params
+Added `ownerIndex` parameter to `toCoinbaseSmartWallet`.
