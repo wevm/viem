@@ -1,5 +1,11 @@
 # viem
 
+## 2.21.39
+
+### Patch Changes
+
+- [`4de3e658d2505be4d28c4064d400409664c23096`](https://github.com/wevm/viem/commit/4de3e658d2505be4d28c4064d400409664c23096) Thanks [@SahilVasava](https://github.com/SahilVasava)! - **Account Abstraction:** Added optional param `UserOperationRequest` to `getStubSignature`
+
 ## 2.21.38
 
 ### Patch Changes
