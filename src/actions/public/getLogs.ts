@@ -115,7 +115,7 @@ export type GetLogsErrorType =
  * Returns a list of event logs matching the provided parameters.
  *
  * - Docs: https://viem.sh/docs/actions/public/getLogs
- * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/filters-and-logs/event-logs
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/logs_event-logs
  * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
  *
  * @param client - Client to use

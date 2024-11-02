@@ -127,7 +127,7 @@ export type Eip712WalletActions<
    * Deploys a contract to the network, given bytecode and constructor arguments using EIP712 transaction.
    *
    * - Docs: https://viem.sh/docs/contract/deployContract
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_deploying-contracts
    *
    * @param args - {@link DeployContractParameters}
    * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
@@ -167,7 +167,7 @@ export type Eip712WalletActions<
    * Executes a write function on a contract.
    *
    * - Docs: https://viem.sh/docs/contract/writeContract
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_writing-to-contracts
    *
    * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms) is needed to be broadcast in order to change the state.
    *

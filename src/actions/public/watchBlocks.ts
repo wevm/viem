@@ -75,7 +75,7 @@ export type WatchBlocksErrorType =
  * Watches and returns information for incoming blocks.
  *
  * - Docs: https://viem.sh/docs/actions/public/watchBlocks
- * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/watching-blocks
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_watching-blocks
  * - JSON-RPC Methods:
  *   - When `poll: true`, calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval.
  *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.

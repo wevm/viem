@@ -552,7 +552,7 @@ export type PublicActions<
    * Returns information about a block at a block number, hash, or tag.
    *
    * - Docs: https://viem.sh/docs/actions/public/getBlock
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/fetching-blocks
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_fetching-blocks
    * - JSON-RPC Methods:
    *   - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) for `blockNumber` & `blockTag`.
    *   - Calls [`eth_getBlockByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbyhash) for `blockHash`.
@@ -580,7 +580,7 @@ export type PublicActions<
    * Returns the number of the most recent block seen.
    *
    * - Docs: https://viem.sh/docs/actions/public/getBlockNumber
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/fetching-blocks
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_fetching-blocks
    * - JSON-RPC Methods: [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber)
    *
    * @param args - {@link GetBlockNumberParameters}
@@ -1110,7 +1110,7 @@ export type PublicActions<
    * Returns a list of event logs matching the provided parameters.
    *
    * - Docs: https://viem.sh/docs/actions/public/getLogs
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/filters-and-logs/event-logs
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/logs_event-logs
    * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
    *
    * @param args - {@link GetLogsParameters}
@@ -1224,7 +1224,7 @@ export type PublicActions<
    * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash or block identifier.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransaction
-   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
+   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_fetching-transactions
    * - JSON-RPC Methods: [`eth_getTransactionByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionByHash)
    *
    * @param args - {@link GetTransactionParameters}
@@ -1249,7 +1249,7 @@ export type PublicActions<
    * Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransactionConfirmations
-   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
+   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_fetching-transactions
    * - JSON-RPC Methods: [`eth_getTransactionConfirmations`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionConfirmations)
    *
    * @param args - {@link GetTransactionConfirmationsParameters}
@@ -1298,7 +1298,7 @@ export type PublicActions<
    * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransactionReceipt
-   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
+   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_fetching-transactions
    * - JSON-RPC Methods: [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt)
    *
    * @param args - {@link GetTransactionReceiptParameters}
@@ -1428,7 +1428,7 @@ export type PublicActions<
    * Calls a read-only function on a contract, and returns the response.
    *
    * - Docs: https://viem.sh/docs/contract/readContract
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/reading-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_reading-contracts
    *
    * @remarks
    * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
@@ -1493,7 +1493,7 @@ export type PublicActions<
    * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
    *
    * - Docs: https://viem.sh/docs/contract/simulateContract
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_writing-to-contracts
    *
    * @remarks
    * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract), but also supports contract write functions.
@@ -1615,7 +1615,7 @@ export type PublicActions<
    * Waits for the [Transaction](https://viem.sh/docs/glossary/terms#transaction) to be included on a [Block](https://viem.sh/docs/glossary/terms#block) (one confirmation), and then returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms#transaction-receipt). If the Transaction reverts, then the action will throw an error.
    *
    * - Docs: https://viem.sh/docs/actions/public/waitForTransactionReceipt
-   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/sending-transactions
+   * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_sending-transactions
    * - JSON-RPC Methods:
    *   - Polls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt) on each block until it has been processed.
    *   - If a Transaction has been replaced:
@@ -1656,7 +1656,7 @@ export type PublicActions<
    * Watches and returns incoming block numbers.
    *
    * - Docs: https://viem.sh/docs/actions/public/watchBlockNumber
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/watching-blocks
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_watching-blocks
    * - JSON-RPC Methods:
    *   - When `poll: true`, calls [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber) on a polling interval.
    *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
@@ -1683,7 +1683,7 @@ export type PublicActions<
    * Watches and returns information for incoming blocks.
    *
    * - Docs: https://viem.sh/docs/actions/public/watchBlocks
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/watching-blocks
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_watching-blocks
    * - JSON-RPC Methods:
    *   - When `poll: true`, calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval.
    *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
