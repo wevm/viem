@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.40
+
+### Patch Changes
+
+- [#2954](https://github.com/wevm/viem/pull/2954) [`4f931a525b50b33ea9c5c878cf23c5a72d69db59`](https://github.com/wevm/viem/commit/4f931a525b50b33ea9c5c878cf23c5a72d69db59) Thanks [@alcuadrado](https://github.com/alcuadrado)! - Make `BaseError#walk` tolerant to an `undefined` cause.
+
+- [#2956](https://github.com/wevm/viem/pull/2956) [`9f7a8f3dd65126da03102cecc9981ba398231a92`](https://github.com/wevm/viem/commit/9f7a8f3dd65126da03102cecc9981ba398231a92) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added Godwoken Mainnet.
+
+- [#2957](https://github.com/wevm/viem/pull/2957) [`106d1ea436178268eb9524b22d12c0afb4363182`](https://github.com/wevm/viem/commit/106d1ea436178268eb9524b22d12c0afb4363182) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added zeniq chain.
+
 ## 2.21.39
 
 ### Patch Changes
