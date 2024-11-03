@@ -193,7 +193,7 @@ export type SimulateContractErrorType =
  * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
  *
  * - Docs: https://viem.sh/docs/contract/simulateContract
- * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_writing-to-contracts
  *
  * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract), but also supports contract write functions.
  *

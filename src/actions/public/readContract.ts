@@ -73,7 +73,7 @@ export type ReadContractErrorType = GetContractErrorReturnType<
  * Calls a read-only function on a contract, and returns the response.
  *
  * - Docs: https://viem.sh/docs/contract/readContract
- * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/reading-contracts
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_reading-contracts
  *
  * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
  *
