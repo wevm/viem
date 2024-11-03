@@ -179,6 +179,15 @@ test('walk: predicate fn (no match)', () => {
   expect(err.walk((err) => err instanceof FooError)).toBeNull()
 })
 
+test('walk: undefined cause', () => {
+  const withCauseUndefined = new Error('Cuase undefined', { cause: undefined })
+
+  const err = new BaseError('test1', {
+    cause: withCauseUndefined,
+  })
+  expect(err.walk()).toBe(withCauseUndefined)
+})
+
 test('setErrorConfig', () => {
   class FooError extends BaseError {
     constructor() {
