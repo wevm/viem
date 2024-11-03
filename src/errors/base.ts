@@ -87,7 +87,12 @@ function walk(
   fn?: ((err: unknown) => boolean) | undefined,
 ): unknown {
   if (fn?.(err)) return err
-  if (err && typeof err === 'object' && 'cause' in err && err.cause !== undefined)
+  if (
+    err &&
+    typeof err === 'object' &&
+    'cause' in err &&
+    err.cause !== undefined
+  )
     return walk(err.cause, fn)
   return fn ? null : err
 }

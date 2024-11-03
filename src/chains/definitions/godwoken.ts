@@ -5,7 +5,7 @@ export const godwoken = /*#__PURE__*/ defineChain({
   name: 'Godwoken Mainnet',
   nativeCurrency: { decimals: 18, name: 'pCKB', symbol: 'pCKB' },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://v1.mainnet.godwoken.io/rpc'],
     },
   },
