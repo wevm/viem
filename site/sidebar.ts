@@ -1113,6 +1113,30 @@ export const sidebar = {
                 link: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
               },
               {
+                text: 'Safe',
+                link: '/account-abstraction/accounts/smart/toSafeSmartAccount',
+              },
+              {
+                text: 'Kernel',
+                link: '/account-abstraction/accounts/smart/toEcdsaKernelSmartAccount',
+              },
+              {
+                text: 'Simple',
+                link: '/account-abstraction/accounts/smart/toSimpleSmartAccount',
+              },
+              {
+                text: 'Biconomy',
+                link: '/account-abstraction/accounts/smart/toNexusSmartAccount',
+              },
+              {
+                text: 'Alchemy',
+                link: '/account-abstraction/accounts/smart/toLightSmartAccount',
+              },
+              {
+                text: 'Trust',
+                link: '/account-abstraction/accounts/smart/toTrustSmartAccount',
+              },
+              {
                 text: 'Solady',
                 link: '/account-abstraction/accounts/smart/toSoladySmartAccount',
               },
