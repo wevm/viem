@@ -16,15 +16,15 @@ export const soneiumMinato = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://explorer-testnet.soneium.org',
-      apiUrl: 'https://explorer-testnet.soneium.org/api',
+      url: 'https://soneium-minato.blockscout.com',
+      apiUrl: 'https://soneium-minato.blockscout.com/api',
     },
   },
   contracts: {
     ...chainConfig.contracts,
     disputeGameFactory: {
       [sourceId]: {
-        address: '0xF69dB6cA559C52d9A4BB6e2B2901f490Ca35Fbf6',
+        address: '0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01',
       },
     },
     l2OutputOracle: {
