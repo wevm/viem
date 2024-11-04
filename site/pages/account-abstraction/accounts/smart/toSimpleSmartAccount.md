@@ -1,13 +1,37 @@
 # Simple
 
-To implement the [Simple Smart Wallet](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccount.sol), you can use [`toSimpleSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toSimpleSmartAccount) from [permissionless.js](https://docs.pimlico.io/permissionless/)
+:::warning
+**Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
+:::
+
+To implement the [Simple Smart Wallet](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccount.sol), you can use the [`toSimpleSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toSimpleSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+
+## Install
+
+:::code-group
+```bash [pnpm]
+pnpm add permissionless
+```
+
+```bash [npm]
+npm install permissionless
+```
+
+```bash [yarn]
+yarn add permissionless
+```
+
+```bash [bun]
+bun add permissionless
+```
+:::
 
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toSimpleSmartAccount } from "permissionless/accounts" // [!code focus]
+import { toSimpleSmartAccount } from 'permissionless/accounts' // [!code focus]
 import { client } from './client.js'
 import { owner } from './owner.js'
 
@@ -40,4 +64,4 @@ export const owner = privateKeyToAccount('0x...')
 
 ## Parameters
 
-Checkout detailed parameters for `toSimpleSmartAccount` at permissionless.js [documentation](https://docs.pimlico.io/permissionless/reference/accounts/toSimpleSmartAccount#parameters)
+[See Parameters](https://docs.pimlico.io/permissionless/reference/accounts/toSimpleSmartAccount#parameters)

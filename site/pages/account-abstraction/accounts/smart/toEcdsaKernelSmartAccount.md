@@ -1,20 +1,44 @@
 # Kernel
 
-To implement the [Kernel Smart Wallet](https://github.com/zerodevapp/kernel), you can use [`toEcdsaKernelSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toEcdsaKernelSmartAccount) from [permissionless.js](https://docs.pimlico.io/permissionless/)
+:::warning
+**Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
+:::
+
+To implement the [Kernel Smart Wallet](https://github.com/zerodevapp/kernel), you can use the [`toEcdsaKernelSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toEcdsaKernelSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+
+## Install
+
+:::code-group
+```bash [pnpm]
+pnpm add permissionless
+```
+
+```bash [npm]
+npm install permissionless
+```
+
+```bash [yarn]
+yarn add permissionless
+```
+
+```bash [bun]
+bun add permissionless
+```
+:::
 
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toEcdsaKernelSmartAccount } from "permissionless/accounts" // [!code focus]
+import { toEcdsaKernelSmartAccount } from 'permissionless/accounts' // [!code focus]
 import { client } from './client.js'
 import { owner } from './owner.js'
 
 const account = await toEcdsaKernelSmartAccount({ // [!code focus]
   client, // [!code focus]
   owners: [owner], // [!code focus]
-  version: "0.3.1", // [!code focus]
+  version: '0.3.1', // [!code focus]
 }) // [!code focus]
 ```
 
@@ -41,4 +65,4 @@ export const owner = privateKeyToAccount('0x...')
 
 ## Parameters
 
-Checkout detailed parameters for `toEcdsaKernelSmartAccount` at permissionless.js [documentation](https://docs.pimlico.io/permissionless/reference/accounts/toEcdsaKernelSmartAccount#parameters)
+[See Parameters](https://docs.pimlico.io/permissionless/reference/accounts/toEcdsaKernelSmartAccount#parameters)

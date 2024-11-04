@@ -1,20 +1,44 @@
 # Light
 
-To implement the Alchemy's [Light Smart Wallet](https://github.com/alchemyplatform/light-account), you can use [`toLightSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toLightSmartAccount) from [permissionless.js](https://docs.pimlico.io/permissionless/)
+:::warning
+**Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
+:::
+
+To implement Alchemy's [Light Smart Wallet](https://github.com/alchemyplatform/light-account), you can use the [`toLightSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toLightSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+
+## Install
+
+:::code-group
+```bash [pnpm]
+pnpm add permissionless
+```
+
+```bash [npm]
+npm install permissionless
+```
+
+```bash [yarn]
+yarn add permissionless
+```
+
+```bash [bun]
+bun add permissionless
+```
+:::
 
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toLightSmartAccount } from "permissionless/accounts" // [!code focus]
+import { toLightSmartAccount } from 'permissionless/accounts' // [!code focus]
 import { client } from './client.js'
 import { owner } from './owner.js'
 
 const account = await toLightSmartAccount({ // [!code focus]
   client, // [!code focus]
   owner: owner, // [!code focus]
-  version: "2.0.0" // [!code focus]
+  version: '2.0.0', // [!code focus]
 }) // [!code focus]
 ```
 
@@ -41,4 +65,4 @@ export const owner = privateKeyToAccount('0x...')
 
 ## Parameters
 
-Checkout detailed parameters for `toLightSmartAccount` at permissionless.js [documentation](https://docs.pimlico.io/permissionless/reference/accounts/toLightSmartAccount#parameters)
+[See Parameters](https://docs.pimlico.io/permissionless/reference/accounts/toLightSmartAccount#parameters)

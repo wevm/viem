@@ -1,20 +1,44 @@
 # Safe
 
-To implement the [Safe Smart Wallet](https://github.com/safe-global/safe-smart-account), you can use [`toSafeSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toSimpleSmartAccount) from [permissionless.js](https://docs.pimlico.io/permissionless/)
+:::warning
+**Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
+:::
+
+To implement [Safe Smart Wallet](https://github.com/safe-global/safe-smart-account), you can use the [`toSafeSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toSimpleSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+
+## Install
+
+:::code-group
+```bash [pnpm]
+pnpm add permissionless
+```
+
+```bash [npm]
+npm install permissionless
+```
+
+```bash [yarn]
+yarn add permissionless
+```
+
+```bash [bun]
+bun add permissionless
+```
+:::
 
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toSafeSmartAccount } from "permissionless/accounts" // [!code focus]
+import { toSafeSmartAccount } from 'permissionless/accounts' // [!code focus]
 import { client } from './client.js'
 import { owner } from './owner.js'
 
 const account = await toSafeSmartAccount({ // [!code focus]
   client, // [!code focus]
   owners: [owner], // [!code focus]
-  version: "1.4.1", // [!code focus]
+  version: '1.4.1', // [!code focus]
 }) // [!code focus]
 ```
 
@@ -41,4 +65,4 @@ export const owner = privateKeyToAccount('0x...')
 
 ## Parameters
 
-Checkout detailed parameters for `toSafeSmartAccount` at permissionless.js [documentation](https://docs.pimlico.io/permissionless/reference/accounts/toSafeSmartAccount#parameters)
+[See Parameters](https://docs.pimlico.io/permissionless/reference/accounts/toSafeSmartAccount#parameters)
