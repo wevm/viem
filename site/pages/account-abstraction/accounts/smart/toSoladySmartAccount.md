@@ -1,4 +1,4 @@
-# Solady
+# Solady Smart Account
 
 The `toSoladySmartAccount` simple Smart Account Implementation that references [Solady's `ERC4337.sol`](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol) Smart Account contract.
 

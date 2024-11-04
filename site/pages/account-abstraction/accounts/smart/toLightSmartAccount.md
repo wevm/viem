@@ -1,10 +1,10 @@
-# Light
+# Light Smart Account
 
 :::warning
 **Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
 :::
 
-To implement Alchemy's [Light Smart Wallet](https://github.com/alchemyplatform/light-account), you can use the [`toLightSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toLightSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+To implement Alchemy's [Light Account](https://github.com/alchemyplatform/light-account), you can use the [`toLightSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toLightSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
 
 ## Install
 

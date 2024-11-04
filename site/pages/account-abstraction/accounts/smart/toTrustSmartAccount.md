@@ -1,4 +1,4 @@
-# Trust
+# Trust Smart Account
 
 :::warning
 **Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).

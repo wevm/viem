@@ -1,4 +1,4 @@
-# Coinbase
+# Coinbase Smart Wallet
 
 The `toCoinbaseSmartAccount` implementation references the [Coinbase Smart Wallet](https://github.com/coinbase/smart-wallet) contract. 
 

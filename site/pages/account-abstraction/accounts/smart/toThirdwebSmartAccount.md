@@ -1,10 +1,10 @@
-# Simple Smart Account
+# Thirdweb Smart Account
 
 :::warning
 **Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
 :::
 
-To implement the [Simple Smart Account](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccount.sol), you can use the [`toSimpleSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toSimpleSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+To implement [Thirdweb Smart Account](https://portal.thirdweb.com/), you can use the [`toThirdwebSmartAccount`](https://github.com/pimlicolabs/permissionless.js/blob/main/packages/permissionless/accounts/thirdweb/toThirdwebSmartAccount.ts) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
 
 ## Install
 
@@ -31,13 +31,13 @@ bun add permissionless
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toSimpleSmartAccount } from 'permissionless/accounts' // [!code focus]
+import { toThirdwebSmartAccount } from 'permissionless/accounts' // [!code focus]
 import { client } from './client.js'
 import { owner } from './owner.js'
 
-const account = await toSimpleSmartAccount({ // [!code focus]
+const account = await toThirdwebSmartAccount({ // [!code focus]
   client, // [!code focus]
-  owners: [owner], // [!code focus]
+  owner, // [!code focus]
 }) // [!code focus]
 ```
 
@@ -60,8 +60,8 @@ export const owner = privateKeyToAccount('0x...')
 
 ## Returns
 
-`SmartAccount<SimpleSmartAccountImplementation>`
+`SmartAccount<ThirdwebSmartAccountImplementation>`
 
 ## Parameters
 
-[See Parameters](https://docs.pimlico.io/permissionless/reference/accounts/toSimpleSmartAccount#parameters)
+[See Parameters](https://github.com/pimlicolabs/permissionless.js/blob/d5bb008969c23183f02c16f86f71f051cceb8ee3/packages/permissionless/accounts/thirdweb/toThirdwebSmartAccount.ts#L46-L64)

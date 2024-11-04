@@ -1113,6 +1113,10 @@ export const sidebar = {
                 link: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
               },
               {
+                text: 'Thirdweb',
+                link: '/account-abstraction/accounts/smart/toThirdwebSmartAccount',
+              },
+              {
                 text: 'Biconomy',
                 link: '/account-abstraction/accounts/smart/toNexusSmartAccount',
               },

@@ -1,10 +1,10 @@
-# Kernel
+# Kernel Smart Account
 
 :::warning
 **Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
 :::
 
-To implement the [Kernel Smart Wallet](https://github.com/zerodevapp/kernel), you can use the [`toEcdsaKernelSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toEcdsaKernelSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+To implement the [Kernel Smart Account](https://github.com/zerodevapp/kernel), you can use the [`toEcdsaKernelSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toEcdsaKernelSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
 
 ## Install
 
