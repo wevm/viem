@@ -11,6 +11,7 @@ overrides:
   ws@>=7.0.0 <7.5.10: ^7.5.10
   hono@<4.5.8: ^4.5.8
   micromatch@<4.0.8: ^4.0.8
+  permissionless>viem: workspace:*
   send@<0.19.0: ^0.19.0
   serve-static@<1.16.0: ^1.16.0
   cookie@<0.7.0: ^0.7.0
@@ -52,7 +53,7 @@ importers:
         version: 20.16.12
       '@vitest/coverage-v8':
         specifier: ^1.0.4
-        version: 1.0.4(vitest@1.0.4(@types/node@20.16.12)(@vitest/ui@1.0.4)(terser@5.36.0))
+        version: 1.0.4(vitest@1.0.4)
       '@vitest/ui':
         specifier: ^1.0.4
         version: 1.0.4(vitest@1.0.4)
@@ -73,7 +74,7 @@ importers:
         version: 5.33.3(@types/node@20.16.12)(typescript@5.6.2)
       permissionless:
         specifier: ^0.2.14
-        version: 0.2.14(viem@2.21.40(typescript@5.6.2)(zod@3.23.8))
+        version: 0.2.14
       prool:
         specifier: ^0.0.16
         version: 0.0.16(@pimlico/alto@0.0.4(typescript@5.6.2))
@@ -2629,7 +2630,6 @@ packages:
 
   bun@1.1.30:
     resolution: {integrity: sha512-ysRL1pq10Xba0jqVLPrKU3YIv0ohfp3cTajCPtpjCyppbn3lfiAVNpGoHfyaxS17OlPmWmR67UZRPw/EueQuug==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -4374,7 +4374,7 @@ packages:
   permissionless@0.2.14:
     resolution: {integrity: sha512-4/r4gf6uGE7WfFaE4tVBxNd+QSLh0cVMkhC6yHzPUBBBLgrPf+gcUZjLsTamSLFm81K+m13jq3IQ3J0ooenWhg==}
     peerDependencies:
-      viem: ^2.21.22
+      viem: workspace:*
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -7568,7 +7568,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@1.0.4(vitest@1.0.4(@types/node@20.16.12)(@vitest/ui@1.0.4)(terser@5.36.0))':
+  '@vitest/coverage-v8@1.0.4(vitest@1.0.4)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -10063,9 +10063,7 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.14(viem@2.21.40(typescript@5.6.2)(zod@3.23.8)):
-    dependencies:
-      viem: 2.21.40(typescript@5.6.2)(zod@3.23.8)
+  permissionless@0.2.14: {}
 
   picocolors@1.1.1: {}
 
