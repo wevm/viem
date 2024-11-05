@@ -247,14 +247,14 @@ export async function sendTransaction<
       } catch (e) {
         if (isWalletNamespaceSupported === false) throw e
 
-        const originalError = e as BaseError
+        const error = e as BaseError
         // If the transport does not support the method or input, attempt to use the
         // `wallet_sendTransaction` method.
         if (
-          originalError.name === 'InvalidInputRpcError' ||
-          originalError.name === 'InvalidParamsRpcError' ||
-          originalError.name === 'MethodNotFoundRpcError' ||
-          originalError.name === 'MethodNotSupportedRpcError'
+          error.name === 'InvalidInputRpcError' ||
+          error.name === 'InvalidParamsRpcError' ||
+          error.name === 'MethodNotFoundRpcError' ||
+          error.name === 'MethodNotSupportedRpcError'
         ) {
           return await client
             .request(
@@ -268,21 +268,21 @@ export async function sendTransaction<
               supportsWalletNamespace.set(client.uid, true)
               return hash
             })
-            .catch((err) => {
-              const walletNamespaceError = err as BaseError
+            .catch((e) => {
+              const walletNamespaceError = e as BaseError
               if (
                 walletNamespaceError.name === 'MethodNotFoundRpcError' ||
                 walletNamespaceError.name === 'MethodNotSupportedRpcError'
               ) {
                 supportsWalletNamespace.set(client.uid, false)
-                throw originalError
+                throw error
               }
 
               throw walletNamespaceError
             })
         }
 
-        throw originalError
+        throw error
       }
     }
 

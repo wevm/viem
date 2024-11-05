@@ -639,7 +639,7 @@ describe('args: chain', async () => {
     const originalError = new InvalidInputRpcError(new Error())
 
     const request = client.request
-    client.request = (parameters: any) => {
+    client.request = async (parameters: any) => {
       if (parameters.method === 'eth_sendTransaction') throw originalError
       if (parameters.method === 'wallet_sendTransaction')
         throw new MethodNotSupportedRpcError(new Error())
@@ -652,7 +652,17 @@ describe('args: chain', async () => {
         to: targetAccount.address,
         value: 0n,
       }),
-    ).rejects.toThrowError(originalError)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: Missing or invalid parameters.
+      Double check you have provided the correct parameters.
+
+      Request Arguments:
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:  0 ETH
+
+      Version: viem@x.y.z]
+    `)
   })
 
   test('behavior: nullish account', async () => {
