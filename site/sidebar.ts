@@ -1125,7 +1125,7 @@ export const sidebar = {
                 link: '/account-abstraction/accounts/smart/toLightSmartAccount',
               },
               {
-                text: 'Kernel',
+                text: 'Kernel (ZeroDev)',
                 link: '/account-abstraction/accounts/smart/toEcdsaKernelSmartAccount',
               },
               {
