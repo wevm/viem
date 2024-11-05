@@ -104,19 +104,29 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
           },
-        ],
-        [
           {
             name: 'Brave',
             link: 'https://brave.com',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/brave-light.svg',
           },
+        ],
+        [
           {
             name: 'Linea',
             link: 'https://linea.build',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-light.svg',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
           },
         ],
       ],
@@ -249,9 +259,10 @@ export default defineConfig({
             link: 'https://thirdweb.com',
           },
           {
-            name: '',
-            image: '',
-            link: 'https://github.com/sponsors/wevm',
+            name: 'Uxuy',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uxuy-light.svg',
+            link: 'https://uxuy.com',
           },
         ],
       ],
