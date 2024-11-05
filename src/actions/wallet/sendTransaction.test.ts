@@ -13,7 +13,10 @@ import { deploy } from '../../../test/src/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
-import { InvalidInputRpcError } from '../../errors/rpc.js'
+import {
+  InvalidInputRpcError,
+  MethodNotSupportedRpcError,
+} from '../../errors/rpc.js'
 import { signAuthorization } from '../../experimental/index.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
@@ -625,6 +628,31 @@ describe('args: chain', async () => {
         value: 0n,
       }),
     ).toBeDefined()
+  })
+
+  test("behavior: transport doesn't support `wallet_sendTransaction` so the original error is rethrown", async () => {
+    // Using a new client to reset the cached info about wallet_sendTransaction
+    // being supported.
+    const client = anvilMainnet.getClient()
+    await setup()
+
+    const originalError = new InvalidInputRpcError(new Error())
+
+    const request = client.request
+    client.request = (parameters: any) => {
+      if (parameters.method === 'eth_sendTransaction') throw originalError
+      if (parameters.method === 'wallet_sendTransaction')
+        throw new MethodNotSupportedRpcError(new Error())
+      return request(parameters)
+    }
+
+    await expect(() =>
+      sendTransaction(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: 0n,
+      }),
+    ).rejects.toThrowError(originalError)
   })
 
   test('behavior: nullish account', async () => {
