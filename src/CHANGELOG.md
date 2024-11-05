@@ -1,5 +1,21 @@
 # viem
 
+## 2.21.41
+
+### Patch Changes
+
+- [#2962](https://github.com/wevm/viem/pull/2962) [`de25e2b617b2a01bb9daf23cc3de927438fdc15c`](https://github.com/wevm/viem/commit/de25e2b617b2a01bb9daf23cc3de927438fdc15c) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added ENULS Mainnet.
+
+- [#2963](https://github.com/wevm/viem/pull/2963) [`83869dabffcaab99e401ddc35fa9e2781a15bf59`](https://github.com/wevm/viem/commit/83869dabffcaab99e401ddc35fa9e2781a15bf59) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added AIOZ Network.
+
+- [#2965](https://github.com/wevm/viem/pull/2965) [`eb1863277483106b55b8fa74716f52a9e642b3d0`](https://github.com/wevm/viem/commit/eb1863277483106b55b8fa74716f52a9e642b3d0) Thanks [@alcuadrado](https://github.com/alcuadrado)! - Fixed `sendTransaction` error bubbling for fallback.
+
+- [#2968](https://github.com/wevm/viem/pull/2968) [`e8a79e8eb94b405e02ea05735bb6e6f204623a51`](https://github.com/wevm/viem/commit/e8a79e8eb94b405e02ea05735bb6e6f204623a51) Thanks [@roylines](https://github.com/roylines)! - Update from MATIC to POL on Polygon Amoy.
+
+- [#2965](https://github.com/wevm/viem/pull/2965) [`eb1863277483106b55b8fa74716f52a9e642b3d0`](https://github.com/wevm/viem/commit/eb1863277483106b55b8fa74716f52a9e642b3d0) Thanks [@alcuadrado](https://github.com/alcuadrado)! - Rethrow the original `eth_sendTransaction` error if `wallet_sendTransaction` isn't supported
+
+- [#2964](https://github.com/wevm/viem/pull/2964) [`4c688448928ed998b2884bcda5c3885af43750d6`](https://github.com/wevm/viem/commit/4c688448928ed998b2884bcda5c3885af43750d6) Thanks [@impelcrypto](https://github.com/impelcrypto)! - Updated the disputeGameFactory contract and the explorer URL for Soneium Minato
+
 ## 2.21.40
 
 ### Patch Changes
