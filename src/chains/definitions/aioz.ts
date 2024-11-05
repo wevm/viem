@@ -9,7 +9,7 @@ export const aioz = /*#__PURE__*/ defineChain({
     symbol: 'AIOZ',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://eth-dataseed.aioz.network'],
     },
   },
