@@ -12,7 +12,7 @@
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
     "changeset:prepublish": "pnpm version:update && bun scripts/prepublishOnly.ts && pnpm build",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
-    "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm version:update && pnpm check",
+    "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
     "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/generateTypedArtifacts.ts",
     "deps": "pnpx taze -r",
