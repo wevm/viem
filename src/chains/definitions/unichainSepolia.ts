@@ -21,7 +21,7 @@ export const unichainSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Uniscan',
       url: 'https://sepolia.uniscan.xyz',
-      apiUrl: 'https://api-sepolia.uniscan.xyz',
+      apiUrl: 'https://api-sepolia.uniscan.xyz/api',
     },
   },
   contracts: {
