@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.42
+
+### Patch Changes
+
+- [#2976](https://github.com/wevm/viem/pull/2976) [`8acccb16d7acb0d8367b7c85ca496aa6c9582c67`](https://github.com/wevm/viem/commit/8acccb16d7acb0d8367b7c85ca496aa6c9582c67) Thanks [@vittominacori](https://github.com/vittominacori)! - Fixed Unichain block explorer API URL.
+
+- [#2972](https://github.com/wevm/viem/pull/2972) [`a25864b336dbca800a8f5e598dd8b808194245e3`](https://github.com/wevm/viem/commit/a25864b336dbca800a8f5e598dd8b808194245e3) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Diode Prenet.
+
+- [#2970](https://github.com/wevm/viem/pull/2970) [`fd3547bb4d4477aef09d94e38a53e6e399af551d`](https://github.com/wevm/viem/commit/fd3547bb4d4477aef09d94e38a53e6e399af551d) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Acria IntelliChain.
+
 ## 2.21.41
 
 ### Patch Changes
