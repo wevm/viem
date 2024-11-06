@@ -4,7 +4,7 @@
 **Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
 :::
 
-To implement [Safe Smart Account](https://github.com/safe-global/safe-smart-account), you can use the [`toSafeSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toSimpleSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+To implement [Safe Smart Account](https://github.com/safe-global/safe-smart-account), you can use the [`toSafeSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toSafeSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
 
 ## Install
 
