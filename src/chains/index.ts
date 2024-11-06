@@ -3,6 +3,7 @@ export type { Chain } from '../types/chain.js'
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { abstractTestnet } from './definitions/abstractTestnet.js'
 export { acala } from './definitions/acala.js'
+export { acria } from './definitions/acria.js'
 export { aioz } from './definitions/aioz.js'
 export { alienx } from './definitions/alienX.js'
 export { alienxHalTestnet } from './definitions/alienXHalTestnet.js'
