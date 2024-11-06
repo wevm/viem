@@ -9,7 +9,7 @@ export const acria = /*#__PURE__*/ defineChain({
     symbol: 'ACRIA',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://aic.acria.ai'],
     },
   },

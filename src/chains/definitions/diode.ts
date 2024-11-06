@@ -9,7 +9,7 @@ export const diode = /*#__PURE__*/ defineChain({
     symbol: 'DIODE',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://prenet.diode.io:8443'],
       webSocket: ['wss://prenet.diode.io:8443/ws'],
     },
