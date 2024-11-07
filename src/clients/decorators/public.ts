@@ -1458,7 +1458,7 @@ export type PublicActions<
   readContract: <
     const abi extends Abi | readonly unknown[],
     functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
-    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+    const args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
   >(
     args: ReadContractParameters<abi, functionName, args>,
   ) => Promise<ReadContractReturnType<abi, functionName, args>>
@@ -1522,7 +1522,7 @@ export type PublicActions<
   simulateContract: <
     const abi extends Abi | readonly unknown[],
     functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
-    args extends ContractFunctionArgs<
+    const args extends ContractFunctionArgs<
       abi,
       'nonpayable' | 'payable',
       functionName
