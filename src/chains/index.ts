@@ -238,7 +238,7 @@ export { mantleTestnet } from './definitions/mantleTestnet.js'
 export { mapProtocol } from './definitions/mapProtocol.js'
 export { matchain } from './definitions/matchain.js'
 export { matchainTestnet } from './definitions/matchainTestnet.js'
-export { mekong } from './definitions/mekong.js';
+export { mekong } from './definitions/mekong.js'
 export { meld } from './definitions/meld.js'
 export { merlin } from './definitions/merlin.js'
 export { metachain } from './definitions/metachain.js'
