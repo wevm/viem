@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in contributing to viem! Please take a moment to review this document **before submitting a pull request.**
+Thanks for your interest in contributing to Viem! Please take a moment to review this document **before submitting a pull request.**
 
 If you want to contribute, but aren't sure where to start, you can create a [new discussion](https://github.com/wevm/viem/discussions).
 
@@ -49,7 +49,7 @@ gh repo clone wevm/viem -- --recurse-submodules
 
 ### Installing Node.js and pnpm
 
-wagmi uses [pnpm workspaces](https://bun.sh/docs/install/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **pnpm v9.1.0 or higher**.
+Viem uses [pnpm workspaces](https://pnpm.io/workspaces) to manage multiple projects. You need to install **Node.js v22 or higher** and **pnpm v9.1.0 or higher**.
 
 You can run the following commands in your terminal to check your local Node.js and pnpm versions:
 
@@ -71,7 +71,7 @@ If the versions are not correct or you don't have Node.js or pnpm installed, dow
 
 ### Installing Foundry
 
-viem uses [Foundry](https://book.getfoundry.sh/) for testing. We run a local [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) instance against a forked Ethereum node, where we can also use tools like [Forge](https://book.getfoundry.sh/forge/) to deploy test contracts to it.
+Viem uses [Foundry](https://book.getfoundry.sh/) for testing. We run a local [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) instance against a forked Ethereum node, where we can also use tools like [Forge](https://book.getfoundry.sh/forge/) to deploy test contracts to it.
 
 Install Foundry using the following command:
 
@@ -131,7 +131,7 @@ When adding new features or fixing bugs, it's important to add test cases to cov
 
 ### Writing documentation
 
-Documentation is crucial to helping developers of all experience levels use viem. viem uses [Vocs](https://vocs.dev) and Markdown for the documentation site (located at [`site`](../site)). To start the site in dev mode, run:
+Documentation is crucial to helping developers of all experience levels use Viem. Viem uses [Vocs](https://vocs.dev) and Markdown for the documentation site (located at [`site`](../site)). To start the site in dev mode, run:
 
 ```bash
 pnpm docs:dev 
@@ -181,7 +181,7 @@ If your PR is making changes to an area that already has a changeset (e.g. there
 <br>
 
 <div>
-  ✅ Now you're ready to contribute to viem!
+  ✅ Now you're ready to contribute to Viem!
 </div>
 
 <div align="right">
@@ -310,7 +310,7 @@ Add a `patch` changeset with the description `"Added <your chain here> chain."`.
 ```diff
 > pnpm changeset
 
-What kind of change is this for viem?
+What kind of change is this for Viem?
 + patch
 
 Please enter a summary for this change
