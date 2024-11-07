@@ -12,7 +12,7 @@ export const mekong = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Block Explorer',
-      url: 'https://www.coinex.net',
+      url: '	https://explorer.mekong.ethpandaops.io',
     },
   },
   testnet: true,
