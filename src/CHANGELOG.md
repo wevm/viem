@@ -1,5 +1,19 @@
 # viem
 
+## 2.21.43
+
+### Patch Changes
+
+- [`dce1a72c344d68ca568fbd04f282f1d6185abd36`](https://github.com/wevm/viem/commit/dce1a72c344d68ca568fbd04f282f1d6185abd36) Thanks [@jxom](https://github.com/jxom)! - Updated \`normalize\` to use \`ox/Ens\`.
+
+- [`af1fe2d1c68baa321d1163deff06d26ee3f5a313`](https://github.com/wevm/viem/commit/af1fe2d1c68baa321d1163deff06d26ee3f5a313) Thanks [@jxom](https://github.com/jxom)! - Fixed inference for overloaded functions on \`readContract\` + \`simulateContract\` Actions.
+
+- [#2982](https://github.com/wevm/viem/pull/2982) [`7d9ec2e98e5200e6fcc7911054fd022b25e85a93`](https://github.com/wevm/viem/commit/7d9ec2e98e5200e6fcc7911054fd022b25e85a93) Thanks [@pk-850](https://github.com/pk-850)! - Added CoinEx Mainnet.
+
+- [#2983](https://github.com/wevm/viem/pull/2983) [`1a3e090d341c0f2e6b19da0090e6ca05b127b2ed`](https://github.com/wevm/viem/commit/1a3e090d341c0f2e6b19da0090e6ca05b127b2ed) Thanks [@pk-850](https://github.com/pk-850)! - Added Ubiq Mainnet.
+
+- [#2984](https://github.com/wevm/viem/pull/2984) [`907c646076f19d6de8040c800a8d6c45596d7a97`](https://github.com/wevm/viem/commit/907c646076f19d6de8040c800a8d6c45596d7a97) Thanks [@vince0656](https://github.com/vince0656)! - Added Mekong chain.
+
 ## 2.21.42
 
 ### Patch Changes
