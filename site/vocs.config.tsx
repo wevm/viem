@@ -265,6 +265,29 @@ export default defineConfig({
             link: 'https://uxuy.com',
           },
         ],
+        [
+          {
+            name: 'Polymarket',
+            link: 'https://polymarket.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/polymarket-light.svg',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+        ],
       ],
     },
   ],
