@@ -1,5 +1,11 @@
 # viem
 
+## 2.21.44
+
+### Patch Changes
+
+- [`b5cc7a2864801181a0d4541886b4060d52f1aaf3`](https://github.com/wevm/viem/commit/b5cc7a2864801181a0d4541886b4060d52f1aaf3) Thanks [@jxom](https://github.com/jxom)! - Updated Ox to resolve #2987.
+
 ## 2.21.43
 
 ### Patch Changes
