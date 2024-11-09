@@ -11,6 +11,7 @@ If you are contributing to add a new chain to `viem/chains`, please read the [Ch
 1. Significant changes to the API or implementation must be reviewed before a Pull Request is created. Create a [Feature Request](https://github.com/wevm/viem/discussions/new?category=ideas) first to discuss any API changes or new ideas. 
 2. Contributors must be humans, not bots.
 3. Contributor GitHub Accounts must have at least one non-trivial contribution to another repository.
+4. First time contributions must not contain only spelling or grammatical fixes.
 
 ## Basic guide
 
