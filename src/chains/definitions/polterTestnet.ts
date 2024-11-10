@@ -11,11 +11,13 @@ export const polterTestnet = defineChain({
   rpcUrls: {
     default: {
       http: ['https://geist-polter.g.alchemy.com/public'],
-     
     },
   },
   blockExplorers: {
-    default: { name: 'Blockscout', url: 'https://polter-testnet.explorer.alchemy.com' },
+    default: {
+      name: 'Blockscout',
+      url: 'https://polter-testnet.explorer.alchemy.com',
+    },
   },
   contracts: {
     multicall3: {

@@ -11,11 +11,13 @@ export const geist = defineChain({
   rpcUrls: {
     default: {
       http: ['https://geist-mainnet.g.alchemy.com/public'],
-     
     },
   },
   blockExplorers: {
-    default: { name: 'Blockscout', url: 'https://geist-mainnet.explorer.alchemy.com' },
+    default: {
+      name: 'Blockscout',
+      url: 'https://geist-mainnet.explorer.alchemy.com',
+    },
   },
   contracts: {
     multicall3: {
@@ -24,5 +26,3 @@ export const geist = defineChain({
     },
   },
 })
-
-
