@@ -9,7 +9,7 @@ export const idchain = /*#__PURE__*/ defineChain({
     symbol: 'EIDI',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://idchain.one/rpc'],
       webSocket: ['wss://idchain.one/ws'],
     },
