@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const geist = defineChain({
+export const geist = /*#__PURE__*/ defineChain({
   id: 63157,
   name: 'Geist Mainnet',
   nativeCurrency: {
