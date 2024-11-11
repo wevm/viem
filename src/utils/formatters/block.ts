@@ -41,7 +41,7 @@ export type FormattedBlock<
 export type FormatBlockErrorType = ErrorType
 
 export function formatBlock(block: ExactPartial<RpcBlock>) {
-  const transactions = block.transactions?.map((transaction) => {
+  const transactions = (block.transactions ?? []).map((transaction) => {
     if (typeof transaction === 'string') return transaction
     return formatTransaction(transaction)
   })
