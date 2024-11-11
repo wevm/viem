@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const polterTestnet = defineChain({
+export const polterTestnet = /*#__PURE__*/ defineChain({
   id: 631571,
   name: 'Polter Testnet',
   nativeCurrency: {
