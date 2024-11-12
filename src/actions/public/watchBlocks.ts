@@ -236,12 +236,18 @@ export function watchBlocks<
 
         const { unsubscribe: unsubscribe_ } = await transport.subscribe({
           params: ['newHeads'],
-          onData(data: any) {
+          async onData(data: any) {
             if (!active) return
-            const format =
-              client.chain?.formatters?.block?.format || formatBlock
-            const block = format(data.result)
-            onBlock(block, prevBlock as any)
+            const block = (await getAction(
+              client,
+              getBlock,
+              'getBlock',
+            )({
+              blockNumber: data.blockNumber,
+              includeTransactions,
+            }).catch(() => {})) as GetBlockReturnType<chain>
+            if (!active) return
+            onBlock(block as any, prevBlock as any)
             emitFetched = false
             prevBlock = block
           },
