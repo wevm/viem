@@ -5,8 +5,8 @@ export const gnosis = /*#__PURE__*/ defineChain({
   name: 'Gnosis',
   nativeCurrency: {
     decimals: 18,
-    name: 'Gnosis',
-    symbol: 'xDAI',
+    name: 'xDAI',
+    symbol: 'XDAI',
   },
   rpcUrls: {
     default: {
