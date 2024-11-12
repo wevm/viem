@@ -918,10 +918,12 @@ export {
   type StateAssignmentConflictErrorType,
 } from './errors/stateOverride.js'
 export {
-  type InvalidPrimaryTypeErrorType,
+  InvalidDomainError,
+  type InvalidDomainErrorType,
   InvalidPrimaryTypeError,
-  type InvalidStructTypeErrorType,
+  type InvalidPrimaryTypeErrorType,
   InvalidStructTypeError,
+  type InvalidStructTypeErrorType,
 } from './errors/typedData.js'
 export type {
   AbiEventParameterToPrimitiveType,

@@ -1,6 +1,18 @@
 import type { TypedData } from 'abitype'
 
+import { stringify } from '../utils/stringify.js'
 import { BaseError } from './base.js'
+
+export type InvalidDomainErrorType = InvalidDomainError & {
+  name: 'InvalidDomainError'
+}
+export class InvalidDomainError extends BaseError {
+  constructor({ domain }: { domain: unknown }) {
+    super(`Invalid domain "${stringify(domain)}".`, {
+      metaMessages: ['Must be a valid EIP-712 domain.'],
+    })
+  }
+}
 
 export type InvalidPrimaryTypeErrorType = InvalidPrimaryTypeError & {
   name: 'InvalidPrimaryTypeError'

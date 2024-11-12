@@ -207,6 +207,22 @@ test('typed message with data', () => {
   )
 })
 
+test('wrong domain value', () => {
+  expect(() =>
+    hashTypedData({
+      ...typedData.complex,
+      domain: 'wrong' as unknown as Record<string, unknown>,
+      primaryType: 'Mail',
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [BaseError: Invalid domain ""wrong"".
+
+    Must be a valid EIP-712 domain.
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('https://github.com/wevm/viem/issues/2888', () => {
   expect(() =>
     hashTypedData({

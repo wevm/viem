@@ -3,6 +3,7 @@ import type { TypedData, TypedDataDomain, TypedDataParameter } from 'abitype'
 import { BytesSizeMismatchError } from '../errors/abi.js'
 import { InvalidAddressError } from '../errors/address.js'
 import {
+  InvalidDomainError,
   InvalidPrimaryTypeError,
   InvalidStructTypeError,
 } from '../errors/typedData.js'
@@ -121,7 +122,10 @@ export function validateTypedData<
   }
 
   // Validate domain types.
-  if (types.EIP712Domain && domain) validateData(types.EIP712Domain, domain)
+  if (types.EIP712Domain && domain) {
+    if (typeof domain !== 'object') throw new InvalidDomainError({ domain })
+    validateData(types.EIP712Domain, domain)
+  }
 
   // Validate message types.
   if (primaryType !== 'EIP712Domain') {

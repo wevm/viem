@@ -255,6 +255,7 @@ test('exports', () => {
       "UrlRequiredError",
       "AccountStateConflictError",
       "StateAssignmentConflictError",
+      "InvalidDomainError",
       "InvalidPrimaryTypeError",
       "InvalidStructTypeError",
       "EIP1193ProviderRpcError",
