@@ -81,7 +81,7 @@ export const formatters = {
           return {
             blockNumber: hexToBigInt(l2ToL1Log.blockHash),
             blockHash: l2ToL1Log.blockHash,
-            l1BatchNumber: hexToBigInt(l2ToL1Log.l1BatchNumber),
+            l1BatchNumber: l2ToL1Log.l1BatchNumber ? hexToBigInt(l2ToL1Log.l1BatchNumber) : null,
             transactionIndex: hexToBigInt(l2ToL1Log.transactionIndex),
             shardId: hexToBigInt(l2ToL1Log.shardId),
             isService: l2ToL1Log.isService,
