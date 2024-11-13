@@ -6,7 +6,7 @@ export const heco = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'HT', symbol: 'HT', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc-1.zyx.network'],
+      http: ['https://http-mainnet.hecochain.com'],
       webSocket: ['wss://ws-mainnet.hecochain.com'],
     },
   },
