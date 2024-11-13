@@ -1,5 +1,27 @@
 # viem
 
+## 2.21.45
+
+### Patch Changes
+
+- [#2997](https://github.com/wevm/viem/pull/2997) [`764a3ec32add8bb4958236fc4ecb638bc397916a`](https://github.com/wevm/viem/commit/764a3ec32add8bb4958236fc4ecb638bc397916a) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Expanse Network.
+
+- [#3000](https://github.com/wevm/viem/pull/3000) [`fd9ae520a53a5a0ff1ade0309c4d547280ce5fdc`](https://github.com/wevm/viem/commit/fd9ae520a53a5a0ff1ade0309c4d547280ce5fdc) Thanks [@0xtomm](https://github.com/0xtomm)! - Fixed Gnosis native currency.
+
+- [#3002](https://github.com/wevm/viem/pull/3002) [`629db3830829e7f29e4fa9c1c9861b0435045437`](https://github.com/wevm/viem/commit/629db3830829e7f29e4fa9c1c9861b0435045437) Thanks [@pk-850](https://github.com/pk-850)! - Added High Performance Blockchain.
+
+- [#2992](https://github.com/wevm/viem/pull/2992) [`49f7e0866b98af21d08d28a17e6d06f44b00790f`](https://github.com/wevm/viem/commit/49f7e0866b98af21d08d28a17e6d06f44b00790f) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Bitgert Mainnet.
+
+- [#2991](https://github.com/wevm/viem/pull/2991) [`0e36ce17c9a592f1fb269b14a967e11d8af66626`](https://github.com/wevm/viem/commit/0e36ce17c9a592f1fb269b14a967e11d8af66626) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Nahmii 2 Mainnet.
+
+- [#2998](https://github.com/wevm/viem/pull/2998) [`139c5a27b757c3550d360eba8123bbf80d745ba7`](https://github.com/wevm/viem/commit/139c5a27b757c3550d360eba8123bbf80d745ba7) Thanks [@qi-0826](https://github.com/qi-0826)! - Added IDChain Mainnet.
+
+- [#2994](https://github.com/wevm/viem/pull/2994) [`82633bda23780791fd5b70aa0a6d3bf7e250955a`](https://github.com/wevm/viem/commit/82633bda23780791fd5b70aa0a6d3bf7e250955a) Thanks [@cinnabarhorse](https://github.com/cinnabarhorse)! - Added Polter Testnet and Geist Mainnet
+
+- [`dbf13c0362b890765a7a25703d92f2b756fdbf4e`](https://github.com/wevm/viem/commit/dbf13c0362b890765a7a25703d92f2b756fdbf4e) Thanks [@jxom](https://github.com/jxom)! - Assert that EIP-712 domains are valid.
+
+- [`162f3c23e7ffbf31bd2353b8812a0665c9359be5`](https://github.com/wevm/viem/commit/162f3c23e7ffbf31bd2353b8812a0665c9359be5) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where accessing \`block.transactions\` on \`watchBlock\` (via subscription) would throw a runtime error.
+
 ## 2.21.44
 
 ### Patch Changes
