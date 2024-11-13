@@ -13,7 +13,7 @@ export const heco = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Heco Scan',
-      url: 'https://hecoscan.com',
+      url: 'https://hecoscan.io',
     },
   },
   testnet: false,
