@@ -1,5 +1,13 @@
 # viem
 
+## 2.21.46
+
+### Patch Changes
+
+- [#3007](https://github.com/wevm/viem/pull/3007) [`87024db3b5c06a68d16cfbdf5abe93132103c53c`](https://github.com/wevm/viem/commit/87024db3b5c06a68d16cfbdf5abe93132103c53c) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added Coinbit Mainnet.
+
+- [#3006](https://github.com/wevm/viem/pull/3006) [`f2a0c05b7b6b86d3e19dcc2a433ba102e217f9f6`](https://github.com/wevm/viem/commit/f2a0c05b7b6b86d3e19dcc2a433ba102e217f9f6) Thanks [@fengbaolong](https://github.com/fengbaolong)! - Added ABEY Mainnet.
+
 ## 2.21.45
 
 ### Patch Changes
