@@ -1757,6 +1757,10 @@ export const sidebar = {
               },
             ],
           },
+          {
+            text: 'parseEip712Transaction',
+            link: '/zksync/utilities/parseEip712Transaction',
+          },
         ],
       },
     ],

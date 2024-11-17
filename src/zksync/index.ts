@@ -281,3 +281,4 @@ export {
   type GetGeneralPaymasterInputReturnType,
   getGeneralPaymasterInput,
 } from './utils/paymaster/getGeneralPaymasterInput.js'
+export { parseEip712Transaction } from './utils/parseEip712Transaction.js'
