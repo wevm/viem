@@ -136,7 +136,7 @@ export async function ccipRequest({
     const url = urls[i]
     const method = url.includes('{data}') ? 'GET' : 'POST'
     const body = method === 'POST' ? { data, sender } : undefined
-    const headers =
+    const headers: HeadersInit =
       method === 'POST' ? { 'Content-Type': 'application/json' } : {}
 
     try {
