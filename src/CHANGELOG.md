@@ -1,5 +1,19 @@
 # viem
 
+## 2.21.47
+
+### Patch Changes
+
+- [#3009](https://github.com/wevm/viem/pull/3009) [`b57213a76771f4172781d67595c99a9599ea54ea`](https://github.com/wevm/viem/commit/b57213a76771f4172781d67595c99a9599ea54ea) Thanks [@vijaypushkin](https://github.com/vijaypushkin)! - Resolved type error by explicitly typing `headers` as `HeadersInit` in CCIP.
+
+- [#3010](https://github.com/wevm/viem/pull/3010) [`c5ba0283d02f8e584b7a291695753b32b1874fc8`](https://github.com/wevm/viem/commit/c5ba0283d02f8e584b7a291695753b32b1874fc8) Thanks [@andychert](https://github.com/andychert)! - Added Multicall address to Taiko Hekla chain.
+
+- [#3013](https://github.com/wevm/viem/pull/3013) [`70994fa73f96d2f5e6ce7e7c08cc1f360888e576`](https://github.com/wevm/viem/commit/70994fa73f96d2f5e6ce7e7c08cc1f360888e576) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added One World Chain Mainnet.
+
+- [#3014](https://github.com/wevm/viem/pull/3014) [`32315c2336959135786fcf0b899ce19e0bf450a1`](https://github.com/wevm/viem/commit/32315c2336959135786fcf0b899ce19e0bf450a1) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Multicall address to Superposition.
+
+- [#3012](https://github.com/wevm/viem/pull/3012) [`bc7f4ae22bfec4305412c65a6ac57b918a225dfb`](https://github.com/wevm/viem/commit/bc7f4ae22bfec4305412c65a6ac57b918a225dfb) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Omax Mainnet.
+
 ## 2.21.46
 
 ### Patch Changes
