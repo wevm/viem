@@ -8,8 +8,6 @@
 
 - [#2948](https://github.com/wevm/viem/pull/2948) [`dbd72a4eab890903216e085dd52d2438e20aa1fc`](https://github.com/wevm/viem/commit/dbd72a4eab890903216e085dd52d2438e20aa1fc) Thanks [@nikola-bozin-txfusion](https://github.com/nikola-bozin-txfusion)! - Added `parseEip712Transaction` util function in ZKsync extension.
 
-- [`103de69e3a779e797bc74e1dafcddea91a90afc4`](https://github.com/wevm/viem/commit/103de69e3a779e797bc74e1dafcddea91a90afc4) Thanks [@jxom](https://github.com/jxom)! - Updated ERC-7715 JSON-RPC interface to the latest spec changes.
-
 - [#3017](https://github.com/wevm/viem/pull/3017) [`b4a05d6b51baea81fcde4c58b5ec814fd19a2630`](https://github.com/wevm/viem/commit/b4a05d6b51baea81fcde4c58b5ec814fd19a2630) Thanks [@SakuraCase](https://github.com/SakuraCase)! - Added MCH Verse chain.
 
 - [#3019](https://github.com/wevm/viem/pull/3019) [`465389324bf1a3422ddc02491fe3f0efc1a52281`](https://github.com/wevm/viem/commit/465389324bf1a3422ddc02491fe3f0efc1a52281) Thanks [@pk-850](https://github.com/pk-850)! - Added Vanar Mainnet.
