@@ -16,4 +16,5 @@ export const mchVerse = /*#__PURE__*/ defineChain({
       apiUrl: 'https://explorer.oasys.mycryptoheroes.net/api',
     },
   },
+  testnet: false,
 })
