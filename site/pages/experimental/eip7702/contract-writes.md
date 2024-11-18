@@ -330,7 +330,7 @@ export const walletClient = createWalletClient({
 
 :::
 
-### 6. Optional: Use a Delegate
+### 5. Optional: Use a Delegate
 
 We can also utilize an Delegate Account to execute a call on behalf of the authorizing Account. This is useful for cases where we want to "sponsor" the Transaction for the user (i.e. pay for their gas fees).
 
