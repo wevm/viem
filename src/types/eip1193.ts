@@ -143,45 +143,44 @@ export type WalletCallReceipt<quantity = Hex, status = Hex> = {
 }
 
 export type WalletGrantPermissionsParameters = {
+  address?: Address | undefined
+  chainId?: Hex | undefined
+  expiry: number
+  permissions?:
+    | readonly {
+        data: unknown
+        policies: readonly {
+          data: unknown
+          type: string
+        }[]
+        required?: boolean | undefined
+        type: string
+      }[]
+    | undefined
   signer?:
     | {
         type: string
         data?: unknown | undefined
       }
     | undefined
-  permissions: readonly {
-    data: unknown
-    policies: readonly {
-      data: unknown
-      type: string
-    }[]
-    required?: boolean | undefined
-    type: string
-  }[]
-  expiry: number
 }
 
-export type WalletGrantPermissionsReturnType = {
-  expiry: number
-  factory?: `0x${string}` | undefined
-  factoryData?: string | undefined
-  grantedPermissions: readonly {
-    data: unknown
-    policies: readonly {
-      data: unknown
-      type: string
-    }[]
-    required?: boolean | undefined
-    type: string
-  }[]
-  permissionsContext: string
-  signerData?:
-    | {
-        userOpBuilder?: `0x${string}` | undefined
-        submitToAddress?: `0x${string}` | undefined
-      }
-    | undefined
-}
+export type WalletGrantPermissionsReturnType =
+  WalletGrantPermissionsParameters & {
+    accountMeta?:
+      | {
+          factory?: `0x${string}` | undefined
+          factoryData?: string | undefined
+        }
+      | undefined
+    context: Hex
+    signerMeta?:
+      | {
+          userOpBuilder?: `0x${string}` | undefined
+          submitToAddress?: `0x${string}` | undefined
+        }
+      | undefined
+  }
 
 export type WalletGetCallsStatusReturnType<quantity = Hex, status = Hex> = {
   status: 'PENDING' | 'CONFIRMED'
