@@ -193,7 +193,7 @@ import { publicClientL2 } from './config'
 
 // Build parameters for the transaction on the L2.
 const args = await publicClientL2.buildDepositTransaction({
-  mint: parseEther('1')
+  mint: parseEther('1'),
   to: account.address,
 })
 ```
@@ -265,7 +265,7 @@ import { account, publicClientL2, walletClientL1 } from './config'
 
 // Build parameters for the transaction on the L2.
 const args = await publicClientL2.buildDepositTransaction({
-  mint: parseEther('1')
+  mint: parseEther('1'),
   to: account.address,
 })
 
@@ -350,7 +350,7 @@ import {
 
 // Build parameters for the transaction on the L2.
 const args = await publicClientL2.buildDepositTransaction({
-  mint: parseEther('1')
+  mint: parseEther('1'),
   to: account.address,
 })
 
@@ -432,7 +432,7 @@ import {
 
 // Build parameters for the transaction on the L2.
 const args = await publicClientL2.buildDepositTransaction({
-  mint: parseEther('1')
+  mint: parseEther('1'),
   to: account.address,
 })
 
@@ -519,7 +519,7 @@ import {
 
 // Build parameters for the transaction on the L2.
 const args = await publicClientL2.buildDepositTransaction({
-  mint: parseEther('1')
+  mint: parseEther('1'),
   to: account.address,
 })
 
