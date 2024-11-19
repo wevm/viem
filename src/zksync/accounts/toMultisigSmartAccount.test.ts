@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/src/constants.js'
 
-import { parseEther, parseGwei, verifyHash } from '../../utils/index.js'
+import { parseEther, parseGwei } from '../../utils/index.js'
 import { toMultisigSmartAccount } from './toMultisigSmartAccount.js'
 
 test('default', () => {
