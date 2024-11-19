@@ -45,7 +45,7 @@ export type ZksyncL2ToL1Log = {
 export type ZksyncRpcL2ToL1Log = {
   blockNumber: Hex
   blockHash: Hex
-  l1BatchNumber: Hex
+  l1BatchNumber: Hex | null
   transactionIndex: Hex
   shardId: Hex
   isService: boolean
