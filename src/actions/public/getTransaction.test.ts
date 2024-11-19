@@ -30,7 +30,14 @@ test('gets transaction', async () => {
     index: 69,
   })
   assertType<Transaction>(transaction)
-  expect(transaction).toMatchInlineSnapshot(`
+  expect({
+    ...transaction,
+    r: null,
+    s: null,
+    v: null,
+    yParity: null,
+    hash: null,
+  }).toMatchInlineSnapshot(`
     {
       "accessList": [],
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
@@ -39,20 +46,20 @@ test('gets transaction', async () => {
       "from": "0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e",
       "gas": 100000n,
       "gasPrice": 11789405161n,
-      "hash": "0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b",
+      "hash": null,
       "input": "0x23b872dd000000000000000000000000a00f99bc38b1ecda1fd70eaa1cd31d576a9f46b0000000000000000000000000f16e9b0d03470827a95cdfd0cb8a8a3b46969b910000000000000000000000000000000000000000000000000000002b3b6fb3d0",
       "maxFeePerGas": 30309666435n,
       "maxPriorityFeePerGas": 1000000000n,
       "nonce": 513116,
-      "r": "0x5e49a7bd0534c6b6d3bbe581659424d3747f920d40ce56e48d26e5d94aac32ca",
-      "s": "0x1746abe27b7c4f00bda1ec714ac1f7083e9025b6ca3b2248e439a173e4ab55e0",
+      "r": null,
+      "s": null,
       "to": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
       "transactionIndex": 69,
       "type": "eip1559",
       "typeHex": "0x2",
-      "v": 1n,
+      "v": null,
       "value": 0n,
-      "yParity": 1,
+      "yParity": null,
     }
   `)
 })
@@ -62,7 +69,14 @@ test('gets transaction (legacy)', async () => {
     blockNumber: 15131999n,
     index: 0,
   })
-  expect(transaction).toMatchInlineSnapshot(`
+  expect({
+    ...transaction,
+    r: null,
+    s: null,
+    v: null,
+    yParity: null,
+    hash: null,
+  }).toMatchInlineSnapshot(`
     {
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
@@ -70,17 +84,18 @@ test('gets transaction (legacy)', async () => {
       "from": "0x47a6b2f389cf4bb6e4b69411c87ae82371daf87e",
       "gas": 200000n,
       "gasPrice": 57000000000n,
-      "hash": "0x31a326e4190db96a0c12ef2f2aee6d4566635deb78a3c3497af208b8b7039f22",
+      "hash": null,
       "input": "0xa9059cbb00000000000000000000000001cc0c6c6c57707f89ab0c9a0c22139c501ffba50000000000000000000000000000000000000000000000064cf7d4e7b36a8000",
       "nonce": 3,
-      "r": "0x36b5c1f8f70e845a35784b4e18807af88c36fd4958bc71e7dab3b99293531f73",
-      "s": "0x5e1a25ed16877580921003749f54d0a14981cd989c293c202a382f43d87b2c47",
+      "r": null,
+      "s": null,
       "to": "0x3d382228c54736d831fac2748f4734d9177c7332",
       "transactionIndex": 0,
       "type": "legacy",
       "typeHex": "0x0",
-      "v": 37n,
+      "v": null,
       "value": 0n,
+      "yParity": null,
     }
   `)
 })
@@ -146,7 +161,14 @@ test('gets transaction (eip4844)', async () => {
   const transaction = await getTransaction(client, {
     hash: '0x2ad52593fd11478bc0771a48361250220e93123a772e9f316ad8e87d05abe33a',
   })
-  expect(transaction).toMatchInlineSnapshot(`
+  expect({
+    ...transaction,
+    r: null,
+    s: null,
+    v: null,
+    yParity: null,
+    hash: null,
+  }).toMatchInlineSnapshot(`
     {
       "accessList": [],
       "blobVersionedHashes": [
@@ -159,21 +181,21 @@ test('gets transaction (eip4844)', async () => {
       "from": "0xcb98643b8786950f0461f3b0edf99d88f274574d",
       "gas": 21000n,
       "gasPrice": 1262418454n,
-      "hash": "0x2ad52593fd11478bc0771a48361250220e93123a772e9f316ad8e87d05abe33a",
+      "hash": null,
       "input": "0x",
       "maxFeePerBlobGas": 30000000000n,
       "maxFeePerGas": 1594475499n,
       "maxPriorityFeePerGas": 369627615n,
       "nonce": 8,
-      "r": "0xbab20bc88be122f86584c3150fd351018ba15e0346d2e62ced9851c02a0caaa2",
-      "s": "0x6da45371fa04d5a8759ed24f462642fc187a1f1062589f30f0c1bb57f60338f6",
+      "r": null,
+      "s": null,
       "to": "0x0000000000000000000000000000000000000000",
       "transactionIndex": 57,
       "type": "eip4844",
       "typeHex": "0x3",
-      "v": 1n,
+      "v": null,
       "value": 0n,
-      "yParity": 1,
+      "yParity": null,
     }
   `)
 })
@@ -214,40 +236,40 @@ test('gets transaction (eip7702)', async () => {
   const transaction = await getTransaction(client, {
     hash,
   })
-  expect({ ...transaction, blockHash: null }).toMatchInlineSnapshot(`
+  expect({
+    ...transaction,
+    authorizationList: null,
+    r: null,
+    s: null,
+    v: null,
+    yParity: null,
+    blockHash: null,
+    hash: null,
+  }).toMatchInlineSnapshot(`
     {
       "accessList": [],
-      "authorizationList": [
-        {
-          "chainId": 1,
-          "contractAddress": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
-          "nonce": 113,
-          "r": "0x90e97c0bcbecd4bfb4028a1b44f6342ef161d28c05ea0597186c501368e5aa55",
-          "s": "0x18fc995e55060477cb1b42c4f5b26f5aa45424c0e23cb77f79b22607ff6a411b",
-          "yParity": 0,
-        },
-      ],
+      "authorizationList": null,
       "blockHash": null,
       "blockNumber": 19868022n,
       "chainId": 1,
       "from": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "gas": 122848n,
       "gasPrice": 8599866030n,
-      "hash": "0xad490ecb6c8307c3a048ff4a73ef0626cc593b1c2600ae2d92140d5c70c8ae50",
+      "hash": null,
       "input": "0xa6d0ad61000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000000",
       "maxFeePerBlobGas": undefined,
       "maxFeePerGas": 11392560424n,
       "maxPriorityFeePerGas": 1000000000n,
       "nonce": 112,
-      "r": "0x83f34d9f7203855ce3c880ed3df5978a97891b7e5b92b17607fb80c51c3933ea",
-      "s": "0xa4413fab63b8aac16f19adddc122072111db46ad15620e3e511fbc1951d524d",
+      "r": null,
+      "s": null,
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "transactionIndex": 0,
       "type": "eip7702",
       "typeHex": "0x4",
-      "v": 1n,
+      "v": null,
       "value": 0n,
-      "yParity": 1,
+      "yParity": null,
     }
   `)
 })
@@ -263,7 +285,14 @@ test('chain w/ custom block type', async () => {
     index: 0,
   })
 
-  expect(transaction).toMatchInlineSnapshot(`
+  expect({
+    ...transaction,
+    r: null,
+    s: null,
+    v: null,
+    yParity: null,
+    hash: null,
+  }).toMatchInlineSnapshot(`
     {
       "blockHash": "0x740371d30b3cee9d687f72e3409ba6447eceda7de86bc38b0fa84493114b510b",
       "blockNumber": 16628100n,
@@ -275,17 +304,18 @@ test('chain w/ custom block type', async () => {
       "gasPrice": 2999683966n,
       "gatewayFee": 0n,
       "gatewayFeeRecipient": null,
-      "hash": "0x55678b68cc086d5b9739bb28748b492db030d001d9eb59001cc2d1f7a3305d17",
+      "hash": null,
       "input": "0x389ec778",
       "nonce": 697201,
-      "r": "0xf507fb8fa33ffd05a7f26c980bbb8271aa113affc8f192feba87abe26549bda1",
-      "s": "0x7971c7b15ab4475ce6256da0bdf62ca1d1e491be8a03fe7637289f98c166f521",
+      "r": null,
+      "s": null,
       "to": "0xb86d682b1b6bf20d8d54f55c48f848b9487dec37",
       "transactionIndex": 0,
       "type": "legacy",
       "typeHex": "0x0",
-      "v": 84475n,
+      "v": null,
       "value": 0n,
+      "yParity": null,
     }
   `)
 })
@@ -295,7 +325,14 @@ describe('args: hash', () => {
     const transaction = await getTransaction(client, {
       hash: '0x886df53066105ebe390f3efcb4a523d7178597da84dfaa1bbc524e2b20b5650c',
     })
-    expect(transaction).toMatchInlineSnapshot(`
+    expect({
+      ...transaction,
+      r: null,
+      s: null,
+      v: null,
+      yParity: null,
+      hash: null,
+    }).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
@@ -304,20 +341,20 @@ describe('args: hash', () => {
         "from": "0x0926218bdafe613a4152628d14a762b6718741b9",
         "gas": 70000n,
         "gasPrice": 10939430701n,
-        "hash": "0x886df53066105ebe390f3efcb4a523d7178597da84dfaa1bbc524e2b20b5650c",
+        "hash": null,
         "input": "0x23b872dd0000000000000000000000000e7aeefe352dc961aaeeb32eb97fecd8a3f014f80000000000000000000000000926218bdafe613a4152628d14a762b6718741b9000000000000000000000000000000000000000000000000000000003fc6e780",
         "maxFeePerGas": 10939430701n,
         "maxPriorityFeePerGas": 10939430701n,
         "nonce": 4,
-        "r": "0xe7dc7a0b7db15dba318fea7ad3dcbbc2170e5d52566c2e2785f7740f3ac1529d",
-        "s": "0x1b2687608968ecb67230bbf7944199560fa2b3cffe9cc2b1c024e1c8f86a9e08",
+        "r": null,
+        "s": null,
         "to": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "transactionIndex": 98,
         "type": "eip1559",
         "typeHex": "0x2",
-        "v": 1n,
+        "v": null,
         "value": 0n,
-        "yParity": 1,
+        "yParity": null,
       }
     `)
   })
@@ -342,7 +379,14 @@ describe('args: blockHash', () => {
         '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
       index: 5,
     })
-    expect(transaction).toMatchInlineSnapshot(`
+    expect({
+      ...transaction,
+      r: null,
+      s: null,
+      v: null,
+      yParity: null,
+      hash: null,
+    }).toMatchInlineSnapshot(`
       {
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
@@ -350,17 +394,18 @@ describe('args: blockHash', () => {
         "from": "0xb14f54018284f5964097506219e2fd4c1783ca55",
         "gas": 35859n,
         "gasPrice": 21000000000n,
-        "hash": "0x082395f55b04a9ee09fc341ed0c10f0289786057fbb7153584cad85b6abf7737",
+        "hash": null,
         "input": "0xa9059cbb000000000000000000000000a471cffe40390a01e82245db590aff6233cc3f060000000000000000000000000000000000000000000004e8de652b3188049000",
         "nonce": 0,
-        "r": "0xb5793da381688e5e52e519044a0faead359109f47493e90a5424d2f7cfc8c448",
-        "s": "0x56a18fe5d653f59838ffd9659da41c8f87826a2c26429165adb2284f50a4d5d8",
+        "r": null,
+        "s": null,
         "to": "0x554ffc77f4251a9fb3c0e3590a6a205f8d4e067d",
         "transactionIndex": 5,
         "type": "legacy",
         "typeHex": "0x0",
-        "v": 28n,
+        "v": null,
         "value": 0n,
+        "yParity": null,
       }
     `)
   }, 10000)
@@ -386,7 +431,14 @@ describe('args: blockNumber', () => {
       blockNumber: 15131999n,
       index: 5,
     })
-    expect(transaction).toMatchInlineSnapshot(`
+    expect({
+      ...transaction,
+      r: null,
+      s: null,
+      v: null,
+      yParity: null,
+      hash: null,
+    }).toMatchInlineSnapshot(`
       {
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
@@ -394,17 +446,18 @@ describe('args: blockNumber', () => {
         "from": "0xb14f54018284f5964097506219e2fd4c1783ca55",
         "gas": 35859n,
         "gasPrice": 21000000000n,
-        "hash": "0x082395f55b04a9ee09fc341ed0c10f0289786057fbb7153584cad85b6abf7737",
+        "hash": null,
         "input": "0xa9059cbb000000000000000000000000a471cffe40390a01e82245db590aff6233cc3f060000000000000000000000000000000000000000000004e8de652b3188049000",
         "nonce": 0,
-        "r": "0xb5793da381688e5e52e519044a0faead359109f47493e90a5424d2f7cfc8c448",
-        "s": "0x56a18fe5d653f59838ffd9659da41c8f87826a2c26429165adb2284f50a4d5d8",
+        "r": null,
+        "s": null,
         "to": "0x554ffc77f4251a9fb3c0e3590a6a205f8d4e067d",
         "transactionIndex": 5,
         "type": "legacy",
         "typeHex": "0x0",
-        "v": 28n,
+        "v": null,
         "value": 0n,
+        "yParity": null,
       }
     `)
   }, 10000)

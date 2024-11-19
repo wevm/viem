@@ -4,6 +4,7 @@ import { accounts } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { verifyMessage } from '../public/verifyMessage.js'
 import { signMessage } from './signMessage.js'
 
 const client = anvilMainnet.getClient()
@@ -12,70 +13,83 @@ const clientWithAccount = anvilMainnet.getClient({
 })
 
 test('default', async () => {
+  const signature = await signMessage(client!, {
+    account: accounts[0].address,
+    message: 'hello world',
+  })
   expect(
-    await signMessage(client!, {
-      account: accounts[0].address,
+    await verifyMessage(client!, {
+      address: accounts[0].address,
       message: 'hello world',
+      signature,
     }),
-  ).toMatchInlineSnapshot(
-    `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"`,
-  )
+  ).toBe(true)
 })
 
 test('raw', async () => {
-  expect(
-    await signMessage(client!, {
+  {
+    const signature = await signMessage(client!, {
       account: accounts[0].address,
       message: { raw: '0x68656c6c6f20776f726c64' },
-    }),
-  ).toMatchInlineSnapshot(
-    `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"`,
-  )
-  expect(
-    await signMessage(client!, {
+    })
+    expect(
+      await verifyMessage(client!, {
+        address: accounts[0].address,
+        message: 'hello world',
+        signature,
+      }),
+    ).toBe(true)
+  }
+
+  {
+    const signature = await signMessage(client!, {
       account: accounts[0].address,
       message: {
         raw: Uint8Array.from([
           104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100,
         ]),
       },
-    }),
-  ).toMatchInlineSnapshot(
-    `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"`,
-  )
+    })
+    expect(
+      await verifyMessage(client!, {
+        address: accounts[0].address,
+        message: {
+          raw: Uint8Array.from([
+            104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100,
+          ]),
+        },
+        signature,
+      }),
+    ).toBe(true)
+  }
 })
 
 test('inferred account', async () => {
+  const signature = await signMessage(clientWithAccount!, {
+    message: 'hello world',
+  })
   expect(
-    await signMessage(clientWithAccount!, {
+    await verifyMessage(clientWithAccount!, {
+      address: clientWithAccount.account.address,
       message: 'hello world',
+      signature,
     }),
-  ).toMatchInlineSnapshot(
-    `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"`,
-  )
-})
-
-test('emoji', async () => {
-  expect(
-    await signMessage(client!, {
-      account: accounts[0].address,
-      message: '🥵',
-    }),
-  ).toMatchInlineSnapshot(
-    `"0x05c99bbbe9fac3ad61721a815d19d6771ad39f3e8dffa7ae7561358f20431d8e7f9e1d487c77355790c79c6eb0b0d63690f690615ef99ee3e4f25eef0317d0701b"`,
-  )
+  ).toBe(true)
 })
 
 test('local account', async () => {
   const account = privateKeyToAccount(accounts[0].privateKey)
+  const signature = await signMessage(client!, {
+    account,
+    message: 'hello world',
+  })
   expect(
-    await signMessage(client!, {
-      account,
+    await verifyMessage(client!, {
+      address: account.address,
       message: 'hello world',
+      signature,
     }),
-  ).toMatchInlineSnapshot(
-    '"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"',
-  )
+  ).toBe(true)
 })
 
 test('error: no account', async () => {

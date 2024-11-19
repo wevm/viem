@@ -359,14 +359,10 @@ describe('eip1559', () => {
       privateKey: accounts[0].privateKey,
     })
     const serialized = serializeTransaction(baseEip1559, signature)
-    expect(serialized).toEqual(
-      '0x02f8720182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c001a0ce18214ff9d06ecaacb61811f9d6dc2be922e8cebddeaf6df0b30d5c498f6d33a05f0487c6dbbf2139f7c705d8054dbb16ecac8ae6256ce2c4c6f2e7ef35b3a496',
-    )
     expect(parseTransaction(serialized)).toEqual({
       ...baseEip1559,
       ...signature,
       type: 'eip1559',
-      yParity: 1,
     })
   })
 
@@ -583,14 +579,10 @@ describe('eip2930', () => {
       privateKey: accounts[0].privateKey,
     })
     const serialized = serializeTransaction(baseEip2930, signature)
-    expect(serialized).toEqual(
-      '0x01f8a6018203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f838f7941234512345123451234512345123451234512345e1a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe01a0dc7b3483c0b183823f07d77247c60678d861080acdc4fb8b9fd131770b475c40a040f16567391132746735aff4d5a3fa5ae42ff3d5d538e341870e0259dc40741a',
-    )
     expect(parseTransaction(serialized)).toEqual({
       ...baseEip2930,
       ...signature,
       type: 'eip2930',
-      yParity: 1,
     })
   })
 
@@ -793,13 +785,9 @@ describe('legacy', () => {
       privateKey: accounts[0].privateKey,
     })
     const serialized = serializeTransaction(baseLegacy, signature)
-    expect(serialized).toEqual(
-      '0xf86b8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a7640000801ca06cb0e8d21e5baf998fb9a05f47acd83692dc148f90b81b332a152f020da0ae98a0344e49bacb1ef7af7c2ffed9e88d3f0ae0aa4945c9da0a660a03717dd5621f98',
-    )
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
       ...signature,
-      yParity: 1,
       type: 'legacy',
     })
   })
@@ -843,15 +831,11 @@ describe('legacy', () => {
       privateKey: accounts[0].privateKey,
     })
     const serialized = serializeTransaction(args, signature)
-    expect(serialized).toEqual(
-      '0xf86c8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a76400008081ada02f43314322cf4c5dd645b028aa0b0dadff0fb73c41a6f0620ff1dfb11601ac30a066f37a65e139fa4b6df33a42ab5ccaeaa7a109382e7430caefd1deee63962626',
-    )
     expect(parseTransaction(serialized)).toEqual({
       ...args,
       ...signature,
-      yParity: 0,
       type: 'legacy',
-      v: 173n,
+      v: 173n + BigInt(signature.yParity ?? 0),
     })
   })
 

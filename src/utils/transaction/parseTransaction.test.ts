@@ -127,7 +127,6 @@ describe('eip7702', () => {
       ...baseEip7702,
       ...signature,
       type: 'eip7702',
-      yParity: 0,
     })
   })
 
@@ -347,7 +346,6 @@ describe('eip4844', () => {
       ...baseEip4844,
       ...signature,
       type: 'eip4844',
-      yParity: 1,
     })
   })
 
@@ -536,7 +534,6 @@ describe('eip1559', () => {
       ...baseEip1559,
       ...signature,
       type: 'eip1559',
-      yParity: 1,
     })
   })
 
@@ -820,7 +817,6 @@ describe('eip2930', () => {
       ...baseEip2930,
       ...signature,
       type: 'eip2930',
-      yParity: 1,
     })
   })
 
@@ -927,7 +923,6 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
       ...signature,
-      yParity: 1,
       type: 'legacy',
     })
   })
@@ -945,9 +940,8 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({
       ...args,
       ...signature,
-      yParity: 0,
       type: 'legacy',
-      v: 173n,
+      v: 173n + BigInt(signature.yParity ?? 0),
     })
   })
 

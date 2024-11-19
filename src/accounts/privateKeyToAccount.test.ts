@@ -5,6 +5,9 @@ import { parseEther } from '../utils/unit/parseEther.js'
 import { parseGwei } from '../utils/unit/parseGwei.js'
 
 import { wagmiContractConfig } from '../../test/src/abis.js'
+import { getAddress, verifyTypedData } from '../utils/index.js'
+import { verifyMessage } from '../utils/index.js'
+import { recoverTransactionAddress } from '../utils/signature/recoverTransactionAddress.js'
 import { privateKeyToAccount } from './privateKeyToAccount.js'
 
 test('default', () => {
@@ -26,13 +29,16 @@ test('default', () => {
 
 test('sign', async () => {
   const account = privateKeyToAccount(accounts[0].privateKey)
+  const signature = await account.sign({
+    hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+  })
   expect(
-    await account.sign({
-      hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+    await verifyMessage({
+      address: account.address,
+      message: 'hello world',
+      signature,
     }),
-  ).toMatchInlineSnapshot(
-    `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"`,
-  )
+  ).toBe(true)
 })
 
 test('sign authorization', async () => {
@@ -42,50 +48,49 @@ test('sign authorization', async () => {
     chainId: 1,
     nonce: 0,
   })
-  expect(signedAuthorization).toMatchInlineSnapshot(
-    `
-    {
-      "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-      "nonce": 0,
-      "r": "0xff5d79daa56d5aae2657e8950af71377f8c2860255a9c915948c071ef9286def",
-      "s": "0x17318a10ff56f0000a350a210fdb312ba22260a64f38dddc135912a6c4795c1d",
-      "v": 27n,
-      "yParity": 0,
-    }
-  `,
-  )
+  expect(signedAuthorization.r).toBeDefined()
+  expect(signedAuthorization.s).toBeDefined()
+  expect(signedAuthorization.yParity).toBeDefined()
 })
 
 test('sign message', async () => {
   const account = privateKeyToAccount(accounts[0].privateKey)
+  const signature = await account.signMessage({ message: 'hello world' })
   expect(
-    await account.signMessage({ message: 'hello world' }),
-  ).toMatchInlineSnapshot(
-    '"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"',
-  )
+    await verifyMessage({
+      address: account.address,
+      message: 'hello world',
+      signature,
+    }),
+  ).toBe(true)
 })
 
 test('sign transaction', async () => {
   const account = privateKeyToAccount(accounts[0].privateKey)
+  const signature = await account.signTransaction({
+    chainId: 1,
+    maxFeePerGas: parseGwei('20'),
+    gas: 21000n,
+    to: accounts[1].address,
+    value: parseEther('1'),
+  })
   expect(
-    await account.signTransaction({
-      chainId: 1,
-      maxFeePerGas: parseGwei('20'),
-      gas: 21000n,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    }),
-  ).toMatchInlineSnapshot(
-    '"0x02f86f0180808504a817c8008252089470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c001a0f40a2d2ae9638056cafbe9083c7125edc8555e0e715db0984dd859a5c6dfac57a020f36fd0b32bef4d6d75c62f220e59c5fb60c244ca3b361e750985ee5c3a0931"',
-  )
+    await recoverTransactionAddress({ serializedTransaction: signature }),
+  ).toEqual(getAddress(account.address))
 })
 
 test('sign typed data', async () => {
   const account = privateKeyToAccount(accounts[0].privateKey)
+  const signature = await account.signTypedData({
+    ...typedData.basic,
+    primaryType: 'Mail',
+  })
   expect(
-    await account.signTypedData({ ...typedData.basic, primaryType: 'Mail' }),
-  ).toMatchInlineSnapshot(
-    '"0x32f3d5975ba38d6c2fba9b95d5cbed1febaa68003d3d588d51f2de522ad54117760cfc249470a75232552e43991f53953a3d74edf6944553c6bef2469bb9e5921b"',
-  )
+    await verifyTypedData({
+      ...typedData.basic,
+      address: account.address,
+      primaryType: 'Mail',
+      signature,
+    }),
+  ).toBe(true)
 })

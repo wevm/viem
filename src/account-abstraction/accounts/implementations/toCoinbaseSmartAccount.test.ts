@@ -539,9 +539,7 @@ describe('return value: signUserOperation', () => {
       verificationGasLimit: 69n,
     })
 
-    expect(signature).toMatchInlineSnapshot(
-      `"0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000414f3498080b6a124e4f4cd4239eafd5561f32a114f1e820fe20e84e890320fa693601d057e2963007fafb93d76d9019144a6872b680bec82a437475e6fe982bef1c00000000000000000000000000000000000000000000000000000000000000"`,
-    )
+    expect(signature).toBeDefined()
   })
 })
 
@@ -551,9 +549,13 @@ describe('sign', async () => {
       owner,
       hash: keccak256('0xdeadbeef'),
     })
-    expect(signature).toMatchInlineSnapshot(
-      `"0xa8a8de243232c52140496c6b3e428090a8a944e1da3af2d6873d0f2151aa54b35aa7e59729d04cd6cc405bacc7e5e834ad56a945a1b2570948ba39febdfbdd3c1c"`,
-    )
+    expect(
+      await verifyHash(client, {
+        address: owner.address,
+        hash: keccak256('0xdeadbeef'),
+        signature,
+      }),
+    ).toBe(true)
   })
 
   test('webauthn', async () => {

@@ -38,7 +38,11 @@ export async function sign<to extends To = 'object'>({
   privateKey,
   to = 'object',
 }: SignParameters<to>): Promise<SignReturnType<to>> {
-  const { r, s, recovery } = secp256k1.sign(hash.slice(2), privateKey.slice(2))
+  const { r, s, recovery } = secp256k1.sign(
+    hash.slice(2),
+    privateKey.slice(2),
+    { lowS: true, extraEntropy: true },
+  )
   const signature = {
     r: numberToHex(r, { size: 32 }),
     s: numberToHex(s, { size: 32 }),

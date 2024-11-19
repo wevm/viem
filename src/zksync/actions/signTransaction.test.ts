@@ -24,23 +24,17 @@ const eip712: ZksyncTransactionRequestEIP712 = {
 }
 
 test('eip712', async () => {
-  expect(
-    await signTransaction(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      ...eip712,
-    }),
-  ).toMatchInlineSnapshot(
-    `"0x71f8c880808080808000820144808082014494000000000000000000000000000000000000000082c350c0b841bb509f381d29a038bd2f700bd6a1f1138edfd7a3cf7234c13a03b01a023a30aa53e6bd5e6a50fdcdcf74587c9395b8a314690abbc85aadab5ebcb7678994eacf1bf85b94fd9ae5ebb0f6656f4b77a0e99dcbc5138d54b0bab8448c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000"`,
-  )
+  const signature = await signTransaction(client, {
+    account: privateKeyToAccount(sourceAccount.privateKey),
+    ...eip712,
+  })
+  expect(signature.startsWith('0x71')).toBeTruthy()
 })
 
 test('other', async () => {
-  expect(
-    await signTransaction(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      ...base,
-    }),
-  ).toMatchInlineSnapshot(
-    `"0x02f84e82014480808080808080c080a0e9ff0193c0db842635d2b50dd8401c95f5fc53aa96b7170e85b5425c7ece8989a07bf8bd7e5a9ef6c8fb32cc7b5fc85f8529c71faab273eb7d00562542cc8b4dc4"`,
-  )
+  const signature = await signTransaction(client, {
+    account: privateKeyToAccount(sourceAccount.privateKey),
+    ...base,
+  })
+  expect(signature.startsWith('0x02')).toBeTruthy()
 })

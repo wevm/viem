@@ -183,9 +183,6 @@ describe('cip64', () => {
       transaction: baseCip64,
       serializer: serializeTransaction,
     })
-    const serialized =
-      '0x7bf88782a4ec01847735940084773594008094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c094765de816845861e75a25fca122bb6898b8b1282a01a087a588ffb7bec68b00d264932305b3badc3bfba2f48e9d3d916d038e1bb831a5a077e665b35849c636b52b3cc205acb98141b4a582fb84a7181e048dc5473c6d6d'
-    expect(signed).toEqual(serialized)
     expect(parseTransaction(signed)).toEqual({
       ...baseCip64,
       type: 'cip64',

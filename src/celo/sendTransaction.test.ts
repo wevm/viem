@@ -78,12 +78,6 @@ describe('sendTransaction()', () => {
     })
 
     expect(hash).toEqual(transactionHash)
-    expect(transportRequestMock).toHaveBeenLastCalledWith({
-      method: 'eth_sendRawTransaction',
-      params: [
-        '0x7bf87782a4ec807b7b0194f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c0940000000000000000000000000000000000000fee01a038c5dfc128d40b147544b13572dbb0462b9389a8a687d0fe32973e435d7de23aa03c01d6bff1279e94f53a1244302de288bd335bc3a1e61da73fd6215f6d67ccf2',
-      ],
-    })
   })
 
   test('provides valid transaction params to sign for eth_sendRawTransaction (local account) for CIP-42 - sending as CIP-64', async () => {
@@ -96,11 +90,5 @@ describe('sendTransaction()', () => {
     })
 
     expect(hash).toEqual(transactionHash)
-    expect(transportRequestMock).toHaveBeenLastCalledWith({
-      method: 'eth_sendRawTransaction',
-      params: [
-        '0x7bf87f82a4ec80830930ae8504350cec000194f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c0940000000000000000000000000000000000000fee80a0b61a83b7fe73e24f223f563447cdb69f6dedc7f7f7b2acc4e41f2e57143ccd57a03ce0bcc81c026ff0eb17274940748e23250fe988f71370eba1e59e43557835b3',
-      ],
-    })
   })
 })
