@@ -3,8 +3,8 @@
 import { join } from 'node:path'
 import { describe, expect, test } from 'bun:test'
 
-import { signTransaction } from '../../src/accounts/utils/signTransaction.js'
-import { parseTransaction } from '../../src/index.js'
+import { privateKeyToAddress } from '../../src/accounts/utils/privateKeyToAddress.js'
+import { parseTransaction, recoverTransactionAddress } from '../../src/index.js'
 import { serializeTransaction } from '../../src/utils/transaction/serializeTransaction.js'
 import { readGzippedJson } from '../utils.js'
 
@@ -69,16 +69,15 @@ describe('serializeTransaction', () => {
   })
 })
 
-describe('signTransaction', () => {
+describe('recoverTransactionAddress', () => {
   transactions.forEach(
-    ({ name, privateKey, serializedSigned, transaction }) => {
+    ({ name, privateKey, serializedSigned }) => {
       test(`${name}`, async () => {
         expect(
-          await signTransaction({
-            privateKey: privateKey,
-            transaction: transaction,
+          await recoverTransactionAddress({
+            serializedTransaction: serializedSigned,
           }),
-        ).toEqual(serializedSigned)
+        ).toEqual(privateKeyToAddress(privateKey))
       })
     },
   )
