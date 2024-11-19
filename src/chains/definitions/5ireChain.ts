@@ -11,7 +11,7 @@ export const fireChain = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: '5ireChain Thunder Explorer',
+      name: '5ireChain Mainnet Explorer',
       url: 'https://5irescan.io/',
     },
   },
