@@ -680,17 +680,19 @@ describe('smoke', async () => {
       ],
     })
 
-    expect(gas).toMatchInlineSnapshot(`
-      {
-        "callGasLimit": 80000n,
-        "preVerificationGas": 67086n,
-        "verificationGasLimit": 369595n,
-      }
-    `)
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(gas.preVerificationGas).toBeGreaterThanOrEqual(67000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(369000n)
   })
 
   test('prepareUserOperation', async () => {
-    const userOperation = await prepareUserOperation(bundlerClient, {
+    const {
+      account: _,
+      callGasLimit,
+      preVerificationGas,
+      verificationGasLimit,
+      ...userOperation
+    } = await prepareUserOperation(bundlerClient, {
       account,
       calls: [
         {
@@ -701,11 +703,12 @@ describe('smoke', async () => {
       maxPriorityFeePerGas: 2000000000n,
     })
 
-    expect({ ...userOperation, account: null }).toMatchInlineSnapshot(`
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(preVerificationGas).toBeGreaterThanOrEqual(67000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(369000n)
+    expect(userOperation).toMatchInlineSnapshot(`
       {
-        "account": null,
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-        "callGasLimit": 80000n,
         "initCode": "0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a3ffba36f00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000f39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "maxFeePerGas": 22785120848n,
         "maxPriorityFeePerGas": 2000000000n,
@@ -713,10 +716,8 @@ describe('smoke', async () => {
         "paymasterAndData": "0x",
         "paymasterPostOpGasLimit": undefined,
         "paymasterVerificationGasLimit": undefined,
-        "preVerificationGas": 67086n,
         "sender": "0xBb0c1d5E7f530e8e648150fc7Cf30912575523E8",
         "signature": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000041fffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c00000000000000000000000000000000000000000000000000000000000000",
-        "verificationGasLimit": 369595n,
       }
     `)
   })

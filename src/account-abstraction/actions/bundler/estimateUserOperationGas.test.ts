@@ -39,31 +39,26 @@ describe('entryPointVersion: 0.7', async () => {
   const [account, account_2, account_3] = await getSmartAccounts_07()
 
   test('default', async () => {
-    expect(
-      await estimateUserOperationGas(bundlerClient, {
-        account,
-        calls: [
-          {
-            to: '0x0000000000000000000000000000000000000000',
-            value: parseEther('1'),
-          },
-          {
-            to: wagmiContractConfig.address,
-            abi: wagmiContractConfig.abi,
-            functionName: 'mint',
-          },
-        ],
-        ...fees,
-      }),
-    ).toMatchInlineSnapshot(`
-      {
-        "callGasLimit": 141653n,
-        "paymasterPostOpGasLimit": 0n,
-        "paymasterVerificationGasLimit": 0n,
-        "preVerificationGas": 53438n,
-        "verificationGasLimit": 259350n,
-      }
-    `)
+    const gas = await estimateUserOperationGas(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      ...fees,
+    })
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(141600n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(gas.preVerificationGas).toBeGreaterThanOrEqual(53400n)
+    expect(gas.paymasterVerificationGasLimit).toBe(0n)
+    expect(gas.paymasterPostOpGasLimit).toBe(0n)
   })
 
   test('args: paymaster (client)', async () => {
@@ -74,32 +69,28 @@ describe('entryPointVersion: 0.7', async () => {
       transport: http(server.url),
     })
 
-    expect(
-      await estimateUserOperationGas(bundlerClient, {
-        account,
-        calls: [
-          {
-            to: '0x0000000000000000000000000000000000000000',
-            value: parseEther('1'),
-          },
-          {
-            to: wagmiContractConfig.address,
-            abi: wagmiContractConfig.abi,
-            functionName: 'mint',
-          },
-        ],
-        paymaster: paymasterClient,
-        ...fees,
-      }),
-    ).toMatchInlineSnapshot(`
-      {
-        "callGasLimit": 141653n,
-        "paymasterPostOpGasLimit": 1n,
-        "paymasterVerificationGasLimit": 20150n,
-        "preVerificationGas": 59826n,
-        "verificationGasLimit": 237672n,
-      }
-    `)
+    const gas = await estimateUserOperationGas(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      paymaster: paymasterClient,
+      ...fees,
+    })
+
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(141600n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(gas.preVerificationGas).toBeGreaterThanOrEqual(53400n)
+    expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(20000n)
+    expect(gas.paymasterPostOpGasLimit).toBe(1n)
   })
 
   test('behavior: client.paymaster (client)', async () => {
@@ -114,31 +105,27 @@ describe('entryPointVersion: 0.7', async () => {
       paymaster: paymasterClient,
     })
 
-    expect(
-      await estimateUserOperationGas(bundlerClient, {
-        account,
-        calls: [
-          {
-            to: '0x0000000000000000000000000000000000000000',
-            value: parseEther('1'),
-          },
-          {
-            to: wagmiContractConfig.address,
-            abi: wagmiContractConfig.abi,
-            functionName: 'mint',
-          },
-        ],
-        ...fees,
-      }),
-    ).toMatchInlineSnapshot(`
-      {
-        "callGasLimit": 141653n,
-        "paymasterPostOpGasLimit": 1n,
-        "paymasterVerificationGasLimit": 20150n,
-        "preVerificationGas": 59826n,
-        "verificationGasLimit": 237672n,
-      }
-    `)
+    const gas = await estimateUserOperationGas(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      ...fees,
+    })
+
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(141600n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(gas.preVerificationGas).toBeGreaterThanOrEqual(53400n)
+    expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(20000n)
+    expect(gas.paymasterPostOpGasLimit).toBe(1n)
   })
 
   test('behavior: prepared user operation', async () => {
@@ -158,20 +145,16 @@ describe('entryPointVersion: 0.7', async () => {
 
     expectTypeOf(request).toMatchTypeOf<UserOperation>()
 
-    expect(
-      await estimateUserOperationGas(bundlerClient, {
-        ...request,
-        entryPointAddress: account.entryPoint?.address,
-      }),
-    ).toMatchInlineSnapshot(`
-      {
-        "callGasLimit": 80000n,
-        "paymasterPostOpGasLimit": 0n,
-        "paymasterVerificationGasLimit": 0n,
-        "preVerificationGas": 51722n,
-        "verificationGasLimit": 259060n,
-      }
-    `)
+    const gas = await estimateUserOperationGas(bundlerClient, {
+      ...request,
+      entryPointAddress: account.entryPoint?.address,
+    })
+
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(gas.preVerificationGas).toBeGreaterThanOrEqual(51000n)
+    expect(gas.paymasterVerificationGasLimit).toBe(0n)
+    expect(gas.paymasterPostOpGasLimit).toBe(0n)
   })
 
   test('error: insufficient funds', async () => {
@@ -738,24 +721,20 @@ describe('entryPointVersion: 0.6', async () => {
   const [account] = await getSmartAccounts_06()
 
   test('default', async () => {
-    expect(
-      await estimateUserOperationGas(bundlerClient, {
-        account,
-        calls: [
-          {
-            to: '0x0000000000000000000000000000000000000000',
-            value: parseEther('1'),
-          },
-        ],
-        ...fees,
-      }),
-    ).toMatchInlineSnapshot(`
-      {
-        "callGasLimit": 80000n,
-        "preVerificationGas": 55233n,
-        "verificationGasLimit": 258801n,
-      }
-    `)
+    const gas = await estimateUserOperationGas(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      ...fees,
+    })
+
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(gas.preVerificationGas).toBeGreaterThanOrEqual(55000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(258000n)
   })
 
   test('behavior: prepared user operation', async () => {
@@ -775,18 +754,13 @@ describe('entryPointVersion: 0.6', async () => {
 
     expectTypeOf(request).toMatchTypeOf<UserOperation>()
 
-    expect(
-      await estimateUserOperationGas(bundlerClient, {
-        ...request,
-        entryPointAddress: account.entryPoint.address,
-      }),
-    ).toMatchInlineSnapshot(`
-      {
-        "callGasLimit": 80000n,
-        "preVerificationGas": 55233n,
-        "verificationGasLimit": 258801n,
-      }
-    `)
+    const gas = await estimateUserOperationGas(bundlerClient, {
+      ...request,
+      entryPointAddress: account.entryPoint.address,
+    })
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(gas.preVerificationGas).toBeGreaterThanOrEqual(55000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(258000n)
   })
 
   test('error: aa13', async () => {

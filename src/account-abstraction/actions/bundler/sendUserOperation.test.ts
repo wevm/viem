@@ -325,6 +325,7 @@ describe('entryPointVersion: 0.7', async () => {
           },
         ],
         signature: '0xdeadbeef',
+        verificationGasLimit: 69420n,
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -344,7 +345,7 @@ describe('entryPointVersion: 0.7', async () => {
         preVerificationGas:             48501
         sender:                         0xE911628bF8428C23f179a07b081325cAe376DE1f
         signature:                      0xdeadbeef
-        verificationGasLimit:           79159
+        verificationGasLimit:           69420
 
       Details: UserOperation reverted with reason: AA24 signature error
       Version: viem@x.y.z]

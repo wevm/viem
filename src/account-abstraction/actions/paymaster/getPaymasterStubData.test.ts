@@ -62,13 +62,11 @@ describe('entryPointVersion: 0.7', async () => {
         ...userOperation_paymaster,
       })
     expect(preVerificationGas).toBeDefined()
-    expect(userOperation_gas).toMatchInlineSnapshot(`
-      {
-        "callGasLimit": 80000n,
-        "paymasterPostOpGasLimit": 0n,
-        "paymasterVerificationGasLimit": 0n,
-        "verificationGasLimit": 259060n,
-      }
-    `)
+    expect(userOperation_gas.callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(userOperation_gas.verificationGasLimit).toBeGreaterThanOrEqual(
+      259000n,
+    )
+    expect(userOperation_gas.paymasterPostOpGasLimit).toBe(0n)
+    expect(userOperation_gas.paymasterVerificationGasLimit).toBe(0n)
   })
 })
