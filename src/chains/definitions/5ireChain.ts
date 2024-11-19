@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const fireChain = /*#__PURE__*/ defineChain({
-  id: 997,
+  id: 995,
   name: '5ireChain',
   nativeCurrency: { name: '5ire Token', symbol: '5IRE', decimals: 18 },
   rpcUrls: {
