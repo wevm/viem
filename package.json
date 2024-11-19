@@ -71,7 +71,9 @@
     "typescript": "5.6.2",
     "vitest": "^1.0.4"
   },
-  "trustedDependencies": ["c-kzg"],
+  "trustedDependencies": [
+    "c-kzg"
+  ],
   "packageManager": "pnpm@9.1.0",
   "engines": {
     "node": "22.x"
@@ -80,13 +82,32 @@
     "pre-commit": "pnpm check"
   },
   "knip": {
-    "ignore": [".github/**", "environments/**", "vectors/**"],
-    "ignoreBinaries": ["dev", "forge", "only-allow", "printf"],
-    "ignoreDependencies": ["bun", "@size-limit/preset-big-lib"],
-    "ignoreWorkspaces": ["examples/**", "test"],
+    "ignore": [
+      ".github/**",
+      "environments/**",
+      "vectors/**"
+    ],
+    "ignoreBinaries": [
+      "dev",
+      "forge",
+      "only-allow",
+      "printf"
+    ],
+    "ignoreDependencies": [
+      "bun",
+      "@size-limit/preset-big-lib"
+    ],
+    "ignoreWorkspaces": [
+      "examples/**",
+      "test"
+    ],
     "vitest": {
-      "config": ["test/vitest.config.ts"],
-      "entry": ["**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"]
+      "config": [
+        "test/vitest.config.ts"
+      ],
+      "entry": [
+        "**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"
+      ]
     },
     "workspaces": {
       ".": {
@@ -98,10 +119,15 @@
           "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,linea,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
-        "ignore": ["node/trustedSetups_cjs.ts"]
+        "ignore": [
+          "node/trustedSetups_cjs.ts"
+        ]
       },
       "site": {
-        "project": ["**/*.ts", "**/*.tsx"]
+        "project": [
+          "**/*.ts",
+          "**/*.tsx"
+        ]
       }
     }
   },
@@ -221,5 +247,8 @@
       "cookie@<0.7.0": "^0.7.0",
       "find-my-way@>=5.5.0 <8.2.2": "^8.2.2"
     }
+  },
+  "dependencies": {
+    "viem": "^2.21.48"
   }
 }
