@@ -404,7 +404,7 @@ const client = createWalletClient({
 })
 
 const result = await client.request({ // [!code focus]
-  method: 'eth_wa // [!code focus] 
+  method: 'eth_wagmi', // [!code focus]
 //               ^|
   params: ['hello'], // [!code focus]
 }) // [!code focus]
