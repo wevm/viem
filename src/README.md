@@ -14,7 +14,7 @@
 
 <p align="center">
   TypeScript Interface for Ethereum
-<p>
+</p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/viem">
