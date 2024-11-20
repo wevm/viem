@@ -619,7 +619,6 @@ describe('entryPointVersion: 0.7', async () => {
 
   test('args: signature', async () => {
     const {
-      account: _,
       callGasLimit,
       maxFeePerGas,
       preVerificationGas,
@@ -642,6 +641,7 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
+    expect(account).toBeDefined()
     expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
