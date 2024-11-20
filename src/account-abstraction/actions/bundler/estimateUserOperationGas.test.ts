@@ -57,11 +57,11 @@ describe('entryPointVersion: 0.7', async () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "callGasLimit": 141653n,
+        "callGasLimit": 141623n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 53438n,
-        "verificationGasLimit": 259350n,
+        "verificationGasLimit": 259311n,
       }
     `)
   })
@@ -93,11 +93,11 @@ describe('entryPointVersion: 0.7', async () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "callGasLimit": 141653n,
+        "callGasLimit": 141623n,
         "paymasterPostOpGasLimit": 1n,
-        "paymasterVerificationGasLimit": 20150n,
+        "paymasterVerificationGasLimit": 20098n,
         "preVerificationGas": 59826n,
-        "verificationGasLimit": 237672n,
+        "verificationGasLimit": 237573n,
       }
     `)
   })
@@ -132,11 +132,11 @@ describe('entryPointVersion: 0.7', async () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "callGasLimit": 141653n,
+        "callGasLimit": 141623n,
         "paymasterPostOpGasLimit": 1n,
-        "paymasterVerificationGasLimit": 20150n,
+        "paymasterVerificationGasLimit": 20098n,
         "preVerificationGas": 59826n,
-        "verificationGasLimit": 237672n,
+        "verificationGasLimit": 237573n,
       }
     `)
   })
@@ -169,7 +169,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51722n,
-        "verificationGasLimit": 259060n,
+        "verificationGasLimit": 259021n,
       }
     `)
   })
@@ -753,7 +753,7 @@ describe('entryPointVersion: 0.6', async () => {
       {
         "callGasLimit": 80000n,
         "preVerificationGas": 55233n,
-        "verificationGasLimit": 258801n,
+        "verificationGasLimit": 258762n,
       }
     `)
   })
@@ -784,7 +784,7 @@ describe('entryPointVersion: 0.6', async () => {
       {
         "callGasLimit": 80000n,
         "preVerificationGas": 55233n,
-        "verificationGasLimit": 258801n,
+        "verificationGasLimit": 258762n,
       }
     `)
   })

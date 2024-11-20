@@ -11,6 +11,8 @@ import * as instances from './src/anvil.js'
 
 const client = instances.anvilMainnet.getClient()
 
+setSignEntropy(false)
+
 beforeAll(() => {
   setErrorConfig({
     getDocsUrl({ docsBaseUrl, docsPath }) {
@@ -20,7 +22,6 @@ beforeAll(() => {
     },
     version: 'viem@x.y.z',
   })
-  setSignEntropy(false)
   vi.mock('../src/errors/utils.ts', () => ({
     getContractAddress: vi
       .fn()

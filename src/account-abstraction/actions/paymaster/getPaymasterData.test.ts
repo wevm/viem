@@ -71,7 +71,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 100000n,
-        "verificationGasLimit": 259060n,
+        "verificationGasLimit": 259021n,
       }
     `)
 
