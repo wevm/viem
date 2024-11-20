@@ -7,6 +7,9 @@ import { signTransaction } from '../../src/accounts/utils/signTransaction.js'
 import { parseTransaction } from '../../src/index.js'
 import { serializeTransaction } from '../../src/utils/transaction/serializeTransaction.js'
 import { readGzippedJson } from '../utils.js'
+import { setSignEntropy } from '../../src/accounts/utils/sign.js'
+
+setSignEntropy(false)
 
 const transactions_ = await readGzippedJson(
   join(import.meta.dir, './transaction.json.gz'),

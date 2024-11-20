@@ -25,6 +25,13 @@ export type SignReturnType<to extends To = 'object'> =
 
 export type SignErrorType = NumberToHexErrorType | ErrorType
 
+let extraEntropy: Hex | boolean = true
+
+/** @internal */
+export function setSignEntropy(entropy: Hex | boolean) {
+  extraEntropy = entropy
+}
+
 /**
  * @description Signs a hash with a given private key.
  *
@@ -38,7 +45,11 @@ export async function sign<to extends To = 'object'>({
   privateKey,
   to = 'object',
 }: SignParameters<to>): Promise<SignReturnType<to>> {
-  const { r, s, recovery } = secp256k1.sign(hash.slice(2), privateKey.slice(2))
+  const { r, s, recovery } = secp256k1.sign(
+    hash.slice(2),
+    privateKey.slice(2),
+    { lowS: true, extraEntropy },
+  )
   const signature = {
     r: numberToHex(r, { size: 32 }),
     s: numberToHex(s, { size: 32 }),

@@ -5,6 +5,7 @@ import { cleanupCache, listenersCache } from '~viem/utils/observe.js'
 import { promiseCache, responseCache } from '~viem/utils/promise/withCache.js'
 import { socketClientCache } from '~viem/utils/rpc/socket.js'
 
+import { setSignEntropy } from '../src/accounts/utils/sign.js'
 import { setErrorConfig } from '../src/errors/base.js'
 import * as instances from './src/anvil.js'
 
@@ -19,6 +20,7 @@ beforeAll(() => {
     },
     version: 'viem@x.y.z',
   })
+  setSignEntropy(false)
   vi.mock('../src/errors/utils.ts', () => ({
     getContractAddress: vi
       .fn()
