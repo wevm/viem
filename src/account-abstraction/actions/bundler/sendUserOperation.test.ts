@@ -325,6 +325,7 @@ describe('entryPointVersion: 0.7', async () => {
           },
         ],
         signature: '0xdeadbeef',
+        verificationGasLimit: 79141n,
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
