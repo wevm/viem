@@ -4,7 +4,7 @@ export const gurunetwork = /*#__PURE__*/ defineChain({
   id: 260,
   name: 'Guru Network Mainnet',
   nativeCurrency: {
-    name: 'GURU',
+    name: 'GURU Token',
     symbol: 'GURU',
     decimals: 18,
   },
