@@ -1,5 +1,27 @@
 # viem
 
+## 2.21.49
+
+### Patch Changes
+
+- [#3004](https://github.com/wevm/viem/pull/3004) [`0c98d991b5ec6990251486d860349718f8e7ea04`](https://github.com/wevm/viem/commit/0c98d991b5ec6990251486d860349718f8e7ea04) Thanks [@atarpara](https://github.com/atarpara)! - **ZKsync:** Fixed `TransactionReceipt` formatter & type.
+
+- [`c4ba3cf8145dd0e6b4f9e14f2b414063fbeeefe0`](https://github.com/wevm/viem/commit/c4ba3cf8145dd0e6b4f9e14f2b414063fbeeefe0) Thanks [@jxom](https://github.com/jxom)! - Added ability to set a nullish `account` on `simulateContract`.
+
+- [#3034](https://github.com/wevm/viem/pull/3034) [`9c1db8933ce6dab1e9dde4c7159f7cb582a78a2d`](https://github.com/wevm/viem/commit/9c1db8933ce6dab1e9dde4c7159f7cb582a78a2d) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Metadium Network.
+
+- [#3033](https://github.com/wevm/viem/pull/3033) [`817023fe2de3edeff30e9454410d4ba346594e7e`](https://github.com/wevm/viem/commit/817023fe2de3edeff30e9454410d4ba346594e7e) Thanks [@qi-0826](https://github.com/qi-0826)! - Added Six Protocol.
+
+- [`459e444a1061a264568904db8a26398bc8d4ecf5`](https://github.com/wevm/viem/commit/459e444a1061a264568904db8a26398bc8d4ecf5) Thanks [@jxom](https://github.com/jxom)! - Added `setSignEntropy` export to improve security of signature generation.
+
+- [#3038](https://github.com/wevm/viem/pull/3038) [`349143282c9cbd21abe0b07b05b7f78c699d8672`](https://github.com/wevm/viem/commit/349143282c9cbd21abe0b07b05b7f78c699d8672) Thanks [@isabelle817](https://github.com/isabelle817)! - Added DisChain.
+
+- [#3035](https://github.com/wevm/viem/pull/3035) [`a598b5a80167609ca0b1f6597fe6ca9fd0ca47fe`](https://github.com/wevm/viem/commit/a598b5a80167609ca0b1f6597fe6ca9fd0ca47fe) Thanks [@SilverPokerKing](https://github.com/SilverPokerKing)! - Added Multicall address to Bitgert.
+
+- [#3040](https://github.com/wevm/viem/pull/3040) [`649cd921090b2273b90fa2aa4226732e501eb3a3`](https://github.com/wevm/viem/commit/649cd921090b2273b90fa2aa4226732e501eb3a3) Thanks [@Kharabet](https://github.com/Kharabet)! - Added Guru Network.
+
+- [#3039](https://github.com/wevm/viem/pull/3039) [`f016b161d078c2de36d5b8fd5b6788ef5773e543`](https://github.com/wevm/viem/commit/f016b161d078c2de36d5b8fd5b6788ef5773e543) Thanks [@isabelle817](https://github.com/isabelle817)! - Added iSunCoin Mainnet.
+
 ## 2.21.48
 
 ### Patch Changes
