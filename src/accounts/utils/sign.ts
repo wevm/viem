@@ -25,10 +25,13 @@ export type SignReturnType<to extends To = 'object'> =
 
 export type SignErrorType = NumberToHexErrorType | ErrorType
 
-let extraEntropy: Hex | boolean = true
+let extraEntropy: Hex | boolean = false
 
-/** @internal */
-export function setSignEntropy(entropy: Hex | boolean) {
+/**
+ * Sets extra entropy for signing functions.
+ */
+export function setSignEntropy(entropy: true | Hex) {
+  if (!entropy) throw new Error('must be a `true` or a hex value.')
   extraEntropy = entropy
 }
 

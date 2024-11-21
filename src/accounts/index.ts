@@ -55,6 +55,7 @@ export {
   type SignErrorType,
   type SignParameters,
   type SignReturnType,
+  setSignEntropy,
   sign,
 } from './utils/sign.js'
 export {

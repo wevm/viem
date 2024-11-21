@@ -22,6 +22,7 @@ test('exports utils', () => {
       "mnemonicToAccount",
       "privateKeyToAccount",
       "toAccount",
+      "setSignEntropy",
       "sign",
       "signatureToHex",
       "serializeSignature",

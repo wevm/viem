@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Improved security of signature generation. Resolves #3028.
+Added `setSignEntropy` export to improve security of signature generation.
