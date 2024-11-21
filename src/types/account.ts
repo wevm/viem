@@ -30,9 +30,10 @@ export type GetAccountParameter<
 >
 
 export type ParseAccount<
-  accountOrAddress extends Account | Address | undefined =
+  accountOrAddress extends Account | Address | null | undefined =
     | Account
     | Address
+    | null
     | undefined,
 > = accountOrAddress extends Address
   ? Prettify<JsonRpcAccount<accountOrAddress>>

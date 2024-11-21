@@ -81,11 +81,11 @@ export type SimulateContractParameters<
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-  accountOverride extends Account | Address | undefined = undefined,
+  accountOverride extends Account | Address | null | undefined = undefined,
   ///
   derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
-  account?: accountOverride | undefined
+  account?: accountOverride | null | undefined
   chain?: chainOverride | undefined
   /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
   dataSuffix?: Hex | undefined
@@ -131,9 +131,10 @@ export type SimulateContractReturnType<
   out chain extends Chain | undefined = Chain | undefined,
   out account extends Account | undefined = Account | undefined,
   out chainOverride extends Chain | undefined = Chain | undefined,
-  out accountOverride extends Account | Address | undefined =
+  out accountOverride extends Account | Address | null | undefined =
     | Account
     | Address
+    | null
     | undefined,
   ///
   in out minimizedAbi extends Abi = readonly [
@@ -144,9 +145,10 @@ export type SimulateContractReturnType<
       args
     >,
   ],
-  out resolvedAccount extends Account | undefined = accountOverride extends
+  out resolvedAccount extends
     | Account
-    | Address
+    | null
+    | undefined = accountOverride extends Account | Address | null
     ? ParseAccount<accountOverride>
     : account,
 > = {
@@ -177,7 +179,7 @@ export type SimulateContractReturnType<
         args
       > & {
         chain: DeriveChain<chain, chainOverride>
-      } & (resolvedAccount extends Account
+      } & (resolvedAccount extends Account | null
         ? { account: resolvedAccount }
         : { account?: undefined })
   >
@@ -231,7 +233,7 @@ export async function simulateContract<
     functionName
   >,
   chainOverride extends Chain | undefined = undefined,
-  accountOverride extends Account | Address | undefined = undefined,
+  accountOverride extends Account | Address | null | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
   parameters: SimulateContractParameters<

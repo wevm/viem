@@ -405,11 +405,11 @@ const { result } = await publicClient.simulateContract({
 
 ### account
 
-- **Type:** `Account | Address`
+- **Type:** `Account | Address | null`
 
 The Account to simulate the contract method from.
 
-Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc). If set to `null`, it is assumed that the transport will handle the filling the sender of the transaction.
 
 ```ts
 const { result } = await publicClient.simulateContract({
