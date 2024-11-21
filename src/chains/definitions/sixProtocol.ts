@@ -9,7 +9,7 @@ export const sixProtocol = /*#__PURE__*/ defineChain({
     symbol: 'SIX',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://sixnet-rpc-evm.sixprotocol.net'],
     },
   },
