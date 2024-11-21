@@ -4,7 +4,7 @@ export const guruTestnet = /*#__PURE__*/ defineChain({
   id: 261,
   name: 'Guru Network Testnet',
   nativeCurrency: {
-    name: 'testGURU',
+    name: 'tGURU Token',
     symbol: 'tGURU',
     decimals: 18,
   },
@@ -16,7 +16,7 @@ export const guruTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Guruscan',
-      url: 'https://scan.gurunetwork.ai',
+      url: 'https://sepolia.gurunetwork.ai',
     },
   },
   testnet: true,
