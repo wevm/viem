@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const gurunetwork = /*#__PURE__*/ defineChain({
+export const guruNetwork = /*#__PURE__*/ defineChain({
   id: 260,
   name: 'Guru Network Mainnet',
   nativeCurrency: {
