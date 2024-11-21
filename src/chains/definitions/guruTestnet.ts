@@ -16,7 +16,7 @@ export const guruTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Guruscan',
-      url: 'https://scan.gurunetwork.ai',
+      url: 'https://sepolia.gurunetwork.ai',
     },
   },
   testnet: true,
