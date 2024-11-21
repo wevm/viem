@@ -9,7 +9,7 @@ export const iSunCoin = /*#__PURE__*/ defineChain({
     symbol: 'ISC',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://mainnet.isuncoin.com'],
     },
   },

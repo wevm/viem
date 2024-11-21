@@ -9,7 +9,7 @@ export const disChain = /*#__PURE__*/ defineChain({
     symbol: 'DIS',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://rpc.dischain.xyz'],
     },
   },
