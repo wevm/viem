@@ -6,7 +6,7 @@
     "./accounts-abstraction": "./account-abstraction/index.ts",
     "./accounts": "./accounts/index.ts",
     "./actions": "./actions/index.ts",
-    "./celo": "./celo/index.ts",
+    "./celo": "./custom/celo/index.ts",
     "./chains": "./chains/index.ts",
     "./chains/utils": "./chains/utils.ts",
     "./ens": "./ens/index.ts",

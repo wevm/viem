@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
-import { getBlock } from '../actions/public/getBlock.js'
-import { getTransaction } from '../actions/public/getTransaction.js'
-import { celo } from '../chains/index.js'
-import { createPublicClient } from '../clients/createPublicClient.js'
-import { http } from '../clients/transports/http.js'
+import { getBlock } from '../../actions/public/getBlock.js'
+import { getTransaction } from '../../actions/public/getTransaction.js'
+import { celo } from '../../chains/index.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { http } from '../../clients/transports/http.js'
 
 describe('block', () => {
   test('formatter', () => {

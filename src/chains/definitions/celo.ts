@@ -1,4 +1,4 @@
-import { chainConfig } from '../../celo/chainConfig.js'
+import { chainConfig } from '../../custom/celo/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const celo = /*#__PURE__*/ defineChain({

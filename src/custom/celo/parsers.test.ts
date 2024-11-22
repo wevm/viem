@@ -7,7 +7,7 @@ import {
   parseTransaction as parseTransaction_,
   serializeTransaction as serializeTransaction_,
   toRlp,
-} from '../index.js'
+} from '../../index.js'
 import { parseTransaction } from './parsers.js'
 import { serializeTransaction } from './serializers.js'
 import type { TransactionSerializableCIP64 } from './types.js'

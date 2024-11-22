@@ -489,7 +489,7 @@ export type {
   assertTransactionCIP64 as assertTransactionCIP64Celo,
   serializeTransaction as serializeTransactionCelo,
   serializers as serializersCelo,
-} from '../celo/serializers.js'
+} from '../custom/celo/serializers.js'
 export type {
   CeloBlock,
   CeloRpcBlock,
@@ -510,7 +510,7 @@ export type {
   TransactionSerializableCIP64,
   TransactionSerializedCIP42,
   TransactionSerializedCIP64,
-} from '../celo/types.js'
+} from '../custom/celo/types.js'
 export type {
   SerializeTransactionDepositReturnType,
   SerializeTransactionErrorType,
