@@ -6,13 +6,13 @@ export const thunderTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: '5ire Token', symbol: '5IRE', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc-testnet.5ire.network'],
+      http: ['https://rpc.testnet.5ire.network'],
     },
   },
   blockExplorers: {
     default: {
-      name: '5ireChain Explorer',
-      url: 'https://explorer.5ire.network',
+      name: '5ireChain Thunder Explorer',
+      url: 'https://testnet.5irescan.io/',
     },
   },
   testnet: true,

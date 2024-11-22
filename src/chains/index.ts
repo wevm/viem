@@ -139,6 +139,7 @@ export { fibo } from './definitions/fibo.js'
 export { filecoin } from './definitions/filecoin.js'
 export { filecoinCalibration } from './definitions/filecoinCalibration.js'
 export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
+export { fireChain } from './definitions/5ireChain.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
 /** @deprecated */
