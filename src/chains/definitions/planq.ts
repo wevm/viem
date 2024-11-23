@@ -9,7 +9,7 @@ export const planq = /*#__PURE__*/ defineChain({
     symbol: 'PLQ',
   },
   rpcUrls: {
-    default: { http: ['https://planq-rpc.nodies.app'] },
+    default: { http: ['https://evm-rpc.planq.network'] },
   },
   blockExplorers: {
     default: {
