@@ -9,7 +9,7 @@ export const rei = /*#__PURE__*/ defineChain({
     symbol: 'REI',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://rpc.rei.network'],
       webSocket: ['wss://rpc.rei.network'],
     },
