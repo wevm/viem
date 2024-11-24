@@ -1,5 +1,17 @@
 # viem
 
+## 2.21.50
+
+### Patch Changes
+
+- [#3045](https://github.com/wevm/viem/pull/3045) [`dd0ae9cd98024f45f7afb2f4bf0c434ce3b2bb09`](https://github.com/wevm/viem/commit/dd0ae9cd98024f45f7afb2f4bf0c434ce3b2bb09) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added REI Mainnet.
+
+- [#3048](https://github.com/wevm/viem/pull/3048) [`a66b43df8b93b960b3ca60c5477ea2785702a2a9`](https://github.com/wevm/viem/commit/a66b43df8b93b960b3ca60c5477ea2785702a2a9) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Planq Mainnet.
+
+- [`d98795c45cbc20bf6525001bd7d73d90e5352645`](https://github.com/wevm/viem/commit/d98795c45cbc20bf6525001bd7d73d90e5352645) Thanks [@jxom](https://github.com/jxom)! - Added 5ireChain.
+
+- [#3050](https://github.com/wevm/viem/pull/3050) [`ac24ad93a42430ad364fa7cfaed2e3a59fb0600d`](https://github.com/wevm/viem/commit/ac24ad93a42430ad364fa7cfaed2e3a59fb0600d) Thanks [@pk-850](https://github.com/pk-850)! - Added Multicall address to Velas EVM Mainnet.
+
 ## 2.21.49
 
 ### Patch Changes
