@@ -15,5 +15,11 @@ export const velas = /*#__PURE__*/ defineChain({
       url: 'https://evmexplorer.velas.com',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 55883577,
+    },
+  },
   testnet: false,
 })
