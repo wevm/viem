@@ -477,6 +477,9 @@ export {
   zksyncInMemoryNode as zkSyncInMemoryNode,
   zksyncInMemoryNode,
 } from './definitions/zksyncInMemoryNode.js'
+export { zksyncLocalCustomHyperchain } from './definitions/zksyncLocalCustomHyperchain.js'
+export { zksyncLocalHyperchain } from './definitions/zksyncLocalHyperchain.js'
+export { zksyncLocalHyperchainL1 } from './definitions/zksyncLocalHyperchainL1.js'
 export {
   /** @deprecated Use `zksync` instead */
   zksyncLocalNode as zkSyncLocalNode,
