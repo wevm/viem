@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add bool beta mainnet
+Added Bool Beta Mainnet.
