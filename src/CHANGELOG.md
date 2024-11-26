@@ -1,5 +1,19 @@
 # viem
 
+## 2.21.51
+
+### Patch Changes
+
+- [#3056](https://github.com/wevm/viem/pull/3056) [`dffc56114cbc6f0d5bcf8287dd109e0d3244ca81`](https://github.com/wevm/viem/commit/dffc56114cbc6f0d5bcf8287dd109e0d3244ca81) Thanks [@stonega](https://github.com/stonega)! - Added Bool Beta Mainnet.
+
+- [#3062](https://github.com/wevm/viem/pull/3062) [`5ab60e37617e6296e93319f6ffda4b0783d1a853`](https://github.com/wevm/viem/commit/5ab60e37617e6296e93319f6ffda4b0783d1a853) Thanks [@jxom](https://github.com/jxom)! - **Experimental (EIP-7702):** Added `prepareAuthorization`.
+
+- [`2498543a3f165517ae649010a1cb439ff9267637`](https://github.com/wevm/viem/commit/2498543a3f165517ae649010a1cb439ff9267637) Thanks [@jxom](https://github.com/jxom)! - Added Sonic Testnet.
+
+- [#3055](https://github.com/wevm/viem/pull/3055) [`a39c279af93faaa4b1afd61581b811aaa1da7456`](https://github.com/wevm/viem/commit/a39c279af93faaa4b1afd61581b811aaa1da7456) Thanks [@qi-0826](https://github.com/qi-0826)! - Added WorldLand Mainnet.
+
+- [#3053](https://github.com/wevm/viem/pull/3053) [`e135e9fd966fce6791a6eee1e59fe7bdae7be73b`](https://github.com/wevm/viem/commit/e135e9fd966fce6791a6eee1e59fe7bdae7be73b) Thanks [@qi-0826](https://github.com/qi-0826)! - Added SwissDLT Mainnet.
+
 ## 2.21.50
 
 ### Patch Changes
