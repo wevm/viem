@@ -40,7 +40,7 @@ export type EstimateInitiateWithdrawalGasParameters<
   GetAccountParameter<account, Account | Address> &
   GetChainParameter<chain, chainOverride> & {
     /** Gas limit for transaction execution on the L2. */
-    gas?: bigint | null | undefined
+    gas?: bigint | undefined
     /**
      * Withdrawal request.
      * Supplied to the L2ToL1MessagePasser `initiateWithdrawal` method.
@@ -102,11 +102,10 @@ export async function estimateInitiateWithdrawalGas<
     request: { data = '0x', gas: l1Gas, to, value },
   } = parameters
 
-  return estimateContractGas(client, {
+  const params = {
     account,
     abi: l2ToL1MessagePasserAbi,
     address: contracts.l2ToL1MessagePasser.address,
-    chain,
     functionName: 'initiateWithdrawal',
     args: [to, l1Gas, data],
     gas,
@@ -114,5 +113,13 @@ export async function estimateInitiateWithdrawalGas<
     maxPriorityFeePerGas,
     nonce,
     value,
-  } as EstimateContractGasParameters)
+    // TODO: Not sure `chain` is necessary since it's not used downstream
+    // in `estimateContractGas` or `estimateGas`
+    // @ts-ignore
+    chain,
+  } satisfies EstimateContractGasParameters<
+    typeof l2ToL1MessagePasserAbi,
+    'initiateWithdrawal'
+  >
+  return estimateContractGas(client, params as any)
 }

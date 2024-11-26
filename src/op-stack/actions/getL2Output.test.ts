@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest'
-import { anvilSepolia } from '../../../test/src/anvil.js'
-import { mainnetClient } from '../../../test/src/utils.js'
+import { anvilMainnet, anvilSepolia } from '../../../test/src/anvil.js'
 import { base, optimismSepolia } from '../../op-stack/chains.js'
 import { getL2Output } from './getL2Output.js'
 
+const client = anvilMainnet.getClient()
 const sepoliaClient = anvilSepolia.getClient()
 
 test('default', async () => {
-  const output = await getL2Output(mainnetClient, {
+  const output = await getL2Output(client, {
     l2BlockNumber: 2725977n,
     targetChain: base,
   })

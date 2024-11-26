@@ -17,6 +17,7 @@ export const immutableZkEvm = /*#__PURE__*/ defineChain({
     default: {
       name: 'Immutable Explorer',
       url: 'https://explorer.immutable.com',
+      apiUrl: 'https://explorer.immutable.com/api',
     },
   },
   contracts: {

@@ -1,10 +1,10 @@
 ---
-description: Setting up your zkSync Viem Client
+description: Setting up your ZKsync Viem Client
 ---
 
 # Client
 
-To use the zkSync functionality of Viem, you must extend your existing (or new) Viem Client with zkSync Actions.
+To use the ZKsync functionality of Viem, you must extend your existing (or new) Viem Client with ZKsync Actions.
 
 ## Usage
 
@@ -12,16 +12,16 @@ To use the zkSync functionality of Viem, you must extend your existing (or new) 
 import 'viem/window'
 // ---cut---
 import { createPublicClient, createWalletClient, custom, http } from 'viem'
-import { zkSync } from 'viem/chains'
+import { zksync } from 'viem/chains'
 import { eip712WalletActions } from 'viem/zksync'
  
 const walletClient = createWalletClient({
-  chain: zkSync,
+  chain: zksync,
   transport: custom(window.ethereum!),
 }).extend(eip712WalletActions()) // [!code hl]
 
 const publicClient = createPublicClient({
-  chain: zkSync,
+  chain: zksync,
   transport: http()
 })
 ```
@@ -30,7 +30,7 @@ const publicClient = createPublicClient({
 
 ### `eip712WalletActions`
 
-A suite of [Wallet Actions](/zksync/actions/sendTransaction) for suited for development with zkSync chains.
+A suite of [Wallet Actions](/zksync/actions/sendTransaction) for suited for development with ZKsync chains.
 
 ```ts twoslash
 import { eip712WalletActions } from 'viem/zksync'

@@ -6,6 +6,7 @@ import {
 } from '../../errors/request.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
+import type { MaybePromise } from '../../types/utils.js'
 import {
   type WithTimeoutErrorType,
   withTimeout,
@@ -17,7 +18,14 @@ export type HttpRpcClientOptions = {
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
   /** A callback to handle the request. */
-  onRequest?: ((request: Request) => Promise<void> | void) | undefined
+  onRequest?:
+    | ((
+        request: Request,
+        init: RequestInit,
+      ) => MaybePromise<
+        void | undefined | (RequestInit & { url?: string | undefined })
+      >)
+    | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
   /** The timeout (in ms) for the request. */
@@ -25,14 +33,21 @@ export type HttpRpcClientOptions = {
 }
 
 export type HttpRequestParameters<
-  TBody extends RpcRequest | RpcRequest[] = RpcRequest,
+  body extends RpcRequest | RpcRequest[] = RpcRequest,
 > = {
   /** The RPC request body. */
-  body: TBody
+  body: body
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
   /** A callback to handle the response. */
-  onRequest?: ((request: Request) => Promise<void> | void) | undefined
+  onRequest?:
+    | ((
+        request: Request,
+        init: RequestInit,
+      ) => MaybePromise<
+        void | undefined | (RequestInit & { url?: string | undefined })
+      >)
+    | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
   /** The timeout (in ms) for the request. */
@@ -40,8 +55,8 @@ export type HttpRequestParameters<
 }
 
 export type HttpRequestReturnType<
-  TBody extends RpcRequest | RpcRequest[] = RpcRequest,
-> = TBody extends RpcRequest[] ? RpcResponse[] : RpcResponse
+  body extends RpcRequest | RpcRequest[] = RpcRequest,
+> = body extends RpcRequest[] ? RpcResponse[] : RpcResponse
 
 export type HttpRequestErrorType =
   | HttpRequestErrorType_
@@ -50,9 +65,9 @@ export type HttpRequestErrorType =
   | ErrorType
 
 export type HttpRpcClient = {
-  request<TBody extends RpcRequest | RpcRequest[]>(
-    params: HttpRequestParameters<TBody>,
-  ): Promise<HttpRequestReturnType<TBody>>
+  request<body extends RpcRequest | RpcRequest[]>(
+    params: HttpRequestParameters<body>,
+  ): Promise<HttpRequestReturnType<body>>
 }
 
 export function getHttpRpcClient(
@@ -94,15 +109,15 @@ export function getHttpRpcClient(
                     ...body,
                   }),
               headers: {
-                ...headers,
                 'Content-Type': 'application/json',
+                ...headers,
               },
               method: method || 'POST',
               signal: signal_ || (timeout > 0 ? signal : null),
             }
             const request = new Request(url, init)
-            if (onRequest) await onRequest(request)
-            const response = await fetch(url, init)
+            const args = (await onRequest?.(request, init)) ?? { ...init, url }
+            const response = await fetch(args.url ?? url, args)
             return response
           },
           {
@@ -121,7 +136,12 @@ export function getHttpRpcClient(
           data = await response.json()
         else {
           data = await response.text()
-          data = JSON.parse(data || '{}')
+          try {
+            data = JSON.parse(data || '{}')
+          } catch (err) {
+            if (response.ok) throw err
+            data = { error: data }
+          }
         }
 
         if (!response.ok) {
@@ -140,7 +160,7 @@ export function getHttpRpcClient(
         if (err instanceof TimeoutError) throw err
         throw new HttpRequestError({
           body,
-          details: (err as Error).message,
+          cause: err as Error,
           url,
         })
       }

@@ -17,7 +17,7 @@ import {
   formatTransaction,
 } from '../../utils/formatters/transaction.js'
 
-export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
+export type GetTransactionParameters<blockTag extends BlockTag = 'latest'> =
   | {
       /** The block hash */
       blockHash: Hash
@@ -40,7 +40,7 @@ export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
       blockHash?: undefined
       blockNumber?: undefined
       /** The block tag. */
-      blockTag: TBlockTag | BlockTag
+      blockTag: blockTag | BlockTag
       hash?: undefined
       /** The index of the transaction on the block. */
       index: number
@@ -55,9 +55,9 @@ export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
     }
 
 export type GetTransactionReturnType<
-  TChain extends Chain | undefined = undefined,
-  TBlockTag extends BlockTag = 'latest',
-> = Prettify<FormattedTransaction<TChain, TBlockTag>>
+  chain extends Chain | undefined = undefined,
+  blockTag extends BlockTag = 'latest',
+> = Prettify<FormattedTransaction<chain, blockTag>>
 
 export type GetTransactionErrorType =
   | NumberToHexErrorType
@@ -68,7 +68,7 @@ export type GetTransactionErrorType =
  * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash or block identifier.
  *
  * - Docs: https://viem.sh/docs/actions/public/getTransaction
- * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
+ * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_fetching-transactions
  * - JSON-RPC Methods: [`eth_getTransactionByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionByHash)
  *
  * @param client - Client to use
@@ -89,18 +89,18 @@ export type GetTransactionErrorType =
  * })
  */
 export async function getTransaction<
-  TChain extends Chain | undefined,
-  TBlockTag extends BlockTag = 'latest',
+  chain extends Chain | undefined,
+  blockTag extends BlockTag = 'latest',
 >(
-  client: Client<Transport, TChain>,
+  client: Client<Transport, chain>,
   {
     blockHash,
     blockNumber,
     blockTag: blockTag_,
     hash,
     index,
-  }: GetTransactionParameters<TBlockTag>,
-): Promise<GetTransactionReturnType<TChain, TBlockTag>> {
+  }: GetTransactionParameters<blockTag>,
+): Promise<GetTransactionReturnType<chain, blockTag>> {
   const blockTag = blockTag_ || 'latest'
 
   const blockNumberHex =
@@ -108,20 +108,29 @@ export async function getTransaction<
 
   let transaction: RpcTransaction | null = null
   if (hash) {
-    transaction = await client.request({
-      method: 'eth_getTransactionByHash',
-      params: [hash],
-    })
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionByHash',
+        params: [hash],
+      },
+      { dedupe: true },
+    )
   } else if (blockHash) {
-    transaction = await client.request({
-      method: 'eth_getTransactionByBlockHashAndIndex',
-      params: [blockHash, numberToHex(index)],
-    })
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionByBlockHashAndIndex',
+        params: [blockHash, numberToHex(index)],
+      },
+      { dedupe: true },
+    )
   } else if (blockNumberHex || blockTag) {
-    transaction = await client.request({
-      method: 'eth_getTransactionByBlockNumberAndIndex',
-      params: [blockNumberHex || blockTag, numberToHex(index)],
-    })
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionByBlockNumberAndIndex',
+        params: [blockNumberHex || blockTag, numberToHex(index)],
+      },
+      { dedupe: Boolean(blockNumberHex) },
+    )
   }
 
   if (!transaction)

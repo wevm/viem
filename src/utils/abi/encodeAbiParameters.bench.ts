@@ -150,74 +150,66 @@ describe('Seaport function', () => {
       [
         {
           components: [
-            { internalType: 'address', name: 'offerer', type: 'address' },
-            { internalType: 'address', name: 'zone', type: 'address' },
+            { name: 'offerer', type: 'address' },
+            { name: 'zone', type: 'address' },
             {
               components: [
                 {
-                  internalType: 'enum ItemType',
                   name: 'itemType',
                   type: 'uint8',
                 },
-                { internalType: 'address', name: 'token', type: 'address' },
+                { name: 'token', type: 'address' },
                 {
-                  internalType: 'uint256',
                   name: 'identifierOrCriteria',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'uint256',
                   name: 'startAmount',
                   type: 'uint256',
                 },
-                { internalType: 'uint256', name: 'endAmount', type: 'uint256' },
+                { name: 'endAmount', type: 'uint256' },
               ],
-              internalType: 'struct OfferItem[]',
+
               name: 'offer',
               type: 'tuple[]',
             },
             {
               components: [
                 {
-                  internalType: 'enum ItemType',
                   name: 'itemType',
                   type: 'uint8',
                 },
-                { internalType: 'address', name: 'token', type: 'address' },
+                { name: 'token', type: 'address' },
                 {
-                  internalType: 'uint256',
                   name: 'identifierOrCriteria',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'uint256',
                   name: 'startAmount',
                   type: 'uint256',
                 },
-                { internalType: 'uint256', name: 'endAmount', type: 'uint256' },
+                { name: 'endAmount', type: 'uint256' },
                 {
-                  internalType: 'address payable',
                   name: 'recipient',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ConsiderationItem[]',
+
               name: 'consideration',
               type: 'tuple[]',
             },
             {
-              internalType: 'enum OrderType',
               name: 'orderType',
               type: 'uint8',
             },
-            { internalType: 'uint256', name: 'startTime', type: 'uint256' },
-            { internalType: 'uint256', name: 'endTime', type: 'uint256' },
-            { internalType: 'bytes32', name: 'zoneHash', type: 'bytes32' },
-            { internalType: 'uint256', name: 'salt', type: 'uint256' },
-            { internalType: 'bytes32', name: 'conduitKey', type: 'bytes32' },
-            { internalType: 'uint256', name: 'counter', type: 'uint256' },
+            { name: 'startTime', type: 'uint256' },
+            { name: 'endTime', type: 'uint256' },
+            { name: 'zoneHash', type: 'bytes32' },
+            { name: 'salt', type: 'uint256' },
+            { name: 'conduitKey', type: 'bytes32' },
+            { name: 'counter', type: 'uint256' },
           ],
-          internalType: 'struct OrderComponents[]',
+
           name: 'orders',
           type: 'tuple[]',
         },
@@ -343,74 +335,66 @@ describe('Seaport function', () => {
       [
         {
           components: [
-            { internalType: 'address', name: 'offerer', type: 'address' },
-            { internalType: 'address', name: 'zone', type: 'address' },
+            { name: 'offerer', type: 'address' },
+            { name: 'zone', type: 'address' },
             {
               components: [
                 {
-                  internalType: 'enum ItemType',
                   name: 'itemType',
                   type: 'uint8',
                 },
-                { internalType: 'address', name: 'token', type: 'address' },
+                { name: 'token', type: 'address' },
                 {
-                  internalType: 'uint256',
                   name: 'identifierOrCriteria',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'uint256',
                   name: 'startAmount',
                   type: 'uint256',
                 },
-                { internalType: 'uint256', name: 'endAmount', type: 'uint256' },
+                { name: 'endAmount', type: 'uint256' },
               ],
-              internalType: 'struct OfferItem[]',
+
               name: 'offer',
               type: 'tuple[]',
             },
             {
               components: [
                 {
-                  internalType: 'enum ItemType',
                   name: 'itemType',
                   type: 'uint8',
                 },
-                { internalType: 'address', name: 'token', type: 'address' },
+                { name: 'token', type: 'address' },
                 {
-                  internalType: 'uint256',
                   name: 'identifierOrCriteria',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'uint256',
                   name: 'startAmount',
                   type: 'uint256',
                 },
-                { internalType: 'uint256', name: 'endAmount', type: 'uint256' },
+                { name: 'endAmount', type: 'uint256' },
                 {
-                  internalType: 'address payable',
                   name: 'recipient',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ConsiderationItem[]',
+
               name: 'consideration',
               type: 'tuple[]',
             },
             {
-              internalType: 'enum OrderType',
               name: 'orderType',
               type: 'uint8',
             },
-            { internalType: 'uint256', name: 'startTime', type: 'uint256' },
-            { internalType: 'uint256', name: 'endTime', type: 'uint256' },
-            { internalType: 'bytes32', name: 'zoneHash', type: 'bytes32' },
-            { internalType: 'uint256', name: 'salt', type: 'uint256' },
-            { internalType: 'bytes32', name: 'conduitKey', type: 'bytes32' },
-            { internalType: 'uint256', name: 'counter', type: 'uint256' },
+            { name: 'startTime', type: 'uint256' },
+            { name: 'endTime', type: 'uint256' },
+            { name: 'zoneHash', type: 'bytes32' },
+            { name: 'salt', type: 'uint256' },
+            { name: 'conduitKey', type: 'bytes32' },
+            { name: 'counter', type: 'uint256' },
           ],
-          internalType: 'struct OrderComponents[]',
+
           name: 'orders',
           type: 'tuple[]',
         },

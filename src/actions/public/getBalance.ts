@@ -69,8 +69,8 @@ export type GetBalanceErrorType =
  * })
  * // 10000000000000000000000n (wei)
  */
-export async function getBalance<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getBalance<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { address, blockNumber, blockTag = 'latest' }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined

@@ -88,12 +88,12 @@ export type WalletActionsL2<
  */
 export function walletActionsL2() {
   return <
-    TTransport extends Transport,
-    TChain extends Chain | undefined = Chain | undefined,
-    TAccount extends Account | undefined = Account | undefined,
+    transport extends Transport,
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
   >(
-    client: Client<TTransport, TChain, TAccount>,
-  ): WalletActionsL2<TChain, TAccount> => {
+    client: Client<transport, chain, account>,
+  ): WalletActionsL2<chain, account> => {
     return {
       initiateWithdrawal: (args) => initiateWithdrawal(client, args),
     }

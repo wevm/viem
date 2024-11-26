@@ -1,5 +1,9 @@
 import type { Address } from 'abitype'
 
+import type {
+  AuthorizationList,
+  SignedAuthorizationList,
+} from '../experimental/eip7702/types/authorization.js'
 import type { BlobSidecar } from './eip4844.js'
 import type {
   FeeValuesEIP1559,
@@ -28,6 +32,7 @@ export type TransactionType =
   | 'eip1559'
   | 'eip2930'
   | 'eip4844'
+  | 'eip7702'
   | (string & {})
 
 export type TransactionReceipt<
@@ -117,6 +122,7 @@ export type TransactionLegacy<
 > = Omit<TransactionBase<quantity, index, isPending>, 'yParity'> & {
   /** EIP-2930 Access List. */
   accessList?: undefined
+  authorizationList?: undefined
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId?: index | undefined
@@ -132,6 +138,7 @@ export type TransactionEIP2930<
 > = TransactionBase<quantity, index, isPending> & {
   /** EIP-2930 Access List. */
   accessList: AccessList
+  authorizationList?: undefined
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId: index
@@ -146,6 +153,7 @@ export type TransactionEIP1559<
 > = TransactionBase<quantity, index, isPending> & {
   /** EIP-2930 Access List. */
   accessList: AccessList
+  authorizationList?: undefined
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId: index
@@ -160,12 +168,29 @@ export type TransactionEIP4844<
 > = TransactionBase<quantity, index, isPending> & {
   /** EIP-2930 Access List. */
   accessList: AccessList
+  authorizationList?: undefined
   /** List of versioned blob hashes associated with the transaction's blobs. */
   blobVersionedHashes: readonly Hex[]
   /** Chain ID that this transaction is valid on. */
   chainId: index
   type: type
 } & FeeValuesEIP4844<quantity>
+
+export type TransactionEIP7702<
+  quantity = bigint,
+  index = number,
+  isPending extends boolean = boolean,
+  type = 'eip7702',
+> = TransactionBase<quantity, index, isPending> & {
+  /** EIP-2930 Access List. */
+  accessList: AccessList
+  /** Authorization list for the transaction. */
+  authorizationList: SignedAuthorizationList
+  blobVersionedHashes?: undefined
+  /** Chain ID that this transaction is valid on. */
+  chainId: index
+  type: type
+} & FeeValuesEIP1559<quantity>
 
 export type Transaction<
   quantity = bigint,
@@ -176,23 +201,30 @@ export type Transaction<
   | TransactionEIP2930<quantity, index, isPending>
   | TransactionEIP1559<quantity, index, isPending>
   | TransactionEIP4844<quantity, index, isPending>
+  | TransactionEIP7702<quantity, index, isPending>
 >
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Request
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-export type TransactionRequestBase<quantity = bigint, index = number> = {
+export type TransactionRequestBase<
+  quantity = bigint,
+  index = number,
+  type = string,
+> = {
   /** Contract code or a hashed method call with encoded args */
   data?: Hex | undefined
   /** Transaction sender */
-  from: Address
+  from?: Address | undefined
   /** Gas provided for transaction execution */
   gas?: quantity | undefined
   /** Unique number identifying this transaction */
   nonce?: index | undefined
   /** Transaction recipient */
   to?: Address | null | undefined
+  /** Transaction type */
+  type?: type | undefined
   /** Value in wei sent with this transaction */
   value?: quantity | undefined
 }
@@ -201,52 +233,57 @@ export type TransactionRequestLegacy<
   quantity = bigint,
   index = number,
   type = 'legacy',
-> = TransactionRequestBase<quantity, index> & {
-  accessList?: undefined
-  blobs?: undefined
-  type?: type | undefined
-} & ExactPartial<FeeValuesLegacy<quantity>>
+> = TransactionRequestBase<quantity, index, type> &
+  ExactPartial<FeeValuesLegacy<quantity>>
 
 export type TransactionRequestEIP2930<
   quantity = bigint,
   index = number,
   type = 'eip2930',
-> = TransactionRequestBase<quantity, index> & {
-  accessList?: AccessList | undefined
-  blobs?: undefined
-  type?: type | undefined
-} & ExactPartial<FeeValuesLegacy<quantity>>
+> = TransactionRequestBase<quantity, index, type> &
+  ExactPartial<FeeValuesLegacy<quantity>> & {
+    accessList?: AccessList | undefined
+  }
 
 export type TransactionRequestEIP1559<
   quantity = bigint,
   index = number,
   type = 'eip1559',
-> = TransactionRequestBase<quantity, index> &
+> = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    blobs?: undefined
-    type?: type | undefined
   }
 
 export type TransactionRequestEIP4844<
   quantity = bigint,
   index = number,
   type = 'eip4844',
-> = RequiredBy<TransactionRequestBase<quantity, index>, 'to'> & {
-  accessList?: AccessList | undefined
-  /** The blobs associated with this transaction. */
-  blobs: readonly Hex[] | readonly ByteArray[]
-  blobVersionedHashes?: readonly Hex[] | undefined
-  kzg?: Kzg | undefined
-  sidecars?: readonly BlobSidecar<Hex>[] | undefined
-  type?: type | undefined
-} & RequiredBy<ExactPartial<FeeValuesEIP4844<quantity>>, 'maxFeePerBlobGas'>
+> = RequiredBy<TransactionRequestBase<quantity, index, type>, 'to'> &
+  RequiredBy<ExactPartial<FeeValuesEIP4844<quantity>>, 'maxFeePerBlobGas'> & {
+    accessList?: AccessList | undefined
+    /** The blobs associated with this transaction. */
+    blobs: readonly Hex[] | readonly ByteArray[]
+    blobVersionedHashes?: readonly Hex[] | undefined
+    kzg?: Kzg | undefined
+    sidecars?: readonly BlobSidecar<Hex>[] | undefined
+  }
+
+export type TransactionRequestEIP7702<
+  quantity = bigint,
+  index = number,
+  type = 'eip7702',
+> = TransactionRequestBase<quantity, index, type> &
+  ExactPartial<FeeValuesEIP1559<quantity>> & {
+    accessList?: AccessList | undefined
+    authorizationList?: AuthorizationList<index, boolean> | undefined
+  }
 
 export type TransactionRequest<quantity = bigint, index = number> = OneOf<
   | TransactionRequestLegacy<quantity, index>
   | TransactionRequestEIP2930<quantity, index>
   | TransactionRequestEIP1559<quantity, index>
   | TransactionRequestEIP4844<quantity, index>
+  | TransactionRequestEIP7702<quantity, index>
 >
 
 export type TransactionRequestGeneric<
@@ -270,6 +307,7 @@ export type TransactionRequestGeneric<
 export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
 export type TransactionSerializedEIP4844 = `0x03${string}`
+export type TransactionSerializedEIP7702 = `0x04${string}`
 export type TransactionSerializedLegacy = Branded<`0x${string}`, 'legacy'>
 export type TransactionSerializedGeneric = `0x${string}`
 export type TransactionSerialized<
@@ -278,6 +316,7 @@ export type TransactionSerialized<
     | (type extends 'eip1559' ? TransactionSerializedEIP1559 : never)
     | (type extends 'eip2930' ? TransactionSerializedEIP2930 : never)
     | (type extends 'eip4844' ? TransactionSerializedEIP4844 : never)
+    | (type extends 'eip7702' ? TransactionSerializedEIP7702 : never)
     | (type extends 'legacy' ? TransactionSerializedLegacy : never),
 > = IsNever<result> extends true ? TransactionSerializedGeneric : result
 
@@ -290,49 +329,45 @@ export type TransactionSerializableBase<
 export type TransactionSerializableLegacy<
   quantity = bigint,
   index = number,
-> = TransactionSerializableBase<quantity, index> & {
-  accessList?: undefined
-  blobs?: undefined
-  blobVersionedHashes?: undefined
-  chainId?: number | undefined
-  type?: 'legacy' | undefined
-} & ExactPartial<FeeValuesLegacy<quantity>>
+> = TransactionSerializableBase<quantity, index> &
+  ExactPartial<FeeValuesLegacy<quantity>> & {
+    chainId?: number | undefined
+    type?: 'legacy' | undefined
+  }
 
 export type TransactionSerializableEIP2930<
   quantity = bigint,
   index = number,
-> = TransactionSerializableBase<quantity, index> & {
-  accessList?: AccessList | undefined
-  blobs?: undefined
-  blobVersionedHashes?: undefined
-  chainId: number
-  type?: 'eip2930' | undefined
-  yParity?: number | undefined
-} & ExactPartial<FeeValuesLegacy<quantity>>
+> = TransactionSerializableBase<quantity, index> &
+  ExactPartial<FeeValuesLegacy<quantity>> & {
+    accessList?: AccessList | undefined
+    chainId: number
+    type?: 'eip2930' | undefined
+    yParity?: number | undefined
+  }
 
 export type TransactionSerializableEIP1559<
   quantity = bigint,
   index = number,
-> = TransactionSerializableBase<quantity, index> & {
-  accessList?: AccessList | undefined
-  blobs?: undefined
-  blobVersionedHashes?: undefined
-  chainId: number
-  type?: 'eip1559' | undefined
-  yParity?: number | undefined
-} & ExactPartial<FeeValuesEIP1559<quantity>>
+> = TransactionSerializableBase<quantity, index> &
+  ExactPartial<FeeValuesEIP1559<quantity>> & {
+    accessList?: AccessList | undefined
+    chainId: number
+    type?: 'eip1559' | undefined
+    yParity?: number | undefined
+  }
 
 export type TransactionSerializableEIP4844<
   quantity = bigint,
   index = number,
-> = TransactionSerializableBase<quantity, index> & {
-  accessList?: AccessList | undefined
-  chainId: number
-  sidecars?: readonly BlobSidecar<Hex>[] | false | undefined
-  type?: 'eip4844' | undefined
-  yParity?: number | undefined
-} & ExactPartial<FeeValuesEIP4844<quantity>> &
-  OneOf<
+> = TransactionSerializableBase<quantity, index> &
+  ExactPartial<FeeValuesEIP4844<quantity>> & {
+    accessList?: AccessList | undefined
+    chainId: number
+    sidecars?: readonly BlobSidecar<Hex>[] | false | undefined
+    type?: 'eip4844' | undefined
+    yParity?: number | undefined
+  } & OneOf<
     | {
         blobs?: readonly Hex[] | readonly ByteArray[] | undefined
         blobVersionedHashes: readonly Hex[]
@@ -344,11 +379,24 @@ export type TransactionSerializableEIP4844<
       }
   >
 
+export type TransactionSerializableEIP7702<
+  quantity = bigint,
+  index = number,
+> = TransactionSerializableBase<quantity, index> &
+  ExactPartial<FeeValuesEIP1559<quantity>> & {
+    accessList?: AccessList | undefined
+    authorizationList: SignedAuthorizationList
+    chainId: number
+    type?: 'eip7702' | undefined
+    yParity?: number | undefined
+  }
+
 export type TransactionSerializable<quantity = bigint, index = number> = OneOf<
   | TransactionSerializableLegacy<quantity, index>
   | TransactionSerializableEIP2930<quantity, index>
   | TransactionSerializableEIP1559<quantity, index>
   | TransactionSerializableEIP4844<quantity, index>
+  | TransactionSerializableEIP7702<quantity, index>
 >
 
 export type TransactionSerializableGeneric<
@@ -356,6 +404,7 @@ export type TransactionSerializableGeneric<
   index = number,
 > = TransactionSerializableBase<quantity, index> & {
   accessList?: AccessList | undefined
+  authorizationList?: AuthorizationList<index, boolean> | undefined
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
   chainId?: number | undefined

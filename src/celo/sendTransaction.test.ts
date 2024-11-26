@@ -29,14 +29,14 @@ describe('sendTransaction()', () => {
     }
 
     if (request.method === 'eth_maxPriorityFeePerGas') {
-      return 1n
+      return 602286n
     }
 
     if (
       request.method === 'eth_gasPrice' &&
       (request.params as string[])[0] === feeCurrencyAddress
     ) {
-      return 2n
+      return 15057755162n
     }
 
     if (request.method === 'eth_estimateGas') {
@@ -99,7 +99,7 @@ describe('sendTransaction()', () => {
     expect(transportRequestMock).toHaveBeenLastCalledWith({
       method: 'eth_sendRawTransaction',
       params: [
-        '0x7bf87782a4ec8001020194f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c0940000000000000000000000000000000000000fee80a0a3163f9ff91200f4c8000f0217d85d16c329c2f38d48a7b4b70119989e475e57a0555fd5b2a6eac95426e33cd07ca5fec121ad46194611a013001f76bbc4b33136',
+        '0x7bf87f82a4ec80830930ae8504350cec000194f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c0940000000000000000000000000000000000000fee80a0b61a83b7fe73e24f223f563447cdb69f6dedc7f7f7b2acc4e41f2e57143ccd57a03ce0bcc81c026ff0eb17274940748e23250fe988f71370eba1e59e43557835b3',
       ],
     })
   })

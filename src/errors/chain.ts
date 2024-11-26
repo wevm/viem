@@ -7,7 +7,6 @@ export type ChainDoesNotSupportContractErrorType =
     name: 'ChainDoesNotSupportContract'
   }
 export class ChainDoesNotSupportContract extends BaseError {
-  override name = 'ChainDoesNotSupportContract'
   constructor({
     blockNumber,
     chain,
@@ -32,6 +31,7 @@ export class ChainDoesNotSupportContract extends BaseError {
                 `- The chain does not have the contract "${contract.name}" configured.`,
               ]),
         ],
+        name: 'ChainDoesNotSupportContract',
       },
     )
   }
@@ -41,8 +41,6 @@ export type ChainMismatchErrorType = ChainMismatchError & {
   name: 'ChainMismatchError'
 }
 export class ChainMismatchError extends BaseError {
-  override name = 'ChainMismatchError'
-
   constructor({
     chain,
     currentChainId,
@@ -57,6 +55,7 @@ export class ChainMismatchError extends BaseError {
           `Current Chain ID:  ${currentChainId}`,
           `Expected Chain ID: ${chain.id} – ${chain.name}`,
         ],
+        name: 'ChainMismatchError',
       },
     )
   }
@@ -66,14 +65,15 @@ export type ChainNotFoundErrorType = ChainNotFoundError & {
   name: 'ChainNotFoundError'
 }
 export class ChainNotFoundError extends BaseError {
-  override name = 'ChainNotFoundError'
-
   constructor() {
     super(
       [
         'No chain was provided to the request.',
         'Please provide a chain with the `chain` argument on the Action, or by supplying a `chain` to WalletClient.',
       ].join('\n'),
+      {
+        name: 'ChainNotFoundError',
+      },
     )
   }
 }
@@ -83,10 +83,10 @@ export type ClientChainNotConfiguredErrorType =
     name: 'ClientChainNotConfiguredError'
   }
 export class ClientChainNotConfiguredError extends BaseError {
-  override name = 'ClientChainNotConfiguredError'
-
   constructor() {
-    super('No chain was provided to the Client.')
+    super('No chain was provided to the Client.', {
+      name: 'ClientChainNotConfiguredError',
+    })
   }
 }
 
@@ -94,13 +94,12 @@ export type InvalidChainIdErrorType = InvalidChainIdError & {
   name: 'InvalidChainIdError'
 }
 export class InvalidChainIdError extends BaseError {
-  override name = 'InvalidChainIdError'
-
   constructor({ chainId }: { chainId?: number | undefined }) {
     super(
       typeof chainId === 'number'
         ? `Chain ID "${chainId}" is invalid.`
         : 'Chain ID is invalid.',
+      { name: 'InvalidChainIdError' },
     )
   }
 }

@@ -29,6 +29,17 @@ test('args: account - no client account, no account arg', async () => {
   }>()
 })
 
+test('args: account - no client account, nullish account arg', async () => {
+  const result = await simulateContract(client, {
+    ...args,
+    account: null,
+  })
+
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
+    account: null
+  }>()
+})
+
 test('args: account - with client account, no account arg', async () => {
   const result = await simulateContract(clientWithAccount, {
     ...args,
@@ -36,6 +47,17 @@ test('args: account - with client account, no account arg', async () => {
 
   expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
     account: (typeof clientWithAccount)['account']
+  }>()
+})
+
+test('args: account - with client account, nullish account arg', async () => {
+  const result = await simulateContract(clientWithAccount, {
+    ...args,
+    account: null,
+  })
+
+  expectTypeOf<Pick<(typeof result)['request'], 'account'>>().toEqualTypeOf<{
+    account: null
   }>()
 })
 
@@ -265,4 +287,38 @@ test('chain formatters', async () => {
   expectTypeOf(result2.request.feeCurrency).toEqualTypeOf<
     `0x${string}` | undefined
   >()
+})
+
+test('https://github.com/wevm/viem/issues/2531', async () => {
+  const abi = parseAbi([
+    'function safeTransferFrom(address, address, uint256)',
+    'function safeTransferFrom(address, address, uint256, bytes) payable',
+  ])
+
+  const res1 = await simulateContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'safeTransferFrom',
+    args: ['0x', '0x', 123n],
+    // @ts-expect-error
+    value: 123n,
+  })
+  assertType<void>(res1.result)
+  expectTypeOf(res1.request.abi).toEqualTypeOf(
+    parseAbi(['function safeTransferFrom(address, address, uint256)']),
+  )
+
+  const res2 = await simulateContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'safeTransferFrom',
+    args: ['0x', '0x', 123n, '0x'],
+    value: 123n,
+  })
+  assertType<void>(res2.result)
+  expectTypeOf(res2.request.abi).toEqualTypeOf(
+    parseAbi([
+      'function safeTransferFrom(address, address, uint256, bytes) payable',
+    ]),
+  )
 })

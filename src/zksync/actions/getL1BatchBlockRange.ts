@@ -3,7 +3,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
-import type { PublicZkSyncRpcSchema } from '../types/eip1193.js'
+import type { PublicZksyncRpcSchema } from '../types/eip1193.js'
 
 export type GetL1BatchBlockRangeParameters = {
   l1BatchNumber: number
@@ -12,10 +12,10 @@ export type GetL1BatchBlockRangeParameters = {
 export type GetL1BatchBlockRangeReturnParameters = [number, number]
 
 export async function getL1BatchBlockRange<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount, PublicZkSyncRpcSchema>,
+  client: Client<Transport, chain, account, PublicZksyncRpcSchema>,
   parameters: GetL1BatchBlockRangeParameters,
 ): Promise<GetL1BatchBlockRangeReturnParameters> {
   const [number_1, number_2] = await client.request({

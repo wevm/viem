@@ -87,7 +87,7 @@ test('address with primary name that has no resolver - strict', async () => {
       args:             (0x28303030303030303030303030363161643865653139303731303530386138313861653533323563330461646472077265766572736500)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -120,7 +120,7 @@ describe('primary name with resolver that does not support text()', () => {
         args:             (0x28643864613662663236393634616639643765656439653033653533343135643337616139363034350461646472077265766572736500)
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -153,7 +153,7 @@ describe('primary name with non-contract resolver', () => {
         args:             (0x28643864613662663236393634616639643765656439653033653533343135643337616139363034350461646472077265766572736500)
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -246,7 +246,7 @@ describe('universal resolver with generic errors', () => {
         args:             (0x28303030303030303030303030363161643865653139303731303530386138313861653533323563330461646472077265766572736500)
 
       Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -281,7 +281,7 @@ test('universal resolver contract not configured for chain', async () => {
     This could be due to any of the following:
     - The chain does not have the contract "ensUniversalResolver" configured.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -297,7 +297,7 @@ test('universal resolver contract deployed on later block', async () => {
     This could be due to any of the following:
     - The contract "ensUniversalResolver" was not deployed until block 19258213 (current block 14353601).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -316,7 +316,7 @@ test('invalid universal resolver address', async () => {
       args:             (0x28613063663739383831366434623962393836366235333330656561343661313833383266323531650461646472077265766572736500)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

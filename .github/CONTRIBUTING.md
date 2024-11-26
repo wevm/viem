@@ -1,25 +1,24 @@
 # Contributing
 
-Thanks for your interest in contributing to viem! Please take a moment to review this document **before submitting a pull request.**
+Thanks for your interest in contributing to Viem! Please take a moment to review this document **before submitting a pull request.**
 
 If you want to contribute, but aren't sure where to start, you can create a [new discussion](https://github.com/wevm/viem/discussions).
 
 If you are contributing to add a new chain to `viem/chains`, please read the [Chains section](#chains).
 
-> **Note**
->
-> **Please ask first before starting work on any significant new features.**
->
-> It's never a fun experience to have your pull request declined after investing time and effort into a new feature. To avoid this from happening, we request that contributors create a [feature request](https://github.com/wevm/viem/discussions/new?category=ideas) to first discuss any API changes or significant new ideas.
+## Rules
 
-<br>
+1. Significant changes to the API or implementation must be reviewed before a Pull Request is created. Create a [Feature Request](https://github.com/wevm/viem/discussions/new?category=ideas) first to discuss any API changes or new ideas. 
+2. Contributors must be humans, not bots.
+3. Contributor GitHub Accounts must have at least one non-trivial contribution to another repository.
+4. First time contributions must not contain only spelling or grammatical fixes.
 
 ## Basic guide
 
 This guide is intended to help you get started with contributing. By following these steps, you will understand the development process and workflow.
 
 1. [Cloning the repository](#cloning-the-repository)
-2. [Installing Node.js and Bun](#installing-nodejs-and-bun)
+2. [Installing Node.js and pnpm](#installing-nodejs-and-pnpm)
 3. [Installing Foundry](#installing-foundry)
 4. [Installing dependencies](#installing-dependencies)
 5. [Running the test suite](#running-the-test-suite)
@@ -49,21 +48,21 @@ gh repo clone wevm/viem -- --recurse-submodules
 
 ---
 
-### Installing Node.js and Bun
+### Installing Node.js and pnpm
 
-wagmi uses [Bun workspaces](https://bun.sh/docs/install/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **Bun v1 or higher**.
+Viem uses [pnpm workspaces](https://pnpm.io/workspaces) to manage multiple projects. You need to install **Node.js v22 or higher** and **pnpm v9.1.0 or higher**.
 
-You can run the following commands in your terminal to check your local Node.js and Bun versions:
+You can run the following commands in your terminal to check your local Node.js and pnpm versions:
 
 ```bash
 node -v
-bun -v
+pnpm -v
 ```
 
-If the versions are not correct or you don't have Node.js or Bun installed, download and follow their setup instructions:
+If the versions are not correct or you don't have Node.js or pnpm installed, download and follow their setup instructions:
 
 - Install Node.js using [fnm](https://github.com/Schniz/fnm) or from the [official website](https://nodejs.org)
-- Install [Bun](https://bun.sh/docs/installation)
+- Install [pnpm](https://pnpm.io/installation)
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
@@ -73,7 +72,7 @@ If the versions are not correct or you don't have Node.js or Bun installed, down
 
 ### Installing Foundry
 
-viem uses [Foundry](https://book.getfoundry.sh/) for testing. We run a local [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) instance against a forked Ethereum node, where we can also use tools like [Forge](https://book.getfoundry.sh/forge/) to deploy test contracts to it.
+Viem uses [Foundry](https://book.getfoundry.sh/) for testing. We run a local [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) instance against a forked Ethereum node, where we can also use tools like [Forge](https://book.getfoundry.sh/forge/) to deploy test contracts to it.
 
 Install Foundry using the following command:
 
@@ -92,10 +91,10 @@ curl -L https://foundry.paradigm.xyz | bash
 Once in the project's root directory, run the following command to install the project's dependencies:
 
 ```bash
-bun install
+pnpm install
 ```
 
-After the install completes, Bun links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
+After the install completes, pnpm links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
@@ -133,7 +132,7 @@ When adding new features or fixing bugs, it's important to add test cases to cov
 
 ### Writing documentation
 
-Documentation is crucial to helping developers of all experience levels use viem. viem uses [Vocs](https://vocs.dev) and Markdown for the documentation site (located at [`site`](../site)). To start the site in dev mode, run:
+Documentation is crucial to helping developers of all experience levels use Viem. Viem uses [Vocs](https://vocs.dev) and Markdown for the documentation site (located at [`site`](../site)). To start the site in dev mode, run:
 
 ```bash
 pnpm docs:dev 
@@ -183,7 +182,7 @@ If your PR is making changes to an area that already has a changeset (e.g. there
 <br>
 
 <div>
-  ✅ Now you're ready to contribute to viem!
+  ✅ Now you're ready to contribute to Viem!
 </div>
 
 <div align="right">
@@ -312,7 +311,7 @@ Add a `patch` changeset with the description `"Added <your chain here> chain."`.
 ```diff
 > pnpm changeset
 
-What kind of change is this for viem?
+What kind of change is this for Viem?
 + patch
 
 Please enter a summary for this change

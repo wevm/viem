@@ -38,6 +38,7 @@ import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
+  TransactionRequestEIP7702,
   TransactionRequestLegacy,
   TransactionSerializable,
 } from '../../types/transaction.js'
@@ -54,6 +55,7 @@ import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVers
 import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -63,7 +65,7 @@ import {
   type GetTransactionType,
   getTransactionType,
 } from '../../utils/transaction/getTransactionType.js'
-import { getChainId } from '../public/getChainId.js'
+import { getChainId as getChainId_ } from '../public/getChainId.js'
 
 export const defaultParameters = [
   'blobVersionedHashes',
@@ -95,6 +97,15 @@ export type PrepareTransactionRequestRequest<
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
   GetTransactionRequestKzgParameter & {
+    /**
+     * Nonce manager to use for the transaction request.
+     */
+    nonceManager?: NonceManager | undefined
+    /**
+     * Parameters to prepare for the transaction request.
+     *
+     * @default ['blobVersionedHashes', 'chainId', 'fees', 'gas', 'nonce', 'type']
+     */
     parameters?: readonly PrepareTransactionRequestParameterType[] | undefined
   }
 
@@ -111,7 +122,7 @@ export type PrepareTransactionRequestParameters<
     chainOverride
   > = PrepareTransactionRequestRequest<chain, chainOverride>,
 > = request &
-  GetAccountParameter<account, accountOverride, false> &
+  GetAccountParameter<account, accountOverride, false, true> &
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request> & { chainId?: number | undefined }
 
@@ -142,7 +153,8 @@ export type PrepareTransactionRequestReturnType<
     | (_transactionType extends 'legacy' ? TransactionRequestLegacy : never)
     | (_transactionType extends 'eip1559' ? TransactionRequestEIP1559 : never)
     | (_transactionType extends 'eip2930' ? TransactionRequestEIP2930 : never)
-    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never),
+    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never)
+    | (_transactionType extends 'eip7702' ? TransactionRequestEIP7702 : never),
 > = Prettify<
   UnionRequiredBy<
     Extract<
@@ -243,14 +255,14 @@ export async function prepareTransactionRequest<
     account: account_ = client.account,
     blobs,
     chain,
-    chainId,
     gas,
     kzg,
     nonce,
+    nonceManager,
     parameters = defaultParameters,
     type,
   } = args
-  const account = account_ ? parseAccount(account_) : undefined
+  const account = account_ ? parseAccount(account_) : account_
 
   const request = { ...args, ...(account ? { from: account?.address } : {}) }
 
@@ -263,6 +275,16 @@ export async function prepareTransactionRequest<
       'getBlock',
     )({ blockTag: 'latest' })
     return block
+  }
+
+  let chainId: number | undefined
+  async function getChainId(): Promise<number> {
+    if (chainId) return chainId
+    if (chain) return chain.id
+    if (typeof args.chainId !== 'undefined') return args.chainId
+    const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
+    chainId = chainId_
+    return chainId
   }
 
   if (
@@ -292,21 +314,27 @@ export async function prepareTransactionRequest<
     }
   }
 
-  if (parameters.includes('chainId')) {
-    if (chain) request.chainId = chain.id
-    else if (typeof chainId !== 'undefined') request.chainId = chainId
-    else request.chainId = await getAction(client, getChainId, 'getChainId')({})
-  }
+  if (parameters.includes('chainId')) request.chainId = await getChainId()
 
-  if (parameters.includes('nonce') && typeof nonce === 'undefined' && account)
-    request.nonce = await getAction(
-      client,
-      getTransactionCount,
-      'getTransactionCount',
-    )({
-      address: account.address,
-      blockTag: 'pending',
-    })
+  if (parameters.includes('nonce') && typeof nonce === 'undefined' && account) {
+    if (nonceManager) {
+      const chainId = await getChainId()
+      request.nonce = await nonceManager.consume({
+        address: account.address,
+        chainId,
+        client,
+      })
+    } else {
+      request.nonce = await getAction(
+        client,
+        getTransactionCount,
+        'getTransactionCount',
+      )({
+        address: account.address,
+        blockTag: 'pending',
+      })
+    }
+  }
 
   if (
     (parameters.includes('fees') || parameters.includes('type')) &&
@@ -384,7 +412,7 @@ export async function prepareTransactionRequest<
       ...request,
       account: account
         ? { address: account.address, type: 'json-rpc' }
-        : undefined,
+        : account,
     } as EstimateGasParameters)
 
   assertRequest(request as AssertRequestParameters)

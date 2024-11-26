@@ -66,10 +66,8 @@ export type GetBlockTransactionCountErrorType =
  * })
  * const count = await getBlockTransactionCount(client)
  */
-export async function getBlockTransactionCount<
-  TChain extends Chain | undefined,
->(
-  client: Client<Transport, TChain>,
+export async function getBlockTransactionCount<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockHash,
     blockNumber,
@@ -81,15 +79,21 @@ export async function getBlockTransactionCount<
 
   let count: Quantity
   if (blockHash) {
-    count = await client.request({
-      method: 'eth_getBlockTransactionCountByHash',
-      params: [blockHash],
-    })
+    count = await client.request(
+      {
+        method: 'eth_getBlockTransactionCountByHash',
+        params: [blockHash],
+      },
+      { dedupe: true },
+    )
   } else {
-    count = await client.request({
-      method: 'eth_getBlockTransactionCountByNumber',
-      params: [blockNumberHex || blockTag],
-    })
+    count = await client.request(
+      {
+        method: 'eth_getBlockTransactionCountByNumber',
+        params: [blockNumberHex || blockTag],
+      },
+      { dedupe: Boolean(blockNumberHex) },
+    )
   }
 
   return hexToNumber(count)

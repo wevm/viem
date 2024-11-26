@@ -1,4 +1,6 @@
 import type { ErrorType } from '../../errors/utils.js'
+import type { AuthorizationList } from '../../experimental/eip7702/types/authorization.js'
+import type { RpcAuthorizationList } from '../../experimental/eip7702/types/rpc.js'
 import type {
   Chain,
   ExtractChainFormatterParameters,
@@ -11,9 +13,9 @@ import { bytesToHex, numberToHex } from '../encoding/toHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
 export type FormattedTransactionRequest<
-  TChain extends Chain | undefined = Chain | undefined,
+  chain extends Chain | undefined = Chain | undefined,
 > = ExtractChainFormatterParameters<
-  TChain,
+  chain,
   'transactionRequest',
   TransactionRequest
 >
@@ -23,6 +25,7 @@ export const rpcTransactionType = {
   eip2930: '0x1',
   eip1559: '0x2',
   eip4844: '0x3',
+  eip7702: '0x4',
 } as const
 
 export type FormatTransactionRequestErrorType = ErrorType
@@ -32,6 +35,10 @@ export function formatTransactionRequest(
 ) {
   const rpcRequest = {} as RpcTransactionRequest
 
+  if (typeof request.authorizationList !== 'undefined')
+    rpcRequest.authorizationList = formatAuthorizationList(
+      request.authorizationList,
+    )
   if (typeof request.accessList !== 'undefined')
     rpcRequest.accessList = request.accessList
   if (typeof request.blobVersionedHashes !== 'undefined')
@@ -74,3 +81,27 @@ export const defineTransactionRequest = /*#__PURE__*/ defineFormatter(
   'transactionRequest',
   formatTransactionRequest,
 )
+
+//////////////////////////////////////////////////////////////////////////////
+
+function formatAuthorizationList(
+  authorizationList: AuthorizationList<number, boolean>,
+): RpcAuthorizationList {
+  return authorizationList.map(
+    (authorization) =>
+      ({
+        address: authorization.contractAddress,
+        r: authorization.r,
+        s: authorization.s,
+        chainId: numberToHex(authorization.chainId),
+        nonce: numberToHex(authorization.nonce),
+        ...(typeof authorization.yParity !== 'undefined'
+          ? { yParity: numberToHex(authorization.yParity) }
+          : {}),
+        ...(typeof authorization.v !== 'undefined' &&
+        typeof authorization.yParity === 'undefined'
+          ? { v: numberToHex(authorization.v) }
+          : {}),
+      }) as any,
+  ) as RpcAuthorizationList
+}

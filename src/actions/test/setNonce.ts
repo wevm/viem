@@ -44,10 +44,10 @@ export type SetNonceErrorType = RequestErrorType | ErrorType
  * })
  */
 export async function setNonce<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
   { address, nonce }: SetNonceParameters,
 ) {
   await client.request({

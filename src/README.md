@@ -1,3 +1,6 @@
+<!-- > [!IMPORTANT] -->
+<!-- > Viem is participating in Gitcoin Grants round 21. Consider <a href="https://explorer.gitcoin.co/#/round/42161/389/73">supporting the project</a>. Thank you. 🙏 -->
+
 <br/>
 
 <p align="center">
@@ -87,7 +90,7 @@ const blockNumber = await client.getBlockNumber();
 
 Check out the following places for more viem-related content:
 
-- Follow [@wevm_dev](https://twitter.com/wevm_dev), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
+- Follow [@wevm_dev](https://twitter.com/wevm_dev), [@_jxom](https://twitter.com/_jxom), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
 - Join the [discussions on GitHub](https://github.com/wevm/viem/discussions)
 - [Share your project/organization](https://github.com/wevm/viem/discussions/104) that uses viem
 
@@ -103,6 +106,12 @@ Check out the following places for more viem-related content:
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/paradigm-dark.svg">
     <img alt="paradigm logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/paradigm-light.svg" width="auto" height="70">
+  </picture>
+</a>
+<a href="https://ithaca.xyz">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/ithaca-dark.svg">
+    <img alt="ithaca logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/ithaca-light.svg" width="auto" height="70">
   </picture>
 </a>
 
@@ -124,12 +133,6 @@ Check out the following places for more viem-related content:
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-dark.svg">
     <img alt="WalletConnect logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg" width="auto" height="50">
-  </picture>
-</a>
-<a href="https://zksync.io/">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-dark.svg">
-    <img alt="zksync logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg" width="auto" height="50">
   </picture>
 </a>
 <a href="https://twitter.com/prtyDAO">
@@ -162,31 +165,31 @@ Check out the following places for more viem-related content:
     <img alt="Privy logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/privy-light.svg" width="auto" height="50">
   </picture>
 </a>
-<a href="https://spruceid.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/spruce-dark.svg">
-    <img alt="Spruce logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/spruce-light.svg" width="auto" height="50">
-  </picture>
-</a>
-<a href="https://pancakeswap.finance/">
+<a href="https://pancakeswap.finance">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pancake-dark.svg">
     <img alt="pancake logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pancake-light.svg" width="auto" height="50">
   </picture>
 </a>
-<a href="https://celo.org/">
+<a href="https://celo.org">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/celo-dark.svg">
     <img alt="celo logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/celo-light.svg" width="auto" height="50">
   </picture>
 </a>
-<a href="https://pimlico.io/">
+<a href="https://rainbow.me">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rainbow-dark.svg">
+    <img alt="rainbow logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rainbow-light.svg" width="auto" height="50">
+  </picture>
+</a>
+<a href="https://pimlico.io">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pimlico-dark.svg">
     <img alt="pimlico logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pimlico-light.svg" width="auto" height="50">
   </picture>
 </a>
-<a href="https://zora.co/">
+<a href="https://zora.co">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-dark.svg">
     <img alt="zora logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg" width="auto" height="50">
@@ -204,12 +207,67 @@ Check out the following places for more viem-related content:
     <img alt="supa logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg" width="auto" height="50">
   </picture>
 </a>
+<a href="https://zksync.io">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-dark.svg">
+    <img alt="ZKsync logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg" width="auto" height="50">
+  </picture>
+</a>
 <a href="https://syndicate.io">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/syndicate-dark.svg">
     <img alt="syndicate logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/syndicate-light.svg" width="auto" height="50">
   </picture>
 </a>
+<a href="https://reservoir.tools">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/reservoir-dark.svg">
+    <img alt="reservoir logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/reservoir-light.svg" width="auto" height="50">
+  </picture>
+</a>
+<a href="https://brave.com">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/brave-dark.svg">
+    <img alt="brave logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/brave-light.svg" width="auto" height="50">
+  </picture>
+</a>
+<a href="https://linea.build">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-dark.svg">
+    <img alt="linea logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-light.svg" width="auto" height="50">
+  </picture>
+</a>
+<a href="https://uniswap.org">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-dark.svg">
+    <img alt="uniswap logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg" width="auto" height="50">
+  </picture>
+</a>
+<a href="https://biconomy.io">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/b0276d897be98a4c94ad1d1c72ce99a1020eeb58/content/sponsors/biconomy-dark.svg">
+    <img alt="biconomy logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/biconomy-light.svg" width="auto" height="50">
+  </picture>
+</a>
+<a href="https://thirdweb.com">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/thirdweb-dark.svg">
+    <img alt="thirdweb logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/thirdweb-light.svg" width="auto" height="50">
+  </picture>
+</a>
+<a href="https://uxuy.com">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uxuy-dark.svg">
+    <img alt="uxuy logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uxuy-light.svg" width="auto" height="50">
+  </picture>
+</a>
+<a href="https://polymarket.com">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/polymarket-dark.svg">
+    <img alt="polymarket logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/polymarket-light.svg" width="auto" height="50">
+  </picture>
+</a>
+
 
 ## Contributing
 

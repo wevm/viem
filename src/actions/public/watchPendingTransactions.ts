@@ -18,13 +18,13 @@ export type OnTransactionsParameter = Hash[]
 export type OnTransactionsFn = (transactions: OnTransactionsParameter) => void
 
 export type WatchPendingTransactionsParameters<
-  TTransport extends Transport = Transport,
+  transport extends Transport = Transport,
 > = {
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
   /** The callback to call when new transactions are received. */
   onTransactions: OnTransactionsFn
-} & GetPollOptions<TTransport>
+} & GetPollOptions<transport>
 
 export type WatchPendingTransactionsReturnType = () => void
 
@@ -63,17 +63,17 @@ export type WatchPendingTransactionsErrorType =
  * })
  */
 export function watchPendingTransactions<
-  TTransport extends Transport,
-  TChain extends Chain | undefined,
+  transport extends Transport,
+  chain extends Chain | undefined,
 >(
-  client: Client<TTransport, TChain>,
+  client: Client<transport, chain>,
   {
     batch = true,
     onError,
     onTransactions,
     poll: poll_,
     pollingInterval = client.pollingInterval,
-  }: WatchPendingTransactionsParameters<TTransport>,
+  }: WatchPendingTransactionsParameters<transport>,
 ) {
   const enablePolling =
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'

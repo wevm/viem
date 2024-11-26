@@ -25,10 +25,10 @@ import {
 } from './estimateL1Fee.js'
 
 export type EstimateTotalFeeParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
-> = EstimateL1FeeParameters<TChain, TAccount, TChainOverride>
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
+> = EstimateL1FeeParameters<chain, account, chainOverride>
 
 export type EstimateTotalFeeReturnType = bigint
 
@@ -63,12 +63,12 @@ export type EstimateTotalFeeErrorType =
  * })
  */
 export async function estimateTotalFee<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  chainOverride extends Chain | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: EstimateTotalFeeParameters<TChain, TAccount, TChainOverride>,
+  client: Client<Transport, chain, account>,
+  args: EstimateTotalFeeParameters<chain, account, chainOverride>,
 ): Promise<EstimateTotalFeeReturnType> {
   // Populate transaction with required fields to accurately estimate gas.
   const request = await prepareTransactionRequest(

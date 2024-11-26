@@ -1,4 +1,4 @@
-import { ens_normalize } from '@adraffy/ens-normalize'
+import * as Ens from 'ox/Ens'
 import type { ErrorType } from '../../errors/utils.js'
 
 export type NormalizeErrorType = ErrorType
@@ -14,5 +14,5 @@ export type NormalizeErrorType = ErrorType
  * @see https://github.com/ensdomains/docs/blob/9edf9443de4333a0ea7ec658a870672d5d180d53/ens-improvement-proposals/ensip-15-normalization-standard.md
  */
 export function normalize(name: string) {
-  return ens_normalize(name)
+  return Ens.normalize(name)
 }

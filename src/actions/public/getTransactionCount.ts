@@ -40,7 +40,7 @@ export type GetTransactionCountErrorType =
   | ErrorType
 
 /**
- * Returns the number of [Transactions](https://viem.sh/docs/glossary/terms#transaction) an Account has broadcast / sent.
+ * Returns the number of [Transactions](https://viem.sh/docs/glossary/terms#transaction) an Account has sent.
  *
  * - Docs: https://viem.sh/docs/actions/public/getTransactionCount
  * - JSON-RPC Methods: [`eth_getTransactionCount`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactioncount)
@@ -63,15 +63,18 @@ export type GetTransactionCountErrorType =
  * })
  */
 export async function getTransactionCount<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
+  client: Client<Transport, chain, account>,
   { address, blockTag = 'latest', blockNumber }: GetTransactionCountParameters,
 ): Promise<GetTransactionCountReturnType> {
-  const count = await client.request({
-    method: 'eth_getTransactionCount',
-    params: [address, blockNumber ? numberToHex(blockNumber) : blockTag],
-  })
+  const count = await client.request(
+    {
+      method: 'eth_getTransactionCount',
+      params: [address, blockNumber ? numberToHex(blockNumber) : blockTag],
+    },
+    { dedupe: Boolean(blockNumber) },
+  )
   return hexToNumber(count)
 }

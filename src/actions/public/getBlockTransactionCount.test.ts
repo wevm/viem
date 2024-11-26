@@ -20,7 +20,7 @@ test('args: blockNumber', async () => {
     await getBlockTransactionCount(client, {
       blockNumber: anvilMainnet.forkBlockNumber - 1n,
     }),
-  ).toBe(120)
+  ).toBe(124)
 })
 
 test('args: blockHash', async () => {
@@ -31,7 +31,7 @@ test('args: blockHash', async () => {
     await getBlockTransactionCount(client, {
       blockHash: block.hash!,
     }),
-  ).toBe(120)
+  ).toBe(124)
 })
 
 test('args: blockTag', async () => {

@@ -2,10 +2,14 @@ import type { TypedData, TypedDataDomain, TypedDataParameter } from 'abitype'
 
 import { BytesSizeMismatchError } from '../errors/abi.js'
 import { InvalidAddressError } from '../errors/address.js'
+import {
+  InvalidDomainError,
+  InvalidPrimaryTypeError,
+  InvalidStructTypeError,
+} from '../errors/typedData.js'
+import type { ErrorType } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
-
-import type { ErrorType } from '../errors/utils.js'
 import { type IsAddressErrorType, isAddress } from './address/isAddress.js'
 import { type SizeErrorType, size } from './data/size.js'
 import { type NumberToHexErrorType, numberToHex } from './encoding/toHex.js'
@@ -110,15 +114,24 @@ export function validateTypedData<
       }
 
       const struct = types[type]
-      if (struct) validateData(struct, value as Record<string, unknown>)
+      if (struct) {
+        validateReference(type)
+        validateData(struct, value as Record<string, unknown>)
+      }
     }
   }
 
   // Validate domain types.
-  if (types.EIP712Domain && domain) validateData(types.EIP712Domain, domain)
+  if (types.EIP712Domain && domain) {
+    if (typeof domain !== 'object') throw new InvalidDomainError({ domain })
+    validateData(types.EIP712Domain, domain)
+  }
 
   // Validate message types.
-  if (primaryType !== 'EIP712Domain') validateData(types[primaryType], message)
+  if (primaryType !== 'EIP712Domain') {
+    if (types[primaryType]) validateData(types[primaryType], message)
+    else throw new InvalidPrimaryTypeError({ primaryType, types })
+  }
 }
 
 export type GetTypesForEIP712DomainErrorType = ErrorType
@@ -153,4 +166,18 @@ export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
       EIP712Domain: getTypesForEIP712Domain({ domain }),
     },
   })
+}
+
+/** @internal */
+function validateReference(type: string) {
+  // Struct type must not be a Solidity type.
+  if (
+    type === 'address' ||
+    type === 'bool' ||
+    type === 'string' ||
+    type.startsWith('bytes') ||
+    type.startsWith('uint') ||
+    type.startsWith('int')
+  )
+    throw new InvalidStructTypeError({ type })
 }

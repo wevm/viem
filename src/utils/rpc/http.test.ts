@@ -7,7 +7,8 @@ import { createHttpServer } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
 
-import { numberToHex } from '../encoding/toHex.js'
+import { keccak256 } from '~viem/index.js'
+import { numberToHex, toHex } from '../encoding/toHex.js'
 import * as withTimeout from '../promise/withTimeout.js'
 import { wait } from '../wait.js'
 import { getHttpRpcClient } from './http.js'
@@ -163,7 +164,7 @@ describe('request', () => {
       Request body: {"method":"web3_clientVersion"}
 
       Details: Unexpected token 'b', "bogus" is not valid JSON
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     await server2.close()
   })
@@ -219,6 +220,32 @@ describe('request', () => {
     await server.close()
   })
 
+  test('onRequest can return an override request', async () => {
+    let headers: IncomingHttpHeaders = {}
+    const server = await createHttpServer((req, res) => {
+      headers = req.headers
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const client = getHttpRpcClient(server.url, {
+      onRequest: async (request) => {
+        // simulate a middleware that hashes the body - example might be authenticated service such
+        // as flashbots RPC which requires an auth header that is a signature of the request body
+        const newRequest = request.clone()
+        const text = await request.text()
+        newRequest.headers.set('x-body-hash', keccak256(toHex(text)))
+
+        return newRequest
+      },
+    })
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+    })
+    expect(headers['x-body-hash']).toBe(
+      '0x433b3dcc0ff6c41d44c000fe58867d8e937b6905459c564736f86f733704e585',
+    )
+  })
+
   test('onResponse', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))
@@ -267,10 +294,10 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
       Details: "ngmi"
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -295,12 +322,33 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
+  })
+
+  test('fetch error', async () => {
+    vi.stubGlobal('fetch', () => {
+      throw new Error('foo', { cause: new Error('bar') })
+    })
+
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
+
+    try {
+      await client.request({
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
+        },
+      })
+    } catch (error) {
+      expect((error as Error).cause).toMatchInlineSnapshot('[Error: foo]')
+    }
+
+    vi.unstubAllGlobals()
   })
 
   // TODO: This is flaky.
@@ -323,7 +371,7 @@ describe('request', () => {
       Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
 
       Details: The request timed out.
-      Version: viem@1.0.2"
+      Version: viem@x.y.z"
     `,
     )
   })
@@ -347,10 +395,10 @@ describe('request', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
 
       Details: foo
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     mock.mockRestore()
@@ -371,12 +419,12 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 89,
+          "id": 93,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
         {
-          "id": 90,
+          "id": 94,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -397,7 +445,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 92,
+          "id": 96,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -406,7 +454,7 @@ describe('http (batch)', () => {
             "code": -32602,
             "message": "Odd number of digits",
           },
-          "id": 93,
+          "id": 97,
           "jsonrpc": "2.0",
         },
       ]
@@ -423,7 +471,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 95,
+          "id": 99,
           "jsonrpc": "2.0",
           "result": "anvil/v0.2.0",
         },
@@ -432,7 +480,7 @@ describe('http (batch)', () => {
             "code": -32601,
             "message": "Method not found",
           },
-          "id": 96,
+          "id": 100,
           "jsonrpc": "2.0",
         },
       ]
@@ -464,10 +512,10 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
 
       Details: "ngmi"
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -495,10 +543,10 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -525,12 +573,41 @@ describe('http (batch)', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12e3ffa",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
 
       Details: foo
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     mock.mockRestore()
   })
+})
+
+test('https://github.com/wevm/viem/issues/2775', async () => {
+  const server = await createHttpServer((_req, res) => {
+    res.writeHead(404)
+    res.end('default backend - 404')
+  })
+
+  const client = getHttpRpcClient(server.url)
+
+  await expect(() =>
+    client.request({
+      body: {
+        method: 'eth_getBlockByNumber',
+        params: [numberToHex(anvilMainnet.forkBlockNumber), false],
+      },
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `
+    [HttpRequestError: HTTP request failed.
+
+    Status: 404
+    URL: http://localhost
+    Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
+
+    Details: "default backend - 404"
+    Version: viem@x.y.z]
+  `,
+  )
 })

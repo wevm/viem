@@ -16,8 +16,8 @@ import {
 } from '../../utils/formatters/transactionRequest.js'
 
 export type SendUnsignedTransactionParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-> = FormattedTransactionRequest<TChain>
+  chain extends Chain | undefined = Chain | undefined,
+> = FormattedTransactionRequest<chain>
 
 export type SendUnsignedTransactionReturnType = Hash
 
@@ -49,11 +49,11 @@ export type SendUnsignedTransactionErrorType = RequestErrorType | ErrorType
  * })
  */
 export async function sendUnsignedTransaction<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
-  args: SendUnsignedTransactionParameters<TChain>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
+  args: SendUnsignedTransactionParameters<chain>,
 ): Promise<SendUnsignedTransactionReturnType> {
   const {
     accessList,

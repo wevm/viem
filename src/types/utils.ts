@@ -63,21 +63,6 @@ export type Mutable<type extends object> = {
 }
 
 /**
- * @description Returns type {@link T} if it is an opaque type of {@link U}
- * @param T - Type to check
- * @param U - Type to against
- *
- * @example
- * type Result = Opaque<string, 'foo'>
- * //   ^? never
- *
- * @example
- * type Result = Opaque<string, string>
- * //   ^? string
- */
-export type Opaque<T, U> = IsNarrowable<T, U> extends true ? T : never
-
-/**
  * @description Evaluates boolean "or" condition for {@link T} properties.
  * @param T - Type to check
  *
@@ -110,7 +95,7 @@ export type IsUndefined<T> = [undefined] extends [T] ? true : false
 export type MaybePromise<T> = T | Promise<T>
 
 /**
- * @description Makes attributes on the type T required if TRequired is true.
+ * @description Makes attributes on the type T required if required is true.
  *
  * @example
  * MaybeRequired<{ a: string, b?: number }, true>
@@ -119,7 +104,7 @@ export type MaybePromise<T> = T | Promise<T>
  * MaybeRequired<{ a: string, b?: number }, false>
  * => { a: string, b?: number }
  */
-export type MaybeRequired<T, TRequired extends boolean> = TRequired extends true
+export type MaybeRequired<T, required extends boolean> = required extends true
   ? ExactRequired<T>
   : T
 
@@ -137,17 +122,6 @@ type Assign_<T, U> = {
       ? never
       : K
     : K]: K extends keyof U ? U[K] : T[K]
-}
-
-/**
- * @description Make properties K of type T never.
- *
- * @example
- * NeverBy<{ a: string, b: boolean, c: number }, 'a' | 'c'>
- * => { a: never, b: boolean, c: never }
- */
-export type NeverBy<T, K extends keyof T> = {
-  [U in keyof T]: U extends K ? never : T[U]
 }
 
 // TODO: Remove when peer dep `typescript@>=4.5` (NoInfer is native)
@@ -276,12 +250,13 @@ export type OneOf<
   fallback extends object | undefined = undefined,
   ///
   keys extends KeyofUnion<union> = KeyofUnion<union>,
-> = union extends infer Item
+> = union extends infer item
   ? Prettify<
-      Item & {
-        [_K in Exclude<keys, keyof Item>]?: fallback extends object
-          ? // @ts-ignore
-            fallback[_K]
+      item & {
+        [key in Exclude<keys, keyof item>]?: fallback extends object
+          ? key extends keyof fallback
+            ? fallback[key]
+            : undefined
           : undefined
       }
     >

@@ -19,8 +19,8 @@ import {
 } from '../../utils/encoding/toHex.js'
 
 export type SignMessageParameters<
-  TAccount extends Account | undefined = Account | undefined,
-> = GetAccountParameter<TAccount> & {
+  account extends Account | undefined = Account | undefined,
+> = GetAccountParameter<account> & {
   message: SignableMessage
 }
 
@@ -80,21 +80,22 @@ export type SignMessageErrorType =
  * })
  */
 export async function signMessage<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
+  client: Client<Transport, chain, account>,
   {
     account: account_ = client.account,
     message,
-  }: SignMessageParameters<TAccount>,
+  }: SignMessageParameters<account>,
 ): Promise<SignMessageReturnType> {
   if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/signMessage',
     })
   const account = parseAccount(account_)
-  if (account.type === 'local') return account.signMessage({ message })
+
+  if (account.signMessage) return account.signMessage({ message })
 
   const message_ = (() => {
     if (typeof message === 'string') return stringToHex(message)

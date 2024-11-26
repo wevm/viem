@@ -50,6 +50,8 @@ export type WriteContractsErrorType =
   | ErrorType
 
 /**
+ * @deprecated Use {@link sendCalls} instead. See https://viem.sh/experimental/eip5792/sendCalls#contract-calls.
+ *
  * Requests for the wallet to sign and broadcast a batch of write contract calls (transactions) to the network.
  *
  * - Docs: https://viem.sh/experimental/eip5792/writeContracts

@@ -30,9 +30,9 @@ export type RemoveBlockTimestampIntervalErrorType = RequestErrorType | ErrorType
  * await removeBlockTimestampInterval(client)
  */
 export async function removeBlockTimestampInterval<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
->(client: TestClient<TestClientMode, Transport, TChain, TAccount, false>) {
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(client: TestClient<TestClientMode, Transport, chain, account, false>) {
   await client.request({
     method: `${client.mode}_removeBlockTimestampInterval`,
   })

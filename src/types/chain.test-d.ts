@@ -36,7 +36,7 @@ test('ExtractChainFormatterParameters', () => {
     TransactionRequest
   >
   expectTypeOf<Result['type']>().toEqualTypeOf<
-    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | undefined
+    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | undefined
   >()
 
   type Result2 = ExtractChainFormatterParameters<
@@ -45,7 +45,7 @@ test('ExtractChainFormatterParameters', () => {
     TransactionRequest
   >
   expectTypeOf<Result2['type']>().toEqualTypeOf<
-    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | undefined
+    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | undefined
   >()
 
   type Result3 = ExtractChainFormatterParameters<
@@ -54,10 +54,25 @@ test('ExtractChainFormatterParameters', () => {
     TransactionRequest
   >
   expectTypeOf<Result3['type']>().toEqualTypeOf<
-    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'cip64' | undefined
+    | 'legacy'
+    | 'eip2930'
+    | 'eip1559'
+    | 'eip4844'
+    | 'eip7702'
+    | 'cip64'
+    | undefined
   >()
   expectTypeOf<Result3['feeCurrency']>().toEqualTypeOf<
     `0x${string}` | undefined
+  >()
+
+  type Result4 = ExtractChainFormatterParameters<
+    typeof celo,
+    'transaction',
+    TransactionRequest
+  >
+  expectTypeOf<Result4['gatewayFee']>().toEqualTypeOf<
+    `0x${string}` | null | undefined
   >()
 })
 

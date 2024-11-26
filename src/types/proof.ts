@@ -3,18 +3,18 @@ import type { Hash } from './misc.js'
 
 type AccountProof = Hash
 
-type StorageProof<TQuantity = bigint> = {
+type StorageProof<quantity = bigint> = {
   key: Hash
   proof: Hash[]
-  value: TQuantity
+  value: quantity
 }
 
-export type Proof<TQuantity = bigint, TIndex = number> = {
+export type Proof<quantity = bigint, index = number> = {
   address: Address
-  balance: TQuantity
+  balance: quantity
   codeHash: Hash
-  nonce: TIndex
+  nonce: index
   storageHash: Hash
   accountProof: AccountProof[]
-  storageProof: StorageProof<TQuantity>[]
+  storageProof: StorageProof<quantity>[]
 }

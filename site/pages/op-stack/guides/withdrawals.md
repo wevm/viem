@@ -80,7 +80,7 @@ const proveReceipt = await publicClientL1.waitForTransactionReceipt({
 
 // Wait until the withdrawal is ready to finalize.
 await publicClientL1.waitToFinalize({
-  targetChain: walletClientL2.chain
+  targetChain: walletClientL2.chain,
   withdrawalHash: withdrawal.withdrawalHash,
 })
 
@@ -120,7 +120,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
@@ -150,7 +150,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
@@ -207,7 +207,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
@@ -238,7 +238,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
@@ -302,7 +302,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
@@ -332,7 +332,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
@@ -411,7 +411,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
@@ -441,7 +441,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
@@ -549,7 +549,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,
@@ -579,7 +579,7 @@ export const walletClientL1 = createWalletClient({
 export const publicClientL2 = createPublicClient({
   chain: optimism,
   transport: http()
-})
+}).extend(publicActionsL2())
 
 export const walletClientL2 = createWalletClient({
   account,

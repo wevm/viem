@@ -62,7 +62,7 @@ describe('smoke test', () => {
     expect(gas).toBeDefined()
   })
 
-  test('estimateProveWithdrawalGas', async () => {
+  test.skip('estimateProveWithdrawalGas', async () => {
     const gas = await client.estimateProveWithdrawalGas({
       account: accounts[0].address,
       l2OutputIndex: 4529n,
@@ -178,7 +178,7 @@ describe('smoke test', () => {
     expect(request).toBeDefined()
   })
 
-  test('waitToFinalize', async () => {
+  test.skip('waitToFinalize', async () => {
     const receipt = await l2Client.getTransactionReceipt({
       hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
     })

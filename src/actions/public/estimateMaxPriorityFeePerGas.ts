@@ -86,19 +86,25 @@ export async function internal_estimateMaxPriorityFeePerGas<
   },
 ): Promise<EstimateMaxPriorityFeePerGasReturnType> {
   const { block: block_, chain = client.chain, request } = args || {}
-  if (typeof chain?.fees?.defaultPriorityFee === 'function') {
-    const block = block_ || (await getAction(client, getBlock, 'getBlock')({}))
-    return chain.fees.defaultPriorityFee({
-      block,
-      client,
-      request,
-    } as ChainFeesFnParameters)
-  }
-
-  if (typeof chain?.fees?.defaultPriorityFee !== 'undefined')
-    return chain?.fees?.defaultPriorityFee
 
   try {
+    const maxPriorityFeePerGas =
+      chain?.fees?.maxPriorityFeePerGas ?? chain?.fees?.defaultPriorityFee
+
+    if (typeof maxPriorityFeePerGas === 'function') {
+      const block =
+        block_ || (await getAction(client, getBlock, 'getBlock')({}))
+      const maxPriorityFeePerGas_ = await maxPriorityFeePerGas({
+        block,
+        client,
+        request,
+      } as ChainFeesFnParameters)
+      if (maxPriorityFeePerGas_ === null) throw new Error()
+      return maxPriorityFeePerGas_
+    }
+
+    if (typeof maxPriorityFeePerGas !== 'undefined') return maxPriorityFeePerGas
+
     const maxPriorityFeePerGasHex = await client.request({
       method: 'eth_maxPriorityFeePerGas',
     })

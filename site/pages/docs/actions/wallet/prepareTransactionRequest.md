@@ -29,8 +29,8 @@ const request = await walletClient.prepareTransactionRequest({ // [!code focus:1
 // @log: }
 
 
-const signature = await walletClient.signTransaction(request)
-const hash = await walletClient.sendRawTransaction(signature)
+const serializedTransaction = await walletClient.signTransaction(request)
+const hash = await walletClient.sendRawTransaction({ serializedTransaction })
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"
@@ -80,8 +80,8 @@ const request = await walletClient.prepareTransactionRequest({ // [!code focus:1
 // @log: }
 
 
-const signature = await walletClient.signTransaction(request)
-const hash = await walletClient.sendRawTransaction(signature)
+const serializedTransaction = await walletClient.signTransaction(request)
+const hash = await walletClient.sendRawTransaction({ serializedTransaction })
 ```
 
 ```ts [config.ts (JSON-RPC Account)]
@@ -173,6 +173,44 @@ const request = await walletClient.prepareTransactionRequest({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
+
+### authorizationList (optional)
+
+- **Type:** `AuthorizationList`
+
+Signed EIP-7702 Authorization list.
+
+```ts twoslash
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+import { eip7702Actions } from 'viem/experimental'
+
+const account = privateKeyToAccount('0x...')
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: http(),
+}).extend(eip7702Actions())
+// ---cut---
+const authorization = await walletClient.signAuthorization({ 
+  account,
+  contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', 
+}) 
+
+const request = await walletClient.prepareTransactionRequest({
+  account,
+  authorizationList: [authorization], // [!code focus]
+  data: '0xdeadbeef',
+  to: account.address,
+})
+```
+
+:::note
+**References**
+- [EIP-7702 Overview](/experimental/eip7702)
+- [`signAuthorization` Docs](/experimental/eip7702/signAuthorization)
+:::
 
 ### blobs (optional)
 
@@ -329,6 +367,23 @@ const request = await walletClient.prepareTransactionRequest({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
   nonce: 69 // [!code focus]
+})
+```
+
+### nonceManager (optional)
+
+- **Type:** `NonceManager | undefined`
+
+Nonce Manager to consume and increment the Account nonce for the transaction request.
+
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+const request = await walletClient.prepareTransactionRequest({
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1000000000000000000n,
+  nonceManager: account.nonceManager // [!code focus]
 })
 ```
 

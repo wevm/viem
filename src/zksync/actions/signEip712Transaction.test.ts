@@ -2,16 +2,16 @@ import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 
-import { anvilZkSync } from '../../../test/src/anvil.js'
+import { anvilZksync } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import type { ZkSyncTransactionRequestEIP712 } from '../../zksync/index.js'
+import type { ZksyncTransactionRequestEIP712 } from '../../zksync/index.js'
 import { signTransaction } from './signTransaction.js'
 
 const sourceAccount = accounts[0]
 
-const client = anvilZkSync.getClient()
+const client = anvilZksync.getClient()
 
-const base: ZkSyncTransactionRequestEIP712 = {
+const base: ZksyncTransactionRequestEIP712 = {
   from: '0x0000000000000000000000000000000000000000',
   paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
   paymasterInput:
@@ -38,9 +38,9 @@ test('errors: no eip712 domain fn', async () => {
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
-    [ViemError: \`getEip712Domain\` not found on chain.
+    [BaseError: \`getEip712Domain\` not found on chain.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
@@ -54,9 +54,9 @@ test('errors: no serializer fn', async () => {
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
-    [ViemError: transaction serializer not found on chain.
+    [BaseError: transaction serializer not found on chain.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
@@ -68,10 +68,10 @@ test('errors: no account', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
     [AccountNotFoundError: Could not find an Account to execute with this Action.
-    Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
+    Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-    Docs: https://viem.sh/docs/actions/wallet/signTransaction#account
-    Version: viem@1.0.2]
+    Docs: https://viem.sh/docs/actions/wallet/signTransaction
+    Version: viem@x.y.z]
   `,
   )
 })

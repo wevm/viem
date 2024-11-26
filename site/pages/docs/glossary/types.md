@@ -26,7 +26,7 @@ Re-exported from [ABIType](https://abitype.dev/api/types#abifunction).
 
 ## `AbiParameter`
 
-`inputs` and `ouputs` item for ABI functions, events, and errors.
+`inputs` and `outputs` item for ABI functions, events, and errors.
 
 Re-exported from [ABIType](https://abitype.dev/api/types#abiparameter).
 
@@ -146,7 +146,7 @@ Legacy transaction hex value – a "0x"-prefixed string: `"0x${string}"`
 
 ## `TransactionType`
 
-All types of transactions. `"eip1559" | "eip2930" | "eip4844" | "legacy"`
+All types of transactions. `"eip1559" | "eip2930" | "eip4844" | "eip7702" | "legacy"`
 
 ## `TransactionRequest`
 

@@ -1,3 +1,0 @@
-[profile.default]
-src = "contracts/src"
-out = "contracts/out"

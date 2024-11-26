@@ -5,7 +5,10 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableLegacy,
 } from '../../index.js'
-import type { TransactionSerializableEIP4844 } from '../../types/transaction.js'
+import type {
+  TransactionSerializableEIP4844,
+  TransactionSerializableEIP7702,
+} from '../../types/transaction.js'
 import { getTransactionType } from './getTransactionType.js'
 
 test('empty', () => {
@@ -14,7 +17,7 @@ test('empty', () => {
 
 test('opaque', () => {
   expectTypeOf(getTransactionType({} as TransactionSerializable)).toEqualTypeOf<
-    'legacy' | 'eip1559' | 'eip2930' | 'eip4844'
+    'legacy' | 'eip1559' | 'eip2930' | 'eip4844' | 'eip7702'
   >()
   expectTypeOf(
     getTransactionType({} as TransactionSerializableLegacy),
@@ -28,6 +31,9 @@ test('opaque', () => {
   expectTypeOf(
     getTransactionType({} as TransactionSerializableEIP4844),
   ).toEqualTypeOf<'eip4844'>()
+  expectTypeOf(
+    getTransactionType({} as TransactionSerializableEIP7702),
+  ).toEqualTypeOf<'eip7702'>()
 })
 
 test('const: type', () => {
@@ -41,6 +47,9 @@ test('const: type', () => {
   expectTypeOf(
     getTransactionType({ type: 'eip4844' }),
   ).toEqualTypeOf<'eip4844'>()
+  expectTypeOf(
+    getTransactionType({ type: 'eip7702' }),
+  ).toEqualTypeOf<'eip7702'>()
 })
 
 test('const: legacy attributes', () => {
@@ -115,6 +124,34 @@ test('const: 4844 attributes', () => {
   ).toEqualTypeOf<'eip4844'>()
   expectTypeOf(getTransactionType({ sidecars: [] })).toEqualTypeOf<'eip4844'>()
   expectTypeOf(
-    getTransactionType({ blobVersionedHashes: [] }),
+    getTransactionType({ accessList: [], blobVersionedHashes: [] }),
   ).toEqualTypeOf<'eip4844'>()
+})
+
+test('const: 7702 attributes', () => {
+  expectTypeOf(
+    getTransactionType({ authorizationList: [] }),
+  ).toEqualTypeOf<'eip7702'>()
+  expectTypeOf(
+    getTransactionType({ authorizationList: [], gasPrice: undefined }),
+  ).toEqualTypeOf<'eip7702'>()
+  expectTypeOf(
+    getTransactionType({ authorizationList: [], maxFeePerGas: undefined }),
+  ).toEqualTypeOf<'eip7702'>()
+  expectTypeOf(
+    getTransactionType({ authorizationList: [], maxFeePerGas: 1n }),
+  ).toEqualTypeOf<'eip7702'>()
+  expectTypeOf(
+    getTransactionType({
+      authorizationList: [],
+      maxPriorityFeePerGas: undefined,
+    }),
+  ).toEqualTypeOf<'eip7702'>()
+  expectTypeOf(
+    getTransactionType({
+      accessList: [],
+      authorizationList: [],
+      maxPriorityFeePerGas: 1n,
+    }),
+  ).toEqualTypeOf<'eip7702'>()
 })

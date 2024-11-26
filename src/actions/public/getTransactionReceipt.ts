@@ -19,8 +19,8 @@ export type GetTransactionReceiptParameters = {
 }
 
 export type GetTransactionReceiptReturnType<
-  TChain extends Chain | undefined = undefined,
-> = FormattedTransactionReceipt<TChain>
+  chain extends Chain | undefined = undefined,
+> = FormattedTransactionReceipt<chain>
 
 export type GetTransactionReceiptErrorType =
   | RequestErrorType
@@ -31,7 +31,7 @@ export type GetTransactionReceiptErrorType =
  * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash.
  *
  * - Docs: https://viem.sh/docs/actions/public/getTransactionReceipt
- * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
+ * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_fetching-transactions
  * - JSON-RPC Methods: [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionreceipt)
  *
  * @param client - Client to use
@@ -51,19 +51,22 @@ export type GetTransactionReceiptErrorType =
  *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
  * })
  */
-export async function getTransactionReceipt<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getTransactionReceipt<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { hash }: GetTransactionReceiptParameters,
 ) {
-  const receipt = await client.request({
-    method: 'eth_getTransactionReceipt',
-    params: [hash],
-  })
+  const receipt = await client.request(
+    {
+      method: 'eth_getTransactionReceipt',
+      params: [hash],
+    },
+    { dedupe: true },
+  )
 
   if (!receipt) throw new TransactionReceiptNotFoundError({ hash })
 
   const format =
     client.chain?.formatters?.transactionReceipt?.format ||
     formatTransactionReceipt
-  return format(receipt) as GetTransactionReceiptReturnType<TChain>
+  return format(receipt) as GetTransactionReceiptReturnType<chain>
 }

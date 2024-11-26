@@ -7,7 +7,6 @@ export const wemixTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'WEMIX', symbol: 'tWEMIX', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://api.test.wemix.com'] },
-    public: { http: ['https://api.test.wemix.com'] },
   },
   blockExplorers: {
     default: {

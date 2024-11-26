@@ -262,6 +262,179 @@ export const client = createPublicClient({
 
 :::
 
+### Scoping to Arguments
+
+You can scope the logs to arguments by providing the `args` argument:
+
+:::code-group
+
+```ts [example.ts]
+import { parseEventLogs } from 'viem'
+import { erc20Abi } from './abi'
+import { client } from './client'
+
+const receipt = await getTransactionReceipt(client, {
+  hash: '0xec23b2ba4bc59ba61554507c1b1bc91649e6586eb2dd00c728e8ed0db8bb37ea',
+})
+
+const logs = parseEventLogs({ 
+  abi: erc20Abi, 
+  args: { // [!code focus]
+    from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
+  }, // [!code focus]
+  logs: receipt.logs,
+})
+// [
+//   { args: { from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', ... }, eventName: '...', logIndex: 3, ... },  
+//   { args: { from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', ... }, eventName: '...', logIndex: 7, ... },
+//   ...
+// ]
+```
+
+```ts [abi.ts]
+export const erc20Abi = [
+  ...
+  {
+    inputs: [
+      {
+        indexed: true,
+        name: 'from',
+        type: 'address',
+      },
+      { indexed: true, name: 'to', type: 'address' },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'Transfer',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        indexed: true,
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'Approval',
+    type: 'event',
+  }
+  ...
+] as const;
+```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
+You can also pass an array to scope multiple values of an argument:
+
+:::code-group
+
+```ts [example.ts]
+import { parseEventLogs } from 'viem'
+import { erc20Abi } from './abi'
+import { client } from './client'
+
+const receipt = await getTransactionReceipt(client, {
+  hash: '0xec23b2ba4bc59ba61554507c1b1bc91649e6586eb2dd00c728e8ed0db8bb37ea',
+})
+
+const logs = parseEventLogs({ 
+  abi: erc20Abi, 
+  args: { // [!code focus]
+    from: [ // [!code focus]
+      '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
+      '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
+    ], // [!code focus]
+  }, // [!code focus]
+  logs: receipt.logs,
+})
+// [
+//   { args: { from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', ... }, eventName: '...', logIndex: 3, ... },  
+//   { args: { from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', ... }, eventName: '...', logIndex: 7, ... },
+//   ...
+// ]
+```
+
+```ts [abi.ts]
+export const erc20Abi = [
+  ...
+  {
+    inputs: [
+      {
+        indexed: true,
+        name: 'from',
+        type: 'address',
+      },
+      { indexed: true, name: 'to', type: 'address' },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'Transfer',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        indexed: true,
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'Approval',
+    type: 'event',
+  }
+  ...
+] as const;
+```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ### Partial Decode
 
 By default, if the `topics` and `data` does not conform to the ABI (a mismatch between the number of indexed/non-indexed arguments), `parseEventLogs` will not return return the decoded log.
@@ -363,6 +536,32 @@ const topics = parseEventLogs({
     ] // [!code focus]
     // ... // [!code focus]
   }] // [!code focus]
+})
+```
+
+### args (optional)
+
+- **Type:** `{ [property: string]: string | string[] | null }`
+
+Arguments to scope the logs to.
+
+```ts
+const topics = parseEventLogs({
+  abi: wagmiAbi,
+  args: { // [!code focus]
+    from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
+  }, // [!code focus]
+  logs: [{
+    blockNumber: 69420n,
+    data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+    logIndex: 1,
+    topics: [
+      '0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0', 
+      '0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266', 
+      '0x0000000000000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8'
+    ]
+    // ...
+  }]
 })
 ```
 

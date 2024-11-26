@@ -55,6 +55,7 @@ import {
 } from '../../actions/wallet/signMessage.js'
 import {
   type SignTransactionParameters,
+  type SignTransactionRequest,
   type SignTransactionReturnType,
   signTransaction,
 } from '../../actions/wallet/signTransaction.js'
@@ -86,8 +87,8 @@ import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 export type WalletActions<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
 > = {
   /**
    * Adds an EVM chain to the wallet.
@@ -111,7 +112,7 @@ export type WalletActions<
    * Deploys a contract to the network, given bytecode and constructor arguments.
    *
    * - Docs: https://viem.sh/docs/contract/deployContract
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_deploying-contracts
    *
    * @param args - {@link DeployContractParameters}
    * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
@@ -136,7 +137,7 @@ export type WalletActions<
     const abi extends Abi | readonly unknown[],
     chainOverride extends Chain | undefined,
   >(
-    args: DeployContractParameters<abi, TChain, TAccount, chainOverride>,
+    args: DeployContractParameters<abi, chain, account, chainOverride>,
   ) => Promise<DeployContractReturnType>
   /**
    * Returns a list of account addresses owned by the wallet or client.
@@ -235,28 +236,27 @@ export type WalletActions<
    * })
    */
   prepareTransactionRequest: <
-    const TRequest extends PrepareTransactionRequestRequest<
-      TChain,
-      TChainOverride
+    const request extends PrepareTransactionRequestRequest<
+      chain,
+      chainOverride
     >,
-    TChainOverride extends Chain | undefined = undefined,
-    TAccountOverride extends Account | Address | undefined = undefined,
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | Address | undefined = undefined,
   >(
     args: PrepareTransactionRequestParameters<
-      TChain,
-      TAccount,
-      TChainOverride,
-      TAccountOverride,
-      TRequest
+      chain,
+      account,
+      chainOverride,
+      accountOverride,
+      request
     >,
   ) => Promise<
     PrepareTransactionRequestReturnType<
-      Chain,
-      TAccount,
-      TChainOverride,
-      TAccountOverride,
-      // @ts-expect-error
-      TRequest
+      chain,
+      account,
+      chainOverride,
+      accountOverride,
+      request
     >
   >
   /**
@@ -337,7 +337,7 @@ export type WalletActions<
    * Creates, signs, and sends a new transaction to the network.
    *
    * - Docs: https://viem.sh/docs/actions/wallet/sendTransaction
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/sending-transactions
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_sending-transactions
    * - JSON-RPC Methods:
    *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
    *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
@@ -376,10 +376,10 @@ export type WalletActions<
    * })
    */
   sendTransaction: <
-    const TRequest extends SendTransactionRequest<TChain, TChainOverride>,
-    TChainOverride extends Chain | undefined = undefined,
+    const request extends SendTransactionRequest<chain, chainOverride>,
+    chainOverride extends Chain | undefined = undefined,
   >(
-    args: SendTransactionParameters<TChain, TAccount, TChainOverride, TRequest>,
+    args: SendTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SendTransactionReturnType>
   /**
    * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
@@ -425,7 +425,7 @@ export type WalletActions<
    * })
    */
   signMessage: (
-    args: SignMessageParameters<TAccount>,
+    args: SignMessageParameters<account>,
   ) => Promise<SignMessageReturnType>
   /**
    * Signs a transaction.
@@ -470,9 +470,15 @@ export type WalletActions<
    * })
    * const signature = await client.signTransaction(request)
    */
-  signTransaction: <TChainOverride extends Chain | undefined>(
-    args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
-  ) => Promise<SignTransactionReturnType>
+  signTransaction: <
+    chainOverride extends Chain | undefined,
+    const request extends SignTransactionRequest<
+      chain,
+      chainOverride
+    > = SignTransactionRequest<chain, chainOverride>,
+  >(
+    args: SignTransactionParameters<chain, account, chainOverride, request>,
+  ) => Promise<SignTransactionReturnType<request>>
   /**
    * Signs typed data and calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
    *
@@ -570,10 +576,10 @@ export type WalletActions<
    * })
    */
   signTypedData: <
-    const TTypedData extends TypedData | { [key: string]: unknown },
-    TPrimaryType extends string,
+    const typedData extends TypedData | { [key: string]: unknown },
+    primaryType extends string,
   >(
-    args: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
+    args: SignTypedDataParameters<typedData, primaryType, account>,
   ) => Promise<SignTypedDataReturnType>
   /**
    * Switch the target chain in a wallet.
@@ -625,7 +631,7 @@ export type WalletActions<
    * Executes a write function on a contract.
    *
    * - Docs: https://viem.sh/docs/contract/writeContract
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_writing-to-contracts
    *
    * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms) is needed to be broadcast in order to change the state.
    *
@@ -676,26 +682,24 @@ export type WalletActions<
       'payable' | 'nonpayable',
       functionName
     >,
-    TChainOverride extends Chain | undefined = undefined,
+    chainOverride extends Chain | undefined = undefined,
   >(
     args: WriteContractParameters<
       abi,
       functionName,
       args,
-      TChain,
-      TAccount,
-      TChainOverride
+      chain,
+      account,
+      chainOverride
     >,
   ) => Promise<WriteContractReturnType>
 }
 
 export function walletActions<
-  TTransport extends Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
->(
-  client: Client<TTransport, TChain, TAccount>,
-): WalletActions<TChain, TAccount> {
+  transport extends Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+>(client: Client<transport, chain, account>): WalletActions<chain, account> {
   return {
     addChain: (args) => addChain(client, args),
     deployContract: (args) => deployContract(client, args),
@@ -703,7 +707,7 @@ export function walletActions<
     getChainId: () => getChainId(client),
     getPermissions: () => getPermissions(client),
     prepareTransactionRequest: (args) =>
-      prepareTransactionRequest(client as any, args as any),
+      prepareTransactionRequest(client as any, args as any) as any,
     requestAddresses: () => requestAddresses(client),
     requestPermissions: (args) => requestPermissions(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),

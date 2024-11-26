@@ -19,7 +19,7 @@ test('default', () => {
     Raw Call Arguments:
       from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -41,6 +41,6 @@ test('default', () => {
       from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
     Details: fee cap higher than 2^256-1
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

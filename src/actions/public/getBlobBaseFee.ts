@@ -30,10 +30,10 @@ export type GetBlobBaseFeeErrorType = RequestErrorType | ErrorType
  * const blobBaseFee = await getBlobBaseFee(client)
  */
 export async function getBlobBaseFee<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
+  client: Client<Transport, chain, account>,
 ): Promise<GetBlobBaseFeeReturnType> {
   const baseFee = await client.request({
     method: 'eth_blobBaseFee',

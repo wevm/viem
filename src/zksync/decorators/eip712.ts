@@ -1,4 +1,6 @@
 import type { Abi } from 'abitype'
+
+import type { SendTransactionRequest } from '../../actions/wallet/sendTransaction.js'
 import { writeContract } from '../../actions/wallet/writeContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { WalletActions } from '../../clients/decorators/wallet.js'
@@ -39,11 +41,11 @@ export type Eip712WalletActions<
    *
    * @example
    * import { createWalletClient, custom } from 'viem'
-   * import { zkSync } from 'viem/chains'
+   * import { zksync } from 'viem/chains'
    * import { eip712WalletActions } from 'viem/zksync'
    *
    * const client = createWalletClient({
-   *   chain: zkSync,
+   *   chain: zksync,
    *   transport: custom(window.ethereum),
    * }).extend(eip712WalletActions())
    * const hash = await client.sendTransaction({
@@ -56,12 +58,12 @@ export type Eip712WalletActions<
    * // Account Hoisting
    * import { createWalletClient, http } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
-   * import { zkSync } from 'viem/chains'
+   * import { zksync } from 'viem/chains'
    * import { eip712WalletActions } from 'viem/zksync'
    *
    * const client = createWalletClient({
    *   account: privateKeyToAccount('0x…'),
-   *   chain: zkSync,
+   *   chain: zksync,
    *   transport: http(),
    * }).extend(eip712WalletActions())
    * const hash = await client.sendTransaction({
@@ -69,8 +71,11 @@ export type Eip712WalletActions<
    *   value: 1000000000000000000n,
    * })
    */
-  sendTransaction: <chainOverride extends ChainEIP712 | undefined = undefined>(
-    args: SendTransactionParameters<chain, account, chainOverride>,
+  sendTransaction: <
+    const request extends SendTransactionRequest<chain, chainOverride>,
+    chainOverride extends ChainEIP712 | undefined = undefined,
+  >(
+    args: SendTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SendTransactionReturnType>
   /**
    * Signs a transaction.
@@ -81,15 +86,15 @@ export type Eip712WalletActions<
    *   - Local Accounts: Signs locally. No JSON-RPC request.
    *
    * @param args - {@link SignTransactionParameters}
-   * @returns The signed serialized tranasction. {@link SignTransactionReturnType}
+   * @returns The signed serialized transaction. {@link SignTransactionReturnType}
    *
    * @example
    * import { createWalletClient, custom } from 'viem'
-   * import { zkSync } from 'viem/chains'
+   * import { zksync } from 'viem/chains'
    * import { eip712WalletActions } from 'viem/zksync'
    *
    * const client = createWalletClient({
-   *   chain: zkSync,
+   *   chain: zksync,
    *   transport: custom(window.ethereum),
    * }).extend(eip712WalletActions())
    * const signature = await client.signTransaction({
@@ -102,12 +107,12 @@ export type Eip712WalletActions<
    * // Account Hoisting
    * import { createWalletClient, http } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
-   * import { zkSync } from 'viem/chains'
+   * import { zksync } from 'viem/chains'
    * import { eip712WalletActions } from 'viem/zksync'
    *
    * const client = createWalletClient({
    *   account: privateKeyToAccount('0x…'),
-   *   chain: zkSync,
+   *   chain: zksync,
    *   transport: custom(window.ethereum),
    * }).extend(eip712WalletActions())
    * const signature = await client.signTransaction({
@@ -122,7 +127,7 @@ export type Eip712WalletActions<
    * Deploys a contract to the network, given bytecode and constructor arguments using EIP712 transaction.
    *
    * - Docs: https://viem.sh/docs/contract/deployContract
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/deploying-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_deploying-contracts
    *
    * @param args - {@link DeployContractParameters}
    * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
@@ -130,7 +135,7 @@ export type Eip712WalletActions<
    * @example
    * import { createWalletClient, custom } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
-   * import { zkSync } from 'viem/chains'
+   * import { zksync } from 'viem/chains'
    * import { deployContract } from 'viem/contract'
    *
    * const client = createWalletClient({
@@ -162,7 +167,7 @@ export type Eip712WalletActions<
    * Executes a write function on a contract.
    *
    * - Docs: https://viem.sh/docs/contract/writeContract
-   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts/writing-to-contracts
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_writing-to-contracts
    *
    * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms) is needed to be broadcast in order to change the state.
    *
@@ -176,11 +181,11 @@ export type Eip712WalletActions<
    *
    * @example
    * import { createWalletClient, custom, parseAbi } from 'viem'
-   * import { zkSync } from 'viem/chains'
+   * import { zksync } from 'viem/chains'
    * import { eip712WalletActions } from 'viem/zksync'
    *
    * const client = createWalletClient({
-   *   chain: zkSync,
+   *   chain: zksync,
    *   transport: custom(window.ethereum),
    * }).extend(eip712WalletActions())
    * const hash = await client.writeContract({
@@ -193,11 +198,11 @@ export type Eip712WalletActions<
    * @example
    * // With Validation
    * import { createWalletClient, http, parseAbi } from 'viem'
-   * import { zkSync } from 'viem/chains'
+   * import { zksync } from 'viem/chains'
    * import { eip712WalletActions } from 'viem/zksync'
    *
    * const client = createWalletClient({
-   *   chain: zkSync,
+   *   chain: zksync,
    *   transport: http(),
    * }).extend(eip712WalletActions())
    * const { request } = await client.simulateContract({

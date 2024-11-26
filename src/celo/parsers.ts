@@ -1,3 +1,4 @@
+import type { OpStackTransactionSerialized } from '../chains/index.js'
 import { InvalidSerializedTransactionError } from '../errors/transaction.js'
 import type { Hex } from '../types/misc.js'
 import type { ExactPartial } from '../types/utils.js'
@@ -9,7 +10,6 @@ import type { GetSerializedTransactionType } from '../utils/transaction/getSeria
 import {
   type ParseTransactionReturnType as ParseTransactionReturnType_,
   parseAccessList,
-  parseTransaction as parseTransaction_,
   toTransactionArray,
 } from '../utils/transaction/parseTransaction.js'
 import {
@@ -25,31 +25,33 @@ import type {
   TransactionSerializedCIP64,
 } from './types.js'
 
-export type ParseTransactionReturnType<
-  TSerialized extends CeloTransactionSerialized = CeloTransactionSerialized,
-  TType extends CeloTransactionType = GetSerializedTransactionType<TSerialized>,
-> = TSerialized extends TransactionSerializedCIP42
-  ? TransactionSerializableCIP42
-  : ParseTransactionReturnType_<TSerialized, TType>
+import { parseTransaction as parseTransaction_op } from '../op-stack/parsers.js'
 
-export function parseTransaction<TSerialized extends CeloTransactionSerialized>(
-  serializedTransaction: TSerialized,
-): ParseTransactionReturnType<TSerialized> {
+export type ParseTransactionReturnType<
+  serialized extends CeloTransactionSerialized = CeloTransactionSerialized,
+  type extends CeloTransactionType = GetSerializedTransactionType<serialized>,
+> = serialized extends TransactionSerializedCIP42
+  ? TransactionSerializableCIP42
+  : ParseTransactionReturnType_<serialized, type>
+
+export function parseTransaction<serialized extends CeloTransactionSerialized>(
+  serializedTransaction: serialized,
+): ParseTransactionReturnType<serialized> {
   const serializedType = sliceHex(serializedTransaction, 0, 1)
 
   if (serializedType === '0x7c')
     return parseTransactionCIP42(
       serializedTransaction as TransactionSerializedCIP42,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   if (serializedType === '0x7b')
     return parseTransactionCIP64(
       serializedTransaction as TransactionSerializedCIP64,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
-  return parseTransaction_(
-    serializedTransaction,
-  ) as ParseTransactionReturnType<TSerialized>
+  return parseTransaction_op(
+    serializedTransaction as OpStackTransactionSerialized,
+  ) as ParseTransactionReturnType<serialized>
 }
 
 function parseTransactionCIP42(

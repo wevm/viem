@@ -1,11 +1,15 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { BatchCallDelegation } from '../../../contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { deploy } from '../../../test/src/utils.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, holesky } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-import { createClient } from '../../index.js'
+import { signAuthorization } from '../../experimental/index.js'
+import { createClient, encodeFunctionData } from '../../index.js'
 import type { Transaction } from '../../types/transaction.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
@@ -102,34 +106,34 @@ test('gets transaction (eip2930)', async () => {
   })
   expect(Object.keys(transaction)).toMatchInlineSnapshot(`
     [
-      "hash",
+      "type",
+      "chainId",
       "nonce",
+      "gasPrice",
+      "gas",
+      "to",
+      "value",
+      "accessList",
+      "input",
+      "r",
+      "s",
+      "yParity",
+      "v",
+      "hash",
       "blockHash",
       "blockNumber",
       "transactionIndex",
       "from",
-      "to",
-      "value",
-      "gasPrice",
-      "gas",
-      "input",
-      "r",
-      "s",
-      "v",
-      "yParity",
-      "chainId",
-      "accessList",
-      "type",
       "typeHex",
     ]
   `)
   expect(transaction.type).toMatchInlineSnapshot('"eip2930"')
   expect(transaction.from).toMatchInlineSnapshot(
-    '"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"',
+    `"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"`,
   )
   expect(transaction.gas).toBeDefined()
   expect(transaction.to).toMatchInlineSnapshot(
-    '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
+    `"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"`,
   )
   expect(transaction.value).toMatchInlineSnapshot('1000000000000000000n')
 })
@@ -172,6 +176,45 @@ test('gets transaction (eip4844)', async () => {
       "yParity": 1,
     }
   `)
+})
+
+test('gets transaction (eip7702)', async () => {
+  const authority = privateKeyToAccount(accounts[1].privateKey)
+
+  const { contractAddress } = await deploy(client, {
+    abi: BatchCallDelegation.abi,
+    bytecode: BatchCallDelegation.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: authority,
+    contractAddress: contractAddress!,
+  })
+
+  const hash = await sendTransaction(client, {
+    account: authority,
+    authorizationList: [authorization],
+    data: encodeFunctionData({
+      abi: BatchCallDelegation.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            data: '0x',
+            value: parseEther('1'),
+          },
+        ],
+      ],
+    }),
+  })
+
+  await mine(client, { blocks: 1 })
+
+  const transaction = await getTransaction(client, {
+    hash,
+  })
+  expect(transaction).toBeDefined()
 })
 
 test('chain w/ custom block type', async () => {
@@ -252,7 +295,7 @@ describe('args: hash', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TransactionNotFoundError: Transaction with hash "0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d" could not be found.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

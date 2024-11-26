@@ -20,6 +20,7 @@ Below is a very basic example of how to encode deploy data.
 
 ```ts [example.ts]
 import { encodeDeployData } from 'viem'
+import { wagmiAbi } from './abi.ts'
 
 const data = encodeDeployData({
   abi: wagmiAbi,

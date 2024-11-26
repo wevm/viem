@@ -88,7 +88,7 @@ describe('extend', () => {
 
     client.extend(() => ({
       async sendTransaction(args) {
-        expectTypeOf(args.account).toEqualTypeOf<Address | Account>()
+        expectTypeOf(args.account).toEqualTypeOf<Address | Account | null>()
         expectTypeOf(args.to).toEqualTypeOf<Address | null | undefined>()
         expectTypeOf(args.value).toEqualTypeOf<bigint | undefined>()
         return '0x'
@@ -110,7 +110,7 @@ describe('extend', () => {
     }))
 
     client.extend(() => ({
-      // @ts-expect-error: Type 'SendTransactionParameters<Chain | undefined, Account | undefined, TChainOverride>' is not assignable to type 'number'.
+      // @ts-expect-error: Type 'SendTransactionParameters<Chain | undefined, Account | undefined, chainOverride>' is not assignable to type 'number'.
       async sendTransaction(_args: number) {
         return '0x'
       },

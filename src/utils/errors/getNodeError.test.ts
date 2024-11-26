@@ -40,10 +40,10 @@ test('FeeCapTooHigh', () => {
     ),
   })
   expect(result).toMatchInlineSnapshot(`
-    [FeeCapTooHigh: The fee cap (\`maxFeePerGas\` = 1231287389123781293712897312893791283921738912378912 gwei) cannot be higher than the maximum allowed value (2^256-1).
+    [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 1231287389123781293712897312893791283921738912378912 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
     Details: fee cap higher than 2^256-1
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -64,10 +64,10 @@ test('FeeCapTooLow', () => {
     maxFeePerGas: parseGwei('1'),
   })
   expect(result).toMatchInlineSnapshot(`
-    [FeeCapTooLow: The fee cap (\`maxFeePerGas\` = 1 gwei) cannot be lower than the block base fee.
+    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` = 1 gwei) cannot be lower than the block base fee.
 
     Details: max fee per gas less than block base fee
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -90,7 +90,7 @@ test('NonceTooHigh', () => {
     [NonceTooHighError: Nonce provided for the transaction (1123123213) is higher than the next one expected.
 
     Details: nonce too high
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -111,7 +111,7 @@ test('NonceTooLow', () => {
     Try increasing the nonce or find the latest nonce with \`getTransactionCount\`.
 
     Details: nonce too low
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -131,7 +131,7 @@ test('NonceMaxValue', () => {
     [NonceMaxValueError: Nonce provided for the transaction (12222222) exceeds the maximum allowed nonce.
 
     Details: nonce has max value
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -161,7 +161,7 @@ test('InsufficientFundsError', () => {
      - \`value\` is the amount of ether to send to the recipient.
 
     Details: insufficient funds
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -181,7 +181,7 @@ test('IntrinsicGasTooHigh', () => {
     [IntrinsicGasTooHighError: The amount of gas (8912738912731289) provided for the transaction exceeds the limit allowed for the block.
 
     Details: intrinsic gas too high
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -201,7 +201,7 @@ test('IntrinsicGasTooLowError', () => {
     [IntrinsicGasTooLowError: The amount of gas (1) provided for the transaction is too low.
 
     Details: intrinsic gas too low
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -221,7 +221,7 @@ test('TransactionTypeNotSupported', () => {
     [TransactionTypeNotSupportedError: The transaction type is not supported for this chain.
 
     Details: transaction type not valid
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -245,7 +245,7 @@ test('TipAboveFeeCap', () => {
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
 
     Details: max priority fee per gas higher than max fee per gas
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -269,7 +269,7 @@ test('ExecutionRevertedError', () => {
     [ExecutionRevertedError: Execution reverted with reason: lol oh no.
 
     Details: execution reverted: lol oh no
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -293,7 +293,24 @@ test('ExecutionRevertedError', () => {
     [ExecutionRevertedError: Execution reverted with reason: lol oh no.
 
     Details: lol oh no
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UnknownNodeError check with null cause in error chain', () => {
+  const error = new TransactionRejectedRpcError(
+    new Error('null cause', { cause: null }),
+  )
+  const result = getNodeError(error, {
+    account: address.vitalik,
+    maxFeePerGas: parseGwei('10'),
+    maxPriorityFeePerGas: parseGwei('11'),
+  })
+  expect(result).toMatchInlineSnapshot(`
+    [UnknownNodeError: An error occurred while executing: Transaction creation failed.
+
+    Details: null cause
+    Version: viem@x.y.z]
   `)
 })
 
@@ -312,6 +329,6 @@ test('Unknown node error', () => {
     [UnknownNodeError: An error occurred while executing: Transaction creation failed.
 
     Details: oh no
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

@@ -39,6 +39,6 @@ test('invalid', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidSerializedTransactionType: Serialized transaction type "0x69" is invalid.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

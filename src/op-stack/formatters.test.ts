@@ -17,7 +17,11 @@ describe('block', () => {
     expect(
       block.format({
         baseFeePerGas: '0x1',
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
+        sealFields: ['0x0'],
         difficulty: '0x0',
+        extraData: '0x',
         gasLimit: '0x420',
         gasUsed: '0x69',
         hash: '0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846',
@@ -96,9 +100,10 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 1n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
+        "extraData": "0x",
         "gasLimit": 1056n,
         "gasUsed": 105n,
         "hash": "0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846",
@@ -109,6 +114,9 @@ describe('block', () => {
         "number": 431136n,
         "parentHash": "0x15274362f5bf7aa966ec2eb95c972fd85f2917da803ab178bced6a53479752b6",
         "receiptsRoot": "0x4cfa86d92cf2d52d2bca8b901592a5a0444be409793f0a4c2af006c0c7aafbde",
+        "sealFields": [
+          "0x0",
+        ],
         "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
         "size": 431136n,
         "stateRoot": "0x95676f3a28d2c8a0bf64db60e910dc47275d37f5a3c3d7353b6f571c25fcd746",
@@ -177,6 +185,10 @@ describe('block', () => {
       block.format({
         baseFeePerGas: '0x1',
         difficulty: '0x0',
+        blobGasUsed: '0x0',
+        excessBlobGas: '0x0',
+        sealFields: ['0x0'],
+        extraData: '0x0',
         gasLimit: '0x420',
         gasUsed: '0x69',
         hash: '0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846',
@@ -206,9 +218,10 @@ describe('block', () => {
     ).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 1n,
-        "blobGasUsed": undefined,
+        "blobGasUsed": 0n,
         "difficulty": 0n,
-        "excessBlobGas": undefined,
+        "excessBlobGas": 0n,
+        "extraData": "0x0",
         "gasLimit": 1056n,
         "gasUsed": 105n,
         "hash": "0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846",
@@ -219,6 +232,9 @@ describe('block', () => {
         "number": 431136n,
         "parentHash": "0x15274362f5bf7aa966ec2eb95c972fd85f2917da803ab178bced6a53479752b6",
         "receiptsRoot": "0x4cfa86d92cf2d52d2bca8b901592a5a0444be409793f0a4c2af006c0c7aafbde",
+        "sealFields": [
+          "0x0",
+        ],
         "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
         "size": 431136n,
         "stateRoot": "0x95676f3a28d2c8a0bf64db60e910dc47275d37f5a3c3d7353b6f571c25fcd746",
@@ -389,11 +405,9 @@ describe('transaction (deposit)', () => {
 
     expect(
       transaction.format({
-        accessList: [],
         blockHash:
           '0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574',
         blockNumber: '0x1',
-        chainId: '0x1',
         from: '0xacd03d601e5bb1b275bb94076ff46ed9d753435a',
         gas: '0x69',
         hash: '0x64241d12d64bb6106a9e818d83d4c9f5d49ebef3c6180e58979bf5894461f822',
@@ -413,10 +427,9 @@ describe('transaction (deposit)', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "accessList": [],
         "blockHash": "0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574",
         "blockNumber": 1n,
-        "chainId": 1,
+        "chainId": undefined,
         "from": "0xacd03d601e5bb1b275bb94076ff46ed9d753435a",
         "gas": 105n,
         "gasPrice": undefined,

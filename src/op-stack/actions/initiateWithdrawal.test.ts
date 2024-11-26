@@ -124,7 +124,7 @@ test('error: insufficient funds', async () => {
 
     Docs: https://viem.sh/docs/contract/estimateContractGas
     Details: Out of gas: gas required exceeds allowance: 69
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -161,7 +161,7 @@ test('error: small gas', async () => {
 
     Docs: https://viem.sh/docs/contract/estimateContractGas
     Details: Out of gas: gas required exceeds allowance: 69
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 

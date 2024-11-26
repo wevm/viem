@@ -1,8 +1,9 @@
 {
   "name": "@wevm/viem",
-  "version": "2.13.7",
+  "version": "2.21.51",
   "exports": {
     ".": "./index.ts",
+    "./accounts-abstraction": "./account-abstraction/index.ts",
     "./accounts": "./accounts/index.ts",
     "./actions": "./actions/index.ts",
     "./celo": "./celo/index.ts",
@@ -10,8 +11,10 @@
     "./chains/utils": "./chains/utils.ts",
     "./ens": "./ens/index.ts",
     "./experimental": "./experimental/index.ts",
+    "./linea": "./linea/index.ts",
     "./node": "./node/index.ts",
     "./op-stack": "./op-stack/index.ts",
+    "./siwe": "./siwe/index.ts",
     "./utils": "./utils/index.ts",
     "./zksync": "./zksync/index.ts"
   },

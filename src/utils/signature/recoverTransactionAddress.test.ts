@@ -19,6 +19,7 @@ import type {
 import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import {
+  getAddress,
   hexToBytes,
   keccak256,
   serializeTransaction,
@@ -134,7 +135,7 @@ test('via `getTransaction`', async () => {
   const address = await recoverTransactionAddress({
     serializedTransaction,
   })
-  expect(address.toLowerCase()).toBe(transaction.from)
+  expect(address).toBe(getAddress(transaction.from))
 })
 
 test('legacy', async () => {

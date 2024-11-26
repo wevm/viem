@@ -21,14 +21,14 @@ export type OnBlockNumberFn = (
 ) => void
 
 export type WatchBlockNumberParameters<
-  TTransport extends Transport = Transport,
+  transport extends Transport = Transport,
 > = {
   /** The callback to call when a new block number is received. */
   onBlockNumber: OnBlockNumberFn
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
 } & (
-  | (HasTransportType<TTransport, 'webSocket'> extends true
+  | (HasTransportType<transport, 'webSocket'> extends true
       ? {
           emitMissed?: undefined
           emitOnBegin?: undefined
@@ -56,7 +56,7 @@ export type WatchBlockNumberErrorType = PollErrorType | ErrorType
  * Watches and returns incoming block numbers.
  *
  * - Docs: https://viem.sh/docs/actions/public/watchBlockNumber
- * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks/watching-blocks
+ * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_watching-blocks
  * - JSON-RPC Methods:
  *   - When `poll: true`, calls [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber) on a polling interval.
  *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
@@ -78,10 +78,10 @@ export type WatchBlockNumberErrorType = PollErrorType | ErrorType
  * })
  */
 export function watchBlockNumber<
-  TChain extends Chain | undefined,
-  TTransport extends Transport,
+  chain extends Chain | undefined,
+  transport extends Transport,
 >(
-  client: Client<TTransport, TChain>,
+  client: Client<transport, chain>,
   {
     emitOnBegin = false,
     emitMissed = false,
@@ -89,7 +89,7 @@ export function watchBlockNumber<
     onError,
     poll: poll_,
     pollingInterval = client.pollingInterval,
-  }: WatchBlockNumberParameters<TTransport>,
+  }: WatchBlockNumberParameters<transport>,
 ): WatchBlockNumberReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_

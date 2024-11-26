@@ -31,13 +31,13 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -66,13 +66,13 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -101,13 +101,13 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -135,13 +135,13 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       ah no
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -169,13 +169,13 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -204,13 +204,13 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -235,13 +235,13 @@ describe('getContractError', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Details: rarararar i am an error lmaoaoo
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
-      [ViemError: An RPC error occurred
+      [BaseError: An RPC error occurred
 
       Details: rarararar i am an error lmaoaoo
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     const error2 = getContractError(new BaseError('An RPC error occurred'), {
@@ -258,12 +258,12 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error2.cause).toMatchInlineSnapshot(`
-      [ViemError: An RPC error occurred
+      [BaseError: An RPC error occurred
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
 
     const error3 = getContractError(new BaseError(''), {
@@ -280,12 +280,12 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error3.cause).toMatchInlineSnapshot(`
-      [ViemError: An error occurred.
+      [BaseError: An error occurred.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -309,7 +309,7 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionZeroDataError: The contract function "mintApe" returned no data ("0x").
@@ -319,7 +319,7 @@ describe('getContractError', () => {
         - The parameters passed to the contract function may be invalid, or
         - The address is not a contract.
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

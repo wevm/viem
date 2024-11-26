@@ -38,6 +38,6 @@ test('revert', async () => {
       sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
     Docs: https://viem.sh/docs/chains/op-stack/estimateContractL1Gas
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

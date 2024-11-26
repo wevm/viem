@@ -97,7 +97,7 @@ export async function buildInitiateWithdrawal<
   const account = account_ ? parseAccount(account_) : undefined
 
   const request = await prepareTransactionRequest(client, {
-    account,
+    account: null,
     chain,
     gas,
     data,

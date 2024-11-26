@@ -10,13 +10,13 @@
     "test": "playwright test"
   },
   "dependencies": {
-    "next": "13.5.4",
+    "next": "14.2.15",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "viem": "file:../../src/"
   },
   "devDependencies": {
-    "@playwright/test": "1.40.1",
+    "@playwright/test": "1.41.2",
     "@types/node": "^20.8.3",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
