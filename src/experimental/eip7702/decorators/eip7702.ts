@@ -3,9 +3,9 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import {
-  prepareAuthorization,
   type PrepareAuthorizationParameters,
   type PrepareAuthorizationReturnType,
+  prepareAuthorization,
 } from '../actions/prepareAuthorization.js'
 import {
   type SignAuthorizationParameters,

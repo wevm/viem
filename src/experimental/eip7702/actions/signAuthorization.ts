@@ -18,9 +18,9 @@ import {
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import {
-  prepareAuthorization,
   type PrepareAuthorizationErrorType,
   type PrepareAuthorizationParameters,
+  prepareAuthorization,
 } from './prepareAuthorization.js'
 
 export type SignAuthorizationParameters<
