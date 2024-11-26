@@ -1302,6 +1302,10 @@ export const sidebar = {
             text: 'Actions',
             items: [
               {
+                text: 'prepareAuthorization',
+                link: '/experimental/eip7702/prepareAuthorization',
+              },
+              {
                 text: 'signAuthorization',
                 link: '/experimental/eip7702/signAuthorization',
               },
