@@ -12,6 +12,7 @@ const client = anvilMainnet
 test('default', async () => {
   expect(eip7702Actions()(client)).toMatchInlineSnapshot(`
     {
+      "prepareAuthorization": [Function],
       "signAuthorization": [Function],
     }
   `)

@@ -44,6 +44,12 @@ export {
   eip7702Actions,
 } from './eip7702/decorators/eip7702.js'
 export {
+  type PrepareAuthorizationParameters,
+  type PrepareAuthorizationReturnType,
+  type PrepareAuthorizationErrorType,
+  prepareAuthorization,
+} from './eip7702/actions/prepareAuthorization.js'
+export {
   type SignAuthorizationParameters,
   type SignAuthorizationReturnType,
   type SignAuthorizationErrorType,

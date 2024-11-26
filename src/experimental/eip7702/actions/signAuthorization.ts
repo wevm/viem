@@ -1,4 +1,3 @@
-import type { Address } from 'abitype'
 import type { Account } from '../../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -8,8 +7,6 @@ import type {
   SignAuthorizationErrorType as SignAuthorizationErrorType_account,
   SignAuthorizationReturnType as SignAuthorizationReturnType_account,
 } from '../../../accounts/utils/signAuthorization.js'
-import { getChainId } from '../../../actions/public/getChainId.js'
-import { getTransactionCount } from '../../../actions/public/getTransactionCount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import {
@@ -19,34 +16,24 @@ import {
   type AccountTypeNotSupportedErrorType,
 } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { GetAccountParameter } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
-import type { PartialBy } from '../../../types/utils.js'
-import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
-import type { RequestErrorType } from '../../../utils/buildRequest.js'
-import { getAction } from '../../../utils/getAction.js'
-import type { Authorization } from '../types/authorization.js'
+import {
+  type PrepareAuthorizationErrorType,
+  type PrepareAuthorizationParameters,
+  prepareAuthorization,
+} from './prepareAuthorization.js'
 
 export type SignAuthorizationParameters<
   account extends Account | undefined = Account | undefined,
-> = GetAccountParameter<account> &
-  PartialBy<Authorization, 'chainId' | 'nonce'> & {
-    /**
-     * Whether the EIP-7702 Transaction will be executed by another Account.
-     *
-     * If not specified, it will be assumed that the EIP-7702 Transaction will
-     * be executed by the Account that signed the Authorization.
-     */
-    delegate?: true | Address | Account | undefined
-  }
+> = PrepareAuthorizationParameters<account>
 
 export type SignAuthorizationReturnType = SignAuthorizationReturnType_account
 
 export type SignAuthorizationErrorType =
   | ParseAccountErrorType
-  | RequestErrorType
   | AccountNotFoundErrorType
   | AccountTypeNotSupportedErrorType
+  | PrepareAuthorizationErrorType
   | SignAuthorizationErrorType_account
   | ErrorType
 
@@ -99,25 +86,13 @@ export async function signAuthorization<
   client: Client<Transport, chain, account>,
   parameters: SignAuthorizationParameters<account>,
 ): Promise<SignAuthorizationReturnType> {
-  const {
-    account: account_ = client.account,
-    contractAddress,
-    chainId,
-    nonce,
-    delegate: delegate_,
-  } = parameters
+  const { account: account_ = client.account } = parameters
 
   if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/experimental/eip7702/signAuthorization',
     })
   const account = parseAccount(account_)
-
-  const delegate = (() => {
-    if (typeof delegate_ === 'boolean') return delegate_
-    if (delegate_) return parseAccount(delegate_)
-    return undefined
-  })()
 
   if (!account.experimental_signAuthorization)
     throw new AccountTypeNotSupportedError({
@@ -128,32 +103,6 @@ export async function signAuthorization<
       type: account.type,
     })
 
-  const authorization = {
-    contractAddress,
-    chainId,
-    nonce,
-  } as Authorization
-
-  if (typeof authorization.chainId === 'undefined')
-    authorization.chainId =
-      client.chain?.id ??
-      (await getAction(client, getChainId, 'getChainId')({}))
-
-  if (typeof authorization.nonce === 'undefined') {
-    authorization.nonce = await getAction(
-      client,
-      getTransactionCount,
-      'getTransactionCount',
-    )({
-      address: account.address,
-      blockTag: 'pending',
-    })
-    if (
-      !delegate ||
-      (delegate !== true && isAddressEqual(account.address, delegate.address))
-    )
-      authorization.nonce += 1
-  }
-
+  const authorization = await prepareAuthorization(client, parameters)
   return account.experimental_signAuthorization(authorization)
 }
