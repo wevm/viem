@@ -136,6 +136,7 @@ export { evmosTestnet } from './definitions/evmosTestnet.js'
 export { excelonMainnet } from './definitions/excelonMainnet.js'
 export { expanse } from './definitions/expanse.js'
 export { fantom } from './definitions/fantom.js'
+/** @deprecated Use `sonicTestnet` instead. */
 export { fantomSonicTestnet } from './definitions/fantomSonicTestnet.js'
 export { fantomTestnet } from './definitions/fantomTestnet.js'
 export { fibo } from './definitions/fibo.js'
