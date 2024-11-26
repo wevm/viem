@@ -19,7 +19,7 @@ describe('EstimateGasExecutionError', () => {
       Estimate Gas Arguments:
         from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -44,7 +44,7 @@ describe('EstimateGasExecutionError', () => {
         gas:    420
         nonce:  69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -71,7 +71,7 @@ describe('EstimateGasExecutionError', () => {
         maxPriorityFeePerGas:  0.000000069 gwei
         nonce:                 69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -96,7 +96,7 @@ describe('EstimateGasExecutionError', () => {
         gasPrice:  0.00000042 gwei
         nonce:     69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -117,12 +117,12 @@ describe('EstimateGasExecutionError', () => {
       Estimate Gas Arguments:
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
-        value:  0.00000000000000042 MATIC
+        value:  0.00000000000000042 POL
         data:   0x123
         gas:    420
         nonce:  69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -148,12 +148,12 @@ describe('EstimateGasExecutionError', () => {
       Estimate Gas Arguments:
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
-        value:  0.00000000000000042 MATIC
+        value:  0.00000000000000042 POL
         data:   0x123
         gas:    420
         nonce:  69
 
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })

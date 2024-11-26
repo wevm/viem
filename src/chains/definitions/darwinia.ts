@@ -15,7 +15,7 @@ export const darwinia = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://darwinia.subscan.io' },
+    default: { name: 'Explorer', url: 'https://explorer.darwinia.network' },
   },
   contracts: {
     multicall3: {

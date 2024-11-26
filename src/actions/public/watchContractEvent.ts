@@ -229,7 +229,7 @@ export function watchContractEvent<
               // If the block number has changed, we will need to fetch the logs.
               // If the block number doesn't exist, we are yet to reach the first poll interval,
               // so do not emit any logs.
-              if (previousBlockNumber && previousBlockNumber !== blockNumber) {
+              if (previousBlockNumber && previousBlockNumber < blockNumber) {
                 logs = await getAction(
                   client,
                   getContractEvents,
@@ -254,7 +254,7 @@ export function watchContractEvent<
             else for (const log of logs) emit.onLogs([log] as any)
           } catch (err) {
             // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
-            // Reinitalize the filter when this occurs
+            // Reinitialize the filter when this occurs
             if (filter && err instanceof InvalidInputRpcError)
               initialized = false
             emit.onError?.(err as Error)

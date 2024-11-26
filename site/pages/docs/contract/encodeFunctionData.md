@@ -20,6 +20,7 @@ Below is a very basic example of how to encode a function to calldata.
 
 ```ts [example.ts]
 import { encodeFunctionData } from 'viem'
+import { wagmiAbi } from './abi.ts'
 
 const data = encodeFunctionData({
   abi: wagmiAbi,

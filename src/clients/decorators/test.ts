@@ -378,8 +378,8 @@ export type TestActions = {
    *   value: 1000000000000000000n,
    * })
    */
-  sendUnsignedTransaction: <TChain extends Chain | undefined>(
-    args: SendUnsignedTransactionParameters<TChain>,
+  sendUnsignedTransaction: <chain extends Chain | undefined>(
+    args: SendUnsignedTransactionParameters<chain>,
   ) => Promise<SendUnsignedTransactionReturnType>
   /**
    * Enables or disables the automatic mining of new blocks with each new transaction submitted to the network.
@@ -716,21 +716,21 @@ export type TestActions = {
   ) => Promise<void>
 }
 
-export function testActions<TMode extends TestClientMode>({
+export function testActions<mode extends TestClientMode>({
   mode,
-}: { mode: TMode }): <
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
+}: { mode: mode }): <
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
 >(
-  client: Client<TTransport, TChain, TAccount>,
+  client: Client<transport, chain, account>,
 ) => TestActions {
   return <
-    TTransport extends Transport = Transport,
-    TChain extends Chain | undefined = Chain | undefined,
-    TAccount extends Account | undefined = Account | undefined,
+    transport extends Transport = Transport,
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
   >(
-    client_: Client<TTransport, TChain, TAccount>,
+    client_: Client<transport, chain, account>,
   ): TestActions => {
     const client = client_.extend(() => ({
       mode,

@@ -17,14 +17,14 @@ test('hashed bytecode', async () => {
   )
 })
 
-test('errors: length must be devisible by 32', async () => {
+test('errors: length must be divisible by 32', async () => {
   expect(() =>
     hashBytecode(invalidBytecodeLengthMustBeDivisibleBy32),
   ).toThrowErrorMatchingInlineSnapshot(
     `
     [BytecodeLengthMustBeDivisibleBy32Error: The bytecode length in bytes must be divisible by 32. Given length: 33
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
@@ -36,7 +36,7 @@ test('errors: length in words must be odd', async () => {
     `
     [BytecodeLengthInWordsMustBeOddError: Bytecode length in 32-byte words must be odd. Given length in words: 2
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })

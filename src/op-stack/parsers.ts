@@ -19,29 +19,29 @@ import type {
 } from './types/transaction.js'
 
 export type ParseTransactionReturnType<
-  TSerialized extends
+  serialized extends
     OpStackTransactionSerialized = OpStackTransactionSerialized,
-  TType extends
-    OpStackTransactionType = GetSerializedTransactionType<TSerialized>,
-> = TSerialized extends TransactionSerializedDeposit
+  type extends
+    OpStackTransactionType = GetSerializedTransactionType<serialized>,
+> = serialized extends TransactionSerializedDeposit
   ? TransactionSerializableDeposit
-  : ParseTransactionReturnType_<TSerialized, TType>
+  : ParseTransactionReturnType_<serialized, type>
 
 export type ParseTransactionErrorType = ParseTransactionErrorType_ | ErrorType
 
 export function parseTransaction<
-  TSerialized extends OpStackTransactionSerialized,
->(serializedTransaction: TSerialized): ParseTransactionReturnType<TSerialized> {
+  serialized extends OpStackTransactionSerialized,
+>(serializedTransaction: serialized): ParseTransactionReturnType<serialized> {
   const serializedType = sliceHex(serializedTransaction, 0, 1)
 
   if (serializedType === '0x7e')
     return parseTransactionDeposit(
       serializedTransaction as TransactionSerializedDeposit,
-    ) as ParseTransactionReturnType<TSerialized>
+    ) as ParseTransactionReturnType<serialized>
 
   return parseTransaction_(
     serializedTransaction,
-  ) as ParseTransactionReturnType<TSerialized>
+  ) as ParseTransactionReturnType<serialized>
 }
 
 function parseTransactionDeposit(

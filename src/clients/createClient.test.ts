@@ -1,8 +1,10 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '../../test/src/anvil.js'
+import { getChainId } from '../actions/public/getChainId.js'
 import { localhost, mainnet } from '../chains/index.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
+import { getAction } from '../utils/getAction.js'
 import { createClient } from './createClient.js'
 import { publicActions } from './decorators/public.js'
 import { createTransport } from './transports/createTransport.js'
@@ -504,7 +506,9 @@ describe('extends', () => {
         "getBlockTransactionCount": [Function],
         "getBytecode": [Function],
         "getChainId": [Function],
+        "getCode": [Function],
         "getContractEvents": [Function],
+        "getEip712Domain": [Function],
         "getEnsAddress": [Function],
         "getEnsAvatar": [Function],
         "getEnsName": [Function],
@@ -570,5 +574,32 @@ describe('extends', () => {
       // @ts-expect-error
       expect(extended.chain.id).toEqual(client.chain.id)
     })
+  })
+
+  test('action composition', async () => {
+    const calls: string[] = []
+    const extended = anvilMainnet
+      .getClient()
+      .extend((client) => ({
+        async getChainId() {
+          calls.push('first')
+          return getAction(client, getChainId, 'getChainId')({})
+        },
+      }))
+      .extend((client) => ({
+        async getChainId() {
+          calls.push('second')
+          return getAction(client, getChainId, 'getChainId')({})
+        },
+      }))
+      .extend((client) => ({
+        async getChainId() {
+          calls.push('third')
+          return getAction(client, getChainId, 'getChainId')({})
+        },
+      }))
+
+    expect(await extended.getChainId()).toBe(anvilMainnet.chain.id)
+    expect(calls).toEqual(['third', 'second', 'first'])
   })
 })

@@ -58,8 +58,8 @@ export type GetEnsAvatarErrorType =
  * })
  * // 'https://ipfs.io/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio'
  */
-export async function getEnsAvatar<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getEnsAvatar<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockNumber,
     blockTag,

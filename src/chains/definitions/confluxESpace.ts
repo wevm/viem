@@ -6,8 +6,8 @@ export const confluxESpace = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Conflux', symbol: 'CFX', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://evm.confluxrpc.org'],
-      webSocket: ['wss://evm.confluxrpc.org/ws'],
+      http: ['https://evm.confluxrpc.com'],
+      webSocket: ['wss://evm.confluxrpc.com/ws'],
     },
   },
   blockExplorers: {

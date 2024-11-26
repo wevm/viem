@@ -2,8 +2,8 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { FallbackTransport } from '../clients/transports/fallback.js'
 import type { Some } from './utils.js'
 
-export type GetTransportConfig<TTransport extends Transport> =
-  ReturnType<TTransport>['config']
+export type GetTransportConfig<transport extends Transport> =
+  ReturnType<transport>['config']
 
 export type GetPollOptions<transport extends Transport> =
   | (HasTransportType<transport, 'webSocket'> extends true

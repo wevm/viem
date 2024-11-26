@@ -1,4 +1,4 @@
-import { beforeAll, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts } from '../../../../test/src/constants.js'
@@ -99,10 +99,6 @@ const getClient = ({
     }),
   })
 
-beforeAll(async () => {
-  await anvilMainnet.restart()
-})
-
 test('default', async () => {
   const requests: unknown[] = []
 
@@ -143,16 +139,19 @@ test('default', async () => {
         {
           "calls": [
             {
+              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
             },
             {
+              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
             },
             {
+              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
@@ -174,7 +173,11 @@ test('default', async () => {
   expect(
     receipts?.map((receipt) => ({
       ...receipt,
-      logs: receipt.logs.map((log) => ({ ...log, blockHash: undefined })),
+      logs: receipt.logs.map((log) => ({
+        ...log,
+        blockHash: undefined,
+        blockTimestamp: undefined,
+      })),
       blockHash: undefined,
     })),
   ).toMatchInlineSnapshot(`
@@ -188,7 +191,7 @@ test('default', async () => {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
-            "blockTimestamp": "0x63abc18c",
+            "blockTimestamp": undefined,
             "data": "0x",
             "logIndex": "0x0",
             "removed": false,
@@ -198,12 +201,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000221",
             ],
-            "transactionHash": "0xf0c48f098fb7f44a4ca942f85277e97ad3481020e21f1f165eed514205a21694",
+            "transactionHash": "0x3dc2dcb12d9bb74c37b563bfea0e78521804502c5e6505f5e114ddad3292208f",
             "transactionIndex": "0x0",
           },
         ],
         "status": "success",
-        "transactionHash": "0xf0c48f098fb7f44a4ca942f85277e97ad3481020e21f1f165eed514205a21694",
+        "transactionHash": "0x3dc2dcb12d9bb74c37b563bfea0e78521804502c5e6505f5e114ddad3292208f",
       },
       {
         "blockHash": undefined,
@@ -214,7 +217,7 @@ test('default', async () => {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
-            "blockTimestamp": "0x63abc18c",
+            "blockTimestamp": undefined,
             "data": "0x",
             "logIndex": "0x1",
             "removed": false,
@@ -224,12 +227,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000222",
             ],
-            "transactionHash": "0x4add84ccc2e6a1b66b9ce571fa5af64b647f32e89a82454147a070549694a4d9",
+            "transactionHash": "0x6178e4e58efa34b308d5bc038be614ded98221d49af01fd9efda0bc4432acee2",
             "transactionIndex": "0x1",
           },
         ],
         "status": "success",
-        "transactionHash": "0x4add84ccc2e6a1b66b9ce571fa5af64b647f32e89a82454147a070549694a4d9",
+        "transactionHash": "0x6178e4e58efa34b308d5bc038be614ded98221d49af01fd9efda0bc4432acee2",
       },
       {
         "blockHash": undefined,
@@ -240,7 +243,7 @@ test('default', async () => {
             "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
             "blockHash": undefined,
             "blockNumber": "0xf86cc3",
-            "blockTimestamp": "0x63abc18c",
+            "blockTimestamp": undefined,
             "data": "0x",
             "logIndex": "0x2",
             "removed": false,
@@ -250,12 +253,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000223",
             ],
-            "transactionHash": "0xe9f2e65209f76f94aadc58c78fd1d935dbe0e3cd70784d9b4632904171eeddbe",
+            "transactionHash": "0xa6661c5bb2bed7ec8dd4dc07f5d7ed3e95817bdefdb9cfd11ef316fda70cbf0f",
             "transactionIndex": "0x2",
           },
         ],
         "status": "success",
-        "transactionHash": "0xe9f2e65209f76f94aadc58c78fd1d935dbe0e3cd70784d9b4632904171eeddbe",
+        "transactionHash": "0xa6661c5bb2bed7ec8dd4dc07f5d7ed3e95817bdefdb9cfd11ef316fda70cbf0f",
       },
     ]
   `)

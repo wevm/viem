@@ -489,12 +489,12 @@ export type PublicActionsL2<
  */
 export function publicActionsL2() {
   return <
-    TTransport extends Transport,
-    TChain extends Chain | undefined = Chain | undefined,
-    TAccount extends Account | undefined = Account | undefined,
+    transport extends Transport,
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
   >(
-    client: Client<TTransport, TChain, TAccount>,
-  ): PublicActionsL2<TChain, TAccount> => {
+    client: Client<transport, chain, account>,
+  ): PublicActionsL2<chain, account> => {
     return {
       buildDepositTransaction: (args) => buildDepositTransaction(client, args),
       buildProveWithdrawal: (args) => buildProveWithdrawal(client, args),

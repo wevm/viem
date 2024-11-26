@@ -1,10 +1,10 @@
 ---
-description: Returns additional zkSync-specific information about the L2 block.
+description: Returns additional ZKsync-specific information about the L2 block.
 ---
 
 # getBlockDetails
 
-Returns additional zkSync-specific information about the L2 block.
+Returns additional ZKsync-specific information about the L2 block.
 
 ## Usage
 
@@ -20,11 +20,11 @@ const blockDetails = await client.getBlockDetails({
 
 ```ts [config.ts]
 import { createPublicClient, http } from 'viem'
-import { zkSync } from 'viem/chains'
+import { zksync } from 'viem/chains'
 import { publicActionsL2 } from 'viem/zksync'
 
 export const client = createPublicClient({
-  chain: zkSync,
+  chain: zksync,
   transport: http(),
 }).extend(publicActionsL2())
 ```
@@ -34,7 +34,7 @@ export const client = createPublicClient({
 
 `BaseBlockDetails`
 
-Structure that represent zkSync-specific information about L2 block.
+Structure that represent ZKsync-specific information about L2 block.
 
 ## Parameters
 

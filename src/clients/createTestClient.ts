@@ -58,7 +58,9 @@ export type TestClient<
     rpcSchema extends RpcSchema
       ? [...TestRpcSchema<mode>, ...rpcSchema]
       : TestRpcSchema<mode>,
-    includeActions extends true ? TestActions : Record<string, unknown>
+    { mode: mode } & (includeActions extends true
+      ? TestActions
+      : Record<string, unknown>)
   >
 >
 

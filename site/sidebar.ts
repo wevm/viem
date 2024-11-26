@@ -98,9 +98,22 @@ export const sidebar = {
           ],
         },
         {
+          text: 'Call',
+          items: [{ text: 'call', link: '/docs/actions/public/call' }],
+        },
+        {
           text: 'Chain',
           items: [
             { text: 'getChainId', link: '/docs/actions/public/getChainId' },
+          ],
+        },
+        {
+          text: 'EIP-712',
+          items: [
+            {
+              text: 'getEip712Domain',
+              link: '/docs/actions/public/getEip712Domain',
+            },
           ],
         },
         {
@@ -194,7 +207,6 @@ export const sidebar = {
         {
           text: 'Transaction',
           items: [
-            { text: 'call', link: '/docs/actions/public/call' },
             {
               text: 'prepareTransactionRequest',
               link: '/docs/actions/wallet/prepareTransactionRequest',
@@ -438,21 +450,45 @@ export const sidebar = {
       text: 'Accounts',
       collapsed: true,
       items: [
-        { text: 'JSON-RPC', link: '/docs/accounts/jsonRpc' },
+        { text: 'JSON-RPC Account', link: '/docs/accounts/jsonRpc' },
         {
-          text: 'Local',
+          text: 'Local Accounts',
           link: '/docs/accounts/local',
           items: [
-            { text: 'Private Key', link: '/docs/accounts/privateKey' },
-            { text: 'Mnemonic', link: '/docs/accounts/mnemonic' },
+            {
+              text: 'Private Key',
+              link: '/docs/accounts/local/privateKeyToAccount',
+            },
+            {
+              text: 'Mnemonic',
+              link: '/docs/accounts/local/mnemonicToAccount',
+            },
             {
               text: 'Hierarchical Deterministic (HD)',
-              link: '/docs/accounts/hd',
+              link: '/docs/accounts/local/hdKeyToAccount',
             },
-            { text: 'Custom', link: '/docs/accounts/custom' },
-            { text: 'signMessage', link: '/docs/accounts/signMessage' },
-            { text: 'signTransaction', link: '/docs/accounts/signTransaction' },
-            { text: 'signTypedData', link: '/docs/accounts/signTypedData' },
+            { text: 'Custom', link: '/docs/accounts/local/toAccount' },
+            {
+              text: 'Utilities',
+              items: [
+                {
+                  text: 'createNonceManager',
+                  link: '/docs/accounts/local/createNonceManager',
+                },
+                {
+                  text: 'signMessage',
+                  link: '/docs/accounts/local/signMessage',
+                },
+                {
+                  text: 'signTransaction',
+                  link: '/docs/accounts/local/signTransaction',
+                },
+                {
+                  text: 'signTypedData',
+                  link: '/docs/accounts/local/signTypedData',
+                },
+              ],
+            },
           ],
         },
       ],
@@ -491,7 +527,7 @@ export const sidebar = {
               link: '/op-stack',
             },
             {
-              text: 'zkSync',
+              text: 'ZKsync',
               link: '/zksync',
             },
           ],
@@ -522,8 +558,8 @@ export const sidebar = {
               link: '/docs/contract/estimateContractGas',
             },
             {
-              text: 'getBytecode',
-              link: '/docs/contract/getBytecode',
+              text: 'getCode',
+              link: '/docs/contract/getCode',
             },
             {
               text: 'getContractEvents',
@@ -916,8 +952,16 @@ export const sidebar = {
               link: '/docs/utilities/hashTypedData',
             },
             {
+              text: 'isErc6492Signature',
+              link: '/docs/utilities/isErc6492Signature',
+            },
+            {
               text: 'parseCompactSignature',
               link: '/docs/utilities/parseCompactSignature',
+            },
+            {
+              text: 'parseErc6492Signature',
+              link: '/docs/utilities/parseErc6492Signature',
             },
             {
               text: 'parseSignature',
@@ -946,6 +990,10 @@ export const sidebar = {
             {
               text: 'serializeCompactSignature',
               link: '/docs/utilities/serializeCompactSignature',
+            },
+            {
+              text: 'serializeErc6492Signature',
+              link: '/docs/utilities/serializeErc6492Signature',
             },
             {
               text: 'serializeSignature',
@@ -1010,20 +1058,6 @@ export const sidebar = {
       ],
     },
     {
-      text: 'Third Party',
-      collapsed: true,
-      items: [
-        {
-          text: 'Account Abstraction',
-          link: '/docs/third-party/account-abstraction',
-        },
-        {
-          text: 'Miscellaneous',
-          link: '/docs/third-party/misc',
-        },
-      ],
-    },
-    {
       text: 'Glossary',
       collapsed: true,
       items: [
@@ -1033,6 +1067,174 @@ export const sidebar = {
       ],
     },
   ],
+  '/account-abstraction': {
+    backLink: true,
+    items: [
+      {
+        text: 'Account Abstraction',
+        items: [
+          {
+            text: 'Getting Started',
+            link: '/account-abstraction',
+          },
+        ],
+      },
+      {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Sending User Operations',
+            link: '/account-abstraction/guides/sending-user-operations',
+          },
+        ],
+      },
+      {
+        text: 'Clients',
+        items: [
+          {
+            text: 'Bundler Client',
+            link: '/account-abstraction/clients/bundler',
+          },
+          {
+            text: 'Paymaster Client',
+            link: '/account-abstraction/clients/paymaster',
+          },
+        ],
+      },
+      {
+        text: 'Accounts',
+        items: [
+          {
+            text: 'Smart Accounts',
+            link: '/account-abstraction/accounts/smart',
+            items: [
+              {
+                text: 'Coinbase',
+                link: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
+              },
+              {
+                text: 'Thirdweb',
+                link: '/account-abstraction/accounts/smart/toThirdwebSmartAccount',
+              },
+              {
+                text: 'Biconomy',
+                link: '/account-abstraction/accounts/smart/toNexusSmartAccount',
+              },
+              {
+                text: 'Alchemy',
+                link: '/account-abstraction/accounts/smart/toLightSmartAccount',
+              },
+              {
+                text: 'Kernel (ZeroDev)',
+                link: '/account-abstraction/accounts/smart/toEcdsaKernelSmartAccount',
+              },
+              {
+                text: 'Safe',
+                link: '/account-abstraction/accounts/smart/toSafeSmartAccount',
+              },
+              {
+                text: 'Simple',
+                link: '/account-abstraction/accounts/smart/toSimpleSmartAccount',
+              },
+              {
+                text: 'Solady',
+                link: '/account-abstraction/accounts/smart/toSoladySmartAccount',
+              },
+              {
+                text: 'Trust',
+                link: '/account-abstraction/accounts/smart/toTrustSmartAccount',
+              },
+              {
+                text: 'Custom',
+                link: '/account-abstraction/accounts/smart/toSmartAccount',
+              },
+              {
+                text: 'Utilities',
+                items: [
+                  {
+                    text: 'signMessage',
+                    link: '/account-abstraction/accounts/smart/signMessage',
+                  },
+                  {
+                    text: 'signTypedData',
+                    link: '/account-abstraction/accounts/smart/signTypedData',
+                  },
+                  {
+                    text: 'signUserOperation',
+                    link: '/account-abstraction/accounts/smart/signUserOperation',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: 'WebAuthn Account',
+            link: '/account-abstraction/accounts/webauthn',
+            items: [
+              {
+                text: 'toWebAuthnAccount',
+                link: '/account-abstraction/accounts/webauthn/toWebAuthnAccount',
+              },
+              {
+                text: 'createWebAuthnCredential',
+                link: '/account-abstraction/accounts/webauthn/createWebAuthnCredential',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Bundler Actions',
+        items: [
+          {
+            text: 'estimateUserOperationGas',
+            link: '/account-abstraction/actions/bundler/estimateUserOperationGas',
+          },
+          {
+            text: 'getChainId',
+            link: '/account-abstraction/actions/bundler/getChainId',
+          },
+          {
+            text: 'getSupportedEntryPoints',
+            link: '/account-abstraction/actions/bundler/getSupportedEntryPoints',
+          },
+          {
+            text: 'getUserOperation',
+            link: '/account-abstraction/actions/bundler/getUserOperation',
+          },
+          {
+            text: 'getUserOperationReceipt',
+            link: '/account-abstraction/actions/bundler/getUserOperationReceipt',
+          },
+          {
+            text: 'prepareUserOperation',
+            link: '/account-abstraction/actions/bundler/prepareUserOperation',
+          },
+          {
+            text: 'sendUserOperation',
+            link: '/account-abstraction/actions/bundler/sendUserOperation',
+          },
+          {
+            text: 'waitForUserOperationReceipt',
+            link: '/account-abstraction/actions/bundler/waitForUserOperationReceipt',
+          },
+        ],
+      },
+      {
+        text: 'Paymaster Actions',
+        items: [
+          {
+            text: 'getPaymasterData',
+            link: '/account-abstraction/actions/paymaster/getPaymasterData',
+          },
+          {
+            text: 'getPaymasterStubData',
+            link: '/account-abstraction/actions/paymaster/getPaymasterStubData',
+          },
+        ],
+      },
+    ],
+  },
   '/experimental': {
     backLink: true,
     items: [
@@ -1043,12 +1245,12 @@ export const sidebar = {
             text: 'Getting Started',
             link: '/experimental',
           },
-          { text: 'Client', link: '/experimental/client' },
         ],
       },
       {
         text: 'EIP-5792',
         items: [
+          { text: 'Client', link: '/experimental/eip5792/client' },
           {
             text: 'Actions',
             items: [
@@ -1068,31 +1270,61 @@ export const sidebar = {
                 text: 'showCallsStatus',
                 link: '/experimental/eip5792/showCallsStatus',
               },
-              {
-                text: 'writeContracts',
-                link: '/experimental/eip5792/writeContracts',
-              },
             ],
           },
         ],
       },
       {
-        text: 'ERC-6492',
+        text: 'EIP-7702',
         items: [
+          {
+            text: 'Overview',
+            link: '/experimental/eip7702',
+          },
+          {
+            text: 'Guides',
+            items: [
+              {
+                text: 'Extending Client',
+                link: '/experimental/eip7702/client',
+              },
+              {
+                text: 'Contract Writes',
+                link: '/experimental/eip7702/contract-writes',
+              },
+              {
+                text: 'Sending Transactions',
+                link: '/experimental/eip7702/sending-transactions',
+              },
+            ],
+          },
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'prepareAuthorization',
+                link: '/experimental/eip7702/prepareAuthorization',
+              },
+              {
+                text: 'signAuthorization',
+                link: '/experimental/eip7702/signAuthorization',
+              },
+            ],
+          },
           {
             text: 'Utilities',
             items: [
               {
-                text: 'parseErc6492Signature',
-                link: '/experimental/erc6492/parseErc6492Signature',
+                text: 'hashAuthorization',
+                link: '/experimental/eip7702/hashAuthorization',
               },
               {
-                text: 'isErc6492Signature',
-                link: '/experimental/erc6492/isErc6492Signature',
+                text: 'recoverAuthorizationAddress',
+                link: '/experimental/eip7702/recoverAuthorizationAddress',
               },
               {
-                text: 'serializeErc6492Signature',
-                link: '/experimental/erc6492/serializeErc6492Signature',
+                text: 'verifyAuthorization',
+                link: '/experimental/eip7702/verifyAuthorization',
               },
             ],
           },
@@ -1102,11 +1334,54 @@ export const sidebar = {
         text: 'ERC-7715',
         items: [
           {
+            text: 'Client',
+            link: '/experimental/erc7715/client',
+          },
+          {
             text: 'Actions',
             items: [
               {
-                text: 'issuePermissions',
-                link: '/experimental/erc7715/issuePermissions',
+                text: 'grantPermissions',
+                link: '/experimental/erc7715/grantPermissions',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'ERC-7739',
+        items: [
+          {
+            text: 'Client',
+            link: '/experimental/erc7739/client',
+          },
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'signMessage',
+                link: '/experimental/erc7739/signMessage',
+              },
+              {
+                text: 'signTypedData',
+                link: '/experimental/erc7739/signTypedData',
+              },
+            ],
+          },
+          {
+            text: 'Utilities',
+            items: [
+              {
+                text: 'hashMessage',
+                link: '/experimental/solady/hashMessage',
+              },
+              {
+                text: 'hashTypedData',
+                link: '/experimental/solady/hashTypedData',
+              },
+              {
+                text: 'wrapTypedDataSignature',
+                link: '/experimental/solady/wrapTypedDataSignature',
               },
             ],
           },
@@ -1336,7 +1611,7 @@ export const sidebar = {
     backLink: true,
     items: [
       {
-        text: 'zkSync',
+        text: 'ZKsync',
         items: [
           {
             text: 'Getting Started',
@@ -1344,6 +1619,23 @@ export const sidebar = {
           },
           { text: 'Client', link: '/zksync/client' },
           { text: 'Chains', link: '/zksync/chains' },
+        ],
+      },
+      {
+        text: 'Smart Accounts',
+        items: [
+          {
+            text: 'Singlesig',
+            link: '/zksync/accounts/toSinglesigSmartAccount',
+          },
+          {
+            text: 'Multisig',
+            link: '/zksync/accounts/toMultisigSmartAccount',
+          },
+          {
+            text: 'Custom',
+            link: '/zksync/accounts/toSmartAccount',
+          },
         ],
       },
       {
@@ -1468,6 +1760,10 @@ export const sidebar = {
                 link: '/zksync/utilities/paymaster/getGeneralPaymasterInput',
               },
             ],
+          },
+          {
+            text: 'parseEip712Transaction',
+            link: '/zksync/utilities/parseEip712Transaction',
           },
         ],
       },

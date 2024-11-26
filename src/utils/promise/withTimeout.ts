@@ -2,10 +2,10 @@ import type { ErrorType } from '../../errors/utils.js'
 
 export type WithTimeoutErrorType = ErrorType
 
-export function withTimeout<TData>(
+export function withTimeout<data>(
   fn: ({
     signal,
-  }: { signal: AbortController['signal'] | null }) => Promise<TData>,
+  }: { signal: AbortController['signal'] | null }) => Promise<data>,
   {
     errorInstance = new Error('timed out'),
     timeout,
@@ -18,7 +18,7 @@ export function withTimeout<TData>(
     // Whether or not the timeout should use an abort signal.
     signal?: boolean | undefined
   },
-): Promise<TData> {
+): Promise<data> {
   return new Promise((resolve, reject) => {
     ;(async () => {
       let timeoutId!: NodeJS.Timeout

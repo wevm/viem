@@ -72,7 +72,7 @@ test('https://github.com/wevm/viem/issues/2306', async () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 
   // ✅ Successfully verifies with valid checksum address.
@@ -106,6 +106,6 @@ test('https://github.com/wevm/viem/issues/2306', async () => {
     - Address must be a hex value of 20 bytes (40 hex characters).
     - Address must match its checksum counterpart.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

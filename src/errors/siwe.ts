@@ -4,7 +4,6 @@ export type SiweInvalidMessageFieldErrorType = SiweInvalidMessageFieldError & {
   name: 'SiweInvalidMessageFieldError'
 }
 export class SiweInvalidMessageFieldError extends BaseError {
-  override name = 'SiweInvalidMessageFieldError'
   constructor(parameters: {
     docsPath?: string | undefined
     field: string
@@ -13,8 +12,8 @@ export class SiweInvalidMessageFieldError extends BaseError {
     const { docsPath, field, metaMessages } = parameters
     super(`Invalid Sign-In with Ethereum message field "${field}".`, {
       docsPath,
-      docsSlug: 'TODO',
       metaMessages,
+      name: 'SiweInvalidMessageFieldError',
     })
   }
 }

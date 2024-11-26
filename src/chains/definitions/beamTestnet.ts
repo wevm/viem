@@ -10,10 +10,6 @@ export const beamTestnet = /*#__PURE__*/ defineChain({
     symbol: 'BEAM',
   },
   rpcUrls: {
-    public: {
-      http: ['https://build.onbeam.com/rpc/testnet'],
-      webSocket: ['wss://build.onbeam.com/ws/testnet'],
-    },
     default: {
       http: ['https://build.onbeam.com/rpc/testnet'],
       webSocket: ['wss://build.onbeam.com/ws/testnet'],

@@ -13,9 +13,9 @@ Estimates gas required to initiate a [withdrawal](https://github.com/ethereum-op
 
 ```ts [example.ts]
 import { base } from 'viem/chains'
-import { account, walletClientL2 } from './config'
+import { account, publicClientL2 } from './config'
  
-const gas = await walletClientL2.estimateInitiateWithdrawalGas({
+const gas = await publicClientL2.estimateInitiateWithdrawalGas({
   account,
   request: {
     gas: 21_000n,
@@ -29,12 +29,12 @@ const gas = await walletClientL2.estimateInitiateWithdrawalGas({
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { walletActionsL2 } from 'viem/op-stack'
+import { publicActionsL2 } from 'viem/op-stack'
 
-export const walletClientL2 = createWalletClient({
+export const publicClientL2 = createPublicClient({
   chain: mainnet,
   transport: custom(window.ethereum)
-}).extend(walletActionsL2())
+}).extend(publicActionsL2())
 
 // JSON-RPC Account
 export const [account] = await walletClientL2.getAddresses()

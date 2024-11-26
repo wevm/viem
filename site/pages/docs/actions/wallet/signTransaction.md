@@ -139,7 +139,8 @@ The access list.
 ```ts twoslash
 // [!include ~/snippets/walletClient.ts]
 // ---cut---
-const signature = await publicClient.signTransaction({
+// @noErrors
+const signature = await walletClient.signTransaction({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
@@ -150,6 +151,44 @@ const signature = await publicClient.signTransaction({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
+
+### authorizationList (optional)
+
+- **Type:** `AuthorizationList`
+
+Signed EIP-7702 Authorization list.
+
+```ts twoslash
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+import { eip7702Actions } from 'viem/experimental'
+
+const account = privateKeyToAccount('0x...')
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: http(),
+}).extend(eip7702Actions())
+// ---cut---
+const authorization = await walletClient.signAuthorization({ 
+  account,
+  contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', 
+}) 
+
+const signature = await walletClient.signTransaction({
+  account,
+  authorizationList: [authorization], // [!code focus]
+  data: '0xdeadbeef',
+  to: account.address,
+})
+```
+
+:::note
+**References**
+- [EIP-7702 Overview](/experimental/eip7702)
+- [`signAuthorization` Docs](/experimental/eip7702/signAuthorization)
+:::
 
 ### blobs (optional)
 

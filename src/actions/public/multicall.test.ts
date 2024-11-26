@@ -5,7 +5,7 @@
  */
 import { describe, expect, test, vi } from 'vitest'
 
-import { ErrorsExample, GH434 } from '~test/contracts/generated.js'
+import { ErrorsExample, GH434 } from '~contracts/generated.js'
 import {
   baycContractConfig,
   usdcContractConfig,
@@ -50,7 +50,7 @@ test('default', async () => {
   ).toMatchInlineSnapshot(`
     [
       {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
@@ -89,7 +89,7 @@ test('args: allowFailure', async () => {
     }),
   ).toMatchInlineSnapshot(`
     [
-      25847278192610069n,
+      25386964533553076n,
       9063377042n,
       10000n,
     ]
@@ -151,23 +151,11 @@ test('args: batchSize', async () => {
   ).toMatchInlineSnapshot(`
     [
       {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
-        "result": 25847278192610069n,
-        "status": "success",
-      },
-      {
-        "result": 9063377042n,
-        "status": "success",
-      },
-      {
-        "result": 10000n,
-        "status": "success",
-      },
-      {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
@@ -179,7 +167,19 @@ test('args: batchSize', async () => {
         "status": "success",
       },
       {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
+        "status": "success",
+      },
+      {
+        "result": 9063377042n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+      {
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
@@ -263,7 +263,7 @@ test('args: multicallAddress', async () => {
   ).toMatchInlineSnapshot(`
     [
       {
-        "result": 25847278192610069n,
+        "result": 25386964533553076n,
         "status": "success",
       },
       {
@@ -377,7 +377,7 @@ describe('errors', async () => {
           address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -430,7 +430,7 @@ describe('errors', async () => {
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -484,7 +484,7 @@ describe('errors', async () => {
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -550,7 +550,7 @@ describe('errors', async () => {
           args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -568,7 +568,7 @@ describe('errors', async () => {
           args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 1)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -585,7 +585,6 @@ describe('errors', async () => {
 
       expect(
         await multicall(client, {
-          blockNumber: anvilMainnet.forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -627,7 +626,7 @@ describe('errors', async () => {
           function:  simpleCustomRead()
 
         Docs: https://viem.sh/docs/contract/decodeErrorResult
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -777,7 +776,7 @@ describe('errors', async () => {
           address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2],
+        Version: viem@x.y.z],
             "result": undefined,
             "status": "failure",
           },
@@ -819,7 +818,7 @@ describe('errors', async () => {
           address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/encodeFunctionData
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -855,7 +854,7 @@ describe('errors', async () => {
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -895,7 +894,7 @@ describe('errors', async () => {
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
 
@@ -939,7 +938,7 @@ describe('errors', async () => {
           args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
         Docs: https://viem.sh/docs/contract/multicall
-        Version: viem@1.0.2]
+        Version: viem@x.y.z]
       `)
     })
   })
@@ -954,7 +953,6 @@ describe('errors', async () => {
     await expect(() =>
       multicall(client, {
         allowFailure: false,
-        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -986,7 +984,7 @@ describe('errors', async () => {
         function:  simpleCustomRead()
 
       Docs: https://viem.sh/docs/contract/decodeErrorResult
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -1120,7 +1118,7 @@ test('multicall contract not configured for chain', async () => {
     This could be due to any of the following:
     - The chain does not have the contract "multicall3" configured.
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1150,7 +1148,7 @@ test('multicall contract deployed on later block', async () => {
     This could be due to any of the following:
     - The contract "multicall3" was not deployed until block 14353601 (current block 69420).
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })
 
@@ -1188,7 +1186,6 @@ describe('GitHub repros', () => {
     expect(
       await multicall(client, {
         allowFailure: false,
-        blockNumber: anvilMainnet.forkBlockNumber,
         contracts: [
           {
             abi: GH434.abi,

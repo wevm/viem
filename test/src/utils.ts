@@ -30,7 +30,12 @@ import {
   ErrorsExample,
   OffchainLookupExample,
   Payable,
-} from '../contracts/generated.js'
+  SoladyAccount06,
+  SoladyAccount07,
+  SoladyAccountFactory06,
+  SoladyAccountFactory07,
+  VerifySig,
+} from '../../contracts/generated.js'
 import {
   baycContractConfig,
   ensRegistryConfig,
@@ -69,7 +74,7 @@ export function createHttpServer(
   })
 }
 
-export async function deploy<const TAbi extends Abi | readonly unknown[]>(
+export async function deploy<const abi extends Abi | readonly unknown[]>(
   client: TestClient<
     TestClientMode,
     Transport,
@@ -77,7 +82,7 @@ export async function deploy<const TAbi extends Abi | readonly unknown[]>(
     Account | undefined,
     false
   >,
-  args: DeployContractParameters<TAbi, (typeof client)['chain'], Account>,
+  args: DeployContractParameters<abi, (typeof client)['chain'], Account>,
 ) {
   const hash = await deployContract(client, {
     account: accounts[0].address,
@@ -87,7 +92,7 @@ export async function deploy<const TAbi extends Abi | readonly unknown[]>(
   const { contractAddress } = await getTransactionReceipt(client, {
     hash,
   })
-  return { contractAddress }
+  return { contractAddress, hash }
 }
 
 export async function deployBAYC() {
@@ -132,6 +137,45 @@ export async function deployPayable() {
   return deploy(client, {
     abi: Payable.abi,
     bytecode: Payable.bytecode.object,
+  })
+}
+
+export async function deploySoladyAccount_07() {
+  const { contractAddress: implementationAddress } = await deploy(client, {
+    abi: SoladyAccount07.abi,
+    bytecode: SoladyAccount07.bytecode.object,
+  })
+  const { contractAddress: factoryAddress } = await deploy(client, {
+    abi: SoladyAccountFactory07.abi,
+    bytecode: SoladyAccountFactory07.bytecode.object,
+    args: [implementationAddress!],
+  })
+  return {
+    implementationAddress: implementationAddress!,
+    factoryAddress: factoryAddress!,
+  }
+}
+
+export async function deploySoladyAccount_06() {
+  const { contractAddress: implementationAddress } = await deploy(client, {
+    abi: SoladyAccount06.abi,
+    bytecode: SoladyAccount06.bytecode.object,
+  })
+  const { contractAddress: factoryAddress } = await deploy(client, {
+    abi: SoladyAccountFactory06.abi,
+    bytecode: SoladyAccountFactory06.bytecode.object,
+    args: [implementationAddress!],
+  })
+  return {
+    implementationAddress: implementationAddress!,
+    factoryAddress: factoryAddress!,
+  }
+}
+
+export async function deployUniversalSignatureVerifier() {
+  return deploy(client, {
+    abi: VerifySig.abi,
+    bytecode: VerifySig.bytecode.object,
   })
 }
 

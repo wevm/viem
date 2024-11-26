@@ -1,11 +1,11 @@
 import type { Address } from 'abitype'
 import type { Hash, Hex } from '../../types/misc.js'
-import type { ZkSyncBatchDetails, ZkSyncBlockDetails } from './block.js'
-import type { ZkSyncFee } from './fee.js'
+import type { ZksyncBatchDetails, ZksyncBlockDetails } from './block.js'
+import type { ZksyncFee } from './fee.js'
 import type { MessageProof } from './proof.js'
 import type {
   TransactionRequest,
-  ZkSyncTransactionDetails,
+  ZksyncTransactionDetails,
 } from './transaction.js'
 
 export type CommonDataRawBlockTransaction = {
@@ -35,7 +35,7 @@ export type RawBlockTransactions = {
     L2?:
       | {
           nonce: number
-          fee: ZkSyncFee<Hex>
+          fee: ZksyncFee<Hex>
           initiatorAddress: Address
           signature: Uint8Array
           transactionType: string
@@ -65,7 +65,7 @@ export type RawBlockTransactions = {
   raw_bytes?: string
 }[]
 
-export type PublicZkSyncRpcSchema = [
+export type PublicZksyncRpcSchema = [
   {
     Method: 'zks_estimateFee'
     Parameters: [TransactionRequest]
@@ -131,7 +131,7 @@ export type PublicZkSyncRpcSchema = [
   {
     Method: 'zks_getL1BatchDetails'
     Parameters: [number]
-    ReturnType: ZkSyncBatchDetails
+    ReturnType: ZksyncBatchDetails
   },
   {
     Method: 'zks_getRawBlockTransactions'
@@ -141,12 +141,12 @@ export type PublicZkSyncRpcSchema = [
   {
     Method: 'zks_getBlockDetails'
     Parameters: [number]
-    ReturnType: ZkSyncBlockDetails
+    ReturnType: ZksyncBlockDetails
   },
   {
     Method: 'zks_getTransactionDetails'
     Parameters: [Hash]
-    ReturnType: ZkSyncTransactionDetails
+    ReturnType: ZksyncTransactionDetails
   },
   {
     Method: 'zks_getBridgehubContract'

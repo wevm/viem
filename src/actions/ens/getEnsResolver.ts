@@ -65,8 +65,8 @@ export type GetEnsResolverErrorType =
  * })
  * // '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'
  */
-export async function getEnsResolver<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getEnsResolver<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockNumber,
     blockTag,

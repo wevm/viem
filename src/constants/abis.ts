@@ -209,23 +209,44 @@ export const universalSignatureValidatorAbi = [
   {
     inputs: [
       {
-        internalType: 'address',
         name: '_signer',
         type: 'address',
       },
       {
-        internalType: 'bytes32',
         name: '_hash',
         type: 'bytes32',
       },
       {
-        internalType: 'bytes',
         name: '_signature',
         type: 'bytes',
       },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
+  },
+  {
+    inputs: [
+      {
+        name: '_signer',
+        type: 'address',
+      },
+      {
+        name: '_hash',
+        type: 'bytes32',
+      },
+      {
+        name: '_signature',
+        type: 'bytes',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+    name: 'isValidSig',
   },
 ] as const
 

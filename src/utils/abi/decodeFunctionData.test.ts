@@ -218,6 +218,6 @@ test("errors: function doesn't exist", () => {
     You can look up the signature here: https://openchain.xyz/signatures?query=0xa3741467.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionData
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

@@ -66,6 +66,11 @@ test('default', async () => {
         },
       },
       "contracts": {
+        "disputeGameFactory": {
+          "1": {
+            "address": "0xe5965Ab5962eDc7477C8520243A95517CD252fA9",
+          },
+        },
         "gasPriceOracle": {
           "address": "0x420000000000000000000000000000000000000F",
         },

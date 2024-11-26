@@ -12,6 +12,7 @@ test('exports utils', () => {
       "italian",
       "japanese",
       "korean",
+      "portuguese",
       "simplifiedChinese",
       "spanish",
       "traditionalChinese",
@@ -21,15 +22,19 @@ test('exports utils', () => {
       "mnemonicToAccount",
       "privateKeyToAccount",
       "toAccount",
+      "setSignEntropy",
       "sign",
       "signatureToHex",
       "serializeSignature",
+      "experimental_signAuthorization",
       "signMessage",
       "signTransaction",
       "signTypedData",
       "parseAccount",
       "publicKeyToAddress",
       "privateKeyToAddress",
+      "createNonceManager",
+      "nonceManager",
     ]
   `)
 })

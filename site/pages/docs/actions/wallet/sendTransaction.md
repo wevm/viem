@@ -87,11 +87,11 @@ The [Transaction](/docs/glossary/terms#transaction) hash.
 
 ### account
 
-- **Type:** `Account | Address`
+- **Type:** `Account | Address | null`
 
 The Account to send the transaction from.
 
-Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc). If set to `null`, it is assumed that the transport will handle filling the sender of the transaction.
 
 ```ts twoslash
 // [!include ~/snippets/walletClient.ts]
@@ -132,7 +132,7 @@ The access list.
 // [!include ~/snippets/walletClient.ts]
 // ---cut---
 // @noErrors
-const hash = await publicClient.sendTransaction({
+const hash = await walletClient.sendTransaction({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
@@ -143,6 +143,44 @@ const hash = await publicClient.sendTransaction({
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
+
+### authorizationList (optional)
+
+- **Type:** `AuthorizationList`
+
+Signed EIP-7702 Authorization list.
+
+```ts twoslash
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+import { eip7702Actions } from 'viem/experimental'
+
+const account = privateKeyToAccount('0x...')
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: http(),
+}).extend(eip7702Actions())
+// ---cut---
+const authorization = await walletClient.signAuthorization({ 
+  account,
+  contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', 
+}) 
+
+const hash = await walletClient.sendTransaction({
+  account,
+  authorizationList: [authorization], // [!code focus]
+  data: '0xdeadbeef',
+  to: account.address,
+})
+```
+
+:::note
+**References**
+- [EIP-7702 Overview](/experimental/eip7702)
+- [`signAuthorization` Docs](/experimental/eip7702/signAuthorization)
+:::
 
 ### blobs (optional)
 

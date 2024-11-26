@@ -48,14 +48,14 @@ describe('Sign Transaction (EIP1559)', () => {
 })
 
 describe('Sign Transaction (EIP2930)', () => {
-  bench('viem: `signTransactiion`', async () => {
+  bench('viem: `signTransaction`', async () => {
     await signTransaction({
       transaction: { ...base, chainId: 1, gasPrice: 1n, accessList: [] },
       privateKey: accounts[0].privateKey,
     })
   })
 
-  bench('ethers: `Wallet.signTransactiion`', async () => {
+  bench('ethers: `Wallet.signTransaction`', async () => {
     await wallet.signTransaction({
       ...base,
       chainId: 1,

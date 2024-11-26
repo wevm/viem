@@ -21,6 +21,6 @@ test('SiweInvalidMessageFieldError', () => {
 
     Provided value: foobarbaz$
 
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `)
 })

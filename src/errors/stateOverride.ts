@@ -6,9 +6,10 @@ export type AccountStateConflictErrorType = AccountStateConflictError & {
 }
 
 export class AccountStateConflictError extends BaseError {
-  override name = 'AccountStateConflictError'
   constructor({ address }: { address: string }) {
-    super(`State for account "${address}" is set multiple times.`)
+    super(`State for account "${address}" is set multiple times.`, {
+      name: 'AccountStateConflictError',
+    })
   }
 }
 
@@ -17,9 +18,10 @@ export type StateAssignmentConflictErrorType = StateAssignmentConflictError & {
 }
 
 export class StateAssignmentConflictError extends BaseError {
-  override name = 'StateAssignmentConflictError'
   constructor() {
-    super('state and stateDiff are set on the same account.')
+    super('state and stateDiff are set on the same account.', {
+      name: 'StateAssignmentConflictError',
+    })
   }
 }
 

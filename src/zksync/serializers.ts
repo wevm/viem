@@ -7,20 +7,20 @@ import { toRlp } from '../utils/encoding/toRlp.js'
 import { serializeTransaction as serializeTransaction_ } from '../utils/transaction/serializeTransaction.js'
 import { gasPerPubdataDefault } from './constants/number.js'
 import type {
-  ZkSyncTransactionSerializable,
-  ZkSyncTransactionSerializableEIP712,
-  ZkSyncTransactionSerializedEIP712,
+  ZksyncTransactionSerializable,
+  ZksyncTransactionSerializableEIP712,
+  ZksyncTransactionSerializedEIP712,
 } from './types/transaction.js'
 import { assertEip712Transaction } from './utils/assertEip712Transaction.js'
 import { isEIP712Transaction } from './utils/isEip712Transaction.js'
 
 export function serializeTransaction(
-  transaction: ZkSyncTransactionSerializable,
+  transaction: ZksyncTransactionSerializable,
   signature?: Signature | undefined,
 ) {
   if (isEIP712Transaction(transaction))
     return serializeTransactionEIP712(
-      transaction as ZkSyncTransactionSerializableEIP712,
+      transaction as ZksyncTransactionSerializableEIP712,
     )
   return serializeTransaction_(
     transaction as TransactionSerializable,
@@ -32,10 +32,10 @@ export const serializers = {
   transaction: serializeTransaction,
 } as const satisfies ChainSerializers
 
-type SerializeTransactionEIP712ReturnType = ZkSyncTransactionSerializedEIP712
+type SerializeTransactionEIP712ReturnType = ZksyncTransactionSerializedEIP712
 
 function serializeTransactionEIP712(
-  transaction: ZkSyncTransactionSerializableEIP712,
+  transaction: ZksyncTransactionSerializableEIP712,
 ): SerializeTransactionEIP712ReturnType {
   const {
     chainId,

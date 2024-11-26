@@ -1,3 +1,15 @@
 [submodule "contracts/lib/forge-std"]
 	path = contracts/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
+	url = git@github.com:foundry-rs/forge-std.git
+[submodule "contracts/lib/solady"]
+	path = contracts/lib/solady
+	url = git@github.com:Vectorized/solady.git
+[submodule "contracts/lib/solady-dc09481"]
+	path = contracts/lib/solady-dc09481
+	url = git@github.com:Vectorized/solady.git
+[submodule "contracts/lib/account-abstraction"]
+	path = contracts/lib/account-abstraction
+	url = git@github.com:eth-infinitism/account-abstraction.git
+[submodule "contracts/lib/openzeppelin"]
+	path = contracts/lib/openzeppelin
+	url = git@github.com:OpenZeppelin/openzeppelin-contracts.git

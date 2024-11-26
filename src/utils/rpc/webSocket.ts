@@ -1,6 +1,10 @@
 import type { MessageEvent } from 'isows'
 
-import { WebSocketRequestError } from '../../errors/request.js'
+import {
+  SocketClosedError,
+  WebSocketRequestError,
+} from '../../errors/request.js'
+import type { RpcRequest } from '../../types/rpc.js'
 import {
   type GetSocketRpcClientParameters,
   type Socket,
@@ -10,22 +14,23 @@ import {
 
 export type GetWebSocketRpcClientOptions = Pick<
   GetSocketRpcClientParameters,
-  'reconnect'
+  'keepAlive' | 'reconnect'
 >
 
 export async function getWebSocketRpcClient(
   url: string,
   options: GetWebSocketRpcClientOptions | undefined = {},
 ): Promise<SocketRpcClient<WebSocket>> {
-  const { reconnect } = options
+  const { keepAlive, reconnect } = options
 
   return getSocketRpcClient({
-    async getSocket({ onError, onOpen, onResponse }) {
+    async getSocket({ onClose, onError, onOpen, onResponse }) {
       const WebSocket = await import('isows').then((module) => module.WebSocket)
       const socket = new WebSocket(url)
 
-      function onClose() {
-        socket.removeEventListener('close', onClose)
+      function onClose_() {
+        onClose()
+        socket.removeEventListener('close', onClose_)
         socket.removeEventListener('message', onMessage)
         socket.removeEventListener('error', onError)
         socket.removeEventListener('open', onOpen)
@@ -35,7 +40,7 @@ export async function getWebSocketRpcClient(
       }
 
       // Setup event listeners for RPC & subscription responses.
-      socket.addEventListener('close', onClose)
+      socket.addEventListener('close', onClose_)
       socket.addEventListener('message', onMessage)
       socket.addEventListener('error', onError)
       socket.addEventListener('open', onOpen)
@@ -56,6 +61,27 @@ export async function getWebSocketRpcClient(
           close_.bind(socket)()
           onClose()
         },
+        ping() {
+          try {
+            if (
+              socket.readyState === socket.CLOSED ||
+              socket.readyState === socket.CLOSING
+            )
+              throw new WebSocketRequestError({
+                url: socket.url,
+                cause: new SocketClosedError({ url: socket.url }),
+              })
+
+            const body: RpcRequest = {
+              jsonrpc: '2.0',
+              method: 'net_version',
+              params: [],
+            }
+            socket.send(JSON.stringify(body))
+          } catch (error) {
+            onError(error as Error)
+          }
+        },
         request({ body }) {
           if (
             socket.readyState === socket.CLOSED ||
@@ -64,13 +90,14 @@ export async function getWebSocketRpcClient(
             throw new WebSocketRequestError({
               body,
               url: socket.url,
-              details: 'Socket is closed.',
+              cause: new SocketClosedError({ url: socket.url }),
             })
 
           return socket.send(JSON.stringify(body))
         },
       } as Socket<WebSocket>)
     },
+    keepAlive,
     reconnect,
     url,
   })

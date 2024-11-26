@@ -4,8 +4,8 @@ export const btrTestnet = /*#__PURE__*/ defineChain({
   id: 200810,
   name: 'Bitlayer Testnet',
   nativeCurrency: {
-    name: 'Ether',
-    symbol: 'ETH',
+    name: 'Bitcoin',
+    symbol: 'BTC',
     decimals: 18,
   },
   rpcUrls: {
@@ -19,9 +19,8 @@ export const btrTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'btrscan',
-      url: 'https://testnet-scan.bitlayer.org',
-      apiUrl: 'https://testnet-scan.bitlayer.org/apis',
+      name: 'Bitlayer(BTR) Scan',
+      url: 'https://testnet.btrscan.com',
     },
   },
   testnet: true,

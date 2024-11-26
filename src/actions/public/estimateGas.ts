@@ -6,7 +6,11 @@ import {
 } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
+import {
+  type RecoverAuthorizationAddressErrorType,
+  recoverAuthorizationAddress,
+} from '../../experimental/eip7702/utils/recoverAuthorizationAddress.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { StateOverride } from '../../types/stateOverride.js'
@@ -36,10 +40,11 @@ import {
   type PrepareTransactionRequestParameters,
   prepareTransactionRequest,
 } from '../wallet/prepareTransactionRequest.js'
+import { getBalance } from './getBalance.js'
 
 export type EstimateGasParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-> = UnionOmit<FormattedEstimateGas<TChain>, 'from'> & {
+  chain extends Chain | undefined = Chain | undefined,
+> = UnionOmit<FormattedEstimateGas<chain>, 'from'> & {
   account?: Account | Address | undefined
   stateOverride?: StateOverride | undefined
 } & (
@@ -57,9 +62,8 @@ export type EstimateGasParameters<
         blockTag?: BlockTag | undefined
       }
   )
-type FormattedEstimateGas<
-  TChain extends Chain | undefined = Chain | undefined,
-> = FormattedTransactionRequest<TChain>
+type FormattedEstimateGas<chain extends Chain | undefined = Chain | undefined> =
+  FormattedTransactionRequest<chain>
 
 export type EstimateGasReturnType = bigint
 
@@ -67,6 +71,7 @@ export type EstimateGasErrorType = GetEstimateGasErrorReturnType<
   | ParseAccountErrorType
   | NumberToHexErrorType
   | RequestErrorType
+  | RecoverAuthorizationAddressErrorType
   | AssertRequestErrorType
 >
 
@@ -96,18 +101,19 @@ export type EstimateGasErrorType = GetEstimateGasErrorReturnType<
  * })
  */
 export async function estimateGas<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: EstimateGasParameters<TChain>,
+  client: Client<Transport, chain, account>,
+  args: EstimateGasParameters<chain>,
 ): Promise<EstimateGasReturnType> {
-  const account_ = args.account ?? client.account
+  const { account: account_ = client.account } = args
   const account = account_ ? parseAccount(account_) : undefined
 
   try {
     const {
       accessList,
+      authorizationList,
       blobs,
       blobVersionedHashes,
       blockNumber,
@@ -119,7 +125,6 @@ export async function estimateGas<
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      to,
       value,
       stateOverride,
       ...rest
@@ -136,6 +141,25 @@ export async function estimateGas<
 
     const rpcStateOverride = serializeStateOverride(stateOverride)
 
+    const to = await (async () => {
+      // If `to` exists on the parameters, use that.
+      if (rest.to) return rest.to
+
+      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
+      // address of the first authorization in the list.
+      if (authorizationList && authorizationList.length > 0)
+        return await recoverAuthorizationAddress({
+          authorization: authorizationList[0],
+        }).catch(() => {
+          throw new BaseError(
+            '`to` is required. Could not infer from `authorizationList`',
+          )
+        })
+
+      // Otherwise, we are sending a deployment transaction.
+      return undefined
+    })()
+
     assertRequest(args as AssertRequestParameters)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
@@ -146,6 +170,7 @@ export async function estimateGas<
       ...extract(rest, { format: chainFormat }),
       from: account?.address,
       accessList,
+      authorizationList,
       blobs,
       blobVersionedHashes,
       data,
@@ -159,15 +184,52 @@ export async function estimateGas<
       value,
     } as TransactionRequest)
 
-    const balance = await client.request({
-      method: 'eth_estimateGas',
-      params: rpcStateOverride
-        ? [request, block ?? 'latest', rpcStateOverride]
-        : block
-          ? [request, block]
-          : [request],
-    })
-    return BigInt(balance)
+    function estimateGas_rpc(parameters: {
+      block: any
+      request: any
+      rpcStateOverride: any
+    }) {
+      const { block, request, rpcStateOverride } = parameters
+      return client.request({
+        method: 'eth_estimateGas',
+        params: rpcStateOverride
+          ? [request, block ?? 'latest', rpcStateOverride]
+          : block
+            ? [request, block]
+            : [request],
+      })
+    }
+
+    let estimate = BigInt(
+      await estimateGas_rpc({ block, request, rpcStateOverride }),
+    )
+
+    // TODO(7702): Remove this once https://github.com/ethereum/execution-apis/issues/561 is resolved.
+    //       Authorization list schema is not implemented on JSON-RPC spec yet, so we need to
+    //       manually estimate the gas.
+    if (authorizationList) {
+      const value = await getBalance(client, { address: request.from })
+      const estimates = await Promise.all(
+        authorizationList.map(async (authorization) => {
+          const { contractAddress } = authorization
+          const estimate = await estimateGas_rpc({
+            block,
+            request: {
+              authorizationList: undefined,
+              data,
+              from: account?.address,
+              to: contractAddress,
+              value: numberToHex(value),
+            },
+            rpcStateOverride,
+          }).catch(() => 100_000n)
+          return 2n * BigInt(estimate)
+        }),
+      )
+      estimate += estimates.reduce((acc, curr) => acc + curr, 0n)
+    }
+
+    return estimate
   } catch (err) {
     throw getEstimateGasError(err as BaseError, {
       ...args,

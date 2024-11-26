@@ -62,6 +62,11 @@ export type GetWithdrawalStatusParameters<
      * @default 100
      */
     gameLimit?: number
+    /**
+     * The relative index of the withdrawal in the transaction receipt logs.
+     * @default 0
+     */
+    logIndex?: number
     receipt: TransactionReceipt
   }
 export type GetWithdrawalStatusReturnType =
@@ -122,6 +127,7 @@ export async function getWithdrawalStatus<
     gameLimit = 100,
     receipt,
     targetChain: targetChain_,
+    logIndex = 0,
   } = parameters
 
   const targetChain = targetChain_ as unknown as TargetChain
@@ -132,7 +138,7 @@ export async function getWithdrawalStatus<
     return Object.values(targetChain.contracts.portal)[0].address
   })()
 
-  const [withdrawal] = getWithdrawals(receipt)
+  const withdrawal = getWithdrawals(receipt)[logIndex]
 
   if (!withdrawal)
     throw new ReceiptContainsNoWithdrawalsError({
@@ -197,11 +203,18 @@ export async function getWithdrawalStatus<
     return seconds > 0 ? 'waiting-to-finalize' : 'ready-to-finalize'
   }
 
+  const numProofSubmitters = await readContract(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'numProofSubmitters',
+    args: [withdrawal.withdrawalHash],
+  }).catch(() => 1n)
+
   const proofSubmitter = await readContract(client, {
     abi: portal2Abi,
     address: portalAddress,
     functionName: 'proofSubmitters',
-    args: [withdrawal.withdrawalHash, 0n],
+    args: [withdrawal.withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => withdrawal.sender)
 
   const [disputeGameResult, checkWithdrawalResult, finalizedResult] =
@@ -238,9 +251,12 @@ export async function getWithdrawalStatus<
     if (error.cause instanceof ContractFunctionRevertedError) {
       const errorMessage = error.cause.data?.args?.[0]
       if (
+        errorMessage === 'OptimismPortal: invalid game type' ||
         errorMessage === 'OptimismPortal: withdrawal has not been proven yet' ||
         errorMessage ===
-          'OptimismPortal: withdrawal has not been proven by proof submitter address yet'
+          'OptimismPortal: withdrawal has not been proven by proof submitter address yet' ||
+        errorMessage ===
+          'OptimismPortal: dispute game created before respected game type was updated'
       )
         return 'ready-to-prove'
       if (
@@ -251,6 +267,9 @@ export async function getWithdrawalStatus<
         errorMessage === 'OptimismPortal: output proposal in air-gap'
       )
         return 'waiting-to-finalize'
+
+      if (error.cause.data?.errorName === 'InvalidGameType')
+        return 'ready-to-prove'
     }
     throw checkWithdrawalResult.reason
   }

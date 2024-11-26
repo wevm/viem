@@ -68,8 +68,8 @@ export type GetFeeHistoryErrorType =
  *   rewardPercentiles: [25, 75],
  * })
  */
-export async function getFeeHistory<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function getFeeHistory<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockCount,
     blockNumber,
@@ -78,13 +78,16 @@ export async function getFeeHistory<TChain extends Chain | undefined>(
   }: GetFeeHistoryParameters,
 ): Promise<GetFeeHistoryReturnType> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
-  const feeHistory = await client.request({
-    method: 'eth_feeHistory',
-    params: [
-      numberToHex(blockCount),
-      blockNumberHex || blockTag,
-      rewardPercentiles,
-    ],
-  })
+  const feeHistory = await client.request(
+    {
+      method: 'eth_feeHistory',
+      params: [
+        numberToHex(blockCount),
+        blockNumberHex || blockTag,
+        rewardPercentiles,
+      ],
+    },
+    { dedupe: Boolean(blockNumberHex) },
+  )
   return formatFeeHistory(feeHistory)
 }

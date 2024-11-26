@@ -4,7 +4,6 @@ import { accounts } from '~test/src/constants.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
-
 import { getTxpoolContent } from './getTxpoolContent.js'
 import { mine } from './mine.js'
 

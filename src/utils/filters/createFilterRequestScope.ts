@@ -28,8 +28,8 @@ type CreateFilterRequestScopeReturnType = (
  * listen for responses and scope the child transport `request` function
  * to the successful filter ID.
  */
-export function createFilterRequestScope<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export function createFilterRequestScope<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   { method }: CreateFilterRequestScopeParameters,
 ): CreateFilterRequestScopeReturnType {
   const requestMap: Record<Hex, EIP1193RequestFn> = {}

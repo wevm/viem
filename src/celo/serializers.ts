@@ -1,7 +1,9 @@
+import { maxUint256 } from '../constants/number.js'
 import { InvalidAddressError } from '../errors/address.js'
 import { BaseError } from '../errors/base.js'
 import { InvalidChainIdError } from '../errors/chain.js'
 import { FeeCapTooHighError, TipAboveFeeCapError } from '../errors/node.js'
+import { serializeTransaction as serializeTransaction_op } from '../op-stack/serializers.js'
 import type { ChainSerializers } from '../types/chain.js'
 import type { Signature } from '../types/misc.js'
 import { isAddress } from '../utils/address/isAddress.js'
@@ -9,10 +11,7 @@ import { concatHex } from '../utils/data/concat.js'
 import { toHex } from '../utils/encoding/toHex.js'
 import { toRlp } from '../utils/encoding/toRlp.js'
 import { serializeAccessList } from '../utils/transaction/serializeAccessList.js'
-import {
-  serializeTransaction as serializeTransaction_,
-  toYParitySignatureArray,
-} from '../utils/transaction/serializeTransaction.js'
+import { toYParitySignatureArray } from '../utils/transaction/serializeTransaction.js'
 import type {
   CeloTransactionSerializable,
   TransactionSerializableCIP42,
@@ -27,7 +26,7 @@ export function serializeTransaction(
 ) {
   if (isCIP64(transaction))
     return serializeTransactionCIP64(transaction, signature)
-  return serializeTransaction_(transaction, signature)
+  return serializeTransaction_op(transaction, signature)
 }
 
 export const serializers = {
@@ -77,8 +76,8 @@ function serializeTransactionCIP64(
   ]) as SerializeTransactionCIP64ReturnType
 }
 
-// maxFeePerGas must be less than 2^256 - 1
-const MAX_MAX_FEE_PER_GAS = 2n ** 256n - 1n
+// maxFeePerGas must be less than maxUint256
+const MAX_MAX_FEE_PER_GAS = maxUint256
 
 export function assertTransactionCIP42(
   transaction: TransactionSerializableCIP42,

@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
 import {
   mockClientPublicActionsL2,
-  zkSyncClientLocalNode,
+  zksyncClientLocalNode,
 } from '../../../test/src/zksync.js'
 import { getLogProof } from './getLogProof.js'
 
-const client = { ...zkSyncClientLocalNode }
+const client = { ...zksyncClientLocalNode }
 
 mockClientPublicActionsL2(client)
 

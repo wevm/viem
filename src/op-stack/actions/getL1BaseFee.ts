@@ -17,9 +17,9 @@ import { gasPriceOracleAbi } from '../abis.js'
 import { contracts } from '../contracts.js'
 
 export type GetL1BaseFeeParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-  TChainOverride extends Chain | undefined = undefined,
-> = GetChainParameter<TChain, TChainOverride> & {
+  chain extends Chain | undefined = Chain | undefined,
+  chainOverride extends Chain | undefined = undefined,
+> = GetChainParameter<chain, chainOverride> & {
   /** Gas price oracle address. */
   gasPriceOracleAddress?: Address | undefined
 }
@@ -52,11 +52,11 @@ export type GetL1BaseFeeErrorType =
  * const l1BaseFee = await getL1BaseFee(client)
  */
 export async function getL1BaseFee<
-  TChain extends Chain | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  chain extends Chain | undefined,
+  chainOverride extends Chain | undefined = undefined,
 >(
-  client: Client<Transport, TChain>,
-  args?: GetL1BaseFeeParameters<TChain, TChainOverride> | undefined,
+  client: Client<Transport, chain>,
+  args?: GetL1BaseFeeParameters<chain, chainOverride> | undefined,
 ): Promise<GetL1BaseFeeReturnType> {
   const {
     chain = client.chain,

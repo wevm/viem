@@ -39,10 +39,10 @@ export type WatchAssetErrorType = RequestErrorType | ErrorType
  * })
  */
 export async function watchAsset<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
+  client: Client<Transport, chain, account>,
   params: WatchAssetParameters,
 ): Promise<WatchAssetReturnType> {
   const added = await client.request(

@@ -2,15 +2,19 @@ export type { Address } from 'abitype'
 
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { HDKey } from '@scure/bip32'
-export { wordlist as czech } from '@scure/bip39/wordlists/czech'
-export { wordlist as english } from '@scure/bip39/wordlists/english'
-export { wordlist as french } from '@scure/bip39/wordlists/french'
-export { wordlist as italian } from '@scure/bip39/wordlists/italian'
-export { wordlist as japanese } from '@scure/bip39/wordlists/japanese'
-export { wordlist as korean } from '@scure/bip39/wordlists/korean'
-export { wordlist as simplifiedChinese } from '@scure/bip39/wordlists/simplified-chinese'
-export { wordlist as spanish } from '@scure/bip39/wordlists/spanish'
-export { wordlist as traditionalChinese } from '@scure/bip39/wordlists/traditional-chinese'
+
+export {
+  czech,
+  english,
+  french,
+  italian,
+  japanese,
+  korean,
+  portuguese,
+  simplifiedChinese,
+  spanish,
+  traditionalChinese,
+} from './wordlists.js'
 
 export {
   type GenerateMnemonicErrorType,
@@ -21,18 +25,22 @@ export {
   generatePrivateKey,
 } from './generatePrivateKey.js'
 export {
+  type HDKeyToAccountOptions,
   type HDKeyToAccountErrorType,
   hdKeyToAccount,
 } from './hdKeyToAccount.js'
 export {
+  type MnemonicToAccountOptions,
   type MnemonicToAccountErrorType,
   mnemonicToAccount,
 } from './mnemonicToAccount.js'
 export {
+  type PrivateKeyToAccountOptions,
   type PrivateKeyToAccountErrorType,
   privateKeyToAccount,
 } from './privateKeyToAccount.js'
 export { type ToAccountErrorType, toAccount } from './toAccount.js'
+
 export type {
   Account,
   AccountSource,
@@ -47,6 +55,7 @@ export {
   type SignErrorType,
   type SignParameters,
   type SignReturnType,
+  setSignEntropy,
   sign,
 } from './utils/sign.js'
 export {
@@ -57,6 +66,12 @@ export {
   type SerializeSignatureErrorType,
   serializeSignature,
 } from '../utils/signature/serializeSignature.js'
+export {
+  type SignAuthorizationErrorType,
+  type SignAuthorizationParameters,
+  type SignAuthorizationReturnType,
+  experimental_signAuthorization,
+} from './utils/signAuthorization.js'
 export {
   type SignMessageErrorType,
   type SignMessageParameters,
@@ -87,3 +102,10 @@ export {
   type PrivateKeyToAddressErrorType,
   privateKeyToAddress,
 } from './utils/privateKeyToAddress.js'
+export {
+  type CreateNonceManagerParameters,
+  type NonceManager,
+  type NonceManagerSource,
+  createNonceManager,
+  nonceManager,
+} from '../utils/nonceManager.js'

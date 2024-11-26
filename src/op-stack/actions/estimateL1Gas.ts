@@ -34,12 +34,12 @@ import { gasPriceOracleAbi } from '../abis.js'
 import { contracts } from '../contracts.js'
 
 export type EstimateL1GasParameters<
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
 > = Omit<TransactionRequestEIP1559, 'from'> &
-  GetAccountParameter<TAccount> &
-  GetChainParameter<TChain, TChainOverride> & {
+  GetAccountParameter<account> &
+  GetChainParameter<chain, chainOverride> & {
     /** Gas price oracle address. */
     gasPriceOracleAddress?: Address | undefined
   }
@@ -78,12 +78,12 @@ export type EstimateL1GasErrorType =
  * })
  */
 export async function estimateL1Gas<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  chainOverride extends Chain | undefined = undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  args: EstimateL1GasParameters<TChain, TAccount, TChainOverride>,
+  client: Client<Transport, chain, account>,
+  args: EstimateL1GasParameters<chain, account, chainOverride>,
 ): Promise<EstimateL1GasReturnType> {
   const {
     chain = client.chain,

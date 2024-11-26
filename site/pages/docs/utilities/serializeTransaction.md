@@ -34,6 +34,8 @@ Returns a template `Hex` value based on transaction type:
 
 - `eip1559`: [TransactionSerializedEIP1559](/docs/glossary/types#TransactionSerializedEIP1559)
 - `eip2930`: [TransactionSerializedEIP2930](/docs/glossary/types#TransactionSerializedEIP2930)
+- `eip4844`: [TransactionSerializedEIP4844](/docs/glossary/types#TransactionSerializedEIP4844)
+- `eip7702`: [TransactionSerializedEIP7702](/docs/glossary/types#TransactionSerializedEIP7702)
 - `legacy`: [TransactionSerializedLegacy](/docs/glossary/types#TransactionSerializedLegacy) 
 
 ## Parameters

@@ -7,7 +7,6 @@ export const oasisTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Fasttoken', symbol: 'FTN', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://rpc1.oasis.bahamutchain.com'] },
-    public: { http: ['https://rpc1.oasis.bahamutchain.com'] },
   },
   blockExplorers: {
     default: {

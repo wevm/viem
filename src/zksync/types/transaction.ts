@@ -4,6 +4,7 @@ import type { Hash, Hex } from '../../types/misc.js'
 import type {
   Index,
   Quantity,
+  RpcTransactionReceipt,
   RpcTransactionRequest as RpcTransactionRequest_,
 } from '../../types/rpc.js'
 import type {
@@ -21,13 +22,13 @@ import type {
   Transaction as Transaction_,
 } from '../../types/transaction.js'
 import type { ExactPartial, OneOf, UnionOmit } from '../../types/utils.js'
-import type { ZkSyncEip712Meta } from './eip712.js'
-import type { ZkSyncFee, ZkSyncFeeValues } from './fee.js'
+import type { ZksyncEip712Meta } from './eip712.js'
+import type { ZksyncFee, ZksyncFeeValues } from './fee.js'
 import type {
-  ZkSyncL2ToL1Log,
-  ZkSyncLog,
-  ZkSyncRpcL2ToL1Log,
-  ZkSyncRpcLog,
+  ZksyncL2ToL1Log,
+  ZksyncLog,
+  ZksyncRpcL2ToL1Log,
+  ZksyncRpcLog,
 } from './log.js'
 
 type EIP712Type = '0x71'
@@ -41,34 +42,34 @@ type TransactionOverrides = {
   l1BatchTxIndex: bigint | null
 }
 
-type TransactionPriority<TPending extends boolean = boolean> = TransactionBase<
+type TransactionPriority<pending extends boolean = boolean> = TransactionBase<
   bigint,
   number,
-  TPending
+  pending
 > &
   TransactionOverrides &
   FeeValuesEIP1559 & {
     type: 'priority'
   }
 
-export type ZkSyncTransactionEIP712<TPending extends boolean = boolean> =
-  TransactionBase<bigint, number, TPending> &
+export type ZksyncTransactionEIP712<pending extends boolean = boolean> =
+  TransactionBase<bigint, number, pending> &
     TransactionOverrides &
     FeeValuesEIP1559 & {
       type: 'eip712' | 'priority'
     }
 
-type Transaction<TPending extends boolean = boolean> = Transaction_<
+type Transaction<pending extends boolean = boolean> = Transaction_<
   bigint,
   number,
-  TPending
+  pending
 > &
   TransactionOverrides
 
-export type ZkSyncTransaction<TPending extends boolean = boolean> =
-  | Transaction<TPending>
-  | TransactionPriority<TPending>
-  | ZkSyncTransactionEIP712<TPending>
+export type ZksyncTransaction<pending extends boolean = boolean> =
+  | Transaction<pending>
+  | TransactionPriority<pending>
+  | ZksyncTransactionEIP712<pending>
 
 // Transaction (RPC)
 
@@ -77,50 +78,49 @@ type RpcTransactionOverrides = {
   l1BatchTxIndex: Hex | null
 }
 
-type RpcTransactionLegacy<TPending extends boolean = boolean> =
-  TransactionLegacy_<Hex, Hex, TPending, '0x0'> & RpcTransactionOverrides
+type RpcTransactionLegacy<pending extends boolean = boolean> =
+  TransactionLegacy_<Hex, Hex, pending, '0x0'> & RpcTransactionOverrides
 
-type RpcTransactionEIP2930<TPending extends boolean = boolean> =
-  TransactionEIP2930_<Hex, Hex, TPending, '0x1'> & RpcTransactionOverrides
+type RpcTransactionEIP2930<pending extends boolean = boolean> =
+  TransactionEIP2930_<Hex, Hex, pending, '0x1'> & RpcTransactionOverrides
 
-type RpcTransactionEIP1559<TPending extends boolean = boolean> =
-  TransactionEIP1559_<Hex, Hex, TPending, '0x2'> & RpcTransactionOverrides
+type RpcTransactionEIP1559<pending extends boolean = boolean> =
+  TransactionEIP1559_<Hex, Hex, pending, '0x2'> & RpcTransactionOverrides
 
-export type ZkSyncRpcTransactionPriority<TPending extends boolean = boolean> =
-  TransactionBase<Quantity, Index, TPending> &
-    ZkSyncFeeValues<Quantity> &
+export type ZksyncRpcTransactionPriority<pending extends boolean = boolean> =
+  TransactionBase<Quantity, Index, pending> &
+    ZksyncFeeValues<Quantity> &
     RpcTransactionOverrides & {
       accessList?: undefined
       chainId: Hex
       type: PriorityType
     }
 
-export type ZkSyncRpcTransactionEIP712<TPending extends boolean = boolean> =
-  TransactionBase<Quantity, Index, TPending> &
-    ZkSyncFeeValues<Quantity> &
+export type ZksyncRpcTransactionEIP712<pending extends boolean = boolean> =
+  TransactionBase<Quantity, Index, pending> &
+    ZksyncFeeValues<Quantity> &
     RpcTransactionOverrides & {
       accessList?: undefined
       chainId: Hex
       type: EIP712Type
     }
 
-export type ZkSyncRpcTransaction<TPending extends boolean = boolean> =
-  UnionOmit<
-    | RpcTransactionLegacy<TPending>
-    | RpcTransactionEIP2930<TPending>
-    | RpcTransactionEIP1559<TPending>
-    | ZkSyncRpcTransactionPriority<TPending>
-    | ZkSyncRpcTransactionEIP712<TPending>,
-    'typeHex'
-  >
+export type ZksyncRpcTransaction<pending extends boolean = boolean> = UnionOmit<
+  | RpcTransactionLegacy<pending>
+  | RpcTransactionEIP2930<pending>
+  | RpcTransactionEIP1559<pending>
+  | ZksyncRpcTransactionPriority<pending>
+  | ZksyncRpcTransactionEIP712<pending>,
+  'typeHex'
+>
 
 // Transaction Request
 // https://era.zksync.io/docs/reference/concepts/transactions
 
 export type TransactionRequest<
-  TQuantity = bigint,
-  TIndex = number,
-> = TransactionRequest_<TQuantity, TIndex> & {
+  quantity = bigint,
+  index = number,
+> = TransactionRequest_<quantity, index> & {
   gasPerPubdata?: undefined
   customSignature?: undefined
   paymaster?: undefined
@@ -128,10 +128,10 @@ export type TransactionRequest<
   factoryDeps?: undefined
 }
 
-export type ZkSyncTransactionRequestEIP712<
-  TQuantity = bigint,
-  TIndex = number,
-> = Omit<TransactionRequestBase<TQuantity, TIndex>, 'type'> &
+export type ZksyncTransactionRequestEIP712<
+  quantity = bigint,
+  index = number,
+> = Omit<TransactionRequestBase<quantity, index>, 'type'> &
   ExactPartial<FeeValuesEIP1559> & {
     gasPerPubdata?: bigint | undefined
     customSignature?: Hex | undefined
@@ -142,69 +142,72 @@ export type ZkSyncTransactionRequestEIP712<
     | { paymaster?: undefined; paymasterInput?: undefined }
   )
 
-export type ZkSyncTransactionRequest<TQuantity = bigint, TIndex = number> =
-  | TransactionRequest<TQuantity, TIndex>
-  | ZkSyncTransactionRequestEIP712<TQuantity, TIndex>
+export type ZksyncTransactionRequest<quantity = bigint, index = number> =
+  | TransactionRequest<quantity, index>
+  | ZksyncTransactionRequestEIP712<quantity, index>
 
 type RpcTransactionRequest = RpcTransactionRequest_ & { eip712Meta?: undefined }
 
-export type ZkSyncRpcTransactionRequestEIP712 = TransactionRequestBase<
+export type ZksyncRpcTransactionRequestEIP712 = TransactionRequestBase<
   Quantity,
   Index
 > &
   ExactPartial<FeeValuesEIP1559<Quantity>> & {
-    eip712Meta: ZkSyncEip712Meta
+    eip712Meta: ZksyncEip712Meta
     type: EIP712Type | PriorityType
   }
 
-export type ZkSyncRpcTransactionRequest =
+export type ZksyncRpcTransactionRequest =
   | RpcTransactionRequest
-  | ZkSyncRpcTransactionRequestEIP712
+  | ZksyncRpcTransactionRequestEIP712
 
-export type ZkSyncTransactionType = TransactionType | 'eip712' | 'priority'
+export type ZksyncTransactionType = TransactionType | 'eip712' | 'priority'
 
 // Transaction Receipt
 // https://era.zksync.io/docs/api/js/types#transactionreceipt
 
-export type ZkSyncRpcTransactionReceiptOverrides = {
+export type ZksyncRpcTransactionReceiptOverrides = {
   l1BatchNumber: Hex | null
   l1BatchTxIndex: Hex | null
-  logs: ZkSyncRpcLog[]
-  l2ToL1Logs: ZkSyncRpcL2ToL1Log[]
+  logs: ZksyncRpcLog[]
+  l2ToL1Logs: ZksyncRpcL2ToL1Log[]
   root: Hex
 }
 
-export type ZkSyncTransactionReceiptOverrides = {
+export type ZksyncRpcTransactionReceipt = Omit<RpcTransactionReceipt, 'logs'> &
+  ZksyncRpcTransactionReceiptOverrides
+
+export type ZksyncTransactionReceiptOverrides = {
   l1BatchNumber: bigint | null
   l1BatchTxIndex: bigint | null
-  logs: ZkSyncLog[]
-  l2ToL1Logs: ZkSyncL2ToL1Log[]
+  logs: ZksyncLog[]
+  l2ToL1Logs: ZksyncL2ToL1Log[]
 }
 
-export type ZkSyncTransactionReceipt<
-  TStatus = 'success' | 'reverted',
-  TType = ZkSyncTransactionType,
-> = Omit<TransactionReceipt<bigint, number, TStatus, TType>, 'logs'> &
-  ZkSyncTransactionReceiptOverrides
+export type ZksyncTransactionReceipt<
+  status = 'success' | 'reverted',
+  type = ZksyncTransactionType,
+> = Omit<TransactionReceipt<bigint, number, status, type>, 'logs'> &
+  ZksyncTransactionReceiptOverrides
 
 // Serializers
 
-export type ZkSyncTransactionSerializable = OneOf<
-  TransactionSerializable | ZkSyncTransactionSerializableEIP712
+export type ZksyncTransactionSerializable = OneOf<
+  TransactionSerializable | ZksyncTransactionSerializableEIP712
 >
 
-export type ZkSyncTransactionSerialized<
-  TType extends TransactionType = 'eip712',
-> = TType extends 'eip712'
-  ? ZkSyncTransactionSerializedEIP712
-  : TransactionSerialized<TType>
+export type ZksyncTransactionSerialized<
+  type extends TransactionType = 'eip712',
+> = type extends 'eip712'
+  ? ZksyncTransactionSerializedEIP712
+  : TransactionSerialized<type>
 
-export type ZkSyncTransactionSerializedEIP712 = `0x71${string}`
+export type ZksyncTransactionSerializedEIP712 = `0x71${string}`
 
-export type ZkSyncTransactionSerializableEIP712<
-  TQuantity = bigint,
-  TIndex = number,
-> = Omit<TransactionSerializableEIP1559<TQuantity, TIndex>, 'type'> & {
+export type ZksyncTransactionSerializableEIP712<
+  quantity = bigint,
+  index = number,
+> = Omit<TransactionSerializableEIP1559<quantity, index>, 'type'> & {
   from: Hex
   gasPerPubdata?: bigint | undefined
   paymaster?: Address | undefined
@@ -216,7 +219,7 @@ export type ZkSyncTransactionSerializableEIP712<
 
 // EIP712 Signer
 
-export type ZkSyncEIP712TransactionSignable = {
+export type ZksyncEIP712TransactionSignable = {
   txType: bigint
   from: bigint
   to: bigint
@@ -233,18 +236,18 @@ export type ZkSyncEIP712TransactionSignable = {
 }
 
 export type TransactionRequestEIP712<
-  TQuantity = bigint,
-  TIndex = number,
-  TTransactionType = 'eip712',
-> = TransactionRequestBase<TQuantity, TIndex> &
-  ExactPartial<FeeValuesEIP1559<TQuantity>> & {
+  quantity = bigint,
+  index = number,
+  transactionType = 'eip712',
+> = TransactionRequestBase<quantity, index> &
+  ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: undefined
     gasPerPubdata?: bigint | undefined
     factoryDeps?: Hex[] | undefined
     paymaster?: Address | undefined
     paymasterInput?: Hex | undefined
     customSignature?: Hex | undefined
-    type?: TTransactionType | undefined
+    type?: transactionType | undefined
   }
 
 type CommonDataRawBlockTransaction = {
@@ -259,7 +262,7 @@ type CommonDataRawBlockTransaction = {
   refundRecipient: Address
 }
 
-export type ZkSyncRawBlockTransactions = {
+export type ZksyncRawBlockTransactions = {
   commonData: {
     L1?:
       | ({
@@ -274,7 +277,7 @@ export type ZkSyncRawBlockTransactions = {
     L2?:
       | {
           nonce: number
-          fee: ZkSyncFee<Hex>
+          fee: ZksyncFee<Hex>
           initiatorAddress: Address
           signature: Uint8Array
           transactionType: string
@@ -306,7 +309,7 @@ export type ZkSyncRawBlockTransactions = {
   rawBytes?: string | undefined
 }[]
 
-export type ZkSyncTransactionDetails = {
+export type ZksyncTransactionDetails = {
   isL1Originated: boolean
   status: string
   fee: bigint

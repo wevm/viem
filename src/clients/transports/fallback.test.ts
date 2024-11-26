@@ -188,7 +188,7 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2],
+      Version: viem@x.y.z],
           "method": "eth_blockNumber",
           "params": undefined,
           "status": "error",
@@ -201,7 +201,7 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2],
+      Version: viem@x.y.z],
           "method": "eth_blockNumber",
           "params": undefined,
           "status": "error",
@@ -646,7 +646,7 @@ describe('client', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: sad times
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(count).toBe(8)
   })

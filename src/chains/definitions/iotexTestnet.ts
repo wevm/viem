@@ -20,5 +20,11 @@ export const iotexTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet.iotexscan.io',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xb5cecD6894c6f473Ec726A176f1512399A2e355d',
+      blockCreated: 24347592,
+    },
+  },
   testnet: true,
 })

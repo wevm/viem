@@ -41,10 +41,10 @@ export type SetMinGasPriceErrorType = RequestErrorType | ErrorType
  * })
  */
 export async function setMinGasPrice<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
   { gasPrice }: SetMinGasPriceParameters,
 ) {
   await client.request({

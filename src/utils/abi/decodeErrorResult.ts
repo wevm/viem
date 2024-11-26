@@ -62,9 +62,9 @@ export type DecodeErrorResultErrorType =
   | ToFunctionSelectorErrorType
   | ErrorType
 
-export function decodeErrorResult<const TAbi extends Abi | readonly unknown[]>(
-  parameters: DecodeErrorResultParameters<TAbi>,
-): DecodeErrorResultReturnType<TAbi> {
+export function decodeErrorResult<const abi extends Abi | readonly unknown[]>(
+  parameters: DecodeErrorResultParameters<abi>,
+): DecodeErrorResultReturnType<abi> {
   const { abi, data } = parameters as DecodeErrorResultParameters
 
   const signature = slice(data, 0, 4)
@@ -86,5 +86,5 @@ export function decodeErrorResult<const TAbi extends Abi | readonly unknown[]>(
         ? decodeAbiParameters(abiItem.inputs, slice(data, 4))
         : undefined,
     errorName: (abiItem as { name: string }).name,
-  } as DecodeErrorResultReturnType<TAbi>
+  } as DecodeErrorResultReturnType<abi>
 }

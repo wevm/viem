@@ -19,8 +19,6 @@ export class ExecutionRevertedError extends BaseError {
   static code = 3
   static nodeMessage = /execution reverted/
 
-  override name = 'ExecutionRevertedError'
-
   constructor({
     cause,
     message,
@@ -34,6 +32,7 @@ export class ExecutionRevertedError extends BaseError {
       }.`,
       {
         cause,
+        name: 'ExecutionRevertedError',
       },
     )
   }
@@ -45,7 +44,6 @@ export type FeeCapTooHighErrorType = FeeCapTooHighError & {
 export class FeeCapTooHighError extends BaseError {
   static nodeMessage =
     /max fee per gas higher than 2\^256-1|fee cap higher than 2\^256-1/
-  override name = 'FeeCapTooHigh'
   constructor({
     cause,
     maxFeePerGas,
@@ -59,6 +57,7 @@ export class FeeCapTooHighError extends BaseError {
       }) cannot be higher than the maximum allowed value (2^256-1).`,
       {
         cause,
+        name: 'FeeCapTooHighError',
       },
     )
   }
@@ -70,7 +69,6 @@ export type FeeCapTooLowErrorType = FeeCapTooLowError & {
 export class FeeCapTooLowError extends BaseError {
   static nodeMessage =
     /max fee per gas less than block base fee|fee cap less than block base fee|transaction is outdated/
-  override name = 'FeeCapTooLow'
   constructor({
     cause,
     maxFeePerGas,
@@ -84,6 +82,7 @@ export class FeeCapTooLowError extends BaseError {
       } gwei) cannot be lower than the block base fee.`,
       {
         cause,
+        name: 'FeeCapTooLowError',
       },
     )
   }
@@ -94,7 +93,6 @@ export type NonceTooHighErrorType = NonceTooHighError & {
 }
 export class NonceTooHighError extends BaseError {
   static nodeMessage = /nonce too high/
-  override name = 'NonceTooHighError'
   constructor({
     cause,
     nonce,
@@ -103,7 +101,7 @@ export class NonceTooHighError extends BaseError {
       `Nonce provided for the transaction ${
         nonce ? `(${nonce}) ` : ''
       }is higher than the next one expected.`,
-      { cause },
+      { cause, name: 'NonceTooHighError' },
     )
   }
 }
@@ -114,7 +112,6 @@ export type NonceTooLowErrorType = NonceTooLowError & {
 export class NonceTooLowError extends BaseError {
   static nodeMessage =
     /nonce too low|transaction already imported|already known/
-  override name = 'NonceTooLowError'
   constructor({
     cause,
     nonce,
@@ -126,7 +123,7 @@ export class NonceTooLowError extends BaseError {
         }is lower than the current nonce of the account.`,
         'Try increasing the nonce or find the latest nonce with `getTransactionCount`.',
       ].join('\n'),
-      { cause },
+      { cause, name: 'NonceTooLowError' },
     )
   }
 }
@@ -136,7 +133,6 @@ export type NonceMaxValueErrorType = NonceMaxValueError & {
 }
 export class NonceMaxValueError extends BaseError {
   static nodeMessage = /nonce has max value/
-  override name = 'NonceMaxValueError'
   constructor({
     cause,
     nonce,
@@ -145,7 +141,7 @@ export class NonceMaxValueError extends BaseError {
       `Nonce provided for the transaction ${
         nonce ? `(${nonce}) ` : ''
       }exceeds the maximum allowed nonce.`,
-      { cause },
+      { cause, name: 'NonceMaxValueError' },
     )
   }
 }
@@ -154,8 +150,8 @@ export type InsufficientFundsErrorType = InsufficientFundsError & {
   name: 'InsufficientFundsError'
 }
 export class InsufficientFundsError extends BaseError {
-  static nodeMessage = /insufficient funds/
-  override name = 'InsufficientFundsError'
+  static nodeMessage =
+    /insufficient funds|exceeds transaction sender account balance/
   constructor({ cause }: { cause?: BaseError | undefined } = {}) {
     super(
       [
@@ -173,6 +169,7 @@ export class InsufficientFundsError extends BaseError {
           ' - `gas fee` is the gas fee,',
           ' - `value` is the amount of ether to send to the recipient.',
         ],
+        name: 'InsufficientFundsError',
       },
     )
   }
@@ -183,7 +180,6 @@ export type IntrinsicGasTooHighErrorType = IntrinsicGasTooHighError & {
 }
 export class IntrinsicGasTooHighError extends BaseError {
   static nodeMessage = /intrinsic gas too high|gas limit reached/
-  override name = 'IntrinsicGasTooHighError'
   constructor({
     cause,
     gas,
@@ -194,6 +190,7 @@ export class IntrinsicGasTooHighError extends BaseError {
       }provided for the transaction exceeds the limit allowed for the block.`,
       {
         cause,
+        name: 'IntrinsicGasTooHighError',
       },
     )
   }
@@ -204,7 +201,6 @@ export type IntrinsicGasTooLowErrorType = IntrinsicGasTooLowError & {
 }
 export class IntrinsicGasTooLowError extends BaseError {
   static nodeMessage = /intrinsic gas too low/
-  override name = 'IntrinsicGasTooLowError'
   constructor({
     cause,
     gas,
@@ -215,6 +211,7 @@ export class IntrinsicGasTooLowError extends BaseError {
       }provided for the transaction is too low.`,
       {
         cause,
+        name: 'IntrinsicGasTooLowError',
       },
     )
   }
@@ -226,10 +223,10 @@ export type TransactionTypeNotSupportedErrorType =
   }
 export class TransactionTypeNotSupportedError extends BaseError {
   static nodeMessage = /transaction type not valid/
-  override name = 'TransactionTypeNotSupportedError'
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super('The transaction type is not supported for this chain.', {
       cause,
+      name: 'TransactionTypeNotSupportedError',
     })
   }
 }
@@ -240,7 +237,6 @@ export type TipAboveFeeCapErrorType = TipAboveFeeCapError & {
 export class TipAboveFeeCapError extends BaseError {
   static nodeMessage =
     /max priority fee per gas higher than max fee per gas|tip higher than fee cap/
-  override name = 'TipAboveFeeCapError'
   constructor({
     cause,
     maxPriorityFeePerGas,
@@ -262,6 +258,7 @@ export class TipAboveFeeCapError extends BaseError {
       ].join('\n'),
       {
         cause,
+        name: 'TipAboveFeeCapError',
       },
     )
   }
@@ -271,11 +268,10 @@ export type UnknownNodeErrorType = UnknownNodeError & {
   name: 'UnknownNodeError'
 }
 export class UnknownNodeError extends BaseError {
-  override name = 'UnknownNodeError'
-
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(`An error occurred while executing: ${cause?.shortMessage}`, {
       cause,
+      name: 'UnknownNodeError',
     })
   }
 }

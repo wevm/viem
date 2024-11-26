@@ -17,24 +17,24 @@ import type {
 } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
 
-type RpcTransaction<TPending extends boolean = boolean> =
-  RpcTransaction_<TPending> & {
+type RpcTransaction<pending extends boolean = boolean> =
+  RpcTransaction_<pending> & {
     isSystemTx?: undefined
     mint?: undefined
     sourceHash?: undefined
   }
 
-export type OpStackRpcDepositTransaction<TPending extends boolean = boolean> =
-  Omit<TransactionBase<Quantity, Index, TPending>, 'typeHex'> &
+export type OpStackRpcDepositTransaction<pending extends boolean = boolean> =
+  Omit<TransactionBase<Quantity, Index, pending>, 'typeHex'> &
     FeeValuesEIP1559<Quantity> & {
       isSystemTx?: boolean | undefined
       mint?: Hex | undefined
       sourceHash: Hex
       type: '0x7e'
     }
-export type OpStackRpcTransaction<TPending extends boolean = boolean> =
-  | RpcTransaction<TPending>
-  | OpStackRpcDepositTransaction<TPending>
+export type OpStackRpcTransaction<pending extends boolean = boolean> = OneOf<
+  RpcTransaction<pending> | OpStackRpcDepositTransaction<pending>
+>
 
 export type OpStackRpcTransactionReceiptOverrides = {
   l1GasPrice: Hex | null
@@ -45,18 +45,18 @@ export type OpStackRpcTransactionReceiptOverrides = {
 export type OpStackRpcTransactionReceipt = RpcTransactionReceipt &
   OpStackRpcTransactionReceiptOverrides
 
-type Transaction<TPending extends boolean = boolean> = Transaction_<
+type Transaction<pending extends boolean = boolean> = Transaction_<
   bigint,
   number,
-  TPending
+  pending
 > & {
   isSystemTx?: undefined
   mint?: undefined
   sourceHash?: undefined
 }
 
-export type OpStackDepositTransaction<TPending extends boolean = boolean> =
-  TransactionBase<bigint, number, TPending> &
+export type OpStackDepositTransaction<pending extends boolean = boolean> =
+  TransactionBase<bigint, number, pending> &
     FeeValuesEIP1559 & {
       isSystemTx?: boolean
       mint?: bigint | undefined
@@ -64,9 +64,9 @@ export type OpStackDepositTransaction<TPending extends boolean = boolean> =
       type: 'deposit'
     }
 
-export type OpStackTransaction<TPending extends boolean = boolean> =
-  | Transaction<TPending>
-  | OpStackDepositTransaction<TPending>
+export type OpStackTransaction<pending extends boolean = boolean> =
+  | Transaction<pending>
+  | OpStackDepositTransaction<pending>
 
 export type OpStackTransactionReceiptOverrides = {
   l1GasPrice: bigint | null
@@ -82,18 +82,18 @@ export type OpStackTransactionSerializable = OneOf<
 >
 
 export type OpStackTransactionSerialized<
-  TType extends OpStackTransactionType = OpStackTransactionType,
-> = TType extends 'deposit'
+  type extends OpStackTransactionType = OpStackTransactionType,
+> = type extends 'deposit'
   ? TransactionSerializedDeposit
-  : TransactionSerialized<TType>
+  : TransactionSerialized<type>
 
 export type OpStackTransactionType = TransactionType | 'deposit'
 
 export type TransactionSerializableDeposit<
-  TQuantity = bigint,
-  TIndex = number,
+  quantity = bigint,
+  index = number,
 > = Omit<
-  TransactionSerializableBase<TQuantity, TIndex>,
+  TransactionSerializableBase<quantity, index>,
   'nonce' | 'r' | 's' | 'v'
 > & {
   from: Hex

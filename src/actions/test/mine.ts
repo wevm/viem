@@ -39,10 +39,10 @@ export type MineErrorType = RequestErrorType | ErrorType
  * await mine(client, { blocks: 1 })
  */
 export async function mine<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
+  client: TestClient<TestClientMode, Transport, chain, account, false>,
   { blocks, interval }: MineParameters,
 ) {
   if (client.mode === 'ganache')

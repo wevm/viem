@@ -56,8 +56,8 @@ export const offchainLookupAbiItem = {
 
 export type OffchainLookupErrorType = OffchainLookupErrorType_ | ErrorType
 
-export async function offchainLookup<TChain extends Chain | undefined>(
-  client: Client<Transport, TChain>,
+export async function offchainLookup<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   {
     blockNumber,
     blockTag,
@@ -136,12 +136,15 @@ export async function ccipRequest({
     const url = urls[i]
     const method = url.includes('{data}') ? 'GET' : 'POST'
     const body = method === 'POST' ? { data, sender } : undefined
+    const headers: HeadersInit =
+      method === 'POST' ? { 'Content-Type': 'application/json' } : {}
 
     try {
       const response = await fetch(
         url.replace('{sender}', sender).replace('{data}', data),
         {
           body: JSON.stringify(body),
+          headers,
           method,
         },
       )

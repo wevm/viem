@@ -9,9 +9,6 @@ export const taikoKatla = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://rpc.katla.taiko.xyz'],
     },
-    public: {
-      http: ['https://rpc.katla.taiko.xyz'],
-    },
   },
   blockExplorers: {
     default: {

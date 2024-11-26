@@ -16,7 +16,7 @@ import {
 } from './getTransaction.js'
 
 export type GetTransactionConfirmationsParameters<
-  TChain extends Chain | undefined = Chain,
+  chain extends Chain | undefined = Chain,
 > =
   | {
       /** The transaction hash. */
@@ -26,7 +26,7 @@ export type GetTransactionConfirmationsParameters<
   | {
       hash?: undefined
       /** The transaction receipt. */
-      transactionReceipt: FormattedTransactionReceipt<TChain>
+      transactionReceipt: FormattedTransactionReceipt<chain>
     }
 
 export type GetTransactionConfirmationsReturnType = bigint
@@ -40,7 +40,7 @@ export type GetTransactionConfirmationsErrorType =
  * Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
  *
  * - Docs: https://viem.sh/docs/actions/public/getTransactionConfirmations
- * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions/fetching-transactions
+ * - Example: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_fetching-transactions
  * - JSON-RPC Methods: [`eth_getTransactionConfirmations`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionConfirmations)
  *
  * @param client - Client to use
@@ -61,15 +61,15 @@ export type GetTransactionConfirmationsErrorType =
  * })
  */
 export async function getTransactionConfirmations<
-  TChain extends Chain | undefined,
+  chain extends Chain | undefined,
 >(
-  client: Client<Transport, TChain>,
-  { hash, transactionReceipt }: GetTransactionConfirmationsParameters<TChain>,
+  client: Client<Transport, chain>,
+  { hash, transactionReceipt }: GetTransactionConfirmationsParameters<chain>,
 ): Promise<GetTransactionConfirmationsReturnType> {
   const [blockNumber, transaction] = await Promise.all([
     getAction(client, getBlockNumber, 'getBlockNumber')({}),
     hash
-      ? getAction(client, getTransaction, 'getBlockNumber')({ hash })
+      ? getAction(client, getTransaction, 'getTransaction')({ hash })
       : undefined,
   ])
   const transactionBlockNumber =

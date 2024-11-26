@@ -1,6 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { blobData, kzg } from '../../../test/src/kzg.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
@@ -28,6 +29,37 @@ const base = {
   gas: 21000n,
   nonce: 785,
 } satisfies TransactionSerializableBase
+
+describe('eip7702', async () => {
+  const account = privateKeyToAccount(accounts[0].privateKey)
+  const signedAuthorization_1 = await account.experimental_signAuthorization({
+    contractAddress: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 420,
+  })
+  const signedAuthorization_2 = await account.experimental_signAuthorization({
+    contractAddress: wagmiContractConfig.address,
+    chainId: 10,
+    nonce: 69,
+  })
+
+  const baseEip7702 = {
+    ...base,
+    authorizationList: [signedAuthorization_1, signedAuthorization_2],
+    chainId: 1,
+    type: 'eip7702',
+  } as const satisfies TransactionSerializable
+
+  test('default', async () => {
+    const signature = await signTransaction({
+      transaction: baseEip7702,
+      privateKey: accounts[0].privateKey,
+    })
+    expect(signature).toMatchInlineSnapshot(
+      `"0x04f9010b018203118080825208808080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a401a0f6beafe7507f0c98ae9bc8d9e15d6b53c2f0714ccfc01663f658cb9f29caced4a00dc4dfc53537f8b09047eceb674c454acba020ce786d9004175f41669304dee0f85a0a94fba3912ca04dd458c843e2ee08967fc04f3579c24501a0c3fea6e0bd0f5743d6e2f2df8f1aa63ff262a6636ca96ac572da3ea5cd33344ca02a4f006f9a0cf7cd5f5528af86524c984b05a8446c8c124aede1d3531e91de9180a0c3d5845755debbe90b2fa6258ba04ec93c46bfb7b2657b66a11d8c7c5221ac939fbf44fdacf9e9f87b5074df6ba1f3f9c50c82d5b0be8e4e96686410ca405a30"`,
+    )
+  })
+})
 
 describe('eip4844', async () => {
   const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })

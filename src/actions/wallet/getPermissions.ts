@@ -31,9 +31,12 @@ export type GetPermissionsErrorType = RequestErrorType | ErrorType
  * const permissions = await getPermissions(client)
  */
 export async function getPermissions<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined = undefined,
->(client: Client<Transport, TChain, TAccount>) {
-  const permissions = await client.request({ method: 'wallet_getPermissions' })
+  chain extends Chain | undefined,
+  account extends Account | undefined = undefined,
+>(client: Client<Transport, chain, account>) {
+  const permissions = await client.request(
+    { method: 'wallet_getPermissions' },
+    { dedupe: true },
+  )
   return permissions
 }

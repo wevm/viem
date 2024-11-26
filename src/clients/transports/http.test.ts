@@ -177,12 +177,16 @@ describe('request', () => {
     })({ chain: localhost })
 
     const p = []
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_a' }))
+    p.push(transport.request({ method: 'eth_b' }, { dedupe: true }))
+    p.push(transport.request({ method: 'eth_c' }))
+    // test dedupe
+    p.push(transport.request({ method: 'eth_b' }, { dedupe: true }))
     await wait(1)
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_d' }, { dedupe: true }))
+    p.push(transport.request({ method: 'eth_e' }))
+    // test dedupe
+    p.push(transport.request({ method: 'eth_d' }, { dedupe: true }))
 
     const results = await Promise.all(p)
 
@@ -191,8 +195,10 @@ describe('request', () => {
         "0x1",
         "0x2",
         "0x3",
+        "0x2",
         "0x1",
         "0x2",
+        "0x1",
       ]
     `)
     expect(count).toEqual(2)
@@ -222,14 +228,19 @@ describe('request', () => {
     })({ chain: localhost })
 
     const p = []
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_a' }))
+    p.push(transport.request({ method: 'eth_b' }, { dedupe: true }))
+    p.push(transport.request({ method: 'eth_c' }))
+    // test dedupe
+    p.push(transport.request({ method: 'eth_b' }, { dedupe: true }))
     await wait(1)
-    p.push(transport.request({ method: 'eth_blockNumber' }))
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_d' }))
+    p.push(transport.request({ method: 'eth_e' }))
     await wait(20)
-    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_f' }, { dedupe: true }))
+    p.push(transport.request({ method: 'eth_g' }))
+    // test dedupe
+    p.push(transport.request({ method: 'eth_f' }, { dedupe: true }))
 
     const results = await Promise.all(p)
 
@@ -238,14 +249,81 @@ describe('request', () => {
         "0x1",
         "0x2",
         "0x3",
+        "0x2",
         "0x4",
         "0x5",
+        "0x1",
+        "0x2",
         "0x1",
       ]
     `)
     expect(count).toEqual(2)
 
     await server.close()
+  })
+
+  test('behavior: dedupe', async () => {
+    const args: string[] = []
+    const server = await createHttpServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        args.push(body)
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: body }))
+      })
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+    })({ chain: localhost })
+
+    const results = await Promise.all([
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
+      // this will not be deduped (different params).
+      transport.request(
+        { method: 'eth_blockNumber', params: [1] },
+        { dedupe: true },
+      ),
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
+      // this will not be deduped (different method).
+      transport.request({ method: 'eth_chainId' }, { dedupe: true }),
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
+      // this will not be deduped (dedupe: undefined).
+      transport.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }, { dedupe: true }),
+    ])
+
+    expect(
+      args
+        .map((arg) => JSON.parse(arg))
+        .sort((a, b) => a.id - b.id)
+        .map((arg) => JSON.stringify(arg)),
+    ).toMatchInlineSnapshot(`
+      [
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":24,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":25,"method":"eth_blockNumber"}",
+      ]
+    `)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":24,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":25,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+      ]
+    `)
   })
 
   test('behavior: fetchOptions', async () => {
@@ -337,7 +415,7 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(retryCount).toBe(1)
   })
@@ -370,7 +448,7 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: Internal Server Error
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
     expect(end > 500 && end < 520).toBeTruthy()
   })
@@ -399,7 +477,7 @@ describe('request', () => {
       Request body: {"method":"eth_blockNumber"}
 
       Details: The request timed out.
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 
@@ -414,13 +492,13 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_wagmi' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [MethodNotFoundRpcError: The method does not exist / is not available.
+      [MethodNotFoundRpcError: The method "eth_wagmi" does not exist / is not available.
 
       URL: http://localhost
       Request body: {"method":"eth_wagmi"}
 
       Details: Method not found
-      Version: viem@1.0.2]
+      Version: viem@x.y.z]
     `)
   })
 })
@@ -428,10 +506,10 @@ describe('request', () => {
 test('no url', () => {
   expect(() => http()({})).toThrowErrorMatchingInlineSnapshot(
     `
-    [ViemError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
+    [UrlRequiredError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
     Docs: https://viem.sh/docs/clients/intro
-    Version: viem@1.0.2]
+    Version: viem@x.y.z]
   `,
   )
 })
