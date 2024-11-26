@@ -9,7 +9,7 @@ export const worldLand = /*#__PURE__*/ defineChain({
     symbol: 'WLC',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://seoul.worldland.foundation'],
     },
   },

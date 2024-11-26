@@ -17,5 +17,5 @@ export const boolBetaMainnet = /*#__PURE__*/ defineChain({
       url: 'https://beta-mainnet.boolscan.com/',
     },
   },
-  testnet: false
+  testnet: false,
 })

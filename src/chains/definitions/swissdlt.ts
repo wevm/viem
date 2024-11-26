@@ -9,7 +9,7 @@ export const swissdlt = /*#__PURE__*/ defineChain({
     symbol: 'BCTS',
   },
   rpcUrls: {
-    default: { 
+    default: {
       http: ['https://rpc.swissdlt.ch'],
     },
   },
