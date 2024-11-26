@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added `prepareAuthorization`.
+**Experimental (EIP-7702):** Added `prepareAuthorization`.
