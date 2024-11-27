@@ -178,7 +178,7 @@ test('cleans up emit function correctly', async () => {
 test('cleans up emit function when last listener unwatch', async () => {
   const id = 'mock'
   const callback = vi.fn()
-  const cleanup = vi.fn();
+  const cleanup = vi.fn()
   const emitter = vi.fn(({ emit }) => {
     setTimeout(() => emit({ foo: 'bar' }), 100)
     return () => {
@@ -186,11 +186,17 @@ test('cleans up emit function when last listener unwatch', async () => {
     }
   })
 
-  const unwatch1 = observe(id, { emit: () => {
-    unwatch1();
-    unwatch1();
-    unwatch1();
-  } }, emitter)
+  const unwatch1 = observe(
+    id,
+    {
+      emit: () => {
+        unwatch1()
+        unwatch1()
+        unwatch1()
+      },
+    },
+    emitter,
+  )
 
   const unwatch2 = observe(id, { emit: callback }, emitter)
 
