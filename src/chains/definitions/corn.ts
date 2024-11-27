@@ -17,7 +17,8 @@ export const corn = /*#__PURE__*/ defineChain({
     default: {
       name: 'Corn Explorer',
       url: 'https://cornscan.io',
-      apiUrl: 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan/api',
+      apiUrl:
+        'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan/api',
     },
   },
   contracts: {
