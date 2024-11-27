@@ -174,3 +174,33 @@ test('cleans up emit function correctly', async () => {
 
   expect(active).toBe(false)
 })
+
+test('cleans up emit function when last listener unwatch', async () => {
+  const id = 'mock'
+  const callback = vi.fn()
+  const cleanup = vi.fn();
+  const emitter = vi.fn(({ emit }) => {
+    setTimeout(() => emit({ foo: 'bar' }), 100)
+    return () => {
+      cleanup()
+    }
+  })
+
+  const unwatch1 = observe(id, { emit: () => {
+    unwatch1();
+    unwatch1();
+    unwatch1();
+  } }, emitter)
+
+  const unwatch2 = observe(id, { emit: callback }, emitter)
+
+  await wait(110)
+
+  // Make sure there is no premature call to cleanup
+  // as watch2 listener is still subscribed
+  expect(cleanup).not.toHaveBeenCalled()
+
+  unwatch2()
+
+  expect(cleanup).toHaveBeenCalledTimes(1)
+})
