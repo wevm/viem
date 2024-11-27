@@ -27,5 +27,4 @@ export const corn = /*#__PURE__*/ defineChain({
       blockCreated: 3228,
     },
   },
-  sourceId,
 })
