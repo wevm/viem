@@ -17,7 +17,8 @@ export const redbellyMainnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Routescan',
       url: 'https://redbelly.routescan.io',
-      apiUrl: 'https://api.routescan.io/v2/network/mainnet/evm/151/etherscan/api',
+      apiUrl:
+        'https://api.routescan.io/v2/network/mainnet/evm/151/etherscan/api',
     },
   },
   testnet: false,
