@@ -17,5 +17,11 @@ export const fluenceStage = /*#__PURE__*/ defineChain({
       apiUrl: 'https://blockscout.stage.fluence.dev/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 83227,
+    },
+  },
   testnet: true,
 })
