@@ -1,5 +1,17 @@
 # viem
 
+## 2.21.52
+
+### Patch Changes
+
+- [#3070](https://github.com/wevm/viem/pull/3070) [`6edad0263d82b11342dd3a913f97f630b5cc813d`](https://github.com/wevm/viem/commit/6edad0263d82b11342dd3a913f97f630b5cc813d) Thanks [@sherrys808](https://github.com/sherrys808)! - Added Redbelly Mainnet Chain.
+
+- [#3072](https://github.com/wevm/viem/pull/3072) [`c2beb14c4574cab901cc7bda53bd166c444b27fb`](https://github.com/wevm/viem/commit/c2beb14c4574cab901cc7bda53bd166c444b27fb) Thanks [@sajanrajdev](https://github.com/sajanrajdev)! - Added Corn Testnet.
+
+- [#3068](https://github.com/wevm/viem/pull/3068) [`c5768003785321628351b02156abe18291c9186c`](https://github.com/wevm/viem/commit/c5768003785321628351b02156abe18291c9186c) Thanks [@nfmelendez](https://github.com/nfmelendez)! - Fixed `waitForTransactionReceipt` race condition when polling many blocks
+
+- [#3071](https://github.com/wevm/viem/pull/3071) [`29fc49301f6b2adeccb79ed7a69b3e59bac55278`](https://github.com/wevm/viem/commit/29fc49301f6b2adeccb79ed7a69b3e59bac55278) Thanks [@sajanrajdev](https://github.com/sajanrajdev)! - Added Corn Maizenet.
+
 ## 2.21.51
 
 ### Patch Changes
