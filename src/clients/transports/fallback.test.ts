@@ -834,8 +834,8 @@ describe('rankTransports', () => {
 
     const server = await createHttpServer((req, res) => {
       req.setEncoding('utf8')
-      req.on('data', (b) => {
-        results.push(JSON.parse(b))
+      req.on('data', (body) => {
+        results.push(JSON.parse(body))
         res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify({ result: '0x1' }))
       })
