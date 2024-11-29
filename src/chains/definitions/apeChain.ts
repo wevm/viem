@@ -20,7 +20,7 @@ export const apeChain = /*#__PURE__*/ defineChain({
     default: {
       name: 'Apescan',
       url: 'https://apescan.io',
-      apiUrl: 'https://api.apescan.io',
+      apiUrl: 'https://api.apescan.io/api',
     },
   },
   contracts: {
