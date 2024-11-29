@@ -1,5 +1,13 @@
 # viem
 
+## 2.21.53
+
+### Patch Changes
+
+- [#3076](https://github.com/wevm/viem/pull/3076) [`6102935c4cea8b39778b8824425ccf00f7377dd8`](https://github.com/wevm/viem/commit/6102935c4cea8b39778b8824425ccf00f7377dd8) Thanks [@ezynda3](https://github.com/ezynda3)! - Updated ApeScan API URL.
+
+- [#3074](https://github.com/wevm/viem/pull/3074) [`9de4385bc84af48efac38e387716ebe2cdbb2cf8`](https://github.com/wevm/viem/commit/9de4385bc84af48efac38e387716ebe2cdbb2cf8) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added Multicall address to Fluence.
+
 ## 2.21.52
 
 ### Patch Changes
