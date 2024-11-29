@@ -39,6 +39,12 @@ type RankOptions = {
    */
   interval?: number | undefined
   /**
+   * Ping method to determine latency.
+   */
+  ping?: (parameters: { transport: ReturnType<Transport> }) =>
+    | Promise<unknown>
+    | undefined
+  /**
    * The number of previous samples to perform ranking on.
    * @default 10
    */
@@ -173,6 +179,7 @@ export function fallback<const transports extends readonly Transport[]>(
         chain,
         interval: rankOptions.interval ?? pollingInterval,
         onTransports: (transports_) => (transports = transports_ as transports),
+        ping: rankOptions.ping,
         sampleCount: rankOptions.sampleCount,
         timeout: rankOptions.timeout,
         transports,
@@ -200,6 +207,7 @@ export function rankTransports({
   chain,
   interval = 4_000,
   onTransports,
+  ping,
   sampleCount = 10,
   timeout = 1_000,
   transports,
@@ -208,6 +216,7 @@ export function rankTransports({
   chain?: Chain | undefined
   interval: RankOptions['interval']
   onTransports: (transports: readonly Transport[]) => void
+  ping?: RankOptions['ping'] | undefined
   sampleCount?: RankOptions['sampleCount'] | undefined
   timeout?: RankOptions['timeout'] | undefined
   transports: readonly Transport[]
@@ -230,7 +239,9 @@ export function rankTransports({
         let end: number
         let success: number
         try {
-          await transport_.request({ method: 'net_listening' })
+          await (ping
+            ? ping({ transport: transport_ })
+            : transport_.request({ method: 'net_listening' }))
           success = 1
         } catch {
           success = 0
