@@ -829,35 +829,41 @@ describe('rankTransports', () => {
     `)
   })
 
-  test('custom rankMethod', async () => {
-    // TODO: properly test this
+  test('behavior: custom ping', async () => {
+    const results: { method: string }[] = []
+
     const server = await createHttpServer((req, res) => {
       req.setEncoding('utf8')
-      req.on('data', (body) => {
-        const { method } = JSON.parse(body)
-        expect(method).toBe('eth_blockNumber')
+      req.on('data', (b) => {
+        results.push(JSON.parse(b))
         res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify({ result: '0x1' }))
       })
     })
 
     const transport1 = http(server.url, { key: '1' })
-    const transport2 = http(server.url, { key: '2' })
-    const transport3 = http(server.url, { key: '3' })
 
-    const rankedTransports: (readonly Transport[])[] = []
-
+    let count = 0
     rankTransports({
       chain: localhost,
-      interval: 100,
-      sampleCount: 3,
-      timeout: 500,
-      transports: [transport1, transport2, transport3],
-      onTransports(transports) {
-        rankedTransports.push(transports)
+      interval: 10,
+      transports: [transport1],
+      onTransports() {},
+      ping({ transport }) {
+        count++
+        return transport.request({
+          method: count % 2 === 0 ? 'eth_blockNumber' : 'eth_getBlockByNumber',
+        })
       },
-      rankMethod: 'eth_blockNumber',
     })
 
+    await wait(20)
+
+    expect(results.map((r) => r.method)).toMatchInlineSnapshot(`
+      [
+        "eth_getBlockByNumber",
+        "eth_blockNumber",
+      ]
+    `)
   })
 })

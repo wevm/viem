@@ -114,6 +114,26 @@ const transport = fallback([alchemy, infura], {
 })
 ```
 
+### rank.ping (optional)
+
+- **Type:** `({ transport }: { transport: Transport }) => Promise<unknown>`
+- **Default:** `({ transport }) => transport.request({ method: 'net_listening' })`
+
+Function to call to ping the Transport. Defaults to calling the `net_listening` method to check if the Transport is online.
+
+```ts twoslash
+import { createPublicClient, fallback, http } from 'viem'
+import { mainnet } from 'viem/chains'
+const alchemy = http('') 
+const infura = http('') 
+// ---cut---
+const transport = fallback([alchemy, infura], {
+  rank: { // [!code focus:3]
+    ping: ({ transport }) => transport.request({ method: 'eth_blockNumber' })
+  },
+})
+```
+
 ### rank.sampleCount (optional)
 
 - **Type:** `number`
