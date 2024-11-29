@@ -122,6 +122,7 @@ const transport = fallback([alchemy, infura], {
 Function to call to ping the Transport. Defaults to calling the `net_listening` method to check if the Transport is online.
 
 ```ts twoslash
+// @noErrors
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
 const alchemy = http('') 
