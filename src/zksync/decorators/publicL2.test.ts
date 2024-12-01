@@ -17,6 +17,7 @@ import {
   mockedL1BatchNumber,
 } from '~test/src/zksync.js'
 import { http } from '~viem/clients/transports/http.js'
+import { legacyEthAddress } from '~viem/zksync/constants/address.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { estimateFee } from '../actions/estimateFee.js'
@@ -220,6 +221,14 @@ test('getL2TokenAddress', async () => {
   expect(
     await zksyncClient.getL2TokenAddress({
       token: daiL1,
+    }),
+  ).toBeDefined()
+})
+
+test('getL1TokenAddress', async () => {
+  expect(
+    await zksyncClient.getL1TokenAddress({
+      token: legacyEthAddress,
     }),
   ).toBeDefined()
 })
