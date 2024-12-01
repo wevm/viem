@@ -53,6 +53,11 @@ import {
   getL1ChainId,
 } from '../actions/getL1ChainId.js'
 import {
+  type GetL2TokenAddressParameters,
+  type GetL2TokenAddressReturnType,
+  getL2TokenAddress,
+} from '../actions/getL2TokenAddress.js'
+import {
   type GetLogProofParameters,
   type GetLogProofReturnType,
   getLogProof,
@@ -411,6 +416,32 @@ export type PublicActionsL2<
    * const address = await client.getBaseTokenL1Address();
    */
   getBaseTokenL1Address: () => Promise<GetBaseTokenL1AddressReturnType>
+
+  /**
+   * Returns the L2 token address equivalent for a L1 token address as they are not equal.
+   * ETH address is set to zero address.
+   *
+   * @remarks Only works for tokens bridged on default ZKsync Era bridges.
+   *
+   * @returns the L2 token address equivalent for a L1 token address.
+   * @param args - {@link GetL2TokenAddressParameters}
+   *
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zksyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zksyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const address = await client.getL2TokenAddress({token: '0x...'});
+   */
+  getL2TokenAddress: (
+    args: GetL2TokenAddressParameters,
+  ) => Promise<GetL2TokenAddressReturnType>
 }
 
 export function publicActionsL2() {
@@ -438,6 +469,7 @@ export function publicActionsL2() {
       estimateFee: (args) => estimateFee(client, args),
       getBridgehubContractAddress: () => getBridgehubContractAddress(client),
       getBaseTokenL1Address: () => getBaseTokenL1Address(client),
+      getL2TokenAddress: (args) => getL2TokenAddress(client, args),
     }
   }
 }

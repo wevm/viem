@@ -1707,6 +1707,10 @@ export const sidebar = {
             link: '/zksync/actions/getL1ChainId',
           },
           {
+            text: 'getL2TokenAddress',
+            link: '/zksync/actions/getL2TokenAddress',
+          },
+          {
             text: 'getLogProof',
             link: '/zksync/actions/getLogProof',
           },

@@ -119,6 +119,11 @@ export {
   type SignTransactionReturnType,
   signTransaction,
 } from './actions/signTransaction.js'
+export {
+  type GetL2TokenAddressReturnType,
+  type GetL2TokenAddressParameters,
+  getL2TokenAddress,
+} from './actions/getL2TokenAddress.js'
 
 export {
   /** @deprecated Use `zksync` instead */
