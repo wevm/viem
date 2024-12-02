@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Replaced invalid blockExplorers and added the multicall3 contract.
+Added multicall3 contract to ThunderCore.
