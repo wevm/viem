@@ -96,6 +96,12 @@ export {
   getTransactionDetails,
 } from './actions/getTransactionDetails.js'
 export {
+  type IsWithdrawalFinalizedErrorType,
+  type IsWithdrawalFinalizedReturnType,
+  type IsWithdrawalFinalizedParameters,
+  isWithdrawalFinalized,
+} from './actions/isWithdrawalFinalized.js'
+export {
   type RequestExecuteErrorType,
   type RequestExecuteReturnType,
   type RequestExecuteParameters,
