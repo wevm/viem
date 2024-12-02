@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Added `ZKsync` local hyperchain networks
+Added ZKSync local hyperchain networks.
