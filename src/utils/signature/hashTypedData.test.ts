@@ -65,7 +65,10 @@ test('domain: bigint value for chainId', () => {
   expect(
     hashTypedData({
       ...typedData.complex,
-      domain: { chainId: 14018334920824264832118464179726739019961432051877733167310318607178n },
+      domain: {
+        chainId:
+          14018334920824264832118464179726739019961432051877733167310318607178n,
+      },
       primaryType: 'Mail',
     }),
   ).toMatchInlineSnapshot(
