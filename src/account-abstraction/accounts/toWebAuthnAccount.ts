@@ -41,6 +41,7 @@ export function toWebAuthnAccount(
   const { getFn, rpId } = parameters
   const { id, publicKey } = parameters.credential
   return {
+    id,
     publicKey,
     async sign({ hash }) {
       return sign({ credentialId: id, getFn, hash, rpId })
