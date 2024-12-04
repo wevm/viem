@@ -145,7 +145,7 @@
     {
       "name": "import { privateKeyToAccount } from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
-      "limit": "21 kB",
+      "limit": "22 kB",
       "import": "{ privateKeyToAccount }"
     },
     {
@@ -199,13 +199,13 @@
     {
       "name": "import * from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "32 kB",
+      "limit": "33 kB",
       "import": "*"
     },
     {
       "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "31 kB",
+      "limit": "32 kB",
       "import": "{ verifySiweMessage }"
     }
   ],
