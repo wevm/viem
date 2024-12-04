@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added credential's id to `WebAuthnAccount`
+Added `id` to `WebAuthnAccount`.
