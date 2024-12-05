@@ -1,5 +1,25 @@
 # viem
 
+## 2.21.54
+
+### Patch Changes
+
+- [#3081](https://github.com/wevm/viem/pull/3081) [`0d9dfcd1d22d82e995abc4a23fb86614244faa54`](https://github.com/wevm/viem/commit/0d9dfcd1d22d82e995abc4a23fb86614244faa54) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - Added ZKSync local hyperchain networks.
+
+- [`7c0cce92b904f1771ec9747e7aa6a6482159a87b`](https://github.com/wevm/viem/commit/7c0cce92b904f1771ec9747e7aa6a6482159a87b) Thanks [@jxom](https://github.com/jxom)! - Added assertion for ABI-encoding integer ranges.
+
+- [#3093](https://github.com/wevm/viem/pull/3093) [`8b70d75b9d81c5eae05e81cb3bf158a25ae4c617`](https://github.com/wevm/viem/commit/8b70d75b9d81c5eae05e81cb3bf158a25ae4c617) Thanks [@pk-850](https://github.com/pk-850)! - Added ADF Chain.
+
+- [#3095](https://github.com/wevm/viem/pull/3095) [`1d2ae845faadae36a0c25963449bbadc1ff65815`](https://github.com/wevm/viem/commit/1d2ae845faadae36a0c25963449bbadc1ff65815) Thanks [@timothyshen](https://github.com/timothyshen)! - Added Story Odyssey Testnet.
+
+- [#2642](https://github.com/wevm/viem/pull/2642) [`d1d092c19326fe0045233aee0cde8f6ceaff8633`](https://github.com/wevm/viem/commit/d1d092c19326fe0045233aee0cde8f6ceaff8633) Thanks [@0x33dm](https://github.com/0x33dm)! - Added `ping` option to `fallback` Transport.
+
+- [#3089](https://github.com/wevm/viem/pull/3089) [`699c854c1250977c2a6209233685a506df9bcd9b`](https://github.com/wevm/viem/commit/699c854c1250977c2a6209233685a506df9bcd9b) Thanks [@plusminushalf](https://github.com/plusminushalf)! - Added `id` to `WebAuthnAccount`.
+
+- [#3085](https://github.com/wevm/viem/pull/3085) [`acc496adc8d419ce6c593408ee75925c05fb22b6`](https://github.com/wevm/viem/commit/acc496adc8d419ce6c593408ee75925c05fb22b6) Thanks [@Zhangnong](https://github.com/Zhangnong)! - Added multicall3 contract to ThunderCore.
+
+- [`feecb7841145e4a92a1968625a832ccfec68a3d7`](https://github.com/wevm/viem/commit/feecb7841145e4a92a1968625a832ccfec68a3d7) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
 ## 2.21.53
 
 ### Patch Changes
