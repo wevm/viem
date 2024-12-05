@@ -14,7 +14,7 @@ export const storyOdyssey = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Story Odyssey Explorer',
-      url: 'https://odyssey.storyscan.xyz/',
+      url: 'https://odyssey.storyscan.xyz',
     },
   },
   testnet: true,
