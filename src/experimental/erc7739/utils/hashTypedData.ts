@@ -14,8 +14,6 @@ export type HashTypedDataParameters<
   ///
   primaryTypes = typedData extends TypedData ? keyof typedData : string,
 > = TypedDataDefinition<typedData, primaryType, primaryTypes> & {
-  fields: Hex
-  extensions: readonly bigint[]
   verifierDomain: RequiredBy<
     TypedDataDomain,
     'chainId' | 'name' | 'verifyingContract' | 'version'
@@ -76,15 +74,7 @@ export function hashTypedData<
 >(
   parameters: HashTypedDataParameters<typedData, primaryType>,
 ): HashTypedDataReturnType {
-  const {
-    domain,
-    extensions,
-    fields,
-    message,
-    primaryType,
-    types,
-    verifierDomain,
-  } = parameters
+  const { domain, message, primaryType, types, verifierDomain } = parameters
 
   return hashTypedData_({
     domain: domain as any,
@@ -92,20 +82,16 @@ export function hashTypedData<
       ...types,
       TypedDataSign: [
         { name: 'contents', type: primaryType },
-        { name: 'fields', type: 'bytes1' },
         { name: 'name', type: 'string' },
         { name: 'version', type: 'string' },
         { name: 'chainId', type: 'uint256' },
         { name: 'verifyingContract', type: 'address' },
         { name: 'salt', type: 'bytes32' },
-        { name: 'extensions', type: 'uint256[]' },
       ],
     },
     primaryType: 'TypedDataSign',
     message: {
       contents: message as any,
-      fields,
-      extensions,
       ...(verifierDomain as any),
     },
   })
