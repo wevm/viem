@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // ethereum
 
-export const plumeTestnet = /*#__PURE__*/ defineChain({
+export const plume = /*#__PURE__*/ defineChain({
   id: 98_865,
   name: 'Plume Mainnet',
   nativeCurrency: {
