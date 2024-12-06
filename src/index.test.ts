@@ -293,6 +293,7 @@ test('exports', () => {
       "getSerializedTransactionType",
       "getTransactionType",
       "hashDomain",
+      "hashStruct",
       "hashTypedData",
       "compactSignatureToSignature",
       "hexToCompactSignature",

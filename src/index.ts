@@ -1272,10 +1272,12 @@ export {
 } from './utils/transaction/getTransactionType.js'
 export {
   type HashDomainErrorType,
+  type HashStructErrorType,
   type HashTypedDataErrorType,
   type HashTypedDataParameters,
   type HashTypedDataReturnType,
   hashDomain,
+  hashStruct,
   hashTypedData,
 } from './utils/signature/hashTypedData.js'
 export {
