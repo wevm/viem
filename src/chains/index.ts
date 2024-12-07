@@ -325,6 +325,8 @@ export { polygonZkEvm } from './definitions/polygonZkEvm.js'
 export { polygonZkEvmCardona } from './definitions/polygonZkEvmCardona.js'
 /** @deprecated Use `polygonZkEvmCardona` instead. */
 export { polygonZkEvmTestnet } from './definitions/polygonZkEvmTestnet.js'
+export { polynomial } from './definitions/polynomial.js'
+export { polynomialSepolia } from './definitions/polynomialSepolia.js'
 export { pulsechain } from './definitions/pulsechain.js'
 export { pulsechainV4 } from './definitions/pulsechainV4.js'
 export { ql1 } from './definitions/ql1.js'
