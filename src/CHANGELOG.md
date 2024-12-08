@@ -1,5 +1,21 @@
 # viem
 
+## 2.21.55
+
+### Patch Changes
+
+- [#3103](https://github.com/wevm/viem/pull/3103) [`42fbfca0056466ef789a0689a4bebe17b60d2aa4`](https://github.com/wevm/viem/commit/42fbfca0056466ef789a0689a4bebe17b60d2aa4) Thanks [@iamacook](https://github.com/iamacook)! - Exported `hashStruct`.
+
+- [#3098](https://github.com/wevm/viem/pull/3098) [`f960498b3ef2cfe39dc566ff539aab81a4608227`](https://github.com/wevm/viem/commit/f960498b3ef2cfe39dc566ff539aab81a4608227) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Daily Network Testnet.
+
+- [#3099](https://github.com/wevm/viem/pull/3099) [`a8865d589e7919ebe3da99ae09831435f5c24e8f`](https://github.com/wevm/viem/commit/a8865d589e7919ebe3da99ae09831435f5c24e8f) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Daily Network Mainnet.
+
+- [`5992d93764abb913e65da3647ac75573f9e9c976`](https://github.com/wevm/viem/commit/5992d93764abb913e65da3647ac75573f9e9c976) Thanks [@jxom](https://github.com/jxom)! - Added Plume Mainnet & Testnet.
+
+- [#3107](https://github.com/wevm/viem/pull/3107) [`f8c002fe7052fce747b3374dda4d15cbfce6a5c4`](https://github.com/wevm/viem/commit/f8c002fe7052fce747b3374dda4d15cbfce6a5c4) Thanks [@pk-850](https://github.com/pk-850)! - Added Sonic mainnet.
+
+- [#3096](https://github.com/wevm/viem/pull/3096) [`092615f58a19994b6ba01dfb30b9ba0f6ad2902b`](https://github.com/wevm/viem/commit/092615f58a19994b6ba01dfb30b9ba0f6ad2902b) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Synced ERC-7739 extension to latest spec.
+
 ## 2.21.54
 
 ### Patch Changes
