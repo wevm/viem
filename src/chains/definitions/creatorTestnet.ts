@@ -14,7 +14,7 @@ export const creatorTestnet = defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.creatorchain.io/' },
+    default: { name: 'Explorer', url: 'https://explorer.creatorchain.io' },
   },
   contracts: {
     multicall3: {
