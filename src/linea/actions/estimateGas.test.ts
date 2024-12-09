@@ -50,7 +50,7 @@ test('error: insufficient balance', async () => {
       to:     0x0000000000000000000000000000000000000000
       value:  0.0001 ETH
 
-    Details: transaction up-front cost 0x5af31a7dba00 exceeds transaction sender account balance 0x125242f3074
+    Details: transaction up-front cost 0x5af31a7dba00 exceeds transaction sender account balance 0x0
     Version: viem@x.y.z]
   `)
 })
