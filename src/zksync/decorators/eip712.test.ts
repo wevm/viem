@@ -3,7 +3,8 @@ import { expect, test } from 'vitest'
 import { greeterContract } from '~test/src/abis.js'
 import { anvilZksync } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
-import { accounts as acc } from '~test/src/zksync.js'
+import { accounts as acc, approvalToken, paymaster } from '~test/src/zksync.js'
+import { getApprovalBasedPaymasterInput } from '~viem/zksync/utils/paymaster/getApprovalBasedPaymasterInput.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { simulateContract } from '../../actions/index.js'
 import { zksyncLocalHyperchain } from '../../chains/definitions/zksyncLocalHyperchain.js'
@@ -47,6 +48,31 @@ test('sendTransaction', async () => {
       '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
     type: 'eip712',
     gasPerPubdata: 50000n,
+  })
+  expect(result).toBeDefined()
+})
+
+test('sendTransaction with account hoisting', async () => {
+  const zksyncWallet = createWalletClient({
+    account: privateKeyToAccount(acc[0].privateKey),
+    chain: zksyncLocalHyperchain,
+    transport: http(),
+  }).extend(eip712WalletActions())
+
+  const result = await zksyncWallet.sendTransaction({
+    to: acc[1].address,
+    data: '0x0',
+    value: 7_000_000_000n,
+    maxFeePerGas: 10000000000n,
+    maxPriorityFeePerGas: 10000000000n,
+    gas: 158774n,
+    paymaster: paymaster,
+    paymasterInput: getApprovalBasedPaymasterInput({
+      minAllowance: 1n,
+      token: approvalToken,
+      innerInput: new Uint8Array(),
+    }),
+    gasPerPubdata: 50_000n,
   })
   expect(result).toBeDefined()
 })

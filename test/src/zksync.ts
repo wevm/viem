@@ -210,6 +210,9 @@ export function mockClientPublicActionsL2(client: any) {
   }
 }
 
+export const approvalToken = '0x2dc3685cA34163952CF4A5395b0039c00DFa851D'
+export const paymaster = '0x0EEc6f45108B4b806e27B81d9002e162BD910670'
+
 export const accounts = [
   {
     address: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
