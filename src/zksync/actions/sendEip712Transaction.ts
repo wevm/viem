@@ -92,13 +92,15 @@ export async function sendEip712Transaction<
     request
   >,
 ): Promise<SendEip712TransactionReturnType> {
-  const { chain = client.chain } = parameters
+  const { account: account_ = client.account, chain = client.chain } =
+    parameters
 
-  if (!parameters.account)
+  const account = account_ ? parseAccount(account_) : client.account
+
+  if (!account)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/sendTransaction',
     })
-  const account = parseAccount(parameters.account)
 
   try {
     assertEip712Request(parameters)
