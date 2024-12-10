@@ -1,16 +1,16 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const fantomSonicTestnet = /*#__PURE__*/ defineChain({
-  id: 64_240,
+  id: 64_165,
   name: 'Fantom Sonic Open Testnet',
   network: 'fantom-sonic-testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'Fantom',
-    symbol: 'FTM',
+    name: 'Sonic',
+    symbol: 'S',
   },
   rpcUrls: {
-    default: { http: ['https://rpcapi.sonic.fantom.network'] },
+    default: { http: ['https://rpc.testnet.soniclabs.com'] },
   },
   blockExplorers: {
     default: {
