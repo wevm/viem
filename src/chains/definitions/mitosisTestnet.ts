@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const mitosisTestnet = /*#__PURE__*/ defineChain({
-  id: 124832,
+  id: 124_832,
   name: 'Mitosis Testnet',
   nativeCurrency: { name: 'MITO', symbol: 'MITO', decimals: 18 },
   rpcUrls: {
