@@ -17,8 +17,8 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
-import { estimateContractGas } from './estimateContractGas.js'
 import { publicActions } from '../../index.js'
+import { estimateContractGas } from './estimateContractGas.js'
 
 const client = anvilMainnet.getClient().extend(publicActions)
 
@@ -149,7 +149,6 @@ describe('wagmi', () => {
 
     expect(gasWithDataSuffix).toBeGreaterThan(gasWithoutDataSuffix)
   })
-
 })
 
 describe('BAYC', () => {

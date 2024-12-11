@@ -15,6 +15,7 @@ import type {
   ContractFunctionParameters,
   GetValue,
 } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
   type EncodeFunctionDataErrorType,
@@ -31,7 +32,6 @@ import {
   type EstimateGasParameters,
   estimateGas,
 } from './estimateGas.js'
-import type { Hex } from '../../types/misc.js'
 
 export type EstimateContractGasParameters<
   abi extends Abi | readonly unknown[] = Abi,
