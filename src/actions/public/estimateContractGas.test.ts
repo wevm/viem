@@ -4,7 +4,7 @@
  *        - Custom chain types
  *        - Custom nonce
  */
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { ErrorsExample } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
@@ -17,9 +17,10 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
+import { publicActions } from '../../index.js'
 import { estimateContractGas } from './estimateContractGas.js'
 
-const client = anvilMainnet.getClient()
+const client = anvilMainnet.getClient().extend(publicActions)
 
 describe('wagmi', () => {
   test('default', async () => {
@@ -120,6 +121,33 @@ describe('wagmi', () => {
       Docs: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
+  })
+
+  test('args: dataSuffix', async () => {
+    const spy = vi.spyOn(client, 'estimateGas')
+
+    const gasWithDataSuffix = await estimateContractGas(client, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+      dataSuffix: '0x12345678',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: accounts[0].address,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
+
+    const gasWithoutDataSuffix = await estimateContractGas(client, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+    })
+
+    expect(gasWithDataSuffix).toBeGreaterThan(gasWithoutDataSuffix)
   })
 })
 

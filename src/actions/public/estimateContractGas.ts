@@ -15,6 +15,7 @@ import type {
   ContractFunctionParameters,
   GetValue,
 } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
   type EncodeFunctionDataErrorType,
@@ -57,7 +58,10 @@ export type EstimateContractGasParameters<
     EstimateGasParameters<chain> extends EstimateGasParameters
       ? EstimateGasParameters<chain>['value']
       : EstimateGasParameters['value']
-  >
+  > & {
+    /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
+    dataSuffix?: Hex | undefined
+  }
 
 export type EstimateContractGasReturnType = bigint
 
@@ -102,7 +106,7 @@ export async function estimateContractGas<
   client: Client<Transport, chain, account>,
   parameters: EstimateContractGasParameters<abi, functionName, args, chain>,
 ): Promise<EstimateContractGasReturnType> {
-  const { abi, address, args, functionName, ...request } =
+  const { abi, address, args, functionName, dataSuffix, ...request } =
     parameters as EstimateContractGasParameters
   const data = encodeFunctionData({
     abi,
@@ -115,7 +119,7 @@ export async function estimateContractGas<
       estimateGas,
       'estimateGas',
     )({
-      data,
+      data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...request,
     } as unknown as EstimateGasParameters)
