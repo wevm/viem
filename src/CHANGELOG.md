@@ -1,5 +1,37 @@
 # viem
 
+## 2.21.55
+
+### Patch Changes
+
+- [#3116](https://github.com/wevm/viem/pull/3116) [`45d34bbe2a5cd6f56aa5a78856ed141020eb40e1`](https://github.com/wevm/viem/commit/45d34bbe2a5cd6f56aa5a78856ed141020eb40e1) Thanks [@RealWooblay](https://github.com/RealWooblay)! - Added XR One chain.
+
+- [#3103](https://github.com/wevm/viem/pull/3103) [`42fbfca0056466ef789a0689a4bebe17b60d2aa4`](https://github.com/wevm/viem/commit/42fbfca0056466ef789a0689a4bebe17b60d2aa4) Thanks [@iamacook](https://github.com/iamacook)! - Exported `hashStruct`.
+
+- [#3098](https://github.com/wevm/viem/pull/3098) [`f960498b3ef2cfe39dc566ff539aab81a4608227`](https://github.com/wevm/viem/commit/f960498b3ef2cfe39dc566ff539aab81a4608227) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Daily Network Testnet.
+
+- [#3099](https://github.com/wevm/viem/pull/3099) [`a8865d589e7919ebe3da99ae09831435f5c24e8f`](https://github.com/wevm/viem/commit/a8865d589e7919ebe3da99ae09831435f5c24e8f) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Daily Network Mainnet.
+
+- [#3115](https://github.com/wevm/viem/pull/3115) [`a94862267239bb0a9ad98fe641a29f8628b6315c`](https://github.com/wevm/viem/commit/a94862267239bb0a9ad98fe641a29f8628b6315c) Thanks [@rkalis](https://github.com/rkalis)! - Added `dataSuffix` parameter to `estimateContractGas`.
+
+- [#3110](https://github.com/wevm/viem/pull/3110) [`915c6c2b610f5e8a3f47a91d4b99e0a31306b1e0`](https://github.com/wevm/viem/commit/915c6c2b610f5e8a3f47a91d4b99e0a31306b1e0) Thanks [@karelvuong](https://github.com/karelvuong)! - Added `treasure` Mainnet and `treasureTopaz` Testnet.
+
+- [#3119](https://github.com/wevm/viem/pull/3119) [`ee61159027b73d521e1dd357acbae43e8187fe40`](https://github.com/wevm/viem/commit/ee61159027b73d521e1dd357acbae43e8187fe40) Thanks [@0xNikolas](https://github.com/0xNikolas)! - Add Superseed Sepolia Testnet
+
+- [#3113](https://github.com/wevm/viem/pull/3113) [`a686dcd8bb5b05b17a3f2486a2beabceeec7bc8c`](https://github.com/wevm/viem/commit/a686dcd8bb5b05b17a3f2486a2beabceeec7bc8c) Thanks [@abbas9344](https://github.com/abbas9344)! - Added multicall3 contract to Sanko.
+
+- [`5992d93764abb913e65da3647ac75573f9e9c976`](https://github.com/wevm/viem/commit/5992d93764abb913e65da3647ac75573f9e9c976) Thanks [@jxom](https://github.com/jxom)! - Added Plume Mainnet & Testnet.
+
+- [#3108](https://github.com/wevm/viem/pull/3108) [`fb9d29267b8f1a9d30b13dce1581504282ffaee6`](https://github.com/wevm/viem/commit/fb9d29267b8f1a9d30b13dce1581504282ffaee6) Thanks [@defiboyszn](https://github.com/defiboyszn)! - Added Creator testnet.
+
+- [#3119](https://github.com/wevm/viem/pull/3119) [`ee61159027b73d521e1dd357acbae43e8187fe40`](https://github.com/wevm/viem/commit/ee61159027b73d521e1dd357acbae43e8187fe40) Thanks [@0xNikolas](https://github.com/0xNikolas)! - Add Superseed Mainnet
+
+- [#3111](https://github.com/wevm/viem/pull/3111) [`83ae3e15d2baaaf96c784d7f9020abcb274c5245`](https://github.com/wevm/viem/commit/83ae3e15d2baaaf96c784d7f9020abcb274c5245) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Mitosis Testnet.
+
+- [#3107](https://github.com/wevm/viem/pull/3107) [`f8c002fe7052fce747b3374dda4d15cbfce6a5c4`](https://github.com/wevm/viem/commit/f8c002fe7052fce747b3374dda4d15cbfce6a5c4) Thanks [@pk-850](https://github.com/pk-850)! - Added Sonic mainnet.
+
+- [#3096](https://github.com/wevm/viem/pull/3096) [`092615f58a19994b6ba01dfb30b9ba0f6ad2902b`](https://github.com/wevm/viem/commit/092615f58a19994b6ba01dfb30b9ba0f6ad2902b) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Synced ERC-7739 extension to latest spec.
+
 ## 2.21.54
 
 ### Patch Changes
