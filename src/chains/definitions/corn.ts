@@ -11,7 +11,7 @@ export const corn = /*#__PURE__*/ defineChain({
     symbol: 'BTCN',
   },
   rpcUrls: {
-    default: { http: ['https://mainnet.corn-rpc.com'] },
+    default: { http: ['https://rpc.ankr.com/corn_maizenet'] },
   },
   blockExplorers: {
     default: {
