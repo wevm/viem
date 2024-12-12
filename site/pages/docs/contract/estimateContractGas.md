@@ -1,5 +1,5 @@
 ---
-description: Estimates the gas required to successfully execute a contract write function call. 
+description: Estimates the gas required to successfully execute a contract write function call.
 ---
 
 # estimateContractGas
@@ -132,7 +132,7 @@ The gas estimate.
 The contract address.
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
   functionName: 'mint',
@@ -147,7 +147,7 @@ const { result } = await publicClient.estimateContractGas({
 The contract's ABI.
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
   functionName: 'mint',
@@ -162,7 +162,7 @@ const { result } = await publicClient.estimateContractGas({
 A function to extract from the ABI.
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint', // [!code focus]
@@ -179,7 +179,7 @@ The Account to estimate gas from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -194,7 +194,7 @@ const { result } = await publicClient.estimateContractGas({
 The access list.
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -202,7 +202,7 @@ const { result } = await publicClient.estimateContractGas({
   accessList: [{ // [!code focus:4]
     address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
     storageKeys: ['0x1'],
-  }], 
+  }],
   account,
 })
 ```
@@ -214,12 +214,28 @@ const { result } = await publicClient.estimateContractGas({
 Arguments to pass to function call.
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0x1dfe7ca09e99d10835bf73044a23b73fc20623df',
   abi: wagmiAbi,
   functionName: 'balanceOf',
   args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'], // [!code focus]
   account,
+})
+```
+
+### dataSuffix (optional)
+
+- **Type:** `Hex`
+
+Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f).
+
+```ts
+const gas = await publicClient.estimateContractGas({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
+  dataSuffix: '0xdeadbeef' // [!code focus]
 })
 ```
 
@@ -230,7 +246,7 @@ const { result } = await publicClient.estimateContractGas({
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -247,7 +263,7 @@ const { result } = await publicClient.estimateContractGas({
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -264,7 +280,7 @@ const { result } = await publicClient.estimateContractGas({
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -282,7 +298,7 @@ const { result } = await publicClient.estimateContractGas({
 Unique number identifying this transaction.
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -299,7 +315,7 @@ const { result } = await publicClient.estimateContractGas({
 Value in wei sent with this transaction.
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -316,7 +332,7 @@ const { result } = await publicClient.estimateContractGas({
 The block number to perform the read against.
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -333,7 +349,7 @@ const { result } = await publicClient.estimateContractGas({
 The block tag to perform the read against.
 
 ```ts
-const { result } = await publicClient.estimateContractGas({
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
