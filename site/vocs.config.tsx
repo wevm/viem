@@ -119,9 +119,10 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-light.svg',
           },
           {
-            name: '',
-            link: 'https://github.com/sponsors/wevm',
-            image: '',
+            name: 'Routescan',
+            link: 'https://routescan.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/routescan-light.svg',
           },
           {
             name: '',

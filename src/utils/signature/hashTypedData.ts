@@ -100,7 +100,10 @@ export function hashDomain({
   })
 }
 
-type HashStructErrorType = EncodeDataErrorType | Keccak256ErrorType | ErrorType
+export type HashStructErrorType =
+  | EncodeDataErrorType
+  | Keccak256ErrorType
+  | ErrorType
 
 export function hashStruct({
   data,

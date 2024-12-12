@@ -828,4 +828,42 @@ describe('rankTransports', () => {
       ]
     `)
   })
+
+  test('behavior: custom ping', async () => {
+    const results: { method: string }[] = []
+
+    const server = await createHttpServer((req, res) => {
+      req.setEncoding('utf8')
+      req.on('data', (body) => {
+        results.push(JSON.parse(body))
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+    })
+
+    const transport1 = http(server.url, { key: '1' })
+
+    let count = 0
+    rankTransports({
+      chain: localhost,
+      interval: 10,
+      transports: [transport1],
+      onTransports() {},
+      ping({ transport }) {
+        count++
+        return transport.request({
+          method: count % 2 === 0 ? 'eth_blockNumber' : 'eth_getBlockByNumber',
+        })
+      },
+    })
+
+    await wait(20)
+
+    expect(results.map((r) => r.method)).toMatchInlineSnapshot(`
+      [
+        "eth_getBlockByNumber",
+        "eth_blockNumber",
+      ]
+    `)
+  })
 })

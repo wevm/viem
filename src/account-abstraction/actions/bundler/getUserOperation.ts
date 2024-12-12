@@ -38,7 +38,7 @@ export type GetUserOperationErrorType =
 /**
  * Retrieves information about a User Operation given a hash.
  *
- * - Docs: https://viem.sh/docs/actions/bundler/getUserOperation
+ * - Docs: https://viem.sh/account-abstraction/actions/bundler/getUserOperation
  *
  * @param client - Client to use
  * @param parameters - {@link GetUserOperationParameters}

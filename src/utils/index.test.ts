@@ -124,6 +124,7 @@ test('exports utils', () => {
       "keccak256",
       "sha256",
       "ripemd160",
+      "hashStruct",
       "hashTypedData",
       "recoverAddress",
       "recoverMessageAddress",
