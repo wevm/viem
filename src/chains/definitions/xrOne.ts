@@ -14,7 +14,7 @@ export const xrOne = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://xr-one.calderaexplorer.xyz/',
+      url: 'https://xr-one.calderaexplorer.xyz',
     },
   },
   testnet: false,
