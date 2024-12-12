@@ -21,6 +21,7 @@ import {
   type InvalidAddressErrorType,
 } from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
+import { IntegerOutOfRangeError } from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
@@ -36,6 +37,7 @@ import {
   numberToHex,
   stringToHex,
 } from '../encoding/toHex.js'
+import { integerRegex } from '../regex.js'
 
 export type EncodeAbiParametersReturnType = Hex
 
@@ -163,7 +165,11 @@ function prepareParam<const param extends AbiParameter>({
   }
   if (param.type.startsWith('uint') || param.type.startsWith('int')) {
     const signed = param.type.startsWith('int')
-    return encodeNumber(value as unknown as number, { signed })
+    const [, , size = '256'] = integerRegex.exec(param.type) ?? []
+    return encodeNumber(value as unknown as number, {
+      signed,
+      size: Number(size),
+    })
   }
   if (param.type.startsWith('bytes')) {
     return encodeBytes(value as unknown as Hex, { param })
@@ -325,8 +331,20 @@ type EncodeNumberErrorType = NumberToHexErrorType | ErrorType
 
 function encodeNumber(
   value: number,
-  { signed }: { signed: boolean },
+  { signed, size = 256 }: { signed: boolean; size?: number | undefined },
 ): PreparedParam {
+  if (typeof size === 'number') {
+    const max = 2n ** (BigInt(size) - (signed ? 1n : 0n)) - 1n
+    const min = signed ? -max - 1n : 0n
+    if (value > max || value < min)
+      throw new IntegerOutOfRangeError({
+        max: max.toString(),
+        min: min.toString(),
+        signed,
+        size: size / 8,
+        value: value.toString(),
+      })
+  }
   return {
     dynamic: false,
     encoded: numberToHex(value, {

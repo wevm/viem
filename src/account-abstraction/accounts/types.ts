@@ -220,6 +220,7 @@ export type SmartAccount<
 >
 
 export type WebAuthnAccount = {
+  id: string
   publicKey: Hex
   sign: ({ hash }: { hash: Hash }) => Promise<WebAuthnSignReturnType>
   signMessage: ({

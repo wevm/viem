@@ -126,6 +126,9 @@ export {
   zksync,
   /** @deprecated Use `zksync` instead */
   zksyncInMemoryNode as zkSyncInMemoryNode,
+  zksyncLocalCustomHyperchain,
+  zksyncLocalHyperchain,
+  zksyncLocalHyperchainL1,
   zksyncInMemoryNode,
   /** @deprecated Use `zksync` instead */
   zksyncLocalNode as zkSyncLocalNode,

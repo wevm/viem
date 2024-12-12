@@ -48,6 +48,7 @@ test('default', () => {
 
   expect(account).toMatchInlineSnapshot(`
     {
+      "id": "m1-bMPuAqpWhCxHZQZTT6e-lSPntQbh3opIoGe7g4Qs",
       "publicKey": "0x7da44d4bc972affd138c619a211ef0afe0926b813fec67d15587cf8625b2bf185f5044ae96640a63b32aa1eb6f8f993006bbd26292b81cb07a0672302c69a866",
       "sign": [Function],
       "signMessage": [Function],

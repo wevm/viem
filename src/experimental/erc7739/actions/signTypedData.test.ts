@@ -99,8 +99,6 @@ describe('args: verifierDomain', () => {
         salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
         verifyingContract: verifier,
       },
-      fields: '0x0f',
-      extensions: [],
       primaryType: 'Mail',
     })
 
@@ -124,8 +122,6 @@ describe('args: verifierDomain', () => {
         salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
         verifyingContract: verifier,
       },
-      fields: '0x0f',
-      extensions: [],
       primaryType: 'Mail',
     })
 

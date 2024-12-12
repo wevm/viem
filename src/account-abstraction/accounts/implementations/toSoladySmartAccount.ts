@@ -299,10 +299,6 @@ const abi = [
     inputs: [],
     outputs: [
       {
-        name: 'fields',
-        type: 'bytes1',
-      },
-      {
         name: 'name',
         type: 'string',
       },
@@ -321,10 +317,6 @@ const abi = [
       {
         name: 'salt',
         type: 'bytes32',
-      },
-      {
-        name: 'extensions',
-        type: 'uint256[]',
       },
     ],
     stateMutability: 'view',

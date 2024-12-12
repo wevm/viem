@@ -15,9 +15,10 @@ export const redbellyTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Ethernal',
-      url: 'https://explorer.testnet.redbelly.network',
-      apiUrl: 'https://ethernal.fly.dev/api',
+      name: 'Routescan',
+      url: 'https://redbelly.testnet.routescan.io',
+      apiUrl:
+        'https://api.routescan.io/v2/network/testnet/evm/153_2/etherscan/api',
     },
   },
   testnet: true,

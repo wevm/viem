@@ -37,8 +37,6 @@ export type SignTypedDataParameters<
           TypedDataDomain,
           'chainId' | 'name' | 'verifyingContract' | 'salt' | 'version'
         >
-        fields: Hex
-        extensions: readonly bigint[]
         verifier?: undefined
       }
     | (GetVerifierParameter<verifier> & {
@@ -48,8 +46,6 @@ export type SignTypedDataParameters<
               'chainId' | 'name' | 'verifyingContract' | 'salt' | 'version'
             >
           | undefined
-        fields?: Hex | undefined
-        extensions?: readonly bigint[] | undefined
       })
   >
 
@@ -189,16 +185,10 @@ export async function signTypedData<
   const account = parseAccount(account_!)
 
   // Retrieve account EIP712 domain.
-  const {
-    domain: verifierDomain,
-    fields,
-    extensions,
-  } = await (async () => {
-    if (parameters.verifierDomain && parameters.fields && parameters.extensions)
+  const { domain: verifierDomain } = await (async () => {
+    if (parameters.verifierDomain)
       return {
         domain: parameters.verifierDomain,
-        fields: parameters.fields,
-        extensions: parameters.extensions,
       }
     return getAction(
       client,
@@ -223,20 +213,16 @@ export async function signTypedData<
       ...types,
       TypedDataSign: [
         { name: 'contents', type: primaryType },
-        { name: 'fields', type: 'bytes1' },
         { name: 'name', type: 'string' },
         { name: 'version', type: 'string' },
         { name: 'chainId', type: 'uint256' },
         { name: 'verifyingContract', type: 'address' },
         { name: 'salt', type: 'bytes32' },
-        { name: 'extensions', type: 'uint256[]' },
       ],
     },
     primaryType: 'TypedDataSign',
     message: {
       contents: message as any,
-      fields,
-      extensions,
       ...(verifierDomain as any),
     },
   })

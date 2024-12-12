@@ -4,6 +4,14 @@ import { seaportContractConfig } from '~test/src/abis.js'
 import { address } from '~test/src/constants.js'
 
 import {
+  maxInt128,
+  maxInt256,
+  maxUint128,
+  maxUint256,
+  minInt128,
+  minInt256,
+} from '../../constants/number.js'
+import {
   encodeAbiParameters,
   getArrayComponents,
 } from './encodeAbiParameters.js'
@@ -229,7 +237,7 @@ describe('static', () => {
           [
             {
               name: 'xIn',
-              type: 'int8',
+              type: 'int32',
             },
           ],
           [-2147483648],
@@ -1763,6 +1771,124 @@ test('invalid bytes', () => {
     encodeAbiParameters([{ name: 'x', type: 'bytes8' }], ['0x111']),
   ).toThrowErrorMatchingInlineSnapshot(`
     [AbiEncodingBytesSizeMismatchError: Size of bytes "0x111" (bytes2) does not match expected size (bytes8).
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('integer out of range', () => {
+  expect(() =>
+    encodeAbiParameters(
+      [
+        {
+          type: 'uint128',
+        },
+        {
+          type: 'int128',
+        },
+        {
+          type: 'int128',
+        },
+        {
+          type: 'uint',
+        },
+        {
+          type: 'int',
+        },
+        {
+          type: 'int',
+        },
+      ],
+      [maxUint128, maxInt128, minInt128, maxUint256, maxInt256, minInt256],
+    ),
+  ).not.toThrow()
+
+  expect(() =>
+    encodeAbiParameters(
+      [
+        {
+          type: 'uint128',
+        },
+      ],
+      [maxUint128 + 1n],
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "340282366920938463463374607431768211456" is not in safe 128-bit unsigned integer range (0 to 340282366920938463463374607431768211455)
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    encodeAbiParameters(
+      [
+        {
+          type: 'uint128',
+        },
+      ],
+      [-1n],
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "-1" is not in safe 128-bit unsigned integer range (0 to 340282366920938463463374607431768211455)
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    encodeAbiParameters(
+      [
+        {
+          type: 'int128',
+        },
+      ],
+      [maxInt128 + 1n],
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "170141183460469231731687303715884105728" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728 to 170141183460469231731687303715884105727)
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    encodeAbiParameters(
+      [
+        {
+          type: 'int128',
+        },
+      ],
+      [minInt128 - 1n],
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "-170141183460469231731687303715884105729" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728 to 170141183460469231731687303715884105727)
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    encodeAbiParameters(
+      [
+        {
+          type: 'uint',
+        },
+      ],
+      [maxUint256 + 1n],
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "115792089237316195423570985008687907853269984665640564039457584007913129639936" is not in safe 256-bit unsigned integer range (0 to 115792089237316195423570985008687907853269984665640564039457584007913129639935)
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    encodeAbiParameters(
+      [
+        {
+          type: 'uint',
+        },
+      ],
+      [-1n],
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "-1" is not in safe 256-bit unsigned integer range (0 to 115792089237316195423570985008687907853269984665640564039457584007913129639935)
 
     Version: viem@x.y.z]
   `)

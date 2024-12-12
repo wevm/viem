@@ -35,18 +35,12 @@ beforeAll(async () => {
 })
 
 test('default', async () => {
-  const {
-    domain: verifierDomain,
-    extensions,
-    fields,
-  } = await getEip712Domain(client, {
+  const { domain: verifierDomain } = await getEip712Domain(client, {
     address: verifier,
   })
 
   const hash = hashTypedData({
     ...typedData.complex,
-    extensions,
-    fields,
     verifierDomain,
     primaryType: 'Mail',
   })
