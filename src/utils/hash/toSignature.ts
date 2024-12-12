@@ -1,8 +1,14 @@
-import { type AbiEvent, type AbiFunction, formatAbiItem } from 'abitype'
+import {
+  type AbiEvent,
+  type AbiFunction,
+  type SignatureAbiItem,
+  formatAbiItem,
+} from 'abitype'
 
 import type { ErrorType } from '../../errors/utils.js'
 import {
   type NormalizeSignatureErrorType,
+  type ToSignature,
   normalizeSignature,
 } from './normalizeSignature.js'
 
@@ -25,10 +31,16 @@ export type ToSignatureErrorType = NormalizeSignatureErrorType | ErrorType
  * })
  * // 'ownerOf(uint256)'
  */
-export const toSignature = (def: string | AbiFunction | AbiEvent) => {
+export const toSignature = <const Def extends string | AbiFunction | AbiEvent>(
+  def: Def,
+): Def extends AbiFunction | AbiEvent
+  ? SignatureAbiItem<Def>
+  : Def extends string
+    ? ToSignature<Def>
+    : never => {
   const def_ = (() => {
     if (typeof def === 'string') return def
     return formatAbiItem(def)
   })()
-  return normalizeSignature(def_)
+  return normalizeSignature(def_) as ToSignature<typeof def_>
 }
