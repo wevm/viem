@@ -4,14 +4,14 @@ const sourceId = 1 // mainnet
 
 export const corn = /*#__PURE__*/ defineChain({
   id: 21_000_000,
-  name: 'Corn Maizenet',
+  name: 'Corn',
   nativeCurrency: {
     decimals: 18,
     name: 'Bitcorn',
     symbol: 'BTCN',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.ankr.com/corn_maizenet'] },
+    default: { http: ['https://mainnet.corn-rpc.com'] },
   },
   blockExplorers: {
     default: {
