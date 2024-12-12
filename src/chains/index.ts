@@ -463,6 +463,7 @@ export {
   x1Testnet,
   xLayerTestnet,
 } from './definitions/xLayerTestnet.js'
+export { xrOne } from './definitions/xrOne.js'
 export { xrSepolia } from './definitions/xrSepolia.js'
 export { yooldoVerse } from './definitions/yooldoVerse.js'
 export { yooldoVerseTestnet } from './definitions/yooldoVerseTestnet.js'
