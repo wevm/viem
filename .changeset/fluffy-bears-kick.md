@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added dataSuffix parameter to estimateContractGas
+Added `dataSuffix` parameter to `estimateContractGas`.
