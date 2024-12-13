@@ -4,7 +4,7 @@ const sourceId = 1 // mainnet
 
 export const corn = /*#__PURE__*/ defineChain({
   id: 21_000_000,
-  name: 'Corn Maizenet',
+  name: 'Corn',
   nativeCurrency: {
     decimals: 18,
     name: 'Bitcorn',
