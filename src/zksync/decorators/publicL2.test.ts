@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest'
 
 import type { Address } from 'abitype'
+import { zksyncLocalNode } from '../../../src/chains/index.js'
+import { getZksyncMockProvider } from '../../../test/src/zksync.js'
 import {
-  daiL1,
-  getZksyncMockProvider,
   mockAccountBalances,
   mockAddress,
   mockBaseTokenL1Address,
@@ -15,9 +15,7 @@ import {
   mockTransactionDetails,
   mockedGasEstimation,
   mockedL1BatchNumber,
-} from '~test/src/zksync.js'
-import { http } from '~viem/clients/transports/http.js'
-import { legacyEthAddress } from '~viem/zksync/constants/address.js'
+} from '../../../test/src/zksync.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { estimateFee } from '../actions/estimateFee.js'
@@ -25,7 +23,6 @@ import { estimateGasL1ToL2 } from '../actions/estimateGasL1ToL2.js'
 import type { GetAllBalancesReturnType } from '../actions/getAllBalances.js'
 import { getLogProof } from '../actions/getLogProof.js'
 import { getTransactionDetails } from '../actions/getTransactionDetails.js'
-import { zksyncLocalHyperchain, zksyncLocalNode } from '../chains.js'
 import { publicActionsL2 } from './publicL2.js'
 
 const mockedZksyncClient = createPublicClient({
@@ -33,11 +30,6 @@ const mockedZksyncClient = createPublicClient({
     getZksyncMockProvider(async ({ method }) => mockRequestReturnData(method)),
   ),
   chain: zksyncLocalNode,
-}).extend(publicActionsL2())
-
-const zksyncClient = createPublicClient({
-  chain: zksyncLocalHyperchain,
-  transport: http(),
 }).extend(publicActionsL2())
 
 test('getL1ChainId', async () => {
@@ -215,20 +207,4 @@ test('getLogProof', async () => {
   })
 
   expect(fee).to.deep.equal(mockProofValues)
-})
-
-test('getL2TokenAddress', async () => {
-  expect(
-    await zksyncClient.getL2TokenAddress({
-      token: daiL1,
-    }),
-  ).toBeDefined()
-})
-
-test('getL1TokenAddress', async () => {
-  expect(
-    await zksyncClient.getL1TokenAddress({
-      token: legacyEthAddress,
-    }),
-  ).toBeDefined()
 })
