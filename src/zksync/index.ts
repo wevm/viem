@@ -29,6 +29,10 @@ export {
   hashBytecode,
 } from './utils/hashBytecode.js'
 export {
+  type GetL2HashFromPriorityOpErrorType,
+  getL2HashFromPriorityOp,
+} from './utils/bridge/getL2HashFromPriorityOp.js'
+export {
   type EstimateFeeParameters,
   type EstimateFeeReturnType,
   estimateFee,
@@ -129,6 +133,12 @@ export {
   type GetL1TokenAddressParameters,
   getL1TokenAddress,
 } from './actions/getL1TokenAddress.js'
+export {
+  type RequestExecuteErrorType,
+  type RequestExecuteReturnType,
+  type RequestExecuteParameters,
+  requestExecute,
+} from './actions/requestExecute.js'
 
 export {
   /** @deprecated Use `zksync` instead */
@@ -164,6 +174,11 @@ export {
   publicActionsL2,
   type PublicActionsL2,
 } from './decorators/publicL2.js'
+
+export {
+  walletActionsL1,
+  type WalletActionsL1,
+} from './decorators/walletL1.js'
 
 export { serializeTransaction } from './serializers.js'
 
