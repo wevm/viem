@@ -53,6 +53,16 @@ import {
   getL1ChainId,
 } from '../actions/getL1ChainId.js'
 import {
+  type GetL1TokenAddressParameters,
+  type GetL1TokenAddressReturnType,
+  getL1TokenAddress,
+} from '../actions/getL1TokenAddress.js'
+import {
+  type GetL2TokenAddressParameters,
+  type GetL2TokenAddressReturnType,
+  getL2TokenAddress,
+} from '../actions/getL2TokenAddress.js'
+import {
   type GetLogProofParameters,
   type GetLogProofReturnType,
   getLogProof,
@@ -411,6 +421,56 @@ export type PublicActionsL2<
    * const address = await client.getBaseTokenL1Address();
    */
   getBaseTokenL1Address: () => Promise<GetBaseTokenL1AddressReturnType>
+
+  /**
+   * Returns the L2 token address equivalent for a L1 token address as they are not equal.
+   * ETH address is set to zero address.
+   *
+   * @remarks Only works for tokens bridged on default ZKsync Era bridges.
+   *
+   * @param args - {@link GetL2TokenAddressParameters}
+   * @returns The L2 token address equivalent for a L1 token address.
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zksync } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zksync,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const address = await client.getL2TokenAddress({token: '0x...'});
+   */
+  getL2TokenAddress: (
+    args: GetL2TokenAddressParameters,
+  ) => Promise<GetL2TokenAddressReturnType>
+
+  /**
+   * Returns the L1 token address equivalent for a L2 token address as they are not equal.
+   * ETH address is set to zero address.
+   *
+   * @remarks Only works for tokens bridged on default ZKsync Era bridges.
+   *
+   * @param args - {@link GetL1TokenAddressParameters}
+   * @returns The L1 token address equivalent for a L2 token address.
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zksync } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zksync,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const address = await client.getL1TokenAddress({token: '0x...'});
+   */
+  getL1TokenAddress: (
+    args: GetL1TokenAddressParameters,
+  ) => Promise<GetL1TokenAddressReturnType>
 }
 
 export function publicActionsL2() {
@@ -438,6 +498,8 @@ export function publicActionsL2() {
       estimateFee: (args) => estimateFee(client, args),
       getBridgehubContractAddress: () => getBridgehubContractAddress(client),
       getBaseTokenL1Address: () => getBaseTokenL1Address(client),
+      getL2TokenAddress: (args) => getL2TokenAddress(client, args),
+      getL1TokenAddress: (args) => getL1TokenAddress(client, args),
     }
   }
 }

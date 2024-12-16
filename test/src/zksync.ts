@@ -270,7 +270,7 @@ const walletClientL1 = createWalletClient({
 /*
 This function prepares the Hyperchain for testing and is intended to be used only once.
 Subsequent executions do not modify the state of the chain. It is primarily designed to
- be run in the beforeAll() function provided by the Vitest testing tool.
+be run in the beforeAll() function provided by the Vitest testing tool.
 
 Since Vitest can run tests in parallel, this function is designed to handle parallel
 execution. The first invocation that successfully sends a transaction to the chain
@@ -321,7 +321,7 @@ export async function setupHyperchain() {
 /*
 This function prepares the Hyperchain for testing and is intended to be used only once.
 Subsequent executions do not modify the state of the chain. It is primarily designed to
- be run in the beforeAll() function provided by the Vitest testing tool.
+be run in the beforeAll() function provided by the Vitest testing tool.
 
 Since Vitest can run tests in parallel, this function is designed to handle parallel
 execution. The first invocation that successfully sends a transaction to the chain
