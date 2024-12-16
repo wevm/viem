@@ -5,7 +5,7 @@ export const initVerseGenesis = /*#__PURE__*/ defineChain({
   name: 'InitVerse Penesis Chain Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'InitVerse',
+    name: 'Genesis InitVerse',
     symbol: 'INI',
   },
   rpcUrls: {
