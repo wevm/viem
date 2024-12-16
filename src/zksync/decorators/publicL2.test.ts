@@ -1,11 +1,12 @@
 import { expect, test } from 'vitest'
 
 import type { Address } from 'abitype'
-import { zksyncLocalNode } from '../../../src/chains/index.js'
-import { getZksyncMockProvider } from '../../../test/src/zksync.js'
+import { anvilZksync } from '~test/src/anvil.js'
 import {
+  getZksyncMockProvider,
   mockAccountBalances,
   mockAddress,
+  mockAddresses,
   mockBaseTokenL1Address,
   mockDetails,
   mockMainContractAddress,
@@ -15,7 +16,9 @@ import {
   mockTransactionDetails,
   mockedGasEstimation,
   mockedL1BatchNumber,
-} from '../../../test/src/zksync.js'
+} from '~test/src/zksync.js'
+import type { EIP1193RequestFn } from '~viem/types/eip1193.js'
+import { padHex } from '~viem/utils/data/pad.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { estimateFee } from '../actions/estimateFee.js'
@@ -23,6 +26,7 @@ import { estimateGasL1ToL2 } from '../actions/estimateGasL1ToL2.js'
 import type { GetAllBalancesReturnType } from '../actions/getAllBalances.js'
 import { getLogProof } from '../actions/getLogProof.js'
 import { getTransactionDetails } from '../actions/getTransactionDetails.js'
+import { zksyncLocalNode } from '../chains.js'
 import { publicActionsL2 } from './publicL2.js'
 
 const mockedZksyncClient = createPublicClient({
@@ -207,4 +211,47 @@ test('getLogProof', async () => {
   })
 
   expect(fee).to.deep.equal(mockProofValues)
+})
+
+test('getL2TokenAddress', async () => {
+  const daiL1 = '0x70a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55'
+  const daiL2 = '0xFC073319977e314F251EAE6ae6bE76B0B3BAeeCF'
+  const client = anvilZksync.getClient()
+
+  client.request = (async ({ method, params }) => {
+    if (method === 'eth_call') return padHex(daiL2)
+    if (method === 'eth_estimateGas') return 158774n
+    if (method === 'zks_getBridgeContracts') return mockAddresses
+    if (method === 'zks_getBaseTokenL1Address') return mockBaseTokenL1Address
+    return anvilZksync.getClient().request({ method, params } as any)
+  }) as EIP1193RequestFn
+
+  const zksyncClient = client.extend(publicActionsL2())
+
+  expect(
+    await zksyncClient.getL2TokenAddress({
+      token: daiL1,
+    }),
+  ).toBeDefined()
+})
+
+test('getL1TokenAddress', async () => {
+  const daiL1 = '0x70a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55'
+  const daiL2 = '0xFC073319977e314F251EAE6ae6bE76B0B3BAeeCF'
+  const client = anvilZksync.getClient()
+
+  client.request = (async ({ method, params }) => {
+    if (method === 'eth_call') return padHex(daiL1)
+    if (method === 'eth_estimateGas') return 158774n
+    if (method === 'zks_getBridgeContracts') return mockAddresses
+    return anvilZksync.getClient().request({ method, params } as any)
+  }) as EIP1193RequestFn
+
+  const zksyncClient = client.extend(publicActionsL2())
+
+  expect(
+    await zksyncClient.getL1TokenAddress({
+      token: daiL2,
+    }),
+  ).toBeDefined()
 })
