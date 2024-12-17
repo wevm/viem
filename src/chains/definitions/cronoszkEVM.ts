@@ -1,6 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
+import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const cronoszkEVM = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 388,
   name: 'Cronos zkEVM Mainnet',
   nativeCurrency: {

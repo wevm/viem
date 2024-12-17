@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updated CronoszkEVM chainId to 240.
+Updated CronoszkEVM chain configs.
