@@ -10,6 +10,7 @@ import {
   fraxtal, // [!code hl]
   fraxtalTestnet, // [!code hl]
   inkSepolia, // [!code hl]
+  ink, // [!code hl]
   optimism, // [!code hl]
   optimismGoerli, // [!code hl]
   optimismSepolia, // [!code hl]
