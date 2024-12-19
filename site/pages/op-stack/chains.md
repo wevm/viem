@@ -15,6 +15,8 @@ import {
   optimismGoerli, // [!code hl]
   optimismSepolia, // [!code hl]
   soneiumMinato, // [!code hl]
+  zircuit, // [!code hl]
+  zircuitTestnet, // [!code hl]
   zora, // [!code hl]
   zoraSepolia, // [!code hl]
   zoraTestnet, // [!code hl]
