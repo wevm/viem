@@ -1,5 +1,23 @@
 # viem
 
+## 2.21.56
+
+### Patch Changes
+
+- [#3131](https://github.com/wevm/viem/pull/3131) [`aca3e1d75d979aa50f5737a2fabaf0088b160f46`](https://github.com/wevm/viem/commit/aca3e1d75d979aa50f5737a2fabaf0088b160f46) Thanks [@gmbronco](https://github.com/gmbronco)! - Added multicall3 contract to Sonic.
+
+- [#3120](https://github.com/wevm/viem/pull/3120) [`d7b13cb1d242dbd6ae5affa3a6c68c504fa96eab`](https://github.com/wevm/viem/commit/d7b13cb1d242dbd6ae5affa3a6c68c504fa96eab) Thanks [@sajanrajdev](https://github.com/sajanrajdev)! - Updated Corn Name
+
+- [#3134](https://github.com/wevm/viem/pull/3134) [`69919000a1ad33e070e83b3b27f032cfced0c444`](https://github.com/wevm/viem/commit/69919000a1ad33e070e83b3b27f032cfced0c444) Thanks [@NORAVemp](https://github.com/NORAVemp)! - Added InitVerseGenesis Test Chain
+
+- [#3141](https://github.com/wevm/viem/pull/3141) [`94b4ebeb461deb2d991180903996c15b4e83d44d`](https://github.com/wevm/viem/commit/94b4ebeb461deb2d991180903996c15b4e83d44d) Thanks [@thINKoor](https://github.com/thINKoor)! - Added Ink chain.
+
+- [#3144](https://github.com/wevm/viem/pull/3144) [`26dbca015c5c107b73e69a43b3ee9fc785b17fcf`](https://github.com/wevm/viem/commit/26dbca015c5c107b73e69a43b3ee9fc785b17fcf) Thanks [@Phillip-Kemper](https://github.com/Phillip-Kemper)! - Added OP Stack contract addresses to Zircuit and Zircuit Testnet.
+
+- [#3139](https://github.com/wevm/viem/pull/3139) [`3271dd1e1b0cb5f0cd9c757eaeafdbd6c041d1cb`](https://github.com/wevm/viem/commit/3271dd1e1b0cb5f0cd9c757eaeafdbd6c041d1cb) Thanks [@jribbink](https://github.com/jribbink)! - Updated Flow EVM chains.
+
+- [`43ce543850de02c18fba4aede820e943c609dcbd`](https://github.com/wevm/viem/commit/43ce543850de02c18fba4aede820e943c609dcbd) Thanks [@jxom](https://github.com/jxom)! - Added multicall addresses to Plume.
+
 ## 2.21.55
 
 ### Patch Changes
