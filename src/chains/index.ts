@@ -152,8 +152,8 @@ export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
 export { fireChain } from './definitions/5ireChain.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
-/** @deprecated */
 export { flowMainnet } from './definitions/flowMainnet.js'
+/** @deprecated */
 export { flowPreviewnet } from './definitions/flowPreviewnet.js'
 export { flowTestnet } from './definitions/flowTestnet.js'
 export { fluence } from './definitions/fluence.js'
