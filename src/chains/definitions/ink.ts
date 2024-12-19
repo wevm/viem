@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-
 export const ink = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 57073,
