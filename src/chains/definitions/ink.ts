@@ -10,8 +10,14 @@ export const ink = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc-gel.inkonchain.com', 'https://rpc-qnd.inkonchain.com'],
-      webSocket: ['wss://rpc-gel.inkonchain.com', 'wss://rpc-qnd.inkonchain.com'],
+      http: [
+        'https://rpc-gel.inkonchain.com',
+        'https://rpc-qnd.inkonchain.com',
+      ],
+      webSocket: [
+        'wss://rpc-gel.inkonchain.com',
+        'wss://rpc-qnd.inkonchain.com',
+      ],
     },
   },
   blockExplorers: {
