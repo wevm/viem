@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-updating zircuit and zircuit testnet to also contain the l1 contract addresses
+Added OP Stack contract addresses to Zircuit and Zircuit Testnet.
