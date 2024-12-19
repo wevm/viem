@@ -9,6 +9,7 @@ import {
   baseSepolia, // [!code hl]
   fraxtal, // [!code hl]
   fraxtalTestnet, // [!code hl]
+  ink, // [!code hl]
   inkSepolia, // [!code hl]
   optimism, // [!code hl]
   optimismGoerli, // [!code hl]
