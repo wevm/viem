@@ -1,8 +1,10 @@
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
 export const zircuitTestnet = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 48899,
   name: 'Zircuit Testnet',
   nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },

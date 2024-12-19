@@ -1,4 +1,4 @@
-import { chainConfig } from '~viem/op-stack/chainConfig.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // ethereum mainnet
