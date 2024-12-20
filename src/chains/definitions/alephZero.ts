@@ -13,7 +13,7 @@ export const alephZero = /*#__PURE__*/ defineChain({
     default: {
       name: 'Aleph Zero EVM Explorer',
       url: 'https://evm-explorer.alephzero.org',
-      apiUrl: 'https://evm-explorer.alephzero.org/api'
+      apiUrl: 'https://evm-explorer.alephzero.org/api',
     },
   },
   contracts: {
