@@ -31,7 +31,7 @@ test('behavior: caches blockNumber within cacheTime', async () => {
   vi.useFakeTimers()
 
   const a = await getBlockNumber(client, { cacheTime })
-  mine(client, { blocks: 1 })
+  await mine(client, { blocks: 1 })
 
   vi.advanceTimersByTime(cacheTime / 2)
   const b = await getBlockNumber(client)
