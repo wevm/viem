@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added Aleph Zero defs
+Added Aleph Zero chain.
