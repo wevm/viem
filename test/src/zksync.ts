@@ -1,7 +1,31 @@
-import { zksyncLocalNode } from '~viem/chains/index.js'
+import { type Address, parseAbi, parseAbiParameters } from 'abitype'
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { createClient } from '~viem/clients/createClient.js'
-import { http } from '~viem/index.js'
-import { accounts } from './constants.js'
+import {
+  http,
+  type Chain,
+  type ContractFunctionExecutionError,
+  createWalletClient,
+  encodeAbiParameters,
+  isAddressEqual,
+  parseEther,
+  publicActions,
+} from '~viem/index.js'
+import { wait } from '~viem/utils/wait.js'
+import { getBaseTokenL1Address } from '~viem/zksync/actions/getBaseTokenL1Address.js'
+import { ethAddressInContracts } from '~viem/zksync/constants/address.js'
+import {
+  getBridgehubContractAddress,
+  getDefaultBridgeAddresses,
+  getL1Balance,
+  getL2TokenAddress,
+  zksyncLocalCustomHyperchain,
+  zksyncLocalHyperchain,
+  zksyncLocalHyperchainL1,
+  zksyncLocalNode,
+} from '~viem/zksync/index.js'
+import { erc20Abi } from './abis.js'
+import { accounts as acc } from './constants.js'
 
 export const zksyncClientLocalNode = createClient({
   chain: zksyncLocalNode,
@@ -9,7 +33,7 @@ export const zksyncClientLocalNode = createClient({
 })
 
 export const zksyncClientLocalNodeWithAccount = createClient({
-  account: accounts[0].address,
+  account: acc[0].address,
   chain: zksyncLocalNode,
   transport: http(),
 })
@@ -208,4 +232,385 @@ export function mockClientPublicActionsL2(client: any) {
   client.request = async ({ method }: any) => {
     return mockRequestReturnData(method)
   }
+}
+
+export const accounts = [
+  {
+    address: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
+    privateKey:
+      '0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110',
+  },
+  {
+    address: '0xa61464658AfeAf65CccaaFD3a512b69A83B77618',
+    privateKey:
+      '0xac1e735be8536c6534bb4f17f06f6afc73b2b5ba84ac2cfb12f7461b20c0bbe3',
+  },
+] as const
+
+export const daiL1 = '0x70a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55'
+
+const walletClient = createWalletClient({
+  chain: zksyncLocalHyperchain,
+  transport: http(),
+  account: privateKeyToAccount(accounts[0].privateKey),
+}).extend(publicActions)
+
+const walletClientCustom = createWalletClient({
+  chain: zksyncLocalCustomHyperchain,
+  transport: http(),
+  account: privateKeyToAccount(accounts[0].privateKey),
+}).extend(publicActions)
+
+const walletClientL1 = createWalletClient({
+  chain: zksyncLocalHyperchainL1,
+  transport: http(),
+  account: privateKeyToAccount(accounts[0].privateKey),
+}).extend(publicActions)
+
+/*
+This function prepares the Hyperchain for testing and is intended to be used only once.
+Subsequent executions do not modify the state of the chain. It is primarily designed to
+be run in the beforeAll() function provided by the Vitest testing tool.
+
+Since Vitest can run tests in parallel, this function is designed to handle parallel
+execution. The first invocation that successfully sends a transaction to the chain
+acts as the executor, fully executing the function. The remaining invocations act
+as watchers, waiting for the executor to complete its execution.
+ */
+export async function setupHyperchain() {
+  let executor = true
+
+  // mint DAI tokens on L1 if they are not minted
+  const daiL1Balance = await getL1Balance(walletClientL1, { token: daiL1 })
+  try {
+    if (!daiL1Balance) await mintTokensOnL1(daiL1)
+  } catch (e) {
+    const error = e as ContractFunctionExecutionError
+    if (
+      // the same transaction has already been sent to chain
+      error.shortMessage.includes('already known') ||
+      // some older transaction is still executing
+      error.shortMessage ===
+        'Nonce provided for the transaction is higher than the next one expected'
+    ) {
+      executor = false
+      // wait for the other mint transaction to finish
+      // the completion is resulted in balance change so monitor the balance
+      for (let i = 0; i < 10; i++) {
+        await wait(1000)
+        if (daiL1Balance) break
+      }
+    }
+  }
+
+  if (executor) {
+    // send DAI tokens from L1 to L2 if they are not sent
+    const dai = await getL2TokenAddress(walletClient, { token: daiL1 })
+    if (!(await walletClient.getCode({ address: dai })))
+      await depositDaiOnHyperchain()
+  } else {
+    // wait for other transaction which send DAI from L1 to L2 to finish
+    for (let i = 0; i < 10; i++) {
+      const dai = await getL2TokenAddress(walletClient, { token: daiL1 })
+      if (await walletClient.getCode({ address: dai })) break
+      await wait(1000)
+    }
+  }
+}
+
+/*
+This function prepares the Hyperchain for testing and is intended to be used only once.
+Subsequent executions do not modify the state of the chain. It is primarily designed to
+be run in the beforeAll() function provided by the Vitest testing tool.
+
+Since Vitest can run tests in parallel, this function is designed to handle parallel
+execution. The first invocation that successfully sends a transaction to the chain
+acts as the executor, fully executing the function. The remaining invocations act
+as watchers, waiting for the executor to complete its execution.
+ */
+export async function setupCustomHyperchain() {
+  let executor = true
+
+  // mint base token on L1 if they are not minted
+  const baseToken = await getBaseTokenL1Address(walletClientCustom)
+  const baseTokenL1Balance = await getL1Balance(walletClientL1, {
+    token: baseToken,
+  })
+  try {
+    if (!baseTokenL1Balance) await mintTokensOnL1(baseToken)
+  } catch (e) {
+    const error = e as ContractFunctionExecutionError
+    if (
+      // the same transaction has already been sent to chain
+      error.shortMessage.includes('already known') ||
+      // some older transaction is still executing
+      error.shortMessage ===
+        'Nonce provided for the transaction is higher than the next one expected'
+    ) {
+      executor = false
+      // wait for the executor to mint tokens
+      for (let i = 0; i < 10; i++) {
+        await wait(1000)
+        if (baseTokenL1Balance) break
+      }
+    }
+  }
+
+  if (executor) {
+    // send base tokens from L1 to L2 if they are not sent
+    const baseTokenBalance = await walletClientCustom.getBalance({
+      address: walletClientCustom.account.address,
+    })
+    if (!baseTokenBalance) await depositBaseTokenOnCustomHyperchain()
+
+    // send ETH tokens from L1 to L2 if they are not sent
+    const eth = await getL2TokenAddress(walletClientCustom, {
+      token: ethAddressInContracts,
+    })
+    if (!(await walletClientCustom.getCode({ address: eth })))
+      await depositEthOnCustomHyperchain()
+
+    // mint DAI tokens on L1 if they are not minted
+    const daiL1Balance = await getL1Balance(walletClientL1, { token: daiL1 })
+    if (!daiL1Balance) await mintTokensOnL1(daiL1)
+
+    // send DAI tokens from L1 to L2 if they are not sent
+    const dai = await getL2TokenAddress(walletClientCustom, { token: daiL1 })
+    if (!(await walletClientCustom.getCode({ address: dai })))
+      await depositDaiOnCustomHyperchain()
+  } else {
+    // wait for the executor to send base tokens from L1 to L2
+    for (let i = 0; i < 10; i++) {
+      const baseTokenBalance = await walletClientCustom.getBalance({
+        address: walletClientCustom.account.address,
+      })
+      if (baseTokenBalance) break
+      await wait(1000)
+    }
+
+    // wait for the executor to send ETH tokens from L1 to L2
+    for (let i = 0; i < 10; i++) {
+      const eth = await getL2TokenAddress(walletClientCustom, {
+        token: ethAddressInContracts,
+      })
+      if (await walletClientCustom.getCode({ address: eth })) break
+      await wait(1000)
+    }
+
+    // wait for the executor to mint DAI tokens on L1
+    for (let i = 0; i < 10; i++) {
+      const daiL1Balance = await getL1Balance(walletClientL1, { token: daiL1 })
+      if (daiL1Balance) break
+      await wait(1000)
+    }
+
+    // wait for the executor to send DAI tokens from L1 to L2
+    for (let i = 0; i < 10; i++) {
+      const dai = await getL2TokenAddress(walletClientCustom, { token: daiL1 })
+      if (await walletClientCustom.getCode({ address: dai })) break
+      await wait(1000)
+    }
+  }
+}
+
+async function approveToken(
+  chain: Chain,
+  token: Address,
+  spender: Address,
+  amount: bigint,
+) {
+  const walletClient = createWalletClient({
+    chain,
+    transport: http(),
+    account: privateKeyToAccount(accounts[0].privateKey),
+  }).extend(publicActions)
+
+  const hash = await walletClient.writeContract({
+    address: token,
+    abi: erc20Abi,
+    functionName: 'approve',
+    args: [spender, amount],
+  })
+
+  await walletClient.waitForTransactionReceipt({ hash })
+}
+
+async function mintTokensOnL1(l1Token: Address) {
+  if (!isAddressEqual(l1Token, ethAddressInContracts)) {
+    const hash = await walletClientL1.writeContract({
+      address: l1Token,
+      abi: parseAbi(['function mint(address to, uint256 amount) external']),
+      functionName: 'mint',
+      args: [walletClientL1.account.address, parseEther('20000')],
+    })
+    await walletClientL1.waitForTransactionReceipt({ hash })
+  }
+}
+
+const bridgehubAbi = parseAbi([
+  'function requestL2TransactionDirect((uint256 chainId, uint256 mintValue, address l2Contract, uint256 l2Value, bytes l2Calldata, uint256 l2GasLimit, uint256 l2GasPerPubdataByteLimit, bytes[] factoryDeps, address refundRecipient) _request) payable returns (bytes32 canonicalTxHash)',
+  'function requestL2TransactionTwoBridges((uint256 chainId, uint256 mintValue, uint256 l2Value, uint256 l2GasLimit, uint256 l2GasPerPubdataByteLimit, address refundRecipient, address secondBridgeAddress, uint256 secondBridgeValue, bytes secondBridgeCalldata) _request) payable returns (bytes32 canonicalTxHash)',
+])
+
+async function depositDaiOnHyperchain() {
+  const amount = 10_000_000_000_000_000_000_000n
+  const bridgehub = await getBridgehubContractAddress(walletClient)
+  const sharedL1Bridge = (await getDefaultBridgeAddresses(walletClient))
+    .sharedL1
+  await approveToken(zksyncLocalHyperchainL1, daiL1, sharedL1Bridge, amount)
+
+  const hash = await walletClientL1.writeContract({
+    address: bridgehub,
+    abi: bridgehubAbi,
+    functionName: 'requestL2TransactionTwoBridges',
+    args: [
+      {
+        chainId: zksyncLocalHyperchain.id,
+        mintValue: 318_416_612_500_000n,
+        l2Value: 0n,
+        l2GasLimit: 1_184_806n,
+        l2GasPerPubdataByteLimit: 800n,
+        refundRecipient: walletClient.account.address,
+        secondBridgeAddress: sharedL1Bridge,
+        secondBridgeValue: 0n,
+        secondBridgeCalldata: encodeAbiParameters(
+          parseAbiParameters('address x, uint256 y, address z'),
+          [daiL1, amount, walletClient.account.address],
+        ),
+      },
+    ],
+    value: 318_416_612_500_000n,
+    maxFeePerGas: 1_500_000_001n,
+    maxPriorityFeePerGas: 1_500_000_000n,
+    gas: 385_904n,
+  })
+  const receipt = await walletClientL1.waitForTransactionReceipt({ hash })
+  return receipt.status
+}
+
+async function depositBaseTokenOnCustomHyperchain() {
+  const amount = 10_000_000_000_000_000_000_000n
+  const mintValue = 10_000_000_112_327_018_750_000n
+  const bridgehub = await getBridgehubContractAddress(walletClientCustom)
+  const sharedL1Bridge = (await getDefaultBridgeAddresses(walletClientCustom))
+    .sharedL1
+  const baseToken = await getBaseTokenL1Address(walletClientCustom)
+  await approveToken(
+    zksyncLocalHyperchainL1,
+    baseToken,
+    sharedL1Bridge,
+    mintValue,
+  )
+
+  const hash = await walletClientL1.writeContract({
+    address: bridgehub,
+    abi: bridgehubAbi,
+    functionName: 'requestL2TransactionDirect',
+    args: [
+      {
+        chainId: zksyncLocalCustomHyperchain.id,
+        mintValue,
+        l2Contract: walletClientCustom.account.address,
+        l2Value: amount,
+        l2Calldata: '0x',
+        l2GasLimit: 417_961n,
+        l2GasPerPubdataByteLimit: 800n,
+        factoryDeps: [],
+        refundRecipient: walletClientCustom.account.address,
+      },
+    ],
+    value: 0n,
+    maxFeePerGas: 1_500_000_001n,
+    maxPriorityFeePerGas: 1_500_000_000n,
+    gas: 254_133n,
+  })
+  const receipt = await walletClientL1.waitForTransactionReceipt({ hash })
+  return receipt.status
+}
+
+async function depositEthOnCustomHyperchain() {
+  const amount = 10_000_000_000_000_000_000_000n
+  const mintValue = 308_574_450_000_000n
+  const bridgehub = await getBridgehubContractAddress(walletClientCustom)
+  const sharedL1Bridge = (await getDefaultBridgeAddresses(walletClientCustom))
+    .sharedL1
+  const baseToken = await getBaseTokenL1Address(walletClientCustom)
+  await approveToken(
+    zksyncLocalHyperchainL1,
+    baseToken,
+    sharedL1Bridge,
+    mintValue,
+  )
+
+  const hash = await walletClientL1.writeContract({
+    address: bridgehub,
+    abi: bridgehubAbi,
+    functionName: 'requestL2TransactionTwoBridges',
+    args: [
+      {
+        chainId: zksyncLocalCustomHyperchain.id,
+        mintValue,
+        l2Value: 0n,
+        l2GasLimit: 1_148_184n,
+        l2GasPerPubdataByteLimit: 800n,
+        refundRecipient: walletClientCustom.account.address,
+        secondBridgeAddress: sharedL1Bridge,
+        secondBridgeValue: amount,
+        secondBridgeCalldata: encodeAbiParameters(
+          parseAbiParameters('address x, uint256 y, address z'),
+          [ethAddressInContracts, 0n, walletClientCustom.account.address],
+        ),
+      },
+    ],
+    value: amount,
+    maxFeePerGas: 1_500_000_001n,
+    maxPriorityFeePerGas: 1_500_000_000n,
+    gas: 348_333n,
+  })
+  const receipt = await walletClientL1.waitForTransactionReceipt({ hash })
+  return receipt.status
+}
+
+async function depositDaiOnCustomHyperchain() {
+  const amount = 10_000_000_000_000_000_000_000n
+  const mintValue = 318_416_612_500_000n
+  const bridgehub = await getBridgehubContractAddress(walletClientCustom)
+  const sharedL1Bridge = (await getDefaultBridgeAddresses(walletClientCustom))
+    .sharedL1
+  const baseToken = await getBaseTokenL1Address(walletClientCustom)
+  await approveToken(
+    zksyncLocalHyperchainL1,
+    baseToken,
+    sharedL1Bridge,
+    mintValue,
+  )
+  await approveToken(zksyncLocalHyperchainL1, daiL1, sharedL1Bridge, amount)
+
+  const hash = await walletClientL1.writeContract({
+    address: bridgehub,
+    abi: bridgehubAbi,
+    functionName: 'requestL2TransactionTwoBridges',
+    args: [
+      {
+        chainId: zksyncLocalCustomHyperchain.id,
+        mintValue,
+        l2Value: 0n,
+        l2GasLimit: 1_184_806n,
+        l2GasPerPubdataByteLimit: 800n,
+        refundRecipient: walletClientCustom.account.address,
+        secondBridgeAddress: sharedL1Bridge,
+        secondBridgeValue: 0n,
+        secondBridgeCalldata: encodeAbiParameters(
+          parseAbiParameters('address x, uint256 y, address z'),
+          [daiL1, amount, walletClientCustom.account.address],
+        ),
+      },
+    ],
+    value: 0n,
+    maxFeePerGas: 1_500_000_001n,
+    maxPriorityFeePerGas: 1_500_000_000n,
+    gas: 388_363n,
+  })
+  const receipt = await walletClientL1.waitForTransactionReceipt({ hash })
+  return receipt.status
 }
