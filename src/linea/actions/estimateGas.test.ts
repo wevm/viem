@@ -1,6 +1,6 @@
+import { Hex } from 'ox'
 import { expect, test } from 'vitest'
 
-import { accounts } from '../../../test/src/constants.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -29,7 +29,7 @@ test('default', async () => {
 test('error: insufficient balance', async () => {
   await expect(() =>
     estimateGas(client, {
-      account: accounts[0].address,
+      account: Hex.random(20),
       to: '0x0000000000000000000000000000000000000000',
       value: parseEther('0.0001'),
     }),
