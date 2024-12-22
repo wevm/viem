@@ -76,6 +76,7 @@ export type RpcRequestErrorType = RpcRequestError & {
 }
 export class RpcRequestError extends BaseError {
   code: number
+  data?: unknown
 
   constructor({
     body,
@@ -83,7 +84,7 @@ export class RpcRequestError extends BaseError {
     url,
   }: {
     body: { [x: string]: unknown } | { [y: string]: unknown }[]
-    error: { code: number; message: string }
+    error: { code: number; data?: unknown; message: string }
     url: string
   }) {
     super('RPC Request failed.', {
@@ -93,6 +94,7 @@ export class RpcRequestError extends BaseError {
       name: 'RpcRequestError',
     })
     this.code = error.code
+    this.data = error.data
   }
 }
 

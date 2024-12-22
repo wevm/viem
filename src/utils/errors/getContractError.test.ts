@@ -5,6 +5,7 @@ import { accounts } from '~test/src/constants.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
+import { RpcRequestError } from '../../errors/request.js'
 
 import { getContractError } from './getContractError.js'
 
@@ -174,6 +175,41 @@ describe('getContractError', () => {
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('rpc error', () => {
+    const error = getContractError(
+      new BaseError('An RPC error occurred', {
+        cause: new RpcRequestError({
+          body: {},
+          error: { code: 3, message: 'ah no' },
+          url: '',
+        }),
+      }),
+      {
+        abi: baycContractConfig.abi,
+        functionName: 'mintApe',
+        args: [1n],
+        sender: accounts[0].address,
+      },
+    )
+    expect(error).toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
+      ah no
+
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Version: viem@x.y.z]
+    `)
+    expect(error.cause).toMatchInlineSnapshot(`
+      [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
+      ah no
 
       Version: viem@x.y.z]
     `)

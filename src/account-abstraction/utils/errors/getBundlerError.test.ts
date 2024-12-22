@@ -29,6 +29,9 @@ test('ExecutionReverted', () => {
     body: {},
     error: {
       code: -32521,
+      data: {
+        revertData: '0xdeadbeef',
+      },
       message: 'execution reverted: get good',
     },
     url: '',
