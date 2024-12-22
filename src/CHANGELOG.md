@@ -1,5 +1,17 @@
 # viem
 
+## 2.21.57
+
+### Patch Changes
+
+- [`ca0e9564d78ae8a6e936f638aaa89e1b32d957df`](https://github.com/wevm/viem/commit/ca0e9564d78ae8a6e936f638aaa89e1b32d957df) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Exposed `data` on `ExecutionRevertedError`.
+
+- [#3145](https://github.com/wevm/viem/pull/3145) [`569a325c2e56c39eb9397d4c4238161fb2f7fadf`](https://github.com/wevm/viem/commit/569a325c2e56c39eb9397d4c4238161fb2f7fadf) Thanks [@mialbu](https://github.com/mialbu)! - Added Neo X Mainnet.
+
+- [#3146](https://github.com/wevm/viem/pull/3146) [`cf45bf183ac3fba36d9e56a8f2dd3674dec20e6b`](https://github.com/wevm/viem/commit/cf45bf183ac3fba36d9e56a8f2dd3674dec20e6b) Thanks [@mialbu](https://github.com/mialbu)! - Added Neo X T4.
+
+- [#3150](https://github.com/wevm/viem/pull/3150) [`04630fd168ca94103a543842d36ba0127f962aaa`](https://github.com/wevm/viem/commit/04630fd168ca94103a543842d36ba0127f962aaa) Thanks [@pxrl](https://github.com/pxrl)! - Added Aleph Zero chain.
+
 ## 2.21.56
 
 ### Patch Changes
